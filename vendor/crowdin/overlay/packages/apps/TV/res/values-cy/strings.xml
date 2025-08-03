@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2015 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="audio_channel_mono">mono</string>
+    <string name="audio_channel_stereo">stereo</string>
+    <string name="menu_title_play_controls">Rheolyddion chwarae</string>
+    <string name="menu_title_channels">Sianeli</string>
+    <string name="menu_title_options">Dewisiadau teledu</string>
+    <string name="play_controls_unavailable">Rheolyddion chwarae dim ar gael ar gyfer y sianel hon</string>
+    <string name="play_controls_description_play_pause">Chwarae neu saib</string>
+    <string name="play_controls_description_fast_forward">Ymlaen yn gyflym</string>
+    <string name="play_controls_description_fast_rewind">Yn ôl</string>
+    <string name="play_controls_description_skip_next">Nesaf</string>
+    <string name="play_controls_description_skip_previous">Blaenorol</string>
+    <string name="channels_item_program_guide">Gwybodaeth rhaglen</string>
+    <string name="channels_item_up">I fyny sianel</string>
+    <string name="channels_item_down">I lawr sianel</string>
+    <string name="channels_item_setup">Sianeli newydd ar gael</string>
+    <string name="channels_item_app_link_app_launcher">Agor <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="options_item_closed_caption">Isdeitlau</string>
+    <string name="options_item_display_mode">Modd dangosydd</string>
+    <string name="options_item_pip">LlMLl</string>
+    <string name="options_item_multi_audio">Aml-sain</string>
+    <string name="options_item_more_channels">Cael rhagor o sianeli</string>
+    <string name="options_item_settings">Gosodiadau</string>
+    <string name="input_long_label_for_tuner">Teledu (antena/cebl)</string>
+    <string name="no_program_information">Dim gwybodaeth am y rhaglen</string>
+    <string name="program_title_for_no_information">Dim gwybodaeth</string>
+    <string name="program_title_for_blocked_channel">Sianel wedi\'i rwystro</string>
+    <string name="multi_audio_unknown_language">Iaith anhysbys</string>
+    <string name="closed_caption_unknown_language">Isdeitlau <xliff:g id="unknown_language_index" example="1">%1$d</xliff:g></string>
+    <string name="side_panel_title_closed_caption">Isdeitlau</string>
+    <string name="closed_caption_option_item_off">I ffwrdd</string>
+    <string name="closed_caption_system_settings">Addasu\'r fformat</string>
+    <string name="closed_caption_system_settings_description">Gosod dewisiadau ar draws y system ar gyfer isdeitlau</string>
+    <string name="side_panel_title_display_mode">Modd dangos</string>
+    <string name="side_panel_title_multi_audio">Aml-sain</string>
+    <string name="multi_audio_channel_mono">mono</string>
+    <string name="multi_audio_channel_stereo">stereo</string>
+    <string name="multi_audio_channel_surround_6">amgylchyn 5.1</string>
+    <string name="multi_audio_channel_surround_8">amgylchyn 7.1</string>
+    <string name="multi_audio_channel_suffix"><xliff:g id="audio_channel_count" example="5">%d</xliff:g> sianel</string>
+    <string name="side_panel_title_edit_channels_for_an_input">Addasu\'r rhestr sianeli</string>
+    <string name="edit_channels_item_select_group">Dewis grŵp</string>
+    <string name="edit_channels_item_deselect_group">Dad-ddewis grŵp</string>
+    <string name="edit_channels_item_group_by">Grŵpio yn ôl</string>
+    <string name="edit_channels_group_by_sources">Ffynhonnell sianel</string>
+    <string name="edit_channels_group_by_hd_sd">HD/SD</string>
+    <string name="edit_channels_group_divider_for_hd">HD</string>
+    <string name="edit_channels_group_divider_for_sd">SD</string>
+    <string name="side_panel_title_group_by">Grŵpio yn ôl</string>
+    <string name="program_guide_content_locked">Mae\'r rhaglen hon wedi\'i rwystro</string>
+    <string name="program_guide_content_locked_unrated">Dyw\'r rhaglen hon heb ei graddio</string>
+    <string name="program_guide_content_locked_format">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.</string>
+    <string name="msg_no_setup_activity">Dyw\'r mewnbwn ddim yn cefnogi sganio awtomatig</string>
+    <string name="msg_unable_to_start_setup_activity">Methu dechrau sganio awtomatig ar gyfer \'<xliff:g id="tv_input" example="Built-in Tuner">%s</xliff:g>\'</string>
+    <string name="msg_unable_to_start_system_captioning_settings">Methu dechrau\'r gosodiadau ar draws y system ar gyfer isdeitlau.</string>
+    <plurals name="msg_channel_added">
+        <item quantity="zero">Ychwanegwyd %1$d sianeli</item>
+        <item quantity="one">Ychwanegwyd %1$d sianel</item>
+        <item quantity="two">Ychwanegwyd %1$d sianel</item>
+        <item quantity="few">Ychwanegwyd %1$d sianel</item>
+        <item quantity="many">Ychwanegwyd %1$d sianel</item>
+        <item quantity="other">Ychwanegwyd %1$d sianel</item>
+    </plurals>
+    <string name="msg_no_channel_added">Dim sianeli wedi\'u hychwanegu</string>
+    <string name="menu_parental_controls">Rheolyddion rhieni</string>
+    <string name="option_toggle_parental_controls_on">Ymlaen</string>
+    <string name="option_toggle_parental_controls_off">I ffwrdd</string>
+    <string name="option_channels_locked">Sianeli wedi\'u rhwystro</string>
+    <string name="option_channels_lock_all">Rhwystro\'r cwbl</string>
+    <string name="option_channels_unlock_all">Dadrwystro\'r cwbl</string>
+    <string name="option_channels_subheader_hidden">Sianeli wedi\'u cuddio</string>
+    <string name="option_program_restrictions">Cyfyngiadau rhaglenni</string>
+    <string name="option_change_pin">Newid PIN</string>
+    <string name="option_country_rating_systems">System graddio</string>
+    <string name="option_ratings">Graddau</string>
+    <string name="option_see_all_rating_systems">Gweld pob system graddio</string>
+    <string name="other_countries">Gwledydd eraill</string>
+    <string name="option_no_locked_channel">Dim</string>
+    <string name="option_no_enabled_rating_system">Dim</string>
+    <string name="unrated_rating_name">Heb ei raddio</string>
+    <string name="option_block_unrated_programs">Rhwystro rhaglenni heb eu graddio</string>
+    <string name="option_rating_none">Dim</string>
+    <string name="option_rating_high">Cyfyngiadau caeth</string>
+    <string name="option_rating_medium">Cyfyngiadau cymedrol</string>
+    <string name="option_rating_low">Cyfyngiadau isel</string>
+    <string name="option_rating_custom">Addasedig</string>
+    <string name="option_rating_high_description">Cynnwys yn addas i blant</string>
+    <string name="option_rating_medium_description">Cynnwys yn addas i blant hŷn</string>
+    <string name="option_rating_low_description">Cynnwys yn addas i blant yn eu harddegau</string>
+    <string name="option_rating_custom_description">Dy gyfyngiadau dy hun</string>
+    <string name="option_attribution">Ffynhonnell disgrifiadau graddio</string>
+    <string name="option_subrating_title">%1$s ac israddau</string>
+    <string name="option_subrating_header">Is-raddau</string>
+    <string name="pin_enter_unlock_channel">Rho dy PIN i wylio\'r sianel hon</string>
+    <string name="pin_enter_unlock_program">Rho dy PIN i wylio\'r rhaglen hon</string>
+    <string name="pin_enter_unlock_dvr">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>. Rho\'r PIN i\'w gwylio.</string>
+    <string name="pin_enter_unlock_dvr_unrated">Dyw\'r rhaglen hon heb ei graddio. Rho\'r PIN i\'w gwylio.</string>
+    <string name="pin_enter_pin">Rho dy PIN</string>
+    <string name="pin_enter_create_pin">I osod rheolyddion rhieni ar wahân, rhaid creu PIN</string>
+    <string name="pin_enter_new_pin">Rho PIN newydd</string>
+    <string name="pin_enter_again">Cadarnha dy PIN</string>
+    <string name="pin_enter_old_pin">Rho\'r PIN cyfredol</string>
+    <plurals name="pin_enter_countdown">
+        <item quantity="zero">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliadau.</item>
+        <item quantity="one">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliad.</item>
+        <item quantity="two">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliad.</item>
+        <item quantity="few">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliad.</item>
+        <item quantity="many">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliad.</item>
+        <item quantity="other">Rwyt wedi rhoi\'r PIN anghywir 5 tro.\nRho gynnig arall arni ymhen <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> eiliad.</item>
+    </plurals>
+    <string name="pin_toast_wrong">Roedd y PIN yna\'n anghywir. Ceisia eto.</string>
+    <string name="pin_toast_not_match">Ceisia eto. Doedd y ddau PIN ddim yr un fath.</string>
+    <string name="side_panel_title_settings">Gosodiadau</string>
+    <string name="settings_channel_source_item_customize_channels">Addasu\'r rhestr sianeli</string>
+    <string name="settings_channel_source_item_customize_channels_description">Dewisa sianeli i\'w dangos yn dy ganllaw rhaglenni</string>
+    <string name="settings_channel_source_item_setup">Ffynonellau sianeli</string>
+    <string name="settings_channel_source_item_setup_new_inputs">Sianeli newydd ar gael</string>
+    <string name="settings_parental_controls">Rheolyddion rhieni</string>
+    <string name="settings_trickplay">Timeshift</string>
+    <string name="settings_trickplay_description">Recordia wrth wylio er mwyn gallu neidio nôl wrth wylio rhaglenni\'n fyw.\nRhybudd: Oherwydd y defnydd dwys o\'r storfa, gall hyn effeithio ar oes bywyd y storfa fewnol. </string>
+    <string name="settings_menu_licenses">Trwyddedau cod agored</string>
+    <string name="settings_send_feedback">Anfon adborth</string>
+    <string name="settings_menu_version">Fersiwn</string>
+    <string name="tvview_channel_locked">I wylio\'r sianel hon, pwysa De a rhoi\'r PIN.</string>
+    <string name="tvview_channel_locked_talkback">I wylio\'r sianel hon, pwysa dewis a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked">I wylio\'r rhaglen hon, pwysa De a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked_talkback">I wylio\'r rhaglen hon, pwysa dewis a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked_unrated">Dyw\'r rhaglen hon heb ei graddio.\nI wylio\'r rhaglen, pwysa De a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked_unrated_talkback">Dyw\'r rhaglen hon heb ei graddio.\nI wylio\'r rhaglen, pwysa dewis a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked_format_talkback">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nI wylio\'r rhaglen, pwysa dewis a rhoi\'r PIN.</string>
+    <string name="tvview_content_locked_format">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nI wylio\'r rhaglen, pwysa De a rhoi\'r PIN.</string>
+    <string name="tvview_channel_locked_no_permission">I wylio\'r sianel hon, defnyddia\'r ap teledu rhagosodedig.</string>
+    <string name="tvview_content_locked_no_permission">I wylio\'r sianel hon, defnyddia\'r ap teledu rhagosodedig.</string>
+    <string name="tvview_content_locked_unrated_no_permission">Dyw\'r rhaglen hon heb ei graddio.\nI wylio\'r rhaglen, defnyddia\'r ap teledu rhagosodedig.</string>
+    <string name="tvview_content_locked_format_no_permission">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nI wylio\'r rhaglen, defnyddia\'r ap teledu rhagosodedig.</string>
+    <string name="shrunken_tvview_content_locked">Rhaglen wedi\'i rhwystro</string>
+    <string name="shrunken_tvview_content_locked_unrated">Dyw\'r rhaglen hon heb ei graddio</string>
+    <string name="shrunken_tvview_content_locked_format">Mae\'r rhaglen hon wedi\'i graddio yn <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.</string>
+    <string name="tvview_msg_audio_only">Sain yn unig</string>
+    <string name="tvview_msg_weak_signal">Signal gwan</string>
+    <string name="tvview_msg_no_internet_connection">Dim cysylltiad â\'r rhyngrwyd</string>
+    <plurals name="tvview_msg_input_no_resource">
+        <item quantity="zero">Am fod sianel arall yn cael ei recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+        <item quantity="one">Am fod sianel arall yn cael ei recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+        <item quantity="two">Am fod sianeli eraill yn cael eu recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+        <item quantity="few">Am fod sianeli eraill yn cael eu recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+        <item quantity="many">Am fod sianeli eraill yn cael eu recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+        <item quantity="other">Am fod sianeli eraill yn cael eu recordio, ni ellir recordio\'r sianel hon tan <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g>.
+\n\nPwysa De i addasu\'r amserlen recordio.</item>
+    </plurals>
+    <string name="empty_input_status_title_format"><xliff:g id="input_label" example="HDMI 1">%1$s</xliff:g> - Dim signal</string>
+    <string name="empty_input_status_info">Gwiria\u2019r cysylltiad neu ddewis ffynhonnell mewnbwn gwahanol</string>
+    <string name="input_banner_v2_active_input">Mewnbwn gweithredol</string>
+    <string name="input_banner_v2_input_label_format"><xliff:g example="HDMI 1" id="label">%1$s</xliff:g> · <xliff:g example="Play Station" id="custom_label">%2$s</xliff:g></string>
+    <string name="channel_banner_no_title">Dim teitl</string>
+    <string name="channel_banner_locked_channel_title">Sianel wedi\'i rhwystro</string>
+    <string name="setup_category_new">Newydd</string>
+    <string name="setup_category_done">Ffynonellau</string>
+    <plurals name="setup_input_channels">
+        <item quantity="zero">%1$d sianeli</item>
+        <item quantity="one">%1$d sianel</item>
+        <item quantity="two">%1$d sianel</item>
+        <item quantity="few">%1$d sianel</item>
+        <item quantity="many">%1$d sianel</item>
+        <item quantity="other">%1$d sianel</item>
+    </plurals>
+    <string name="setup_input_no_channels">Dim sianeli ar gael</string>
+    <string name="setup_input_new">Newydd</string>
+    <string name="setup_input_setup_now">Heb ei osod</string>
+    <string name="setup_store_action_title">Cael rhagor o ffynonellau</string>
+    <string name="setup_store_action_description">Pori trwy apiau sy\'n cynnig sianeli byw</string>
+    <string name="new_sources_title">Mae ffynonellau sianeli newydd ar gael</string>
+    <string name="new_sources_description">Mae gan ffynonellau sianeli sianeli newydd i\'w cynnig.\nGellir eu gosod nawr neu\'n hwyrach yng ngosodiadau ffynonellau sianeli.</string>
+    <string name="new_sources_action_setup">Gosod nawr</string>
+    <string name="new_sources_action_skip">Iawn, deall yn iawn.</string>
+    <string name="intro_title">@string/app_name</string>
+    <string name="intro_description"><b>Pwysa DEWIS</b> i gael dewislen y teledu.</string>
+    <string name="msg_no_input">Ni chanfuwyd mewnbwn teledu.</string>
+    <string name="msg_no_specific_input">Methu canfod mewnbwn teledu</string>
+    <string name="msg_not_passthrough_input">Dyw\'r math o diwniwr ddim yn addas. Lansia ap <xliff:g id="app_name">Teledu Byw</xliff:g> am fewnbwn teledu fel tiwniwr.</string>
+    <string name="msg_tune_failed">Methodd y tiwnio</string>
+    <string name="msg_missing_app">Ni chanfuwyd ap i ymdrin â\'r weithred hon.</string>
+    <string name="msg_all_channels_hidden">Mae pob sianel ffynhonnell wedi\'i guddio.\nDewisa o leiaf un sianel i\'w gwylio.</string>
+    <string name="msg_channel_unavailable_unknown">Yn annisgwyl, dyw\'r fideo ddim ar gael.</string>
+    <string name="msg_channel_unavailable_not_connected">Dim signal. Gwiria gysylltiad dy ffynhonnell.</string>
+    <string name="msg_back_key_guide">Mae\'r allwedd NÔL ar gyfer y ddyfais wedi\'i chysylltu. Pwysa\'r botwm CARTREF i adael.</string>
+    <string name="msg_read_tv_listing_permission_denied">Mae ar <xliff:g id="app_name">Teledu Byw</xliff:g> angen caniatâd i ddarllen yr amserlen rhaglenni teledu.</string>
+    <string name="dvr_notification_channel_name">&lt;xliff:g id="app_name"&gt;Teledu Byw/xliff:g&gt; DVR</string>
+    <string name="dvr_notification_content_title"><xliff:g id="app_name">Teledu Byw</xliff:g> DVR</string>
+    <string name="dvr_notification_content_text_recording">Mae <xliff:g id="app_name">Teledu Byw</xliff:g> yn recordio.</string>
+    <string name="dvr_notification_content_text_loading">Mae <xliff:g id="app_name">Teledu Byw</xliff:g> yn diweddaru\'r amserlenni recordio.</string>
+    <string name="setup_sources_text">Gosoda dy ffynonellau</string>
+    <string name="channels_item_dvr">Recordio ac amserlenni</string>
+    <string name="recording_start_dialog_10_min_duration">10 munud</string>
+    <string name="recording_start_dialog_30_min_duration">30 munud</string>
+    <string name="recording_start_dialog_1_hour_duration">1 awr</string>
+    <string name="recording_start_dialog_3_hours_duration">3 awr</string>
+    <string name="dvr_main_recent">Diweddar</string>
+    <string name="dvr_main_scheduled">Wedi\'i trefnu</string>
+    <string name="dvr_main_series">Cyfres</string>
+    <string name="dvr_main_others">Eraill</string>
+    <string name="dvr_msg_cannot_record_channel">Ni ellir recordio\'r sianel.</string>
+    <string name="dvr_msg_cannot_record_program">Ni ellir recordio\'r rhaglen.</string>
+    <string name="dvr_msg_program_scheduled">Mae recordio <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> wedi\'i drefnu</string>
+    <string name="dvr_msg_current_program_scheduled">Yn recordio <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> o nawr tan <xliff:g id="endTime" example="12:30 PM">%2$s</xliff:g></string>
+    <string name="dvr_history_card_view_title">Hanes Recordio</string>
+    <string name="dvr_full_schedule_card_view_title">Amserlen llawn</string>
+    <string name="dvr_recording_failed">Recordio wedi methu.</string>
+    <string name="dvr_recording_failed_no_period">Methiant Recordio</string>
+    <string name="dvr_recording_conflict">Gwrthdaro Recordio</string>
+    <plurals name="dvr_full_schedule_card_view_content">
+        <item quantity="zero">%1$d diwrnodau nesaf</item>
+        <item quantity="one">%1$d diwrnod nesaf</item>
+        <item quantity="two">%1$d ddiwrnod nesaf</item>
+        <item quantity="few">%1$d diwrnod nesaf</item>
+        <item quantity="many">%1$d diwrnod nesaf</item>
+        <item quantity="other">%1$d diwrnod nesaf</item>
+    </plurals>
+    <plurals name="dvr_program_duration">
+        <item quantity="zero">%1$d munudau</item>
+        <item quantity="one">%1$d munud</item>
+        <item quantity="two">%1$d funud</item>
+        <item quantity="few">%1$d munud</item>
+        <item quantity="many">%1$d munud</item>
+        <item quantity="other">%1$d munud</item>
+    </plurals>
+    <plurals name="dvr_count_new_recordings">
+        <item quantity="zero">%1$d recordiadau newydd</item>
+        <item quantity="one">%1$d recordiad newydd</item>
+        <item quantity="two">%1$d recordiad newydd</item>
+        <item quantity="few">%1$d recordiad newydd</item>
+        <item quantity="many">%1$d recordiad newydd</item>
+        <item quantity="other">%1$d recordiad newydd</item>
+    </plurals>
+    <plurals name="dvr_count_recordings">
+        <item quantity="zero">%1$d recordiadau</item>
+        <item quantity="one">%1$d recordiad</item>
+        <item quantity="two">%1$d recordiad</item>
+        <item quantity="few">%1$d recordiad</item>
+        <item quantity="many">%1$d recordiad</item>
+        <item quantity="other">%1$d recordiad</item>
+    </plurals>
+    <plurals name="dvr_count_scheduled_recordings">
+        <item quantity="zero">%1$d recordiadau wedi\'u trefnu</item>
+        <item quantity="one">%1$d recordiad wedi\'i drefnu</item>
+        <item quantity="two">%1$d recordiad wedi\'u trefnu</item>
+        <item quantity="few">%1$d recordiad wedi\'u trefnu</item>
+        <item quantity="many">%1$d recordiad wedi\'u trefnu</item>
+        <item quantity="other">%1$d recordiad wedi\'u trefnu</item>
+    </plurals>
+    <string name="dvr_detail_schedule_recording">Trefnu recordio</string>
+    <string name="dvr_detail_cancel_recording">Canslo\'r recordio</string>
+    <string name="dvr_detail_stop_recording">Stopio recordio</string>
+    <string name="dvr_detail_watch">Gwylio</string>
+    <string name="dvr_detail_play_from_beginning">Chwarae o\'r dechrau</string>
+    <string name="dvr_detail_resume_play">Parhau i chwarae</string>
+    <string name="dvr_detail_delete">Dileu</string>
+    <string name="dvr_detail_series_delete">Dileu recordiadau</string>
+    <string name="dvr_detail_series_resume">Parhau</string>
+    <string name="dvr_detail_series_season_title">Cyfres <xliff:g id="season_number">%1$s</xliff:g></string>
+    <string name="dvr_detail_view_schedule">Gweld yr amserlen</string>
+    <string name="dvr_detail_read_more">Darllen mwy</string>
+    <string name="dvr_recording_failed_system_failure">Methiant system. (Cod gwall: <xliff:g id="errorCode" example="0">%1$d</xliff:g>)</string>
+    <string name="dvr_recording_failed_not_started">Ni ddechreuodd y recordio. Gwiria\'r antena a chysylltiadau’r gyriannau storio (os oes rhai).</string>
+    <string name="dvr_recording_failed_resource_busy">Methwyd tiwnio i\'r sianel, efallai oherwydd signal gwan, cysylltiad gwael â\'r antena, neu wrthdaro â recordiad arall.</string>
+    <string name="dvr_recording_failed_input_unavailable"><xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> dim ar gael.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported">Ni chefnogir recordio\'r sianel hon.</string>
+    <string name="dvr_recording_failed_insufficient_space">Dim digon o le. Cysyllta ddyfais storfa allanol neu dileu rhai recordiadau.</string>
+    <string name="dvr_series_deletion_title">Dileu recordiadau</string>
+    <string name="dvr_series_deletion_description">Dewisa\'r penodau i\'w dileu. Ni fydd posib eu hadfer ar ôl eu dileu.</string>
+    <string name="dvr_series_deletion_no_recordings">Does dim recordiadau i\'w dileu.</string>
+    <string name="dvr_series_select_watched">Dewis penodau wedi\'u gwylio</string>
+    <string name="dvr_series_select_all">Dewis pob pennod</string>
+    <string name="dvr_series_deselect_all">Dad-ddewis pob pennod</string>
+    <string name="dvr_series_watched_info_minutes">Wedi gwylio <xliff:g id="watched">%1$d</xliff:g> o <xliff:g id="duration">%2$d</xliff:g> munud</string>
+    <string name="dvr_series_watched_info_seconds">Wedi gwylio <xliff:g id="watched">%1$d</xliff:g> o <xliff:g id="duration">%2$d</xliff:g> eiliad</string>
+    <string name="dvr_series_never_watched">Byth wedi\'u gwylio</string>
+    <plurals name="dvr_msg_episodes_deleted">
+        <item quantity="zero">%1$d o %2$d penodau wedi\'u dileu</item>
+        <item quantity="one">%1$d o %2$d pennod wedi\'i dileu</item>
+        <item quantity="two">%1$d o %2$d bennod wedi\'u dileu</item>
+        <item quantity="few">%1$d o %2$d phennod wedi\'u dileu</item>
+        <item quantity="many">%1$d o %2$d pennod wedi\'u dileu</item>
+        <item quantity="other">%1$d o %2$d pennod wedi\'u dileu</item>
+    </plurals>
+    <string name="dvr_series_settings_title">Gosodiadau recordio</string>
+    <string name="dvr_series_settings_priority">Blaenoriaeth</string>
+    <string name="dvr_series_settings_priority_highest">Uchaf</string>
+    <string name="dvr_series_settings_priority_lowest">Isaf</string>
+    <string name="dvr_series_settings_priority_rank">Na. <xliff:g id="rank">%1$d</xliff:g></string>
+    <string name="dvr_series_settings_channels">Sianeli</string>
+    <string name="dvr_series_settings_channels_all">Unrhyw un</string>
+    <string name="dvr_priority_title">Dewis blaenoriaeth</string>
+    <string name="dvr_priority_description">Pan fo gormod o raglenni i\'w recordio ar yr un pryd, dim ond y rhai â\'r flaenoriaeth uchaf caiff eu recordio.</string>
+    <string name="dvr_priority_button_action_save">Cadw</string>
+    <string name="dvr_priority_action_one_time_recording">Mae gan recordiadau un tro\'r flaenoriaeth uchaf</string>
+    <string name="dvr_action_delete_schedule">Dileu\'r amserlen</string>
+    <string name="dvr_action_record_program">Recordio rhaglen</string>
+    <string name="dvr_action_error_storage_settings">Agor gosodiadau storfa</string>
+    <string name="dvr_action_stop">Stopio</string>
+    <string name="dvr_action_view_schedules">Gweld amserlen recordio</string>
+    <string name="dvr_action_record_episode">Yr un rhaglen hon</string>
+    <string name="dvr_action_record_episode_from_now_description">nawr - <xliff:g id="endTime" example="11:30">%1$s</xliff:g></string>
+    <string name="dvr_action_record_series">Cyfres gyfan…</string>
+    <string name="dvr_action_record_anyway">Trefnu beth bynnag</string>
+    <string name="dvr_action_record_instead">Recordio\'r un yma yn lle</string>
+    <string name="dvr_action_record_cancel">Canslo\'r recordiad hwn</string>
+    <string name="dvr_action_watch_now">Gwylio nawr</string>
+    <string name="dvr_action_delete_recordings">Dileu recordiadau…</string>
+    <string name="dvr_epg_program_recordable">Recordiadwy</string>
+    <string name="dvr_epg_program_recording_scheduled">Recordiad wedi\'i drefnu</string>
+    <string name="dvr_epg_program_recording_conflict">Gwrthdaro recordiadau</string>
+    <string name="dvr_epg_program_recording_in_progress">Yn recordio</string>
+    <string name="dvr_epg_program_recording_failed">Methodd y recordio</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_title">Recordiadau\'n dod i fyny</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_description">Ni chaiff y rhaglen ei recordio os fyddwch yn parhau i wylio\'r sianel hon. Rhaid canslo\'r recordio neu bydd y sianel hon yn cael ei atal pan fydd y recordio\'n dechrau.</string>
+    <string name="dvr_series_progress_message_reading_programs">Yn darllen rhaglenni</string>
+    <string name="dvr_error_insufficient_space_action_view_recent_recordings">Gweld recordiadau diweddar</string>
+    <string name="dvr_error_insufficient_space_title_one_recording">Dyw recordiad <xliff:g id="programName" example="Friends">%1$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_insufficient_space_title_two_recordings">Dyw recordiadau <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> a <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_insufficient_space_title_three_or_more_recordings">Dyw recordiadau <xliff:g id="programName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> a <xliff:g id="programName_3" example="Friends">%3$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_insufficient_space_description_one_recording">Am nad oes digon o le i\'w cadw, dyw recordiad <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_insufficient_space_description_two_recordings">Am nad oes digon o le i\'w cadw, dyw recordiadau <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> a <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_insufficient_space_description_three_or_more_recordings">Am nad oes digon o le i\'w cadw, dyw recordiadau <xliff:g id="programName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> a <xliff:g id="programName_3" example="Friends">%3$s</xliff:g> ddim yn gyflawn.</string>
+    <string name="dvr_error_small_sized_storage_title">Angen mwy o le storio</string>
+    <string name="dvr_error_small_sized_storage_description">Mi fydd yn bosib recordio rhaglenni. Ond does dim digon o le yn storfa dy ddyfais i ddechrau recordio. Cysyllta gyriant sy\'n dal o leiaf <xliff:g id="storage_size" example="10GB">%1$d</xliff:g>GB a dilyn y camau i\'w fformatio fel dyfais storio.</string>
+    <string name="dvr_error_no_free_space_title">Dim digon o le i storio</string>
+    <string name="dvr_error_no_free_space_description">Ni chaiff y rhaglen hon ei recordio am nad oes digon o le storfa i\'w chadw. Beth am ddileu rhai recordiadau yn y storfa?</string>
+    <string name="dvr_error_missing_storage_title">Storfa ar goll</string>
+    <string name="dvr_error_missing_storage_description">Mae rhywfaint o\'r storfa sy\'n cael ei ddefnyddio i recordio ar goll. Cysylltwch y gyriant a defnyddiwyd i allu recordio eto. Fel arall, os nad yw ar gael mwyach, gellir anghofio\'r storfa yng ngosodiadau storfa. </string>
+    <string name="dvr_toast_recording_deleted">Ni chanfuwyd y recordiad</string>
+    <string name="dvr_stop_recording_dialog_title">Stopio recordio?</string>
+    <string name="dvr_stop_recording_dialog_description">Caiff y cynnwys wedi\'i recordio ei gadw.</string>
+    <string name="dvr_stop_recording_dialog_description_on_conflict">Bydd recordio <xliff:g id="programName" example="Friends">%1$s</xliff:g> yn stopio am ei fod yn gwrthdaro â\'r rhaglen hon. Bydd yr hyn a fydd wedi\'i recordio yn cael ei gadw.</string>
+    <string name="dvr_program_conflict_dialog_title">Recordio wedi\'i drefnu ond mae yna wrthdaro</string>
+    <string name="dvr_channel_conflict_dialog_title">Recordio wedi dechrau ond mae yna wrthdaro</string>
+    <string name="dvr_program_conflict_dialog_description_prefix">Caiff <xliff:g id="programName" example="Friends">%1$s</xliff:g> ei recordio.</string>
+    <string name="dvr_channel_conflict_dialog_description_prefix">Mae <xliff:g id="channelName" example="KQED">%1$s</xliff:g> yn cael ei recordio.</string>
+    <string name="dvr_program_conflict_dialog_description_1">Bydd rhai rhannau o <xliff:g id="conflictProgramName" example="Friends">%1$s</xliff:g> ddim yn cael eu recordio.</string>
+    <string name="dvr_program_conflict_dialog_description_2">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g> a <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ddim yn cael eu recordio.</string>
+    <string name="dvr_program_conflict_dialog_description_3">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ac un recordiad arall ddim yn cael eu recordio.</string>
+    <plurals name="dvr_program_conflict_dialog_description_many">
+        <item quantity="zero">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a %3$d recordiadau eraill ddim yn cael eu recordio.</item>
+        <item quantity="one">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ac %3$d recordiad arall ddim yn cael eu recordio.</item>
+        <item quantity="two">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a %3$d recordiad arall ddim yn cael eu recordio.</item>
+        <item quantity="few">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a %3$d recordiad arall ddim yn cael eu recordio.</item>
+        <item quantity="many">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a %3$d recordiad arall ddim yn cael eu recordio.</item>
+        <item quantity="other">Bydd rhannau o <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a %3$d recordiad arall ddim yn cael eu recordio.</item>
+    </plurals>
+    <string name="dvr_schedule_dialog_title">Beth wyt ti am ei recordio?</string>
+    <string name="dvr_channel_record_duration_dialog_title">Pa mor hir wyt ti am recordio?</string>
+    <string name="dvr_already_scheduled_dialog_title">Eisoes wedi\'i drefnu</string>
+    <string name="dvr_already_scheduled_dialog_description">Mae recordiad o\'r un rhaglen eisoes wedi\'i drefnu am <xliff:g id="programStartTime" example="7:30 AM on Jun 27.">%1$s</xliff:g>.</string>
+    <string name="dvr_already_recorded_dialog_title">Eisoes wedi\'i recordio</string>
+    <string name="dvr_already_recorded_dialog_description">Mae\'r rhaglen hon eisoes wedi cael ei recordio. Mae ar gael yn y llyfrgell DVR.</string>
+    <string name="dvr_series_recording_dialog_title">Recordiad o\'r gyfres wedi\'i drefnu.</string>
+    <plurals name="dvr_series_scheduled_no_conflict">
+        <item quantity="zero">Does <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiadau o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.</item>
+        <item quantity="one">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'i drefnu.</item>
+        <item quantity="two">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.</item>
+        <item quantity="few">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.</item>
+        <item quantity="many">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.</item>
+        <item quantity="other">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.</item>
+    </plurals>
+    <plurals name="dvr_series_recording_scheduled_only_this_series_conflict">
+        <item quantity="zero">Does <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiadau o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi eu trefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="one">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'i drefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="two">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="few">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="many">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="other">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> ohonynt ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_this_and_other_series_conflict">
+        <item quantity="zero">Does <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiadau o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi eu trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="one">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'i drefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="two">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="few">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="many">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="other">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o\'r gyfres hon ac eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_only_other_series_one_conflict">
+        <item quantity="zero">Does <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiadau o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu.  Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+        <item quantity="one">Mae <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'i drefnu. Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+        <item quantity="two">Mae <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+        <item quantity="few">Mae <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+        <item quantity="many">Mae <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+        <item quantity="other">Mae <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd 1 pennod o gyfres arall ddim yn cael ei recordio oherwydd gwrthdaro.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_only_other_series_many_conflicts">
+        <item quantity="zero">Does <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiadau o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="one">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'i drefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="two">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="few">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="many">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+        <item quantity="other">Mae <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> recordiad o <xliff:g id="seriesName" example="Friends">%2$s</xliff:g> wedi\'u trefnu. Bydd <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pennod o gyfresi eraill ddim yn cael eu recordio oherwydd gwrthdaro.</item>
+    </plurals>
+    <string name="dvr_program_not_found">Ni chanfuwyd y rhaglen wedi\'i recordio.</string>
+    <string name="dvr_playback_related_recordings">Recordiadau tebyg</string>
+    <string name="dvr_recording_till_format">Yn recordio hyd at <xliff:g id="recordingEndTime" example="9:00pm">%1$s</xliff:g></string>
+    <plurals name="dvr_schedules_section_subtitle">
+        <item quantity="zero">%1$d recordiadau</item>
+        <item quantity="one">%1$d recordiad</item>
+        <item quantity="two">%1$d recordiad</item>
+        <item quantity="few">%1$d recordiad</item>
+        <item quantity="many">%1$d recordiad</item>
+        <item quantity="other">%1$d recordiad</item>
+    </plurals>
+    <string name="dvr_schedules_information_separator"> / </string>
+    <string name="dvr_schedules_deletion_info">Mae <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> wedi\'i dynnu o\'r amserlen recordio.</string>
+    <string name="dvr_schedules_tuner_conflict_will_be_partially_recorded">Oherwydd gwrthdaro bydd ond yn cael ei recordio’n rhannol.</string>
+    <string name="dvr_schedules_tuner_conflict_will_not_be_recorded_info">Oherwydd gwrthdaro ni fydd yn cael ei recordio.</string>
+    <string name="dvr_schedules_empty_state">Does dim recordio wedi\'i drefnu eto.\nMae\'n bosib trefnu recordio o\'r canllaw rhaglenni.</string>
+    <string name="dvr_history_empty_state">Does dim hanes recordio.\nMae\'n bosib trefnu recordio o\'r canllaw rhaglenni.</string>
+    <plurals name="dvr_series_schedules_header_description">
+        <item quantity="zero">%1$d gwrthdrawiadau recordio </item>
+        <item quantity="one">%1$d gwrthdrawiad recordio</item>
+        <item quantity="two">%1$d gwrthdrawiad recordio</item>
+        <item quantity="few">%1$d gwrthdrawiad recordio</item>
+        <item quantity="many">%1$d gwrthdrawiad recordio</item>
+        <item quantity="other">%1$d gwrthdrawiad recordio</item>
+    </plurals>
+    <string name="dvr_series_schedules_settings">Gosodiadau cyfresi</string>
+    <string name="dvr_series_schedules_start">Dechrau recordio cyfres</string>
+    <string name="dvr_series_schedules_stop">Stopio recordio cyfres</string>
+    <string name="dvr_series_schedules_stop_dialog_title">Stopio recordio cyfres?</string>
+    <string name="dvr_series_schedules_stop_dialog_description">Bydd penodau wedi\'u recordio yn aros ar gael yn y llyfrgell DVR.</string>
+    <string name="dvr_series_schedules_stop_dialog_action_stop">Stopio</string>
+    <string name="dvr_series_schedules_stopped_empty_state">Does dim penodau ar yr awyr nawr.</string>
+    <string name="dvr_series_schedules_empty_state">Dim penodau ar gael.\nCânt eu recordio unwaith eu bod nhw ar gael.</string>
+    <plurals name="dvr_schedules_recording_duration">
+        <item quantity="zero">(%1$d munudau)</item>
+        <item quantity="one">(%1$d munud) </item>
+        <item quantity="two">(%1$d funud)</item>
+        <item quantity="few">(%1$d munud)</item>
+        <item quantity="many">(%1$d munud)</item>
+        <item quantity="other">(%1$d munud)</item>
+    </plurals>
+    <string name="dvr_recording_failed_short">Methwyd.</string>
+    <string name="dvr_recording_failed_not_started_short">Methwyd dechrau recordio.</string>
+    <string name="dvr_recording_failed_resource_busy_short">Methwyd tiwnio mewn i\'r sianel.</string>
+    <string name="dvr_recording_failed_input_unavailable_short"><xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> dim ar gael.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported_short">Ni chefnogir recordio.</string>
+    <string name="dvr_recording_failed_insufficient_space_short">Dim digon o le i\'w gadw.</string>
+    <string name="dvr_date_today">Heddiw</string>
+    <string name="dvr_date_tomorrow">Yfory</string>
+    <string name="dvr_date_yesterday">Ddoe</string>
+    <string name="dvr_date_today_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> heddiw</string>
+    <string name="dvr_date_tomorrow_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> yfory</string>
+    <string name="program_guide_critic_score">Sgôr</string>
+    <string name="recorded_programs_preview_channel">Rhaglenni wedi\'u Recordio</string>
+    <string name="write_storage_permission_rationale_title">Cais am ganiatâd</string>
+    <string name="write_storage_permission_rationale_description">Bydd gofyn i ti, \"Caniatáu i <xliff:g id="app_name">Teledu Byw</xliff:g> gael mynediad at luniau, cyfryngau a ffeiliau eraill ar dy ddyfais?\"\n
+        Mae dewis \"Caniatáu\", yn galluogi <xliff:g id="app_name">Live TV</xliff:g> ar unwaith
+        i ryddhau lle yn y storfa wrth ddileu rhaglenni teledu wedi\'u recordio.
+        Mae hyn i sicrhau bod lle ar gael ar gyfer recordiadau newydd.</string>
+    <string name="tv_app_dialog_title">Canfuwyd ap rhyngweithiol. Wyt ti am droi apiau rhyngweithiol ymlaen?</string>
+    <string name="interactive_app_settings">Gosodiadau apiau rhyngweithiol</string>
+    <string name="tv_iapp_on">Ymlaen</string>
+    <string name="tv_iapp_off">I ffwrdd</string>
+</resources>

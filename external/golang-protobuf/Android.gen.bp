@@ -1,0 +1,1608 @@
+// Automatically generated with:
+// go2bp -rewrite google.golang.org/protobuf=golang-protobuf -rewrite github.com/google/go-cmp/cmp=go-cmp -exclude-src internal/detrand/rand_test.go -exclude-src cmd/protoc-gen-go/retention_test.go -exclude-dep google.golang.org/protobuf/cmd/protoc-gen-go/testdata/retention
+
+bootstrap_go_package {
+    name: "golang-protobuf-android",
+    pkgPath: "google.golang.org/protobuf/android",
+    deps: [
+        "golang-protobuf-internal-detrand",
+    ],
+    srcs: [
+        "android/android.go",
+    ],
+}
+
+blueprint_go_binary {
+    name: "protoc-gen-go",
+    deps: [
+        "golang-protobuf-cmd-protoc-gen-go-internal_gengo",
+        "golang-protobuf-compiler-protogen",
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-version",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "cmd/protoc-gen-go/main.go",
+    ],
+    testSrcs: [
+        "cmd/protoc-gen-go/annotation_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-cmd-protoc-gen-go-internal_gengo",
+    pkgPath: "google.golang.org/protobuf/cmd/protoc-gen-go/internal_gengo",
+    deps: [
+        "golang-protobuf-compiler-protogen",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-encoding-tag",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-version",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protopath",
+        "golang-protobuf-reflect-protorange",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-descriptorpb",
+        "golang-protobuf-types-pluginpb",
+    ],
+    srcs: [
+        "cmd/protoc-gen-go/internal_gengo/init.go",
+        "cmd/protoc-gen-go/internal_gengo/main.go",
+        "cmd/protoc-gen-go/internal_gengo/reflect.go",
+        "cmd/protoc-gen-go/internal_gengo/well_known_types.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-compiler-protogen",
+    pkgPath: "google.golang.org/protobuf/compiler/protogen",
+    deps: [
+        "go-cmp",
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protodesc",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-types-descriptorpb",
+        "golang-protobuf-types-dynamicpb",
+        "golang-protobuf-types-pluginpb",
+    ],
+    srcs: [
+        "compiler/protogen/protogen.go",
+    ],
+    testSrcs: [
+        "compiler/protogen/protogen_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-encoding-protodelim",
+    pkgPath: "google.golang.org/protobuf/encoding/protodelim",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-proto",
+    ],
+    srcs: [
+        "encoding/protodelim/protodelim.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-encoding-protojson",
+    pkgPath: "google.golang.org/protobuf/encoding/protojson",
+    deps: [
+        "golang-protobuf-internal-encoding-json",
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-set",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "encoding/protojson/decode.go",
+        "encoding/protojson/doc.go",
+        "encoding/protojson/encode.go",
+        "encoding/protojson/well_known_types.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-encoding-prototext",
+    pkgPath: "google.golang.org/protobuf/encoding/prototext",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-encoding-text",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-set",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "encoding/prototext/decode.go",
+        "encoding/prototext/doc.go",
+        "encoding/prototext/encode.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-encoding-protowire",
+    pkgPath: "google.golang.org/protobuf/encoding/protowire",
+    deps: [
+        "golang-protobuf-internal-errors",
+    ],
+    srcs: [
+        "encoding/protowire/wire.go",
+    ],
+    testSrcs: [
+        "encoding/protowire/wire_test.go",
+    ],
+}
+
+blueprint_go_binary {
+    name: "generate-corpus",
+    deps: [
+        "golang-protobuf-encoding-protojson",
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-internal-testprotos-fuzz",
+        "golang-protobuf-internal-testprotos-test",
+        "golang-protobuf-proto",
+    ],
+    srcs: [
+        "internal/cmd/generate-corpus/main.go",
+    ],
+}
+
+blueprint_go_binary {
+    name: "generate-protos",
+    deps: [
+        "golang-protobuf-cmd-protoc-gen-go-internal_gengo",
+        "golang-protobuf-compiler-protogen",
+        "golang-protobuf-internal-detrand",
+    ],
+    srcs: [
+        "internal/cmd/generate-protos/main.go",
+    ],
+}
+
+blueprint_go_binary {
+    name: "generate-types",
+    srcs: [
+        "internal/cmd/generate-types/impl.go",
+        "internal/cmd/generate-types/main.go",
+        "internal/cmd/generate-types/proto.go",
+    ],
+}
+
+blueprint_go_binary {
+    name: "pbdump",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protodesc",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-testing-protopack",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/cmd/pbdump/pbdump.go",
+    ],
+    testSrcs: [
+        "internal/cmd/pbdump/pbdump_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-descfmt",
+    pkgPath: "google.golang.org/protobuf/internal/descfmt",
+    deps: [
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/descfmt/stringer.go",
+    ],
+    testSrcs: [
+        "internal/descfmt/desc_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-descopts",
+    pkgPath: "google.golang.org/protobuf/internal/descopts",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/descopts/options.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-detrand",
+    pkgPath: "google.golang.org/protobuf/internal/detrand",
+    srcs: [
+        "internal/detrand/rand.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-encoding-defval",
+    pkgPath: "google.golang.org/protobuf/internal/encoding/defval",
+    deps: [
+        "golang-protobuf-internal-encoding-text",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/encoding/defval/default.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-encoding-json",
+    pkgPath: "google.golang.org/protobuf/internal/encoding/json",
+    deps: [
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-strs",
+    ],
+    srcs: [
+        "internal/encoding/json/decode.go",
+        "internal/encoding/json/decode_number.go",
+        "internal/encoding/json/decode_string.go",
+        "internal/encoding/json/decode_token.go",
+        "internal/encoding/json/encode.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-encoding-messageset",
+    pkgPath: "google.golang.org/protobuf/internal/encoding/messageset",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/encoding/messageset/messageset.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-encoding-tag",
+    pkgPath: "google.golang.org/protobuf/internal/encoding/tag",
+    deps: [
+        "golang-protobuf-internal-encoding-defval",
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/encoding/tag/tag.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-encoding-text",
+    pkgPath: "google.golang.org/protobuf/internal/encoding/text",
+    deps: [
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-strs",
+    ],
+    srcs: [
+        "internal/encoding/text/decode.go",
+        "internal/encoding/text/decode_number.go",
+        "internal/encoding/text/decode_string.go",
+        "internal/encoding/text/decode_token.go",
+        "internal/encoding/text/doc.go",
+        "internal/encoding/text/encode.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-errors",
+    pkgPath: "google.golang.org/protobuf/internal/errors",
+    deps: [
+        "golang-protobuf-internal-detrand",
+    ],
+    srcs: [
+        "internal/errors/errors.go",
+        "internal/errors/is_go113.go",
+    ],
+    testSrcs: [
+        "internal/errors/errors_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-filedesc",
+    pkgPath: "google.golang.org/protobuf/internal/filedesc",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-descfmt",
+        "golang-protobuf-internal-descopts",
+        "golang-protobuf-internal-encoding-defval",
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "internal/filedesc/build.go",
+        "internal/filedesc/desc.go",
+        "internal/filedesc/desc_init.go",
+        "internal/filedesc/desc_lazy.go",
+        "internal/filedesc/desc_list.go",
+        "internal/filedesc/desc_list_gen.go",
+        "internal/filedesc/placeholder.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-filetype",
+    pkgPath: "google.golang.org/protobuf/internal/filetype",
+    deps: [
+        "golang-protobuf-internal-descopts",
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-impl",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "internal/filetype/build.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-flags",
+    pkgPath: "google.golang.org/protobuf/internal/flags",
+    srcs: [
+        "internal/flags/flags.go",
+        "internal/flags/proto_legacy_disable.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-fuzz-jsonfuzz",
+    pkgPath: "google.golang.org/protobuf/internal/fuzz/jsonfuzz",
+    deps: [
+        "golang-protobuf-encoding-protojson",
+        "golang-protobuf-internal-fuzztest",
+        "golang-protobuf-internal-testprotos-fuzz",
+        "golang-protobuf-proto",
+    ],
+    srcs: [
+        "internal/fuzz/jsonfuzz/fuzz.go",
+    ],
+    testSrcs: [
+        "internal/fuzz/jsonfuzz/fuzz_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-fuzz-textfuzz",
+    pkgPath: "google.golang.org/protobuf/internal/fuzz/textfuzz",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-internal-fuzztest",
+        "golang-protobuf-internal-testprotos-fuzz",
+        "golang-protobuf-proto",
+    ],
+    srcs: [
+        "internal/fuzz/textfuzz/fuzz.go",
+    ],
+    testSrcs: [
+        "internal/fuzz/textfuzz/fuzz_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-fuzz-wirefuzz",
+    pkgPath: "google.golang.org/protobuf/internal/fuzz/wirefuzz",
+    deps: [
+        "golang-protobuf-internal-fuzztest",
+        "golang-protobuf-internal-impl",
+        "golang-protobuf-internal-testprotos-fuzz",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoiface",
+    ],
+    srcs: [
+        "internal/fuzz/wirefuzz/fuzz.go",
+    ],
+    testSrcs: [
+        "internal/fuzz/wirefuzz/fuzz_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-fuzztest",
+    pkgPath: "google.golang.org/protobuf/internal/fuzztest",
+    srcs: [
+        "internal/fuzztest/fuzztest.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-genid",
+    pkgPath: "google.golang.org/protobuf/internal/genid",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/genid/any_gen.go",
+        "internal/genid/api_gen.go",
+        "internal/genid/descriptor_gen.go",
+        "internal/genid/doc.go",
+        "internal/genid/duration_gen.go",
+        "internal/genid/empty_gen.go",
+        "internal/genid/field_mask_gen.go",
+        "internal/genid/goname.go",
+        "internal/genid/map_entry.go",
+        "internal/genid/source_context_gen.go",
+        "internal/genid/struct_gen.go",
+        "internal/genid/timestamp_gen.go",
+        "internal/genid/type_gen.go",
+        "internal/genid/wrappers.go",
+        "internal/genid/wrappers_gen.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-impl",
+    pkgPath: "google.golang.org/protobuf/internal/impl",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-descopts",
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-encoding-tag",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoiface",
+    ],
+    srcs: [
+        "internal/impl/api_export.go",
+        "internal/impl/checkinit.go",
+        "internal/impl/codec_extension.go",
+        "internal/impl/codec_field.go",
+        "internal/impl/codec_gen.go",
+        "internal/impl/codec_map.go",
+        "internal/impl/codec_map_go112.go",
+        "internal/impl/codec_message.go",
+        "internal/impl/codec_messageset.go",
+        "internal/impl/codec_tables.go",
+        "internal/impl/codec_unsafe.go",
+        "internal/impl/convert.go",
+        "internal/impl/convert_list.go",
+        "internal/impl/convert_map.go",
+        "internal/impl/decode.go",
+        "internal/impl/encode.go",
+        "internal/impl/enum.go",
+        "internal/impl/extension.go",
+        "internal/impl/legacy_enum.go",
+        "internal/impl/legacy_export.go",
+        "internal/impl/legacy_extension.go",
+        "internal/impl/legacy_file.go",
+        "internal/impl/legacy_message.go",
+        "internal/impl/merge.go",
+        "internal/impl/merge_gen.go",
+        "internal/impl/message.go",
+        "internal/impl/message_reflect.go",
+        "internal/impl/message_reflect_field.go",
+        "internal/impl/message_reflect_gen.go",
+        "internal/impl/pointer_unsafe.go",
+        "internal/impl/validate.go",
+        "internal/impl/weak.go",
+    ],
+    testSrcs: [
+        "internal/impl/legacy_export_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-msgfmt",
+    pkgPath: "google.golang.org/protobuf/internal/msgfmt",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "internal/msgfmt/format.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-order",
+    pkgPath: "google.golang.org/protobuf/internal/order",
+    deps: [
+        "go-cmp",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/order/order.go",
+        "internal/order/range.go",
+    ],
+    testSrcs: [
+        "internal/order/order_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-pragma",
+    pkgPath: "google.golang.org/protobuf/internal/pragma",
+    srcs: [
+        "internal/pragma/pragma.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-protobuild",
+    pkgPath: "google.golang.org/protobuf/internal/protobuild",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "internal/protobuild/build.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-protolegacy",
+    pkgPath: "google.golang.org/protobuf/internal/protolegacy",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoiface",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/protolegacy/proto.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-set",
+    pkgPath: "google.golang.org/protobuf/internal/set",
+    srcs: [
+        "internal/set/ints.go",
+    ],
+    testSrcs: [
+        "internal/set/ints_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-strs",
+    pkgPath: "google.golang.org/protobuf/internal/strs",
+    deps: [
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "internal/strs/strings.go",
+        "internal/strs/strings_unsafe.go",
+    ],
+    testSrcs: [
+        "internal/strs/strings_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-annotation",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/annotation",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/testprotos/annotation/annotation.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/benchmarks.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-datasets-google_message1-proto2",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/datasets/google_message1/proto2",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/datasets/google_message1/proto2/benchmark_message1_proto2.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-datasets-google_message1-proto3",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/datasets/google_message1/proto3",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/datasets/google_message1/proto3/benchmark_message1_proto3.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-datasets-google_message2",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/datasets/google_message2",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/datasets/google_message2/benchmark_message2.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-datasets-google_message3",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/datasets/google_message3",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_1.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_2.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_3.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_4.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_5.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_6.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_7.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message3/benchmark_message3_8.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-datasets-google_message4",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/datasets/google_message4",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/datasets/google_message4/benchmark_message4.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message4/benchmark_message4_1.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message4/benchmark_message4_2.pb.go",
+        "internal/testprotos/benchmarks/datasets/google_message4/benchmark_message4_3.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-benchmarks-micro",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/benchmarks/micro",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/benchmarks/micro/micro.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-conformance",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/conformance",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-durationpb",
+        "golang-protobuf-types-known-fieldmaskpb",
+        "golang-protobuf-types-known-structpb",
+        "golang-protobuf-types-known-timestamppb",
+        "golang-protobuf-types-known-wrapperspb",
+    ],
+    srcs: [
+        "internal/testprotos/conformance/conformance.pb.go",
+        "internal/testprotos/conformance/test_messages_proto2.pb.go",
+        "internal/testprotos/conformance/test_messages_proto3.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-enums",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/enums",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/enums/enums.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-fieldtrack",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/fieldtrack",
+    deps: [
+        "golang-protobuf-internal-testprotos-annotation",
+        "golang-protobuf-internal-testprotos-test",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/fieldtrack/fieldtrack.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-fuzz",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/fuzz",
+    deps: [
+        "golang-protobuf-internal-testprotos-test",
+        "golang-protobuf-internal-testprotos-test3",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/fuzz/fuzz.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-irregular",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/irregular",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-reflect-protodesc",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoiface",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/testprotos/irregular/irregular.go",
+        "internal/testprotos/irregular/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy",
+    deps: [
+        "golang-protobuf-internal-testprotos-legacy-proto2_20160225_2fc053c5",
+        "golang-protobuf-internal-testprotos-legacy-proto2_20160519_a4ab9ec5",
+        "golang-protobuf-internal-testprotos-legacy-proto2_20180125_92554152",
+        "golang-protobuf-internal-testprotos-legacy-proto2_20180430_b4deda09",
+        "golang-protobuf-internal-testprotos-legacy-proto2_20180814_aa810b61",
+        "golang-protobuf-internal-testprotos-legacy-proto2_20190205_c823c79e",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20160225_2fc053c5",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20160519_a4ab9ec5",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20180125_92554152",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20180430_b4deda09",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20180814_aa810b61",
+        "golang-protobuf-internal-testprotos-legacy-proto3_20190205_c823c79e",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/legacy.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-bug1052",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/bug1052",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/bug1052/bug1052.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20160225_2fc053c5",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20160225_2fc053c5",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20160225_2fc053c5/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20160519_a4ab9ec5",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20160519_a4ab9ec5",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20160519_a4ab9ec5/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20180125_92554152",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20180125_92554152",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20180125_92554152/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20180430_b4deda09",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20180430_b4deda09",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20180430_b4deda09/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20180814_aa810b61",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20180814_aa810b61",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20180814_aa810b61/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto2_20190205_c823c79e",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto2_20190205_c823c79e",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto2_20190205_c823c79e/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20160225_2fc053c5",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20160225_2fc053c5",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20160225_2fc053c5/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20160519_a4ab9ec5",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20160519_a4ab9ec5",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20160519_a4ab9ec5/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20180125_92554152",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20180125_92554152",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20180125_92554152/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20180430_b4deda09",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20180430_b4deda09",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20180430_b4deda09/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20180814_aa810b61",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20180814_aa810b61",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20180814_aa810b61/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-legacy-proto3_20190205_c823c79e",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/legacy/proto3_20190205_c823c79e",
+    deps: [
+        "golang-protobuf-internal-protolegacy",
+    ],
+    srcs: [
+        "internal/testprotos/legacy/proto3_20190205_c823c79e/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-messageset-messagesetpb",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/messageset/messagesetpb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/messageset/messagesetpb/message_set.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-messageset-msetextpb",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/messageset/msetextpb",
+    deps: [
+        "golang-protobuf-internal-testprotos-messageset-messagesetpb",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/messageset/msetextpb/msetextpb.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-news",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/news",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-timestamppb",
+    ],
+    srcs: [
+        "internal/testprotos/news/news.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-nullable",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/nullable",
+    deps: [
+        "go-cmp",
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-testing-protocmp",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/testprotos/nullable/nullable.go",
+    ],
+    testSrcs: [
+        "internal/testprotos/nullable/nullable_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-order",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/order",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/order/order.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-registry",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/registry",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/registry/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-required",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/required",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/required/required.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-test",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/test",
+    deps: [
+        "golang-protobuf-internal-testprotos-enums",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/test/ext.pb.go",
+        "internal/testprotos/test/test.pb.go",
+        "internal/testprotos/test/test_import.pb.go",
+        "internal/testprotos/test/test_public.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-test-weak1",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/test/weak1",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/test/weak1/test_weak.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-test-weak2",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/test/weak2",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/test/weak2/test_weak.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-test3",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/test3",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "internal/testprotos/test3/test.pb.go",
+        "internal/testprotos/test3/test_extension.pb.go",
+        "internal/testprotos/test3/test_import.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-textpb2",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/textpb2",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-durationpb",
+        "golang-protobuf-types-known-emptypb",
+        "golang-protobuf-types-known-fieldmaskpb",
+        "golang-protobuf-types-known-structpb",
+        "golang-protobuf-types-known-timestamppb",
+        "golang-protobuf-types-known-wrapperspb",
+    ],
+    srcs: [
+        "internal/testprotos/textpb2/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-testprotos-textpb3",
+    pkgPath: "google.golang.org/protobuf/internal/testprotos/textpb3",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "internal/testprotos/textpb3/test.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-version",
+    pkgPath: "google.golang.org/protobuf/internal/version",
+    srcs: [
+        "internal/version/version.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-internal-weakdeps",
+    pkgPath: "google.golang.org/protobuf/internal/weakdeps",
+    srcs: [
+        "internal/weakdeps/doc.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-proto",
+    pkgPath: "google.golang.org/protobuf/proto",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoiface",
+    ],
+    srcs: [
+        "proto/checkinit.go",
+        "proto/decode.go",
+        "proto/decode_gen.go",
+        "proto/doc.go",
+        "proto/encode.go",
+        "proto/encode_gen.go",
+        "proto/equal.go",
+        "proto/extension.go",
+        "proto/merge.go",
+        "proto/messageset.go",
+        "proto/proto.go",
+        "proto/proto_methods.go",
+        "proto/reset.go",
+        "proto/size.go",
+        "proto/size_gen.go",
+        "proto/wrappers.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-protoadapt",
+    pkgPath: "google.golang.org/protobuf/protoadapt",
+    deps: [
+        "golang-protobuf-proto",
+        "golang-protobuf-runtime-protoiface",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "protoadapt/convert.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-reflect-protodesc",
+    pkgPath: "google.golang.org/protobuf/reflect/protodesc",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-encoding-defval",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-internal-strs",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "reflect/protodesc/desc.go",
+        "reflect/protodesc/desc_init.go",
+        "reflect/protodesc/desc_resolve.go",
+        "reflect/protodesc/desc_validate.go",
+        "reflect/protodesc/proto.go",
+    ],
+    testSrcs: [
+        "reflect/protodesc/file_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-reflect-protopath",
+    pkgPath: "google.golang.org/protobuf/reflect/protopath",
+    deps: [
+        "golang-protobuf-internal-encoding-text",
+        "golang-protobuf-internal-msgfmt",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "reflect/protopath/path.go",
+        "reflect/protopath/step.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-reflect-protorange",
+    pkgPath: "google.golang.org/protobuf/reflect/protorange",
+    deps: [
+        "go-cmp",
+        "go-cmp-cmpopts",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-order",
+        "golang-protobuf-internal-testprotos-news",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protopath",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-testing-protocmp",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-timestamppb",
+    ],
+    srcs: [
+        "reflect/protorange/range.go",
+    ],
+    testSrcs: [
+        "reflect/protorange/range_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-reflect-protoreflect",
+    pkgPath: "google.golang.org/protobuf/reflect/protoreflect",
+    deps: [
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-pragma",
+    ],
+    srcs: [
+        "reflect/protoreflect/methods.go",
+        "reflect/protoreflect/proto.go",
+        "reflect/protoreflect/source.go",
+        "reflect/protoreflect/source_gen.go",
+        "reflect/protoreflect/type.go",
+        "reflect/protoreflect/value.go",
+        "reflect/protoreflect/value_equal.go",
+        "reflect/protoreflect/value_union.go",
+        "reflect/protoreflect/value_unsafe.go",
+    ],
+    testSrcs: [
+        "reflect/protoreflect/proto_test.go",
+        "reflect/protoreflect/source_test.go",
+        "reflect/protoreflect/value_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-reflect-protoregistry",
+    pkgPath: "google.golang.org/protobuf/reflect/protoregistry",
+    deps: [
+        "golang-protobuf-internal-encoding-messageset",
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-internal-flags",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "reflect/protoregistry/registry.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-runtime-protoiface",
+    pkgPath: "google.golang.org/protobuf/runtime/protoiface",
+    deps: [
+        "golang-protobuf-internal-pragma",
+        "golang-protobuf-reflect-protoreflect",
+    ],
+    srcs: [
+        "runtime/protoiface/legacy.go",
+        "runtime/protoiface/methods.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-runtime-protoimpl",
+    pkgPath: "google.golang.org/protobuf/runtime/protoimpl",
+    deps: [
+        "golang-protobuf-internal-filedesc",
+        "golang-protobuf-internal-filetype",
+        "golang-protobuf-internal-impl",
+        "golang-protobuf-internal-version",
+    ],
+    srcs: [
+        "runtime/protoimpl/impl.go",
+        "runtime/protoimpl/version.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-testing-protocmp",
+    pkgPath: "google.golang.org/protobuf/testing/protocmp",
+    deps: [
+        "go-cmp",
+        "go-cmp-cmpopts",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-internal-detrand",
+        "golang-protobuf-internal-genid",
+        "golang-protobuf-internal-msgfmt",
+        "golang-protobuf-internal-testprotos-test",
+        "golang-protobuf-internal-testprotos-textpb2",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoiface",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-testing-protopack",
+        "golang-protobuf-types-dynamicpb",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-wrapperspb",
+    ],
+    srcs: [
+        "testing/protocmp/reflect.go",
+        "testing/protocmp/util.go",
+        "testing/protocmp/xform.go",
+    ],
+    testSrcs: [
+        "testing/protocmp/reflect_test.go",
+        "testing/protocmp/util_test.go",
+        "testing/protocmp/xform_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-testing-protopack",
+    pkgPath: "google.golang.org/protobuf/testing/protopack",
+    deps: [
+        "go-cmp",
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-reflect-protodesc",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "testing/protopack/pack.go",
+    ],
+    testSrcs: [
+        "testing/protopack/pack_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-testing-prototest",
+    pkgPath: "google.golang.org/protobuf/testing/prototest",
+    deps: [
+        "golang-protobuf-encoding-prototext",
+        "golang-protobuf-encoding-protowire",
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+    ],
+    srcs: [
+        "testing/prototest/enum.go",
+        "testing/prototest/message.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-descriptorpb",
+    pkgPath: "google.golang.org/protobuf/types/descriptorpb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/descriptorpb/descriptor.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-dynamicpb",
+    pkgPath: "google.golang.org/protobuf/types/dynamicpb",
+    deps: [
+        "golang-protobuf-internal-errors",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoiface",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/dynamicpb/dynamic.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-anypb",
+    pkgPath: "google.golang.org/protobuf/types/known/anypb",
+    deps: [
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-reflect-protoregistry",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/anypb/any.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-apipb",
+    pkgPath: "google.golang.org/protobuf/types/known/apipb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-known-sourcecontextpb",
+        "golang-protobuf-types-known-typepb",
+    ],
+    srcs: [
+        "types/known/apipb/api.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-durationpb",
+    pkgPath: "google.golang.org/protobuf/types/known/durationpb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/durationpb/duration.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-emptypb",
+    pkgPath: "google.golang.org/protobuf/types/known/emptypb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/emptypb/empty.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-fieldmaskpb",
+    pkgPath: "google.golang.org/protobuf/types/known/fieldmaskpb",
+    deps: [
+        "golang-protobuf-proto",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/fieldmaskpb/field_mask.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-sourcecontextpb",
+    pkgPath: "google.golang.org/protobuf/types/known/sourcecontextpb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/sourcecontextpb/source_context.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-structpb",
+    pkgPath: "google.golang.org/protobuf/types/known/structpb",
+    deps: [
+        "golang-protobuf-encoding-protojson",
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/structpb/struct.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-timestamppb",
+    pkgPath: "google.golang.org/protobuf/types/known/timestamppb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/timestamppb/timestamp.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-typepb",
+    pkgPath: "google.golang.org/protobuf/types/known/typepb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-known-anypb",
+        "golang-protobuf-types-known-sourcecontextpb",
+    ],
+    srcs: [
+        "types/known/typepb/type.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-known-wrapperspb",
+    pkgPath: "google.golang.org/protobuf/types/known/wrapperspb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+    ],
+    srcs: [
+        "types/known/wrapperspb/wrappers.pb.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "golang-protobuf-types-pluginpb",
+    pkgPath: "google.golang.org/protobuf/types/pluginpb",
+    deps: [
+        "golang-protobuf-reflect-protoreflect",
+        "golang-protobuf-runtime-protoimpl",
+        "golang-protobuf-types-descriptorpb",
+    ],
+    srcs: [
+        "types/pluginpb/plugin.pb.go",
+    ],
+}

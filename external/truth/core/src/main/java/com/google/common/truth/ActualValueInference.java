@@ -1,0 +1,1521 @@
+// Copyright 2017 The Bazel Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package com.google.common.truth;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.getOnlyElement;
+import static java.lang.Thread.currentThread;
+
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.Iterables;
+import org.objectweb.asm.Opcodes;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Map.Entry;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
+/**
+ * Given the stack frame of a failing assertion, tries to describe what the user passed to {@code
+ * assertThat}.
+ *
+ * <p>For example, suppose that the test contains:
+ *
+ * <pre>{@code
+ * assertThat(logService.fetchLogMessages(startDate, endDate))
+ *     .containsExactly(message1, message2)
+ *     .inOrder();
+ * }</pre>
+ *
+ * If either {@code containsExactly} or {@code inOrder} fails, {@code ActualValueInference} reports
+ * (if the rest of the test method is simple enough to analyze easily) that the user passed {@code
+ * fetchLogMessages(...)}. This allows us to produce a failure message like:
+ *
+ * <pre>
+ * value of   : fetchLogMessages(...)
+ * missing (1): message1
+ * ...
+ * </pre>
+ *
+ * {@code ActualValueInference} accomplishes this by examining the bytecode of the test. Naturally,
+ * this is all best-effort.
+ */
+@GwtIncompatible
+@J2ktIncompatible
+final class ActualValueInference {
+  /** <b>Call {@link Platform#inferDescription} rather than calling this directly.</b> */
+  static @Nullable String describeActualValue(String className, String methodName, int lineNumber) {
+    InferenceClassVisitor visitor;
+    try {
+      // TODO(cpovirk): Verify that methodName is correct for constructors and static initializers.
+      visitor = new InferenceClassVisitor(methodName);
+    } catch (IllegalArgumentException theVersionOfAsmIsOlderThanWeRequire) {
+      // TODO(cpovirk): Consider what minimum version the class and method visitors really need.
+      // TODO(cpovirk): Log a warning?
+      return null;
+    }
+
+    ClassLoader loader =
+        firstNonNull(
+            currentThread().getContextClassLoader(), ActualValueInference.class.getClassLoader());
+    /*
+     * We're assuming that classes were loaded in a simple way. In principle, we could do better
+     * with java.lang.instrument.
+     */
+    InputStream stream = null;
+    try {
+      stream = loader.getResourceAsStream(className.replace('.', '/') + ".class");
+      // TODO(cpovirk): Disable inference if the bytecode version is newer than we've tested on?
+      new ClassReader(stream).accept(visitor, /* parsingOptions= */ 0);
+      ImmutableSet<StackEntry> actualsAtLine = visitor.actualValueAtLine.build().get(lineNumber);
+      /*
+       * It's very unlikely that more than one assertion would happen on the same line _but with
+       * different root actual values_.
+       *
+       * That is, it's common to have:
+       * assertThat(list).containsExactly(...).inOrder();
+       *
+       * But it's not common to have, all on one line:
+       * assertThat(list).isEmpty(); assertThat(list2).containsExactly(...);
+       *
+       * In principle, we could try to distinguish further by looking at what assertion method
+       * failed (which our caller could pass us by looking higher on the stack). But it's hard to
+       * imagine that it would be worthwhile.
+       */
+      return actualsAtLine.size() == 1 ? getOnlyElement(actualsAtLine).description() : null;
+    } catch (IOException e) {
+      /*
+       * Likely "Class not found," perhaps from generated bytecode (or from StackTraceCleaner's
+       * pseudo-frames, which ideally ActualValueInference would tell it not to create).
+       */
+      // TODO(cpovirk): Log a warning?
+      return null;
+    } catch (SecurityException e) {
+      // Inside Google, some tests run under a security manager that forbids filesystem access.
+      // TODO(cpovirk): Log a warning?
+      return null;
+    } finally {
+      closeQuietly(stream);
+    }
+  }
+
+  /**
+   * An entry on the stack (or the local-variable table) with a {@linkplain InferredType type} and
+   * sometimes a description of {@linkplain DescribedEntry how the value was produced} or, as a
+   * special case, whether {@linkplain SubjectEntry the value is a Truth subject}.
+   */
+  abstract static class StackEntry {
+    abstract InferredType type();
+
+    // Each of these is overridden by a subclass:
+
+    boolean isSubject() {
+      return false;
+    }
+
+    StackEntry actualValue() {
+      throw new ClassCastException(getClass().getName());
+    }
+
+    @Nullable String description() {
+      return null;
+    }
+  }
+
+  /** An entry that we know nothing about except for its type. */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class OpaqueEntry extends StackEntry {
+    @Override
+    public final String toString() {
+      return "unknown";
+    }
+  }
+
+  private static StackEntry opaque(InferredType type) {
+    return new AutoValue_ActualValueInference_OpaqueEntry(type);
+  }
+
+  /**
+   * An entry that contains a description of how it was created. Currently, the only case in which
+   * we provide a description is when the value comes from a method call whose name looks
+   * "interesting."
+   */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class DescribedEntry extends StackEntry {
+    @Override
+    abstract String description();
+
+    @Override
+    public final String toString() {
+      return description();
+    }
+  }
+
+  private static StackEntry described(InferredType type, String description) {
+    return new AutoValue_ActualValueInference_DescribedEntry(type, description);
+  }
+
+  /**
+   * An entry for a {@link Subject} (or a similar object derived with a {@code Subject}, like {@link
+   * Ordered}).
+   *
+   * <p>The entry contains the "root actual value" of the assertion. In an assertion like {@code
+   * assertThat(e).hasMessageThat().contains("foo")}, the root actual value is the {@code Throwable}
+   * {@code e}, even though the {@code contains} assertion operates on a string message.
+   */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class SubjectEntry extends StackEntry {
+    @Override
+    abstract StackEntry actualValue();
+
+    @Override
+    final boolean isSubject() {
+      return true;
+    }
+
+    @Override
+    public final String toString() {
+      return String.format("subjectFor(%s)", actualValue());
+    }
+  }
+
+  private static StackEntry subjectFor(InferredType type, StackEntry actual) {
+    return new AutoValue_ActualValueInference_SubjectEntry(type, actual);
+  }
+
+  private static final class InferenceMethodVisitor extends MethodVisitor {
+    private boolean used = false;
+    private final ArrayList<StackEntry> localVariableSlots;
+    private final ArrayList<StackEntry> operandStack = new ArrayList<>();
+    private FrameInfo previousFrame;
+    /** For debugging purpose. */
+    private final String methodSignature;
+
+    /**
+     * The ASM labels that we've seen so far, which we use to look up the closest line number for
+     * each assertion.
+     */
+    private final ImmutableList.Builder<Label> labelsSeen = ImmutableList.builder();
+
+    /**
+     * The mapping from label to line number.
+     *
+     * <p>I had hoped that we didn't need this: In the {@code .class} files I looked at, {@code
+     * visitLineNumber} calls were interleaved with the actual instructions. (I even have evidence
+     * that the current implementation visits labels and line numbers together: See Label.accept.)
+     * If that were guaranteed, then we could identify the line number for each assertion just by
+     * looking at which {@code visitLineNumber} call we'd seen most recently. However, that
+     * <i>doesn't</i> appear to be guaranteed, so we store this mapping and then join it with the
+     * labels at the end.
+     *
+     * <p>I would expect to be able to use a map here. But I'm seeing multiple line numbers for the
+     * same label in some Kotlin code.
+     */
+    private final ImmutableSetMultimap.Builder<Label, Integer> lineNumbersAtLabel =
+        ImmutableSetMultimap.builder();
+
+    /**
+     * The mapping that indexes every root actual value by the full list of labels we'd visited
+     * before we visited it.
+     */
+    private final ImmutableSetMultimap.Builder<ImmutableList<Label>, StackEntry>
+        actualValueAtLocation = ImmutableSetMultimap.builder();
+
+    /** Set to {@code true} whenever a method permits multiple execution paths. */
+    private boolean seenJump;
+
+    /**
+     * The output of this process: a mapping from line number to the root actual values with
+     * assertions on that line. This builder is potentially shared across multiple method visitors
+     * for the same class visitor.
+     */
+    private final ImmutableSetMultimap.Builder<Integer, StackEntry> actualValueAtLine;
+
+    InferenceMethodVisitor(
+        int access,
+        String owner,
+        String name,
+        String methodDescriptor,
+        ImmutableSetMultimap.Builder<Integer, StackEntry> actualValueAtLine) {
+      super(Opcodes.ASM9);
+      localVariableSlots = createInitialLocalVariableSlots(access, owner, name, methodDescriptor);
+      previousFrame =
+          FrameInfo.create(
+              ImmutableList.copyOf(localVariableSlots), ImmutableList.<StackEntry>of());
+      this.methodSignature = owner + "." + name + methodDescriptor;
+      this.actualValueAtLine = actualValueAtLine;
+    }
+
+    @Override
+    public void visitCode() {
+      checkState(!used, "Cannot reuse this method visitor.");
+      used = true;
+      super.visitCode();
+    }
+
+    @Override
+    public void visitEnd() {
+      if (seenJump) {
+        /*
+         * If there are multiple paths through a method, we'd have to examine them all and make sure
+         * that the values still match up. We could try someday, but it's hard.
+         */
+        super.visitEnd();
+        return;
+      }
+      ImmutableSetMultimap<Label, Integer> lineNumbersAtLabel = this.lineNumbersAtLabel.build();
+      for (Entry<ImmutableList<Label>, StackEntry> e : actualValueAtLocation.build().entries()) {
+        for (int lineNumber : lineNumbers(e.getKey(), lineNumbersAtLabel)) {
+          actualValueAtLine.put(lineNumber, e.getValue());
+        }
+      }
+      super.visitEnd();
+    }
+
+    private static ImmutableSet<Integer> lineNumbers(
+        ImmutableList<Label> labels, ImmutableSetMultimap<Label, Integer> lineNumbersAtLabel) {
+      for (Label label : labels.reverse()) {
+        if (lineNumbersAtLabel.containsKey(label)) {
+          return lineNumbersAtLabel.get(label);
+        }
+      }
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public void visitLineNumber(int line, Label start) {
+      lineNumbersAtLabel.put(start, line);
+      super.visitLineNumber(line, start);
+    }
+
+    @Override
+    public void visitLabel(Label label) {
+      labelsSeen.add(label);
+      super.visitLabel(label);
+    }
+
+    /** Returns the entry for the operand at the specified offset. 0 means the top of the stack. */
+    private StackEntry getOperandFromTop(int offsetFromTop) {
+      int index = operandStack.size() - 1 - offsetFromTop;
+      checkState(
+          index >= 0,
+          "Invalid offset %s in the list of size %s. The current method is %s",
+          offsetFromTop,
+          operandStack.size(),
+          methodSignature);
+      return operandStack.get(index);
+    }
+
+    @Override
+    public void visitInsn(int opcode) {
+      switch (opcode) {
+        case Opcodes.NOP:
+        case Opcodes.INEG:
+        case Opcodes.LNEG:
+        case Opcodes.FNEG:
+        case Opcodes.DNEG:
+        case Opcodes.I2B:
+        case Opcodes.I2C:
+        case Opcodes.I2S:
+        case Opcodes.RETURN:
+          break;
+        case Opcodes.ACONST_NULL:
+          push(InferredType.NULL);
+          break;
+        case Opcodes.ICONST_M1:
+        case Opcodes.ICONST_0:
+        case Opcodes.ICONST_1:
+        case Opcodes.ICONST_2:
+        case Opcodes.ICONST_3:
+        case Opcodes.ICONST_4:
+        case Opcodes.ICONST_5:
+          push(InferredType.INT);
+          break;
+        case Opcodes.LCONST_0:
+        case Opcodes.LCONST_1:
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.FCONST_0:
+        case Opcodes.FCONST_1:
+        case Opcodes.FCONST_2:
+          push(InferredType.FLOAT);
+          break;
+        case Opcodes.DCONST_0:
+        case Opcodes.DCONST_1:
+          push(InferredType.DOUBLE);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.IALOAD:
+        case Opcodes.BALOAD:
+        case Opcodes.CALOAD:
+        case Opcodes.SALOAD:
+          pop(2);
+          push(InferredType.INT);
+          break;
+        case Opcodes.LALOAD:
+        case Opcodes.D2L:
+          pop(2);
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.DALOAD:
+        case Opcodes.L2D:
+          pop(2);
+          push(InferredType.DOUBLE);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.AALOAD:
+          InferredType arrayType = pop(2).type();
+          InferredType elementType = arrayType.getElementTypeIfArrayOrThrow();
+          push(elementType);
+          break;
+        case Opcodes.IASTORE:
+        case Opcodes.BASTORE:
+        case Opcodes.CASTORE:
+        case Opcodes.SASTORE:
+        case Opcodes.FASTORE:
+        case Opcodes.AASTORE:
+          pop(3);
+          break;
+        case Opcodes.LASTORE:
+        case Opcodes.DASTORE:
+          pop(4);
+          break;
+        case Opcodes.POP:
+        case Opcodes.IRETURN:
+        case Opcodes.FRETURN:
+        case Opcodes.ARETURN:
+        case Opcodes.ATHROW:
+        case Opcodes.MONITORENTER:
+        case Opcodes.MONITOREXIT:
+          pop();
+          break;
+        case Opcodes.POP2:
+        case Opcodes.LRETURN:
+        case Opcodes.DRETURN:
+          pop(2);
+          break;
+        case Opcodes.DUP:
+          push(top());
+          break;
+        case Opcodes.DUP_X1:
+          {
+            StackEntry top = pop();
+            StackEntry next = pop();
+            push(top);
+            push(next);
+            push(top);
+            break;
+          }
+        case Opcodes.DUP_X2:
+          {
+            StackEntry top = pop();
+            StackEntry next = pop();
+            StackEntry bottom = pop();
+            push(top);
+            push(bottom);
+            push(next);
+            push(top);
+            break;
+          }
+        case Opcodes.DUP2:
+          {
+            StackEntry top = pop();
+            StackEntry next = pop();
+            push(next);
+            push(top);
+            push(next);
+            push(top);
+            break;
+          }
+        case Opcodes.DUP2_X1:
+          {
+            StackEntry top = pop();
+            StackEntry next = pop();
+            StackEntry bottom = pop();
+            push(next);
+            push(top);
+            push(bottom);
+            push(next);
+            push(top);
+            break;
+          }
+        case Opcodes.DUP2_X2:
+          {
+            StackEntry t1 = pop();
+            StackEntry t2 = pop();
+            StackEntry t3 = pop();
+            StackEntry t4 = pop();
+            push(t2);
+            push(t1);
+            push(t4);
+            push(t3);
+            push(t2);
+            push(t1);
+            break;
+          }
+        case Opcodes.SWAP:
+          {
+            StackEntry top = pop();
+            StackEntry next = pop();
+            push(top);
+            push(next);
+            break;
+          }
+        case Opcodes.IADD:
+        case Opcodes.ISUB:
+        case Opcodes.IMUL:
+        case Opcodes.IDIV:
+        case Opcodes.IREM:
+        case Opcodes.ISHL:
+        case Opcodes.ISHR:
+        case Opcodes.IUSHR:
+        case Opcodes.IAND:
+        case Opcodes.IOR:
+        case Opcodes.IXOR:
+        case Opcodes.L2I:
+        case Opcodes.D2I:
+        case Opcodes.FCMPL:
+        case Opcodes.FCMPG:
+          pop(2);
+          push(InferredType.INT);
+          break;
+
+        case Opcodes.LADD:
+        case Opcodes.LSUB:
+        case Opcodes.LMUL:
+        case Opcodes.LDIV:
+        case Opcodes.LREM:
+        case Opcodes.LAND:
+        case Opcodes.LOR:
+        case Opcodes.LXOR:
+          pop(4);
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+
+        case Opcodes.LSHL:
+        case Opcodes.LSHR:
+        case Opcodes.LUSHR:
+          pop(3);
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.I2L:
+        case Opcodes.F2L:
+          pop();
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.I2F:
+          pop();
+          push(InferredType.FLOAT);
+          break;
+
+        case Opcodes.LCMP:
+        case Opcodes.DCMPG:
+        case Opcodes.DCMPL:
+          pop(4);
+          push(InferredType.INT);
+          break;
+
+        case Opcodes.I2D:
+        case Opcodes.F2D:
+          pop();
+          push(InferredType.DOUBLE);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.F2I:
+        case Opcodes.ARRAYLENGTH:
+          pop();
+          push(InferredType.INT);
+          break;
+        case Opcodes.FALOAD:
+        case Opcodes.FADD:
+        case Opcodes.FSUB:
+        case Opcodes.FMUL:
+        case Opcodes.FDIV:
+        case Opcodes.FREM:
+        case Opcodes.L2F:
+        case Opcodes.D2F:
+          pop(2);
+          push(InferredType.FLOAT);
+          break;
+
+        case Opcodes.DADD:
+        case Opcodes.DSUB:
+        case Opcodes.DMUL:
+        case Opcodes.DDIV:
+        case Opcodes.DREM:
+          pop(4);
+          push(InferredType.DOUBLE);
+          push(InferredType.TOP);
+          break;
+        default:
+          throw new RuntimeException("Unhandled opcode " + opcode);
+      }
+      super.visitInsn(opcode);
+    }
+
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+      switch (opcode) {
+        case Opcodes.BIPUSH:
+        case Opcodes.SIPUSH:
+          push(InferredType.INT);
+          break;
+        case Opcodes.NEWARRAY:
+          pop();
+          switch (operand) {
+            case Opcodes.T_BOOLEAN:
+              pushDescriptor("[Z");
+              break;
+            case Opcodes.T_CHAR:
+              pushDescriptor("[C");
+              break;
+            case Opcodes.T_FLOAT:
+              pushDescriptor("[F");
+              break;
+            case Opcodes.T_DOUBLE:
+              pushDescriptor("[D");
+              break;
+            case Opcodes.T_BYTE:
+              pushDescriptor("[B");
+              break;
+            case Opcodes.T_SHORT:
+              pushDescriptor("[S");
+              break;
+            case Opcodes.T_INT:
+              pushDescriptor("[I");
+              break;
+            case Opcodes.T_LONG:
+              pushDescriptor("[J");
+              break;
+            default:
+              throw new RuntimeException("Unhandled operand value: " + operand);
+          }
+          break;
+        default:
+          throw new RuntimeException("Unhandled opcode " + opcode);
+      }
+      super.visitIntInsn(opcode, operand);
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+      switch (opcode) {
+        case Opcodes.ILOAD:
+          push(InferredType.INT);
+          break;
+        case Opcodes.LLOAD:
+          push(InferredType.LONG);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.FLOAD:
+          push(InferredType.FLOAT);
+          break;
+        case Opcodes.DLOAD:
+          push(InferredType.DOUBLE);
+          push(InferredType.TOP);
+          break;
+        case Opcodes.ALOAD:
+          push(getLocalVariable(var));
+          break;
+        case Opcodes.ISTORE:
+        case Opcodes.FSTORE:
+        case Opcodes.ASTORE:
+          {
+            StackEntry entry = pop();
+            setLocalVariable(var, entry);
+            break;
+          }
+        case Opcodes.LSTORE:
+        case Opcodes.DSTORE:
+          {
+            StackEntry entry = pop(2);
+            setLocalVariable(var, entry);
+            setLocalVariable(var + 1, opaque(InferredType.TOP));
+            break;
+          }
+        case Opcodes.RET:
+          throw new RuntimeException("The instruction RET is not supported");
+        default:
+          throw new RuntimeException("Unhandled opcode " + opcode);
+      }
+      super.visitVarInsn(opcode, var);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+      String descriptor = convertToDescriptor(type);
+      switch (opcode) {
+        case Opcodes.NEW:
+          // This should be UNINITIALIZED(label). Okay for type inference.
+          pushDescriptor(descriptor);
+          break;
+        case Opcodes.ANEWARRAY:
+          pop();
+          pushDescriptor('[' + descriptor);
+          break;
+        case Opcodes.CHECKCAST:
+          pop();
+          pushDescriptor(descriptor);
+          break;
+        case Opcodes.INSTANCEOF:
+          pop();
+          push(InferredType.INT);
+          break;
+        default:
+          throw new RuntimeException("Unhandled opcode " + opcode);
+      }
+      super.visitTypeInsn(opcode, type);
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+      switch (opcode) {
+        case Opcodes.GETSTATIC:
+          pushDescriptor(desc);
+          break;
+        case Opcodes.PUTSTATIC:
+          popDescriptor(desc);
+          break;
+        case Opcodes.GETFIELD:
+          pop();
+          pushDescriptor(desc);
+          break;
+        case Opcodes.PUTFIELD:
+          popDescriptor(desc);
+          pop();
+          break;
+        default:
+          throw new RuntimeException(
+              "Unhandled opcode "
+                  + opcode
+                  + ", owner="
+                  + owner
+                  + ", name="
+                  + name
+                  + ", desc"
+                  + desc);
+      }
+      super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+      if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+        int argumentSize = (Type.getArgumentsAndReturnSizes(desc) >> 2);
+        InferredType receiverType = getOperandFromTop(argumentSize - 1).type();
+        if (receiverType.isUninitialized()) {
+          InferredType realType = InferredType.create('L' + owner + ';');
+          replaceUninitializedTypeInStack(receiverType, realType);
+        }
+      }
+      switch (opcode) {
+        case Opcodes.INVOKESPECIAL:
+        case Opcodes.INVOKEVIRTUAL:
+        case Opcodes.INVOKESTATIC:
+        case Opcodes.INVOKEINTERFACE:
+          Invocation.Builder invocation = Invocation.builder(name);
+
+          if (isThatOrAssertThat(owner, name)) {
+            invocation.setActualValue(getOperandFromTop(0));
+          } else if (isBoxing(owner, name, desc)) {
+            invocation.setBoxingInput(
+                // double and long are represented by a TOP with the "real" value under it.
+                getOperandFromTop(0).type() == InferredType.TOP
+                    ? getOperandFromTop(1)
+                    : getOperandFromTop(0));
+          }
+
+          popDescriptor(desc);
+
+          if (opcode != Opcodes.INVOKESTATIC) {
+            invocation.setReceiver(pop());
+          }
+
+          pushDescriptorAndMaybeProcessMethodCall(desc, invocation.build());
+          break;
+        default:
+          throw new RuntimeException(
+              String.format(
+                  "Unhandled opcode %s, owner=%s, name=%s, desc=%s, itf=%s",
+                  opcode, owner, name, desc, itf));
+      }
+      super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+      popDescriptor(desc);
+      pushDescriptor(desc);
+      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+      seenJump = true;
+      switch (opcode) {
+        case Opcodes.IFEQ:
+        case Opcodes.IFNE:
+        case Opcodes.IFLT:
+        case Opcodes.IFGE:
+        case Opcodes.IFGT:
+        case Opcodes.IFLE:
+          pop();
+          break;
+        case Opcodes.IF_ICMPEQ:
+        case Opcodes.IF_ICMPNE:
+        case Opcodes.IF_ICMPLT:
+        case Opcodes.IF_ICMPGE:
+        case Opcodes.IF_ICMPGT:
+        case Opcodes.IF_ICMPLE:
+        case Opcodes.IF_ACMPEQ:
+        case Opcodes.IF_ACMPNE:
+          pop(2);
+          break;
+        case Opcodes.GOTO:
+          break;
+        case Opcodes.JSR:
+          throw new RuntimeException("The JSR instruction is not supported.");
+        case Opcodes.IFNULL:
+        case Opcodes.IFNONNULL:
+          pop(1);
+          break;
+        default:
+          throw new RuntimeException("Unhandled opcode " + opcode);
+      }
+      super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
+    public void visitLdcInsn(Object cst) {
+      if (cst instanceof Integer) {
+        push(InferredType.INT);
+      } else if (cst instanceof Float) {
+        push(InferredType.FLOAT);
+      } else if (cst instanceof Long) {
+        push(InferredType.LONG);
+        push(InferredType.TOP);
+      } else if (cst instanceof Double) {
+        push(InferredType.DOUBLE);
+        push(InferredType.TOP);
+      } else if (cst instanceof String) {
+        pushDescriptor("Ljava/lang/String;");
+      } else if (cst instanceof Type) {
+        pushDescriptor(((Type) cst).getDescriptor());
+      } else if (cst instanceof Handle) {
+        pushDescriptor("Ljava/lang/invoke/MethodHandle;");
+      } else {
+        throw new RuntimeException("Cannot handle constant " + cst + " for LDC instruction");
+      }
+      super.visitLdcInsn(cst);
+    }
+
+    @Override
+    public void visitIincInsn(int var, int increment) {
+      setLocalVariable(var, opaque(InferredType.INT));
+      super.visitIincInsn(var, increment);
+    }
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+      seenJump = true;
+      pop();
+      super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+      seenJump = true;
+      pop();
+      super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+      /*
+       * Inference already fails for at least some try-catch blocks, apparently because of the extra
+       * frames they create. Still, let's disable inference explicitly.
+       */
+      seenJump = true;
+      super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+      pop(dims);
+      pushDescriptor(desc);
+      super.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    @Override
+    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+      switch (type) {
+        case Opcodes.F_NEW:
+          // Expanded form.
+          previousFrame =
+              FrameInfo.create(
+                  convertTypesInStackMapFrame(nLocal, local),
+                  convertTypesInStackMapFrame(nStack, stack));
+          break;
+        case Opcodes.F_SAME:
+          // This frame type indicates that the frame has exactly the same local variables as the
+          // previous frame and that the operand stack is empty.
+          previousFrame = FrameInfo.create(previousFrame.locals(), ImmutableList.<StackEntry>of());
+          break;
+        case Opcodes.F_SAME1:
+          // This frame type indicates that the frame has exactly the same local variables as the
+          // previous frame and that the operand stack has one entry.
+          previousFrame =
+              FrameInfo.create(previousFrame.locals(), convertTypesInStackMapFrame(nStack, stack));
+          break;
+        case Opcodes.F_APPEND:
+          // This frame type indicates that the frame has the same locals as the previous frame
+          // except that k additional locals are defined, and that the operand stack is empty.
+          previousFrame =
+              FrameInfo.create(
+                  appendArrayToList(previousFrame.locals(), nLocal, local),
+                  ImmutableList.<StackEntry>of());
+          break;
+        case Opcodes.F_CHOP:
+          // This frame type indicates that the frame has the same local variables as the previous
+          // frame except that the last k local variables are absent, and that the operand stack is
+          // empty.
+          previousFrame =
+              FrameInfo.create(
+                  removeBackFromList(previousFrame.locals(), nLocal),
+                  ImmutableList.<StackEntry>of());
+          break;
+        case Opcodes.F_FULL:
+          previousFrame =
+              FrameInfo.create(
+                  convertTypesInStackMapFrame(nLocal, local),
+                  convertTypesInStackMapFrame(nStack, stack));
+          break;
+        default:
+          // continue below
+      }
+      // Update types for operand stack and local variables.
+      operandStack.clear();
+      operandStack.addAll(previousFrame.stack());
+      localVariableSlots.clear();
+      localVariableSlots.addAll(previousFrame.locals());
+      super.visitFrame(type, nLocal, local, nStack, stack);
+    }
+
+    private static String convertToDescriptor(String type) {
+      return (type.length() > 1 && type.charAt(0) != '[') ? 'L' + type + ';' : type;
+    }
+
+    private void push(InferredType type) {
+      push(opaque(type));
+    }
+
+    private void push(StackEntry entry) {
+      operandStack.add(entry);
+    }
+
+    private void replaceUninitializedTypeInStack(InferredType oldType, InferredType newType) {
+      checkArgument(oldType.isUninitialized(), "The old type is NOT uninitialized. %s", oldType);
+      for (int i = 0, size = operandStack.size(); i < size; ++i) {
+        InferredType type = operandStack.get(i).type();
+        if (type.equals(oldType)) {
+          operandStack.set(i, opaque(newType));
+        }
+      }
+    }
+
+    private void pushDescriptor(String desc) {
+      pushDescriptorAndMaybeProcessMethodCall(desc, /* invocation= */ null);
+    }
+
+    /**
+     * Pushes entries onto the stack for the given arguments, and, if the descriptor is for a method
+     * call, records the assertion made by that call (if any).
+     *
+     * <p>If the descriptor is for a call, this method not only records the assertion made by it (if
+     * any) but also examines its parameters to generate more detailed stack entries.
+     *
+     * @param desc the descriptor of the type to be added to the stack (or the descriptor of the
+     *     method whose return value is to be added to the stack)
+     * @param invocation the method invocation being visited, or {@code null} if a non-method
+     *     descriptor is being visited
+     */
+    private void pushDescriptorAndMaybeProcessMethodCall(
+        String desc, @Nullable Invocation invocation) {
+      if (invocation != null && invocation.isOnSubjectInstance()) {
+        actualValueAtLocation.put(
+            labelsSeen.build(), checkNotNull(invocation.receiver()).actualValue());
+      }
+
+      boolean hasParams = invocation != null && (Type.getArgumentsAndReturnSizes(desc) >> 2) > 1;
+      int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
+      switch (desc.charAt(index)) {
+        case 'V':
+          return;
+        case 'Z':
+        case 'C':
+        case 'B':
+        case 'S':
+        case 'I':
+          pushMaybeDescribed(InferredType.INT, invocation, hasParams);
+          break;
+        case 'F':
+          pushMaybeDescribed(InferredType.FLOAT, invocation, hasParams);
+          break;
+        case 'D':
+          pushMaybeDescribed(InferredType.DOUBLE, invocation, hasParams);
+          push(InferredType.TOP);
+          break;
+        case 'J':
+          pushMaybeDescribed(InferredType.LONG, invocation, hasParams);
+          push(InferredType.TOP);
+          break;
+        case 'L':
+        case '[':
+          pushMaybeDescribed(InferredType.create(desc.substring(index)), invocation, hasParams);
+          break;
+        default:
+          throw new RuntimeException("Unhandled type: " + desc);
+      }
+    }
+
+    private void pushMaybeDescribed(
+        InferredType type, @Nullable Invocation invocation, boolean hasParams) {
+      push(invocation == null ? opaque(type) : invocation.deriveEntry(type, hasParams));
+    }
+
+    @CanIgnoreReturnValue
+    private StackEntry pop() {
+      return pop(1);
+    }
+
+    /** Pop elements from the end of the operand stack, and return the last popped element. */
+    @CanIgnoreReturnValue
+    private StackEntry pop(int count) {
+      checkArgument(
+          count >= 1, "The count should be at least one: %s (In %s)", count, methodSignature);
+      checkState(
+          operandStack.size() >= count,
+          "There are no enough elements in the stack. count=%s, stack=%s (In %s)",
+          count,
+          operandStack,
+          methodSignature);
+      int expectedLastIndex = operandStack.size() - count - 1;
+
+      StackEntry lastPopped;
+      do {
+        lastPopped = operandStack.remove(operandStack.size() - 1);
+      } while (operandStack.size() - 1 > expectedLastIndex);
+      return lastPopped;
+    }
+
+    private void popDescriptor(String desc) {
+      char c = desc.charAt(0);
+      switch (c) {
+        case '(':
+          int argumentSize = (Type.getArgumentsAndReturnSizes(desc) >> 2) - 1;
+          if (argumentSize > 0) {
+            pop(argumentSize);
+          }
+          break;
+        case 'J':
+        case 'D':
+          pop(2);
+          break;
+        default:
+          pop(1);
+          break;
+      }
+    }
+
+    private StackEntry getLocalVariable(int index) {
+      checkState(
+          index < localVariableSlots.size(),
+          "Cannot find type for var %s in method %s",
+          index,
+          methodSignature);
+      return localVariableSlots.get(index);
+    }
+
+    private void setLocalVariable(int index, StackEntry entry) {
+      while (localVariableSlots.size() <= index) {
+        localVariableSlots.add(opaque(InferredType.TOP));
+      }
+      localVariableSlots.set(index, entry);
+    }
+
+    private StackEntry top() {
+      return Iterables.getLast(operandStack);
+    }
+
+    /**
+     * Create the slots for local variables at the very beginning of the method with the information
+     * of the declaring class and the method descriptor.
+     */
+    private static ArrayList<StackEntry> createInitialLocalVariableSlots(
+        int access, String ownerClass, String methodName, String methodDescriptor) {
+      ArrayList<StackEntry> entries = new ArrayList<>();
+
+      if (!isStatic(access)) {
+        // Instance method, and this is the receiver
+        entries.add(opaque(InferredType.create(convertToDescriptor(ownerClass))));
+      }
+      Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
+      for (Type argumentType : argumentTypes) {
+        switch (argumentType.getSort()) {
+          case Type.BOOLEAN:
+          case Type.BYTE:
+          case Type.CHAR:
+          case Type.SHORT:
+          case Type.INT:
+            entries.add(opaque(InferredType.INT));
+            break;
+          case Type.FLOAT:
+            entries.add(opaque(InferredType.FLOAT));
+            break;
+          case Type.LONG:
+            entries.add(opaque(InferredType.LONG));
+            entries.add(opaque(InferredType.TOP));
+            break;
+          case Type.DOUBLE:
+            entries.add(opaque(InferredType.DOUBLE));
+            entries.add(opaque(InferredType.TOP));
+            break;
+          case Type.ARRAY:
+          case Type.OBJECT:
+            entries.add(opaque(InferredType.create(argumentType.getDescriptor())));
+            break;
+          default:
+            throw new RuntimeException(
+                "Unhandled argument type: "
+                    + argumentType
+                    + " in "
+                    + ownerClass
+                    + "."
+                    + methodName
+                    + methodDescriptor);
+        }
+      }
+      return entries;
+    }
+
+    private static ImmutableList<StackEntry> removeBackFromList(
+        ImmutableList<StackEntry> list, int countToRemove) {
+      int origSize = list.size();
+      int index = origSize - 1;
+
+      while (index >= 0 && countToRemove > 0) {
+        InferredType type = list.get(index).type();
+        if (type.equals(InferredType.TOP)
+            && index > 0
+            && list.get(index - 1).type().isCategory2()) {
+          --index; // A category 2 takes two slots.
+        }
+        --index; // Eat this local variable.
+        --countToRemove;
+      }
+      checkState(
+          countToRemove == 0,
+          "countToRemove is %s but not 0. index=%s, list=%s",
+          countToRemove,
+          index,
+          list);
+      return list.subList(0, index + 1);
+    }
+
+    private ImmutableList<StackEntry> appendArrayToList(
+        ImmutableList<StackEntry> list, int size, Object[] array) {
+      ImmutableList.Builder<StackEntry> builder = ImmutableList.builder();
+      builder.addAll(list);
+      for (int i = 0; i < size; ++i) {
+        InferredType type = convertTypeInStackMapFrame(array[i]);
+        builder.add(opaque(type));
+        if (type.isCategory2()) {
+          builder.add(opaque(InferredType.TOP));
+        }
+      }
+      return builder.build();
+    }
+
+    /** Convert the type in stack map frame to inference type. */
+    private InferredType convertTypeInStackMapFrame(Object typeInStackMapFrame) {
+      if (typeInStackMapFrame == Opcodes.TOP) {
+        return InferredType.TOP;
+      } else if (typeInStackMapFrame == Opcodes.INTEGER) {
+        return InferredType.INT;
+      } else if (typeInStackMapFrame == Opcodes.FLOAT) {
+        return InferredType.FLOAT;
+      } else if (typeInStackMapFrame == Opcodes.DOUBLE) {
+        return InferredType.DOUBLE;
+      } else if (typeInStackMapFrame == Opcodes.LONG) {
+        return InferredType.LONG;
+      } else if (typeInStackMapFrame == Opcodes.NULL) {
+        return InferredType.NULL;
+      } else if (typeInStackMapFrame == Opcodes.UNINITIALIZED_THIS) {
+        return InferredType.UNINITIALIZED_THIS;
+      } else if (typeInStackMapFrame instanceof String) {
+        String referenceTypeName = (String) typeInStackMapFrame;
+        if (referenceTypeName.charAt(0) == '[') {
+          return InferredType.create(referenceTypeName);
+        } else {
+          return InferredType.create('L' + referenceTypeName + ';');
+        }
+      } else if (typeInStackMapFrame instanceof Label) {
+        return InferredType.UNINITIALIZED;
+      } else {
+        throw new RuntimeException(
+            "Cannot reach here. Unhandled element: value="
+                + typeInStackMapFrame
+                + ", class="
+                + typeInStackMapFrame.getClass()
+                + ". The current method being desugared is "
+                + methodSignature);
+      }
+    }
+
+    private ImmutableList<StackEntry> convertTypesInStackMapFrame(int size, Object[] array) {
+      ImmutableList.Builder<StackEntry> builder = ImmutableList.builder();
+      for (int i = 0; i < size; ++i) {
+        InferredType type = convertTypeInStackMapFrame(array[i]);
+        builder.add(opaque(type));
+        if (type.isCategory2()) {
+          builder.add(opaque(InferredType.TOP));
+        }
+      }
+      return builder.build();
+    }
+  }
+
+  /** A value class to represent a frame. */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class FrameInfo {
+
+    static FrameInfo create(ImmutableList<StackEntry> locals, ImmutableList<StackEntry> stack) {
+      return new AutoValue_ActualValueInference_FrameInfo(locals, stack);
+    }
+
+    abstract ImmutableList<StackEntry> locals();
+
+    abstract ImmutableList<StackEntry> stack();
+  }
+
+  /** A method invocation. */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class Invocation {
+    static Builder builder(String name) {
+      return new AutoValue_ActualValueInference_Invocation.Builder().setName(name);
+    }
+
+    /** The receiver of this call, if it is an instance call. */
+    abstract @Nullable StackEntry receiver();
+
+    /** The value being passed to this call if it is an {@code assertThat} or {@code that} call. */
+    abstract @Nullable StackEntry actualValue();
+
+    /**
+     * The value being passed to this call if it is a boxing call (e.g., {@code Integer.valueOf}).
+     */
+    abstract @Nullable StackEntry boxingInput();
+
+    abstract String name();
+
+    final StackEntry deriveEntry(InferredType type, boolean hasParams) {
+      if (boxingInput() != null && boxingInput().description() != null) {
+        return described(type, boxingInput().description());
+      } else if (actualValue() != null) {
+        return subjectFor(type, actualValue());
+      } else if (isOnSubjectInstance()) {
+        return subjectFor(type, checkNotNull(receiver()).actualValue());
+      } else if (BORING_NAMES.contains(name())) {
+        /*
+         * TODO(cpovirk): For no-arg instance methods like get(), return "foo.get()," where "foo" is
+         * the description we had for the receiver (if any).
+         */
+        return opaque(type);
+      } else {
+        return described(type, name() + (hasParams ? "(...)" : "()"));
+      }
+    }
+
+    final boolean isOnSubjectInstance() {
+      return receiver() != null && receiver().isSubject();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+      abstract Builder setReceiver(StackEntry receiver);
+
+      abstract Builder setActualValue(StackEntry actualValue);
+
+      abstract Builder setBoxingInput(StackEntry boxingInput);
+
+      abstract Builder setName(String name);
+
+      abstract Invocation build();
+    }
+  }
+
+  /** This is the type used for type inference. */
+  @AutoValue
+  @CopyAnnotations
+  @GwtIncompatible
+  @J2ktIncompatible
+  abstract static class InferredType {
+
+    static final String UNINITIALIZED_PREFIX = "UNINIT@";
+
+    static final InferredType BOOLEAN = new AutoValue_ActualValueInference_InferredType("Z");
+    static final InferredType BYTE = new AutoValue_ActualValueInference_InferredType("B");
+    static final InferredType INT = new AutoValue_ActualValueInference_InferredType("I");
+    static final InferredType FLOAT = new AutoValue_ActualValueInference_InferredType("F");
+    static final InferredType LONG = new AutoValue_ActualValueInference_InferredType("J");
+    static final InferredType DOUBLE = new AutoValue_ActualValueInference_InferredType("D");
+    /** Not a real value. */
+    static final InferredType TOP = new AutoValue_ActualValueInference_InferredType("TOP");
+    /** The value NULL */
+    static final InferredType NULL = new AutoValue_ActualValueInference_InferredType("NULL");
+
+    static final InferredType UNINITIALIZED_THIS =
+        new AutoValue_ActualValueInference_InferredType("UNINITIALIZED_THIS");
+
+    static final InferredType UNINITIALIZED =
+        new AutoValue_ActualValueInference_InferredType(UNINITIALIZED_PREFIX);
+
+    /** Create a type for a value. */
+    static InferredType create(String descriptor) {
+      if (descriptor.equals(UNINITIALIZED_PREFIX)) {
+        return UNINITIALIZED;
+      }
+      char firstChar = descriptor.charAt(0);
+      if (firstChar == 'L' || firstChar == '[') {
+        // Reference, array.
+        return new AutoValue_ActualValueInference_InferredType(descriptor);
+      }
+      switch (descriptor) {
+        case "Z":
+          return BOOLEAN;
+        case "B":
+          return BYTE;
+        case "I":
+          return INT;
+        case "F":
+          return FLOAT;
+        case "J":
+          return LONG;
+        case "D":
+          return DOUBLE;
+        case "TOP":
+          return TOP;
+        case "NULL":
+          return NULL;
+        case "UNINITIALIZED_THIS":
+          return UNINITIALIZED_THIS;
+        default:
+          throw new RuntimeException("Invalid descriptor: " + descriptor);
+      }
+    }
+
+    abstract String descriptor();
+
+    @Override
+    public final String toString() {
+      return descriptor();
+    }
+
+    /** Is a category 2 value? */
+    boolean isCategory2() {
+      String descriptor = descriptor();
+      return descriptor.equals("J") || descriptor.equals("D");
+    }
+
+    /** If the type is an array, return the element type. Otherwise, throw an exception. */
+    InferredType getElementTypeIfArrayOrThrow() {
+      String descriptor = descriptor();
+      checkState(descriptor.charAt(0) == '[', "This type %s is not an array.", this);
+      return create(descriptor.substring(1));
+    }
+
+    /** Is an uninitialized value? */
+    boolean isUninitialized() {
+      return descriptor().startsWith(UNINITIALIZED_PREFIX);
+    }
+  }
+
+  private static final class InferenceClassVisitor extends ClassVisitor {
+    /**
+     * The method to visit.
+     *
+     * <p>We don't really <i>need</i> the method name: We could just visit the whole class, since we
+     * look at data for only the relevant line. But it's nice not to process the whole class,
+     * especially during debugging. (And it might also help avoid triggering any bugs in the
+     * inference code.)
+     */
+    private final String methodNameToVisit;
+
+    private final ImmutableSetMultimap.Builder<Integer, StackEntry> actualValueAtLine =
+        ImmutableSetMultimap.builder();
+    // TODO(cpovirk): Can the class visitor pass the name in?
+    private String className;
+
+    InferenceClassVisitor(String methodNameToVisit) {
+      super(Opcodes.ASM9);
+      this.methodNameToVisit = methodNameToVisit;
+    }
+
+    @Override
+    public void visit(
+        int version,
+        int access,
+        String name,
+        String signature,
+        String superName,
+        String[] interfaces) {
+      className = name;
+    }
+
+    @Override
+    public @Nullable MethodVisitor visitMethod(
+        int access, String name, String desc, String signature, String[] exceptions) {
+      /*
+       * Each InferenceMethodVisitor instance may be used only once. Still, it might seem like we
+       * can get away with creating a single instance at construction time. However, we know only
+       * the name of the method that we're visiting, not its full signature, so we may need to visit
+       * multiple methods with that name, each with a fresh visitor.
+       */
+      return methodNameToVisit.equals(name)
+          ? new InferenceMethodVisitor(access, className, name, desc, actualValueAtLine)
+          : null;
+    }
+  }
+
+  /*
+   * TODO(cpovirk): Expand this, maybe based on data about the most common method calls passed to
+   * assertThat().
+   */
+  private static final ImmutableSet<String> BORING_NAMES =
+      ImmutableSet.of(
+          "asList",
+          "build",
+          "collect",
+          "copyOf",
+          "create",
+          "from",
+          "get",
+          "iterator",
+          "of",
+          "toArray",
+          "toString",
+          "valueOf");
+
+  private static boolean isThatOrAssertThat(String owner, String name) {
+    /*
+     * TODO(cpovirk): Handle CustomSubjectBuilder. That requires looking at the type hierarchy, as
+     * users always have an instance of a specific subtype. Also keep in mind that the that(...)
+     * method might accept more than 1 parameter, like `that(className, methodName)` and/or that it
+     * might have category-2 parameters.
+     *
+     * TODO(cpovirk): Handle custom assertThat methods. The challenges are similar.
+     */
+    return (owner.equals("com/google/common/truth/Truth") && name.equals("assertThat"))
+        || (owner.equals("com/google/common/truth/StandardSubjectBuilder") && name.equals("that"))
+        || (owner.equals("com/google/common/truth/SimpleSubjectBuilder") && name.equals("that"))
+        || (owner.equals("com/google/common/truth/Expect") && name.equals("that"));
+  }
+
+  private static boolean isBoxing(String owner, String name, String desc) {
+    return name.equals("valueOf")
+        && PRIMITIVE_WRAPPERS.contains(owner)
+        /*
+         * Don't handle valueOf(String s[, int radix]). The valueOf support is really here for
+         * autoboxing, as in "assertThat(primitive)," not for
+         * "assertThat(Integer.valueOf(...))." Not that there's anything really *wrong* with
+         * handling manual boxing of primitives -- good thing, since we can't distinguish the two --
+         * but we're not interested in handling the valueOf methods that *parse*. That's mainly
+         * because there's a type conversion, so some assertions might succeed on a string and fail
+         * on the parsed number (or vice versa).
+         */
+        && !Type.getArgumentTypes(desc)[0].equals(Type.getType(String.class));
+  }
+
+  private static final ImmutableSet<String> PRIMITIVE_WRAPPERS =
+      ImmutableSet.of(
+          "java/lang/Boolean",
+          "java/lang/Byte",
+          "java/lang/Character",
+          "java/lang/Double",
+          "java/lang/Float",
+          "java/lang/Integer",
+          "java/lang/Long",
+          "java/lang/Short");
+
+  private static boolean isStatic(int access) {
+    return isSet(access, Opcodes.ACC_STATIC);
+  }
+
+  /**
+   * Returns {@code true} iff <b>all</b> bits in {@code bitmask} are set in {@code flags}. Trivially
+   * returns {@code true} if {@code bitmask} is 0.
+   */
+  private static boolean isSet(int flags, int bitmask) {
+    return (flags & bitmask) == bitmask;
+  }
+
+  private static void closeQuietly(@Nullable InputStream stream) {
+    if (stream == null) {
+      return;
+    }
+    try {
+      stream.close();
+    } catch (IOException e) {
+      // TODO(cpovirk): Log a warning?
+    }
+  }
+
+  private ActualValueInference() {}
+}
