@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"ចូលប្រើប្រាស់ AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdServices Topics API។"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"ចូលប្រើប្រាស់ AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdServices Attribution API។"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"ចូលប្រើប្រាស់ AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdServices Custom Audiences API។"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"សិទ្ធិ​ចូលប្រើប្រាស់ AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdId API។"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"ចូលប្រើប្រាស់ AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdServices Consent API។"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"ចូលប្រើប្រាស់ Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ Ad ID API។"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"សិទ្ធិ​ចូលប្រើ AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"អនុញ្ញាតឱ្យ​កម្មវិធី​ចូលប្រើ AdServices Cobalt Upload API។"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"ចូលប្រើប្រាស់ App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ App Set ID API។"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"សិទ្ធិចូលប្រើប្រាស់ Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ Consent Service API។"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"សិទ្ធិចូលប្រើ API កែសម្រួលស្ថានភាពនៃការបើករបស់ AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើ API កែសម្រួលស្ថានភាពនៃការបើករបស់ AdService។"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"សិទ្ធិចូលប្រើ API ស្ថានភាពនៃការបើករបស់ AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើ API ស្ថានភាពនៃការបើករបស់ AdService។"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"ចូលប្រើ API របស់ AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើ API របស់ AdServicesManager។"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"ចូលប្រើប្រាស់ AdId API កំណែថ្មីរបស់ AdService។"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"អនុញ្ញាតឱ្យកម្មវិធីចូលប្រើប្រាស់ AdId API កំណែថ្មីរបស់ AdService។"</string>
+    <string name="app_label" msgid="2639006978056689153">"ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"ចូលរួមកំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android កំពុងស្វែងរកវិធីដែលកាន់តែមានលក្ខណៈឯកជនសម្រាប់កម្មវិធី ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដល់អ្នក"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"ស្វែងយល់បន្ថែម"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"កំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"អ្វី​ដែលថ្មី"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"មុខងារឯកជនភាពថ្មីនៅក្នុង Privacy Sandbox អនុញ្ញាតឱ្យកម្មវិធីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធ ប៉ុន្តែដាក់កំហិតលើអ្វីដែលកម្មវិធីទាំងនោះអាចស្វែងយល់បានអំពីសកម្មភាពរបស់អ្នកនៅលើគេហទំព័រ និងកម្មវិធីពីអ្នកអភិវឌ្ឍន៍ផ្សេងទៀត។"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"របៀបដែលវាដំណើរការ"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"របៀបចូលរួម"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"ការបើកកំណែបេតាអនុញ្ញាតឱ្យកម្មវិធីធ្វើតេស្តវិធីដែលកាន់តែមានលក្ខណៈឯកជនទាំងនេះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដល់អ្នក។ អ្នកអាចបិទកំណែបេតាបានគ្រប់ពេលនៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក។"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"ទេ អរគុណ"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"បើក"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"ច្រើនទៀត"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"សូមអរគុណ​សម្រាប់​ការចូលរួម"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"អ្នកគឺជាផ្នែកនៃកំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android។ Privacy Sandbox ត្រូវបានបើកសម្រាប់ឧបករណ៍របស់អ្នក។\n\nអ្នកអាចស្វែងយល់បន្ថែម ឬបិទកំណែបេតាបានគ្រប់ពេលនៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក។"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"អ្នកបានជ្រើសរើស​មិន​ចូលរួម"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"សូមអរគុណ​ចំពោះការឆ្លើយតប​របស់អ្នក។ Privacy Sandbox ត្រូវបានបិទសម្រាប់ឧបករណ៍របស់អ្នក។\n\nប្រសិនបើអ្នកប្ដូរចិត្ត ឬចង់ស្វែងយល់បន្ថែម សូមចូលទៅកាន់ការកំណត់ឯកជនភាពរបស់អ្នក។"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"ការកំណត់​ឯកជនភាព"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"យល់ហើយ"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"អ្នកគឺជាផ្នែកនៃកំណែបេតា"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox គឺបើកសម្រាប់ឧបករណ៍របស់អ្នក ហើយកម្មវិធីអាចធ្វើតេស្តលើវិធីដែលកាន់តែមានលក្ខណៈឯកជនទាំងនេះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដល់អ្នក។ អ្នកអាចបិទកំណែបេតាបានគ្រប់ពេលនៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក។"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"យល់ហើយ"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Privacy Sandbox របស់ Android ផ្តល់នូវមុខងារថ្មីៗដែលកម្មវិធីអាចប្រើដើម្បីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចូលចិត្ត។ បច្ចេកវិទ្យាទាំងនេះមិនប្រើលេខកូដសម្គាល់ឧបករណ៍ទេ។\n\nAndroid និងកម្មវិធីរបស់អ្នកអាចប៉ាន់ស្មានប្រភេទនៃការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចាប់អារម្មណ៍ និងរក្សាទុកចំណាប់អារម្មណ៍ទាំងនេះជាបណ្តោះអាសន្ននៅលើឧបករណ៍របស់អ្នក។ ដំណើរការនេះអនុញ្ញាតឱ្យកម្មវិធីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចូលចិត្ត ដោយមិនតាមដានសកម្មភាពរបស់អ្នកនៅលើគេហទំព័រ និងកម្មវិធីពីអ្នកអភិវឌ្ឍន៍ផ្សេងទៀត។"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"ការកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនតាមរយៈ Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  ចំណាប់អារម្មណ៍ដែលប៉ាន់ស្មានដោយ Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android ប៉ាន់ស្មានចំណាប់អារម្មណ៍កំពូលរបស់អ្នកជាប្រចាំ ដោយផ្អែកលើកម្មវិធីដែលអ្នកប្រើ ឧទាហរណ៍ \"កីឡា\" ឬ \"ការធ្វើដំណើរ\"។\n\nក្រោយមក កម្មវិធីមួយអាចស្នើឱ្យ Android ប្រើចំណាប់អារម្មណ៍ទាំងនោះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលកាន់តែពាក់ព័ន្ធដល់អ្នក។\n\nអ្នកអាចមើលឃើញបញ្ជីចំណាប់អារម្មណ៍បច្ចុប្បន្ននៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក និងទប់ស្កាត់អ្វីដែលអ្នកមិនចូលចិត្ត។"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  ចំណាប់អារម្មណ៍ដែលប៉ាន់ស្មានដោយកម្មវិធី"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"កម្មវិធីអាចប៉ាន់ស្មានចំណាប់អារម្មណ៍របស់អ្នក និងរក្សាទុកចំណាប់អារម្មណ៍ទាំងនេះជាបណ្តោះអាសន្នជាមួយ Android។ ឧទាហរណ៍ កម្មវិធីមួយដែលអ្នកប្រើដើម្បីទិញស្បែកជើងសម្រាប់រត់ប្រហែលជាប៉ាន់ស្មានចំណាប់អារម្មណ៍របស់អ្នកថា \"ការរត់ម៉ារ៉ាតុង\"។\n\nក្រោយមក ដោយផ្អែកលើចំណាប់អារម្មណ៍នេះ កម្មវិធីផ្សេងទៀតអាចបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលទាក់ទងនឹងម៉ារ៉ាតុង។\n\nនៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក អ្នកអាចគ្រប់គ្រងបញ្ជីកម្មវិធីដែលបានរក្សាទុកចំណាប់អារម្មណ៍។"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"មុខងារឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មថ្មីៗ"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្ម និងការគ្រប់គ្រងថ្មីៗផ្ដល់ជម្រើសដល់អ្នកកាន់តែច្រើនអំពីការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"ឥឡូវនេះ មុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android កត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះ។ កម្មវិធីដែលអ្នកប្រើក៏អាចកំណត់អ្វីដែលអ្នកចូលចិត្ត​បានផងដែរ។ ក្រោយមក កម្មវិធីអាចស្នើសុំព័ត៌មាននេះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលមានលក្ខណៈផ្ទាល់ខ្លួនដល់អ្នក។ អ្នកអាចជ្រើសរើសប្រធានបទ និង​កម្មវិធីណាខ្លះដែលត្រូវបានប្រើប្រាស់ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដល់អ្នក។"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"ដើម្បីវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្ម ប្រភេទទិន្នន័យមួយចំនួនតូចត្រូវបានចែករំលែករវាងកម្មវិធីនានា។"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"ព័ត៌មានបន្ថែមអំពីការផ្សាយពាណិជ្ជកម្មលើ Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"ការផ្សាយពាណិជ្ជកម្ម​ដែលកាន់តែមាន​ប្រយោជន៍"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"កម្មវិធីអាចស្នើសុំព័ត៌មានពី Android ដើម្បី​ជួយកំណត់​កា​រផ្សាយពាណិជ្ជកម្ម​ដែល​អ្នកមើលឃើញ​ឱ្យ​មានលក្ខណៈ​ផ្ទាល់ខ្លួន។"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android កត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើនាពេលថ្មីៗ។"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  កម្មវិធីដែលអ្នកប្រើក៏អាចកំណត់អ្វីដែលអ្នកចូលចិត្តដោយផ្អែកលើរបៀបដែលអ្នកប្រើកម្មវិធីទាំងនោះផងដែរ។ ឧទាហរណ៍ ប្រសិនបើអ្នកប្រើកម្មវិធីដែលលក់ស្បែកជើងសម្រាប់ការរត់រយៈចម្ងាយឆ្ងាយ កម្មវិធីនោះអាចសម្រេចចិត្តថា អ្នកចាប់អារម្មណ៍លើការរត់ម៉ារ៉ាតុង។"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"ក្រោយមក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មាននេះ — ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មរបស់អ្នក ឬការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីដែលអ្នកបានប្រើ។"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android លុបប្រធានបទ និងទិន្នន័យដែលណែនាំដោយកម្មវិធីដោយស្វ័យប្រវត្តិជាប្រចាំ។ អ្នកក៏អាច​ទប់ស្កាត់ប្រធានបទ និងកម្មវិធីជាក់លាក់ដែលអ្នកមិនចង់ធ្វើការណែនាំបានផងដែរ។"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"ការវាស់ស្ទង់​ថាការ​ផ្សាយ​ពាណិជ្ជកម្មធ្វើបាន​ល្អប៉ុនណា"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មានពី Android ដើម្បីជួយកម្មវិធីទាំងនោះវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ។ Android អនុញ្ញាតឱ្យកម្មវិធីប្រមូលប្រភេទទិន្នន័យមួយចំនួនតូច ដូចជាពេលវេលាប្រចាំថ្ងៃដែលការផ្សាយពាណិជ្ជកម្មត្រូវបានបង្ហាញដល់អ្នកជាដើម។"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"សាកល្បងប្រើមុខងារឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មថ្មី"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មផ្ដល់ជម្រើសបន្ថែមដល់អ្នកអំពីការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"មើល​ព័ត៌មាន​លម្អិត"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"សាកល្បងប្រើមុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android កំពុងដាក់ចេញមុខងារឯកជនភាពថ្មីៗដែលផ្ដល់ជម្រើសដល់អ្នកកាន់តែច្រើនអំពីការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ។"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មជួយឱ្យកម្មវិធីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធដល់អ្នក ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក និងព័ត៌មានអំពីការប្រើប្រាស់កម្មវិធីរបស់អ្នក។ Android អាចកត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍ផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះ។ ក្រោយមក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំប្រធានបទដែលពាក់ព័ន្ធពី Android ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"អ្នកអាចមើលឃើញប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មនៅក្នុងការ​កំណត់ឧបករណ៍របស់អ្នក និង​ទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ឱ្យចែករំលែកជាមួយកម្មវិធី។ Android ក៏លុបប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មដោយស្វ័យប្រវត្តិជាប្រចាំផងដែរ។"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"អ្នកអាចប្ដូរចិត្តរបស់អ្នកបានគ្រប់ពេលនៅក្នុងការកំណត់​ឯកជនភាព។"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"ច្រើន​ទៀត​អំពី​ប្រធានបទ​នៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"ស្វែងយល់បន្ថែមអំពីរបៀបដែល Android ការពារទិន្នន័យរបស់អ្នកនៅក្នុង"<a href="https://policies.google.com/privacy">"គោលការណ៍​ឯកជនភាព"</a>"របស់យើង។"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"សាកល្បង"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  ទិន្នន័យ​អ្វីត្រូវបាន​ប្រើប្រាស់"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មរបស់អ្នកគឺផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះនៅលើឧបករណ៍នេះ និងកម្រិតញឹកញាប់ដែលអ្នកប្រើកម្មវិធីទាំងនោះ។"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  របៀប​ដែល​យើង​ប្រើប្រាស់​ទិន្នន័យ​នេះ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android កត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍នៅពេលអ្នកប្រើកម្មវិធីរបស់អ្នក។ ស្លាកប្រធានបទត្រូវបានកំណត់ជាមុន និងរួមបញ្ចូលអ្វីៗ ដូចជា សិល្បៈនិងការកម្សាន្ត ការទិញទំនិញ និងកីឡា។ ក្រោយមក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំប្រធានបទមួយចំនួនរបស់អ្នកពី Android (ប៉ុន្តែមិនមែនទិន្នន័យអំពីការប្រើប្រាស់កម្មវិធី ឬអត្តសញ្ញាណរបស់អ្នកទេ) ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  របៀបដែលអ្នក​អាចគ្រប់គ្រង​ទិន្នន័យរបស់អ្នក"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android លុបប្រធានបទដោយស្វ័យប្រវត្តិជាប្រចាំ។ ប្រសិនបើអ្នកបន្តប្រើប្រាស់កម្មវិធី ប្រធានបទអាចនឹងបង្ហាញឡើងវិញនៅក្នុងបញ្ជី។ អ្នកក៏អាចទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ឱ្យ Android ចែករំលែកជាមួយកម្មវិធី និងបិទប្រធានបទនៃការផ្សាយពាណិជ្ជកម្មបានគ្រប់ពេលនៅក្នុងការកំណត់ឯកជនភាព​ផងដែរ។"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"អ្នកអាចធ្វើការផ្លាស់ប្ដូរនៅក្នុងការកំណត់ឯកជនភាព។"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"ឥឡូវនេះ មុខងារផ្សេងទៀតសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android ក៏ផ្ដល់ជូនវិធីថ្មីៗក្នុងការដាក់កំហិតកម្មវិធីណាខ្លះដែលអាចស្វែងយល់អំពីអ្នកបានផងដែរ នៅពេលកម្មវិធីទាំងនោះបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលមានលក្ខណៈផ្ទាល់ខ្លួនដល់អ្នក។"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីជួយការពារអត្តសញ្ញាណរបស់អ្នក និងព័ត៌មានអំពីការប្រើប្រាស់កម្មវិធីរបស់អ្នក ព្រមទាំងអាចឱ្យកម្មវិធីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធដល់អ្នក។ ផ្អែកលើសកម្មភាពរបស់អ្នក កម្មវិធីដែលអ្នកប្រើអាច​ណែនាំការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធនៅលើកម្មវិធីផ្សេងទៀតបាន។ អ្នកអាចមើលឃើញបញ្ជីកម្មវិធី និងទប់ស្កាត់កម្មវិធីទាំងនោះមិនឱ្យធ្វើការណែនាំបាននៅក្នុងការកំណត់​ឯកជនភាព។"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  តាមរយៈការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្ម ប្រភេទទិន្នន័យមួយចំនួនតូចត្រូវបានចែករំលែករវាងកម្មវិធីនានា ដើម្បីវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ ដូចជាពេលវេលាប្រចាំថ្ងៃដែលការផ្សាយពាណិជ្ជកម្មត្រូវបានបង្ហាញដល់អ្នកជាដើម។"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"ច្រើនទៀតអំពីការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី និងការវាស់ស្ទង់ការផ្សាយពាណិ្ជកម្ម"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  ទិន្នន័យ​អ្វីត្រូវបាន​ប្រើប្រាស់"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"សកម្មភាពរបស់អ្នកនៅក្នុងកម្មវិធីដែលអ្នកប្រើនៅលើឧបករណ៍នេះ។"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  របៀបដែលកម្មវិធីប្រើទិន្នន័យនេះ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"កម្មវិធីអាចរក្សាទុកព័ត៌មានអំពីអ្វីៗដែលអ្នកចូលចិត្តជាមួយ Android។ ឧទាហរណ៍ ប្រសិនបើអ្នកប្រើប្រាស់កម្មវិធីអំពីការហ្វឹកហាត់រត់ម៉ារ៉ាតុង កម្មវិធីនោះប្រហែលជាសម្រេចចិត្តថា អ្នកចាប់អារម្មណ៍លើស្បែកជើងសម្រាប់រត់។ ក្រោយមក ប្រសិនបើអ្នកប្រើប្រាស់កម្មវិធីផ្សេង កម្មវិធីនោះអាចបង្ហាញអ្នកអំពីការផ្សាយពាណិជ្ជកម្មអំពីស្បែកជើងសម្រាប់រត់ ដែលបានណែនាំដោយកម្មវិធីដំបូង។"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  របៀបដែលអ្នក​អាចគ្រប់គ្រង​ទិន្នន័យរបស់អ្នក"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android លុបទិន្នន័យដែលបានណែនាំដោយកម្មវិធីដោយស្វ័យប្រវត្តិជាប្រចាំ។ កម្មវិធីដែលអ្នកប្រើប្រាស់ម្ដងទៀតអាចបង្ហាញឡើងវិញនៅក្នុងបញ្ជី។"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"អ្នកក៏អាចទប់ស្កាត់កម្មវិធីកុំឱ្យណែនាំការផ្សាយពាណិជ្ជកម្មសម្រាប់អ្នក កំណត់ទិន្នន័យណែនាំការផ្សាយពាណិជ្ជកម្មទាំងអស់ឡើងវិញ ឬបិទការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីបានគ្រប់ពេលនៅក្នុងការកំណត់ឯកជនភាព។"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំពី Android នូវព័ត៌មានដែលជួយកម្មវិធីទាំងនោះវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ។ Android ការពារឯកជនភាពរបស់អ្នក ដោយដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក។"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"ឥឡូវនេះ មុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"ទទួលបានជម្រើសកាន់តែច្រើនចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"ឥឡូវនេះ មុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android កំពុងដាក់ចេញវិធីថ្មីៗក្នុងការដាក់កំហិតលើកម្មវិធីអ្វីខ្លះដែលអាចស្វែងយល់អំពីអ្នកបាន នៅពេលកម្មវិធីទាំងនោះបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលមានលក្ខណៈផ្ទាល់ខ្លួនដល់អ្នក។"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  តាមរយៈការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី មុខងារឯកជនភាពថ្មីៗជួយការពារអត្តសញ្ញាណ និងព័ត៌មានរបស់អ្នកទាក់ទងនឹងការប្រើប្រាស់កម្មវិធីរបស់អ្នក ព្រមទាំងផ្ដល់លទ្ធភាពឱ្យកម្មវិធីបង្ហាញការផ្សាយពាណិជ្ជកម្មពាក់ព័ន្ធដល់អ្នក។ ដោយផ្អែកលើសកម្មភាពរបស់អ្នក កម្មវិធីដែលអ្នកប្រើអាច​ណែនាំការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធនៅលើកម្មវិធីផ្សេងទៀតបាន។ អ្នកអាចមើលឃើញបញ្ជីកម្មវិធី និងទប់ស្កាត់កម្មវិធីទាំងនោះមិនឱ្យធ្វើការណែនាំបាននៅក្នុងការកំណត់​ឯកជនភាព។"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  តាមរយៈការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្ម ប្រភេទទិន្នន័យមួយចំនួនតូចត្រូវបានចែករំលែករវាងកម្មវិធីនានា ដើម្បីស្វែងយល់អំពីលទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ ដូចជាពេលវេលាប្រចាំថ្ងៃដែលការផ្សាយពាណិជ្ជកម្មត្រូវបានបង្ហាញដល់អ្នកជាដើម។"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"សកម្មភាពរបស់អ្នកក្នុងកម្មវិធីនៅលើឧបករណ៍នេះអាចត្រូវបានប្រើដើម្បីណែនាំការផ្សាយពាណិជ្ជកម្ម។"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"បើកមុខងារមួយទៀតសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android ក៏ផ្ដល់ជូនមុខងារឯកជនភាពថ្មីដែលផ្ដល់ជម្រើសកាន់តែច្រើនដល់អ្នកចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញផងដែរ។"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"ប្រធានបទផ្សាយពាណិជ្ជកម្មជួយកម្មវិធីក្នុងការបង្ហាញការផ្សាយពាណិជ្ជកម្មពាក់ព័ន្ធដល់អ្នក ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក និងព័ត៌មានអំពីការប្រើប្រាស់កម្មវិធីរបស់អ្នក។ Android អាចកត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះ។ ក្រោយមក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំប្រធានបទពាក់ព័ន្ធពី Android ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មកាន់តែពាក់ព័ន្ធជូនអ្នក។"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"អ្នកអាចមើលឃើញប្រធានបទផ្សាយពាណិជ្ជកម្មនៅក្នុងការកំណត់ឯកជនភាពរបស់អ្នក និង​ទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ចែករំលែកជាមួយកម្មវិធី។ Android ក៏លុបប្រធានបទផ្សាយពាណិជ្ជកម្មដោយស្វ័យប្រវត្តិជាប្រចាំផងដែរ។"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"បើក​"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"ឥឡូវនេះ មុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"ឥឡូវនេះ មានជម្រើសកាន់តែច្រើនចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"ឥឡូវនេះ មុខងារថ្មីៗសម្រាប់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"ឥឡូវនេះ Android ផ្ដល់ជូនមុខងារឯកជនភាពថ្មីៗដែលផ្ដល់ជម្រើសកាន់តែច្រើនដល់អ្នកចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ។"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"បន្ទាប់"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"ចូលរួមក្នុងកំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"ចំណាប់អារម្មណ៍ដែលប៉ាន់ស្មានដោយ Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"កម្មវិធីដែលប៉ាន់ស្មានចំណាប់អារម្មណ៍"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"ការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"កម្មវិធីអាចប្រើ Privacy Sandbox ដើម្បីវាស់ស្ទង់ប្រសិទ្ធភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ពួកវា។ ដើម្បីធ្វើដូច្នេះបាន អ្នកផ្សាយពាណិជ្ជកម្មអាចរក្សាទុកទិន្នន័យជាបណ្តោះអាសន្នជាមួយ Android អំពីអន្តរកម្មរបស់អ្នករវាងការផ្សាយពាណិជ្ជកម្ម និងកម្មវិធីរបស់ពួកគេ។ ចំនួនទិន្នន័យដែលពួកគេអាចរក្សាទុកត្រូវបានដាក់កំហិត ហើយនឹងត្រូវបានលុបចេញជាទៀងទាត់។\n\nអ្នកអាចលុបទិន្នន័យនេះនៅពេលណាក៏បានដោយបិទ Privacy Sandbox។"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android ប៉ាន់ស្មានចំណាប់អារម្មណ៍កំពូលរបស់អ្នកជាប្រចាំ ដោយផ្អែកលើកម្មវិធីដែលអ្នកប្រើ។ កម្មវិធីអាចស្នើសុំឱ្យ Android ប្រើចំណាប់អារម្មណ៍ទាំងនោះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលកាន់តែពាក់ព័ន្ធដល់អ្នក។\n\nប្រសិនបើអ្នកទប់ស្កាត់ចំណាប់អារម្មណ៍ណាមួយ វានឹងមិនត្រូវបានបញ្ចូលទៅក្នុងបញ្ជីម្តងទៀតទេ លុះត្រាតែអ្នកឈប់ទប់ស្កាត់វា។ អ្នកនៅតែ​អាច​មើល​ឃើញការផ្សាយពាណិជ្ជកម្ម​ដែល​ពាក់ព័ន្ធមួយចំនួន។"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"ទប់ស្កាត់"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"ឈប់ទប់ស្កាត់"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"ចំណាប់អារម្មណ៍ដែល​អ្នក​បាន​ទប់ស្កាត់"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"កំណត់​ចំណាប់អារម្មណ៍​ទាំង​អស់​​ឡើង​វិញ"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"គ្មានចំណាប់អារម្មណ៍សម្រាប់បង្ហាញឥឡូវនេះទេ។"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"គ្មានប្រធានបទសម្រាប់បង្ហាញឥឡូវនេះទេ។\nស្វែងយល់បន្ថែមអំពី"<a href="https://support.google.com/android?p=ad_privacy">"ប្រធានបទផ្សាយពាណិជ្ជកម្ម"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"កំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android ផ្តល់នូវមុខងារថ្មីៗដែលកម្មវិធីអាចប្រើដើម្បីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចូលចិត្ត។ បច្ចេកវិទ្យាទាំងនេះមិនប្រើលេខកូដសម្គាល់ឧបករណ៍ទេ។\n\nAndroid អាចប៉ាន់ស្មានប្រភេទនៃការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចាប់អារម្មណ៍ និងរក្សាទុកចំណាប់អារម្មណ៍ទាំងនេះជាបណ្តោះអាសន្ននៅលើឧបករណ៍របស់អ្នក។ ដំណើរការនេះអនុញ្ញាតឱ្យកម្មវិធីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធ ដោយមិនតាមដានសកម្មភាពរបស់អ្នកនៅលើគេហទំព័រ និងកម្មវិធីពីអ្នកអភិវឌ្ឍន៍ផ្សេងទៀត។"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"អ្នកមិនមានចំណាប់អារម្មណ៍ដែលត្រូវបានទប់ស្កាត់ទេ"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"គ្មានប្រធានបទដែលបានទប់ស្កាត់ទេ"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"មើលប្រធានបទដែលបានទប់ស្កាត់"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"ចំណាប់អារម្មណ៍ត្រូវបានកំណត់ឡើងវិញ"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"ប្រធានបទត្រូវបានកំណត់ឡើងវិញ"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"កម្មវិធីអាចប៉ាន់ស្មានចំណាប់អារម្មណ៍របស់អ្នក និងរក្សាទុកចំណាប់អារម្មណ៍ទាំងនេះជាបណ្តោះអាសន្នជាមួយ Android។ ក្រោយមក កម្មវិធីផ្សេងអាចបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដោយផ្អែកលើចំណាប់អារម្មណ៍ទាំងនេះ។\n\nប្រសិនបើអ្នកទប់ស្កាត់កម្មវិធីណាមួយ វានឹងមិនអាចប៉ាន់ស្មានចំណាប់អារម្មណ៍ទៀតទេ។ កម្មវិធីនោះ​នឹងមិន​ត្រូវ​បាន​បញ្ចូលទៅក្នុង​បញ្ជីកម្មវិធីម្ដងទៀតនោះទេ លុះត្រាតែអ្នកឈប់​ទប់ស្កាត់វា។ ចំណាប់អារម្មណ៍​ដែល​ប៉ាន់ស្មាន​ដោយ​កម្មវិធី​នោះ​រួច​ហើយ​នឹង​ត្រូវ​បាន​លុបចេញ ប៉ុន្តែ​អ្នក​នៅ​តែ​អាច​មើល​ឃើញ​ការផ្សាយ​ពាណិជ្ជកម្ម​ដែល​ពាក់ព័ន្ធ​មួយ​ចំនួន។"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"កម្មវិធីដែលអ្នកបានទប់ស្កាត់"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"មើលកម្មវិធីដែលបានទប់ស្កាត់"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"កំណត់ចំណាប់អារម្មណ៍ដែលប៉ាន់ស្មានដោយកម្មវិធីឡើងវិញ"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"គ្មានកម្មវិធីណាមួយកំពុងបង្កើតចំណាប់អារម្មណ៍សម្រាប់អ្នកទេឥឡូវនេះ"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"គ្មាន​កម្មវិធី​សម្រាប់​បង្ហាញ​ឥឡូវ​នេះ​ទេ។ \nស្វែងយល់បន្ថែមអំពី"<a href="https://support.google.com/android?p=ad_privacy">"ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"កំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មរបស់ Android ផ្តល់នូវមុខងារថ្មីៗដែលកម្មវិធីអាចប្រើដើម្បីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចូលចិត្ត។ បច្ចេកវិទ្យាទាំងនេះមិនប្រើលេខកូដសម្គាល់ឧបករណ៍ទេ។\n\nកម្មវិធីអាចប៉ាន់ស្មានប្រភេទនៃការផ្សាយពាណិជ្ជកម្មដែលអ្នកប្រហែលជាចាប់អារម្មណ៍ និងរក្សាទុកចំណាប់អារម្មណ៍ទាំងនេះជាបណ្តោះអាសន្ននៅលើឧបករណ៍របស់អ្នក។ ដំណើរការនេះអនុញ្ញាតឱ្យកម្មវិធីបង្ហាញអ្នកនូវការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធ ដោយមិនតាមដានសកម្មភាពរបស់អ្នកនៅលើគេហទំព័រ និងកម្មវិធីពីអ្នកអភិវឌ្ឍន៍ផ្សេងទៀត។"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"អ្នកមិនមានកម្មវិធីដែលត្រូវបានទប់ស្កាត់ទេ"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"គ្មានកម្មវិធីដែលបានទប់ស្កាត់ទេ"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"អនុញ្ញាតការវាស់វែងការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"កម្មវិធី និងអ្នកផ្សាយពាណិជ្ជកម្មអាចស្នើសុំព័ត៌មានពី Android ដែលជួយកម្មវិធី និងអ្នកផ្សាយពាណិជ្ជកម្មទាំងនោះវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធី និងអ្នកផ្សាយពាណិជ្ជកម្មទាំងនោះ។\n\nទិន្នន័យវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មត្រូវបានលុបជាប្រចាំពីឧបករណ៍របស់អ្នក។"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"កំណត់ទិន្នន័យវាស់ស្ទង់ឡើងវិញ"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android ការពារឯកជនភាពរបស់អ្នកដោយដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក។ របាយការណ៍ត្រូវបានផ្ញើដោយមានការពន្យារពេល ដើម្បីការពារអត្តសញ្ញាណរបស់អ្នក។\n\nកម្មវិធីរុករកតាមអ៊ីនធឺណិតរបស់អ្នកអាចនឹងមានការកំណត់ស្រដៀងគ្នានេះដែរ។ ប្រសិនបើការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មមាននៅលើទាំង Android និងកម្មវិធីរុករកតាមអ៊ីនធឺណិតរបស់អ្នក នោះក្រុមហ៊ុនប្រហែលជាអាចវាស់ស្ទង់ប្រសិទ្ធភាពនៃការផ្សាយពាណិជ្ជកម្មរវាងកម្មវិធីដែលអ្នកប្រើប្រាស់ និងគេហទំព័រដែលអ្នកចូលមើល។ ប្រវត្តិ​រុករក​តាមអ៊ីនធឺណិតរបស់អ្នកត្រូវបានរក្សាជាឯកជននៅលើឧបករណ៍របស់អ្នក។\n\nស្វែងយល់បន្ថែមអំពីរបៀបដែល Android ការពារទិន្នន័យរបស់អ្នកនៅក្នុង"<a href="https://policies.google.com/privacy">"គោលការណ៍​ឯកជនភាព"</a>"របស់យើង។"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"ទិន្នន័យវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មត្រូវបានកំណត់ឡើងវិញ"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"បោះបង់"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"បិទ Privacy Sandbox ឬ?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"ប្រសិនបើអ្នក​ប្ដូរចិត្តរបស់អ្នក ឬចង់ស្វែងយល់បន្ថែមអំពី​កំណែបេតានៃឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម​របស់ Android សូមចូលទៅកាន់​ការកំណត់ឯកជនភាព​របស់អ្នក"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"បិទ"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"ទប់ស្កាត់ <xliff:g id="TOPIC">%1$s</xliff:g> ឬ?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"ប្រធានបទនេះ​នឹងត្រូវបានទប់ស្កាត់ ហើយនឹងមិនត្រូវបាន​បញ្ចូលទៅក្នុងបញ្ជីរបស់អ្នក​ម្ដងទៀតទេ ប្រសិនបើអ្នកមិនបញ្ចូល​វាវិញ។ អ្នកនៅតែ​អាច​មើល​ឃើញការផ្សាយពាណិជ្ជកម្ម​ដែល​ពាក់ព័ន្ធមួយចំនួន។"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"ទប់ស្កាត់"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> ត្រូវបាន​ឈប់ទប់ស្កាត់"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android អាចបញ្ចូល​ប្រធានបទនេះ​ទៅក្នុងបញ្ជីរបស់អ្នក​ម្ដងទៀត ប៉ុន្តែប្រធានបទនេះ​ប្រហែលជាមិនបង្ហាញភ្លាមៗទេ"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"យល់ព្រម"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"កំណត់ប្រធានបទផ្សាយពាណិជ្ជកម្មទាំងអស់ឡើងវិញឬ?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"បញ្ជីរបស់អ្នកនឹងត្រូវបានសម្អាត ហើយប្រធានបទថ្មីៗនឹងត្រូវបានបញ្ចូលពីពេលនេះតទៅ។ អ្នកនៅតែអាចមើលឃើញការផ្សាយពាណិជ្ជកម្មមួយចំនួនដែលទាក់ទងនឹងប្រធានបទដែលអ្នកធ្លាប់បានកំណត់​ឡើងវិញ។"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"កំណត់​ឡើងវិញ"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"ទប់ស្កាត់ <xliff:g id="APP">%1$s</xliff:g> ឬ?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"កម្មវិធីនេះនឹងមិនណែនាំការផ្សាយពាណិជ្ជកម្ម ហើយនឹងមិនត្រូវបានបញ្ចូលទៅក្នុងបញ្ជីរបស់អ្នកម្ដងទៀតទេ ប្រសិនបើអ្នកទប់ស្កាត់វា។ អ្នកនៅតែ​អាច​មើល​ឃើញការផ្សាយពាណិជ្ជកម្ម​ដែល​ពាក់ព័ន្ធមួយចំនួន។"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> ត្រូវបាន​ឈប់ទប់ស្កាត់"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"កម្មវិធីនេះ​អាចណែនាំការផ្សាយពាណិជ្ជកម្មដល់អ្នកម្ដងទៀត ប៉ុន្តែវាប្រហែលមិនបង្ហាញ​នៅលើបញ្ជីរបស់អ្នក​ភ្លាមៗនោះទេ។ អាចចំណាយពេលបន្តិច ដើម្បីឱ្យអ្នកមើលឃើញ​ការផ្សាយពាណិជ្ជកម្ម​ដែលពាក់ព័ន្ធ។"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"កំណត់ឡើងវិញនូវការផ្សាយពាណិជ្ជកម្មដែលបានណែនាំដោយកម្មវិធីឬ?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"ទិន្នន័យណែនាំការផ្សាយពាណិជ្ជកម្មពីកម្មវិធីនានានៅលើបញ្ជីរបស់អ្នកនឹងត្រូវបានលុប ហើយកម្មវិធីទាំងនោះនឹងណែនាំការផ្សាយពាណិជ្ជកម្មថ្មីៗពីពេលនេះតទៅ។ អ្នកនៅតែ​អាច​មើល​ឃើញការផ្សាយពាណិជ្ជកម្ម​ដែល​ពាក់ព័ន្ធមួយចំនួន។"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"ទិន្នន័យកម្មវិធីត្រូវបានកំណត់ឡើងវិញ"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"ប្រធានបទផ្សាយពាណិជ្ជកម្មត្រូវបានបើក"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android នឹងចាប់ផ្ដើមកត់ចំណាំប្រធានបទដែលចាប់អារម្មណ៍ ប៉ុន្តែអាចចំណាយពេលខ្លះ មុននឹងប្រធានបទដំបូងៗរបស់អ្នកបង្ហាញ។"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"បិទប្រធានបទផ្សាយពាណិជ្ជកម្មឬ?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"បញ្ជីប្រធានបទនេះនឹងត្រូវបានលុប។ Android នឹងមិនកត់ចំណាំប្រធានបទដែលចាប់អារម្មណ៍ទៀតទេ ប៉ុន្តែអ្នកនៅតែអាចមើលឃើញការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធ។"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីត្រូវបានបើក"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"កម្មវិធីអាចចាប់ផ្ដើមណែនាំការផ្សាយពាណិជ្ជកម្ម។ អ្នកនឹងឃើញបញ្ជីកម្មវិធី ពេលកម្មវិធីទាំងនោះចាប់ផ្ដើមណែនាំការផ្សាយពាណិជ្ជកម្ម។"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"បិទការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីឬ?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"គ្រប់ទិន្នន័យនៃការណែនាំការផ្សាយពាណិជ្ជកម្មនឹងត្រូវបានលុប។ កម្មវិធីនឹងមិនអាចណែនាំការផ្សាយពាណិជ្ជកម្មទៀតទេ ប៉ុន្តែអ្នកនៅតែអាចមើលឃើញការផ្សាយពាណិជ្ជកម្មដែលពាក់ព័ន្ធ។"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"ការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មត្រូវបានបើក"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android អាចចែករំលែកបានតែព័ត៌មានមួយចំនួនតូចប៉ុណ្ណោះជាមួយកម្មវិធី ដើម្បីជួយកម្មវិធីវាស់ស្ទង់លទ្ធផលនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ។"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"បិទការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មឬ?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"គ្រប់របាយការណ៍នៃការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មដែលកំពុងរង់ចាំនឹងត្រូវបានលុប ហើយគ្មានរបាយការណ៍ថ្មីនឹងត្រូវបានបង្កើត ឬចែករំលែកទេ។"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android កត់ចំណាំប្រធានបទដែលចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើប្រាស់ថ្មីៗ និងភាពញឹកញាប់ដែលអ្នកប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"កម្មវិធីដែលអ្នកប្រើក៏អាចកំណត់អ្វីដែលអ្នកចូលចិត្ត ដោយផ្អែកលើរបៀបដែលអ្នកប្រើកម្មវិធីទាំងនោះផងដែរ។"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មានពី Android ដើម្បីវាស់ស្ទង់ប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះបាន។ Android អនុញ្ញាតឱ្យកម្មវិធីអាចប្រមូលប្រភេទទិន្ន័យមានកំណត់។"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"ស្វែងយល់បន្ថែមអំពី"<a href="https://support.google.com/android?p=ad_privacy">"ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មនៅលើ Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"បើក / ប្រធានបទ <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{បើក / # ប្រធានបទ}other{បើក / # ប្រធានបទ}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"បើក / កម្មវិធី <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{បើក / # កម្មវិធី}other{បើក / # កម្មវិធី}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"បើក"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"បិទ"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"ប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍គឺផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះ និងត្រូវបានប្រើដោយកម្មវិធី ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលមានលក្ខណៈផ្ទាល់ខ្លួនដល់អ្នក។\n\nអ្នកអាចទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ឱ្យចែករំលែកជាមួយកម្មវិធី។ Android ក៏លុបដោយស្វ័យប្រវត្តិនូវប្រធានបទជាប្រចាំផងដែរ។\n\nទោះបីជាមុខងារនេះអាចត្រូវបានបើកក៏ដោយ ក៏អ្នកមិនអាចមើលឃើញបញ្ជីប្រធានបទបានដែរ រហូតទាល់តែមុខងារនេះអាចប្រើបានពេញលេញ ហើយកម្មវិធីចាប់ផ្ដើមប្រើវា។"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"អនុញ្ញាតប្រធានបទនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"ប្រធានបទផ្សាយពាណិជ្ជកម្មដែលអ្នកបានទប់ស្កាត់"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"កំណត់ប្រធានបទផ្សាយពាណិជ្ជកម្មទាំងអស់ឡើងវិញ"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android កត់ចំណាំប្រធានបទដែលចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើប្រាស់ក្នុងរយៈពេលពីរបីសប្ដាហ៍ចុងក្រោយ។\n\nបន្ទាប់មក កម្មវិធីដែលអ្នកប្រើប្រាស់អាចស្នើសុំ Android ឱ្យប្រធានបទរបស់អ្នកកំណត់ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។ Android ចែករំលែករហូតដល់ 3 ប្រធានបទ ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក និងព័ត៌មានអំពីការប្រើប្រាស់កម្មវិធីរបស់អ្នក។\n\nAndroid លុបប្រធានបទដោយស្វ័យប្រវត្តិជាប្រចាំ។ ប្រសិនបើអ្នកបន្តប្រើប្រាស់កម្មវិធី ប្រធានបទអាចនឹងបង្ហាញឡើងវិញនៅលើបញ្ជីនេះ។ ឬអ្នកអាចទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ឱ្យ Android ចែករំលែកទៅកម្មវិធី។\n\nនៅក្នុងកម្មវិធីរបស់អ្នក ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញអាចនឹងត្រូវបានកំណត់ឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន អាស្រ័យលើការកំណត់នេះ ការកំណត់ការផ្សាយពាណិជ្ជកម្មដែលបានណែនាំដោយកម្មវិធី ការកំណត់លេខកូដសម្គាល់​ការផ្សាយ​ពាណិជ្ជកម្មរបស់អ្នក និងថាតើកម្មវិធីដែលអ្នកកំពុងប្រើប្រាស់កំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬទេ។"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"អនុញ្ញាតការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"កម្មវិធីដែលអ្នកប្រើអាចកំណត់អ្វីដែលអ្នកចូលចិត្ត រួចណែនាំការផ្សាយពាណិជ្ជកម្មនៅលើកម្មវិធីផ្សេងទៀត។\n\nអ្នកអាចទប់ស្កាត់កម្មវិធីកុំឱ្យធ្វើការណែនាំ។ Android ក៏លុបដោយស្វ័យប្រវត្តិនូវទិន្នន័យដែលបានណែនាំដោយកម្មវិធីជាប្រចាំផងដែរ។\n\nទោះបីមុខងារនេះអាចត្រូវបានបើកក៏ដោយ ក៏អ្នកមិនអាចមើលឃើញបញ្ជីកម្មវិធីដែរ រហូតទាល់តែមុខងារនេះអាចប្រើបានពេញលេញ ហើយកម្មវិធីចាប់ផ្ដើមប្រើវា។"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"កម្មវិធីដែលអ្នកបានទប់ស្កាត់"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"កំណត់ទិន្នន័យដែលបានណែនាំដោយកម្មវិធីឡើងវិញ"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"វាជារឿងធម្មតាទេ ដែលកម្មវិធីដែលអ្នកប្រើចងចាំនូវអ្វីៗដែលអ្នកចាប់អារម្មណ៍ ដើម្បីកំណត់បទពិសោធន៍របស់អ្នកឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។ កម្មវិធីក៏អាចរក្សាទុកព័ត៌មានអំពីប្រធានបទរបស់អ្នកជាមួយ Android ផងដែរ។\n\nឧទាហរណ៍ ប្រសិនបើអ្នកប្រើកម្មវិធីអំពីការហ្វឹកហាត់រត់ម៉ារ៉ាតុង កម្មវិធីអាចនឹងសម្រេចថាអ្នកចាប់អារម្មណ៍លើស្បែកជើងសម្រាប់រត់។ ពេលក្រោយ ប្រសិនបើអ្នកប្រើកម្មវិធីផ្សេងមួយទៀត កម្មវិធីនោះអាចបង្ហាញអ្នកអំពីការផ្សាយពាណិជ្ជកម្មសម្រាប់ស្បែកជើងសម្រាប់រត់ដែលបានណែនាំដោយកម្មវិធីដំបូង។\n\nAndroid លុបទិន្នន័យដែលបានណែនាំដោយកម្មវិធីដោយស្វ័យប្រវត្តិជាប្រចាំ។ កម្មវិធីដែលអ្នកប្រើប្រាស់ម្ដងទៀតអាចនឹងបង្ហាញឡើងវិញនៅលើបញ្ជីនេះ។ ឬអ្នកអាច​ទប់ស្កាត់កម្មវិធីមិនឱ្យណែនាំការផ្សាយពាណិជ្ជកម្មដល់អ្នកបាន។\n\nនៅក្នុងកម្មវិធីរបស់អ្នក ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញអាចត្រូវបានកំណត់ឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន ដោយផ្អែកលើការ​កំណត់នេះ ការ​កំណត់ប្រធានបទនៃការផ្សាយពាណិជ្ជកម្ម ការ​កំណត់លេខកូដសម្គាល់​ការផ្សាយ​ពាណិជ្ជកម្មរបស់អ្នក និងថាតើកម្មវិធីដែលអ្នកកំពុងប្រើកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬអត់។"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"ឥឡូវនេះ មុខងារ​ឯកជនភាពនៃការ​ផ្សាយពាណិជ្ជកម្មថ្មីមានផ្ដល់ជូនហើយ"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"មានតែព័ត៌មានមួយចំនួនតូចប៉ុណ្ណោះត្រូវបានចែករំលែករវាងកម្មវិធីនានា ដើម្បីជួយវាស់ស្ទង់លទ្ធផលនៃការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"យើងកំពុង​ដាក់ចេញ​មុខងារ​ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មថ្មី ហៅថា​ការវាស់ស្ទង់​ការផ្សាយ​ពាណិជ្ជកម្ម។ Android ចែករំលែកតែព័ត៌មានមួយចំនួនតូចប៉ុណ្ណោះរវាងកម្មវិធីនានា ដូចជាពេលវេលាបង្ហាញការផ្សាយពាណិជ្ជកម្មដល់អ្នក ដើម្បីជួយកម្មវិធីវាស់ស្ទង់លទ្ធផលនៃការផ្សាយពាណិជ្ជកម្ម។"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"អ្នកអាចធ្វើការផ្លាស់ប្ដូរនៅក្នុងការកំណត់ឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្ម។"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មានពី Android ដើម្បីជួយវាស់ស្ទង់លទ្ធផលនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនេះ។ Android អនុញ្ញាតឱ្យកម្មវិធីប្រមូលប្រភេទទិន្ន័យមានកំណត់តែប៉ុណ្ណោះ។"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"មុខងារឯកជនភាពនៃការផ្សាយពាណិជ្ជកម្មថ្មីៗ"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"ទទួលបានជម្រើសកាន់តែច្រើនចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ ព្រមទាំងជួយការពារអត្តសញ្ញាណរបស់អ្នក"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"ការធ្វើបច្ចុប្បន្នភាពលើមុខងារ​ឯកជនភាពនៃការ​ផ្សាយពាណិជ្ជកម្មរបស់អ្នក"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"ទទួលបានជម្រើសកាន់តែច្រើនចំពោះការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញ ព្រមទាំងជួយការពារអត្តសញ្ញាណរបស់អ្នក"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android កំពុងពង្រីកមុខងារ​ឯកជនភាពនៃការ​ផ្សាយពាណិជ្ជកម្ម ដើម្បីដាក់កំហិតលើកម្មវិធីដែលអាចស្វែងយល់អំពីអ្នក នៅពេលកម្មវិធីទាំងនោះបង្ហាញការផ្សាយពាណិជ្ជកម្មដែលមានលក្ខណៈផ្ទាល់ខ្លួនដល់អ្នក។"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"កម្មវិធី និងដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះអាចប្រើសកម្មភាពរបស់អ្នកនៅលើកម្មវិធីផ្សេងៗទៀតនៅលើឧបករណ៍នេះ ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន ព្រមទាំងជួយរក្សាអត្តសញ្ញាណរបស់អ្នក​ឱ្យមានសុវត្ថិភាព និងឯកជនភាពផងដែរ។"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"ព័ត៌មានបន្ថែមអំពីការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"ប្រភេទទិន្នន័យមួយចំនួនតូចត្រូវបានចែករំលែករវាងកម្មវិធីនានា ដើម្បីស្វែងយល់អំពីលទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ ដូចជាពេលវេលាប្រចាំថ្ងៃដែលការផ្សាយពាណិជ្ជកម្មត្រូវបានបង្ហាញដល់អ្នកជាដើម។"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"ព័ត៌មានបន្ថែមអំពីការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្ម"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android កត់ចំណាំប្រធានបទដែលគួរឱ្យចាប់អារម្មណ៍ ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើថ្មីៗនេះ។ ម្យ៉ាងវិញទៀត កម្មវិធី និងដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនេះអាចប្រើសកម្មភាពរបស់អ្នកលើកម្មវិធីផ្សេងទៀតនៅលើឧបករណ៍នេះ ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន ខណៈនៅតែជួយរក្សាសុវត្ថិភាព និងឯកជនភាពអត្តសញ្ញាណរបស់អ្នក។"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  កម្មវិធីដែលអ្នកប្រើក៏អាចកំណត់អ្វីដែលអ្នកចូលចិត្ត ដោយផ្អែកលើសកម្មភាព​កម្មវិធីរបស់អ្នកផងដែរ។ ឧទាហរណ៍ ប្រសិនបើអ្នកប្រើកម្មវិធីចម្អិតអាហារជាប្រចាំ អ្នកអាចនឹងមើលឃើញការផ្សាយពាណិជ្ជកម្មសម្រាប់សេវាកម្មដឹកជញ្ជូនគ្រឿងទេស ឬខ្លឹមសារដែលពាក់ព័ន្ធនៅក្នុងកម្មវិធីផ្សេង។\n\nកម្មវិធីអាចរក្សាទុកព័ត៌មាននេះយ៉ាងមានសុវត្ថិភាព ដើម្បីឱ្យមានតែដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនេះប៉ុណ្ណោះទើបអាចប្រើប្រាស់ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួននៅលើកម្មវិធីផ្សេងទៀត។"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"ក្រោយមក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មាននេះ – ប្រធានបទផ្សាយពាណិជ្ជកម្មរបស់អ្នក ឬការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីដែលអ្នកបានប្រើ។"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មានពី Android ដើម្បីជួយកម្មវិធីទាំងនេះវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនេះ។ Android ជួយការពារឯកជនភាពរបស់អ្នកដោយដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក។"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"តើទិន្នន័យអ្វីត្រូវបានប្រើប្រាស់?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំព័ត៌មានពី Android ដែលជួយកម្មវិធីទាំងនោះវាស់ស្ទង់លទ្ធផលប្រតិបត្តិការនៃការផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះ។ Android ជួយការពារឯកជនភាពរបស់អ្នក ដោយដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក។"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"តើអត្តសញ្ញាណរបស់ខ្ញុំត្រូវបានការពារដោយរបៀបណា?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android ប្រើវិធានការឯកជនភាពជាច្រើនដូចជា ទិន្នន័យចៃដន្យ និងប្រមូលផ្ដុំជាដើម ដើម្បីដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក និងជួយការពារអត្តសញ្ញាណរបស់អ្នក។\n\nទិន្នន័យនៃការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មក៏ត្រូវបានលុបជាប្រចាំចេញពីឧបករណ៍របស់អ្នកផងដែរ។"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"សកម្មភាព​កម្មវិធីរបស់អ្នកអាចត្រូវបានប្រើ ដើម្បីណែនាំការផ្សាយពាណិជ្ជកម្ម។"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"តើកម្មវិធីប្រើទិន្នន័យនេះដោយរបៀបណា?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"កម្មវិធីអាចរក្សាទុកព័ត៌មាននេះយ៉ាងមានសុវត្ថិភាព ដូច្នេះមានតែដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះប៉ុណ្ណោះទើបអាចប្រើប្រាស់ព័ត៌មាននេះ ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួននៅលើកម្មវិធីផ្សេងៗទៀត។ ឧទាហរណ៍ ប្រសិនបើអ្នកប្រើកម្មវិធីចម្អិនអាហារជាប្រចាំ អ្នកអាចនឹងមើលឃើញការផ្សាយពាណិជ្ជកម្មសម្រាប់សេវាកម្មដឹកជញ្ជូនគ្រឿងទេស ឬខ្លឹមសារដែលពាក់ព័ន្ធនៅក្នុងកម្មវិធីផ្សេងៗទៀត។"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"តើខ្ញុំអាចគ្រប់គ្រងទិន្នន័យនេះដោយរបៀបណា?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"អ្នកអាចទប់ស្កាត់កម្មវិធីជាក់លាក់មិនឱ្យចែករំលែកសកម្មភាពរបស់អ្នកជាមួយដៃគូ​ផ្សាយពាណិជ្ជកម្ម។ អ្នកអាចកំណត់ឡើងវិញ ឬបិទការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធីបានគ្រប់ពេលនៅក្នុងការកំណត់​ឯកជនភាពរបស់អ្នក។ Android ក៏លុបទិន្នន័យនេះដោយប្រស្វ័យប្រវត្តិជាប្រចាំផងដែរ។"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"ស្វែងយល់បន្ថែមអំពីរបៀបដែល Android ជួយការពារឯកជនភាពរបស់អ្នក"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"កម្មវិធី និងដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនេះអាចប្រើសកម្មភាពរបស់អ្នកនៅលើកម្មវិធីផ្សេងៗទៀតនៅលើឧបករណ៍នេះ ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន ព្រមទាំងរក្សាព័ត៌មានអំពីអ្នកឱ្យមានឯកជនភាព និងសុវត្ថិភាព​ផងដែរ។\n\nឧទាហរណ៍ ប្រសិនបើអ្នកប្រើកម្មវិធីចម្អិនអាហារជាប្រចាំ អ្នកអាចនឹងមើលឃើញការផ្សាយពាណិជ្ជកម្មសម្រាប់សេវាកម្មដឹកជញ្ជូនគ្រឿងទេស ឬខ្លឹមសារដែលពាក់ព័ន្ធនៅក្នុងកម្មវិធីផ្សេងៗទៀត។\n\nAndroid លុបសកម្មភាពរបស់អ្នកដោយស្វ័យប្រវត្តិជាប្រចាំ ប៉ុន្តែអ្នកក៏អាចទប់ស្កាត់កម្មវិធីមិនឱ្យចែករំលែកព័ត៌មាននេះជាមួយដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះបានផងដែរ។"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"ជាទូទៅកម្មវិធី និងដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះចងចាំអ្វីៗដែលអ្នកចាប់អារម្មណ៍ ដើម្បីកំណត់បទពិសោធរបស់អ្នកឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។ កម្មវិធីអាចរក្សាទុកព័ត៌មាននេះយ៉ាងមានសុវត្ថិភាព ដូច្នេះមានតែដៃគូ​ផ្សាយពាណិជ្ជកម្មរបស់កម្មវិធីទាំងនោះប៉ុណ្ណោះទើបអាចប្រើប្រាស់ព័ត៌មាននេះ ដើម្បីបង្ហាញការផ្សាយពាណិជ្ជកម្មនៅលើកម្មវិធីផ្សេងៗទៀត។\n\nអ្នកអាចទប់ស្កាត់កម្មវិធីណាមួយមិនឱ្យចែករំលែកទិន្នន័យសកម្មភាពរបស់អ្នកជាមួយដៃគូ​ផ្សាយពាណិជ្ជកម្មបាន។ Android ក៏លុបដោយស្វ័យប្រវត្តិជាប្រចាំនូវទិន្នន័យសកម្មភាពដែលបានចែករំលែកផងដែរ ដូច្នេះកម្មវិធីដែលអ្នកប្រើម្ដងទៀតអាចនឹងបង្ហាញឡើងវិញនៅលើបញ្ជីនេះ។\n\nថាតើការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញត្រូវបានកំណត់ឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬអត់ អាចអាស្រ័យលើកត្តាជាច្រើន ដូចជាការកំណត់នេះ ការកំណត់ប្រធានបទផ្សាយពាណិជ្ជកម្ម ការកំណត់លេខកូដសម្គាល់​ការផ្សាយ​ពាណិជ្ជកម្មរបស់អ្នក និងថាតើកម្មវិធីដែលអ្នកកំពុងប្រើបានកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬអត់។\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ស្វែងយល់បន្ថែមអំពីការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android ប្រើវិធានការឯកជនភាពជាច្រើនដូចជា ទិន្នន័យផ្សព្វផ្សាយ និងទិន្នន័យប្រមូលផ្ដុំជាដើម ដើម្បីដាក់កំហិតលើព័ត៌មានដែលកម្មវិធីអាចចែករំលែកឱ្យគ្នាទៅវិញទៅមក និងជួយការពារអត្តសញ្ញាណរបស់អ្នក។\n\nកម្មវិធីរុករកតាមអ៊ីនធឺណិតរបស់អ្នកអាចមានការកំណត់ស្រដៀងគ្នា។ ប្រសិនបើការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្មមាននៅលើទាំង Android និងកម្មវិធីរុករកតាមអ៊ីនធឺណិតរបស់អ្នក នោះក្រុមហ៊ុនប្រហែលជាអាចវាស់ស្ទង់ប្រសិទ្ធភាពនៃការផ្សាយពាណិជ្ជកម្មរវាងកម្មវិធីដែលអ្នកប្រើប្រាស់ និងគេហទំព័រដែលអ្នកចូលមើល។ ប្រវត្តិ​រុករក​តាមអ៊ីនធឺណិតរបស់អ្នកត្រូវបានរក្សាជាឯកជននៅលើឧបករណ៍របស់អ្នក។\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ស្វែងយល់បន្ថែមអំពីការវាស់ស្ទង់ការផ្សាយពាណិជ្ជកម្ម"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android កត់ចំណាំប្រធានបទដែលចាប់អារម្មណ៍ដោយផ្អែកលើកម្មវិធីដែលអ្នកបានប្រើប្រាស់ក្នុងរយៈពេលពីរបីសប្ដាហ៍ចុងក្រោយ។\n\nបន្ទាប់មក កម្មវិធីដែលអ្នកប្រើអាចស្នើសុំប្រធានបទរបស់អ្នកពី Android ដើម្បីកំណត់ការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញឱ្យមានលក្ខណៈផ្ទាល់ខ្លួន។ Android ចែករំលែករហូតដល់ 3 ប្រធានបទ ព្រមទាំងការពារអត្តសញ្ញាណរបស់អ្នក និងព័ត៌មានអំពីការប្រើប្រាស់កម្មវិធីរបស់អ្នក។\n\nAndroid លុបប្រធានបទដោយស្វ័យប្រវត្តិជាប្រចាំ។ នៅពេលអ្នកបន្តប្រើប្រាស់កម្មវិធី ប្រធានបទអាចនឹងបង្ហាញឡើងវិញនៅលើបញ្ជីនេះ។ ឬអ្នកអាចទប់ស្កាត់ប្រធានបទដែលអ្នកមិនចង់ឱ្យ Android ចែករំលែកជាមួយកម្មវិធី។\n\nថាតើការផ្សាយពាណិជ្ជកម្មដែលអ្នកមើលឃើញត្រូវបានកំណត់ឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬអត់ អាចអាស្រ័យលើកត្តាជាច្រើន ដូចជាការកំណត់នេះ ការកំណត់ការផ្សាយពាណិជ្ជកម្មដែលណែនាំដោយកម្មវិធី ការកំណត់លេខកូដសម្គាល់​ការផ្សាយ​ពាណិជ្ជកម្មរបស់អ្នក និងថាតើកម្មវិធីដែលអ្នកកំពុងប្រើបានកំណត់ការផ្សាយពាណិជ្ជកម្មឱ្យមានលក្ខណៈផ្ទាល់ខ្លួនឬអត់។\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ស្វែងយល់បន្ថែមអំពីប្រធានបទផ្សាយពាណិជ្ជកម្ម"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"រូបភាពចម្រុះពណ៌នៃ​និមិត្តសញ្ញាតំណាងឱ្យ​ប្រធានបទដែល​ចាប់អារម្មណ៍ដូចជា​តន្ត្រី ព័ត៌មាន និងកីឡា"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"រូបភាពចម្រុះពណ៌នៃ​សោនៅក្នុងរង្វង់មួយ"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"រូបភាពខ្មៅ និងសតូច​នៃចំណុចប្រាំបួនបង្កើតជាទម្រង់ការ៉េ"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"រូបភាពខ្មៅ និងសតូច​នៃរូបរាងសាមញ្ញដូចជាបេះដូង ត្រីកោណ និងការ៉េ"</string>
+    <string name="topic10001" msgid="1270825507916795717">"សិល្បៈ និងការកម្សាន្ត"</string>
+    <string name="topic10002" msgid="8657696153158750159">"ការសម្ដែង និងរោង​ល្ខោន"</string>
+    <string name="topic10003" msgid="8107343709605778937">"គំនូរជីវចល និងតុក្កតា"</string>
+    <string name="topic10004" msgid="8860839733494442614">"គំនូរ​ជីវចល"</string>
+    <string name="topic10005" msgid="2366794377271477958">"សៀវភៅរូបថ្លុក"</string>
+    <string name="topic10006" msgid="3856192433168050494">"ការប្រគំតន្រ្តី និងព្រឹត្តិការណ៍​តន្ត្រី"</string>
+    <string name="topic10007" msgid="7701054618107492020">"ការរាំ"</string>
+    <string name="topic10008" msgid="5566660187422751041">"វិស័យ​កម្សាន្ត"</string>
+    <string name="topic10009" msgid="9048499060637442408">"ភាពសប្បាយរីករាយ និងរឿង​កំប៉ិកកំប៉ុក"</string>
+    <string name="topic10010" msgid="2312303716461948144">"ការ​ធ្វើតេស្តបែបសប្បាយ​រីករាយ និង​ការ​ស្ទង់​មតិ​បែបឡប់ៗ"</string>
+    <string name="topic10011" msgid="175945911179628507">"សំណើច"</string>
+    <string name="topic10012" msgid="7308795546139033442">"រូបភាព និងវីដេអូកំប្លែង"</string>
+    <string name="topic10013" msgid="1525199586552473496">"កំប្លែង​បន្ត​ផ្ទាល់"</string>
+    <string name="topic10014" msgid="4310243571925250159">"ព្រឹត្តិការណ៍​កីឡា​បន្ត​ផ្ទាល់"</string>
+    <string name="topic10015" msgid="726046067079821146">"វេទមន្ត"</string>
+    <string name="topic10016" msgid="2349985783026324836">"បញ្ជីភាពយន្ត និង​ម៉ោងបញ្ចាំង​នៅរោងភាពយន្ត"</string>
+    <string name="topic10017" msgid="5137452934538259985">"ភាពយន្ត"</string>
+    <string name="topic10018" msgid="2701694124396534094">"ភាពយន្ត​បែបសកម្មភាព និង​ផ្សង​ព្រេង"</string>
+    <string name="topic10019" msgid="4229784972880729321">"ភាពយន្ត​ជីវចល"</string>
+    <string name="topic10020" msgid="7406506079009096133">"ភាពយន្ត​​កំប្លែង"</string>
+    <string name="topic10021" msgid="8455397230215712525">"ភាពយន្ត​វប្បធម៌ និងអ៊ីនឌី"</string>
+    <string name="topic10022" msgid="4121646102859453428">"ភាពយន្ត​ឯកសារ"</string>
+    <string name="topic10023" msgid="254151319845267278">"ភាពយន្ត​ភាគ"</string>
+    <string name="topic10024" msgid="9166490951622139148">"ភាពយន្ត​គ្រួសារ"</string>
+    <string name="topic10025" msgid="4556814606759167730">"ភាពយន្ត​ភ័យរន្ធត់​"</string>
+    <string name="topic10026" msgid="210222384439682793">"ភាពយន្ត​មនោសញ្ចេតនា"</string>
+    <string name="topic10027" msgid="6865151893887179263">"រំជើបរំជួល"</string>
+    <string name="topic10028" msgid="7591747452141916447">"តន្រ្តី និង​សំឡេង"</string>
+    <string name="topic10029" msgid="2603521148910221418">"ប៊្លូ"</string>
+    <string name="topic10030" msgid="1882645896051165373">"តន្ត្រី​បុរាណ"</string>
+    <string name="topic10031" msgid="3075843490601826275">"តន្ត្រី​ជនបទ"</string>
+    <string name="topic10032" msgid="5492959212920168739">"តន្ត្រី​រាំ និងអេឡិចត្រូនិក"</string>
+    <string name="topic10033" msgid="895853536740398847">"តន្ត្រី​ប្រជាប្រិយ និង​ប្រពៃណី"</string>
+    <string name="topic10034" msgid="4234814709585731313">"​ហ្សាស់"</string>
+    <string name="topic10035" msgid="4357756001621317728">"ការចាក់​ និងទាញ​យកតន្ត្រី"</string>
+    <string name="topic10036" msgid="449833307315797283">"វីដេអូ​​តន្ត្រី"</string>
+    <string name="topic10037" msgid="51698216720637667">"ឧបករណ៍​តន្ត្រី"</string>
+    <string name="topic10038" msgid="8450729953573104572">"ព្យាណូ និងក្ដារចុច"</string>
+    <string name="topic10039" msgid="9069435933476958784">"តន្ត្រី​ប៉ុប"</string>
+    <string name="topic10040" msgid="2307340564445486423">"វិទ្យុ"</string>
+    <string name="topic10041" msgid="7067032299296103616">"វិទ្យុ​ជជែក"</string>
+    <string name="topic10042" msgid="7915590336813971860">"រ៉េប និងហ៊ីប​ហ​ប"</string>
+    <string name="topic10043" msgid="8147403254760123570">"តន្ត្រីរ៉ុក"</string>
+    <string name="topic10044" msgid="6201404431104417585">"ក្លាស៊ិករ៉ុក និងអូលឌី"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ហាដរ៉ុក និង​ប្រូគ្រេសស៊ីវ"</string>
+    <string name="topic10046" msgid="4700537150965749092">"តន្ត្រីអ៊ីនឌី និងអាល់ធើណាធីវ"</string>
+    <string name="topic10047" msgid="6868724754947095800">"បណ្ណាល័យ​គំរូ និង​សំឡេង"</string>
+    <string name="topic10048" msgid="1968071881240362644">"សូល និង R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"បទភ្លេង"</string>
+    <string name="topic10050" msgid="1374275552775889532">"តន្ត្រី​ពិភព​លោក​"</string>
+    <string name="topic10051" msgid="5719726125732251258">"តន្ត្រី​រ៉េកហ្គេ និងកា​រា​បៀ​ន"</string>
+    <string name="topic10052" msgid="1284902821545612733">"វិចិត្រសាល​រូបភាព​លើ​បណ្ដាញ"</string>
+    <string name="topic10053" msgid="5420622301656482567">"វីដេអូ​លើ​បណ្ដាញ"</string>
+    <string name="topic10054" msgid="4562235511593399260">"ការផ្សាយវីដេអូ​បន្តផ្ទាល់"</string>
+    <string name="topic10055" msgid="3752987507076288470">"ការចាក់ភាពយន្ត និងកម្មវិធីទូរទស្សន៍"</string>
+    <string name="topic10056" msgid="1316228709578133569">"អូប៉េរ៉ា"</string>
+    <string name="topic10057" msgid="3265794667031664331">"មគ្គុទេសក៍​ និង​ឯកសារ​យោងទូរទស្សន៍"</string>
+    <string name="topic10058" msgid="8409884272709263707">"បណ្តាញ និងស្ថានីយទូរទស្សន៍"</string>
+    <string name="topic10059" msgid="6770193120260554722">"កម្មវិធីទូរទស្សន៍"</string>
+    <string name="topic10060" msgid="2410694865246432781">"កម្មវិធី​កំប្លែង​តាម​ទូរទស្សន៍"</string>
+    <string name="topic10061" msgid="7733515887806604226">"កម្មវិធី​វីដេអូឯកសារ​ និងរឿងមិនប្រឌិតតាមទូរទស្សន៍"</string>
+    <string name="topic10062" msgid="2539857914076699714">"រឿងភាគទូរទស្សន៍"</string>
+    <string name="topic10063" msgid="7645361077069015698">"កម្មវិធី​ទូរទស្សន៍​សូប​អូប៉េរ៉ា"</string>
+    <string name="topic10064" msgid="3322306867038013554">"កម្មវិធី​ទូរទស្សន៍​សម្រាប់​គ្រួសារ"</string>
+    <string name="topic10065" msgid="6361928032564256523">"កម្មវិធី​ភាពពិតលើ​ទូរទស្សន៍"</string>
+    <string name="topic10066" msgid="9206067258196707389">"កម្មវិធី​ទូរទស្សន៍​វិទ្យាសាស្ត្រ​ប្រឌិត និង​ស្រមើស្រមៃ"</string>
+    <string name="topic10067" msgid="6479768451596254929">"សិល្បៈ​គំនូរ និងការ​រចនា"</string>
+    <string name="topic10068" msgid="7999222744500155387">"ការរចនា"</string>
+    <string name="topic10069" msgid="3345227631449580699">"គំនូរ"</string>
+    <string name="topic10070" msgid="8921241315781663883">"សិល្បៈ​ថតរូប និងឌីជីថល"</string>
+    <string name="topic10071" msgid="5802889978655775195">"យានយន្ត និងយានជំនិះ"</string>
+    <string name="topic10072" msgid="7699714565299422080">"រថយន្ត​ដឹក​ទំនិញ និង​រថយន្ត​សណ្ដោង"</string>
+    <string name="topic10073" msgid="8309536003187424408">"យានយន្ត​សម័យមុន"</string>
+    <string name="topic10074" msgid="7682849385993670574">"យាន​ជំនិះ​កម្លាំងខ្លាំង និង​កែច្នៃ"</string>
+    <string name="topic10075" msgid="6556611554556269074">"តម្លៃប្រេងឥន្ធនៈ និងការចាក់ឥន្ធនៈយានជំនិះ"</string>
+    <string name="topic10076" msgid="4919696820372108489">"យានជំនិះដំណើរការដោយម៉ាស៊ីន (តាមប្រភេទ)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"យានជំនិះ​ដែលបើកបរ​ដោយស្វ័យប្រវត្តិ"</string>
+    <string name="topic10078" msgid="4334233882549881927">"រថយន្តអត់ដំបូល"</string>
+    <string name="topic10079" msgid="3172046203487780210">"រថយន្ត​ប្រភេទ Coupe"</string>
+    <string name="topic10080" msgid="8163934214927408125">"រថយន្ត​ប្រភេទ Hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"យាន​ជំនិះ​ហាយប្រ៊ីដ និង​មិនប្រើប្រេងឥន្ធនៈ"</string>
+    <string name="topic10082" msgid="9109129029552185357">"រថយន្ត​ប្រណិត"</string>
+    <string name="topic10083" msgid="2403537768530923605">"រថយន្តធុនតូច"</string>
+    <string name="topic10084" msgid="8422281545992763598">"ម៉ូតូ"</string>
+    <string name="topic10085" msgid="8083861494180925476">"យាន​ជំនិះ​លើ​ផ្លូវ​លំបាក"</string>
+    <string name="topic10086" msgid="7643969175312645412">"រថយន្ត​​ភីកអាប់"</string>
+    <string name="topic10087" msgid="2731154517409527341">"ម៉ូតូតូច និងម៉ូតូមានឈ្នាន់"</string>
+    <string name="topic10088" msgid="3252737061574829966">"រថយន្ត​ប្រភេទ Sedan"</string>
+    <string name="topic10089" msgid="5296300331452192377">"រថយន្ត​ប្រភេទ Station Wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"រថយន្តប្រភេទ SUV និង Crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"រថយន្ត​ប្រភេទ Crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"ឡាន​ដឹក​ទំនិញ និង​ឡាន​ដឹក​ទំនិញ​តូច"</string>
+    <string name="topic10093" msgid="4427294934418177183">"ជំនួយក្នុងការអូសសណ្ដោង និងជំនួយតាមដងផ្លូវ"</string>
+    <string name="topic10094" msgid="2377839138225502290">"សុវត្ថិភាពយានជំនិះ និងចរាចរណ៍"</string>
+    <string name="topic10095" msgid="84682415803421329">"គ្រឿងបន្លាស់ និងគ្រឿងតុបតែងយានជំនិះ"</string>
+    <string name="topic10096" msgid="8920802377602814882">"ជួសជុល​ និងការថែទាំយានជំនិះ"</string>
+    <string name="topic10097" msgid="1171171183482751335">"ការទិញ​យាន​ជំនិះ"</string>
+    <string name="topic10098" msgid="2079957196489295765">"យានជំនិះ​មួយទឹក"</string>
+    <string name="topic10099" msgid="8979943848539150620">"ពិព័រណ៍​យាន​ជំនិះ"</string>
+    <string name="topic10100" msgid="4197262693717174623">"សម្រស់ និងកាយសម្បទា"</string>
+    <string name="topic10101" msgid="7348658588841917441">"សិល្បៈ​លើ​ដង​ខ្លួន"</string>
+    <string name="topic10102" msgid="3638722720071045006">"ការថែទាំ​​ផ្ទៃមុខ និងដងខ្លួន"</string>
+    <string name="topic10103" msgid="7505482487921433611">"ផលិតផល​កាត់បន្ថយ​ការបែកញើស"</string>
+    <string name="topic10104" msgid="6370054283334591202">"ផលិតផលសម្រាប់ការងូតទឹក និងសម្អាតរាងកាយ"</string>
+    <string name="topic10105" msgid="1191169056931411220">"គ្រឿងថែរក្សាសម្ផស្សគ្មានសារធាតុគ្រោះថ្នាក់"</string>
+    <string name="topic10106" msgid="3928455104996075953">"ការ​តុបតែង​ខ្លួន និង​គ្រឿង​សម្អាង"</string>
+    <string name="topic10107" msgid="3798923390765338227">"ផលិតផល​ថែទាំក្រចក"</string>
+    <string name="topic10108" msgid="577259588028933025">"ទឹកអប់ និង​គ្រឿងក្រអូប"</string>
+    <string name="topic10109" msgid="2191558742276310934">"ឡាម និងឧបករណ៍កោរ"</string>
+    <string name="topic10110" msgid="4668859731019222824">"ម៉ូត និងស្តាយល៍"</string>
+    <string name="topic10111" msgid="8382751996496129758">"លំហាត់ប្រាណ"</string>
+    <string name="topic10112" msgid="2904455776326272301">"កាយ​វប្បកម្ម"</string>
+    <string name="topic10113" msgid="8931680908070341060">"ការ​ណែនាំ​អំពីលំហាត់​ប្រាណ និង​ការ​ហ្វឹកហាត់​ផ្ទាល់​ខ្លួន"</string>
+    <string name="topic10114" msgid="1666144425445242905">"ផលិតផលបច្ចេកវិទ្យាលំហាត់ប្រាណ"</string>
+    <string name="topic10115" msgid="3024886857586781525">"ការថែទាំសក់"</string>
+    <string name="topic10116" msgid="763642849903586689">"សៀវភៅ និង​អក្សរសាស្រ្ត"</string>
+    <string name="topic10117" msgid="2897295398887355445">"អក្សរសាស្ត្រ​សម្រាប់​កុមារ"</string>
+    <string name="topic10118" msgid="8261966919146004082">"សៀវភៅ​អេឡិចត្រូនិក"</string>
+    <string name="topic10119" msgid="894448782525835364">"ទស្សនាវដ្ដី"</string>
+    <string name="topic10120" msgid="6413553316742475453">"កំណាព្យ"</string>
+    <string name="topic10121" msgid="5743038898774111015">"អាជីវកម្ម និងឧស្សាហកម្ម"</string>
+    <string name="topic10122" msgid="9008408720895399838">"ការផ្សាយពាណិជ្ជកម្ម និងការធ្វើទីផ្សារ"</string>
+    <string name="topic10123" msgid="2259134467663515137">"ការ​លក់"</string>
+    <string name="topic10124" msgid="6342988250432534253">"កសិកម្ម និងព្រៃឈើ"</string>
+    <string name="topic10125" msgid="4258543381071903891">"ផលិតកម្ម​អាហារ"</string>
+    <string name="topic10126" msgid="7175643869342613083">"វិស័យ​រថយន្ត"</string>
+    <string name="topic10127" msgid="6431712570995680971">"វិស័យអាកាសចរណ៍"</string>
+    <string name="topic10128" msgid="4235280795901477432">"ប្រតិបត្តិការអាជីវកម្ម"</string>
+    <string name="topic10129" msgid="7076722669374577677">"ការរៀបចំ​កន្លែងធ្វើការ​ដែលមាន​ភាពបត់បែន"</string>
+    <string name="topic10130" msgid="3611582433482627069">"ធនធាន​មនុស្ស"</string>
+    <string name="topic10131" msgid="1372513307847962621">"កម្ចី​ពាណិជ្ជកម្ម"</string>
+    <string name="topic10132" msgid="4784716346965522438">"សំណង់ និងការថែទាំ"</string>
+    <string name="topic10133" msgid="7421272318291450977">"វិស្វកម្ម​សំណង់​ស៊ីវិល​"</string>
+    <string name="topic10134" msgid="6960637850006318075">"វិស័យការពារ​"</string>
+    <string name="topic10135" msgid="3682767135401089609">"ថាមពល និងការផ្គត់ផ្គង់ថាមពល"</string>
+    <string name="topic10136" msgid="455894912948558854">"ការ​ផ្គត់ផ្គង់ និង​ប្រព្រឹត្តិកម្មទឹក"</string>
+    <string name="topic10137" msgid="8298610586001250767">"វិស័យ​បដិសណ្ឋារកិច្ច"</string>
+    <string name="topic10138" msgid="1297997683887620829">"កម្មន្តសាល"</string>
+    <string name="topic10139" msgid="2881410777083033235">"លោហ និងការរុករករ៉ែ"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM និងឱកាសអាជីវកម្ម"</string>
+    <string name="topic10141" msgid="2209863158714894227">"ឱសថ និងជីវបច្ចេកវិទ្យា"</string>
+    <string name="topic10142" msgid="5503134498670972397">"ការបោះពុម្ព និងការបោះផ្សាយ"</string>
+    <string name="topic10143" msgid="7443122495469194311">"ជំនួញ​លក់រាយ"</string>
+    <string name="topic10144" msgid="4491152042745513902">"ទុន​​វិនិយោគពីក្រុមហ៊ុនវិនិយោគ"</string>
+    <string name="topic10145" msgid="7181389660165515306">"កុំព្យូទ័រ និងគ្រឿងអេឡិចត្រូនិក"</string>
+    <string name="topic10146" msgid="5319328674320188177">"គ្រឿង​កុំព្យូទ័រ"</string>
+    <string name="topic10147" msgid="3115360970477190823">"ម៉ាស៊ីន​បោះពុម្ព"</string>
+    <string name="topic10148" msgid="388392714835039199">"សុវត្ថិភាព​កុំព្យូទ័រ"</string>
+    <string name="topic10149" msgid="8669494095915530311">"កម្មវិធី​កម្ចាត់​មេរោគ និងកម្មវិធីគ្រោះថ្នាក់"</string>
+    <string name="topic10150" msgid="7287887356428407082">"សុវត្ថិភាព​បណ្ដាញ"</string>
+    <string name="topic10151" msgid="1896865948857670589">"គ្រឿង​អេឡិចត្រូនិក​ប្រើប្រាស់"</string>
+    <string name="topic10152" msgid="2229775287055715130">"កាមេរ៉ា និង​កាម៉េរាថត​វីដេអូ"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS និងការរុករក"</string>
+    <string name="topic10154" msgid="6865619906648095342">"ប្រព័ន្ធស្វ័យប្រវត្តិក្នុងផ្ទះ"</string>
+    <string name="topic10155" msgid="6083736045761149547">"ប្រព័ន្ធ​បញ្ចាំង​ភាពយន្ត​នៅ​ផ្ទះ"</string>
+    <string name="topic10156" msgid="5908298124114814149">"ឧបករណ៍ចាក់ MP3 និងមេឌៀចល័ត"</string>
+    <string name="topic10157" msgid="5681638457846277732">"បច្ចេកវិទ្យា​ឧបករណ៍​អាចពាក់បាន"</string>
+    <string name="topic10158" msgid="3203453971647354680">"ការបម្រុងទុក និងការស្ដារទិន្នន័យឡើងវិញ"</string>
+    <string name="topic10159" msgid="5630430439595766824">"កុំព្យូទ័រ​លើ​តុ"</string>
+    <string name="topic10160" msgid="4829448963240629016">"កុំព្យូទ័រយួរដៃ"</string>
+    <string name="topic10161" msgid="172004201167511870">"ការភ្ជាប់បណ្ដាញ"</string>
+    <string name="topic10162" msgid="6091195506695436179">"ការប្រើ​កុំព្យូទ័រ​លក្ខណៈចែកចាយ និង​តាមអ៊ីនធឺណិត"</string>
+    <string name="topic10163" msgid="1151401754761855146">"ការ​សរសេរ​កម្មវិធី"</string>
+    <string name="topic10164" msgid="9084381711034794904">"កម្មវិធី"</string>
+    <string name="topic10165" msgid="7794619191364239903">"កម្មវិធីសំឡេង និងតន្ត្រី"</string>
+    <string name="topic10166" msgid="8763250476037582784">"កម្មវិធីអាជីវកម្ម និងផលិតភាព"</string>
+    <string name="topic10167" msgid="2049380875864013534">"កម្មវិធី​ប្រតិទិន និង​កាលវិភាគ"</string>
+    <string name="topic10168" msgid="8902187628490964169">"កម្មវិធីសម្រាប់សហការ និងការប្រជុំ"</string>
+    <string name="topic10169" msgid="827557334245484202">"កម្មវិធី​ធ្វើ​បទ​បង្ហាញ"</string>
+    <string name="topic10170" msgid="9004257492478793528">"កម្មវិធី​សៀវភៅ​បញ្ជី"</string>
+    <string name="topic10171" msgid="7993474143932045967">"កម្មវិធី​វាយ​អត្ថបទ"</string>
+    <string name="topic10172" msgid="7796145013604839047">"ការ​បោះ​ពុម្ព​ពី​កុំព្យូទ័រ"</string>
+    <string name="topic10173" msgid="2914187257631238849">"ពុម្ពអក្សរ"</string>
+    <string name="topic10174" msgid="2115617300581130014">"កម្មវិធី​គ្រប់គ្រង​ការ​ទាញ​យក"</string>
+    <string name="topic10175" msgid="5871766754983733443">"កម្មវិធី​ឥត​គិត​ថ្លៃ និង​កម្មវិធី​សាកល្បង"</string>
+    <string name="topic10176" msgid="4556902534984350353">"កម្មវិធី​រូបមាន​ចលនា និង​ក្រាហ្វិក"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ជំនួយការ​ផ្ទាល់ខ្លួនឆ្លាតវៃ"</string>
+    <string name="topic10178" msgid="6156514295355993755">"កម្មវិធីចាក់មេឌៀ"</string>
+    <string name="topic10179" msgid="4166560755175055525">"កម្មវិធីត្រួតពិនិត្យ"</string>
+    <string name="topic10180" msgid="1616408866159152420">"ប្រព័ន្ធ​ប្រតិបត្តិការ"</string>
+    <string name="topic10181" msgid="1104637623376778918">"កម្មវិធីរូបថត និងវីដេអូ"</string>
+    <string name="topic10182" msgid="4433309778429721885">"កម្មវិធី​រូបថត"</string>
+    <string name="topic10183" msgid="7726225846283601216">"កម្មវិធី​វីដេអូ"</string>
+    <string name="topic10184" msgid="7666718573841178521">"កម្មវិធី​សម្រួលដំណើរការ"</string>
+    <string name="topic10185" msgid="7090504131394943791">"កម្មវិធីរុករកតាមអ៊ីនធឺណិត"</string>
+    <string name="topic10186" msgid="2894398454040127175">"ហិរញ្ញវត្ថុ"</string>
+    <string name="topic10187" msgid="3321209590831212269">"គណនេយ្យ និងសវនកម្ម"</string>
+    <string name="topic10188" msgid="6091864564976149142">"ការ​រៀបចំលិខិតប្រកាស និង​ផែនការ​ពន្ធ"</string>
+    <string name="topic10189" msgid="5722909809680931661">"ធនាគារ"</string>
+    <string name="topic10190" msgid="4954502185848303449">"សេវា​ផ្ញើ​ប្រាក់ និង​វេរ​ប្រាក់"</string>
+    <string name="topic10191" msgid="374364159635356705">"ឥណទាន និងកម្ចី"</string>
+    <string name="topic10192" msgid="4780985034026130257">"កាតឥណទាន"</string>
+    <string name="topic10193" msgid="5010972379907168829">"ហិរញ្ញវត្ថុ​ទិញ​ផ្ទះ"</string>
+    <string name="topic10194" msgid="1311944420068992723">"កម្ចី​ផ្ទាល់​ខ្លួន"</string>
+    <string name="topic10195" msgid="7554681395283728871">"ប្រាក់កម្ចីនិស្សិត និងហិរញ្ញវត្ថុ​មហាវិទ្យាល័យ"</string>
+    <string name="topic10196" msgid="1390058955048742733">"ផែនការ​ហិរញ្ញវត្ថុ និងការ​គ្រប់គ្រង"</string>
+    <string name="topic10197" msgid="6999203003544574270">"ការចូលនិវត្តន៍ និងប្រាក់​សោធន​និវត្តន៍"</string>
+    <string name="topic10198" msgid="1172025416206301419">"ជំនួយ"</string>
+    <string name="topic10199" msgid="2817599683028682473">"ជំនួយ"</string>
+    <string name="topic10200" msgid="4560138974690686847">"ធានា​រ៉ាប់រង"</string>
+    <string name="topic10201" msgid="447240478385298875">"ធានារ៉ាប់រង​យានយន្ត"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ធានា​រ៉ាប់រង​សុខភាព"</string>
+    <string name="topic10203" msgid="6593194921457271151">"ធានា​រ៉ាប់រង​ផ្ទះ"</string>
+    <string name="topic10204" msgid="4634976092969827804">"ធានា​រ៉ាប់រង​អាយុ​ជីវិត"</string>
+    <string name="topic10205" msgid="262581473890356377">"ធានា​រ៉ាប់រង​ធ្វើ​ដំណើរ"</string>
+    <string name="topic10206" msgid="5534905376642807172">"ការ​វិនិយោគ"</string>
+    <string name="topic10207" msgid="2202788132330201137">"ការជួញដូរ​នាពេលអនាគត និង​ទំនិញ"</string>
+    <string name="topic10208" msgid="1250532081213960304">"អត្រាប្ដូរប្រាក់បរទេស និង​រូបិយបណ្ណ"</string>
+    <string name="topic10209" msgid="7384658616986998949">"មូលនិធិ​ការពារហានិភ័យ"</string>
+    <string name="topic10210" msgid="5646412565978393234">"សង្គហធន"</string>
+    <string name="topic10211" msgid="2001835133812379482">"ភាគហ៊ុន និង​សញ្ញាបណ្ណ"</string>
+    <string name="topic10212" msgid="2364530251853656532">"អាហារ និងភេសជ្ជៈ"</string>
+    <string name="topic10213" msgid="805716705436663130">"ការ​ធ្វើ​ម្ហូប និង​រូបមន្ត"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ និង​ការអាំងសាច់"</string>
+    <string name="topic10215" msgid="1502589059550612499">"មុខ​ម្ហូប"</string>
+    <string name="topic10216" msgid="7699499757302291329">"ម្ហូបបួស"</string>
+    <string name="topic10217" msgid="2160292055279553771">"ម្ហូបអ្នកតមសាច់និងស៊ុត"</string>
+    <string name="topic10218" msgid="4090671581843003332">"ការ​បរិភោគដែលផ្ដល់សុខភាពល្អ"</string>
+    <string name="topic10219" msgid="7663946426520362378">"អ្នកលក់អាហារ និង​គ្រឿងទេស"</string>
+    <string name="topic10220" msgid="4812477283307222367">"ហ្គេម"</string>
+    <string name="topic10221" msgid="2320959705105050635">"ហ្គេម Arcade និង​ដាក់​កាក់"</string>
+    <string name="topic10222" msgid="1659423113675232767">"ល្បែង​បុក​ប៊ីយ៉ា"</string>
+    <string name="topic10223" msgid="3526662148224862522">"ហ្គេមក្តារ"</string>
+    <string name="topic10224" msgid="8806949357679505576">"ហ្គេមអុក និងហ្គេមយុទ្ធសាស្ត្រអរូបី"</string>
+    <string name="topic10225" msgid="564207834821286301">"ហ្គេម​បៀ"</string>
+    <string name="topic10226" msgid="6918788605930334066">"ហ្គេមប្រមូល​កាត"</string>
+    <string name="topic10227" msgid="7011042093822468388">"ហ្គេមកុំព្យូទ័រ និងវីដេអូ​ហ្គេម"</string>
+    <string name="topic10228" msgid="6883716111007300369">"ហ្គេមសកម្មភាព &amp; ហ្គេម​រត់លោត"</string>
+    <string name="topic10229" msgid="1448569034984381121">"ហ្គេមផ្សងព្រេង"</string>
+    <string name="topic10230" msgid="3350872631578952799">"ហ្គេមធម្មតា"</string>
+    <string name="topic10231" msgid="405082026972839048">"ការលេងវីដេអូហ្គេមប្រកួតប្រជែង"</string>
+    <string name="topic10232" msgid="1839026948327779776">"ហ្គេម​បើកបរ និងប្រណាំង"</string>
+    <string name="topic10233" msgid="1188186151495453281">"ហ្គេម​ប្រយុទ្ធ"</string>
+    <string name="topic10234" msgid="693433817142162565">"ឯកសារយោង និងការវាយតម្លៃហ្គេម"</string>
+    <string name="topic10235" msgid="8703923040923920090">"ល្បិច និងតម្រុយក្នុងហ្គេម"</string>
+    <string name="topic10236" msgid="320145832033080647">"ហ្គេម​ដែលមាន​អ្នកលេង​ដ៏ច្រើន"</string>
+    <string name="topic10237" msgid="5441671482070243974">"ហ្គេម​តន្ត្រី និងរាំ"</string>
+    <string name="topic10238" msgid="124952008622371505">"ហ្គេម​ Sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"ហ្គេម​បាញ់​ប្រហារ"</string>
+    <string name="topic10240" msgid="429738690314619395">"ហ្គេមត្រាប់តាម"</string>
+    <string name="topic10241" msgid="6759586807395308444">"ហ្គេម​អាជីវកម្ម​ និងមហាសេដ្ឋី"</string>
+    <string name="topic10242" msgid="6446465880310926504">"ហ្គេមកសាងទីក្រុង​"</string>
+    <string name="topic10243" msgid="1900180483768183189">"ហ្គេម​ត្រាប់តាមជីវិតពិត"</string>
+    <string name="topic10244" msgid="7177785844550764762">"ហ្គេម​ត្រាប់តាមយានជំនិះ"</string>
+    <string name="topic10245" msgid="3479291573578622081">"ហ្គេមកីឡា"</string>
+    <string name="topic10246" msgid="1362878793775338590">"ល្បែង​គ្រប់គ្រង​កីឡា"</string>
+    <string name="topic10247" msgid="7167743512938031275">"ហ្គេមយុទ្ធសាស្ត្រ"</string>
+    <string name="topic10248" msgid="279151815457227293">"ម៉ដ និងកម្មវិធី​បន្ថែមសម្រាប់វីដេអូហ្គេម"</string>
+    <string name="topic10249" msgid="631580828608894782">"ហ្គេម​អប់រំ"</string>
+    <string name="topic10250" msgid="8788829601095126859">"ហ្គេម និង​សកម្មភាពក្នុង​គ្រួសារ"</string>
+    <string name="topic10251" msgid="4289374662760140512">"គំនូរ និងការផាត់ពណ៌"</string>
+    <string name="topic10252" msgid="3704663832286223948">"ហ្គេម​ស្លៀក​ពាក់ និង​ម៉ូត"</string>
+    <string name="topic10253" msgid="385499297969826942">"ហ្គេមល្បងប្រាជ្ញា និងបណ្ដុះគំនិត"</string>
+    <string name="topic10254" msgid="3407688580587226586">"ហ្គេម​​ដើរ​តួ"</string>
+    <string name="topic10255" msgid="5123382868307815261">"​កីឡា​វាយ​កូន​បាល់​លើតុ"</string>
+    <string name="topic10256" msgid="3732657908002298514">"ល្បែង​តម្រៀប"</string>
+    <string name="topic10257" msgid="1563737702727245186">"ហ្គេម​ពាក្យ"</string>
+    <string name="topic10258" msgid="3098024313656910144">"ចំណូលចិត្ត និងការលំហែអារម្មណ៍"</string>
+    <string name="topic10259" msgid="4943419230459875946">"ខួប"</string>
+    <string name="topic10260" msgid="8082531986100775125">"ថ្ងៃ​កំណើត និងថ្ងៃដាក់ឈ្មោះ"</string>
+    <string name="topic10261" msgid="5848226607755547256">"ការមុជទឹក និងសកម្មភាព​ក្រោម​ទឹក"</string>
+    <string name="topic10262" msgid="7200864040450019529">"សិល្បៈ​សរសៃអំបោះ និងវាយនភណ្ឌ"</string>
+    <string name="topic10263" msgid="361345691023794788">"ក្រៅអគារ"</string>
+    <string name="topic10264" msgid="1786205972094583167">"ស្ទូច​ត្រី"</string>
+    <string name="topic10265" msgid="2823178926106728570">"ការបរបាញ់ និងការ​បាញ់​កាំភ្លើង"</string>
+    <string name="topic10266" msgid="8850275614185862002">"កីឡា​បាញ់កាំភ្លើងគ្រាប់​ពណ៌​"</string>
+    <string name="topic10267" msgid="3722262029580639019">"ការបង្កើតគំរូ និង​ការបញ្ជា​តាមរលកវិទ្យុ"</string>
+    <string name="topic10268" msgid="3854589101176380228">"អាពាហ៍ពិពាហ៍"</string>
+    <string name="topic10269" msgid="6274589872519767859">"ផ្ទះ និងសួន​ច្បារ"</string>
+    <string name="topic10270" msgid="6333380157855869252">"ការថែសួន"</string>
+    <string name="topic10271" msgid="7654177637864012480">"ការ​តុបតែង​ផ្ទះ និង​ផ្នែក​​ខាងក្នុង"</string>
+    <string name="topic10272" msgid="3679206633003573176">"គ្រឿងអេឡិចត្រូនិកប្រើប្រាស់​ក្នុង​ផ្ទះ"</string>
+    <string name="topic10273" msgid="7964372799408781017">"ការកែលម្អ​ផ្ទះ"</string>
+    <string name="topic10274" msgid="7438404923297950713">"សុវត្ថិភាព និងសន្តិសុខតាមផ្ទះ"</string>
+    <string name="topic10275" msgid="682064062059687444">"សម្ភារប្រើប្រាស់​ក្នុងផ្ទះ"</string>
+    <string name="topic10276" msgid="6967461678618700017">"ការរចនាទេសភាព"</string>
+    <string name="topic10277" msgid="5888643119731566320">"អ៊ីនធឺណិត និងទូរគមនាគមន៍"</string>
+    <string name="topic10278" msgid="1736187026108921963">"អ៊ីមែល និងការផ្ញើសារ"</string>
+    <string name="topic10279" msgid="9034205050642228743">"អ៊ីមែល"</string>
+    <string name="topic10280" msgid="3168053876492638177">"ការផ្ញើសារជាអក្សរ និងការ​ផ្ញើ​សារ​​ភ្លាម​ៗ"</string>
+    <string name="topic10281" msgid="582764575763317221">"ការជជែក​ជា​សំឡេង និងវីដេអូ"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"ក្រុមហ៊ុន​ផ្ដល់​សេវា​ទូរសព្ទ"</string>
+    <string name="topic10284" msgid="8298837964949288587">"សំឡេង​រោទ៍ និងទម្រង់រចនាឧបករណ៍​ចល័ត"</string>
+    <string name="topic10285" msgid="5409600379647005862">"ម៉ាស៊ីន​ស្វែងរក"</string>
+    <string name="topic10286" msgid="5120434472606081895">"ទូរសព្ទ​ឆ្លាតវៃ"</string>
+    <string name="topic10287" msgid="3350459436622898201">"ការ​ធ្វើ​សន្និសីទ​ពី​ចម្ងាយ"</string>
+    <string name="topic10288" msgid="4197272921112835157">"កម្មវិធីលើអ៊ីនធឺណិត និងឧបករណ៍លើអ៊ីនធឺណិត"</string>
+    <string name="topic10289" msgid="5361961713593805925">"សេវា​លើអ៊ីនធឺណិត"</string>
+    <string name="topic10290" msgid="1030690821237195132">"ទំហំ​ផ្ទុក​លើ​ពពក"</string>
+    <string name="topic10291" msgid="4049265350889304495">"ការរចនា និងការអភិវឌ្ឍគេហទំព័រ"</string>
+    <string name="topic10292" msgid="3386329227033265361">"ការបង្ហោះ​គេហទំព័រ"</string>
+    <string name="topic10293" msgid="5737650187548034975">"ការងារ និងការអប់រំ"</string>
+    <string name="topic10294" msgid="4134169605040294646">"ការអប់រំ"</string>
+    <string name="topic10295" msgid="331240908257602211">"សន្និសីទ​ការ​សិក្សា និង​ការ​បោះ​ពុម្ព​ផ្សាយ"</string>
+    <string name="topic10296" msgid="8588303480683748067">"មហាវិទ្យាល័យ និងសកលវិទ្យាល័យ"</string>
+    <string name="topic10297" msgid="6374270931732387420">"ការ​សិក្សា​ពី​ចម្ងាយ"</string>
+    <string name="topic10298" msgid="1588575102152049123">"ការអប់រំកុមារតូច"</string>
+    <string name="topic10299" msgid="2437152839161363820">"មត្តេយ្យសិក្សា"</string>
+    <string name="topic10300" msgid="1716635660730089544">"ការ​អប់រំ​នៅ​ផ្ទះ"</string>
+    <string name="topic10301" msgid="7986927377838820550">"ការធ្វើតេស្តស្តង់ដារ និងការធ្វើតេស្តចូលរៀន"</string>
+    <string name="topic10302" msgid="5998774512114172286">"ធនធានបង្រៀន និងធនធានក្នុងថ្នាក់រៀន"</string>
+    <string name="topic10303" msgid="4585533807035591476">"ការអប់រំបន្ត និង​វិជ្ជាជីវៈ"</string>
+    <string name="topic10304" msgid="7882895278855442691">"ការងារ"</string>
+    <string name="topic10305" msgid="5595618454946980801">"ការរៀបចំ​ផែនការ និងធនធាន​សម្រាប់អាជីព"</string>
+    <string name="topic10306" msgid="2721676636117931598">"បញ្ជី​ការងារ"</string>
+    <string name="topic10307" msgid="1718396745825058084">"ច្បាប់ និងរដ្ឋាភិបាល"</string>
+    <string name="topic10308" msgid="5324738087341048710">"ឧក្រិដ្ឋកម្ម និងយុត្តិធម៌"</string>
+    <string name="topic10309" msgid="6295029954614836413">"ផ្នែកច្បាប់"</string>
+    <string name="topic10310" msgid="8422735354338745855">"សេវា​ច្បាប់"</string>
+    <string name="topic10311" msgid="1230675855406761762">"ព័ត៌មាន"</string>
+    <string name="topic10312" msgid="6827799049548932141">"ព័ត៌មាន​សេដ្ឋកិច្ច"</string>
+    <string name="topic10313" msgid="2329065661493302739">"ព័ត៌មាន​ក្នុងស្រុក​"</string>
+    <string name="topic10314" msgid="8901835561696055036">"ការទិញលក់ និង​ការរួមបញ្ចូលក្រុមហ៊ុន"</string>
+    <string name="topic10315" msgid="5854338074460033131">"សារព័ត៌មាន"</string>
+    <string name="topic10316" msgid="5102748655058857401">"នយោបាយ"</string>
+    <string name="topic10317" msgid="888696185673599406">"ព័ត៌មានកីឡា"</string>
+    <string name="topic10318" msgid="8287583657423629224">"អាកាសធាតុ"</string>
+    <string name="topic10319" msgid="8709805241522664825">"ព័ត៌មាន​ពិភពលោក"</string>
+    <string name="topic10320" msgid="2512907250610386132">"សហគមន៍​នៅលើអ៊ីនធឺណិត"</string>
+    <string name="topic10321" msgid="7457693963027299711">"រូបឃ្លីបអាត និង​រូបភាព GIF មាន​ចលនា"</string>
+    <string name="topic10322" msgid="3527120229469957977">"ការ​ណាត់ និងរឿងផ្ទាល់ខ្លួន"</string>
+    <string name="topic10323" msgid="6172125921314846923">"បណ្ដុំ​ព័ត៌មាន និង​បណ្ដុំចំណាំ​ពីអ៊ីនធើណិត"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ការចែករំលែក​ និងការបង្ហោះឯកសារ"</string>
+    <string name="topic10325" msgid="916412844647169263">"​ក្រុមហ៊ុនផ្ដល់​សេវាវេទិកា និងជជែក"</string>
+    <string name="topic10326" msgid="9167525727089128814">"ការធ្វើមីក្រូប្លក់"</string>
+    <string name="topic10327" msgid="3594488251348215868">"ការចែករំលែករូបថត និងវីដេអូ"</string>
+    <string name="topic10328" msgid="5431605505487660527">"ការចែករំលែករូបថត និងរូបភាព"</string>
+    <string name="topic10329" msgid="2949598007790820705">"ការ​ចែក​រំលែក​វីដេអូ"</string>
+    <string name="topic10330" msgid="4210169032750748349">"រូបរាង"</string>
+    <string name="topic10331" msgid="9148081156366912077">"កម្មវិធី​បណ្ដាញ​សង្គម និង​កម្មវិធី​បន្ថែម"</string>
+    <string name="topic10332" msgid="1812925257476776861">"បណ្ដាញ​សង្គម"</string>
+    <string name="topic10333" msgid="5793613565022694596">"មនុស្ស និងសង្គម"</string>
+    <string name="topic10334" msgid="2146426680680125392">"គ្រួសារ និងទំនាក់ទំនង"</string>
+    <string name="topic10335" msgid="8268284709343326034">"ពូជពង្ស និងសន្តតិវង្ស​វិទ្យា"</string>
+    <string name="topic10336" msgid="360328903013424569">"អាពាហ៍ពិពាហ៍"</string>
+    <string name="topic10337" msgid="6450553850860149046">"ការចិញ្ចឹមកូន"</string>
+    <string name="topic10338" msgid="3722340462966505867">"ការ​សុំ​កូនមក​ចិញ្ចឹម"</string>
+    <string name="topic10339" msgid="8126807339140404862">"ទារក និងក្មេង​​​ទើប​ចេះ​ដើរ⁣⁣"</string>
+    <string name="topic10340" msgid="259457452971577855">"សុវត្ថិភាព​នៃ​អ៊ីនធឺណិត​សម្រាប់កុមារ"</string>
+    <string name="topic10341" msgid="9138253009638520984">"មនោសញ្ចេតនា"</string>
+    <string name="topic10342" msgid="3272595442607863965">"​ប្រឌិត​បែបវិទ្យា​សាស្ត្រ​ និងស្រមើស្រមៃ"</string>
+    <string name="topic10343" msgid="7170264926050881882">"សត្វ​ចិញ្ចឹម និងសត្វពាហនៈ"</string>
+    <string name="topic10344" msgid="6956876217624431965">"ផលិតផល​ថែទាំ​សត្វចិញ្ចឹម និង​អាហារ​របស់សត្វចិញ្ចឹម"</string>
+    <string name="topic10345" msgid="8114717708270133007">"សត្វ​ចិញ្ចឹម"</string>
+    <string name="topic10346" msgid="3632598362312784148">"បក្សី"</string>
+    <string name="topic10347" msgid="1650823938622414225">"ឆ្មា"</string>
+    <string name="topic10348" msgid="570783769757187957">"ឆ្កែ"</string>
+    <string name="topic10349" msgid="6069145390145874420">"ត្រី និង​អាង​ចិញ្ចឹមត្រី"</string>
+    <string name="topic10350" msgid="7438757598978766290">"ល្មូន និង​ថលជលិក"</string>
+    <string name="topic10351" msgid="2065353497413573236">"បសុពេទ្យ"</string>
+    <string name="topic10352" msgid="2787610393079898221">"អចលនទ្រព្យ"</string>
+    <string name="topic10353" msgid="230887584509968233">"ដីឡូត៍ និងដី"</string>
+    <string name="topic10354" msgid="2552020152740480445">"អចលនទ្រព្យ​វិស្សមកាល និង​អចលនទ្រព្យ​រួម"</string>
+    <string name="topic10355" msgid="3803439663410756731">"ឯកសារយោង"</string>
+    <string name="topic10356" msgid="1282534977124646845">"បញ្ជីពាណិជ្ជកម្ម និងបញ្ជីផ្ទាល់ខ្លួន"</string>
+    <string name="topic10357" msgid="1506615046588912749">"ឯកសារយោង​ទូទៅ"</string>
+    <string name="topic10358" msgid="4670198218200218886">"ម៉ាស៊ីនគិតលេខ និងឧបករណ៍ឯកសារយោង"</string>
+    <string name="topic10359" msgid="4422164571631604534">"វចនានុក្រម និង​សព្វវចនាធិប្បាយ"</string>
+    <string name="topic10360" msgid="4777419229443131291">"ធនធាន​អប់រំ"</string>
+    <string name="topic10361" msgid="2911719878674200735">"របៀប​ធ្វើ"</string>
+    <string name="topic10362" msgid="8045493635242789203">"ម៉ោង និងប្រតិទិន"</string>
+    <string name="topic10363" msgid="3433488479827868110">"ធនធាន​ភាសា"</string>
+    <string name="topic10364" msgid="7272051128606899896">"ការសិក្សា​ភាសា​បរទេស"</string>
+    <string name="topic10365" msgid="1638685557205583094">"ឧបករណ៍ និងធនធានសម្រាប់ការបកប្រែ"</string>
+    <string name="topic10366" msgid="5972643213789684860">"ផែនទី"</string>
+    <string name="topic10367" msgid="4693720215957988260">"វិទ្យាសាស្ត្រ"</string>
+    <string name="topic10368" msgid="7342229547845270303">"AR និង VR"</string>
+    <string name="topic10369" msgid="7623948477078242419">"វិទ្យាសាស្ត្រ​ជីវវិទ្យា"</string>
+    <string name="topic10370" msgid="1849957115993781053">"សេនេទិច"</string>
+    <string name="topic10371" msgid="5801324530787262649">"គីមីវិទ្យា"</string>
+    <string name="topic10372" msgid="7043359432633182804">"អេកូឡូស៊ី និងបរិស្ថាន"</string>
+    <string name="topic10373" msgid="1506052968197311461">"ភូគព្ភសាស្ត្រ"</string>
+    <string name="topic10374" msgid="5081919530597944716">"ការរៀន​របស់​ម៉ាស៊ីន និង​បញ្ញា​សិប្បនិម្មិត"</string>
+    <string name="topic10375" msgid="7880740430968664319">"គណិតវិទ្យា"</string>
+    <string name="topic10376" msgid="8685831276841267222">"រូបវិទ្យា"</string>
+    <string name="topic10377" msgid="8162056465305020784">"រ៉ូបូត​វិទ្យា"</string>
+    <string name="topic10378" msgid="6048245367747141920">"ការ​ទិញ​​ទំនិញ"</string>
+    <string name="topic10379" msgid="3561154473861357708">"វត្ថុបុរាណ និង​វត្ថុមានតម្លៃ"</string>
+    <string name="topic10380" msgid="3001377458860648561">"សម្លៀកបំពាក់"</string>
+    <string name="topic10381" msgid="1050316146323573972">"សម្លៀកបំពាក់​កុមារ"</string>
+    <string name="topic10382" msgid="1131102032733237256">"ឈុតសម្លៀកបំពាក់"</string>
+    <string name="topic10383" msgid="2953255538603038999">"សម្លៀកបំពាក់​បុរស"</string>
+    <string name="topic10384" msgid="5208244211687593882">"សម្លៀកបំពាក់​នារី"</string>
+    <string name="topic10385" msgid="3335546606796359244">"ការផ្សព្វផ្សាយចម្រុះ"</string>
+    <string name="topic10386" msgid="6517746237788385147">"ធនធាន​អ្នក​ប្រើប្រាស់"</string>
+    <string name="topic10387" msgid="8607123472737800846">"ការផ្ដល់ជូនគូប៉ុង និង​​ការបញ្ចុះ​តម្លៃ"</string>
+    <string name="topic10388" msgid="1641030315133068943">"កាត និងកម្មវិធីសមាជិក"</string>
+    <string name="topic10389" msgid="8196319126164726646">"ជំនួយ​បច្ចេកទេស និងការជួសជុល"</string>
+    <string name="topic10390" msgid="1361120031667629697">"ផ្កា"</string>
+    <string name="topic10391" msgid="9119667040520612849">"បណ្ណ​ជូន​ពរ"</string>
+    <string name="topic10392" msgid="6877484311325584713">"គ្រឿង​ផ្គត់ផ្គង់​ពិធី​ជប់លៀង និង​វិស្សមកាល"</string>
+    <string name="topic10393" msgid="7537523054091079737">"ច្រកចូលទិញ​ទំនិញ"</string>
+    <string name="topic10394" msgid="5321887056912883029">"កីឡា"</string>
+    <string name="topic10395" msgid="8799420706106672054">"កីឡា​បាល់ឱប​​អាមេរិក"</string>
+    <string name="topic10396" msgid="2048632371307841946">"កីឡាបាល់ឱប​អូស្ត្រាលី"</string>
+    <string name="topic10397" msgid="653991203228840785">"ការ​ប្រណាំង​រថយន្ត"</string>
+    <string name="topic10398" msgid="5412613151176189985">"បេស្បល"</string>
+    <string name="topic10399" msgid="2009283546036614639">"បាល់បោះ"</string>
+    <string name="topic10400" msgid="5034305624605462351">"ប៊ូលីង"</string>
+    <string name="topic10401" msgid="26807857115228330">"ប្រដាល់"</string>
+    <string name="topic10402" msgid="6218088033939518718">"សកម្មភាពលើកទឹកចិត្តផ្នែកកីឡា"</string>
+    <string name="topic10403" msgid="3030076002966858939">"កីឡា​មហាវិទ្យាល័យ"</string>
+    <string name="topic10404" msgid="4018137098149287073">"គ្រីឃីត"</string>
+    <string name="topic10405" msgid="9036991434485987285">"ជិះកង់"</string>
+    <string name="topic10406" msgid="7185471418082005024">"អ្នកជំនាញជិះសេះ"</string>
+    <string name="topic10407" msgid="316266982792700993">"កីឡា​គ្រោះថ្នាក់​ខ្លាំង"</string>
+    <string name="topic10408" msgid="2571246233605408148">"ការឡើង និងការឡើងភ្នំ"</string>
+    <string name="topic10409" msgid="1182462921341224299">"កីឡា​បែបស្រមើ​ស្រមៃ"</string>
+    <string name="topic10410" msgid="7501849152641094734">"កូនហ្គោល"</string>
+    <string name="topic10411" msgid="6678464213609789748">"កាយសម្ព័ន្ធ"</string>
+    <string name="topic10412" msgid="335770351079973128">"ហុកគី"</string>
+    <string name="topic10413" msgid="416366556259783701">"ជិះ​ស្គី​លើទឹក​កក"</string>
+    <string name="topic10414" msgid="6909439381556710013">"ក្បាច់គុន"</string>
+    <string name="topic10415" msgid="4535534983750709163">"ការប្រណាំងម៉ូតូ"</string>
+    <string name="topic10416" msgid="1687911875093638923">"ព្រឹត្តិការណ៍​កីឡាអូឡាំពិក​"</string>
+    <string name="topic10417" msgid="2735521554483279111">"បាល់​ឱប"</string>
+    <string name="topic10418" msgid="8763139538107186007">"ការរត់ និងការដើរ"</string>
+    <string name="topic10419" msgid="979581105119036716">"ការជិះ​ស្គី និងការជិះក្តារលើទឹកកក"</string>
+    <string name="topic10420" msgid="5256622299392338856">"បាល់ទាត់"</string>
+    <string name="topic10421" msgid="2654561933626679644">"ការជិះ​ក្ដារ​លើ​ទឹក"</string>
+    <string name="topic10422" msgid="978920114358054206">"ការហែលទឹក"</string>
+    <string name="topic10423" msgid="4476847046369253369">"តិន្នីស"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ផ្លូវរត់ និង​ទីលាន"</string>
+    <string name="topic10425" msgid="3357509018485364691">"បាល់ទះ"</string>
+    <string name="topic10426" msgid="3761026182327229458">"ចំបាប់"</string>
+    <string name="topic10427" msgid="3748043578314103947">"ការ​ធ្វើដំណើរ និងការដឹកជញ្ជូន"</string>
+    <string name="topic10428" msgid="7483002505617756861">"ការ​ធ្វើ​ដំណើរ​ផ្សងព្រេង"</string>
+    <string name="topic10429" msgid="8091163959414149724">"ការធ្វើដំណើរ​តាមអាកាស"</string>
+    <string name="topic10430" msgid="1917556952821193760">"ដំណើរធុរកិច្ច"</string>
+    <string name="topic10431" msgid="7980462767288577734">"ការជួល​រថយន្ត"</string>
+    <string name="topic10432" msgid="4266685292456713522">"នាវាកម្សាន្ត និង​ការជួល​យានជំនិះ"</string>
+    <string name="topic10433" msgid="5001290528529256942">"ការធ្វើដំណើរ​លក្ខណៈគ្រួសារ"</string>
+    <string name="topic10434" msgid="6310190021663379686">"ដំណើរកម្សាន្តក្រេបទឹកឃ្មុំ និងបែបរ៉ូមែនទិក"</string>
+    <string name="topic10435" msgid="8897799078890998992">"សណ្ឋាគារ និងកន្លែង​ស្នាក់​នៅ"</string>
+    <string name="topic10436" msgid="6778700611322666596">"ឡានក្រុងផ្លូវឆ្ងាយ និងផ្លូវដែក"</string>
+    <string name="topic10437" msgid="4764816005841382091">"ការធ្វើដំណើរតម្លៃទាប និងការធ្វើដំណើរ​នៅនាទីចុងក្រោយ"</string>
+    <string name="topic10438" msgid="1305380730693546021">"​អីវ៉ាន់ និង​សម្ភារ​​ធ្វើ​ដំណើរ"</string>
+    <string name="topic10439" msgid="7731122187851230543">"គោលដៅ​ទេសចរណ៍"</string>
+    <string name="topic10440" msgid="8071652555461175118">"ឆ្នេរ និងកោះ"</string>
+    <string name="topic10441" msgid="7182533767302670894">"ឧទ្យាន និង​សួនច្បារ​តាម​តំបន់"</string>
+    <string name="topic10442" msgid="6462141176894347324">"សួន​កម្សាន្ត"</string>
+    <string name="topic10443" msgid="7234914754801803285">"សួនសត្វ"</string>
+    <string name="topic10444" msgid="4322315510441782805">"កម្មវិធីរៀបគម្រោងផ្លូវ និងចរាចរណ៍"</string>
+    <string name="topic10445" msgid="1182221450749409373">"ភ្នាក់ងារ និងសេវាកម្មទេសចរណ៍"</string>
+    <string name="topic10446" msgid="3104259094878772333">"មគ្គទេសក៍​ធ្វើ​ដំណើរ និង​សៀវភៅ​ស្ដី​ពី​ការ​ធ្វើ​ដំណើរ"</string>
+</resources>

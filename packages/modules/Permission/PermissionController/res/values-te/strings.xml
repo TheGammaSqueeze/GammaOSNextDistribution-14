@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6098036489833144040">"అనుమతి కంట్రోలర్"</string>
+    <string name="ok" msgid="1936281769725676272">"సరే"</string>
+    <string name="permission_search_keyword" msgid="1214451577494730543">"అనుమతులు"</string>
+    <string name="cancel" msgid="8943320028373963831">"రద్దు చేయండి"</string>
+    <string name="back" msgid="6249950659061523680">"వెనుకకు"</string>
+    <string name="available" msgid="6007778121920339498">"అందుబాటులో ఉంది"</string>
+    <string name="blocked" msgid="9195547604866033708">"బ్లాక్ చేయబడినది"</string>
+    <string name="on" msgid="280241003226755921">"ఆన్‌లో ఉంది"</string>
+    <string name="off" msgid="1438489226422866263">"ఆఫ్"</string>
+    <string name="uninstall_or_disable" msgid="4496612999740858933">"అన్‌ఇన్‌స్టాల్ చేయి, లేదా డిజేబుల్ చేయి"</string>
+    <string name="app_not_found_dlg_title" msgid="6029482906093859756">"యాప్ కనుగొనబడలేదు"</string>
+    <string name="grant_dialog_button_deny" msgid="88262611492697192">"అనుమతించవద్దు"</string>
+    <string name="grant_dialog_button_deny_and_dont_ask_again" msgid="1748925431574312595">"అనుమతించవద్దు &amp; మళ్లీ అడగవద్దు"</string>
+    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"“యాప్ వినియోగంలో ఉన్నప్పుడు” నిలిపి ఉంచు"</string>
+    <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"“కేవలం ఈసారి మాత్రమే” ఇలాగే ఉంచు"</string>
+    <string name="grant_dialog_button_more_info" msgid="213350268561945193">"మరింత సమాచారం"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"అన్నీ అనుమతించండి"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"ఎల్లవేళలా అన్నీ అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"పరిమిత యాక్సెస్‌ను అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"ఫోటోలు, వీడియోలను ఎంచుకోండి"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"మరిన్ని ఫోటోలను ఎంచుకోండి"</string>
+    <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"మరిన్ని ఫోటోలను ఎంచుకోవద్దు"</string>
+    <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"ఏదేమైనా అనుమతించవద్దు"</string>
+    <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"విస్మరించు"</string>
+    <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="PERMISSION_COUNT">%2$s</xliff:g> యొక్క <xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g>"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను ఈ చర్య చేయడానికి అనుమతించాలా? - <xliff:g id="ACTION">%2$s</xliff:g>"</string>
+    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"ఈ చర్యను చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను ఎల్లప్పుడూ అనుమతించాలా? - <xliff:g id="ACTION">%2$s</xliff:g>"</string>
+    <string name="allow_permission_foreground_only" msgid="116465816039675404">"యాప్‌ను ఉపయోగిస్తున్నప్పుడు మాత్రమే"</string>
+    <string name="allow_permission_always" msgid="5194342531206054051">"ఎల్లప్పుడూ"</string>
+    <string name="deny_permission_deny_and_dont_ask_again" msgid="6106035221490102341">"అనుమతించవద్దు, మళ్లీ అడగవద్దు"</string>
+    <string name="permission_revoked_count" msgid="4785082705441547086">"<xliff:g id="COUNT">%1$d</xliff:g> నిలిపివేయబడ్డాయి"</string>
+    <string name="permission_revoked_all" msgid="3397649017727222283">"అన్నీ నిలిపివేయబడ్డాయి"</string>
+    <string name="permission_revoked_none" msgid="9213345075484381180">"ఏవీ నిలిపివేయబడలేదు"</string>
+    <string name="grant_dialog_button_allow" msgid="5314677880021102550">"అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_always" msgid="4485552579273565981">"ఎల్ల‌ప్పుడూ అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"యాప్‌ను ఉపయోగిస్తున్నప్పుడు"</string>
+    <string name="grant_dialog_button_change_to_precise_location" msgid="3273115879467236033">"ఖచ్చితమైన లొకేషన్‌కు మార్చండి"</string>
+    <string name="grant_dialog_button_keey_approximate_location" msgid="438025182769080011">"లొకేషన్‌ను సుమారుగా ఉంచండి"</string>
+    <string name="grant_dialog_button_allow_one_time" msgid="2618088516449706391">"ఈ ఒక్కసారి మాత్రమే"</string>
+    <string name="grant_dialog_button_allow_background" msgid="8236044729434367833">"ఎల్లప్పుడూ అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_all_files" msgid="4955436994954829894">"అన్ని ఫైళ్ల నిర్వహణకు అనుమతించండి"</string>
+    <string name="grant_dialog_button_allow_media_only" msgid="4832877658422573832">"మీడియా ఫైళ్లను యాక్సెస్ చేయడానికి అనుమతించండి"</string>
+    <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"యాప్‌లు"</string>
+    <string name="app_permissions" msgid="3369917736607944781">"యాప్ అనుమతులు"</string>
+    <string name="unused_apps" msgid="2058057455175955094">"ఉపయోగించని యాప్‌లు"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"ఈ యాప్ కోసం ఎంచుకున్న ఫోటోలను ఎడిట్ చేయండి"</string>
+    <string name="no_unused_apps" msgid="12809387670415295">"ఉపయోగించని యాప్‌లు లేవు"</string>
+    <string name="zero_unused_apps" msgid="9024448554157499748">"0 ఉపయోగించని యాప్‌లు"</string>
+    <string name="review_permission_decisions" msgid="309559429150613632">"ఇటీవలి అనుమతి నిర్ణయాలు"</string>
+    <string name="review_permission_decisions_view_all" msgid="90391040431566130">"ఇటీవలి అన్ని అనుమతి నిర్ణయాలను చూడండి"</string>
+    <string name="review_permission_decisions_empty" msgid="8120775336417279806">"ఇటీవలి అనుమతి నిర్ణయాలు లేవు"</string>
+    <string name="auto_permission_manager_summary" msgid="9157438376234301354">"క్యాలెండర్, కాల్ లాగ్‌లు, ఇంకా మరిన్నింటికి డేటా యాక్సెస్‌ను మేనేజ్ చేయండి"</string>
+    <string name="granted_permission_decision" msgid="7824827491551861365">"మీరు <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>కు <xliff:g id="APP_NAME">%1$s</xliff:g> యాక్సెస్‌ను ఇచ్చారు"</string>
+    <string name="denied_permission_decision" msgid="5308961501779563781">"మీరు <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>‌కు <xliff:g id="APP_NAME">%1$s</xliff:g> యాక్సెస్‌ను తిరస్కరించారు"</string>
+    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{ఈరోజు}=1{1 రోజు క్రితం}other{# రోజుల క్రితం}}"</string>
+    <string name="app_disable_dlg_positive" msgid="7418444149981904940">"యాప్‌ను డిజేబుల్‌ చేయి"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"మీరు ఈ యాప్‌ను డిజేబుల్‌ చేస్తే, Android మరియు ఇతర యాప్‌లు ఇకపై ఉద్దేశించిన రీతిలో పని చేయకపోవచ్చు. ఈ యాప్ మీ పరికరంలో ముందుగానే ఇన్‌స్టాల్ చేసి, అందించబడింది కాబట్టి మీరు దీనిని తొలగించలేరని గుర్తుంచుకోండి. డిజేబుల్‌ చేయడం ద్వారా, మీరు ఈ యాప్‌ను ఆఫ్ చేసి, మీ పరికరంలో దానిని దాస్తున్నారు."</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"అనుమతి మేనేజర్"</string>
+    <string name="never_ask_again" msgid="4728762438198560329">"మళ్లీ అడగవద్దు"</string>
+    <string name="no_permissions" msgid="3881676756371148563">"అనుమతులు లేవు"</string>
+    <string name="additional_permissions" msgid="5801285469338873430">"అదనపు అనుమతులు"</string>
+    <string name="app_permissions_info_button_label" msgid="7633312050729974623">"యాప్ సమాచారాన్ని తెరుస్తుంది"</string>
+    <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{మరో #}other{మరో #}}"</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"ఈ యాప్ పాత Android వెర్షన్ కోసం రూపొందించబడింది. అనుమతిని నిరాకరించినట్లయితే ఇది ఇకపై ఉద్దేశించిన రీతిలో పని చేయకపోవచ్చు."</string>
+    <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"ఈ యాప్ పాత Android వెర్షన్ కోసం రూపొందించబడింది. మీరు ఈ అనుమతిని అంగీకరిస్తే, మొత్తం స్టోరేజ్ (ఫోటోలు, వీడియోలు, మ్యూజిక్, ఆడియో, ఇంకా ఇతర ఫైల్స్‌తో సహా) యాక్సెస్ అనుమతించబడుతుంది."</string>
+    <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"ఈ యాప్ పాత Android వెర్షన్ కోసం రూపొందించబడింది. మీరు ఈ అనుమతిని తిరస్కరిస్తే, మొత్తం స్టోరేజ్ (ఫోటోలు, వీడియోలు, సంగీతం, ఆడియో, ఇంకా ఇతర ఫైల్స్‌తో సహా) యాక్సెస్ తిరస్కరించబడుతుంది."</string>
+    <string name="default_permission_description" msgid="4624464917726285203">"తెలియని చర్యను చేస్తుంది"</string>
+    <string name="app_permissions_group_summary" msgid="8788419008958284002">"<xliff:g id="COUNT_1">%2$d</xliff:g>లో <xliff:g id="COUNT_0">%1$d</xliff:g> యాప్‌లు అనుమతించబడ్డాయి"</string>
+    <string name="app_permissions_group_summary2" msgid="4329922444840521150">"<xliff:g id="COUNT_0">%1$d</xliff:g>లో<xliff:g id="COUNT_1">%2$d</xliff:g> యాప్‌లు అనుమతించబడ్డాయి"</string>
+    <string name="menu_show_system" msgid="4254021607027872504">"సిస్టమ్‌ను చూపు"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"సిస్టమ్‌ను దాచు"</string>
+    <string name="menu_show_7_days_data" msgid="8979611198508523706">"7 రోజులను చూపు"</string>
+    <string name="menu_show_24_hours_data" msgid="8228054833323380780">"24 గంటలను చూపు"</string>
+    <string name="manage_permission" msgid="2895385393037061964">"అనుమతిని మేనేజ్ చేయండి"</string>
+    <string name="no_apps" msgid="2412612731628386816">"యాప్‌లు లేవు"</string>
+    <string name="location_settings" msgid="3624412509133422562">"లొకేషన్ సెట్టింగ్‌లు"</string>
+    <string name="location_warning" msgid="2381649060929040962">"ఈ పరికరం కోసం లొకేషన్ సర్వీస్‌ల ప్రొవైడర్ <xliff:g id="APP_NAME">%1$s</xliff:g>. లొకేషన్ సెట్టింగ్‌ల నుండి లొకేషన్ యాక్సెస్‌ను ఎడిట్ చేయవచ్చు."</string>
+    <string name="system_warning" msgid="1173400963234358816">"మీరు ఈ అనుమతిని నిరాకరిస్తే, మీ పరికర ప్రాథమిక లక్షణాలు ఇకపై ఉద్దేశించిన రీతిలో పని చేయకపోవచ్చు."</string>
+    <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"ఈ యాప్ పాత Android వెర్షన్ కోసం రూపొందించబడింది. మీరు ఫోటోలు &amp; వీడియోలకు ఈ యాప్ యాక్సెస్‌ను తిరస్కరించినట్లయితే, మ్యూజిక్ &amp; ఇతర ఆడియోకు యాక్సెస్ కూడా తిరస్కరించబడుతుంది."</string>
+    <string name="deny_read_media_aural_warning" msgid="8928699919508646732">"ఈ యాప్ పాత Android వెర్షన్ కోసం రూపొందించబడింది. మీరు మ్యూజిక్ &amp; ఇతర ఆడియోకు ఈ యాప్ యాక్సెస్‌ను తిరస్కరించినట్లయితే, ఫోటోలు &amp; వీడియోలకు యాక్సెస్ కూడా తిరస్కరించబడుతుంది."</string>
+    <string name="cdm_profile_revoke_warning" msgid="4443893270719106700">"మీరు ఈ అనుమతిని నిరాకరిస్తే, ఈ యాప్ ద్వారా మేనేజ్ చేయబడే మీ పరికరం తాలూకు కొన్ని ఫీచర్‌లు ఇకపై ఉద్దేశించిన విధంగా పనిచేయకపోవచ్చు."</string>
+    <string name="permission_summary_enforced_by_policy" msgid="4443598170942950519">"విధానం ద్వారా అమలు చేయబడింది"</string>
+    <string name="permission_summary_disabled_by_policy_background_only" msgid="221995005556362660">"విధానం ద్వారా నేపథ్య యాక్సెస్ నిలిపివేయబడింది"</string>
+    <string name="permission_summary_enabled_by_policy_background_only" msgid="8287675974767104279">"విధానం ద్వారా నేపథ్య యాక్సెస్ ప్రారంభించబడింది"</string>
+    <string name="permission_summary_enabled_by_policy_foreground_only" msgid="3844582916889767831">"విధానం ద్వారా ముందుభాగం యాక్సెస్ ప్రారంభించబడింది"</string>
+    <string name="permission_summary_enforced_by_admin" msgid="822702574117248700">"నిర్వాహకుల నియంత్రణలో ఉంటాయి"</string>
+    <string name="permission_summary_disabled_by_admin_background_only" msgid="3127091456731845646">"నిర్వాహకులు నేపథ్య యాక్సెస్‌ను నిలిపివేసారు"</string>
+    <string name="permission_summary_enabled_by_admin_background_only" msgid="9132423838440275757">"నిర్వాహకులు నేపథ్య యాక్సెస్‌ను అనుమతించారు"</string>
+    <string name="permission_summary_enabled_by_admin_foreground_only" msgid="1298432715610745358">"నిర్వాహకులు స్క్రీన్ యాక్సెస్‌ను అనుమతించారు"</string>
+    <string name="permission_summary_enabled_system_fixed" msgid="2438344700184127274">"పరికరం దీనిని ఆపరేట్ చేయడానికి ఈ అనుమతి అవసరం"</string>
+    <!-- no translation found for background_access_chooser_dialog_choices:0 (1351721623256561996) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:1 (9127301153688725448) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:2 (4305536986042401191) -->
+    <string name="permission_access_always" msgid="1474641821883823446">"ఎల్లప్పుడూ అనుమతించండి"</string>
+    <string name="permission_access_only_foreground" msgid="7801170728159326195">"యాప్ వాడుతున్నప్పుడే అనుమతించండి"</string>
+    <string name="permission_access_never" msgid="4647014230217936900">"అనుమతించవద్దు"</string>
+    <string name="loading" msgid="4789365003890741082">"లోడ్ చేస్తోంది…"</string>
+    <string name="all_permissions" msgid="6911125611996872522">"అన్ని అనుమతులు"</string>
+    <string name="other_permissions" msgid="2901186127193849594">"ఇతర యాప్ సామర్థ్యాలు"</string>
+    <string name="permission_request_title" msgid="8790310151025020126">"అనుమతి రిక్వెస్ట్‌"</string>
+    <string name="permission_review_title_template_install" msgid="1284337937156289081">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; యాక్సెస్ చేయడానికి అనుమతించాల్సిన వాటిని ఎంచుకోండి"</string>
+    <string name="permission_review_title_template_update" msgid="3232333580548588657">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; అప్‌డేట్ చేయబడింది. ఈ యాప్ యాక్సెస్ చేయడానికి అనుమతించాల్సిన వాటిని ఎంచుకోండి."</string>
+    <string name="review_button_cancel" msgid="2191147944056548886">"రద్దు చేయండి"</string>
+    <string name="review_button_continue" msgid="2527918375047602199">"కొనసాగించండి"</string>
+    <string name="new_permissions_category" msgid="552995090178417611">"కొత్త అనుమతులు"</string>
+    <string name="current_permissions_category" msgid="4292990083585728880">"ప్రస్తుత అనుమతులు"</string>
+    <string name="message_staging" msgid="9110563899955511866">"యాప్‌ను అందిస్తోంది…"</string>
+    <string name="app_name_unknown" msgid="1319665005754048952">"తెలియదు"</string>
+    <string name="permission_usage_title" msgid="1568233336351734538">"గోప్యతా డ్యాష్‌బోర్డ్"</string>
+    <string name="auto_permission_usage_summary" msgid="7335667266743337075">"ఇటీవల ఏ యాప్‌లు అనుమతులను ఉపయోగించాయో చూడండి"</string>
+    <string name="permission_group_usage_title" msgid="2595013198075285173">"<xliff:g id="PERMGROUP">%1$s</xliff:g> వినియోగం"</string>
+    <string name="perm_usage_adv_info_title" msgid="3357831829538873708">"ఇతర అనుమతులను చూడండి"</string>
+    <string name="perm_usage_adv_info_summary_2_items" msgid="3702175198750127822">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g>"</string>
+    <string name="perm_usage_adv_info_summary_more_items" msgid="949055326299562218">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g>, మరియు మరో <xliff:g id="NUM">%3$s</xliff:g>"</string>
+    <string name="permission_group_usage_subtitle_24h" msgid="5120155996322114181">"గత 24 గంటలలో యాప్‌లు మీ <xliff:g id="PERMGROUP">%1$s</xliff:g>‌ను ఎప్పుడు ఉపయోగించాయో తెలిపే టైమ్‌లైన్"</string>
+    <string name="permission_group_usage_subtitle_7d" msgid="1465828402260324654">"గత 7 రోజుల్లో యాప్‌లు మీ <xliff:g id="PERMGROUP">%1$s</xliff:g>‌ను ఎప్పుడు ఉపయోగించాయో తెలిపే టైమ్‌లైన్"</string>
+    <string name="permission_usage_access_dialog_subtitle" msgid="4171772805196955753">"మీ <xliff:g id="PERMGROUP">%1$s</xliff:g> అనుమతిని యాప్ ఉపయోగించినప్పుడు"</string>
+    <string name="permission_usage_access_dialog_learn_more" msgid="7121468469493184613">"మరింత తెలుసుకోండి"</string>
+    <string name="learn_more_content_description" msgid="8673699744544502539">"\'<xliff:g id="PERMGROUP">%1$s</xliff:g>\' గురించి మరింత తెలుసుకోండి"</string>
+    <string name="manage_permission_summary" msgid="4117555482684114317">"మీ <xliff:g id="PERMGROUP">%1$s</xliff:g>కు యాప్ యాక్సెస్‌ను కంట్రోల్ చేయండి"</string>
+    <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# రోజు}other{# రోజులు}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# గంట}other{# గంటలు}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# నిమి}other{# నిమిషాలు}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# సెక}other{# సెకన్లు}}"</string>
+    <string name="permission_usage_any_permission" msgid="6358023078298106997">"ఏ అనుమతి అయినా"</string>
+    <string name="permission_usage_any_time" msgid="3802087027301631827">"ఎప్పుడైనా"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{గడిచిన # రోజులో}other{గడిచిన # రోజులలో}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{గడిచిన # గంటలో}other{గడిచిన # గంటలలో}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{గడిచిన # నిమిషంలో}other{గడిచిన # నిమిషాలలో}}"</string>
+    <string name="no_permission_usages" msgid="9119517454177289331">"అనుమతి వినియోగాలేవీ లేవు"</string>
+    <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"ఏ సమయంలోనైనా అత్యంత ఇటీవలి యాక్సెస్"</string>
+    <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"గత 7 రోజులలో అత్యంత ఇటీవలి యాక్సెస్‌లు"</string>
+    <string name="permission_usage_list_title_last_day" msgid="8730907824567238461">"గత 24 గంటలలో అత్యంత ఇటీవలి యాక్సెస్"</string>
+    <string name="permission_usage_list_title_last_hour" msgid="6624161487623223716">"గడిచిన 1 గంటలో అత్యంత ఇటీవలి యాక్సెస్ జరిగింది"</string>
+    <string name="permission_usage_list_title_last_15_minutes" msgid="8615062016024296833">"అత్యంత ఇటీవలి యాక్సెస్ గత 15 నిమిషాలలో జరిగింది"</string>
+    <string name="permission_usage_list_title_last_minute" msgid="3572792262919886849">"గడిచిన 1 నిమిషంలో అత్యంత ఇటీవలి యాక్సెస్ జరిగింది"</string>
+    <string name="permission_usage_bar_chart_title_any_time" msgid="2845251288192246754">"ఏ సమయంలోనైనా అనుమతి వినియోగం"</string>
+    <string name="permission_usage_bar_chart_title_last_7_days" msgid="5796577162176938349">"గత 7 రోజులలో అనుమతి వినియోగం"</string>
+    <string name="permission_usage_bar_chart_title_last_day" msgid="7950805735777472871">"గత 24 గంటలలో అనుమతి వినియోగం"</string>
+    <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"గడిచిన ఒక గంటలో అనుమతి వినియోగించబడింది"</string>
+    <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"గత 15 నిమిషాలలో అనుమతి వినియోగించబడింది"</string>
+    <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"గత నిమిషంలో అనుమతి వినియోగించబడింది"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{గత # రోజులో ఉపయోగించలేదు}other{గత # రోజుల్లో ఉపయోగించలేదు}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{గత # గంటలో ఉపయోగించలేదు}other{గత # గంటలలో ఉపయోగించలేదు}}"</string>
+    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{1 యాప్ ద్వారా ఉపయోగించబడింది}other{# యాప్‌ల ద్వారా ఉపయోగించబడింది}}"</string>
+    <string name="permission_usage_view_details" msgid="6675335735468752787">"అన్నింటినీ డ్యాష్‌బోర్డ్‌లో చూడండి"</string>
+    <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"దీని ద్వారా ఫిల్టర్ చేయబడింది: <xliff:g id="PERM">%1$s</xliff:g>"</string>
+    <string name="app_permission_usage_remove_filter" msgid="2926157607436428207">"ఫిల్టర్‌ తీసివేయండి"</string>
+    <string name="filter_by_title" msgid="7300368602759958031">"వీటి ద్వారా ఫిల్టర్ చేయి"</string>
+    <string name="filter_by_permissions" msgid="7613462963111282568">"అనుమతుల ఆధారంగా ఫిల్టర్ చేయండి"</string>
+    <string name="filter_by_time" msgid="6667864816999691642">"సమయం ఆధారంగా ఫిల్టర్ చేయి"</string>
+    <string name="sort_spinner_most_permissions" msgid="1704349738096822836">"దాదాపుగా అన్ని అనుమతులు"</string>
+    <string name="sort_spinner_most_accesses" msgid="5283913004357220161">"మరిన్ని యాక్సెస్‌లు"</string>
+    <string name="sort_spinner_recent" msgid="7513845273076525203">"ఇటీవలివి"</string>
+    <string name="sort_by_app" msgid="4055799843051138087">"యాప్ వాడకం బట్టి వర్గీకరణ"</string>
+    <string name="sort_by_time" msgid="5435045320002150456">"టైమ్‌ను బట్టి వర్గీకరణ"</string>
+    <string name="item_separator" msgid="4030255389809224513">", "</string>
+    <string name="permission_usage_refresh" msgid="2264056346561305420">"రిఫ్రెష్ చేయండి"</string>
+    <string name="permission_history_title" msgid="8340081285133025225">"అనుమతి హిస్టరీ"</string>
+    <string name="permission_history_category_today" msgid="7496389369158806620">"ఈరోజు"</string>
+    <string name="permission_history_category_yesterday" msgid="7242517121222012521">"నిన్న"</string>
+    <string name="app_permission_usage_title" msgid="6676802437831981822">"యాప్ అనుమతుల వినియోగం"</string>
+    <string name="app_permission_usage_summary" msgid="390383661936709672">"యాక్సెస్: <xliff:g id="NUM">%1$s</xliff:g> సార్లు. మొత్తం వ్యవధి: <xliff:g id="DURATION">%2$s</xliff:g>. <xliff:g id="TIME">%3$s</xliff:g> క్రితం చివరిగా ఉపయోగించబడింది."</string>
+    <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"యాక్సెస్: <xliff:g id="NUM">%1$s</xliff:g> సార్లు. <xliff:g id="TIME">%2$s</xliff:g> క్రితం చివరిగా ఉపయోగించబడింది."</string>
+    <string name="app_permission_button_allow" msgid="5808039516494774647">"అనుమతించండి"</string>
+    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"అన్ని ఫైళ్ల నిర్వహణకు అనుమతించండి"</string>
+    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"మీడియాకు మాత్రమే యాక్సెస్‌ను అనుమతించండి"</string>
+    <string name="app_permission_button_allow_always" msgid="4573292371734011171">"ఎల్లప్పుడూ అనుమతించండి"</string>
+    <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"యాప్‌ను ఉపయోగిస్తున్నప్పుడు మాత్రమే అనుమతించండి"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"అన్నింటినీ ఎల్లవేళలా అనుమతించండి"</string>
+    <string name="app_permission_button_ask" msgid="3342950658789427">"ప్రతిసారి అడగాలి"</string>
+    <string name="app_permission_button_deny" msgid="6016454069832050300">"అనుమతించవద్దు"</string>
+    <string name="precise_image_description" msgid="6349638632303619872">"ఖచ్చితమైన లొకేషన్"</string>
+    <string name="approximate_image_description" msgid="938803699637069884">"సుమారు లొకేషన్"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"ఖచ్చితమైన లొకేషన్‌ను ఉపయోగించండి"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"ఖచ్చితమైన లొకేషన్ అనే సెట్టింగ్ ఆఫ్‌లో ఉన్నప్పుడు, యాప్‌లు మీ సుమారు లొకేషన్‌ను యాక్సెస్ చేయగలవు"</string>
+    <string name="app_permission_title" msgid="2090897901051370711">"\'<xliff:g id="PERM">%1$s</xliff:g>\' అనుమతి"</string>
+    <string name="app_permission_header" msgid="2951363137032603806">"ఈ యాప్ కోసం \'<xliff:g id="PERM">%1$s</xliff:g>\' యాక్సెస్‌ను ఇవ్వాలా? వద్దా"</string>
+    <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"అన్ని \'<xliff:g id="APP">%1$s</xliff:g>\' అనుమతులను చూడండి"</string>
+    <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"ఈ అనుమతి ఉన్న అన్ని యాప్‌లను చూడండి"</string>
+    <string name="assistant_mic_label" msgid="1011432357152323896">"అసిస్టెంట్ మైక్రోఫోన్ వినియోగాన్ని చూపు"</string>
+    <string name="unused_apps_category_title" msgid="2988455616845243901">"ఉపయోగించని యాప్ సెట్టింగ్‌లు"</string>
+    <string name="auto_revoke_label" msgid="5068393642936571656">"యాప్‌ని ఉపయోగించకపోతే, అనుమతులను తీసివేయండి"</string>
+    <string name="unused_apps_label" msgid="2595428768404901064">"అనుమతులను తీసివేసి స్పేస్‌ను ఖాళీ చేయండి"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"యాప్‌ను ఉపయోగించకపోతే దాని యాక్టివిటీని పాజ్ చేయండి"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"యాప్‌ను ఉపయోగించకపోతే, మేనేజ్ చేయండి"</string>
+    <string name="unused_apps_summary" msgid="8839466950318403115">"అనుమతులను తీసివేయండి, తాత్కాలిక ఫైళ్లను తొలగించండి, అలాగే నోటిఫికేషన్‌లను ఆపివేయండి"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"అనుమతులను తీసివేయండి, తాత్కాలిక ఫైళ్లను తొలగించండి, నోటిఫికేషన్‌లను ఆపివేయండి, యాప్‌ను ఆర్కైవ్ చేయండి"</string>
+    <string name="auto_revoke_summary" msgid="5867548789805911683">"మీ డేటాను సురక్షితంగా ఉంచడానికి, ఈ యాప్ కొన్ని నెలలుగా వినియోగంలో లేకుంటే, దాని అనుమతులు తీసివేయబడతాయి."</string>
+    <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"మీ డేటాను సురక్షితంగా ఉంచడానికి, ఈ యాప్ కొన్ని నెలలుగా వినియోగంలో లేకుంటే, దానికి ఇచ్చిన కింది అనుమతులు తీసివేయబడతాయి: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
+    <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"మీ డేటాను సురక్షితంగా ఉంచడానికి, కొన్ని నెలలుగా వినియోగంలో లేని యాప్‌ల అనుమతులు తీసివేయబడ్డాయి."</string>
+    <string name="auto_revoke_open_app_message" msgid="8075556291711205039">"మీరు మళ్లీ అనుమతులను మంజూరు చేయాలనుకుంటే, యాప్‌ను తెరవండి."</string>
+    <string name="auto_revoke_disabled" msgid="8697684442991567188">"ఈ యాప్‌కి సంబంధించి ఆటోమేటిక్ తీసివేత ప్రస్తుతం నిలిపివేయబడింది."</string>
+    <string name="auto_revocable_permissions_none" msgid="8334929619113991466">"ఆటోమేటిక్‌గా రద్దు చేయగల అనుమతులేవీ ప్రస్తుతం ఇవ్వబడలేదు"</string>
+    <string name="auto_revocable_permissions_one" msgid="5299112369449458176">"<xliff:g id="PERM">%1$s</xliff:g> అనుమతి తీసివేయబడుతుంది."</string>
+    <string name="auto_revocable_permissions_two" msgid="4874067408752041716">"<xliff:g id="PERM_0">%1$s</xliff:g> అలాగే <xliff:g id="PERM_1">%2$s</xliff:g> అనుమతులు తీసివేయబడతాయి."</string>
+    <string name="auto_revocable_permissions_many" msgid="1521807896206032992">"తీసివేయబడే అనుమతులు: <xliff:g id="PERMS">%1$s</xliff:g>."</string>
+    <string name="auto_manage_title" msgid="7693181026874842935">"అనుమతులను ఆటోమేటిక్‌గా నిర్వహించండి"</string>
+    <string name="auto_revoked_app_summary_one" msgid="7093213590301252970">"<xliff:g id="PERMISSION_NAME">%s</xliff:g> అనుమతి తీసివేయబడింది"</string>
+    <string name="auto_revoked_app_summary_two" msgid="1910545340763709389">"<xliff:g id="PERMISSION_NAME_0">%1$s</xliff:g> మరియు <xliff:g id="PERMISSION_NAME_1">%2$s</xliff:g> అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>, మరో <xliff:g id="NUMBER">%2$s</xliff:g> ఇతర అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="unused_apps_page_title" msgid="6986983535677572559">"ఉపయోగించని యాప్‌లు"</string>
+    <string name="unused_apps_page_summary" msgid="1867593913217272155">"యాప్‌ను కొన్ని నెలలు ఉపయోగించకపోతే:\n\n• మీ డేటాను రక్షించడానికి అనుమతులు తీసివేయబడతాయి\n• బ్యాటరీని సేవ్ చేయడానికి నోటిఫికేషన్‌లు ఆపివేయబడతాయి\n• స్పేస్‌ను ఖాళీ చేయడానికి తాత్కాలిక ఫైళ్లు తీసివేయబడతాయి\n\nఅనుమతులు, నోటిఫికేషన్‌లను మళ్ళీ అనుమతించడానికి యాప్‌ను తెరవండి."</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"యాప్‌ను నెల పాటు ఉపయోగించకపోతే:\n\n• మీ డేటాను రక్షించడానికి అనుమతులు తీసివేయబడతాయి\n• స్పేస్‌ను ఖాళీ చేయడానికి తాత్కాలిక ఫైళ్లు తీసివేయబడతాయి\n\nఅనుమతులకు మళ్లీ వీలు కల్పించడానికి, యాప్‌ను తెరవండి."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{చివరిసారిగా # నెల కంటే ముందు తెరవబడింది}other{చివరిసారిగా # నెలల కంటే ముందు తెరవబడింది}}"</string>
+    <string name="last_opened_summary" msgid="5248984030024968808">"యాప్ చివరిసారిగా <xliff:g id="DATE">%s</xliff:g> తేదీన తెరవబడింది"</string>
+    <string name="last_opened_summary_short" msgid="1646067226191176825">"చివరిగా తెరిచినది <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"మీరు అన్ని ఫైళ్ల మేనేజ్‌మెంట్‌కు అనుమతిస్తే,ఈ పరికరంలో లేదా కనెక్ట్ చేయబడిన స్టోరేజ్ పరికరాలలో ఉమ్మడి స్టోరేజ్‌లోని ఏ ఫైళ్లను అయినా ఈ యాప్ యాక్సెస్ చేయగలదు, సవరించగలదు, లేదా తొలగించగలదు. యాప్ మీ అనుమతి తీసుకోకుండానే ఫైళ్లను యాక్సెస్ చేయవచ్చు."</string>
+    <string name="special_file_access_dialog" msgid="583804114020740610">"ఈ పరికరంలో లేదా ఏవైనా కనెక్ట్ చేయబడిన స్టోరేజ్ పరికరాలలో ఫైళ్లను యాక్సెస్ చేయడానికి, ఎడిట్ చేయడానికి, లేదా తొలగించడానికి ఈ యాప్‌నకు అనుమతి ఇవ్వాలా? ఈ యాప్ మీ అనుమతి తీసుకోకుండానే ఫైళ్లను యాక్సెస్ చేయవచ్చు."</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"ఈ అనుమ‌తి ఉన్న యాప్‌లు ఇది చేయగలవు- <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"వాకింగ్, బైకింగ్, సైక్లింగ్, అడుగులను లెక్కించడం మొదలైన శారీరక శ్రమను, ఇంకా మరిన్నింటిని ఈ అనుమతి ఉన్న యాప్‌లు యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_calendar" msgid="103329982944411010">"ఈ అనుమతి ఉన్న యాప్‌లు మీ క్యాలెండర్‌ను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_call_log" msgid="7321437186317577624">"ఈ అనుమతి ఉన్న యాప్‍‌లు ఫోన్ కాల్ లాగ్‌ను చదవగలుగుతాయి, దానిలో రాయగలుగుతాయి"</string>
+    <string name="permission_description_summary_camera" msgid="108004375101882069">"ఈ అనుమతి ఉన్న యాప్‌లు ఫోటోలు తీయగలవు, వీడియోను రికార్డ్ చేయగలవు"</string>
+    <string name="permission_description_summary_contacts" msgid="2337798886460408996">"ఈ అనుమతి ఉన్న యాప్‌లు మీ కాంటాక్ట్‌లను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_location" msgid="2817531799933480694">"ఈ అనుమతి ఉన్న యాప్‌లు ఈ పరికర లొకేషన్‌ను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_nearby_devices" msgid="8269183818275073741">"ఈ అనుమతి ఉన్న యాప్‌లు సమీప పరికరాలను గుర్తించవచ్చు, వాటి సంబంధిత స్థానాన్ని తెలుసుకోవచ్చు, అలాగే వాటికి కనెక్ట్ చేయవచ్చు"</string>
+    <string name="permission_description_summary_microphone" msgid="630834800308329907">"ఈ అనుమతి ఉన్న యాప్‌లు ఆడియోను రికార్డ్ చేయగలవు"</string>
+    <string name="permission_description_summary_phone" msgid="4515277217435233619">"ఈ అనుమతులు ఉన్న యాప్‌లు ఫోన్ కాల్స్‌ చేయగలవు, మేనేజ్ చేయగలవు"</string>
+    <string name="permission_description_summary_sensors" msgid="1836045815643119949">"ఈ అనుమతి ఉన్న యాప్‌లు మీ ఆరోగ్య స్థితిని తెలియజేసే గణాంకాల సెన్సార్ డేటాను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_sms" msgid="725999468547768517">"ఈ అనుమతి ఉన్న యాప్‌లు SMSలను పంపగలవు, అందుకోగలవు"</string>
+    <string name="permission_description_summary_storage" msgid="6575759089065303346">"మీ అనుమతితో, యాప్‌లు మీ పరికరంలోని ఫోటోలు, మీడియా అలాగే ఫైళ్లను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_read_media_aural" msgid="3354728149930482199">"ఈ అనుమతి ఉన్న యాప్‌లు ఈ పరికరంలో మ్యూజిక్, ఇతర ఆడియో ఫైళ్లను యాక్సెస్ చేయగలవు"</string>
+    <string name="permission_description_summary_read_media_visual" msgid="4991801977881732641">"ఈ అనుమతి ఉన్న యాప్‌లు ఈ పరికరంలో ఫోటోలు, వీడియోలను యాక్సెస్ చేయగలవు"</string>
+    <string name="app_permission_most_recent_summary" msgid="4292074449384040590">"చివరిసారి యాక్సెస్ చేసింది: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"ప్రస్తుతం తిరస్కరించబడింది / చివరి యాక్సెస్: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"ఎప్పుడూ యాక్సెస్ చేయలేదు"</string>
+    <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"తిరస్కరించబడింది / ఎన్నడూ యాక్సెస్ చేయలేదు"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"అనుమతించినవి"</string>
+    <string name="allowed_always_header" msgid="6455903312589013545">"అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="allowed_foreground_header" msgid="6845655788447833353">"ఉపయోగించేటప్పుడు మాత్రమే అనుమతి ఇవ్వాలి"</string>
+    <string name="allowed_storage_scoped" msgid="5383645873719086975">"మీడియాకు మాత్రమే యాక్సెస్ అనుమతించబడినవి"</string>
+    <string name="allowed_storage_full" msgid="5356699280625693530">"ఫైల్స్ అన్నింటినీ మేనేజ్ చేసేందుకు అనుమతించబడినవి"</string>
+    <string name="ask_header" msgid="2633816846459944376">"ప్రతిసారి అడగాలి"</string>
+    <string name="denied_header" msgid="903209608358177654">"అనుమతించబడలేదు"</string>
+    <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"అన్ని ఫైళ్లను యాక్సెస్ చేయగల మరిన్ని యాప్‌లను చూడండి"</string>
+    <string name="days" msgid="609563020985571393">"{count,plural, =1{1 రోజు}other{# రోజులు}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# గంట}other{# గంటలు}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# నిమిషం}other{# నిమిషాలు}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# సెకను}other{# సెకన్లు}}"</string>
+    <string name="permission_reminders" msgid="6528257957664832636">"అనుమతి రిమైండర్‌లు"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 ఉపయోగించని యాప్‌"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> ఉపయోగించని యాప్‌లు"</string>
+    <string name="auto_revoke_permission_reminder_notification_content" msgid="4492228990462107487">"మీ గోప్యతను రక్షించడానికి అనుమతులు తీసివేయబడ్డాయి. రివ్యూ చేయడానికి నొక్కండి"</string>
+    <string name="auto_revoke_permission_notification_title" msgid="2629844160853454657">"వినియోగంలో లేని యాప్‌లకు అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="auto_revoke_permission_notification_content" msgid="5125990886047799375">"కొన్ని యాప్‌లు గత కొన్ని నెలలుగా వినియోగంలో లేవు. రివ్యూ చేయడానికి ట్యాప్ చేయండి."</string>
+    <string name="unused_apps_notification_title" msgid="4314832015894238019">"{count,plural, =1{# ఉపయోగించని యాప్}other{# ఉపయోగించని యాప్‌లు}}"</string>
+    <string name="unused_apps_notification_content" msgid="9195026773244581246">"అనుమతులు, తాత్కాలిక ఫైళ్లు తీసివేయబడ్డాయి అలాగే నోటిఫికేషన్‌లు ఆపివేయబడ్డాయి. రివ్యూ చేయడానికి ట్యాప్ చేయండి."</string>
+    <string name="unused_apps_safety_center_card_title" msgid="5638409355530099149">"అనుమతులు తీసివేయబడిన యాప్‌లను రివ్యూ చేయండి"</string>
+    <string name="unused_apps_safety_center_card_content" msgid="1088557243627427820">"కొంతకాలంగా మీరు ఉపయోగించని యాప్‌లకు సంబంధించిన అనుమతులు, తాత్కాలిక ఫైళ్లు తొలగించబడ్డాయి, అలాగే నోటిఫికేషన్‌లు నిలిపివేయబడ్డాయి."</string>
+    <string name="unused_apps_safety_center_action_title" msgid="8865914432518993194">"యాప్‌లను రివ్యూ చేయండి"</string>
+    <string name="post_drive_permission_decision_reminder_title" msgid="1290697371418139976">"ఇటీవలి అనుమతులను చెక్ చేయండి"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_1_permission" msgid="670521503734140711">"డ్రైవింగ్‌లో ఉన్నప్పుడు, మీరు <xliff:g id="APP">%1$s</xliff:g> యాప్‌నకు <xliff:g id="PERMISSION">%2$s</xliff:g>‌కు యాక్సెస్‌ను ఇచ్చారు"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"డ్రైవింగ్‌లో ఉన్నప్పుడు, మీరు <xliff:g id="APP">%1$s</xliff:g> యాప్‌నకు <xliff:g id="PERMISSION_1">%2$s</xliff:g>, <xliff:g id="PERMISSION_2">%3$s</xliff:g>‌ యాక్సెస్ ఇచ్చారు"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"డ్రైవింగ్‌లో ఉన్నప్పుడు, మీరు <xliff:g id="APP">%2$s</xliff:g> యాప్‌నకు <xliff:g id="COUNT">%1$d</xliff:g> అనుమతులను ఇచ్చారు"</string>
+    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{డ్రైవింగ్‌లో ఉన్నప్పుడు, మీరు <xliff:g id="APP_0">%1$s</xliff:g>, మరో # ఇతర యాప్‌నకు యాక్సెస్‌ను ఇచ్చారు}other{డ్రైవింగ్‌లో ఉన్నప్పుడు, మీరు <xliff:g id="APP_1">%1$s</xliff:g>, మరో # ఇతర యాప్‌లకు యాక్సెస్‌ను ఇచ్చారు}}"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"సెట్టింగ్‌లకు వెళ్లండి"</string>
+    <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"గత కొన్ని నెలలుగా కొన్ని యాప్‌లు వినియోగంలో లేవు"</string>
+    <string name="permissions_removed_category_title" msgid="1064754271178447643">"అనుమతులు తీసివేసినవి"</string>
+    <string name="permission_removed_page_title" msgid="2627436155091001209">"అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="all_unused_apps_category_title" msgid="755663524704745414">"వినియోగంలో లేని అన్ని యాప్‌లు"</string>
+    <string name="months_ago" msgid="1766026492610646354">"<xliff:g id="COUNT">%1$d</xliff:g> నెలల క్రితం"</string>
+    <string name="auto_revoke_preference_summary" msgid="5517958331781391481">"మీ గోప్యతను రక్షించడానికి అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="background_location_access_reminder_notification_title" msgid="1140797924301941262">"మీ లొకేషన్‌ను <xliff:g id="APP_NAME">%s</xliff:g> బ్యాక్‌గ్రౌండ్‌లో ఉపయోగిస్తోంది"</string>
+    <string name="background_location_access_reminder_notification_content" msgid="7787084707336546245">"ఈ యాప్ మీ లొకేషన్‌ను ఎల్లప్పుడూ యాక్సెస్ చేయగలదు. మార్చడానికి ట్యాప్ చేయండి."</string>
+    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"మీ నోటిఫికేషన్‌లకు, యాక్సెస్ ఉన్న యాప్‌ను రివ్యూ చేయండి"</string>
+    <string name="notification_listener_reminder_notification_content" msgid="831476101108863427">"<xliff:g id="APP_NAME">%s</xliff:g> మీ నోటిఫికేషన్‌లలోని కంటెంట్‌ను తీసివేయగలదు, దాని మీద చర్య తీసుకోగలదు, దానిని యాక్సెస్ చేయగలదు"</string>
+    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"ఈ యాప్ మీ నోటిఫికేషన్‌లలోని కంటెంట్‌ను తీసివేయగలదు, దాని మీద చర్య తీసుకోగలదు, దానిని యాక్సెస్ చేయగలదు. కొన్ని యాప్‌లు ఉద్దేశించిన విధంగా పని చేయడానికి ఈ యాక్సెస్ అవసరం."</string>
+    <string name="notification_listener_remove_access_button_label" msgid="7101898782417817097">"యాక్సెస్‌ను తీసివేయండి"</string>
+    <string name="notification_listener_review_app_button_label" msgid="3433073281029143924">"మరిన్ని ఆప్షన్‌లను చూడండి"</string>
+    <string name="notification_listener_remove_access_success_label" msgid="2477611529875633107">"యాక్సెస్ తీసివేయబడింది"</string>
+    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"పూర్తి పరికర యాక్సెస్ ఉన్న యాప్‌ను రివ్యూ చేయండి"</string>
+    <string name="accessibility_access_reminder_notification_content" msgid="7389454158175306720">"<xliff:g id="APP_NAME">%s</xliff:g> మీ స్క్రీన్‌ను చూడగలదు, అలాగే మీ పరికరంలో చర్యలను అమలు చేయగలదు. ఉద్దేశించిన విధంగా పనిచేయడానికి యాక్సెసిబిలిటీ యాప్‌లకు ఈ తరహా యాక్సెస్ అవసరం."</string>
+    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"This app can view your screen and perform actions on your device. Accessibility apps need this type of access to function as intended, but check the app and make sure you trust it."</string>
+    <string name="accessibility_remove_access_button_label" msgid="44145801526711640">"యాక్సెస్‌ను తీసివేయండి"</string>
+    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"పూర్తి యాక్సెస్ గల యాప్‌లను చూడండి"</string>
+    <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"యాక్సెస్ తీసివేయబడింది"</string>
+    <string name="safety_center_notification_app_label" msgid="2457720616141926534">"Android సిస్టమ్"</string>
+    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"గోప్యతను కాపాడడానికి యాప్ అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="auto_revoke_after_notification_content_one" msgid="6804038707453662753">"కొన్ని నెలలుగా <xliff:g id="APP_NAME">%s</xliff:g> ఉపయోగంలో లేదు. రివ్యూ చేయడానికి నొక్కండి."</string>
+    <string name="auto_revoke_after_notification_content_two" msgid="9108709764831425172">"<xliff:g id="APP_NAME">%s</xliff:g> మరియు మరో 1 యాప్ కొన్ని నెలలుగా ఉపయోగంలో లేవు. రివ్యూ చేయడానికి నొక్కండి."</string>
+    <string name="auto_revoke_after_notification_content_many" msgid="4774106206289751220">"<xliff:g id="APP_NAME">%1$s</xliff:g> మరియు ఇతర <xliff:g id="NUMBER_OF_APPS">%2$s</xliff:g> యాప్‌లు కొన్ని నెలలుగా ఉపయోగంలో లేవు. రివ్యూ చేయడానికి నొక్కండి."</string>
+    <string name="auto_revoke_before_notification_title_one" msgid="6758024954464359876">"1 యాప్ నిరుపయోగంగా ఉంది"</string>
+    <string name="auto_revoke_before_notification_title_many" msgid="4415543943846385685">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> యాప్‌లు నిరుపయోగంగా ఉన్నాయి"</string>
+    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"గోప్యతను కాపాడడానికి అనుమతులు తీసివేయబడతాయి. రివ్యూ చేయడానికి నొక్కండి."</string>
+    <string name="unused_apps_title" msgid="8589298917717872239">"ఉపయోగించని యాప్‌లు"</string>
+    <string name="unused_apps_subtitle_after" msgid="2034267519506357898">"దీని నుండి అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="unused_apps_subtitle_before" msgid="5233302577076132427">"దీని నుండి అనుమతులు తీసవేయబడతాయి"</string>
+    <string name="unused_permissions_subtitle_two" msgid="2207266295008423015">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g>, <xliff:g id="PERM_NAME_1">%2$s</xliff:g>"</string>
+    <string name="unused_permissions_subtitle_many" msgid="4387289202207450238">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g>, <xliff:g id="PERM_NAME_1">%2$s</xliff:g>, మరియు మరో <xliff:g id="NUMBER_OF_PERMISSIONS">%3$s</xliff:g>"</string>
+    <string name="unused_app_permissions_removed_summary" msgid="6779039455326071033">"మీ డేటాను రక్షించడానికి, కొన్ని నెలలుగా ఉపయోగించని యాప్‌ల నుండి అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="unused_app_permissions_removed_summary_some" msgid="5080490037831563441">"మీ డేటాను సురక్షితంగా ఉంచడానికి, గత కొన్ని నెలలుగా వినియోగంలో లేని కొన్ని యాప్‌ల అనుమతులు తీసివేయబడ్డాయి"</string>
+    <string name="one_unused_app_summary" msgid="7831913934488881991">"1 యాప్ కొన్ని నెలలుగా వినియోగంలో లేదు"</string>
+    <string name="num_unused_apps_summary" msgid="1870719749940571227">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> యాప్‌లు కొన్ని నెలలుగా వినియోగంలో లేవు"</string>
+    <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"యాప్ వినియోగంలో ఉన్నప్పుడు మాత్రమే"</string>
+    <string name="permission_subtitle_media_only" msgid="8917869683764720717">"మీడియా"</string>
+    <string name="permission_subtitle_all_files" msgid="4982613338298067862">"అన్ని ఫైళ్లు"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_24h_access" msgid="99069906850627181">"చివరగా యాక్సెస్ చేసిన సమయం <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"నిన్న <xliff:g id="TIME_DATE">%1$s</xliff:g> సమయంలో చివరగా యాక్సెస్ చేయబడింది"</string>
+    <string name="app_perms_7d_access" msgid="4945055548894683751">"చివరిగా <xliff:g id="TIME_DATE_0">%1$s</xliff:g>న <xliff:g id="TIME_DATE_1">%2$s</xliff:g>కి యాక్సెస్ చేయబడింది"</string>
+    <string name="app_perms_content_provider_24h" msgid="1055526027667508972">"గత 24 గంటల్లో యాక్సెస్ చేయబడింది"</string>
+    <string name="app_perms_content_provider_7d" msgid="3215454898257814868">"గత 7 రోజుల్లో యాక్సెస్ చేయబడింది"</string>
+    <string name="app_perms_24h_access_background" msgid="3413674718969576843">"చివరిగా <xliff:g id="TIME_DATE">%1$s</xliff:g>కి యాక్సెస్ చేయబడింది • అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_24h_access_yest_background" msgid="9174750810998076725">"చివరిగా రేపు <xliff:g id="TIME_DATE">%1$s</xliff:g>కి యాక్సెస్ చేయబడింది • అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_7d_access_background" msgid="408099213372185627">"చివరిగా <xliff:g id="TIME_DATE_0">%1$s</xliff:g>న <xliff:g id="TIME_DATE_1">%2$s</xliff:g>కి యాక్సెస్ చేయబడింది • అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_content_provider_24h_background" msgid="3825902995186961496">"గత 24 గంటలలో యాక్సెస్ చేయబడింది • అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_content_provider_7d_background" msgid="4818839672116463542">"గత 7 రోజుల్లో యాక్సెస్ చేయబడింది • అన్ని సమయాలలో అనుమతించబడతాయి"</string>
+    <string name="app_perms_24h_access_media_only" msgid="6651699644199132054">"చివరగా యాక్సెస్ చేసిన సమయం <xliff:g id="TIME_DATE">%1$s</xliff:g> • మీడియా"</string>
+    <string name="app_perms_24h_access_yest_media_only" msgid="7213187706424998792">"నిన్న <xliff:g id="TIME_DATE">%1$s</xliff:g> సమయంలో చివరగా యాక్సెస్ చేయబడింది • మీడియా"</string>
+    <string name="app_perms_7d_access_media_only" msgid="1031096653668235200">"చివరిగా <xliff:g id="TIME_DATE_0">%1$s</xliff:g>న <xliff:g id="TIME_DATE_1">%2$s</xliff:g>కి యాక్సెస్ చేయబడింది • మీడియా"</string>
+    <string name="app_perms_content_provider_24h_media_only" msgid="7797963000596179491">"గత 24 గంటల్లో యాక్సెస్ చేయబడింది • మీడియా"</string>
+    <string name="app_perms_content_provider_7d_media_only" msgid="8446239884570262243">"గత 7 రోజుల్లో యాక్సెస్ చేయబడింది • మీడియా"</string>
+    <string name="app_perms_24h_access_all_files" msgid="8902360456978159091">"చివరగా యాక్సెస్ చేసిన సమయం <xliff:g id="TIME_DATE">%1$s</xliff:g> • అన్ని ఫైళ్లు"</string>
+    <string name="app_perms_24h_access_yest_all_files" msgid="5708424073126844909">"నిన్న <xliff:g id="TIME_DATE">%1$s</xliff:g> సమయంలో చివరగా యాక్సెస్ చేయబడింది • అన్ని ఫైళ్లు"</string>
+    <string name="app_perms_7d_access_all_files" msgid="8246193786397635824">"చివరిగా <xliff:g id="TIME_DATE_0">%1$s</xliff:g>న <xliff:g id="TIME_DATE_1">%2$s</xliff:g>కి యాక్సెస్ చేయబడింది • అన్ని ఫైల్స్"</string>
+    <string name="app_perms_content_provider_24h_all_files" msgid="573104317727770850">"గత 24 గంటల్లో యాక్సెస్ చేయబడింది • అన్ని ఫైల్స్"</string>
+    <string name="app_perms_content_provider_7d_all_files" msgid="7962416229708835558">"గత 7 రోజుల్లో యాక్సెస్ చేయబడింది • అన్ని ఫైల్స్"</string>
+    <string name="no_permissions_allowed" msgid="6081976856354669209">"అనుమతులు ఏవీ ఇవ్వలేదు"</string>
+    <string name="no_permissions_denied" msgid="8159923922804043282">"అన్ని అనుమతులు ఇచ్చారు"</string>
+    <string name="no_apps_allowed" msgid="7718822655254468631">"ఏ యాప్‌న‌కు అనుమతి లేదు"</string>
+    <string name="no_apps_allowed_full" msgid="8011716991498934104">"అన్ని ఫైళ్ల కోసం యాప్‌లు అనుమతించబడవు"</string>
+    <string name="no_apps_allowed_scoped" msgid="4908850477787659501">"మీడియా మాత్రమే కోసం యాప్‌లు అనుమతించబడవు"</string>
+    <string name="no_apps_denied" msgid="7663435886986784743">"ఏ యాప్‌నూ నిరాక‌రించ‌లేదు"</string>
+    <string name="car_permission_selected" msgid="180837028920791596">"ఎంచుకోబడింది"</string>
+    <string name="settings" msgid="5409109923158713323">"సెట్టింగ్‌లు"</string>
+    <string name="accessibility_service_dialog_title_single" msgid="7956432823014102366">"<xliff:g id="SERVICE_NAME">%s</xliff:g> మీ పరికరానికి పూర్తి యాక్సెస్ కలిగి ఉంది"</string>
+    <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"<xliff:g id="NUM_SERVICES">%s</xliff:g> యాక్సెస్ సామర్థ్య యాప్‌లు మీ పరికరానికి పూర్తి యాక్సెస్‌ను కలిగి ఉన్నాయి"</string>
+    <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> మీ స్క్రీన్, చర్యలు మరియు ఇన్‌పుట్‌లను చూడగలదు, చర్యలను అమలు చేయగలదు, అలాగే ప్రదర్శనను నియంత్రించగలదు."</string>
+    <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"ఈ యాప్‌లు మీ స్క్రీన్, చర్యలు, ఇన్‌పుట్‌లను చూడగలవు, చర్యలను అమలు చేయగలవు, అలాగే ప్రదర్శనను నియంత్రించగలవు."</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"ఆటోమేటిక్ డిజిటల్ అసిస్టెంట్ యాప్"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"డిజిటల్ అసిస్టెంట్ యాప్"</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"సహాయక యాప్‌లు మీరు వీక్షిస్తున్న స్క్రీన్‌పై ఉన్న సమాచారం ఆధారంగా మీకు సహాయపడగలవు. కొన్ని యాప్‌లు మీకు సమగ్రమైన సహాయాన్ని అందించడానికి లాంచర్‌కు, వాయిస్ ఇన్‌పుట్ సర్వీసులకు రెండింటికీ సపోర్ట్‌ చేస్తాయి."</string>
+    <string name="role_browser_label" msgid="2877796144554070207">"ఆటోమేటిక్ బ్రౌజర్ యాప్"</string>
+    <string name="role_browser_short_label" msgid="6745009127123292296">"బ్రౌజర్ యాప్"</string>
+    <string name="role_browser_description" msgid="3465253637499842671">"మీకు ఇంటర్నెట్‌కు యాక్సెస్‌ ఇచ్చి, ట్యాప్ చేయడానికి లింక్‌ల‌ను డిస్‌ప్లే చేసే యాప్‌లు"</string>
+    <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ బ్రౌజర్ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_browser_request_description" msgid="5888803407905985941">"అనుమతులు ఇవ్వనవసరం లేదు"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"ఆటోమేటిక్ ఫోన్ యాప్"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"ఫోన్ యాప్"</string>
+    <string name="role_dialer_description" msgid="8768708633696539612">"మీ పరికరంలో టెలిఫోన్ కాల్స్‌ చేయడానికి, అందుకోవడానికి మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_dialer_request_title" msgid="5959618560705912058">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ ఫోన్ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_dialer_request_description" msgid="6288839625724909320">"ఈ యాప్‌నకు మీ కెమెరా, కాంటాక్ట్‌లు, మైక్రోఫోన్, ఫోన్, SMSకు యాక్సెస్ ఇవ్వబడుతుంది"</string>
+    <string name="role_dialer_search_keywords" msgid="3324448983559188087">"డయలర్"</string>
+    <string name="role_sms_label" msgid="8456999857547686640">"ఆటోమేటిక్ SMS యాప్"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"SMS యాప్"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"SMSలు, ఫోటోలు, వీడియోలు, మరిన్నింటిని పంపడానికి, అందుకోవడానికి మీ ఫోన్ నంబర్‌ను ఉపయోగించేందుకు మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_sms_request_title" msgid="7953552109601185602">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ SMS యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_sms_request_description" msgid="2691004766132144886">"ఈ యాప్‌నకు మీ కెమెరా, కాంటాక్ట్‌లు, ఫైల్స్, మీడియా, మైక్రోఫోన్, ఫోన్, SMSకు యాక్సెస్ ఇవ్వబడుతుంది"</string>
+    <string name="role_sms_search_keywords" msgid="8022048144395047352">"టెక్స్ట్ మెసేజ్‌, టెక్స్ట్ పంపడం, మెసేజ్‌లు, మెసేజింగ్"</string>
+    <string name="role_emergency_label" msgid="7028825857206842366">"ఆటోమేటిక్ ఎమర్జెన్సీ యాప్"</string>
+    <string name="role_emergency_short_label" msgid="2388431453335350348">"అత్యవసర యాప్"</string>
+    <string name="role_emergency_description" msgid="5051840234887686630">"మీ వైద్య సమాచారాన్ని రికార్డ్ చేయడానికి, అలాగే అత్యవసరంగా స్పందించాల్సిన వారు యాక్సెస్ చేయగలిగే విధంగా ఉంచడానికి; వాతావరణం తీవ్రంగా ఉన్నా, విపత్తులు సంభవించేలా ఉన్నా హెచ్చరికలను పొందడానికి; మీకు సహాయం కావాల్సినప్పుడు ఇతరులకు తెలియజేయడానికి మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_emergency_request_title" msgid="8469579020654348567">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ ఎమర్జెన్సీ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_emergency_request_description" msgid="131645948770262850">"అనుమతులు ఇవ్వనవసరం లేదు"</string>
+    <string name="role_emergency_search_keywords" msgid="1920007722599213358">"అత్యవసర పరిస్థితుల్లో"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"ఆటోమేటిక్ హోమ్ యాప్"</string>
+    <string name="role_home_short_label" msgid="8544733747952272337">"మొదటి స్క్రీన్ యాప్"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"త‌ర‌చుగా లాంచర్‌లు అని పిలవబడే యాప్‌లు, మీ Android పరికరంలో హోమ్ స్క్రీన్‌లను రీప్లేస్‌ చేయగలవు. మీ పరికరం కంటెంట్‌లకు, ఫీచర్‌లకు యాక్సెస్ ఇవ్వగలవు."</string>
+    <string name="role_home_request_title" msgid="738136983453341081">"మొదటి స్క్రీన్ యాప్ విషయంలో <xliff:g id="APP_NAME">%1$s</xliff:g>‌ను మీ ఆటోమేటిక్ ఆప్షన్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_home_request_description" msgid="2658833966716057673">"అనుమతులు ఇవ్వనవసరం లేదు"</string>
+    <string name="role_home_search_keywords" msgid="3830755001192666285">"లాంచర్"</string>
+    <string name="role_call_redirection_label" msgid="5785304207206147590">"ఆటోమేటిక్ కాల్ మళ్లింపు యాప్"</string>
+    <string name="role_call_redirection_short_label" msgid="7568143419571217757">"కాల్ మళ్లింపు యాప్"</string>
+    <string name="role_call_redirection_description" msgid="6091669882014664420">"అవుట్‌గోయింగ్ కాల్‍లను మరో ఫోన్ నంబర్‌కు ఫార్వర్డ్ చేయడానికి మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_call_redirection_request_title" msgid="2816244455003562925">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ కాల్ మళ్లింపు యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_call_redirection_request_description" msgid="3118895714178527164">"అనుమతులు ఇవ్వనవసరం లేదు"</string>
+    <string name="role_call_screening_label" msgid="883935222060878724">"కాలర్ ID &amp; స్పామ్‌ల కోసం ఆటోమేటిక్ యాప్"</string>
+    <string name="role_call_screening_short_label" msgid="2048465565063130834">"కాలర్ ID &amp; స్పామ్ యాప్"</string>
+    <string name="role_call_screening_description" msgid="2349431420497468981">"కాల్స్‌ను గుర్తించడానికి, స్పామ్, ఆటోమేటిక్‌ కాల్స్‌ లేదా వద్దనుకునే నంబర్‌లను బ్లాక్ చేయడానికి మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_call_screening_request_title" msgid="7358309224566977290">"<xliff:g id="APP_NAME">%1$s</xliff:g>ను మీ ఆటోమేటిక్ కాలర్ ID &amp; స్పామ్ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_call_screening_request_description" msgid="7338511921032446006">"అనుమతులు ఇవ్వనవసరం లేదు"</string>
+    <string name="role_automotive_navigation_label" msgid="2701890757955474751">"ఆటోమేటిక్ సెట్టింగ్ నావిగేషన్ యాప్"</string>
+    <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"నావిగేషన్ యాప్"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"చూడదగిన ప్రదేశానికి సంబంధించిన సెర్చ్, సులువైన దిశల నావిగేషన్ గైడెన్స్‌ను అందించే యాప్‌లు"</string>
+    <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"<xliff:g id="APP_NAME">%1$s</xliff:g> యాప్‌ను మీ ఆటోమేటిక్ సెట్టింగ్ నావిగేషన్ యాప్‌గా సెటప్ చేయాలా?"</string>
+    <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"అనుమతులు అవసరం లేదు"</string>
+    <string name="role_watch_description" msgid="267003778693177779">"మీ నోటిఫికేషన్‌లతో ఇంటరాక్ట్ అవ్వడానికి అలాగే మీ ఫోన్, SMS, కాంటాక్ట్‌లు అలాగే Calendar అనుమతులను యాక్సెస్ చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> అనుమతించబడుతుంది."</string>
+    <string name="role_app_streaming_description" msgid="7341638576226183992">"మీ నోటిఫికేషన్‌లతో ఇంటరాక్ట్ అవ్వడానికి, కనెక్ట్ అయిన పరికరానికి మీ యాప్‌లను స్ట్రీమ్ చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> అనుమతించబడుతుంది."</string>
+    <string name="role_companion_device_computer_description" msgid="416099879217066377">"ఈ సర్వీస్ మీ ఫోటోలు, మీడియా, ఇంకా నోటిఫికేషన్‌లను మీ ఫోన్ నుండి ఇతర పరికరాలకు షేర్ చేస్తుంది."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"ఆటోమేటిక్ నోట్స్ యాప్"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"నోట్స్ యాప్"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"మీ పరికరంలో నోట్స్ తీసుకోవడానికి మిమ్మల్ని అనుమతించే యాప్‌లు"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"నోట్స్"</string>
+    <string name="role_wallet_label" msgid="3719419175656204207">"ఆటోమేటిక్ వాలెట్ యాప్"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"వాలెట్ యాప్"</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"వాలెట్ యాప్‌లు మీ క్రెడిట్‌ను, లాయల్టీ కార్డ్‌లను, కార్ కీలను, ఇంకా వివిధ రకాల లావాదేవీలకు సహాయపడటానికి ఇతర వస్తువులను స్టోర్ చేయగలవు."</string>
+    <string name="role_wallet_request_title" msgid="4770217108262737093">"<xliff:g id="APP_NAME">%1$s</xliff:g>‌ను డిఫాల్ట్ వాలెట్ యాప్‌గా సెట్ చేయాలా?"</string>
+    <string name="role_wallet_request_description" msgid="6305487425777483053">"అనుమతులు ఏవీ అవసరం లేదు"</string>
+    <string name="request_role_current_default" msgid="738722892438247184">"ప్రస్తుతం ఆటోమేటిక్‌గా ఉంది"</string>
+    <string name="request_role_dont_ask_again" msgid="3556017886029520306">"మళ్లీ అడగవద్దు"</string>
+    <string name="request_role_set_as_default" msgid="4253949643984172880">"ఆటోమేటిక్ చేయండి"</string>
+    <string name="phone_call_uses_microphone" msgid="233569591461187177">"&lt;b&gt;ఫోన్ కాల్&lt;/b&gt;లో మైక్రోఫోన్ ఉపయోగించబడుతుంది"</string>
+    <string name="phone_call_uses_microphone_and_camera" msgid="6291898755681748189">"&lt;b&gt;వీడియో కాల్&lt;/b&gt;లో కెమెరా, మైక్రోఫోన్ ఉపయోగించబడతాయి"</string>
+    <string name="phone_call_uses_camera" msgid="2048417022147857418">"&lt;b&gt;వీడియో కాల్&lt;/b&gt;లో కెమెరా ఉపయోగించబడుతుంది"</string>
+    <string name="system_uses_microphone" msgid="576672130318877143">"సిస్టమ్ సర్వీస్‌ను ఉపయోగించి మైక్రోఫోన్ యాక్సెస్ చేయబడుతుంది"</string>
+    <string name="system_uses_microphone_and_camera" msgid="5124478304275138804">"సిస్టమ్ సర్వీస్‌ను ఉపయోగించి కెమెరా, మైక్రోఫోన్‌లు యాక్సెస్ చేయబడతాయి"</string>
+    <string name="system_uses_camera" msgid="1911223105234441470">"సిస్టమ్ సర్వీస్‌ను ఉపయోగించి కెమెరా యాక్సెస్ చేయబడుతుంది"</string>
+    <string name="other_use" msgid="6564855051022776692">"ఇతర ఉపయోగాలు:"</string>
+    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"అర్థమైంది"</string>
+    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"<xliff:g id="TYPES_LIST">%s</xliff:g> యొక్క ఇటీవలి వినియోగం"</string>
+    <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"ఇటీవలి మైక్రోఫోన్ వినియోగం"</string>
+    <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"ఇటీవలి కెమెరా వినియోగం"</string>
+    <string name="ongoing_usage_dialog_title_mic_camera" msgid="9079747867228772797">"ఇటీవలి మైక్రోఫోన్ &amp; కెమెరా వినియోగం"</string>
+    <string name="ongoing_usage_dialog_separator" msgid="1715181526581520068">", "</string>
+    <string name="ongoing_usage_dialog_last_separator" msgid="4170995004748832163">" మరియు "</string>
+    <string name="default_app_search_keyword" msgid="8330125736889689743">"ఆటోమేటిక్ యాప్‌లు"</string>
+    <string name="permgroup_list_microphone_and_camera" msgid="962768198001487969">"మైక్రోఫోన్ &amp; కెమెరా"</string>
+    <string name="settings_button" msgid="4414988414732479636">"సెట్టింగ్‌లు"</string>
+    <string name="default_apps" msgid="5119201969348748639">"ఆటోమేటిక్ యాప్‌లు"</string>
+    <string name="no_default_apps" msgid="2593466527182950231">"ఆటోమేటిక్ యాప్‌లు ఏవీ లేవు"</string>
+    <string name="default_apps_more" msgid="4078194675848858093">"మరిన్ని ఆటోమేటిక్ సెట్టింగ్స్‌"</string>
+    <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"లింక్‌లను తెరవడం"</string>
+    <string name="default_apps_for_work" msgid="4970308943596201811">"వర్క్‌ ప్లేస్ కోసం ఆటోమేటిక్"</string>
+    <string name="default_app_none" msgid="9084592086808194457">"ఏదీ కాదు"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(సిస్టమ్ ఆటోమేటిక్)"</string>
+    <string name="default_app_no_apps" msgid="115720991680586885">"ఏ యాప్ లేదు"</string>
+    <string name="car_default_app_selected" msgid="5416420830430644174">"ఎంచుకోబడింది"</string>
+    <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"<xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g> - ఎంచుకోబడింది"</string>
+    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"ప్రత్యేక యాప్ యాక్సెస్"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"ప్రత్యేక యాప్ యాక్సెస్"</string>
+    <string name="no_special_app_access" msgid="6950277571805106247">"ప్రత్యేక యాప్ యాక్సెస్ లేదు"</string>
+    <string name="special_app_access_no_apps" msgid="4102911722787886970">"ఏ యాప్‌కి లేదు"</string>
+    <string name="home_missing_work_profile_support" msgid="1756855847669387977">"కార్యాలయ ప్రొఫైల్‌కు మద్దతు ఇవ్వదు"</string>
+    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"చిన్న గమనిక: మీరు భద్రత కోసం స్క్రీన్ లాక్‌ని సెటప్‌ చేసి పెట్టుకున్నారు పైగా మీ పరికరాన్ని పునఃప్రారంభించినట్టున్నారు కనుక స్క్రీన్ లాక్ అయ్యిపోయింది. మీరు పాస్‌వర్డ్‌ని నమోదు చేసేవరకూ ఈ యాప్ ప్రారంభం కాదు."</string>
+    <string name="assistant_confirmation_message" msgid="7476540402884416212">"మీ స్క్రీన్‌పై కనిపించే లేదా యాప్‌లలో యాక్సెస్ చేసే సమాచారంతో పాటు మీ సిస్టమ్‌లో వినియోగంలో ఉన్న యాప్‌ల గురించిన సమాచారాన్ని Assistant చదవగలుగుతుంది."</string>
+    <string name="incident_report_channel_name" msgid="3144954065936288440">"డీబగ్గింగ్ డేటాను షేర్ చేయండి"</string>
+    <string name="incident_report_notification_title" msgid="4635984625656519773">"వివరణాత్మక డీబగ్గింగ్ డేటాను షేర్ చేయాలా?"</string>
+    <string name="incident_report_notification_text" msgid="3376480583513587923">"<xliff:g id="APP_NAME">%1$s</xliff:g>డీబగ్గింగ్ సమాచారాన్ని అప్‌లో డ్ చేయదలుచుకుంటున్నారు."</string>
+    <string name="incident_report_dialog_title" msgid="669104389325204095">"డీబగ్గింగ్ డేటాను షేర్ చేయమంటారా?"</string>
+    <string name="incident_report_dialog_intro" msgid="5897733669850951832">"సిస్టమ్ ఒక సమస్యను గుర్తించింది."</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"<xliff:g id="APP_NAME_0">%1$s</xliff:g> <xliff:g id="DATE">%2$s</xliff:g>న <xliff:g id="TIME">%3$s</xliff:g>కు ఈ డివైజ్‌లో జ‌నరేట్ అయిన‌ డీబగ్ రిపోర్ట్‌ను అప్‌లోడ్ చేయండి అని అభ్యర్థిస్తోంది. బగ్ రిపోర్ట్‌లు మీ డివైజ్‌ లేదా లాగిన్ చేసిన యాప్‌ల వ్యక్తిగత సమాచారం, ఉదాహరణకు యూజ‌ర్‌ పేర్లు, లొకేష‌న్‌ డేటా, డివైజ్ గుర్తింపుల‌తో పాటు నెట్‌వర్క్ సమాచారాన్ని కలిగి ఉంటాయి. ఈ సమాచారం విషయంలో మీకు నమ్మకం ఉన్న‌ వ్యక్తులకు, యాప్‌లకు మాత్రమే బగ్ రిపోర్ట్‌ వివరాలను షేర్ చేయండి. బగ్ రిపోర్ట్‌ను అప్‌లోడ్ చేయడానికి <xliff:g id="APP_NAME_1">%4$s</xliff:g>ను అనుమతించాలా?"</string>
+    <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"<xliff:g id="APP_NAME">%1$s</xliff:g> కోసం బగ్ రిపోర్ట్‌ ప్రాసెస్ చేయడంలో ఎర్రర్ ఉంది. కాబట్టి వివరణాత్మక డీబగ్గింగ్ డేటాను షేర్ చేయడాన్ని నిరాకరించారు. అంతరాయానికి చింతిస్తున్నాము."</string>
+    <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"అనుమతించండి"</string>
+    <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"తిరస్కరించు"</string>
+    <string name="adjust_user_sensitive_title" msgid="4196724451314280527">"అధునాతన సెట్టింగ్‌లు"</string>
+    <string name="menu_adjust_user_sensitive" msgid="6497923610654425780">"అధునాతన సెట్టింగ్‌లు"</string>
+    <string name="adjust_user_sensitive_globally_title" msgid="8649190949066029174">"సిస్టమ్ యాప్ వినియోగాన్ని చూపు"</string>
+    <string name="adjust_user_sensitive_globally_summary" msgid="129467818433773912">"\'స్టేటస్‌ బార్‌, డ్యాష్‌బోర్డ్ &amp; మరెక్కడైనా\'లో సిస్టమ్ యాప్ వినియోగించే అనుమతులను చూపు"</string>
+    <string name="adjust_user_sensitive_per_app_header" msgid="4543506440989005648">"అనుసరిస్తున్న వినియోగాన్ని హైలైట్ చేయండి"</string>
+    <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"Assistant ట్రిగ్గర్ గుర్తింపును చూపించడం"</string>
+    <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"వాయిస్ అసిస్టెంట్‌ను యాక్టివేట్ చేయడానికి మైక్రోఫోన్‌ను ఉపయోగించినప్పుడు, స్టేటస్ బార్‌లో  చిహ్నాన్ని చూపు"</string>
+    <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"మీ పరికరంలో ఫోటోలు, మీడియా ఫైళ్లను యాక్సెస్ చేయగలిగేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_storage_isolated" msgid="5934218468708513375">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోటోలు, మీడియాను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"మీ కాంటాక్ట్‌లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_contacts" msgid="2270563860206654757">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో కాంటాక్ట్‌లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"ఈ పరికర లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_location" msgid="6641436550953715107">"మీ &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"మీరు యాప్‌ను ఉపయోగిస్తున్నప్పుడు మాత్రమే లొకేషన్‌కు యాప్ యాక్సెస్ కలిగి ఉంటుంది"</string>
+    <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"ఈ పరికర లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_location" msgid="7660465507029650527">"మీ &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g> లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"ఈ యాప్‌నకు మీ లొకేషన్ యాక్సెస్ అన్ని సమయాలలో, అంటే యాప్‌ను ఉపయోగించనప్పుడు కూడా, అవసరం ఉండవచ్చు. "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgroupupgraderequest_location" msgid="8328408946822691636">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; కోసం లొకేష‌న్‌ యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequest_device_aware_location" msgid="4528266408056426513">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు సంబంధించిన లొకేషన్ యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequestdetail_location" msgid="1550899076845189165">"మీరు యాప్ ఉపయోగించనప్పుడు కూడా ఈ యాప్ మీ లొకేష‌న్‌ను ఎప్పటికప్పుడు యాక్సెస్ చేయాల‌ని అనుకుంటోంది."<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgrouprequest_nearby_devices" msgid="2272829282660436700">"సమీప పరికరాల సంబంధిత స్థానాన్ని కనుగొనడానికి, కనెక్ట్ చేయడానికి అలాగే నిర్ణయించడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_nearby_devices" msgid="7919687165848885665">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో సమీప పరికరాలు కనుగొని, కనెక్ట్ అయి, వాటి దూరం అంచనా వేసేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgroupupgraderequestdetail_nearby_devices" msgid="6877531270654738614">"సమీప పరికరాల సంబంధిత స్థానాన్ని కనుగొనడానికి, కనెక్ట్ చేయడానికి అలాగే నిర్ణయించడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా? "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgrouprequest_fineupgrade" msgid="2334242928821697672">"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>కు సంబంధించిన లొకేషన్ యాక్సెస్‌ను సుమారు నుండి ఖచ్చితమైనదిగా మార్చాలా?"</string>
+    <string name="permgrouprequest_device_aware_fineupgrade" msgid="3947134846432067176">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో &lt;b&gt;<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>&lt;/b&gt; లొకేషన్ యాక్సెస్‌ను రమారమి నుండి ఖచ్చితమైన లొకేషన్‌కు మార్చాలా?"</string>
+    <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"ఈ పరికరానికి సంబంధించి సుమారుగా ఉన్న లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_coarselocation" msgid="9001956706241104626">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; రమారమి లొకేషన్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"ఖచ్చితమైన"</string>
+    <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"సుమారుగా"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"మీ క్యాలెండర్‌ని యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_calendar" msgid="3103987548035171850">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో క్యాలెండర్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_sms" msgid="5672063688745420991">"SMS మెసేజ్‌లు పంపడం, చూడటం చేయగలిగేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_sms" msgid="7212083972999874267">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో SMSను పంపడానికి, చూడటానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_storage" msgid="8717773092518621602">"మీ పరికరంలోని ఫోటోలు, మీడియా, ఫైళ్లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_storage" msgid="872629037299467086">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోటోలు, మీడియా, ఫైల్స్‌ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"ఈ పరికరంలో &lt;b&gt;ఫోటోలు, వీడియోలు, మ్యూజిక్, ఆడియో&lt;/b&gt;ను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"ఈపరికరంలో &lt;b&gt;ఫోటోలు, వీడియోలు, మ్యూజిక్, ఆడియో, ఇతర ఫైళ్ల&lt;/b&gt; యాక్సెస్‌కు &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"ఈ పరికరంలో మ్యూజిక్‌ను, ఆడియోను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_read_media_aural" msgid="3331524384339036668">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో మ్యూజిక్‌ను, ఆడియోను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"ఈ పరికరంలో ఫోటోలను, వీడియోలను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_read_media_visual" msgid="5492319750632751551">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోటోలు, వీడియోలను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"ఈ పరికరంలోని మరిన్ని ఫోటోలను, వీడియోలను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; యాప్‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_more_photos" msgid="8946782319103584021">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో మరిన్ని ఫోటోలు, వీడియోలను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_microphone" msgid="2825208549114811299">"ఆడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_microphone" msgid="1266843551173029370">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఆడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"మీరు యాప్‌ను ఉపయోగిస్తున్నప్పుడు మాత్రమే ఈ యాప్, ఆడియోను రికార్డ్ చేయగలుగుతుంది"</string>
+    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"ఆడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="4990337225146130185">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఆడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"మీరు యాప్ ఉపయోగించనప్పుడు కూడా ఈ యాప్ ఎల్లప్పుడూ ఆడియోను రికార్డ్ చేయాలనుకోవచ్చు. "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; కోసం మైక్రోఫోన్ యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequest_device_aware_microphone" msgid="222471025997100107">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు సంబంధించిన మైక్రోఫోన్ యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"మీరు యాప్ ఉపయోగించనప్పుడు కూడా ఈ యాప్ ఎల్లప్పుడూ ఆడియోను రికార్డ్ చేయాలనుకుంటోంది. "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"మీ భౌతిక యాక్టివిటీని యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_activityRecognition" msgid="3408326850847755759">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫిజికల్ యాక్టివిటీని యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"ఫోటోలు తీయడానికి, వీడియో రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_camera" msgid="3525106924487608868">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోటోలు తీయడానికి, వీడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"మీరు యాప్‌ను ఉపయోగిస్తున్నప్పుడు మాత్రమే ఈ యాప్, ఫోటోలను తీయగలుగుతుంది, వీడియోను రికార్డ్ చేయగలుగుతుంది"</string>
+    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"ఫోటోలు తీయడానికి, వీడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_camera" msgid="6718286540040964849">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోటోలు తీయడానికి, వీడియోను రికార్డ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"మీరు యాప్ ఉపయోగించనప్పుడు కూడా ఈ యాప్ ఎల్లప్పుడూ ఫోటోలను తీయాలనుకోవచ్చు, వీడియోను రికార్డ్ చేయాలనుకోవచ్చు. "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; కోసం కెమెరా యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequest_device_aware_camera" msgid="4198765626608612156">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు సంబంధించిన కెమెరా యాక్సెస్‌ను మార్చాలా?"</string>
+    <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"మీరు యాప్ ఉపయోగించనప్పుడు కూడా ఈ యాప్ ఎల్లప్పుడూ ఫోటోలను తీయాలనుకుంటోంది, వీడియోను రికార్డ్ చేయాలనుకుంటోంది. "<annotation id="link">"సెట్టింగ్‌లలో అనుమతించండి."</annotation></string>
+    <string name="permgrouprequest_calllog" msgid="2065327180175371397">"మీ ఫోన్ కాల్ లాగ్‌లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_calllog" msgid="735079772627778095">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోన్ కాల్ లాగ్‌లను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_phone" msgid="1829234136997316752">"ఫోన్‌ కాల్స్‌ చేయడానికి, మేనేజ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_phone" msgid="4389610977195521813">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో ఫోన్ కాల్స్ చేయడానికి, మేనేజ్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"మీ అత్యంత కీలకమైన గుర్తుల గురించి సెన్సార్ డేటాను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ని అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_sensors" msgid="1900598688488188225">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో కీలకమైన ఆరోగ్య కొలమానాల సెన్సార్ డేటా యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"ఈ యాప్‌ను మీరు ఉపయోగించని సమయంలో కూడా మీ ఆరోగ్యానికి సంబంధించి కీలకమైన కొలమానాల గురించిన సెన్సార్ డేటాను ఎల్లప్పుడూ యాక్సెస్ చేయగలిగేలా ఈ యాప్ అనుమతి కోరుతోంది. ఈ మార్పును ఆమోదించడానికి, "<annotation id="link">"సెట్టింగ్‌లకు వెళ్లండి."</annotation></string>
+    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"మీ ఆరోగ్యానికి సంబంధించి కీలకమైన కొలమానాల గురించిన సెన్సార్ డేటాను యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="7691308331448239716">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో కీలకమైన ఆరోగ్య కొలమానాల సెన్సార్ డేటా యాక్సెస్ చేయడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"మీరు యాప్‌ను ఉపయోగించనప్పుడు కూడా, శరీర సెన్సార్ డేటాను ఎల్లప్పుడూ యాక్సెస్ చేయడానికి ఈ యాప్‌ను అనుమతించడానికి, "<annotation id="link">"సెట్టింగ్‌లకు వెళ్లండి."</annotation></string>
+    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"యాప్‌ను వినియోగిస్తున్నప్పుడు బాడీ సెన్సార్ డేటాను యాక్సెస్ చేయగలిగేలా &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు ఉన్న అనుమతిని కొనసాగించాలా?"</string>
+    <string name="permgroupupgraderequest_device_aware_sensors" msgid="3310667992344623159">"యాప్ వినియోగంలో ఉన్నప్పుడు, మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో శరీర సెన్సార్‌ల యాక్సెస్ కోసం &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"మీకు నోటిఫికేషన్‌లను పంపడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;ను అనుమతించాలా?"</string>
+    <string name="permgrouprequest_device_aware_notifications" msgid="7307588961166360244">"మీ &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;‌లో మీకు నోటిఫికేషన్‌లు పంపడానికి &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‌కు అనుమతినివ్వాలా?"</string>
+    <string name="auto_granted_permissions" msgid="6009452264824455892">"నియంత్రణలో ఉన్న అనుమతులు"</string>
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g>‌కు లొకేషన్ యాక్సెస్ ఉంది"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"మీ సంస్థ, మీ లొకేషన్‌ను యాక్సెస్ చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g>‌నకు అనుమతి ఇస్తుంది"</string>
+    <string name="other_permissions_label" msgid="8986184335503271992">"ఇతర అనుమతులు"</string>
+    <string name="not_used_permissions_label" msgid="3939839426115141264">"సిస్టమ్ ఉపయోగించే అనుమతి"</string>
+    <string name="not_used_permissions_description" msgid="7595514824169388718">"సిస్టమ్ యాప్‌లు మాత్రమే ఉపయోగించే అనుమతులు."</string>
+    <string name="additional_permissions_label" msgid="7693557637462569046">"అదనపు అనుమతులు"</string>
+    <string name="additional_permissions_description" msgid="2186611950890732112">"యాప్‌ల ద్వారా నిర్వచించబడిన అనుమతులు."</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"కెమెరా"</string>
+    <string name="privdash_label_microphone" msgid="8415035835803511693">"మైక్రోఫోన్"</string>
+    <string name="privdash_label_location" msgid="6882400763866489291">"లొకేషన్"</string>
+    <string name="privdash_label_other" msgid="3710394147423236033">"ఇతరం"</string>
+    <string name="privdash_label_none" msgid="5991866260360484858">"ఏదీ కాదు"</string>
+    <string name="privdash_label_24h" msgid="1512532123865375319">"గత \n 24 గంటలు"</string>
+    <string name="privdash_label_7d" msgid="5645301995348656931">"గత\n7 రోజులు"</string>
+    <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"Android ద్వారా <xliff:g id="APP_NAME">%1$s</xliff:g> సంరక్షించబడుతోంది. మీ డేటా ఈ పరికరంలో ప్రాసెస్ చేయబడుతున్నందున, ఈ యాప్‌నకు సంబంధించిన అనుమతి వినియోగ సమాచారం స్టేటస్ బార్‌లో లేదా మీ గోప్యతా డ్యాష్‌బోర్డ్‌లో చూపబడదు."</string>
+    <string name="exempt_info_label" msgid="6286190981253476699">"Android ద్వారా <xliff:g id="APP_NAME">%1$s</xliff:g> సంరక్షించబడుతోంది. మీ డేటా ఈ పరికరంలో ప్రాసెస్ చేయబడుతున్నందున, ఈ యాప్‌నకు సంబంధించిన అనుమతి వినియోగ సమాచారం మీ గోప్యతా డ్యాష్‌బోర్డ్‌లో చూపబడదు."</string>
+    <string name="blocked_camera_title" msgid="1128510551791284384">"పరికరం కెమెరా బ్లాక్ చేయబడింది"</string>
+    <string name="blocked_microphone_title" msgid="1631517143648232585">"పరికరం మైక్రోఫోన్ బ్లాక్ చేయబడింది"</string>
+    <string name="blocked_location_title" msgid="2005608279812892383">"పరికరం లొకేషన్ ఆఫ్‌లో ఉంది"</string>
+    <string name="blocked_sensor_summary" msgid="4443707628305027375">"యాప్‌లు, సర్వీస్‌ల కోసం"</string>
+    <string name="blocked_mic_summary" msgid="8960466941528458347">"మీరు ఎమర్జెన్సీ నంబర్‌కు కాల్ చేసినప్పుడు, మైక్రోఫోన్ డేటా ఇప్పటికీ షేర్ చేయబడవచ్చు."</string>
+    <string name="blocked_sensor_button_label" msgid="6742092634984289658">"మార్చండి"</string>
+    <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"సెక్యూరిటీ &amp; గోప్యత"</string>
+    <string name="safety_center_rescan_button" msgid="4517514567809409596">"పరికరాన్ని స్కాన్ చేయండి"</string>
+    <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"విస్మరించండి"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_title" msgid="2734809473425036382">"ఈ అలర్ట్‌ను విస్మరించాలా?"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_message" msgid="3775418736671093563">"మరింత రక్షణను జోడించడానికి మీ సెక్యూరిటీ, గోప్యతా సెట్టింగ్‌లను ఎప్పుడైనా సరే రివ్యూ చేయండి"</string>
+    <string name="safety_center_issue_card_confirm_dismiss_button" msgid="5884137843083634556">"విస్మరించండి"</string>
+    <string name="safety_center_issue_card_cancel_dismiss_button" msgid="2874578798877712346">"రద్దు చేయండి"</string>
+    <string name="safety_center_entries_category_title" msgid="34356964062813115">"సెట్టింగ్‌లు"</string>
+    <string name="safety_status_preference_title_and_summary_content_description" msgid="3511373256505058464">"సెక్యూరిటీ, గోప్యతా స్టేటస్. <xliff:g id="OVERALL_SAFETY_STATUS">%1$s</xliff:g>. <xliff:g id="SUMMARY_OF_DEVICE_STATUS">%2$s</xliff:g>"</string>
+    <string name="security_settings" msgid="3808106921175271317">"సెక్యూరిటీ సెట్టింగ్‌లు"</string>
+    <string name="sensor_permissions_qs" msgid="1022267900031317472">"అనుమతులు"</string>
+    <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"సెక్యూరిటీ &amp; గోప్యత"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"స్టేటస్‌ను చెక్ చేయండి"</string>
+    <string name="privacy_controls_qs" msgid="5780144882040591169">"మీ గోప్యతా కంట్రోల్స్"</string>
+    <string name="security_settings_button_label_qs" msgid="8280343822465962330">"మరిన్ని సెట్టింగ్‌లు"</string>
+    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"కెమెరా యాక్సెస్"</string>
+    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"మైక్ యాక్సెస్"</string>
+    <string name="permissions_removed_qs" msgid="8957319130625294572">"అనుమతి తీసివేయబడింది"</string>
+    <string name="camera_usage_qs" msgid="4394233566086665994">"ఇటీవలి కెమెరా వినియోగాన్ని చూడండి"</string>
+    <string name="microphone_usage_qs" msgid="8527666682168170417">"ఇటీవలి మైక్ వినియోగాన్ని చూడండి"</string>
+    <string name="remove_camera_qs" msgid="3649996161066883350">"ఈ యాప్ కోసం అనుమతిని తీసివేయండి"</string>
+    <string name="remove_microphone_qs" msgid="1276551965129953198">"ఈ యాప్ కోసం అనుమతిని తీసివేయండి"</string>
+    <string name="manage_service_qs" msgid="7862555549364153805">"సర్వీస్‌ను మేనేజ్ చేయండి"</string>
+    <string name="manage_permissions_qs" msgid="3780541819763475434">"అనుమతులను మేనేజ్ చేయండి"</string>
+    <string name="active_call_usage_qs" msgid="8559974395932523391">"ఫోన్ కాల్ ద్వారా ఉపయోగించబడుతోంది"</string>
+    <string name="recent_call_usage_qs" msgid="743044899599410935">"ఇటీవల ఫోన్ కాల్‌లో ఉపయోగించబడింది"</string>
+    <string name="active_app_usage_qs" msgid="4063912870936464727">"<xliff:g id="APP_NAME">%1$s</xliff:g> ద్వారా ఉపయోగించబడుతోంది"</string>
+    <string name="recent_app_usage_qs" msgid="6650259601306212327">"<xliff:g id="APP_NAME">%1$s</xliff:g> ద్వారా ఇటీవల ఉపయోగించబడింది"</string>
+    <string name="active_app_usage_1_qs" msgid="4325136375823357052">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) ద్వారా ఉపయోగించబడుతోంది"</string>
+    <string name="recent_app_usage_1_qs" msgid="261450184773310741">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) ద్వారా ఇటీవల ఉపయోగించబడింది"</string>
+    <string name="active_app_usage_2_qs" msgid="6107866785243565283">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) ద్వారా ఉపయోగించబడుతోంది"</string>
+    <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) ద్వారా ఇటీవల ఉపయోగించబడింది"</string>
+    <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"నిర్ధారించండి"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"వెనుకకు"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"ఇతర ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడుతుంది"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"ఇతర ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడదు"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"ఇతర ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడుతుంది"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_deny" msgid="5767849609024384226">"ఇతర ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడదు"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_allow" msgid="3191904399336990537">"ఫోటోలు, వీడియోలకు యాక్సెస్ కూడా అనుమతించబడుతుంది"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_deny" msgid="3128147568953297969">"ఫోటోలు, వీడియోలకు యాక్సెస్ కూడా అనుమతించబడదు"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_allow" msgid="6310682466493330434">"మ్యూజిక్ మరియు ఆడియో ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడుతుంది"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_deny" msgid="1123845663785900471">"మ్యూజిక్, ఆడియో ఫైల్స్‌కు యాక్సెస్ కూడా అనుమతించబడదు"</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_allow" msgid="7865167246140107623">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయగలిగితే, ఇది ఫోటోలు, వీడియోలు, ఇంకా ఇతర ఫైల్స్‌ను యాక్సెస్ చేయడానికి కూడా అనుమతించబడుతుంది."</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_deny" msgid="287502523664804786">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయలేకపోతే, ఫోటోలు, వీడియోలు, ఇంకా ఇతర ఫైల్స్‌ను యాక్సెస్ చేయడానికి కూడా ఇది అనుమతించబడదు."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_allow" msgid="4952410892939590487">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ ఫోటోలు, వీడియోలను యాక్సెస్ చేయగలిగితే, ఇది మ్యూజిక్, ఆడియో, ఇంకా ఇతర ఫైల్స్‌ను యాక్సెస్ చేయడానికి కూడా అనుమతించబడుతుంది."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_deny" msgid="6609500525590757681">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ ఫోటోలు, వీడియోలను యాక్సెస్ చేయలేకపోతే, ఇది మ్యూజిక్, ఆడియో, ఇంకా ఇతర ఫైల్స్‌ను యాక్సెస్ చేయడానికి కూడా అనుమతించబడదు."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_allow" msgid="1702402580147536160">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయగలిగితే, ఇది ఫోటోలు, వీడియోలను యాక్సెస్ చేయడానికి కూడా అనుమతించబడుతుంది."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_deny" msgid="6832087393653561911">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయలేకపోతే, ఫోటోలు, వీడియోలను యాక్సెస్ చేయడానికి కూడా ఇది అనుమతించబడదు."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_allow" msgid="3504335060843147760">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ ఫోటోలు, వీడియోలను యాక్సెస్ చేయగలిగితే, ఇది మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయడానికి కూడా అనుమతించబడుతుంది."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_deny" msgid="2145973462806481992">"ఈ యాప్ Android తాజా వెర్షన్‌కు సపోర్ట్ ఇవ్వదు. ఈ యాప్ మ్యూజిక్, ఆడియో ఫైల్స్‌ను యాక్సెస్ చేయలేకపోతే, ఫోటోలు, వీడియోలను యాక్సెస్ చేయడానికి కూడా ఇది అనుమతించబడదు."</string>
+    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Review app with background location access"</string>
+    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> can always access your location, even when the app is closed"</string>
+    <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"బ్యాక్‌గ్రౌండ్ లొకేషన్‌కు యాక్సెస్‌ ఉన్న యాప్‌ను రివ్యూ చేయండి"</string>
+    <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"ఈ యాప్ అది మూసివేసి ఉన్నప్పుడు కూడా, మీ లొకేషన్‌ను ఎల్లప్పుడూ యాక్సెస్ చేయగలదు.\n\nకొన్ని భద్రత, ఎమర్జెన్సీ యాప్‌లు ఉద్దేశించిన విధంగా పని చేయడానికి, వాటికి బ్యాక్‌గ్రౌండ్‌లో మీ లొకేషన్‌కు యాక్సెస్ అవసరం."</string>
+    <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"యాక్సెస్‌ మార్చబడింది."</string>
+    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"ఇటీవలి లొకేషన్‌ వినియోగాన్ని చూడండి"</string>
+    <string name="privacy_controls_title" msgid="7605929972256835199">"గోప్యతా కంట్రోల్స్"</string>
+    <string name="camera_toggle_title" msgid="1251201397431837666">"కెమెరా యాక్సెస్"</string>
+    <string name="mic_toggle_title" msgid="2649991093496110162">"మైక్రోఫోన్ యాక్సెస్"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"యాప్‌లు, సర్వీస్‌ల కోసం"</string>
+    <string name="mic_toggle_description" msgid="9163104307990677157">"యాప్‌లు, సర్వీస్‌ల కోసం. ఈ సెట్టింగ్ ఆఫ్ చేయబడి ఉన్నట్లయితే, మీరు ఎమర్జెన్సీ నంబర్‌కు కాల్ చేసినప్పుడు మైక్రోఫోన్ డేటా ఇప్పటికీ షేర్ చేయబడవచ్చు."</string>
+    <string name="location_settings_subtitle" msgid="2328360561197430695">"లొకేషన్ యాక్సెస్ ఉన్న యాప్‌లను, సర్వీస్‌లను చూడండి"</string>
+    <string name="show_clip_access_notification_title" msgid="5168467637351109096">"క్లిప్‌బోర్డ్ యాక్సెస్‌ను చూపించండి"</string>
+    <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"మీరు కాపీ చేసిన టెక్స్ట్‌ను, ఇమేజ్‌లను లేదా ఇతర కంటెంట్‌ను యాప్‌లు యాక్సెస్ చేసినప్పుడు ఒక మెసేజ్‌ను చూపుతుంది"</string>
+    <string name="show_password_title" msgid="2877269286984684659">"పాస్‌వర్డ్‌లను చూపిస్తుంది"</string>
+    <string name="show_password_summary" msgid="1110166488865981610">"మీరు టైప్ చేస్తున్నప్పుడు అక్షరాలను క్లుప్తంగా చూపిస్తుంది"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"ఈ యాప్, అది లొకేషన్ డేటాను థర్డ్-పార్టీలతో షేర్ చేయవచ్చని పేర్కొంది"</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"డేటా షేరింగ్ &amp; లొకేషన్"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"డేటా షేరింగ్‌కు సంబంధించిన సమాచారం ఎక్కడి నుంచి వస్తుంది"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"డెవలపర్ ఈ యాప్, డేటాను ఎలా షేర్ చేస్తుంది అనే సమాచారాన్ని పరికర తయారీదారుకు అందించారు. డెవలపర్ ఈ సమాచారాన్ని కాలానుగుణంగా అప్‌డేట్ చేయవచ్చు."</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"ఈ యాప్, డేటాను ఎలా షేర్ చేస్తుంది అనే సమాచారాన్ని డెవలపర్  "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>"‌కు అందించారు. డెవలపర్ ఈ సమాచారాన్ని కాలానుగుణంగా అప్‌డేట్ చేయవచ్చు."</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"ఈ యాప్ లొకేషన్ డేటాను వీటి కోసం షేర్ చేయవచ్చు:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"డేటా షేరింగ్ మారుతూ ఉంటుంది"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"మీ యాప్ వెర్షన్, వినియోగం, ప్రాంతం ఇంకా వయస్సు ఆధారంగా డేటా ప్రాక్టీసులు మారవచ్చు. "<annotation id="link">"డేటా షేరింగ్ గురించిన మరింత సమాచారం"</annotation></string>
+    <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"మీ యాప్ వెర్షన్, వినియోగం, ప్రాంతం ఇంకా వయస్సు ఆధారంగా డేటా ప్రాక్టీసులు మారవచ్చు."</string>
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"మీ లొకేషన్ డేటా"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267"><annotation id="link">"గోప్యతా సెట్టింగ్‌ల"</annotation>"కు వెళ్లడం ద్వారా ఈ యాప్‌నకు యాక్సెస్‌ను మార్చండి"</string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"యాప్ ఫంక్షనాలిటీ"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"ఎనలిటిక్స్"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"డెవలపర్ కమ్యూనికేషన్స్"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"అడ్వర్టయిజింగ్ లేదా మార్కెటింగ్"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"మోసాన్ని అరికట్టడం, సెక్యూరిటీ ఇంకా అనుకూలత"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"వ్యక్తిగతీకరణ"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"ఖాతా మేనేజ్‌మెంట్"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"డేటా భద్రత"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"లొకేషన్ డేటా షేర్ చేయబడవచ్చు"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"ఈ యాప్ మీ లొకేషన్ డేటాను థర్డ్-పార్టీలతో షేర్ చేయవచ్చని పేర్కొంది"</string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"లొకేషన్‌కు సంబంధించిన డేటా షేరింగ్ అప్‌డేట్‌లు"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"మీ లొకేషన్ డేటాను షేర్ చేసే విధానాన్ని మార్చిన యాప్‌లను రివ్యూ చేయండి"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"ఈ యాప్‌లు మీ లొకేషన్ డేటాను షేర్ చేయగల విధానాన్ని మార్చాయి. అవి దీన్ని ఇంతకు ముందు షేర్ చేసి ఉండకపోవచ్చు, లేదా ఇప్పుడు అడ్వర్టయిజింగ్ లేదా మార్కెటింగ్ ప్రయోజనాల కోసం షేర్ చేయవచ్చు."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"ఈ యాప్‌ల డెవలపర్‌లు, వారి డేటా షేరింగ్ ప్రాక్టీసుల గురించి ఒక యాప్ స్టోర్‌కు సమాచారాన్ని అందించారు. వారు దానిని కాలక్రమేణా అప్‌డేట్ చేయవచ్చు.\n\nడేటా షేరింగ్ ప్రాక్టీసులు మీ యాప్ వెర్షన్, వినియోగం, ప్రాంతం, ఇంకా వయస్సు ఆధారంగా మారవచ్చు."</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"డేటా షేరింగ్ గురించి తెలుసుకోండి"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"మీ లొకేషన్ డేటా ఇప్పుడు థర్డ్-పార్టీలతో షేర్ చేయబడుతుంది"</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"మీ లొకేషన్ డేటా ఇప్పుడు అడ్వర్టయిజింగ్ లేదా మార్కెటింగ్ ప్రయోజనాల కోసం థర్డ్-పార్టీలతో షేర్ చేయబడుతుంది"</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{చివరి రోజున అప్‌డేట్ చేయబడింది}=1{చివరి రోజున అప్‌డేట్ చేయబడింది}other{గత # రోజుల్లో అప్‌డేట్ చేయబడింది}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"ఈ సమయంలో ఎటువంటి అప్‌డేట్‌లూ లేవు"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"డేటా షేరింగ్ అప్‌డేట్‌లు"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"కొన్ని యాప్‌లు మీ లొకేషన్ డేటాను షేర్ చేయగల విధానాన్ని మార్చాయి"</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"సెట్టింగ్‌లు"</string>
+    <string name="wear_app_perms_24h_access" msgid="8668121661337328895">"<xliff:g id="TIME_DATE">%1$s</xliff:g>‌కు యాక్సెస్‌ చేశారు"</string>
+    <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"నిన్న <xliff:g id="TIME_DATE">%1$s</xliff:g>‌కు యాక్సెస్‌ చేశారు"</string>
+    <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g>‌న<xliff:g id="TIME_DATE_1">%2$s</xliff:g>‌కు యాక్సెస్‌ చేశారు"</string>
+    <string name="test_otp_msg" msgid="7559110574222727550">"మీ ఒకసారి ఉపయోగించగల పాస్‌వర్డ్ 132435"</string>
+    <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"పరిమితం చేయబడిన సెట్టింగ్"</string>
+    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"మీ సెక్యూరిటీ కోసం, ఈ సెట్టింగ్ ప్రస్తుతం అందుబాటులో లేదు."</string>
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="8411239333012890492">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>‌ను ఉపయోగించడానికి అనుమతి నిరాకరించబడింది"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="9207115054288224451">"ఈ యాప్ పరిమితం చేయబడిన సెట్టింగ్ అయిన <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> అనుమతిని రిక్వెస్ట్ చేసింది, దీనివల్ల మీ సెక్యూరిటీకీ, &amp; గోప్యతకు ప్రమాదం ఏర్పడవచ్చు. ఈ అనుమతికి పరిమితి విధించడం వలన ఈ యాప్‌ను పని చేయకుండా నిరోధించవచ్చు."</string>
+    <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"మరింత తెలుసుకోండి"</string>
+    <string name="enhanced_confirmation_dialog_ok" msgid="1767075979746135617">"సరే"</string>
+</resources>

@@ -1,0 +1,9188 @@
+{
+	"symbols" : 
+	{
+		"__do_sys_accept" : 
+		{
+			"type" : "func __do_sys_accept"
+		},
+		"__do_sys_accept4" : 
+		{
+			"type" : "func __do_sys_accept4"
+		},
+		"__do_sys_add_key" : 
+		{
+			"type" : "func __do_sys_add_key"
+		},
+		"__do_sys_adjtimex" : 
+		{
+			"type" : "func __do_sys_adjtimex"
+		},
+		"__do_sys_bind" : 
+		{
+			"type" : "func __do_sys_bind"
+		},
+		"__do_sys_bpf" : 
+		{
+			"type" : "func __do_sys_bpf"
+		},
+		"__do_sys_brk" : 
+		{
+			"type" : "func __do_sys_brk"
+		},
+		"__do_sys_capget" : 
+		{
+			"type" : "func __do_sys_capget"
+		},
+		"__do_sys_capset" : 
+		{
+			"type" : "func __do_sys_capset"
+		},
+		"__do_sys_chdir" : 
+		{
+			"type" : "func __do_sys_chdir"
+		},
+		"__do_sys_chroot" : 
+		{
+			"type" : "func __do_sys_chroot"
+		},
+		"__do_sys_clock_adjtime" : 
+		{
+			"type" : "func __do_sys_clock_adjtime"
+		},
+		"__do_sys_clock_getres" : 
+		{
+			"type" : "func __do_sys_clock_getres"
+		},
+		"__do_sys_clock_gettime" : 
+		{
+			"type" : "func __do_sys_clock_gettime"
+		},
+		"__do_sys_clock_nanosleep" : 
+		{
+			"type" : "func __do_sys_clock_nanosleep"
+		},
+		"__do_sys_clock_settime" : 
+		{
+			"type" : "func __do_sys_clock_settime"
+		},
+		"__do_sys_clone" : 
+		{
+			"type" : "func __do_sys_clone"
+		},
+		"__do_sys_clone3" : 
+		{
+			"type" : "func __do_sys_clone3"
+		},
+		"__do_sys_close" : 
+		{
+			"type" : "func __do_sys_close"
+		},
+		"__do_sys_close_range" : 
+		{
+			"type" : "func __do_sys_close_range"
+		},
+		"__do_sys_connect" : 
+		{
+			"type" : "func __do_sys_connect"
+		},
+		"__do_sys_copy_file_range" : 
+		{
+			"type" : "func __do_sys_copy_file_range"
+		},
+		"__do_sys_delete_module" : 
+		{
+			"type" : "func __do_sys_delete_module"
+		},
+		"__do_sys_dup" : 
+		{
+			"type" : "func __do_sys_dup"
+		},
+		"__do_sys_dup3" : 
+		{
+			"type" : "func __do_sys_dup3"
+		},
+		"__do_sys_epoll_create1" : 
+		{
+			"type" : "func __do_sys_epoll_create1"
+		},
+		"__do_sys_epoll_ctl" : 
+		{
+			"type" : "func __do_sys_epoll_ctl"
+		},
+		"__do_sys_epoll_pwait" : 
+		{
+			"type" : "func __do_sys_epoll_pwait"
+		},
+		"__do_sys_epoll_pwait2" : 
+		{
+			"type" : "func __do_sys_epoll_pwait2"
+		},
+		"__do_sys_eventfd2" : 
+		{
+			"type" : "func __do_sys_eventfd2"
+		},
+		"__do_sys_execve" : 
+		{
+			"type" : "func __do_sys_execve"
+		},
+		"__do_sys_execveat" : 
+		{
+			"type" : "func __do_sys_execveat"
+		},
+		"__do_sys_exit" : 
+		{
+			"type" : "func __do_sys_exit"
+		},
+		"__do_sys_exit_group" : 
+		{
+			"type" : "func __do_sys_exit_group"
+		},
+		"__do_sys_faccessat" : 
+		{
+			"type" : "func __do_sys_faccessat"
+		},
+		"__do_sys_faccessat2" : 
+		{
+			"type" : "func __do_sys_faccessat2"
+		},
+		"__do_sys_fadvise64_64" : 
+		{
+			"type" : "func __do_sys_fadvise64_64"
+		},
+		"__do_sys_fallocate" : 
+		{
+			"type" : "func __do_sys_fallocate"
+		},
+		"__do_sys_fchdir" : 
+		{
+			"type" : "func __do_sys_fchdir"
+		},
+		"__do_sys_fchmod" : 
+		{
+			"type" : "func __do_sys_fchmod"
+		},
+		"__do_sys_fchmodat" : 
+		{
+			"type" : "func __do_sys_fchmodat"
+		},
+		"__do_sys_fchown" : 
+		{
+			"type" : "func __do_sys_fchown"
+		},
+		"__do_sys_fchownat" : 
+		{
+			"type" : "func __do_sys_fchownat"
+		},
+		"__do_sys_fcntl" : 
+		{
+			"type" : "func __do_sys_fcntl"
+		},
+		"__do_sys_fdatasync" : 
+		{
+			"type" : "func __do_sys_fdatasync"
+		},
+		"__do_sys_fgetxattr" : 
+		{
+			"type" : "func __do_sys_fgetxattr"
+		},
+		"__do_sys_finit_module" : 
+		{
+			"type" : "func __do_sys_finit_module"
+		},
+		"__do_sys_flistxattr" : 
+		{
+			"type" : "func __do_sys_flistxattr"
+		},
+		"__do_sys_flock" : 
+		{
+			"type" : "func __do_sys_flock"
+		},
+		"__do_sys_fremovexattr" : 
+		{
+			"type" : "func __do_sys_fremovexattr"
+		},
+		"__do_sys_fsconfig" : 
+		{
+			"type" : "func __do_sys_fsconfig"
+		},
+		"__do_sys_fsetxattr" : 
+		{
+			"type" : "func __do_sys_fsetxattr"
+		},
+		"__do_sys_fsmount" : 
+		{
+			"type" : "func __do_sys_fsmount"
+		},
+		"__do_sys_fsopen" : 
+		{
+			"type" : "func __do_sys_fsopen"
+		},
+		"__do_sys_fspick" : 
+		{
+			"type" : "func __do_sys_fspick"
+		},
+		"__do_sys_fstatfs" : 
+		{
+			"type" : "func __do_sys_fstatfs"
+		},
+		"__do_sys_fsync" : 
+		{
+			"type" : "func __do_sys_fsync"
+		},
+		"__do_sys_ftruncate" : 
+		{
+			"type" : "func __do_sys_ftruncate"
+		},
+		"__do_sys_futex" : 
+		{
+			"type" : "func __do_sys_futex"
+		},
+		"__do_sys_futex_waitv" : 
+		{
+			"type" : "func __do_sys_futex_waitv"
+		},
+		"__do_sys_get_robust_list" : 
+		{
+			"type" : "func __do_sys_get_robust_list"
+		},
+		"__do_sys_getcpu" : 
+		{
+			"type" : "func __do_sys_getcpu"
+		},
+		"__do_sys_getcwd" : 
+		{
+			"type" : "func __do_sys_getcwd"
+		},
+		"__do_sys_getdents64" : 
+		{
+			"type" : "func __do_sys_getdents64"
+		},
+		"__do_sys_getgroups" : 
+		{
+			"type" : "func __do_sys_getgroups"
+		},
+		"__do_sys_getitimer" : 
+		{
+			"type" : "func __do_sys_getitimer"
+		},
+		"__do_sys_getpeername" : 
+		{
+			"type" : "func __do_sys_getpeername"
+		},
+		"__do_sys_getpgid" : 
+		{
+			"type" : "func __do_sys_getpgid"
+		},
+		"__do_sys_getpriority" : 
+		{
+			"type" : "func __do_sys_getpriority"
+		},
+		"__do_sys_getrandom" : 
+		{
+			"type" : "func __do_sys_getrandom"
+		},
+		"__do_sys_getresgid" : 
+		{
+			"type" : "func __do_sys_getresgid"
+		},
+		"__do_sys_getresuid" : 
+		{
+			"type" : "func __do_sys_getresuid"
+		},
+		"__do_sys_getrlimit" : 
+		{
+			"type" : "func __do_sys_getrlimit"
+		},
+		"__do_sys_getrusage" : 
+		{
+			"type" : "func __do_sys_getrusage"
+		},
+		"__do_sys_getsid" : 
+		{
+			"type" : "func __do_sys_getsid"
+		},
+		"__do_sys_getsockname" : 
+		{
+			"type" : "func __do_sys_getsockname"
+		},
+		"__do_sys_getsockopt" : 
+		{
+			"type" : "func __do_sys_getsockopt"
+		},
+		"__do_sys_gettimeofday" : 
+		{
+			"type" : "func __do_sys_gettimeofday"
+		},
+		"__do_sys_getxattr" : 
+		{
+			"type" : "func __do_sys_getxattr"
+		},
+		"__do_sys_init_module" : 
+		{
+			"type" : "func __do_sys_init_module"
+		},
+		"__do_sys_inotify_add_watch" : 
+		{
+			"type" : "func __do_sys_inotify_add_watch"
+		},
+		"__do_sys_inotify_init1" : 
+		{
+			"type" : "func __do_sys_inotify_init1"
+		},
+		"__do_sys_inotify_rm_watch" : 
+		{
+			"type" : "func __do_sys_inotify_rm_watch"
+		},
+		"__do_sys_io_cancel" : 
+		{
+			"type" : "func __do_sys_io_cancel"
+		},
+		"__do_sys_io_destroy" : 
+		{
+			"type" : "func __do_sys_io_destroy"
+		},
+		"__do_sys_io_getevents" : 
+		{
+			"type" : "func __do_sys_io_getevents"
+		},
+		"__do_sys_io_pgetevents" : 
+		{
+			"type" : "func __do_sys_io_pgetevents"
+		},
+		"__do_sys_io_setup" : 
+		{
+			"type" : "func __do_sys_io_setup"
+		},
+		"__do_sys_io_submit" : 
+		{
+			"type" : "func __do_sys_io_submit"
+		},
+		"__do_sys_io_uring_enter" : 
+		{
+			"type" : "func __do_sys_io_uring_enter"
+		},
+		"__do_sys_io_uring_register" : 
+		{
+			"type" : "func __do_sys_io_uring_register"
+		},
+		"__do_sys_io_uring_setup" : 
+		{
+			"type" : "func __do_sys_io_uring_setup"
+		},
+		"__do_sys_ioctl" : 
+		{
+			"type" : "func __do_sys_ioctl"
+		},
+		"__do_sys_ioprio_get" : 
+		{
+			"type" : "func __do_sys_ioprio_get"
+		},
+		"__do_sys_ioprio_set" : 
+		{
+			"type" : "func __do_sys_ioprio_set"
+		},
+		"__do_sys_kcmp" : 
+		{
+			"type" : "func __do_sys_kcmp"
+		},
+		"__do_sys_keyctl" : 
+		{
+			"type" : "func __do_sys_keyctl"
+		},
+		"__do_sys_kill" : 
+		{
+			"type" : "func __do_sys_kill"
+		},
+		"__do_sys_lgetxattr" : 
+		{
+			"type" : "func __do_sys_lgetxattr"
+		},
+		"__do_sys_linkat" : 
+		{
+			"type" : "func __do_sys_linkat"
+		},
+		"__do_sys_listen" : 
+		{
+			"type" : "func __do_sys_listen"
+		},
+		"__do_sys_listxattr" : 
+		{
+			"type" : "func __do_sys_listxattr"
+		},
+		"__do_sys_llistxattr" : 
+		{
+			"type" : "func __do_sys_llistxattr"
+		},
+		"__do_sys_lremovexattr" : 
+		{
+			"type" : "func __do_sys_lremovexattr"
+		},
+		"__do_sys_lseek" : 
+		{
+			"type" : "func __do_sys_lseek"
+		},
+		"__do_sys_lsetxattr" : 
+		{
+			"type" : "func __do_sys_lsetxattr"
+		},
+		"__do_sys_madvise" : 
+		{
+			"type" : "func __do_sys_madvise"
+		},
+		"__do_sys_membarrier" : 
+		{
+			"type" : "func __do_sys_membarrier"
+		},
+		"__do_sys_memfd_create" : 
+		{
+			"type" : "func __do_sys_memfd_create"
+		},
+		"__do_sys_memfd_secret" : 
+		{
+			"type" : "func __do_sys_memfd_secret"
+		},
+		"__do_sys_mincore" : 
+		{
+			"type" : "func __do_sys_mincore"
+		},
+		"__do_sys_mkdirat" : 
+		{
+			"type" : "func __do_sys_mkdirat"
+		},
+		"__do_sys_mknodat" : 
+		{
+			"type" : "func __do_sys_mknodat"
+		},
+		"__do_sys_mlock" : 
+		{
+			"type" : "func __do_sys_mlock"
+		},
+		"__do_sys_mlock2" : 
+		{
+			"type" : "func __do_sys_mlock2"
+		},
+		"__do_sys_mlockall" : 
+		{
+			"type" : "func __do_sys_mlockall"
+		},
+		"__do_sys_mmap" : 
+		{
+			"type" : "func __do_sys_mmap"
+		},
+		"__do_sys_mount" : 
+		{
+			"type" : "func __do_sys_mount"
+		},
+		"__do_sys_mount_setattr" : 
+		{
+			"type" : "func __do_sys_mount_setattr"
+		},
+		"__do_sys_move_mount" : 
+		{
+			"type" : "func __do_sys_move_mount"
+		},
+		"__do_sys_mprotect" : 
+		{
+			"type" : "func __do_sys_mprotect"
+		},
+		"__do_sys_mremap" : 
+		{
+			"type" : "func __do_sys_mremap"
+		},
+		"__do_sys_msync" : 
+		{
+			"type" : "func __do_sys_msync"
+		},
+		"__do_sys_munlock" : 
+		{
+			"type" : "func __do_sys_munlock"
+		},
+		"__do_sys_munmap" : 
+		{
+			"type" : "func __do_sys_munmap"
+		},
+		"__do_sys_nanosleep" : 
+		{
+			"type" : "func __do_sys_nanosleep"
+		},
+		"__do_sys_newfstat" : 
+		{
+			"type" : "func __do_sys_newfstat"
+		},
+		"__do_sys_newfstatat" : 
+		{
+			"type" : "func __do_sys_newfstatat"
+		},
+		"__do_sys_newuname" : 
+		{
+			"type" : "func __do_sys_newuname"
+		},
+		"__do_sys_open_tree" : 
+		{
+			"type" : "func __do_sys_open_tree"
+		},
+		"__do_sys_openat" : 
+		{
+			"type" : "func __do_sys_openat"
+		},
+		"__do_sys_openat2" : 
+		{
+			"type" : "func __do_sys_openat2"
+		},
+		"__do_sys_perf_event_open" : 
+		{
+			"type" : "func __do_sys_perf_event_open"
+		},
+		"__do_sys_personality" : 
+		{
+			"type" : "func __do_sys_personality"
+		},
+		"__do_sys_pidfd_getfd" : 
+		{
+			"type" : "func __do_sys_pidfd_getfd"
+		},
+		"__do_sys_pidfd_open" : 
+		{
+			"type" : "func __do_sys_pidfd_open"
+		},
+		"__do_sys_pidfd_send_signal" : 
+		{
+			"type" : "func __do_sys_pidfd_send_signal"
+		},
+		"__do_sys_pipe2" : 
+		{
+			"type" : "func __do_sys_pipe2"
+		},
+		"__do_sys_pivot_root" : 
+		{
+			"type" : "func __do_sys_pivot_root"
+		},
+		"__do_sys_ppoll" : 
+		{
+			"type" : "func __do_sys_ppoll"
+		},
+		"__do_sys_prctl" : 
+		{
+			"type" : "func __do_sys_prctl"
+		},
+		"__do_sys_pread64" : 
+		{
+			"type" : "func __do_sys_pread64"
+		},
+		"__do_sys_preadv" : 
+		{
+			"type" : "func __do_sys_preadv"
+		},
+		"__do_sys_preadv2" : 
+		{
+			"type" : "func __do_sys_preadv2"
+		},
+		"__do_sys_prlimit64" : 
+		{
+			"type" : "func __do_sys_prlimit64"
+		},
+		"__do_sys_process_madvise" : 
+		{
+			"type" : "func __do_sys_process_madvise"
+		},
+		"__do_sys_process_mrelease" : 
+		{
+			"type" : "func __do_sys_process_mrelease"
+		},
+		"__do_sys_process_vm_readv" : 
+		{
+			"type" : "func __do_sys_process_vm_readv"
+		},
+		"__do_sys_process_vm_writev" : 
+		{
+			"type" : "func __do_sys_process_vm_writev"
+		},
+		"__do_sys_pselect6" : 
+		{
+			"type" : "func __do_sys_pselect6"
+		},
+		"__do_sys_ptrace" : 
+		{
+			"type" : "func __do_sys_ptrace"
+		},
+		"__do_sys_pwrite64" : 
+		{
+			"type" : "func __do_sys_pwrite64"
+		},
+		"__do_sys_pwritev" : 
+		{
+			"type" : "func __do_sys_pwritev"
+		},
+		"__do_sys_pwritev2" : 
+		{
+			"type" : "func __do_sys_pwritev2"
+		},
+		"__do_sys_quotactl" : 
+		{
+			"type" : "func __do_sys_quotactl"
+		},
+		"__do_sys_quotactl_fd" : 
+		{
+			"type" : "func __do_sys_quotactl_fd"
+		},
+		"__do_sys_read" : 
+		{
+			"type" : "func __do_sys_read"
+		},
+		"__do_sys_readahead" : 
+		{
+			"type" : "func __do_sys_readahead"
+		},
+		"__do_sys_readlinkat" : 
+		{
+			"type" : "func __do_sys_readlinkat"
+		},
+		"__do_sys_readv" : 
+		{
+			"type" : "func __do_sys_readv"
+		},
+		"__do_sys_reboot" : 
+		{
+			"type" : "func __do_sys_reboot"
+		},
+		"__do_sys_recvfrom" : 
+		{
+			"type" : "func __do_sys_recvfrom"
+		},
+		"__do_sys_recvmmsg" : 
+		{
+			"type" : "func __do_sys_recvmmsg"
+		},
+		"__do_sys_recvmsg" : 
+		{
+			"type" : "func __do_sys_recvmsg"
+		},
+		"__do_sys_remap_file_pages" : 
+		{
+			"type" : "func __do_sys_remap_file_pages"
+		},
+		"__do_sys_removexattr" : 
+		{
+			"type" : "func __do_sys_removexattr"
+		},
+		"__do_sys_renameat" : 
+		{
+			"type" : "func __do_sys_renameat"
+		},
+		"__do_sys_renameat2" : 
+		{
+			"type" : "func __do_sys_renameat2"
+		},
+		"__do_sys_request_key" : 
+		{
+			"type" : "func __do_sys_request_key"
+		},
+		"__do_sys_rt_sigaction" : 
+		{
+			"type" : "func __do_sys_rt_sigaction"
+		},
+		"__do_sys_rt_sigpending" : 
+		{
+			"type" : "func __do_sys_rt_sigpending"
+		},
+		"__do_sys_rt_sigprocmask" : 
+		{
+			"type" : "func __do_sys_rt_sigprocmask"
+		},
+		"__do_sys_rt_sigqueueinfo" : 
+		{
+			"type" : "func __do_sys_rt_sigqueueinfo"
+		},
+		"__do_sys_rt_sigsuspend" : 
+		{
+			"type" : "func __do_sys_rt_sigsuspend"
+		},
+		"__do_sys_rt_sigtimedwait" : 
+		{
+			"type" : "func __do_sys_rt_sigtimedwait"
+		},
+		"__do_sys_rt_tgsigqueueinfo" : 
+		{
+			"type" : "func __do_sys_rt_tgsigqueueinfo"
+		},
+		"__do_sys_sched_get_priority_max" : 
+		{
+			"type" : "func __do_sys_sched_get_priority_max"
+		},
+		"__do_sys_sched_get_priority_min" : 
+		{
+			"type" : "func __do_sys_sched_get_priority_min"
+		},
+		"__do_sys_sched_getaffinity" : 
+		{
+			"type" : "func __do_sys_sched_getaffinity"
+		},
+		"__do_sys_sched_getattr" : 
+		{
+			"type" : "func __do_sys_sched_getattr"
+		},
+		"__do_sys_sched_getparam" : 
+		{
+			"type" : "func __do_sys_sched_getparam"
+		},
+		"__do_sys_sched_getscheduler" : 
+		{
+			"type" : "func __do_sys_sched_getscheduler"
+		},
+		"__do_sys_sched_rr_get_interval" : 
+		{
+			"type" : "func __do_sys_sched_rr_get_interval"
+		},
+		"__do_sys_sched_setaffinity" : 
+		{
+			"type" : "func __do_sys_sched_setaffinity"
+		},
+		"__do_sys_sched_setattr" : 
+		{
+			"type" : "func __do_sys_sched_setattr"
+		},
+		"__do_sys_sched_setparam" : 
+		{
+			"type" : "func __do_sys_sched_setparam"
+		},
+		"__do_sys_sched_setscheduler" : 
+		{
+			"type" : "func __do_sys_sched_setscheduler"
+		},
+		"__do_sys_seccomp" : 
+		{
+			"type" : "func __do_sys_seccomp"
+		},
+		"__do_sys_sendfile64" : 
+		{
+			"type" : "func __do_sys_sendfile64"
+		},
+		"__do_sys_sendmmsg" : 
+		{
+			"type" : "func __do_sys_sendmmsg"
+		},
+		"__do_sys_sendmsg" : 
+		{
+			"type" : "func __do_sys_sendmsg"
+		},
+		"__do_sys_sendto" : 
+		{
+			"type" : "func __do_sys_sendto"
+		},
+		"__do_sys_set_robust_list" : 
+		{
+			"type" : "func __do_sys_set_robust_list"
+		},
+		"__do_sys_set_tid_address" : 
+		{
+			"type" : "func __do_sys_set_tid_address"
+		},
+		"__do_sys_setdomainname" : 
+		{
+			"type" : "func __do_sys_setdomainname"
+		},
+		"__do_sys_setfsgid" : 
+		{
+			"type" : "func __do_sys_setfsgid"
+		},
+		"__do_sys_setfsuid" : 
+		{
+			"type" : "func __do_sys_setfsuid"
+		},
+		"__do_sys_setgid" : 
+		{
+			"type" : "func __do_sys_setgid"
+		},
+		"__do_sys_setgroups" : 
+		{
+			"type" : "func __do_sys_setgroups"
+		},
+		"__do_sys_sethostname" : 
+		{
+			"type" : "func __do_sys_sethostname"
+		},
+		"__do_sys_setitimer" : 
+		{
+			"type" : "func __do_sys_setitimer"
+		},
+		"__do_sys_setns" : 
+		{
+			"type" : "func __do_sys_setns"
+		},
+		"__do_sys_setpgid" : 
+		{
+			"type" : "func __do_sys_setpgid"
+		},
+		"__do_sys_setpriority" : 
+		{
+			"type" : "func __do_sys_setpriority"
+		},
+		"__do_sys_setregid" : 
+		{
+			"type" : "func __do_sys_setregid"
+		},
+		"__do_sys_setresgid" : 
+		{
+			"type" : "func __do_sys_setresgid"
+		},
+		"__do_sys_setresuid" : 
+		{
+			"type" : "func __do_sys_setresuid"
+		},
+		"__do_sys_setreuid" : 
+		{
+			"type" : "func __do_sys_setreuid"
+		},
+		"__do_sys_setrlimit" : 
+		{
+			"type" : "func __do_sys_setrlimit"
+		},
+		"__do_sys_setsockopt" : 
+		{
+			"type" : "func __do_sys_setsockopt"
+		},
+		"__do_sys_settimeofday" : 
+		{
+			"type" : "func __do_sys_settimeofday"
+		},
+		"__do_sys_setuid" : 
+		{
+			"type" : "func __do_sys_setuid"
+		},
+		"__do_sys_setxattr" : 
+		{
+			"type" : "func __do_sys_setxattr"
+		},
+		"__do_sys_shutdown" : 
+		{
+			"type" : "func __do_sys_shutdown"
+		},
+		"__do_sys_sigaltstack" : 
+		{
+			"type" : "func __do_sys_sigaltstack"
+		},
+		"__do_sys_signalfd4" : 
+		{
+			"type" : "func __do_sys_signalfd4"
+		},
+		"__do_sys_socket" : 
+		{
+			"type" : "func __do_sys_socket"
+		},
+		"__do_sys_socketpair" : 
+		{
+			"type" : "func __do_sys_socketpair"
+		},
+		"__do_sys_splice" : 
+		{
+			"type" : "func __do_sys_splice"
+		},
+		"__do_sys_statfs" : 
+		{
+			"type" : "func __do_sys_statfs"
+		},
+		"__do_sys_statx" : 
+		{
+			"type" : "func __do_sys_statx"
+		},
+		"__do_sys_swapoff" : 
+		{
+			"type" : "func __do_sys_swapoff"
+		},
+		"__do_sys_swapon" : 
+		{
+			"type" : "func __do_sys_swapon"
+		},
+		"__do_sys_symlinkat" : 
+		{
+			"type" : "func __do_sys_symlinkat"
+		},
+		"__do_sys_sync_file_range" : 
+		{
+			"type" : "func __do_sys_sync_file_range"
+		},
+		"__do_sys_syncfs" : 
+		{
+			"type" : "func __do_sys_syncfs"
+		},
+		"__do_sys_sysinfo" : 
+		{
+			"type" : "func __do_sys_sysinfo"
+		},
+		"__do_sys_syslog" : 
+		{
+			"type" : "func __do_sys_syslog"
+		},
+		"__do_sys_tee" : 
+		{
+			"type" : "func __do_sys_tee"
+		},
+		"__do_sys_tgkill" : 
+		{
+			"type" : "func __do_sys_tgkill"
+		},
+		"__do_sys_timer_create" : 
+		{
+			"type" : "func __do_sys_timer_create"
+		},
+		"__do_sys_timer_delete" : 
+		{
+			"type" : "func __do_sys_timer_delete"
+		},
+		"__do_sys_timer_getoverrun" : 
+		{
+			"type" : "func __do_sys_timer_getoverrun"
+		},
+		"__do_sys_timer_gettime" : 
+		{
+			"type" : "func __do_sys_timer_gettime"
+		},
+		"__do_sys_timer_settime" : 
+		{
+			"type" : "func __do_sys_timer_settime"
+		},
+		"__do_sys_timerfd_create" : 
+		{
+			"type" : "func __do_sys_timerfd_create"
+		},
+		"__do_sys_timerfd_gettime" : 
+		{
+			"type" : "func __do_sys_timerfd_gettime"
+		},
+		"__do_sys_timerfd_settime" : 
+		{
+			"type" : "func __do_sys_timerfd_settime"
+		},
+		"__do_sys_times" : 
+		{
+			"type" : "func __do_sys_times"
+		},
+		"__do_sys_tkill" : 
+		{
+			"type" : "func __do_sys_tkill"
+		},
+		"__do_sys_truncate" : 
+		{
+			"type" : "func __do_sys_truncate"
+		},
+		"__do_sys_umask" : 
+		{
+			"type" : "func __do_sys_umask"
+		},
+		"__do_sys_umount" : 
+		{
+			"type" : "func __do_sys_umount"
+		},
+		"__do_sys_unlinkat" : 
+		{
+			"type" : "func __do_sys_unlinkat"
+		},
+		"__do_sys_unshare" : 
+		{
+			"type" : "func __do_sys_unshare"
+		},
+		"__do_sys_userfaultfd" : 
+		{
+			"type" : "func __do_sys_userfaultfd"
+		},
+		"__do_sys_utimensat" : 
+		{
+			"type" : "func __do_sys_utimensat"
+		},
+		"__do_sys_vmsplice" : 
+		{
+			"type" : "func __do_sys_vmsplice"
+		},
+		"__do_sys_wait4" : 
+		{
+			"type" : "func __do_sys_wait4"
+		},
+		"__do_sys_waitid" : 
+		{
+			"type" : "func __do_sys_waitid"
+		},
+		"__do_sys_write" : 
+		{
+			"type" : "func __do_sys_write"
+		},
+		"__do_sys_writev" : 
+		{
+			"type" : "func __do_sys_writev"
+		}
+	},
+	"types" : 
+	{
+		"func #49" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #49*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #49",
+			"size" : 64
+		},
+		"func #52" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"union sigval"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #52*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #52",
+			"size" : 64
+		},
+		"func __do_sys_accept" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_accept4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_add_key" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_adjtimex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __kernel_timex*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_bind" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_bpf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"union bpf_attr*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_brk" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_capget" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __user_cap_header_struct*",
+				"struct __user_cap_data_struct*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_capset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __user_cap_header_struct*",
+				"struct __user_cap_data_struct* const"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_chdir" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_chroot" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clock_adjtime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"struct __kernel_timex*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clock_getres" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clock_gettime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clock_nanosleep" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"int32",
+				"struct __kernel_timespec const*",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clock_settime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"struct __kernel_timespec const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clone" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"int32*",
+				"unsigned int64",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_clone3" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct clone_args*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_close" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_close_range" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_connect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_copy_file_range" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int64*",
+				"int32",
+				"int64*",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_delete_module" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_dup" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_dup3" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_epoll_create1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_epoll_ctl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"struct epoll_event*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_epoll_pwait" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct epoll_event*",
+				"int32",
+				"int32",
+				"struct sigset_t const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_epoll_pwait2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct epoll_event*",
+				"int32",
+				"struct __kernel_timespec const*",
+				"struct sigset_t const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_eventfd2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_execve" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const* const*",
+				"unsigned char8 const* const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_execveat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned char8 const* const*",
+				"unsigned char8 const* const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_exit" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_exit_group" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_faccessat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_faccessat2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fadvise64_64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int64",
+				"int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fallocate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int64",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fchdir" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fchmod" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int16"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fchmodat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int16"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fchown" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fchownat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fcntl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fdatasync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fgetxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"void*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_finit_module" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_flistxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_flock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fremovexattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fsconfig" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"unsigned char8 const*",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fsetxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fsmount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fsopen" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fspick" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fstatfs" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct statfs*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_fsync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ftruncate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_futex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"unsigned int32",
+				"struct __kernel_timespec const*",
+				"unsigned int32*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_futex_waitv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct futex_waitv*",
+				"unsigned int32",
+				"unsigned int32",
+				"struct __kernel_timespec*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_get_robust_list" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct robust_list_head**",
+				"unsigned int64*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getcpu" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"unsigned int32*",
+				"struct getcpu_cache*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getcwd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getdents64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct linux_dirent64*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getgroups" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getitimer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_old_itimerval*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getpeername" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getpgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getpriority" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getrandom" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getresgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"unsigned int32*",
+				"unsigned int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getresuid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"unsigned int32*",
+				"unsigned int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getrlimit" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct rlimit*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getrusage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct rusage*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getsid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getsockname" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sockaddr*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getsockopt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"unsigned char8*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_gettimeofday" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __kernel_old_timeval*",
+				"struct timezone*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_getxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"void*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_init_module" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"unsigned int64",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_inotify_add_watch" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_inotify_init1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_inotify_rm_watch" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_cancel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iocb*",
+				"struct io_event*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_destroy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_getevents" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"int64",
+				"int64",
+				"struct io_event*",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_pgetevents" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"int64",
+				"int64",
+				"struct io_event*",
+				"struct __kernel_timespec*",
+				"struct __aio_sigset const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_setup" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int64*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_submit" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"int64",
+				"struct iocb**"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_uring_enter" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_uring_register" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"void*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_io_uring_setup" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct io_uring_params*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ioctl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ioprio_get" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ioprio_set" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_kcmp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_keyctl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_kill" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_lgetxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"void*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_linkat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_listen" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_listxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_llistxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_lremovexattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_lseek" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_lsetxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_madvise" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_membarrier" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_memfd_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_memfd_secret" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mincore" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned char8*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mkdirat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int16"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mknodat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int16",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mlock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mlock2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mlockall" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mmap" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned int64",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mount_setattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"struct mount_attr*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_move_mount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mprotect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_mremap" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_msync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_munlock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_munmap" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_nanosleep" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __kernel_timespec*",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_newfstat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct stat*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_newfstatat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"struct stat*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_newuname" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct new_utsname*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_open_tree" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_openat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"unsigned int16"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_openat2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"struct open_how*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_perf_event_open" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct perf_event_attr*",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_personality" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pidfd_getfd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pidfd_open" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pidfd_send_signal" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct siginfo*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pipe2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pivot_root" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ppoll" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct pollfd*",
+				"unsigned int32",
+				"struct __kernel_timespec*",
+				"struct sigset_t const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_prctl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pread64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8*",
+				"unsigned int64",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_preadv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_preadv2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_prlimit64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"struct rlimit64 const*",
+				"struct rlimit64*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_process_madvise" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct iovec const*",
+				"unsigned int64",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_process_mrelease" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_process_vm_readv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct iovec const*",
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_process_vm_writev" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct iovec const*",
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pselect6" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_fd_set*",
+				"struct __kernel_fd_set*",
+				"struct __kernel_fd_set*",
+				"struct __kernel_timespec*",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_ptrace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int64",
+				"int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pwrite64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8 const*",
+				"unsigned int64",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pwritev" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_pwritev2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_quotactl" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_quotactl_fd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_read" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_readahead" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_readlinkat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_readv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_reboot" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_recvfrom" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"void*",
+				"unsigned int64",
+				"unsigned int32",
+				"struct sockaddr*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_recvmmsg" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct mmsghdr*",
+				"unsigned int32",
+				"unsigned int32",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_recvmsg" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct user_msghdr*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_remap_file_pages" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_removexattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_renameat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_renameat2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_request_key" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigaction" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sigaction const*",
+				"struct sigaction*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigpending" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct sigset_t*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigprocmask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sigset_t*",
+				"struct sigset_t*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigqueueinfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct siginfo*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigsuspend" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct sigset_t*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_sigtimedwait" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct sigset_t const*",
+				"struct siginfo*",
+				"struct __kernel_timespec const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_rt_tgsigqueueinfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"struct siginfo*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_get_priority_max" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_get_priority_min" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_getaffinity" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"unsigned int64*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_getattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sched_attr*",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_getparam" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sched_param*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_getscheduler" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_rr_get_interval" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_timespec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_setaffinity" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"unsigned int64*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_setattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sched_attr*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_setparam" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sched_param*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sched_setscheduler" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct sched_param*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_seccomp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sendfile64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int64*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sendmmsg" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct mmsghdr*",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sendmsg" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct user_msghdr*",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sendto" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"void*",
+				"unsigned int64",
+				"unsigned int32",
+				"struct sockaddr*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_set_robust_list" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct robust_list_head*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_set_tid_address" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setdomainname" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setfsgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setfsuid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setgroups" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sethostname" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setitimer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_old_itimerval*",
+				"struct __kernel_old_itimerval*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setns" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setpgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setpriority" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setregid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setresgid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setresuid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setreuid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setrlimit" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct rlimit*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setsockopt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_settimeofday" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct __kernel_old_timeval*",
+				"struct timezone*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setuid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_setxattr" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_shutdown" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sigaltstack" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct sigaltstack const*",
+				"struct sigaltstack*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_signalfd4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct sigset_t*",
+				"unsigned int64",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_socket" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_socketpair" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_splice" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int64*",
+				"int32",
+				"int64*",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_statfs" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"struct statfs*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_statx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"unsigned int32",
+				"struct statx*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_swapoff" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_swapon" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_symlinkat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sync_file_range" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int64",
+				"int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_syncfs" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_sysinfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct sysinfo*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_syslog" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_tee" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_tgkill" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timer_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const",
+				"struct sigevent*",
+				"int32*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timer_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timer_getoverrun" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timer_gettime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_itimerspec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timer_settime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct __kernel_itimerspec const*",
+				"struct __kernel_itimerspec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timerfd_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timerfd_gettime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct __kernel_itimerspec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_timerfd_settime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct __kernel_itimerspec const*",
+				"struct __kernel_itimerspec*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_times" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct tms*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_tkill" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_truncate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_umask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_umount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_unlinkat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_unshare" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_userfaultfd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_utimensat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*",
+				"struct __kernel_timespec*",
+				"int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_vmsplice" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct iovec const*",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_wait4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32*",
+				"int32",
+				"struct rusage*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_waitid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"struct siginfo*",
+				"int32",
+				"struct rusage*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_write" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func __do_sys_writev" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"struct iovec const*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"int16" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 16
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32 const" : 
+		{
+			"base_type" : "int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int32[12]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 384
+		},
+		"int32[2]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 64
+		},
+		"int32[32]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 1024
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64",
+			"size" : 64
+		},
+		"int64[4]" : 
+		{
+			"element_type" : "int64",
+			"kind" : "array",
+			"size" : 256
+		},
+		"struct __aio_sigset" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sigmask",
+					"offset" : 0,
+					"type" : "struct sigset_t const*"
+				},
+				{
+					"name" : "sigsetsize",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __aio_sigset const" : 
+		{
+			"base_type" : "struct __aio_sigset",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct __aio_sigset const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __aio_sigset const",
+			"size" : 64
+		},
+		"struct __kernel_fd_set" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "fds_bits",
+					"offset" : 0,
+					"type" : "unsigned int64[16]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1024
+		},
+		"struct __kernel_fd_set*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_fd_set",
+			"size" : 64
+		},
+		"struct __kernel_fsid_t" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "val",
+					"offset" : 0,
+					"type" : "int32[2]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct __kernel_itimerspec" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "it_interval",
+					"offset" : 0,
+					"type" : "struct __kernel_timespec"
+				},
+				{
+					"name" : "it_value",
+					"offset" : 128,
+					"type" : "struct __kernel_timespec"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __kernel_itimerspec const" : 
+		{
+			"base_type" : "struct __kernel_itimerspec",
+			"kind" : "const",
+			"size" : 256
+		},
+		"struct __kernel_itimerspec const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_itimerspec const",
+			"size" : 64
+		},
+		"struct __kernel_itimerspec*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_itimerspec",
+			"size" : 64
+		},
+		"struct __kernel_old_itimerval" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "it_interval",
+					"offset" : 0,
+					"type" : "struct __kernel_old_timeval"
+				},
+				{
+					"name" : "it_value",
+					"offset" : 128,
+					"type" : "struct __kernel_old_timeval"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __kernel_old_itimerval*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_old_itimerval",
+			"size" : 64
+		},
+		"struct __kernel_old_timeval" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tv_sec",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "tv_usec",
+					"offset" : 64,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __kernel_old_timeval*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_old_timeval",
+			"size" : 64
+		},
+		"struct __kernel_timespec" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tv_sec",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "tv_nsec",
+					"offset" : 64,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __kernel_timespec const" : 
+		{
+			"base_type" : "struct __kernel_timespec",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct __kernel_timespec const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_timespec const",
+			"size" : 64
+		},
+		"struct __kernel_timespec*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_timespec",
+			"size" : 64
+		},
+		"struct __kernel_timex" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "modes",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "offset",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "freq",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "maxerror",
+					"offset" : 192,
+					"type" : "int64"
+				},
+				{
+					"name" : "esterror",
+					"offset" : 256,
+					"type" : "int64"
+				},
+				{
+					"name" : "status",
+					"offset" : 320,
+					"type" : "int32"
+				},
+				{
+					"name" : "constant",
+					"offset" : 384,
+					"type" : "int64"
+				},
+				{
+					"name" : "precision",
+					"offset" : 448,
+					"type" : "int64"
+				},
+				{
+					"name" : "tolerance",
+					"offset" : 512,
+					"type" : "int64"
+				},
+				{
+					"name" : "time",
+					"offset" : 576,
+					"type" : "struct __kernel_timex_timeval"
+				},
+				{
+					"name" : "tick",
+					"offset" : 704,
+					"type" : "int64"
+				},
+				{
+					"name" : "ppsfreq",
+					"offset" : 768,
+					"type" : "int64"
+				},
+				{
+					"name" : "jitter",
+					"offset" : 832,
+					"type" : "int64"
+				},
+				{
+					"name" : "shift",
+					"offset" : 896,
+					"type" : "int32"
+				},
+				{
+					"name" : "stabil",
+					"offset" : 960,
+					"type" : "int64"
+				},
+				{
+					"name" : "jitcnt",
+					"offset" : 1024,
+					"type" : "int64"
+				},
+				{
+					"name" : "calcnt",
+					"offset" : 1088,
+					"type" : "int64"
+				},
+				{
+					"name" : "errcnt",
+					"offset" : 1152,
+					"type" : "int64"
+				},
+				{
+					"name" : "stbcnt",
+					"offset" : 1216,
+					"type" : "int64"
+				},
+				{
+					"name" : "tai",
+					"offset" : 1280,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1664
+		},
+		"struct __kernel_timex*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __kernel_timex",
+			"size" : 64
+		},
+		"struct __kernel_timex_timeval" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tv_sec",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "tv_usec",
+					"offset" : 64,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#38" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct __sifields::#39" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_tid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_overrun",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sigval",
+					"offset" : 64,
+					"type" : "union sigval"
+				},
+				{
+					"name" : "_sys_private",
+					"offset" : 128,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct __sifields::#40" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_sigval",
+					"offset" : 64,
+					"type" : "union sigval"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#41" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_status",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_utime",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "_stime",
+					"offset" : 192,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __sifields::#42" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_addr",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "",
+					"offset" : 64,
+					"type" : "union __sifields::#42::#43"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __sifields::#42::#43::#44" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_dummy_bnd",
+					"offset" : 0,
+					"type" : "unsigned char8[8]"
+				},
+				{
+					"name" : "_lower",
+					"offset" : 64,
+					"type" : "void*"
+				},
+				{
+					"name" : "_upper",
+					"offset" : 128,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct __sifields::#42::#43::#45" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_dummy_pkey",
+					"offset" : 0,
+					"type" : "unsigned char8[8]"
+				},
+				{
+					"name" : "_pkey",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct __sifields::#42::#43::#46" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_data",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "_type",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#47" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_band",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "_fd",
+					"offset" : 64,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#48" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_call_addr",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "_syscall",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_arch",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#55" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct __sifields::#56" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_tid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_overrun",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sigval",
+					"offset" : 64,
+					"type" : "union sigval"
+				},
+				{
+					"name" : "_sys_private",
+					"offset" : 128,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct __sifields::#57" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_sigval",
+					"offset" : 64,
+					"type" : "union sigval"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#58" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_uid",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_status",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_utime",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "_stime",
+					"offset" : 192,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __sifields::#59" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_addr",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "",
+					"offset" : 64,
+					"type" : "union __sifields::#59::#60"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct __sifields::#59::#60::#61" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_dummy_bnd",
+					"offset" : 0,
+					"type" : "unsigned char8[8]"
+				},
+				{
+					"name" : "_lower",
+					"offset" : 64,
+					"type" : "void*"
+				},
+				{
+					"name" : "_upper",
+					"offset" : 128,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct __sifields::#59::#60::#62" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_dummy_pkey",
+					"offset" : 0,
+					"type" : "unsigned char8[8]"
+				},
+				{
+					"name" : "_pkey",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct __sifields::#59::#60::#63" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_data",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "_type",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#64" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_band",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "_fd",
+					"offset" : 64,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __sifields::#65" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_call_addr",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "_syscall",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_arch",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct __user_cap_data_struct" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "effective",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "permitted",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "inheritable",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct __user_cap_data_struct*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __user_cap_data_struct",
+			"size" : 64
+		},
+		"struct __user_cap_data_struct* const" : 
+		{
+			"base_type" : "struct __user_cap_data_struct*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct __user_cap_header_struct" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "version",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "pid",
+					"offset" : 32,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct __user_cap_header_struct*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct __user_cap_header_struct",
+			"size" : 64
+		},
+		"struct bpf_attr::#10" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "pathname",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "bpf_fd",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "file_flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#11" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "target_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_bpf_fd",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_type",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "replace_bpf_fd",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 160
+		},
+		"struct bpf_attr::#12" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "prog_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "retval",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "data_size_in",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "data_size_out",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "data_in",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "data_out",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "repeat",
+					"offset" : 256,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "duration",
+					"offset" : 288,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ctx_size_in",
+					"offset" : 320,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ctx_size_out",
+					"offset" : 352,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ctx_in",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "ctx_out",
+					"offset" : 448,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "flags",
+					"offset" : 512,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "cpu",
+					"offset" : 544,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "batch_size",
+					"offset" : 576,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 640
+		},
+		"struct bpf_attr::#13" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "union bpf_attr::#13::#14"
+				},
+				{
+					"name" : "next_id",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "open_flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct bpf_attr::#15" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "bpf_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "info_len",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "info",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#16" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "target_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_type",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "query_flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_ids",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "prog_cnt",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_attach_flags",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct bpf_attr::#17" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "name",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "prog_fd",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#18" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "btf",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "btf_log_buf",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "btf_size",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_log_size",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_log_level",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct bpf_attr::#19" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "pid",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "fd",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "buf_len",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "buf",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "prog_id",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "fd_type",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "probe_offset",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "probe_addr",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 384
+		},
+		"struct bpf_attr::#20" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "prog_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "",
+					"offset" : 32,
+					"type" : "union bpf_attr::#20::#21"
+				},
+				{
+					"name" : "attach_type",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "",
+					"offset" : 128,
+					"type" : "union bpf_attr::#20::#22"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 384
+		},
+		"struct bpf_attr::#20::#22::#23" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "iter_info",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "iter_info_len",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#20::#22::#24" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "bpf_cookie",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct bpf_attr::#20::#22::#25" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "flags",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "cnt",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "syms",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "addrs",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "cookies",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct bpf_attr::#20::#22::#26" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "target_btf_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "cookie",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#27" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "link_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "new_prog_fd",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "old_prog_fd",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct bpf_attr::#28" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "link_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 32
+		},
+		"struct bpf_attr::#29" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "type",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 32
+		},
+		"struct bpf_attr::#30" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "link_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct bpf_attr::#31" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "prog_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_fd",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct bpf_attr::#4" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "map_type",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "key_size",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "value_size",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "max_entries",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_flags",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "inner_map_fd",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "numa_node",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_name",
+					"offset" : 224,
+					"type" : "unsigned char8[16]"
+				},
+				{
+					"name" : "map_ifindex",
+					"offset" : 352,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_fd",
+					"offset" : 384,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_key_type_id",
+					"offset" : 416,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_value_type_id",
+					"offset" : 448,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_vmlinux_value_type_id",
+					"offset" : 480,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_extra",
+					"offset" : 512,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 576
+		},
+		"struct bpf_attr::#5" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "map_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "key",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "",
+					"offset" : 128,
+					"type" : "union bpf_attr::#5::#6"
+				},
+				{
+					"name" : "flags",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct bpf_attr::#7" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "in_batch",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "out_batch",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "keys",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "values",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "count",
+					"offset" : 256,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_fd",
+					"offset" : 288,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "elem_flags",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "flags",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct bpf_attr::#8" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "prog_type",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "insn_cnt",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "insns",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "license",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "log_level",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "log_size",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "log_buf",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "kern_version",
+					"offset" : 320,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_flags",
+					"offset" : 352,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_name",
+					"offset" : 384,
+					"type" : "unsigned char8[16]"
+				},
+				{
+					"name" : "prog_ifindex",
+					"offset" : 512,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "expected_attach_type",
+					"offset" : 544,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_btf_fd",
+					"offset" : 576,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "func_info_rec_size",
+					"offset" : 608,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "func_info",
+					"offset" : 640,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "func_info_cnt",
+					"offset" : 704,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "line_info_rec_size",
+					"offset" : 736,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "line_info",
+					"offset" : 768,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "line_info_cnt",
+					"offset" : 832,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_btf_id",
+					"offset" : 864,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "",
+					"offset" : 896,
+					"type" : "union bpf_attr::#8::#9"
+				},
+				{
+					"name" : "core_relo_cnt",
+					"offset" : 928,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "fd_array",
+					"offset" : 960,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "core_relos",
+					"offset" : 1024,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "core_relo_rec_size",
+					"offset" : 1088,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1152
+		},
+		"struct clone_args" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "flags",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "pidfd",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "child_tid",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "parent_tid",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exit_signal",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stack",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stack_size",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "tls",
+					"offset" : 448,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "set_tid",
+					"offset" : 512,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "set_tid_size",
+					"offset" : 576,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "cgroup",
+					"offset" : 640,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 704
+		},
+		"struct clone_args*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct clone_args",
+			"size" : 64
+		},
+		"struct epoll_event" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "events",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "data",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct epoll_event*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct epoll_event",
+			"size" : 64
+		},
+		"struct futex_waitv" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "val",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "uaddr",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "flags",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__reserved",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct futex_waitv*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct futex_waitv",
+			"size" : 64
+		},
+		"struct getcpu_cache" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "blob",
+					"offset" : 0,
+					"type" : "unsigned int64[16]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1024
+		},
+		"struct getcpu_cache*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct getcpu_cache",
+			"size" : 64
+		},
+		"struct io_cqring_offsets" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "head",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "tail",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ring_mask",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ring_entries",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "overflow",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "cqes",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "resv1",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "resv2",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct io_event" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "data",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "obj",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "res",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "res2",
+					"offset" : 192,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct io_event*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct io_event",
+			"size" : 64
+		},
+		"struct io_sqring_offsets" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "head",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "tail",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ring_mask",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "ring_entries",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "dropped",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "array",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "resv1",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "resv2",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct io_uring_params" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sq_entries",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "cq_entries",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sq_thread_cpu",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sq_thread_idle",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "features",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "wq_fd",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "resv",
+					"offset" : 224,
+					"type" : "unsigned int32[3]"
+				},
+				{
+					"name" : "sq_off",
+					"offset" : 320,
+					"type" : "struct io_sqring_offsets"
+				},
+				{
+					"name" : "cq_off",
+					"offset" : 640,
+					"type" : "struct io_cqring_offsets"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 960
+		},
+		"struct io_uring_params*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct io_uring_params",
+			"size" : 64
+		},
+		"struct iocb" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "aio_data",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aio_key",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "aio_rw_flags",
+					"offset" : 96,
+					"type" : "int32"
+				},
+				{
+					"name" : "aio_lio_opcode",
+					"offset" : 128,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "aio_reqprio",
+					"offset" : 144,
+					"type" : "int16"
+				},
+				{
+					"name" : "aio_fildes",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "aio_buf",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aio_nbytes",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aio_offset",
+					"offset" : 320,
+					"type" : "int64"
+				},
+				{
+					"name" : "aio_reserved2",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aio_flags",
+					"offset" : 448,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "aio_resfd",
+					"offset" : 480,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 512
+		},
+		"struct iocb*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct iocb",
+			"size" : 64
+		},
+		"struct iocb**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct iocb*",
+			"size" : 64
+		},
+		"struct iovec" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "iov_base",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "iov_len",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct iovec const" : 
+		{
+			"base_type" : "struct iovec",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct iovec const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct iovec const",
+			"size" : 64
+		},
+		"struct iovec*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct iovec",
+			"size" : 64
+		},
+		"struct linux_dirent64" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "d_ino",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "d_off",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "d_reclen",
+					"offset" : 128,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "d_type",
+					"offset" : 144,
+					"type" : "unsigned char8"
+				},
+				{
+					"name" : "d_name",
+					"offset" : 152,
+					"type" : "unsigned char8[1]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct linux_dirent64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct linux_dirent64",
+			"size" : 64
+		},
+		"struct mmsghdr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "msg_hdr",
+					"offset" : 0,
+					"type" : "struct user_msghdr"
+				},
+				{
+					"name" : "msg_len",
+					"offset" : 448,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 512
+		},
+		"struct mmsghdr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct mmsghdr",
+			"size" : 64
+		},
+		"struct mount_attr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "attr_set",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "attr_clr",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "propagation",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "userns_fd",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct mount_attr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct mount_attr",
+			"size" : 64
+		},
+		"struct new_utsname" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sysname",
+					"offset" : 0,
+					"type" : "unsigned char8[65]"
+				},
+				{
+					"name" : "nodename",
+					"offset" : 520,
+					"type" : "unsigned char8[65]"
+				},
+				{
+					"name" : "release",
+					"offset" : 1040,
+					"type" : "unsigned char8[65]"
+				},
+				{
+					"name" : "version",
+					"offset" : 1560,
+					"type" : "unsigned char8[65]"
+				},
+				{
+					"name" : "machine",
+					"offset" : 2080,
+					"type" : "unsigned char8[65]"
+				},
+				{
+					"name" : "domainname",
+					"offset" : 2600,
+					"type" : "unsigned char8[65]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 3120
+		},
+		"struct new_utsname*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct new_utsname",
+			"size" : 64
+		},
+		"struct open_how" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "flags",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mode",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "resolve",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct open_how*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct open_how",
+			"size" : 64
+		},
+		"struct perf_event_attr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "type",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "size",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "config",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "",
+					"offset" : 128,
+					"type" : "union perf_event_attr::#32"
+				},
+				{
+					"name" : "sample_type",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "read_format",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "disabled",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "inherit",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "pinned",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclusive",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_user",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_kernel",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_hv",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_idle",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mmap",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "comm",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "freq",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "inherit_stat",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "enable_on_exec",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "task",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "watermark",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "precise_ip",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mmap_data",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sample_id_all",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_host",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_guest",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_callchain_kernel",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "exclude_callchain_user",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mmap2",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "comm_exec",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "use_clockid",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "context_switch",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "write_backward",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "namespaces",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "ksymbol",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "bpf_event",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aux_output",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "cgroup",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "text_poke",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "build_id",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "inherit_thread",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "remove_on_exec",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sigtrap",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "__reserved_1",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "",
+					"offset" : 384,
+					"type" : "union perf_event_attr::#33"
+				},
+				{
+					"name" : "bp_type",
+					"offset" : 416,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "",
+					"offset" : 448,
+					"type" : "union perf_event_attr::#34"
+				},
+				{
+					"name" : "",
+					"offset" : 512,
+					"type" : "union perf_event_attr::#35"
+				},
+				{
+					"name" : "branch_sample_type",
+					"offset" : 576,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sample_regs_user",
+					"offset" : 640,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sample_stack_user",
+					"offset" : 704,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "clockid",
+					"offset" : 736,
+					"type" : "int32"
+				},
+				{
+					"name" : "sample_regs_intr",
+					"offset" : 768,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "aux_watermark",
+					"offset" : 832,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sample_max_stack",
+					"offset" : 864,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "__reserved_2",
+					"offset" : 880,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "aux_sample_size",
+					"offset" : 896,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__reserved_3",
+					"offset" : 928,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sig_data",
+					"offset" : 960,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1024
+		},
+		"struct perf_event_attr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct perf_event_attr",
+			"size" : 64
+		},
+		"struct pollfd" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "fd",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "events",
+					"offset" : 32,
+					"type" : "int16"
+				},
+				{
+					"name" : "revents",
+					"offset" : 48,
+					"type" : "int16"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct pollfd*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct pollfd",
+			"size" : 64
+		},
+		"struct rlimit" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "rlim_cur",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "rlim_max",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct rlimit*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct rlimit",
+			"size" : 64
+		},
+		"struct rlimit64" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "rlim_cur",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "rlim_max",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct rlimit64 const" : 
+		{
+			"base_type" : "struct rlimit64",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct rlimit64 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct rlimit64 const",
+			"size" : 64
+		},
+		"struct rlimit64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct rlimit64",
+			"size" : 64
+		},
+		"struct robust_list" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "next",
+					"offset" : 0,
+					"type" : "struct robust_list*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct robust_list*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct robust_list",
+			"size" : 64
+		},
+		"struct robust_list_head" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "list",
+					"offset" : 0,
+					"type" : "struct robust_list"
+				},
+				{
+					"name" : "futex_offset",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "list_op_pending",
+					"offset" : 128,
+					"type" : "struct robust_list*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct robust_list_head*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct robust_list_head",
+			"size" : 64
+		},
+		"struct robust_list_head**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct robust_list_head*",
+			"size" : 64
+		},
+		"struct rusage" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "ru_utime",
+					"offset" : 0,
+					"type" : "struct __kernel_old_timeval"
+				},
+				{
+					"name" : "ru_stime",
+					"offset" : 128,
+					"type" : "struct __kernel_old_timeval"
+				},
+				{
+					"name" : "ru_maxrss",
+					"offset" : 256,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_ixrss",
+					"offset" : 320,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_idrss",
+					"offset" : 384,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_isrss",
+					"offset" : 448,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_minflt",
+					"offset" : 512,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_majflt",
+					"offset" : 576,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_nswap",
+					"offset" : 640,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_inblock",
+					"offset" : 704,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_oublock",
+					"offset" : 768,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_msgsnd",
+					"offset" : 832,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_msgrcv",
+					"offset" : 896,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_nsignals",
+					"offset" : 960,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_nvcsw",
+					"offset" : 1024,
+					"type" : "int64"
+				},
+				{
+					"name" : "ru_nivcsw",
+					"offset" : 1088,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1152
+		},
+		"struct rusage*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct rusage",
+			"size" : 64
+		},
+		"struct sched_attr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "size",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sched_policy",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sched_flags",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sched_nice",
+					"offset" : 128,
+					"type" : "int32"
+				},
+				{
+					"name" : "sched_priority",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sched_runtime",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sched_deadline",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sched_period",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sched_util_min",
+					"offset" : 384,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "sched_util_max",
+					"offset" : 416,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct sched_attr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sched_attr",
+			"size" : 64
+		},
+		"struct sched_param" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sched_priority",
+					"offset" : 0,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 32
+		},
+		"struct sched_param*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sched_param",
+			"size" : 64
+		},
+		"struct sigaction" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sa_handler",
+					"offset" : 0,
+					"type" : "func #49*"
+				},
+				{
+					"name" : "sa_flags",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sa_mask",
+					"offset" : 128,
+					"type" : "struct sigset_t"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct sigaction const" : 
+		{
+			"base_type" : "struct sigaction",
+			"kind" : "const",
+			"size" : 192
+		},
+		"struct sigaction const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigaction const",
+			"size" : 64
+		},
+		"struct sigaction*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigaction",
+			"size" : 64
+		},
+		"struct sigaltstack" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "ss_sp",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "ss_flags",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "ss_size",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct sigaltstack const" : 
+		{
+			"base_type" : "struct sigaltstack",
+			"kind" : "const",
+			"size" : 192
+		},
+		"struct sigaltstack const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigaltstack const",
+			"size" : 64
+		},
+		"struct sigaltstack*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigaltstack",
+			"size" : 64
+		},
+		"struct sigevent" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sigev_value",
+					"offset" : 0,
+					"type" : "union sigval"
+				},
+				{
+					"name" : "sigev_signo",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "sigev_notify",
+					"offset" : 96,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sigev_un",
+					"offset" : 128,
+					"type" : "union sigevent::#50"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 512
+		},
+		"struct sigevent*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigevent",
+			"size" : 64
+		},
+		"struct sigevent::#50::#51" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_function",
+					"offset" : 0,
+					"type" : "func #52*"
+				},
+				{
+					"name" : "_attribute",
+					"offset" : 64,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct siginfo" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "union siginfo::#53"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1024
+		},
+		"struct siginfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct siginfo",
+			"size" : 64
+		},
+		"struct siginfo::#36::#37" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "si_signo",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "si_errno",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "si_code",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sifields",
+					"offset" : 128,
+					"type" : "union __sifields"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 384
+		},
+		"struct siginfo::#53::#54" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "si_signo",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "si_errno",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "si_code",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sifields",
+					"offset" : 128,
+					"type" : "union __sifields"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 384
+		},
+		"struct sigset_t" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sig",
+					"offset" : 0,
+					"type" : "unsigned int64[1]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct sigset_t const" : 
+		{
+			"base_type" : "struct sigset_t",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct sigset_t const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigset_t const",
+			"size" : 64
+		},
+		"struct sigset_t*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sigset_t",
+			"size" : 64
+		},
+		"struct sockaddr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sa_family",
+					"offset" : 0,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "",
+					"offset" : 16,
+					"type" : "union sockaddr::#1"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct sockaddr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sockaddr",
+			"size" : 64
+		},
+		"struct sockaddr::#1::#2" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__empty_sa_data",
+					"offset" : 0,
+					"type" : "struct sockaddr::#1::#2::#3"
+				},
+				{
+					"name" : "sa_data",
+					"offset" : 0,
+					"type" : "unsigned char8[1]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 0
+		},
+		"struct sockaddr::#1::#2::#3" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 0
+		},
+		"struct stat" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "st_dev",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "st_ino",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "st_mode",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "st_nlink",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "st_uid",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "st_gid",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "st_rdev",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "__pad1",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "st_size",
+					"offset" : 384,
+					"type" : "int64"
+				},
+				{
+					"name" : "st_blksize",
+					"offset" : 448,
+					"type" : "int32"
+				},
+				{
+					"name" : "__pad2",
+					"offset" : 480,
+					"type" : "int32"
+				},
+				{
+					"name" : "st_blocks",
+					"offset" : 512,
+					"type" : "int64"
+				},
+				{
+					"name" : "st_atime",
+					"offset" : 576,
+					"type" : "int64"
+				},
+				{
+					"name" : "st_atime_nsec",
+					"offset" : 640,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "st_mtime",
+					"offset" : 704,
+					"type" : "int64"
+				},
+				{
+					"name" : "st_mtime_nsec",
+					"offset" : 768,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "st_ctime",
+					"offset" : 832,
+					"type" : "int64"
+				},
+				{
+					"name" : "st_ctime_nsec",
+					"offset" : 896,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "__unused4",
+					"offset" : 960,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__unused5",
+					"offset" : 992,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1024
+		},
+		"struct stat*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct stat",
+			"size" : 64
+		},
+		"struct statfs" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "f_type",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_bsize",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_blocks",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_bfree",
+					"offset" : 192,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_bavail",
+					"offset" : 256,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_files",
+					"offset" : 320,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_ffree",
+					"offset" : 384,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_fsid",
+					"offset" : 448,
+					"type" : "struct __kernel_fsid_t"
+				},
+				{
+					"name" : "f_namelen",
+					"offset" : 512,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_frsize",
+					"offset" : 576,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_flags",
+					"offset" : 640,
+					"type" : "int64"
+				},
+				{
+					"name" : "f_spare",
+					"offset" : 704,
+					"type" : "int64[4]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 960
+		},
+		"struct statfs*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct statfs",
+			"size" : 64
+		},
+		"struct statx" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "stx_mask",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_blksize",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_attributes",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_nlink",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_uid",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_gid",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_mode",
+					"offset" : 224,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "__spare0",
+					"offset" : 240,
+					"type" : "unsigned int16[1]"
+				},
+				{
+					"name" : "stx_ino",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_size",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_blocks",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_attributes_mask",
+					"offset" : 448,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_atime",
+					"offset" : 512,
+					"type" : "struct statx_timestamp"
+				},
+				{
+					"name" : "stx_btime",
+					"offset" : 640,
+					"type" : "struct statx_timestamp"
+				},
+				{
+					"name" : "stx_ctime",
+					"offset" : 768,
+					"type" : "struct statx_timestamp"
+				},
+				{
+					"name" : "stx_mtime",
+					"offset" : 896,
+					"type" : "struct statx_timestamp"
+				},
+				{
+					"name" : "stx_rdev_major",
+					"offset" : 1024,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_rdev_minor",
+					"offset" : 1056,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_dev_major",
+					"offset" : 1088,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_dev_minor",
+					"offset" : 1120,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_mnt_id",
+					"offset" : 1152,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stx_dio_mem_align",
+					"offset" : 1216,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stx_dio_offset_align",
+					"offset" : 1248,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__spare3",
+					"offset" : 1280,
+					"type" : "unsigned int64[12]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 2048
+		},
+		"struct statx*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct statx",
+			"size" : 64
+		},
+		"struct statx_timestamp" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tv_sec",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "tv_nsec",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__reserved",
+					"offset" : 96,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct sysinfo" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "uptime",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "loads",
+					"offset" : 64,
+					"type" : "unsigned int64[3]"
+				},
+				{
+					"name" : "totalram",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "freeram",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sharedram",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "bufferram",
+					"offset" : 448,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "totalswap",
+					"offset" : 512,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "freeswap",
+					"offset" : 576,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "procs",
+					"offset" : 640,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "pad",
+					"offset" : 656,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "totalhigh",
+					"offset" : 704,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "freehigh",
+					"offset" : 768,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mem_unit",
+					"offset" : 832,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "_f",
+					"offset" : 864,
+					"type" : "unsigned char8[0]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 896
+		},
+		"struct sysinfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct sysinfo",
+			"size" : 64
+		},
+		"struct timezone" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tz_minuteswest",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "tz_dsttime",
+					"offset" : 32,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct timezone*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct timezone",
+			"size" : 64
+		},
+		"struct tms" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "tms_utime",
+					"offset" : 0,
+					"type" : "int64"
+				},
+				{
+					"name" : "tms_stime",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "tms_cutime",
+					"offset" : 128,
+					"type" : "int64"
+				},
+				{
+					"name" : "tms_cstime",
+					"offset" : 192,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct tms*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct tms",
+			"size" : 64
+		},
+		"struct user_msghdr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "msg_name",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "msg_namelen",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "msg_iov",
+					"offset" : 128,
+					"type" : "struct iovec*"
+				},
+				{
+					"name" : "msg_iovlen",
+					"offset" : 192,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "msg_control",
+					"offset" : 256,
+					"type" : "void*"
+				},
+				{
+					"name" : "msg_controllen",
+					"offset" : 320,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "msg_flags",
+					"offset" : 384,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct user_msghdr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct user_msghdr",
+			"size" : 64
+		},
+		"union __sifields" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_kill",
+					"offset" : 0,
+					"type" : "struct __sifields::#55"
+				},
+				{
+					"name" : "_timer",
+					"offset" : 0,
+					"type" : "struct __sifields::#56"
+				},
+				{
+					"name" : "_rt",
+					"offset" : 0,
+					"type" : "struct __sifields::#57"
+				},
+				{
+					"name" : "_sigchld",
+					"offset" : 0,
+					"type" : "struct __sifields::#58"
+				},
+				{
+					"name" : "_sigfault",
+					"offset" : 0,
+					"type" : "struct __sifields::#59"
+				},
+				{
+					"name" : "_sigpoll",
+					"offset" : 0,
+					"type" : "struct __sifields::#64"
+				},
+				{
+					"name" : "_sigsys",
+					"offset" : 0,
+					"type" : "struct __sifields::#65"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 256
+		},
+		"union __sifields::#42::#43" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_trapno",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_addr_lsb",
+					"offset" : 0,
+					"type" : "int16"
+				},
+				{
+					"name" : "_addr_bnd",
+					"offset" : 0,
+					"type" : "struct __sifields::#42::#43::#44"
+				},
+				{
+					"name" : "_addr_pkey",
+					"offset" : 0,
+					"type" : "struct __sifields::#42::#43::#45"
+				},
+				{
+					"name" : "_perf",
+					"offset" : 0,
+					"type" : "struct __sifields::#42::#43::#46"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 192
+		},
+		"union __sifields::#59::#60" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_trapno",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_addr_lsb",
+					"offset" : 0,
+					"type" : "int16"
+				},
+				{
+					"name" : "_addr_bnd",
+					"offset" : 0,
+					"type" : "struct __sifields::#59::#60::#61"
+				},
+				{
+					"name" : "_addr_pkey",
+					"offset" : 0,
+					"type" : "struct __sifields::#59::#60::#62"
+				},
+				{
+					"name" : "_perf",
+					"offset" : 0,
+					"type" : "struct __sifields::#59::#60::#63"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 192
+		},
+		"union bpf_attr" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#4"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#5"
+				},
+				{
+					"name" : "batch",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#7"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#8"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#10"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#11"
+				},
+				{
+					"name" : "test",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#12"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#13"
+				},
+				{
+					"name" : "info",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#15"
+				},
+				{
+					"name" : "query",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#16"
+				},
+				{
+					"name" : "raw_tracepoint",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#17"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#18"
+				},
+				{
+					"name" : "task_fd_query",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#19"
+				},
+				{
+					"name" : "link_create",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#20"
+				},
+				{
+					"name" : "link_update",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#27"
+				},
+				{
+					"name" : "link_detach",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#28"
+				},
+				{
+					"name" : "enable_stats",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#29"
+				},
+				{
+					"name" : "iter_create",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#30"
+				},
+				{
+					"name" : "prog_bind_map",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#31"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 1152
+		},
+		"union bpf_attr*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "union bpf_attr",
+			"size" : 64
+		},
+		"union bpf_attr::#13::#14" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "start_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "prog_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "map_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "btf_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "link_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 32
+		},
+		"union bpf_attr::#20::#21" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "target_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "target_ifindex",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 32
+		},
+		"union bpf_attr::#20::#22" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "target_btf_id",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#20::#22::#23"
+				},
+				{
+					"name" : "perf_event",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#20::#22::#24"
+				},
+				{
+					"name" : "kprobe_multi",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#20::#22::#25"
+				},
+				{
+					"name" : "tracing",
+					"offset" : 0,
+					"type" : "struct bpf_attr::#20::#22::#26"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 256
+		},
+		"union bpf_attr::#5::#6" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "value",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "next_key",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 64
+		},
+		"union bpf_attr::#8::#9" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "attach_prog_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "attach_btf_obj_fd",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 32
+		},
+		"union perf_event_attr::#32" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sample_period",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "sample_freq",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 64
+		},
+		"union perf_event_attr::#33" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "wakeup_events",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "wakeup_watermark",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 32
+		},
+		"union perf_event_attr::#34" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "bp_addr",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "kprobe_func",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "uprobe_path",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "config1",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 64
+		},
+		"union perf_event_attr::#35" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "bp_len",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "kprobe_addr",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "probe_offset",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "config2",
+					"offset" : 0,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 64
+		},
+		"union sigevent::#50" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_pad",
+					"offset" : 0,
+					"type" : "int32[12]"
+				},
+				{
+					"name" : "_tid",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "_sigev_thread",
+					"offset" : 0,
+					"type" : "struct sigevent::#50::#51"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 384
+		},
+		"union siginfo::#36" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct siginfo::#36::#37"
+				},
+				{
+					"name" : "_si_pad",
+					"offset" : 0,
+					"type" : "int32[32]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 1024
+		},
+		"union siginfo::#53" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct siginfo::#53::#54"
+				},
+				{
+					"name" : "_si_pad",
+					"offset" : 0,
+					"type" : "int32[32]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 1024
+		},
+		"union sigval" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sival_int",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "sival_ptr",
+					"offset" : 0,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 64
+		},
+		"union sockaddr::#1" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "sa_data_min",
+					"offset" : 0,
+					"type" : "unsigned char8[14]"
+				},
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "struct sockaddr::#1::#2"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 112
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8 const" : 
+		{
+			"base_type" : "unsigned char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"unsigned char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const",
+			"size" : 64
+		},
+		"unsigned char8 const* const" : 
+		{
+			"base_type" : "unsigned char8 const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"unsigned char8 const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const* const",
+			"size" : 64
+		},
+		"unsigned char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8",
+			"size" : 64
+		},
+		"unsigned char8[0]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 0
+		},
+		"unsigned char8[14]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 112
+		},
+		"unsigned char8[16]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 128
+		},
+		"unsigned char8[1]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 8
+		},
+		"unsigned char8[65]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 520
+		},
+		"unsigned char8[8]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 64
+		},
+		"unsigned int16" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 16
+		},
+		"unsigned int16[1]" : 
+		{
+			"element_type" : "unsigned int16",
+			"kind" : "array",
+			"size" : 16
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		},
+		"unsigned int32[3]" : 
+		{
+			"element_type" : "unsigned int32",
+			"kind" : "array",
+			"size" : 96
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"unsigned int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64",
+			"size" : 64
+		},
+		"unsigned int64[12]" : 
+		{
+			"element_type" : "unsigned int64",
+			"kind" : "array",
+			"size" : 768
+		},
+		"unsigned int64[16]" : 
+		{
+			"element_type" : "unsigned int64",
+			"kind" : "array",
+			"size" : 1024
+		},
+		"unsigned int64[1]" : 
+		{
+			"element_type" : "unsigned int64",
+			"kind" : "array",
+			"size" : 64
+		},
+		"unsigned int64[3]" : 
+		{
+			"element_type" : "unsigned int64",
+			"kind" : "array",
+			"size" : 192
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		}
+	}
+}

@@ -1,0 +1,1723 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Name of the AdExtServices app that is deployed on S-. -->
+    <string name="app_name" translatable="false">Android Services Library</string>
+    <!-- Title of an application permission that lets it access AdServices Topics API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesTopics">access AdServices Topics API</string>
+    <!-- Description of an application permission that lets it access AdServices Topics API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesTopics">Allows an application to access AdServices Topics API.</string>
+
+    <!-- Title of an application permission that lets it access AdServices Attribution APIs. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesAttribution">access AdServices Attribution APIs</string>
+    <!-- Description of an application permission that lets it access AdServices Attribution APIs. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesAttribution">Allows an application to access AdServices Attribution APIs.</string>
+
+    <!-- Title of an application permission that lets it access AdServices Custom Audience API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesCustomAudience">access AdServices Custom Audience API</string>
+    <!-- Description of an application permission that lets it access AdServices Custom Audience API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesCustomAudience">Allows an application to access AdServices Custom Audience API.</string>
+
+    <!-- Title of an application permission that lets it access Advertising ID API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesAdId">Access to AdId API</string>
+    <!-- Description of an application permission that lets it access AdId API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesAdId">Allows an application to access AdId API.</string>
+
+
+    <!-- Title of an application permission that lets it access AdServices Consent API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesConsent">access AdServices Consent API</string>
+    <!--Description of an application permission that lets it access AdServices Consent API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesConsent">Allows an application to access AdServices Consent API.</string>
+
+    <!-- Title of an application permission that lets it access Ad ID API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_adServicesAccessAdId">Access to Ad ID API</string>
+    <!-- Description of an application permission that lets it access Ad ID API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_adServicesAccessAdId">Allows an application to access Ad ID API.</string>
+
+    <!-- Title of an application permission that lets it access AdServices Cobalt Upload API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload">Access to AdServices Cobalt Upload API</string>
+    <!-- Description of an application permission that lets it access AdServices Cobalt Upload API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload">Allows an application to access AdServices Cobalt Upload API.</string>
+
+    <!-- Title of an application permission that lets it access App Set ID API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_adServicesAccessAppSetId">Access to App Set ID API</string>
+    <!-- Description of an application permission that lets it access App Set ID API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_adServicesAccessAppSetId">Allows an application to access App Set ID API.</string>
+
+    <!-- Title of an application permission that lets it access Consent Service API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_adServicesAccessConsentService">Access to Consent Service API</string>
+    <!-- Description of an application permission that lets it access Consent Service API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_adServicesAccessConsentService">Allows an application to access Consent Service API.</string>
+
+    <!-- Title of an application permission that lets it access AdService's enablement state modification API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_modifyAdServicesState">Access to AdService’s enablement state modification API</string>
+    <!-- Description of an application permission that lets it access AdService's enablement state modification API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_modifyAdServicesState">Allows an application to access AdService’s enablement state modification API.</string>
+
+    <!-- Title of an application permission that lets it access AdService's enablement state API. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesState">Access to AdService’s enablement state API</string>
+    <!-- Description of an application permission that lets it access AdService's enablement state API. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesState">Allows an application to access AdService’s enablement state API.</string>
+
+    <!-- Title of an application permission that lets it access AdServicesManager’s APIs. [CHAR LIMIT=NONE] -->
+    <string name="permlab_accessAdServicesManager">Access to AdServicesManager’s APIs</string>
+    <!-- Description of an application permission that lets it access AdServicesManager’s APIs. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_accessAdServicesManager">Allows an application to access AdServicesManager’s APIs.</string>
+
+    <!-- Title of an application permission that allows calling updating AdId API via Common Service. [CHAR LIMIT=NONE] -->
+    <string name="permlab_updateAdservicesAdId">Access to AdService’s update AdId API.</string>
+    <!-- Description of an application permission that allows calling updating AdId API via Common Service.. [CHAR LIMIT=NONE] -->
+    <string name="permdesc_updateAdservicesAdId">Allows an application to access AdService’s update AdId API.</string>
+
+    <!-- Settings App UI strings -->
+
+    <!--*****************************************************************************************-->
+    <!--************************************** UI Strings ***************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- Text for the label of the app. This will appear as the app name on notifications sent by this app. [CHAR LIMIT=NONE] -->
+    <string name="app_label">Ad Privacy</string>
+
+    <!-- EU Notification UI strings *************************************************************-->
+    <!-- Text for the main title of the EU notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_title_eu">Join Android’s ads privacy beta</string>
+    <!-- Text for the content of the EU notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_content_eu">Android is exploring more private ways for apps to show you ads</string>
+    <!-- Text for the call to action button of the EU notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_cta_eu">Learn more</string>
+
+    <!-- EU Detailed Notification Activity Landing Page UI strings ******************************-->
+    <!-- Text for the title of the header. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_title_eu">Android’s ads privacy beta</string>
+    <!-- Text for container1 title. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_title_eu">What’s new</string>
+    <!-- Text for container1 body text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_body_text_eu">The new privacy features in the Privacy Sandbox let apps show you relevant ads, but restrict what those apps can learn about your activities on websites and apps from other developers.</string>
+    <!-- Text for container1 control text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_control_text_eu">How it works</string>
+    <!-- Text for container2 title. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_title_eu">How to participate</string>
+    <!-- Text for container2 body text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_body_text_eu">Turning on the beta allows apps to test these new, more private ways to show you ads. You can turn off the beta any time in your privacy settings.</string>
+    <!-- Text for button to decline joining the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_left_control_button_text_eu">No thanks</string>
+    <!-- Text for button to accept joining the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_right_control_button_text_eu">Turn On</string>
+    <!-- Text for button that scrolls the page down to view more text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_more_button_text">More</string>
+
+
+    <!-- EU Detailed Notification Activity Confirmation Pages UI strings ************************-->
+    <!-- Text for the title of the confirmation screen for accepting to be part of the Privacy Sandbox Beta. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_accept_title">Thank you for participating</string>
+    <!-- Text for the subtitle of the confirmation screen for accepting to be part of the Privacy Sandbox Beta. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_accept_subtitle">You’re part of Android’s ads privacy beta. The Privacy Sandbox is turned on for your device.\n\nYou can learn more or turn off the beta any time in your privacy settings.</string>
+    <!-- Text for the title of the confirmation screen for declining to be part of the Privacy Sandbox Beta. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_decline_title">You’ve chosen not to participate</string>
+    <!-- Text for the subtitle of the confirmation screen for declining to be part of the Privacy Sandbox Beta. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_decline_subtitle">Thanks for your response. The Privacy Sandbox is turned off for your device.\n\nIf you change your mind or want to learn more, go to your privacy settings.</string>
+    <!-- Text for button to open Privacy Sandbox Settings from confirmation activity. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_left_control_button_text">Privacy settings</string>
+    <!-- Text for button to acknowledge and dismiss confirmation activity.  [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_confirmation_right_control_button_text">Got it</string>
+
+    <!-- ROW Notification UI strings ************************************************************-->
+    <!-- Text for the main title of the ROW notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_title" translatable="false">@string/notificationUI_header_title_eu</string>
+    <!-- Text for the content of the ROW notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_content" translatable="false">@string/notificationUI_notification_content_eu</string>
+    <!-- Text for the call to action button of the ROW notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_cta" translatable="false">@string/notificationUI_notification_cta_eu</string>
+
+    <!-- ROW Detailed Notification Activity Landing Page UI strings *****************************-->
+    <!-- Text for the title of the header. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_title" translatable="false">@string/notificationUI_header_title_eu</string>
+    <!-- Text for container1 title. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_title" translatable="false">@string/notificationUI_container1_title_eu</string>
+    <!-- Text for container1 body text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_body_text" translatable="false">@string/notificationUI_container1_body_text_eu</string>
+    <!-- Text for container1 control text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_control_text" translatable="false">@string/notificationUI_container1_control_text_eu</string>
+    <!-- Text for container2 title. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_title">You’re part of the beta</string>
+    <!-- Text for container2 body text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_body_text">The Privacy Sandbox is on for your device, and apps can test these new, more private ways to show you ads. You can turn off the beta any time in your privacy settings.</string>
+    <!-- Text for button to open Privacy Sandbox Settings from detailed notification activity. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_left_control_button_text" translatable="false">@string/notificationUI_confirmation_left_control_button_text</string>
+    <!-- Text for button to acknowledge and dismiss detailed notification activity.  [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_right_control_button_text">Got it</string>
+
+    <!-- EU & ROW Detailed Notification Activity "How it works" explainer UI strings ************-->
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text1">Android’s Privacy Sandbox provides new features that apps can use to show you ads you might like. These technologies don’t use device identifiers.\n\nAndroid and your apps can estimate the kinds of ads you might be interested in, and save the interests temporarily on your device. This allows apps to show you ads you might like, without tracking your activity across websites and apps from other developers.</string>
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text2">Ads personalization with Privacy Sandbox</string>
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text3">&#8226;&#160;&#160;Interests estimated by Android</string>
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text4">Android periodically estimates your top interests based on the apps you use, for example, \"Sports\" or \"Travel.\"\n\nLater, an app can ask Android to use those interests to show you more relevant ads.\n\nYou can see the list of current interests in your privacy settings, and block any you don’t like.</string>
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text5">&#8226;&#160;&#160;Interests estimated by apps</string>
+    <!-- Text that is part of an additional explainer of how the privacy sandbox works. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_expanded_text6">Apps can estimate your interests and temporarily save these with Android. For example, an app you use to buy running shoes might estimate your interest as \"running marathons.\"\n\nLater, based on this interest, a different app can show you an ad related to marathons.\n\nIn your privacy settings, you can manage the list of apps that have saved interests.</string>
+
+    <!-- Text for the GA notification strings ******************************************************-->
+
+    <!-- ROW GA notification strings *****************************-->
+
+    <!-- ROW small notification title in the notification center *****************************-->
+    <string name="notificationUI_notification_ga_title">New ad privacy features</string>
+    <!-- ROW small notification content in the notification center *****************************-->
+    <string name="notificationUI_notification_ga_content">Ad topics and new controls give you more choice over the ads you see</string>
+
+    <!-- ROW Detailed Ga Notification Activity Landing Page UI strings ******************************************************-->
+    <!-- Text for the title of the ROW notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_ga_title">New ads privacy features now available</string>
+    <!-- Text for the subtitle of the ROW notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_ga_introduction" translatable="false">@string/notificationUI_container1_body_ga_text_eu</string>
+    <!-- Text for explanation of apps and topics ad of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_ga_introduction">Android notes topics of interest based on apps you’ve used recently. Also, apps you use can determine what you like. Later, apps can ask for this information to show you personalized ads. You can choose which topics and apps are used to show you ads.</string>
+    <!-- Text for explanation of ad measurement of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container3_ga_introduction">To measure the performance of an ad, limited types of data are shared between apps.</string>
+    <!-- Text for button of expanding more information about ads the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_ga_container1_control_text">More about ads on Android</string>
+    <!-- Text for subtitle in the expander info about ads the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_subtitle1">More useful ads</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body1">Apps can ask Android for information to help personalize the ads you see.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body2">&#8226;&#160;&#160;Android notes topics of interest based on the apps you’ve used recently.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body3">&#8226;&#160;&#160;Apps you use can also determine what you like based on how you use them. For example, if you use an app that sells long-distance running shoes, the app might decide that you’re interested in running marathons.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body4">Later, an app you use can ask for this information &#8212; either your ad topics or ads suggested by apps you’ve used.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body5">Android auto-deletes topics and app-suggested data regularly. You can also block specific topics and apps you don’t want to make suggestions.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_subtitle2">Measuring how well an ad performs</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body6">Apps you use can ask Android for information to help them measure the performance of their ads. Android lets apps collect limited types of data, such as the time of day an ad was shown to you.</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body7" translatable="false">@string/notificationUI_learn_more_from_privacy_policy</string>
+
+    <!-- EU GA notification strings *****************************-->
+
+    <!-- EU Small Notification in the Notification Center strings ******************************************************-->
+    <!-- Text for the title of the small EU notification in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_ga_title_eu">Try new ad privacy features</string>
+    <!-- Text for the content of the small EU notification in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_ga_content_eu">Ad topics give you more choice over the ads you see</string>
+    <!-- Text for the call to action button of the EU notification. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_ga_cta_eu">View Details</string>
+
+    <!-- EU Detailed Ga Notification Activity Landing Page UI strings ******************************************************-->
+    <!-- Text for the title of the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_ga_title_eu">Try new ads privacy features</string>
+    <!-- Text for the subtitle of the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_body_ga_text_eu">Android is launching new privacy features that give you more choice over the ads you see.</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_body_ga_text_eu">Ad topics help apps show you relevant ads while protecting your identity and information about your app usage. Android can note topics of interest based on the apps you’ve used recently. Later, an app you use can ask Android for relevant topics to personalize the ads you see.</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container3_body_ga_text_eu">You can see ad topics in your device settings and block the ones you don’t want shared with apps. Android also auto-deletes ad topics regularly.</string>
+    <!-- Text for explanation changing the consent in privacy settings. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu">You can change your mind any time in privacy settings.</string>
+    <!-- Text for expander button in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_control_ga_text_eu">More about ad topics</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_learn_more_from_privacy_policy">Learn more about how Android protects your data in our <a href="https://policies.google.com/privacy">Privacy Policy</a>.</string>
+    <!-- Text for the button to join ad topics in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_right_control_button_ga_text_eu">Try it out</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text3">&#8226;&#160;&#160;What data is used</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text4">Your ad topics are based on the apps you’ve used recently on this device and how frequently you use them.</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text5">&#8226;&#160;&#160;How we use this data</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text6">Android notes topics of interest as you use your apps. Topic labels are predefined and include things like Arts &amp; Entertainment, Shopping, and Sports. Later, an app you use can ask Android for a few of your topics (but not data about your app usage or identity) to personalize the ads you see.</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text7">&#8226;&#160;&#160;How you can manage your data</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text8">Android auto-deletes topics regularly. As you continue using apps, a topic might reappear on the list. You can also block topics you don’t want Android to share with apps, and turn ad topics off at any time in privacy settings. </string>
+    <!-- Text for explanation about making changes in privacy settings in the EU/Row notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_you_can_change_in_privacy_settings">You can make changes in privacy settings.</string>
+
+    <!--  EU GA Notification Activity Page 2 UI strings ******************************************************-->
+    <!-- Text for title of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_title">Other ads privacy features now available</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text1">Android also offers new ways to limit what apps can learn about you when they show you personalized ads.</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text2">&#8226;&#160;&#160;App-suggested ads help protect your identity and information about your app usage while enabling apps to show you relevant ads. Based on your activity, an app you use can suggest related ads on other apps. You can see a list of apps and block them from making suggestions, in privacy settings.</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text3">&#8226;&#160;&#160;With ad measurement, limited types of data are shared between apps to measure the performance of their ads, such as the time of day an ad was shown to you.</string>
+    <!-- Text for the button in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu">More about app-suggested ads and ad measurement</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0">App-suggested ads</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1">&#8226;&#160;&#160;What data is used</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2">Your activity in an app you use on this device.</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3">&#8226;&#160;&#160;How apps use this data</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4">Apps can store information with Android about things you like. For example, if you use an app about marathon training, the app might decide that you’re interested in running shoes. Later, if you use a different app, that app can show you an ad for running shoes suggested by the first app.</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5">&#8226;&#160;&#160;How you can manage your data</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6">Android auto-deletes app-suggested data regularly. An app you use again might reappear on the list. </string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7">You can also block an app from suggesting ads for you, reset all ad-suggestion data, or turn app-suggested ads off at any time in privacy settings.</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text8" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9">Apps you use can ask Android for information that helps them measure the performance of their ads. Android protects your privacy by limiting the information apps can share with one another.</string>
+
+    <!--*****************************************************************************************-->
+    <!-- GA V2 Notification Flow Strings ********************************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- GA V2 EU Notification Card *************************************************************-->
+    <!-- Text for the title of the small EU notification in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_ga_title_eu_v2">New ads privacy features now available</string>
+    <!-- Text for the content of the small EU notification in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_notification_ga_content_eu_v2">Get more choice over the ads you see while protecting your identity</string>
+
+    <!--  EU GA Notification Activity Page 1 (Fledge + measurement) UI strings ******************-->
+    <!-- Text for title of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_title_v2">New ads privacy features now available</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2">Android is launching new ways to limit what apps can learn about you when they show you personalized ads.</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2">&#8226;&#160;&#160;With app-suggested ads, new privacy features help protect your identity and information about your app usage while enabling apps to show you relevant ads. Based on your activity, an app you use can suggest related ads on other apps. You can see a list of apps and block them from making suggestions in privacy settings.</string>
+    <!-- Text for explanation in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2">&#8226;&#160;&#160;With ad measurement, limited types of data are shared between apps to understand the performance of their ads, such as the time of day an ad was shown to you.</string>
+    <!-- Text for the button in the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu_v2" translatable="false">@string/notificationUI_fledge_measurement_control_ga_text_eu</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text0</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text1</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2">Your activity in an app on this device can be used to suggest ads.</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text3</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text4</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text5</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text6</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text7</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text8_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text8</string>
+    <!-- Text for explanation inside the expander of the EU notification landing page about app-suggested ads and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9_v2" translatable="false">@string/notificationUI_how_it_works_fledge_measurement_expanded_text9</string>
+
+    <!-- EU GA Notification Activity Page 2 (Topics) UI strings *********************************-->
+    <!-- Text for the title of the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_ga_title_eu_v2">Turn on another ads privacy feature</string>
+    <!-- Text for the subtitle of the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_body_ga_text_eu_v2">Android also offers a new privacy feature that gives you more choice over the ads you see.</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_body_ga_text_eu_v2">Ad topics help apps show you relevant ads while protecting your identity and information about your app usage. Android can note topics of interest based on apps you’ve used recently. Later, an app you use can ask Android for relevant topics to show you more relevant ads.</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container3_body_ga_text_eu_v2">You can see ad topics in your privacy settings and block the ones you don’t want shared with apps. Android also auto-deletes ad topics regularly.</string>
+    <!-- Text for explanation changing the consent in privacy settings. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu_v2" translatable="false">@string/notificationUI_change_any_time_in_privacy_settings_eu</string>
+    <!-- Text for expander button in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_control_ga_text_eu_v2" translatable="false">@string/notificationUI_container1_control_ga_text_eu</string>
+    <!-- Text for content of the EU notification landing page about app-suggested ad and ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_learn_more_from_privacy_policy_v2" translatable="false">@string/notificationUI_learn_more_from_privacy_policy</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text3_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text3</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text4_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text4</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text5_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text5</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text6_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text6</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text7_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text7</string>
+    <!-- Text for the explanation of ad topics in the expander in the EU notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_topics_expanded_text8_v2" translatable="false">@string/notificationUI_how_it_works_topics_expanded_text8</string>
+    <!-- Text for explanation about making changes in privacy settings in the EU/Row notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_you_can_change_in_privacy_settings_v2" translatable="false">@string/notificationUI_you_can_change_in_privacy_settings</string>
+    <!-- Text for button to decline joining the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_left_control_button_text_eu_v2" translatable="false">@string/notificationUI_left_control_button_text_eu</string>
+    <!-- Text for button to accept joining the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_right_control_button_ga_text_eu_v2">Turn it on</string>
+
+    <!-- ROW small notification title in the notification center *****************************-->
+    <string name="notificationUI_notification_ga_title_v2">New ads privacy features now available</string>
+    <!-- ROW small notification content in the notification center *****************************-->
+    <string name="notificationUI_notification_ga_content_v2">Now, there’s more choice over the ads you see while protecting your identity</string>
+
+    <!-- ROW Detailed Ga Notification Activity Landing Page UI strings ******************************************************-->
+    <!-- Text for the title of the ROW notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_header_ga_title_v2">New ads privacy features now available</string>
+    <!-- Text for the subtitle of the ROW notification landing page about ad topics. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container1_ga_introduction_v2">Android now offers new privacy features that give you more choice over the ads you see.</string>
+    <!-- Text for explanation of apps and topics ad of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container2_ga_introduction_v2" translatable="false">@string/notificationUI_container2_ga_introduction</string>
+    <!-- Text for explanation of ad measurement of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_container3_ga_introduction_v2" translatable="false">@string/notificationUI_container3_ga_introduction</string>
+    <!-- Text for button of expanding more information about ads the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_ga_container1_control_text_v2" translatable="false">@string/notificationUI_ga_container1_control_text</string>
+    <!-- Text for subtitle in the expander info about ads the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_subtitle1_v2" translatable="false">@string/notificationUI_how_it_works_row_subtitle1</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body1_v2" translatable="false">@string/notificationUI_how_it_works_row_body1</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body2_v2" translatable="false">@string/notificationUI_how_it_works_row_body2</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body3_v2" translatable="false">@string/notificationUI_how_it_works_row_body3</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body4_v2" translatable="false">@string/notificationUI_how_it_works_row_body4</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body5_v2" translatable="false">@string/notificationUI_how_it_works_row_body5</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_subtitle2_v2" translatable="false">@string/notificationUI_how_it_works_subtitle2</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body6_v2" translatable="false">@string/notificationUI_how_it_works_row_body6</string>
+    <!-- Text for information explaining ads in the expander of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_how_it_works_row_body7_v2" translatable="false">@string/notificationUI_how_it_works_row_body7</string>
+    <!-- Text for button that scrolls the page down to view more text. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_next_button_text">Next</string>
+
+    <!--*****************************************************************************************-->
+    <!-- Settings *******************************************************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- Settings App UI main view strings ******************************************************-->
+    <!-- Title text of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_title">Privacy Sandbox</string>
+    <!-- Sub title text of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_subtitle">Participate in Android’s ads privacy beta</string>
+    <!-- Text for the Privacy Sandbox beta toggle. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_privacy_sandbox_beta_switch_title">Privacy Sandbox</string>
+    <!-- Text for the button to open the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_title">Interests estimated by Android</string>
+    <!-- Text for the button to open the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_title">Apps that estimate interests</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text1" translatable="false">@string/notificationUI_container1_control_text_eu</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text2" translatable="false">@string/notificationUI_how_it_works_expanded_text1</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text3" translatable="false">@string/notificationUI_how_it_works_expanded_text2</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text4" translatable="false">@string/notificationUI_how_it_works_expanded_text3</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text5" translatable="false">@string/notificationUI_how_it_works_expanded_text4</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text6" translatable="false">@string/notificationUI_how_it_works_expanded_text5</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text7" translatable="false">@string/notificationUI_how_it_works_expanded_text6</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text8">Ad measurement</string>
+    <!-- Info text at the bottom of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_info_text9">Apps can use the Privacy Sandbox to measure the effectiveness of their ads. To do this, advertisers can temporarily save data with Android about your interactions between their ads and apps.  The amount of data they can save is restricted and will be deleted regularly.\n\nYou can delete this data at any time by turning off the Privacy Sandbox.</string>
+
+    <!-- Settings App UI topics view strings ****************************************************-->
+    <!-- Title text of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_title" translatable="false">@string/settingsUI_topics_title</string>
+    <!-- Sub title text of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_subtitle">Android periodically estimates your top interests based on the apps you use. Apps can ask Android to use those interests to show you more relevant ads.\n\nIf you block an interest, it won’t be added to the list again unless you unblock it. You might still see some related ads.</string>
+    <!-- Text for the button to block a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_block_topic_title">Block</string>
+    <!-- Text for the button to unblock a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_unblock_topic_title">Unblock</string>
+    <!-- Text for the button to open blocked topics view and the title of the blocked topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_blocked_topics_title">Interests you’ve blocked</string>
+    <!-- Text for the title of the blocked topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_blocked_topics_ga_view_title" translatable="false">@string/settingsUI_blocked_topics_ga_title</string>
+    <!-- Text for the button to reset all topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_reset_topics_title">Reset all interests</string>
+    <!-- Text to show if there are no topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_no_topics_text">No interests to show right now.</string>
+    <!-- Text to show if there are no topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_no_topics_ga_text">No topics to show right now.\nLearn more about <a href="https://support.google.com/android?p=ad_privacy">ad topics</a></string>
+    <!-- Info text at the bottom of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_info_text1">Privacy Sandbox</string>
+    <!-- Info text at the bottom of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_info_text2">Android’s ads privacy beta provides new features that apps can use to show you ads you might like. These technologies don’t use device identifiers.\n\nAndroid can estimate the kinds of ads you might be interested in, and save these interests temporarily on your device. This allows apps to show you relevant ads, without tracking your activity across websites and apps from other developers.</string>
+    <!-- Text to show if there are no topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_no_blocked_topics_text">You have no blocked interests</string>
+    <!-- Text to show if there are no topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_no_blocked_topics_ga_text">No blocked topics</string>
+    <!-- Text to show blocked topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_view_blocked_topics_title">View blocked topics</string>
+
+    <!-- Info text for toast displayed after topics are reset. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_are_reset">Interests are reset</string>
+    <!-- Info text for toast displayed after topics are reset. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_are_reset_ga">Topics were reset</string>
+
+    <!-- Settings App UI apps view strings ****************************************************-->
+    <!-- Title text of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_title" translatable="false">@string/settingsUI_apps_title</string>
+    <!-- Sub title text of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_subtitle">Apps can estimate your interests and temporarily save these with Android. Later, a different app can show you an ad based on these interests.\n\nIf you block an app, it won’t estimate any more interests. It won’t be added to this list of apps again unless you unblock it. Interests already estimated by the app will be deleted, but you might still see some related ads.</string>
+    <!-- Text for the button to block an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_block_app_title" translatable="false">@string/settingsUI_block_topic_title</string>
+    <!-- Text for the button to unblock an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_unblock_app_title" translatable="false">@string/settingsUI_unblock_topic_title</string>
+    <!-- Text for the button to open blocked apps fragment and the title of the blocked apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_blocked_apps_title">Apps you blocked</string>
+    <!-- Text for the button to open blocked apps fragment in ga ux. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_view_blocked_apps_title">View blocked apps</string>
+    <!-- Text for the button to reset all apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_reset_apps_title">Reset interests estimated by apps</string>
+    <!-- Text to show if there are no apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_no_apps_text">No apps are generating interests for you right now</string>
+    <!-- Text to show if there are no apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_no_apps_ga_text">No apps to show right now. \nLearn more about <a href="https://support.google.com/android?p=ad_privacy">app-suggested ads</a></string>
+
+    <!-- Info text at the bottom of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_info_text1">Privacy Sandbox</string>
+    <!-- Info text at the bottom of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_info_text2">Android’s ads privacy beta provides new features that apps can use to show you ads you might like. These technologies don’t use device identifiers.\n\nApps can estimate the kinds of ads you might be interested in, and save these interests temporarily on your device. This allows apps to show you relevant ads, without tracking your activity across websites and apps from other developers.</string>
+    <!-- Text to show if there are no apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_no_blocked_apps_text">You have no blocked apps</string>
+    <!-- Text to show if there are no apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_no_blocked_apps_ga_text">No blocked apps</string>
+    <!-- Settings App UI Measurement View strings *******************************************************-->
+    <!-- Text for the toggle in the measurement page.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_switch_title">Allow ad measurement</string>
+    <!-- Text for the introduction to ad measurement data. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_view_intro_text">Apps and advertisers can request information from Android that helps them measure the performance of their ads.\n\nAd measurement data is deleted regularly from your device.</string>
+    <!-- Text for the button to reset measurement data. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_view_reset_title">Reset measurement data</string>
+    <!-- Title for the ads measurement view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_view_title" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for the footer of measurement view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_view_footer_text">Android protects your privacy by limiting the information apps can share with one another. Reports are sent with a delay to protect your identity.\n\nYour browser may have a similar setting. If ad measurement is on for both Android and your browser, a company may be able to measure the effectiveness of an ad between apps you use and sites you visit. Your browsing history is kept private on your device.\n\nLearn more about how Android protects your data in our <a href="https://policies.google.com/privacy">Privacy Policy</a>.</string>
+    <!-- Text for the toast message of measurement reset. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_are_reset">Ad measurement data was reset</string>
+
+
+    <!-- Settings App UI dialog strings *******************************************************-->
+    <!-- Text for the button to cancel out of a dialog. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_negative_text">Cancel</string>
+    <!-- Title for the dialog to opt out of the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_opt_out_title">Turn off Privacy Sandbox?</string>
+    <!-- Message for the dialog to opt out of the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_opt_out_message">If you change your mind or want to learn more about Android’s ads privacy beta, go to your privacy settings</string>
+    <!-- Text for the button in a dialog to opt out of the Privacy Sandbox. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_opt_out_positive_text">Turn off</string>
+    <!-- Title for the dialog to block a topic. This dialog is confirming that the user wants to block the specified topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_topic_title">Block <xliff:g id="topic" example="Fashion">%1$s</xliff:g>?</string>
+    <!-- Body text for the dialog to block a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_topic_message">This topic will be blocked and won’t be added to your list again, unless you add it back. You may still see some related ads.</string>
+    <!-- Text for button in a dialog to block a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_topic_positive_text">Block</string>
+    <!-- Title for the dialog to unblock a topic. This dialog is notifying that the user has unblocked the specified topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_topic_title"><xliff:g id="topic" example="Fashion">%1$s</xliff:g> is unblocked</string>
+    <!-- Body text for the dialog to unblock a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_topic_message">Android may add this topic to your list again, but it might not appear immediately</string>
+
+    <!-- Text for button in a dialog to unblock a topic. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_topic_positive_text">OK</string>
+    <!-- Title for the dialog to reset all topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_topic_title">Reset all ad topics?</string>
+    <!-- Body text for the dialog to reset all topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_topic_message">Your list will be cleared and new topics will be added going forward. You may still see some ads related to topics you’ve reset.</string>
+    <!-- Text for the button in a dialog to reset all topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_topic_positive_text">Reset</string>
+    <!-- Title for the dialog to block a an app. This dialog is confirming that the user wants to block the specified app from estimating interests. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_app_title">Block <xliff:g id="app" example="AirBnB">%1$s</xliff:g>?</string>
+    <!-- Body text for the dialog to block an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_app_message">This app won’t suggest ads and won’t be added to your list again, unless you unblock it. You might still see some related ads.</string>
+    <!-- Text for button in a dialog to block an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_block_app_positive_text" translatable="false">@string/settingsUI_dialog_block_topic_positive_text</string>
+    <!-- Title for the dialog to unblock an app. This dialog is notifying that the user has unblocked the specified app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_app_title"><xliff:g id="app" example="AirBnB">%1$s</xliff:g> is unblocked</string>
+    <!-- Body text for the dialog to unblock an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_app_message">This app can suggest ads for you again, but it might not appear on your list immediately. It might take a while for you to see related ads.</string>
+    <!-- Text for button in a dialog to unblock an app. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_unblock_app_positive_text" translatable="false">@string/settingsUI_dialog_unblock_topic_positive_text</string>
+    <!-- Title for the dialog to reset all apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_app_title">Reset ads suggested by apps?</string>
+    <!-- Body text for the dialog to reset all apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_app_message">Ad-suggestion data from the apps on your list will be deleted and the apps will suggest new ads going forward. You may still see some related ads.</string>
+    <!-- Text for the button in a dialog to reset all apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_app_positive_text" translatable="false">@string/settingsUI_dialog_reset_topic_positive_text</string>
+    <!-- Info text for toast displayed after apps are reset. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_are_reset">App data was reset</string>
+    <!-- Text for speedbump dialog title of turning on switch of topics.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_topics_opt_in_title">Ad topics is on</string>
+    <!-- Text for speedbump dialog message of turning on switch of topics.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_topics_opt_in_message">Android will start noting topics of interest, but it may take a while for your first topics to appear.</string>
+    <!-- Text for the speedbump title of turning off the switch of ad topics.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_topics_opt_out_title">Turn off ad topics?</string>
+    <!-- Text for the speedbump message of turning off the switch of ad topics.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_topics_opt_out_message">This list of topics will be deleted. Android won’t note topics of interest anymore, but you may still see relevant ads.</string>
+    <!-- Text for speedbump dialog title of turning on switch of apps.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_apps_opt_in_title">App-suggested ads is on</string>
+    <!-- Text for speedbump dialog message of turning on switch of apps.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_apps_opt_in_message">Apps may start suggesting ads. You’ll see a list of apps once they start suggesting ads.</string>
+    <!-- Text for the speedbump dialog of turning off the switch of app-suggested ads.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_apps_opt_out_title">Turn off app-suggested ads?</string>
+    <!-- Text for speedbump dialog message of turning off switch of apps.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_apps_opt_out_message">All ad suggestion data will be deleted. Apps won’t be able to suggest ads anymore, but you may still see relevant ads.</string>
+    <!-- Text for speedbump dialog title of turning on switch of measurement.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_measurement_opt_in_title">Ad measurement is on</string>
+    <!-- Text for speedbump dialog message of turning on switch of measurement.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_measurement_opt_in_message">Android can share only very limited information with apps to help apps measure the performance of their ads.</string>
+    <!-- Text for speedbump dialog title of turning off switch of measurement.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_measurement_opt_out_title">Turn off ad measurement?</string>
+    <!-- Text for speedbump dialog message of turning off switch of measurement.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_measurement_opt_out_message">All pending ad measurement reports will be deleted and no new reports will be generated or shared.</string>
+    <!-- Text for dialog button to acknowledge and dismiss dialog.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_acknowledge" translatable="false">@string/notificationUI_right_control_button_text</string>
+    <!--    TODO (b/265360122): remove these strings of the speed bump of resetting ad measurement -->
+    <!--    title for button to reset ads measurement. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_measurement_title" translatable="false">Clear data for Ads measurement?</string>
+    <!--    Body text for the dialog to reset ads measurement [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_dialog_reset_measurement_message" translatable="false">[Copy for measurement] PlaceHolder of for measurement clear message dialog</string>
+    <string name="settingsUI_dialog_reset_measurement_positive_text" translatable="false">Clear</string>
+
+    <!-- Settings App GA UI main view strings ******************************************************-->
+    <!-- Title text of the main view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_ga_title">Ad privacy</string>
+    <!-- Text for the button to open the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_ga_title">Ad topics</string>
+    <!-- Text for the button to open the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_ga_title">App-suggested ads</string>
+    <!-- Text for the button to open the measurement view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_measurement_ga_title" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for the explanation of ad topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_ad_topics_info">Android notes topics of interest based on the apps you’ve used recently and how frequently you use them.</string>
+    <!-- Text for the explanation of app-suggested ads. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_main_view_apps_info">Apps you use can also determine what you like based on how you use them.</string>
+    <!-- Text for the explanation of ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="settingsU_main_view_measurement_info">Apps you use can ask Android for information to help them measure the performance of their ads. Android lets apps collect limited types of data.</string>
+    <!-- Text for the learn more of Ad privacy page. [CHAR LIMIT=NONE] -->
+    <string name="settingsU_main_view_learn_more">Learn more about <a href="https://support.google.com/android?p=ad_privacy">ad privacy on Android</a></string>
+    <!-- Text for the topic subtitle in the settings UI showing On and the count of topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_subtitle">On / <xliff:g id="topics_count" example="7">%1$d</xliff:g> topics</string>
+    <!-- Text for the topic subtitle with plural changes in the settings UI showing On and the count of topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_subtitle_plural">{count, plural,
+    =1    {On / # topic}
+    other {On / # topics}
+    }</string>
+    <!-- Text for the apps subtitle in the settings UI showing On and the count of apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_subtitle">On / <xliff:g id="apps_count" example="6">%1$d</xliff:g> apps</string>
+    <!-- Text for the apps subtitle with plural changes in the settings UI showing On and the count of apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_subtitle_plural">{count, plural,
+    =1    {On / # app}
+    other {On / # apps}
+    }</string>
+    <!-- Text for subtitle in the settings UI showing measurement consent is On.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_subtitle_consent_on">On</string>
+    <!-- Text for the any subtitle in the settings UI showing whose consent is Off.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_subtitle_consent_off">Off</string>
+
+    <!-- Settings App UI topics view strings for GA UX ****************************************************-->
+    <!-- Title text of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_ga_title" translatable="false">@string/settingsUI_topics_ga_title</string>
+    <!-- Sub title text of the topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_view_ga_subtitle">Topics of interest are based on the apps you’ve used recently, and are used by apps to show you personalized ads.\n\nYou can block topics you don’t want shared with apps. Android also auto-deletes topics regularly.\n\nWhile this feature can be turned on, you may not see a list of topics until this feature is fully available and apps start using it.</string>
+    <!-- Text for the toggle in the topics page.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_topics_switch_title">Allow ad topics</string>
+    <!-- Text for the button to open blocked topics view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_blocked_topics_ga_title">Ad topics you blocked</string>
+    <!-- Text for the button to reset all topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_reset_topics_ga_title">Reset all ad topics</string>
+    <!-- Text for the info of ad topics. [CHAR LIMIT=NONE] -->
+    <string name="settingsU_topics_view_footer">Android notes topics of interest based on the apps you’ve used in the last few weeks.\n\nLater, an app you use can ask Android for your topics to personalize the ads you see. Android shares up to 3 topics while protecting your identity and information about your app usage.\n\nAndroid auto-deletes topics regularly. As you continue using apps, a topic might reappear on the list. Or you can block topics you don’t want Android to share with apps.\n\nIn your apps, an ad you see may be personalized, depending on this setting, the app-suggested ads setting, your advertising ID settings, and whether the app you’re using personalizes ads.</string>
+
+    <!-- Settings App UI apps view strings for GA UX****************************************************-->
+    <!-- Title text of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_ga_title" translatable="false">@string/settingsUI_apps_ga_title</string>
+    <!-- Text for the toggle in the apps page.[CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_switch_title">Allow app-suggested ads</string>
+    <!-- Sub title text of the apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_ga_subtitle">Apps you use can determine what you like and then suggest ads on other apps.\n\nYou can block apps from making suggestions. Android also auto-deletes app-suggested data regularly.\n\nWhile this feature can be turned on, you may not see a list of apps until this feature is fully available and apps start using it.</string>
+    <!-- Text for the button to open blocked apps fragment  [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_blocked_apps_ga_title">Apps you blocked</string>
+    <!-- Text for the button to reset all apps. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_reset_apps_ga_title">Reset app-suggested data</string>
+    <!-- Text for the info of app-suggested ads. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_apps_view_footer">It’s common for apps you use to remember things you’re interested in to personalize your experience. Apps can also store information with Android about your topics.\n\nFor example, if you use an app about marathon training, the app might decide that you’re interested in running shoes. Later, if you use a different app, that app can show you an ad for running shoes suggested by the first app.\n\nAndroid auto-deletes app-suggested data regularly. An app you use again might reappear on the list. Or you can block an app from suggesting ads for you.\n\nIn your apps, an ad you see may be personalized, depending on this setting, the ad topics setting, your advertising ID settings, and whether the app you’re using personalizes ads.</string>
+
+    <!--*****************************************************************************************-->
+    <!-- U18 Strings ****************************************************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- U18 Notification Card *************************************************************-->
+    <!-- Text for the title of the U18 notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_notification_title">New ads privacy feature now available</string>
+    <!-- Text for the content of the U18 notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_notification_content">Only very limited info is shared between apps to help measure ad performance</string>
+
+    <!-- U18 Notification Activity *********************************************************-->
+    <!-- Text for the title of the explainer for the ad measurement section of the U18 notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_header_title" translatable="false">@string/notificationUI_u18_notification_title</string>
+    <!-- Text for the body of the explainer for the ad measurement section of the U18 notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_body1">We’re launching a new ad privacy feature called ad measurement. Android shares only very limited information between apps, such as when an ad was shown to you, to help apps measure the performance of ads.</string>
+    <!-- Text for the body of the explainer for the ad measurement section of the U18 notification landing page. This also includes a link to a privacy policy page [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_body2" translatable="false">@string/notificationUI_learn_more_from_privacy_policy</string>
+    <!-- Text for the body of the explainer for the ad measurement section of the U18 notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_body3">You can make changes in ad privacy settings.</string>
+    <!-- Text for button to open Privacy Sandbox Settings from confirmation activity. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_left_control_button_text" translatable="false">@string/notificationUI_confirmation_left_control_button_text</string>
+    <!-- Text for button to acknowledge and dismiss U18 notification activity.  [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_u18_right_control_button_text" translatable="false">@string/notificationUI_right_control_button_text</string>
+
+    <!-- U18 Settings Activity *********************************************************-->
+    <!-- Title for the U18 ads measurement view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_u18_measurement_view_title" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for the U18 explanation of ad measurement. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_u18_main_view_measurement_info">Apps you use can ask Android for information to help them measure the performance of their ads. Android lets apps collect only limited types of data.</string>
+
+    <!--*****************************************************************************************-->
+    <!-- PAS Strings ****************************************************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- PAS Notification Card ******************************************************************-->
+    <!-- Text for the title of the PAS notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_notification_title">New ad privacy features</string>
+    <!-- Text for the content of the PAS notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_notification_content">Get more choice over the ads you see while helping to protect your identity</string>
+
+    <!-- PAS Re-Notification Card ***************************************************************-->
+    <!-- Text for the title of the PAS re-notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_re_notification_title">Updates to your ad privacy features</string>
+    <!-- Text for the content of the PAS re-notification card in notification center. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_re_notification_content">Get more choice over the ads you see while helping to protect your identity</string>
+
+    <!-- PAS Notification Activity **************************************************************-->
+    <!-- Text for the title of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_header_title" translatable="false">@string/notificationUI_pas_notification_title</string>
+    <!-- Text for the body of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_body_main">Android is expanding ad privacy features to restrict what apps can learn about you when they show you personalized ads.</string>
+    <!-- Text for the subtitle of the explainer for subsection 1 of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_subtitle1" translatable="false">@string/settingsUI_apps_ga_title</string>
+    <!-- Text for the body of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_body1">Apps and their advertising partners can use your activity across other apps on this device to personalize ads while still helping keep your identity private and secure.</string>
+    <!-- Text for the button that expands an explainer section for additional info on the current section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_expand_button_text1">More about app-suggested ads</string>
+    <!-- Text for the subtitle of the explainer for subsection 2 of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_subtitle2" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for the body of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_body2">Limited types of data are shared between apps to understand the performance of their ads, such as the time of day an ad was shown to you.</string>
+    <!-- Text for the button that expands an explainer section for additional info on the current section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_expand_button_text2">More about ad measurement</string>
+    <!-- Text at the end of PAS notification activity explaining changes can be made in privacy settings. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_text3" translatable="false">@string/notificationUI_you_can_change_in_privacy_settings</string>
+    <!-- Text for button to open Privacy Sandbox Settings from confirmation activity. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_left_control_button_text" translatable="false">@string/notificationUI_confirmation_left_control_button_text</string>
+    <!-- Text for button to acknowledge and dismiss PAS notification activity.  [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_right_control_button_text" translatable="false">@string/notificationUI_right_control_button_text</string>
+
+    <!-- PAS Re-Notification Activity ***********************************************************-->
+    <!-- Text for the title of the explainer for the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_header_title" translatable="false">@string/notificationUI_pas_re_notification_title</string>
+    <!-- Text for the body of the explainer for the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_body_main" translatable="false">@string/notificationUI_pas_body_main</string>
+    <!-- Text for the subtitle of the explainer for subsection 1 of the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_subtitle1" translatable="false">@string/settingsUI_apps_ga_title</string>
+    <!-- Text for the body of the explainer for the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_body1" translatable="false">@string/notificationUI_pas_body1</string>
+    <!-- Text for the button that expands an explainer section for additional info on the current section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_expand_button_text1" translatable="false">@string/notificationUI_pas_expand_button_text1</string>
+    <!-- Text for the subtitle of the explainer for subsection 2 of the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_subtitle2" translatable="false">@string/settingsUI_main_view_info_text8</string>
+    <!-- Text for the body of the explainer for the PAS re-notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_body2" translatable="false">@string/notificationUI_pas_body2</string>
+    <!-- Text for the button that expands an explainer section for additional info on the current section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_expand_button_text2" translatable="false">@string/notificationUI_pas_expand_button_text2</string>
+    <!-- Text at the end of PAS re-notification activity explaining changes can be made in privacy settings. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_text3" translatable="false">@string/notificationUI_you_can_change_in_privacy_settings</string>
+    <!-- Text for button to open Privacy Sandbox Settings from confirmation activity. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_left_control_button_text" translatable="false">@string/notificationUI_confirmation_left_control_button_text</string>
+    <!-- Text for button to acknowledge and dismiss PAS re-notification activity.  [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_renotify_right_control_button_text" translatable="false">@string/notificationUI_right_control_button_text</string>
+
+    <!-- PAS Combined Notification Activity & dropdown ***********************************************************-->
+    <!-- Text for the title of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_header_title" translatable="false">@string/notificationUI_pas_notification_title</string>
+    <!-- Text for the body 1 of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_body_1" translatable="false">@string/notificationUI_pas_body_main</string>
+    <!-- Text for the body 2 of the explainer for the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_body_2">Android notes topics of interest based on apps you’ve used recently. Also, apps and their advertising partners can use your activity across other apps on this device to personalize ads while still helping keep your identity private and secure.</string>
+    <!-- Text for explanation of ad measurement of the ROW notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_body_3" translatable="false">@string/notificationUI_container3_ga_introduction</string>
+    <!-- Text for subtitle in the dropdown info about ad privacy. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_subtitle1" translatable="false">@string/notificationUI_how_it_works_row_subtitle1</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_body1" translatable="false">@string/notificationUI_how_it_works_row_body1</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_body2">&#8226;&#160;&#160;Apps you use can also determine what you like based on your app activity. For example, if you regularly use cooking apps, you may see ads for grocery delivery services or related content in other apps.\n\nApps can securely store this information so that it can only be used by their advertising partners to personalize ads on other apps.</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_body3">Later, an app you use can ask for this information – either your ad topics or ads suggested by the apps you’ve used.</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_body4" translatable="false">@string/notificationUI_how_it_works_row_body5</string>
+    <!-- Text for subtitle in the dropdown info about ad privacy. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_subtitle2" translatable="false">@string/notificationUI_how_it_works_subtitle2</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_combined_dropdown_body5">Apps you use can ask Android for information to help them measure the performance of their ads. Android helps protect your privacy by limiting the information apps can share with one another.</string>
+
+    <!-- PAS Additional Info Dropdown Sections **************************************************-->
+    <!-- Text for the subtitle of the explainer for a subsection of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1">What data is used?</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_msmt_body1">Apps you use can ask Android for information that helps them measure the performance of their ads. Android helps protect your privacy by limiting the information apps can share with one another.</string>
+    <!-- Text for the subtitle of the explainer for a subsection of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2">How is my identity protected?</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_msmt_body2">Android uses multiple privacy measures such as aggregation and noising data to limit the information apps can share with one another and help protect your identity.\n\nAd measurement data is also deleted regularly from your device.</string>
+    <!-- Text for the subtitle of the explainer for a subsection of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_dropdown_subtitle1" translatable="false">@string/notificationUI_pas_msmt_dropdown_subtitle1</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_body1">Your app activity can be used to suggest ads.</string>
+    <!-- Text for the subtitle of the explainer for a subsection of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_dropdown_subtitle2">How do apps use this data?</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_body2">Apps can securely store this information so that it can only be used by their advertising partners to personalize ads on other apps. For example, if you regularly use cooking apps, you may see ads for grocery delivery services or related content in other apps.</string>
+    <!-- Text for the subtitle of the explainer for a subsection of the PAS notification landing page. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_dropdown_subtitle3">How can I manage this data?</string>
+    <!-- Text for the body of the current explainer section. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_app_body3">You can block specific apps from sharing your activity with advertising partners. You can reset or turn app-suggested ads off at any time in your privacy settings. Android also auto-deletes this data regularly.</string>
+    <!-- Link that takes user to additional info on ad privacy for Android. [CHAR LIMIT=NONE] -->
+    <string name="notificationUI_pas_leanr_more_link"><a href="https://support.google.com/android?p=ad_privacy">Learn more about how Android helps protect your privacy</a></string>
+
+    <!-- PAS Settings Activity ******************************************************************-->
+    <!-- Title for the PAS apps view. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_pas_apps_view_body_text">Apps and their advertising partners can use your activity across other apps on this device to personalize ads while still keeping information about you private and secure.\n\nFor example, if you regularly use cooking apps, you may see ads for grocery delivery services or related content in other apps.\n\nAndroid auto-deletes your activity regularly, but you can also block apps from sharing this information with their advertising partners.</string>
+    <!-- Text for the PAS footer explanation of apps/PAS API controls for ad privacy. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_pas_apps_view_footer">It’s common for apps and their advertising partners to remember things you’re interested in to personalize your experience. Apps can securely store this information so that it can only be used by their advertising partners to show ads on other apps.\n\nYou can block an app from sharing your activity data with advertising partners. Android also auto-deletes shared activity data regularly, so an app you use again might reappear on this list.\n\nWhether an ad you see is personalized can depend on many factors like this setting, the ad topics setting, your advertising ID settings, and whether the app you’re using personalized ads.\n\n<a href="https://support.google.com/android?p=ad_privacy">Learn more about app-suggested ads</a></string>
+    <!-- Text for the PAS footer explanation of measurement API controls for ad privacy. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_pas_msmt_view_footer">Android uses multiple privacy measures such as aggregation and noising data to limit the information apps can share with one another and help protect your identity.\n\nYour browser may have a similar setting. If ad measurement is on for both Android and your browser, a company may be able to measure the effectiveness of an ad between apps you use and sites you visit. Your browsing history is kept private on your device.\n\n<a href="https://support.google.com/android?p=ad_privacy">Learn more about ad measurement</a></string>
+    <!-- Text for the PAS footer explanation of measurement API controls for ad privacy. [CHAR LIMIT=NONE] -->
+    <string name="settingsUI_pas_topics_view_footer">Android notes topics of interest based on the apps you’ve used in the last few weeks.\n\nLater, an app you use can ask Android for your topics to personalize the ads you see. Android shares up to 3 topics while protecting your identity and information about your app usage.\n\nAndroid auto-deletes topics regularly. As you continue using apps, a topic might reappear on the list. Or you can block topics you don’t want Android to share with apps.\n\nWhether an ad you see is personalized can depend on many factors like this setting, the app-suggested ads setting, your advertising ID settings, and whether the app you’re using personalized ads.\n\n<a href="https://support.google.com/android?p=ad_privacy">Learn more about ad topics</a></string>
+
+    <!--*****************************************************************************************-->
+    <!-- Other Strings **************************************************************************-->
+    <!--*****************************************************************************************-->
+
+    <!-- Illustration description texts ****************************************************-->
+    <!-- Description for an illustration for accessibility purposes. [CHAR LIMIT=NONE] -->
+    <string name="ic_consent_notification_ga_image_description">Colorful illustration of symbols representing topics of interest like music, news, and sports</string>
+    <!-- Description for an illustration for accessibility purposes. [CHAR LIMIT=NONE] -->
+    <string name="ic_main_view_ga_image_description">Colorful illustration of a lock inside a circle</string>
+    <!-- Description for an illustration for accessibility purposes. [CHAR LIMIT=NONE] -->
+    <string name="ic_placeholder_icon_for_empty_apps_list_description">Small black and white illustration of nine dots forming a square</string>
+    <!-- Description for an illustration for accessibility purposes. [CHAR LIMIT=NONE] -->
+    <string name="ic_placeholder_icon_for_empty_topics_list_description">Small black and white illustration of simple shapes like a heart, triangle, and square</string>
+
+    <!-- All Topics strings *********************************************************************-->
+    <!-- Text for the topic name for topic Arts &amp; Entertainment. [CHAR LIMIT=NONE] -->
+    <string name="topic10001">Arts &amp; Entertainment</string>
+    <!-- Text for the topic name for topic Acting &amp; Theater. [CHAR LIMIT=NONE] -->
+    <string name="topic10002">Acting &amp; Theater</string>
+    <!-- Text for the topic name for topic Anime &amp; Manga. [CHAR LIMIT=NONE] -->
+    <string name="topic10003">Anime &amp; Manga</string>
+    <!-- Text for the topic name for topic Cartoons. [CHAR LIMIT=NONE] -->
+    <string name="topic10004">Cartoons</string>
+    <!-- Text for the topic name for topic Comics. [CHAR LIMIT=NONE] -->
+    <string name="topic10005">Comics</string>
+    <!-- Text for the topic name for topic Concerts &amp; Music Festivals. [CHAR LIMIT=NONE] -->
+    <string name="topic10006">Concerts &amp; Music Festivals</string>
+    <!-- Text for the topic name for topic Dance. [CHAR LIMIT=NONE] -->
+    <string name="topic10007">Dance</string>
+    <!-- Text for the topic name for topic Entertainment Industry. [CHAR LIMIT=NONE] -->
+    <string name="topic10008">Entertainment Industry</string>
+    <!-- Text for the topic name for topic Fun &amp; Trivia. [CHAR LIMIT=NONE] -->
+    <string name="topic10009">Fun &amp; Trivia</string>
+    <!-- Text for the topic name for topic Fun Tests &amp; Silly Surveys. [CHAR LIMIT=NONE] -->
+    <string name="topic10010">Fun Tests &amp; Silly Surveys</string>
+    <!-- Text for the topic name for topic Humor. [CHAR LIMIT=NONE] -->
+    <string name="topic10011">Humor</string>
+    <!-- Text for the topic name for topic Funny Pictures &amp; Videos. [CHAR LIMIT=NONE] -->
+    <string name="topic10012">Funny Pictures &amp; Videos</string>
+    <!-- Text for the topic name for topic Live Comedy. [CHAR LIMIT=NONE] -->
+    <string name="topic10013">Live Comedy</string>
+    <!-- Text for the topic name for topic Live Sporting Events. [CHAR LIMIT=NONE] -->
+    <string name="topic10014">Live Sporting Events</string>
+    <!-- Text for the topic name for topic Magic. [CHAR LIMIT=NONE] -->
+    <string name="topic10015">Magic</string>
+    <!-- Text for the topic name for topic Movie Listings &amp; Theater Showtimes. [CHAR LIMIT=NONE] -->
+    <string name="topic10016">Movie Listings &amp; Theater Showtimes</string>
+    <!-- Text for the topic name for topic Movies. [CHAR LIMIT=NONE] -->
+    <string name="topic10017">Movies</string>
+    <!-- Text for the topic name for topic Action &amp; Adventure Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10018">Action &amp; Adventure Films</string>
+    <!-- Text for the topic name for topic Animated Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10019">Animated Films</string>
+    <!-- Text for the topic name for topic Comedy Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10020">Comedy Films</string>
+    <!-- Text for the topic name for topic Cult &amp; Indie Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10021">Cult &amp; Indie Films</string>
+    <!-- Text for the topic name for topic Documentary Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10022">Documentary Films</string>
+    <!-- Text for the topic name for topic Drama Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10023">Drama Films</string>
+    <!-- Text for the topic name for topic Family Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10024">Family Films</string>
+    <!-- Text for the topic name for topic Horror Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10025">Horror Films</string>
+    <!-- Text for the topic name for topic Romance Films. [CHAR LIMIT=NONE] -->
+    <string name="topic10026">Romance Films</string>
+    <!-- Text for the topic name for topic Thriller. [CHAR LIMIT=NONE] -->
+    <string name="topic10027">Thriller</string>
+    <!-- Text for the topic name for topic Music &amp; Audio. [CHAR LIMIT=NONE] -->
+    <string name="topic10028">Music &amp; Audio</string>
+    <!-- Text for the topic name for topic Blues. [CHAR LIMIT=NONE] -->
+    <string name="topic10029">Blues</string>
+    <!-- Text for the topic name for topic Classical Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10030">Classical Music</string>
+    <!-- Text for the topic name for topic Country Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10031">Country Music</string>
+    <!-- Text for the topic name for topic Dance &amp; Electronic Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10032">Dance &amp; Electronic Music</string>
+    <!-- Text for the topic name for topic Folk &amp; Traditional Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10033">Folk &amp; Traditional Music</string>
+    <!-- Text for the topic name for topic Jazz. [CHAR LIMIT=NONE] -->
+    <string name="topic10034">Jazz</string>
+    <!-- Text for the topic name for topic Music Streams &amp; Downloads. [CHAR LIMIT=NONE] -->
+    <string name="topic10035">Music Streams &amp; Downloads</string>
+    <!-- Text for the topic name for topic Music Videos. [CHAR LIMIT=NONE] -->
+    <string name="topic10036">Music Videos</string>
+    <!-- Text for the topic name for topic Musical Instruments. [CHAR LIMIT=NONE] -->
+    <string name="topic10037">Musical Instruments</string>
+    <!-- Text for the topic name for topic Pianos &amp; Keyboards. [CHAR LIMIT=NONE] -->
+    <string name="topic10038">Pianos &amp; Keyboards</string>
+    <!-- Text for the topic name for topic Pop Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10039">Pop Music</string>
+    <!-- Text for the topic name for topic Radio. [CHAR LIMIT=NONE] -->
+    <string name="topic10040">Radio</string>
+    <!-- Text for the topic name for topic Talk Radio. [CHAR LIMIT=NONE] -->
+    <string name="topic10041">Talk Radio</string>
+    <!-- Text for the topic name for topic Rap &amp; Hip-Hop. [CHAR LIMIT=NONE] -->
+    <string name="topic10042">Rap &amp; Hip-Hop</string>
+    <!-- Text for the topic name for topic Rock Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10043">Rock Music</string>
+    <!-- Text for the topic name for topic Classic Rock &amp; Oldies. [CHAR LIMIT=NONE] -->
+    <string name="topic10044">Classic Rock &amp; Oldies</string>
+    <!-- Text for the topic name for topic Hard Rock &amp; Progressive. [CHAR LIMIT=NONE] -->
+    <string name="topic10045">Hard Rock &amp; Progressive</string>
+    <!-- Text for the topic name for topic Indie &amp; Alternative Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10046">Indie &amp; Alternative Music</string>
+    <!-- Text for the topic name for topic Samples &amp; Sound Libraries. [CHAR LIMIT=NONE] -->
+    <string name="topic10047">Samples &amp; Sound Libraries</string>
+    <!-- Text for the topic name for topic Soul &amp; R&amp;B. [CHAR LIMIT=NONE] -->
+    <string name="topic10048">Soul &amp; R&amp;B</string>
+    <!-- Text for the topic name for topic Soundtracks. [CHAR LIMIT=NONE] -->
+    <string name="topic10049">Soundtracks</string>
+    <!-- Text for the topic name for topic World Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10050">World Music</string>
+    <!-- Text for the topic name for topic Reggae &amp; Caribbean Music. [CHAR LIMIT=NONE] -->
+    <string name="topic10051">Reggae &amp; Caribbean Music</string>
+    <!-- Text for the topic name for topic Online Image Galleries. [CHAR LIMIT=NONE] -->
+    <string name="topic10052">Online Image Galleries</string>
+    <!-- Text for the topic name for topic Online Video. [CHAR LIMIT=NONE] -->
+    <string name="topic10053">Online Video</string>
+    <!-- Text for the topic name for topic Live Video Streaming. [CHAR LIMIT=NONE] -->
+    <string name="topic10054">Live Video Streaming</string>
+    <!-- Text for the topic name for topic Movie &amp; TV Streaming. [CHAR LIMIT=NONE] -->
+    <string name="topic10055">Movie &amp; TV Streaming</string>
+    <!-- Text for the topic name for topic Opera. [CHAR LIMIT=NONE] -->
+    <string name="topic10056">Opera</string>
+    <!-- Text for the topic name for topic TV Guides &amp; Reference. [CHAR LIMIT=NONE] -->
+    <string name="topic10057">TV Guides &amp; Reference</string>
+    <!-- Text for the topic name for topic TV Networks &amp; Stations. [CHAR LIMIT=NONE] -->
+    <string name="topic10058">TV Networks &amp; Stations</string>
+    <!-- Text for the topic name for topic TV Shows &amp; Programs. [CHAR LIMIT=NONE] -->
+    <string name="topic10059">TV Shows &amp; Programs</string>
+    <!-- Text for the topic name for topic TV Comedies. [CHAR LIMIT=NONE] -->
+    <string name="topic10060">TV Comedies</string>
+    <!-- Text for the topic name for topic TV Documentary &amp; Nonfiction. [CHAR LIMIT=NONE] -->
+    <string name="topic10061">TV Documentary &amp; Nonfiction</string>
+    <!-- Text for the topic name for topic TV Dramas. [CHAR LIMIT=NONE] -->
+    <string name="topic10062">TV Dramas</string>
+    <!-- Text for the topic name for topic TV Soap Operas. [CHAR LIMIT=NONE] -->
+    <string name="topic10063">TV Soap Operas</string>
+    <!-- Text for the topic name for topic TV Family-Oriented Shows. [CHAR LIMIT=NONE] -->
+    <string name="topic10064">TV Family-Oriented Shows</string>
+    <!-- Text for the topic name for topic TV Reality Shows. [CHAR LIMIT=NONE] -->
+    <string name="topic10065">TV Reality Shows</string>
+    <!-- Text for the topic name for topic TV Sci-Fi &amp; Fantasy Shows. [CHAR LIMIT=NONE] -->
+    <string name="topic10066">TV Sci-Fi &amp; Fantasy Shows</string>
+    <!-- Text for the topic name for topic Visual Art &amp; Design. [CHAR LIMIT=NONE] -->
+    <string name="topic10067">Visual Art &amp; Design</string>
+    <!-- Text for the topic name for topic Design. [CHAR LIMIT=NONE] -->
+    <string name="topic10068">Design</string>
+    <!-- Text for the topic name for topic Painting. [CHAR LIMIT=NONE] -->
+    <string name="topic10069">Painting</string>
+    <!-- Text for the topic name for topic Photographic &amp; Digital Arts. [CHAR LIMIT=NONE] -->
+    <string name="topic10070">Photographic &amp; Digital Arts</string>
+    <!-- Text for the topic name for topic Autos &amp; Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10071">Autos &amp; Vehicles</string>
+    <!-- Text for the topic name for topic Cargo Trucks &amp; Trailers. [CHAR LIMIT=NONE] -->
+    <string name="topic10072">Cargo Trucks &amp; Trailers</string>
+    <!-- Text for the topic name for topic Classic Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10073">Classic Vehicles</string>
+    <!-- Text for the topic name for topic Custom &amp; Performance Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10074">Custom &amp; Performance Vehicles</string>
+    <!-- Text for the topic name for topic Gas Prices &amp; Vehicle Fueling. [CHAR LIMIT=NONE] -->
+    <string name="topic10075">Gas Prices &amp; Vehicle Fueling</string>
+    <!-- Text for the topic name for topic Motor Vehicles (By Type). [CHAR LIMIT=NONE] -->
+    <string name="topic10076">Motor Vehicles (By Type)</string>
+    <!-- Text for the topic name for topic Autonomous Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10077">Autonomous Vehicles</string>
+    <!-- Text for the topic name for topic Convertibles. [CHAR LIMIT=NONE] -->
+    <string name="topic10078">Convertibles</string>
+    <!-- Text for the topic name for topic Coupes. [CHAR LIMIT=NONE] -->
+    <string name="topic10079">Coupes</string>
+    <!-- Text for the topic name for topic Hatchbacks. [CHAR LIMIT=NONE] -->
+    <string name="topic10080">Hatchbacks</string>
+    <!-- Text for the topic name for topic Hybrid &amp; Alternative Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10081">Hybrid &amp; Alternative Vehicles</string>
+    <!-- Text for the topic name for topic Luxury Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10082">Luxury Vehicles</string>
+    <!-- Text for the topic name for topic Microcars &amp; Subcompacts. [CHAR LIMIT=NONE] -->
+    <string name="topic10083">Microcars &amp; Subcompacts</string>
+    <!-- Text for the topic name for topic Motorcycles. [CHAR LIMIT=NONE] -->
+    <string name="topic10084">Motorcycles</string>
+    <!-- Text for the topic name for topic Off-Road Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10085">Off-Road Vehicles</string>
+    <!-- Text for the topic name for topic Pickup Trucks. [CHAR LIMIT=NONE] -->
+    <string name="topic10086">Pickup Trucks</string>
+    <!-- Text for the topic name for topic Scooters &amp; Mopeds. [CHAR LIMIT=NONE] -->
+    <string name="topic10087">Scooters &amp; Mopeds</string>
+    <!-- Text for the topic name for topic Sedans. [CHAR LIMIT=NONE] -->
+    <string name="topic10088">Sedans</string>
+    <!-- Text for the topic name for topic Station Wagons. [CHAR LIMIT=NONE] -->
+    <string name="topic10089">Station Wagons</string>
+    <!-- Text for the topic name for topic SUVs &amp; Crossovers. [CHAR LIMIT=NONE] -->
+    <string name="topic10090">SUVs &amp; Crossovers</string>
+    <!-- Text for the topic name for topic Crossovers. [CHAR LIMIT=NONE] -->
+    <string name="topic10091">Crossovers</string>
+    <!-- Text for the topic name for topic Vans &amp; Minivans. [CHAR LIMIT=NONE] -->
+    <string name="topic10092">Vans &amp; Minivans</string>
+    <!-- Text for the topic name for topic Towing &amp; Roadside Assistance. [CHAR LIMIT=NONE] -->
+    <string name="topic10093">Towing &amp; Roadside Assistance</string>
+    <!-- Text for the topic name for topic Vehicle &amp; Traffic Safety. [CHAR LIMIT=NONE] -->
+    <string name="topic10094">Vehicle &amp; Traffic Safety</string>
+    <!-- Text for the topic name for topic Vehicle Parts &amp; Accessories. [CHAR LIMIT=NONE] -->
+    <string name="topic10095">Vehicle Parts &amp; Accessories</string>
+    <!-- Text for the topic name for topic Vehicle Repair &amp; Maintenance. [CHAR LIMIT=NONE] -->
+    <string name="topic10096">Vehicle Repair &amp; Maintenance</string>
+    <!-- Text for the topic name for topic Vehicle Shopping. [CHAR LIMIT=NONE] -->
+    <string name="topic10097">Vehicle Shopping</string>
+    <!-- Text for the topic name for topic Used Vehicles. [CHAR LIMIT=NONE] -->
+    <string name="topic10098">Used Vehicles</string>
+    <!-- Text for the topic name for topic Vehicle Shows. [CHAR LIMIT=NONE] -->
+    <string name="topic10099">Vehicle Shows</string>
+    <!-- Text for the topic name for topic Beauty &amp; Fitness. [CHAR LIMIT=NONE] -->
+    <string name="topic10100">Beauty &amp; Fitness</string>
+    <!-- Text for the topic name for topic Body Art. [CHAR LIMIT=NONE] -->
+    <string name="topic10101">Body Art</string>
+    <!-- Text for the topic name for topic Face &amp; Body Care. [CHAR LIMIT=NONE] -->
+    <string name="topic10102">Face &amp; Body Care</string>
+    <!-- Text for the topic name for topic Antiperspirants. [CHAR LIMIT=NONE] -->
+    <string name="topic10103">Antiperspirants</string>
+    <!-- Text for the topic name for topic Bath &amp; Body Products. [CHAR LIMIT=NONE] -->
+    <string name="topic10104">Bath &amp; Body Products</string>
+    <!-- Text for the topic name for topic Clean Beauty. [CHAR LIMIT=NONE] -->
+    <string name="topic10105">Clean Beauty</string>
+    <!-- Text for the topic name for topic Make-Up &amp; Cosmetics. [CHAR LIMIT=NONE] -->
+    <string name="topic10106">Make-Up &amp; Cosmetics</string>
+    <!-- Text for the topic name for topic Nail Care Products. [CHAR LIMIT=NONE] -->
+    <string name="topic10107">Nail Care Products</string>
+    <!-- Text for the topic name for topic Perfumes &amp; Fragrances. [CHAR LIMIT=NONE] -->
+    <string name="topic10108">Perfumes &amp; Fragrances</string>
+    <!-- Text for the topic name for topic Razors &amp; Shavers. [CHAR LIMIT=NONE] -->
+    <string name="topic10109">Razors &amp; Shavers</string>
+    <!-- Text for the topic name for topic Fashion &amp; Style. [CHAR LIMIT=NONE] -->
+    <string name="topic10110">Fashion &amp; Style</string>
+    <!-- Text for the topic name for topic Fitness. [CHAR LIMIT=NONE] -->
+    <string name="topic10111">Fitness</string>
+    <!-- Text for the topic name for topic Bodybuilding. [CHAR LIMIT=NONE] -->
+    <string name="topic10112">Bodybuilding</string>
+    <!-- Text for the topic name for topic Fitness Instruction &amp; Personal Training. [CHAR LIMIT=NONE] -->
+    <string name="topic10113">Fitness Instruction &amp; Personal Training</string>
+    <!-- Text for the topic name for topic Fitness Technology Products. [CHAR LIMIT=NONE] -->
+    <string name="topic10114">Fitness Technology Products</string>
+    <!-- Text for the topic name for topic Hair Care. [CHAR LIMIT=NONE] -->
+    <string name="topic10115">Hair Care</string>
+    <!-- Text for the topic name for topic Books &amp; Literature. [CHAR LIMIT=NONE] -->
+    <string name="topic10116">Books &amp; Literature</string>
+    <!-- Text for the topic name for topic Children\'s Literature. [CHAR LIMIT=NONE] -->
+    <string name="topic10117">Children\'s Literature</string>
+    <!-- Text for the topic name for topic E-Books. [CHAR LIMIT=NONE] -->
+    <string name="topic10118">E-Books</string>
+    <!-- Text for the topic name for topic Magazines. [CHAR LIMIT=NONE] -->
+    <string name="topic10119">Magazines</string>
+    <!-- Text for the topic name for topic Poetry. [CHAR LIMIT=NONE] -->
+    <string name="topic10120">Poetry</string>
+    <!-- Text for the topic name for topic Business &amp; Industrial. [CHAR LIMIT=NONE] -->
+    <string name="topic10121">Business &amp; Industrial</string>
+    <!-- Text for the topic name for topic Advertising &amp; Marketing. [CHAR LIMIT=NONE] -->
+    <string name="topic10122">Advertising &amp; Marketing</string>
+    <!-- Text for the topic name for topic Sales. [CHAR LIMIT=NONE] -->
+    <string name="topic10123">Sales</string>
+    <!-- Text for the topic name for topic Agriculture &amp; Forestry. [CHAR LIMIT=NONE] -->
+    <string name="topic10124">Agriculture &amp; Forestry</string>
+    <!-- Text for the topic name for topic Food Production. [CHAR LIMIT=NONE] -->
+    <string name="topic10125">Food Production</string>
+    <!-- Text for the topic name for topic Automotive Industry. [CHAR LIMIT=NONE] -->
+    <string name="topic10126">Automotive Industry</string>
+    <!-- Text for the topic name for topic Aviation Industry. [CHAR LIMIT=NONE] -->
+    <string name="topic10127">Aviation Industry</string>
+    <!-- Text for the topic name for topic Business Operations. [CHAR LIMIT=NONE] -->
+    <string name="topic10128">Business Operations</string>
+    <!-- Text for the topic name for topic Flexible Work Arrangements. [CHAR LIMIT=NONE] -->
+    <string name="topic10129">Flexible Work Arrangements</string>
+    <!-- Text for the topic name for topic Human Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10130">Human Resources</string>
+    <!-- Text for the topic name for topic Commercial Lending. [CHAR LIMIT=NONE] -->
+    <string name="topic10131">Commercial Lending</string>
+    <!-- Text for the topic name for topic Construction &amp; Maintenance. [CHAR LIMIT=NONE] -->
+    <string name="topic10132">Construction &amp; Maintenance</string>
+    <!-- Text for the topic name for topic Civil Engineering. [CHAR LIMIT=NONE] -->
+    <string name="topic10133">Civil Engineering</string>
+    <!-- Text for the topic name for topic Defense Industry. [CHAR LIMIT=NONE] -->
+    <string name="topic10134">Defense Industry</string>
+    <!-- Text for the topic name for topic Energy &amp; Utilities. [CHAR LIMIT=NONE] -->
+    <string name="topic10135">Energy &amp; Utilities</string>
+    <!-- Text for the topic name for topic Water Supply &amp; Treatment. [CHAR LIMIT=NONE] -->
+    <string name="topic10136">Water Supply &amp; Treatment</string>
+    <!-- Text for the topic name for topic Hospitality Industry. [CHAR LIMIT=NONE] -->
+    <string name="topic10137">Hospitality Industry</string>
+    <!-- Text for the topic name for topic Manufacturing. [CHAR LIMIT=NONE] -->
+    <string name="topic10138">Manufacturing</string>
+    <!-- Text for the topic name for topic Metals &amp; Mining. [CHAR LIMIT=NONE] -->
+    <string name="topic10139">Metals &amp; Mining</string>
+    <!-- Text for the topic name for topic MLM &amp; Business Opportunities. [CHAR LIMIT=NONE] -->
+    <string name="topic10140">MLM &amp; Business Opportunities</string>
+    <!-- Text for the topic name for topic Pharmaceuticals &amp; Biotech. [CHAR LIMIT=NONE] -->
+    <string name="topic10141">Pharmaceuticals &amp; Biotech</string>
+    <!-- Text for the topic name for topic Printing &amp; Publishing. [CHAR LIMIT=NONE] -->
+    <string name="topic10142">Printing &amp; Publishing</string>
+    <!-- Text for the topic name for topic Retail Trade. [CHAR LIMIT=NONE] -->
+    <string name="topic10143">Retail Trade</string>
+    <!-- Text for the topic name for topic Venture Capital. [CHAR LIMIT=NONE] -->
+    <string name="topic10144">Venture Capital</string>
+    <!-- Text for the topic name for topic Computers &amp; Electronics. [CHAR LIMIT=NONE] -->
+    <string name="topic10145">Computers &amp; Electronics</string>
+    <!-- Text for the topic name for topic Computer Peripherals. [CHAR LIMIT=NONE] -->
+    <string name="topic10146">Computer Peripherals</string>
+    <!-- Text for the topic name for topic Printers. [CHAR LIMIT=NONE] -->
+    <string name="topic10147">Printers</string>
+    <!-- Text for the topic name for topic Computer Security. [CHAR LIMIT=NONE] -->
+    <string name="topic10148">Computer Security</string>
+    <!-- Text for the topic name for topic Antivirus &amp; Malware. [CHAR LIMIT=NONE] -->
+    <string name="topic10149">Antivirus &amp; Malware</string>
+    <!-- Text for the topic name for topic Network Security. [CHAR LIMIT=NONE] -->
+    <string name="topic10150">Network Security</string>
+    <!-- Text for the topic name for topic Consumer Electronics. [CHAR LIMIT=NONE] -->
+    <string name="topic10151">Consumer Electronics</string>
+    <!-- Text for the topic name for topic Cameras &amp; Camcorders. [CHAR LIMIT=NONE] -->
+    <string name="topic10152">Cameras &amp; Camcorders</string>
+    <!-- Text for the topic name for topic GPS &amp; Navigation. [CHAR LIMIT=NONE] -->
+    <string name="topic10153">GPS &amp; Navigation</string>
+    <!-- Text for the topic name for topic Home Automation. [CHAR LIMIT=NONE] -->
+    <string name="topic10154">Home Automation</string>
+    <!-- Text for the topic name for topic Home Theater Systems. [CHAR LIMIT=NONE] -->
+    <string name="topic10155">Home Theater Systems</string>
+    <!-- Text for the topic name for topic MP3 &amp; Portable Media Players. [CHAR LIMIT=NONE] -->
+    <string name="topic10156">MP3 &amp; Portable Media Players</string>
+    <!-- Text for the topic name for topic Wearable Technology. [CHAR LIMIT=NONE] -->
+    <string name="topic10157">Wearable Technology</string>
+    <!-- Text for the topic name for topic Data Backup &amp; Recovery. [CHAR LIMIT=NONE] -->
+    <string name="topic10158">Data Backup &amp; Recovery</string>
+    <!-- Text for the topic name for topic Desktop Computers. [CHAR LIMIT=NONE] -->
+    <string name="topic10159">Desktop Computers</string>
+    <!-- Text for the topic name for topic Laptops &amp; Notebooks. [CHAR LIMIT=NONE] -->
+    <string name="topic10160">Laptops &amp; Notebooks</string>
+    <!-- Text for the topic name for topic Networking. [CHAR LIMIT=NONE] -->
+    <string name="topic10161">Networking</string>
+    <!-- Text for the topic name for topic Distributed &amp; Cloud Computing. [CHAR LIMIT=NONE] -->
+    <string name="topic10162">Distributed &amp; Cloud Computing</string>
+    <!-- Text for the topic name for topic Programming. [CHAR LIMIT=NONE] -->
+    <string name="topic10163">Programming</string>
+    <!-- Text for the topic name for topic Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10164">Software</string>
+    <!-- Text for the topic name for topic Audio &amp; Music Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10165">Audio &amp; Music Software</string>
+    <!-- Text for the topic name for topic Business &amp; Productivity Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10166">Business &amp; Productivity Software</string>
+    <!-- Text for the topic name for topic Calendar &amp; Scheduling Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10167">Calendar &amp; Scheduling Software</string>
+    <!-- Text for the topic name for topic Collaboration &amp; Conferencing Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10168">Collaboration &amp; Conferencing Software</string>
+    <!-- Text for the topic name for topic Presentation Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10169">Presentation Software</string>
+    <!-- Text for the topic name for topic Spreadsheet Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10170">Spreadsheet Software</string>
+    <!-- Text for the topic name for topic Word Processing Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10171">Word Processing Software</string>
+    <!-- Text for the topic name for topic Desktop Publishing. [CHAR LIMIT=NONE] -->
+    <string name="topic10172">Desktop Publishing</string>
+    <!-- Text for the topic name for topic Fonts. [CHAR LIMIT=NONE] -->
+    <string name="topic10173">Fonts</string>
+    <!-- Text for the topic name for topic Download Managers. [CHAR LIMIT=NONE] -->
+    <string name="topic10174">Download Managers</string>
+    <!-- Text for the topic name for topic Freeware &amp; Shareware. [CHAR LIMIT=NONE] -->
+    <string name="topic10175">Freeware &amp; Shareware</string>
+    <!-- Text for the topic name for topic Graphics &amp; Animation Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10176">Graphics &amp; Animation Software</string>
+    <!-- Text for the topic name for topic Intelligent Personal Assistants. [CHAR LIMIT=NONE] -->
+    <string name="topic10177">Intelligent Personal Assistants</string>
+    <!-- Text for the topic name for topic Media Players. [CHAR LIMIT=NONE] -->
+    <string name="topic10178">Media Players</string>
+    <!-- Text for the topic name for topic Monitoring Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10179">Monitoring Software</string>
+    <!-- Text for the topic name for topic Operating Systems. [CHAR LIMIT=NONE] -->
+    <string name="topic10180">Operating Systems</string>
+    <!-- Text for the topic name for topic Photo &amp; Video Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10181">Photo &amp; Video Software</string>
+    <!-- Text for the topic name for topic Photo Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10182">Photo Software</string>
+    <!-- Text for the topic name for topic Video Software. [CHAR LIMIT=NONE] -->
+    <string name="topic10183">Video Software</string>
+    <!-- Text for the topic name for topic Software Utilities. [CHAR LIMIT=NONE] -->
+    <string name="topic10184">Software Utilities</string>
+    <!-- Text for the topic name for topic Web Browsers. [CHAR LIMIT=NONE] -->
+    <string name="topic10185">Web Browsers</string>
+    <!-- Text for the topic name for topic Finance. [CHAR LIMIT=NONE] -->
+    <string name="topic10186">Finance</string>
+    <!-- Text for the topic name for topic Accounting &amp; Auditing. [CHAR LIMIT=NONE] -->
+    <string name="topic10187">Accounting &amp; Auditing</string>
+    <!-- Text for the topic name for topic Tax Preparation &amp; Planning. [CHAR LIMIT=NONE] -->
+    <string name="topic10188">Tax Preparation &amp; Planning</string>
+    <!-- Text for the topic name for topic Banking. [CHAR LIMIT=NONE] -->
+    <string name="topic10189">Banking</string>
+    <!-- Text for the topic name for topic Money Transfer &amp; Wire Services. [CHAR LIMIT=NONE] -->
+    <string name="topic10190">Money Transfer &amp; Wire Services</string>
+    <!-- Text for the topic name for topic Credit &amp; Lending. [CHAR LIMIT=NONE] -->
+    <string name="topic10191">Credit &amp; Lending</string>
+    <!-- Text for the topic name for topic Credit Cards. [CHAR LIMIT=NONE] -->
+    <string name="topic10192">Credit Cards</string>
+    <!-- Text for the topic name for topic Home Financing. [CHAR LIMIT=NONE] -->
+    <string name="topic10193">Home Financing</string>
+    <!-- Text for the topic name for topic Personal Loans. [CHAR LIMIT=NONE] -->
+    <string name="topic10194">Personal Loans</string>
+    <!-- Text for the topic name for topic Student Loans &amp; College Financing. [CHAR LIMIT=NONE] -->
+    <string name="topic10195">Student Loans &amp; College Financing</string>
+    <!-- Text for the topic name for topic Financial Planning &amp; Management. [CHAR LIMIT=NONE] -->
+    <string name="topic10196">Financial Planning &amp; Management</string>
+    <!-- Text for the topic name for topic Retirement &amp; Pension. [CHAR LIMIT=NONE] -->
+    <string name="topic10197">Retirement &amp; Pension</string>
+    <!-- Text for the topic name for topic Grants. [CHAR LIMIT=NONE] -->
+    <string name="topic10198">Grants</string>
+    <!-- Text for the topic name for topic Grants. [CHAR LIMIT=NONE] -->
+    <string name="topic10199">Grants</string>
+    <!-- Text for the topic name for topic Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10200">Insurance</string>
+    <!-- Text for the topic name for topic Auto Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10201">Auto Insurance</string>
+    <!-- Text for the topic name for topic Health Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10202">Health Insurance</string>
+    <!-- Text for the topic name for topic Home Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10203">Home Insurance</string>
+    <!-- Text for the topic name for topic Life Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10204">Life Insurance</string>
+    <!-- Text for the topic name for topic Travel Insurance. [CHAR LIMIT=NONE] -->
+    <string name="topic10205">Travel Insurance</string>
+    <!-- Text for the topic name for topic Investing. [CHAR LIMIT=NONE] -->
+    <string name="topic10206">Investing</string>
+    <!-- Text for the topic name for topic Commodities &amp; Futures Trading. [CHAR LIMIT=NONE] -->
+    <string name="topic10207">Commodities &amp; Futures Trading</string>
+    <!-- Text for the topic name for topic Currencies &amp; Foreign Exchange. [CHAR LIMIT=NONE] -->
+    <string name="topic10208">Currencies &amp; Foreign Exchange</string>
+    <!-- Text for the topic name for topic Hedge Funds. [CHAR LIMIT=NONE] -->
+    <string name="topic10209">Hedge Funds</string>
+    <!-- Text for the topic name for topic Mutual Funds. [CHAR LIMIT=NONE] -->
+    <string name="topic10210">Mutual Funds</string>
+    <!-- Text for the topic name for topic Stocks &amp; Bonds. [CHAR LIMIT=NONE] -->
+    <string name="topic10211">Stocks &amp; Bonds</string>
+    <!-- Text for the topic name for topic Food &amp; Drink. [CHAR LIMIT=NONE] -->
+    <string name="topic10212">Food &amp; Drink</string>
+    <!-- Text for the topic name for topic Cooking &amp; Recipes. [CHAR LIMIT=NONE] -->
+    <string name="topic10213">Cooking &amp; Recipes</string>
+    <!-- Text for the topic name for topic BBQ &amp; Grilling. [CHAR LIMIT=NONE] -->
+    <string name="topic10214">BBQ &amp; Grilling</string>
+    <!-- Text for the topic name for topic Cuisines. [CHAR LIMIT=NONE] -->
+    <string name="topic10215">Cuisines</string>
+    <!-- Text for the topic name for topic Vegetarian Cuisine. [CHAR LIMIT=NONE] -->
+    <string name="topic10216">Vegetarian Cuisine</string>
+    <!-- Text for the topic name for topic Vegan Cuisine. [CHAR LIMIT=NONE] -->
+    <string name="topic10217">Vegan Cuisine</string>
+    <!-- Text for the topic name for topic Healthy Eating. [CHAR LIMIT=NONE] -->
+    <string name="topic10218">Healthy Eating</string>
+    <!-- Text for the topic name for topic Food &amp; Grocery Retailers. [CHAR LIMIT=NONE] -->
+    <string name="topic10219">Food &amp; Grocery Retailers</string>
+    <!-- Text for the topic name for topic Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10220">Games</string>
+    <!-- Text for the topic name for topic Arcade &amp; Coin-Op Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10221">Arcade &amp; Coin-Op Games</string>
+    <!-- Text for the topic name for topic Billiards. [CHAR LIMIT=NONE] -->
+    <string name="topic10222">Billiards</string>
+    <!-- Text for the topic name for topic Board Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10223">Board Games</string>
+    <!-- Text for the topic name for topic Chess &amp; Abstract Strategy Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10224">Chess &amp; Abstract Strategy Games</string>
+    <!-- Text for the topic name for topic Card Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10225">Card Games</string>
+    <!-- Text for the topic name for topic Collectible Card Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10226">Collectible Card Games</string>
+    <!-- Text for the topic name for topic Computer &amp; Video Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10227">Computer &amp; Video Games</string>
+    <!-- Text for the topic name for topic Action &amp; Platform Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10228">Action &amp; Platform Games</string>
+    <!-- Text for the topic name for topic Adventure Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10229">Adventure Games</string>
+    <!-- Text for the topic name for topic Casual Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10230">Casual Games</string>
+    <!-- Text for the topic name for topic Competitive Video Gaming. [CHAR LIMIT=NONE] -->
+    <string name="topic10231">Competitive Video Gaming</string>
+    <!-- Text for the topic name for topic Driving &amp; Racing Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10232">Driving &amp; Racing Games</string>
+    <!-- Text for the topic name for topic Fighting Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10233">Fighting Games</string>
+    <!-- Text for the topic name for topic Gaming Reference &amp; Reviews. [CHAR LIMIT=NONE] -->
+    <string name="topic10234">Gaming Reference &amp; Reviews</string>
+    <!-- Text for the topic name for topic Video Game Cheats &amp; Hints. [CHAR LIMIT=NONE] -->
+    <string name="topic10235">Video Game Cheats &amp; Hints</string>
+    <!-- Text for the topic name for topic Massively Multiplayer Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10236">Massively Multiplayer Games</string>
+    <!-- Text for the topic name for topic Music &amp; Dance Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10237">Music &amp; Dance Games</string>
+    <!-- Text for the topic name for topic Sandbox Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10238">Sandbox Games</string>
+    <!-- Text for the topic name for topic Shooter Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10239">Shooter Games</string>
+    <!-- Text for the topic name for topic Simulation Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10240">Simulation Games</string>
+    <!-- Text for the topic name for topic Business &amp; Tycoon Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10241">Business &amp; Tycoon Games</string>
+    <!-- Text for the topic name for topic City Building Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10242">City Building Games</string>
+    <!-- Text for the topic name for topic Life Simulation Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10243">Life Simulation Games</string>
+    <!-- Text for the topic name for topic Vehicle Simulators. [CHAR LIMIT=NONE] -->
+    <string name="topic10244">Vehicle Simulators</string>
+    <!-- Text for the topic name for topic Sports Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10245">Sports Games</string>
+    <!-- Text for the topic name for topic Sports Management Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10246">Sports Management Games</string>
+    <!-- Text for the topic name for topic Strategy Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10247">Strategy Games</string>
+    <!-- Text for the topic name for topic Video Game Mods &amp; Add-Ons. [CHAR LIMIT=NONE] -->
+    <string name="topic10248">Video Game Mods &amp; Add-Ons</string>
+    <!-- Text for the topic name for topic Educational Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10249">Educational Games</string>
+    <!-- Text for the topic name for topic Family-Oriented Games &amp; Activities. [CHAR LIMIT=NONE] -->
+    <string name="topic10250">Family-Oriented Games &amp; Activities</string>
+    <!-- Text for the topic name for topic Drawing &amp; Coloring. [CHAR LIMIT=NONE] -->
+    <string name="topic10251">Drawing &amp; Coloring</string>
+    <!-- Text for the topic name for topic Dress-Up &amp; Fashion Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10252">Dress-Up &amp; Fashion Games</string>
+    <!-- Text for the topic name for topic Puzzles &amp; Brainteasers. [CHAR LIMIT=NONE] -->
+    <string name="topic10253">Puzzles &amp; Brainteasers</string>
+    <!-- Text for the topic name for topic Roleplaying Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10254">Roleplaying Games</string>
+    <!-- Text for the topic name for topic Table Tennis. [CHAR LIMIT=NONE] -->
+    <string name="topic10255">Table Tennis</string>
+    <!-- Text for the topic name for topic Tile Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10256">Tile Games</string>
+    <!-- Text for the topic name for topic Word Games. [CHAR LIMIT=NONE] -->
+    <string name="topic10257">Word Games</string>
+    <!-- Text for the topic name for topic Hobbies &amp; Leisure. [CHAR LIMIT=NONE] -->
+    <string name="topic10258">Hobbies &amp; Leisure</string>
+    <!-- Text for the topic name for topic Anniversaries. [CHAR LIMIT=NONE] -->
+    <string name="topic10259">Anniversaries</string>
+    <!-- Text for the topic name for topic Birthdays &amp; Name Days. [CHAR LIMIT=NONE] -->
+    <string name="topic10260">Birthdays &amp; Name Days</string>
+    <!-- Text for the topic name for topic Diving &amp; Underwater Activities. [CHAR LIMIT=NONE] -->
+    <string name="topic10261">Diving &amp; Underwater Activities</string>
+    <!-- Text for the topic name for topic Fiber &amp; Textile Arts. [CHAR LIMIT=NONE] -->
+    <string name="topic10262">Fiber &amp; Textile Arts</string>
+    <!-- Text for the topic name for topic Outdoors. [CHAR LIMIT=NONE] -->
+    <string name="topic10263">Outdoors</string>
+    <!-- Text for the topic name for topic Fishing. [CHAR LIMIT=NONE] -->
+    <string name="topic10264">Fishing</string>
+    <!-- Text for the topic name for topic Hunting &amp; Shooting. [CHAR LIMIT=NONE] -->
+    <string name="topic10265">Hunting &amp; Shooting</string>
+    <!-- Text for the topic name for topic Paintball. [CHAR LIMIT=NONE] -->
+    <string name="topic10266">Paintball</string>
+    <!-- Text for the topic name for topic Radio Control &amp; Modeling. [CHAR LIMIT=NONE] -->
+    <string name="topic10267">Radio Control &amp; Modeling</string>
+    <!-- Text for the topic name for topic Weddings. [CHAR LIMIT=NONE] -->
+    <string name="topic10268">Weddings</string>
+    <!-- Text for the topic name for topic Home &amp; Garden. [CHAR LIMIT=NONE] -->
+    <string name="topic10269">Home &amp; Garden</string>
+    <!-- Text for the topic name for topic Gardening. [CHAR LIMIT=NONE] -->
+    <string name="topic10270">Gardening</string>
+    <!-- Text for the topic name for topic Home &amp; Interior Decor. [CHAR LIMIT=NONE] -->
+    <string name="topic10271">Home &amp; Interior Decor</string>
+    <!-- Text for the topic name for topic Home Appliances. [CHAR LIMIT=NONE] -->
+    <string name="topic10272">Home Appliances</string>
+    <!-- Text for the topic name for topic Home Improvement. [CHAR LIMIT=NONE] -->
+    <string name="topic10273">Home Improvement</string>
+    <!-- Text for the topic name for topic Home Safety &amp; Security. [CHAR LIMIT=NONE] -->
+    <string name="topic10274">Home Safety &amp; Security</string>
+    <!-- Text for the topic name for topic Household Supplies. [CHAR LIMIT=NONE] -->
+    <string name="topic10275">Household Supplies</string>
+    <!-- Text for the topic name for topic Landscape Design. [CHAR LIMIT=NONE] -->
+    <string name="topic10276">Landscape Design</string>
+    <!-- Text for the topic name for topic Internet &amp; Telecom. [CHAR LIMIT=NONE] -->
+    <string name="topic10277">Internet &amp; Telecom</string>
+    <!-- Text for the topic name for topic Email &amp; Messaging. [CHAR LIMIT=NONE] -->
+    <string name="topic10278">Email &amp; Messaging</string>
+    <!-- Text for the topic name for topic Email. [CHAR LIMIT=NONE] -->
+    <string name="topic10279">Email</string>
+    <!-- Text for the topic name for topic Text &amp; Instant Messaging. [CHAR LIMIT=NONE] -->
+    <string name="topic10280">Text &amp; Instant Messaging</string>
+    <!-- Text for the topic name for topic Voice &amp; Video Chat. [CHAR LIMIT=NONE] -->
+    <string name="topic10281">Voice &amp; Video Chat</string>
+    <!-- Text for the topic name for topic ISPs. [CHAR LIMIT=NONE] -->
+    <string name="topic10282">ISPs</string>
+    <!-- Text for the topic name for topic Phone Service Providers. [CHAR LIMIT=NONE] -->
+    <string name="topic10283">Phone Service Providers</string>
+    <!-- Text for the topic name for topic Ringtones &amp; Mobile Themes. [CHAR LIMIT=NONE] -->
+    <string name="topic10284">Ringtones &amp; Mobile Themes</string>
+    <!-- Text for the topic name for topic Search Engines. [CHAR LIMIT=NONE] -->
+    <string name="topic10285">Search Engines</string>
+    <!-- Text for the topic name for topic Smart Phones. [CHAR LIMIT=NONE] -->
+    <string name="topic10286">Smart Phones</string>
+    <!-- Text for the topic name for topic Teleconferencing. [CHAR LIMIT=NONE] -->
+    <string name="topic10287">Teleconferencing</string>
+    <!-- Text for the topic name for topic Web Apps &amp; Online Tools. [CHAR LIMIT=NONE] -->
+    <string name="topic10288">Web Apps &amp; Online Tools</string>
+    <!-- Text for the topic name for topic Web Services. [CHAR LIMIT=NONE] -->
+    <string name="topic10289">Web Services</string>
+    <!-- Text for the topic name for topic Cloud Storage. [CHAR LIMIT=NONE] -->
+    <string name="topic10290">Cloud Storage</string>
+    <!-- Text for the topic name for topic Web Design &amp; Development. [CHAR LIMIT=NONE] -->
+    <string name="topic10291">Web Design &amp; Development</string>
+    <!-- Text for the topic name for topic Web Hosting. [CHAR LIMIT=NONE] -->
+    <string name="topic10292">Web Hosting</string>
+    <!-- Text for the topic name for topic Jobs &amp; Education. [CHAR LIMIT=NONE] -->
+    <string name="topic10293">Jobs &amp; Education</string>
+    <!-- Text for the topic name for topic Education. [CHAR LIMIT=NONE] -->
+    <string name="topic10294">Education</string>
+    <!-- Text for the topic name for topic Academic Conferences &amp; Publications. [CHAR LIMIT=NONE] -->
+    <string name="topic10295">Academic Conferences &amp; Publications</string>
+    <!-- Text for the topic name for topic Colleges &amp; Universities. [CHAR LIMIT=NONE] -->
+    <string name="topic10296">Colleges &amp; Universities</string>
+    <!-- Text for the topic name for topic Distance Learning. [CHAR LIMIT=NONE] -->
+    <string name="topic10297">Distance Learning</string>
+    <!-- Text for the topic name for topic Early Childhood Education. [CHAR LIMIT=NONE] -->
+    <string name="topic10298">Early Childhood Education</string>
+    <!-- Text for the topic name for topic Preschool. [CHAR LIMIT=NONE] -->
+    <string name="topic10299">Preschool</string>
+    <!-- Text for the topic name for topic Homeschooling. [CHAR LIMIT=NONE] -->
+    <string name="topic10300">Homeschooling</string>
+    <!-- Text for the topic name for topic Standardized &amp; Admissions Tests. [CHAR LIMIT=NONE] -->
+    <string name="topic10301">Standardized &amp; Admissions Tests</string>
+    <!-- Text for the topic name for topic Teaching &amp; Classroom Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10302">Teaching &amp; Classroom Resources</string>
+    <!-- Text for the topic name for topic Vocational &amp; Continuing Education. [CHAR LIMIT=NONE] -->
+    <string name="topic10303">Vocational &amp; Continuing Education</string>
+    <!-- Text for the topic name for topic Jobs. [CHAR LIMIT=NONE] -->
+    <string name="topic10304">Jobs</string>
+    <!-- Text for the topic name for topic Career Resources &amp; Planning. [CHAR LIMIT=NONE] -->
+    <string name="topic10305">Career Resources &amp; Planning</string>
+    <!-- Text for the topic name for topic Job Listings. [CHAR LIMIT=NONE] -->
+    <string name="topic10306">Job Listings</string>
+    <!-- Text for the topic name for topic Law &amp; Government. [CHAR LIMIT=NONE] -->
+    <string name="topic10307">Law &amp; Government</string>
+    <!-- Text for the topic name for topic Crime &amp; Justice. [CHAR LIMIT=NONE] -->
+    <string name="topic10308">Crime &amp; Justice</string>
+    <!-- Text for the topic name for topic Legal. [CHAR LIMIT=NONE] -->
+    <string name="topic10309">Legal</string>
+    <!-- Text for the topic name for topic Legal Services. [CHAR LIMIT=NONE] -->
+    <string name="topic10310">Legal Services</string>
+    <!-- Text for the topic name for topic News. [CHAR LIMIT=NONE] -->
+    <string name="topic10311">News</string>
+    <!-- Text for the topic name for topic Economy News. [CHAR LIMIT=NONE] -->
+    <string name="topic10312">Economy News</string>
+    <!-- Text for the topic name for topic Local News. [CHAR LIMIT=NONE] -->
+    <string name="topic10313">Local News</string>
+    <!-- Text for the topic name for topic Mergers &amp; Acquisitions. [CHAR LIMIT=NONE] -->
+    <string name="topic10314">Mergers &amp; Acquisitions</string>
+    <!-- Text for the topic name for topic Newspapers. [CHAR LIMIT=NONE] -->
+    <string name="topic10315">Newspapers</string>
+    <!-- Text for the topic name for topic Politics. [CHAR LIMIT=NONE] -->
+    <string name="topic10316">Politics</string>
+    <!-- Text for the topic name for topic Sports News. [CHAR LIMIT=NONE] -->
+    <string name="topic10317">Sports News</string>
+    <!-- Text for the topic name for topic Weather. [CHAR LIMIT=NONE] -->
+    <string name="topic10318">Weather</string>
+    <!-- Text for the topic name for topic World News. [CHAR LIMIT=NONE] -->
+    <string name="topic10319">World News</string>
+    <!-- Text for the topic name for topic Online Communities. [CHAR LIMIT=NONE] -->
+    <string name="topic10320">Online Communities</string>
+    <!-- Text for the topic name for topic Clip Art &amp; Animated GIFs. [CHAR LIMIT=NONE] -->
+    <string name="topic10321">Clip Art &amp; Animated GIFs</string>
+    <!-- Text for the topic name for topic Dating &amp; Personals. [CHAR LIMIT=NONE] -->
+    <string name="topic10322">Dating &amp; Personals</string>
+    <!-- Text for the topic name for topic Feed Aggregation &amp; Social Bookmarking. [CHAR LIMIT=NONE] -->
+    <string name="topic10323">Feed Aggregation &amp; Social Bookmarking</string>
+    <!-- Text for the topic name for topic File Sharing &amp; Hosting. [CHAR LIMIT=NONE] -->
+    <string name="topic10324">File Sharing &amp; Hosting</string>
+    <!-- Text for the topic name for topic Forum &amp; Chat Providers. [CHAR LIMIT=NONE] -->
+    <string name="topic10325">Forum &amp; Chat Providers</string>
+    <!-- Text for the topic name for topic Microblogging. [CHAR LIMIT=NONE] -->
+    <string name="topic10326">Microblogging</string>
+    <!-- Text for the topic name for topic Photo &amp; Video Sharing. [CHAR LIMIT=NONE] -->
+    <string name="topic10327">Photo &amp; Video Sharing</string>
+    <!-- Text for the topic name for topic Photo &amp; Image Sharing. [CHAR LIMIT=NONE] -->
+    <string name="topic10328">Photo &amp; Image Sharing</string>
+    <!-- Text for the topic name for topic Video Sharing. [CHAR LIMIT=NONE] -->
+    <string name="topic10329">Video Sharing</string>
+    <!-- Text for the topic name for topic Skins. [CHAR LIMIT=NONE] -->
+    <string name="topic10330">Skins</string>
+    <!-- Text for the topic name for topic Social Network Apps &amp; Add-Ons. [CHAR LIMIT=NONE] -->
+    <string name="topic10331">Social Network Apps &amp; Add-Ons</string>
+    <!-- Text for the topic name for topic Social Networks. [CHAR LIMIT=NONE] -->
+    <string name="topic10332">Social Networks</string>
+    <!-- Text for the topic name for topic People &amp; Society. [CHAR LIMIT=NONE] -->
+    <string name="topic10333">People &amp; Society</string>
+    <!-- Text for the topic name for topic Family &amp; Relationships. [CHAR LIMIT=NONE] -->
+    <string name="topic10334">Family &amp; Relationships</string>
+    <!-- Text for the topic name for topic Ancestry &amp; Genealogy. [CHAR LIMIT=NONE] -->
+    <string name="topic10335">Ancestry &amp; Genealogy</string>
+    <!-- Text for the topic name for topic Marriage. [CHAR LIMIT=NONE] -->
+    <string name="topic10336">Marriage</string>
+    <!-- Text for the topic name for topic Parenting. [CHAR LIMIT=NONE] -->
+    <string name="topic10337">Parenting</string>
+    <!-- Text for the topic name for topic Adoption. [CHAR LIMIT=NONE] -->
+    <string name="topic10338">Adoption</string>
+    <!-- Text for the topic name for topic Babies &amp; Toddlers. [CHAR LIMIT=NONE] -->
+    <string name="topic10339">Babies &amp; Toddlers</string>
+    <!-- Text for the topic name for topic Child Internet Safety. [CHAR LIMIT=NONE] -->
+    <string name="topic10340">Child Internet Safety</string>
+    <!-- Text for the topic name for topic Romance. [CHAR LIMIT=NONE] -->
+    <string name="topic10341">Romance</string>
+    <!-- Text for the topic name for topic Science Fiction &amp; Fantasy. [CHAR LIMIT=NONE] -->
+    <string name="topic10342">Science Fiction &amp; Fantasy</string>
+    <!-- Text for the topic name for topic Pets &amp; Animals. [CHAR LIMIT=NONE] -->
+    <string name="topic10343">Pets &amp; Animals</string>
+    <!-- Text for the topic name for topic Pet Food &amp; Pet Care Supplies. [CHAR LIMIT=NONE] -->
+    <string name="topic10344">Pet Food &amp; Pet Care Supplies</string>
+    <!-- Text for the topic name for topic Pets. [CHAR LIMIT=NONE] -->
+    <string name="topic10345">Pets</string>
+    <!-- Text for the topic name for topic Birds. [CHAR LIMIT=NONE] -->
+    <string name="topic10346">Birds</string>
+    <!-- Text for the topic name for topic Cats. [CHAR LIMIT=NONE] -->
+    <string name="topic10347">Cats</string>
+    <!-- Text for the topic name for topic Dogs. [CHAR LIMIT=NONE] -->
+    <string name="topic10348">Dogs</string>
+    <!-- Text for the topic name for topic Fish &amp; Aquaria. [CHAR LIMIT=NONE] -->
+    <string name="topic10349">Fish &amp; Aquaria</string>
+    <!-- Text for the topic name for topic Reptiles &amp; Amphibians. [CHAR LIMIT=NONE] -->
+    <string name="topic10350">Reptiles &amp; Amphibians</string>
+    <!-- Text for the topic name for topic Veterinarians. [CHAR LIMIT=NONE] -->
+    <string name="topic10351">Veterinarians</string>
+    <!-- Text for the topic name for topic Real Estate. [CHAR LIMIT=NONE] -->
+    <string name="topic10352">Real Estate</string>
+    <!-- Text for the topic name for topic Lots &amp; Land. [CHAR LIMIT=NONE] -->
+    <string name="topic10353">Lots &amp; Land</string>
+    <!-- Text for the topic name for topic Timeshares &amp; Vacation Properties. [CHAR LIMIT=NONE] -->
+    <string name="topic10354">Timeshares &amp; Vacation Properties</string>
+    <!-- Text for the topic name for topic Reference. [CHAR LIMIT=NONE] -->
+    <string name="topic10355">Reference</string>
+    <!-- Text for the topic name for topic Business &amp; Personal Listings. [CHAR LIMIT=NONE] -->
+    <string name="topic10356">Business &amp; Personal Listings</string>
+    <!-- Text for the topic name for topic General Reference. [CHAR LIMIT=NONE] -->
+    <string name="topic10357">General Reference</string>
+    <!-- Text for the topic name for topic Calculators &amp; Reference Tools. [CHAR LIMIT=NONE] -->
+    <string name="topic10358">Calculators &amp; Reference Tools</string>
+    <!-- Text for the topic name for topic Dictionaries &amp; Encyclopedias. [CHAR LIMIT=NONE] -->
+    <string name="topic10359">Dictionaries &amp; Encyclopedias</string>
+    <!-- Text for the topic name for topic Educational Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10360">Educational Resources</string>
+    <!-- Text for the topic name for topic How-To. [CHAR LIMIT=NONE] -->
+    <string name="topic10361">How-To</string>
+    <!-- Text for the topic name for topic Time &amp; Calendars. [CHAR LIMIT=NONE] -->
+    <string name="topic10362">Time &amp; Calendars</string>
+    <!-- Text for the topic name for topic Language Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10363">Language Resources</string>
+    <!-- Text for the topic name for topic Foreign Language Study. [CHAR LIMIT=NONE] -->
+    <string name="topic10364">Foreign Language Study</string>
+    <!-- Text for the topic name for topic Translation Tools &amp; Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10365">Translation Tools &amp; Resources</string>
+    <!-- Text for the topic name for topic Maps. [CHAR LIMIT=NONE] -->
+    <string name="topic10366">Maps</string>
+    <!-- Text for the topic name for topic Science. [CHAR LIMIT=NONE] -->
+    <string name="topic10367">Science</string>
+    <!-- Text for the topic name for topic Augmented &amp; Virtual Reality. [CHAR LIMIT=NONE] -->
+    <string name="topic10368">Augmented &amp; Virtual Reality</string>
+    <!-- Text for the topic name for topic Biological Sciences. [CHAR LIMIT=NONE] -->
+    <string name="topic10369">Biological Sciences</string>
+    <!-- Text for the topic name for topic Genetics. [CHAR LIMIT=NONE] -->
+    <string name="topic10370">Genetics</string>
+    <!-- Text for the topic name for topic Chemistry. [CHAR LIMIT=NONE] -->
+    <string name="topic10371">Chemistry</string>
+    <!-- Text for the topic name for topic Ecology &amp; Environment. [CHAR LIMIT=NONE] -->
+    <string name="topic10372">Ecology &amp; Environment</string>
+    <!-- Text for the topic name for topic Geology. [CHAR LIMIT=NONE] -->
+    <string name="topic10373">Geology</string>
+    <!-- Text for the topic name for topic Machine Learning &amp; Artificial Intelligence. [CHAR LIMIT=NONE] -->
+    <string name="topic10374">Machine Learning &amp; Artificial Intelligence</string>
+    <!-- Text for the topic name for topic Mathematics. [CHAR LIMIT=NONE] -->
+    <string name="topic10375">Mathematics</string>
+    <!-- Text for the topic name for topic Physics. [CHAR LIMIT=NONE] -->
+    <string name="topic10376">Physics</string>
+    <!-- Text for the topic name for topic Robotics. [CHAR LIMIT=NONE] -->
+    <string name="topic10377">Robotics</string>
+    <!-- Text for the topic name for topic Shopping. [CHAR LIMIT=NONE] -->
+    <string name="topic10378">Shopping</string>
+    <!-- Text for the topic name for topic Antiques &amp; Collectibles. [CHAR LIMIT=NONE] -->
+    <string name="topic10379">Antiques &amp; Collectibles</string>
+    <!-- Text for the topic name for topic Apparel. [CHAR LIMIT=NONE] -->
+    <string name="topic10380">Apparel</string>
+    <!-- Text for the topic name for topic Children\'s Clothing. [CHAR LIMIT=NONE] -->
+    <string name="topic10381">Children\'s Clothing</string>
+    <!-- Text for the topic name for topic Costumes. [CHAR LIMIT=NONE] -->
+    <string name="topic10382">Costumes</string>
+    <!-- Text for the topic name for topic Men\'s Clothing. [CHAR LIMIT=NONE] -->
+    <string name="topic10383">Men\'s Clothing</string>
+    <!-- Text for the topic name for topic Women\'s Clothing. [CHAR LIMIT=NONE] -->
+    <string name="topic10384">Women\'s Clothing</string>
+    <!-- Text for the topic name for topic Classifieds. [CHAR LIMIT=NONE] -->
+    <string name="topic10385">Classifieds</string>
+    <!-- Text for the topic name for topic Consumer Resources. [CHAR LIMIT=NONE] -->
+    <string name="topic10386">Consumer Resources</string>
+    <!-- Text for the topic name for topic Coupons &amp; Discount Offers. [CHAR LIMIT=NONE] -->
+    <string name="topic10387">Coupons &amp; Discount Offers</string>
+    <!-- Text for the topic name for topic Loyalty Cards &amp; Programs. [CHAR LIMIT=NONE] -->
+    <string name="topic10388">Loyalty Cards &amp; Programs</string>
+    <!-- Text for the topic name for topic Technical Support &amp; Repair. [CHAR LIMIT=NONE] -->
+    <string name="topic10389">Technical Support &amp; Repair</string>
+    <!-- Text for the topic name for topic Flowers. [CHAR LIMIT=NONE] -->
+    <string name="topic10390">Flowers</string>
+    <!-- Text for the topic name for topic Greeting Cards. [CHAR LIMIT=NONE] -->
+    <string name="topic10391">Greeting Cards</string>
+    <!-- Text for the topic name for topic Party &amp; Holiday Supplies. [CHAR LIMIT=NONE] -->
+    <string name="topic10392">Party &amp; Holiday Supplies</string>
+    <!-- Text for the topic name for topic Shopping Portals. [CHAR LIMIT=NONE] -->
+    <string name="topic10393">Shopping Portals</string>
+    <!-- Text for the topic name for topic Sports. [CHAR LIMIT=NONE] -->
+    <string name="topic10394">Sports</string>
+    <!-- Text for the topic name for topic American Football. [CHAR LIMIT=NONE] -->
+    <string name="topic10395">American Football</string>
+    <!-- Text for the topic name for topic Australian Football. [CHAR LIMIT=NONE] -->
+    <string name="topic10396">Australian Football</string>
+    <!-- Text for the topic name for topic Auto Racing. [CHAR LIMIT=NONE] -->
+    <string name="topic10397">Auto Racing</string>
+    <!-- Text for the topic name for topic Baseball. [CHAR LIMIT=NONE] -->
+    <string name="topic10398">Baseball</string>
+    <!-- Text for the topic name for topic Basketball. [CHAR LIMIT=NONE] -->
+    <string name="topic10399">Basketball</string>
+    <!-- Text for the topic name for topic Bowling. [CHAR LIMIT=NONE] -->
+    <string name="topic10400">Bowling</string>
+    <!-- Text for the topic name for topic Boxing. [CHAR LIMIT=NONE] -->
+    <string name="topic10401">Boxing</string>
+    <!-- Text for the topic name for topic Cheerleading. [CHAR LIMIT=NONE] -->
+    <string name="topic10402">Cheerleading</string>
+    <!-- Text for the topic name for topic College Sports. [CHAR LIMIT=NONE] -->
+    <string name="topic10403">College Sports</string>
+    <!-- Text for the topic name for topic Cricket. [CHAR LIMIT=NONE] -->
+    <string name="topic10404">Cricket</string>
+    <!-- Text for the topic name for topic Cycling. [CHAR LIMIT=NONE] -->
+    <string name="topic10405">Cycling</string>
+    <!-- Text for the topic name for topic Equestrian. [CHAR LIMIT=NONE] -->
+    <string name="topic10406">Equestrian</string>
+    <!-- Text for the topic name for topic Extreme Sports. [CHAR LIMIT=NONE] -->
+    <string name="topic10407">Extreme Sports</string>
+    <!-- Text for the topic name for topic Climbing &amp; Mountaineering. [CHAR LIMIT=NONE] -->
+    <string name="topic10408">Climbing &amp; Mountaineering</string>
+    <!-- Text for the topic name for topic Fantasy Sports. [CHAR LIMIT=NONE] -->
+    <string name="topic10409">Fantasy Sports</string>
+    <!-- Text for the topic name for topic Golf. [CHAR LIMIT=NONE] -->
+    <string name="topic10410">Golf</string>
+    <!-- Text for the topic name for topic Gymnastics. [CHAR LIMIT=NONE] -->
+    <string name="topic10411">Gymnastics</string>
+    <!-- Text for the topic name for topic Hockey. [CHAR LIMIT=NONE] -->
+    <string name="topic10412">Hockey</string>
+    <!-- Text for the topic name for topic Ice Skating. [CHAR LIMIT=NONE] -->
+    <string name="topic10413">Ice Skating</string>
+    <!-- Text for the topic name for topic Martial Arts. [CHAR LIMIT=NONE] -->
+    <string name="topic10414">Martial Arts</string>
+    <!-- Text for the topic name for topic Motorcycle Racing. [CHAR LIMIT=NONE] -->
+    <string name="topic10415">Motorcycle Racing</string>
+    <!-- Text for the topic name for topic Olympics. [CHAR LIMIT=NONE] -->
+    <string name="topic10416">Olympics</string>
+    <!-- Text for the topic name for topic Rugby. [CHAR LIMIT=NONE] -->
+    <string name="topic10417">Rugby</string>
+    <!-- Text for the topic name for topic Running &amp; Walking. [CHAR LIMIT=NONE] -->
+    <string name="topic10418">Running &amp; Walking</string>
+    <!-- Text for the topic name for topic Skiing &amp; Snowboarding. [CHAR LIMIT=NONE] -->
+    <string name="topic10419">Skiing &amp; Snowboarding</string>
+    <!-- Text for the topic name for topic Soccer. [CHAR LIMIT=NONE] -->
+    <string name="topic10420">Soccer</string>
+    <!-- Text for the topic name for topic Surfing. [CHAR LIMIT=NONE] -->
+    <string name="topic10421">Surfing</string>
+    <!-- Text for the topic name for topic Swimming. [CHAR LIMIT=NONE] -->
+    <string name="topic10422">Swimming</string>
+    <!-- Text for the topic name for topic Tennis. [CHAR LIMIT=NONE] -->
+    <string name="topic10423">Tennis</string>
+    <!-- Text for the topic name for topic Track &amp; Field. [CHAR LIMIT=NONE] -->
+    <string name="topic10424">Track &amp; Field</string>
+    <!-- Text for the topic name for topic Volleyball. [CHAR LIMIT=NONE] -->
+    <string name="topic10425">Volleyball</string>
+    <!-- Text for the topic name for topic Wrestling. [CHAR LIMIT=NONE] -->
+    <string name="topic10426">Wrestling</string>
+    <!-- Text for the topic name for topic Travel &amp; Transportation. [CHAR LIMIT=NONE] -->
+    <string name="topic10427">Travel &amp; Transportation</string>
+    <!-- Text for the topic name for topic Adventure Travel. [CHAR LIMIT=NONE] -->
+    <string name="topic10428">Adventure Travel</string>
+    <!-- Text for the topic name for topic Air Travel. [CHAR LIMIT=NONE] -->
+    <string name="topic10429">Air Travel</string>
+    <!-- Text for the topic name for topic Business Travel. [CHAR LIMIT=NONE] -->
+    <string name="topic10430">Business Travel</string>
+    <!-- Text for the topic name for topic Car Rentals. [CHAR LIMIT=NONE] -->
+    <string name="topic10431">Car Rentals</string>
+    <!-- Text for the topic name for topic Cruises &amp; Charters. [CHAR LIMIT=NONE] -->
+    <string name="topic10432">Cruises &amp; Charters</string>
+    <!-- Text for the topic name for topic Family Travel. [CHAR LIMIT=NONE] -->
+    <string name="topic10433">Family Travel</string>
+    <!-- Text for the topic name for topic Honeymoons &amp; Romantic Getaways. [CHAR LIMIT=NONE] -->
+    <string name="topic10434">Honeymoons &amp; Romantic Getaways</string>
+    <!-- Text for the topic name for topic Hotels &amp; Accommodations. [CHAR LIMIT=NONE] -->
+    <string name="topic10435">Hotels &amp; Accommodations</string>
+    <!-- Text for the topic name for topic Long Distance Bus &amp; Rail. [CHAR LIMIT=NONE] -->
+    <string name="topic10436">Long Distance Bus &amp; Rail</string>
+    <!-- Text for the topic name for topic Low Cost &amp; Last Minute Travel. [CHAR LIMIT=NONE] -->
+    <string name="topic10437">Low Cost &amp; Last Minute Travel</string>
+    <!-- Text for the topic name for topic Luggage &amp; Travel Accessories. [CHAR LIMIT=NONE] -->
+    <string name="topic10438">Luggage &amp; Travel Accessories</string>
+    <!-- Text for the topic name for topic Tourist Destinations. [CHAR LIMIT=NONE] -->
+    <string name="topic10439">Tourist Destinations</string>
+    <!-- Text for the topic name for topic Beaches &amp; Islands. [CHAR LIMIT=NONE] -->
+    <string name="topic10440">Beaches &amp; Islands</string>
+    <!-- Text for the topic name for topic Regional Parks &amp; Gardens. [CHAR LIMIT=NONE] -->
+    <string name="topic10441">Regional Parks &amp; Gardens</string>
+    <!-- Text for the topic name for topic Theme Parks. [CHAR LIMIT=NONE] -->
+    <string name="topic10442">Theme Parks</string>
+    <!-- Text for the topic name for topic Zoos. [CHAR LIMIT=NONE] -->
+    <string name="topic10443">Zoos</string>
+    <!-- Text for the topic name for topic Traffic &amp; Route Planners. [CHAR LIMIT=NONE] -->
+    <string name="topic10444">Traffic &amp; Route Planners</string>
+    <!-- Text for the topic name for topic Travel Agencies &amp; Services. [CHAR LIMIT=NONE] -->
+    <string name="topic10445">Travel Agencies &amp; Services</string>
+    <!-- Text for the topic name for topic Travel Guides &amp; Travelogues. [CHAR LIMIT=NONE] -->
+    <string name="topic10446">Travel Guides &amp; Travelogues</string>
+
+    <!-- Text for shell command activity -->
+    <string name="shell_command_activity_header" translatable="false">Shell Command Activity</string>
+</resources>

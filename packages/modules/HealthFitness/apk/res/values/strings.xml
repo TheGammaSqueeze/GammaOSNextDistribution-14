@@ -1,0 +1,1174 @@
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" description="Label shown on the system app launcher. Note: Health Connect is the brand. [CHAR_LIMIT=40]">Health&#160;Connect</string>
+    <!-- Title shown for Health Connect [CHAR LIMIT=50] -->
+    <string name="health_connect_summary" description="Health connect summary, which describes what user can do when they click Health Connect">Manage app access to health data</string>
+    <!-- region Home screen -->
+    <string name="permissions_and_data_header" description="Header for section listing actions for showing connected apps permissions and data screens [CHAR LIMIT=NONE] ">Permissions and data</string>
+    <string name="home_subtitle" description="Description on the home screen of the app. [CHAR_LIMIT=NONE]">Manage the health and fitness data on your phone, and control which apps can access it</string>
+    <string name="data_title" description="Label for a button that takes the user to the data management screens. [CHAR_LIMIT=40]">Data and access</string>
+    <string name="all_categories_title" description="Title of a screen that lists all health data categories. [CHAR_LIMIT=40]">All categories</string>
+    <string name="see_all_categories" description="Label for a button that takes the user to the all categories screens. [CHAR_LIMIT=40]">See all categories</string>
+    <string name="no_data" description="Label that is displayed when the given health data category does not have any data.">No data</string>
+    <string name="connected_apps_title" description="Label for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=40]">App permissions</string>
+    <string name="connected_apps_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=NONE]">Manage your apps and permissions</string>
+    <string name="connected_apps_button_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=NONE]"><xliff:g example="1" id="num_apps_connected">%1$s</xliff:g> of <xliff:g example="3" id="num_possible_apps">%2$s</xliff:g> apps have access</string>
+    <string name="connected_apps_all_apps_connected_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens when all possible apps are connected. [CHAR_LIMIT=NONE]"><xliff:g example="1" id="num_apps_connected">%1$s</xliff:g> apps have access</string>
+    <string name="connected_apps_one_app_connected_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens with one app connected. [CHAR_LIMIT=NONE]"><xliff:g example="1" id="num_apps_connected">%1$s</xliff:g> app has access</string>
+    <string name="connected_apps_button_no_permissions_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens, when no apps are connected. [CHAR_LIMIT=NONE]">None</string>
+    <string name="entry_details_title" description="Label for a screen that list an entry details. [CHAR_LIMIT=40]">Entry details</string>
+    <!--  endregion -->
+
+    <!-- region Manage data -->
+    <string name="backup_title" description="Label for a button that takes the user to backup settings. [CHAR_LIMIT=40]">Backup</string>
+    <string name="data_sources_and_priority_title" description="Label for a button that takes the user to app priority settings. [CHAR_LIMIT=40]">Data sources and priority</string>
+    <string name="set_units_title" description="Label for a button that takes the user to unit settings. [CHAR_LIMIT=40]">Set units</string>
+
+    <!-- endregion -->
+
+    <!-- region  Recent access -->
+    <string name="recent_access_header" description="Header for section showing apps that have recently accessed health data [CHAR_LIMIT=NONE]">Recent access</string>
+    <string name="no_recent_access" description="Header for section showing apps that have recently accessed health data [CHAR_LIMIT=NONE]">No apps recently accessed Health&#160;Connect</string>
+    <string name="show_recent_access_entries_button_title" description="Label on a button leading to another screen showing all the writes and reads performed by connected apps in the last 24 hours. [CHAR LIMIT=50]">See all recent access</string>
+    <string name="recent_access_screen_description" description="Description of Recent access screen, placed at the top. [CHAR LIMIT=NONE]">See which apps have accessed your data in the past 24 hours</string>
+    <string name="today_header" description="Header in the list of data access entries to differentiate between entries from today and yesterday. [CHAR LIMIT=50]">Today</string>
+    <string name="yesterday_header" description="Header in the list of data access entries to differentiate between entries from today and yesterday. [CHAR LIMIT=50]">Yesterday</string>
+    <string name="read_data_access_label" description="Label used to indicate that app performed read access to specified data types (as opposed to writing the data), as in 'Read: Steps, Heart rate'. [CHAR_LIMIT=NONE]">Read: %s</string>
+    <string name="write_data_access_label" description="Label used to indicate that app performed write (insertion, deletion or update) access to specified data types (as opposed to reading the data), as in 'Write: Steps, Heart rate'. [CHAR_LIMIT=NONE]">Write: %s</string>
+    <string name="data_type_separator" description="Separator (comma and whitespace in English) for a potentially long list of data type names listed in data access entry, as in 'Write: Steps, Distance, Calories'. [CHAR_LIMIT=NONE]">,\u0020</string>
+    <string name="manage_permissions" description="Text for floating action button that takes users from Recent Access apps to the App permissions screen [CHAR LIMIT=40]">Manage permissions</string>
+    <string name="recent_access_time_content_descritption" description="Content description for time section of recent access preference providing better context for accessibility talk back. [CHAR_LIMIT=NONE]">Time: %s</string>
+    <!--endregion-->
+
+    <!--region Data categories  -->
+    <string name="activity_category_uppercase" description="Uppercase name for activity category, displaying user data related to activities (such as active time, calories burned, etc.) [CHAR LIMIT=30]">Activity</string>
+    <string name="activity_category_lowercase" description="Lowercase name for activity category, displaying user data related to activities (such as active time, calories burned, etc.) [CHAR LIMIT=30]">activity</string>
+
+    <string name="body_measurements_category_uppercase" description="Uppercase name for body measurements category, displaying user data related to body measurements (such as height, weight, etc.) [CHAR LIMIT=30]">Body measurements</string>
+    <string name="body_measurements_category_lowercase" description="Lowercase name for body measurements category, displaying user data related to body measurements (such as height, weight, etc.) [CHAR LIMIT=30]">body measurements</string>
+
+    <string name="sleep_category_uppercase" description="Uppercase name for sleep category, displaying user data related to sleep (such as sleep duration, bedtime schedule, etc.) [CHAR LIMIT=30]">Sleep</string>
+    <string name="sleep_category_lowercase" description="Lowercase name for sleep category, displaying user data related to sleep (such as sleep duration, bedtime schedule, etc.) [CHAR LIMIT=30]">sleep</string>
+
+    <string name="vitals_category_uppercase" description="Uppercase name for vitals category, displaying user data related to vitals (such as heart rate, blood pressure, etc.) [CHAR LIMIT=30]">Vitals</string>
+    <string name="vitals_category_lowercase" description="Lowercase name for vitals category, displaying user data related to vitals (such as heart rate, blood pressure, etc.) [CHAR LIMIT=30]">vitals</string>
+
+    <string name="cycle_tracking_category_uppercase" description="Uppercase name for cycle tracking category, displaying user data related to cycle tracking (such as cervical mucus, menstrual flow, etc.) [CHAR LIMIT=30]">Cycle tracking</string>
+    <string name="cycle_tracking_category_lowercase" description="Lowercase name for cycle tracking category, displaying user data related to cycle tracking (such as cervical mucus, menstrual flow, etc.) [CHAR LIMIT=30]">cycle tracking</string>
+
+    <string name="nutrition_category_uppercase" description="Uppercase name for nutrition category, displaying user data related to nutrition (such as calories consumed, hydration, etc.) [CHAR LIMIT=30]">Nutrition</string>
+    <string name="nutrition_category_lowercase" description="Lowercase name for nutrition category, displaying user data related to nutrition (such as calories consumed, hydration, etc.) [CHAR LIMIT=30]">nutrition</string>
+
+    <string name="browse_data_category" description="Uppercase name for a section that contains user data grouped by categories. [CHAR_LIMIT=50]">Browse data</string>
+    <string name="manage_data_section" description="Uppercase name for a section that has different user actions like deleting data. [CHAR_LIMIT=50]">Manage data</string>
+    <string name="export_data_button" description="Uppercase name for a button that allows a user to export their data. [CHAR_LIMIT=50]">Export data</string>
+    <string name="delete_all_data_button" description="Uppercase name for a button that allows deleting all data points. [CHAR_LIMIT=50]">Delete all data</string>
+    <string name="no_categories" description="Label that shows when health connect does not have data. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">You don\'t have any data in Health&#160;Connect</string>
+    <!--endregion-->
+
+    <!-- region Permission types  -->
+    <string name="permission_types_title" description="Title of screen for a user to manage their health and fitness data [CHAR_LIMIT=40]">Your data</string>
+    <string name="app_priority_button" description="Label for a button that opens the app priority settings screen where users can set which app should have higher priority. [CHAR_LIMIT=50]">App priority</string>
+    <string name="delete_category_data_button" description="Label for a button that allows deleting all data points from a given health data category. [CHAR_LIMIT=50]">Delete <xliff:g example="activity" id="category">%s</xliff:g> data</string>
+    <string name="select_all_apps_title" description="Title shown for clearing filters. [CHAR_LIMIT=40]">All apps</string>
+
+    <!--endregion-->
+
+    <!-- region Data access  -->
+    <string name="can_read" description="Section title that refers to apps with read permission for given permission type. [CHAR_LIMIT=50]">Can read <xliff:g example="heart rate" id="permission_type">%s</xliff:g></string>
+    <string name="can_write" description="Section title that refers to apps with write permission for given permission type. [CHAR_LIMIT=50]">Can write <xliff:g example="heart rate" id="permission_type">%s</xliff:g></string>
+    <string name="inactive_apps" description="Section title that refers to apps that are inactive in Health Connect. [CHAR_LIMIT=50]">Inactive apps</string>
+    <string name="inactive_apps_message" description="Description of the inactive apps section. [CHAR_LIMIT=NONE]">These apps can no longer write <xliff:g example="heart rate" id="data_type">%s</xliff:g>, but still have data stored in Health&#160;Connect</string>
+    <string name="data_access_empty_message" description="Message shown if there is no app to display on this page [CHAR_LIMIT=NONE]">Apps can no longer read or write <xliff:g example="heart rate" id="data_type">%1$s</xliff:g> and there is no <xliff:g example="heart rate" id="data_type_2">%2$s</xliff:g> data stored in Health&#160;Connect</string>
+    <string name="data_access_exercise_description" description="Description of data access for the exercise data type [CHAR_LIMIT=NONE]">This data includes information like active time, exercise type, laps, repetitions, sessions, or swimming strokes</string>
+    <string name="data_access_sleep_description" description="Description of data access for the sleep data type [CHAR_LIMIT=NONE]">This data includes information like sleep stages and sleep sessions</string>
+    <string name="all_entries_button" description="Label for a button that opens the Data entries page. [CHAR_LIMIT=50]">See all entries</string>
+    <string name="selected_date_view_action_description" description="Action description of a selected date view for accessibility [CHAR LIMIT=NONE]">change</string>
+    <string name="delete_permission_type_data_button" description="Label for a button that allows deleting all data points from a given health permission type. [CHAR_LIMIT=50]">Delete this data</string>
+    <!--endregion-->
+
+    <!-- region framework permissions -->
+    <!-- Health data permissions labels and descriptions -->
+    <string name="permgrouplab_health" description="Title of an application permission group, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=30]">Health&#160;Connect</string>
+    <string name="permgroupdesc_health" description="Description of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=100]">access your health data</string>
+
+    <!-- Health data permissions labels and descriptions -->
+    <!-- TODO(b/249531235): update the labels and descriptions once UX writing is finalised -->
+    <string name="permlab_readCaloriesBurned" description="Title of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=30]">Read calories burned</string>
+    <string name="permdesc_readCaloriesBurned" description="Description of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=100]">Allows the app to read the calories burned</string>
+    <!--endregion-->
+
+    <!-- region permission ui labels -->
+
+    <!-- Other health permissions -->
+    <string name="background_read_uppercase_label" description="Uppercase label used to show background reading permission. [CHAR_LIMIT=50]">Background reading</string>
+    <string name="background_read_lowercase_label" description="Lowercase label used to show background reading permission. [CHAR_LIMIT=50]">background reading</string>
+    <string name="background_read_description" description="Content description for switch that enables permissions for reading health data in the background  [CHAR_LIMIT=50]">Read health data in the background</string>
+    <!--endregion-->
+
+    <!-- region Activity data types -->
+    <string name="active_calories_burned_uppercase_label" description="Uppercase label used to show the user's active calories burned data [CHAR_LIMIT=50]">Active calories burned</string>
+    <string name="active_calories_burned_lowercase_label" description="Lowercase label used to show the user's active calories burned data [CHAR_LIMIT=50]">active calories burned</string>
+    <string name="active_calories_burned_read_content_description" description="Content description for switch that enables permissions for reading the user's active calories burned data [CHAR_LIMIT=NONE]">Read active calories burned</string>
+    <string name="active_calories_burned_write_content_description" description="Content description for switch that enables permissions for writing the user's active calories burned data [CHAR_LIMIT=NONE]">Write active calories burned</string>
+
+    <string name="exercise_uppercase_label" description="Uppercase label used to show the user's exercise data [CHAR_LIMIT=50]">Exercise</string>
+    <string name="exercise_lowercase_label" description="Lowercase label used to show the user's exercise data [CHAR_LIMIT=50]">exercise</string>
+    <string name="exercise_read_content_description" description="Content description for switch that enables permissions for reading the user's exercise data [CHAR_LIMIT=NONE]">Read exercise</string>
+    <string name="exercise_write_content_description" description="Content description for switch that enables permissions for writing the user's exercise data [CHAR_LIMIT=NONE]">Write exercise</string>
+
+    <string name="exercise_route_uppercase_label" description="Uppercase label used to show the user's exercise route [CHAR_LIMIT=50]">Exercise route</string>
+    <string name="exercise_route_lowercase_label" description="Lowercase label used to show the user's exercise route [CHAR_LIMIT=50]">exercise route</string>
+    <string name="exercise_route_write_content_description" description="Content description for switch that enables permissions for writing the user's exercise route [CHAR_LIMIT=NONE]">Write exercise route</string>
+    <string name="exercise_route_read_content_description" description="Content description for switch that enables permissions for reading the user's exercise route [CHAR_LIMIT=NONE]">Read exercise route</string>
+    <string name="exercise_routes_read_content_description" description="Content description for switch that enables permissions for reading user's exercise routes [CHAR_LIMIT=NONE]">Read exercise routes</string>
+
+    <string name="planned_exercise_uppercase_label" description="Uppercase label used to show the user's planned exercise data [CHAR_LIMIT=50]">Training plans</string>
+    <string name="planned_exercise_lowercase_label" description="Lowercase label used to show the user's planned exercise data [CHAR_LIMIT=50]">training plans</string>
+    <string name="planned_exercise_read_content_description" description="Content description for switch that enables permissions for reading the user's planned exercise data [CHAR_LIMIT=NONE]">Read training plans</string>
+    <string name="planned_exercise_write_content_description" description="Content description for switch that enables permissions for writing the user's planned exercise data [CHAR_LIMIT=NONE]">Write training plans</string>
+
+    <string name="distance_uppercase_label" description="Uppercase label used to show the user's distance data [CHAR_LIMIT=50]">Distance</string>
+    <string name="distance_lowercase_label" description="Lowercase label used to show the user's distance data [CHAR_LIMIT=50]">distance</string>
+    <string name="distance_read_content_description" description="Content description for switch that enables permissions for reading the user's distance data [CHAR_LIMIT=NONE]">Read distance</string>
+    <string name="distance_write_content_description" description="Content description for switch that enables permissions for writing the user's distance data [CHAR_LIMIT=NONE]">Write distance</string>
+
+    <string name="elevation_gained_uppercase_label" description="Uppercase label used to show the user's elevation gained data [CHAR_LIMIT=50]">Elevation gained</string>
+    <string name="elevation_gained_lowercase_label" description="Lowercase label used to show the user's elevation gained data [CHAR_LIMIT=50]">elevation gained</string>
+    <string name="elevation_gained_read_content_description" description="Content description for switch that enables permissions for reading the user's elevation gained data [CHAR_LIMIT=NONE]">Read elevation gained</string>
+    <string name="elevation_gained_write_content_description" description="Content description for switch that enables permissions for writing the user's elevation gained data [CHAR_LIMIT=NONE]">Write elevation gained</string>
+
+    <string name="floors_climbed_uppercase_label" description="Uppercase label used to show the user's floors climbed data [CHAR_LIMIT=50]">Floors climbed</string>
+    <string name="floors_climbed_lowercase_label" description="Lowercase label used to show the user's floors climbed data [CHAR_LIMIT=50]">floors climbed</string>
+    <string name="floors_climbed_read_content_description" description="Content description for switch that enables permissions for reading the user's floors climbed data [CHAR_LIMIT=NONE]">Read floors climbed</string>
+    <string name="floors_climbed_write_content_description" description="Content description for switch that enables permissions for writing the user's floors climbed data [CHAR_LIMIT=NONE]">Write floors climbed</string>
+
+    <string name="power_uppercase_label" description="Uppercase label used to show the user's power data [CHAR_LIMIT=50]">Power</string>
+    <string name="power_lowercase_label" description="Lowercase label used to show the user's power data [CHAR_LIMIT=50]">power</string>
+    <string name="power_read_content_description" description="Content description for switch that enables permissions for reading the user's power data [CHAR_LIMIT=NONE]">Read power</string>
+    <string name="power_write_content_description" description="Content description for switch that enables permissions for writing the user's power data [CHAR_LIMIT=NONE]">Write power</string>
+
+    <string name="speed_uppercase_label" description="Uppercase label used to show the user's speed data [CHAR_LIMIT=50]">Speed</string>
+    <string name="speed_lowercase_label" description="Lowercase label used to show the user's speed data [CHAR_LIMIT=50]">speed</string>
+    <string name="speed_read_content_description" description="Content description for switch that enables permissions for reading the user's speed data [CHAR_LIMIT=NONE]">Read speed</string>
+    <string name="speed_write_content_description" description="Content description for switch that enables permissions for writing the user's speed data [CHAR_LIMIT=NONE]">Write speed</string>
+
+    <string name="steps_uppercase_label" description="Uppercase label used to show the user's steps data [CHAR_LIMIT=50]">Steps</string>
+    <string name="steps_lowercase_label" description="Lowercase label used to show the user's steps data [CHAR_LIMIT=50]">steps</string>
+    <string name="steps_read_content_description" description="Content description for switch that enables permissions for reading the user's steps data [CHAR_LIMIT=NONE]">Read steps</string>
+    <string name="steps_write_content_description" description="Content description for switch that enables permissions for writing the user's steps data [CHAR_LIMIT=NONE]">Write steps</string>
+
+    <string name="total_calories_burned_uppercase_label" description="Uppercase label used to show the user's total calories burned data [CHAR_LIMIT=50]">Total calories burned</string>
+    <string name="total_calories_burned_lowercase_label" description="Lowercase label used to show the user's total calories burned data [CHAR_LIMIT=50]">total calories burned</string>
+    <string name="total_calories_burned_read_content_description" description="Content description for switch that enables permissions for reading the user's total calories burned data [CHAR_LIMIT=NONE]">Read total calories burned</string>
+    <string name="total_calories_burned_write_content_description" description="Content description for switch that enables permissions for writing the user's total calories burned data [CHAR_LIMIT=NONE]">Write total calories burned</string>
+
+    <string name="vo2_max_uppercase_label" description="Uppercase label used to show the user's V02 max data [CHAR_LIMIT=50]">VO2 max</string>
+    <string name="vo2_max_lowercase_label" description="Lowercase label used to show the user's V02 max data [CHAR_LIMIT=50]">VO2 max</string>
+    <string name="vo2_max_read_content_description" description="Content description for switch that enables permissions for reading the user's V02 max data [CHAR_LIMIT=NONE]">Read VO2 max</string>
+    <string name="vo2_max_write_content_description" description="Content description for switch that enables permissions for writing the user's V02 max data [CHAR_LIMIT=NONE]">Write VO2 max</string>
+
+    <string name="wheelchair_pushes_uppercase_label" description="Uppercase label used to show the user's wheelchair pushes data [CHAR_LIMIT=50]">Wheelchair pushes</string>
+    <string name="wheelchair_pushes_lowercase_label" description="Lowercase label used to show the user's wheelchair pushes data [CHAR_LIMIT=50]">wheelchair pushes</string>
+    <string name="wheelchair_pushes_read_content_description" description="Content description for switch that enables permissions for reading the user's wheelchair pushes data [CHAR_LIMIT=NONE]">Read wheelchair pushes</string>
+    <string name="wheelchair_pushes_write_content_description" description="Content description for switch that enables permissions for writing the user's wheelchair pushes data [CHAR_LIMIT=NONE]">Write wheelchair pushes</string>
+    <!--endregion-->
+
+    <!-- region Body measurements data types -->
+    <string name="basal_metabolic_rate_uppercase_label" description="Uppercase label used to show the user's basal metabolic rate data [CHAR_LIMIT=50]">Basal metabolic rate</string>
+    <string name="basal_metabolic_rate_lowercase_label" description="Lowercase label used to show the user's basal metabolic rate data [CHAR_LIMIT=50]">basal metabolic rate</string>
+    <string name="basal_metabolic_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's basal metabolic rate data [CHAR_LIMIT=NONE]">Read basal metabolic rate</string>
+    <string name="basal_metabolic_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's basal metabolic rate data [CHAR_LIMIT=NONE]">Write basal metabolic rate</string>
+
+    <string name="body_fat_uppercase_label" description="Uppercase label used to show the user's body fat data [CHAR_LIMIT=50]">Body fat</string>
+    <string name="body_fat_lowercase_label" description="Lowercase label used to show the user's body fat data [CHAR_LIMIT=50]">body fat</string>
+    <string name="body_fat_read_content_description" description="Content description for switch that enables permissions for reading the user's body fat data [CHAR_LIMIT=NONE]">Read body fat</string>
+    <string name="body_fat_write_content_description" description="Content description for switch that enables permissions for writing the user's body fat data [CHAR_LIMIT=NONE]">Write body fat</string>
+
+    <string name="body_water_mass_uppercase_label" description="Uppercase label used to show the user's body water mass data [CHAR_LIMIT=50]">Body water mass</string>
+    <string name="body_water_mass_lowercase_label" description="Lowercase label used to show the user's body water mass data [CHAR_LIMIT=50]">body water mass</string>
+    <string name="body_water_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's body water mass data [CHAR_LIMIT=NONE]">Read body water mass</string>
+    <string name="body_water_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's body water mass data [CHAR_LIMIT=NONE]">Write body water mass</string>
+
+    <string name="bone_mass_uppercase_label" description="Uppercase label used to show the user's bone mass data [CHAR_LIMIT=50]">Bone mass</string>
+    <string name="bone_mass_lowercase_label" description="Lowercase label used to show the user's bone mass data [CHAR_LIMIT=50]">bone mass</string>
+    <string name="bone_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's bone mass data [CHAR_LIMIT=NONE]">Read bone mass</string>
+    <string name="bone_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's bone mass data [CHAR_LIMIT=NONE]">Write bone mass</string>
+
+    <string name="height_uppercase_label" description="Uppercase label used to show the user's height data [CHAR_LIMIT=50]">Height</string>
+    <string name="height_lowercase_label" description="Lowercase label used to show the user's height data [CHAR_LIMIT=50]">height</string>
+    <string name="height_read_content_description" description="Content description for switch that enables permissions for reading the user's height data [CHAR_LIMIT=NONE]">Read height</string>
+    <string name="height_write_content_description" description="Content description for switch that enables permissions for writing the user's height data [CHAR_LIMIT=NONE]">Write height</string>
+
+    <string name="hip_circumference_uppercase_label" description="Uppercase label used to show the user's hip circumference data [CHAR_LIMIT=50]">Hip circumference</string>
+    <string name="hip_circumference_lowercase_label" description="Lowercase label used to show the user's hip circumference data [CHAR_LIMIT=50]">hip circumference</string>
+    <string name="hip_circumference_read_content_description" description="Content description for switch that enables permissions for reading the user's hip circumference data [CHAR_LIMIT=NONE]">Read hip circumference</string>
+    <string name="hip_circumference_write_content_description" description="Content description for switch that enables permissions for writing the user's hip circumference data [CHAR_LIMIT=NONE]">Write hip circumference</string>
+
+    <string name="lean_body_mass_uppercase_label" description="Uppercase label used to show the user's lean body mass data [CHAR_LIMIT=50]">Lean body mass</string>
+    <string name="lean_body_mass_lowercase_label" description="Lowercase label used to show the user's lean body mass data [CHAR_LIMIT=50]">lean body mass</string>
+    <string name="lean_body_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's lean body mass data [CHAR_LIMIT=NONE]">Read lean body mass</string>
+    <string name="lean_body_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's lean body mass data [CHAR_LIMIT=NONE]">Write lean body mass</string>
+
+    <string name="waist_circumference_uppercase_label" description="Uppercase label used to show the user's waist circumference data [CHAR_LIMIT=50]">Waist circumference</string>
+    <string name="waist_circumference_lowercase_label" description="Lowercase label used to show the user's waist circumference data [CHAR_LIMIT=50]">waist circumference</string>
+    <string name="waist_circumference_read_content_description" description="Content description for switch that enables permissions for reading the user's waist circumference data [CHAR_LIMIT=NONE]">Read waist circumference</string>
+    <string name="waist_circumference_write_content_description" description="Content description for switch that enables permissions for writing the user's waist circumference data [CHAR_LIMIT=NONE]">Write waist circumference</string>
+
+    <string name="weight_uppercase_label" description="Uppercase label used to show the user's weight data [CHAR_LIMIT=50]">Weight</string>
+    <string name="weight_lowercase_label" description="Lowercase label used to show the user's weight data [CHAR_LIMIT=50]">weight</string>
+    <string name="weight_read_content_description" description="Content description for switch that enables permissions for reading the user's weight data [CHAR_LIMIT=NONE]">Read weight</string>
+    <string name="weight_write_content_description" description="Content description for switch that enables permissions for writing the user's weight data [CHAR_LIMIT=NONE]">Write weight</string>
+    <!--endregion-->
+
+    <!-- region Cycle tracking data types -->
+    <string name="cervical_mucus_uppercase_label" description="Uppercase label used to show the user's cervical mucus data [CHAR_LIMIT=50]">Cervical mucus</string>
+    <string name="cervical_mucus_lowercase_label" description="Lowercase label used to show the user's cervical mucus data [CHAR_LIMIT=50]">cervical mucus</string>
+    <string name="cervical_mucus_read_content_description" description="Content description for switch that enables permissions for reading the user's cervical mucus data [CHAR_LIMIT=NONE]">Read cervical mucus</string>
+    <string name="cervical_mucus_write_content_description" description="Content description for switch that enables permissions for writing the user's cervical mucus data [CHAR_LIMIT=NONE]">Write cervical mucus</string>
+
+    <string name="intermenstrual_bleeding_uppercase_label" description="Uppercase label used to show the user's intermenstrual bleeding data [CHAR_LIMIT=50]">Intermenstrual bleeding</string>
+    <string name="intermenstrual_bleeding_lowercase_label" description="Lowercase label used to show the user's intermenstrual bleeding data [CHAR_LIMIT=50]">intermenstrual bleeding</string>
+    <string name="intermenstrual_bleeding_read_content_description" description="Content description for switch that enables permissions for reading the user's intermenstrual bleeding data [CHAR_LIMIT=NONE]">Read intermenstrual bleeding</string>
+    <string name="intermenstrual_bleeding_write_content_description" description="Content description for switch that enables permissions for writing the user's intermenstrual bleeding data [CHAR_LIMIT=NONE]">Write intermenstrual bleeding</string>
+
+
+    <string name="menstruation_uppercase_label" description="Uppercase label used to show the user's menstruation data [CHAR_LIMIT=50]">Menstruation</string>
+    <string name="menstruation_lowercase_label" description="Lowercase label used to show the user's menstruation data [CHAR_LIMIT=50]">menstruation</string>
+    <string name="menstruation_read_content_description" description="Content description for switch that enables permissions for reading the user's menstruation data [CHAR_LIMIT=NONE]">Read menstruation</string>
+    <string name="menstruation_write_content_description" description="Content description for switch that enables permissions for writing the user's menstruation data [CHAR_LIMIT=NONE]">Write menstruation</string>
+
+    <string name="ovulation_test_uppercase_label" description="Uppercase label used to show the user's ovulation test data [CHAR_LIMIT=50]">Ovulation test</string>
+    <string name="ovulation_test_lowercase_label" description="Lowercase label used to show the user's ovulation test data [CHAR_LIMIT=50]">ovulation test</string>
+    <string name="ovulation_test_read_content_description" description="Content description for switch that enables permissions for reading the user's ovulation test data [CHAR_LIMIT=NONE]">Read ovulation test</string>
+    <string name="ovulation_test_write_content_description" description="Content description for switch that enables permissions for writing the user's ovulation test data [CHAR_LIMIT=NONE]">Write ovulation test</string>
+
+    <string name="sexual_activity_uppercase_label" description="Uppercase label used to show the user's sexual activity data [CHAR_LIMIT=50]">Sexual activity</string>
+    <string name="sexual_activity_lowercase_label" description="Lowercase label used to show the user's sexual activity data [CHAR_LIMIT=50]">sexual activity</string>
+    <string name="sexual_activity_read_content_description" description="Content description for switch that enables permissions for reading the user's sexual activity data [CHAR_LIMIT=NONE]">Read sexual activity</string>
+    <string name="sexual_activity_write_content_description" description="Content description for switch that enables permissions for writing the user's sexual activity data [CHAR_LIMIT=NONE]">Write sexual activity</string>
+
+    <string name="spotting_uppercase_label" description="Uppercase label used to show the user's spotting data [CHAR_LIMIT=50]">Spotting</string>
+    <string name="spotting_lowercase_label" description="Lowercase label used to show the user's spotting data [CHAR_LIMIT=50]">spotting</string>
+    <string name="spotting_read_content_description" description="Content description for switch that enables permissions for reading the user's active spotting data [CHAR_LIMIT=NONE]">Read spotting</string>
+    <string name="spotting_write_content_description" description="Content description for switch that enables permissions for writing the user's active spotting data [CHAR_LIMIT=NONE]">Write spotting</string>
+    <!--endregion-->
+
+    <!-- region Nutrition data types -->
+    <string name="hydration_uppercase_label" description="Uppercase label used to show the user's hydration data [CHAR_LIMIT=50]">Hydration</string>
+    <string name="hydration_lowercase_label" description="Lowercase label used to show the user's hydration data [CHAR_LIMIT=50]">hydration</string>
+    <string name="hydration_read_content_description" description="Content description for switch that enables permissions for reading the user's hydration data [CHAR_LIMIT=NONE]">Read hydration</string>
+    <string name="hydration_write_content_description" description="Content description for switch that enables permissions for writing the user's hydration data [CHAR_LIMIT=NONE]">Write hydration</string>
+
+    <string name="nutrition_uppercase_label" description="Uppercase label used to show the user's nutrition data [CHAR_LIMIT=50]">Nutrition</string>
+    <string name="nutrition_lowercase_label" description="Lowercase label used to show the user's nutrition data [CHAR_LIMIT=50]">nutrition</string>
+    <string name="nutrition_read_content_description" description="Content description for switch that enables permissions for reading the user's nutrition data [CHAR_LIMIT=NONE]">Read nutrition</string>
+    <string name="nutrition_write_content_description" description="Content description for switch that enables permissions for writing the user's nutrition data [CHAR_LIMIT=NONE]">Write nutrition</string>
+    <!--endregion-->
+
+    <!-- region Sleep data types -->
+    <string name="sleep_uppercase_label" description="Uppercase label used to show the user's sleep data [CHAR_LIMIT=50]">Sleep</string>
+    <string name="sleep_lowercase_label" description="Lowercase label used to show the user's sleep data [CHAR_LIMIT=50]">sleep</string>
+    <string name="sleep_read_content_description" description="Content description for switch that enables permissions for reading the user's sleep data [CHAR_LIMIT=NONE]">Read sleep</string>
+    <string name="sleep_write_content_description" description="Content description for switch that enables permissions for writing the user's sleep session data [CHAR_LIMIT=NONE]">Write sleep</string>
+    <!--endregion-->
+
+    <!-- region Vitals data types -->
+    <string name="basal_body_temperature_uppercase_label" description="Uppercase label used to show the user's basal body temperature data [CHAR_LIMIT=50]">Basal body temperature</string>
+    <string name="basal_body_temperature_lowercase_label" description="Lowercase label used to show the user's basal body temperature data [CHAR_LIMIT=50]">basal body temperature</string>
+    <string name="basal_body_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's basal body temperature data [CHAR_LIMIT=NONE]">Read basal body temperature</string>
+    <string name="basal_body_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's basal body temperature data [CHAR_LIMIT=NONE]">Write basal body temperature</string>
+
+    <string name="blood_glucose_uppercase_label" description="Uppercase label used to show the user's blood glucose data [CHAR_LIMIT=50]">Blood glucose</string>
+    <string name="blood_glucose_lowercase_label" description="Label used to show the user's blood glucose data [CHAR_LIMIT=50]">blood glucose</string>
+    <string name="blood_glucose_read_content_description" description="Content description for switch that enables permissions for reading the user's blood glucose data [CHAR_LIMIT=NONE]">Read blood glucose</string>
+    <string name="blood_glucose_write_content_description" description="Content description for switch that enables permissions for writing the user's blood glucose data [CHAR_LIMIT=NONE]">Write blood glucose</string>
+
+    <string name="blood_pressure_uppercase_label" description="Uppercase label used to show the user's blood pressure data [CHAR_LIMIT=50]">Blood pressure</string>
+    <string name="blood_pressure_lowercase_label" description="Lowercase label used to show the user's blood pressure data [CHAR_LIMIT=50]">blood pressure</string>
+    <string name="blood_pressure_read_content_description" description="Content description for switch that enables permissions for reading the user's blood pressure data [CHAR_LIMIT=NONE]">Read blood pressure</string>
+    <string name="blood_pressure_write_content_description" description="Content description for switch that enables permissions for writing the user's blood pressure data [CHAR_LIMIT=NONE]">Write blood pressure</string>
+
+    <string name="body_temperature_uppercase_label" description="Uppercase label used to show the user's body temperature data [CHAR_LIMIT=50]">Body temperature</string>
+    <string name="body_temperature_lowercase_label" description="Lowercase label used to show the user's body temperature data [CHAR_LIMIT=50]">body temperature</string>
+    <string name="body_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's body temperature data [CHAR_LIMIT=NONE]">Read body temperature</string>
+    <string name="body_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's body temperature data [CHAR_LIMIT=NONE]">Write body temperature</string>
+
+    <string name="heart_rate_uppercase_label" description="Uppercase label used to show the user's heart rate data [CHAR_LIMIT=50]">Heart rate</string>
+    <string name="heart_rate_lowercase_label" description="Lowercase label used to show the user's heart rate data [CHAR_LIMIT=50]">heart rate</string>
+    <string name="heart_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's heart rate data [CHAR_LIMIT=NONE]">Read heart rate</string>
+    <string name="heart_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's heart rate data [CHAR_LIMIT=NONE]">Write heart rate</string>
+
+    <string name="heart_rate_variability_uppercase_label" description="Uppercase label used to show the user's heart rate variability data [CHAR_LIMIT=50]">Heart rate variability</string>
+    <string name="heart_rate_variability_lowercase_label" description="Lowercase label used to show the user's heart rate variability data [CHAR_LIMIT=50]">heart rate variability</string>
+    <string name="heart_rate_variability_read_content_description" description="Content description for switch that enables permissions for reading the user's heart rate variability data [CHAR_LIMIT=NONE]">Read heart rate variability</string>
+    <string name="heart_rate_variability_write_content_description" description="Content description for switch that enables permissions for writing the user's heart rate variability data [CHAR_LIMIT=NONE]">Write heart rate variability</string>
+
+    <string name="oxygen_saturation_uppercase_label" description="Uppercase label used to show the user's oxygen saturation data [CHAR_LIMIT=50]">Oxygen saturation</string>
+    <string name="oxygen_saturation_lowercase_label" description="Lowercase label used to show the user's oxygen saturation data [CHAR_LIMIT=50]">oxygen saturation</string>
+    <string name="oxygen_saturation_read_content_description" description="Content description for switch that enables permissions for reading the user's oxygen saturation data [CHAR_LIMIT=NONE]">Read oxygen saturation</string>
+    <string name="oxygen_saturation_write_content_description" description="Content description for switch that enables permissions for writing the user's oxygen saturation data [CHAR_LIMIT=NONE]">Write oxygen saturation</string>
+
+    <string name="respiratory_rate_uppercase_label" description="Uppercase label used to show the user's respiratory rate data [CHAR_LIMIT=50]">Respiratory rate</string>
+    <string name="respiratory_rate_lowercase_label" description="Lowercase label used to show the user's respiratory rate data [CHAR_LIMIT=50]">respiratory rate</string>
+    <string name="respiratory_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's respiratory rate data [CHAR_LIMIT=NONE]">Read respiratory rate</string>
+    <string name="respiratory_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's respiratory rate data [CHAR_LIMIT=NONE]">Write respiratory rate</string>
+
+    <string name="resting_heart_rate_uppercase_label" description="Uppercase label used to show the user's resting heart rate data [CHAR_LIMIT=50]">Resting heart rate</string>
+    <string name="resting_heart_rate_lowercase_label" description="Lowercase label used to show the user's resting heart rate data [CHAR_LIMIT=50]">resting heart rate</string>
+    <string name="resting_heart_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's resting heart rate data [CHAR_LIMIT=NONE]">Read resting heart rate</string>
+    <string name="resting_heart_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's resting heart rate data [CHAR_LIMIT=NONE]">Write resting heart rate</string>
+
+    <string name="skin_temperature_uppercase_label" description="Uppercase label used to show the user's skin temperature data [CHAR_LIMIT=50]">Skin temperature</string>
+    <string name="skin_temperature_lowercase_label" description="Lowercase label used to show the user's skin temperature data [CHAR_LIMIT=50]">skin temperature</string>
+    <string name="skin_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's skin temperature data [CHAR_LIMIT=NONE]">Read skin temperature</string>
+    <string name="skin_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's skin temperature data [CHAR_LIMIT=NONE]">Write skin temperature</string>
+    <!--endregion-->
+    <!--endregion-->
+
+    <!-- region Permissions -->
+    <string name="read_permission_category" description="Title for read permission category in the app permission screen">Allow &#8220;<xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g>&#8221; to read</string>
+    <string name="write_permission_category" description="Title for write permission category in the app permission screen">Allow &#8220;<xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g>&#8221; to write</string>
+    <string name="request_permissions_cancel" description="Label for button to cancel an app's request for permissions [CHAR_LIMIT=20]">Cancel</string>
+    <string name="request_permissions_allow" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">Allow</string>
+    <string name="request_permissions_allow_all" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">Allow all</string>
+    <string name="request_permissions_dont_allow" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">Don\'t allow</string>
+    <string name="request_permissions_header_desc" description="Text asking the user to select permissions for an app. [CHAR_LIMIT=NONE]">Choose data you want this app to read or write to Health&#160;Connect</string>
+    <string name="request_permissions_header_time_frame_desc" description="Text describing the time frame of data which an app will be able to access. [CHAR_LIMIT=NONE]">If you give read access, this app can read new data and data from the past 30 days</string>
+    <string name="request_permissions_header_title" description="Title for screen to give permissions to an app to read or write users data. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Allow <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> to access Health&#160;Connect?</string>
+    <string name="request_permissions_rationale" description="Text informing the user that data they share with an app is covered by that app's data privacy policy. Has a link to the app's privacy policy. [CHAR_LIMIT=NONE]">You can learn how <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> handles your data in the developer\'s <xliff:g example="privacy policy" id="privacy_policy_link">%2$s</xliff:g></string>
+    <string name="request_permissions_privacy_policy" description="Link text that open's a third party app's data privacy policy [CHAR_LIMIT=NONE]">privacy policy</string>
+    <string name="permissions_disconnect_dialog_title" description="Title for dialog asking the user to confirm they want to remove all permissions for an app [CHAR_LIMIT=40]">Remove all permissions?</string>
+    <string name="permissions_disconnect_dialog_disconnect" description="Label for dialog button to confirm removal of all permissions for an app [CHAR_LIMIT=20]">Remove all</string>
+    <string name="permissions_disconnect_dialog_message" description="Text informing the user that an app will no longer be able to read or write data after the permissions have been removed. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> will no longer be able to read or write any data from Health&#160;Connect.\n\nThis doesn\'t affect other permissions this app may have, like location, camera, or microphone.</string>
+    <string name="permissions_disconnect_dialog_checkbox" description="Text of a checkbox to decide whether to delete or not all data written by the app that is being disconnected by the user. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Also delete <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> data from Health&#160;Connect</string>
+    <!--endregion-->
+
+    <!-- region Data Entries -->
+    <string name="navigation_next_day" description="Content description for button that changes the current data view to the next day [CHAR_LIMIT=NONE]">Next day</string>
+    <string name="navigation_selected_day" description="Content description for button that contains selected day. [CHAR_LIMIT=NONE]">Selected day</string>
+    <string name="navigation_previous_day" description="Content description for button that changes the current data view to the previous day [CHAR_LIMIT=NONE]">Previous day</string>
+    <string name="default_error" description="Label shown when a user initiated action fails (e.g. deleting data) [CHAR_LIMIT=NONE]">Something went wrong. Please try again.</string>
+    <!-- endregion -->
+
+    <!-- region Connected apps -->
+    <string name="health_permission_header_description" description="Description text shown on screen for managing which apps have access to health and fitness data. Note: Health Connect is the brand [CHAR_LIMIT=NONE]">Apps with this permission can read and write your health and fitness data.</string>
+    <string name="connected_apps_text" description="Description text shown on screen for managing which apps have access to health and fitness data. Note: Health Connect is the brand [CHAR_LIMIT=NONE]">Control which apps can access data stored in Health&#160;Connect. Tap an app to review the data it can read or write.</string>
+    <string name="connected_apps_section_title" description="Title of section containing all the connected apps [CHAR_LIMIT=40]">Allowed access</string>
+    <string name="not_connected_apps_section_title" description="Title of section containing all the not-connected apps [CHAR_LIMIT=40]">Not allowed access</string>
+    <string name="needs_updating_apps_section_title" description="Title of section containing all the apps that need updating in order to work with Health Connect [CHAR_LIMIT=40]">Needs updating</string>
+    <string name="settings_and_help_header" description="Title shown for the section of settings and help [CHAR_LIMIT=70]">Settings &amp; help</string>
+    <string name="disconnect_all_apps" description="Button text for removing access to health and fitness data for all apps [CHAR_LIMIT=40]">Remove access for all apps</string>
+    <string name="manage_permissions_read_header" description="Header for list of permissions an app is allowed read access to [CHAR_LIMIT=40]">Allowed to read</string>
+    <string name="manage_permissions_write_header" description="Header for list of permissions an app is allowed write access to [CHAR_LIMIT=40]">Allowed to write</string>
+    <string name="no_apps_allowed" description="Label when no apps have ben granted access to Health data.[CHAR_LIMIT=40]">No apps allowed</string>
+    <string name="no_apps_denied" description="Label when no apps have been denied a health permission [CHAR_LIMIT=40]">No apps denied</string>
+    <string name="permissions_disconnect_all_dialog_title" description="Title for dialog asking the user to confirm they want to remove all permissions for all apps [CHAR_LIMIT=50]">Remove access for all apps?</string>
+    <string name="permissions_disconnect_all_dialog_message" description="Text informing the user that all apps will no longer be able to read or write data after the permissions have been removed. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">None of your apps will be able to access or add new data to Health&#160;Connect. This doesn\'t delete any existing data.\n\nThis doesn\'t affect other permissions this app may have, like location, camera, or microphone.</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" description="Label for dialog button to confirm removal of all permissions for all apps [CHAR_LIMIT=20]">Remove all</string>
+    <string name="manage_permissions_manage_app_header" description="Title shown for section to manage app [CHAR_LIMIT=40]">Manage app</string>
+    <string name="see_app_data" description="Label of a button that opens the app data screen. [CHAR_LIMIT=40]">See app data</string>
+    <string name="delete_app_data" description="Label of a button that deletes data written by given app. [CHAR_LIMIT=40]">Delete app data</string>
+    <string name="inactive_apps_section_title" description="Title shown for section of inactive apps [CHAR_LIMIT=40]">Inactive apps</string>
+    <string name="inactive_apps_section_message" description="Description text shown in the inactive apps section that explains what inactive apps are [CHAR_LIMIT=NONE]">These apps no longer have access, but still have data stored in Health&#160;Connect</string>
+    <string name="manage_permissions_time_frame" description="Text describing the time frame of data which an app will be able to access [CHAR_LIMIT=NONE]"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> can read data added after <xliff:g example="22 January 2022" id="data_access_date">%2$s</xliff:g></string>
+    <string name="other_android_permissions" description="Text that describes how users can change other android permissions through the system settings [CHAR_LIMIT=NONE]">To manage other Android permissions this app can access, go to Settings > Apps</string>
+    <string name="manage_permissions_rationale" description="Text informing the user that data they share with an app is covered by that app's data privacy policy [CHAR_LIMIT=NONE]">Data you share with <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> is covered by their privacy policy</string>
+    <string name="other_android_permissions_content_description" description="Content description that describes how users can change other android permissions through the system settings [CHAR_LIMIT=NONE]">To manage other Android permissions this app can access, go to Settings, then tap Apps</string>
+    <string name="manage_permissions_learn_more" description="Link text that open's a third party app's data privacy policy [CHAR_LIMIT=NONE]">Read privacy policy</string>
+    <string name="app_perms_content_provider_24h" description="Summary for showing the last access text for content provider permissions [CHAR LIMIT=70]">Accessed in past 24 hours</string>
+    <string name="app_access_title" description="Title of screen for a user to manage the health and fitness data a particular app has access to [CHAR_LIMIT=40]">App access</string>
+    <string name="connected_apps_empty_list_section_title" description="Title of section when there are no connected apps">You don\'t currently have any compatible apps installed</string>
+    <string name="additional_access_label" description="Label of a button that opens additional permissions access for an app. [CHAR_LIMIT=40]">Additional access</string>
+
+    <!--endregion-->
+
+    <!--region Denied Apps -->
+    <string name="denied_apps_banner_title" description="Title of a banner that provides information about apps that have been denied, in other words their permissions have been removed. [CHAR_LIMIT=100]">Removed app permissions</string>
+    <string name="denied_apps_banner_message_one_app" description="Message of a banner that provides information about an app that has been denied. [CHAR_LIMIT=NONE]">Health&#160;Connect removed permissions for <xliff:g example="Strava" id="app_data">%s</xliff:g></string>
+    <string name="denied_apps_banner_message_two_apps" description="Message of a banner that provides information about two apps that have been denied. [CHAR_LIMIT=NONE]">Health&#160;Connect removed permissions for <xliff:g example="Strava" id="app_data">%1$s</xliff:g> and <xliff:g example="Strava" id="app_data_two">%2$s</xliff:g></string>
+    <string name="denied_apps_banner_message_three_apps" description="Message of a banner that provides information about three apps that have been denied. [CHAR_LIMIT=NONE]">Health&#160;Connect removed permissions for <xliff:g example="Strava" id="app_data">%1$s</xliff:g>, <xliff:g example="Strava" id="app_data_two">%2$s</xliff:g> and <xliff:g example="Strava" id="app_data_three">%3$s</xliff:g></string>
+    <string name="denied_apps_banner_message_many_apps" description="Message of a banner that provides information about more than three apps that have been denied. [CHAR_LIMIT=NONE]">Health&#160;Connect removed permissions for <xliff:g example="Strava" id="app_data">%1$s</xliff:g>, <xliff:g example="Strava" id="app_data_two">%2$s</xliff:g>, <xliff:g example="Strava" id="app_data_three">%3$s</xliff:g> and other apps</string>
+    <string name="denied_apps_banner_button" description="Label of a button that opens a page with more details about denied apps. [CHAR_LIMIT=40]">See details</string>
+    <string name="denied_apps_dialog_title" description="Title of a dialog that provides information about apps with permissions removed by Health Connect. [CHAR_LIMIT=NONE]">Why Health&#160;Connect removes app permissions</string>
+    <string name="denied_apps_dialog_message" description="Label of a button that opens a page with more details about denied apps. [CHAR_LIMIT=NONE]">If an app is suspended or removed from Google&#160;Play, Health&#160;Connect automatically removes its permissions.\n\nThis means the app can no longer access data stored in Health&#160;Connect. If this app has previously written data, it appears in the inactive apps list.</string>
+    <string name="denied_apps_dialog_got_it_button" description="Label of a button that closes the dialog. [CHAR_LIMIT=40]">Got it</string>
+    <!--endregion-->
+
+    <!--region Export -->
+    <string name="export_settings_screen_title" description="Title of the 'save data' screen where users can set up configurations to auto-save Health Connect data and permissions. [CHAR_LIMIT=40]">Save data</string>
+    <string name="export_settings_screen_description" description="The top description of the 'save data' screen.">Save Health&#160;Connect data and permissions so you can import them if you switch to a new phone. You can choose where to store this data before saving.</string>
+    <string name="setup_button" description="Button on the 'save data' screen start the data saving flow, which allows a user to schedule data exports to save their data externally and keep it safe. [CHAR_LIMIT=50]">Set up</string>
+    <string name="export_settings_header" descrption="Title of the settings section where users can check the status of their data saving settings.">Settings</string>
+    <string name="auto_save" description="Menu item to indicate the currently selected configuration for scheduled auto-saves. Options are: off, daily, weekly or monthly.">Auto-save</string>
+
+    <string name="choose_frequency" description="Title of the 'choose frequency' screen where users can select the data saving frequency.">Choose frequency</string>
+    <string name="choose_frequency_description" description="Description of the data export frequency">Choose to save data once, or set it to save automatically at regular times.</string>
+    <string name="frequency_daily" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data daily.">Daily</string>
+    <string name="frequency_weekly" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data weekly.">Weekly</string>
+    <string name="frequency_monthly" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data monthly.">Monthly</string>
+    <string name="export_back_button" descrption="Text on a button that navigates back to the previous 'save data' screen.">Back</string>
+    <string name="export_next_button" descrption="Text on a button that navigates to the next setup screen.">Next</string>
+    <!--endregion-->
+
+    <!--region Onboarding -->
+    <string name="onboarding_title" description="Label used to show the title of onboarding page when user opens Health Connect app for the fist time">Get started with Health&#160;Connect</string>
+    <string name="onboarding_description" description="Content description of Health Connect app on the onboarding page">Health&#160;Connect stores your health and fitness data, giving you a simple way to sync the different apps on your phone</string>
+    <string name="share_data" description="Label used to show how the user can share data with apps">Share data with your apps</string>
+    <string name="share_data_description" description="Content description for how the user can share data with apps">Choose the data each app can read or write to Health&#160;Connect</string>
+    <string name="manage_your_settings" description="Label used to show how the user can manage settings and privacy">Manage your settings and privacy</string>
+    <string name="manage_your_settings_description" description="Content description for how the user can change app permissions and manage data">Change app permissions and manage your data at any time</string>
+    <string name="onboarding_go_back_button_text" description="Content description for button to exit from onboarding page">Go back</string>
+    <string name="onboarding_get_started_button_text" description="Content description for button to get started with Health Connect app">Get started</string>
+    <string name="previously_opened" description="Label used as key to track if user has opened Health Connect previously" translatable="false">Previously Opened</string>
+    <!--endregion-->
+
+    <!-- region Deletion -->
+    <string name="delete_button_content_description" description="Content description of a button that starts the deletion flow. [CHAR_LIMIT=50]">Delete data</string>
+
+    <!-- region Dialog fragment time range -->
+    <string name="time_range_title" description="Window title where user can choose the time range for data deletion. [CHAR_LIMIT=50]">Choose data to delete</string>
+    <string name="time_range_next_button" description="Label of a button that navigates to the next window of the deletion flow. [CHAR_LIMIT=50]">Next</string>
+
+    <string name="time_range_message_all" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">This permanently deletes all data added to Health&#160;Connect in the chosen time period</string>
+    <string name="time_range_message_data_type" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">This permanently deletes <xliff:g example="heart rate" id="data_type">%s</xliff:g> data added to Health&#160;Connect in the chosen time period</string>
+    <string name="time_range_message_category" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">This permanently deletes <xliff:g example="activity" id="category">%s</xliff:g> data added to Health&#160;Connect in the chosen time period</string>
+    <string name="time_range_message_app_data" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">This permanently deletes <xliff:g example="Strava" id="app_data">%s</xliff:g> data added to Health&#160;Connect in the chosen time period</string>
+
+    <string name="time_range_one_day" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 24 hours. [CHAR_LIMIT=50]">Delete last 24 hours</string>
+    <string name="time_range_one_week" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 7 days. [CHAR_LIMIT=50]">Delete last 7 days</string>
+    <string name="time_range_one_month" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 30 days. [CHAR_LIMIT=50]">Delete last 30 days</string>
+    <string name="time_range_all" description="Item on list of possible deletion time ranges the user can choose. This option deletes all data written during the selected time period. [CHAR_LIMIT=50]">Delete all data </string>
+    <!--endregion-->
+
+    <!-- region Dialog fragment confirming question -->
+    <string name="confirming_question_all" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Permanently delete all data from all time?</string>
+    <string name="confirming_question_one_day" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Permanently delete all data from the last 24 hours?</string>
+    <string name="confirming_question_one_week" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Permanently delete all data from the last 7 days?</string>
+    <string name="confirming_question_one_month" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Permanently delete all data from the last 30 days?</string>
+
+    <string name="confirming_question_data_type_all" description="Description of what permanent deletion of all given data type data means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="heart rate" id="data_type">%s</xliff:g> data from all time?</string>
+    <string name="confirming_question_data_type_one_day" description="Description of what permanent deletion of given data type data from the lat 24 hours means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="heart rate" id="data_type">%s</xliff:g> data from the last 24 hours?</string>
+    <string name="confirming_question_data_type_one_week" description="Description of what permanent deletion of given data type data from the last 7 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="heart rate" id="data_type">%s</xliff:g> data from the last 7 days?</string>
+    <string name="confirming_question_data_type_one_month" description="Description of what permanent deletion of given data type data from the last 30 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="heart rate" id="data_type">%s</xliff:g> data from the last 30 days?</string>
+
+    <string name="confirming_question_category_all" description="Description of what permanent deletion of all given activity data means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="activity" id="category">%s</xliff:g> data from all time?</string>
+    <string name="confirming_question_category_one_day" description="Description of what permanent deletion of given activity data from the lat 24 hours means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="activity" id="category">%s</xliff:g> data from the last 24 hours?</string>
+    <string name="confirming_question_category_one_week" description="Description of what permanent deletion of given activity data from the lat 7 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="activity" id="category">%s</xliff:g> data from the last 7 days?</string>
+    <string name="confirming_question_category_one_month" description="Description of what permanent deletion of given activity data from the lat 30 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="activity" id="category">%s</xliff:g> data from the last 30 days?</string>
+
+    <string name="confirming_question_app_data_all" description="Description of what permanent deletion of all data written by given app means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="Strava" id="app_data">%s</xliff:g> data from all time?</string>
+    <string name="confirming_question_app_data_one_day" description="Description of what permanent deletion of data written by given app from the lat 24 hours means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="Strava" id="app_data">%s</xliff:g> data from the last 24 hours?</string>
+    <string name="confirming_question_app_data_one_week" description="Description of what permanent deletion of data written by given app from the lat 7 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="Strava" id="app_data">%s</xliff:g> data from the last 7 days?</string>
+    <string name="confirming_question_app_data_one_month" description="Description of what permanent deletion of data written by given app from the lat 30 days means. [CHAR_LIMIT=NONE]">Permanently delete <xliff:g example="Strava" id="app_data">%s</xliff:g> data from the last 30 days?</string>
+
+    <string name="confirming_question_app_remove_all_permissions" description="Message of a check box that gives the user an option to remove all permissions from an app they're deleting data from. [CHAR_LIMIT=NONE]">Also remove all <xliff:g example="Strava" id="app_with_permissions">%s</xliff:g> permissions from Health&#160;Connect</string>
+
+    <string name="confirming_question_data_type_from_app_all" description="Description of what permanent deletion of given data type written by given app means. [CHAR_LIMIT=NONE]">Permanently delete all <xliff:g example="heart rate" id="data_type">%1$s</xliff:g> data added by <xliff:g example="Strava" id="app_data">%2$s</xliff:g>?</string>
+
+    <string name="confirming_question_single_entry" description="Description of what permanent deletion of a single data point means. [CHAR_LIMIT=NONE]">Permanently delete this entry?</string>
+    <string name="confirming_question_message" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Connected apps will no longer be able to access this data from Health&#160;Connect</string>
+    <string name="confirming_question_message_menstruation" description="Description of what menstruation entries this action will delete [CHAR_LIMIT=NONE]">This will delete all menstruation entries from <xliff:g example="22 January 2022" id="start_date">%1$s</xliff:g> to <xliff:g example="22 January 2022" id="end_date">%2$s</xliff:g>.</string>
+    <!--endregion-->
+
+    <!-- region Dialog buttons -->
+    <string name="confirming_question_delete_button" description="Label of a button that deletes data. [CHAR_LIMIT=50]">Delete</string>
+    <string name="confirming_question_go_back_button" description="Label of a button that goes back to the previous dialog. [CHAR_LIMIT=50]">Go back</string>
+    <string name="delete_dialog_success_got_it_button" description="Label of a button that dismisses the pop-up window. [CHAR_LIMIT=50]">Done</string>
+    <string name="delete_dialog_failure_close_button" description="Label of a button that closes the window. [CHAR_LIMIT=50]">Close</string>
+    <!-- endregion -->
+
+    <string name="delete_dialog_success_title" description="Title of the confirmation window of successful data deletion. [CHAR_LIMIT=50]">Data deleted</string>
+    <string name="delete_dialog_success_message" description="A message that confirms successful data deletion. [CHAR_LIMIT=NONE]">This data is no longer stored in Health&#160;Connect.</string>
+
+    <string name="delete_progress_indicator" description="Label of a message on a loading page with a progress bar during data deletion. [CHAR_LIMIT=100]">Deleting your data</string>
+
+    <string name="delete_dialog_failure_title" description="Title of the window that nforms the user about failed data deletion. [CHAR_LIMIT=50]">Couldn\'t delete data</string>
+    <string name="delete_dialog_failure_message" description="A message that informs the user about failed data deletion. [CHAR_LIMIT=NONE]">Something went wrong and Health&#160;Connect couldn\'t delete your data</string>
+    <string name="delete_dialog_failure_try_again_button" description="Label of a button that closes the window and goes back to the previous one. [CHAR_LIMIT=50]">Try again</string>
+
+    <string name="delete_data_notification_title" description="The title text of the notification that is shown while data is being deleted. [CHAR_LIMIT=50]">Deleting Health&#160;Connect data</string>
+    <string name="delete_data_notification_ticker_text" description="The ticker text of the notification that is shown while data is being deleted, which is read out by screen readers. [CHAR_LIMIT=50]">Deleting Health&#160;Connect data</string>
+    <string name="delete_data_notification_channel_name" description="The channel name for the notification that is shown while data is being deleted, which is visible to users in system settings. [CHAR_LIMIT=50]">Data deletion</string>
+    <!--endregion-->
+
+    <!-- region Data entries -->
+    <string name="data_entry_header_with_source_app" translatable="false"><xliff:g example="14:41" id="time">%1$s</xliff:g> • <xliff:g example="Run tracker" id="app_data">%2$s</xliff:g></string>
+    <string name="data_entry_header_without_source_app" translatable="false"><xliff:g example="14:41" id="time">%1$s</xliff:g></string>
+    <string name="data_point_action_content_description" description="Content description for the menu button of an individual data entry [CHAR LIMIT=NONE]">Delete data entry <xliff:g example="1000 steps" id="entry_to_delete">%s</xliff:g></string>
+    <string name="delete_data_point" description="Menu option for deleting an individual data entry [CHAR LIMIT=50]">Delete entry <xliff:g example="1000 steps" id="entry_to_delete">%s</xliff:g></string>
+    <string name="aggregation_total" description="Description before the total value. For instance, Total: 1000 steps. [CHAR LIMIT=50]">Total: <xliff:g example="1000 steps" id="total_value">%s</xliff:g></string>
+
+    <string name="watt_format" description="Power value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 W} other {# W}}</string>
+    <string name="watt_format_long" description="Power value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 watt} other {# watts}}</string>
+
+    <string name="steps_value" translation_description="Value of steps taken. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, =1 {1 step} other {# steps}}</string>
+
+    <string name="steps_per_minute" description="Step cadence value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 step/min} other {# steps/min}}</string>
+    <string name="steps_per_minute_long" description="Step cadence value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 step per minute} other {# steps per minute}}</string>
+
+    <string name="heart_rate_value" translation_description="Value of heart rate beats per minute. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, =1 {1 bpm} other {# bpm}}</string>
+    <string name="heart_rate_long_value" translation_description="Value of heart rate beats per minute. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, =1 {1 beat per minute} other {# beats per minute}}</string>
+
+    <string name="velocity_speed_miles" translation_description="Speed in miles per hour formatted. [ICU SYNTAX][CHAR LIMIT=15]">{value, plural, =1 {1 mph} other {# mph}}</string>
+    <string name="velocity_speed_km" translation_description="Speed in kilometers per hour formatted. [ICU SYNTAX][CHAR LIMIT=15]">{value, plural, =1 {1 km/h} other {# km/h}}</string>
+    <string name="velocity_speed_miles_long" translation_description="Speed in miles per hour formatted for audible announcement. [ICU SYNTAX][CHAR LIMIT=100]">{value, plural, =1 {1 mile per hour} other {# miles per hour}}</string>
+    <string name="velocity_speed_km_long" translation_description="Speed in kilometers per hour formatted audible announcement. [ICU SYNTAX][CHAR LIMIT=100]">{value, plural, =1 {1 kilometer per hour} other {# kilometers per hour}}</string>
+
+    <string name="heart_rate_series_range" translatable="false"><xliff:g example="100 bpm" id="min">%1$s</xliff:g> - <xliff:g example="109 bpm" id="max">%2$s</xliff:g></string>
+    <string name="heart_rate_series_range_long" translatable="false"> from <xliff:g example="100 beats per minute" id="min">%1$s</xliff:g> to <xliff:g example="109 beats per minute" id="max">%2$s</xliff:g></string>
+
+    <string name="time_range" translatable="false"><xliff:g example="14:41" id="start_time">%1$s</xliff:g> - <xliff:g example="15:41" id="end_time">%2$s</xliff:g> </string>
+    <string name="time_range_long" description="Content description for time interval. [CHAR_LIMIT=NONE]"> from <xliff:g example="14:41" id="start_time">%1$s</xliff:g> to <xliff:g example="15:41" id="end_time">%2$s</xliff:g></string>
+
+    <string name="date_range" translatable="false"><xliff:g example="Oct 30, 2021" id="start_time">%1$s</xliff:g> - <xliff:g example="Nov 11, 2021" id="end_time">%2$s</xliff:g> </string>
+    <string name="date_range_long" description="Content description for date interval. [CHAR_LIMIT=NONE]"> from <xliff:g example="October 30, 2021" id="start_time">%1$s</xliff:g> to <xliff:g example="November 11, 2021" id="end_time">%2$s</xliff:g></string>
+
+    <string name="wheelchair_pushes" description="Number of wheelchair pushes. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 wheelchair push} other {# wheelchair pushes}}</string>
+
+    <string name="liter" description="Volume value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, =1 {1 L} other {# L}}</string>
+    <string name="liter_long" description="Volume value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, =1 {1 liter} other {# liters}}</string>
+
+    <string name="floors_climbed" description="Value of floors climbed. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 floor} other {# floors}}</string>
+
+    <string name="elevation_meters" translation_description="Shown as the label in the tooltip for weight chart. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 m} other {# m}}</string>
+    <string name="elevation_meters_long" translation_description="Shown as the label in the tooltip for weight chart. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 meter} other {# meters}}</string>
+
+    <string name="cycling_rpm" description="Pedaling rate, in crank revolutions per minute (RPM). [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 rpm} other {# rpm}}</string>
+    <string name="cycling_rpm_long" description="Pedaling rate, in crank revolutions per minute (RPM).  [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 revolution per minute} other {# revolutions per minute}}</string>
+    <string name="cycling_cadence_series_range" translatable="false"><xliff:g example="100 rpm" id="min">%1$s</xliff:g> - <xliff:g example="109 bpm" id="max">%2$s</xliff:g></string>
+    <string name="cycling_cadence_series_range_long" description="Pedaling rate range, in crank revolutions per minute (RPM)"> from <xliff:g example="100 revolutions per minute" id="min">%1$s</xliff:g> to <xliff:g example="109 revolutions per minute" id="max">%2$s</xliff:g></string>
+
+    <string name="sexual_activity_protected" description="Whether protection was used during sexual activity. [CHAR LIMIT=50]">Protected</string>
+    <string name="sexual_activity_unprotected" description="Whether protection was used during sexual activity. [CHAR LIMIT=50]">Unprotected</string>
+
+    <string name="spotting" description="Intermenstrual bleeding type: spotting. [CHAR LIMIT=50]">Spotting</string>
+    <string name="flow_spotting" description="How heavy the user's menstruation flow was - spotting. [CHAR LIMIT=50]">Spotting</string>
+    <string name="flow_light" description="How heavy the user's menstruation flow was - light. [CHAR LIMIT=50]">Light flow</string>
+    <string name="flow_medium" description="How heavy the user's menstruation flow was - medium. [CHAR LIMIT=50]">Medium flow</string>
+    <string name="flow_heavy" description="How heavy the user's menstruation flow was - heavy. [CHAR LIMIT=50]">Heavy flow</string>
+
+    <string name="period_day" description="Which day of the user's menstruation period it was. [CHAR LIMIT=50]">Period day <xliff:g example="2" id="day">%1$d</xliff:g> of <xliff:g example="5" id="total_length">%2$d</xliff:g></string>
+
+    <string name="ovulation_positive" description="The positive result of a user's ovulation test. [CHAR LIMIT=50]">Positive</string>
+    <string name="ovulation_negative" description="The negative result of a user's ovulation test. [CHAR LIMIT=50]">Negative</string>
+    <string name="ovulation_high" description="The high fertility result of a user's ovulation test. [CHAR LIMIT=50]">High</string>
+    <string name="ovulation_inconclusive" description="The inconclusive result of a user's ovulation test. [CHAR LIMIT=50]">Inconclusive</string>
+
+    <string name="milliseconds" description="Heart rate variability value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, =1 {1 ms} other {# ms}}</string>
+    <string name="milliseconds_long" description="Heart rate variability value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, =1 {1 millisecond} other {# milliseconds}}</string>
+
+    <!--  region activity -->
+    <string name="session_title" translatable="false"><xliff:g example="My Strava workout" id="title">%1$s</xliff:g>, <xliff:g example="Strength training" id="type">%2$s</xliff:g></string>
+    <string name="repetitions_format" translatable="false"><xliff:g example="Push up" id="type">%1$s</xliff:g>: <xliff:g example="20" id="count">%2$s</xliff:g></string>
+    <string name="repetitions" description="Repetitions of an exercise set. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 rep} other {# reps}}</string>
+    <string name="repetitions_long" description="Repetitions of an exercise set.  [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, =1 {1 repetition} other {# repetitions}}</string>
+    <string name="exercise_segments_header" description="Header for a group of exercise segments. [CHAR LIMIT=50]">Exercise segments</string>
+    <string name="exercise_laps_header" description="Header for a group of exercise laps. [CHAR LIMIT=50]">Laps</string>
+    <string name="back_extension" description="Name of the back extension gym exercise. [CHAR LIMIT=50]">Back extension</string>
+    <string name="badminton" description="Activity type: playing badminton. [CHAR LIMIT=50]">Badminton</string>
+    <string name="barbell_shoulder_press" description="Name of the back extension gym exercise. [CHAR LIMIT=50] [CHAR LIMIT=50]">Barbell shoulder press</string>
+    <string name="baseball" description="Activity type: playing baseball. [CHAR LIMIT=50]">Baseball</string>
+    <string name="basketball" description="Activity type: playing basketball. [CHAR LIMIT=50]">Basketball</string>
+    <string name="bench_press" description="Name of the bench press gym exercise. [CHAR LIMIT=50]">Bench press</string>
+    <string name="bench_sit_up" description="Name of the bench sit up gym exercise. [CHAR LIMIT=50]">Bench sit up</string>
+    <string name="biking" description="Activity type: riding a bike. [CHAR LIMIT=50]">Biking</string>
+    <string name="biking_stationary" description="Activity type: riding a stationary bike. [CHAR LIMIT=50]">Biking stationary</string>
+    <string name="boot_camp" description="Activity type: boot camp class. [CHAR LIMIT=50]">Boot camp</string>
+    <string name="boxing" description="Activity type: boxing. [CHAR LIMIT=50]">Boxing</string>
+    <string name="burpee" description="Name of the burpee gym exercise. [CHAR LIMIT=50]">Burpee</string>
+    <string name="calisthenics" description="Activity type: calisthenics. [CHAR LIMIT=50]">Calisthenics</string>
+    <string name="cricket" description="Activity type: playing cricket. [CHAR LIMIT=50]">Cricket</string>
+    <string name="crunch" description="Name of the crunch gym exercise. [CHAR LIMIT=50]">Crunch</string>
+    <string name="dancing" description="Activity type: dancing. [CHAR LIMIT=50]">Dancing</string>
+    <string name="deadlift" description="Name of the deadlift gym exercise. [CHAR LIMIT=50]">Deadlift</string>
+    <string name="dumbbell_curl_left_arm" description="Name of the dumbbell curl gym exercise on the left arm. [CHAR LIMIT=50]">Left arm dumbbell curl</string>
+    <string name="dumbbell_curl_right_arm" description="Name of the dumbbell curl gym exercise on the right arm. [CHAR LIMIT=50]">Right arm dumbbell curl</string>
+    <string name="dumbbell_front_raise" description="Name of the dumbbell front raise gym exercise. [CHAR LIMIT=50]">Dumbbell front raise</string>
+    <string name="dumbbell_lateral_raise" description="Name of the dumbbell front raise gym exercise. [CHAR LIMIT=50]">Dumbbell lateral raise</string>
+    <string name="dumbbell_triceps_extension_left_arm" description="Name of the dumbbell triceps extension gym exercise on the left arm. [CHAR LIMIT=50]">Left arm dumbbell triceps extension</string>
+    <string name="dumbbell_triceps_extension_right_arm" description="Name of the dumbbell triceps extension gym exercise on the right arm. [CHAR LIMIT=50]">Right arm dumbbell triceps extension</string>
+    <string name="dumbbell_triceps_extension_two_arm" description="Name of the dumbbell triceps extension gym exercise done with both arms. [CHAR LIMIT=50]">Two arm dumbbell triceps extension</string>
+    <string name="elliptical" description="Activity type: dancing. [CHAR LIMIT=50]">Elliptical</string>
+    <string name="exercise_class" description="Activity type: participation in an exercise class. [CHAR LIMIT=50]">Exercise class</string>
+    <string name="fencing" description="Activity type: fencing. [CHAR LIMIT=50]">Fencing</string>
+    <string name="football_american" description="Activity type: playing American football. [CHAR LIMIT=50]">American football</string>
+    <string name="football_australian" description="Activity type: playing Australian football. [CHAR LIMIT=50]">Australian football</string>
+    <string name="forward_twist" description="Name of the forward twist gym exercise. [CHAR LIMIT=50]">Forward twist</string>
+    <string name="frisbee_disc" description="Activity type: playing frisbee. [CHAR LIMIT=50]">Frisbee</string>
+    <string name="golf" description="Activity type: playing golf. [CHAR LIMIT=50]">Golf</string>
+    <string name="guided_breathing" description="Activity type: guided breathing. [CHAR LIMIT=50]">Guided breathing</string>
+    <string name="gymnastics" description="Activity type: doing gymnastics. [CHAR LIMIT=50]">Gymnastics</string>
+    <string name="handball" description="Activity type: playing handball. [CHAR LIMIT=50]">Handball</string>
+    <string name="high_intensity_interval_training" description="Activity type: performing high intensity interval training (HIIT). [CHAR LIMIT=50]">High intensity interval training</string>
+    <string name="hiking" description="Activity type: hiking. [CHAR LIMIT=50]">Hiking</string>
+    <string name="ice_hockey" description="Activity type: playing ice hokey. [CHAR LIMIT=50]">Ice hockey</string>
+    <string name="ice_skating" description="Activity type: ice skating. [CHAR LIMIT=50]">Ice skating</string>
+    <string name="jumping_jack" description="Name of the jumping jack gym exercise. [CHAR LIMIT=50]">Jumping jack</string>
+    <string name="jump_rope" description="Activity type: rope jumping. [CHAR LIMIT=50]">Jump rope</string>
+    <string name="lat_pull_down" description="Name of the lat pulldown gym exercise. [CHAR LIMIT=50]">Lat pulldown</string>
+    <string name="lunge" description="Name of the lunge gym exercise. [CHAR LIMIT=50]">Lunge</string>
+    <string name="martial_arts" description="Activity type: martial arts practice. [CHAR LIMIT=50]">Martial arts</string>
+    <string name="meditation" description="Activity type: performing meditation. [CHAR LIMIT=50]">Meditation</string>
+    <string name="paddling" description="Activity type: paddling. [CHAR LIMIT=50]">Paddling</string>
+    <string name="paragliding" description="Activity type: paragliding. [CHAR LIMIT=50]">Paragliding</string>
+    <string name="pilates" description="Activity type: doing pilates. [CHAR LIMIT=50]">Pilates</string>
+    <string name="plank" description="Name of the plank gym exercise. [CHAR LIMIT=50]">Plank</string>
+    <string name="racquetball" description="Activity type: playing racquetball. [CHAR LIMIT=50]">Racquetball</string>
+    <string name="rock_climbing" description="Activity type: rock climbing. [CHAR LIMIT=50]">Rock climbing</string>
+    <string name="roller_hockey" description="Activity type: playing roller hockey. [CHAR LIMIT=50]">Roller hockey</string>
+    <string name="rowing" description="Activity type: rowing. [CHAR LIMIT=50]">Rowing</string>
+    <string name="rowing_machine" description="Activity type: rowing on a rowing machine. [CHAR LIMIT=50]">Rowing machine</string>
+    <string name="rugby" description="Activity type: playing rugby. [CHAR LIMIT=50]">Rugby</string>
+    <string name="running" description="Activity type: running. [CHAR LIMIT=50]">Running</string>
+    <string name="running_treadmill" description="Activity type: treadmill running. [CHAR LIMIT=50]">Treadmill running</string>
+    <string name="sailing" description="Activity type: sailing. [CHAR LIMIT=50]">Sailing</string>
+    <string name="scuba_diving" description="Activity type: scuba diving. [CHAR LIMIT=50]">Scuba diving</string>
+    <string name="skating" description="Activity type: skating. [CHAR LIMIT=50]">Skating</string>
+    <string name="skiing" description="Activity type: skiing. [CHAR LIMIT=50]">Skiing</string>
+    <string name="snowboarding" description="Activity type: snowboarding. [CHAR LIMIT=50]">Snowboarding</string>
+    <string name="snowshoeing" description="Activity type: snowshoeing. [CHAR LIMIT=50]">Snowshoeing</string>
+    <string name="soccer" description="Activity type: playing soccer. [CHAR LIMIT=50]">Soccer</string>
+    <string name="softball" description="Activity type: playing softball. [CHAR LIMIT=50]">Softball</string>
+    <string name="squash" description="Activity type: playing squash. [CHAR LIMIT=50]">Squash</string>
+    <string name="squat" description="Name of the squat gym exercise. [CHAR LIMIT=50]">Squat</string>
+    <string name="stair_climbing" description="Activity type: stair climbing. [CHAR LIMIT=50]">Stair climbing</string>
+    <string name="stair_climbing_machine" description="Activity type: stair climbing on a machine. [CHAR LIMIT=50]">Stair climbing machine</string>
+    <string name="strength_training" description="Activity type: generic strength training. [CHAR LIMIT=50]">Strength training</string>
+    <string name="stretching" description="Name of the stretching exercise. [CHAR LIMIT=50]">Stretching</string>
+    <string name="surfing" description="Activity type: surfing. [CHAR LIMIT=50]">Surfing</string>
+    <string name="swimming_open_water" description="Activity type: swimming in open water. [CHAR LIMIT=50]">Open water swimming</string>
+    <string name="swimming_pool" description="Activity type: swimming in a pool. [CHAR LIMIT=50]">Pool swimming</string>
+    <string name="swimming_freestyle" description="Swimming stroke type: freestyle. [CHAR LIMIT=50]">Freestyle</string>
+    <string name="swimming_backstroke" description="Swimming stroke type: backstroke. [CHAR LIMIT=50]">Backstroke</string>
+    <string name="swimming_breaststroke" description="Swimming stroke type: breaststroke. [CHAR LIMIT=50]">Breaststroke</string>
+    <string name="swimming_butterfly" description="Swimming stroke type: butterfly. [CHAR LIMIT=50]">Butterfly</string>
+    <string name="swimming_mixed" description="Swimming stroke type: mixed. [CHAR LIMIT=50]">Mixed</string>
+    <string name="swimming_other" description="Swimming stroke type: other. [CHAR LIMIT=50]">Other</string>
+    <string name="table_tennis" description="Activity type: playing table tennis. [CHAR LIMIT=50]">Table tennis</string>
+    <string name="tennis" description="Activity type: playing tennis. [CHAR LIMIT=50]">Tennis</string>
+    <string name="upper_twist" description="Name of the upper twist gym exercise. [CHAR LIMIT=50]">Upper twist</string>
+    <string name="volleyball" description="Activity type: playing volleyball. [CHAR LIMIT=50]">Volleyball</string>
+    <string name="walking" description="Activity type: walking. [CHAR LIMIT=50]">Walking</string>
+    <string name="water_polo" description="Activity type: playing water polo. [CHAR LIMIT=50]">Water polo</string>
+    <string name="weightlifting" description="Activity type: generic weightlifting training. [CHAR LIMIT=50]">Weightlifting</string>
+    <string name="wheelchair" description="Activity type: wheelchair. [CHAR LIMIT=50]">Wheelchair</string>
+    <string name="workout" description="Activity type: generic workout. [CHAR LIMIT=50]">Workout</string>
+    <string name="yoga" description="Activity type: yoga. [CHAR LIMIT=50]">Yoga</string>
+    <string name="arm_curl" description="Exercise type: arm curl. [CHAR LIMIT=50]">Arm curl</string>
+    <string name="ball_slam" description="Exercise type: ball slam. [CHAR LIMIT=50]">Ball slam</string>
+    <string name="double_arm_triceps_extension" description="Exercise type: double arm triceps extension. [CHAR LIMIT=50]">Double arm triceps extension</string>
+    <string name="dumbbell_row" description="Activity type: dumbbell row. [CHAR LIMIT=50]">Dumbbell row</string>
+    <string name="front_raise" description="Exercise type: front raise. [CHAR LIMIT=50]">Front raise</string>
+    <string name="hip_thrust" description="Exercise type: hip thrust. [CHAR LIMIT=50]">Hip thrust</string>
+    <string name="hula_hoop" description="Exercise type: hula hoop. [CHAR LIMIT=50]">Hula hoop</string>
+    <string name="kettlebell_swing" description="Exercise type: kettlebell swing. [CHAR LIMIT=50]">Kettlebell swing</string>
+    <string name="lateral_raise" description="Exercise type: lateral raise. [CHAR LIMIT=50]">Lateral raise</string>
+    <string name="leg_curl" description="Exercise type: leg curl. [CHAR LIMIT=50]">Leg curl</string>
+    <string name="leg_extension" description="Exercise type: leg extension. [CHAR LIMIT=50]">Leg extension</string>
+    <string name="leg_press" description="Exercise type: leg press. [CHAR LIMIT=50]">Leg press</string>
+    <string name="leg_raise" description="Exercise type: leg raise. [CHAR LIMIT=50]">Leg raise</string>
+    <string name="mountain_climber" description="Exercise type: mountain climber. [CHAR LIMIT=50]">Mountain climber</string>
+    <string name="pull_up" description="Exercise type: pull up. [CHAR LIMIT=50]">Pull up</string>
+    <string name="punch" description="Exercise type: punch. [CHAR LIMIT=50]">Punch</string>
+    <string name="shoulder_press" description="Exercise type: shoulder press. [CHAR LIMIT=50]">Shoulder press</string>
+    <string name="single_arm_triceps_extension" description="Exercise type: single arm triceps extension. [CHAR LIMIT=50]">Single arm triceps extension</string>
+    <string name="sit_up" description="Exercise type: sit up. [CHAR LIMIT=50]">Sit up</string>
+    <string name="rest" description="Auto-detected periods of rest during an activity session. There should be no user movement detected during rest and any movement detected should finish rest event. [CHAR LIMIT=50]">Rest</string>
+    <string name="pause" description="Explicit pause during an activity session, requested by the user. [CHAR LIMIT=50]">Pause</string>
+    <string name="activity_type_australian_football" translation_description="Activity type: playing australian football. [CHAR LIMIT=40]">Australian football</string>
+    <!--  endregion-->
+
+    <!--  region sleep -->
+    <string name="sleep_session_default" description="Label that shows sleep session duration.[CHAR LIMIT=80]"><xliff:g example="4 hours" id="duration"> %1$s</xliff:g> sleeping</string>
+    <string name="sleep_stage_default" description="Label that shows sleep session duration.[CHAR LIMIT=80]"><xliff:g example="4 hours" id="duration">%1$s</xliff:g> <xliff:g example="light sleep" id="name">%2$s</xliff:g></string>
+    <string name="sleep_session_with_one_field" translatable="false"><xliff:g example="My Oura sleep" id="title">%1$s</xliff:g></string>
+    <string name="sleep_session_with_notes" translatable="false"><xliff:g example="My Oura sleep" id="title">%1$s</xliff:g> \n<xliff:g example="This was a peaceful night" id="notes">%2$s</xliff:g></string>
+    <string name="sleep_stage_awake" description="Awake stage throughout the sleep session. [CHAR LIMIT=50]">awake</string>
+    <string name="sleep_stage_awake_in_bed" description="Awake stage throughout the sleep session. [CHAR LIMIT=50]">awake in bed</string>
+    <string name="sleep_stage_sleeping" description="Sleeping stage throughout the sleep session. [CHAR LIMIT=50]">sleeping</string>
+    <string name="sleep_stage_out_of_bed" description="Out of bed stage throughout the sleep session. [CHAR LIMIT=50]">out of bed</string>
+    <string name="sleep_stage_rem" description="REM stage throughout the sleep session. [CHAR LIMIT=50]">REM sleep</string>
+    <string name="sleep_stage_light" description="Light sleep stage throughout the sleep session. [CHAR LIMIT=50]">light sleep</string>
+    <string name="sleep_stage_deep" description="Deep sleep stage throughout the sleep session. [CHAR LIMIT=50]">deep sleep</string>
+    <string name="sleep_stage_unknown" description="Unknown sleep stage throughout the sleep session. [CHAR LIMIT=50]">unknown</string>
+    <!--  endregion -->
+
+    <!-- region Duration -->
+    <string name="minute_duration" translation_description="minute duration representation [CHAR LIMIT=8]"><xliff:g example="1" id="minute">%1$s</xliff:g>m</string>
+    <string name="hour_minute_duration_short" translation_description="Hour and minute time duration representation [CHAR LIMIT=8]"><xliff:g example="1" id="hour">%1$s</xliff:g>h <xliff:g example="31" id="min">%2$s</xliff:g>m</string>
+    <string name="hour_duration" translation_description="hour duration representation [CHAR LIMIT=8]"><xliff:g example="1" id="hour">%1$s</xliff:g>h</string>
+
+    <string name="hour_minute_duration_accessibility" translation_description="Hour and minute time duration representation used by accessibility, 'space' between minute and second should be deleted or replaced according to each language to translate [CHAR LIMIT=NONE]">
+  <xliff:g example="2 hours" id="hours">%1$s</xliff:g> <xliff:g example="2 minutes" id="minutes">%2$s</xliff:g>
+  </string>
+    <string name="hour_duration_accessibility" translation_description="Hour time duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, =1 {1 hour} other {# hours}}</string>
+    <string name="minute_duration_accessibility" translation_description="minute duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, =1 {1 minute} other {# minutes}}</string>
+
+
+    <string name="day_duration" translation_description="Days duration representation [CHAR LIMIT=8]"><xliff:g example="2 days" id="days">%1$s</xliff:g></string>
+    <string name="day_hour_duration" translation_description="Days and hours time duration representation [CHAR LIMIT=8]"><xliff:g example="2 days" id="days">%1$s</xliff:g> and <xliff:g example="3 hours" id="hours">%2$s</xliff:g></string>
+    <string name="day_duration_accessibility" translation_description="Days duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, =1 {1 day} other {# days}}</string>
+    <!-- endregion -->
+
+    <!--  region vo2 max-->
+    <string name="vo2_max" description="VO₂ max value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 mL/(kg·min)} other {# mL/(kg·min)}}</string>
+    <string name="vo2_max_long" description="VO₂ max value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1  milliliter of oxygen per kilogram of body mass per minute} other {#  milliliters of oxygen per kilogram of body mass per minute}}</string>
+    <string name="vo2_metabolic_cart" description="A method of VO₂ max measurement - metabolic cart. [CHAR LIMIT=50]">Metabolic cart</string>
+    <string name="vo2_heart_rate_ratio" description="A method of VO₂ max measurement - heart rate ratio. [CHAR LIMIT=50]">Heart rate ratio</string>
+    <string name="vo2_cooper_test" description="A method of VO₂ max measurement - Cooper test. [CHAR LIMIT=50]">Cooper test</string>
+    <string name="vo2_multistage_fitness_test" description="A method of VO₂ max measurement - multistage fitness test. [CHAR LIMIT=50]">Multistage fitness test</string>
+    <string name="vo2_rockport_fitness_test" description="A method of VO₂ max measurement - Rockport fitness test [CHAR LIMIT=50]">Rockport fitness test</string>
+    <string name="vo2_other" description="A method of VO₂ max measurement - other [CHAR LIMIT=50]">Other</string>
+    <!--  endregion -->
+
+    <!--  region mucus -->
+    <string name="mucus_dry" description="The consistency or texture of the user's cervical mucus - dry. [CHAR LIMIT=50]">Dry</string>
+    <string name="mucus_sticky" description="The consistency or texture of the user's cervical mucus - sticky. [CHAR LIMIT=50]">Sticky</string>
+    <string name="mucus_creamy" description="The consistency or texture of the user's cervical mucus - creamy. [CHAR LIMIT=50]">Creamy</string>
+    <string name="mucus_watery" description="The consistency or texture of the user's cervical mucus - watery. [CHAR LIMIT=50]">Watery</string>
+    <string name="mucus_egg_white" description="The consistency or texture of the user's cervical mucus - Egg white. [CHAR LIMIT=50]">Egg white</string>
+    <string name="mucus_unusual" description="The consistency or texture of the user's cervical mucus - unusual. [CHAR LIMIT=50]">Unusual</string>
+
+    <string name="mucus_light" description="The amount of the user's cervical mucus - light. [CHAR LIMIT=50]">Light</string>
+    <string name="mucus_medium" description="The amount of the user's cervical mucus - medium. [CHAR LIMIT=50]">Medium</string>
+    <string name="mucus_heavy" description="The amount of the user's cervical mucus - heavy. [CHAR LIMIT=50]">Heavy</string>
+    <!--  endregion -->
+
+    <!--  region Blood pressure-->
+    <string name="blood_pressure" description="Blood pressure value with unit. [CHAR LIMIT=80]"><xliff:g example="120" id="systolic">%1$s</xliff:g>/<xliff:g example="80" id="diastolic">%2$s</xliff:g> mmHg</string>
+    <string name="blood_pressure_long" description="Blood pressure value with unit. [CHAR LIMIT=160]"><xliff:g example="120" id="systolic">%1$s</xliff:g>/<xliff:g example="80" id="diastolic">%2$s</xliff:g> millimetre of mercury</string>
+    <string name="body_position_standing_up" description="Body position when taking blood pressure - standing up. [CHAR LIMIT=50]">Standing up</string>
+    <string name="body_position_sitting_down" description="Body position when taking blood pressure - sitting down. [CHAR LIMIT=50]">Sitting down</string>
+    <string name="body_position_lying_down" description="Body position when taking blood pressure - lying down. [CHAR LIMIT=50]">Lying down</string>
+    <string name="body_position_reclining" description="Body position when taking blood pressure - reclining. [CHAR LIMIT=50]">Reclining</string>
+    <string name="blood_pressure_left_wrist" description="Body part where the blood pressure was taken - left wrist. [CHAR LIMIT=50]">Left wrist</string>
+    <string name="blood_pressure_right_wrist" description="Body part where the blood pressure was taken - right wrist. [CHAR LIMIT=50]">Right wrist</string>
+    <string name="blood_pressure_left_arm" description="Body part where the blood pressure was taken - left upper arm. [CHAR LIMIT=50]">Left upper arm</string>
+    <string name="blood_pressure_right_arm" description="Body part where the blood pressure was taken - right upper arm. [CHAR LIMIT=50]">Right upper arm</string>
+    <!--  endregion -->
+
+    <!-- region BloodGlucose -->
+    <string name="millimoles_per_liter" description="Blood glucose value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, =1 {1 mmol/L} other {# mmol/L}}</string>
+    <string name="millimoles_per_liter_long" description="Blood glucose value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, =1 {1 millimole per liter} other {# millimoles per liter}}</string>
+
+    <string name="specimen_source_interstitial_fluid" description="Source of the blood glucose measurement - interstitial fluid. [CHAR LIMIT=50]">Interstitial fluid</string>
+    <string name="specimen_source_capillary_blood" description="Source of the blood glucose measurement - capillary blood. [CHAR LIMIT=50]">Capillary blood</string>
+    <string name="specimen_source_plasma" description="Source of the blood glucose measurement - plasma. [CHAR LIMIT=50]">Plasma</string>
+    <string name="specimen_source_serum" description="Source of the blood glucose measurement - serum. [CHAR LIMIT=50]">Serum</string>
+    <string name="specimen_source_tears" description="Source of the blood glucose measurement - tears. [CHAR LIMIT=50]">Tears</string>
+    <string name="specimen_source_whole_blood" description="Source of the blood glucose measurement - whole blood. [CHAR LIMIT=50]">Whole blood</string>
+
+    <string name="blood_glucose_general" description="Relationship of the meal to the blood glucose measurement - general. [CHAR LIMIT=50]">General</string>
+    <string name="blood_glucose_fasting" description="Relationship of the meal to the blood glucose measurement - fasting. [CHAR LIMIT=50]">Fasting</string>
+    <string name="blood_glucose_before_meal" description="Relationship of the meal to the blood glucose measurement - before meal. [CHAR LIMIT=50]">Before meal</string>
+    <string name="blood_glucose_after_meal" description="Relationship of the meal to the blood glucose measurement - after meal. [CHAR LIMIT=50]">After meal</string>
+
+    <string name="mealtype_label" description="Meal type label, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Meal type</string>
+    <string name="mealtype_unknown" description="Unknown meal type, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Unknown</string>
+    <string name="mealtype_breakfast" description="Breakfast, a meal type, usually eaten as a first meal in the day, in the morning, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Breakfast</string>
+    <string name="mealtype_lunch" description="Lunch, a meal type, eaten in the middle of the day, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Lunch</string>
+    <string name="mealtype_dinner" description="Dinner, a meal type, usually eaten as a last warm meal of the day, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Dinner</string>
+    <string name="mealtype_snack" description="Snack, a meal type, eaten in between big meals, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Snack</string>
+    <!-- endregion-->
+    <!-- region Nutrition-->
+    <string name="biotin" description="Biotin, also called vitamin B7, one of the vitamins found in food. [CHAR LIMIT=50]">Biotin</string>
+    <string name="caffeine" description="Caffeine, a chemical with stimulant effects, found in food and drink. [CHAR LIMIT=50]">Caffeine</string>
+    <string name="calcium" description="Calcium, a nutrient associated with bones and teeth. [CHAR LIMIT=50]">Calcium</string>
+    <string name="chloride" description="Chloride, a crucial electrolyte responsible for proper blood volume and pressure. [CHAR LIMIT=50]">Chloride</string>
+    <string name="cholesterol" description="Dietary cholesterol, found in animal based food. [CHAR LIMIT=50]">Cholesterol</string>
+    <string name="chromium" description="Chromium, an essential nutrient required for sugar and fat metabolism. [CHAR LIMIT=50]">Chromium</string>
+    <string name="copper" description="Copper,a nutrient which, together with iron, enables the body to form red blood cells. [CHAR LIMIT=50]">Copper</string>
+    <string name="dietary_fiber" description="Dietary fiber, also known as roughage, is the indigestible part of plant foods. [CHAR LIMIT=50]">Dietary fiber</string>
+    <string name="energy_consumed_total" description="Kcal or Kj found in consumed food. [CHAR LIMIT=50]">Energy</string>
+    <string name="energy_consumed_from_fat" description="Kcal or Kj found in consumed food, coming from consuming fat. [CHAR LIMIT=50]">Energy from fat</string>
+    <string name="folate" description="Folate is the natural form of vitamin B9. [CHAR LIMIT=50]">Folate</string>
+    <string name="folic_acid" description="Folic acid, also known as vitamin B₉ and folacin, is one of the B vitamins. [CHAR LIMIT=50]">Folic acid</string>
+    <string name="iodine" description="Iodine is a mineral used by the thyroid gland to make thyroid hormones. [CHAR LIMIT=50]">Iodine</string>
+    <string name="iron" description="Iron, a mineral that helps maintain healthy blood. [CHAR LIMIT=50]">Iron</string>
+    <string name="magnesium" description="Magnesium, a macromineral found in nuts and leafy greens. [CHAR LIMIT=50]">Magnesium</string>
+    <string name="manganese" description="Manganese, a micromineral found in nuts and leafy greens. [CHAR LIMIT=50]">manganese</string>
+    <string name="molybdenum" description="Molybdenum, a mineral which activates enzymes that help break down harmful sulfites and prevent toxins from building up in the body. [CHAR LIMIT=50]">Molybdenum</string>
+    <string name="monounsaturated_fat" description="Monosaturated fat, fat molecules that have one unsaturated carbon bond in the molecule. Monounsaturated fatty acids (MUFAs) are a healthy type of fa [CHAR LIMIT=50]">Monounsaturated fat</string>
+    <string name="niacin" description="Niacin, also known as nicotinic acid, is an organic compound and a form of vitamin B3. [CHAR LIMIT=50]">Niacin</string>
+    <string name="pantothenic_acid" description="Pantothenic acid, also called vitamin B5. [CHAR LIMIT=50]">Pantothenic acid</string>
+    <string name="phosphorus" description="Phosphorus, a mineral that works with calcium to help build bones. [CHAR LIMIT=50]">Phosphorus</string>
+    <string name="polyunsaturated_fat" description="Polyunsaturated fat is a type of dietary fat. It is one of the healthy fats, along with monounsaturated fat. [CHAR LIMIT=50]">Polyunsaturated fat</string>
+    <string name="potassium" description="Potassium, a mineral with main role in the body to help maintain normal levels of fluid inside our cells. [CHAR LIMIT=50]">Potassium</string>
+    <string name="protein" description="Protein, a macronutrient, one of the building blocks of body tissue and can also serve as a fuel source. [CHAR LIMIT=50]">Protein</string>
+    <string name="riboflavin" description="Riboflavin, also known as vitamin B2. [CHAR LIMIT=50]">Riboflavin</string>
+    <string name="saturated_fat" description="Saturated fat, one of the unhealthy fats, along with trans fat, found in food. [CHAR LIMIT=50]">Saturated fat</string>
+    <string name="selenium" description="Selenium, an essential trace mineral that supports many bodily processes. [CHAR LIMIT=50]">Selenium</string>
+    <string name="sodium" description="Sodium is an essential nutrient and is needed by the body in relatively small amounts. [CHAR LIMIT=50]">Sodium</string>
+    <string name="sugar" description="Sugar is the generic name for sweet-tasting, soluble carbohydrates, many of which are used in food. [CHAR LIMIT=50]">Sugar</string>
+    <string name="thiamin" description="Thiamin, also known as thiamine and vitamin B1. [CHAR LIMIT=50]">Thiamin</string>
+    <string name="total_carbohydrate" description="total carbohydrates includes all types of carbohydrate found in the food or beverage. [CHAR LIMIT=50]">Total carbohydrate</string>
+    <string name="total_fat" description="Total fat indicates how much fat is in a single serving of food. [CHAR LIMIT=50]">Total fat</string>
+    <string name="trans_fat" description="Trans fat, also called trans-unsaturated fatty acids or trans fatty acids, is a type of unsaturated fat that is considered the most unhealthy. [CHAR LIMIT=50]">Trans fat</string>
+    <string name="unsaturated_fat" description="Unsaturated fats help lower a person's levels of LDL cholesterol. [CHAR LIMIT=50]">Unsaturated fat</string>
+    <string name="vitamin_a" description="Vitamin A, also known as retinol, is key for good vision, a healthy immune system, and cell growth. [CHAR LIMIT=50]">Vitamin A</string>
+    <string name="vitamin_b12" description="Vitamin B12, also known as cobalamin, is a water-soluble vitamin involved in metabolism. [CHAR LIMIT=50]">Vitamin B12</string>
+    <string name="vitamin_b6" description="Vitamin B6 is one of the B vitamins, and thus an essential nutrient. [CHAR LIMIT=50]">Vitamin B6</string>
+    <string name="vitamin_c" description="Vitamin C is a water-soluble vitamin found in various foods and sold as a dietary supplement. [CHAR LIMIT=50]">Vitamin C</string>
+    <string name="vitamin_d" description="Vitamin D helps regulate the amount of calcium and phosphate in the body. [CHAR LIMIT=50]">Vitamin D</string>
+    <string name="vitamin_e" description="Vitamin E is an important fat-soluble nutrient. It's a powerful antioxidant and is needed for immune health and cellular signaling in your body. [CHAR LIMIT=50]">Vitamin E</string>
+    <string name="vitamin_k" description="Vitamin K is a group of vitamins that the body needs for blood clotting, helping wounds to heal. [CHAR LIMIT=50]">Vitamin K</string>
+    <string name="zinc" description="Zinc is a trace mineral necessary for almost 100 enzymes to carry out vital chemical reactions. [CHAR LIMIT=50]">Zinc</string>
+    <string name="nutrient_with_value" description="Used for formatting nutrition data. Example: Copper: 29g [CHAR LIMIT=50]"><xliff:g example="Copper" id="nutrient">%1$s</xliff:g>: <xliff:g example="29g" id="amount">%2$s</xliff:g></string>
+    <string name="meal_name" description="Name for food or drink provided by the user. [CHAR LIMIT=50]">Name</string>
+    <string name="gram_short_format" description="Weight in grams. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, =1 {1 g} other {# g}}</string>
+    <string name="gram_long_format" description="Weight in grams. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, =1 {1 gram} other {# grams}}</string>
+    <!-- endregion -->
+
+    <!--  region Respiratory Rate-->
+    <string name="respiratory_rate_value" translation_description="Value of respiratory rate. rpm is short for 'respirations per minute'. [ICU SYNTAX][CHAR LIMIT=18]">{count, plural, =1 {1 rpm} other {# rpm}}</string>
+    <string name="respiratory_rate_value_long" translation_description="Value of respiratory rate in respirations per minute. [ICU SYNTAX][CHAR LIMIT=26]">{count, plural, =1 {1 respiration per minute} other {# respirations per minute}}</string>
+    <!--  endregion  -->
+
+    <!--  region Weight -->
+    <string name="kilograms_short_label" translation_description="Weight in kilograms. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 kg} other {# kg}}</string>
+    <string name="pounds_short_label" translation_description="Weight in pounds. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 lb} other {# lb}}</string>
+    <string name="stone_short_label" translation_description="Weight in stone. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 st} other {# st}}</string>
+    <string name="stone_pound_short_label" translation_description="Weight in stone and pounds. Example: 9st 2lb. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <string name="kilograms_long_label" translation_description="Weight in kilograms representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 kilogram} other {# kilograms}}</string>
+    <string name="pounds_long_label" translation_description="Weight in pounds representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 pound} other {# pounds}}</string>
+    <string name="stone_long_label" translation_description="Weight in stone representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 stone} other {# stones}}</string>
+    <string name="stone_pound_long_label" translation_description="Weight in stone and pounds representation used by accessibility. Example: 9 stone, 2 pounds. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <!-- endregion -->
+
+    <!-- region Temperature units -->
+    <string name="temperature_celsius" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 ℃} other {# ℃}}</string>
+    <string name="temperature_celsius_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 degree Celsius} other {# degrees Celsius}}</string>
+    <string name="temperature_kelvin" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 K} other {# K}}</string>
+    <string name="temperature_kelvin_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 kelvin} other {# kelvins}}</string>
+    <string name="temperature_fahrenheit" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 ℉} other {# ℉}}</string>
+    <string name="temperature_fahrenheit_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 degree Fahrenheit} other {# degrees Fahrenheit}}</string>
+
+    <string name="temperature_location_armpit" description="Where the body temperature measurement was taken - armpit. [CHAR LIMIT=50]">Armpit</string>
+    <string name="temperature_location_finger" description="Where the body temperature measurement was taken - finger. [CHAR LIMIT=50]">Finger</string>
+    <string name="temperature_location_forehead" description="Where the body temperature measurement was taken - forehead. [CHAR LIMIT=50]">Forehead</string>
+    <string name="temperature_location_mouth" description="Where the body temperature measurement was taken - mouth. [CHAR LIMIT=50]">Mouth</string>
+    <string name="temperature_location_rectum" description="Where the body temperature measurement was taken - rectum. [CHAR LIMIT=50]">Rectum</string>
+    <string name="temperature_location_temporal_artery" description="Where the body temperature measurement was taken - temporal artery. [CHAR LIMIT=50]">Temporal artery</string>
+    <string name="temperature_location_toe" description="Where the body temperature measurement was taken - toe. [CHAR LIMIT=50]">Toe</string>
+    <string name="temperature_location_ear" description="Where the body temperature measurement was taken - ear. [CHAR LIMIT=50]">Ear</string>
+    <string name="temperature_location_wrist" description="Where the body temperature measurement was taken - wrist. [CHAR LIMIT=50]">Wrist</string>
+    <string name="temperature_location_vagina" description="Where the body temperature measurement was taken - vagina. [CHAR LIMIT=50]">Vagina</string>
+    <!--endregion-->
+
+    <string name="distance_miles" translation_description="miles formatted. [ICU SYNTAX][CHAR LIMIT=60]">{dist, plural, =1 {1 mile} other {# miles}}</string>
+    <string name="distance_km" translation_description="Kilometers formatted. [ICU SYNTAX][CHAR LIMIT=60]">{dist, plural, =1 {1 km} other {# km}}</string>
+    <string name="distance_miles_long" translation_description="miles formatted for speech. [ICU SYNTAX][CHAR LIMIT=NONE]">{dist, plural, =1 {1 mile} other {# miles}}</string>
+    <string name="distance_km_long" translation_description="Kilometers formatted for speech. [ICU SYNTAX][CHAR LIMIT=NONE]">{dist, plural, =1 {1 kilometer} other {# kilometers}}</string>
+
+    <!-- region Height -->
+    <string name="height_cm" translation_description="Height in centimeters. [ICU SYNTAX][CHAR LIMIT=10]">{height, plural, =1 {1 cm} other {# cm}}</string>
+    <string name="height_cm_long" translation_description="Height in centimeters. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, =1 {1 centimeter} other {# centimeters}}</string>
+    <string name="height_in_long" translation_description="Height measurement part in inches. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, =1 {1 inch} other {# inches}}</string>
+    <string name="height_ft_long" translation_description="Height measurement part in feet. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, =1 {1 foot} other {# feet}}</string>
+    <string name="height_in_compacted" translation_description="Height measurement part in inches compacted. [ICU SYNTAX][CHAR LIMIT=5]">{height, plural, =1 {1\u2033} other {#\u2033}}</string>
+    <string name="height_ft_compacted" translation_description="Height measurement part in feet compacted. [ICU SYNTAX][CHAR LIMIT=5]">{height, plural, =1 {1\u2032} other {#\u2032}}</string>
+    <string name="feet_inches_format" translation_description="Format for displaying height in feet and inches in compacted form e.g. 5′11″ [CHAR LIMIT=10]"><xliff:g example="5′" id="ft">%1$s</xliff:g><xliff:g example="11″" id="in">%2$s</xliff:g></string>
+    <string name="feet_inches_format_long" translation_description="Format for displaying height in feet and inches in long form e.g. 5 feet 11 inches [CHAR LIMIT=60]"><xliff:g example="5 feet" id="ft">%1$s</xliff:g> <xliff:g example="11 inches" id="in">%2$s</xliff:g></string>
+    <!--endregion-->
+
+    <!-- region Energy -->
+    <string name="calories_long" translation_description="Calories formatted. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 calorie} other {# calories}}</string>
+    <string name="calories" translation_description="Calories formatted. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, =1 {1 Cal} other {# Cal}}</string>
+    <string name="kj" translation_description="KiloJoules (the energy unit) formatted. [ICU SYNTAX][CHAR LIMIT=20]">{count, plural, =1 {1 kJ} other {# kJ}}</string>
+    <string name="kj_long" translation_description="KiloJoules (the energy unit) formatted to be spoken aloud. [ICU SYNTAX][CHAR LIMIT=20]">{count, plural, =1 {1 kilojoule} other {# kilojoules}}</string>
+    <!--endregion-->
+
+    <!-- region percent -->
+    <string name="percent" description="Percentage value with unit. [ICU SYNTAX][CHAR LIMIT=80]" formatted="false">{value, plural, =1 {1%} other {#%}}</string>
+    <string name="percent_long" description="Percentage value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, =1 {1 percent} other {# percent}}</string>
+    <!--endregion-->
+    <!--endregion-->
+
+    <!-- region units -->
+    <string name="units_cancel" description="Label for button to cancel changing units. [CHAR_LIMIT=20]">Cancel</string>
+    <string name="units_title" description="Title on a screen allowing users to go to display units (weight/height/temperature etc) in the app[CHAR_LIMIT=50]">Units</string>
+    <string name="distance_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Distance</string>
+    <string name="height_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Height</string>
+    <string name="weight_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Weight</string>
+    <string name="energy_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Energy</string>
+    <string name="temperature_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Temperature</string>
+
+    <string name="distance_unit_kilometers_label" translation_description="The label for the metric option within the distance unit preferences menu. [CHAR LIMIT=19]">Kilometers</string>
+    <string name="distance_unit_miles_label" translation_description="The label for the imperial option within the distance unit preferences menu. [CHAR LIMIT=19]">Miles</string>
+    <string name="height_unit_centimeters_label" translation_description="The label for the metric option within the height unit preferences menu. [CHAR LIMIT=19]">Centimeters</string>
+    <string name="height_unit_feet_label" translation_description="The label for the imperial option within the height unit preferences menu. [CHAR LIMIT=19]">Feet &amp; Inches</string>
+    <string name="weight_unit_pound_label" translation_description="The label for the pound option within the weight unit preferences menu. [CHAR LIMIT=19]">Pounds</string>
+    <string name="weight_unit_kilogram_label" translation_description="The label for the Kilogram option within the weight unit preferences menu. [CHAR LIMIT=19]">Kilograms</string>
+    <string name="weight_unit_stone_label" translation_description="The label for the Stone option within the weight unit preferences menu. [CHAR LIMIT=19]">Stones</string>
+    <string name="energy_unit_calorie_label" translation_description="The label for the calorie option within the energy unit preferences menu. [CHAR LIMIT=19]">Calories</string>
+    <string name="energy_unit_kilojoule_label" translation_description="The label for the Kilojoule option within the energy unit preferences menu. [CHAR LIMIT=19]">Kilojoules</string>
+    <string name="temperature_unit_celsius_label" translation_description="The label for the Celsius option within the weight unit preferences menu. [CHAR LIMIT=19]">Celsius</string>
+    <string name="temperature_unit_fahrenheit_label" translation_description="The label for the Fahrenheit option within the weight unit preferences menu. [CHAR LIMIT=19]">Fahrenheit</string>
+    <string name="temperature_unit_kelvin_label" translation_description="The label for the Kelvin option within the weight unit preferences menu. [CHAR LIMIT=19]">Kelvin</string>
+    <!--endregion-->
+
+    <!-- region Help and Feedback -->
+    <string name="help_and_feedback" description="Label used to display help and feedback">Help &amp; feedback</string>
+    <string name="cant_see_all_your_apps_description" description="Description of can't see all your apps screen">If you can\'t see an installed app, it may not be compatible with Health&#160;Connect yet</string>
+    <string name="things_to_try" description="Label used to show how user can try with different options">Things to try</string>
+    <string name="check_for_updates" description="Label for a button that is used to check for updates">Check for updates</string>
+    <string name="check_for_updates_description" description="Content description for a button that is used to check for updates">Make sure installed apps are up-to-date</string>
+    <string name="see_all_compatible_apps" description="Label for a button that is used to show all compatible apps on Google Play">See all compatible apps</string>
+    <string name="see_all_compatible_apps_description" description="Content description for a button that is used to show all compatible apps on Google Play">Find apps on Google&#160;Play</string>
+    <string name="send_feedback" description="Label for a button that is used to send feedback">Send feedback</string>
+    <string name="send_feedback_description" description="Content description for a button that is used to send feedback">Tell us which health &amp; fitness apps you\'d like to work with Health&#160;Connect</string>
+    <!--endregion-->
+
+    <!-- region Play Store -->
+    <string name="playstore_app_title" description="Navigates to the Play Store and shows a collection of apps compatible with Health Connect [CHAR_LIMIT=40]">Play Store</string>
+    <string name="playstore_collection_url" description="Play Store collection URL to navigate to when button is clicked [CHAR_LIMIT=NONE]" translatable="false">https://play.google.com/store/apps/collection/promotion_all__health_connect</string>
+    <string name="playstore_package_name" description="Android package name for the Play Store app [CHAR_LIMIT=NONE]" translatable="false">com.android.vending</string>
+    <string name="playstore_manage_apps_url" description="Play Store Manage Apps and Devices screen to navigate to when button is clicked [CHAR_LIMIT=NONE]" translatable="false">https://play.google.com/apps</string>
+    <!--endregion-->
+
+    <!-- region Auto-delete -->
+    <string name="auto_delete_button" description="Label for a button that open the auto-deletion settings. [CHAR_LIMIT=50]">Auto-delete</string>
+    <string name="auto_delete_title" description="Title of screen for a user to manage the auto-deletion settings [CHAR_LIMIT=40]">Auto-delete</string>
+    <string name="auto_delete_header" description="Description for the auto-delete settings page. [CHAR_LIMIT=NONE]">Control how long your data is stored in Health&#160;Connect by scheduling it to delete after a set time</string>
+    <string name="auto_delete_learn_more" description="Label of a link that helps to learn more about auto-delete. [CHAR_LIMIT=50]">Learn more about auto-delete</string>
+    <string name="auto_delete_section" description="Label for a section that picks the time range for auto-deletion. [CHAR_LIMIT=50]">Auto-delete data</string>
+    <string name="range_after_x_months" description="Item in a list of possible time ranges for auto-deletion. Choosing this will automatically delete data older than x months. [CHAR_LIMIT=50]">{count, plural, =1{After # month}other{After # months}}</string>
+    <string name="range_never" description="Item in a list of possible time ranges for auto-deletion. Choosing this will never delete data automatically. [CHAR_LIMIT=50]">Never</string>
+    <string name="range_off" description="Summary of the auto-delete button when auto-delete is set to never. [CHAR_LIMIT=50]">Off</string>
+    <string name="auto_delete_rationale" description="Footer note explaining that after changing auto-delete settings, corresponding data will be deleted. [CHAR_LIMIT=NONE]">When you change these settings, Health&#160;Connect deletes existing data to reflect your new preferences</string>
+    <string name="confirming_question_x_months" description="Title of a dialog that asks the user to confirm whether they want to auto-delete all data that is older than x months. [CHAR_LIMIT=NONE]">{count, plural,
+    =1{Auto-delete data after # month?}
+    other{Auto-delete data after # months?}
+  }</string>
+    <string name="confirming_message_x_months" description="Description to explain what auto-deleting data older than x months means. [CHAR_LIMIT=NONE]">{count, plural,
+    =1{Health&#160;Connect will auto-delete new data after # month. Setting this will also delete existing data older than # month.}
+    other{Health&#160;Connect will auto-delete new data after # months. Setting this will also delete existing data older than # months.}
+  }</string>
+    <string name="set_auto_delete_button" description="Label of a button that sets the chosen auto-delete setting. [CHAR_LIMIT=50]">Set auto-delete</string>
+
+    <string name="deletion_started_title" description="Title of a dialog that lets the user know about some existing data being deleted. [CHAR_LIMIT=50]">Existing data will be deleted</string>
+    <string name="deletion_started_x_months" description="Description explaining what deleting data older than x months means and when the changes will be visible. [CHAR_LIMIT=NONE]">{count, plural,
+    =1{Health&#160;Connect will delete all data older than # months. It may take a day for these changes to appear in your connected apps.}
+    other{Health&#160;Connect will delete all data older than # months. It may take a day for these changes to appear in your connected apps.}
+  }</string>
+    <string name="deletion_started_category_list_section" description="Title of a section that lists those categories where data will be deleted from. [CHAR_LIMIT=NONE]">Data to be deleted from these</string>
+    <string name="deletion_started_done_button" description="Button that closes the dialog. [CHAR_LIMIT=40]">Done</string>
+    <!--endregion -->
+
+    <!--  region Priority -->
+    <string name="priority_dialog_title" description="Window title where user can set the priority order of apps. [CHAR_LIMIT=50]">Set app priority</string>
+    <string name="priority_dialog_message" description="Description of the dar-and-drop list of apps that is modifiable by the user. [CHAR_LIMIT=NONE]">If more than one app adds <xliff:g example="heart rate" id="data_type">%s</xliff:g> data, Health&#160;Connect prioritizes the app highest in this list. Drag apps to reorder them.</string>
+    <string name="priority_dialog_positive_button" description="Label of the button that saves modifications made by the user. [CHAR_LIMIT=50]">Save</string>
+    <string name="action_drag_label_move_up" description="Label for an accessibility action that moves an app up in the ordered app priority list [CHAR LIMIT=50]">Move up</string>
+    <string name="action_drag_label_move_down" description="Label for an accessibility action that moves an app down in the ordered app priority list [CHAR LIMIT=50]">Move down</string>
+    <string name="action_drag_label_move_top" description="Label for an accessibility action that moves an app to the top of the ordered app priority list [CHAR LIMIT=50]">Move to top</string>
+    <string name="action_drag_label_move_bottom" description="Label for an accessibility action that moves an app to the bottom of the ordered app priority list [CHAR LIMIT=50]">Move to bottom</string>
+    <string name="reorder_button_content_description" description="Content description of a button for accessibility that is used to reorder selected app in the app priority list [CHAR LIMIT=NONE]">Button to drag and reorder <xliff:g example="Test app" id="selected_app">%s</xliff:g> in the priority list</string>
+    <string name="remove_button_content_description" description="Content description of a button for accessibility that is used to remove selected app from the app priority list [CHAR LIMIT=NONE]">Button to remove <xliff:g example="Test app" id="selected_app">%s</xliff:g> from the priority list</string>
+    <string name="reorder_button_action_description" description="Action description of a button for accessibility that is used to reorder selected app from the app priority list [CHAR LIMIT=NONE]">Double tap and drag to reorder</string>
+    <!--  endregion-->
+
+    <!--  region Search Indexable-->
+    <string name="search_keywords_home" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">fitness, wellness</string>
+    <string name="search_keywords_permissions" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">permissions</string>
+    <string name="search_keywords_data" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">health connect, health data, health categories, data access, activity, body measurements, cycle tracking, nutrition, sleep, vitals</string>
+    <string name="search_breadcrumbs_permissions" description="The path to find permissions screen in Settings, shown in search results. [CHAR LIMIT=70]">Health Connect > App permissions</string>
+    <string name="search_breadcrumbs_data" description="The path to find data and access screen in Settings, shown in search results. [CHAR LIMIT=70]">Health Connect > Data and access</string>
+    <!--  endregion-->
+
+    <!--  region Search -->
+    <string name="search_connected_apps" description="Hint shown on search input field">Search apps</string>
+    <string name="no_results" description="Content shown when there is no search result">No Results</string>
+    <!--  endregion-->
+
+    <!--  region Menu Items -->
+    <string name="help" description="Menu option for accessing help [CHAR LIMIT=50]">Help</string>
+    <string name="hc_get_started_link" description="Link that helps to learn more about Health Connect. [CHAR_LIMIT=50]" translatable="false">https://support.google.com/android?p=get_started_hc</string>
+
+    <!--  endregion-->
+
+    <!--region Exercise Route -->
+    <string name="request_route_header_title" description="Title for screen to give permissions to an app to access a route for an exercise session. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Allow <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> to access this exercise route in Health&#160;Connect?</string>
+    <string name="request_route_disclaimer_notice" description="A note on a dialog asking to grant access to a specific exercise route, stressing the fact that the route contains past locations of the user. [CHAR_LIMIT=NONE]">This app will be able to read your past location in the route</string>
+    <string name="date_owner_format" description="Format for displaying a date attributed to the data and the name of the application the data comes from. Example: Mon 13 Jun - Nokia Health Mate. [CHAR LIMIT=NONE]"><xliff:g example="Mon 13 Jun" id="date">%1$s</xliff:g> \u2022 <xliff:g example="Nokia Health Mate" id="app_name">%2$s</xliff:g></string>
+    <string name="request_route_info_header_title" description="Title for screen explaining in more detail what it means to give permissions to an app to access a route for an exercise session. [CHAR_LIMIT=NONE]">Exercise routes include location information</string>
+    <string name="request_route_info_who_can_see_data_title" description="Title for the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and who will have access to the data. [CHAR_LIMIT=NONE]">Who can see this data?</string>
+    <string name="request_route_info_who_can_see_data_summary" description="Summary of the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and who will have access to the data. [CHAR_LIMIT=NONE]">Only apps you allow to access your exercise routes</string>
+    <string name="request_route_info_access_management_title" description="Title for the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and how to manage the access. [CHAR_LIMIT=NONE]">How can I manage access?</string>
+    <string name="request_route_info_access_management_summary" description="Summary of the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and and how to manage the access. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">You can manage app access to exercise routes in Health&#160;Connect settings</string>
+    <string name="request_route_allow" description="Label for button in the route request dialog to allow an app access the requested exercise route [CHAR_LIMIT=30]">Allow this route</string>
+    <string name="request_route_allow_all" description="Label for button in the route request dialog to allow an app access all exercise routes from now on [CHAR_LIMIT=30]">Allow all routes</string>
+    <string name="request_route_dont_allow" description="Label for button in the route request dialog to deny an app access to the requested route [CHAR_LIMIT=20]">Don\'t allow</string>
+    <string name="route_permissions_always_allow" description="Label for button in the route read request dialog to allow an app access all exercise routes from now on.">Always allow</string>
+    <string name="route_permissions_label" description="Summary of the section explaining in more details what it means to give read exercise route permission access to an app.">Exercise route sharing</string>
+    <string name="route_permissions_summary" description="Summary of the section explaining in more details what it means to give read exercise route permission access to an app.">Control how this app accesses exercise routes from connected apps</string>
+    <string name="route_permissions_ask" description="Label for button in the route read request dialog to require an app to ask for a permission next time they need it.">Ask every time</string>
+    <string name="route_permissions_deny" description="Label for button in the route read request dialog to to deny with prejudice a permission grant.">Don\u2019t allow</string>
+    <string name="exercise_permission_dialog_enable_title" description="Title for a dialog to ask users to disable exercise and exercise routes permissions.">Enable both data types? </string>
+    <string name="exercise_permission_dialog_disable_title" description="Title for a dialog to ask users to disable exercise and exercise routes permissions.">Disable both data types? </string>
+    <string name="exercise_permission_dialog_enabled_summary" description="Summary for a dialog explaining in more details that read access for exercise is needed when enabling exercise routes"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> needs read access to exercise for exercise routes to be enabled</string>
+    <string name="exercise_permission_dialog_disable_summary" description="Summary for a dialog explaining in more details that read access for exercise routes needs to be disabled when disabling exercise permission"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> requires exercise access in order for exercise routes to be enabled</string>
+    <string name="exercise_permission_dialog_positive_button" description="Label of the button that applies the dialog action. [CHAR_LIMIT=50]">Yes</string>
+    <string name="exercise_permission_dialog_negative_button" description="Label of the button that cancels the dialog action. [CHAR_LIMIT=50]">No</string>
+    <string name="back_button" description="Label on the back button. [CHAR_LIMIT=20]">Back</string>
+    <!--  endregion-->
+
+    <!-- region Loading -->
+    <string name="loading" description="Label shown when loading data. [CHAR_LIMIT=40]">Loading&#8230;</string>
+    <!--  endregion -->
+
+    <!-- region Migration -->
+    <!-- region In progress -->
+    <string name="migration_in_progress_screen_title" description="Title of screen shown when migration is in progress">Integration in progress</string>
+    <string name="migration_in_progress_screen_integration_details" description="Detail information shown when migration is in progress">Health&#160;Connect is being integrated with the Android system.\n\nIt may take some time while your data and permissions are being transferred.</string>
+    <string name="migration_in_progress_screen_integration_dont_close" description="Instruction to not close application shown when migration is in progress">Don\'t close the app until you get a notification that the process is complete.</string>
+    <string name="migration_in_progress_notification_title" description="Title of notification sent when migration is in progress">Health&#160;Connect integration in progress</string>
+    <!--  endregion -->
+
+    <!-- region Update needed common -->
+    <string name="migration_update_needed_screen_title" description="Title of screen shown when migration is pending and an update is needed.">Update needed</string>
+    <string name="migration_update_needed_screen_details" description="Detail information shown when migration is pending and an update is needed.">Health&#160;Connect is being integrated with the Android system so you can access it directly from your settings.</string>
+    <string name="update_button" description="Text of a button prompting the user to update an app or their phone system [CHAR_LIMIT=40]">Update</string>
+    <string name="migration_update_needed_notification_content" description="Content of notification sent when migration is pending and an app or module update is needed.">Start this update so that Health&#160;Connect can continue integrating with your system settings</string>
+    <string name="migration_update_needed_notification_action" description="Action of notification sent when migration is pending and an app or module update is needed.">Update now</string>
+    <!--  endregion -->
+
+    <!-- region Module Update needed -->
+    <string name="migration_module_update_needed_notification_title" description="Title of notification sent when migration is pending and an app or module update is needed.">System update needed</string>
+    <string name="migration_module_update_needed_action" description="Action information shown when migration is pending and a system update is needed.">Before continuing, update your phone system.</string>
+    <string name="migration_module_update_needed_restart" description="Detail information shown when migration is pending and one update is needed.">If you\'ve already updated your phone system, try restarting your phone to continue the integration</string>
+
+    <!--  endregion -->
+    <!-- region App Update needed -->
+    <string name="migration_app_update_needed_notification_title" description="Title of notification sent when migration is pending and an app or module update is needed.">Health&#160;Connect update needed</string>
+    <string name="migration_app_update_needed_action" description="Action information shown when migration is pending and an app update is needed.">Before continuing, update the Health&#160;Connect app to the latest version.</string>
+    <!--  endregion -->
+
+    <!-- region More space needed -->
+    <string name="migration_more_space_needed_screen_title" description="Title of screen shown when migration is pending and more space is needed.">More space needed</string>
+    <!--    TODO (b/275685595) use string resource for storage space -->
+    <string name="migration_more_space_needed_screen_details" description="Detail information shown when migration is pending and more space is needed.">Health&#160;Connect needs <xliff:g example="500MB" id="space_needed">%1$s</xliff:g> of storage space on your phone in order for the integration to continue.\n\nClear some space on your phone and then try again.</string>
+    <string name="try_again_button" description="Text of a button prompting the user to try looking at the space again [CHAR_LIMIT=40]">Try again</string>
+    <string name="free_up_space_button" description="Text of a button leading the user to their system storage so they can free up space. [CHAR_LIMIT=40]">Free up space</string>
+    <string name="migration_more_space_needed_notification_title" description="Title of notification sent when migration is pending and more space is needed.">More space needed</string>
+    <string name="migration_more_space_needed_notification_content" description="Content of notification sent when migration is pending and more space is needed.">Health&#160;Connect needs <xliff:g example="500MB" id="space_needed">%1$s</xliff:g> of storage space on your phone to continue integrating.</string>
+    <!--  endregion -->
+
+    <!-- region Migration paused -->
+    <string name="migration_paused_screen_title" description="Title of screen shown when migration has been paused.">Integration paused</string>
+    <string name="migration_paused_screen_details" description="Detail information shown when migration has been paused.">The Health&#160;Connect app closed while it was being integrated with the Android system.\n\nClick resume to reopen the app and continue transferring your data and permissions.</string>
+    <string name="migration_paused_screen_details_timeout" description="Detail information about migration timeout shown when migration has been paused.">In order to keep your Health&#160;Connect data, complete this within <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <string name="resume_button" description="Text of a button prompting the user resume migration [CHAR_LIMIT=40]">Resume</string>
+    <string name="migration_paused_notification_title" description="Title of notification sent when migration has been paused.">Integration paused</string>
+    <string name="migration_paused_notification_content" description="Content of notification sent when migration has been paused.">Health&#160;Connect is being integrated with the Android system. Tap to continue</string>
+    <!--  endregion -->
+
+    <!-- region Resume migration banner -->
+    <string name="resume_migration_banner_title" description="Title of banner prompting the user to resume actions needed for migration">Resume integration</string>
+    <string name="resume_migration_banner_description" description="Description of banner prompting the user to resume actions needed for migration">Tap to continue integrating Health&#160;Connect with the Android system. In order to keep your data, complete this within <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <string name="resume_migration_banner_description_fallback" description="Fallback description of banner prompting the user to resume actions needed for migration">Tap to continue integrating Health&#160;Connect with the Android system.</string>
+    <string name="resume_migration_banner_button" description="Button of banner prompting the user to resume actions needed for migration">Continue</string>
+    <string name="resume_migration_notification_title" description="Title of notification prompting the user to resume actions needed for migration">Resume Health&#160;Connect integration</string>
+    <string name="resume_migration_notification_content" description="Content of notification prompting the user to resume actions needed for migration">In order to keep your data, complete this within <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <!--  endregion -->
+
+    <!-- region App update needed banner -->
+    <string name="app_update_needed_banner_title" description="Title of banner prompting the user to update an app which is not currently working on this Android version.">App update needed</string>
+    <string name="app_update_needed_banner_description_single" description="Description of banner prompting the user to update an app which is not currently working on this Android version."><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> needs to be updated to continue syncing with Health&#160;Connect</string>
+    <string name="app_update_needed_banner_description_multiple" description="Description of banner prompting the user to update an app which is not currently working on this Android version."> Some apps need to be updated to continue syncing with Health&#160;Connect</string>
+    <string name="app_update_needed_banner_button" description="Button of banner prompting the user to update an app which is not currently working on this Android version.">Check for updates</string>
+    <string name="app_update_needed_banner_learn_more_button" description="Button of banner prompting the user to update an app which is not currently working on this Android version.">Learn more</string>
+    <!--  endregion -->
+
+    <!-- region Migration pending permissions dialog -->
+    <string name="migration_pending_permissions_dialog_title" description="Title of dialog shown to the user when migration is pending and an app is requesting permissions.">Health&#160;Connect integration</string>
+    <string name="migration_pending_permissions_dialog_content" description="Content of dialog shown to the user when migration is pending and an app is requesting permissions.">Health&#160;Connect is ready to be integrated with your Android system. If you give <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> access now, some features may not work until integration is complete.</string>
+    <string name="migration_pending_permissions_dialog_content_apps" description="Content of dialog shown to the user when migration is pending and the user is viewing health permissions.">Health&#160;Connect is ready to be integrated with your Android system. If you give apps access now, some features may not work until integration is complete.</string>
+    <string name="migration_pending_permissions_dialog_button_continue" description="Button of dialog shown to the user when migration is pending and an app is requesting permissions.">Continue</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" description="Button of dialog shown to the user when migration is pending and an app is requesting permissions.">Start integration</string>
+    <!--  endregion -->
+
+    <!-- region Migration in progress permissions dialog -->
+    <string name="migration_in_progress_permissions_dialog_title" description="Title of dialog shown to the user when migration is in progress and an app is requesting permissions.">Health&#160;Connect integration in progress</string>
+    <string name="migration_in_progress_permissions_dialog_content" description="Content of dialog shown to the user when migration is in progress and an app is requesting permissions.">Health&#160;Connect is being integrated with the Android system.\n\nYou\'ll get a notification when the process is complete and you can use <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> with Health&#160;Connect.</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" description="Content of dialog shown to the user when migration is in progress and the user is viewing health permissions.">Health&#160;Connect is being integrated with the Android system.\n\nYou\'ll get a notification when the process is complete and you can use Health&#160;Connect.</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" description="Button of dialog shown to the user when migration is in progress and an app is requesting permissions.">Got it</string>
+    <!--  endregion -->
+
+    <!-- region Migration did not complete dialog -->
+    <string name="migration_not_complete_dialog_title" description="Title of dialog shown to the user when migration did not complete due to an error.">Health&#160;Connect integration didn\'t complete</string>
+    <string name="migration_not_complete_dialog_content" description="Content of dialog shown to the user when migration did not complete due to an error.">You\'ll get a notification when it becomes available again.</string>
+    <string name="migration_not_complete_dialog_button" description="Button of dialog shown to the user when migration did not complete due to an error.">Got it</string>
+    <string name="migration_not_complete_notification_title" description="Title of notification shown to the user when migration did not complete due to an error.">Health&#160;Connect integration didn\'t complete</string>
+    <string name="migration_not_complete_notification_action" description="Action of notification shown to the user when migration did not complete due to an error.">Read more</string>
+    <!--  endregion -->
+
+    <!-- region Migration complete -->
+    <string name="migration_complete_notification_title" description="Title of notification shown to the user when migration is complete">Health&#160;Connect integration complete</string>
+    <string name="migration_complete_notification_action" description="Action of notification shown to the user when migration is complete">Open</string>
+    <!--  endregion -->
+
+    <!-- region Whats new dialog -->
+    <string name="migration_whats_new_dialog_title" description="Title of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">What\'s new</string>
+    <string name="migration_whats_new_dialog_content" description="Content of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">You can now access Health&#160;Connect directly from your settings. Uninstall the Health&#160;Connect app any time to free up storage space.</string>
+    <string name="migration_whats_new_dialog_button" description="Button of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">Got it</string>
+    <!--  endregion -->
+
+    <!-- region Data restore -->
+    <string name="data_restore_in_progress_screen_title" description="Title of screen shown when data restore is in progress">Restore in progress</string>
+    <string name="data_restore_in_progress_content" description="Detail information shown when migration is in progress">Health&#160;Connect is restoring data and permissions. This may take some time to complete.</string>
+    <string name="data_restore_in_progress_dialog_title" description="Title of dialog shown when data restore is in progress">Health&#160;Connect restore in progress</string>
+    <string name="data_restore_in_progress_dialog_button" description="Button of dialog shown when data restore is in progress">Got it</string>
+    <string name="data_restore_pending_banner_title" description="Title of banner shown when data restore is pending">Update needed</string>
+    <string name="data_restore_pending_banner_content" description="Content of banner shown when data restore is pending">Before continuing restoring your data, update your phone system.</string>
+    <string name="data_restore_pending_banner_button" description="Button for banner shown when data restore is pending">Update now</string>
+    <!--  endregion -->
+
+    <!-- region Data sources -->
+    <string name="data_totals_header" description="Header for section showing cards with data type totals [CHAR_LIMIT=70]">Data totals</string>
+    <string name="app_sources_header" description="Header for section showing apps contributing to the shown totals [CHAR_LIMIT=70]">App sources</string>
+    <string name="data_sources_footer" description="Footer note explaining how app sources work [CHAR_LIMIT=NONE]">Add app sources to the list to see how the data totals can change. Removing an app from this list will stop it from contributing to totals, but it will still have write permissions.</string>
+    <string name="data_sources_empty_state" description="Text for the empty state of the data sources screen explaining why there are no apps shown [CHAR_LIMIT=NONE]">No app sources</string>
+    <string name="data_sources_empty_state_footer" description="Text for the footer of the empty state of the data sources screen [CHAR_LIMIT=NONE]">Once you give app permissions to write <xliff:g example="activity" id="category_name">%1$s</xliff:g> data, sources will show here.</string>
+    <string name="data_sources_help_link" description="Text for helper link in the data sources screen taking the user to an article about how sources and prioritization work [CHAR_LIMIT=NONE]">How sources &amp; prioritization work</string>
+    <string name="data_sources_add_app" description="Title for preference in the data sources screen used to add an app to the list of data sources [CHAR_LIMIT=NONE]">Add an app</string>
+    <string name="edit_data_sources" description="Menu option for adding or removing apps from the app sources list">Edit app sources</string>
+    <string name="default_app_summary" description="Text for an app on the priority list that is the device default app for health connect data [CHAR_LIMIT=50]">Device default</string>
+    <!--  endregion -->
+
+    <!-- region App data -->
+    <string name="app_data_title" description="Title of screen that shows the data of a certain app. [CHAR_LIMIT=50]">App data</string>
+    <string name="no_data_footer" description="Footer displayed on the empty data browse screen if no data has been written to Health Connect. [CHAR_LIMIT=NONE]">Data from apps with access to Health Connect will show here</string>
+    <!--  endregion -->
+
+    <!-- region App entries -->
+    <string name="date_picker_day" description="Dropdown option that indicates that one day's worth of data is displayed. [CHAR_LIMIT=50]">Day</string>
+    <string name="date_picker_week" description="Dropdown option that indicates that one week's worth of data is displayed. [CHAR_LIMIT=50]">Week</string>
+    <string name="date_picker_month" description="Dropdown option that indicates that one month's worth of data is displayed. [CHAR_LIMIT=50]">Month</string>
+    <string name="this_week_header" description="Header in the list of dataentries to differentiate between entries from this week and last week. [CHAR LIMIT=50]">This week</string>
+    <string name="last_week_header" description="Header in the list of data entries to differentiate between entries from this week and last week. [CHAR LIMIT=50]">Last week</string>
+    <string name="this_month_header" description="Header in the list of data entries to differentiate between entries from this month and last month. [CHAR LIMIT=50]">This month</string>
+    <string name="last_month_header" description="Header in the list of data entries to differentiate between entries from this month and last month. [CHAR LIMIT=50]">Last month</string>
+    <!--  endregion -->
+
+    <!-- region Entries + Access -->
+    <string name="tab_entries" description="Tab that navigates to the data entries screen. [CHAR_LIMIT=50]">Entries</string>
+    <string name="tab_access" description="Tab that navigates to the screen that shows which apps have access to the given data type. [CHAR_LIMIT=50]">Access</string>
+    <!--  endregion -->
+
+</resources>

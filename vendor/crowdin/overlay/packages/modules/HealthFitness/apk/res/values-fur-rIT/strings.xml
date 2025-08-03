@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" description="Label shown on the system app launcher. Note: Health Connect is the brand. [CHAR_LIMIT=40]">Conession salût</string>
+    <string name="health_connect_summary" description="Health connect summary, which describes what user can do when they click Health Connect">Gjestìs l\'acès de aplicazion ai dâts su la salût</string>
+    <string name="permissions_and_data_header" description="Header for section listing actions for showing connected apps permissions and data screens [CHAR LIMIT=NONE] ">Permès e dâts</string>
+    <string name="home_subtitle" description="Description on the home screen of the app. [CHAR_LIMIT=NONE]">Gjestìs i dâts de salût e de forme fisiche sul to telefon e controle cualis aplicazions che ju doprin</string>
+    <string name="data_title" description="Label for a button that takes the user to the data management screens. [CHAR_LIMIT=40]">Dâts e acès</string>
+    <string name="all_categories_title" description="Title of a screen that lists all health data categories. [CHAR_LIMIT=40]">Dutis lis categoriis</string>
+    <string name="see_all_categories" description="Label for a button that takes the user to the all categories screens. [CHAR_LIMIT=40]">Viôt dutis lis categoriis</string>
+    <string name="no_data" description="Label that is displayed when the given health data category does not have any data.">Nissun dât</string>
+    <string name="connected_apps_title" description="Label for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=40]">Permès des aplicazions</string>
+    <string name="connected_apps_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=NONE]">Gjestìs lis aplicazions e i permès</string>
+    <string name="connected_apps_button_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens. [CHAR_LIMIT=NONE]"><xliff:g id="num_apps_connected" example="1">%1$s</xliff:g> di <xliff:g id="num_possible_apps" example="3">%2$s</xliff:g> aplicazions a àn acès</string>
+    <string name="connected_apps_all_apps_connected_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens when all possible apps are connected. [CHAR_LIMIT=NONE]"><xliff:g id="num_apps_connected" example="1">%1$s</xliff:g> aplicazions a àn acès</string>
+    <string name="connected_apps_one_app_connected_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens with one app connected. [CHAR_LIMIT=NONE]"><xliff:g id="num_apps_connected" example="1">%1$s</xliff:g> aplicazion e à acès</string>
+    <string name="connected_apps_button_no_permissions_subtitle" description="Description for a button that takes the user to the connected apps' permissions screens, when no apps are connected. [CHAR_LIMIT=NONE]">Nissun</string>
+    <string name="entry_details_title" description="Label for a screen that list an entry details. [CHAR_LIMIT=40]">Detais de vôs</string>
+    <string name="backup_title" description="Label for a button that takes the user to backup settings. [CHAR_LIMIT=40]">Backup</string>
+    <string name="data_sources_and_priority_title" description="Label for a button that takes the user to app priority settings. [CHAR_LIMIT=40]">Sorzint dâts e prioritât</string>
+    <string name="set_units_title" description="Label for a button that takes the user to unit settings. [CHAR_LIMIT=40]">Stabilìs unitâts</string>
+    <string name="recent_access_header" description="Header for section showing apps that have recently accessed health data [CHAR_LIMIT=NONE]">Acès resint</string>
+    <string name="no_recent_access" description="Header for section showing apps that have recently accessed health data [CHAR_LIMIT=NONE]">Nissune aplicazion e à doprât Conession salût di resint</string>
+    <string name="show_recent_access_entries_button_title" description="Label on a button leading to another screen showing all the writes and reads performed by connected apps in the last 24 hours. [CHAR LIMIT=50]">Viôt ducj i acès resints</string>
+    <string name="recent_access_screen_description" description="Description of Recent access screen, placed at the top. [CHAR LIMIT=NONE]">Viôt lis aplicazoins che a àn vût acès ai tiei dâts tes ultimis 24 oris</string>
+    <string name="today_header" description="Header in the list of data access entries to differentiate between entries from today and yesterday. [CHAR LIMIT=50]">Vuê</string>
+    <string name="yesterday_header" description="Header in the list of data access entries to differentiate between entries from today and yesterday. [CHAR LIMIT=50]">Îr</string>
+    <string name="read_data_access_label" description="Label used to indicate that app performed read access to specified data types (as opposed to writing the data), as in 'Read: Steps, Heart rate'. [CHAR_LIMIT=NONE]">Leture: %s</string>
+    <string name="write_data_access_label" description="Label used to indicate that app performed write (insertion, deletion or update) access to specified data types (as opposed to reading the data), as in 'Write: Steps, Heart rate'. [CHAR_LIMIT=NONE]">Scriture: %s</string>
+    <string name="data_type_separator" description="Separator (comma and whitespace in English) for a potentially long list of data type names listed in data access entry, as in 'Write: Steps, Distance, Calories'. [CHAR_LIMIT=NONE]">,\u0020</string>
+    <string name="manage_permissions" description="Text for floating action button that takes users from Recent Access apps to the App permissions screen [CHAR LIMIT=40]">Gjestìs i permès</string>
+    <string name="recent_access_time_content_descritption" description="Content description for time section of recent access preference providing better context for accessibility talk back. [CHAR_LIMIT=NONE]">Ore: %s</string>
+    <string name="activity_category_uppercase" description="Uppercase name for activity category, displaying user data related to activities (such as active time, calories burned, etc.) [CHAR LIMIT=30]">Ativitâts</string>
+    <string name="activity_category_lowercase" description="Lowercase name for activity category, displaying user data related to activities (such as active time, calories burned, etc.) [CHAR LIMIT=30]">ativitâts</string>
+    <string name="body_measurements_category_uppercase" description="Uppercase name for body measurements category, displaying user data related to body measurements (such as height, weight, etc.) [CHAR LIMIT=30]">Misurazions dal cuarp</string>
+    <string name="body_measurements_category_lowercase" description="Lowercase name for body measurements category, displaying user data related to body measurements (such as height, weight, etc.) [CHAR LIMIT=30]">misurazions dal cuarp</string>
+    <string name="sleep_category_uppercase" description="Uppercase name for sleep category, displaying user data related to sleep (such as sleep duration, bedtime schedule, etc.) [CHAR LIMIT=30]">Polse</string>
+    <string name="sleep_category_lowercase" description="Lowercase name for sleep category, displaying user data related to sleep (such as sleep duration, bedtime schedule, etc.) [CHAR LIMIT=30]">polse</string>
+    <string name="vitals_category_uppercase" description="Uppercase name for vitals category, displaying user data related to vitals (such as heart rate, blood pressure, etc.) [CHAR LIMIT=30]">Orghins vitâi</string>
+    <string name="vitals_category_lowercase" description="Lowercase name for vitals category, displaying user data related to vitals (such as heart rate, blood pressure, etc.) [CHAR LIMIT=30]">orghins vitâi</string>
+    <string name="cycle_tracking_category_uppercase" description="Uppercase name for cycle tracking category, displaying user data related to cycle tracking (such as cervical mucus, menstrual flow, etc.) [CHAR LIMIT=30]">Monitorament ciclic</string>
+    <string name="cycle_tracking_category_lowercase" description="Lowercase name for cycle tracking category, displaying user data related to cycle tracking (such as cervical mucus, menstrual flow, etc.) [CHAR LIMIT=30]">monitorament ciclic</string>
+    <string name="nutrition_category_uppercase" description="Uppercase name for nutrition category, displaying user data related to nutrition (such as calories consumed, hydration, etc.) [CHAR LIMIT=30]">Nutrizion</string>
+    <string name="nutrition_category_lowercase" description="Lowercase name for nutrition category, displaying user data related to nutrition (such as calories consumed, hydration, etc.) [CHAR LIMIT=30]">nutrizion</string>
+    <string name="browse_data_category" description="Uppercase name for a section that contains user data grouped by categories. [CHAR_LIMIT=50]">Esplore dâts</string>
+    <string name="manage_data_section" description="Uppercase name for a section that has different user actions like deleting data. [CHAR_LIMIT=50]">Gjestìs dâts</string>
+    <string name="export_data_button" description="Uppercase name for a button that allows a user to export their data. [CHAR_LIMIT=50]">Espuarte dâts</string>
+    <string name="delete_all_data_button" description="Uppercase name for a button that allows deleting all data points. [CHAR_LIMIT=50]">Elimine ducj i dâts</string>
+    <string name="no_categories" description="Label that shows when health connect does not have data. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">No tu âs dâts in Conession salût</string>
+    <string name="permission_types_title" description="Title of screen for a user to manage their health and fitness data [CHAR_LIMIT=40]">I tiei dâts</string>
+    <string name="app_priority_button" description="Label for a button that opens the app priority settings screen where users can set which app should have higher priority. [CHAR_LIMIT=50]">Prioritât aplicazion</string>
+    <string name="delete_category_data_button" description="Label for a button that allows deleting all data points from a given health data category. [CHAR_LIMIT=50]">Elimine dâts di <xliff:g id="category" example="activity">%s</xliff:g></string>
+    <string name="select_all_apps_title" description="Title shown for clearing filters. [CHAR_LIMIT=40]">Dutis lis aplicazions</string>
+    <string name="can_read" description="Section title that refers to apps with read permission for given permission type. [CHAR_LIMIT=50]">Al pues lei <xliff:g id="permission_type" example="heart rate">%s</xliff:g></string>
+    <string name="can_write" description="Section title that refers to apps with write permission for given permission type. [CHAR_LIMIT=50]">Al pues scrivi <xliff:g id="permission_type" example="heart rate">%s</xliff:g></string>
+    <string name="inactive_apps" description="Section title that refers to apps that are inactive in Health Connect. [CHAR_LIMIT=50]">Aplicazions inativis</string>
+    <string name="inactive_apps_message" description="Description of the inactive apps section. [CHAR_LIMIT=NONE]">Chestis aplicazions no puedin plui scrivi <xliff:g id="data_type" example="heart rate">%s</xliff:g>, ma a puedin ancjemò vê dâts archiviâts in Conession salût</string>
+    <string name="data_access_empty_message" description="Message shown if there is no app to display on this page [CHAR_LIMIT=NONE]">Lis aplicazions no puedin plui lei o scrivi <xliff:g id="data_type" example="heart rate">%1$s</xliff:g> e no son plui presints dâts di <xliff:g id="data_type_2" example="heart rate">%2$s</xliff:g> archiviâts in Conession salût</string>
+    <string name="data_access_exercise_description" description="Description of data access for the exercise data type [CHAR_LIMIT=NONE]">Chescj dâts a includin informazions come timp in ativitât, gjenar di esercizis, zîrs, ripetizions, sessions o braçadis nadant</string>
+    <string name="data_access_sleep_description" description="Description of data access for the sleep data type [CHAR_LIMIT=NONE]">Chescj dâts a includin informazions come lis fasis di polse e lis sessions di polse</string>
+    <string name="all_entries_button" description="Label for a button that opens the Data entries page. [CHAR_LIMIT=50]">Viôt dutis lis vôs</string>
+    <string name="selected_date_view_action_description" description="Action description of a selected date view for accessibility [CHAR LIMIT=NONE]">cambie</string>
+    <string name="delete_permission_type_data_button" description="Label for a button that allows deleting all data points from a given health permission type. [CHAR_LIMIT=50]">Elimine chest dât</string>
+    <string name="permgrouplab_health" description="Title of an application permission group, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=30]">Conession salût</string>
+    <string name="permgroupdesc_health" description="Description of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=100]">acedi ai tiei dâts su la salût</string>
+    <string name="permlab_readCaloriesBurned" description="Title of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=30]">Lei lis caloriis brusadis</string>
+    <string name="permdesc_readCaloriesBurned" description="Description of an application permission, listed so the user can choose whether they want to allow the application to do this. [CHAR LIMIT=100]">Al permet ae aplicazion di lei lis caloriis brusadis</string>
+    <string name="background_read_uppercase_label" description="Uppercase label used to show background reading permission. [CHAR_LIMIT=50]">Leture in sotfont</string>
+    <string name="background_read_lowercase_label" description="Lowercase label used to show background reading permission. [CHAR_LIMIT=50]">leture in sotfont</string>
+    <string name="background_read_description" description="Content description for switch that enables permissions for reading health data in the background  [CHAR_LIMIT=50]">Lei i dâts su la salût in sotfont</string>
+    <string name="active_calories_burned_uppercase_label" description="Uppercase label used to show the user's active calories burned data [CHAR_LIMIT=50]">Caloriis ativis brusadis</string>
+    <string name="active_calories_burned_lowercase_label" description="Lowercase label used to show the user's active calories burned data [CHAR_LIMIT=50]">caloriis ativis brusadis</string>
+    <string name="active_calories_burned_read_content_description" description="Content description for switch that enables permissions for reading the user's active calories burned data [CHAR_LIMIT=NONE]">Lei lis caloriis ativis brusadis</string>
+    <string name="active_calories_burned_write_content_description" description="Content description for switch that enables permissions for writing the user's active calories burned data [CHAR_LIMIT=NONE]">Scrivi lis caloriis ativis brusadis</string>
+    <string name="exercise_uppercase_label" description="Uppercase label used to show the user's exercise data [CHAR_LIMIT=50]">Esercizi</string>
+    <string name="exercise_lowercase_label" description="Lowercase label used to show the user's exercise data [CHAR_LIMIT=50]">esercizi</string>
+    <string name="exercise_read_content_description" description="Content description for switch that enables permissions for reading the user's exercise data [CHAR_LIMIT=NONE]">Lei esercizi</string>
+    <string name="exercise_write_content_description" description="Content description for switch that enables permissions for writing the user's exercise data [CHAR_LIMIT=NONE]">Scrivi esercizi</string>
+    <string name="exercise_route_uppercase_label" description="Uppercase label used to show the user's exercise route [CHAR_LIMIT=50]">Percors di esercizi</string>
+    <string name="exercise_route_lowercase_label" description="Lowercase label used to show the user's exercise route [CHAR_LIMIT=50]">percors di esercizi</string>
+    <string name="exercise_route_write_content_description" description="Content description for switch that enables permissions for writing the user's exercise route [CHAR_LIMIT=NONE]">Scrivi il percors di esercizi</string>
+    <string name="exercise_route_read_content_description" description="Content description for switch that enables permissions for reading the user's exercise route [CHAR_LIMIT=NONE]">Lei il percors di esercizi</string>
+    <string name="exercise_routes_read_content_description" description="Content description for switch that enables permissions for reading user's exercise routes [CHAR_LIMIT=NONE]">Lei i percors di esercizi</string>
+    <string name="planned_exercise_uppercase_label" description="Uppercase label used to show the user's planned exercise data [CHAR_LIMIT=50]">Plans di alenament</string>
+    <string name="planned_exercise_lowercase_label" description="Lowercase label used to show the user's planned exercise data [CHAR_LIMIT=50]">plans di alenament</string>
+    <string name="planned_exercise_read_content_description" description="Content description for switch that enables permissions for reading the user's planned exercise data [CHAR_LIMIT=NONE]">Lei plans di alenament</string>
+    <string name="planned_exercise_write_content_description" description="Content description for switch that enables permissions for writing the user's planned exercise data [CHAR_LIMIT=NONE]">Scrivi plans di alenament</string>
+    <string name="distance_uppercase_label" description="Uppercase label used to show the user's distance data [CHAR_LIMIT=50]">Distance</string>
+    <string name="distance_lowercase_label" description="Lowercase label used to show the user's distance data [CHAR_LIMIT=50]">distance</string>
+    <string name="distance_read_content_description" description="Content description for switch that enables permissions for reading the user's distance data [CHAR_LIMIT=NONE]">Lei la distance</string>
+    <string name="distance_write_content_description" description="Content description for switch that enables permissions for writing the user's distance data [CHAR_LIMIT=NONE]">Scrivi la distance</string>
+    <string name="elevation_gained_uppercase_label" description="Uppercase label used to show the user's elevation gained data [CHAR_LIMIT=50]">Cuote vuadagnade</string>
+    <string name="elevation_gained_lowercase_label" description="Lowercase label used to show the user's elevation gained data [CHAR_LIMIT=50]">cuote vuadagnade</string>
+    <string name="elevation_gained_read_content_description" description="Content description for switch that enables permissions for reading the user's elevation gained data [CHAR_LIMIT=NONE]">Lei la cuote vuadagnade</string>
+    <string name="elevation_gained_write_content_description" description="Content description for switch that enables permissions for writing the user's elevation gained data [CHAR_LIMIT=NONE]">Scrivi la cuote vuadagnade</string>
+    <string name="floors_climbed_uppercase_label" description="Uppercase label used to show the user's floors climbed data [CHAR_LIMIT=50]">Plans lant insù</string>
+    <string name="floors_climbed_lowercase_label" description="Lowercase label used to show the user's floors climbed data [CHAR_LIMIT=50]">plans lant insù</string>
+    <string name="floors_climbed_read_content_description" description="Content description for switch that enables permissions for reading the user's floors climbed data [CHAR_LIMIT=NONE]">Lei i plans fats lant insù</string>
+    <string name="floors_climbed_write_content_description" description="Content description for switch that enables permissions for writing the user's floors climbed data [CHAR_LIMIT=NONE]">Scrivi i plans fats lant insù</string>
+    <string name="power_uppercase_label" description="Uppercase label used to show the user's power data [CHAR_LIMIT=50]">Potence</string>
+    <string name="power_lowercase_label" description="Lowercase label used to show the user's power data [CHAR_LIMIT=50]">potence</string>
+    <string name="power_read_content_description" description="Content description for switch that enables permissions for reading the user's power data [CHAR_LIMIT=NONE]">Lei la potence</string>
+    <string name="power_write_content_description" description="Content description for switch that enables permissions for writing the user's power data [CHAR_LIMIT=NONE]">Scrivi la potence</string>
+    <string name="speed_uppercase_label" description="Uppercase label used to show the user's speed data [CHAR_LIMIT=50]">Velocitât</string>
+    <string name="speed_lowercase_label" description="Lowercase label used to show the user's speed data [CHAR_LIMIT=50]">velocitât</string>
+    <string name="speed_read_content_description" description="Content description for switch that enables permissions for reading the user's speed data [CHAR_LIMIT=NONE]">Lei la velocitât</string>
+    <string name="speed_write_content_description" description="Content description for switch that enables permissions for writing the user's speed data [CHAR_LIMIT=NONE]">Scrivi la velocitât</string>
+    <string name="steps_uppercase_label" description="Uppercase label used to show the user's steps data [CHAR_LIMIT=50]">Pas</string>
+    <string name="steps_lowercase_label" description="Lowercase label used to show the user's steps data [CHAR_LIMIT=50]">pas</string>
+    <string name="steps_read_content_description" description="Content description for switch that enables permissions for reading the user's steps data [CHAR_LIMIT=NONE]">Lei i pas</string>
+    <string name="steps_write_content_description" description="Content description for switch that enables permissions for writing the user's steps data [CHAR_LIMIT=NONE]">Scrivi i pas</string>
+    <string name="total_calories_burned_uppercase_label" description="Uppercase label used to show the user's total calories burned data [CHAR_LIMIT=50]">Caloriis totâls brusadis</string>
+    <string name="total_calories_burned_lowercase_label" description="Lowercase label used to show the user's total calories burned data [CHAR_LIMIT=50]">caloriis totâls brusadis</string>
+    <string name="total_calories_burned_read_content_description" description="Content description for switch that enables permissions for reading the user's total calories burned data [CHAR_LIMIT=NONE]">Lei lis caloriis totâls brusadis</string>
+    <string name="total_calories_burned_write_content_description" description="Content description for switch that enables permissions for writing the user's total calories burned data [CHAR_LIMIT=NONE]">Scrivi lis caloriis totâls brusadis</string>
+    <string name="vo2_max_uppercase_label" description="Uppercase label used to show the user's V02 max data [CHAR_LIMIT=50]">VO2 max</string>
+    <string name="vo2_max_lowercase_label" description="Lowercase label used to show the user's V02 max data [CHAR_LIMIT=50]">VO2 max</string>
+    <string name="vo2_max_read_content_description" description="Content description for switch that enables permissions for reading the user's V02 max data [CHAR_LIMIT=NONE]">Lei il VO2 massim</string>
+    <string name="vo2_max_write_content_description" description="Content description for switch that enables permissions for writing the user's V02 max data [CHAR_LIMIT=NONE]">Scrivi il VO2 massim</string>
+    <string name="wheelchair_pushes_uppercase_label" description="Uppercase label used to show the user's wheelchair pushes data [CHAR_LIMIT=50]">Sburtadis di carocele</string>
+    <string name="wheelchair_pushes_lowercase_label" description="Lowercase label used to show the user's wheelchair pushes data [CHAR_LIMIT=50]">sburtadis di carocele</string>
+    <string name="wheelchair_pushes_read_content_description" description="Content description for switch that enables permissions for reading the user's wheelchair pushes data [CHAR_LIMIT=NONE]">Lei lis sburtadis di carocele</string>
+    <string name="wheelchair_pushes_write_content_description" description="Content description for switch that enables permissions for writing the user's wheelchair pushes data [CHAR_LIMIT=NONE]">Scrivi lis sburtadis di carocele</string>
+    <string name="basal_metabolic_rate_uppercase_label" description="Uppercase label used to show the user's basal metabolic rate data [CHAR_LIMIT=50]">Tas metabolic basâl</string>
+    <string name="basal_metabolic_rate_lowercase_label" description="Lowercase label used to show the user's basal metabolic rate data [CHAR_LIMIT=50]">tas metabolic basâl</string>
+    <string name="basal_metabolic_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's basal metabolic rate data [CHAR_LIMIT=NONE]">Lei il tas metabolic basâl</string>
+    <string name="basal_metabolic_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's basal metabolic rate data [CHAR_LIMIT=NONE]">Scrivi il tas metabolic basâl</string>
+    <string name="body_fat_uppercase_label" description="Uppercase label used to show the user's body fat data [CHAR_LIMIT=50]">Gras corpori</string>
+    <string name="body_fat_lowercase_label" description="Lowercase label used to show the user's body fat data [CHAR_LIMIT=50]">gras corpori</string>
+    <string name="body_fat_read_content_description" description="Content description for switch that enables permissions for reading the user's body fat data [CHAR_LIMIT=NONE]">Lei il gras corpori</string>
+    <string name="body_fat_write_content_description" description="Content description for switch that enables permissions for writing the user's body fat data [CHAR_LIMIT=NONE]">Scrivi il gras corpori</string>
+    <string name="body_water_mass_uppercase_label" description="Uppercase label used to show the user's body water mass data [CHAR_LIMIT=50]">Masse di aghe dal cuarp</string>
+    <string name="body_water_mass_lowercase_label" description="Lowercase label used to show the user's body water mass data [CHAR_LIMIT=50]">masse di aghe dal cuarp</string>
+    <string name="body_water_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's body water mass data [CHAR_LIMIT=NONE]">Lei la masse di aghe dal cuarp</string>
+    <string name="body_water_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's body water mass data [CHAR_LIMIT=NONE]">Scrivi la masse di aghe dal cuarp</string>
+    <string name="bone_mass_uppercase_label" description="Uppercase label used to show the user's bone mass data [CHAR_LIMIT=50]">Masse dai vues</string>
+    <string name="bone_mass_lowercase_label" description="Lowercase label used to show the user's bone mass data [CHAR_LIMIT=50]">masse dai vues</string>
+    <string name="bone_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's bone mass data [CHAR_LIMIT=NONE]">Lei la masse dai vues</string>
+    <string name="bone_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's bone mass data [CHAR_LIMIT=NONE]">Scrivi la masse dai vues</string>
+    <string name="height_uppercase_label" description="Uppercase label used to show the user's height data [CHAR_LIMIT=50]">Altece</string>
+    <string name="height_lowercase_label" description="Lowercase label used to show the user's height data [CHAR_LIMIT=50]">altece</string>
+    <string name="height_read_content_description" description="Content description for switch that enables permissions for reading the user's height data [CHAR_LIMIT=NONE]">Lei la altece</string>
+    <string name="height_write_content_description" description="Content description for switch that enables permissions for writing the user's height data [CHAR_LIMIT=NONE]">Scrivi la altece</string>
+    <string name="hip_circumference_uppercase_label" description="Uppercase label used to show the user's hip circumference data [CHAR_LIMIT=50]">Circonference dal ombul</string>
+    <string name="hip_circumference_lowercase_label" description="Lowercase label used to show the user's hip circumference data [CHAR_LIMIT=50]">circonference dal ombul</string>
+    <string name="hip_circumference_read_content_description" description="Content description for switch that enables permissions for reading the user's hip circumference data [CHAR_LIMIT=NONE]">Lei la circonference dal ombul</string>
+    <string name="hip_circumference_write_content_description" description="Content description for switch that enables permissions for writing the user's hip circumference data [CHAR_LIMIT=NONE]">Scrivi la circonference dal ombul</string>
+    <string name="lean_body_mass_uppercase_label" description="Uppercase label used to show the user's lean body mass data [CHAR_LIMIT=50]">Masse dal cuarp magre</string>
+    <string name="lean_body_mass_lowercase_label" description="Lowercase label used to show the user's lean body mass data [CHAR_LIMIT=50]">masse dal cuarp magre</string>
+    <string name="lean_body_mass_read_content_description" description="Content description for switch that enables permissions for reading the user's lean body mass data [CHAR_LIMIT=NONE]">Lei la masse magre dal cuarp</string>
+    <string name="lean_body_mass_write_content_description" description="Content description for switch that enables permissions for writing the user's lean body mass data [CHAR_LIMIT=NONE]">Scrivi la masse magre dal cuarp</string>
+    <string name="waist_circumference_uppercase_label" description="Uppercase label used to show the user's waist circumference data [CHAR_LIMIT=50]">Circonference de vite</string>
+    <string name="waist_circumference_lowercase_label" description="Lowercase label used to show the user's waist circumference data [CHAR_LIMIT=50]">circonference de vite</string>
+    <string name="waist_circumference_read_content_description" description="Content description for switch that enables permissions for reading the user's waist circumference data [CHAR_LIMIT=NONE]">Lei la circonference de vite</string>
+    <string name="waist_circumference_write_content_description" description="Content description for switch that enables permissions for writing the user's waist circumference data [CHAR_LIMIT=NONE]">Scrivi la circonference de vite</string>
+    <string name="weight_uppercase_label" description="Uppercase label used to show the user's weight data [CHAR_LIMIT=50]">Pês</string>
+    <string name="weight_lowercase_label" description="Lowercase label used to show the user's weight data [CHAR_LIMIT=50]">pês</string>
+    <string name="weight_read_content_description" description="Content description for switch that enables permissions for reading the user's weight data [CHAR_LIMIT=NONE]">Lei il pês</string>
+    <string name="weight_write_content_description" description="Content description for switch that enables permissions for writing the user's weight data [CHAR_LIMIT=NONE]">Scrivi il pês</string>
+    <string name="cervical_mucus_uppercase_label" description="Uppercase label used to show the user's cervical mucus data [CHAR_LIMIT=50]">Muc cervicâl</string>
+    <string name="cervical_mucus_lowercase_label" description="Lowercase label used to show the user's cervical mucus data [CHAR_LIMIT=50]">muc cervicâl</string>
+    <string name="cervical_mucus_read_content_description" description="Content description for switch that enables permissions for reading the user's cervical mucus data [CHAR_LIMIT=NONE]">Lei il muc cervicâl</string>
+    <string name="cervical_mucus_write_content_description" description="Content description for switch that enables permissions for writing the user's cervical mucus data [CHAR_LIMIT=NONE]">Scrivi il muc cervicâl</string>
+    <string name="intermenstrual_bleeding_uppercase_label" description="Uppercase label used to show the user's intermenstrual bleeding data [CHAR_LIMIT=50]">Sanganament intermestruâl</string>
+    <string name="intermenstrual_bleeding_lowercase_label" description="Lowercase label used to show the user's intermenstrual bleeding data [CHAR_LIMIT=50]">sanganament intermestruâl</string>
+    <string name="intermenstrual_bleeding_read_content_description" description="Content description for switch that enables permissions for reading the user's intermenstrual bleeding data [CHAR_LIMIT=NONE]">Lei il sanganament intermestruâl</string>
+    <string name="intermenstrual_bleeding_write_content_description" description="Content description for switch that enables permissions for writing the user's intermenstrual bleeding data [CHAR_LIMIT=NONE]">Scrivi il sanganament intermestruâl</string>
+    <string name="menstruation_uppercase_label" description="Uppercase label used to show the user's menstruation data [CHAR_LIMIT=50]">Mestruazion</string>
+    <string name="menstruation_lowercase_label" description="Lowercase label used to show the user's menstruation data [CHAR_LIMIT=50]">mestruazion</string>
+    <string name="menstruation_read_content_description" description="Content description for switch that enables permissions for reading the user's menstruation data [CHAR_LIMIT=NONE]">Lei la mestruazion</string>
+    <string name="menstruation_write_content_description" description="Content description for switch that enables permissions for writing the user's menstruation data [CHAR_LIMIT=NONE]">Scrivi la mestruazion</string>
+    <string name="ovulation_test_uppercase_label" description="Uppercase label used to show the user's ovulation test data [CHAR_LIMIT=50]">Prove di ovulazion</string>
+    <string name="ovulation_test_lowercase_label" description="Lowercase label used to show the user's ovulation test data [CHAR_LIMIT=50]">prove di ovulazion</string>
+    <string name="ovulation_test_read_content_description" description="Content description for switch that enables permissions for reading the user's ovulation test data [CHAR_LIMIT=NONE]">Lei la prove di ovulazion</string>
+    <string name="ovulation_test_write_content_description" description="Content description for switch that enables permissions for writing the user's ovulation test data [CHAR_LIMIT=NONE]">Scrivi la prove di ovulazion</string>
+    <string name="sexual_activity_uppercase_label" description="Uppercase label used to show the user's sexual activity data [CHAR_LIMIT=50]">Ativitât sessuâl</string>
+    <string name="sexual_activity_lowercase_label" description="Lowercase label used to show the user's sexual activity data [CHAR_LIMIT=50]">ativitât sessuâl</string>
+    <string name="sexual_activity_read_content_description" description="Content description for switch that enables permissions for reading the user's sexual activity data [CHAR_LIMIT=NONE]">Lei la ativitât sessuâl</string>
+    <string name="sexual_activity_write_content_description" description="Content description for switch that enables permissions for writing the user's sexual activity data [CHAR_LIMIT=NONE]">Scrivi la ativitât sessuâl</string>
+    <string name="spotting_uppercase_label" description="Uppercase label used to show the user's spotting data [CHAR_LIMIT=50]">Pierditis vagjinâls di sanc</string>
+    <string name="spotting_lowercase_label" description="Lowercase label used to show the user's spotting data [CHAR_LIMIT=50]">pierditis vagjinâls di sanc</string>
+    <string name="spotting_read_content_description" description="Content description for switch that enables permissions for reading the user's active spotting data [CHAR_LIMIT=NONE]">Lei lis pierditis vagjinâls di sanc</string>
+    <string name="spotting_write_content_description" description="Content description for switch that enables permissions for writing the user's active spotting data [CHAR_LIMIT=NONE]">Scrivi lis pierditis vagjinâls di sanc</string>
+    <string name="hydration_uppercase_label" description="Uppercase label used to show the user's hydration data [CHAR_LIMIT=50]">Idratazion</string>
+    <string name="hydration_lowercase_label" description="Lowercase label used to show the user's hydration data [CHAR_LIMIT=50]">idratazion</string>
+    <string name="hydration_read_content_description" description="Content description for switch that enables permissions for reading the user's hydration data [CHAR_LIMIT=NONE]">Lei la idratazion</string>
+    <string name="hydration_write_content_description" description="Content description for switch that enables permissions for writing the user's hydration data [CHAR_LIMIT=NONE]">Scrivi la idratazion</string>
+    <string name="nutrition_uppercase_label" description="Uppercase label used to show the user's nutrition data [CHAR_LIMIT=50]">Nutrizion</string>
+    <string name="nutrition_lowercase_label" description="Lowercase label used to show the user's nutrition data [CHAR_LIMIT=50]">nutrizion</string>
+    <string name="nutrition_read_content_description" description="Content description for switch that enables permissions for reading the user's nutrition data [CHAR_LIMIT=NONE]">Lei la nutrizion</string>
+    <string name="nutrition_write_content_description" description="Content description for switch that enables permissions for writing the user's nutrition data [CHAR_LIMIT=NONE]">Scrivi la nutrizion</string>
+    <string name="sleep_uppercase_label" description="Uppercase label used to show the user's sleep data [CHAR_LIMIT=50]">Polse</string>
+    <string name="sleep_lowercase_label" description="Lowercase label used to show the user's sleep data [CHAR_LIMIT=50]">polse</string>
+    <string name="sleep_read_content_description" description="Content description for switch that enables permissions for reading the user's sleep data [CHAR_LIMIT=NONE]">Lei la polse</string>
+    <string name="sleep_write_content_description" description="Content description for switch that enables permissions for writing the user's sleep session data [CHAR_LIMIT=NONE]">Scrivi la polse</string>
+    <string name="basal_body_temperature_uppercase_label" description="Uppercase label used to show the user's basal body temperature data [CHAR_LIMIT=50]">Temperadure basâl corporie</string>
+    <string name="basal_body_temperature_lowercase_label" description="Lowercase label used to show the user's basal body temperature data [CHAR_LIMIT=50]">temperadure basâl corporie</string>
+    <string name="basal_body_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's basal body temperature data [CHAR_LIMIT=NONE]">Lei la temperadure basâl corporie</string>
+    <string name="basal_body_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's basal body temperature data [CHAR_LIMIT=NONE]">Scrivi la temperadure basâl corporie</string>
+    <string name="blood_glucose_uppercase_label" description="Uppercase label used to show the user's blood glucose data [CHAR_LIMIT=50]">Glucosi dal sanc</string>
+    <string name="blood_glucose_lowercase_label" description="Label used to show the user's blood glucose data [CHAR_LIMIT=50]">glucosi dal sanc</string>
+    <string name="blood_glucose_read_content_description" description="Content description for switch that enables permissions for reading the user's blood glucose data [CHAR_LIMIT=NONE]">Lei il glucosi dal sanc</string>
+    <string name="blood_glucose_write_content_description" description="Content description for switch that enables permissions for writing the user's blood glucose data [CHAR_LIMIT=NONE]">Scrivi il glucosi dal sanc</string>
+    <string name="blood_pressure_uppercase_label" description="Uppercase label used to show the user's blood pressure data [CHAR_LIMIT=50]">Pression sanghine</string>
+    <string name="blood_pressure_lowercase_label" description="Lowercase label used to show the user's blood pressure data [CHAR_LIMIT=50]">pression sanghine</string>
+    <string name="blood_pressure_read_content_description" description="Content description for switch that enables permissions for reading the user's blood pressure data [CHAR_LIMIT=NONE]">Lei la pression dal sanc</string>
+    <string name="blood_pressure_write_content_description" description="Content description for switch that enables permissions for writing the user's blood pressure data [CHAR_LIMIT=NONE]">Scrivi la pression dal sanc</string>
+    <string name="body_temperature_uppercase_label" description="Uppercase label used to show the user's body temperature data [CHAR_LIMIT=50]">Temperadure corporie</string>
+    <string name="body_temperature_lowercase_label" description="Lowercase label used to show the user's body temperature data [CHAR_LIMIT=50]">temperadure corporie</string>
+    <string name="body_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's body temperature data [CHAR_LIMIT=NONE]">Lei la temperadure corporie</string>
+    <string name="body_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's body temperature data [CHAR_LIMIT=NONE]">Scrivi la temperadure corporie</string>
+    <string name="heart_rate_uppercase_label" description="Uppercase label used to show the user's heart rate data [CHAR_LIMIT=50]">Frecuence cardiache</string>
+    <string name="heart_rate_lowercase_label" description="Lowercase label used to show the user's heart rate data [CHAR_LIMIT=50]">frecuence cardiache</string>
+    <string name="heart_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's heart rate data [CHAR_LIMIT=NONE]">Lei la frecuence cardiache</string>
+    <string name="heart_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's heart rate data [CHAR_LIMIT=NONE]">Scrivi la frecuence cardiache</string>
+    <string name="heart_rate_variability_uppercase_label" description="Uppercase label used to show the user's heart rate variability data [CHAR_LIMIT=50]">Variabilitât de frecuence cardiache</string>
+    <string name="heart_rate_variability_lowercase_label" description="Lowercase label used to show the user's heart rate variability data [CHAR_LIMIT=50]">variabilitât de frecuence cardiache</string>
+    <string name="heart_rate_variability_read_content_description" description="Content description for switch that enables permissions for reading the user's heart rate variability data [CHAR_LIMIT=NONE]">Lei la variabilitât de frecuence cardiache</string>
+    <string name="heart_rate_variability_write_content_description" description="Content description for switch that enables permissions for writing the user's heart rate variability data [CHAR_LIMIT=NONE]">Scrivi la variabilitât de frecuence cardiache</string>
+    <string name="oxygen_saturation_uppercase_label" description="Uppercase label used to show the user's oxygen saturation data [CHAR_LIMIT=50]">Saturazion di ossigjen</string>
+    <string name="oxygen_saturation_lowercase_label" description="Lowercase label used to show the user's oxygen saturation data [CHAR_LIMIT=50]">saturazion di ossigjen</string>
+    <string name="oxygen_saturation_read_content_description" description="Content description for switch that enables permissions for reading the user's oxygen saturation data [CHAR_LIMIT=NONE]">Lei la saturazion dal ossigjen</string>
+    <string name="oxygen_saturation_write_content_description" description="Content description for switch that enables permissions for writing the user's oxygen saturation data [CHAR_LIMIT=NONE]">Scrivi la saturazion dal ossigjen</string>
+    <string name="respiratory_rate_uppercase_label" description="Uppercase label used to show the user's respiratory rate data [CHAR_LIMIT=50]">Frecuence respiratorie</string>
+    <string name="respiratory_rate_lowercase_label" description="Lowercase label used to show the user's respiratory rate data [CHAR_LIMIT=50]">frecuence respiratorie</string>
+    <string name="respiratory_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's respiratory rate data [CHAR_LIMIT=NONE]">Lei la frecuence respiratorie</string>
+    <string name="respiratory_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's respiratory rate data [CHAR_LIMIT=NONE]">Scrivi la frecuence respiratorie</string>
+    <string name="resting_heart_rate_uppercase_label" description="Uppercase label used to show the user's resting heart rate data [CHAR_LIMIT=50]">Frecuence cardiache in polse</string>
+    <string name="resting_heart_rate_lowercase_label" description="Lowercase label used to show the user's resting heart rate data [CHAR_LIMIT=50]">frecuence cardiache in polse</string>
+    <string name="resting_heart_rate_read_content_description" description="Content description for switch that enables permissions for reading the user's resting heart rate data [CHAR_LIMIT=NONE]">Lei lis batudis dal cûr in polse</string>
+    <string name="resting_heart_rate_write_content_description" description="Content description for switch that enables permissions for writing the user's resting heart rate data [CHAR_LIMIT=NONE]">Scrivi lis batudis dal cûr in polse</string>
+    <string name="skin_temperature_uppercase_label" description="Uppercase label used to show the user's skin temperature data [CHAR_LIMIT=50]">Temperadure de piel</string>
+    <string name="skin_temperature_lowercase_label" description="Lowercase label used to show the user's skin temperature data [CHAR_LIMIT=50]">temperadure de piel</string>
+    <string name="skin_temperature_read_content_description" description="Content description for switch that enables permissions for reading the user's skin temperature data [CHAR_LIMIT=NONE]">Lei la temperadure de piel</string>
+    <string name="skin_temperature_write_content_description" description="Content description for switch that enables permissions for writing the user's skin temperature data [CHAR_LIMIT=NONE]">Scrîf la temperadure de piel</string>
+    <string name="read_permission_category" description="Title for read permission category in the app permission screen">Permeti a <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> di lei</string>
+    <string name="write_permission_category" description="Title for write permission category in the app permission screen">Permeti a <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> di scrivi</string>
+    <string name="request_permissions_cancel" description="Label for button to cancel an app's request for permissions [CHAR_LIMIT=20]">Anule</string>
+    <string name="request_permissions_allow" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">Permet</string>
+    <string name="request_permissions_allow_all" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">Permet dut</string>
+    <string name="request_permissions_dont_allow" description="Label for button to allow an app to have the selected permissions for the user's data [CHAR_LIMIT=20]">No sta permeti</string>
+    <string name="request_permissions_header_desc" description="Text asking the user to select permissions for an app. [CHAR_LIMIT=NONE]">Sielç i dâts che cheste aplicazion e pues lei o scrivi su Conession salût</string>
+    <string name="request_permissions_header_time_frame_desc" description="Text describing the time frame of data which an app will be able to access. [CHAR_LIMIT=NONE]">Se tu concedis l\'acès ae leture, cheste aplicazion e podarà lei i gnûfs dâts e i dâts dai ultins 30 dîs</string>
+    <string name="request_permissions_header_title" description="Title for screen to give permissions to an app to read or write users data. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Permeti a <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> di acedi a Conession salût?</string>
+    <string name="request_permissions_rationale" description="Text informing the user that data they share with an app is covered by that app's data privacy policy. Has a link to the app's privacy policy. [CHAR_LIMIT=NONE]">Tu puedis scuvierzi cemût che <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> al gjestìs i tiei dâts tes <xliff:g example="privacy policy" id="privacy_policy_link">%2$s</xliff:g> dai svilupadôrs</string>
+    <string name="request_permissions_privacy_policy" description="Link text that open's a third party app's data privacy policy [CHAR_LIMIT=NONE]">normis su la riservatece</string>
+    <string name="permissions_disconnect_dialog_title" description="Title for dialog asking the user to confirm they want to remove all permissions for an app [CHAR_LIMIT=40]">Gjavâ ducj i permès?</string>
+    <string name="permissions_disconnect_dialog_disconnect" description="Label for dialog button to confirm removal of all permissions for an app [CHAR_LIMIT=20]">Gjave dut</string>
+    <string name="permissions_disconnect_dialog_message" description="Text informing the user that an app will no longer be able to read or write data after the permissions have been removed. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> nol rivarà plui a lei o scrivi dâts di Conession salût.\n\nChest nol larà a tocjâ altris permès che cheste aplicazion e podarès vê, come posizion, fotocjamare o microfon.</string>
+    <string name="permissions_disconnect_dialog_checkbox" description="Text of a checkbox to decide whether to delete or not all data written by the app that is being disconnected by the user. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Elimine di Conession salût ancje i dâts di <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g></string>
+    <string name="navigation_next_day" description="Content description for button that changes the current data view to the next day [CHAR_LIMIT=NONE]">Dì sucessîf</string>
+    <string name="navigation_selected_day" description="Content description for button that contains selected day. [CHAR_LIMIT=NONE]">Dì selezionât</string>
+    <string name="navigation_previous_day" description="Content description for button that changes the current data view to the previous day [CHAR_LIMIT=NONE]">Dì precedent</string>
+    <string name="default_error" description="Label shown when a user initiated action fails (e.g. deleting data) [CHAR_LIMIT=NONE]">Alc al è lât strucj. Torne prove.</string>
+    <string name="health_permission_header_description" description="Description text shown on screen for managing which apps have access to health and fitness data. Note: Health Connect is the brand [CHAR_LIMIT=NONE]">Lis aplicazions cun chest permès a puedin lei e scrivi i tiei dâts su salût e forme fisiche.</string>
+    <string name="connected_apps_text" description="Description text shown on screen for managing which apps have access to health and fitness data. Note: Health Connect is the brand [CHAR_LIMIT=NONE]">Controle cualis aplicazions che a puedin acedi ai dâts archiviâts in Conession salût. Tocje une aplicazion par revisionâ i dâts che e pues lei o scrivi.</string>
+    <string name="connected_apps_section_title" description="Title of section containing all the connected apps [CHAR_LIMIT=40]">Acès consintût</string>
+    <string name="not_connected_apps_section_title" description="Title of section containing all the not-connected apps [CHAR_LIMIT=40]">Acès no consintût</string>
+    <string name="needs_updating_apps_section_title" description="Title of section containing all the apps that need updating in order to work with Health Connect [CHAR_LIMIT=40]">Al covente un inzornament</string>
+    <string name="settings_and_help_header" description="Title shown for the section of settings and help [CHAR_LIMIT=70]">Impostazions e jutori</string>
+    <string name="disconnect_all_apps" description="Button text for removing access to health and fitness data for all apps [CHAR_LIMIT=40]">Gjave l\'acès a dutis lis aplicazions</string>
+    <string name="manage_permissions_read_header" description="Header for list of permissions an app is allowed read access to [CHAR_LIMIT=40]">Leture concedude</string>
+    <string name="manage_permissions_write_header" description="Header for list of permissions an app is allowed write access to [CHAR_LIMIT=40]">Scriture concedude</string>
+    <string name="no_apps_allowed" description="Label when no apps have ben granted access to Health data.[CHAR_LIMIT=40]">Nissune aplicazion consintude</string>
+    <string name="no_apps_denied" description="Label when no apps have been denied a health permission [CHAR_LIMIT=40]">Nissune aplicazion dineade</string>
+    <string name="permissions_disconnect_all_dialog_title" description="Title for dialog asking the user to confirm they want to remove all permissions for all apps [CHAR_LIMIT=50]">Gjavâ l\'acès a dutis lis aplicazions?</string>
+    <string name="permissions_disconnect_all_dialog_message" description="Text informing the user that all apps will no longer be able to read or write data after the permissions have been removed. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Nissune des tôs aplicazions a rivaran a acedi o a zontâ gnûfs dâts a Conession salût. Cheste operazion no elimine i dâts esistents.\n\nCheste operazion no larà a tocjâ altris permès che cheste aplicazion e podarès vê, come posizion, fotocjamare o microfon.</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" description="Label for dialog button to confirm removal of all permissions for all apps [CHAR_LIMIT=20]">Gjave dut</string>
+    <string name="manage_permissions_manage_app_header" description="Title shown for section to manage app [CHAR_LIMIT=40]">Gjestìs aplicazion</string>
+    <string name="see_app_data" description="Label of a button that opens the app data screen. [CHAR_LIMIT=40]">Viodi dâts de aplicazion</string>
+    <string name="delete_app_data" description="Label of a button that deletes data written by given app. [CHAR_LIMIT=40]">Elimine dâts di aplicazion</string>
+    <string name="inactive_apps_section_title" description="Title shown for section of inactive apps [CHAR_LIMIT=40]">Aplicazions inativis</string>
+    <string name="inactive_apps_section_message" description="Description text shown in the inactive apps section that explains what inactive apps are [CHAR_LIMIT=NONE]">Chestis aplicazions no àn plui l\'acès, ma a àn ancjemò dâts archiviâts in Conession salût</string>
+    <string name="manage_permissions_time_frame" description="Text describing the time frame of data which an app will be able to access [CHAR_LIMIT=NONE]"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> al pues lei dâts zontâts dopo dal/dai <xliff:g example="22 January 2022" id="data_access_date">%2$s</xliff:g></string>
+    <string name="other_android_permissions" description="Text that describes how users can change other android permissions through the system settings [CHAR_LIMIT=NONE]">Par gjestî altris permès di Android che cheste aplicazion e pues doprâ, va in Impostazions &gt; Aplicazions</string>
+    <string name="manage_permissions_rationale" description="Text informing the user that data they share with an app is covered by that app's data privacy policy [CHAR_LIMIT=NONE]">I dâts che tu condividis cun <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> a son cuvierts des lôr normis su la riservatece</string>
+    <string name="other_android_permissions_content_description" description="Content description that describes how users can change other android permissions through the system settings [CHAR_LIMIT=NONE]">Par gjestî altris permès di Android che cheste aplicazion e pues doprâ, va in Impostazions, dopo tocje Aplicazions</string>
+    <string name="manage_permissions_learn_more" description="Link text that open's a third party app's data privacy policy [CHAR_LIMIT=NONE]">Lei lis normis su la riservatece</string>
+    <string name="app_perms_content_provider_24h" description="Summary for showing the last access text for content provider permissions [CHAR LIMIT=70]">Acès fat tes ultimis 24 oris</string>
+    <string name="app_access_title" description="Title of screen for a user to manage the health and fitness data a particular app has access to [CHAR_LIMIT=40]">Acès des aplicazions</string>
+    <string name="connected_apps_empty_list_section_title" description="Title of section when there are no connected apps">In chest moment no tu âs nissune aplicazion compatibile instalade</string>
+    <string name="additional_access_label" description="Label of a button that opens additional permissions access for an app. [CHAR_LIMIT=40]">Acès adizionâi</string>
+    <string name="denied_apps_banner_title" description="Title of a banner that provides information about apps that have been denied, in other words their permissions have been removed. [CHAR_LIMIT=100]">Permès di aplicazion gjavâts</string>
+    <string name="denied_apps_banner_message_one_app" description="Message of a banner that provides information about an app that has been denied. [CHAR_LIMIT=NONE]">Permès gjavâts di Conession salût par <xliff:g id="app_data" example="Strava">%s</xliff:g></string>
+    <string name="denied_apps_banner_message_two_apps" description="Message of a banner that provides information about two apps that have been denied. [CHAR_LIMIT=NONE]">Permès gjavâts di Conession salût par <xliff:g id="app_data" example="Strava">%1$s</xliff:g> e <xliff:g id="app_data_two" example="Strava">%2$s</xliff:g></string>
+    <string name="denied_apps_banner_message_three_apps" description="Message of a banner that provides information about three apps that have been denied. [CHAR_LIMIT=NONE]">Permès gjavâts di Conession salût par <xliff:g id="app_data" example="Strava">%1$s</xliff:g>, <xliff:g id="app_data_two" example="Strava">%2$s</xliff:g> e <xliff:g id="app_data_three" example="Strava">%3$s</xliff:g></string>
+    <string name="denied_apps_banner_message_many_apps" description="Message of a banner that provides information about more than three apps that have been denied. [CHAR_LIMIT=NONE]">Conession salût al à gjavât i permès par <xliff:g id="app_data" example="Strava">%1$s</xliff:g>, <xliff:g id="app_data_two" example="Strava">%2$s</xliff:g>, <xliff:g id="app_data_three" example="Strava">%3$s</xliff:g> e altris aplicazions</string>
+    <string name="denied_apps_banner_button" description="Label of a button that opens a page with more details about denied apps. [CHAR_LIMIT=40]">Viôt i detais</string>
+    <string name="denied_apps_dialog_title" description="Title of a dialog that provides information about apps with permissions removed by Health Connect. [CHAR_LIMIT=NONE]">Parcè Conession salût gjavial i permès des aplicazions?</string>
+    <string name="denied_apps_dialog_message" description="Label of a button that opens a page with more details about denied apps. [CHAR_LIMIT=NONE]">Se une aplicazion e je sospindude o gjavade di Google Play, Conession salût al gjave in automatic i siei permès.\n\nChest al vûl dî che la aplicazion no rivarà plui a acedi ai dâts archiviâts in Conession salût. Se prime cheste aplicazion e à scrit dâts, e ven fûr te liste des aplicazions inativis.</string>
+    <string name="denied_apps_dialog_got_it_button" description="Label of a button that closes the dialog. [CHAR_LIMIT=40]">Capît</string>
+    <string name="export_settings_screen_title" description="Title of the 'save data' screen where users can set up configurations to auto-save Health Connect data and permissions. [CHAR_LIMIT=40]">Salve dâts</string>
+    <string name="export_settings_screen_description" description="The top description of the 'save data' screen.">Salve dâts di Conession salût e permès in mût che tu podedis impuartâju se tu passis a un gnûf telefon. Prime di salvâ, tu puedis sielzi dulà archiviâ chescj dâts.</string>
+    <string name="setup_button" description="Button on the 'save data' screen start the data saving flow, which allows a user to schedule data exports to save their data externally and keep it safe. [CHAR_LIMIT=50]">Configure</string>
+    <string name="export_settings_header" descrption="Title of the settings section where users can check the status of their data saving settings.">Impostazions</string>
+    <string name="auto_save" description="Menu item to indicate the currently selected configuration for scheduled auto-saves. Options are: off, daily, weekly or monthly.">Salve in automatic</string>
+    <string name="choose_frequency" description="Title of the 'choose frequency' screen where users can select the data saving frequency.">Sielç la frecuence</string>
+    <string name="choose_frequency_description" description="Description of the data export frequency">Tu puedis sielzi di salvâ i dâts une volte sole, o configurâ in mût che a vegnin salvâts in automatic a dadis di timp regolârs.</string>
+    <string name="frequency_daily" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data daily.">Ogni dì</string>
+    <string name="frequency_weekly" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data weekly.">Ogni setemane</string>
+    <string name="frequency_monthly" description="Item in a list of possible data saving frequencies. Choosing this will auto-save data monthly.">Ogni mês</string>
+    <string name="export_back_button" descrption="Text on a button that navigates back to the previous 'save data' screen.">Indaûr</string>
+    <string name="export_next_button" descrption="Text on a button that navigates to the next setup screen.">Indevant</string>
+    <string name="onboarding_title" description="Label used to show the title of onboarding page when user opens Health Connect app for the fist time">Scomence a doprâ Conession salût</string>
+    <string name="onboarding_description" description="Content description of Health Connect app on the onboarding page">Conession salût al archivie i tiei dâts su salût e forme fisiche e e semplifiche la sincronizazion di diviersis aplicazions sul telefon</string>
+    <string name="share_data" description="Label used to show how the user can share data with apps">Condivît i dâts cu lis tôs aplicazions</string>
+    <string name="share_data_description" description="Content description for how the user can share data with apps">Sielç cuai dâts che ogni aplicazion e pues lei o scrivi su Conession salût</string>
+    <string name="manage_your_settings" description="Label used to show how the user can manage settings and privacy">Gjestìs lis impostazions e la riservatece</string>
+    <string name="manage_your_settings_description" description="Content description for how the user can change app permissions and manage data">Cambie i permès des aplicazions e gjestìs i tiei dâts cuant che tu vûs</string>
+    <string name="onboarding_go_back_button_text" description="Content description for button to exit from onboarding page">Tone indaûr</string>
+    <string name="onboarding_get_started_button_text" description="Content description for button to get started with Health Connect app">Scomence</string>
+    <string name="delete_button_content_description" description="Content description of a button that starts the deletion flow. [CHAR_LIMIT=50]">Elimine dâts</string>
+    <string name="time_range_title" description="Window title where user can choose the time range for data deletion. [CHAR_LIMIT=50]">Sielç i dâts di eliminâ</string>
+    <string name="time_range_next_button" description="Label of a button that navigates to the next window of the deletion flow. [CHAR_LIMIT=50]">Indevant</string>
+    <string name="time_range_message_all" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">Chest al eliminarà par simpri ducj i dâts zontâts in Conession salût tal periodi sielt</string>
+    <string name="time_range_message_data_type" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">Chest al eliminarà par simpri i dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g> zontâts in Conession salût tal periodi sielt</string>
+    <string name="time_range_message_category" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">Chest al eliminarà par simpri i dâts di <xliff:g id="category" example="activity">%s</xliff:g> zontâts in Conession salût tal periodi sielt</string>
+    <string name="time_range_message_app_data" description="Description explaining that this data deletion user activity is permanent. [CHAR_LIMIT=NONE]">Chest al eliminarà par simpri i dâts di <xliff:g id="app_data" example="Strava">%s</xliff:g> zontâts in Conession salût tal periodi sielt</string>
+    <string name="time_range_one_day" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 24 hours. [CHAR_LIMIT=50]">Elimine lis ultimis 24 oris</string>
+    <string name="time_range_one_week" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 7 days. [CHAR_LIMIT=50]">Elimine i ultins 7 dîs</string>
+    <string name="time_range_one_month" description="Item on list of possible deletion time ranges the user can choose. This option deletes data for the last 30 days. [CHAR_LIMIT=50]">Elimine i ultins 30 dîs</string>
+    <string name="time_range_all" description="Item on list of possible deletion time ranges the user can choose. This option deletes all data written during the selected time period. [CHAR_LIMIT=50]">Elimine ducj i dâts</string>
+    <string name="confirming_question_all" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Eliminâ par simpri ducj i dâts di simpri?</string>
+    <string name="confirming_question_one_day" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Eliminâ par simpri ducj i dâts des ultimis 24 oris?</string>
+    <string name="confirming_question_one_week" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Eliminâ par simpri ducj i dâts dai ultins 7 dîs?</string>
+    <string name="confirming_question_one_month" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Eliminâ par simpri ducj i dâts dai ultins 30 dîs?</string>
+    <string name="confirming_question_data_type_all" description="Description of what permanent deletion of all given data type data means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g> di simpri?</string>
+    <string name="confirming_question_data_type_one_day" description="Description of what permanent deletion of given data type data from the lat 24 hours means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g> des ultimis 24 oris?</string>
+    <string name="confirming_question_data_type_one_week" description="Description of what permanent deletion of given data type data from the last 7 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g> dai ultins 7 dîs?</string>
+    <string name="confirming_question_data_type_one_month" description="Description of what permanent deletion of given data type data from the last 30 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g> dai ultins 30 dîs?</string>
+    <string name="confirming_question_category_all" description="Description of what permanent deletion of all given activity data means. [CHAR_LIMIT=NONE]">Elinimâ par simpri i dâts di <xliff:g id="category" example="activity">%s</xliff:g> di simpri?</string>
+    <string name="confirming_question_category_one_day" description="Description of what permanent deletion of given activity data from the lat 24 hours means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="category" example="activity">%s</xliff:g> des ultimis 24 oris?</string>
+    <string name="confirming_question_category_one_week" description="Description of what permanent deletion of given activity data from the lat 7 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="category" example="activity">%s</xliff:g> dai ultins 7 dîs?</string>
+    <string name="confirming_question_category_one_month" description="Description of what permanent deletion of given activity data from the lat 30 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="category" example="activity">%s</xliff:g> dai ultins 30 dîs?</string>
+    <string name="confirming_question_app_data_all" description="Description of what permanent deletion of all data written by given app means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="app_data" example="Strava">%s</xliff:g> di simpri?</string>
+    <string name="confirming_question_app_data_one_day" description="Description of what permanent deletion of data written by given app from the lat 24 hours means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="app_data" example="Strava">%s</xliff:g> des ultimis 24 oris?</string>
+    <string name="confirming_question_app_data_one_week" description="Description of what permanent deletion of data written by given app from the lat 7 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="app_data" example="Strava">%s</xliff:g> dai ultins 7 dîs?</string>
+    <string name="confirming_question_app_data_one_month" description="Description of what permanent deletion of data written by given app from the lat 30 days means. [CHAR_LIMIT=NONE]">Eliminâ par simpri i dâts di <xliff:g id="app_data" example="Strava">%s</xliff:g> dai ultins 30 dîs?</string>
+    <string name="confirming_question_app_remove_all_permissions" description="Message of a check box that gives the user an option to remove all permissions from an app they're deleting data from. [CHAR_LIMIT=NONE]">Gjave di Conession salût ancje ducj i permès di <xliff:g id="app_with_permissions" example="Strava">%s</xliff:g></string>
+    <string name="confirming_question_data_type_from_app_all" description="Description of what permanent deletion of given data type written by given app means. [CHAR_LIMIT=NONE]">Eliminâ par simpri ducj i dâts di <xliff:g id="data_type" example="heart rate">%1$s</xliff:g> zontâts di <xliff:g id="app_data" example="Strava">%2$s</xliff:g>?</string>
+    <string name="confirming_question_single_entry" description="Description of what permanent deletion of a single data point means. [CHAR_LIMIT=NONE]">Eliminâ par simpri cheste vôs?</string>
+    <string name="confirming_question_message" description="Description of what permanent deletion of some data means. [CHAR_LIMIT=NONE]">Lis aplicazions colegadis no rivaran plui a acedi a chescj dâts di Conession salût</string>
+    <string name="confirming_question_message_menstruation" description="Description of what menstruation entries this action will delete [CHAR_LIMIT=NONE]">Chest al eliminarà dutis lis vôs di mestruazion dai <xliff:g example="22 January 2022" id="start_date">%1$s</xliff:g> ai <xliff:g example="22 January 2022" id="end_date">%2$s</xliff:g>.</string>
+    <string name="confirming_question_delete_button" description="Label of a button that deletes data. [CHAR_LIMIT=50]">Elimine</string>
+    <string name="confirming_question_go_back_button" description="Label of a button that goes back to the previous dialog. [CHAR_LIMIT=50]">Tone indaûr</string>
+    <string name="delete_dialog_success_got_it_button" description="Label of a button that dismisses the pop-up window. [CHAR_LIMIT=50]">Fat</string>
+    <string name="delete_dialog_failure_close_button" description="Label of a button that closes the window. [CHAR_LIMIT=50]">Siere</string>
+    <string name="delete_dialog_success_title" description="Title of the confirmation window of successful data deletion. [CHAR_LIMIT=50]">Dâts eliminâts</string>
+    <string name="delete_dialog_success_message" description="A message that confirms successful data deletion. [CHAR_LIMIT=NONE]">Chescj dâts no son plui archiviâts in Conession salût.</string>
+    <string name="delete_progress_indicator" description="Label of a message on a loading page with a progress bar during data deletion. [CHAR_LIMIT=100]">Daûr a eliminâ i tiei dâts</string>
+    <string name="delete_dialog_failure_title" description="Title of the window that nforms the user about failed data deletion. [CHAR_LIMIT=50]">Impussibil eliminâ i dâts</string>
+    <string name="delete_dialog_failure_message" description="A message that informs the user about failed data deletion. [CHAR_LIMIT=NONE]">Alc al è lât strucj e Conession salût nol rive a eliminâ i tiei dâts</string>
+    <string name="delete_dialog_failure_try_again_button" description="Label of a button that closes the window and goes back to the previous one. [CHAR_LIMIT=50]">Torne prove</string>
+    <string name="delete_data_notification_title" description="The title text of the notification that is shown while data is being deleted. [CHAR_LIMIT=50]">Daûr a eliminâ i dâts di Conession salût</string>
+    <string name="delete_data_notification_ticker_text" description="The ticker text of the notification that is shown while data is being deleted, which is read out by screen readers. [CHAR_LIMIT=50]">Daûr a eliminâ i dâts di Conession salût</string>
+    <string name="delete_data_notification_channel_name" description="The channel name for the notification that is shown while data is being deleted, which is visible to users in system settings. [CHAR_LIMIT=50]">Eliminazion dâts</string>
+    <string name="data_point_action_content_description" description="Content description for the menu button of an individual data entry [CHAR LIMIT=NONE]">Elimine vôs dâts <xliff:g example="1000 steps" id="entry_to_delete">%s</xliff:g></string>
+    <string name="delete_data_point" description="Menu option for deleting an individual data entry [CHAR LIMIT=50]">Elimine vôs <xliff:g example="1000 steps" id="entry_to_delete">%s</xliff:g></string>
+    <string name="aggregation_total" description="Description before the total value. For instance, Total: 1000 steps. [CHAR LIMIT=50]">Totâl: <xliff:g id="total_value" example="1000 steps">%s</xliff:g></string>
+    <string name="watt_format" description="Power value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 W} other {# W}}</string>
+    <string name="watt_format_long" description="Power value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 watt} other {# watts}}</string>
+    <string name="steps_value" translation_description="Value of steps taken. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, one {}=1 {1 pas} other {# pas}}</string>
+    <string name="steps_per_minute" description="Step cadence value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 pas/min} other {# pas/min}}</string>
+    <string name="steps_per_minute_long" description="Step cadence value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 pas al minût} other {# pas al minût}}</string>
+    <string name="heart_rate_value" translation_description="Value of heart rate beats per minute. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, one {}=1 {1 bpm} other {# bpm}}</string>
+    <string name="heart_rate_long_value" translation_description="Value of heart rate beats per minute. [ICU SYNTAX][CHAR LIMIT=10]">{count, plural, one {}=1 {1 batude al minût} other {# batudis al minût}}</string>
+    <string name="velocity_speed_miles" translation_description="Speed in miles per hour formatted. [ICU SYNTAX][CHAR LIMIT=15]">{value, plural, one {}=1 {1 mph} other {# mph}}</string>
+    <string name="velocity_speed_km" translation_description="Speed in kilometers per hour formatted. [ICU SYNTAX][CHAR LIMIT=15]">{value, plural, one {}=1 {1 km/h} other {# km/h}}</string>
+    <string name="velocity_speed_miles_long" translation_description="Speed in miles per hour formatted for audible announcement. [ICU SYNTAX][CHAR LIMIT=100]">{value, plural, one {}=1 {1 mie a la ore} other {# miis a la ore}}</string>
+    <string name="velocity_speed_km_long" translation_description="Speed in kilometers per hour formatted audible announcement. [ICU SYNTAX][CHAR LIMIT=100]">{value, plural, one {}=1 {1 chilometri a la ore} other {# chilometris a la ore}}</string>
+    <string name="time_range_long" description="Content description for time interval. [CHAR_LIMIT=NONE]"> di <xliff:g example="14:41" id="start_time">%1$s</xliff:g> a <xliff:g example="15:41" id="end_time">%2$s</xliff:g></string>
+    <string name="date_range_long" description="Content description for date interval. [CHAR_LIMIT=NONE]"> di <xliff:g example="October 30, 2021" id="start_time">%1$s</xliff:g> a <xliff:g example="November 11, 2021" id="end_time">%2$s</xliff:g></string>
+    <string name="wheelchair_pushes" description="Number of wheelchair pushes. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 sburtade di carocele} other {# sburtadis di carocele}}</string>
+    <string name="liter" description="Volume value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, one {}=1 {1 L} other {# L}}</string>
+    <string name="liter_long" description="Volume value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, one {}=1 {1 litri} other {# litris}}</string>
+    <string name="floors_climbed" description="Value of floors climbed. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 plan} other {# plans}}</string>
+    <string name="elevation_meters" translation_description="Shown as the label in the tooltip for weight chart. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 m} other {# m}}</string>
+    <string name="elevation_meters_long" translation_description="Shown as the label in the tooltip for weight chart. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 metri} other {# metris}}</string>
+    <string name="cycling_rpm" description="Pedaling rate, in crank revolutions per minute (RPM). [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 rpm} other {# rpm}}</string>
+    <string name="cycling_rpm_long" description="Pedaling rate, in crank revolutions per minute (RPM).  [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 rivoluzion par minût} other {# rivoluzions par minût}}</string>
+    <string name="cycling_cadence_series_range_long" description="Pedaling rate range, in crank revolutions per minute (RPM)"> di <xliff:g example="100 revolutions per minute" id="min">%1$s</xliff:g> a <xliff:g example="109 revolutions per minute" id="max">%2$s</xliff:g></string>
+    <string name="sexual_activity_protected" description="Whether protection was used during sexual activity. [CHAR LIMIT=50]">Protet</string>
+    <string name="sexual_activity_unprotected" description="Whether protection was used during sexual activity. [CHAR LIMIT=50]">Cence protezions</string>
+    <string name="spotting" description="Intermenstrual bleeding type: spotting. [CHAR LIMIT=50]">Pierditis vagjinâls di sanc</string>
+    <string name="flow_spotting" description="How heavy the user's menstruation flow was - spotting. [CHAR LIMIT=50]">Pierditis vagjinâls di sanc</string>
+    <string name="flow_light" description="How heavy the user's menstruation flow was - light. [CHAR LIMIT=50]">Flus scjars</string>
+    <string name="flow_medium" description="How heavy the user's menstruation flow was - medium. [CHAR LIMIT=50]">Flus medi</string>
+    <string name="flow_heavy" description="How heavy the user's menstruation flow was - heavy. [CHAR LIMIT=50]">Flus abondant</string>
+    <string name="period_day" description="Which day of the user's menstruation period it was. [CHAR LIMIT=50]">Dì <xliff:g example="2" id="day">%1$d</xliff:g> di <xliff:g example="5" id="total_length">%2$d</xliff:g> dal periodi</string>
+    <string name="ovulation_positive" description="The positive result of a user's ovulation test. [CHAR LIMIT=50]">Positive</string>
+    <string name="ovulation_negative" description="The negative result of a user's ovulation test. [CHAR LIMIT=50]">Negative</string>
+    <string name="ovulation_high" description="The high fertility result of a user's ovulation test. [CHAR LIMIT=50]">Elevade</string>
+    <string name="ovulation_inconclusive" description="The inconclusive result of a user's ovulation test. [CHAR LIMIT=50]">Improdutive</string>
+    <string name="milliseconds" description="Heart rate variability value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, one {}=1 {1 ms} other {# ms}}</string>
+    <string name="milliseconds_long" description="Heart rate variability value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, one {}=1 {1 milisecont} other {# miliseconts}}</string>
+    <string name="repetitions" description="Repetitions of an exercise set. [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 rip} other {# rips}}</string>
+    <string name="repetitions_long" description="Repetitions of an exercise set.  [ICU SYNTAX][CHAR LIMIT=50]">{count, plural, one {}=1 {1 ripetizion} other {# ripetizions}}</string>
+    <string name="exercise_segments_header" description="Header for a group of exercise segments. [CHAR LIMIT=50]">Segments di esercizi</string>
+    <string name="exercise_laps_header" description="Header for a group of exercise laps. [CHAR LIMIT=50]">Zîrs</string>
+    <string name="back_extension" description="Name of the back extension gym exercise. [CHAR LIMIT=50]">Estension de schene</string>
+    <string name="badminton" description="Activity type: playing badminton. [CHAR LIMIT=50]">Badminton</string>
+    <string name="barbell_shoulder_press" description="Name of the back extension gym exercise. [CHAR LIMIT=50] [CHAR LIMIT=50]">Sburt cun belancîr pes spalis</string>
+    <string name="baseball" description="Activity type: playing baseball. [CHAR LIMIT=50]">Baseball</string>
+    <string name="basketball" description="Activity type: playing basketball. [CHAR LIMIT=50]">Bale tal zei</string>
+    <string name="bench_press" description="Name of the bench press gym exercise. [CHAR LIMIT=50]">Bancje plane</string>
+    <string name="bench_sit_up" description="Name of the bench sit up gym exercise. [CHAR LIMIT=50]">Solevament de bancje</string>
+    <string name="biking" description="Activity type: riding a bike. [CHAR LIMIT=50]">Ciclisim</string>
+    <string name="biking_stationary" description="Activity type: riding a stationary bike. [CHAR LIMIT=50]">Cyclette</string>
+    <string name="boot_camp" description="Activity type: boot camp class. [CHAR LIMIT=50]">Cjamp alenament</string>
+    <string name="boxing" description="Activity type: boxing. [CHAR LIMIT=50]">Boxe</string>
+    <string name="burpee" description="Name of the burpee gym exercise. [CHAR LIMIT=50]">Burpee</string>
+    <string name="calisthenics" description="Activity type: calisthenics. [CHAR LIMIT=50]">Gjinastiche a cuarp libar</string>
+    <string name="cricket" description="Activity type: playing cricket. [CHAR LIMIT=50]">Cricket</string>
+    <string name="crunch" description="Name of the crunch gym exercise. [CHAR LIMIT=50]">Flession adominâl</string>
+    <string name="dancing" description="Activity type: dancing. [CHAR LIMIT=50]">Danze</string>
+    <string name="deadlift" description="Name of the deadlift gym exercise. [CHAR LIMIT=50]">Solevament di par tiere</string>
+    <string name="dumbbell_curl_left_arm" description="Name of the dumbbell curl gym exercise on the left arm. [CHAR LIMIT=50]">Flession cun manuvri pal braç di çampe</string>
+    <string name="dumbbell_curl_right_arm" description="Name of the dumbbell curl gym exercise on the right arm. [CHAR LIMIT=50]">Flession cun manuvri pal braç di diestre</string>
+    <string name="dumbbell_front_raise" description="Name of the dumbbell front raise gym exercise. [CHAR LIMIT=50]">Solevament frontâl cun manuvri</string>
+    <string name="dumbbell_lateral_raise" description="Name of the dumbbell front raise gym exercise. [CHAR LIMIT=50]">Solevament laterâl cun manuvri</string>
+    <string name="dumbbell_triceps_extension_left_arm" description="Name of the dumbbell triceps extension gym exercise on the left arm. [CHAR LIMIT=50]">Estension dal tricipit cun manuvri pal braç di çampe</string>
+    <string name="dumbbell_triceps_extension_right_arm" description="Name of the dumbbell triceps extension gym exercise on the right arm. [CHAR LIMIT=50]">Estension dal tricipit cun manuvri pal braç di diestre</string>
+    <string name="dumbbell_triceps_extension_two_arm" description="Name of the dumbbell triceps extension gym exercise done with both arms. [CHAR LIMIT=50]">Estension dai tricipits cun manuvri pai doi braçs</string>
+    <string name="elliptical" description="Activity type: dancing. [CHAR LIMIT=50]">Elitiche</string>
+    <string name="exercise_class" description="Activity type: participation in an exercise class. [CHAR LIMIT=50]">Classe di esercizi</string>
+    <string name="fencing" description="Activity type: fencing. [CHAR LIMIT=50]">Scherme</string>
+    <string name="football_american" description="Activity type: playing American football. [CHAR LIMIT=50]">Football american</string>
+    <string name="football_australian" description="Activity type: playing Australian football. [CHAR LIMIT=50]">Football australian</string>
+    <string name="forward_twist" description="Name of the forward twist gym exercise. [CHAR LIMIT=50]">Torsion indevant</string>
+    <string name="frisbee_disc" description="Activity type: playing frisbee. [CHAR LIMIT=50]">Frisbee</string>
+    <string name="golf" description="Activity type: playing golf. [CHAR LIMIT=50]">Golf</string>
+    <string name="guided_breathing" description="Activity type: guided breathing. [CHAR LIMIT=50]">Respirazion vuidade</string>
+    <string name="gymnastics" description="Activity type: doing gymnastics. [CHAR LIMIT=50]">Gjinastiche</string>
+    <string name="handball" description="Activity type: playing handball. [CHAR LIMIT=50]">Bale a man</string>
+    <string name="high_intensity_interval_training" description="Activity type: performing high intensity interval training (HIIT). [CHAR LIMIT=50]">Alenament a alte intensitât a intervai</string>
+    <string name="hiking" description="Activity type: hiking. [CHAR LIMIT=50]">Escursionisim</string>
+    <string name="ice_hockey" description="Activity type: playing ice hokey. [CHAR LIMIT=50]">Hockey su glaç</string>
+    <string name="ice_skating" description="Activity type: ice skating. [CHAR LIMIT=50]">Sgliciâ</string>
+    <string name="jumping_jack" description="Name of the jumping jack gym exercise. [CHAR LIMIT=50]">Salt a stele</string>
+    <string name="jump_rope" description="Activity type: rope jumping. [CHAR LIMIT=50]">Cuarde par saltâ</string>
+    <string name="lat_pull_down" description="Name of the lat pulldown gym exercise. [CHAR LIMIT=50]">Remadôr ae cuarde</string>
+    <string name="lunge" description="Name of the lunge gym exercise. [CHAR LIMIT=50]">Moviment indenant</string>
+    <string name="martial_arts" description="Activity type: martial arts practice. [CHAR LIMIT=50]">Arts marziâls</string>
+    <string name="meditation" description="Activity type: performing meditation. [CHAR LIMIT=50]">Meditazion</string>
+    <string name="paddling" description="Activity type: paddling. [CHAR LIMIT=50]">Remâ</string>
+    <string name="paragliding" description="Activity type: paragliding. [CHAR LIMIT=50]">Parecleve</string>
+    <string name="pilates" description="Activity type: doing pilates. [CHAR LIMIT=50]">Pilates</string>
+    <string name="plank" description="Name of the plank gym exercise. [CHAR LIMIT=50]">Puint</string>
+    <string name="racquetball" description="Activity type: playing racquetball. [CHAR LIMIT=50]">Rachete</string>
+    <string name="rock_climbing" description="Activity type: rock climbing. [CHAR LIMIT=50]">Rimpinade</string>
+    <string name="roller_hockey" description="Activity type: playing roller hockey. [CHAR LIMIT=50]">Hockey su piste</string>
+    <string name="rowing" description="Activity type: rowing. [CHAR LIMIT=50]">Canotaç</string>
+    <string name="rowing_machine" description="Activity type: rowing on a rowing machine. [CHAR LIMIT=50]">Ergometri</string>
+    <string name="rugby" description="Activity type: playing rugby. [CHAR LIMIT=50]">Rugby</string>
+    <string name="running" description="Activity type: running. [CHAR LIMIT=50]">Corse</string>
+    <string name="running_treadmill" description="Activity type: treadmill running. [CHAR LIMIT=50]">Corse su tapis roulant</string>
+    <string name="sailing" description="Activity type: sailing. [CHAR LIMIT=50]">Navigazion</string>
+    <string name="scuba_diving" description="Activity type: scuba diving. [CHAR LIMIT=50]">Imersion subacuie</string>
+    <string name="skating" description="Activity type: skating. [CHAR LIMIT=50]">Patinaç</string>
+    <string name="skiing" description="Activity type: skiing. [CHAR LIMIT=50]">Schiâ</string>
+    <string name="snowboarding" description="Activity type: snowboarding. [CHAR LIMIT=50]">Lâ su bree di nêf</string>
+    <string name="snowshoeing" description="Activity type: snowshoeing. [CHAR LIMIT=50]">Cjaminade cu lis gjaspis</string>
+    <string name="soccer" description="Activity type: playing soccer. [CHAR LIMIT=50]">Balon</string>
+    <string name="softball" description="Activity type: playing softball. [CHAR LIMIT=50]">Softball</string>
+    <string name="squash" description="Activity type: playing squash. [CHAR LIMIT=50]">Squash</string>
+    <string name="squat" description="Name of the squat gym exercise. [CHAR LIMIT=50]">Squat</string>
+    <string name="stair_climbing" description="Activity type: stair climbing. [CHAR LIMIT=50]">Lâ sù pes scjalis</string>
+    <string name="stair_climbing_machine" description="Activity type: stair climbing on a machine. [CHAR LIMIT=50]">Machine par lâ sù pes scjalis</string>
+    <string name="strength_training" description="Activity type: generic strength training. [CHAR LIMIT=50]">Alenament de fuarce</string>
+    <string name="stretching" description="Name of the stretching exercise. [CHAR LIMIT=50]">Slungjament</string>
+    <string name="surfing" description="Activity type: surfing. [CHAR LIMIT=50]">Surfing</string>
+    <string name="swimming_open_water" description="Activity type: swimming in open water. [CHAR LIMIT=50]">Nadâ in aghe libare</string>
+    <string name="swimming_pool" description="Activity type: swimming in a pool. [CHAR LIMIT=50]">Nadâ in pissine</string>
+    <string name="swimming_freestyle" description="Swimming stroke type: freestyle. [CHAR LIMIT=50]">Stîl libar</string>
+    <string name="swimming_backstroke" description="Swimming stroke type: backstroke. [CHAR LIMIT=50]">Schene</string>
+    <string name="swimming_breaststroke" description="Swimming stroke type: breaststroke. [CHAR LIMIT=50]">Crot</string>
+    <string name="swimming_butterfly" description="Swimming stroke type: butterfly. [CHAR LIMIT=50]">Pavee</string>
+    <string name="swimming_mixed" description="Swimming stroke type: mixed. [CHAR LIMIT=50]">Mist</string>
+    <string name="swimming_other" description="Swimming stroke type: other. [CHAR LIMIT=50]">Altri</string>
+    <string name="table_tennis" description="Activity type: playing table tennis. [CHAR LIMIT=50]">Ping pong</string>
+    <string name="tennis" description="Activity type: playing tennis. [CHAR LIMIT=50]">Tenis</string>
+    <string name="upper_twist" description="Name of the upper twist gym exercise. [CHAR LIMIT=50]">Torsion superiôr</string>
+    <string name="volleyball" description="Activity type: playing volleyball. [CHAR LIMIT=50]">Bale a svol</string>
+    <string name="walking" description="Activity type: walking. [CHAR LIMIT=50]">Cjaminade</string>
+    <string name="water_polo" description="Activity type: playing water polo. [CHAR LIMIT=50]">Waterpolo</string>
+    <string name="weightlifting" description="Activity type: generic weightlifting training. [CHAR LIMIT=50]">Solevament pês</string>
+    <string name="wheelchair" description="Activity type: wheelchair. [CHAR LIMIT=50]">Cjadree cu lis rudielis</string>
+    <string name="workout" description="Activity type: generic workout. [CHAR LIMIT=50]">Alenament</string>
+    <string name="yoga" description="Activity type: yoga. [CHAR LIMIT=50]">Yoga</string>
+    <string name="arm_curl" description="Exercise type: arm curl. [CHAR LIMIT=50]">Flession dal braç</string>
+    <string name="ball_slam" description="Exercise type: ball slam. [CHAR LIMIT=50]">Batiment de bale</string>
+    <string name="double_arm_triceps_extension" description="Exercise type: double arm triceps extension. [CHAR LIMIT=50]">Estension tricipits cun ducj i doi i braçs</string>
+    <string name="dumbbell_row" description="Activity type: dumbbell row. [CHAR LIMIT=50]">Remadôr cun manuvri</string>
+    <string name="front_raise" description="Exercise type: front raise. [CHAR LIMIT=50]">Solevament frontâl</string>
+    <string name="hip_thrust" description="Exercise type: hip thrust. [CHAR LIMIT=50]">Solevament dal bacin</string>
+    <string name="hula_hoop" description="Exercise type: hula hoop. [CHAR LIMIT=50]">Hula hoop</string>
+    <string name="kettlebell_swing" description="Exercise type: kettlebell swing. [CHAR LIMIT=50]">Ossilazion cun kettlebell</string>
+    <string name="lateral_raise" description="Exercise type: lateral raise. [CHAR LIMIT=50]">Solevament laterâl</string>
+    <string name="leg_curl" description="Exercise type: leg curl. [CHAR LIMIT=50]">Flession des gjambis</string>
+    <string name="leg_extension" description="Exercise type: leg extension. [CHAR LIMIT=50]">Estension des gjambis</string>
+    <string name="leg_press" description="Exercise type: leg press. [CHAR LIMIT=50]">Pression des gjambis</string>
+    <string name="leg_raise" description="Exercise type: leg raise. [CHAR LIMIT=50]">Solevament des gjambis</string>
+    <string name="mountain_climber" description="Exercise type: mountain climber. [CHAR LIMIT=50]">Rimpinade sul puest</string>
+    <string name="pull_up" description="Exercise type: pull up. [CHAR LIMIT=50]">Trazion ae sbare</string>
+    <string name="punch" description="Exercise type: punch. [CHAR LIMIT=50]">Pugn</string>
+    <string name="shoulder_press" description="Exercise type: shoulder press. [CHAR LIMIT=50]">Presse spalis</string>
+    <string name="single_arm_triceps_extension" description="Exercise type: single arm triceps extension. [CHAR LIMIT=50]">Estension tricipits cun singul braç</string>
+    <string name="sit_up" description="Exercise type: sit up. [CHAR LIMIT=50]">Alçâsi impins</string>
+    <string name="rest" description="Auto-detected periods of rest during an activity session. There should be no user movement detected during rest and any movement detected should finish rest event. [CHAR LIMIT=50]">Polsâ</string>
+    <string name="pause" description="Explicit pause during an activity session, requested by the user. [CHAR LIMIT=50]">Pause</string>
+    <string name="activity_type_australian_football" translation_description="Activity type: playing australian football. [CHAR LIMIT=40]">Football australian</string>
+    <string name="sleep_session_default" description="Label that shows sleep session duration.[CHAR LIMIT=80]">Durmide di <xliff:g example="4 hours" id="duration"> %1$s</xliff:g></string>
+    <string name="sleep_stage_default" description="Label that shows sleep session duration.[CHAR LIMIT=80]"><xliff:g example="light sleep" id="name">%2$s</xliff:g> di <xliff:g example="4 hours" id="duration">%1$s</xliff:g></string>
+    <string name="sleep_stage_awake" description="Awake stage throughout the sleep session. [CHAR LIMIT=50]">dismot</string>
+    <string name="sleep_stage_awake_in_bed" description="Awake stage throughout the sleep session. [CHAR LIMIT=50]">dismot tal jet</string>
+    <string name="sleep_stage_sleeping" description="Sleeping stage throughout the sleep session. [CHAR LIMIT=50]">durmide</string>
+    <string name="sleep_stage_out_of_bed" description="Out of bed stage throughout the sleep session. [CHAR LIMIT=50]">fûr dal jet</string>
+    <string name="sleep_stage_rem" description="REM stage throughout the sleep session. [CHAR LIMIT=50]">polse REM</string>
+    <string name="sleep_stage_light" description="Light sleep stage throughout the sleep session. [CHAR LIMIT=50]">sium lizêr</string>
+    <string name="sleep_stage_deep" description="Deep sleep stage throughout the sleep session. [CHAR LIMIT=50]">sium profont</string>
+    <string name="sleep_stage_unknown" description="Unknown sleep stage throughout the sleep session. [CHAR LIMIT=50]">no cognossût</string>
+    <string name="minute_duration" translation_description="minute duration representation [CHAR LIMIT=8]"><xliff:g id="minute" example="1">%1$s</xliff:g>m</string>
+    <string name="hour_minute_duration_short" translation_description="Hour and minute time duration representation [CHAR LIMIT=8]"><xliff:g id="hour" example="1">%1$s</xliff:g>h <xliff:g id="min" example="31">%2$s</xliff:g>m</string>
+    <string name="hour_duration" translation_description="hour duration representation [CHAR LIMIT=8]"><xliff:g id="hour" example="1">%1$s</xliff:g>h</string>
+    <string name="hour_minute_duration_accessibility" translation_description="Hour and minute time duration representation used by accessibility, 'space' between minute and second should be deleted or replaced according to each language to translate [CHAR LIMIT=NONE]">  <xliff:g example="2 hours" id="hours">%1$s</xliff:g> <xliff:g example="2 minutes" id="minutes">%2$s</xliff:g>
+  </string>
+    <string name="hour_duration_accessibility" translation_description="Hour time duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, one {}=1 {1 ore} other {# oris}}</string>
+    <string name="minute_duration_accessibility" translation_description="minute duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, one {}=1 {1 minût} other {# minûts}}</string>
+    <string name="day_duration" translation_description="Days duration representation [CHAR LIMIT=8]"><xliff:g id="days" example="2 days">%1$s</xliff:g></string>
+    <string name="day_hour_duration" translation_description="Days and hours time duration representation [CHAR LIMIT=8]"><xliff:g id="days" example="2 days">%1$s</xliff:g> e <xliff:g id="hours" example="3 hours">%2$s</xliff:g></string>
+    <string name="day_duration_accessibility" translation_description="Days duration representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=NONE]">{count, plural, one {}=1 {1 dì} other {# dîs}}</string>
+    <string name="vo2_max" description="VO₂ max value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 mL/(kg·min)} other {# mL/(kg·min)}}</string>
+    <string name="vo2_max_long" description="VO₂ max value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1  mililitri di ossigjen par chilogram di masse corporie par minût} other {#  mililitris di ossigjen par chilogram di masse corporie par minût}}</string>
+    <string name="vo2_metabolic_cart" description="A method of VO₂ max measurement - metabolic cart. [CHAR LIMIT=50]">Carel metabolic</string>
+    <string name="vo2_heart_rate_ratio" description="A method of VO₂ max measurement - heart rate ratio. [CHAR LIMIT=50]">Rapuart de frecuence cardiache</string>
+    <string name="vo2_cooper_test" description="A method of VO₂ max measurement - Cooper test. [CHAR LIMIT=50]">Prove di Cooper</string>
+    <string name="vo2_multistage_fitness_test" description="A method of VO₂ max measurement - multistage fitness test. [CHAR LIMIT=50]">Provis di forme fisiche a plui fasis</string>
+    <string name="vo2_rockport_fitness_test" description="A method of VO₂ max measurement - Rockport fitness test [CHAR LIMIT=50]">Prove di forme fisiche di Rockport</string>
+    <string name="vo2_other" description="A method of VO₂ max measurement - other [CHAR LIMIT=50]">Altri</string>
+    <string name="mucus_dry" description="The consistency or texture of the user's cervical mucus - dry. [CHAR LIMIT=50]">Sec</string>
+    <string name="mucus_sticky" description="The consistency or texture of the user's cervical mucus - sticky. [CHAR LIMIT=50]">Tacadiç</string>
+    <string name="mucus_creamy" description="The consistency or texture of the user's cervical mucus - creamy. [CHAR LIMIT=50]">Cremôs</string>
+    <string name="mucus_watery" description="The consistency or texture of the user's cervical mucus - watery. [CHAR LIMIT=50]">Agadôs</string>
+    <string name="mucus_egg_white" description="The consistency or texture of the user's cervical mucus - Egg white. [CHAR LIMIT=50]">Blanc dal ûf</string>
+    <string name="mucus_unusual" description="The consistency or texture of the user's cervical mucus - unusual. [CHAR LIMIT=50]">Insolit</string>
+    <string name="mucus_light" description="The amount of the user's cervical mucus - light. [CHAR LIMIT=50]">Lizêr</string>
+    <string name="mucus_medium" description="The amount of the user's cervical mucus - medium. [CHAR LIMIT=50]">Medi</string>
+    <string name="mucus_heavy" description="The amount of the user's cervical mucus - heavy. [CHAR LIMIT=50]">Pesant</string>
+    <string name="blood_pressure" description="Blood pressure value with unit. [CHAR LIMIT=80]"><xliff:g example="120" id="systolic">%1$s</xliff:g>/<xliff:g example="80" id="diastolic">%2$s</xliff:g> mmHg</string>
+    <string name="blood_pressure_long" description="Blood pressure value with unit. [CHAR LIMIT=160]"><xliff:g example="120" id="systolic">%1$s</xliff:g>/<xliff:g example="80" id="diastolic">%2$s</xliff:g> milimetri di mercuri</string>
+    <string name="body_position_standing_up" description="Body position when taking blood pressure - standing up. [CHAR LIMIT=50]">Impins</string>
+    <string name="body_position_sitting_down" description="Body position when taking blood pressure - sitting down. [CHAR LIMIT=50]">Sentât</string>
+    <string name="body_position_lying_down" description="Body position when taking blood pressure - lying down. [CHAR LIMIT=50]">Distirât</string>
+    <string name="body_position_reclining" description="Body position when taking blood pressure - reclining. [CHAR LIMIT=50]">Poiât</string>
+    <string name="blood_pressure_left_wrist" description="Body part where the blood pressure was taken - left wrist. [CHAR LIMIT=50]">Conole di çampe</string>
+    <string name="blood_pressure_right_wrist" description="Body part where the blood pressure was taken - right wrist. [CHAR LIMIT=50]">Conole di diestre</string>
+    <string name="blood_pressure_left_arm" description="Body part where the blood pressure was taken - left upper arm. [CHAR LIMIT=50]">Part superiôr dal braç di çampe</string>
+    <string name="blood_pressure_right_arm" description="Body part where the blood pressure was taken - right upper arm. [CHAR LIMIT=50]">Part superiôr dal braç di diestre</string>
+    <string name="millimoles_per_liter" description="Blood glucose value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, one {}=1 {1 mmol/L} other {# mmol/L}}</string>
+    <string name="millimoles_per_liter_long" description="Blood glucose value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, one {}=1 {1 milimole par litri} other {# milimolis par litri}}</string>
+    <string name="specimen_source_interstitial_fluid" description="Source of the blood glucose measurement - interstitial fluid. [CHAR LIMIT=50]">Fluit interstiziâl</string>
+    <string name="specimen_source_capillary_blood" description="Source of the blood glucose measurement - capillary blood. [CHAR LIMIT=50]">Sanc capilâr</string>
+    <string name="specimen_source_plasma" description="Source of the blood glucose measurement - plasma. [CHAR LIMIT=50]">Plasme</string>
+    <string name="specimen_source_serum" description="Source of the blood glucose measurement - serum. [CHAR LIMIT=50]">Sîr</string>
+    <string name="specimen_source_tears" description="Source of the blood glucose measurement - tears. [CHAR LIMIT=50]">Lagrimis</string>
+    <string name="specimen_source_whole_blood" description="Source of the blood glucose measurement - whole blood. [CHAR LIMIT=50]">Sanc intîr</string>
+    <string name="blood_glucose_general" description="Relationship of the meal to the blood glucose measurement - general. [CHAR LIMIT=50]">Gjenerâl</string>
+    <string name="blood_glucose_fasting" description="Relationship of the meal to the blood glucose measurement - fasting. [CHAR LIMIT=50]">A dizun</string>
+    <string name="blood_glucose_before_meal" description="Relationship of the meal to the blood glucose measurement - before meal. [CHAR LIMIT=50]">Prime di mangjâ</string>
+    <string name="blood_glucose_after_meal" description="Relationship of the meal to the blood glucose measurement - after meal. [CHAR LIMIT=50]">Dopo mangjât</string>
+    <string name="mealtype_label" description="Meal type label, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Gjenar di past</string>
+    <string name="mealtype_unknown" description="Unknown meal type, displayed when showing a nutrition entry. [CHAR LIMIT=50]">No cognossût</string>
+    <string name="mealtype_breakfast" description="Breakfast, a meal type, usually eaten as a first meal in the day, in the morning, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Gulizion</string>
+    <string name="mealtype_lunch" description="Lunch, a meal type, eaten in the middle of the day, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Gustâ</string>
+    <string name="mealtype_dinner" description="Dinner, a meal type, usually eaten as a last warm meal of the day, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Cene</string>
+    <string name="mealtype_snack" description="Snack, a meal type, eaten in between big meals, displayed when showing a nutrition entry. [CHAR LIMIT=50]">Mirinde</string>
+    <string name="biotin" description="Biotin, also called vitamin B7, one of the vitamins found in food. [CHAR LIMIT=50]">Biotine</string>
+    <string name="caffeine" description="Caffeine, a chemical with stimulant effects, found in food and drink. [CHAR LIMIT=50]">Cafeine</string>
+    <string name="calcium" description="Calcium, a nutrient associated with bones and teeth. [CHAR LIMIT=50]">Calci</string>
+    <string name="chloride" description="Chloride, a crucial electrolyte responsible for proper blood volume and pressure. [CHAR LIMIT=50]">Clorûr</string>
+    <string name="cholesterol" description="Dietary cholesterol, found in animal based food. [CHAR LIMIT=50]">Colesterôl</string>
+    <string name="chromium" description="Chromium, an essential nutrient required for sugar and fat metabolism. [CHAR LIMIT=50]">Crom</string>
+    <string name="copper" description="Copper,a nutrient which, together with iron, enables the body to form red blood cells. [CHAR LIMIT=50]">Ram</string>
+    <string name="dietary_fiber" description="Dietary fiber, also known as roughage, is the indigestible part of plant foods. [CHAR LIMIT=50]">Fibre alimentâr</string>
+    <string name="energy_consumed_total" description="Kcal or Kj found in consumed food. [CHAR LIMIT=50]">Energjie</string>
+    <string name="energy_consumed_from_fat" description="Kcal or Kj found in consumed food, coming from consuming fat. [CHAR LIMIT=50]">Energjie dai gras</string>
+    <string name="folate" description="Folate is the natural form of vitamin B9. [CHAR LIMIT=50]">Folât</string>
+    <string name="folic_acid" description="Folic acid, also known as vitamin B₉ and folacin, is one of the B vitamins. [CHAR LIMIT=50]">Acit folic</string>
+    <string name="iodine" description="Iodine is a mineral used by the thyroid gland to make thyroid hormones. [CHAR LIMIT=50]">Jodi</string>
+    <string name="iron" description="Iron, a mineral that helps maintain healthy blood. [CHAR LIMIT=50]">Fier</string>
+    <string name="magnesium" description="Magnesium, a macromineral found in nuts and leafy greens. [CHAR LIMIT=50]">Magnesi</string>
+    <string name="manganese" description="Manganese, a micromineral found in nuts and leafy greens. [CHAR LIMIT=50]">Manganês</string>
+    <string name="molybdenum" description="Molybdenum, a mineral which activates enzymes that help break down harmful sulfites and prevent toxins from building up in the body. [CHAR LIMIT=50]">Molibden</string>
+    <string name="monounsaturated_fat" description="Monosaturated fat, fat molecules that have one unsaturated carbon bond in the molecule. Monounsaturated fatty acids (MUFAs) are a healthy type of fa [CHAR LIMIT=50]">Gras monoinsaturs</string>
+    <string name="niacin" description="Niacin, also known as nicotinic acid, is an organic compound and a form of vitamin B3. [CHAR LIMIT=50]">Niacine</string>
+    <string name="pantothenic_acid" description="Pantothenic acid, also called vitamin B5. [CHAR LIMIT=50]">Acit pantotenic</string>
+    <string name="phosphorus" description="Phosphorus, a mineral that works with calcium to help build bones. [CHAR LIMIT=50]">Fosfar</string>
+    <string name="polyunsaturated_fat" description="Polyunsaturated fat is a type of dietary fat. It is one of the healthy fats, along with monounsaturated fat. [CHAR LIMIT=50]">Gras polinsaturs</string>
+    <string name="potassium" description="Potassium, a mineral with main role in the body to help maintain normal levels of fluid inside our cells. [CHAR LIMIT=50]">Potassi</string>
+    <string name="protein" description="Protein, a macronutrient, one of the building blocks of body tissue and can also serve as a fuel source. [CHAR LIMIT=50]">Proteine</string>
+    <string name="riboflavin" description="Riboflavin, also known as vitamin B2. [CHAR LIMIT=50]">Riboflavine</string>
+    <string name="saturated_fat" description="Saturated fat, one of the unhealthy fats, along with trans fat, found in food. [CHAR LIMIT=50]">Gras saturs</string>
+    <string name="selenium" description="Selenium, an essential trace mineral that supports many bodily processes. [CHAR LIMIT=50]">Seleni</string>
+    <string name="sodium" description="Sodium is an essential nutrient and is needed by the body in relatively small amounts. [CHAR LIMIT=50]">Sodi</string>
+    <string name="sugar" description="Sugar is the generic name for sweet-tasting, soluble carbohydrates, many of which are used in food. [CHAR LIMIT=50]">Sucar</string>
+    <string name="thiamin" description="Thiamin, also known as thiamine and vitamin B1. [CHAR LIMIT=50]">Tiamine</string>
+    <string name="total_carbohydrate" description="total carbohydrates includes all types of carbohydrate found in the food or beverage. [CHAR LIMIT=50]">Carboidrâts totâi</string>
+    <string name="total_fat" description="Total fat indicates how much fat is in a single serving of food. [CHAR LIMIT=50]">Gras totâi</string>
+    <string name="trans_fat" description="Trans fat, also called trans-unsaturated fatty acids or trans fatty acids, is a type of unsaturated fat that is considered the most unhealthy. [CHAR LIMIT=50]">Gras trans</string>
+    <string name="unsaturated_fat" description="Unsaturated fats help lower a person's levels of LDL cholesterol. [CHAR LIMIT=50]">Gras insaturs</string>
+    <string name="vitamin_a" description="Vitamin A, also known as retinol, is key for good vision, a healthy immune system, and cell growth. [CHAR LIMIT=50]">Vitamine A</string>
+    <string name="vitamin_b12" description="Vitamin B12, also known as cobalamin, is a water-soluble vitamin involved in metabolism. [CHAR LIMIT=50]">Vitamine B12</string>
+    <string name="vitamin_b6" description="Vitamin B6 is one of the B vitamins, and thus an essential nutrient. [CHAR LIMIT=50]">Vitamine B6</string>
+    <string name="vitamin_c" description="Vitamin C is a water-soluble vitamin found in various foods and sold as a dietary supplement. [CHAR LIMIT=50]">Vitamine C</string>
+    <string name="vitamin_d" description="Vitamin D helps regulate the amount of calcium and phosphate in the body. [CHAR LIMIT=50]">Vitamine D</string>
+    <string name="vitamin_e" description="Vitamin E is an important fat-soluble nutrient. It's a powerful antioxidant and is needed for immune health and cellular signaling in your body. [CHAR LIMIT=50]">Vitamine E</string>
+    <string name="vitamin_k" description="Vitamin K is a group of vitamins that the body needs for blood clotting, helping wounds to heal. [CHAR LIMIT=50]">Vitamine K</string>
+    <string name="zinc" description="Zinc is a trace mineral necessary for almost 100 enzymes to carry out vital chemical reactions. [CHAR LIMIT=50]">Zinc</string>
+    <string name="nutrient_with_value" description="Used for formatting nutrition data. Example: Copper: 29g [CHAR LIMIT=50]"><xliff:g example="Copper" id="nutrient">%1$s</xliff:g>: <xliff:g example="29g" id="amount">%2$s</xliff:g></string>
+    <string name="meal_name" description="Name for food or drink provided by the user. [CHAR LIMIT=50]">Non</string>
+    <string name="gram_short_format" description="Weight in grams. [ICU SYNTAX][CHAR LIMIT=80]">{count, plural, one {}=1 {1 g} other {# g}}</string>
+    <string name="gram_long_format" description="Weight in grams. [ICU SYNTAX][CHAR LIMIT=160]">{count, plural, one {}=1 {1 gram} other {# grams}}</string>
+    <string name="respiratory_rate_value" translation_description="Value of respiratory rate. rpm is short for 'respirations per minute'. [ICU SYNTAX][CHAR LIMIT=18]">{count, plural, one {}=1 {1 rpm} other {# rpm}}</string>
+    <string name="respiratory_rate_value_long" translation_description="Value of respiratory rate in respirations per minute. [ICU SYNTAX][CHAR LIMIT=26]">{count, plural, one {}=1 {1 respirazion par minût} other {# respirazions par minût}}</string>
+    <string name="kilograms_short_label" translation_description="Weight in kilograms. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 kg} other {# kg}}</string>
+    <string name="pounds_short_label" translation_description="Weight in pounds. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 lb} other {# lb}}</string>
+    <string name="stone_short_label" translation_description="Weight in stone. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 st} other {# st}}</string>
+    <string name="stone_pound_short_label" translation_description="Weight in stone and pounds. Example: 9st 2lb. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <string name="kilograms_long_label" translation_description="Weight in kilograms representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 chilogram} other {# chilograms}}</string>
+    <string name="pounds_long_label" translation_description="Weight in pounds representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 lire} other {# liris}}</string>
+    <string name="stone_long_label" translation_description="Weight in stone representation used by accessibility. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 stone} other {# stones}}</string>
+    <string name="stone_pound_long_label" translation_description="Weight in stone and pounds representation used by accessibility. Example: 9 stone, 2 pounds. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <string name="temperature_celsius" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 ℃} other {# ℃}}</string>
+    <string name="temperature_celsius_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 grât Celsius} other {# grâts Celsius}}</string>
+    <string name="temperature_kelvin" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 K} other {# K}}</string>
+    <string name="temperature_kelvin_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 kelvin} other {# kelvins}}</string>
+    <string name="temperature_fahrenheit" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, one {}=1 {1 ℉} other {# ℉}}</string>
+    <string name="temperature_fahrenheit_long" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 grât Fahrenheit} other {# grâts Fahrenheit}}</string>
+    <string name="temperature_location_armpit" description="Where the body temperature measurement was taken - armpit. [CHAR LIMIT=50]">Lesine</string>
+    <string name="temperature_location_finger" description="Where the body temperature measurement was taken - finger. [CHAR LIMIT=50]">Dêt</string>
+    <string name="temperature_location_forehead" description="Where the body temperature measurement was taken - forehead. [CHAR LIMIT=50]">Cerneli</string>
+    <string name="temperature_location_mouth" description="Where the body temperature measurement was taken - mouth. [CHAR LIMIT=50]">Bocje</string>
+    <string name="temperature_location_rectum" description="Where the body temperature measurement was taken - rectum. [CHAR LIMIT=50]">Ret (cûl)</string>
+    <string name="temperature_location_temporal_artery" description="Where the body temperature measurement was taken - temporal artery. [CHAR LIMIT=50]">Arterie temporâl</string>
+    <string name="temperature_location_toe" description="Where the body temperature measurement was taken - toe. [CHAR LIMIT=50]">Ponte dal dêt</string>
+    <string name="temperature_location_ear" description="Where the body temperature measurement was taken - ear. [CHAR LIMIT=50]">Orele</string>
+    <string name="temperature_location_wrist" description="Where the body temperature measurement was taken - wrist. [CHAR LIMIT=50]">Conole</string>
+    <string name="temperature_location_vagina" description="Where the body temperature measurement was taken - vagina. [CHAR LIMIT=50]">Vagjine</string>
+    <string name="distance_miles" translation_description="miles formatted. [ICU SYNTAX][CHAR LIMIT=60]">{dist, plural, one {}=1 {1 mie} other {# miis}}</string>
+    <string name="distance_km" translation_description="Kilometers formatted. [ICU SYNTAX][CHAR LIMIT=60]">{dist, plural, one {}=1 {1 km} other {# km}}</string>
+    <string name="distance_miles_long" translation_description="miles formatted for speech. [ICU SYNTAX][CHAR LIMIT=NONE]">{dist, plural, one {}=1 {1 mie} other {# miis}}</string>
+    <string name="distance_km_long" translation_description="Kilometers formatted for speech. [ICU SYNTAX][CHAR LIMIT=NONE]">{dist, plural, one {}=1 {1 chilometri} other {# chilometris}}</string>
+    <string name="height_cm" translation_description="Height in centimeters. [ICU SYNTAX][CHAR LIMIT=10]">{height, plural, one {}=1 {1 cm} other {# cm}}</string>
+    <string name="height_cm_long" translation_description="Height in centimeters. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, one {}=1 {1 centimetri} other {# centimetris}}</string>
+    <string name="height_in_long" translation_description="Height measurement part in inches. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, one {}=1 {1 once} other {# oncis}}</string>
+    <string name="height_ft_long" translation_description="Height measurement part in feet. [ICU SYNTAX][CHAR LIMIT=30]">{height, plural, one {}=1 {1 pît} other {# pîts}}</string>
+    <string name="height_in_compacted" translation_description="Height measurement part in inches compacted. [ICU SYNTAX][CHAR LIMIT=5]">{height, plural, one {}=1 {1\u2033} other {#\u2033}}</string>
+    <string name="height_ft_compacted" translation_description="Height measurement part in feet compacted. [ICU SYNTAX][CHAR LIMIT=5]">{height, plural, one {}=1 {1\u2032} other {#\u2032}}</string>
+    <string name="feet_inches_format" translation_description="Format for displaying height in feet and inches in compacted form e.g. 5′11″ [CHAR LIMIT=10]"><xliff:g id="ft" example="5′">%1$s</xliff:g><xliff:g id="in" example="11″">%2$s</xliff:g></string>
+    <string name="feet_inches_format_long" translation_description="Format for displaying height in feet and inches in long form e.g. 5 feet 11 inches [CHAR LIMIT=60]"><xliff:g id="ft" example="5 feet">%1$s</xliff:g> <xliff:g id="in" example="11 inches">%2$s</xliff:g></string>
+    <string name="calories_long" translation_description="Calories formatted. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 calorie} other {# caloriis}}</string>
+    <string name="calories" translation_description="Calories formatted. [ICU SYNTAX][CHAR LIMIT=60]">{count, plural, one {}=1 {1 Cal} other {# Cal}}</string>
+    <string name="kj" translation_description="KiloJoules (the energy unit) formatted. [ICU SYNTAX][CHAR LIMIT=20]">{count, plural, one {}=1 {1 kJ} other {# kJ}}</string>
+    <string name="kj_long" translation_description="KiloJoules (the energy unit) formatted to be spoken aloud. [ICU SYNTAX][CHAR LIMIT=20]">{count, plural, one {}=1 {1 chilojoule} other {# chilojoules}}</string>
+    <string name="percent" description="Percentage value with unit. [ICU SYNTAX][CHAR LIMIT=80]" formatted="false">{value, plural, one {}=1 {1%} other {#%}}</string>
+    <string name="percent_long" description="Percentage value with unit. [ICU SYNTAX][CHAR LIMIT=160]">{value, plural, one {}=1 {1 par cent} other {# par cent}}</string>
+    <string name="units_cancel" description="Label for button to cancel changing units. [CHAR_LIMIT=20]">Cancele</string>
+    <string name="units_title" description="Title on a screen allowing users to go to display units (weight/height/temperature etc) in the app[CHAR_LIMIT=50]">Unitâts</string>
+    <string name="distance_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Distance</string>
+    <string name="height_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Altece</string>
+    <string name="weight_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Pês</string>
+    <string name="energy_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Energjie</string>
+    <string name="temperature_unit_title" description="Label of a unit preference in settings, allowing the user to change height display unit in the app [CHAR_LIMIT=50]">Temperadure</string>
+    <string name="distance_unit_kilometers_label" translation_description="The label for the metric option within the distance unit preferences menu. [CHAR LIMIT=19]">Chilometris</string>
+    <string name="distance_unit_miles_label" translation_description="The label for the imperial option within the distance unit preferences menu. [CHAR LIMIT=19]">Miis</string>
+    <string name="height_unit_centimeters_label" translation_description="The label for the metric option within the height unit preferences menu. [CHAR LIMIT=19]">Centimetris</string>
+    <string name="height_unit_feet_label" translation_description="The label for the imperial option within the height unit preferences menu. [CHAR LIMIT=19]">Pîts e oncis</string>
+    <string name="weight_unit_pound_label" translation_description="The label for the pound option within the weight unit preferences menu. [CHAR LIMIT=19]">Liris</string>
+    <string name="weight_unit_kilogram_label" translation_description="The label for the Kilogram option within the weight unit preferences menu. [CHAR LIMIT=19]">Chilograms</string>
+    <string name="weight_unit_stone_label" translation_description="The label for the Stone option within the weight unit preferences menu. [CHAR LIMIT=19]">Stones</string>
+    <string name="energy_unit_calorie_label" translation_description="The label for the calorie option within the energy unit preferences menu. [CHAR LIMIT=19]">Caloriis</string>
+    <string name="energy_unit_kilojoule_label" translation_description="The label for the Kilojoule option within the energy unit preferences menu. [CHAR LIMIT=19]">Chilojoules</string>
+    <string name="temperature_unit_celsius_label" translation_description="The label for the Celsius option within the weight unit preferences menu. [CHAR LIMIT=19]">Celsius</string>
+    <string name="temperature_unit_fahrenheit_label" translation_description="The label for the Fahrenheit option within the weight unit preferences menu. [CHAR LIMIT=19]">Fahrenheit</string>
+    <string name="temperature_unit_kelvin_label" translation_description="The label for the Kelvin option within the weight unit preferences menu. [CHAR LIMIT=19]">Kelvin</string>
+    <string name="help_and_feedback" description="Label used to display help and feedback">Jutori e valutazions</string>
+    <string name="cant_see_all_your_apps_description" description="Description of can't see all your apps screen">Se no tu viodis une aplicazion che e je instalade, al è pussibil che no sedi ancjemò compatibile cun Conession salût</string>
+    <string name="things_to_try" description="Label used to show how user can try with different options">Robis di provâ</string>
+    <string name="check_for_updates" description="Label for a button that is used to check for updates">Controle i inzornaments</string>
+    <string name="check_for_updates_description" description="Content description for a button that is used to check for updates">Verifiche che lis aplicazions instaladis a sedin inzornadis</string>
+    <string name="see_all_compatible_apps" description="Label for a button that is used to show all compatible apps on Google Play">Viôt dutis lis aplicazions compatibilis</string>
+    <string name="see_all_compatible_apps_description" description="Content description for a button that is used to show all compatible apps on Google Play">Cjate lis aplicazions su Google Play</string>
+    <string name="send_feedback" description="Label for a button that is used to send feedback">Mande opinion</string>
+    <string name="send_feedback_description" description="Content description for a button that is used to send feedback">Continus cualis aplicazions di salût e forme fisiche che tu desideris che a funzionin cun Conession salût</string>
+    <string name="playstore_app_title" description="Navigates to the Play Store and shows a collection of apps compatible with Health Connect [CHAR_LIMIT=40]">Play Store</string>
+    <string name="auto_delete_button" description="Label for a button that open the auto-deletion settings. [CHAR_LIMIT=50]">Auto-elimine</string>
+    <string name="auto_delete_title" description="Title of screen for a user to manage the auto-deletion settings [CHAR_LIMIT=40]">Auto-elimine</string>
+    <string name="auto_delete_header" description="Description for the auto-delete settings page. [CHAR_LIMIT=NONE]">Controle par trop timp che a restin memorizâts i tiei dâts in Conession salût programant la lôr eliminazion dopo un ciert timp</string>
+    <string name="auto_delete_learn_more" description="Label of a link that helps to learn more about auto-delete. [CHAR_LIMIT=50]">Scuvierç di plui su la eliminazion automatiche</string>
+    <string name="auto_delete_section" description="Label for a section that picks the time range for auto-deletion. [CHAR_LIMIT=50]">Auto-elimine i dâts</string>
+    <string name="range_after_x_months" description="Item in a list of possible time ranges for auto-deletion. Choosing this will automatically delete data older than x months. [CHAR_LIMIT=50]">{count, plural, one {}=1{Dopo # mês}other{Dopo # mês}}</string>
+    <string name="range_never" description="Item in a list of possible time ranges for auto-deletion. Choosing this will never delete data automatically. [CHAR_LIMIT=50]">Mai</string>
+    <string name="range_off" description="Summary of the auto-delete button when auto-delete is set to never. [CHAR_LIMIT=50]">Off</string>
+    <string name="auto_delete_rationale" description="Footer note explaining that after changing auto-delete settings, corresponding data will be deleted. [CHAR_LIMIT=NONE]">Cuant che tu cambiis chestis impostazions, Conession salût al elimine i dâts esistents par rifleti lis tôs gnovis preferencis</string>
+    <string name="confirming_question_x_months" description="Title of a dialog that asks the user to confirm whether they want to auto-delete all data that is older than x months. [CHAR_LIMIT=NONE]">{count, plural,
+    one {}=1{Auto-eliminâ i dâts dopo # mês?}
+    other{Auto-eliminâ i dâts dopo # mês?}
+  }</string>
+    <string name="confirming_message_x_months" description="Description to explain what auto-deleting data older than x months means. [CHAR_LIMIT=NONE]">{count, plural,
+    one {}=1{Conession salût al eliminarà in automatic i gnûfs dâts dopo # mês. La configurazion di cheste opzion e puartarà ancje ae eliminazion dai dâts esistents plui vecjos di # mês.}
+    other{Conession salût al eliminarà in automatic i gnûfs dâts dopo # mês. La configurazion di cheste opzion e puartarà ancje ae eliminazion dai dâts esistents plui vecjos di # mês.}
+  }</string>
+    <string name="set_auto_delete_button" description="Label of a button that sets the chosen auto-delete setting. [CHAR_LIMIT=50]">Stabilìs auto-eliminazion</string>
+    <string name="deletion_started_title" description="Title of a dialog that lets the user know about some existing data being deleted. [CHAR_LIMIT=50]">I dâts esistents a vignaran eliminâts</string>
+    <string name="deletion_started_x_months" description="Description explaining what deleting data older than x months means and when the changes will be visible. [CHAR_LIMIT=NONE]">{count, plural,
+    one {}=1{Conession salût al eliminarà ducj i dâts plui vecjos di # mês. Par viodi chestis modifichis tes tôs aplicazions colegadis al è pussibil che e passi une zornade.}
+    other{Conession salût al eliminarà ducj i dâts plui vecjos di # mês. Par viodi chestis modifichis tes tôs aplicazions colegadis al è pussibil che e passi une zornade.}
+  }</string>
+    <string name="deletion_started_category_list_section" description="Title of a section that lists those categories where data will be deleted from. [CHAR_LIMIT=NONE]">Dâts di eliminâ di chescj</string>
+    <string name="deletion_started_done_button" description="Button that closes the dialog. [CHAR_LIMIT=40]">Fat</string>
+    <string name="priority_dialog_title" description="Window title where user can set the priority order of apps. [CHAR_LIMIT=50]">Stabilìs prioritât aplicazions</string>
+    <string name="priority_dialog_message" description="Description of the dar-and-drop list of apps that is modifiable by the user. [CHAR_LIMIT=NONE]">Se plui di une aplicazion e zonte dâts di <xliff:g id="data_type" example="heart rate">%s</xliff:g>, Conession salût al da prioritât ae aplicazion plui insom di cheste liste. Strissine lis aplicazions par rangjâlis.</string>
+    <string name="priority_dialog_positive_button" description="Label of the button that saves modifications made by the user. [CHAR_LIMIT=50]">Salve</string>
+    <string name="action_drag_label_move_up" description="Label for an accessibility action that moves an app up in the ordered app priority list [CHAR LIMIT=50]">Môf insù</string>
+    <string name="action_drag_label_move_down" description="Label for an accessibility action that moves an app down in the ordered app priority list [CHAR LIMIT=50]">Môf injù</string>
+    <string name="action_drag_label_move_top" description="Label for an accessibility action that moves an app to the top of the ordered app priority list [CHAR LIMIT=50]">Môf insom</string>
+    <string name="action_drag_label_move_bottom" description="Label for an accessibility action that moves an app to the bottom of the ordered app priority list [CHAR LIMIT=50]">Môf da pît</string>
+    <string name="reorder_button_content_description" description="Content description of a button for accessibility that is used to reorder selected app in the app priority list [CHAR LIMIT=NONE]">Boton par strissinâ e rangjâ <xliff:g example="Test app" id="selected_app">%s</xliff:g> te liste des prioritâts</string>
+    <string name="remove_button_content_description" description="Content description of a button for accessibility that is used to remove selected app from the app priority list [CHAR LIMIT=NONE]">Boton par gjavâ <xliff:g example="Test app" id="selected_app">%s</xliff:g> de liste des prioritâts</string>
+    <string name="reorder_button_action_description" description="Action description of a button for accessibility that is used to reorder selected app from the app priority list [CHAR LIMIT=NONE]">Dople tocjade e strissinâ par rangjâ</string>
+    <string name="search_keywords_home" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">forme fisiche, benstâ</string>
+    <string name="search_keywords_permissions" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">permès</string>
+    <string name="search_keywords_data" description="A list of search terms used to search Health Connect in the Settings app. The terms aren’t shown to users. [CHAR LIMIT=NONE]">conession salût, dâts di salût, categoriis de salût, acès ai dâts, ativitât, misurazions cuarp, tignî di voli i ciclis, nutrizion, polse, orghins vitâi</string>
+    <string name="search_breadcrumbs_permissions" description="The path to find permissions screen in Settings, shown in search results. [CHAR LIMIT=70]">Conession salût &gt; Permès aplicazion</string>
+    <string name="search_breadcrumbs_data" description="The path to find data and access screen in Settings, shown in search results. [CHAR LIMIT=70]">Conession salût &gt; Dâts e acès</string>
+    <string name="search_connected_apps" description="Hint shown on search input field">Cîr tes aplicazions</string>
+    <string name="no_results" description="Content shown when there is no search result">Nissun risultât</string>
+    <string name="help" description="Menu option for accessing help [CHAR LIMIT=50]">Jutori</string>
+    <string name="request_route_header_title" description="Title for screen to give permissions to an app to access a route for an exercise session. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Permeti a <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> di acedi a chest percors di esercizi in Conession salût?</string>
+    <string name="request_route_disclaimer_notice" description="A note on a dialog asking to grant access to a specific exercise route, stressing the fact that the route contains past locations of the user. [CHAR_LIMIT=NONE]">Cheste aplicazion e rivarà a lei lis tôs posizions passadis intal percors</string>
+    <string name="date_owner_format" description="Format for displaying a date attributed to the data and the name of the application the data comes from. Example: Mon 13 Jun - Nokia Health Mate. [CHAR LIMIT=NONE]"><xliff:g example="Mon 13 Jun" id="date">%1$s</xliff:g> \u2022 <xliff:g example="Nokia Health Mate" id="app_name">%2$s</xliff:g></string>
+    <string name="request_route_info_header_title" description="Title for screen explaining in more detail what it means to give permissions to an app to access a route for an exercise session. [CHAR_LIMIT=NONE]">I percors dai esercizis a includin lis informazions su la posizion</string>
+    <string name="request_route_info_who_can_see_data_title" description="Title for the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and who will have access to the data. [CHAR_LIMIT=NONE]">Cui puedial viodi chest dât?</string>
+    <string name="request_route_info_who_can_see_data_summary" description="Summary of the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and who will have access to the data. [CHAR_LIMIT=NONE]">Dome lis aplicazions che a ricevin il to permès di acès ai percors dai tiei esercizis</string>
+    <string name="request_route_info_access_management_title" description="Title for the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and how to manage the access. [CHAR_LIMIT=NONE]">Cemût puedio gjestî l\'acès?</string>
+    <string name="request_route_info_access_management_summary" description="Summary of the section explaining in more detail what it means to give permissions to an app to access a route for an exercise session and and how to manage the access. Note: Health Connect is the brand. [CHAR_LIMIT=NONE]">Tu puedis gjestî l\'acès de aplicazion ai percors dai esercizis intes impostazions di Conession salût</string>
+    <string name="request_route_allow" description="Label for button in the route request dialog to allow an app access the requested exercise route [CHAR_LIMIT=30]">Permet chest percors</string>
+    <string name="request_route_allow_all" description="Label for button in the route request dialog to allow an app access all exercise routes from now on [CHAR_LIMIT=30]">Permet ducj i percors</string>
+    <string name="request_route_dont_allow" description="Label for button in the route request dialog to deny an app access to the requested route [CHAR_LIMIT=20]">No sta permeti</string>
+    <string name="route_permissions_always_allow" description="Label for button in the route read request dialog to allow an app access all exercise routes from now on.">Permet simpri</string>
+    <string name="route_permissions_label" description="Summary of the section explaining in more details what it means to give read exercise route permission access to an app.">Condivision percors di esercizi</string>
+    <string name="route_permissions_summary" description="Summary of the section explaining in more details what it means to give read exercise route permission access to an app.">Controle cemût fâ acedi cheste aplicazion ai percors di esercizi des aplicazions colegadis</string>
+    <string name="route_permissions_ask" description="Label for button in the route read request dialog to require an app to ask for a permission next time they need it.">Domande ogni volte</string>
+    <string name="route_permissions_deny" description="Label for button in the route read request dialog to to deny with prejudice a permission grant.">No sta permeti</string>
+    <string name="exercise_permission_dialog_enable_title" description="Title for a dialog to ask users to disable exercise and exercise routes permissions.">Abilitâ ducj i doi i gjenars di dâts? </string>
+    <string name="exercise_permission_dialog_disable_title" description="Title for a dialog to ask users to disable exercise and exercise routes permissions.">Disabilitâ ducj i doi i gjenars di dâts? </string>
+    <string name="exercise_permission_dialog_enabled_summary" description="Summary for a dialog explaining in more details that read access for exercise is needed when enabling exercise routes"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> al à bisugne dal acès in leture al esercizi par fâ in mût che i percors di esercizi a sedin abilitâts</string>
+    <string name="exercise_permission_dialog_disable_summary" description="Summary for a dialog explaining in more details that read access for exercise routes needs to be disabled when disabling exercise permission"><xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> al à bisugne di acedi al esercizi par fâ in mût che i percors di esercizi a sedin abilitâts</string>
+    <string name="exercise_permission_dialog_positive_button" description="Label of the button that applies the dialog action. [CHAR_LIMIT=50]">Sì</string>
+    <string name="exercise_permission_dialog_negative_button" description="Label of the button that cancels the dialog action. [CHAR_LIMIT=50]">No</string>
+    <string name="back_button" description="Label on the back button. [CHAR_LIMIT=20]">Indaûr</string>
+    <string name="loading" description="Label shown when loading data. [CHAR_LIMIT=40]">Daûr a cjariâ…</string>
+    <string name="migration_in_progress_screen_title" description="Title of screen shown when migration is in progress">Integrazion in cors</string>
+    <string name="migration_in_progress_screen_integration_details" description="Detail information shown when migration is in progress">Conession salût si sta integrant cul sisteme Android.\n\nAl podarès lâ vie un pôc di timp prime che i tiei dâts e i permès a sedin trasferîts.</string>
+    <string name="migration_in_progress_screen_integration_dont_close" description="Instruction to not close application shown when migration is in progress">No stas sierâ la aplicazion fintremai che no tu ricevis la notifiche che il procès al è stât completât.</string>
+    <string name="migration_in_progress_notification_title" description="Title of notification sent when migration is in progress">Integrazion di Conession salût in cors</string>
+    <string name="migration_update_needed_screen_title" description="Title of screen shown when migration is pending and an update is needed.">Inzornament necessari</string>
+    <string name="migration_update_needed_screen_details" description="Detail information shown when migration is pending and an update is needed.">Conession salût si sta integrant cul sisteme Android in mût che tu podedis doprâlu dret da lis impostazions.</string>
+    <string name="update_button" description="Text of a button prompting the user to update an app or their phone system [CHAR_LIMIT=40]">Inzorne</string>
+    <string name="migration_update_needed_notification_content" description="Content of notification sent when migration is pending and an app or module update is needed.">Scomence chest inzornament in mût che Conession salût al podedi continuâ la integrazion cu lis impostazions dal sisteme</string>
+    <string name="migration_update_needed_notification_action" description="Action of notification sent when migration is pending and an app or module update is needed.">Inzorne daurman</string>
+    <string name="migration_module_update_needed_notification_title" description="Title of notification sent when migration is pending and an app or module update is needed.">Inzornament di sisteme necessari</string>
+    <string name="migration_module_update_needed_action" description="Action information shown when migration is pending and a system update is needed.">Prime di continuâ, inzorne il sisteme dal to telefon.</string>
+    <string name="migration_module_update_needed_restart" description="Detail information shown when migration is pending and one update is needed.">Se tu âs za inzornât il sisteme dal telefon, prove a tornâ a inviâlu par continuâ la integrazion</string>
+    <string name="migration_app_update_needed_notification_title" description="Title of notification sent when migration is pending and an app or module update is needed.">Inzornament di Conession salût necessari</string>
+    <string name="migration_app_update_needed_action" description="Action information shown when migration is pending and an app update is needed.">Prime di continuâ, inzorne la aplicazion di Conession salût ae ultime version.</string>
+    <string name="migration_more_space_needed_screen_title" description="Title of screen shown when migration is pending and more space is needed.">Al covente plui spazi</string>
+    <string name="migration_more_space_needed_screen_details" description="Detail information shown when migration is pending and more space is needed.">Par podê continuâ la integrazion, Conession salût al à bisugne di <xliff:g example="500MB" id="space_needed">%1$s</xliff:g> di spazi di memorie sul telefon.\n\nNete vie un pôc di spazi sul telefon e torne prove.</string>
+    <string name="try_again_button" description="Text of a button prompting the user to try looking at the space again [CHAR_LIMIT=40]">Torne prove</string>
+    <string name="free_up_space_button" description="Text of a button leading the user to their system storage so they can free up space. [CHAR_LIMIT=40]">Libere spazi</string>
+    <string name="migration_more_space_needed_notification_title" description="Title of notification sent when migration is pending and more space is needed.">Al covente plui spazi</string>
+    <string name="migration_more_space_needed_notification_content" description="Content of notification sent when migration is pending and more space is needed.">Par podê continuâ la integrazion, Conession salût al à bisugne di <xliff:g example="500MB" id="space_needed">%1$s</xliff:g> di spazi di memorie di archiviazion sul telefon.</string>
+    <string name="migration_paused_screen_title" description="Title of screen shown when migration has been paused.">Integrazion in pause</string>
+    <string name="migration_paused_screen_details" description="Detail information shown when migration has been paused.">La aplicazion Conession salût si è sierade intant che si stave integrant cul sisteme Android.\n\nFâs clic su ripie par tornâ a vierzi la aplicazion e continuâ il trasferiment dai dâts e dai permès.</string>
+    <string name="migration_paused_screen_details_timeout" description="Detail information about migration timeout shown when migration has been paused.">Par podê tignî i tiei dâts di Conession salût, finìs cheste operazion dentri di <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <string name="resume_button" description="Text of a button prompting the user resume migration [CHAR_LIMIT=40]">Ripie</string>
+    <string name="migration_paused_notification_title" description="Title of notification sent when migration has been paused.">Integrazion in pause</string>
+    <string name="migration_paused_notification_content" description="Content of notification sent when migration has been paused.">Conession salût si sta integrant cul sisteme Android. Tocje par continuâ</string>
+    <string name="resume_migration_banner_title" description="Title of banner prompting the user to resume actions needed for migration">Ripie la integrazion</string>
+    <string name="resume_migration_banner_description" description="Description of banner prompting the user to resume actions needed for migration">Tocje par continuâ la integrazion di Conession salût cul sisteme Android. Par podê mantignî i tiei dâts, finìs cheste operazion dentri di <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <string name="resume_migration_banner_description_fallback" description="Fallback description of banner prompting the user to resume actions needed for migration">Tocje par continuâ la integrazion di Conession salût cul sisteme Android.</string>
+    <string name="resume_migration_banner_button" description="Button of banner prompting the user to resume actions needed for migration">Continue</string>
+    <string name="resume_migration_notification_title" description="Title of notification prompting the user to resume actions needed for migration">Ripie la integrazion di Conession salût</string>
+    <string name="resume_migration_notification_content" description="Content of notification prompting the user to resume actions needed for migration">Par podê tignî i tiei dâts, finìs cheste operazion dentri di <xliff:g example="1 day" id="time_needed">%1$s</xliff:g></string>
+    <string name="app_update_needed_banner_title" description="Title of banner prompting the user to update an app which is not currently working on this Android version.">Inzornament de aplicazion necessari</string>
+    <string name="app_update_needed_banner_description_single" description="Description of banner prompting the user to update an app which is not currently working on this Android version.">Al covente inzornâ <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> par che al podedi continuâ a sincronizâsi cun Health Connect</string>
+    <string name="app_update_needed_banner_description_multiple" description="Description of banner prompting the user to update an app which is not currently working on this Android version."> Al è necessari inzornâ cualchi aplicazion par continuâ la sincronizazion cun Conession salût</string>
+    <string name="app_update_needed_banner_button" description="Button of banner prompting the user to update an app which is not currently working on this Android version.">Controle i inzornaments</string>
+    <string name="app_update_needed_banner_learn_more_button" description="Button of banner prompting the user to update an app which is not currently working on this Android version.">Plui informazions</string>
+    <string name="migration_pending_permissions_dialog_title" description="Title of dialog shown to the user when migration is pending and an app is requesting permissions.">Integrazion di Conession salût</string>
+    <string name="migration_pending_permissions_dialog_content" description="Content of dialog shown to the user when migration is pending and an app is requesting permissions.">Conession salût al è pront pe integrazion cul to sisteme Android. Se cumò tu concedi l\'acès a <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g>, al è pussibil che cualchi funzionalitât no funzioni fintremai che la integrazion no je completade.</string>
+    <string name="migration_pending_permissions_dialog_content_apps" description="Content of dialog shown to the user when migration is pending and the user is viewing health permissions.">Conession salût al è pront pe integrazion cul to sisteme Android. Se cumò tu concedis l\'acès aes aplicazions, al è pussibil che cualchi funzionalitât no funzioni fintremai che la integrazion no sedi completade.</string>
+    <string name="migration_pending_permissions_dialog_button_continue" description="Button of dialog shown to the user when migration is pending and an app is requesting permissions.">Continue</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" description="Button of dialog shown to the user when migration is pending and an app is requesting permissions.">Invie la integrazion</string>
+    <string name="migration_in_progress_permissions_dialog_title" description="Title of dialog shown to the user when migration is in progress and an app is requesting permissions.">Integrazion di Conession salût in cors</string>
+    <string name="migration_in_progress_permissions_dialog_content" description="Content of dialog shown to the user when migration is in progress and an app is requesting permissions.">Conession salût si sta integrant tal sisteme Android.\n\nTu ricevarâs une notifiche al completament dal procès e tu podarâs doprâ <xliff:g example="Run Tracker" id="app_name">%1$s</xliff:g> cun Conession salût.</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" description="Content of dialog shown to the user when migration is in progress and the user is viewing health permissions.">Conession salût si sta integrant tal sisteme Android.\n\nTu ricevarâs une notifiche al completament dal procès e tu podarâs doprâ Conession salût.</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" description="Button of dialog shown to the user when migration is in progress and an app is requesting permissions.">Capît</string>
+    <string name="migration_not_complete_dialog_title" description="Title of dialog shown to the user when migration did not complete due to an error.">La integrazion di Conession salût no je stade completade</string>
+    <string name="migration_not_complete_dialog_content" description="Content of dialog shown to the user when migration did not complete due to an error.">Tu ricevarâs une notifiche cuant che al tornarà disponibil.</string>
+    <string name="migration_not_complete_dialog_button" description="Button of dialog shown to the user when migration did not complete due to an error.">Capît</string>
+    <string name="migration_not_complete_notification_title" description="Title of notification shown to the user when migration did not complete due to an error.">La integrazion di Conession salût no je stade completade</string>
+    <string name="migration_not_complete_notification_action" description="Action of notification shown to the user when migration did not complete due to an error.">Lei dut</string>
+    <string name="migration_complete_notification_title" description="Title of notification shown to the user when migration is complete">Integrazion di Conession salût completade</string>
+    <string name="migration_complete_notification_action" description="Action of notification shown to the user when migration is complete">Vierç</string>
+    <string name="migration_whats_new_dialog_title" description="Title of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">Novitâts</string>
+    <string name="migration_whats_new_dialog_content" description="Content of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">Cumò tu puedis acedi a Conession salût da lis tôs impostazions. Disinstale la aplicazion Conession salût cuant che tu vûs par liberâ spazi di archiviazion.</string>
+    <string name="migration_whats_new_dialog_button" description="Button of dialog shown to the user after migration is done, informing them how to access the Health Connect module.">Capît</string>
+    <string name="data_restore_in_progress_screen_title" description="Title of screen shown when data restore is in progress">Ripristinament in cors</string>
+    <string name="data_restore_in_progress_content" description="Detail information shown when migration is in progress">Conession salût al sta ripristinant dâts e permès. Cheste operazion e podarès puartâ vie un pôc di timp prime di finî.</string>
+    <string name="data_restore_in_progress_dialog_title" description="Title of dialog shown when data restore is in progress">Ripristinament di Conession salût in cors</string>
+    <string name="data_restore_in_progress_dialog_button" description="Button of dialog shown when data restore is in progress">Capît</string>
+    <string name="data_restore_pending_banner_title" description="Title of banner shown when data restore is pending">Inzornament necessari</string>
+    <string name="data_restore_pending_banner_content" description="Content of banner shown when data restore is pending">Prime di continuâ cul ripristinament dai tiei dâts, inzorne il sisteme dal to telefon.</string>
+    <string name="data_restore_pending_banner_button" description="Button for banner shown when data restore is pending">Inzorne cumò</string>
+    <string name="data_totals_header" description="Header for section showing cards with data type totals [CHAR_LIMIT=70]">Totâi dâts</string>
+    <string name="app_sources_header" description="Header for section showing apps contributing to the shown totals [CHAR_LIMIT=70]">Sorzints di aplicazion</string>
+    <string name="data_sources_footer" description="Footer note explaining how app sources work [CHAR_LIMIT=NONE]">Zonte sorzints di aplicazion ae liste par viodi trop che i totâi dai dâts a cambiin. La rimozion di une aplicazion di cheste liste e interomparà il so contribût ai totâi, ma e varà ancjemò il permès di scriture.</string>
+    <string name="data_sources_empty_state" description="Text for the empty state of the data sources screen explaining why there are no apps shown [CHAR_LIMIT=NONE]">Nissune sorzint di aplicazion</string>
+    <string name="data_sources_empty_state_footer" description="Text for the footer of the empty state of the data sources screen [CHAR_LIMIT=NONE]">Une volte dâts ae aplicazion i permès di scriture ai dâts di <xliff:g example="activity" id="category_name">%1$s</xliff:g>, lis sorzints a vignaran fûr achì.</string>
+    <string name="data_sources_help_link" description="Text for helper link in the data sources screen taking the user to an article about how sources and prioritization work [CHAR_LIMIT=NONE]">Cemût che lis sorzints e la prioritât a funzionin</string>
+    <string name="data_sources_add_app" description="Title for preference in the data sources screen used to add an app to the list of data sources [CHAR_LIMIT=NONE]">Zonte une aplicazion</string>
+    <string name="edit_data_sources" description="Menu option for adding or removing apps from the app sources list">Modifiche sorzints di aplicazion</string>
+    <string name="default_app_summary" description="Text for an app on the priority list that is the device default app for health connect data [CHAR_LIMIT=50]">Predefinît dal dispositîf</string>
+    <string name="app_data_title" description="Title of screen that shows the data of a certain app. [CHAR_LIMIT=50]">Dâts aplicazion</string>
+    <string name="no_data_footer" description="Footer displayed on the empty data browse screen if no data has been written to Health Connect. [CHAR_LIMIT=NONE]">I dâts des aplicazions cun acès a Conession salût a vignaran fûr achì</string>
+    <string name="date_picker_day" description="Dropdown option that indicates that one day's worth of data is displayed. [CHAR_LIMIT=50]">Dì</string>
+    <string name="date_picker_week" description="Dropdown option that indicates that one week's worth of data is displayed. [CHAR_LIMIT=50]">Setemane</string>
+    <string name="date_picker_month" description="Dropdown option that indicates that one month's worth of data is displayed. [CHAR_LIMIT=50]">Mês</string>
+    <string name="this_week_header" description="Header in the list of dataentries to differentiate between entries from this week and last week. [CHAR LIMIT=50]">Cheste setemane</string>
+    <string name="last_week_header" description="Header in the list of data entries to differentiate between entries from this week and last week. [CHAR LIMIT=50]">Ultime setemane</string>
+    <string name="this_month_header" description="Header in the list of data entries to differentiate between entries from this month and last month. [CHAR LIMIT=50]">Chest mês</string>
+    <string name="last_month_header" description="Header in the list of data entries to differentiate between entries from this month and last month. [CHAR LIMIT=50]">Ultin mês</string>
+    <string name="tab_entries" description="Tab that navigates to the data entries screen. [CHAR_LIMIT=50]">Vôs</string>
+    <string name="tab_access" description="Tab that navigates to the screen that shows which apps have access to the given data type. [CHAR_LIMIT=50]">Acès</string>
+</resources>

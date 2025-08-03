@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics APIని యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"AdServices Topics APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution APIలను యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"AdServices Attribution APIలను యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience APIని యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"AdServices Custom Audience APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId APIకి యాక్సెస్"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"AdId APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent APIని యాక్సెస్ చేయడం"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"AdServices సమ్మతి APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID APIకు యాక్సెస్"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ad ID APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload APIకి యాక్సెస్"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"AdServices Cobalt Upload APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID APIకి యాక్సెస్"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"App Set ID APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"సమ్మతి సర్వీస్ APIను యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"సమ్మతి సర్వీస్ APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService ఎనేబుల్‌మెంట్ స్టేట్ సవరణ APIని యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"AdService ఎనేబుల్‌మెంట్ స్టేట్ సవరణ APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService ఎనేబుల్‌మెంట్ స్టేట్ APIని యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"AdService ఎనేబుల్‌మెంట్ స్టేట్ APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager APIలకు యాక్సెస్"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"AdServicesManager APIలను యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService అప్‌డేట్ యాడ్ ID APIకి యాక్సెస్ పొందండి."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"AdService అప్‌డేట్ యాడ్ ID APIని యాక్సెస్ చేయడానికి అప్లికేషన్‌ను అనుమతిస్తుంది."</string>
+    <string name="app_label" msgid="2639006978056689153">"యాడ్‌ల విషయంలో గోప్యత"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android యాడ్‌ల విషయంలో గోప్యతా బీటా వెర్షన్‌లో చేరండి"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"మీకు యాడ్‌లను చూపడానికి యాప్‌ల కోసం Android మరిన్ని ప్రైవేట్ మార్గాలను అన్వేషిస్తోంది"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"మరింత తెలుసుకోండి"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android యాడ్‌ల విషయంలో గోప్యత, బీటా వెర్షన్"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"కొత్తగా ఏమి ఉన్నాయి"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్‌లోని కొత్త గోప్యతా ఫీచర్‌లు మీకు సంబంధిత యాడ్‌లను చూపడానికి యాప్‌లను అనుమతిస్తాయి, అయితే ఆ యాప్‌లు ఇతర డెవలపర్‌ల నుండి వెబ్‌సైట్‌లు, యాప్‌లలో మీ యాక్టివిటీల గురించి ఏమి తెలుసుకుంటాయో పరిమితం చేస్తాయి."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"ఇది ఎలా పని చేస్తుంది"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"ఎలా పాల్గొనాలి"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"బీటాను ఆన్ చేయడం వలన మీకు యాడ్‌లను చూపించడానికి ఈ మరిన్ని, కొత్త ప్రైవేట్ మార్గాలను పరీక్షించడానికి యాప్‌లను అనుమతిస్తుంది. మీరు మీ గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా బీటాను ఆఫ్ చేయవచ్చు."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"వద్దు, ధన్యవాదాలు"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"ఆన్ చేయండి"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"మరిన్ని"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"పాల్గొన్నందుకు ధన్యవాదాలు"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"మీరు Android యాడ్‌ల గోప్యతా బీటాలో భాగం. మీ పరికరం కోసం గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్ ఆన్ చేయబడింది.\n\nమీరు మీ గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా మరింత సమాచారం తెలుసుకోవచ్చు లేదా బీటాను ఆఫ్ చేయవచ్చు."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"మీరు పాల్గొనకూడదని ఎంచుకున్నారు"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"మీ ప్రతిస్పందనకు థ్యాంక్స్. మీ పరికరం కోసం గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్ ఆఫ్ చేయబడింది.\n\nమీరు మీ మనసు మార్చుకుంటే లేదా మరింత తెలుసుకోవాలనుకుంటే, మీ గోప్యతా సెట్టింగ్‌లకు వెళ్లండి."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"గోప్యతా సెట్టింగ్‌లు"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"అర్థమైంది"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"మీరు బీటా వెర్షన్‌లో భాగంగా ఉన్నారు"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"మీ పరికరం కోసం గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్ ఆన్‌లో ఉంది, మీకు యాడ్‌లను చూపడానికి యాప్‌లు ఈ మరిన్ని, కొత్త ప్రైవేట్ మార్గాలను పరీక్షించగలవు. మీరు మీ గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా బీటాను ఆఫ్ చేయవచ్చు."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"అర్థమైంది"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్, మీకు నచ్చే యాడ్‌లను చూపడానికి యాప్‌లు ఉపయోగించగల కొత్త ఫీచర్‌లను అందిస్తుంది. ఈ టెక్నాలజీలు పరికర ఐడెంటిఫైయర్‌లను ఉపయోగించవు.\n\nమీకు ఆసక్తి కలిగించే యాడ్‌ల రకాలను Android, అలాగే మీ యాప్‌లు అంచనా వేయగలవు. సదరు ఆసక్తులను మీ పరికరంలో తాత్కాలికంగా సేవ్ చేయగలవు. ఇతర డెవలపర్‌ల వెబ్‌సైట్లలో, యాప్‌లలో మీ యాక్టివిటీని ట్రాక్ చేయకుండానే, మీరు ఇష్టపడే యాడ్‌లను చూపడానికి ఇది యాప్‌లను అనుమతిస్తుంది."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్‌తో యాడ్‌ల వ్యక్తిగతీకరణ"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android ద్వారా అంచనా వేయబడిన ఆసక్తులు"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"మీరు ఉపయోగించే యాప్‌ల ఆధారంగా Android కాలానుగుణంగా మీ టాప్ ఆసక్తులను అంచనా వేస్తుంది, ఉదాహరణకు, \"క్రీడలు\" లేదా \"ట్రావెల్.\"\n\nతర్వాత, ఒక యాప్ మీకు మరింత సంబంధిత యాడ్‌లను చూపడానికి ఆ ఆసక్తులను ఉపయోగించమని Androidను అడగవచ్చు.\n\nమీరు మీ గోప్యతా సెట్టింగ్‌లలో ప్రస్తుత ఆసక్తుల లిస్ట్‌ను చూడవచ్చు, మీకు నచ్చని వాటిని బ్లాక్ చేయవచ్చు."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  యాప్‌ల ద్వారా అంచనా వేయబడిన ఆసక్తులు"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"యాప్‌లు మీ ఆసక్తులను అంచనా వేయగలవు. అలాగే ఆ అంచనాను Android పరికరంలో తాత్కాలికంగా సేవ్ చేయగలవు. ఉదాహరణకు, మీరు రన్నింగ్ షూస్ కొనుగోలు చేయడానికి ఉపయోగించే యాప్ మీ ఆసక్తిని \"రన్నింగ్ మారథాన్‌లు\"గా అంచనా వేయవచ్చు.\n\nతర్వాత, ఈ ఆసక్తి ఆధారంగా, వేరే యాప్ మీకు మారథాన్‌లకు సంబంధించిన యాడ్‌లను చూపుతుంది.\n\nమీ గోప్యతా సెట్టింగ్‌లలో, మీరు ఆసక్తులను సేవ్ చేసిన యాప్‌ల లిస్ట్‌ను మేనేజ్ చేయవచ్చు."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"యాడ్‌ల విషయంలో కొత్త గోప్యతా ఫీచర్‌లు"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"యాడ్ టాపిక్‌లు, అలాగే కొత్త కంట్రోల్స్, మీరు చూసే యాడ్‌లపై మీకు మరిన్ని ఎక్కువ ఆప్షన్‌లను అందిస్తాయి"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"మీరు ఇటీవల ఉపయోగించిన యాప్‌లను బట్టి మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది. అలాగే, మీరు ఉపయోగించే యాప్‌లను బట్టి మీకు ఏం నచ్చుతాయో అంచనా వేయడం జరగవచ్చు. తర్వాత, మీకు వ్యక్తిగతీకరించిన యాడ్‌లను చూపడం కోసం యాప్‌లు ఈ సమాచారాన్ని అడగవచ్చు. మీకు యాడ్‌లను చూపడం కోసం ఏ టాపిక్‌లు, యాప్‌లను ఉపయోగించాలో మీరు ఎంచుకోవచ్చు."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"యాడ్ పనితీరును అంచనా వేయడానికి, పరిమిత రకాల డేటా యాప్‌ల మధ్య షేర్ చేయబడుతుంది."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Androidలో యాడ్‌ల గురించి మరిన్ని వివరాలు"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"మరింత ఉపయోగకరమైన యాడ్‌లు"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"మీకు కనిపించే యాడ్‌లను వ్యక్తిగతీకరించడంలో సహాయపడే సమాచారాన్ని అందించాల్సిందిగా యాప్‌లు Androidను అడగవచ్చు."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  మీరు ఇటీవల ఉపయోగించిన యాప్‌లను బట్టి మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  మీరు ఉపయోగించే యాప్‌లు, వాటిని మీరు ఎలా ఉపయోగిస్తున్నారనే దాని ఆధారంగా మీకు ఏం నచ్చుతాయో అంచనా వేయగలవు. ఉదాహరణకు, ఎక్కువ దూరం పరిగెత్తేందుకు వాడే రన్నింగ్ షూస్‌ను అమ్మే యాప్‌ను మీరు ఉపయోగిస్తే, మీకు మారథాన్‌లలో పాల్గొనడం అంటే ఆసక్తి ఉందని ఆ యాప్ నిర్ణయించవచ్చు."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"తర్వాత, మీరు ఉపయోగించే యాప్, ఈ సమాచారాన్ని అడగవచ్చు — మీ యాడ్ టాపిక్‌లు లేదా మీరు ఉపయోగించిన యాప్‌లు సూచించిన యాడ్‌లు."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"టాపిక్‌లను, యాప్-సూచించిన డేటాను Android క్రమం తప్పకుండా ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు ఏవైనా టాపిక్‌లకు సంబంధించిన సూచనలను లేదా ఏవైనా యాప్‌ల నుండి సూచనలను పొందకూడదు అనుకుంటే, ఆ నిర్దిష్ట టాపిక్‌లను, యాప్‌లను మీరు బ్లాక్ చేయవచ్చు."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"యాడ్ పనితీరు ఎలా ఉందో అంచనా వేయడం"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"మీరు ఉపయోగించే యాప్‌లు, వాటి యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయపడటానికి గాను, సమాచారాన్ని అందించాలని Androidను కోరవచ్చు. రోజులో మీకు యాడ్ ఎప్పుడు కనిపించింది వంటి పరిమిత రకాల డేటాను యాప్‌లు కలెక్ట్ చేయగలిగేలా Android వాటిని అనుమతిస్తుంది."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"యాడ్‌ల విషయంలో కొత్త గోప్యతా ఫీచర్‌లను ట్రై చేయండి"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"యాడ్ టాపిక్‌లు, మీరు చూసే యాడ్‌లపై మీకు మరిన్ని ఎక్కువ ఆప్షన్‌లను అందిస్తాయి"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"వివరాలను చూడండి"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"కొత్త యాడ్‌ల విషయంలో గోప్యత ఫీచర్‌లను ట్రై చేయండి"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"మీకు కనిపించే యాడ్‌ల విషయంలో మరిన్ని ఆప్షన్‌లను అందించేందుకు గాను, Android సరికొత్త గోప్యతా ఫీచర్‌లను లాంచ్ చేస్తోంది."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"మీ గుర్తింపును, మీ యాప్ వినియోగం గురించిన సమాచారాన్ని కాపాడుతూ మీకు సందర్భోచిత యాడ్‌లను చూపడంలో యాడ్ టాపిక్‌లు యాప్‌లకు సహాయపడతాయి. మీరు ఇటీవల ఉపయోగించిన యాప్‌లను బట్టి, మీకు ఏ టాపిక్‌ల పట్ల ఆసక్తి ఉందో Android గమనిస్తుంది. తర్వాత, మీరు ఉపయోగించే ఏదైనా యాప్, మీరు చూసే యాడ్‌లను వ్యక్తిగతీకరించడానికి గాను, సందర్భోచితమైన టాపిక్‌ల కోసం Androidను అడగవచ్చు."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"మీ పరికర సెట్టింగ్‌లలో యాడ్ టాపిక్‌లను చూడవచ్చు, యాప్‌లతో షేర్ చేయకూడదనుకునే వాటిని బ్లాక్ చేయవచ్చు. Android క్రమం తప్పకుండా యాడ్ టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"మీరు గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా మీ నిర్ణయాన్ని మార్చుకోవచ్చు."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"యాడ్ టాపిక్‌ల గురించి మరింత సమాచారం"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"మా "<a href="https://policies.google.com/privacy">"గోప్యతా పాలసీ"</a>"లో Android మీ డేటాను ఎలా రక్షిస్తుంది అనే దాని గురించి మరింత తెలుసుకోండి."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"దీన్ని ట్రై చేయండి"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  ఎలాంటి డేటా ఉపయోగించబడుతుంది"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"ఈ పరికరంలో మీరు ఇటీవల ఏ యాప్‌లను ఉపయోగించారు, అలాగే వాటిని ఎంత తరచుగా ఉపయోగిస్తున్నారు అనే అంశాలపై మీ యాడ్ టాపిక్‌లు ఆధారపడి ఉంటాయి."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  మేము ఈ డేటాను ఎలా ఉపయోగిస్తాము"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"మీరు యాప్‌లను ఉపయోగిస్తున్నప్పుడు మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది. టాపిక్ లేబుల్స్ ముందే నిర్వచించబడి ఉంటాయి, ఉదాహరణకు కళలు &amp; వినోదం, షాపింగ్, స్పోర్ట్స్ మొదలైనవి. ఆ తర్వాత, మీకు కనిపించే యాడ్‌లను వ్యక్తిగతీకరించడానికి మీరు ఉపయోగించే ఏదైనా యాప్ మీ టాపిక్‌లలో కొన్నింటిని (మీ యాప్ వినియోగం లేదా గుర్తింపు గురించిన డేటా కాదు) అందించాల్సిందిగా Androidను అడగవచ్చు."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  మీరు మీ డేటాను ఎలా మేనేజ్ చేయగలరు"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android క్రమం తప్పకుండా టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు యాప్‌లను ఉపయోగించడం కొనసాగిస్తున్నప్పుడు, లిస్ట్‌లో ఏదైనా ఒక టాపిక్ మళ్లీ కనిపించవచ్చు. Android ఏవైనా టాపిక్‌లను యాప్‌లతో షేర్ చేయకూడదు అని మీరు భావిస్తే, వాటిని మీరు బ్లాక్ చేయవచ్చు. అలాగే గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా యాడ్ టాపిక్‌లను ఆఫ్ చేయవచ్చు."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"మీరు గోప్యతా సెట్టింగ్‌లలో మార్పులు చేయవచ్చు."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"ఇతర యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి ఇతర ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"యాప్‌లు, మీకు వ్యక్తిగతీకరించిన యాడ్‌లను చూపినప్పుడు, మీ గురించి అవి ఏమి తెలుసుకోగలవో పరిమితం చేయడానికి Android కొత్త మార్గాలను కూడా అందిస్తోంది."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  యాప్ సూచించిన యాడ్‌లు అనేవి, మీకు సంబంధితమైన యాడ్‌లను చూపడానికి యాప్‌లను ఎనేబుల్ చేస్తూనే, మీ యాప్ వినియోగ సమాచారాన్ని, గుర్తింపును రక్షించడంలో సహాయపడతాయి. మీరు ఉపయోగించే ఏదైనా యాప్, మీ యాక్టివిటీ ఆధారంగా ఇతర యాప్‌లలో మీకు సంబంధితమైన యాడ్‌లను సూచించవచ్చు. ఈ యాప్‌ల లిస్ట్‌ను మీరు గోప్యతా సెట్టింగ్‌లలో చూడవచ్చు, అవి సూచనలు చేయకుండా వాటిని బ్లాక్ చేయవచ్చు."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  యాడ్ మెజర్‌మెంట్‌ ద్వారా, యాప్‌లకు సంబంధించిన యాడ్‌ల పనితీరును కొలవడానికి సదరు యాప్‌ల మధ్య పరిమితంగా కొన్ని రకాల డేటా షేర్ చేయబడుతుంది. ఉదాహరణకు మీకు రోజులో ఎప్పుడు యాడ్ చూపబడింది మొదలైనవి."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"యాప్ సూచించిన యాడ్‌లు, యాడ్‌ల మెజర్‌మెంట్ గురించి మరింత సమాచారం"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"యాప్ సూచించిన యాడ్‌లు"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  ఏ డేటా ఉపయోగించబడుతుంది"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"ఈ పరికరంలో మీరు ఉపయోగించే ఏదైనా యాప్‌లోని మీ యాక్టివిటీ."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  యాప్‌లు ఈ డేటాను ఎలా ఉపయోగిస్తాయి"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"మీకు నచ్చిన విషయాల గురించిన సమాచారాన్ని యాప్‌లు Androidలో స్టోర్ చేయగలవు. ఉదాహరణకు, మారథాన్ ట్రెయినింగ్‌కు సంబంధించిన యాప్‌ను మీరు ఉపయోగిస్తే, మీకు రన్నింగ్ షూస్‌పై ఆసక్తి ఉందని యాప్ నిర్ణయించవచ్చు. తర్వాత, మీరు వేరే యాప్‌ను ఉపయోగిస్తున్నప్పుడు, మొదటి యాప్ సూచించిన రన్నింగ్ షూస్‌కు సంబంధించిన యాడ్‌ను ఈ యాప్ చూపవచ్చు."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  మీ డేటాను మీరు ఎలా మేనేజ్ చేయగలరు"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android క్రమం తప్పకుండా యాప్‌లు సూచించిన డేటాను ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు మళ్లీ ఉపయోగించే యాప్, లిస్ట్‌లో మళ్లీ కనిపించవచ్చు."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"ఏదైనా యాప్ మీకు యాడ్‌లను సూచించకుండా మీరు బ్లాక్ చేయవచ్చు, యాడ్-సూచనల డేటా మొత్తాన్ని రీసెట్ చేయవచ్చు, లేదా యాప్ సూచించే యాడ్‌లను ఎప్పుడైనా గోప్యతా సెట్టింగ్‌లలో ఆఫ్ చేయవచ్చు."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"మీరు ఉపయోగించే యాప్‌లు, వాటి యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయపడే సమాచారాన్ని అందించాలని Androidను అడగవచ్చు. యాప్‌లు ఒకదానితో మరొకటి షేర్ చేసుకోగలిగే సమాచారాన్ని పరిమితం చేయడం ద్వారా Android మీ గోప్యతను రక్షిస్తుంది."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"మీ గుర్తింపును సంరక్షించుకుంటూనే, మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయానికి సంబంధించి మరిన్ని ఎంపికలను పొందండి"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"యాప్‌లు, మీకు వ్యక్తిగతీకరించిన యాడ్‌లను చూపినప్పుడు, మీ గురించి తెలుసుకోవడాన్ని పరిమితం చేయడానికి Android కొత్త మార్గాలను ప్రారంభిస్తోంది."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  యాప్-సూచించిన యాడ్‌ల సహాయంతో, కొత్త గోప్యతా ఫీచర్‌లు మీ గుర్తింపును, అలాగే మీ యాప్ వినియోగానికి సంబంధించిన సమాచారాన్ని సురక్షితంగా ఉంచడంలో సహాయపడతాయి, అదే సమయంలో మీకు సందర్భోచిత యాడ్‌లను చూపేలా యాప్‌లను ఎనేబుల్ చేస్తాయి. మీ యాక్టివిటీ ఆధారంగా, మీరు ఉపయోగించే యాప్ ఇతర యాప్‌లలో సంబంధిత యాడ్‌లను సూచించవచ్చు. మీరు గోప్యతా సెట్టింగ్‌లలో యాప్‌ల లిస్ట్‌ను చూడవచ్చు, వాటిని సూచనలు ఇవ్వకుండా బ్లాక్ చేయవచ్చు."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  యాడ్ మెజర్‌మెంట్ సహాయంతో, యాప్‌లకు సంబంధించిన యాడ్‌ల పనితీరును అర్థం చేసుకోవడానికి వాటి మధ్య పరిమిత రకాల డేటా షేర్ చేయడం జరుగుతుంది, ఉదాహరణకు మీకు యాడ్ చూపిన రోజు, సమయం మొదలైనవి."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"ఈ పరికరంలో ఉపయోగించే యాప్‌లోని మీ యాక్టివిటీని, యాడ్‌లను సూచించడానికి ఉపయోగించవచ్చు."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి మరొక ఫీచర్‌ను ఆన్ చేయండి"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయానికి సంబంధించి మరిన్ని ఎంపికలను మీకు అందించే కొత్త గోప్యతా ఫీచర్‌ను కూడా Android అందిస్తోంది."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"మీ గుర్తింపును, మీ యాప్ వినియోగం గురించిన సమాచారాన్ని కాపాడుతూ మీకు సందర్భోచిత యాడ్‌లను చూపడంలో యాడ్ టాపిక్‌లు యాప్‌లకు సహాయపడతాయి. మీరు ఇటీవల ఉపయోగించిన యాప్‌ల ఆధారంగా మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది. తర్వాత, మీరు ఉపయోగించే యాప్, మీకు మరింత సందర్భోచితమైన యాడ్‌లను చూపడం కోసం, సందర్బోచితమైన టాపిక్‌లను అందించమని Androidను అడగవచ్చు."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"మీ గోప్యతా సెట్టింగ్‌లలో మీరు యాడ్ టాపిక్‌లను చూడవచ్చు, యాప్‌లతో షేర్ చేయకూడదనుకునే వాటిని మీరు బ్లాక్ చేయవచ్చు. అలాగే, Android క్రమం తప్పకుండా యాడ్ టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది కూడా."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"దీన్ని ఆన్ చేయండి"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"మీ గుర్తింపును సంరక్షించుకుంటూనే, మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయంలో ఇప్పుడు మీకు మరిన్ని ఆప్షన్‌లు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్‌లు ఇప్పుడు అందుబాటులో ఉన్నాయి"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయానికి సంబంధించి మరిన్ని ఎంపికలను మీకు అందించే కొత్త గోప్యతా ఫీచర్‌లను Android ఇప్పుడు అందిస్తోంది."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"తర్వాత"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android యాడ్‌ల విషయంలో గోప్యత బీటా వెర్షన్‌లో పాల్గొనండి"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android ద్వారా అంచనా వేయబడిన ఆసక్తులు"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"ఆసక్తులను అంచనా వేసే యాప్‌లు"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"యాడ్ మెజర్‌మెంట్‌"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"యాప్‌లు తమ యాడ్‌ల ప్రభావాన్ని కొలవడానికి \'గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్‌\' అనే విధానాన్ని ఉపయోగిస్తాయి. ఇందుకోసం, అడ్వర్టయిజర్లు, వారి యాడ్‌లకు యాప్‌లకు మధ్య జరిగే మీ ఇంటరాక్షన్‌ల డేటాను Android పరికరంలో తాత్కాలికంగా సేవ్ చేస్తాయి. వారు సేవ్ చేసే డేటా మొత్తం పరిమితం చేయబడింది, అంతే కాకుండా క్రమం తప్పకుండా తొలగించబడుతుంది.\n\nమీరు గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్‌ను ఆఫ్ చేయడం ద్వారా ఏ క్షణంలో అయినా ఈ డేటాను తొలగించవచ్చు."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"మీరు ఉపయోగించే యాప్‌ల ఆధారంగా, Android కాలానుగుణంగా, మీకు వేటి మీద ఎక్కువ ఆసక్తి ఉంది అన్న అంశాన్ని అంచనా వేస్తుంది. మీకు మరింత సంబంధిత యాడ్‌లను చూపడానికి, ఎక్కువ ఉన్న ఆసక్తి సదరు అంశాలను ఉపయోగించండి అని యాప్‌లు Androidను కోరవచ్చు.\n\nమీరు ఒక ఆసక్తిని బ్లాక్ చేస్తే, దాన్ని మీరు అన్‌బ్లాక్ చేసే దాకా అది మళ్లీ లిస్ట్‌కు జోడించబడదు. మీరు ఇప్పటికీ కొన్ని సంబంధిత యాడ్‌లను చూడవచ్చు."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"బ్లాక్ చేయండి"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"అన్‌బ్లాక్ చేయండి"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"మీరు బ్లాక్ చేసిన ఆసక్తులు"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"ఆసక్తులన్నింటినీ రీసెట్ చేయండి"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"ప్రస్తుతం చూపించడానికి ఆసక్తులు ఏవీ లేవు."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"ప్రస్తుతం చూపించడానికి టాపిక్‌లు ఏవీ లేవు.\n"<a href="https://support.google.com/android?p=ad_privacy">"యాడ్ టాపిక్‌"</a>"ల గురించి మరింత తెలుసుకోండి"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android యాడ్‌ల విషయంలో గోప్యతా బీటా వెర్షన్ మీకు నచ్చే యాడ్‌లను చూపడానికి యాప్‌లు ఉపయోగించగల కొత్త ఫీచర్‌లను అందిస్తుంది. ఈ టెక్నాలజీలు పరికర ఐడెంటిఫైయర్‌లను ఉపయోగించవు.\n\nAndroid పరికరం మీకు ఆసక్తి కలిగించే యాడ్‌ల రకాలను అంచనా వేయగలదు, అలాగే ఈ ఆసక్తులను మీ పరికరంలో తాత్కాలికంగా సేవ్ చేయగలవు. ఇతర డెవలపర్‌ల నుండి వెబ్‌సైట్‌లు, యాప్‌లలో మీ యాక్టివిటీని ట్రాక్ చేయకుండానే, సంబంధిత యాడ్‌లను మీకు చూపడానికి ఇది యాప్‌లను అనుమతిస్తుంది."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"మీకు బ్లాక్ చేయబడిన ఆసక్తులు లేవు"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"బ్లాక్ చేయబడిన టాపిక్‌లు ఏవీ లేవు"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"బ్లాక్ చేసిన టాపిక్‌లను చూడండి"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"ఆసక్తులు రీసెట్ చేయబడ్డాయి"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"టాపిక్‌లు రీసెట్ చేయబడ్డాయి"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"యాప్‌లు మీ ఆసక్తులను అంచనా వేయగలవు, వీటిని Android పరికరంతో తాత్కాలికంగా సేవ్ చేయవచ్చు. తర్వాత, ఈ ఆసక్తుల ఆధారంగా వేరే యాప్ మీకు యాడ్‌ను చూపుతుంది.\n\nమీరు యాప్‌ను బ్లాక్ చేస్తే, అది మరిన్ని ఇతర ఆసక్తులను అంచనా వేయదు. మీరు దీన్ని అన్‌బ్లాక్ చేస్తే తప్ప ఇది మళ్లీ ఈ యాప్‌ల లిస్ట్‌కు జోడించబడదు. యాప్ ద్వారా ఇప్పటికే అంచనా వేసిన ఆసక్తులు తొలగించబడతాయి, కానీ మీరు ఇప్పటికీ కొన్ని సంబంధిత యాడ్‌లను చూడవచ్చు."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"మీరు బ్లాక్ చేసిన యాప్‌లు"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"బ్లాక్ చేయబడిన యాప్‌లను చూడండి"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"యాప్‌ల ద్వారా అంచనా వేయబడిన ఆసక్తులను రీసెట్ చేయండి"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"ప్రస్తుతం ఏ యాప్‌లు మీ కోసం ఆసక్తులను జెనరేట్ చేయడం లేదు"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"ప్రస్తుతం చూపించడానికి యాప్‌లు ఏవీ లేవు. \n "<a href="https://support.google.com/android?p=ad_privacy">"యాప్-సూచించిన ‌యాడ్‌ల"</a>"గురించి మరింత తెలుసుకోండి"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android యాడ్‌ల విషయంలో గోప్యత బీటా వెర్షన్ మీకు నచ్చే యాడ్‌లను చూపడానికి యాప్‌లు ఉపయోగించగల కొత్త ఫీచర్‌లను అందిస్తుంది. ఈ టెక్నాలజీలు పరికర ఐడెంటిఫైయర్‌లను ఉపయోగించవు.\n\nయాప్‌లు మీకు ఆసక్తి కలిగించే యాడ్‌ల రకాలను అంచనా వేయగలవు, అలాగే ఈ ఆసక్తులను మీ పరికరంలో తాత్కాలికంగా సేవ్ చేయగలవు. ఇతర డెవలపర్‌ల నుండి వెబ్‌సైట్‌లు, యాప్‌లలో మీ యాక్టివిటీని ట్రాక్ చేయకుండానే, సంబంధిత యాడ్‌లను మీకు చూపడానికి ఇది యాప్‌లను అనుమతిస్తుంది."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"యాప్‌లు వేటినీ మీరు బ్లాక్ చేయలేదు"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"బ్లాక్ చేయబడిన యాప్‌లు ఏవీ లేవు"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"యాడ్ మెజర్‌మెంట్‌ను అనుమతించండి"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"యాప్‌లు, ఇంకా అడ్వర్టయిజర్‌లు, తమ యాడ్‌ల పనితీరును మెజర్ చేయడంలో సహాయపడే సమాచారాన్ని Android నుండి రిక్వెస్ట్ చేయవచ్చు.\n\nమీ పరికరం నుండి యాడ్ మెజర్‌మెంట్ డేటా క్రమం తప్పకుండా తొలగించబడుతుంది."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"మెజర్‌మెంట్ డేటాను రీసెట్ చేయండి"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"యాప్‌లు ఒకదానితో ఒకటి షేర్ చేయగలిగే సమాచారాన్ని పరిమితం చేయడం ద్వారా Android మీ గోప్యతను కాపాడుతుంది. మీ గుర్తింపును రక్షించడానికి రిపోర్ట్‌లను ఆలస్యంగా పంపడం జరుగుతుంది.\n\nమీ బ్రౌజర్‌లో ఇలాంటి సెట్టింగ్ ఉండవచ్చు. Android, అలాగే మీ బ్రౌజర్ రెండింటికీ యాడ్ మెజర్‌మెంట్ ఆన్‌లో ఉంటే, మీరు ఉపయోగించే యాప్‌లు, మీరు తెరిచే సైట్‌ల మధ్య యాడ్ సమర్థతను కంపెనీ అంచనా వేయగలదు. మీ బ్రౌజింగ్ హిస్టరీ మీ పరికరంలో ప్రైవేట్‌గా ఉంటుంది.\n\nమా "<a href="https://policies.google.com/privacy">"గోప్యతా పాలసీ"</a>"లో Android మీ డేటాను ఎలా రక్షిస్తుంది అనే దాని గురించి మరింత తెలుసుకోండి."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"యాడ్ మెజర్‌మెంట్ డేటా రీసెట్ చేయబడింది"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"రద్దు చేయండి"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"గోప్యతా పరిరక్షణ టెక్నాలజీల సెట్‌ను ఆఫ్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"మీరు మీ మనసు మార్చుకున్నట్లయితే లేదా Android యాడ్‌ల గోప్యతా బీటా వెర్షన్ గురించి మరింత తెలుసుకోవాలనుకుంటే, మీ గోప్యతా సెట్టింగ్‌లకు వెళ్లండి"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"ఆఫ్ చేయండి"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g>ను బ్లాక్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"ఈ టాపిక్ బ్లాక్ చేయబడుతుంది ఇంకా మీరు దీన్ని తిరిగి జోడించే వరకు మళ్లీ మీ లిస్ట్‌కు జోడించబడదు. మీకు ఇప్పటికీ కొన్ని సంబంధిత యాడ్‌లు కనిపించవచ్చు."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"బ్లాక్ చేయండి"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> అన్‌బ్లాక్ చేయబడింది"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android ఈ టాపిక్‌ను మీ లిస్ట్‌కు మళ్లీ జోడించవచ్చు, కానీ అది వెంటనే కనిపించకపోవచ్చు"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"సరే"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"అన్ని యాడ్ టాపిక్‌లను రీసెట్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"మీ లిస్ట్ క్లియర్ చేయబడుతుంది, అలాగే ఇకపై కొత్త టాపిక్‌లు జోడించబడతాయి. మీరు రీసెట్ చేసిన టాపిక్‌లకు సంబంధించిన కొన్ని యాడ్‌లు మీకు ఇప్పటికీ కనిపించవచ్చు."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"రీసెట్ చేయండి"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g>ను బ్లాక్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"మీరు ఈ యాప్‌ను అన్‌బ్లాక్ చేస్తే తప్ప, అది యాడ్‌లను సూచించదు, మళ్లీ మీ లిస్ట్‌కు జోడించబడదు. మీకు ఇప్పటికీ కొన్ని సంబంధిత యాడ్‌లు కనిపించవచ్చు."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> అన్‌బ్లాక్ చేయబడింది"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"ఈ యాప్ మీకు మళ్లీ యాడ్‌లను సూచించవచ్చు, కానీ అది మీ లిస్ట్‌లో వెంటనే కనిపించకపోవచ్చు. మీకు, సంబంధిత యాడ్‌లు కనిపించడానికి కొంత సమయం పట్టవచ్చు."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"యాప్‌లు సూచించిన యాడ్‌లను రీసెట్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"మీ లిస్ట్‌లోని యాప్‌ల నుండి యాడ్-సూచనల డేటా తొలగించబడుతుంది, అలాగే యాప్‌లు ఇకపై కొత్త యాడ్‌లను సూచిస్తాయి. మీకు ఇప్పటికీ కొన్ని సంబంధిత యాడ్‌లు కనిపించవచ్చు."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"యాప్ డేటా రీసెట్ చేయబడింది"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"యాడ్ టాపిక్‌లు ఆన్‌లో ఉంది"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android ఆసక్తికర అంశాలను గుర్తించడం ప్రారంభిస్తుంది, అయితే మీ మొదటి టాపిక్‌లు కనిపించడానికి కొంత సమయం పట్టవచ్చు."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"యాడ్ టాపిక్‌లను ఆఫ్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"ఈ టాపిక్‌ల లిస్ట్ తొలగించబడుతుంది. Android ఇకపై ఆసక్తి కలిగించే టాపిక్‌లను నోట్ చేయదు, కానీ మీరు ఇప్పటికీ సంబంధిత యాడ్‌లను చూడవచ్చు."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"యాప్-సూచించిన యాడ్‌లు ఆన్‌లో ఉంది"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"యాప్‌లు యాడ్‌లను సూచించడం ప్రారంభించవచ్చు. యాప్‌లు యాడ్‌లను సూచించడం ప్రారంభించిన తర్వాత మీరు వాటి లిస్ట్‌ను చూస్తారు."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"యాప్ సూచించిన యాడ్‌లను ఆఫ్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"యాడ్ సూచన డేటా అంతా తొలగించబడుతుంది. యాప్‌లు ఇకపై యాడ్‌లను సూచించలేవు, కానీ మీరు ఇప్పటికీ సంబంధిత యాడ్‌లను చూడవచ్చు."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"యాడ్‌ల మెజర్‌మెంట్ ఆన్‌లో ఉంది"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"యాప్‌లు తమ యాడ్‌ల పనితీరును కొలవడంలో సహాయపడటానికి Android, యాప్‌లతో చాలా పరిమిత సమాచారాన్ని మాత్రమే షేర్ చేయగలదు."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"యాడ్‌ల మెజర్‌మెంట్‌ను ఆఫ్ చేయాలా?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"పెండింగ్‌లో ఉన్న యాడ్‌ల మెజర్‌మెంట్ రిపోర్ట్‌లు అన్నీ తొలగించబడతాయి, కొత్త రిపోర్ట్‌లు రూపొందించబడవు లేదా షేర్ చేయబడవు."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"యాడ్‌ల విషయంలో గోప్యత"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"యాడ్ టాపిక్‌లు"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"యాప్ సూచించిన యాడ్‌లు"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"మీరు ఇటీవల ఉపయోగించిన యాప్‌లు, మీరు వాటిని ఎంత తరచుగా ఉపయోగిస్తున్నారు అనే దాని ఆధారంగా మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"మీరు ఉపయోగించే యాప్‌లు, వాటిని మీరు ఎలా ఉపయోగిస్తున్నారనే దాని ఆధారంగా, మీకు ఏవేవి అంటే ఇష్టమో కూడా నిర్ణయించగలవు."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"మీరు ఉపయోగించే యాప్‌లు తమ యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయపడటానికి Androidను సమాచారం కోసం అడగవచ్చు. పరిమిత రకాల డేటాను కలెక్ట్ చేయడానికి యాప్‌లను Android అనుమతిస్తుంది."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"‌Androidలో యాడ్‌ల విషయంలో గోప్యత"</a>"‌గురించి మరింత తెలుసుకోండి"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"ఆన్‌లో ఉన్నాయి / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> టాపిక్‌లు"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{ఆన్‌లో ఉంది / # టాపిక్}other{ఆన్‌లో ఉన్నాయి / # టాపిక్‌లు}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"ఆన్‌లో ఉన్నాయి / <xliff:g id="APPS_COUNT">%1$d</xliff:g> యాప్‌లు"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{ఆన్‌లో ఉంది / # యాప్}other{/ # యాప్‌లు ఆన్‌లో ఉన్నాయి}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"ఆన్‌లో ఉంది"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"ఆఫ్‌లో ఉంది"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"ఆసక్తి గల టాపిక్‌లు, మీరు ఇటీవల ఏ యాప్‌లను ఉపయోగించారు అనే దానిపై ఆధారపడి ఉంటాయి, మీకు వ్యక్తిగతీకరించబడిన యాడ్‌లను చూపడానికి వీటిని యాప్‌లు ఉపయోగిస్తాయి.\n\nమీరు యాప్‌లకు ఏవైనా టాపిక్‌లను షేర్ చేయకూడదనుకుంటే, ఆ టాపిక్‌లను మీరు బ్లాక్ చేయవచ్చు. Android అనేది క్రమం తప్పకుండా టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది.\n\nఈ ఫీచర్‌ను ఆన్ చేయగలిగినప్పటికీ, ఈ ఫీచర్ పూర్తిగా అందుబాటులోకి వచ్చే వరకు, యాప్‌లు దీన్ని ఉపయోగించడం ప్రారంభించే వరకు మీకు టాపిక్‌ల లిస్ట్ కనిపించకపోవచ్చు."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"యాడ్ టాపిక్‌లను అనుమతించండి"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"మీరు బ్లాక్ చేసిన యాడ్ టాపిక్‌లు"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"అన్ని యాడ్ టాపిక్‌లను రీసెట్ చేయండి"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"మీరు గత కొన్ని వారాల్లో ఉపయోగించిన యాప్‌ల ఆధారంగా, ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది.\n\nతర్వాత, మీరు ఉపయోగించే యాప్ మీరు చూసే యాడ్‌లను వ్యక్తిగతీకరించడానికి మీకు ఆసక్తి ఉన్న టాపిక్‌లకు సంబంధించిన సమాచారం గురించి Androidను అడగవచ్చు. Android మీ గుర్తింపును, మీ యాప్ వినియోగం గురించిన సమాచారాన్ని రక్షిస్తూనే, గరిష్ఠంగా 3 టాపిక్‌లను షేర్ చేస్తుంది.\n\nAndroid క్రమం తప్పకుండా టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు యాప్‌లను ఉపయోగించడం కొనసాగిస్తున్నప్పుడు, లిస్ట్‌లో ఏదైనా ఒక టాపిక్ మళ్లీ కనిపించవచ్చు. లేదా Android ఏవైనా టాపిక్‌లను యాప్‌లతో షేర్ చేయకూడదు అని మీరు భావిస్తే, ఆ టాపిక్‌లను మీరు బ్లాక్ చేయవచ్చు.\n\nమీ యాప్‌లలో, మీకు కనబడే యాడ్ మీకు వ్యక్తిగతీకరించబడుతుందా లేదా అనేది ఈ సెట్టింగ్ మీద, యాప్-సూచిత యాడ్‌ల సెట్టింగ్ మీద, మీ అడ్వర్టయిజింగ్ ID సెట్టింగ్‌ల మీద, అలాగే మీరు ఉపయోగిస్తున్న యాప్ యాడ్‌లను వ్యక్తిగతీకరిస్తుందా లేదా అనే దాని మీద ఆధారపడి ఉండవచ్చు.."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"యాప్ సూచించిన యాడ్‌లను అనుమతించండి"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"మీరు ఉపయోగించే యాప్‌లు మీకు ఏం నచ్చుతాయో నిర్ణయించి, ఇతర యాప్‌లలో యాడ్‌లను సూచించగలవు.\n\nయాప్‌లు సూచనలు చేయకుండా మీరు బ్లాక్ చేయవచ్చు. Android కూడా యాప్ సూచించిన డేటాను క్రమం తప్పకుండా ఆటోమేటిక్‌గా తొలగిస్తుంది.\n\nఈ ఫీచర్‌ను ఆన్ చేయగలిగినప్పటికీ, ఈ ఫీచర్ పూర్తిగా అందుబాటులోకి వచ్చే వరకు, యాప్‌లు దీన్ని ఉపయోగించడం ప్రారంభించే వరకు మీకు యాప్‌ల లిస్ట్ కనిపించకపోవచ్చు."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"మీరు బ్లాక్ చేసిన యాప్‌లు"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"యాప్‌లు సూచించిన డేటాను రీసెట్ చేయండి"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"మీరు ఉపయోగించే యాప్‌లు, మీ అనుభవాన్ని వ్యక్తిగతీకరించడానికి మీకు ఆసక్తి ఉన్న అంశాలను గుర్తుంచుకోవడం సాధారణం. యాప్‌లు మీ టాపిక్‌ల గురించి Androidతో సమాచారాన్ని కూడా స్టోర్ చేయగలవు.\n\nఉదాహరణకు, మీరు మారథాన్ ట్రైనింగ్‌కు సంబంధించిన యాప్‌ను ఉపయోగిస్తే, మీరు రన్నింగ్ షూల పట్ల ఆసక్తి కలిగి ఉన్నారని యాప్ నిర్ధారించవచ్చు. తర్వాత, మీరు వేరొక యాప్‌ను ఉపయోగిస్తే, మొదటి యాప్ సూచించిన రన్నింగ్ షూలకు సంబంధించిన యాడ్‌ను మీకు చూపవచ్చు.\n\nAndroid క్రమం తప్పకుండా యాప్ సూచించిన డేటాను ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు మళ్లీ ఉపయోగించే యాప్ లిస్ట్‌లో తిరిగి కనిపించవచ్చు. లేదా, మీ కోసం యాడ్‌లను సూచించకుండా మీరు యాప్‌ను బ్లాక్ చేయవచ్చు.\n\nమీ యాప్‌లలో మీరు చూసే యాడ్, ఈ సెట్టింగ్, యాడ్ టాపిక్‌ల సెట్టింగ్, మీ అడ్వర్టయిజింగ్ ID సెట్టింగ్‌లు ఇంకా మీరు ఉపయోగిస్తున్న యాప్ యాడ్‌లను వ్యక్తిగతీకరిస్తుందా అనే దాని ఆధారంగా అనుకూలీకరించబడవచ్చు."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"యాడ్‌ల విషయంలో గోప్యతకు సంబంధించి కొత్త ఫీచర్ ఇప్పుడు అందుబాటులో ఉంది"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"యాడ్ పనితీరును కొలవడానికి యాప్‌ల మధ్య చాలా పరిమిత సమాచారం మాత్రమే షేర్ చేయబడుతుంది"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"మేము యాడ్‌ల విషయంలో, యాడ్ మెజర్‌మెంట్ అనే కొత్త గోప్యతా ఫీచర్‌ను లాంచ్ చేస్తున్నాము. యాడ్‌ల పనితీరును కొలవడానికి యాప్‌లకు సహాయం చేయడానికి, మీకు యాడ్ చూపబడినప్పుడు వంటి చాలా పరిమిత సమాచారాన్ని మాత్రమే Android యాప్‌ల మధ్య షేర్ చేస్తుంది."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"మీరు యాడ్‌ల విషయంలో గోప్యత సెట్టింగ్‌లలో మార్పులు చేయవచ్చు."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"మీరు ఉపయోగించే యాప్‌లు తమ యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయపడటానికి Androidను సమాచారం కోసం అడగవచ్చు. పరిమిత రకాల డేటాను మాత్రమే కలెక్ట్ చేయడానికి యాప్‌లను Android అనుమతిస్తుంది."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"యాడ్ విషయంలో గోప్యత ఫీచర్‌లలో కొత్తవి"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"మీ గుర్తింపును రక్షించడంలో సహాయపడుతూనే, మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయానికి సంబంధించి మరిన్ని ఎంపికలను పొందండి"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"మీ యాడ్‌ల విషయంలో గోప్యత ఫీచర్‌లకు అప్‌డేట్‌లు"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"మీ గుర్తింపును రక్షించడంలో సహాయపడుతూనే, మీకు ఎలాంటి యాడ్‌లు కనిపించాలి అనే విషయానికి సంబంధించి మరిన్ని ఎంపికలను పొందండి"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"యాప్‌లు మీకు వ్యక్తిగతీకరించిన యాడ్‌లను చూపినప్పుడు మీ గురించి తెలుసుకునే అంశాలను నియంత్రించడానికి యాడ్ విషయంలో గోప్యత ఫీచర్‌లను Android విస్తరిస్తోంది."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"యాప్‌లు, వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, మీ గుర్తింపును ప్రైవేట్‌గా, సురక్షితంగా ఉంచడంలో సహాయపడుతూనే, యాడ్‌లను వ్యక్తిగతీకరించడానికి ఈ పరికరంలోని ఇతర యాప్‌లలో మీరు జరిపే యాక్టివిటీని ఉపయోగించవచ్చు."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"యాప్-సూచించిన యాడ్‌ల గురించి తెలుసుకోండి"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"యాప్‌లకు సంబంధించిన యాడ్‌ల పనితీరును అర్థం చేసుకోవడానికి వాటి మధ్య పరిమిత రకాల డేటా షేర్ చేయడం జరుగుతుంది, ఉదాహరణకు మీకు యాడ్ చూపిన రోజు, సమయం మొదలైనవి."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"యాడ్‌ల మెజర్‌మెంట్ గురించి మరింత తెలుసుకోండి"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"మీరు ఇటీవల ఉపయోగించిన యాప్‌ల ఆధారంగా మీకు ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది. అంతే కాకుండా, యాప్‌లు, వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, మీ గుర్తింపును ప్రైవేట్‌గా, సురక్షితంగా ఉంచడంలో సహాయపడుతూనే, యాడ్‌లను వ్యక్తిగతీకరించడానికి ఈ పరికరంలోని ఇతర యాప్‌లలో మీరు జరిపే యాక్టివిటీని ఉపయోగించవచ్చు."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  మీ యాప్ యాక్టివిటీ ఆధారంగా, మీకు ఏవేవి అంటే ఇష్టమో కూడా యాప్‌లు నిర్ణయించగలవు. ఉదాహరణకు, మీరు క్రమం తప్పకుండా కుకింగ్ యాప్‌లను ఉపయోగిస్తుంటే, మీకు ఇతర యాప్‌లలో గ్రాసరీ డెలివరీ సర్వీస్‌లకు లేదా సంబంధిత కంటెంట్‌కు సంబంధించిన యాడ్‌లు కనిపించవచ్చు.\n\nయాప్‌లు ఈ సమాచారాన్ని సురక్షితంగా స్టోర్ చేయగలవు, తద్వారా వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, ఇతర యాప్‌లలో యాడ్‌లను వ్యక్తిగతీకరించడానికి మాత్రమే ఆ సమాచారాన్ని ఉపయోగించగలరు."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"తర్వాత, మీరు ఉపయోగించే యాప్, ఈ సమాచారాన్ని అడగవచ్చు - మీ యాడ్ టాపిక్‌లు లేదా మీరు ఉపయోగించిన యాప్‌లు సూచించిన యాడ్‌లు."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"మీరు ఉపయోగించే యాప్‌లు తమ యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయం కోసం, Androidను సమాచారం కోసం అడగవచ్చు. యాప్‌లు ఒక దానితో మరొకటి షేర్ చేయగలిగే సమాచారాన్ని పరిమితం చేయడం ద్వారా Android మీ గోప్యతను కాపాడటంలో సహాయపడుతుంది."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"ఎలాంటి డేటా ఉపయోగించబడుతుంది?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"మీరు ఉపయోగించే యాప్‌లు, వాటి యాడ్‌ల పనితీరును అంచనా వేయడంలో సహాయపడే సమాచారాన్ని అందించాలని Androidను అడగవచ్చు. యాప్‌లు ఒకదానితో మరొకటి షేర్ చేసుకోగలిగే సమాచారాన్ని పరిమితం చేయడం ద్వారా Android మీ గోప్యతను రక్షించడంలో సహాయపడుతుంది."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"నా గుర్తింపు ఎలా రక్షించబడుతుంది?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"యాప్‌లు ఒకదానితో ఒకటి షేర్ చేసుకోగలిగే సమాచారాన్ని పరిమితం చేయడానికి, మీ గుర్తింపును రక్షించడంలో సహాయపడటానికి, అగ్రిగేషన్, నాయిసింగ్ డేటా వంటి పలు గోప్యతా చర్యలను Android ఉపయోగిస్తుంది.\n\nమీ పరికరం నుండి యాడ్ మెజర్‌మెంట్ డేటా క్రమం తప్పకుండా తొలగించబడుతుంది."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"మీ యాప్ యాక్టివిటీని, యాడ్‌లను సూచించడానికి ఉపయోగించవచ్చు."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"ఈ డేటాను యాప్‌లు ఎలా ఉపయోగిస్తాయి?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"యాప్‌లు ఈ సమాచారాన్ని సురక్షితంగా స్టోర్ చేయగలవు, తద్వారా వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, ఇతర యాప్‌లలో యాడ్‌లను వ్యక్తిగతీకరించడానికి మాత్రమే ఆ సమాచారాన్ని ఉపయోగించగలరు. ఉదాహరణకు, మీరు క్రమం తప్పకుండా కుకింగ్ యాప్‌లను ఉపయోగిస్తుంటే, మీకు ఇతర యాప్‌లలో గ్రాసరీ డెలివరీ సర్వీస్‌లకు లేదా సంబంధిత కంటెంట్‌కు సంబంధించిన యాడ్‌లు కనిపించవచ్చు."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"ఈ డేటాను నేను ఎలా మేనేజ్ చేసుకోగలను?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"మీరు మీ యాక్టివిటీని అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లతో షేర్ చేయకుండా నిర్దిష్ట యాప్‌లను బ్లాక్ చేయవచ్చు. మీరు మీ గోప్యతా సెట్టింగ్‌లలో ఎప్పుడైనా యాప్ సూచించిన యాడ్‌లను రీసెట్ చేయవచ్చు లేదా ఆఫ్ చేయవచ్చు. Android క్రమం తప్పకుండా ఈ డేటాను ఆటోమేటిక్‌గా తొలగిస్తుంది."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"మీ గోప్యతను రక్షించడంలో Android ఎలా సహాయపడుతుంది అనే దాని గురించి మరింత తెలుసుకోండి"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"యాప్‌లు, వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, మీ గుర్తింపును ప్రైవేట్‌గా, సురక్షితంగా ఉంచుతూనే, యాడ్‌లను వ్యక్తిగతీకరించడానికి ఈ పరికరంలోని ఇతర యాప్‌లలో మీరు జరిపే యాక్టివిటీని ఉపయోగించవచ్చు.\n\nఉదాహరణకు, మీరు క్రమం తప్పకుండా కుకింగ్ యాప్‌లను ఉపయోగిస్తుంటే, మీకు ఇతర యాప్‌లలో గ్రాసరీ డెలివరీ సర్వీస్‌లకు లేదా సంబంధిత కంటెంట్‌కు సంబంధించిన యాడ్‌లు కనిపించవచ్చు.\n\nAndroid మీ యాక్టివిటీని క్రమం తప్పకుండా ఆటోమేటిక్‌గా తొలగిస్తుంది, అయితే మీరు యాప్‌లను వారి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లతో ఈ సమాచారాన్ని షేర్ చేయకుండా బ్లాక్ చేయవచ్చు."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"యాప్‌లు, వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు మీ ఎక్స్‌పీరియన్స్‌ను వ్యక్తిగతీకరించడం కోసం మీకు ఆసక్తి ఉన్న అంశాలను గుర్తుంచుకోవడం సర్వసాధారణం. యాప్‌లు ఈ సమాచారాన్ని సురక్షితంగా స్టోర్ చేయగలవు, తద్వారా వాటి అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లు, ఇతర యాప్‌లలో యాడ్‌లను వ్యక్తిగతీకరించడానికి మాత్రమే ఆ సమాచారాన్ని ఉపయోగించగలరు.\n\nమీ కోసం యాడ్‌లను మీ యాక్టివిటీ డేటాను అడ్వర్టయిజింగ్ పార్ట్‌నర్‌లతో షేర్ చేయకుండా మీరు యాప్‌ను బ్లాక్ చేయవచ్చు Android, షేర్ చేయబడిన యాక్టివిటీ డేటాను క్రమం తప్పకుండా ఆటోమేటిక్‌గా తొలగిస్తుంది కూడా.\n\nమీకు కనబడే యాడ్ వ్యక్తిగతీకరించబడిందా లేదా అనేది ఈ సెట్టింగ్, యాప్-సూచించిన యాడ్ టాపిక్‌ల సెట్టింగ్ మీద, మీ అడ్వర్టయిజింగ్ ID సెట్టింగ్‌ల మీద, అలాగే మీరు ఉపయోగిస్తున్న యాప్ యాడ్‌లను వ్యక్తిగతీకరిస్తుందా లేదా అనే దాని మీద వంటి అనేక అంశాలపై ఆధారపడి ఉంటుంది.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"యాప్-సూచించిన యాడ్‌ల గురించి మరింత తెలుసుకోండి"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"యాప్‌లు ఒకదానితో ఒకటి షేర్ చేసుకోగలిగే సమాచారాన్ని పరిమితం చేయడానికి, మీ గుర్తింపును రక్షించడంలో సహాయపడటానికి, అగ్రిగేషన్, నాయిసింగ్ డేటా వంటి పలు గోప్యతా చర్యలను Android ఉపయోగిస్తుంది.\n\nమీ బ్రౌజర్‌లో ఇలాంటి సెట్టింగ్ ఉండవచ్చు. Android, అలాగే మీ బ్రౌజర్ రెండింటికీ యాడ్ మెజర్‌మెంట్ ఆన్‌లో ఉంటే, మీరు ఉపయోగించే యాప్‌లు, మీరు తెరిచే సైట్‌ల మధ్య యాడ్ సమర్థతను కంపెనీ అంచనా వేయగలదు. మీ బ్రౌజింగ్ హిస్టరీ మీ పరికరంలో ప్రైవేట్‌గా ఉంచబడుతుంది.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"యాడ్ మెజర్‌మెంట్ గురించి మరింత తెలుసుకోండి"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"మీరు గత కొన్ని వారాల్లో ఉపయోగించిన యాప్‌ల ఆధారంగా, ఆసక్తి ఉన్న టాపిక్‌లను Android నోట్ చేస్తుంది.\n\nతర్వాత, మీరు ఉపయోగించే యాప్ మీరు చూసే యాడ్‌లను వ్యక్తిగతీకరించడానికి మీకు ఆసక్తి ఉన్న టాపిక్‌లకు సంబంధించిన సమాచారం గురించి Androidను అడగవచ్చు. Android మీ గుర్తింపును, మీ యాప్ వినియోగం గురించిన సమాచారాన్ని రక్షిస్తూనే, గరిష్ఠంగా 3 టాపిక్‌లను షేర్ చేస్తుంది.\n\nAndroid క్రమం తప్పకుండా టాపిక్‌లను ఆటోమేటిక్‌గా తొలగిస్తుంది. మీరు యాప్‌లను ఉపయోగించడం కొనసాగిస్తున్నప్పుడు, లిస్ట్‌లో ఏదైనా ఒక టాపిక్ మళ్లీ కనిపించవచ్చు. లేదా Android ఏవైనా టాపిక్‌లను యాప్‌లతో షేర్ చేయకూడదు అని మీరు భావిస్తే, ఆ టాపిక్‌లను మీరు బ్లాక్ చేయవచ్చు. \n\nమీకు కనబడే యాడ్ వ్యక్తిగతీకరించబడిందా లేదా అనేది ఈ సెట్టింగ్, యాప్-సూచించిన యాడ్‌ల సెట్టింగ్ మీద, మీ అడ్వర్టయిజింగ్ ID సెట్టింగ్‌ల మీద, అలాగే మీరు ఉపయోగిస్తున్న యాప్ యాడ్‌లను వ్యక్తిగతీకరిస్తుందా లేదా అనే దాని మీద వంటి అనేక అంశాలపై ఆధారపడి ఉంటుంది.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"యాడ్ టాపిక్‌ల గురించి మరింత తెలుసుకోండి"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"మ్యూజిక్, వార్తలు, క్రీడల వంటి ఆసక్తి ఉన్న టాపిక్‌లను రంగురంగుల చిహ్నాలతో సూచించిన ఉదాహరణ"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"సర్కిల్ లోపల లాక్‌ను రంగు రంగులుగా సూచించిన ఉదాహరణ"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"తొమ్మిది చుక్కలతో ఏర్పడిన స్క్వేర్‌ను నలుపు, తెలుపు రంగులతో సూచించిన ఉదాహరణ"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"హార్ట్, ట్రయాంగిల్, స్క్వేర్ వంటి సాధారణమైన ఆకారాలను చిన్నగా నలుపు, తెలుపు రంగులతో సూచించిన ఉదాహరణ"</string>
+    <string name="topic10001" msgid="1270825507916795717">"కళలు &amp; వినోదం"</string>
+    <string name="topic10002" msgid="8657696153158750159">"నటన &amp; థియేటర్"</string>
+    <string name="topic10003" msgid="8107343709605778937">"యానిమే &amp; మాంగా"</string>
+    <string name="topic10004" msgid="8860839733494442614">"కార్టూన్‌లు"</string>
+    <string name="topic10005" msgid="2366794377271477958">"కామిక్స్"</string>
+    <string name="topic10006" msgid="3856192433168050494">"సంగీత కచేరీలు &amp; మ్యూజిక్ ఫెస్టివల్స్"</string>
+    <string name="topic10007" msgid="7701054618107492020">"డ్యాన్స్"</string>
+    <string name="topic10008" msgid="5566660187422751041">"వినోద పరిశ్రమ"</string>
+    <string name="topic10009" msgid="9048499060637442408">"ఫన్ &amp; ట్రివియా"</string>
+    <string name="topic10010" msgid="2312303716461948144">"ఫన్ టెస్ట్‌లు &amp; సరదా సర్వేలు"</string>
+    <string name="topic10011" msgid="175945911179628507">"హాస్యం"</string>
+    <string name="topic10012" msgid="7308795546139033442">"ఫన్నీ ఫోటోలు &amp; వీడియోలు"</string>
+    <string name="topic10013" msgid="1525199586552473496">"లైవ్ కామెడీ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"లైవ్ క్రీడా ఈవెంట్‌లు"</string>
+    <string name="topic10015" msgid="726046067079821146">"మ్యాజిక్"</string>
+    <string name="topic10016" msgid="2349985783026324836">"సినిమా లిస్టింగ్‌లు &amp; థియేటర్ షో‌‍టైమ్‌లు"</string>
+    <string name="topic10017" msgid="5137452934538259985">"సినిమాలు"</string>
+    <string name="topic10018" msgid="2701694124396534094">"యాక్షన్ &amp; సాహస సినిమాలు"</string>
+    <string name="topic10019" msgid="4229784972880729321">"యానిమేటెడ్ సినిమాలు"</string>
+    <string name="topic10020" msgid="7406506079009096133">"కామెడీ సినిమాలు"</string>
+    <string name="topic10021" msgid="8455397230215712525">"కల్ట్ &amp; ఇండీ సినిమాలు"</string>
+    <string name="topic10022" msgid="4121646102859453428">"డాక్యుమెంటరీ సినిమాలు"</string>
+    <string name="topic10023" msgid="254151319845267278">"డ్రామా సినిమాలు"</string>
+    <string name="topic10024" msgid="9166490951622139148">"ఫ్యామిలీ సినిమాలు"</string>
+    <string name="topic10025" msgid="4556814606759167730">"హారర్ సినిమాలు"</string>
+    <string name="topic10026" msgid="210222384439682793">"రొమాన్స్ సినిమాలు"</string>
+    <string name="topic10027" msgid="6865151893887179263">"థ్రిల్లర్"</string>
+    <string name="topic10028" msgid="7591747452141916447">"మ్యూజిక్ &amp; ఆడియో"</string>
+    <string name="topic10029" msgid="2603521148910221418">"బ్లూస్"</string>
+    <string name="topic10030" msgid="1882645896051165373">"క్లాసికల్ మ్యూజిక్"</string>
+    <string name="topic10031" msgid="3075843490601826275">"దేశీయ మ్యూజిక్"</string>
+    <string name="topic10032" msgid="5492959212920168739">"డ్యాన్స్ &amp; ఎలక్ట్రానిక్ మ్యూజిక్"</string>
+    <string name="topic10033" msgid="895853536740398847">"జానపద &amp; సాంప్రదాయ మ్యూజిక్"</string>
+    <string name="topic10034" msgid="4234814709585731313">"జాజ్"</string>
+    <string name="topic10035" msgid="4357756001621317728">"మ్యూజిక్ స్ట్రీమ్‌లు &amp; డౌన్‌లోడ్‌లు"</string>
+    <string name="topic10036" msgid="449833307315797283">"మ్యూజిక్ వీడియోలు"</string>
+    <string name="topic10037" msgid="51698216720637667">"సంగీత వాయిద్యాలు"</string>
+    <string name="topic10038" msgid="8450729953573104572">"పియానోలు &amp; కీబోర్డ్‌లు"</string>
+    <string name="topic10039" msgid="9069435933476958784">"పాప్ మ్యూజిక్"</string>
+    <string name="topic10040" msgid="2307340564445486423">"రేడియో"</string>
+    <string name="topic10041" msgid="7067032299296103616">"టాక్ రేడియో"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ర్యాప్ &amp; హిప్-హాప్"</string>
+    <string name="topic10043" msgid="8147403254760123570">"రాక్ మ్యూజిక్"</string>
+    <string name="topic10044" msgid="6201404431104417585">"క్లాసిక్ రాక్ &amp; పాత పాటలు"</string>
+    <string name="topic10045" msgid="3723162035372109422">"హార్డ్ రాక్ &amp; ప్రోగ్రెసివ్"</string>
+    <string name="topic10046" msgid="4700537150965749092">"ఇండీ &amp; ఆల్టర్నేటివ్ మ్యూజిక్"</string>
+    <string name="topic10047" msgid="6868724754947095800">"శాంపిల్స్ &amp; సౌండ్ లైబ్రరీలు"</string>
+    <string name="topic10048" msgid="1968071881240362644">"సోల్ &amp; R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"సౌండ్‌ట్రాక్‌లు"</string>
+    <string name="topic10050" msgid="1374275552775889532">"ప్రపంచ మ్యూజిక్"</string>
+    <string name="topic10051" msgid="5719726125732251258">"రెగ్గే &amp; కరేబియన్ మ్యూజిక్"</string>
+    <string name="topic10052" msgid="1284902821545612733">"ఆన్‌లైన్ ఇమేజ్ గ్యాలరీలు"</string>
+    <string name="topic10053" msgid="5420622301656482567">"ఆన్‌లైన్ వీడియో"</string>
+    <string name="topic10054" msgid="4562235511593399260">"లైవ్ వీడియో స్ట్రీమింగ్"</string>
+    <string name="topic10055" msgid="3752987507076288470">"సినిమా &amp; టీవీ స్ట్రీమింగ్"</string>
+    <string name="topic10056" msgid="1316228709578133569">"ఒపేరా"</string>
+    <string name="topic10057" msgid="3265794667031664331">"టీవీ గైడ్‌లు &amp; రిఫరెన్స్"</string>
+    <string name="topic10058" msgid="8409884272709263707">"టీవీ నెట్‌వర్క్‌లు &amp; స్టేషన్‌లు"</string>
+    <string name="topic10059" msgid="6770193120260554722">"టీవీ షోలు &amp; ప్రోగ్రామ్‌లు"</string>
+    <string name="topic10060" msgid="2410694865246432781">"టీవీ కామెడీలు"</string>
+    <string name="topic10061" msgid="7733515887806604226">"టీవీ డాక్యుమెంటరీ &amp; నాన్‌ఫిక్షన్"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV డ్రామా షోలు"</string>
+    <string name="topic10063" msgid="7645361077069015698">"టీవీ సోప్ ఒపేరాలు"</string>
+    <string name="topic10064" msgid="3322306867038013554">"కుటుంబ ప్రేక్షకులకు అనువైన టీవీ షోలు"</string>
+    <string name="topic10065" msgid="6361928032564256523">"టీవీ రియాలిటీ షోలు"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV సైన్స్ ఫిక్షన్ &amp; ఫాంటసీ షోలు"</string>
+    <string name="topic10067" msgid="6479768451596254929">"విజువల్ ఆర్ట్ &amp; డిజైన్"</string>
+    <string name="topic10068" msgid="7999222744500155387">"డిజైన్"</string>
+    <string name="topic10069" msgid="3345227631449580699">"పెయింటింగ్"</string>
+    <string name="topic10070" msgid="8921241315781663883">"ఫోటోగ్రాఫిక్ &amp; డిజిటల్ ఆర్ట్స్"</string>
+    <string name="topic10071" msgid="5802889978655775195">"ఆటోలు &amp; వాహనాలు"</string>
+    <string name="topic10072" msgid="7699714565299422080">"కార్గో ట్రక్కులు &amp; ట్రయిలర్‌లు"</string>
+    <string name="topic10073" msgid="8309536003187424408">"క్లాసిక్ వాహనాలు"</string>
+    <string name="topic10074" msgid="7682849385993670574">"అనుకూల &amp; పనితీరు వాహనాలు"</string>
+    <string name="topic10075" msgid="6556611554556269074">"గ్యాస్ ధరలు &amp; వాహన ఇంధనం"</string>
+    <string name="topic10076" msgid="4919696820372108489">"మోటార్ వాహనాలు (రకం వారీగా)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"అటానమస్ వాహనాలు"</string>
+    <string name="topic10078" msgid="4334233882549881927">"కన్వర్టిబుల్స్"</string>
+    <string name="topic10079" msgid="3172046203487780210">"కూప్స్"</string>
+    <string name="topic10080" msgid="8163934214927408125">"హాచ్‌బ్యాక్"</string>
+    <string name="topic10081" msgid="577995777553561437">"హైబ్రిడ్ &amp; ప్రత్యామ్నాయ వాహనాలు"</string>
+    <string name="topic10082" msgid="9109129029552185357">"లగ్జరీ వాహనాలు"</string>
+    <string name="topic10083" msgid="2403537768530923605">"మైక్రోకార్‌లు &amp; సబ్‌కాంపాక్ట్‌లు"</string>
+    <string name="topic10084" msgid="8422281545992763598">"మోటార్‌సైకిళ్లు"</string>
+    <string name="topic10085" msgid="8083861494180925476">"రహదారిలో వెళ్లని వాహనాలు"</string>
+    <string name="topic10086" msgid="7643969175312645412">"పికప్ ట్రక్‌లు"</string>
+    <string name="topic10087" msgid="2731154517409527341">"స్కూటర్‌లు &amp; మోపెడ్‌లు"</string>
+    <string name="topic10088" msgid="3252737061574829966">"సెడాన్‌లు"</string>
+    <string name="topic10089" msgid="5296300331452192377">"స్టేషన్ వాహనాలు"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUVలు &amp; క్రాస్ఓవర్‌లు"</string>
+    <string name="topic10091" msgid="1855954783407839458">"క్రాస్ఓవర్‌లు"</string>
+    <string name="topic10092" msgid="3748598147176261608">"వ్యాన్‌లు &amp; మినీవ్యాన్‌లు"</string>
+    <string name="topic10093" msgid="4427294934418177183">"టోయింగ్ &amp; రహదారి సహాయం"</string>
+    <string name="topic10094" msgid="2377839138225502290">"వాహనం &amp; ట్రాఫిక్ భద్రత"</string>
+    <string name="topic10095" msgid="84682415803421329">"వాహన భాగాలు &amp; యాక్సెసరీలు"</string>
+    <string name="topic10096" msgid="8920802377602814882">"వెహికల్ రిపేర్ &amp; నిర్వహణ"</string>
+    <string name="topic10097" msgid="1171171183482751335">"వాహన షాపింగ్"</string>
+    <string name="topic10098" msgid="2079957196489295765">"వాడిన వాహనాలు"</string>
+    <string name="topic10099" msgid="8979943848539150620">"వెహికల్ షోలు"</string>
+    <string name="topic10100" msgid="4197262693717174623">"బ్యూటీ &amp; ఫిట్‌నెస్"</string>
+    <string name="topic10101" msgid="7348658588841917441">"టాట్టూలు"</string>
+    <string name="topic10102" msgid="3638722720071045006">"ముఖం &amp; శరీర సంరక్షణ"</string>
+    <string name="topic10103" msgid="7505482487921433611">"యాంటీపెరిస్పిరెంట్‌లు"</string>
+    <string name="topic10104" msgid="6370054283334591202">"బాత్ &amp; బాడీ ప్రోడక్ట్‌లు"</string>
+    <string name="topic10105" msgid="1191169056931411220">"క్లీన్ బ్యూటీ"</string>
+    <string name="topic10106" msgid="3928455104996075953">"మేకప్ &amp; కాస్మెటిక్స్"</string>
+    <string name="topic10107" msgid="3798923390765338227">"గోళ్ల సంరక్షణా ప్రోడక్ట్‌లు"</string>
+    <string name="topic10108" msgid="577259588028933025">"పెర్‌ఫ్యూమ్‌లు &amp; సువాసనలు"</string>
+    <string name="topic10109" msgid="2191558742276310934">"రేజర్‌లు &amp; షేవర్‌లు"</string>
+    <string name="topic10110" msgid="4668859731019222824">"ఫ్యాషన్ &amp; స్టయిల్"</string>
+    <string name="topic10111" msgid="8382751996496129758">"ఫిట్‌నెస్"</string>
+    <string name="topic10112" msgid="2904455776326272301">"బాడీ బిల్డింగ్"</string>
+    <string name="topic10113" msgid="8931680908070341060">"ఫిట్‌నెస్ &amp; వ్యక్తిగత ట్రయినింగ్"</string>
+    <string name="topic10114" msgid="1666144425445242905">"ఫిట్‌నెస్ టెక్నాలజీ ప్రోడక్ట్‌లు"</string>
+    <string name="topic10115" msgid="3024886857586781525">"జుట్టు సంరక్షణ"</string>
+    <string name="topic10116" msgid="763642849903586689">"పుస్తకాలు &amp; సాహిత్యం"</string>
+    <string name="topic10117" msgid="2897295398887355445">"పిల్లల సాహిత్యం"</string>
+    <string name="topic10118" msgid="8261966919146004082">"ఈ-బుక్‌లు"</string>
+    <string name="topic10119" msgid="894448782525835364">"మ్యాగజైన్‌లు"</string>
+    <string name="topic10120" msgid="6413553316742475453">"కవిత్వం"</string>
+    <string name="topic10121" msgid="5743038898774111015">"బిజినెస్ &amp; పారిశ్రామిక"</string>
+    <string name="topic10122" msgid="9008408720895399838">"అడ్వర్టయిజింగ్ &amp; మార్కెటింగ్"</string>
+    <string name="topic10123" msgid="2259134467663515137">"సేల్స్"</string>
+    <string name="topic10124" msgid="6342988250432534253">"వ్యవసాయం &amp; అటవీశాఖ"</string>
+    <string name="topic10125" msgid="4258543381071903891">"ఆహార ఉత్పత్తి"</string>
+    <string name="topic10126" msgid="7175643869342613083">"మోటార్ వెహికల్స్ పరిశ్రమ"</string>
+    <string name="topic10127" msgid="6431712570995680971">"విమానయాన పరిశ్రమ"</string>
+    <string name="topic10128" msgid="4235280795901477432">"బిజినెస్ యాక్టివిటీలు"</string>
+    <string name="topic10129" msgid="7076722669374577677">"సౌకర్యవంతంగా పని చేసే ఏర్పాట్లు"</string>
+    <string name="topic10130" msgid="3611582433482627069">"మానవ వనరులు"</string>
+    <string name="topic10131" msgid="1372513307847962621">"వాణిజ్యపరమైన లెండింగ్"</string>
+    <string name="topic10132" msgid="4784716346965522438">"నిర్మాణం &amp; నిర్వహణ"</string>
+    <string name="topic10133" msgid="7421272318291450977">"సివిల్ ఇంజినీరింగ్"</string>
+    <string name="topic10134" msgid="6960637850006318075">"డిఫెన్స్ పరిశ్రమ"</string>
+    <string name="topic10135" msgid="3682767135401089609">"ఎనర్జీ &amp; యుటిలిటీస్"</string>
+    <string name="topic10136" msgid="455894912948558854">"నీటి సరఫరా &amp; చికిత్స"</string>
+    <string name="topic10137" msgid="8298610586001250767">"ఆతిథ్య పరిశ్రమ"</string>
+    <string name="topic10138" msgid="1297997683887620829">"తయారీ రంగం"</string>
+    <string name="topic10139" msgid="2881410777083033235">"మెటల్స్ &amp; amp; మైనింగ్"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM &amp; బిజినెస్ అవకాశాలు"</string>
+    <string name="topic10141" msgid="2209863158714894227">"ఫార్మాస్యూటికల్స్ &amp; బయోటెక్"</string>
+    <string name="topic10142" msgid="5503134498670972397">"ప్రింటింగ్ &amp; పబ్లిషింగ్"</string>
+    <string name="topic10143" msgid="7443122495469194311">"రిటైల్ ట్రేడ్"</string>
+    <string name="topic10144" msgid="4491152042745513902">"వెంచర్ క్యాపిటల్"</string>
+    <string name="topic10145" msgid="7181389660165515306">"కంప్యూటర్‌లు &amp; ఎలక్ట్రానిక్స్"</string>
+    <string name="topic10146" msgid="5319328674320188177">"కంప్యూటర్ విడిభాగాలు"</string>
+    <string name="topic10147" msgid="3115360970477190823">"ప్రింటర్‌లు"</string>
+    <string name="topic10148" msgid="388392714835039199">"కంప్యూటర్ సెక్యూరిటీ"</string>
+    <string name="topic10149" msgid="8669494095915530311">"యాంటీవైరస్ &amp; మాల్‌వేర్"</string>
+    <string name="topic10150" msgid="7287887356428407082">"నెట్‌వర్క్ సెక్యూరిటీ"</string>
+    <string name="topic10151" msgid="1896865948857670589">"కన్జ్యూమర్ ఎలక్ట్రానిక్స్"</string>
+    <string name="topic10152" msgid="2229775287055715130">"కెమెరాలు &amp; క్యామ్‌కార్డర్‌లు"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS &amp; నావిగేషన్"</string>
+    <string name="topic10154" msgid="6865619906648095342">"హోమ్ ఆటోమేషన్"</string>
+    <string name="topic10155" msgid="6083736045761149547">"హోమ్ థియేటర్ సిస్టమ్‌లు"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 &amp; పోర్టబిల్ మీడియా ప్లేయర్‌లు"</string>
+    <string name="topic10157" msgid="5681638457846277732">"టెక్నాలజీ కలిగిన ధరించే పరికరాలు"</string>
+    <string name="topic10158" msgid="3203453971647354680">"డేటా బ్యాకప్ &amp; రికవరీ"</string>
+    <string name="topic10159" msgid="5630430439595766824">"డెస్క్‌టాప్ కంప్యూటర్‌లు"</string>
+    <string name="topic10160" msgid="4829448963240629016">"ల్యాప్‌టాప్‌లు &amp; నోట్‌బుక్‌లు"</string>
+    <string name="topic10161" msgid="172004201167511870">"నెట్‌వర్కింగ్"</string>
+    <string name="topic10162" msgid="6091195506695436179">"పంపిణీ &amp; క్లౌడ్ కంప్యూటింగ్"</string>
+    <string name="topic10163" msgid="1151401754761855146">"ప్రోగ్రామింగ్"</string>
+    <string name="topic10164" msgid="9084381711034794904">"సాఫ్ట్‌వేర్"</string>
+    <string name="topic10165" msgid="7794619191364239903">"ఆడియో &amp; మ్యూజిక్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10166" msgid="8763250476037582784">"బిజినెస్ &amp; ప్రోడక్టివిటీ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10167" msgid="2049380875864013534">"క్యాలెండర్ &amp; షెడ్యూలింగ్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10168" msgid="8902187628490964169">"సహకారం &amp; కాన్ఫరెన్సింగ్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10169" msgid="827557334245484202">"ప్రెజెంటేషన్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10170" msgid="9004257492478793528">"స్ప్రెడ్‌షీట్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10171" msgid="7993474143932045967">"వర్డ్ ప్రాసెసింగ్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10172" msgid="7796145013604839047">"డెస్క్‌టాప్ పబ్లిషింగ్"</string>
+    <string name="topic10173" msgid="2914187257631238849">"ఫాంట్‌లు"</string>
+    <string name="topic10174" msgid="2115617300581130014">"డౌన్‌లోడ్ మేనేజర్‌లు"</string>
+    <string name="topic10175" msgid="5871766754983733443">"ఫ్రీవేర్ &amp; షేర్‌వేర్"</string>
+    <string name="topic10176" msgid="4556902534984350353">"గ్రాఫిక్స్ &amp; యానిమేషన్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ఇంటెలిజెంట్ పర్సనల్ అసిస్టెంట్‌లు"</string>
+    <string name="topic10178" msgid="6156514295355993755">"మీడియా ప్లేయర్‌లు"</string>
+    <string name="topic10179" msgid="4166560755175055525">"మానిటరింగ్ సాఫ్ట్‌వేర్"</string>
+    <string name="topic10180" msgid="1616408866159152420">"ఆపరేటింగ్ సిస్టమ్‌లు"</string>
+    <string name="topic10181" msgid="1104637623376778918">"ఫోటో &amp; వీడియో సాఫ్ట్‌వేర్"</string>
+    <string name="topic10182" msgid="4433309778429721885">"ఫోటో సాఫ్ట్‌వేర్"</string>
+    <string name="topic10183" msgid="7726225846283601216">"వీడియో సాఫ్ట్‌వేర్"</string>
+    <string name="topic10184" msgid="7666718573841178521">"సాఫ్ట్‌వేర్ యుటిలిటీలు"</string>
+    <string name="topic10185" msgid="7090504131394943791">"వెబ్ బ్రౌజర్‌లు"</string>
+    <string name="topic10186" msgid="2894398454040127175">"ఫైనాన్స్"</string>
+    <string name="topic10187" msgid="3321209590831212269">"అకౌంటింగ్ &amp; ఆడిటింగ్"</string>
+    <string name="topic10188" msgid="6091864564976149142">"ట్యాక్స్ ప్రిపరేషన్ &amp; ప్లానింగ్"</string>
+    <string name="topic10189" msgid="5722909809680931661">"బ్యాంకింగ్"</string>
+    <string name="topic10190" msgid="4954502185848303449">"నగదు బదిలీ &amp; వైర్ సర్వీస్‌లు"</string>
+    <string name="topic10191" msgid="374364159635356705">"క్రెడిట్ &amp; లెండింగ్"</string>
+    <string name="topic10192" msgid="4780985034026130257">"క్రెడిట్ కార్డ్‌లు"</string>
+    <string name="topic10193" msgid="5010972379907168829">"హోమ్ ఫైనాన్సింగ్"</string>
+    <string name="topic10194" msgid="1311944420068992723">"వ్యక్తిగత లోన్‌లు"</string>
+    <string name="topic10195" msgid="7554681395283728871">"విద్యార్థి లోన్‌లు &amp; కాలేజ్ ఫైనాన్సింగ్"</string>
+    <string name="topic10196" msgid="1390058955048742733">"ఫైనాన్షియల్ ప్లానింగ్ &amp; మేనేజ్‌మెంట్"</string>
+    <string name="topic10197" msgid="6999203003544574270">"పదవీ విరమణ &amp; పెన్షన్"</string>
+    <string name="topic10198" msgid="1172025416206301419">"గ్రాంట్స్"</string>
+    <string name="topic10199" msgid="2817599683028682473">"మంజూరులు"</string>
+    <string name="topic10200" msgid="4560138974690686847">"బీమా"</string>
+    <string name="topic10201" msgid="447240478385298875">"ఆటో బీమా"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ఆరోగ్య బీమా"</string>
+    <string name="topic10203" msgid="6593194921457271151">"గృహ బీమా"</string>
+    <string name="topic10204" msgid="4634976092969827804">"జీవిత బీమా"</string>
+    <string name="topic10205" msgid="262581473890356377">"ప్రయాణ బీమా"</string>
+    <string name="topic10206" msgid="5534905376642807172">"పెట్టుబడి"</string>
+    <string name="topic10207" msgid="2202788132330201137">"వస్తువులు &amp; ఫ్యూచర్స్ ట్రేడింగ్"</string>
+    <string name="topic10208" msgid="1250532081213960304">"కరెన్సీలు &amp; విదేశీ మారకం"</string>
+    <string name="topic10209" msgid="7384658616986998949">"హెడ్జ్ ఫండ్స్"</string>
+    <string name="topic10210" msgid="5646412565978393234">"మ్యూచువల్ ఫండ్‌లు"</string>
+    <string name="topic10211" msgid="2001835133812379482">"స్టాక్‌లు &amp; బాండ్‌లు"</string>
+    <string name="topic10212" msgid="2364530251853656532">"ఆహారం &amp; పానీయం"</string>
+    <string name="topic10213" msgid="805716705436663130">"వంట &amp; వంటకాలు"</string>
+    <string name="topic10214" msgid="726298155737413779">"బార్బెక్యూ &amp; గ్రిల్లింగ్"</string>
+    <string name="topic10215" msgid="1502589059550612499">"వంటకాలు"</string>
+    <string name="topic10216" msgid="7699499757302291329">"శాకాహార వంటకాలు"</string>
+    <string name="topic10217" msgid="2160292055279553771">"వేగన్ వంటకాలు"</string>
+    <string name="topic10218" msgid="4090671581843003332">"ఆరోగ్యకరమైన ఆహారం"</string>
+    <string name="topic10219" msgid="7663946426520362378">"ఆహారం &amp; కిరాణా రిటైలర్‌లు"</string>
+    <string name="topic10220" msgid="4812477283307222367">"గేమ్‌లు"</string>
+    <string name="topic10221" msgid="2320959705105050635">"ఆర్కేడ్ &amp; కాయిన్‌తో నడిచే గేమ్‌లు"</string>
+    <string name="topic10222" msgid="1659423113675232767">"బిలియర్డ్స్"</string>
+    <string name="topic10223" msgid="3526662148224862522">"బోర్డ్ గేమ్‌లు"</string>
+    <string name="topic10224" msgid="8806949357679505576">"చెస్ &amp; ఆబ్‌స్ట్రాక్ట్ వ్యూహాత్మక గేమ్‌లు"</string>
+    <string name="topic10225" msgid="564207834821286301">"కార్డ్ గేమ్‌లు"</string>
+    <string name="topic10226" msgid="6918788605930334066">"సేకరించగల కార్డ్ ఆటలు"</string>
+    <string name="topic10227" msgid="7011042093822468388">"కంప్యూటర్ &amp; వీడియో గేమ్‌లు"</string>
+    <string name="topic10228" msgid="6883716111007300369">"యాక్షన్ &amp; ప్లాట్‌ఫామ్ గేమ్‌లు"</string>
+    <string name="topic10229" msgid="1448569034984381121">"సాహసాల గేమ్‌లు"</string>
+    <string name="topic10230" msgid="3350872631578952799">"సరదా గేమ్‌లు"</string>
+    <string name="topic10231" msgid="405082026972839048">"వీడియో గేమ్ పోటీలు"</string>
+    <string name="topic10232" msgid="1839026948327779776">"డ్రైవింగ్ &amp; రేసింగ్ గేమ్‌లు"</string>
+    <string name="topic10233" msgid="1188186151495453281">"ఫైటింగ్ గేమ్‌లు"</string>
+    <string name="topic10234" msgid="693433817142162565">"గేమింగ్ రిఫరెన్స్ &amp; రివ్యూలు"</string>
+    <string name="topic10235" msgid="8703923040923920090">"వీడియో గేమ్ చీట్స్ &amp; సూచనలు"</string>
+    <string name="topic10236" msgid="320145832033080647">"ఎక్కువ మంది కలిసి ఆడే గేమ్‌లు"</string>
+    <string name="topic10237" msgid="5441671482070243974">"మ్యూజిక్ &amp; డ్యాన్స్ గేమ్‌లు"</string>
+    <string name="topic10238" msgid="124952008622371505">"శాండ్‌బాక్స్ గేమ్‌లు"</string>
+    <string name="topic10239" msgid="8116373838332949879">"షూటర్ గేమ్‌లు"</string>
+    <string name="topic10240" msgid="429738690314619395">"సిమ్యులేషన్ గేమ్‌లు"</string>
+    <string name="topic10241" msgid="6759586807395308444">"బిజినెస్ &amp; టైకూన్ గేమ్‌లు"</string>
+    <string name="topic10242" msgid="6446465880310926504">"నగర నిర్మాణ గేమ్‌లు"</string>
+    <string name="topic10243" msgid="1900180483768183189">"లైఫ్ సిమ్యులేషన్ గేమ్‌లు"</string>
+    <string name="topic10244" msgid="7177785844550764762">"వాహన సిమ్యులేటర్‌లు"</string>
+    <string name="topic10245" msgid="3479291573578622081">"క్రీడల గేమ్‌లు"</string>
+    <string name="topic10246" msgid="1362878793775338590">"స్పోర్ట్స్ మేనేజ్‌మెంట్ గేమ్‌లు"</string>
+    <string name="topic10247" msgid="7167743512938031275">"వ్యూహరచన గేమ్‌లు"</string>
+    <string name="topic10248" msgid="279151815457227293">"వీడియో గేమ్ మాడిఫికేషన్‌లు &amp; యాడ్-ఆన్‌లు"</string>
+    <string name="topic10249" msgid="631580828608894782">"విద్యాసంబంధ గేమ్‌లు"</string>
+    <string name="topic10250" msgid="8788829601095126859">"కుటుంబ ప్రేక్షకులకు అనువైన గేమ్‌లు &amp; యాక్టివిటీలు"</string>
+    <string name="topic10251" msgid="4289374662760140512">"డ్రాయింగ్ &amp; కలరింగ్"</string>
+    <string name="topic10252" msgid="3704663832286223948">"వేషధారణ &amp; ఫ్యాషన్ గేమ్‌లు"</string>
+    <string name="topic10253" msgid="385499297969826942">"పజిల్స్ &amp; బ్రెయిన్‌టీజర్‌లు"</string>
+    <string name="topic10254" msgid="3407688580587226586">"పాత్రలను పోషించే గేమ్‌లు"</string>
+    <string name="topic10255" msgid="5123382868307815261">"టేబుల్ టెన్నిస్"</string>
+    <string name="topic10256" msgid="3732657908002298514">"టైల్ గేమ్‌లు"</string>
+    <string name="topic10257" msgid="1563737702727245186">"పదాల గేమ్‌లు"</string>
+    <string name="topic10258" msgid="3098024313656910144">"హాబీలు &amp; amp; విరామం"</string>
+    <string name="topic10259" msgid="4943419230459875946">"వార్షికోత్సవాలు"</string>
+    <string name="topic10260" msgid="8082531986100775125">"పుట్టినరోజులు &amp; నామకరణ రోజులు"</string>
+    <string name="topic10261" msgid="5848226607755547256">"డైవింగ్ &amp; అండర్ వాటర్ యాక్టివిటీలు"</string>
+    <string name="topic10262" msgid="7200864040450019529">"ఫైబర్ &amp; టెక్స్‌టైల్ ఆర్ట్స్"</string>
+    <string name="topic10263" msgid="361345691023794788">"ప్రకృతి"</string>
+    <string name="topic10264" msgid="1786205972094583167">"ఫిషింగ్"</string>
+    <string name="topic10265" msgid="2823178926106728570">"వేట &amp; షూటింగ్"</string>
+    <string name="topic10266" msgid="8850275614185862002">"పెయింట్‌బాల్"</string>
+    <string name="topic10267" msgid="3722262029580639019">"రేడియో కంట్రోల్ &amp; amp; మోడలింగ్"</string>
+    <string name="topic10268" msgid="3854589101176380228">"వివాహాలు"</string>
+    <string name="topic10269" msgid="6274589872519767859">"ఇల్లు &amp; తోట"</string>
+    <string name="topic10270" msgid="6333380157855869252">"తోటపని"</string>
+    <string name="topic10271" msgid="7654177637864012480">"ఇల్లు &amp; ఇంటీరియర్ డెకర్"</string>
+    <string name="topic10272" msgid="3679206633003573176">"గృహోపకరణాలు"</string>
+    <string name="topic10273" msgid="7964372799408781017">"గృహ మెరుగుదల"</string>
+    <string name="topic10274" msgid="7438404923297950713">"ఇంటి భద్రత &amp; సెక్యూరిటీ"</string>
+    <string name="topic10275" msgid="682064062059687444">"గృహ సామాగ్రి"</string>
+    <string name="topic10276" msgid="6967461678618700017">"ల్యాండ్‌స్కేప్ డిజైన్"</string>
+    <string name="topic10277" msgid="5888643119731566320">"ఇంటర్నెట్ &amp; టెలికామ్"</string>
+    <string name="topic10278" msgid="1736187026108921963">"ఈమెయిల్ &amp; మెసేజింగ్"</string>
+    <string name="topic10279" msgid="9034205050642228743">"ఈమెయిల్"</string>
+    <string name="topic10280" msgid="3168053876492638177">"టెక్స్ట్ &amp; ఇన్‌స్టంట్ మెసేజింగ్"</string>
+    <string name="topic10281" msgid="582764575763317221">"వాయిస్ &amp; వీడియో చాట్"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISPలు"</string>
+    <string name="topic10283" msgid="4990902662337451282">"ఫోన్ సర్వీస్ ప్రొవైడర్‌లు"</string>
+    <string name="topic10284" msgid="8298837964949288587">"రింగ్‌టోన్‌లు &amp; మొబైల్ థీమ్‌లు"</string>
+    <string name="topic10285" msgid="5409600379647005862">"సెర్చ్ ఇంజిన్‌లు"</string>
+    <string name="topic10286" msgid="5120434472606081895">"స్మార్ట్ ఫోన్‌లు"</string>
+    <string name="topic10287" msgid="3350459436622898201">"టెలికాన్ఫరెన్సింగ్"</string>
+    <string name="topic10288" msgid="4197272921112835157">"వెబ్ యాప్‌లు &amp; ఆన్‌లైన్ టూల్స్"</string>
+    <string name="topic10289" msgid="5361961713593805925">"వెబ్ సర్వీస్‌లు"</string>
+    <string name="topic10290" msgid="1030690821237195132">"క్లౌడ్ స్టోరేజ్"</string>
+    <string name="topic10291" msgid="4049265350889304495">"వెబ్ డిజైన్ &amp; డెవలప్‌మెంట్"</string>
+    <string name="topic10292" msgid="3386329227033265361">"వెబ్ హోస్టింగ్"</string>
+    <string name="topic10293" msgid="5737650187548034975">"ఉద్యోగాలు &amp; విద్య"</string>
+    <string name="topic10294" msgid="4134169605040294646">"విద్య"</string>
+    <string name="topic10295" msgid="331240908257602211">"అకడమిక్ కాన్ఫరెన్సులు &amp; పబ్లికేషన్స్"</string>
+    <string name="topic10296" msgid="8588303480683748067">"కాలేజీలు &amp; యూనివర్సిటీలు"</string>
+    <string name="topic10297" msgid="6374270931732387420">"దూర విద్య"</string>
+    <string name="topic10298" msgid="1588575102152049123">"పూర్వ ప్రాథమిక విద్య"</string>
+    <string name="topic10299" msgid="2437152839161363820">"ప్రీస్కూల్"</string>
+    <string name="topic10300" msgid="1716635660730089544">"గృహశిక్షణ"</string>
+    <string name="topic10301" msgid="7986927377838820550">"స్టాండర్డ్ &amp; అడ్మిషన్స్ టెస్ట్‌లు"</string>
+    <string name="topic10302" msgid="5998774512114172286">"టీచింగ్ &amp; క్లాస్‌రూమ్ రిసోర్స్‌లు"</string>
+    <string name="topic10303" msgid="4585533807035591476">"వొకేషనల్ &amp; కొనసాగుతున్న విద్య"</string>
+    <string name="topic10304" msgid="7882895278855442691">"ఉద్యోగాలు"</string>
+    <string name="topic10305" msgid="5595618454946980801">"కెరీర్ రిసోర్సులు &amp; ప్లానింగ్"</string>
+    <string name="topic10306" msgid="2721676636117931598">"ఉద్యోగ లిస్ట్‌లు"</string>
+    <string name="topic10307" msgid="1718396745825058084">"చట్టం &amp; ప్రభుత్వం"</string>
+    <string name="topic10308" msgid="5324738087341048710">"నేరం &amp; న్యాయం"</string>
+    <string name="topic10309" msgid="6295029954614836413">"చట్టపరమైన"</string>
+    <string name="topic10310" msgid="8422735354338745855">"చట్టపరమైన సర్వీస్‌లు"</string>
+    <string name="topic10311" msgid="1230675855406761762">"వార్తలు"</string>
+    <string name="topic10312" msgid="6827799049548932141">"ఎకానమీ వార్తలు"</string>
+    <string name="topic10313" msgid="2329065661493302739">"స్థానిక వార్తలు"</string>
+    <string name="topic10314" msgid="8901835561696055036">"విలీనాలు &amp; స్వాధీనాలు"</string>
+    <string name="topic10315" msgid="5854338074460033131">"వార్తాపత్రికలు"</string>
+    <string name="topic10316" msgid="5102748655058857401">"రాజకీయాలు"</string>
+    <string name="topic10317" msgid="888696185673599406">"క్రీడా వార్తలు"</string>
+    <string name="topic10318" msgid="8287583657423629224">"వాతావరణం"</string>
+    <string name="topic10319" msgid="8709805241522664825">"ప్రపంచ వార్తలు"</string>
+    <string name="topic10320" msgid="2512907250610386132">"ఆన్‌లైన్ కమ్యూనిటీలు"</string>
+    <string name="topic10321" msgid="7457693963027299711">"క్లిప్ ఆర్ట్ &amp; యానిమేటెడ్ GIFలు"</string>
+    <string name="topic10322" msgid="3527120229469957977">"డేటింగ్ &amp; వ్యక్తిగతాలు"</string>
+    <string name="topic10323" msgid="6172125921314846923">"ఫీడ్ అగ్రిగేషన్ &amp; సోషల్ బుక్‌మార్కింగ్"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ఫైల్ షేరింగ్ &amp; హోస్టింగ్"</string>
+    <string name="topic10325" msgid="916412844647169263">"ఫోరమ్ &amp; చాట్ ప్రొవైడర్‌లు"</string>
+    <string name="topic10326" msgid="9167525727089128814">"మైక్రోబ్లాగింగ్"</string>
+    <string name="topic10327" msgid="3594488251348215868">"ఫోటో &amp; వీడియో షేరింగ్"</string>
+    <string name="topic10328" msgid="5431605505487660527">"ఫోటో &amp; ఇమేజ్ షేరింగ్"</string>
+    <string name="topic10329" msgid="2949598007790820705">"వీడియో షేరింగ్"</string>
+    <string name="topic10330" msgid="4210169032750748349">"స్కిన్‌లు"</string>
+    <string name="topic10331" msgid="9148081156366912077">"సోషల్ నెట్‌వర్క్ యాప్‌లు &amp; యాడ్-ఆన్‌లు"</string>
+    <string name="topic10332" msgid="1812925257476776861">"సోషల్ నెట్‌వర్క్‌లు"</string>
+    <string name="topic10333" msgid="5793613565022694596">"వ్యక్తులు &amp; amp; సమాజం"</string>
+    <string name="topic10334" msgid="2146426680680125392">"ఫ్యామిలీ &amp; అనుబంధాలు"</string>
+    <string name="topic10335" msgid="8268284709343326034">"సంతతి &amp; వంశ పరిణామ క్రమం"</string>
+    <string name="topic10336" msgid="360328903013424569">"వివాహం"</string>
+    <string name="topic10337" msgid="6450553850860149046">"పిల్లల సంరక్షణ"</string>
+    <string name="topic10338" msgid="3722340462966505867">"దత్తత"</string>
+    <string name="topic10339" msgid="8126807339140404862">"పిల్లలు &amp; పసిపిల్లలు"</string>
+    <string name="topic10340" msgid="259457452971577855">"పిల్లలకు ఇంటర్నెట్ భద్రత"</string>
+    <string name="topic10341" msgid="9138253009638520984">"రొమాన్స్"</string>
+    <string name="topic10342" msgid="3272595442607863965">"సైన్స్ ఫిక్షన్ &amp; ఫాంటసీ"</string>
+    <string name="topic10343" msgid="7170264926050881882">"పెంపుడు జంతువులు &amp; జంతువులు"</string>
+    <string name="topic10344" msgid="6956876217624431965">"పెంపుడు జంతువుల ఆహారం &amp; amp; పెంపుడు జంతువుల సంరక్షణ సరఫరాలు"</string>
+    <string name="topic10345" msgid="8114717708270133007">"పెంపుడు జంతువులు"</string>
+    <string name="topic10346" msgid="3632598362312784148">"పక్షులు"</string>
+    <string name="topic10347" msgid="1650823938622414225">"పిల్లులు"</string>
+    <string name="topic10348" msgid="570783769757187957">"కుక్కలు"</string>
+    <string name="topic10349" msgid="6069145390145874420">"చేప &amp; అక్వేరియా"</string>
+    <string name="topic10350" msgid="7438757598978766290">"సరీసృపాలు &amp; ఉభయచరాలు"</string>
+    <string name="topic10351" msgid="2065353497413573236">"పశువైద్యులు"</string>
+    <string name="topic10352" msgid="2787610393079898221">"రియల్ ఎస్టేట్"</string>
+    <string name="topic10353" msgid="230887584509968233">"ప్లాట్‌లు &amp; భూమి"</string>
+    <string name="topic10354" msgid="2552020152740480445">"టైమ్‌షేర్‌లు &amp; వెకేషన్ ప్రాపర్టీలు"</string>
+    <string name="topic10355" msgid="3803439663410756731">"రెఫరెన్స్"</string>
+    <string name="topic10356" msgid="1282534977124646845">"బిజినెస్ &amp; వ్యక్తిగత లిస్టింగ్‌లు"</string>
+    <string name="topic10357" msgid="1506615046588912749">"సాధారణ సూచన"</string>
+    <string name="topic10358" msgid="4670198218200218886">"కాలిక్యులేటర్‌లు &amp; రిఫరెన్స్ టూల్స్"</string>
+    <string name="topic10359" msgid="4422164571631604534">"డిక్షనరీలు &amp; ఎన్సైక్లోపీడియాలు"</string>
+    <string name="topic10360" msgid="4777419229443131291">"విద్యా సంబంధిత రిసోర్స్‌లు"</string>
+    <string name="topic10361" msgid="2911719878674200735">"ఎలా"</string>
+    <string name="topic10362" msgid="8045493635242789203">"టైమ్ &amp; క్యాలెండర్‌లు"</string>
+    <string name="topic10363" msgid="3433488479827868110">"భాషా సంబంధిత రిసోర్స్‌లు"</string>
+    <string name="topic10364" msgid="7272051128606899896">"విదేశీ భాషా అధ్యయనం"</string>
+    <string name="topic10365" msgid="1638685557205583094">"అనువాద టూల్స్ &amp; రిసోర్స్‌లు"</string>
+    <string name="topic10366" msgid="5972643213789684860">"మ్యాప్‌లు"</string>
+    <string name="topic10367" msgid="4693720215957988260">"సైన్స్"</string>
+    <string name="topic10368" msgid="7342229547845270303">"అగ్‌మెంటెడ్ &amp; వర్చువల్ రియాలిటీ"</string>
+    <string name="topic10369" msgid="7623948477078242419">"జీవశాస్త్రం"</string>
+    <string name="topic10370" msgid="1849957115993781053">"జన్యుశాస్త్రం"</string>
+    <string name="topic10371" msgid="5801324530787262649">"రసాయన శాస్త్రం"</string>
+    <string name="topic10372" msgid="7043359432633182804">"ఎకాలజీ &amp; పర్యావరణం"</string>
+    <string name="topic10373" msgid="1506052968197311461">"భూగర్భ శాస్త్రం"</string>
+    <string name="topic10374" msgid="5081919530597944716">"మెషిన్ లెర్నింగ్‌ &amp; ఆర్టిఫిషియల్ ఇంటెలిజెన్స్"</string>
+    <string name="topic10375" msgid="7880740430968664319">"గణిత శాస్త్రం"</string>
+    <string name="topic10376" msgid="8685831276841267222">"భౌతిక శాస్త్రం"</string>
+    <string name="topic10377" msgid="8162056465305020784">"రోబోటిక్స్"</string>
+    <string name="topic10378" msgid="6048245367747141920">"షాపింగ్"</string>
+    <string name="topic10379" msgid="3561154473861357708">"పురాతన వస్తువులు &amp; సేకరణలు"</string>
+    <string name="topic10380" msgid="3001377458860648561">"దుస్తులు"</string>
+    <string name="topic10381" msgid="1050316146323573972">"పిల్లల దుస్తులు"</string>
+    <string name="topic10382" msgid="1131102032733237256">"దుస్తులు"</string>
+    <string name="topic10383" msgid="2953255538603038999">"పురుషుల వస్త్రాలు"</string>
+    <string name="topic10384" msgid="5208244211687593882">"మహిళల వస్త్రధారణ"</string>
+    <string name="topic10385" msgid="3335546606796359244">"క్లాసిఫైడ్‌లు"</string>
+    <string name="topic10386" msgid="6517746237788385147">"కన్జ్యూమర్ రిసోర్స్‌లు"</string>
+    <string name="topic10387" msgid="8607123472737800846">"కూపన్‌లు &amp; డిస్కౌంట్ ఆఫర్‌లు"</string>
+    <string name="topic10388" msgid="1641030315133068943">"లాయల్టీ కార్డ్‌లు &amp; ప్రోగ్రామ్‌లు"</string>
+    <string name="topic10389" msgid="8196319126164726646">"టెక్నికల్ సపోర్ట్ &amp; రిపేర్"</string>
+    <string name="topic10390" msgid="1361120031667629697">"పువ్వులు"</string>
+    <string name="topic10391" msgid="9119667040520612849">"గ్రీటింగ్ కార్డ్‌లు"</string>
+    <string name="topic10392" msgid="6877484311325584713">"పార్టీ &amp; సెలవు సామగ్రి"</string>
+    <string name="topic10393" msgid="7537523054091079737">"షాపింగ్ పోర్టల్స్"</string>
+    <string name="topic10394" msgid="5321887056912883029">"క్రీడలు"</string>
+    <string name="topic10395" msgid="8799420706106672054">"అమెరికన్ ఫుట్‌బాల్"</string>
+    <string name="topic10396" msgid="2048632371307841946">"ఆస్ట్రేలియా ఫుట్‌బాల్"</string>
+    <string name="topic10397" msgid="653991203228840785">"ఆటో రేసింగ్"</string>
+    <string name="topic10398" msgid="5412613151176189985">"బేస్‌బాల్"</string>
+    <string name="topic10399" msgid="2009283546036614639">"బాస్కెట్‌బాల్"</string>
+    <string name="topic10400" msgid="5034305624605462351">"బౌలింగ్"</string>
+    <string name="topic10401" msgid="26807857115228330">"బాక్సింగ్"</string>
+    <string name="topic10402" msgid="6218088033939518718">"చీర్‌లీడింగ్"</string>
+    <string name="topic10403" msgid="3030076002966858939">"కాలేజ్ క్రీడలు"</string>
+    <string name="topic10404" msgid="4018137098149287073">"క్రికెట్"</string>
+    <string name="topic10405" msgid="9036991434485987285">"సైక్లింగ్"</string>
+    <string name="topic10406" msgid="7185471418082005024">"గుర్రపు స్వారీ"</string>
+    <string name="topic10407" msgid="316266982792700993">"ప్రమాదకర క్రీడలు"</string>
+    <string name="topic10408" msgid="2571246233605408148">"అధిరోహణ &amp; పర్వతారోహణ"</string>
+    <string name="topic10409" msgid="1182462921341224299">"కాల్పనిక క్రీడలు"</string>
+    <string name="topic10410" msgid="7501849152641094734">"గోల్ఫ్"</string>
+    <string name="topic10411" msgid="6678464213609789748">"జిమ్నాస్టిక్స్"</string>
+    <string name="topic10412" msgid="335770351079973128">"హాకీ"</string>
+    <string name="topic10413" msgid="416366556259783701">"ఐస్ స్కేటింగ్"</string>
+    <string name="topic10414" msgid="6909439381556710013">"యుద్ధ కళలు"</string>
+    <string name="topic10415" msgid="4535534983750709163">"మోటార్ సైకిల్ రేసింగ్"</string>
+    <string name="topic10416" msgid="1687911875093638923">"ఒలింపిక్స్"</string>
+    <string name="topic10417" msgid="2735521554483279111">"రగ్బీ"</string>
+    <string name="topic10418" msgid="8763139538107186007">"రన్నింగ్ &amp; వాకింగ్"</string>
+    <string name="topic10419" msgid="979581105119036716">"స్కీయింగ్ &amp; amp; స్నోబోర్డింగ్"</string>
+    <string name="topic10420" msgid="5256622299392338856">"సాకర్"</string>
+    <string name="topic10421" msgid="2654561933626679644">"సర్ఫింగ్"</string>
+    <string name="topic10422" msgid="978920114358054206">"స్విమ్మింగ్"</string>
+    <string name="topic10423" msgid="4476847046369253369">"టెన్నిస్"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ట్రాక్ &amp; ఫీల్డ్"</string>
+    <string name="topic10425" msgid="3357509018485364691">"వాలీబాల్"</string>
+    <string name="topic10426" msgid="3761026182327229458">"రెజ్లింగ్"</string>
+    <string name="topic10427" msgid="3748043578314103947">"ప్రయాణం &amp; రవాణా"</string>
+    <string name="topic10428" msgid="7483002505617756861">"సాహసోపేత ప్రయాణం"</string>
+    <string name="topic10429" msgid="8091163959414149724">"విమాన ప్రయాణం"</string>
+    <string name="topic10430" msgid="1917556952821193760">"బిజినెస్ ప్రయాణం"</string>
+    <string name="topic10431" msgid="7980462767288577734">"కార్ రెంటల్స్"</string>
+    <string name="topic10432" msgid="4266685292456713522">"క్రూజ్‌లు &amp; చార్టర్‌లు"</string>
+    <string name="topic10433" msgid="5001290528529256942">"ఫ్యామిలీ ట్రావెల్"</string>
+    <string name="topic10434" msgid="6310190021663379686">"హనీమూన్‌లు &amp; రొమాంటిక్ విహారయాత్రలు"</string>
+    <string name="topic10435" msgid="8897799078890998992">"హోటళ్లు &amp; వసతులు"</string>
+    <string name="topic10436" msgid="6778700611322666596">"దూర ప్రయాణ బస్సు &amp; రైలు"</string>
+    <string name="topic10437" msgid="4764816005841382091">"చౌక &amp; చివరి నిమిషంలో ప్రయాణ ఆఫర్‌లు"</string>
+    <string name="topic10438" msgid="1305380730693546021">"లగేజీ &amp; ప్రయాణ ఉపకరణాలు"</string>
+    <string name="topic10439" msgid="7731122187851230543">"టూరిస్ట్ గమ్యస్థానాలు"</string>
+    <string name="topic10440" msgid="8071652555461175118">"బీచ్‌లు &amp; దీవులు"</string>
+    <string name="topic10441" msgid="7182533767302670894">"ప్రాంతీయ పార్క్‌లు &amp; తోటలు"</string>
+    <string name="topic10442" msgid="6462141176894347324">"థీమ్ పార్క్‌లు"</string>
+    <string name="topic10443" msgid="7234914754801803285">"జంతు ప్రదర్శనశాలలు"</string>
+    <string name="topic10444" msgid="4322315510441782805">"ట్రాఫిక్ &amp; రూట్ ప్లానర్‌లు"</string>
+    <string name="topic10445" msgid="1182221450749409373">"ట్రావెల్ ఏజెన్సీలు &amp; సర్వీస్‌లు"</string>
+    <string name="topic10446" msgid="3104259094878772333">"ట్రావెల్ గైడ్‌లు &amp; ట్రావెలాగ్‌లు"</string>
+</resources>
