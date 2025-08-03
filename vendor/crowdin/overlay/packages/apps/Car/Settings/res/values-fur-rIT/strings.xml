@@ -1,0 +1,1051 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_label">Impostazions</string>
+    <string name="more_settings_label">Altri</string>
+    <string name="display_settings">Schermi</string>
+    <string name="brightness">Nivel di luminositât</string>
+    <string name="auto_brightness_title">Luminositât adative</string>
+    <string name="auto_brightness_summary">La luminositât dal schermi si adate al ambient </string>
+    <string name="condition_night_display_title">La lûs noturne e je ative</string>
+    <string name="network_and_internet">Rêt e internet</string>
+    <string name="mobile_network_settings">Rêt mobile</string>
+    <string name="mobile_network_summary_count">        {count, plural,
+            one {}=1    {# SIM}
+            other {# SIMs}
+        }
+    </string>
+    <string name="mobile_network_active_sim">Atîf / SIM</string>
+    <string name="mobile_network_inactive_sim">Inatîf / SIM</string>
+    <string name="mobile_network_active_esim">Atîf / eSIM</string>
+    <string name="mobile_network_inactive_esim">Inatîf / eSIM</string>
+    <string name="mobile_network_list_add_more">Zonte altris</string>
+    <string name="mobile_network_toggle_title">Dâts mobii</string>
+    <string name="mobile_network_toggle_summary">Acêt ai dâts doprant la rêt mobile</string>
+    <string name="mobile_network_mobile_network_toggle_title">Rêt mobile</string>
+    <string name="mobile_network_mobile_network_toggle_summary">Dopre dâts mobii</string>
+    <string name="mobile_network_state_off">Off</string>
+    <string name="confirm_mobile_data_disable">Disativâ i dâts mobii?</string>
+    <string name="sim_selection_required_pref">Fâs une sielte</string>
+    <string name="sim_change_data_title">        Doprâ <xliff:g id="carrier" example="Google Fi">%1$s</xliff:g> pai dâts mobii?
+    </string>
+    <string name="sim_change_data_message">        Tu stâs doprant <xliff:g id="carrier2" example="Google Fi">%2$s</xliff:g> pai dâts mobii.
+        Se tu passis a <xliff:g id="carrier1" example="Verizon">%1$s</xliff:g>,
+        <xliff:g id="carrier2" example="Google Fi">%2$s</xliff:g> nol vignarà plui doprât pai dâts
+        mobii.
+    </string>
+    <string name="sim_change_data_ok">        Dopre <xliff:g id="carrier" example="Verizon">%1$s</xliff:g>
+    </string>
+    <string name="roaming_title">Roaming</string>
+    <string name="roaming_summary">Conet ai servizis di dâts se in roaming</string>
+    <string name="roaming_alert_title">Permeti il roaming dai dâts?</string>
+    <string name="roaming_warning">A podaressin vignî contizâts coscj pal roaming.</string>
+    <string name="data_usage_settings">Utilizazion dâts</string>
+    <string name="data_usage_title">Dâts primaris</string>
+    <string name="data_used_formatted"><xliff:g name="value" example="500">^1</xliff:g> <xliff:g name="units" example="GB">^2</xliff:g> doprâts</string>
+    <string name="cell_data_warning">Avîs sui dâts: <xliff:g name="amount" example="1 GB">^1</xliff:g></string>
+    <string name="cell_data_limit">Limit dâts: <xliff:g name="amount" example="1 GB">^1</xliff:g></string>
+    <string name="cell_data_warning_and_limit">Avîs sui dâts: <xliff:g name="amount" example="1 GB">^1</xliff:g> / Limit dâts: <xliff:g name="amount" example="2 GB">^2</xliff:g></string>
+    <string name="billing_cycle_days_left">        {count, plural,
+            one {}=1    {al mancje # dì}
+            other {a mancjin # dîs}
+        }
+    </string>
+    <string name="billing_cycle_none_left">Timp dal cicli di faturazion scjadût</string>
+    <string name="billing_cycle_less_than_one_day_left">Al mancje mancul di 1 dì</string>
+    <string name="carrier_and_update_text">Inzornât di <xliff:g name="carrier" example="Google Fi">^1</xliff:g> <xliff:g name="time" example="3m">^2</xliff:g> indaûr</string>
+    <string name="no_carrier_update_text">Inzornât <xliff:g name="time" example="3m">^2</xliff:g> indaûr</string>
+    <string name="carrier_and_update_now_text">Inzornât di <xliff:g name="carrier" example="Google Fi">^1</xliff:g> juste cumò</string>
+    <string name="no_carrier_update_now_text">Inzornât juste cumò</string>
+    <string name="launch_manage_plan_text">Visualize plan</string>
+    <string name="app_data_usage">Utilizazion dâts aplicazions</string>
+    <string name="data_usage_app_restricted">limitât</string>
+    <string name="cycle_reset_day_of_month_picker_title">Date azerament cicli di utilizazion</string>
+    <string name="cycle_reset_day_of_month_picker_subtitle">Date di ogni mês:</string>
+    <string name="cycle_reset_day_of_month_picker_positive_button">Stabilìs</string>
+    <string name="data_warning_limit_title">Limit dâts e avîs</string>
+    <string name="app_usage_cycle">Cicli utilizazion dâts des aplicazions</string>
+    <string name="mobile_data_usage">Utilizazion dai dâts mobii</string>
+    <string name="set_data_warning">Stabilìs avîs sui dâts</string>
+    <string name="data_warning">Avîs sui dâts</string>
+    <string name="set_data_limit">Stabilìs limit dai dâts</string>
+    <string name="data_limit">Limit dai dâts</string>
+    <string name="data_usage_limit_dialog_title">Limitazion utilizazion dâts</string>
+    <string name="data_usage_limit_dialog_mobile">La unitât principâl dal to veicul e disativarà i dâts mobii une volte che al rivarà al limit che tu âs stabilît.\n\nViodût che la utilizazion dai dâts e ven misurade de unitât principâl e il to operadôr al podarès contâ in mût diviers, valute di stabilî un limit plui stret.</string>
+    <string name="data_usage_warning_editor_title">Stabilìs avîs utilizazion dâts</string>
+    <string name="data_usage_limit_editor_title">Stabilìs limit utilizazion dâts</string>
+    <string name="data_usage_settings_footer">La utilizazion dai dâts mobii e ven misurade dal to dispositîf. Al podarès variâ rispiet ai dâts dal to operadôr di telefonie mobile.</string>
+    <string name="usage_bytes_threshold_picker_positive_button">Stabilìs</string>
+    <string name="data_usage_warning_save_title">Salve</string>
+    <string name="network_and_internet_oem_network_title">Rêt OEM</string>
+    <string name="network_and_internet_vehicle_internet_title">Internet dal veicul</string>
+    <string name="network_and_internet_oem_network_dialog_description">Se tu disativis la conession internet dal veicul tu podaressis impedî a cualchi funzion dal veicul o a cualchi aplicazion di funzionâ.\n\nI dâts critics necessaris par fâ funzionâ il veicul a continuaran e jessi condividûts cul produtôr dal veicul.</string>
+    <string name="network_and_internet_oem_network_dialog_confirm_label">Disative distès</string>
+    <string name="network_and_internet_oem_network_disabled_footer">La conession internet dal veicul e je disativade. Chest al podarès impedî a cualchi funzion dal veicul o a cualchi aplicazion di funzionâ. I dâts critics necessaris par fâ funzionâ il to veicul a continuaran a jessi condividûts cul produtôr dal veicul.</string>
+    <string name="network_and_internet_data_usage_time_range_summary">%1$s doprâts %2$s - %3$s</string>
+    <string name="network_and_internet_join_other_network_title">Conetiti a une altre rêt</string>
+    <string name="network_and_internet_network_preferences_title">Preferencis di rêt</string>
+    <string name="wifi_settings">Wi\u2011Fi</string>
+    <string name="wifi_starting">Daûr a ativâ il Wi\u2011Fi\u2026</string>
+    <string name="wifi_stopping">Daûr a disativâ il Wi\u2011Fi\u2026</string>
+    <string name="loading_wifi_list">Daûr a cjariâ la liste Wi\u2011Fi</string>
+    <string name="wifi_disabled">Wi\u2011Fi disativât</string>
+    <string name="wifi_failed_forget_message">Impussibil dismenteâ la rêt</string>
+    <string name="wifi_failed_connect_message">Nol è stât pussibil conetisi ae rêt</string>
+    <string name="wifi_setup_add_network">Zonte rêt</string>
+    <string name="wifi_setup_connect">Conet</string>
+    <string name="wifi_connecting">Daûr a coneti\u2026</string>
+    <string name="wifi_disconnected">No conetût</string>
+    <string name="wifi_not_in_range_message">Rêt fûr puartade</string>
+    <string name="wifi_password">Password</string>
+    <string name="wifi_show_password">Mostre password</string>
+    <string name="wifi_no_network_name">Inserìs un non di rêt</string>
+    <string name="wifi_ssid">Non de rêt</string>
+    <string name="wifi_ssid_hint">Inserìs il SSID</string>
+    <string name="wifi_security">Sigurece</string>
+    <string name="wifi_signal_strength">Fuarce dal segnâl</string>
+    <string name="wifi_status">Stât</string>
+    <string name="wifi_speed">Velocitât di colegament</string>
+    <string name="wifi_frequency">Frecuence</string>
+    <string name="wifi_ip_address">Direzion IP</string>
+    <string name="show_password">Mostre password</string>
+    <string name="default_network_name_summary">Inserìs non di rêt</string>
+    <string name="default_password_summary">Inserìs password</string>
+    <string name="access_point_tag_key">access_point_tag_key</string>
+    <string-array name="wifi_signals">
+        <item>Scjarse</item>
+        <item>Scjarse</item>
+        <item>Discrete</item>
+        <item>Buine</item>
+        <item>Ecelente</item>
+    </string-array>
+    <string name="link_speed">%1$d Mbps</string>
+    <string name="wifi_band_24ghz">2.4 GHz</string>
+    <string name="wifi_band_5ghz">5 GHz</string>
+    <string name="wifi_network_detail">Detais de rêt</string>
+    <string name="wifi_mac_address">Direzion MAC</string>
+    <string name="wifi_ip_address_title">Direzion IP</string>
+    <string name="wifi_subnet_mask">Mascare di sot-rêt</string>
+    <string name="wifi_dns">DNS</string>
+    <string name="wifi_details_ipv6_address_header">Direzions IPv6</string>
+    <string name="wifi_gateway">Gateway</string>
+    <string name="wifi_preferences_title">Preferencis Wi\u2011Fi</string>
+    <string name="wifi_wakeup">Ative Wi\u2011Fi in automatic</string>
+    <string name="wifi_wakeup_summary">La conession Wi\u2011Fi e tornarà a ativâsi dongje di rêts salvadis a alte cualitât, come la tô rêt di cjase</string>
+    <string name="wifi_wakeup_summary_no_location">La opzion no je disponibile parcè che il servizi pe posizion al è disativât. Ative la <annotation id="link">gjeolocalizazion</annotation>.</string>
+    <string name="wifi_settings_scanning_required_title">Ativâ la scansion Wi\u2011Fi?</string>
+    <string name="wifi_settings_scanning_required_turn_on">Ative</string>
+    <string name="wifi_settings_scanning_required_enabled">Scansion Wi\u2011Fi ativade</string>
+    <string name="wifi_cellular_fallback_title">Passe ai dâts mobii in automatic</string>
+    <string name="wifi_cellular_fallback_summary">Dopre i dâts mobii se il Wi\u2011Fi nol à acès a internet. A podaressin vignî aplicâts coscj pe utilizazion di dâts.</string>
+    <string name="wifi_network_state_switch_subtitle">Cjate e conetiti a rêts Wi\u2011Fi</string>
+    <string name="learn_more">Plui informazions</string>
+    <string name="wifi_hotspot_name_title">Non dal pont di acès</string>
+    <string name="wifi_hotspot_name_summary_connecting">Daûr a ativâ <xliff:g id="wifi_hotspot_name">%1$s</xliff:g>...</string>
+    <string name="wifi_hotspot_name_summary_connected">I altris dispositîfs a puedin colegâsi a <xliff:g id="wifi_hotspot_name">%1$s</xliff:g></string>
+    <string name="wifi_hotspot_password_title">Password dal pont di acès</string>
+    <string name="wifi_hotspot_security_title">Sigurece</string>
+    <string name="wifi_hotspot_wpa3_sae">WPA3-Personâl</string>
+    <string name="wifi_security_psk_sae">WPA2/WPA3-Personâl</string>
+    <string name="wifi_hotspot_wpa2_personal">WPA2-Personâl</string>
+    <string name="wifi_hotspot_security_none">Nissune</string>
+    <string name="wifi_hotspot_ap_band_title">Bande AP</string>
+    <string name="wifi_ap_band_config">Selezione bande AP</string>
+    <string name="wifi_ap_choose_auto">Auto</string>
+    <string name="wifi_ap_choose_2G">Bande a 2,4 GHz</string>
+    <string name="wifi_ap_choose_5G">Bande a 5 GHz</string>
+    <string name="wifi_ap_prefer_5G">Bande a 5 GHz preferide</string>
+    <string name="wifi_ap_2G">2,4 GHz</string>
+    <string name="wifi_ap_5G">5 GHz</string>
+    <string name="wifi_ap_band_select_one">Sielç almancul une bande pal pont di acès Wi\u2011Fi:</string>
+    <string name="tether_settings_title_all">Pont di acès Wi\u2011Fi</string>
+    <string name="hotspot_settings_title">Pont di acès</string>
+    <string name="wifi_hotspot_switch_title">Dopre pont di acès Wi\u2011Fi</string>
+    <string name="wifi_hotspot_state_off">Off</string>
+    <string name="wifi_hotspot_auto_off_title">Disative il pont di acès in automatic</string>
+    <string name="wifi_hotspot_auto_off_summary">Il pont di acès Wi\u2011Fi si distudarà se nol è colegât nissun dispositîf.</string>
+    <string name="wifi_hotspot_qr_code_text">Scansione chest codiç QR par jentrâ in \u0022%s\u0022</string>
+    <string name="wifi_hotspot_qr_code_password_text">Password dal pont di acès: %s</string>
+    <string name="wifi_ask_enable"><xliff:g id="requester" example="FancyApp">%s</xliff:g> al vûl ativâ il Wi-Fi</string>
+    <string name="wifi_ask_disable"><xliff:g id="requester" example="FancyApp">%s</xliff:g> al vûl disativâ il Wi-Fi</string>
+    <string name="wifi_error">Erôr</string>
+    <string name="network_connection_request_dialog_title">Dispositîf di doprâ cun <xliff:g id="appName" example="ThirdPartyAppName">%1$s</xliff:g></string>
+    <string name="network_connection_timeout_dialog_message">Nissun dispositîf cjatât. Controle che i dispositîfs a sedin ativâts e disponibii pe conession.</string>
+    <string name="network_connection_timeout_dialog_ok">Torne prove</string>
+    <string name="network_connection_errorstate_dialog_message">Al è sucedût alc. La aplicazion e à cancelât la richieste pe sielte di un dispositîf.</string>
+    <string name="network_connection_connect_successful">Conession lade a bon fin</string>
+    <string name="network_connection_request_dialog_showall">Mostre dutis</string>
+    <string name="progress_scanning">Daûr a cirî</string>
+    <string name="connected_settings_title">Dispositîfs conetûts</string>
+    <string name="bluetooth_settings_title">Bluetooth</string>
+    <string name="bluetooth_toggle_title">Dopre Bluetooth</string>
+    <string name="bluetooth_device">Dispositîf cence non</string>
+    <string name="bluetooth_paired_devices">Dispositîfs associâts</string>
+    <string name="bluetooth_pair_new_device">Associe gnûf dispositîf</string>
+    <string name="bluetooth_pair_new_device_summary">Il Bluetooth si impiarà par associâ</string>
+    <string name="bluetooth_disconnect_title">Disconeti il dispositîf?</string>
+    <string name="bluetooth_disconnect_all_profiles">Il to veicul si disconetarà di \"<xliff:g example="Pixel" id="device_name">%1$s</xliff:g>.\"</string>
+    <string name="bluetooth_vehicle_mac_address">Direzion Bluetooth dal veicul: <xliff:g example="12:34:56:AB:CD:EF" id="address">%1$s</xliff:g></string>
+    <string name="bluetooth_device_mac_address">Direzion Bluetooth dal dispositîf: <xliff:g example="12:34:56:AB:CD:EF" id="address">%1$s</xliff:g></string>
+    <string name="bluetooth_name">Non dal veicul</string>
+    <string name="bluetooth_rename_vehicle">Cambie non a chest veicul</string>
+    <string name="bluetooth_rename_device">Cambie non al dispositîf</string>
+    <string name="bluetooth_rename_button">Cambie non</string>
+    <string name="bluetooth_available_devices">Dispositîfs disponibii</string>
+    <string name="bluetooth_profiles">Profîi</string>
+    <string name="bluetooth_turning_on">"Daûr a ativâ il Bluetooth\u2026"</string>
+    <string name="bluetooth_turning_off">"Daûr a disativâ il Bluetooth\u2026"</string>
+    <string name="bluetooth_ask_enablement"><xliff:g id="app_name" example="FancyApp">%1$s</xliff:g> al vûl ativâ il Bluetooth</string>
+    <string name="bluetooth_ask_disablement"><xliff:g id="app_name" example="FancyApp">%1$s</xliff:g> al vûl disativâ il Bluetooth</string>
+    <string name="bluetooth_ask_enablement_no_name">Une aplicazion e vûl ativâ il Bluetooth</string>
+    <string name="bluetooth_ask_disablement_no_name">Une aplicazion e vûl disativâ il Bluetooth</string>
+    <string name="bluetooth_ask_discovery"><xliff:g id="app_name">%1$s</xliff:g> al vûl rindi visibile la tô unitât principâl a altris dispositîfs Bluetooth par <xliff:g id="timeout">%2$d</xliff:g> seconts.</string>
+    <string name="bluetooth_ask_discovery_no_name">Une aplicazion e vûl rindi visibile la tô unitât principâl a altris dispositîfs Bluetooth par <xliff:g id="timeout">%1$d</xliff:g> seconts.</string>
+    <string name="bluetooth_ask_enablement_and_discovery"><xliff:g id="app_name">%1$s</xliff:g> al vûl ativâ il Bluetooth e rindi visibile la tô unitât principâl a altris dispositîfs par <xliff:g id="timeout">%2$d</xliff:g> seconts.</string>
+    <string name="bluetooth_ask_enablement_and_discovery_no_name">Une aplicazion e vûl ativâ il Bluetooth e rindi visibile la tô unitât principâl a altris dispositîfs par <xliff:g id="timeout">%1$d</xliff:g> seconts.</string>
+    <string name="bluetooth_state_switch_summary">Visibil come %1$s ai altris dispositîfs</string>
+    <string name="bluetooth_my_devices">I miei dispositîfs</string>
+    <string name="bluetooth_previously_connected">Conetûts in precedence</string>
+    <string name="bluetooth_device_connected_toast">Dispositîf %1$s conetût</string>
+    <string name="bluetooth_device_disconnected_toast">Dispositîf %1$s disconetût</string>
+    <string name="bluetooth_notif_ticker">Richieste di associazion Bluetooth</string>
+    <string name="bluetooth_device_context_pair_connect">Associe e conet</string>
+    <string name="bluetooth_pairing_key_msg">Codiç di associazion Bluetooth</string>
+    <string name="bluetooth_enable_alphanumeric_pin">Il PIN al conten letaris o simbui</string>
+    <string name="bluetooth_enter_passkey_msg">Scrîf il codiç di associazion e frache Invie</string>
+    <string name="bluetooth_pairing_request">Associâ cun <xliff:g example="Pixel" id="device_name">%1$s</xliff:g>?</string>
+    <string name="bluetooth_pairing_shares_phonebook">Permet a <xliff:g example="Pixel" id="device_name">%1$s</xliff:g> di acedi ai tiei contats e ae cronologjie des clamadis</string>
+    <string name="bluetooth_enter_pin_other_device">Sore al podarès coventâ di scrivi chest PIN su chel altri dispositîf.</string>
+    <string name="bluetooth_enter_passkey_other_device">Sore al podarès coventâ di scrivi cheste clâf di acès su chel altri dispositîf.</string>
+    <string name="bluetooth_pin_values_hint_16_digits">Al à di jessi di 16 cifris</string>
+    <string name="bluetooth_pin_values_hint">Di solit 0000 o 1234</string>
+    <string name="bluetooth_notif_title">Richieste di associazion</string>
+    <string name="bluetooth_notif_message">Tocje par associâ cun <xliff:g id="device_name">%1$s</xliff:g>.</string>
+    <string name="bluetooth_device_picker">Sielç dispositîf Bluetooth</string>
+    <string name="bluetooth_bonded_bluetooth_toggle_content_description">Bluetooth</string>
+    <string name="bluetooth_bonded_phone_toggle_content_description">Telefon</string>
+    <string name="bluetooth_bonded_media_toggle_content_description">Contignûts multimediâi</string>
+    <string name="language_settings">Lenghis</string>
+    <string name="languages_and_input_settings">Lenghis e imission</string>
+    <string name="language_picker_list_suggested_header">Sugjeridis</string>
+    <string name="language_picker_list_all_header">Dutis lis lenghis</string>
+    <string name="keyboard_settings">Tastiere</string>
+    <string name="manage_keyboard">Gjestìs lis tastieris</string>
+    <string name="text_to_speech_settings">Jessude sintesi vocâl</string>
+    <string name="text_to_speech_preferred_engine_settings">Motôr preferît</string>
+    <string name="text_to_speech_current_engine">Motôr atuâl</string>
+    <string name="tts_speech_rate">Velocitât de vôs</string>
+    <string name="tts_pitch">Ton</string>
+    <string name="tts_reset">Ripristine</string>
+    <string name="sound_settings">Sun</string>
+    <string name="ring_volume_title">Volum sunarie</string>
+    <string name="navi_volume_title">Volum di navigazion</string>
+    <string name="incoming_call_volume_title">Sunarie</string>
+    <string name="notification_volume_title">Notifiche</string>
+    <string name="media_volume_title">Contignûts multimediâi</string>
+    <string name="media_volume_summary">Stabilìs il volum di musiche e videos</string>
+    <string name="alarm_volume_title">Svee</string>
+    <string name="ringtone_title">Sunarie dal telefon</string>
+    <string name="notification_ringtone_title">Sun di notifiche predefinît</string>
+    <string name="alarm_ringtone_title">Sun de svee predefinît</string>
+    <string name="ringtone_picker_save_title">Salve</string>
+    <string name="sound_alert_sounds">Suns di avîs</string>
+    <string name="sound_alert_sounds_summary">Sunarie, notifichis, svee</string>
+    <string name="audio_route_selector_title">Rirpodûs contignûts multimediâi su</string>
+    <string name="display_brightness">Luminositât</string>
+    <string name="display_night_mode_summary">Regole il schermi pes cundizions di scjarse iluminazion</string>
+    <string name="units_settings">Unitâts</string>
+    <string name="units_speed_title">Velocitât</string>
+    <string name="units_distance_title">Distance</string>
+    <string name="units_fuel_consumption_title">Consum di carburant</string>
+    <string name="units_energy_consumption_title">Consum energjetic</string>
+    <string name="units_temperature_title">Temperadure</string>
+    <string name="units_volume_title">Volum</string>
+    <string name="units_pressure_title">Pression</string>
+    <string name="units_list_entry"><xliff:g example="mph" id="unit_abbreviation">%1$s</xliff:g> - <xliff:g example="Miles per hour" id="unit_pronunciation">%2$s</xliff:g></string>
+    <string name="units_ratio"><xliff:g example="km" id="unit_numerator">%1$s</xliff:g>/<xliff:g example="h" id="unit_denominator">%2$s</xliff:g></string>
+    <string name="units_ratio_numerator"><xliff:g example="10" id="unit_numerator_quantity">%1$d</xliff:g><xliff:g example="kWh" id="unit_numerator_unit">%2$s</xliff:g></string>
+    <string name="units_ratio_denominator"><xliff:g example="100" id="unit_denominator_quantity">%1$d</xliff:g><xliff:g example="mi" id="unit_denominator_unit">%2$s</xliff:g></string>
+    <string name="units_unit_name_meter_per_sec">Metris al secont</string>
+    <string name="units_unit_name_rpm">Zîrs al minût</string>
+    <string name="units_unit_name_hertz">Hertz</string>
+    <string name="units_unit_name_percentile">Percentîl</string>
+    <string name="units_unit_name_millimeter">Milimetri</string>
+    <string name="units_unit_name_meter">Metri</string>
+    <string name="units_unit_name_kilometer">Chilometri</string>
+    <string name="units_unit_name_mile">Mie</string>
+    <string name="units_unit_name_celsius">Celsius</string>
+    <string name="units_unit_name_fahrenheit">Fahrenheit</string>
+    <string name="units_unit_name_kelvin">Kelvin</string>
+    <string name="units_unit_name_milliliter">Mililitri</string>
+    <string name="units_unit_name_liter">Litri</string>
+    <string name="units_unit_name_us_gallon">Galon</string>
+    <string name="units_unit_name_imperial_gallon">Galon imperiâl</string>
+    <string name="units_unit_name_nano_secs">Nanosecont</string>
+    <string name="units_unit_name_secs">Secont</string>
+    <string name="units_unit_name_year">An</string>
+    <string name="units_unit_name_kilopascal">Chilopascal</string>
+    <string name="units_unit_name_watt_hour">Wattore</string>
+    <string name="units_unit_name_milliampere">Miliampere</string>
+    <string name="units_unit_name_millivolt">Milivolt</string>
+    <string name="units_unit_name_milliwatts">Miliwatt</string>
+    <string name="units_unit_name_ampere_hour">Ampere-ore</string>
+    <string name="units_unit_name_kilowatt_hour">Chilowattore</string>
+    <string name="units_unit_name_psi">Lire par once cuadrade</string>
+    <string name="units_unit_name_miles_per_hour">Miis orariis</string>
+    <string name="units_unit_name_kilometers_per_hour">Chilometris oraris</string>
+    <string name="units_unit_name_bar">Bar</string>
+    <string name="units_unit_name_degrees">Grâts</string>
+    <string name="units_unit_name_kilowatt_per_hundred_miles">Chilowatt par cent miis</string>
+    <string name="units_unit_name_kilowatt_per_hundred_kilometers">Chilowatt par cent chilometris</string>
+    <string name="units_unit_name_miles_per_gallon_us">Miis par galon (US)</string>
+    <string name="units_unit_name_miles_per_gallon_uk">Miis par galon (UK)</string>
+    <string name="units_unit_name_kilometers_per_liter">Chilometris par litri</string>
+    <string name="units_unit_name_liter_per_hundred_kilometers">Litris ogni cent chilometris</string>
+    <string name="apps_and_notifications_settings">Aplicazions e notifichis</string>
+    <string name="all_applications">Mostre dutis lis aplicazions</string>
+    <string name="default_applications">Aplicazions predefinidis</string>
+    <string name="performance_impacting_apps">Aplicaz. che a impatin lis prestazions</string>
+    <string name="app_permissions">Permès de aplicazion</string>
+    <string name="app_permissions_summary">Controle l\'acès des aplicazions ai tiei dâts</string>
+    <string name="applications_settings">Informazions aplicazion</string>
+    <string name="force_stop">Ferme aplicazion</string>
+    <string name="force_stop_dialog_title">Fermâ la aplicazion?</string>
+    <string name="force_stop_dialog_text">Se tu sfuarcis la interuzion di une aplicazion, e podarès compuartâsi in mût anomal.</string>
+    <string name="force_stop_success_toast_text">        La aplicazion <xliff:g id="app_name" example="Radio">%1$s</xliff:g> e je stade fermade.
+    </string>
+    <string name="prioritize_app_performance_dialog_title">Ativâ prioritât a prestazions de aplicazion?</string>
+    <string name="prioritize_app_performance_dialog_text">Cheste operazion e pues causâ une potenziâl instabilitât dal sisteme o efiets sul hardware a lunc tiermin. Desideristu continuâ?</string>
+    <string name="prioritize_app_performance_dialog_action_on">Sì</string>
+    <string name="prioritize_app_performance_dialog_action_off">No, graciis</string>
+    <string name="disable_text">Disative</string>
+    <string name="enable_text">Ative</string>
+    <string name="uninstall_text">Disinstale</string>
+    <string name="app_disable_dialog_text">Se tu disativis cheste aplicazion, al è pussibil che Android e altris aplicazions no funzionin plui come previodût.</string>
+    <string name="app_disable_dialog_positive">Disative aplicazion</string>
+    <string name="not_installed">No instalât par chest profîl</string>
+    <string name="permissions_label">Permès</string>
+    <string name="app_info_all_services_label">Ducj i servizis</string>
+    <string name="notifications_label">Notifichis</string>
+    <string name="storage_application_label">Spazi di archiviazion e cache</string>
+    <string name="prioritize_app_performance_label">Prioritât aes prestazions des aplicazions</string>
+    <string name="application_version_label">Version: %1$s</string>
+    <string name="runtime_permissions_summary_no_permissions_granted">Nissun permès concedût</string>
+    <string name="runtime_permissions_summary_no_permissions_requested">Nissun permès domandât</string>
+    <string name="unused_apps">Aplicazions no dopradis</string>
+    <string name="unused_apps_summary">        {count, plural,
+            one {}=1    {# aplicazion no doprade}
+            other {# aplicazions no dopradis}
+        }
+    </string>
+    <string name="unused_apps_switch">Gjave i permès e libere spazi</string>
+    <string name="storage_type_internal">%s te memorie interne</string>
+    <string name="prioritize_app_performance_summary">Al dopre risorsis di sisteme par dâ prioritât aes prestazions des aplicazions</string>
+    <string name="data_usage_summary_title">Utilizazion dâts</string>
+    <string name="data_usage_app_summary_title">Ûs dâts aplicazions</string>
+    <string name="data_usage_usage_history_title">Cronologjie utilizazion</string>
+    <string name="data_usage_all_apps_title">Dutis lis aplicazions</string>
+    <string name="app_data_usage_title">Utilizazion dâts e Wi\u2011Fi</string>
+    <string name="app_data_usage_usage_history_title">Cronologjie utilizazion</string>
+    <string name="app_data_usage_total_usage">Utilizazion totâl</string>
+    <string name="app_data_usage_foreground">In prin plan</string>
+    <string name="app_data_usage_background">In sotfont</string>
+    <string name="app_data_usage_allow_data_title">Permet dâts</string>
+    <string name="app_data_usage_allow_data_summary">Permet a cheste aplicazion di doprâ dâts mobii</string>
+    <string name="app_data_usage_restrict_data_title">Limite dâts</string>
+    <string name="app_data_usage_background_data_summary">Dopre i dâts mobii dome cuant che la aplicazion e je in prin plan</string>
+    <string name="computing_size">Elaborazion\u2026</string>
+    <string name="runtime_permissions_additional_count">        {count, plural,
+            one {}=1    {# permès in plui}
+            other {# permès in plui}
+        }
+    </string>
+    <string name="direct_boot_unaware_dialog_message_car">Note: dopo vê tornât a inviâ, cheste aplicazion no pues inviâsi fintremai che no tu sblochis il veicul.</string>
+    <string name="assist_and_voice_input_settings">Assistence e input vocâl</string>
+    <string name="assist_app_settings">Aplicazion di assistence</string>
+    <string name="assist_access_context_title">Dopre il test dal schermi</string>
+    <string name="assist_access_context_summary">Permet ae aplicazion di assistence di acedi ai contignûts testuâi dal schermi</string>
+    <string name="assist_access_screenshot_title">Dopre acuisizion di schermade</string>
+    <string name="assist_access_screenshot_summary">Permet ae aplicazion di assistence di acedi a une imagjin dal schermi</string>
+    <string name="voice_input_settings_title">Jentrade vocâl</string>
+    <string name="autofill_settings_title">Servizi di compilazion automatiche</string>
+    <string name="app_list_preference_none">Nissune</string>
+    <string name="default_app_selected_app">Selezionade</string>
+    <string name="assistant_security_warning">L\'assistent al rivarà a lei lis informazions su lis aplicazions in ûs sul sisteme, includudis lis informazions visibilis su schermi o acessibilis dentri des aplicazions.</string>
+    <string name="autofill_confirmation_message"><![CDATA[        <b>Verifiche che cheste aplicazion e sedi atendibile</b>
+        <br/>
+        <br/>
+        <xliff:g id="app_name" example="Google Autofill">%1$s</xliff:g> al dopre ce che al è
+        sul schermi par determinâ ce che al pues compilâ in automatic.
+        ]]></string>
+    <string name="autofill_add_service">Zonte servizi</string>
+    <string name="app_launch_domain_links_title">Viertidure dai colegaments</string>
+    <string name="domain_url_section_title">Aplicazions instaladis</string>
+    <string name="domain_urls_summary_none">No sta vierzi i colegaments supuartâts</string>
+    <string name="domain_urls_summary_one">Vierç <xliff:g id="domain" example="mail.google.com">%s</xliff:g></string>
+    <string name="domain_urls_summary_some">Vierç <xliff:g id="domain" example="mail.google.com">%s</xliff:g> e altris URLs</string>
+    <string name="app_launch_title">Vierç par impostazion predefinide</string>
+    <string name="app_launch_other_defaults_title">Altris valôrs predefinîts</string>
+    <string name="auto_launch_disable_text">Nissune impostazion predefinide.</string>
+    <string name="auto_launch_enable_text">Tu âs sielt di inviâ cheste aplicazion tant che predefinide par cualchi azion.</string>
+    <string name="auto_launch_reset_text">Nete predefinidis</string>
+    <string name="app_launch_open_domain_urls_title">Vierç colegaments supuartâts</string>
+    <string name="app_link_open_always">Vierç in cheste aplicazion</string>
+    <string name="app_link_open_ask">Domande ogni volte</string>
+    <string name="app_link_open_never">No sta vierzi in cheste aplicazion</string>
+    <string name="app_launch_supported_domain_urls_title">Colegaments supuartâts</string>
+    <string name="apps_settings_title">Aplicazions</string>
+    <string name="apps_recently_opened">Vierzudis di resint</string>
+    <string name="apps_view_all_apps_title">Viôt dutis e %1$d lis aplicazions</string>
+    <string name="apps_permission_manager_title">Gjestôr dai permès</string>
+    <string name="apps_permission_manager_summary">Controle l\'acès des aplicazions ai tiei dâts</string>
+    <string name="apps_default_apps_summary">Pal assistent e altri</string>
+    <string name="performance_impacting_apps_summary">        {count, plural,
+            one {}=1    {# aplicazion e impate lis prestazions}
+            other {# aplicazions a impatin lis prestazions}
+        }
+    </string>
+    <string name="apps_special_app_access_summary">Al sisteme e a altris impostazions</string>
+    <string name="special_access">Acès speciâl pes aplicazions</string>
+    <string name="show_system">Mostre sisteme</string>
+    <string name="hide_system">Plate sisteme</string>
+    <string name="hide_system_apps">Plate aplicazions di sisteme</string>
+    <string name="modify_system_settings_title">Modifiche impostazions sisteme</string>
+    <string name="modify_system_settings_description">Chest permès al consint a une aplicazion di modificâ lis impostazions di sisteme.</string>
+    <string name="notification_access_title">Acès aes notifichis</string>
+    <string name="notification_listener_security_warning_title">Permeti l\'acès aes notifichis a <xliff:g id="service" example="NotificationReader">%1$s</xliff:g>?</string>
+    <string name="notification_listener_security_warning_summary"><xliff:g id="notification_listener_name">%1$s</xliff:g> al rivarà a lei dutis lis notifichis, includudis lis informazions personâls come nons di contats e il test dai messaçsche tu ricevis. Al rivarà ancje a scartâ notifichis o ativâ i botons di azions contignûts tes notifichis.\n\nChest al darà ancje la pussibilitât ae aplicazion di ativâ o disativâ il No Sta Disturbâ e cambiâ lis relativis impostazions.
+    </string>
+    <string name="notification_listener_revoke_warning_summary">Se tu disativis l\'acès aes notifichis a <xliff:g id="notification_listener_name">%1$s</xliff:g>, al vignarà disativât ancje l\'acès al No Sta Disturbâ.
+    </string>
+    <string name="notification_listener_revoke_warning_confirm">Disative</string>
+    <string name="notification_listener_revoke_warning_cancel">Anule</string>
+    <string name="performance_impacting_apps_description">Chestis aplicazions a influissin in mût negatîf su lis prestazions dal sisteme e a ur è stat impedît di zirâ in sotfont.\nDa prioritât a aplicazion al permet la utilizazion de aplicazion in sotfont e al permet di gjavâle di cheste liste.</string>
+    <string name="performance_impacting_apps_button_label">Da prioritât a aplicazion</string>
+    <string name="premium_sms_access_title">Acès a SMS premium</string>
+    <string name="premium_sms_access_description">I SMS Premium a podaressin costâti bêçs che a vignaran zontâts aes boletis dal to operadôr. Se tu ativis il permès par une aplicazion, ti rivarâs a doprâle par mandâ SMS premium.</string>
+    <string name="usage_access_title">Acès ai dâts di utilizazion</string>
+    <string name="usage_access_description">L\'acès ai dâts di utilizazion al permès a une aplicazion di tignî di voli cualis altris aplicazions tu dopris e trop dispès, e ancje il to operadôr, lis impostazions de lenghe e altris detais.</string>
+    <string name="wifi_control_title">Control dal Wi-Fi</string>
+    <string name="wifi_control_description">Il control dal Wi-Fi al permet a une aplicazion di ativâ o disativâ il Wi-Fi, scansionâ e conetiti a rêts Wi-Fi, zontâ o gjavâ rêts o inviâ un pont di acès dome-locâl.</string>
+    <string name="more_special_access_title">Altri</string>
+    <string name="location_settings_title">Posizion</string>
+    <string name="location_toggle_title">Dopre posizion</string>
+    <string name="location_toggle_summary">        Dopre la posizion de tô machine cun dutis lis aplicazions che tu âs specificât.
+    </string>
+    <string name="location_toggle_off_warning">        Se tu lu disativis, l\'acès ae posizion al vignarà gjavât a dutis lis aplicazions gjavadis chês che a coventin pe assistence ae vuide
+    </string>
+    <string name="adas_location_toggle_off_warning">        Se tu disativis cheste impostazion, lis aplicazions di assistence ae vuide che si
+        basin su lis informazions relativis ae posizion a vignaran disativadis.
+    </string>
+    <string name="adas_location_toggle_confirm_label">        Disative distès
+    </string>
+    <string name="adas_location_toggle_popup_summary">        Nol è pussibil cambiâ cheste impostazion e e je stade disativade dal produtôr de machine.
+    </string>
+    <string name="adas_location_toggle_title">        Funzions che ti judin te vuide
+    </string>
+    <string name="adas_location_toggle_summary">        Permet aes funzionalitâts integradis, aprovadis dal produtôr de tô machine, di acedi
+        ae sô posizion.
+    </string>
+    <string name="location_recently_accessed">Utilizazions resintis</string>
+    <string name="location_settings_recently_accessed_title">Utilizazions resintis</string>
+    <string name="location_settings_recently_accessed_view_all_title">Viôt dutis</string>
+    <string name="location_no_recent_access">Nissune aplicazion resinte</string>
+    <string name="driver_assistance_label">        <xliff:g id="time" example="1 min. ago">%1$s</xliff:g> \u2022 Assistence ae vuide \u2022
+        Domandât acès    </string>
+    <string name="location_adas_apps_list_title">        Funzions che ti judin te vuide
+    </string>
+    <string name="location_driver_assistance_privacy_policy_button_text">Politiche</string>
+    <string name="location_settings_app_permissions_title">Permès a nivel di aplicazion</string>
+    <string name="location_settings_app_permissions_summary">        Gjestìs permès individuâi des aplicazions
+    </string>
+    <string name="location_settings_services_title">Servizis di gjeolocalizazion</string>
+    <string name="location_use_location_title">Dopre posizion</string>
+    <string name="location_access_settings_title">Acès ae posizion</string>
+    <string name="location_access_settings_summary">        Sielç se lis aplicazions a puedin acedi ae posizion de tô machine
+    </string>
+    <string name="location_access_disclaimer_summary">        Il produtôr de tô machine al podarà distès otignî la posizion dal automobil. Tu puedis revisionâ
+        lis lôr politichis par vê plui informazions.
+    </string>
+    <string name="location_adas_app_info_summary">        Chestis funzions integradis a domandin acès ae posizion de tô machine par assisti cu la
+        vuide.\n\nScuvierç di plui su cemût che ogni aplicazion e dopre i dâts de tô posizion, leint lis lôr Politichis su la
+        Riservatece.
+    </string>
+    <string name="microphone_settings_title">Microfon</string>
+    <string name="microphone_toggle_title">Dopre microfon</string>
+    <string name="microphone_toggle_summary">Permet a dutis lis aplicazions di acedi al to microfon</string>
+    <string name="microphone_manage_permissions">Gjestìs i permès dal microfon</string>
+    <string name="microphone_recently_accessed">Utilizazions resintis</string>
+    <string name="microphone_no_recent_access">Nissune aplicazion resinte</string>
+    <string name="microphone_app_permission_summary_microphone_off">Nissune aplicazion e à acès</string>
+    <string name="microphone_app_permission_summary_microphone_on">        {count, plural,
+            one {}=1    {# of {total_count} aplicazions e à acès}
+            other {# of {total_count} aplicazions a àn acès}
+        }
+    </string>
+    <string name="microphone_settings_recent_requests_title">Utilizazions resintis</string>
+    <string name="microphone_settings_recent_requests_view_all_title">Viôt dutis</string>
+    <string name="microphone_settings_loading_app_permission_stats">Daûr a cjariâ\u2026</string>
+    <string name="system_setting_title">Sisteme</string>
+    <string name="system_update_settings_title">Inzornaments di sisteme</string>
+    <string name="system_advanced_title">Avanzadis</string>
+    <string name="system_advanced_summary">Informazions, informazions legâls, ripristinament e altri</string>
+    <string name="restart_infotainment_system_title">Torne invie il sisteme di infotainment</string>
+    <string name="restart_infotainment_system_dialog_text">Il gnûf inviament dal to sisteme di infotainment al pues puartâ vie cualchi minût. Desideristu continuâ?</string>
+    <string name="continue_confirmation">Continue</string>
+    <string name="firmware_version">Version di Android</string>
+    <string name="security_patch">Nivel de corezion di sigurece di Android</string>
+    <string name="hardware_info">Model e hardware</string>
+    <string name="hardware_info_summary">Model: <xliff:g example="Hawk" id="model">%1$s</xliff:g></string>
+    <string name="baseband_version">Version bande di base</string>
+    <string name="kernel_version">Version dal kernel</string>
+    <string name="build_number">Numar di compilazion</string>
+    <string name="bluetooth_mac_address">Direzion Bluetooth</string>
+    <string name="device_info_not_available">No disponibil</string>
+    <string name="device_status_activity_title">Stât</string>
+    <string name="device_status">Stât</string>
+    <string name="device_status_summary" product="tablet">Stât de batarie, rêt e altris informazions</string>
+    <string name="device_status_summary" product="default">Numar di telefon, segnâl e v.i.</string>
+    <string name="about_settings">Informazions</string>
+    <string name="about_summary">Android <xliff:g example="6.0" id="version">%1$s</xliff:g></string>
+    <string name="about_settings_summary">Visualize informazions legâls, stât, version dal software</string>
+    <string name="legal_information">Informazions legâls</string>
+    <string name="contributors_title">Colaboradôrs</string>
+    <string name="manual">Manuâl</string>
+    <string name="regulatory_labels">Etichetis normativis</string>
+    <string name="safety_and_regulatory_info">Manuâl su normativis e sigurece</string>
+    <string name="copyright_title">Dirits di autôr</string>
+    <string name="license_title">Licence</string>
+    <string name="terms_title">Tiermins e cundizions</string>
+    <string name="webview_license_title">Licence di sisteme par WebView</string>
+    <string name="wallpaper_attributions">Fonts</string>
+    <string name="wallpaper_attributions_values">Furnidôrs di imagjins satelitârs:\n©2014 CNES / Astrium, DigitalGlobe, Bluesky</string>
+    <string name="model_info">Model</string>
+    <string name="status_serial_number">Numar di serie</string>
+    <string name="hardware_revision">Version hardware</string>
+    <string name="settings_license_activity_title">Licencis di tiercis parts</string>
+    <string name="settings_license_activity_unavailable">Al è vignût fûr un probleme tal cjariâ lis licencis.</string>
+    <string name="settings_license_activity_loading">Daûr a cjariâ\u2026</string>
+    <string name="show_dev_countdown">        {count, plural,
+            one {}=1    {Cumò tu sês a # pas dal deventâ un svilupadôr.}
+            other {Cumò tu sês a # pas dal deventâ un svilupadôr.}
+        }
+    </string>
+    <string name="show_dev_on">Cumò tu sês un svilupadôr!</string>
+    <string name="show_dev_already">Nol covente, tu sês za un svilupadôr.</string>
+    <string name="developer_options_settings">Opzions pal svilupadôr</string>
+    <string name="reset_options_title">Opzions di ripristinament</string>
+    <string name="reset_options_summary">Ripristinament di rêt, aplicazions o dispositîf</string>
+    <string name="reset_network_title">Ripristine Wi\u2011Fi e Bluetooth</string>
+    <string name="reset_network_desc">Cheste operazion e ripristinarà lis impostazions dal Wi\u2011Fi e dal Bluetooth, gjavant de memorie lis conessions precedentis:</string>
+    <string name="reset_network_item_wifi"><li>Rêts Wi\u2011Fi e passwords</li></string>
+    <string name="reset_network_item_mobile"><li>Dâts mobii</li></string>
+    <string name="reset_network_item_bluetooth"><li>Telefons e altris dispositîfs Bluetooth</li></string>
+    <string name="reset_esim_title">Scancele dutis lis eSIMs dal veicul</string>
+    <string name="reset_esim_desc">Cheste operazion no anularà il to plan dai servizis.</string>
+    <string name="reset_esim_error_title">Impussibil ripristinâ lis eSIMs</string>
+    <string name="reset_network_select">Selezione rêt</string>
+    <string name="reset_network_button_text">Ristabilìs impostazions</string>
+    <string name="reset_network_confirm_title">Ristabilî?</string>
+    <string name="reset_network_confirm_desc">Ripristinâ dutis lis impostazions di rêt? Nol sarà pussibil anulâ cheste azion!</string>
+    <string name="reset_network_confirm_button_text">Ristabilìs impostazions</string>
+    <string name="reset_network_complete_toast">Lis impostazions di rêt a son stadis ristabilidis</string>
+    <string name="reset_app_pref_title">Ripristine lis preferencis des aplicazions</string>
+    <string name="reset_app_pref_desc">Cheste operazion e azerarà dutis lis preferencis par:\n\n<li>Aplicazions disativadis</li>\n<li>Notifichis di aplicazions disativadis</li>\n<li>Aplicazions predefinidis par azions</li>\n<li>Limitazions dâts in sotfont par aplicazions</li>\n<li>Cualsisei limitazion di permès</li>\n\nNo tu pierdarâs dâts di aplicazions.</string>
+    <string name="reset_app_pref_button_text">Ripristine aplicazions</string>
+    <string name="reset_app_pref_complete_toast">Lis preferencis des aplicazions a son stadis ristabilidis</string>
+    <string name="factory_reset_title">Cancele ducj i dâts (ripristinament di fabriche)</string>
+    <string name="factory_reset_summary">Scancele ducj i dâts e i profîi dal sisteme di infotainment</string>
+    <string name="factory_reset_desc">Cheste operazion e scancelarà ducj i dâts dal sisteme di infotainment dal veicul, includûts:\n\n<li>I tiei accounts e profîi</li>\n<li>Dâts e impostazions di sisteme e di aplicazions</li>\n<li>Aplicazions discjariadis</li></string>
+    <string name="factory_reset_accounts">In chest moment chescj accounts a son colegâts:</string>
+    <string name="factory_reset_other_users_present">Par chest veicul a son stâts confgurâts altris profîi.</string>
+    <string name="factory_reset_button_text">Scancele ducj i dâts</string>
+    <string name="factory_reset_confirm_title">Scancelâ ducj i dâts?</string>
+    <string name="factory_reset_confirm_desc">Cheste operazion e scancelarà ducj i dâts dal to profîl personâl, i accounts e lis aplicazions discjariadis su chest sisteme di infotainment.\n\nNol sarà pussibil tornâ indaûr di cheste azion.</string>
+    <string name="factory_reset_confirm_button_text">Scancele dut</string>
+    <string name="factory_reset_progress_title">Daûr a scancelâ</string>
+    <string name="factory_reset_progress_text">Par plasê spiete...</string>
+    <string name="date_and_time_settings_title">Date e ore</string>
+    <string name="date_and_time_settings_summary">Stabilìs date, ore, fûs orari e formâts</string>
+    <string name="date_time_auto">Stabilìs la ore in automatic</string>
+    <string name="zone_auto">Config. automatiche fûs orari</string>
+    <string name="date_time_24hour_title">Formât 24 oris</string>
+    <string name="date_time_24hour">Dopre formât 24 oris</string>
+    <string name="date_time_set_time_title">Ore</string>
+    <string name="date_time_set_time">Configure ore</string>
+    <string name="date_time_set_timezone_title">Fûs orari</string>
+    <string name="date_time_set_timezone">Selezione fûs orari</string>
+    <string name="date_time_set_date_title">Date</string>
+    <string name="date_time_set_date">Configure date</string>
+    <string name="zone_list_menu_sort_alphabetically">Ordene in mût alfabetic</string>
+    <string name="zone_list_menu_sort_by_timezone">Ordene par fûs orari</string>
+    <string name="date_picker_title">Date</string>
+    <string name="time_picker_title">Orari</string>
+    <string name="user_admin">Aministradôr</string>
+    <string name="signed_in_admin_user">Jentrât come aministradôr</string>
+    <string name="grant_admin_permissions_title">Concedi i permès di aministradôr?</string>
+    <string name="grant_admin_permissions_button_text">Rint aministradôr</string>
+    <string name="grant_admin_permissions_message">L\'aministradôr al rivarà a eliminâ ducj chei altris profîi, includûts chei di altris aministradôrs e al podarà fâ un ripristinament di fabriche dal sisteme di infotainment.</string>
+    <string name="action_not_reversible_message">Nol è pussibil tornâ indaûr di cheste azion.</string>
+    <string name="confirm_grant_admin">Sì, rint aministradôr</string>
+    <string name="create_user_permission_title">Cree gnûfs profîi</string>
+    <string name="outgoing_calls_permission_title">Fâ telefonadis</string>
+    <string name="sms_messaging_permission_title">Messaçs midiant dâts mobii de machine</string>
+    <string name="install_apps_permission_title">Instalazion di gnovis aplicazions</string>
+    <string name="uninstall_apps_permission_title">Disinstalazion di aplicazions</string>
+    <string name="user_add_user_menu">Zonte profîl</string>
+    <string name="user_new_user_name">Gnûf profîl</string>
+    <string name="user_add_user_title">"Zontâ un gnûf profîl?"</string>
+    <string name="user_add_user_message_setup">Dopo che tu âs creât un gnûf profîl, chê persone e varès di personalizâlu.</string>
+    <string name="user_add_user_message_update">Ducj i profîi a puedin inzornâ lis aplicazions che a vignaran dopradis di ducj i altris profîi.</string>
+    <string name="user_limit_reached_title">Tocjât il limit di profîi</string>
+    <string name="user_limit_reached_message">        {count, plural,
+            one {}=1    {Al è pussibil creâ dome un profîl.}
+            other {Tu puedis creâ al massim # profîi.}
+        }
+    </string>
+    <string name="add_user_error_title">Impussibil creâ un gnûf profîl</string>
+    <string name="delete_user_dialog_title">Eliminâ chest profîl?</string>
+    <string name="delete_user_dialog_message">"A vignaran eliminâts ducj i dâts e lis aplicazions di chest profîl"</string>
+    <string name="delete_user_error_title">Il profîl nol è stât eliminât. Tu puedis tornâ a inviâ il dispositîf e provâ di gnûf.</string>
+    <string name="delete_user_error_set_ephemeral_title">Chest profîl al vignarà eliminât cuant che tu cambiarâs profîl o tu tornarâs a inviâ il motôr.</string>
+    <string name="delete_user_error_dismiss">Ignore</string>
+    <string name="delete_user_error_retry">Torne prove</string>
+    <string name="delete_last_user_dialog_title">Eliminâ l\'ultin profîl che al reste?</string>
+    <string name="delete_last_user_delete_warning">"Se tu eliminis il sôl profîl che al reste par chest veicul, a vignaran scancelâts ducj i dâts, lis impostazions e lis aplicazions associadis a chest profîl."</string>
+    <string name="delete_last_user_system_setup_required_message">"Dopo il ripristinament, tu podarâs configurâ un gnûf profîl."</string>
+    <string name="choose_new_admin_title">Sielç il gnûf aministradôr</string>
+    <string name="choose_new_admin_message">Ti covente almancul un aministradôr. Par eliminâ chest chi, prime sielç un vicjari.</string>
+    <string name="choose_new_admin_label">Sielç l\'aministradôr</string>
+    <string name="user_switch">Cambie</string>
+    <string name="current_user_name">Tu (%1$s)</string>
+    <string name="user_name_label">Non</string>
+    <string name="user_summary_not_set_up">No configurât</string>
+    <string name="edit_user_name_title">Modifiche non profîl</string>
+    <string name="name_input_blank_error">Il cjamp nol pues jessi vueit.</string>
+    <string name="name_input_invalid_error">Il non dal profîl inserît nol è valit.</string>
+    <string name="users_list_title">Utents</string>
+    <string name="profiles_list_title">Profîi</string>
+    <string name="user_details_admin_title">Permès concedûts a %1$s</string>
+    <string name="storage_settings_title">Spazi di archiviazion</string>
+    <string name="storage_music_audio">Musiche e audio</string>
+    <string name="storage_other_apps">Altris aplicazions</string>
+    <string name="storage_files">Files</string>
+    <string name="storage_system">Sisteme</string>
+    <string name="storage_detail_dialog_system">Il sisteme al inclût i files doprâts par eseguî Android version <xliff:g id="version" example="8.0">%s</xliff:g></string>
+    <string name="storage_audio_files_title">Files audio</string>
+    <string name="memory_calculating_size">Daûr a calcolâ\u2026</string>
+    <string name="storage_application_size_label">Dimension de aplicazion</string>
+    <string name="storage_data_size_label">Dâts dal profîl</string>
+    <string name="storage_cache_size_label">Cache</string>
+    <string name="storage_total_size_label">Totâl</string>
+    <string name="storage_clear_user_data_text">Nete dâts archiviâts</string>
+    <string name="storage_clear_cache_btn_text">Nete memorie cache</string>
+    <string name="storage_clear_data_dlg_title">Eliminâ i dâts de aplicazion?</string>
+    <string name="storage_clear_data_dlg_text">I dâts di cheste aplicazion a vignaran eliminâts par simpri. Chest al inclût files, impostazions, basis di dâts e altris dâts di aplicazion.</string>
+    <string name="storage_clear_failed_dlg_text">Impussibil netâ la memorie pes aplicazions.</string>
+    <string name="storage_unmount_success"><xliff:g id="name" example="SD card">%1$s</xliff:g> parade fûr in sigurece</string>
+    <string name="storage_unmount_failure">Impussibil parâ fûr in sigurece il supuart <xliff:g id="name" example="SD card">%1$s</xliff:g></string>
+    <string name="accounts_settings_title">Accounts</string>
+    <string name="user_add_account_menu">Zonte account</string>
+    <string name="no_accounts_added">Nissun account zontât</string>
+    <string name="account_list_title">Accounts par
+        <xliff:g id="current_user_name">%1$s</xliff:g>
+    </string>
+    <string name="account_auto_sync_title">Sincronize i dâts in automatic</string>
+    <string name="account_auto_sync_summary">Permet aes aplicazions di inzornâ i dâts in automatic</string>
+    <string name="data_usage_auto_sync_on_dialog_title">Permet la sincronizazion automatiche di dâts?</string>
+    <string name="data_usage_auto_sync_on_dialog">Dutis lis modifichis che tu fasis ai tiei accounts sul web a vignaran copiadis in automatic sul to veicul.\n\nCualchi account al podarès ancje copiâ in automatic sul web dutis lis modifichis che tu fasis tal veicul.</string>
+    <string name="data_usage_auto_sync_off_dialog_title">Gjavâ il permès par sincronizâ in automatic dâts?</string>
+    <string name="data_usage_auto_sync_off_dialog">In cheste maniere tu limitarâs il consum di dâts, ma tu varâs di sincronizâ a man ogni account par tirâ dongje lis informazions resintis. E no tu ricevarâs notifichis se a vegnin fûr inzornaments.</string>
+    <string name="account_details_title">Dâts dal account</string>
+    <string name="add_account_title">Zonte account</string>
+    <string name="add_an_account">Zonte un account</string>
+    <string name="user_cannot_add_accounts_message">I profîi limitâts no puedin zontâ accounts</string>
+    <string name="remove_account_title">Gjave account</string>
+    <string name="really_remove_account_title">Gjavâ l\'account?</string>
+    <string name="really_remove_account_message">Gjavant chest account tu eliminarâs dal dispositîf ducj i relatîfs messaçs, contats e altris dâts!</string>
+    <string name="remove_account_error_title">Nol è stât pussibil gjavâ l\'account.</string>
+    <string name="account_sync_title">Sincronizazion account</string>
+    <string name="account_sync_summary_some_on">Sincronizazion ative par <xliff:g name="count" example="5">%1$d</xliff:g> of <xliff:g name="total" example="8">%2$d</xliff:g> elements</string>
+    <string name="account_sync_summary_all_on">Sincronizazion ative par ducj i elements</string>
+    <string name="account_sync_summary_all_off">Sincronizazion disativade par ducj i elements</string>
+    <string name="sync_disabled">Sincronizazion disativade</string>
+    <string name="sync_error">Erôr di sincronizazion</string>
+    <string name="last_synced">Ultime sincronizazion: <xliff:g id="last_sync_time" example="12/05/18, 12:30 PM">%1$s</xliff:g></string>
+    <string name="sync_in_progress">Sincronizazion in cors\u2026</string>
+    <string name="sync_one_time_sync">Tocje par sincronizâ cumò<xliff:g id="last_sync_time" example="\nLast synced 12/05/18, 12:30 PM">\n%1$s</xliff:g></string>
+    <string name="sync_button_sync_now">Sincronize cumò</string>
+    <string name="sync_button_sync_cancel">Anule sincronizazion</string>
+    <string name="sync_is_failing">In chest moment la sincronizazion e sta vint problemis. In curt si ripiarà.</string>
+    <string name="privacy_settings_title">Riservatece</string>
+    <string name="privacy_vehicle_data_title">Dâts dal sisteme di infotainment</string>
+    <string name="privacy_location_summary">Controle l\'acès des aplicazions ae tô posizion</string>
+    <string name="mute_camera_title">Fotocjamare</string>
+    <string name="mute_camera_summary">Controle l\'acès des aplicazions aes tôs fotocjamaris</string>
+    <string name="mute_mic_title">Microfon</string>
+    <string name="mute_mic_summary">Controle l\'acès des aplicazions al microfon</string>
+    <string name="vehicle_data_title">Dâts sisteme infotainment</string>
+    <string name="vehicle_data_summary">Gjestìs lis ativitâts e lis informazions salvadis su chest veicul</string>
+    <string name="vehicle_data_delete_user_title">Elimine il to profîl</string>
+    <string name="vehicle_data_delete_user_summary">Scancele il to profîl e i accounts dal sisteme di infotainment</string>
+    <string name="action_unavailable">Cheste azion no je disponibile pal to profîl</string>
+    <string name="camera_access_settings_title">Acès ae fotocjamare</string>
+    <string name="camera_access_settings_summary">Sielç se lis aplicazions a puedin acedi aes fotocjamaris de machine</string>
+    <string name="camera_access_radio_group_title">Dopre lis fotocjamaris de machine cun:</string>
+    <string name="camera_access_radio_any_app_title">Cualsisei aplicazion</string>
+    <string name="camera_access_radio_any_app_summary">Dutis lis aplicazions che a puedin acedi ae tô fotocjamare</string>
+    <string name="camera_access_radio_no_apps_title">Nissune aplicazion</string>
+    <string name="camera_access_radio_no_apps_summary">Nissune des tôs aplicazions</string>
+    <string name="camera_access_radio_helpful_apps_title">Aplicazions che ti judin te vuide</string>
+    <string name="camera_access_radio_helpful_apps_summary">Aplicazions che ti assistin cun robis come mostrâ i tiei dintors cuant che tu parchis</string>
+    <string name="camera_access_radio_required_apps_title">Dome aplicazions domandadis</string>
+    <string name="camera_access_radio_required_apps_summary">Dome lis aplicazions domandadis dal to produtôr de machine</string>
+    <string name="camera_access_radio_helpful_required_apps_title">Aplicazions che ti judin te vuide</string>
+    <string name="camera_access_radio_helpful_required_apps_summary">Aplicazions che ti assistin cun robis come il mostrâ i dintors cuant che tu parchis e aplicazions domandadis</string>
+    <string name="camera_helpful_apps_list_title">Aplicazions che ti judin te vuide</string>
+    <string name="camera_helpful_apps_list_summary">Chestis aplicazions a puedin acedi ae tô fotocjamare par judâti cu la vuide</string>
+    <string name="camera_required_apps_list_title">Aplicazions domandadis</string>
+    <string name="camera_required_apps_list_summary">Chestis aplicazions a son necessaris par fâ funzionâ in sigurece la tô machine</string>
+    <string name="camera_privacy_policy_button_text">Politiche</string>
+    <string name="camera_access_disclaimer_summary">        Il produtôr de tô machine al podarès distès rivâ a acedi ae fotocjamare de tô machine. Tu puedis
+        esaminâ lis lôr politichis par vê plui informazions.
+    </string>
+    <string name="camera_privacy_policy_info_summary">        Scuvierç di plui su cemût che ogni aplicazion e dopre la tô fotocjamare tornant a esaminâ lis sôs politichis su la riservatece.
+    </string>
+    <string name="security_settings_title">Sigurece</string>
+    <string name="security_settings_subtitle">Bloc schermi</string>
+    <string name="security_lock_none">Nissun</string>
+    <string name="security_lock_pattern">Cumbinazion</string>
+    <string name="security_lock_pin">PIN</string>
+    <string name="security_lock_password">Password</string>
+    <string name="lock_settings_picker_title">Sielç il gjenar di bloc</string>
+    <string name="screen_lock_options">Opzions di bloc</string>
+    <string name="lock_settings_enter_pattern">Inserìs la tô cumbinazion</string>
+    <string name="lockpattern_confirm_button_text">Conferme</string>
+    <string name="lockpattern_restart_button_text">Torne dissegne</string>
+    <string name="continue_button_text">Continue</string>
+    <string name="lockscreen_retry_button_text">Torne prove</string>
+    <string name="lockscreen_skip_button_text">Salte</string>
+    <string name="set_screen_lock">Stabilìs un bloc schermi</string>
+    <string name="lockscreen_choose_your_pin">Sielç il to PIN</string>
+    <string name="lockscreen_choose_your_password">Sielç la tô password</string>
+    <string name="current_screen_lock">Bloc schermi atuâl</string>
+    <string name="choose_lock_pattern_message">Par sigurece, stabilìs une cumbinazion</string>
+    <string name="lockpattern_retry_button_text">Nete</string>
+    <string name="lockpattern_cancel_button_text">Anule</string>
+    <string name="lockpattern_pattern_confirmed">Gnove cumbinazion di sbloc</string>
+    <string name="lockpattern_recording_intro_header">Dissegne une cumbinazion di sbloc</string>
+    <string name="lockpattern_recording_inprogress">Mole il dêt se tu âs finît</string>
+    <string name="lockpattern_pattern_entered">Cumbinazion regjistrade</string>
+    <string name="lockpattern_need_to_confirm">Torne dissegne la cumbinazion par confermâ</string>
+    <string name="lockpattern_recording_incorrect_too_short">Coleghe almancul 4 ponts. Torne prove.</string>
+    <string name="lockpattern_pattern_wrong">Cumbinazion sbaliade</string>
+    <string name="lockpattern_settings_help_how_to_record">Cemût dissegnâ une cumbinazion di sbloc</string>
+    <string name="error_saving_lockpattern">Erôr tal salvâ la cumbinazion</string>
+    <string name="lockpattern_too_many_failed_confirmation_attempts">Masse tentatîfs sbaliâts. Torne prove ca di <xliff:g id="number">%d</xliff:g> seconts.</string>
+    <string name="lockpattern_does_not_support_rotary">La cumbinazion no supuarte l\'input rotatîf, dopre la tocjade</string>
+    <string name="okay">Va ben</string>
+    <string name="remove_screen_lock_title">Gjavâ il bloc schermi?</string>
+    <string name="remove_screen_lock_message">In cheste maniere ducj a podaran acedi al to account</string>
+    <string name="security_profile_lock_title">Bloc dal profîl</string>
+    <string name="security_unlock_profile_summary">Configure il sbloc automatic</string>
+    <string name="lock_settings_enter_pin">Inserìs il to PIN</string>
+    <string name="lock_settings_enter_password">Inserìs la tô password</string>
+    <string name="choose_lock_pin_message">Par sigurece, stabilìs un PIN</string>
+    <string name="confirm_your_pin_header">Torne inserìs il to PIN</string>
+    <string name="choose_lock_pin_hints">Il PIN al à di vê almancul 4 cifris</string>
+    <string name="lockpin_invalid_pin">Pin no valit, necessaris almancul 4 cifris.</string>
+    <string name="confirm_pins_dont_match">I PINs no corispuindin</string>
+    <string name="error_saving_lockpin">Erôr tal salvâ il PIN</string>
+    <string name="lockscreen_wrong_pin">PIN sbaliât</string>
+    <string name="lockscreen_wrong_password">Password sbaliade</string>
+    <string name="choose_lock_password_message">Par sigurece, stabilìs une password</string>
+    <string name="confirm_your_password_header">Torne inserìs la password</string>
+    <string name="confirm_passwords_dont_match">Lis passwords no corispuindin</string>
+    <string name="lockpassword_clear_label">Nete</string>
+    <string name="lockpassword_cancel_label">Anule</string>
+    <string name="lockpassword_confirm_label">Conferme</string>
+    <string name="choose_lock_password_hints">E scugne vê almancul 4 caratars</string>
+    <string name="locktype_unavailable">Chest gjenar di bloc nol è disponibil.</string>
+    <string name="lockpassword_pin_contains_non_digits">Al scugne vê dome cifris di 0 a 9.</string>
+    <string name="lockpassword_pin_recently_used">L\'aministradôr dal dispositîf nol permet di doprâ un PIN resint</string>
+    <string name="lockpassword_pin_denylisted_by_admin">I PINs comuns a son stâts blocâts dal to aministradôr IT. Prove un PIN diviers.</string>
+    <string name="lockpassword_illegal_character">No pues includi un caratar no valit.</string>
+    <string name="lockpassword_invalid_password">Password no valide, e scugne vê almancul 4 caratars.</string>
+    <string name="lockpassword_password_recently_used">L\'aministradôr dal dispositîf nol permet di doprâ une password resinte</string>
+    <string name="error_saving_password">Erôr tal salvâ la password</string>
+    <string name="lockpassword_password_denylisted_by_admin">Lis passwords comunis a son blocadis dal to aministradôr IT. Prove une password divierse.</string>
+    <string name="lockpassword_password_requires_alpha">E scugne contignî almancul une letare</string>
+    <string name="lockpassword_password_requires_digit">E scugne contignî almancul une cifre</string>
+    <string name="lockpassword_password_requires_symbol">E scugne contignî almancul un simbul</string>
+    <string name="lockpassword_password_requires_letters">        {count, plural,
+        one {}=1    {E scugne contignî almancul # letare}
+        other {E scugne contignî almancul # letaris}
+        }
+    </string>
+    <string name="lockpassword_password_requires_lowercase">        {count, plural,
+        one {}=1    {E scugne contignî almancul # letare minuscule}
+        other {E scugne contignî almancul # letaris minusculis}
+        }
+    </string>
+    <string name="lockpassword_password_requires_uppercase">        {count, plural,
+        one {}=1    {E scugne contignî almancul # letare maiuscule}
+        other {E scugne contignî almancul # letaris maiusculis}
+        }
+    </string>
+    <string name="lockpassword_password_requires_numeric">        {count, plural,
+        one {}=1    {E scugne contignî almancul # cifre numeriche}
+        other {E scugne contignî almancul # cifris numerichis}
+        }
+    </string>
+    <string name="lockpassword_password_requires_symbols">        {count, plural,
+        one {}=1    {E scugne contignî almancul # simbul speciâl}
+        other {E scugne contignî almancul # simbui speciâi}
+        }
+    </string>
+    <string name="lockpassword_password_requires_nonletter">        {count, plural,
+        one {}=1    {E scugne contignî almancul # caratar che nol è une letare}
+        other {E scugne contignî almancul # caratars che no son letaris}
+        }
+    </string>
+    <string name="lockpassword_password_requires_nonnumerical">        {count, plural,
+        one {}=1    {E scugne contignî almancul # caratar no numeric}
+        other {E scugne contignî almancul # caratars no numerics}
+        }
+    </string>
+    <string name="lockpassword_password_too_short">        {count, plural,
+        one {}=1    {E scugne contignî almancul # caratar}
+        other {E scugne contignî almancul # caratars}
+        }
+    </string>
+    <string name="lockpassword_pin_too_short">        {count, plural,
+        one {}=1    {E scugne contignî almancul # cifre}
+        other {E scugne contignî almancul # cifris}
+        }
+    </string>
+    <string name="lockpassword_password_too_long">        {count, plural,
+        one {}=1    {E à di vê mancul di # caratar}
+        other {E à di vê mancul di # caratars}
+        }
+    </string>
+    <string name="lockpassword_pin_too_long">        {count, plural,
+        one {}=1    {E à di vê mancul di # cifre}
+        other {E à di vê mancul di # cifris}
+        }
+    </string>
+    <string name="lockpassword_pin_no_sequential_digits">Lis secuencis di numars in cressi, in calâ o ripetûts no son ametudis</string>
+    <string name="setup_lock_settings_options_button_label">Opzions dal bloc schermi</string>
+    <string name="credentials_reset">Nete lis credenziâls</string>
+    <string name="credentials_reset_summary">Gjave ducj i certificâts</string>
+    <string name="credentials_reset_hint">Gjavâ ducj i contignûts?</string>
+    <string name="credentials_erased">Memorie credenziâls scancelade.</string>
+    <string name="credentials_not_erased">Impussibil scancelâ la memorie des credenziâls.</string>
+    <string name="forget">Dismentee</string>
+    <string name="connect">Conet</string>
+    <string name="disconnect">Disconet</string>
+    <string name="delete_button">Elimine</string>
+    <string name="remove_button">Gjave</string>
+    <string name="cancel">Anule</string>
+    <string name="allow">Permet</string>
+    <string name="do_not_allow">No sta permeti</string>
+    <string name="deny">Dinee</string>
+    <string name="backspace_key">Tast cancele indaûr</string>
+    <string name="enter_key">Tast invie</string>
+    <string name="exit_retail_button_text">Siere dimostrazion</string>
+    <string name="exit_retail_mode_dialog_title">Siere modalitât dimostrazion</string>
+    <string name="exit_retail_mode_dialog_body">L\'account dimostratîf al vignarà eliminât e a vignaran ripristinâts i dâts di fabriche dal sisteme. Ducj i dâts dal profîl a laran pierdûts.</string>
+    <string name="exit_retail_mode_dialog_confirmation_button_text">Siere dimostrazion</string>
+    <string name="suggestion_dismiss_button">IGNORE</string>
+    <string name="restricted_while_driving">Funzion no disponibile intant che tu vuidis</string>
+    <string name="restricted_for_passenger">Domande al vuidadôr di cambiâ la impostazion</string>
+    <string name="restricted_for_driver">No tu puedis eseguî cheste azion</string>
+    <string name="add_user_restricted_while_driving">Impussibil zontâ il profîl intant che tu vuidis</string>
+    <string name="default_search_query">Cîr</string>
+    <string name="assistant_and_voice_setting_title">Assistent e vôs</string>
+    <string name="assistant_and_voice_assistant_app_title">Aplicazion assistent digjitâl</string>
+    <string name="assistant_and_voice_use_text_from_screen_title">Dopre il test dal schermi</string>
+    <string name="assistant_and_voice_use_text_from_screen_summary">Permet al assistent di acedi ai contignûts dal schermi</string>
+    <string name="assistant_and_voice_use_screenshot_title">Dopre acuisizion di schermade</string>
+    <string name="assistant_and_voice_use_screenshot_summary">Permet al assistent di acedi ae imagjin dal schermi</string>
+    <string name="notifications_recently_sent">Inviadis di resint</string>
+    <string name="notifications_all_apps">Dutis lis aplicazions</string>
+    <string name="profiles_and_accounts_settings_title">Profîi e accounts</string>
+    <string name="manage_other_profiles_button_text">Gjestìs altris profîi</string>
+    <string name="add_a_profile_button_text">Zonte un profîl</string>
+    <string name="delete_this_profile_text">Elimine chest profîl</string>
+    <string name="add_profile_text">Zonte profîl</string>
+    <string name="cannot_remove_driver_profile">Cumò, chest profîl al è jentrât come vuidadôr. Torne prove cuant che nol ven doprât come vuidadôr.</string>
+    <string name="qc_display_brightness">Luminositât dal schermi</string>
+    <string name="qc_bluetooth_off_devices_info">Par viodi i tiei dispositîfs, ative il Bluetooth</string>
+    <string name="qc_bluetooth_on_no_devices_info">Par associâ un dispositîf, vierç lis impostazions dal Bluetooth</string>
+    <string name="qc_ui_mode_title">Teme</string>
+    <string name="device_admin_add_title">Aministradôr di sisteme dal infotainment</string>
+    <string name="device_admin_activated_apps">Aplicazions ativadis</string>
+    <string name="device_admin_deactivated_apps">Aplicazions disativadis</string>
+    <string name="device_admin_apps_description">Lis aplicazions cun chest permès a àn acès ai dâts di chest veicul</string>
+    <string name="device_admin_apps_list_empty">Nissune aplicazion di aministrazion dal veicul</string>
+    <string name="device_admin_status">Cheste aplicazion di aministrazion dal sisteme di infotainment
+        e je ative e e permet ae aplicazion <xliff:g id="app_name">%1$s</xliff:g>
+        di fâ chestis operazions:</string>
+    <string name="device_admin_warning">La ativazion di cheste aplicazion dal sisteme di infotainment
+        e permetarà ae aplicazion <xliff:g id="app_name">%1$s</xliff:g>
+        di fâ chestis operazions:</string>
+    <string name="add_device_admin_msg">Ativâ cheste aplicazion dal sisteme di infotainment?</string>
+    <string name="add_device_admin">Ative cheste aplicazion dal sisteme di infotainment</string>
+    <string name="deactivate_and_uninstall_device_admin">Disative e disinstale</string>
+    <string name="remove_device_admin">Disative cheste aplicazion dal sisteme di infotainment</string>
+    <string name="admin_profile_owner_message">Il gjestôr de organizazion al pues monitorâ e gjestî lis aplicazions e i dâts
+        associâts a chest profîl, includudis lis impostazions, i permès, i acès aziendâi,
+        la ativitât in rêt e lis informazions su la posizion dal veicul.</string>
+    <string name="admin_profile_owner_user_message">Il gjestôr de organizazion al pues monitorâ e gjestî lis aplicazions e i dâts
+        associâts a chest profîl, includudis lis impostazions, i permès, i acès aziendâi,
+        la ativitât in rêt e lis informazions su la posizion dal dispositîf.</string>
+    <string name="admin_device_owner_message">Il gjestôr de organizazion al pues monitorâ e gjestî lis aplicazions e i dâts
+        associâts a chest sisteme di infotainment, includudis lis impostazions, i permès, i acès aziendâi,
+        la ativitât in rêt e lis informazions su la posizion dal veicul.</string>
+    <string name="admin_financed_message">Il gjestôr de organizazno al podarès rivâ a acedi ai dâts
+        associâts a chest sisteme di infotainment, gjestî aplicazions e cambiâ lis impostazions di chest veicul.</string>
+    <string name="disabled_by_policy_title">Chel nol è disponibil</string>
+    <string name="disabled_by_policy_title_adjust_volume">Impussibil cambiâ volum in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_outgoing_calls">Impussibil fâ clamadis in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_sms">I SMS no son consintûts in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_camera">La fotocjamare no je disponibile in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_screen_capture">Impussibil caturâ videadis in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_suspend_packages">Impussibil vierzi cheste aplicazion in chest veicul gjestît</string>
+    <string name="disabled_by_policy_title_financed_device">Impostazion blocade dal furnidôr di credit</string>
+    <string name="default_admin_support_msg">L\'acès a cualchi funzionalitât e je limitade de organizazion.\n\nSe tu âs domandis, contate il gjestôr de organizazion.</string>
+    <string name="manage_device_admin">Aplicazions di aministrazion dal veicul</string>
+    <string name="number_of_device_admins">        {count, plural,
+        one {}=1    {# aplicazion ativade}
+        other {# aplicazions ativadis}
+        }
+    </string>
+    <string name="number_of_device_admins_none">Nissune aplicazion ativade</string>
+    <string name="work_policy_privacy_settings">Normis pai veicui di <xliff:g id="organization_name">%1$s</xliff:g></string>
+    <string name="work_policy_privacy_settings_no_org_name">Informative sul veicul</string>
+    <string name="work_policy_privacy_settings_summary">Impostazions gjestidis dal gjestôr de organizazion</string>
+    <string name="footer_learn_more_content_description">Scuvierç di plui su <xliff:g id="service" example="Select to Speak">%1$s</xliff:g></string>
+    <string name="enterprise_privacy_settings">Informazions su veicul gjestît</string>
+    <string name="enterprise_privacy_settings_summary_generic">Impostazions gjestidis dal aministradôr de flote</string>
+    <string name="enterprise_privacy_header">Par dâ acès ai dâts su chest veicul gjestît, l\'aministradôr de flote al podarès cambiâ lis impostazions e instalâ software sul sisteme di infotainment.\n\nPar vê plui detais, contate l\'aministradôr de tô flote.</string>
+    <string name="enterprise_privacy_exposure_category">Informazions che l\'aministradôr de tô flote al pues vuodi</string>
+    <string name="enterprise_privacy_exposure_changes_category">Modifichis fatis dal aministradôr de tô flote</string>
+    <string name="enterprise_privacy_exposure_desc">        <li>Dâts associâts al to account dal veicul gjestît</li>\n
+        <li>Liste di aplicazions sul to veicul gjestît</li>\n
+        <li>Cuantitât di timp e dâts doprâts in ogni aplicazion</li>
+    </string>
+    <string name="enterprise_privacy_device_access_category">Il to acès al sisteme di infotainment</string>
+    <string name="enterprise_privacy_installed_packages">Liste di aplicazions sul to veicul</string>
+    <string name="enterprise_privacy_apps_count_estimation_info">Il numar di aplicazions al è stimât. Al è pussibil che no sedin includudis lis aplicazion instaladis fûr dal Play Store.</string>
+    <plurals name="enterprise_privacy_number_packages_lower_bound">
+        <item quantity="one">Minim <xliff:g id="count">%d</xliff:g> aplicazion</item>
+        <item quantity="other">Minim <xliff:g id="count">%d</xliff:g> aplicazions</item>
+    </plurals>
+    <plurals name="enterprise_privacy_number_packages">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> aplicazion</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> aplicazions</item>
+    </plurals>
+    <string name="enterprise_privacy_network_logs">Regjistri sul trafic di rêt plui resint</string>
+    <string name="enterprise_privacy_bug_reports">Segnalazion di erôr plui resinte</string>
+    <string name="enterprise_privacy_security_logs">Regjistri di sigurece plui resint</string>
+    <string name="enterprise_privacy_none">Nissune</string>
+    <string name="enterprise_privacy_enterprise_installed_packages">Aplicazions instaladis</string>
+    <string name="enterprise_privacy_location_access">Autorizazions di localizazion</string>
+    <string name="enterprise_privacy_microphone_access">Autorizazions al microfon</string>
+    <string name="enterprise_privacy_camera_access">Autorizazions ae fotocjamare</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps">Aplicazions predefinidis</string>
+    <string name="enterprise_privacy_input_method">Tastiere predefinide</string>
+    <string name="enterprise_privacy_input_method_name">Met a <xliff:g id="app_label" example="Example Keyboard">%s</xliff:g></string>
+    <string name="enterprise_privacy_global_http_proxy">Proxy HTTP globâl stabilît</string>
+    <string name="enterprise_privacy_ca_certs_personal">Credenziâls atendibilis tal to profîl personâl</string>
+    <string name="enterprise_privacy_device_access_desc">        <li>L\'aministradôr al pues blocâ il sisteme di infotainment e ristabilî la password</li>\n
+        <li>L\'aministradôr al pues eliminâ dâts sul sisteme di infotainment</li>
+    </string>
+    <string name="enterprise_privacy_failed_password_wipe_device">Tentatîfs di password falîts prime di eliminâ ducj i dâts sul sisteme di infotainment</string>
+    <string name="enterprise_privacy_failed_password_wipe_current_user">Tentatîfs di password falîts prime di eliminâ i dâts dal profîl</string>
+    <plurals name="enterprise_privacy_number_failed_password_wipe">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> tentatîf</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> tentatîfs</item>
+    </plurals>
+    <plurals name="default_camera_app_title">
+        <item quantity="one" translatable="false">Aplicazion fotocjamare</item>
+        <item quantity="other" translatable="false">Aplicazions fotocjamare</item>
+    </plurals>
+    <plurals name="default_email_app_title">
+        <item quantity="one" translatable="false">Aplicazion client di e-mail</item>
+        <item quantity="other" translatable="false">Aplicazions client di e-mail</item>
+    </plurals>
+    <plurals name="default_phone_app_title">
+        <item quantity="one" translatable="false">Aplicazion telefon</item>
+        <item quantity="other" translatable="false">Aplicazions telefon</item>
+    </plurals>
+    <string name="share_remote_bugreport_dialog_title">Condividi la segnalazion dal erôr?</string>
+    <string name="share_remote_bugreport_dialog_message_finished">Il gjestôr de organizazion di chest veicul al à domandât une segnalazion di erôr par judâ la risoluzion dal probleme par chest dispositîf. Al è pussibil che a vegnin condividûts dâts e aplicazions.</string>
+    <string name="share_remote_bugreport_dialog_message">Il gjestôr de organizazion di chest veicul al à domandât une segnalazion di erôr par judâ la risoluzion dal probleme par chest dispositîf. Al è pussibil che a vegnin condividûts dâts e aplicazions e il to dispositîf al podarès morestâsi par un pôc.</string>
+    <string name="sharing_remote_bugreport_dialog_message">Cheste segnalazion di erôr e sta par jessi condividude cul gjestôr de organizazion di chest veicul. Contatilu par vê plui detais.</string>
+    <string name="share_remote_bugreport_action">Condivît</string>
+    <string name="decline_remote_bugreport_action">Refude</string>
+    <string name="factory_reset_parked_title">Ripristine il sisteme di infotainment</string>
+    <string name="factory_reset_parked_text">Il sisteme al à ricevût une richieste par fâ il ripristinament di fabriche e scancelâ ducj i dâts. Tu puedis fâlu daurman o si ripristinarà la prossime volte che tu impiarâs la machine. Dopo tu podarâs configurâ un gnûf profîl.</string>
+    <string name="factory_reset_now_button">Ripristine cumò</string>
+    <string name="factory_reset_later_button">Ripristine plui tart</string>
+    <string name="factory_reset_later_text">L\'infotainment si ripristinarà al prossim inviament de auto.</string>
+    <string name="factory_reset_driving_text">Par scomençâ a ripristinâ tu scugnis parcâ la auto.</string>
+    <string name="power_component_disabled">In chest moment nol è pussibil cambiâ cheste impostazion</string>
+    <string name="accessibility_settings_title">Acès facilitât</string>
+    <string name="accessibility_settings_captions_title">Sottitui</string>
+    <string name="captions_settings_title">Preferencis sottitui</string>
+    <string name="captions_settings_off">Off</string>
+    <string name="captions_settings_on">On</string>
+    <string name="screen_reader_settings_title">Letôr di schermi</string>
+    <string name="show_captions_toggle_title">Mostre sottitui</string>
+    <string name="captions_text_size_title">Dimension test</string>
+    <string name="captions_settings_style_header">Dimension e stîl dai sottitui</string>
+    <string name="captions_settings_text_size_very_small">Une vore piçul</string>
+    <string name="captions_settings_text_size_small">Piçul</string>
+    <string name="captions_settings_text_size_default">Predefinît</string>
+    <string name="captions_settings_text_size_large">Grant</string>
+    <string name="captions_settings_text_size_very_large">Une vore grant</string>
+    <string name="captions_text_style_title">Stîl sottitui</string>
+    <string name="captions_settings_text_style_by_app">Stabilît de aplicazion</string>
+    <string name="captions_settings_text_style_white_on_black">Blanc su neri</string>
+    <string name="captions_settings_text_style_black_on_white">Neri su blanc</string>
+    <string name="captions_settings_text_style_yellow_on_black">Zâl su neri</string>
+    <string name="captions_settings_text_style_yellow_on_blue">Zâl su blu</string>
+    <string name="accessibility_settings_screen_reader_title">Letôr di schermi</string>
+    <string name="screen_reader_settings_off">Off</string>
+    <string name="screen_reader_settings_on">Pronunzie i elements su schermi</string>
+    <string name="enable_screen_reader_toggle_title">Dopre <xliff:g id="accessibility_app_name" example="TalkBack">%1$s</xliff:g></string>
+    <string name="screen_reader_options_title">Opzions</string>
+    <string name="screen_reader_description_title">Impostazions</string>
+    <string name="camera_settings_title">Fotocjamare</string>
+    <string name="camera_toggle_title">Acès ae fotocjamare</string>
+    <string name="camera_toggle_summary">Permet a dutis lis aplicazions di acedi ae tô fotocjamare</string>
+    <string name="camera_manage_permissions">Gjestìs i permès de fotocjamare</string>
+    <string name="camera_recently_accessed">Utilizazions resintis</string>
+    <string name="camera_no_recent_access">Nissune aplicazion resinte</string>
+    <string name="camera_app_permission_summary_camera_off">Nissune aplicazion e à acès</string>
+    <string name="camera_app_permission_summary_camera_on">        {count, plural,
+            one {}=1    {# of {total_count} aplicazions e à acès}
+            other {# of {total_count} aplicazions a àn acès}
+        }
+    </string>
+    <string name="camera_settings_recent_requests_title">Utilizazions resintis</string>
+    <string name="camera_settings_recent_requests_view_all_title">Viôt dutis</string>
+    <string name="camera_settings_loading_app_permission_stats">Daûr a cjariâ\u2026</string>
+</resources>

@@ -1,0 +1,1045 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?><?xml-stylesheet type="text/xsl" href="compatibility_result.xsl"?>
+<Result start="1603165727523" end="1603165797787" start_display="Mon Oct 19 20:48:47 PDT 2020" end_display="Mon Oct 19 20:49:57 PDT 2020" command_line_args="gts --module GtsPlacementTestCases --ignore-business-logic-failure -s chromeos15-rack1-camerabox1.cros:22" suite_name="GTS" suite_version="7.0_r4" suite_plan="gts" suite_build_number="6219464" report_version="5.0" devices="chromeos15-rack1-camerabox1.cros:22" host_name="jaydeepmehta-desktop.mtv.corp.google.com" os_name="Linux" os_version="5.7.17-1rodete3-amd64" os_arch="amd64" java_vendor="Oracle Corporation" java_version="1.8.0_131">
+  <Build command_line_args="gts --module GtsPlacementTestCases --ignore-business-logic-failure -s chromeos15-rack1-camerabox1.cros:22" invocation-id="1" setup_time_ms="34489" adb_version="1.0.41 subVersion: 28.0.2-6118618 install path: /tmp/autotest-tradefed-install_5CGfcs/0d80ff6f5cc49b1bc889a5215b96035b/adb" java_version="1.8.0_131" fetch_build_time_ms="8" java_classpath=":/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/tradefed.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/loganalysis.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/hosttestlib.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/compatibility-host-util.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/gts-tradefed.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/tools/gts-tradefed-tests.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/AngleIntegrationTestCommon.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/CtsCheckpointTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsAccountsHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsArtManagerHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsAssistantHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsBackupHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsBootStatsTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsCastHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsEdiHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsGameDeviceHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsGmscoreHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsGraphicsHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsHomeHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsInstantAppsHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsLargeApkHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsLauncherHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsLocationHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsMemoryHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsNetStatsCommon.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsNetStatsHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsNetworkStackHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsPackageManagerHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsPermissionControllerHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsPlayStoreCommon.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsPlayStoreHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSampleHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsScreenshotHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSearchHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSecurityHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSensorHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSettingsHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSetupWizardHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsSsaidHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsStagedInstallHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsStatsdHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsTestHarnessModeTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsTvHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsUnofficialApisUsageTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/gts-utils-axt.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsWebViewHostTestCases.jar:/tmp/autotest-tradefed-install_5CGfcs/78112b170927a57ac6d4f33a6a73fdb3/android-gts-7_r4-6219464/android-gts/tools/../../android-gts/testcases/GtsWellbeingHostTestCases.jar" build_manufacturer="Google" build_abis_32="x86,armeabi-v7a,armeabi" build_reference_fingerprint="" build_product="soraka" build_tags="release-keys" build_version_incremental="6912088" build_brand="google" build_fingerprint="google/soraka/soraka_cheets:9/R88-13543.0.0/6912088:user/release-keys" build_model="HP Chromebook x2" build_device="soraka_cheets" build_id="R88-13543.0.0" build_version_sdk="28" build_serial="B4301EF65AA383F6AB0A" build_version_security_patch="2020-10-05" build_abi="x86_64" build_abis_64="x86_64,arm64-v8a" build_vendor_fingerprint="google/soraka/soraka_cheets:9/R88-13543.0.0/6912088:user/release-keys" build_version_base_os="" build_abis="x86_64,x86,arm64-v8a,armeabi-v7a,armeabi" build_board="soraka" build_type="user" build_version_release="9" build_abi2="" />
+  <Summary pass="80" failed="4" modules_done="4" modules_total="4" />
+  <Module name="GtsPlacementTestCases" abi="arm64-v8a" runtime="3646" done="true" pass="20" total_tests="26">
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsPrivappPermissionsTest">
+      <Test result="pass" name="testCoreGmsAppsPermissionsWhitelisted" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testVrCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleLoginServicePreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testCoreGasAppsPreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testCoreGasAppsPreloaded(CoreGmsAppsTest.java:559)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="fail" name="testCoreGmsAppsPreloaded">
+        <Failure message="java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]&#13;">
+          <StackTrace>java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.assertSystemApps(CoreGmsAppsTest.java:141)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="ASSUMPTION_FAILURE" name="testGmsNotPreloadedOnAutomotiveDevice">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testGmsNotPreloadedOnAutomotiveDevice(CoreGmsAppsTest.java:583)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleDuoPreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testArCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGMSExpressPlus" />
+      <Test result="pass" name="testNoPreReleaseGmsCore" />
+      <Test result="pass" name="testCustomizedWebviewPreloaded" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsVersionTest">
+      <Test result="pass" name="testCoreGmsAppsVersions" />
+      <Test result="pass" name="testGoGmsVersions" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.DefaultIntentTest">
+      <Test result="pass" name="testDefaultIntentHandlers" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenLayoutTest">
+      <Test result="pass" name="testShortcutPlacement" />
+      <Test result="pass" name="testFolderPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenPlacementTest">
+      <Test result="pass" name="testWidgetPlacement" />
+      <Test result="pass" name="testAppPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.InstalledAppsTest">
+      <Test result="pass" name="testAppsInstalled" />
+      <Test result="pass" name="testSystemAppsInstalled" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.LowRamAppsTest">
+      <Test result="pass" name="testNonGoDeviceHasNoAppsThatUsesLowRam" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.PreloadHeadedAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testNumberOfHeadedApplications">
+        <Failure message="org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.google.android.placement.gts.PreloadHeadedAppsTest.checkIsGo(PreloadHeadedAppsTest.java:115)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.UiPlacementTest">
+      <Test result="pass" name="testAppPresent" />
+      <Test result="pass" name="testHotseat" />
+      <Test result="pass" name="testRSACompliance" />
+      <Test result="pass" name="testEEAv2AppPlacement" />
+    </TestCase>
+  </Module>
+  <Module name="GtsPlacementTestCases" abi="armeabi-v7a" runtime="4023" done="true" pass="20" total_tests="26">
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsPrivappPermissionsTest">
+      <Test result="pass" name="testCoreGmsAppsPermissionsWhitelisted" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testVrCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleLoginServicePreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testCoreGasAppsPreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testCoreGasAppsPreloaded(CoreGmsAppsTest.java:559)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="fail" name="testCoreGmsAppsPreloaded">
+        <Failure message="java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]&#13;">
+          <StackTrace>java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.assertSystemApps(CoreGmsAppsTest.java:141)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="ASSUMPTION_FAILURE" name="testGmsNotPreloadedOnAutomotiveDevice">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testGmsNotPreloadedOnAutomotiveDevice(CoreGmsAppsTest.java:583)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleDuoPreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testArCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGMSExpressPlus" />
+      <Test result="pass" name="testNoPreReleaseGmsCore" />
+      <Test result="pass" name="testCustomizedWebviewPreloaded" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsVersionTest">
+      <Test result="pass" name="testCoreGmsAppsVersions" />
+      <Test result="pass" name="testGoGmsVersions" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.DefaultIntentTest">
+      <Test result="pass" name="testDefaultIntentHandlers" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenLayoutTest">
+      <Test result="pass" name="testShortcutPlacement" />
+      <Test result="pass" name="testFolderPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenPlacementTest">
+      <Test result="pass" name="testWidgetPlacement" />
+      <Test result="pass" name="testAppPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.InstalledAppsTest">
+      <Test result="pass" name="testAppsInstalled" />
+      <Test result="pass" name="testSystemAppsInstalled" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.LowRamAppsTest">
+      <Test result="pass" name="testNonGoDeviceHasNoAppsThatUsesLowRam" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.PreloadHeadedAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testNumberOfHeadedApplications">
+        <Failure message="org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.google.android.placement.gts.PreloadHeadedAppsTest.checkIsGo(PreloadHeadedAppsTest.java:115)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.UiPlacementTest">
+      <Test result="pass" name="testAppPresent" />
+      <Test result="pass" name="testHotseat" />
+      <Test result="pass" name="testRSACompliance" />
+      <Test result="pass" name="testEEAv2AppPlacement" />
+    </TestCase>
+  </Module>
+  <Module name="GtsPlacementTestCases" abi="x86" runtime="4095" done="true" pass="20" total_tests="26">
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsPrivappPermissionsTest">
+      <Test result="pass" name="testCoreGmsAppsPermissionsWhitelisted" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testVrCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleLoginServicePreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testCoreGasAppsPreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testCoreGasAppsPreloaded(CoreGmsAppsTest.java:559)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="fail" name="testCoreGmsAppsPreloaded">
+        <Failure message="java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]&#13;">
+          <StackTrace>java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.assertSystemApps(CoreGmsAppsTest.java:141)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="ASSUMPTION_FAILURE" name="testGmsNotPreloadedOnAutomotiveDevice">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testGmsNotPreloadedOnAutomotiveDevice(CoreGmsAppsTest.java:583)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleDuoPreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testArCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGMSExpressPlus" />
+      <Test result="pass" name="testNoPreReleaseGmsCore" />
+      <Test result="pass" name="testCustomizedWebviewPreloaded" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsVersionTest">
+      <Test result="pass" name="testCoreGmsAppsVersions" />
+      <Test result="pass" name="testGoGmsVersions" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.DefaultIntentTest">
+      <Test result="pass" name="testDefaultIntentHandlers" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenLayoutTest">
+      <Test result="pass" name="testShortcutPlacement" />
+      <Test result="pass" name="testFolderPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenPlacementTest">
+      <Test result="pass" name="testWidgetPlacement" />
+      <Test result="pass" name="testAppPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.InstalledAppsTest">
+      <Test result="pass" name="testAppsInstalled" />
+      <Test result="pass" name="testSystemAppsInstalled" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.LowRamAppsTest">
+      <Test result="pass" name="testNonGoDeviceHasNoAppsThatUsesLowRam" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.PreloadHeadedAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testNumberOfHeadedApplications">
+        <Failure message="org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.google.android.placement.gts.PreloadHeadedAppsTest.checkIsGo(PreloadHeadedAppsTest.java:115)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.UiPlacementTest">
+      <Test result="pass" name="testAppPresent" />
+      <Test result="pass" name="testHotseat" />
+      <Test result="pass" name="testRSACompliance" />
+      <Test result="pass" name="testEEAv2AppPlacement" />
+    </TestCase>
+  </Module>
+  <Module name="GtsPlacementTestCases" abi="x86_64" runtime="3669" done="true" pass="20" total_tests="26">
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsPrivappPermissionsTest">
+      <Test result="pass" name="testCoreGmsAppsPermissionsWhitelisted" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testVrCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring VR high-performance feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleLoginServicePreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testCoreGasAppsPreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testCoreGasAppsPreloaded(CoreGmsAppsTest.java:559)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="fail" name="testCoreGmsAppsPreloaded">
+        <Failure message="java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]&#13;">
+          <StackTrace>java.lang.RuntimeException: Assertion failure: the following are not system apps: [com.google.android.backuptransport]
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.assertSystemApps(CoreGmsAppsTest.java:141)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="ASSUMPTION_FAILURE" name="testGmsNotPreloadedOnAutomotiveDevice">
+        <Failure message="org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: got: &amp;lt;false&amp;gt;, expected: is &amp;lt;true&amp;gt;
+	at org.junit.Assume.assumeThat(Assume.java:95)
+	at org.junit.Assume.assumeTrue(Assume.java:41)
+	at com.google.android.placement.gts.CoreGmsAppsTest.testGmsNotPreloadedOnAutomotiveDevice(CoreGmsAppsTest.java:583)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:148)
+	at org.junit.internal.runners.statements.FailOnTimeout$CallableStatement.call(FailOnTimeout.java:142)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.lang.Thread.run(Thread.java:764)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGoogleDuoPreloaded" />
+      <Test result="ASSUMPTION_FAILURE" name="testArCorePreloaded">
+        <Failure message="org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: test only applies to devices declaring AR feature.
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.skipTest(BusinessLogicTestCase.java:119)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.compatibility.common.util.BusinessLogicExecutor$ResolvedMethod.invoke(BusinessLogicExecutor.java:220)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.invokeMethod(BusinessLogicExecutor.java:145)
+	at com.android.compatibility.common.util.BusinessLogicExecutor.executeAction(BusinessLogicExecutor.java:72)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRuleAction.invoke(BusinessLogic.java:328)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRule.invokeActions(BusinessLogic.java:274)
+	at com.android.compatibility.common.util.BusinessLogic$BusinessLogicRulesList.invokeRules(BusinessLogic.java:234)
+	at com.android.compatibility.common.util.BusinessLogic.applyLogicFor(BusinessLogic.java:83)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.executeBusinessLogic(BusinessLogicTestCase.java:76)
+	at com.android.compatibility.common.util.BusinessLogicTestCase.handleBusinessLogic(BusinessLogicTestCase.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at org.junit.rules.TestWatcher$1.evaluate(TestWatcher.java:55)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+      <Test result="pass" name="testGMSExpressPlus" />
+      <Test result="pass" name="testNoPreReleaseGmsCore" />
+      <Test result="pass" name="testCustomizedWebviewPreloaded" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.CoreGmsAppsVersionTest">
+      <Test result="pass" name="testCoreGmsAppsVersions" />
+      <Test result="pass" name="testGoGmsVersions" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.DefaultIntentTest">
+      <Test result="pass" name="testDefaultIntentHandlers" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenLayoutTest">
+      <Test result="pass" name="testShortcutPlacement" />
+      <Test result="pass" name="testFolderPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.HomescreenPlacementTest">
+      <Test result="pass" name="testWidgetPlacement" />
+      <Test result="pass" name="testAppPlacement" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.InstalledAppsTest">
+      <Test result="pass" name="testAppsInstalled" />
+      <Test result="pass" name="testSystemAppsInstalled" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.LowRamAppsTest">
+      <Test result="pass" name="testNonGoDeviceHasNoAppsThatUsesLowRam" />
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.PreloadHeadedAppsTest">
+      <Test result="ASSUMPTION_FAILURE" name="testNumberOfHeadedApplications">
+        <Failure message="org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device&#13;">
+          <StackTrace>org.junit.AssumptionViolatedException: Skipping PreloadHeadedAppsTest on non-Go device
+	at org.junit.Assume.assumeTrue(Assume.java:59)
+	at com.google.android.placement.gts.PreloadHeadedAppsTest.checkIsGo(PreloadHeadedAppsTest.java:115)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:52)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:76)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.runner.AndroidJUnit4.run(AndroidJUnit4.java:104)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:392)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2164)
+</StackTrace>
+        </Failure>
+      </Test>
+    </TestCase>
+    <TestCase name="com.google.android.placement.gts.UiPlacementTest">
+      <Test result="pass" name="testAppPresent" />
+      <Test result="pass" name="testHotseat" />
+      <Test result="pass" name="testRSACompliance" />
+      <Test result="pass" name="testEEAv2AppPlacement" />
+    </TestCase>
+  </Module>
+</Result>

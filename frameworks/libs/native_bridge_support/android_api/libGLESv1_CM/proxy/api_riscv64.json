@@ -1,0 +1,5088 @@
+{
+	"symbols" : 
+	{
+		"glActiveTexture" : 
+		{
+			"type" : "func glActiveTexture"
+		},
+		"glAlphaFunc" : 
+		{
+			"type" : "func glAlphaFunc"
+		},
+		"glAlphaFuncx" : 
+		{
+			"type" : "func glAlphaFuncx"
+		},
+		"glAlphaFuncxOES" : 
+		{
+			"type" : "func glAlphaFuncxOES"
+		},
+		"glBindBuffer" : 
+		{
+			"type" : "func glBindBuffer"
+		},
+		"glBindFramebufferOES" : 
+		{
+			"type" : "func glBindFramebufferOES"
+		},
+		"glBindRenderbufferOES" : 
+		{
+			"type" : "func glBindRenderbufferOES"
+		},
+		"glBindTexture" : 
+		{
+			"type" : "func glBindTexture"
+		},
+		"glBindVertexArrayOES" : 
+		{
+			"type" : "func glBindVertexArrayOES"
+		},
+		"glBlendEquationOES" : 
+		{
+			"type" : "func glBlendEquationOES"
+		},
+		"glBlendEquationSeparateOES" : 
+		{
+			"type" : "func glBlendEquationSeparateOES"
+		},
+		"glBlendFunc" : 
+		{
+			"type" : "func glBlendFunc"
+		},
+		"glBlendFuncSeparateOES" : 
+		{
+			"type" : "func glBlendFuncSeparateOES"
+		},
+		"glBufferData" : 
+		{
+			"type" : "func glBufferData"
+		},
+		"glBufferSubData" : 
+		{
+			"type" : "func glBufferSubData"
+		},
+		"glCheckFramebufferStatusOES" : 
+		{
+			"type" : "func glCheckFramebufferStatusOES"
+		},
+		"glClear" : 
+		{
+			"type" : "func glClear"
+		},
+		"glClearColor" : 
+		{
+			"type" : "func glClearColor"
+		},
+		"glClearColorx" : 
+		{
+			"type" : "func glClearColorx"
+		},
+		"glClearColorxOES" : 
+		{
+			"type" : "func glClearColorxOES"
+		},
+		"glClearDepthf" : 
+		{
+			"type" : "func glClearDepthf"
+		},
+		"glClearDepthfOES" : 
+		{
+			"type" : "func glClearDepthfOES"
+		},
+		"glClearDepthx" : 
+		{
+			"type" : "func glClearDepthx"
+		},
+		"glClearDepthxOES" : 
+		{
+			"type" : "func glClearDepthxOES"
+		},
+		"glClearStencil" : 
+		{
+			"type" : "func glClearStencil"
+		},
+		"glClientActiveTexture" : 
+		{
+			"type" : "func glClientActiveTexture"
+		},
+		"glClipPlanef" : 
+		{
+			"type" : "func glClipPlanef"
+		},
+		"glClipPlanefIMG" : 
+		{
+			"type" : "func glClipPlanefIMG"
+		},
+		"glClipPlanefOES" : 
+		{
+			"type" : "func glClipPlanefOES"
+		},
+		"glClipPlanex" : 
+		{
+			"type" : "func glClipPlanex"
+		},
+		"glClipPlanexIMG" : 
+		{
+			"type" : "func glClipPlanexIMG"
+		},
+		"glClipPlanexOES" : 
+		{
+			"type" : "func glClipPlanexOES"
+		},
+		"glColor4f" : 
+		{
+			"type" : "func glColor4f"
+		},
+		"glColor4ub" : 
+		{
+			"type" : "func glColor4ub"
+		},
+		"glColor4x" : 
+		{
+			"type" : "func glColor4x"
+		},
+		"glColor4xOES" : 
+		{
+			"type" : "func glColor4xOES"
+		},
+		"glColorMask" : 
+		{
+			"type" : "func glColorMask"
+		},
+		"glColorPointer" : 
+		{
+			"type" : "func glColorPointer"
+		},
+		"glColorPointerBounds" : 
+		{
+			"type" : "func glColorPointerBounds"
+		},
+		"glCompressedTexImage2D" : 
+		{
+			"type" : "func glCompressedTexImage2D"
+		},
+		"glCompressedTexSubImage2D" : 
+		{
+			"type" : "func glCompressedTexSubImage2D"
+		},
+		"glCopyTexImage2D" : 
+		{
+			"type" : "func glCopyTexImage2D"
+		},
+		"glCopyTexSubImage2D" : 
+		{
+			"type" : "func glCopyTexSubImage2D"
+		},
+		"glCullFace" : 
+		{
+			"type" : "func glCullFace"
+		},
+		"glCurrentPaletteMatrixOES" : 
+		{
+			"type" : "func glCurrentPaletteMatrixOES"
+		},
+		"glDeleteBuffers" : 
+		{
+			"type" : "func glDeleteBuffers"
+		},
+		"glDeleteFencesNV" : 
+		{
+			"type" : "func glDeleteFencesNV"
+		},
+		"glDeleteFramebuffersOES" : 
+		{
+			"type" : "func glDeleteFramebuffersOES"
+		},
+		"glDeleteRenderbuffersOES" : 
+		{
+			"type" : "func glDeleteRenderbuffersOES"
+		},
+		"glDeleteTextures" : 
+		{
+			"type" : "func glDeleteTextures"
+		},
+		"glDeleteVertexArraysOES" : 
+		{
+			"type" : "func glDeleteVertexArraysOES"
+		},
+		"glDepthFunc" : 
+		{
+			"type" : "func glDepthFunc"
+		},
+		"glDepthMask" : 
+		{
+			"type" : "func glDepthMask"
+		},
+		"glDepthRangef" : 
+		{
+			"type" : "func glDepthRangef"
+		},
+		"glDepthRangefOES" : 
+		{
+			"type" : "func glDepthRangefOES"
+		},
+		"glDepthRangex" : 
+		{
+			"type" : "func glDepthRangex"
+		},
+		"glDepthRangexOES" : 
+		{
+			"type" : "func glDepthRangexOES"
+		},
+		"glDisable" : 
+		{
+			"type" : "func glDisable"
+		},
+		"glDisableClientState" : 
+		{
+			"type" : "func glDisableClientState"
+		},
+		"glDisableDriverControlQCOM" : 
+		{
+			"type" : "func glDisableDriverControlQCOM"
+		},
+		"glDiscardFramebufferEXT" : 
+		{
+			"type" : "func glDiscardFramebufferEXT"
+		},
+		"glDrawArrays" : 
+		{
+			"type" : "func glDrawArrays"
+		},
+		"glDrawElements" : 
+		{
+			"type" : "func glDrawElements"
+		},
+		"glDrawTexfOES" : 
+		{
+			"type" : "func glDrawTexfOES"
+		},
+		"glDrawTexfvOES" : 
+		{
+			"type" : "func glDrawTexfvOES"
+		},
+		"glDrawTexiOES" : 
+		{
+			"type" : "func glDrawTexiOES"
+		},
+		"glDrawTexivOES" : 
+		{
+			"type" : "func glDrawTexivOES"
+		},
+		"glDrawTexsOES" : 
+		{
+			"type" : "func glDrawTexsOES"
+		},
+		"glDrawTexsvOES" : 
+		{
+			"type" : "func glDrawTexsvOES"
+		},
+		"glDrawTexxOES" : 
+		{
+			"type" : "func glDrawTexxOES"
+		},
+		"glDrawTexxvOES" : 
+		{
+			"type" : "func glDrawTexxvOES"
+		},
+		"glEGLImageTargetRenderbufferStorageOES" : 
+		{
+			"type" : "func glEGLImageTargetRenderbufferStorageOES"
+		},
+		"glEGLImageTargetTexture2DOES" : 
+		{
+			"type" : "func glEGLImageTargetTexture2DOES"
+		},
+		"glEnable" : 
+		{
+			"type" : "func glEnable"
+		},
+		"glEnableClientState" : 
+		{
+			"type" : "func glEnableClientState"
+		},
+		"glEnableDriverControlQCOM" : 
+		{
+			"type" : "func glEnableDriverControlQCOM"
+		},
+		"glEndTilingQCOM" : 
+		{
+			"type" : "func glEndTilingQCOM"
+		},
+		"glExtGetBufferPointervQCOM" : 
+		{
+			"type" : "func glExtGetBufferPointervQCOM"
+		},
+		"glExtGetBuffersQCOM" : 
+		{
+			"type" : "func glExtGetBuffersQCOM"
+		},
+		"glExtGetFramebuffersQCOM" : 
+		{
+			"type" : "func glExtGetFramebuffersQCOM"
+		},
+		"glExtGetProgramBinarySourceQCOM" : 
+		{
+			"type" : "func glExtGetProgramBinarySourceQCOM"
+		},
+		"glExtGetProgramsQCOM" : 
+		{
+			"type" : "func glExtGetProgramsQCOM"
+		},
+		"glExtGetRenderbuffersQCOM" : 
+		{
+			"type" : "func glExtGetRenderbuffersQCOM"
+		},
+		"glExtGetShadersQCOM" : 
+		{
+			"type" : "func glExtGetShadersQCOM"
+		},
+		"glExtGetTexLevelParameterivQCOM" : 
+		{
+			"type" : "func glExtGetTexLevelParameterivQCOM"
+		},
+		"glExtGetTexSubImageQCOM" : 
+		{
+			"type" : "func glExtGetTexSubImageQCOM"
+		},
+		"glExtGetTexturesQCOM" : 
+		{
+			"type" : "func glExtGetTexturesQCOM"
+		},
+		"glExtIsProgramBinaryQCOM" : 
+		{
+			"type" : "func glExtIsProgramBinaryQCOM"
+		},
+		"glExtTexObjectStateOverrideiQCOM" : 
+		{
+			"type" : "func glExtTexObjectStateOverrideiQCOM"
+		},
+		"glFinish" : 
+		{
+			"type" : "func glFinish"
+		},
+		"glFinishFenceNV" : 
+		{
+			"type" : "func glFinishFenceNV"
+		},
+		"glFlush" : 
+		{
+			"type" : "func glFlush"
+		},
+		"glFogf" : 
+		{
+			"type" : "func glFogf"
+		},
+		"glFogfv" : 
+		{
+			"type" : "func glFogfv"
+		},
+		"glFogx" : 
+		{
+			"type" : "func glFogx"
+		},
+		"glFogxOES" : 
+		{
+			"type" : "func glFogxOES"
+		},
+		"glFogxv" : 
+		{
+			"type" : "func glFogxv"
+		},
+		"glFogxvOES" : 
+		{
+			"type" : "func glFogxvOES"
+		},
+		"glFramebufferRenderbufferOES" : 
+		{
+			"type" : "func glFramebufferRenderbufferOES"
+		},
+		"glFramebufferTexture2DMultisampleIMG" : 
+		{
+			"type" : "func glFramebufferTexture2DMultisampleIMG"
+		},
+		"glFramebufferTexture2DOES" : 
+		{
+			"type" : "func glFramebufferTexture2DOES"
+		},
+		"glFrontFace" : 
+		{
+			"type" : "func glFrontFace"
+		},
+		"glFrustumf" : 
+		{
+			"type" : "func glFrustumf"
+		},
+		"glFrustumfOES" : 
+		{
+			"type" : "func glFrustumfOES"
+		},
+		"glFrustumx" : 
+		{
+			"type" : "func glFrustumx"
+		},
+		"glFrustumxOES" : 
+		{
+			"type" : "func glFrustumxOES"
+		},
+		"glGenBuffers" : 
+		{
+			"type" : "func glGenBuffers"
+		},
+		"glGenFencesNV" : 
+		{
+			"type" : "func glGenFencesNV"
+		},
+		"glGenFramebuffersOES" : 
+		{
+			"type" : "func glGenFramebuffersOES"
+		},
+		"glGenRenderbuffersOES" : 
+		{
+			"type" : "func glGenRenderbuffersOES"
+		},
+		"glGenTextures" : 
+		{
+			"type" : "func glGenTextures"
+		},
+		"glGenVertexArraysOES" : 
+		{
+			"type" : "func glGenVertexArraysOES"
+		},
+		"glGenerateMipmapOES" : 
+		{
+			"type" : "func glGenerateMipmapOES"
+		},
+		"glGetBooleanv" : 
+		{
+			"type" : "func glGetBooleanv"
+		},
+		"glGetBufferParameteriv" : 
+		{
+			"type" : "func glGetBufferParameteriv"
+		},
+		"glGetBufferPointervOES" : 
+		{
+			"type" : "func glGetBufferPointervOES"
+		},
+		"glGetClipPlanef" : 
+		{
+			"type" : "func glGetClipPlanef"
+		},
+		"glGetClipPlanefOES" : 
+		{
+			"type" : "func glGetClipPlanefOES"
+		},
+		"glGetClipPlanex" : 
+		{
+			"type" : "func glGetClipPlanex"
+		},
+		"glGetClipPlanexOES" : 
+		{
+			"type" : "func glGetClipPlanexOES"
+		},
+		"glGetDriverControlStringQCOM" : 
+		{
+			"type" : "func glGetDriverControlStringQCOM"
+		},
+		"glGetDriverControlsQCOM" : 
+		{
+			"type" : "func glGetDriverControlsQCOM"
+		},
+		"glGetError" : 
+		{
+			"type" : "func glGetError"
+		},
+		"glGetFenceivNV" : 
+		{
+			"type" : "func glGetFenceivNV"
+		},
+		"glGetFixedv" : 
+		{
+			"type" : "func glGetFixedv"
+		},
+		"glGetFixedvOES" : 
+		{
+			"type" : "func glGetFixedvOES"
+		},
+		"glGetFloatv" : 
+		{
+			"type" : "func glGetFloatv"
+		},
+		"glGetFramebufferAttachmentParameterivOES" : 
+		{
+			"type" : "func glGetFramebufferAttachmentParameterivOES"
+		},
+		"glGetIntegerv" : 
+		{
+			"type" : "func glGetIntegerv"
+		},
+		"glGetLightfv" : 
+		{
+			"type" : "func glGetLightfv"
+		},
+		"glGetLightxv" : 
+		{
+			"type" : "func glGetLightxv"
+		},
+		"glGetLightxvOES" : 
+		{
+			"type" : "func glGetLightxvOES"
+		},
+		"glGetMaterialfv" : 
+		{
+			"type" : "func glGetMaterialfv"
+		},
+		"glGetMaterialxv" : 
+		{
+			"type" : "func glGetMaterialxv"
+		},
+		"glGetMaterialxvOES" : 
+		{
+			"type" : "func glGetMaterialxvOES"
+		},
+		"glGetPointerv" : 
+		{
+			"type" : "func glGetPointerv"
+		},
+		"glGetRenderbufferParameterivOES" : 
+		{
+			"type" : "func glGetRenderbufferParameterivOES"
+		},
+		"glGetString" : 
+		{
+			"type" : "func glGetString"
+		},
+		"glGetTexEnvfv" : 
+		{
+			"type" : "func glGetTexEnvfv"
+		},
+		"glGetTexEnviv" : 
+		{
+			"type" : "func glGetTexEnviv"
+		},
+		"glGetTexEnvxv" : 
+		{
+			"type" : "func glGetTexEnvxv"
+		},
+		"glGetTexEnvxvOES" : 
+		{
+			"type" : "func glGetTexEnvxvOES"
+		},
+		"glGetTexGenfvOES" : 
+		{
+			"type" : "func glGetTexGenfvOES"
+		},
+		"glGetTexGenivOES" : 
+		{
+			"type" : "func glGetTexGenivOES"
+		},
+		"glGetTexGenxvOES" : 
+		{
+			"type" : "func glGetTexGenxvOES"
+		},
+		"glGetTexParameterfv" : 
+		{
+			"type" : "func glGetTexParameterfv"
+		},
+		"glGetTexParameteriv" : 
+		{
+			"type" : "func glGetTexParameteriv"
+		},
+		"glGetTexParameterxv" : 
+		{
+			"type" : "func glGetTexParameterxv"
+		},
+		"glGetTexParameterxvOES" : 
+		{
+			"type" : "func glGetTexParameterxvOES"
+		},
+		"glHint" : 
+		{
+			"type" : "func glHint"
+		},
+		"glIsBuffer" : 
+		{
+			"type" : "func glIsBuffer"
+		},
+		"glIsEnabled" : 
+		{
+			"type" : "func glIsEnabled"
+		},
+		"glIsFenceNV" : 
+		{
+			"type" : "func glIsFenceNV"
+		},
+		"glIsFramebufferOES" : 
+		{
+			"type" : "func glIsFramebufferOES"
+		},
+		"glIsRenderbufferOES" : 
+		{
+			"type" : "func glIsRenderbufferOES"
+		},
+		"glIsTexture" : 
+		{
+			"type" : "func glIsTexture"
+		},
+		"glIsVertexArrayOES" : 
+		{
+			"type" : "func glIsVertexArrayOES"
+		},
+		"glLightModelf" : 
+		{
+			"type" : "func glLightModelf"
+		},
+		"glLightModelfv" : 
+		{
+			"type" : "func glLightModelfv"
+		},
+		"glLightModelx" : 
+		{
+			"type" : "func glLightModelx"
+		},
+		"glLightModelxOES" : 
+		{
+			"type" : "func glLightModelxOES"
+		},
+		"glLightModelxv" : 
+		{
+			"type" : "func glLightModelxv"
+		},
+		"glLightModelxvOES" : 
+		{
+			"type" : "func glLightModelxvOES"
+		},
+		"glLightf" : 
+		{
+			"type" : "func glLightf"
+		},
+		"glLightfv" : 
+		{
+			"type" : "func glLightfv"
+		},
+		"glLightx" : 
+		{
+			"type" : "func glLightx"
+		},
+		"glLightxOES" : 
+		{
+			"type" : "func glLightxOES"
+		},
+		"glLightxv" : 
+		{
+			"type" : "func glLightxv"
+		},
+		"glLightxvOES" : 
+		{
+			"type" : "func glLightxvOES"
+		},
+		"glLineWidth" : 
+		{
+			"type" : "func glLineWidth"
+		},
+		"glLineWidthx" : 
+		{
+			"type" : "func glLineWidthx"
+		},
+		"glLineWidthxOES" : 
+		{
+			"type" : "func glLineWidthxOES"
+		},
+		"glLoadIdentity" : 
+		{
+			"type" : "func glLoadIdentity"
+		},
+		"glLoadMatrixf" : 
+		{
+			"type" : "func glLoadMatrixf"
+		},
+		"glLoadMatrixx" : 
+		{
+			"type" : "func glLoadMatrixx"
+		},
+		"glLoadMatrixxOES" : 
+		{
+			"type" : "func glLoadMatrixxOES"
+		},
+		"glLoadPaletteFromModelViewMatrixOES" : 
+		{
+			"type" : "func glLoadPaletteFromModelViewMatrixOES"
+		},
+		"glLogicOp" : 
+		{
+			"type" : "func glLogicOp"
+		},
+		"glMapBufferOES" : 
+		{
+			"type" : "func glMapBufferOES"
+		},
+		"glMaterialf" : 
+		{
+			"type" : "func glMaterialf"
+		},
+		"glMaterialfv" : 
+		{
+			"type" : "func glMaterialfv"
+		},
+		"glMaterialx" : 
+		{
+			"type" : "func glMaterialx"
+		},
+		"glMaterialxOES" : 
+		{
+			"type" : "func glMaterialxOES"
+		},
+		"glMaterialxv" : 
+		{
+			"type" : "func glMaterialxv"
+		},
+		"glMaterialxvOES" : 
+		{
+			"type" : "func glMaterialxvOES"
+		},
+		"glMatrixIndexPointerOES" : 
+		{
+			"type" : "func glMatrixIndexPointerOES"
+		},
+		"glMatrixIndexPointerOESBounds" : 
+		{
+			"type" : "func glMatrixIndexPointerOESBounds"
+		},
+		"glMatrixMode" : 
+		{
+			"type" : "func glMatrixMode"
+		},
+		"glMultMatrixf" : 
+		{
+			"type" : "func glMultMatrixf"
+		},
+		"glMultMatrixx" : 
+		{
+			"type" : "func glMultMatrixx"
+		},
+		"glMultMatrixxOES" : 
+		{
+			"type" : "func glMultMatrixxOES"
+		},
+		"glMultiDrawArraysEXT" : 
+		{
+			"type" : "func glMultiDrawArraysEXT"
+		},
+		"glMultiDrawElementsEXT" : 
+		{
+			"type" : "func glMultiDrawElementsEXT"
+		},
+		"glMultiTexCoord4f" : 
+		{
+			"type" : "func glMultiTexCoord4f"
+		},
+		"glMultiTexCoord4x" : 
+		{
+			"type" : "func glMultiTexCoord4x"
+		},
+		"glMultiTexCoord4xOES" : 
+		{
+			"type" : "func glMultiTexCoord4xOES"
+		},
+		"glNormal3f" : 
+		{
+			"type" : "func glNormal3f"
+		},
+		"glNormal3x" : 
+		{
+			"type" : "func glNormal3x"
+		},
+		"glNormal3xOES" : 
+		{
+			"type" : "func glNormal3xOES"
+		},
+		"glNormalPointer" : 
+		{
+			"type" : "func glNormalPointer"
+		},
+		"glNormalPointerBounds" : 
+		{
+			"type" : "func glNormalPointerBounds"
+		},
+		"glOrthof" : 
+		{
+			"type" : "func glOrthof"
+		},
+		"glOrthofOES" : 
+		{
+			"type" : "func glOrthofOES"
+		},
+		"glOrthox" : 
+		{
+			"type" : "func glOrthox"
+		},
+		"glOrthoxOES" : 
+		{
+			"type" : "func glOrthoxOES"
+		},
+		"glPixelStorei" : 
+		{
+			"type" : "func glPixelStorei"
+		},
+		"glPointParameterf" : 
+		{
+			"type" : "func glPointParameterf"
+		},
+		"glPointParameterfv" : 
+		{
+			"type" : "func glPointParameterfv"
+		},
+		"glPointParameterx" : 
+		{
+			"type" : "func glPointParameterx"
+		},
+		"glPointParameterxOES" : 
+		{
+			"type" : "func glPointParameterxOES"
+		},
+		"glPointParameterxv" : 
+		{
+			"type" : "func glPointParameterxv"
+		},
+		"glPointParameterxvOES" : 
+		{
+			"type" : "func glPointParameterxvOES"
+		},
+		"glPointSize" : 
+		{
+			"type" : "func glPointSize"
+		},
+		"glPointSizePointerOES" : 
+		{
+			"type" : "func glPointSizePointerOES"
+		},
+		"glPointSizePointerOESBounds" : 
+		{
+			"type" : "func glPointSizePointerOESBounds"
+		},
+		"glPointSizex" : 
+		{
+			"type" : "func glPointSizex"
+		},
+		"glPointSizexOES" : 
+		{
+			"type" : "func glPointSizexOES"
+		},
+		"glPolygonOffset" : 
+		{
+			"type" : "func glPolygonOffset"
+		},
+		"glPolygonOffsetx" : 
+		{
+			"type" : "func glPolygonOffsetx"
+		},
+		"glPolygonOffsetxOES" : 
+		{
+			"type" : "func glPolygonOffsetxOES"
+		},
+		"glPopMatrix" : 
+		{
+			"type" : "func glPopMatrix"
+		},
+		"glPushMatrix" : 
+		{
+			"type" : "func glPushMatrix"
+		},
+		"glQueryMatrixxOES" : 
+		{
+			"type" : "func glQueryMatrixxOES"
+		},
+		"glReadPixels" : 
+		{
+			"type" : "func glReadPixels"
+		},
+		"glRenderbufferStorageMultisampleIMG" : 
+		{
+			"type" : "func glRenderbufferStorageMultisampleIMG"
+		},
+		"glRenderbufferStorageOES" : 
+		{
+			"type" : "func glRenderbufferStorageOES"
+		},
+		"glRotatef" : 
+		{
+			"type" : "func glRotatef"
+		},
+		"glRotatex" : 
+		{
+			"type" : "func glRotatex"
+		},
+		"glRotatexOES" : 
+		{
+			"type" : "func glRotatexOES"
+		},
+		"glSampleCoverage" : 
+		{
+			"type" : "func glSampleCoverage"
+		},
+		"glSampleCoveragex" : 
+		{
+			"type" : "func glSampleCoveragex"
+		},
+		"glSampleCoveragexOES" : 
+		{
+			"type" : "func glSampleCoveragexOES"
+		},
+		"glScalef" : 
+		{
+			"type" : "func glScalef"
+		},
+		"glScalex" : 
+		{
+			"type" : "func glScalex"
+		},
+		"glScalexOES" : 
+		{
+			"type" : "func glScalexOES"
+		},
+		"glScissor" : 
+		{
+			"type" : "func glScissor"
+		},
+		"glSetFenceNV" : 
+		{
+			"type" : "func glSetFenceNV"
+		},
+		"glShadeModel" : 
+		{
+			"type" : "func glShadeModel"
+		},
+		"glStartTilingQCOM" : 
+		{
+			"type" : "func glStartTilingQCOM"
+		},
+		"glStencilFunc" : 
+		{
+			"type" : "func glStencilFunc"
+		},
+		"glStencilMask" : 
+		{
+			"type" : "func glStencilMask"
+		},
+		"glStencilOp" : 
+		{
+			"type" : "func glStencilOp"
+		},
+		"glTestFenceNV" : 
+		{
+			"type" : "func glTestFenceNV"
+		},
+		"glTexCoordPointer" : 
+		{
+			"type" : "func glTexCoordPointer"
+		},
+		"glTexCoordPointerBounds" : 
+		{
+			"type" : "func glTexCoordPointerBounds"
+		},
+		"glTexEnvf" : 
+		{
+			"type" : "func glTexEnvf"
+		},
+		"glTexEnvfv" : 
+		{
+			"type" : "func glTexEnvfv"
+		},
+		"glTexEnvi" : 
+		{
+			"type" : "func glTexEnvi"
+		},
+		"glTexEnviv" : 
+		{
+			"type" : "func glTexEnviv"
+		},
+		"glTexEnvx" : 
+		{
+			"type" : "func glTexEnvx"
+		},
+		"glTexEnvxOES" : 
+		{
+			"type" : "func glTexEnvxOES"
+		},
+		"glTexEnvxv" : 
+		{
+			"type" : "func glTexEnvxv"
+		},
+		"glTexEnvxvOES" : 
+		{
+			"type" : "func glTexEnvxvOES"
+		},
+		"glTexGenfOES" : 
+		{
+			"type" : "func glTexGenfOES"
+		},
+		"glTexGenfvOES" : 
+		{
+			"type" : "func glTexGenfvOES"
+		},
+		"glTexGeniOES" : 
+		{
+			"type" : "func glTexGeniOES"
+		},
+		"glTexGenivOES" : 
+		{
+			"type" : "func glTexGenivOES"
+		},
+		"glTexGenxOES" : 
+		{
+			"type" : "func glTexGenxOES"
+		},
+		"glTexGenxvOES" : 
+		{
+			"type" : "func glTexGenxvOES"
+		},
+		"glTexImage2D" : 
+		{
+			"type" : "func glTexImage2D"
+		},
+		"glTexParameterf" : 
+		{
+			"type" : "func glTexParameterf"
+		},
+		"glTexParameterfv" : 
+		{
+			"type" : "func glTexParameterfv"
+		},
+		"glTexParameteri" : 
+		{
+			"type" : "func glTexParameteri"
+		},
+		"glTexParameteriv" : 
+		{
+			"type" : "func glTexParameteriv"
+		},
+		"glTexParameterx" : 
+		{
+			"type" : "func glTexParameterx"
+		},
+		"glTexParameterxOES" : 
+		{
+			"type" : "func glTexParameterxOES"
+		},
+		"glTexParameterxv" : 
+		{
+			"type" : "func glTexParameterxv"
+		},
+		"glTexParameterxvOES" : 
+		{
+			"type" : "func glTexParameterxvOES"
+		},
+		"glTexSubImage2D" : 
+		{
+			"type" : "func glTexSubImage2D"
+		},
+		"glTranslatef" : 
+		{
+			"type" : "func glTranslatef"
+		},
+		"glTranslatex" : 
+		{
+			"type" : "func glTranslatex"
+		},
+		"glTranslatexOES" : 
+		{
+			"type" : "func glTranslatexOES"
+		},
+		"glUnmapBufferOES" : 
+		{
+			"type" : "func glUnmapBufferOES"
+		},
+		"glVertexPointer" : 
+		{
+			"type" : "func glVertexPointer"
+		},
+		"glVertexPointerBounds" : 
+		{
+			"type" : "func glVertexPointerBounds"
+		},
+		"glViewport" : 
+		{
+			"type" : "func glViewport"
+		},
+		"glWeightPointerOES" : 
+		{
+			"type" : "func glWeightPointerOES"
+		},
+		"glWeightPointerOESBounds" : 
+		{
+			"type" : "func glWeightPointerOESBounds"
+		}
+	},
+	"types" : 
+	{
+		"float32" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 32
+		},
+		"float32 const" : 
+		{
+			"base_type" : "float32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"float32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32 const",
+			"size" : 64
+		},
+		"float32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32",
+			"size" : 64
+		},
+		"func glActiveTexture" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glAlphaFunc" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glAlphaFuncx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glAlphaFuncxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBindBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBindFramebufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBindRenderbufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBindTexture" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBindVertexArrayOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBlendEquationOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBlendEquationSeparateOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBlendFunc" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBlendFuncSeparateOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBufferData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int64",
+				"void const*",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glBufferSubData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int64",
+				"int64",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCheckFramebufferStatusOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func glClear" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearColor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearColorx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearColorxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearDepthf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearDepthfOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearDepthx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearDepthxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClearStencil" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClientActiveTexture" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanefIMG" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanefOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanexIMG" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glClipPlanexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColor4f" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColor4ub" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8",
+				"unsigned char8",
+				"unsigned char8",
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColor4x" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColor4xOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColorMask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8",
+				"unsigned char8",
+				"unsigned char8",
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColorPointer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glColorPointerBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCompressedTexImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCompressedTexSubImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCopyTexImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCopyTexSubImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCullFace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glCurrentPaletteMatrixOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteBuffers" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteFencesNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteFramebuffersOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteRenderbuffersOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteTextures" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDeleteVertexArraysOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthFunc" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthMask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthRangef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthRangefOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthRangex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDepthRangexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDisable" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDisableClientState" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDisableDriverControlQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDiscardFramebufferEXT" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawArrays" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawElements" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexfOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexfvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexiOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexivOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexsOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int16",
+				"int16",
+				"int16",
+				"int16",
+				"int16"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexsvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int16 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glDrawTexxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEGLImageTargetRenderbufferStorageOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEGLImageTargetTexture2DOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEnable" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEnableClientState" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEnableDriverControlQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glEndTilingQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetBufferPointervQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"void**"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetBuffersQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetFramebuffersQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetProgramBinarySourceQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned char8*",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetProgramsQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetRenderbuffersQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetShadersQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetTexLevelParameterivQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetTexSubImageQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtGetTexturesQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glExtIsProgramBinaryQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glExtTexObjectStateOverrideiQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFinish" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFinishFenceNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFlush" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFogxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFramebufferRenderbufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFramebufferTexture2DMultisampleIMG" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFramebufferTexture2DOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFrontFace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFrustumf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFrustumfOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFrustumx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glFrustumxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenBuffers" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenFencesNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenFramebuffersOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenRenderbuffersOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenTextures" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenVertexArraysOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGenerateMipmapOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetBooleanv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned char8*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetBufferParameteriv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetBufferPointervOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"void**"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetClipPlanef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetClipPlanefOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetClipPlanex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetClipPlanexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetDriverControlStringQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32*",
+				"unsigned char8*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetDriverControlsQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32*",
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetError" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func glGetFenceivNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetFixedv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetFixedvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetFloatv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetFramebufferAttachmentParameterivOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetIntegerv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetLightfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetLightxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetLightxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetMaterialfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetMaterialxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetMaterialxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetPointerv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"void**"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetRenderbufferParameterivOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func glGetTexEnvfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexEnviv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexEnvxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexEnvxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexGenfvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexGenivOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexGenxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexParameterfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexParameteriv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexParameterxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glGetTexParameterxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glHint" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glIsBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsEnabled" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsFenceNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsFramebufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsRenderbufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsTexture" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glIsVertexArrayOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glLightModelf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightModelfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightModelx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightModelxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightModelxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightModelxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLightxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLineWidth" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLineWidthx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLineWidthxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLoadIdentity" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLoadMatrixf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLoadMatrixx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLoadMatrixxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLoadPaletteFromModelViewMatrixOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glLogicOp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMapBufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void*",
+			"size" : 0
+		},
+		"func glMaterialf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMaterialfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMaterialx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMaterialxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMaterialxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMaterialxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMatrixIndexPointerOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMatrixIndexPointerOESBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMatrixMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultMatrixf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultMatrixx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultMatrixxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultiDrawArraysEXT" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*",
+				"int32 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultiDrawElementsEXT" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*",
+				"unsigned int32",
+				"void const* const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultiTexCoord4f" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultiTexCoord4x" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glMultiTexCoord4xOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glNormal3f" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glNormal3x" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glNormal3xOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glNormalPointer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glNormalPointerBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glOrthof" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glOrthofOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glOrthox" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glOrthoxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPixelStorei" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointParameterxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointSizePointerOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointSizePointerOESBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointSizex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPointSizexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPolygonOffset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPolygonOffsetx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPolygonOffsetxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPopMatrix" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glPushMatrix" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glQueryMatrixxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func glReadPixels" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glRenderbufferStorageMultisampleIMG" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glRenderbufferStorageOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glRotatef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glRotatex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glRotatexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glSampleCoverage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glSampleCoveragex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glSampleCoveragexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glScalef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glScalex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glScalexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glScissor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glSetFenceNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glShadeModel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glStartTilingQCOM" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glStencilFunc" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glStencilMask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glStencilOp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTestFenceNV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glTexCoordPointer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexCoordPointerBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvi" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnviv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexEnvxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGenfOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGenfvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGeniOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGenivOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGenxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexGenxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterfv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"float32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameteri" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameteriv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterx" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterxOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterxv" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexParameterxvOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"unsigned int32",
+				"int32 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTexSubImage2D" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int32",
+				"unsigned int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTranslatef" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"float32",
+				"float32",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTranslatex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glTranslatexOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glUnmapBufferOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned char8",
+			"size" : 0
+		},
+		"func glVertexPointer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glVertexPointerBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glViewport" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glWeightPointerOES" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func glWeightPointerOESBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32",
+				"int32",
+				"void const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"int16" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 16
+		},
+		"int16 const" : 
+		{
+			"base_type" : "int16",
+			"kind" : "const",
+			"size" : 16
+		},
+		"int16 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int16 const",
+			"size" : 64
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32 const" : 
+		{
+			"base_type" : "int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32 const",
+			"size" : 64
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8 const" : 
+		{
+			"base_type" : "unsigned char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"unsigned char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const",
+			"size" : 64
+		},
+		"unsigned char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8",
+			"size" : 64
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32 const" : 
+		{
+			"base_type" : "unsigned int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32 const",
+			"size" : 64
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void const* const" : 
+		{
+			"base_type" : "void const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"void const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const* const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		},
+		"void**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void*",
+			"size" : 64
+		}
+	}
+}

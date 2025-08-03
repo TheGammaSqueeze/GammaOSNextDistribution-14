@@ -1,0 +1,2251 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+// C++ namespace: android::hardware::google::pixel::PixelAtoms
+package android.hardware.google.pixel.PixelAtoms;
+
+option optimize_for = LITE_RUNTIME;
+
+option java_package = "android.hardware.google.pixel";
+option java_outer_classname = "PixelAtoms";
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+/*
+ * Please note that the following features are not currently supported by
+ * the IStats->reportVendorAtom implementation:
+ *   - types outside of int, long, float, bool and string (ex. uint)
+ *   - submessages within an atom
+ *   - field # 1 - this will be occupied by the vendor namespace
+ */
+
+/* Allocated atom IDs. */
+message Atom {
+    oneof pushed {
+      // AOSP atom ID range starts at 105000
+      ChargeStats charge_stats = 105000;
+      VoltageTierStats voltage_tier_stats = 105001;
+      BatteryCapacity battery_capacity = 105002;
+      StorageUfsHealth storage_ufs_health = 105003;
+      F2fsStatsInfo f2fs_stats = 105004;
+      ZramMmStat zram_mm_stat = 105005;
+      ZramBdStat zram_bd_stat = 105006;
+      BootStatsInfo boot_stats = 105007;
+      // 105008 - 105009 is available.
+      BatteryCapacityFG fg_capacity = 105010;
+      PdVidPid pd_vid_pid = 105011;
+      BatteryEEPROM battery_eeprom = 105012;
+      VendorSpeakerImpedance vendor_speaker_impedance = 105013; // moved from atoms.proto
+      StorageUfsResetCount ufs_reset_count = 105014;
+      PixelMmMetricsPerHour pixel_mm_metrics_per_hour = 105015;
+      PixelMmMetricsPerDay pixel_mm_metrics_per_day = 105016;
+      F2fsCompressionInfo f2fs_compression_info = 105017;
+      VendorChargeCycles vendor_charge_cycles = 105018; // moved from atoms.proto
+      VendorHardwareFailed vendor_hardware_failed = 105019; // moved from atoms.proto
+      VendorSlowIo vendor_slow_io = 105020; // moved from atoms.proto
+      VendorSpeechDspStat vendor_speech_dsp_stat = 105021; // moved from atoms.proto
+      VendorPhysicalDropDetected vendor_physical_drop_detected =
+                105022 [(android.os.statsd.module) = "pixelstats"];     // moved from atoms.proto
+      VendorUsbPortOverheat vendor_usb_port_overheat = 105023; // moved from atoms.proto
+      CmaStatus cma_status = 105024;
+      CmaStatusExt cma_status_ext = 105025;
+      VendorBatteryHealthSnapshot vendor_battery_health_snapshot =
+                105026 [(android.os.statsd.module) = "pixelhealth"]; // moved from atoms.proto
+      VendorBatteryCausedShutdown vendor_battery_caused_shutdown =
+                105027 [(android.os.statsd.module) = "pixelhealth"]; // moved from atoms.proto
+      F2fsGcSegmentInfo f2fs_gc_segment_info = 105028;
+      PowerMitigationStats mitigation_stats = 105029; // moved from atoms.proto
+
+      CitadelVersion citadel_version = 100018; // moved from vendor proprietary
+      CitadelEvent citadel_event = 100019;  // moved from vendor proprietary
+      VendorSpeakerStatsReported vendor_speaker_stats_reported = 105030;
+
+      ChreHalNanoappLoadFailed chre_hal_nanoapp_load_failed =
+                105031 [(android.os.statsd.module) = "chre"];
+      ChrePalOpenFailed chre_pal_open_failed = 105032 [(android.os.statsd.module) = "chre"];
+      ChreApiErrorCodeDistributionTaken chre_api_error_code_distribution_taken =
+                105033 [(android.os.statsd.module) = "chre"];
+      ChreDynamicMemorySnapshotReported chre_dynamic_memory_snapshot_reported =
+                105034 [(android.os.statsd.module) = "chre"];
+      ChreEventQueueSnapshotReported chre_event_queue_snapshot_reported =
+                105035 [(android.os.statsd.module) = "chre"];
+      ChreApWakeUpOccurred chre_ap_wake_up_occurred = 105036 [(android.os.statsd.module) = "chre"];
+
+      BatteryHealthStatus battery_health_status = 105037;
+      BatteryHealthUsage battery_health_usage = 105038;
+      F2fsSmartIdleMaintEnabledStateChanged f2fs_smart_idle_maint_enabled_state_changed = 105039;
+      BlockStatsReported block_stats_reported = 105040;
+      VendorAudioHardwareStatsReported vendor_audio_hardware_stats_reported = 105041;
+
+      ThermalDfsStats thermal_dfs_stats = 105042;
+      VendorLongIRQStatsReported vendor_long_irq_stats_reported = 105043;
+      VendorResumeLatencyStats vendor_resume_latency_stats = 105044;
+      VendorTempResidencyStats vendor_temp_residency_stats = 105045;
+      BrownoutDetected brownout_detected = 105046;
+      PcieLinkStatsReported pcie_link_stats = 105047;
+      VendorSensorCoolingDeviceStats vendor_sensor_cooling_device_stats = 105048;
+
+      VibratorPlaycountReported vibrator_playcount_reported = 105049;
+      VibratorLatencyReported vibrator_latency_reported = 105050;
+      VibratorErrorsReported vibrator_errors_reported = 105051;
+      F2fsAtomicWriteInfo f2fs_atomic_write_info = 105052;
+      PartitionsUsedSpaceReported partition_used_space_reported = 105053;
+      PowerMitigationDurationCounts mitigation_duration = 105054; // moved from atoms.proto
+      DisplayPanelErrorStats display_panel_error_stats = 105055;
+      VendorAudioPdmStatsReported vendor_audio_pdm_stats_reported = 105056;
+      VendorAudioThirdPartyEffectStatsReported vendor_audio_third_party_effect_stats_reported = 105057;
+      VendorAudioAdaptedInfoStatsReported vendor_audio_adapted_info_stats_reported = 105058;
+      GpuEvent gpu_event = 105059;
+      VendorAudioPcmStatsReported vendor_audio_pcm_stats_reported = 105060;
+      VendorUsbDataSessionEvent vendor_usb_data_session_event = 105061;
+      ThermalSensorAbnormalityDetected thermal_sensor_abnormality_detected = 105062;
+      VendorAudioOffloadedEffectStatsReported vendor_audio_offloaded_effect_stats_reported = 105063;
+      VendorAudioBtMediaStatsReported vendor_audio_bt_media_stats_reported = 105064;
+      PixelImpulseUsageReported pixel_impulse_usage_reported = 105065;
+      DisplayPortErrorStats display_port_error_stats = 105066;
+      HDCPAuthTypeStats hdcp_auth_type_stats = 105067;
+      DisplayPortUsage display_port_usage = 105068;
+    }
+    // AOSP atom ID range ends at 109999
+    reserved 109997; // reserved for VtsVendorAtomJavaTest test atom
+    reserved 109998; // reserved for VtsVendorAtomJavaTest test atom
+    reserved 109999; // reserved for VtsVendorAtomJavaTest test atom
+}
+
+/* Supported reverse domain names. */
+message ReverseDomainNames {
+    optional string pixel = 1 [default = "com.google.pixel"];
+}
+
+/* A message containing detailed statistics and debug information about a charge session. */
+message ChargeStats {
+    /* Charge Adapter stats. */
+    enum AdapterType {
+        ADAPTER_TYPE_UNKNOWN = 0;
+        ADAPTER_TYPE_USB = 1;
+        ADAPTER_TYPE_USB_SDP = 2;
+        ADAPTER_TYPE_USB_DCP = 3;
+        ADAPTER_TYPE_USB_CDP = 4;
+        ADAPTER_TYPE_USB_ACA = 5;
+        ADAPTER_TYPE_USB_C = 6;
+        ADAPTER_TYPE_USB_PD = 7;
+        ADAPTER_TYPE_USB_PD_DRP = 8;
+        ADAPTER_TYPE_USB_PD_PPS = 9;
+        ADAPTER_TYPE_USB_PD_BRICKID = 10;
+        ADAPTER_TYPE_HVDCP = 11;
+        ADAPTER_TYPE_HVDCP3 = 12;
+        ADAPTER_TYPE_FLOAT = 13;
+        ADAPTER_TYPE_WLC  = 14;
+        ADAPTER_TYPE_WLC_EPP = 15;
+        ADAPTER_TYPE_WLC_SPP = 16;
+        ADAPTER_TYPE_GPP = 17;
+        ADAPTER_TYPE_10W = 18;
+        ADAPTER_TYPE_L7 = 19;
+        ADAPTER_TYPE_DL = 20;
+        ADAPTER_TYPE_WPC_EPP = 21;
+        ADAPTER_TYPE_WPC_GPP = 22;
+        ADAPTER_TYPE_WPC_10W = 23;
+        ADAPTER_TYPE_WPC_BPP = 24;
+        ADAPTER_TYPE_WPC_L7 = 25;
+        ADAPTER_TYPE_EXT = 26;
+        ADAPTER_TYPE_EXT1 = 27;
+        ADAPTER_TYPE_EXT2 = 28;
+        ADAPTER_TYPE_EXT_UNKNOWN = 29;
+        ADAPTER_TYPE_USB_UNKNOWN = 30;
+        ADAPTER_TYPE_WLC_UNKNOWN = 31;
+    }
+    optional string reverse_domain_name = 1;
+    /* Type of charge adapter, enumerated above. */
+    optional AdapterType adapter_type = 2;
+    /* Max negotiated voltage by charge adapter, in mV. */
+    optional int32 adapter_voltage = 3;
+    /* Max negotiated current by charge adapter current, in mA. */
+    optional int32 adapter_amperage = 4;
+
+    /* Stats at beginning of charge session. */
+    /* System State of Charge, in percent. */
+    optional int32 ssoc_in = 5;
+    /* Voltage in mV. */
+    optional int32 voltage_in = 6;
+
+    /* Stats at end of charge session. */
+    /* System State of Charge, in percent. */
+    optional int32 ssoc_out = 7;
+    /* Voltage in mV. */
+    optional int32 voltage_out = 8;
+
+    /**
+     * These values are  meant to represent status of the charging device, used
+     * to validate the charging algorithm and explain charging performances.
+     * Examples of the content of the register:
+     * - APDO, PDO (power capabilities of the device, eg. 5V3A, 9V2A, 20V2A) for wired charging
+     * - Wireless charging MFG code. This is the value of a register of the WLC integrated
+     *   circuit to identify the vendor and type of WLC pad
+     * - Receiver operating frequency
+     * - Register status
+     */
+    optional int32 adapter_capabilities0 = 9;
+    optional int32 adapter_capabilities1 = 10;
+    optional int32 adapter_capabilities2 = 11;
+    optional int32 adapter_capabilities3 = 12;
+    optional int32 adapter_capabilities4 = 13;
+
+    /**
+     * These are values which reports the state of the wireless receiver, which will help in
+     * debugging charging issues and alternate configurations.
+     */
+    optional int32 receiver_state0 = 14;
+    optional int32 receiver_state1 = 15;
+
+    /* AACR feature to record capacity */
+    optional int32 charge_capacity = 16;
+}
+
+/* A message containing stats from each charge voltage tier. */
+message VoltageTierStats {
+    optional string reverse_domain_name = 1;
+    /* Voltage tier number, custom to implementation, should be <= 3. */
+    optional int32 voltage_tier = 2;
+
+    /* Stats when entering voltage tier. */
+    /* State of charge, in percent. */
+    optional float soc_in = 3;
+    /* Coulomb count, in mAh. */
+    optional int32 cc_in = 4;
+    /* Battery temperature, in deciC. */
+    optional int32 temp_in = 5;
+
+    /* Time spent at various charge speeds, in seconds. */
+    optional int32 time_fast_secs = 6;
+    optional int32 time_taper_secs = 7;
+    optional int32 time_other_secs = 8;
+
+    /* Battery temperature stats, in deciC. */
+    optional int32 temp_min = 9;
+    optional int32 temp_avg = 10;
+    optional int32 temp_max = 11;
+
+    /* Battery current stats, in mA. */
+    optional int32 ibatt_min = 12;
+    optional int32 ibatt_avg = 13;
+    optional int32 ibatt_max = 14;
+
+    /* Input current limit stats, in mA. */
+    optional int32 icl_min = 15;
+    optional int32 icl_avg = 16;
+    optional int32 icl_max = 17;
+
+    /**
+     * Efficiency number, receiver operating frequency in kHz for wireless charging
+     * (alignment)
+     */
+    optional int32 charging_operating_point = 18;
+    /* The minimum power out of the adapter at the given charging tier */
+    optional int32 min_adapter_power_out = 19;
+    /* The time-averaged power out of the adapter at the given charging tier */
+    optional int32 time_avg_adapter_power_out = 20;
+    /* The maximum power out of the adapter at the given charging tier */
+    optional int32 max_adapter_power_out = 21;
+}
+
+/* A message containing an alternate proprietary full battery capacity estimate. */
+message BatteryCapacity {
+    optional string reverse_domain_name = 1;
+    /* Sum of the change in coulomb count. */
+    optional int32 delta_cc_sum = 2;
+    /* Sum of the change in state of charge (battery level). */
+    optional int32 delta_vfsoc_sum = 3;
+}
+
+/* A message containing health values of UFS */
+message StorageUfsHealth {
+    optional string reverse_domain_name = 1;
+    /* The value of lifetimeA for UFS health */
+    optional int32 lifetime_a = 2;
+    /* The value of lifetimeB for UFS health */
+    optional int32 lifetime_b = 3;
+    /* The value of lifetimeC for UFS health */
+    optional int32 lifetime_c = 4;
+}
+
+/* A message containing filesystem stats of F2FS */
+message F2fsStatsInfo {
+    optional string reverse_domain_name = 1;
+    /* The value of dirty segments of f2fs */
+    optional int32 dirty_segments = 2;
+    /* The value of free segments of f2fs */
+    optional int32 free_segments = 3;
+    /* The times of checkpoint function called in foreground*/
+    optional int32 cp_calls_fg = 4;
+    /* The times of checkpoint function called in background */
+    optional int32 cp_calls_bg = 5;
+    /* The times of garbage collection function called in foreground */
+    optional int32 gc_calls_fg = 6;
+    /* The times of garbage collection function called in background */
+    optional int32 gc_calls_bg = 7;
+    /* The amount of blocks been moved by garbage collection in foreground */
+    optional int32 moved_blocks_fg = 8;
+    /* The amount of blocks been moved by garbage collection in background */
+    optional int32 moved_blocks_bg = 9;
+    /* The average of how many valid blocks is in a segment */
+    optional int32 valid_blocks = 10;
+}
+
+message ZramMmStat {
+    optional string reverse_domain_name = 1;
+    /* The value of original memory size */
+    optional int64 orig_data_size = 2;
+    /* The value of compressed memory size */
+    optional int64 compr_data_size = 3;
+    /* The value of consumed memory size to store compressed memory */
+    optional int64 mem_used_total = 4;
+    /* The value of number of page filled with same elements data */
+    optional int64 same_pages = 5;
+    /* The value of number of incompressible page */
+    optional int64 huge_pages = 6;
+    /* The value of number of incompressible pages since boot */
+    optional int64 huge_pages_since_boot = 7;
+}
+
+message ZramBdStat {
+    optional string reverse_domain_name = 1;
+    /* the number of pages in backing device */
+    optional int64 bd_count = 2;
+    /* The number of pages readed from backing device */
+    optional int64 bd_reads = 3;
+    /* The number of pages written to backing device */
+    optional int64 bd_writes = 4;
+}
+
+/* A message containing boot times */
+message BootStatsInfo {
+    optional string reverse_domain_name = 1;
+    /* The F2FS fsck time in secs */
+    optional int32 fsck_time_sec = 2;
+    /* The F2FS mounted time in secs */
+    optional int32 mounted_time_sec = 3;
+    /* The F2FS checkpoint=disable time in secs */
+    optional int32 checkpoint_time_sec = 4;
+}
+
+/* A message containing wireless charging health info. */
+message WirelessChargingStats {
+    /* Captures if a google charger used when start wireless charging */
+    enum ChargerVendor {
+        VENDOR_UNKNOWN = 0;
+        VENDOR_GOOGLE = 1;
+    }
+
+    optional string reverse_domain_name = 1;
+    optional ChargerVendor charger_vendor = 2;
+}
+
+/* Current device Orientation */
+message DeviceOrientation {
+    enum Orientation {
+        ORIENTATION_UNKNOWN = 0;
+        ORIENTATION_0 = 1;
+        ORIENTATION_90 = 2;
+        ORIENTATION_180 = 3;
+        ORIENTATION_270 = 4;
+    }
+
+    optional string reverse_domain_name = 1;
+    /* Device orientation. */
+    optional Orientation orientation = 2;
+}
+
+/* Raw battery capacity stats */
+message BatteryCapacityFG {
+    enum LogReason {
+        LOG_REASON_UNKNOWN = 0;
+        LOG_REASON_CONNECTED = 1;
+        LOG_REASON_DISCONNECTED = 2;
+        LOG_REASON_FULL_CHARGE = 3;
+        LOG_REASON_PERCENT_SKIP = 4;
+        LOG_REASON_DIVERGING_FG = 5;
+    }
+
+    optional string reverse_domain_name = 1;
+    /* Uevent logging reason, enumerated above. */
+    optional LogReason capacity_log_reason = 2;
+
+    /* The battery capacity reported from the FG (fuel gauge) hardware  */
+    optional float capacity_gdf = 3;
+    /* The filtered system battery capacity reported to the UI */
+    optional float capacity_ssoc = 4;
+    /* The fuel gauge capacity curve midpoint FG (fuel gauge) value */
+    optional float capacity_gdf_curve = 5;
+    /* The fuel gauge capacity curve midpoint UI value */
+    optional float capacity_ssoc_curve = 6;
+}
+
+message  PdVidPid {
+    optional string reverse_domain_name = 1;
+    /* Vendor ID of wired charger */
+    optional int32 vid = 2;
+    /* Product ID of wired charger */
+    optional int32 pid = 3;
+}
+
+message BatteryEEPROM {
+    optional string reverse_domain_name = 1;
+   /* The cycle count number; record of charge/discharge times */
+    optional int32 cycle_cnt = 2;
+    /* The current full capacity of the battery under nominal conditions */
+    optional int32 full_cap = 3;
+    /* The battery equivalent series resistance */
+    optional int32 esr = 4;
+    /* Battery resistance related to temperature change */
+    optional int32 rslow = 5;
+    /* Battery health indicator reflecting the battery age state */
+    optional int32 soh = 6;
+    /* The battery temperature */
+    optional int32 batt_temp = 7;
+
+    /* Battery state of charge (SOC) shutdown point */
+    optional int32 cutoff_soc = 8;
+    /* Raw battery state of charge (SOC), based on battery current (CC = Coulomb Counter) */
+    optional int32 cc_soc = 9;
+    /* Estimated battery state of charge (SOC) from batt_soc with endpoint limiting (0% and 100%) */
+    optional int32 sys_soc = 10;
+    /* Filtered monotonic SOC, handles situations where the cutoff_soc is increased and
+     * then decreased from the battery physical properties
+     */
+    optional int32 msoc = 11;
+    /* Estimated SOC derived from cc_soc that provides voltage loop feedback correction using
+     * battery voltage, current, and status values
+     */
+    optional int32 batt_soc = 12;
+
+    /* Field used for data padding in the EEPROM data */
+    optional int32 reserve = 13;
+
+    /* The maximum battery temperature ever seen */
+    optional int32 max_temp = 14;
+    /* The minimum battery temperature ever seen */
+    optional int32 min_temp = 15;
+    /* The maximum battery voltage ever seen */
+    optional int32 max_vbatt = 16;
+    /* The minimum battery voltage ever seen */
+    optional int32 min_vbatt = 17;
+    /* The maximum battery current ever seen */
+    optional int32 max_ibatt = 18;
+    /* The minimum battery current ever seen */
+    optional int32 min_ibatt = 19;
+    /* Field used to verify the integrity of the EEPROM data */
+    optional int32 checksum = 20;
+
+    /* Extend data for P21 */
+    /* Temperature compensation information */
+    optional int32 tempco = 21;
+    /* Learned characterization related to the voltage gauge */
+    optional int32 rcomp0 = 22;
+    /* For time to monitor the life of cell */
+    optional int32 timer_h = 23;
+    /* The full capacity of the battery learning at the end of every charge cycle */
+    optional int32 full_rep = 24;
+}
+
+/* A message containing an exceptional event from citadel. */
+message CitadelEvent {
+  enum Event {
+    ALERT = 1;
+    REBOOTED = 2;
+    UPGRADED = 3;
+    ALERT_V2 = 4;
+    SEC_CH_STATE = 5;
+  };
+  optional string reverse_domain_name = 1;
+  optional Event event = 2;
+  optional int32 reset_count = 3;
+  optional int64 uptime_micros = 4;
+  enum Priority {
+    LOW = 0;
+    MEDIUM = 1;
+    HIGH = 2;
+  };
+  optional Priority priority = 5;
+
+  // ALERT-specific fields.  These fields correspond to the interrupt status
+  // bits for alerts within citadel.  When alerts fire one or more of these
+  // bits are set to indicate the alert source.
+  optional int32 intr_sts_0 = 6;
+  optional int32 intr_sts_1 = 7;
+  optional int32 intr_sts_2 = 8;
+
+  // REBOOTED-specific fields.  These fields correspond to the details of how
+  // the hardware reboot occurred.  A reboot is a noteworthy event for citadel,
+  // as it can be triggered by events like stack overflow or other software
+  // bugs.
+  optional int32 rstsrc = 9;
+  optional int32 exitpd = 10;
+  optional int32 which0 = 11;
+  optional int32 which1 = 12;
+
+  // UPGRADED-specific field. This field corresponds to the result of FW
+  // upgrade for citadel.
+  optional int32 upgrade_state = 13;
+
+  // ALERT_V2-specific field. This field corresponds to the GLOBALSEC Log
+  // which contains normal globalsec, camo, temp and buserr.
+  optional int32 alert_grp_0 = 14;
+  optional int32 alert_grp_1 = 15;
+  optional int32 alert_grp_2 = 16;
+  optional int32 alert_grp_3 = 17;
+  optional int32 camo_breaches_0 = 18;
+  optional int32 camo_breaches_1 = 19;
+  optional int32 temp_min = 20;
+  optional int32 temp_max = 21;
+  optional int32 bus_err = 22;
+
+  // SEC_CH_STATE-specific filed. This field corresponds to the state
+  // of GSA-GSC secure channel.
+  optional int32 sec_ch_state = 23;
+}
+
+/* A message containing the citadel firmware version. */
+message CitadelVersion {
+   optional string reverse_domain_name = 1;
+   optional string version = 2;
+}
+
+/* A message containing the speaker impedance. */
+ message VendorSpeakerImpedance {
+    optional string reverse_domain_name = 1;
+    optional int32 speaker_location = 2;
+    optional int32 impedance = 3;
+}
+
+/**
+ * Logs the reported vendor speaker health stats.
+ * Logged from: hardware/google/pixel/pixelstats/SysfsCollector.cpp
+ */
+message VendorSpeakerStatsReported {
+  /* Vendor reverse domain name (expecting "com.google.pixel") */
+  optional string reverse_domain_name = 1;
+  /* The location of speaker; 0 = left , 1 = right */
+  optional int32 speaker_location = 2;
+  /* The speaker's impedance value (milliOhm) */
+  optional int32 impedance = 3;
+  /* The speaker's maximum temperature (milliDegree C) */
+  optional int32 max_temperature = 4;
+  /* The speaker's execursion length (micrometer) */
+  optional int32 excursion = 5;
+  /* The speaker's heart beat count */
+  optional int32 heartbeat = 6;
+}
+
+/* A message containing how many times of ufs host reset */
+message StorageUfsResetCount {
+    optional string reverse_domain_name = 1;
+    /* How many UFS error reset are triggered */
+    optional int32 host_reset_count = 2;
+}
+
+/* A message containing Pixel memory metrics collected hourly. */
+message PixelMmMetricsPerHour {
+    optional string reverse_domain_name = 1;
+    optional int64 free_pages = 2;
+    optional int64 anon_pages = 3;
+    optional int64 file_pages = 4;
+    optional int64 slab_reclaimable = 5;
+    optional int64 zspages = 6;
+    optional int64 unevictable = 7;
+    optional int64 ion_total_pools = 8;
+    optional int64 gpu_memory = 9;
+    optional int64 slab_unreclaimable = 10;
+    optional int64 psi_cpu_some_total = 11;
+    optional int64 psi_io_full_total = 12;
+    optional int64 psi_io_some_total = 13;
+    optional int64 psi_mem_full_total = 14;
+    optional int64 psi_mem_some_total = 15;
+    optional int32 psi_cpu_some_avg10_min = 16;
+    optional int32 psi_cpu_some_avg10_max = 17;
+    optional int32 psi_cpu_some_avg10_avg = 18;
+    optional int32 psi_cpu_some_avg60_min = 19;
+    optional int32 psi_cpu_some_avg60_max = 20;
+    optional int32 psi_cpu_some_avg60_avg = 21;
+    optional int32 psi_cpu_some_avg300_min = 22;
+    optional int32 psi_cpu_some_avg300_max = 23;
+    optional int32 psi_cpu_some_avg300_avg = 24;
+    optional int32 psi_io_full_avg10_min = 25;
+    optional int32 psi_io_full_avg10_max = 26;
+    optional int32 psi_io_full_avg10_avg = 27;
+    optional int32 psi_io_full_avg60_min = 28;
+    optional int32 psi_io_full_avg60_max = 29;
+    optional int32 psi_io_full_avg60_avg = 30;
+    optional int32 psi_io_full_avg300_min = 31;
+    optional int32 psi_io_full_avg300_max = 32;
+    optional int32 psi_io_full_avg300_avg = 33;
+    optional int32 psi_io_some_avg10_min = 34;
+    optional int32 psi_io_some_avg10_max = 35;
+    optional int32 psi_io_some_avg10_avg = 36;
+    optional int32 psi_io_some_avg60_min = 37;
+    optional int32 psi_io_some_avg60_max = 38;
+    optional int32 psi_io_some_avg60_avg = 39;
+    optional int32 psi_io_some_avg300_min = 40;
+    optional int32 psi_io_some_avg300_max = 41;
+    optional int32 psi_io_some_avg300_avg = 42;
+    optional int32 psi_mem_full_avg10_min = 43;
+    optional int32 psi_mem_full_avg10_max = 44;
+    optional int32 psi_mem_full_avg10_avg = 45;
+    optional int32 psi_mem_full_avg60_min = 46;
+    optional int32 psi_mem_full_avg60_max = 47;
+    optional int32 psi_mem_full_avg60_avg = 48;
+    optional int32 psi_mem_full_avg300_min = 49;
+    optional int32 psi_mem_full_avg300_max = 50;
+    optional int32 psi_mem_full_avg300_avg = 51;
+    optional int32 psi_mem_some_avg10_min = 52;
+    optional int32 psi_mem_some_avg10_max = 53;
+    optional int32 psi_mem_some_avg10_avg = 54;
+    optional int32 psi_mem_some_avg60_min = 55;
+    optional int32 psi_mem_some_avg60_max = 56;
+    optional int32 psi_mem_some_avg60_avg = 57;
+    optional int32 psi_mem_some_avg300_min = 58;
+    optional int32 psi_mem_some_avg300_max = 59;
+    optional int32 psi_mem_some_avg300_avg = 60;
+    optional int32 version = 61 [deprecated = true];
+    optional int64 shmem_pages = 62;
+    optional int64 page_tables_pages = 63;
+    optional int64 dmabuf_pages = 64;
+}
+
+/* A message containing Pixel memory metrics collected daily. */
+message PixelMmMetricsPerDay {
+    optional string reverse_domain_name = 1;
+    optional int64 workingset_refault = 2;  /* refault_file */
+    optional int64 pswpin = 3;
+    optional int64 pswpout = 4;
+    optional int64 allocstall_dma = 5;
+    optional int64 allocstall_dma32 = 6;
+    optional int64 allocstall_normal = 7;
+    optional int64 allocstall_movable = 8;
+    optional int64 pgalloc_dma = 9;
+    optional int64 pgalloc_dma32 = 10;
+    optional int64 pgalloc_normal = 11;
+    optional int64 pgalloc_movable = 12;
+    optional int64 pgsteal_kswapd = 13;
+    optional int64 pgsteal_direct = 14;
+    optional int64 pgscan_kswapd = 15;
+    optional int64 pgscan_direct = 16;
+    optional int64 oom_kill = 17;
+    optional int64 pgalloc_high = 18;
+    optional int64 pgcache_hit = 19;
+    optional int64 pgcache_miss = 20;
+    optional int64 kswapd_stime_clks = 21;
+    optional int64 kcompactd_stime_clks = 22;
+    optional int64 direct_reclaim_native_latency_total_time = 23;
+    optional int64 direct_reclaim_native_latency0 = 24;
+    optional int64 direct_reclaim_native_latency1 = 25;
+    optional int64 direct_reclaim_native_latency2 = 26;
+    optional int64 direct_reclaim_native_latency3 = 27;
+    optional int64 direct_reclaim_visible_latency_total_time = 28;
+    optional int64 direct_reclaim_visible_latency0 = 29;
+    optional int64 direct_reclaim_visible_latency1 = 30;
+    optional int64 direct_reclaim_visible_latency2 = 31;
+    optional int64 direct_reclaim_visible_latency3 = 32;
+    optional int64 direct_reclaim_top_latency_total_time = 33;
+    optional int64 direct_reclaim_top_latency0 = 34;
+    optional int64 direct_reclaim_top_latency1 = 35;
+    optional int64 direct_reclaim_top_latency2 = 36;
+    optional int64 direct_reclaim_top_latency3 = 37;
+    optional int64 direct_reclaim_other_latency_total_time = 38;
+    optional int64 direct_reclaim_other_latency0 = 39;
+    optional int64 direct_reclaim_other_latency1 = 40;
+    optional int64 direct_reclaim_other_latency2 = 41;
+    optional int64 direct_reclaim_other_latency3 = 42;
+    optional int64 compaction_total_time = 43;
+    optional int64 compaction_ev_count0 = 44;
+    optional int64 compaction_ev_count1 = 45;
+    optional int64 compaction_ev_count2 = 46;
+    optional int64 compaction_ev_count3 = 47;
+    optional int64 compaction_ev_count4 = 48;
+    optional int64 workingset_refault_anon = 49;
+    optional int64 workingset_refault_file = 50;
+    optional int64 compact_success = 51;
+    optional int64 compact_fail = 52;
+    optional int64 kswapd_low_wmark_hq = 53;
+    optional int64 kswapd_high_wmark_hq = 54;
+    optional int64 thp_file_alloc = 55;
+    optional int64 thp_zero_page_alloc = 56;
+    optional int64 thp_split_page = 57;
+    optional int64 thp_migration_split = 58;
+    optional int64 thp_deferred_split_page = 59;
+    optional int64 version = 60 [deprecated = true];
+    optional int64 cpu_total_time = 61;
+    optional int64 cpu_idle_time = 62;
+    optional int64 cpu_io_wait_time = 63;
+    optional int64 kswapd_pageout_run = 64;
+}
+
+/* A message containing CMA metrics collected from dogfooding only. */
+message CmaStatus {
+  optional string reverse_domain_name = 1;
+  optional int32 type = 2;
+  optional int64 cma_alloc_pages_attempts = 3;
+  optional int64 cma_alloc_pages_soft_attempts = 4;
+  optional int64 cma_fail_pages = 5;
+  optional int64 cma_fail_soft_pages = 6;
+  optional int64 migrated_pages = 7;
+  optional string cma_heap_name = 8;
+}
+
+/* A message containing CMA metrics (External). */
+message CmaStatusExt {
+  optional string reverse_domain_name = 1;
+  optional int32 type = 2;
+  optional int64 cma_alloc_latency_low = 3;
+  optional int64 cma_alloc_latency_mid = 4;
+  optional int64 cma_alloc_latency_high = 5;
+  optional string cma_heap_name = 6;
+}
+
+message F2fsCompressionInfo {
+    optional string reverse_domain_name = 1;
+    /* Show the block count written after compression since mount */
+    optional int32 compr_written_blocks = 2;
+    /* Show the saved block count with compression since mount */
+    optional int32 compr_saved_blocks = 3;
+    /* Show the count of inode newly enabled for compression since mount */
+    optional int32 compr_new_inodes = 4;
+}
+
+/**
+ * Log bucketed battery charge cycles.
+ *
+ * Each bucket represents cycles of the battery past
+ * a given charge point.  For example, bucket 1 is the
+ * lowest 1/8th of the battery, and bucket 8 is 100%.
+ *
+ * Logged from:
+ * /sys/class/power_supply/bms/cycle_count, via Vendor.
+ */
+message VendorChargeCycles {
+    optional string reverse_domain_name = 1;
+    optional int32 cycle_bucket_1 = 2;
+    optional int32 cycle_bucket_2 = 3;
+    optional int32 cycle_bucket_3 = 4;
+    optional int32 cycle_bucket_4 = 5;
+    optional int32 cycle_bucket_5 = 6;
+    optional int32 cycle_bucket_6 = 7;
+    optional int32 cycle_bucket_7 = 8;
+    optional int32 cycle_bucket_8 = 9;
+    optional int32 cycle_bucket_9 = 10;
+    optional int32 cycle_bucket_10 = 11;
+}
+
+/**
+ * Logs the report of a failed hardware.
+ *
+ * Logged from:
+ *  Vendor HALs.
+ *
+ */
+message VendorHardwareFailed {
+    enum HardwareType {
+      HARDWARE_FAILED_UNKNOWN = 0;
+      HARDWARE_FAILED_MICROPHONE = 1;
+      HARDWARE_FAILED_CODEC = 2;
+      HARDWARE_FAILED_SPEAKER = 3;
+      HARDWARE_FAILED_FINGERPRINT = 4;
+    }
+    optional string reverse_domain_name = 1;
+    optional HardwareType hardware_type = 2;
+
+    /**
+     * hardware_location allows vendors to differentiate between multiple
+     * instances of the same hardware_type.  The specific locations are vendor
+     * defined integers, referring to board-specific numbering schemes.
+     */
+    optional int32 hardware_location = 3;
+    /**
+     * failure_code is specific to the HardwareType of the failed hardware.
+     * It should use one of the enum values defined below.
+     */
+    enum HardwareErrorCode {
+      UNKNOWN = 0;
+      COMPLETE = 1;
+      SPEAKER_HIGH_Z = 2;
+      SPEAKER_SHORT = 3;
+      FINGERPRINT_SENSOR_BROKEN = 4;
+      FINGERPRINT_TOO_MANY_DEAD_PIXELS = 5;
+      DEGRADE = 6;
+    }
+    optional int32 failure_code = 4;
+}
+
+/**
+ * Log slow I/O operations on the primary storage.
+ */
+message VendorSlowIo {
+    // Classifications of IO Operations.
+    enum IoOperation {
+      UNKNOWN = 0;
+      READ = 1;
+      WRITE = 2;
+      UNMAP = 3;
+      SYNC = 4;
+    }
+    optional string reverse_domain_name = 1;
+    optional IoOperation operation = 2;
+
+    // The number of slow IO operations of this type over 24 hours.
+    optional int32 count = 3;
+}
+
+/*
+ * Logs the reported speech DSP status.
+ * Logged from: Vendor audio implementation.
+ */
+message VendorSpeechDspStat {
+    optional string reverse_domain_name = 1;
+    // The total Speech DSP uptime in milliseconds.
+    optional int32 total_uptime_millis = 2;
+    // The total Speech DSP downtime in milliseconds.
+    optional int32 total_downtime_millis = 3;
+    optional int32 total_crash_count = 4;
+    optional int32 total_recover_count = 5;
+}
+
+/**
+ * Log an event when the device has been physically dropped.
+ * Reported from the /vendor partition.
+ */
+message VendorPhysicalDropDetected {
+  optional string reverse_domain_name = 1;
+  // Confidence that the event was actually a drop, 0 -> 100
+  optional int32 confidence_pctg = 2;
+  // Peak acceleration of the drop, in 1/1000s of a g.
+  optional int32 accel_peak_thousandths_g = 3;
+  // Duration of freefall in ms
+  optional int32 freefall_time_millis = 4;
+}
+
+/** Represents USB port overheat event. */
+message VendorUsbPortOverheat {
+  optional string reverse_domain_name = 1;
+  /* Temperature of USB port at USB plug event, in 1/10ths of degree C. */
+  optional int32 plug_temperature_deci_c = 2;
+  /* Maximum temperature of USB port during overheat event, in 1/10ths of degree
+   * C. */
+  optional int32 max_temperature_deci_c = 3;
+  /* Time between USB plug event and overheat threshold trip, in seconds. */
+  optional int32 time_to_overheat_secs = 4;
+  /* Time between overheat threshold trip and hysteresis, in seconds. */
+  optional int32 time_to_hysteresis_secs = 5;
+  /* Time between hysteresis and active mitigation ending, in seconds. */
+  optional int32 time_to_inactive_secs = 6;
+}
+
+/**
+ * Log battery health snapshot.
+ *
+ * Resistance, Voltage, Open Circuit Voltage, Temperature, and Charge Level
+ * are snapshotted periodically over 24hrs.
+ */
+message VendorBatteryHealthSnapshot {
+  enum BatterySnapshotType {
+    BATTERY_SNAPSHOT_TYPE_UNKNOWN = 0;
+    BATTERY_SNAPSHOT_TYPE_MIN_TEMP = 1;         // Snapshot at min batt temp over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MAX_TEMP = 2;         // Snapshot at max batt temp over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MIN_RESISTANCE = 3;   // Snapshot at min batt resistance over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MAX_RESISTANCE = 4;   // Snapshot at max batt resistance over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MIN_VOLTAGE = 5;      // Snapshot at min batt voltage over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MAX_VOLTAGE = 6;      // Snapshot at max batt voltage over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MIN_CURRENT = 7;      // Snapshot at min batt current over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MAX_CURRENT = 8;      // Snapshot at max batt current over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MIN_BATT_LEVEL = 9;   // Snapshot at min battery level (SoC) over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_MAX_BATT_LEVEL = 10;  // Snapshot at max battery level (SoC) over 24hrs.
+    BATTERY_SNAPSHOT_TYPE_AVG_RESISTANCE = 11;  // Snapshot at average battery resistance over 24hrs.
+  }
+  optional string reverse_domain_name = 1;
+  optional BatterySnapshotType type = 2;
+  // Temperature, in 1/10ths of degree C.
+  optional int32 temperature_deci_celsius = 3;
+  // Voltage Battery Voltage, in microVolts.
+  optional int32 voltage_micro_volt = 4;
+  // Current Battery current, in microAmps.
+  optional int32 current_micro_amps = 5;
+  // OpenCircuitVoltage Battery Open Circuit Voltage, in microVolts.
+  optional int32 open_circuit_micro_volt = 6;
+  // Resistance Battery Resistance, in microOhms.
+  optional int32 resistance_micro_ohm = 7;
+  // Level Battery Level, as % of full.
+  optional int32 level_percent = 8;
+}
+
+/**
+ * Log battery caused shutdown with the last recorded voltage.
+ */
+message VendorBatteryCausedShutdown {
+ optional string reverse_domain_name = 1;
+ // The last recorded battery voltage prior to shutdown.
+ optional int32 last_recorded_micro_volt = 2;
+}
+
+/**
+ * Log mitigation statistics.
+ */
+message PowerMitigationStats {
+ optional string reverse_domain_name = 1;
+ // The last triggered count: batoilo.
+ optional int32 batoilo_count = 2;
+ // The last triggered count: vdroop1.
+ optional int32 vdroop1_count = 3;
+ // The last triggered count: vdroop2.
+ optional int32 vdroop2_count = 4;
+ // The last triggered count: smpl_warn.
+ optional int32 smpl_warn_count = 5;
+ // The last triggered count: ocp_cpu1.
+ optional int32 ocp_cpu1_count = 6;
+ // The last triggered count: ocp_cpu2.
+ optional int32 ocp_cpu2_count = 7;
+ // The last triggered count: ocp_gpu.
+ optional int32 ocp_gpu_count = 8;
+ // The last triggered count: ocp_tpu.
+ optional int32 ocp_tpu_count = 9;
+ // The last triggered count: soft_ocp_cpu1.
+ optional int32 soft_ocp_cpu1_count = 10;
+ // The last triggered count: soft_ocp_cpu2.
+ optional int32 soft_ocp_cpu2_count = 11;
+ // The last triggered count: soft_ocp_gpu.
+ optional int32 soft_ocp_gpu_count = 12;
+ // The last triggered count: soft_ocp_tpu.
+ optional int32 soft_ocp_tpu_count = 13;
+ // The last triggered capacity: batoilo.
+ optional int32 batoilo_cap = 14;
+ // The last triggered capacity: vdroop1.
+ optional int32 vdroop1_cap = 15;
+ // The last triggered capacity: vdroop2.
+ optional int32 vdroop2_cap = 16;
+ // The last triggered capacity: smpl_warn.
+ optional int32 smpl_warn_cap = 17;
+ // The last triggered capacity: ocp_cpu1.
+ optional int32 ocp_cpu1_cap = 18;
+ // The last triggered capacity: ocp_cpu2.
+ optional int32 ocp_cpu2_cap = 19;
+ // The last triggered capacity: ocp_gpu.
+ optional int32 ocp_gpu_cap = 20;
+ // The last triggered capacity: ocp_tpu.
+ optional int32 ocp_tpu_cap = 21;
+ // The last triggered capacity: soft_ocp_cpu1.
+ optional int32 soft_ocp_cpu1_cap = 22;
+ // The last triggered capacity: soft_ocp_cpu2.
+ optional int32 soft_ocp_cpu2_cap = 23;
+ // The last triggered capacity: soft_ocp_gpu.
+ optional int32 soft_ocp_gpu_cap = 24;
+ // The last triggered capacity: soft_ocp_tpu.
+ optional int32 soft_ocp_tpu_cap = 25;
+}
+
+/**
+ * Log thermal statistics.
+ */
+message ThermalDfsStats {
+ optional string reverse_domain_name = 1;
+ // The last count of BIG cluster dfs triggers
+ optional int32 big_dfs_count = 2;
+ // The last count of MID cluster dfs triggers
+ optional int32 mid_dfs_count = 3;
+ // The last count of LITTLE cluster dfs triggers
+ optional int32 little_dfs_count = 4;
+ // The last count of GPU dfs triggers
+ optional int32 gpu_dfs_count = 5;
+ // The last count of TPU dfs triggers
+ optional int32 tpu_dfs_count = 6;
+ // The last count of DSP dfs triggers
+ optional int32 aur_dfs_count = 7;
+}
+
+/**
+ * Log Display Panel error statistics.
+ */
+message DisplayPanelErrorStats {
+ optional string reverse_domain_name = 1;
+ // The error count due to Tear Effect on primary display panel.
+ optional int32 primary_error_count_te = 2;
+ // The error count due to unknown reason on primary display panel.
+ optional int32 primary_error_count_unknown = 3;
+ // The error count due to Tear Effect on primary display panel.
+ optional int32 secondary_error_count_te = 4;
+ // The error count due to unknown reason on secondary display panel.
+ optional int32 secondary_error_count_unknown = 5;
+}
+
+/**
+ * Log how many segments have been reclaimed in a specific GC mode.
+ */
+message F2fsGcSegmentInfo {
+    optional string reverse_domain_name = 1;
+    /* Reclaimed segments in GC normal mode */
+    optional int32 reclaimed_segments_normal = 2;
+    /* Reclaimed segments in GC urgent high mode */
+    optional int32 reclaimed_segments_urgent_high = 3;
+    /* Reclaimed segments in GC urgent low mode */
+    optional int32 reclaimed_segments_urgent_low = 4;
+    /* Reclaimed segments in GC urgent mid mode */
+    optional int32 reclaimed_segments_urgent_mid = 5;
+}
+
+/**
+ * Logs an event indicating that a nanoapp loading has failed at the HAL.
+ */
+message ChreHalNanoappLoadFailed {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // Corresponds to preloaded nanoapps on the device.
+    TYPE_PRELOADED = 1;
+    // Dynamic loading of a nanoapp (e.g. code download).
+    TYPE_DYNAMIC = 2;
+  }
+
+  enum Reason {
+    REASON_UNKNOWN = 0;
+    // A generic error code that does not match any of the others.
+    REASON_ERROR_GENERIC = 1;
+    // Failure at the connection between HAL<->CHRE.
+    REASON_CONNECTION_ERROR = 2;
+    // System ran out of memory.
+    REASON_OOM = 3;
+    // Nanoapp did not have the right signing for loading.
+    REASON_SIGNATURE_MISMATCH = 4;
+  }
+
+  // The 64-bit unique nanoapp identifier of the nanoapp that failed.
+  optional int64 nanoapp_id = 2;
+
+  // The type of the load event.
+  optional Type type = 3;
+
+  // The reason for the failure.
+  optional Reason reason = 4;
+}
+
+/**
+ * An enum describing a module within CHRE.
+ */
+enum ChreModuleType {
+  CHRE_MODULE_TYPE_UNKNOWN = 0;
+  CHRE_MODULE_TYPE_CHRE = 1; // Core CHRE framework
+  CHRE_MODULE_TYPE_PAL = 2; // PAL module (could be CHPP)
+  CHRE_MODULE_TYPE_NANOAPP = 3;
+}
+
+/**
+ * An enum describing the CHRE PAL type.
+ */
+enum ChrePalType {
+  CHRE_PAL_TYPE_UNKNOWN = 0;
+  CHRE_PAL_TYPE_SENSOR = 1;
+  CHRE_PAL_TYPE_WIFI = 2;
+  CHRE_PAL_TYPE_GNSS = 3;
+  CHRE_PAL_TYPE_WWAN = 4;
+  CHRE_PAL_TYPE_AUDIO = 5;
+  CHRE_PAL_TYPE_BLE = 6;
+}
+
+/**
+ * Logs an event indicating that a CHRE PAL open has failed.
+ */
+message ChrePalOpenFailed {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // Initial open when CHRE starts.
+    INITIAL_OPEN = 1;
+    // Any form of "reopen" event internally in the PAL.
+    REOPEN = 2;
+  }
+
+  // The PAL this failure event is for.
+  optional ChrePalType pal = 2;
+
+  // The type of failure observed.
+  optional Type type = 3;
+}
+
+/**
+ * The type of CHRE API request.
+ */
+enum ChreApiType {
+  CHRE_API_TYPE_UNKNOWN = 0;
+  CHRE_API_TYPE_WIFI_SCAN_MONITOR = 1;
+  CHRE_API_TYPE_WIFI_ACTIVE_SCAN = 2;
+  CHRE_API_TYPE_WIFI_RTT_RANGING = 3;
+}
+
+/**
+ * The type of CHRE API error.
+ */
+enum ChreError {
+  CHRE_ERROR_UNKNOWN = 0;
+
+  // No error occurred.
+  CHRE_ERROR_NONE = 1;
+
+  // An unspecified failure occurred.
+  CHRE_ERROR = 2;
+
+  // One or more supplied arguments are invalid.
+  CHRE_ERROR_INVALID_ARGUMENT = 3;
+
+  // Unable to satisfy request because the system is busy.
+  CHRE_ERROR_BUSY = 4;
+
+  // Unable to allocate memory.
+  CHRE_ERROR_NO_MEMORY = 5;
+
+  // The requested feature is not supported.
+  CHRE_ERROR_NOT_SUPPORTED = 6;
+
+  // A timeout occurred while processing the request.
+  CHRE_ERROR_TIMEOUT = 7;
+
+  // The relevant capability is disabled, for example due to a user
+  // configuration that takes precedence over this request.
+  CHRE_ERROR_FUNCTION_DISABLED = 8;
+}
+
+/**
+ * Distribution of CHRE API error codes.
+ */
+message ChreApiErrorCodeDistributionTaken {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The CHRE API type.
+  optional ChreApiType api_type = 3;
+
+  // Corresponds to the CHRE error code that occurred, as defined in the
+  // "enum chreError" field in chre_api/chre/common.h.
+  optional ChreError error_code = 4;
+  optional int32 num_errors = 5;
+}
+
+/**
+ * Snapshot of the dynamic memory allocated in CHRE.
+ */
+message ChreDynamicMemorySnapshotReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The type of the module.
+  optional ChreModuleType module_type = 3;
+
+  // The unique 64-bit ID for a nanoapp, only used if the module_type is NANOAPP.
+  // If module_type is PAL, then it represents the ChrePalType enum. If the module_type
+  // is CHRE, then a zero value should be used.
+  optional int64 pal_type_or_nanoapp_id = 4;
+
+  // The max allocation amount of this module in bytes.
+  optional int32 max_allocation_bytes = 5;
+
+  // The current allocation amount of this module in bytes.
+  optional int32 current_allocation_bytes = 6;
+}
+
+/**
+ * Snapshot of the event queue stats in CHRE.
+ */
+message ChreEventQueueSnapshotReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The maximum size the event queue got to (i.e. num pending events).
+  optional int32 max_event_queue_size = 3;
+
+  // The average size the event queue got to (i.e. num pending events).
+  optional int32 mean_event_queue_size = 4;
+
+  // The number of events that were dropped due to capacity limits.
+  optional int32 num_dropped_events = 5;
+
+  // The maximum amount of time it took for an event, from when it was received,
+  // to when it was delivered to all interested modules. This value represents
+  // the total delay within the CHRE subsystem.
+  optional int64 max_queue_delay_us = 6;
+
+  // The mean value of the delay in microseconds.
+  optional int64 mean_queue_delay_us = 7;
+}
+
+/**
+ * Indicates that a nanoapp has woken up the AP.
+ */
+message ChreApWakeUpOccurred {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The 64-bit unique nanoapp identifier that describes the entity that has caused an AP wake-up
+  // from CHRE. Whenever this event occurs, this means that the nanoapp sent a message to
+  // the AP causing a transition between suspend/wake-up.
+  optional int64 nanoapp_id = 2;
+}
+
+/**
+ * Snapshot of the current battery health of the device.
+ */
+message BatteryHealthStatus {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The algorithm that computes how the health status and health indexes are calculated.
+  optional int32 health_algorithm = 2;
+
+  enum HealthStatus {
+    UNKNOWN = -1; // The health status is unknown due to a SW limitation or issue
+    NOMINAL = 0; // The battery is operating as expected
+    MARGINAL = 1; // The battery may need replacement soon
+    NEEDS_REPLACEMENT = 2; // The battery needs replacement
+    FAILED = 3; // The battery has failed and no longer operates as expected
+    NOT_AVAILABLE = 4; // This is a temporary state when cycle count is insufficient
+    INCONSISTENT = 5; // The battery recalibration is pending
+  }
+
+  // HealthStatus calculated using health_index, health_perf_index.
+  optional HealthStatus health_status = 3;
+
+  // A percentage measure of the health of the battery with 100% being perfectly healthy.
+  optional int32 health_index = 4;
+
+  // A percentage measure of the battery capacity of the device, affected by cycle life degradation.
+  optional int32 health_capacity_index = 5;
+
+  // A percentage measure of the max performance of the device, affected by impedance growth with 100% being perfectly healthy.
+  optional int32 health_impedance_index = 6;
+
+  // An index that expresses the likelihood of swelling given the SOC residency stats.
+  optional int32 swelling_cumulative = 7;
+
+  // The battery capacity used to determine the health index. This is the reference value from b/223759710.
+  optional int32 health_full_capacity = 8;
+
+  // This is the Rslow (resistance) value used (in part) to determine the Perf Index. The activation impedance (b/223545817) can be calculated from it using the perf index.
+  optional int32 current_impedance = 9;
+
+  // The (hours) value of TimeH (0xb3), a register value, multiplied by 3.2 hours.
+  optional int32 battery_age = 10;
+
+  // The cycle count at the time of the log event.
+  optional int32 cycle_count = 11;
+
+  enum BattDisconnectStatus {
+    BPST_BATT_UNKNOWN = 0;
+    BPST_BATT_CONNECT = 1;
+    BPST_BATT_DISCONNECT = 2; // Result of single battery disconnect detection
+    BPST_BATT_CELL_FAULT = 3; // Result of cell fault detection which means actual disconnection
+  }
+
+  // Battery disconnect detection stats.
+  optional BattDisconnectStatus battery_disconnect_status = 12;
+}
+
+/**
+ * Log battery SOC/temperature usage data.
+ *
+ * Each data represents cumulative time of the battery
+ * spent over a specific SOC and over a specific temperature
+ * while charging and while discharging in seconds.
+ *
+ * Logged from:
+ * /sys/class/power_supply/battery/swelling_data, via Vendor.
+ */
+message BatteryHealthUsage {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The temperature limit (deg C) used to accumulate the time above this value.
+  optional int32 temperature_limit_deci_c = 2;
+
+  // The SOC limit (%) used to accumulate the time above this value.
+  optional int32 soc_limit = 3;
+
+  // Time (s) accumulated only during charge at the given thresholds.
+  optional int32 charge_time_secs = 4;
+
+  // Time (s) accumulated only during discharge at the given thresholds.
+  optional int32 discharge_time_secs = 5;
+}
+
+/*
+ * A Value of F2FS smart idle maintenance feature enabled
+ */
+message F2fsSmartIdleMaintEnabledStateChanged {
+    optional string reverse_domain_name = 1;
+    /* Smart idle maint is enabled */
+    optional bool enabled = 2;
+}
+
+/*
+ * Snapshot of the block layer read write stats
+ */
+message BlockStatsReported {
+    optional string reverse_domain_name = 1;
+        /* number of read I/Os processed */
+        optional int64 read_io = 2;
+        /* number of sectors read */
+        optional int64 read_sectors = 3;
+        /* total wait time for read requests */
+        optional int64 read_ticks = 4;
+        /* number of write I/Os processed */
+        optional int64 write_io = 5;
+        /* number of sectors written */
+        optional int64 write_sectors = 6;
+        /* total wait time for write requests */
+        optional int64 write_ticks = 7;
+}
+
+/**
+ * Logs the reported vendor audio hardware stats.
+ */
+message VendorAudioHardwareStatsReported {
+  optional string reverse_domain_name = 1;
+  /* The number of calls in a day where CCA is active.
+   * CCA can only be applied under some radio bands.
+   */
+  optional int32 milli_rate_of_ams_per_day = 2;
+
+  // cca_active: obsoleted UI enable & algorithm is active (C1)
+  // replaced by cca_active_count_per_day
+  optional int32 rate_of_cca_active_per_day = 3 [deprecated = true];
+
+  // cca_enable: obsoleted UI enable & algorithm is inactive field (C2)
+  // replaced by cca_enable_count_per_day
+  optional int32 rate_of_cca_enable_per_day = 4 [deprecated = true];
+
+  enum Source {
+    VOIP = 0;
+    VOICE = 1;
+  }
+
+  /* source: identify whether this atom is for voice or voip case. */
+  optional Source source = 5;
+
+  /* total_call_count_per_day: count total number of call per day. */
+  optional int32 total_call_count_per_day = 6;
+
+  /* cca_active: UI enable & algorithm is active (C1 or C3) */
+  optional int32 cca_active_count_per_day = 7;
+
+  /* cca_enable: UI enable & algorithm is inactive (C2 or C4) */
+  optional int32 cca_enable_count_per_day = 8;
+}
+
+/**
+ * Logs the reported vendor audio PDM stats.
+ * PDM stats are used to show background noise level during voice/voip calling.
+ * Each of the atom will show only one type of background noises. There are at most 4 types.
+ * Thus, this atoms will be reported at most 4 times to show all types.
+ */
+message VendorAudioPdmStatsReported {
+  optional string reverse_domain_name = 1;
+
+  /* index of the pdm to report. There are 4 pdm instances. So, the value is in the range 1-4 */
+  optional int32 pdm_index = 2;
+
+  /* State of the pdm to report. There is only two value 1 for good and 0 for bad. */
+  optional int32 state = 3;
+}
+
+/*
+ * Logs vendor stats about long IRQs.
+ *
+ * IRQ is considered long when it exceeds a threshold (currently 1 ms).
+ * Stats include top 5 slowest IRQs: their numbers and the worst latency.
+ * Stats are reset after every report.
+ */
+message VendorLongIRQStatsReported {
+  optional string reverse_domain_name = 1;
+
+  // Count of long soft IRQ since last report.
+  optional int64 long_softirq_count = 2;
+
+  optional int64 top1_softirq_num = 3;
+  optional int64 top1_softirq_latency_us = 4;
+  optional int64 top2_softirq_num = 5;
+  optional int64 top2_softirq_latency_us = 6;
+  optional int64 top3_softirq_num = 7;
+  optional int64 top3_softirq_latency_us = 8;
+  optional int64 top4_softirq_num = 9;
+  optional int64 top4_softirq_latency_us = 10;
+  optional int64 top5_softirq_num = 11;
+  optional int64 top5_softirq_latency_us = 12;
+
+  // Count of long IRQ since last report.
+  optional int64 long_irq_count = 13;
+
+  optional int64 top1_irq_num = 14;
+  optional int64 top1_irq_latency_us = 15;
+  optional int64 top2_irq_num = 16;
+  optional int64 top2_irq_latency_us = 17;
+  optional int64 top3_irq_num = 18;
+  optional int64 top3_irq_latency_us = 19;
+  optional int64 top4_irq_num = 20;
+  optional int64 top4_irq_latency_us = 21;
+  optional int64 top5_irq_num = 22;
+  optional int64 top5_irq_latency_us = 23;
+
+  optional int64 storm_irq_top1_num = 24;
+  optional int64 storm_irq_top1_count = 25;
+  optional int64 storm_irq_top2_num = 26;
+  optional int64 storm_irq_top2_count = 27;
+  optional int64 storm_irq_top3_num = 28;
+  optional int64 storm_irq_top3_count = 29;
+  optional int64 storm_irq_top4_num = 30;
+  optional int64 storm_irq_top4_count = 31;
+  optional int64 storm_irq_top5_num= 32;
+  optional int64 storm_irq_top5_count = 33;
+}
+
+/**
+ * Logs the Temperature residency stats per thermal zone.
+ */
+message VendorTempResidencyStats {
+  optional string reverse_domain_name = 1;
+  // Thermal zone name
+  optional string sensor_name = 2;
+
+  // Time since last collect of this thermal zone
+  optional int64 since_last_update_ms = 3;
+
+  // Temperature residency stats is measured by time in ms that a temperature zone's temperature
+  // lay within some temperature thresholds
+  // e.g.
+  // With temperature thresholds predefined as thresholds_i, thresholds_i+1,
+  // temp_residency_ms_bucket_i measures how much time the sensor lay within this two thresholds
+  optional int64 temp_residency_ms_bucket_1 = 4;
+  optional int64 temp_residency_ms_bucket_2 = 5;
+  optional int64 temp_residency_ms_bucket_3 = 6;
+  optional int64 temp_residency_ms_bucket_4 = 7;
+  optional int64 temp_residency_ms_bucket_5 = 8;
+  optional int64 temp_residency_ms_bucket_6 = 9;
+  optional int64 temp_residency_ms_bucket_7 = 10;
+  optional int64 temp_residency_ms_bucket_8 = 11;
+  optional int64 temp_residency_ms_bucket_9 = 12;
+  optional int64 temp_residency_ms_bucket_10 = 13;
+  optional int64 temp_residency_ms_bucket_11 = 14;
+  optional int64 temp_residency_ms_bucket_12 = 15;
+  optional int64 temp_residency_ms_bucket_13 = 16;
+  optional int64 temp_residency_ms_bucket_14 = 17;
+  optional int64 temp_residency_ms_bucket_15 = 18;
+  optional int64 temp_residency_ms_bucket_16 = 19;
+  optional int64 temp_residency_ms_bucket_17 = 20;
+  optional int64 temp_residency_ms_bucket_18 = 21;
+  optional int64 temp_residency_ms_bucket_19 = 22;
+  optional int64 temp_residency_ms_bucket_20 = 23;
+
+  // The maximum and minimum temperature observed for the sensor along with the
+  // timestamp of occurrence in terms of time_t.
+  optional float max_temp = 24;
+  optional int64 max_temp_timestamp = 25;
+  optional float min_temp = 26;
+  optional int64 min_temp_timestamp = 27;
+}
+
+/**
+ * Logs the Resume Latency stats.
+ */
+message VendorResumeLatencyStats {
+  optional string reverse_domain_name = 1;
+  optional int64 max_latency_ms = 2;
+  optional int64 avg_latency_ms = 3;
+
+  // Resume Latency stats is measured by count of resumes that lay within some latency thresholds
+  // e.g.
+  // With resume times thresholds predefined as thresholds_i, thresholds_i+1,
+  // resume_count_bucket_i measures count of resumes that lay within this two thresholds
+  optional int64 resume_count_bucket_1 = 4;
+  optional int64 resume_count_bucket_2 = 5;
+  optional int64 resume_count_bucket_3 = 6;
+  optional int64 resume_count_bucket_4 = 7;
+  optional int64 resume_count_bucket_5 = 8;
+  optional int64 resume_count_bucket_6 = 9;
+  optional int64 resume_count_bucket_7 = 10;
+  optional int64 resume_count_bucket_8 = 11;
+  optional int64 resume_count_bucket_9 = 12;
+  optional int64 resume_count_bucket_10 = 13;
+  optional int64 resume_count_bucket_11 = 14;
+  optional int64 resume_count_bucket_12 = 15;
+  optional int64 resume_count_bucket_13 = 16;
+  optional int64 resume_count_bucket_14 = 17;
+  optional int64 resume_count_bucket_15 = 18;
+  optional int64 resume_count_bucket_16 = 19;
+  optional int64 resume_count_bucket_17 = 20;
+  optional int64 resume_count_bucket_18 = 21;
+  optional int64 resume_count_bucket_19 = 22;
+  optional int64 resume_count_bucket_20 = 23;
+  optional int64 resume_count_bucket_21 = 24;
+  optional int64 resume_count_bucket_22 = 25;
+  optional int64 resume_count_bucket_23 = 26;
+  optional int64 resume_count_bucket_24 = 27;
+  optional int64 resume_count_bucket_25 = 28;
+  optional int64 resume_count_bucket_26 = 29;
+  optional int64 resume_count_bucket_27 = 30;
+  optional int64 resume_count_bucket_28 = 31;
+  optional int64 resume_count_bucket_29 = 32;
+  optional int64 resume_count_bucket_30 = 33;
+  optional int64 resume_count_bucket_31 = 34;
+  optional int64 resume_count_bucket_32 = 35;
+  optional int64 resume_count_bucket_33 = 36;
+  optional int64 resume_count_bucket_34 = 37;
+  optional int64 resume_count_bucket_35 = 38;
+  optional int64 resume_count_bucket_36 = 39;
+}
+
+/*
+ * Log the Brownout events.
+ */
+message BrownoutDetected {
+    enum IRQType {
+        UVLO1 = 0;
+        SMPL_WARN = 1;
+        UVLO2 = 2;
+        BATOILO = 3;
+        BATOILO2 = 4;
+    }
+
+    enum BrownoutReason {
+        UNKNOWN = 0;
+        UVLO_IF = 1;
+        OCP_IF = 2;
+        UVLO_MAIN = 3;
+        UVLO_SUB = 4;
+        OCP_B1M = 5;
+        OCP_B2M = 6;
+        OCP_B3M = 7;
+        OCP_B4M = 8;
+        OCP_B5M = 9;
+        OCP_B6M = 10;
+        OCP_B7M = 11;
+        OCP_B8M = 12;
+        OCP_B9M = 13;
+        OCP_B10M = 14;
+        OCP_B1S = 15;
+        OCP_B2S = 16;
+        OCP_B3S = 17;
+        OCP_B4S = 18;
+        OCP_B5S = 19;
+        OCP_B6S = 20;
+        OCP_B7S = 21;
+        OCP_B8S = 22;
+        OCP_B9S = 23;
+        OCP_B10S = 24;
+        OCP_BAS = 25;
+        OCP_BBS = 26;
+        OCP_BCS = 27;
+        OCP_BDS = 28;
+        OCP2_IF = 29;
+    }
+
+    // Reverse domain name. (e.g. Pixel)
+    optional string reverse_domain_name = 1;
+    // Triggered mitigation IRQ
+    optional IRQType triggered_irq = 2;
+    // Triggered timestamp
+    optional int64 triggered_timestamp = 3;
+    // Triggered battery temperature
+    optional int32 battery_temp = 4;
+    // Triggered battery age
+    optional int32 battery_cycle = 5;
+    // Triggered battery soc
+    optional int32 battery_soc = 6;
+    // Triggered FG Reading: Voltage Now
+    optional int32 voltage_now = 7;
+    // Triggered ODPM Reading: Channel 1
+    optional int32 odpm_channel01 = 8;
+    // Triggered ODPM Reading: Channel 2
+    optional int32 odpm_channel02 = 9;
+    // Triggered ODPM Reading: Channel 3
+    optional int32 odpm_channel03 = 10;
+    // Triggered ODPM Reading: Channel 4
+    optional int32 odpm_channel04 = 11;
+    // Triggered ODPM Reading: Channel 5
+    optional int32 odpm_channel05 = 12;
+    // Triggered ODPM Reading: Channel 6
+    optional int32 odpm_channel06 = 13;
+    // Triggered ODPM Reading: Channel 7
+    optional int32 odpm_channel07 = 14;
+    // Triggered ODPM Reading: Channel 8
+    optional int32 odpm_channel08 = 15;
+    // Triggered ODPM Reading: Channel 9
+    optional int32 odpm_channel09 = 16;
+    // Triggered ODPM Reading: Channel 10
+    optional int32 odpm_channel10 = 17;
+    // Triggered ODPM Reading: Channel 11
+    optional int32 odpm_channel11 = 18;
+    // Triggered ODPM Reading: Channel 12
+    optional int32 odpm_channel12 = 19;
+    // Triggered ODPM Reading: Channel 13
+    optional int32 odpm_channel13 = 20;
+    // Triggered ODPM Reading: Channel 14
+    optional int32 odpm_channel14 = 21;
+    // Triggered ODPM Reading: Channel 15
+    optional int32 odpm_channel15 = 22;
+    // Triggered ODPM Reading: Channel 16
+    optional int32 odpm_channel16 = 23;
+    // Triggered ODPM Reading: Channel 17
+    optional int32 odpm_channel17 = 24;
+    // Triggered ODPM Reading: Channel 18
+    optional int32 odpm_channel18 = 25;
+    // Triggered ODPM Reading: Channel 19
+    optional int32 odpm_channel19 = 26;
+    // Triggered ODPM Reading: Channel 20
+    optional int32 odpm_channel20 = 27;
+    // Triggered ODPM Reading: Channel 21
+    optional int32 odpm_channel21 = 28;
+    // Triggered ODPM Reading: Channel 22
+    optional int32 odpm_channel22 = 29;
+    // Triggered ODPM Reading: Channel 23
+    optional int32 odpm_channel23 = 30;
+    // Triggered ODPM Reading: Channel 24
+    optional int32 odpm_channel24 = 31;
+    // Triggered DVFS State: Channel 1
+    optional int32 dvfs_channel1 = 32;
+    // Triggered DVFS State: Channel 2
+    optional int32 dvfs_channel2 = 33;
+    // Triggered DVFS State: Channel 3
+    optional int32 dvfs_channel3 = 34;
+    // Triggered DVFS State: Channel 4
+    optional int32 dvfs_channel4 = 35;
+    // Triggered DVFS State: Channel 5
+    optional int32 dvfs_channel5  = 36;
+    // Triggered DVFS State: Channel 6
+    optional int32 dvfs_channel6 = 37;
+    // brownout reason
+    optional BrownoutReason brownout_reason = 38;
+}
+
+/*
+ * PCIe Link Statistics
+ */
+message PcieLinkStatsReported {
+    /* Vendor reverse domain name (expecting "com.google.pixel"). */
+    optional string reverse_domain_name = 1;
+
+    /* Count of new PCIe Link Down events on the modem interface */
+    optional int32 modem_pcie_linkdowns = 2;
+    /* Count of new PCIe Completion Timeout events on the modem interface */
+    optional int32 modem_pcie_completion_timeouts = 3;
+    /* Count of new PCIe Link Up Failure events on the modem interface */
+    optional int32 modem_pcie_linkup_failures = 4;
+    /* Average pll lock time (uS) during PCIe Link Up on modem interface */
+    optional int32 modem_pcie_pll_lock_avg = 5;
+    /* Average time (uS) for successful PCIe Link Up on modem interface */
+    optional int32 modem_pcie_link_up_avg = 6;
+
+    /* Count of new PCIe Link Down events on the wifi interface */
+    optional int32 wifi_pcie_linkdowns = 7;
+    /* Count of new PCIe Completion Timeout events on the wifi interface */
+    optional int32 wifi_pcie_completion_timeouts = 8;
+    /* Count of new PCIe Link Up Failure events on the wifi interface */
+    optional int32 wifi_pcie_linkup_failures = 9;
+    /* Average pll lock time (uS) during PCIe Link Up on wifi interface */
+    optional int32 wifi_pcie_pll_lock_avg = 10;
+    /* Average time (uS) for successful PCIe Link Up on wifi interface */
+    optional int32 wifi_pcie_link_up_avg = 11;
+
+    /* Count of new PCIe Link Recovery Failure events on the modem interface */
+    optional int32 modem_pcie_link_recovery_failures = 12;
+    /* Count of new PCIe Link Recovery Failure events on the wifi interface */
+    optional int32 wifi_pcie_link_recovery_failures = 13;
+}
+
+/**
+ * Log the CDEV request stats per sensor, binded cooling device.
+ * Logged from: hardware/google/pixel/thermal/utils/thermal_stats_helper.cpp
+ */
+message VendorSensorCoolingDeviceStats {
+ optional string reverse_domain_name = 1;
+ // Sensor name which is making the cooling device request
+ optional string  trigger_sensor_name = 2;
+
+ // Cooling device name for which request is being made
+ optional string  cooling_device_name = 3;
+
+ // Time duration for which stats are recorded
+ optional int64 since_last_update_ms = 4;
+
+ // Sequence of values corresponding to time spent in each request state
+ optional int64 time_in_state_ms_bucket_1 = 5;
+ optional int64 time_in_state_ms_bucket_2 = 6;
+ optional int64 time_in_state_ms_bucket_3 = 7;
+ optional int64 time_in_state_ms_bucket_4 = 8;
+ optional int64 time_in_state_ms_bucket_5 = 9;
+ optional int64 time_in_state_ms_bucket_6 = 10;
+ optional int64 time_in_state_ms_bucket_7 = 11;
+ optional int64 time_in_state_ms_bucket_8 = 12;
+ optional int64 time_in_state_ms_bucket_9 = 13;
+ optional int64 time_in_state_ms_bucket_10 = 14;
+ optional int64 time_in_state_ms_bucket_11 = 15;
+ optional int64 time_in_state_ms_bucket_12 = 16;
+ optional int64 time_in_state_ms_bucket_13 = 17;
+ optional int64 time_in_state_ms_bucket_14 = 18;
+ optional int64 time_in_state_ms_bucket_15 = 19;
+ optional int64 time_in_state_ms_bucket_16 = 20;
+ optional int64 time_in_state_ms_bucket_17 = 21;
+ optional int64 time_in_state_ms_bucket_18 = 22;
+ optional int64 time_in_state_ms_bucket_19 = 23;
+ optional int64 time_in_state_ms_bucket_20 = 24;
+}
+
+/* Log playcount of effects in Vibrator HAL
+ *
+ * Logged from:
+ *     hardware/google/pixel/vibrator/
+ */
+message VibratorPlaycountReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // Playcount for each primitive
+  // Each index tracks the count for that index in the waveform
+  repeated int32 waveform_counts = 2;
+
+  // Playcount for each 50ms range.
+  // Each index tracks [50ms * i, 50ms * (i + 1))
+  repeated int32 duration_counts = 3;
+}
+
+/* Log latency encountered in Vibrator HAL
+ *
+ * Logged from:
+ *     hardware/google/pixel/vibrator/
+ */
+message VibratorLatencyReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // Minimum latency seen
+  // 0 Prebaked and primitives
+  // 1 Composed effects
+  // 2 PWLE effects
+  repeated int32 min_latencies = 2;
+
+  // Maximum latency seen
+  // 0 Prebaked and primitives
+  // 1 Composed effects
+  // 2 PWLE effects
+  repeated int32 max_latencies = 3;
+
+  // Average latency seen
+  // 0 Prebaked and primitives
+  // 1 Composed effects
+  // 2 PWLE effects
+  repeated int32 avg_latencies = 4;
+}
+
+/* Log errors encountered in Vibrator HAL
+ *
+ * Logged from:
+ *     hardware/google/pixel/vibrator/
+ */
+message VibratorErrorsReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // Count for each error
+  // 0 HwAPI Error
+  // 1 HwCAL Error
+  // 2 Compose Fail Error
+  // 3 ALSA Fail Error
+  // 4 Async Fail Error
+  // 5 Bad Timeout Error
+  // 6 Bad Amplitude Error
+  // 7 Bad Effect Error
+  // 8 Bad Effect Strength Error
+  // 9 Bad Primitive Error
+  // 10 Bad Composite Error
+  // 11 PWLE Construction Fail Error
+  // 12 Unsupported Method Error
+  repeated int32 error_counts = 2;
+}
+
+/* A message containing F2FS Atomic Write information */
+message F2fsAtomicWriteInfo {
+    /* Vendor reverse domain name (expecting "com.google.pixel"). */
+    optional string reverse_domain_name = 1;
+    /* Show the peak value of total current atomic write block count after boot */
+    optional int32 peak_atomic_write = 2;
+    /* Show the accumulated total committed atomic write block count after boot */
+    optional int32 committed_atomic_block = 3;
+    /* Show the accumulated total revoked atomic write block count after boot */
+    optional int32 revoked_atomic_block = 4;
+}
+
+/* A message containing Partition Used Spaced information */
+message PartitionsUsedSpaceReported {
+    enum Directory {
+        UNKNOWN = 0;
+        PERSIST = 1;
+    }
+    /* Vendor reverse domain name (expecting "com.google.pixel"). */
+    optional string reverse_domain_name = 1;
+
+    /* used space of directory information */
+    optional Directory directory = 2;
+    optional int64 free_bytes = 3;
+    optional int64 total_bytes = 4;
+}
+
+message GpuEvent {
+    enum GpuEventType {
+      MALI_TYPE_NONE = 0;
+      MALI_KMD_ERROR = 1;
+      MALI_GPU_RESET = 2;
+    }
+    enum GpuEventInfo {
+      MALI_INFO_NONE = 0;
+      MALI_CSG_REQ_STATUS_UPDATE = 1;
+      MALI_CSG_SUSPEND = 2;
+      MALI_CSG_SLOTS_SUSPEND = 3;
+      MALI_CSG_GROUP_SUSPEND = 4;
+      MALI_CSG_EP_CFG = 5;
+      MALI_CSG_SLOTS_START = 6;
+      MALI_GROUP_TERM = 7;
+      MALI_QUEUE_START = 8;
+      MALI_QUEUE_STOP = 9;
+      MALI_QUEUE_STOP_ACK = 10;
+      MALI_CSG_SLOT_READY = 11;
+      MALI_L2_PM_TIMEOUT = 12;
+      MALI_PM_TIMEOUT = 13;
+      MALI_CSF_RESET_OK = 14;
+      MALI_CSF_RESET_FAILED = 15;
+      MALI_TILER_OOM = 16;
+      MALI_PROGRESS_TIMER = 17;
+      MALI_CS_ERROR = 18;
+      MALI_FW_ERROR = 19;
+      MALI_PMODE_EXIT_TIMEOUT = 20;
+      MALI_PMODE_ENTRY_FAILURE = 21;
+      MALI_GPU_PAGE_FAULT = 22;
+      MALI_MMU_AS_ACTIVE_STUCK = 23;
+    }
+
+    /* Vendor reverse domain name (expecting "com.google.pixel"). */
+    optional string reverse_domain_name = 1;
+    /*
+     * Type of the GPU event. Possible values depend on the platform GPU.
+     * Eg, MALI_KMD_ERROR, MALI_GPU_RESET.
+     */
+    optional GpuEventType gpu_event_type = 2;
+    /*
+     * Additional information about the GPU event. Possible values depend
+     * on the platform GPU.
+     * Eg, MALI_PM_TIMEOUT, MALI_CSF_RESET_OK.
+     */
+    optional GpuEventInfo gpu_event_info = 3;
+}
+/**
+ * Log mitigation duration.
+ */
+message PowerMitigationDurationCounts {
+ optional string reverse_domain_name = 1;
+ // Count of UVLO1 greater than threshold without any other concurrent IRQs.
+ optional int32 greater_than_thresh_uvlo1_none = 2;
+ // Count of UVLO1 IRQ + MMWAVE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_uvlo1_mmwave = 3;
+ // Count of UVLO1 IRQ + RFFE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_uvlo1_rffe = 4;
+ // Count of UVLO2 greater than threshold without any other concurrent IRQs.
+ optional int32 greater_than_thresh_uvlo2_none = 5;
+ // Count of UVLO2 IRQ + MMWAVE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_uvlo2_mmwave = 6;
+ // Count of UVLO2 IRQ + RFFE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_uvlo2_rffe = 7;
+ // Count of BATOILO greater than threshold without any other concurrent IRQs.
+ optional int32 greater_than_thresh_batoilo_none = 8;
+ // Count of BATOILO IRQ + MMWAVE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_batoilo_mmwave = 9;
+ // Count of BATOILO IRQ + RFFE IRQ with duration greater than threshold.
+ optional int32 greater_than_thresh_batoilo_rffe = 10;
+
+ // IRQ duration of main regulator indices 0-11 greater than threshold.
+ optional int32 greater_than_thresh_main_0 = 11;
+ optional int32 greater_than_thresh_main_1 = 12;
+ optional int32 greater_than_thresh_main_2 = 13;
+ optional int32 greater_than_thresh_main_3 = 14;
+ optional int32 greater_than_thresh_main_4 = 15;
+ optional int32 greater_than_thresh_main_5 = 16;
+ optional int32 greater_than_thresh_main_6 = 17;
+ optional int32 greater_than_thresh_main_7 = 18;
+ optional int32 greater_than_thresh_main_8 = 19;
+ optional int32 greater_than_thresh_main_9 = 20;
+ optional int32 greater_than_thresh_main_10 = 21;
+ optional int32 greater_than_thresh_main_11 = 22;
+
+ // IRQ duration of sub regulator indices 0-11 greater than threshold.
+ optional int32 greater_than_thresh_sub_0 = 23;
+ optional int32 greater_than_thresh_sub_1 = 24;
+ optional int32 greater_than_thresh_sub_2 = 25;
+ optional int32 greater_than_thresh_sub_3 = 26;
+ optional int32 greater_than_thresh_sub_4 = 27;
+ optional int32 greater_than_thresh_sub_5 = 28;
+ optional int32 greater_than_thresh_sub_6 = 29;
+ optional int32 greater_than_thresh_sub_7 = 30;
+ optional int32 greater_than_thresh_sub_8 = 31;
+ optional int32 greater_than_thresh_sub_9 = 32;
+ optional int32 greater_than_thresh_sub_10 = 33;
+ optional int32 greater_than_thresh_sub_11 = 34;
+}
+
+/*
+ * Logs the third party audio effects stats.
+ * Third party audio effects stats includes duration in milliseconds for each
+ * instance of the effects (speaker, USB, etc.).
+ */
+message VendorAudioThirdPartyEffectStatsReported {
+    /* Vendor reverse domain name (expecting "com.google.pixel"). */
+    optional string reverse_domain_name = 1;
+
+    enum InstanceId {
+        OTHER = 0;
+        SPEAKER = 1;
+        USB = 2;
+        BT_A2DP = 3;
+        BT_LE = 4;
+    }
+    /* Instance of the effect. */
+    optional InstanceId instance = 2;
+    /* Active duration in milliseconds per day for volume range 0. */
+    optional int32 volume_range_0_active_ms_per_day = 3;
+    /* Active duration in milliseconds per day for volume range 1. */
+    optional int32 volume_range_1_active_ms_per_day = 4;
+    /* Active duration in milliseconds per day for volume range 2. */
+    optional int32 volume_range_2_active_ms_per_day = 5;
+    /* Active duration in milliseconds per day for volume range 3. */
+    optional int32 volume_range_3_active_ms_per_day = 6;
+    /* Active duration in milliseconds per day for volume range 4. */
+    optional int32 volume_range_4_active_ms_per_day = 7;
+    /* Active duration in milliseconds per day for volume range 5. */
+    optional int32 volume_range_5_active_ms_per_day = 8;
+    /* Active duration in milliseconds per day for volume range 6. */
+    optional int32 volume_range_6_active_ms_per_day = 9;
+    /* Active duration in milliseconds per day for volume range 7. */
+    optional int32 volume_range_7_active_ms_per_day = 10;
+    /* Active duration in milliseconds per day for volume range 8. */
+    optional int32 volume_range_8_active_ms_per_day = 11;
+    /* Active duration in milliseconds per day for volume range 9. */
+    optional int32 volume_range_9_active_ms_per_day = 12;
+}
+
+/*
+ * Logs the Audio Adapted information stats.
+ * Two stats are recorded, count and duration (in ms) per features.
+ */
+message VendorAudioAdaptedInfoStatsReported {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  enum AdaptedInfoFeature {
+    UNKNOWN = 0;
+    BATTERY_ADAPTED_AUDIO_CONTROL = 1;
+    MEDIA_PLAYBACK_THERMAL_THROTTLE = 2;
+    TELEPHONY_THERMAL_THROTTLE = 3;
+    ACOUSTIC_SHOCK = 4;
+    SPATIAL_AUDIO = 5;
+  };
+  /* Feature to record the stats */
+  optional AdaptedInfoFeature feature_id = 2;
+  /* Number of time the feature is active */
+  optional int32 active_counts_per_day = 3;
+  /* Duration the feature is active in milliseconds */
+  optional int32 active_duration_ms_per_day = 4;
+}
+
+/*
+ * Logs the audio PCM usage stats.
+ * PCM usage includes average latency and total active count per day.
+ */
+message VendorAudioPcmStatsReported {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  enum HalPcmType {
+    UNKNOWN = 0;
+    DEEPBUFFER = 1;
+    LOWLATENCY = 2;
+    MMAP_PLAY = 3;
+    RAW_PLAY = 4;
+    IMMERSIVE = 5;
+    HAPTIC = 6;
+    COMPRESS = 7;
+    MMAP_REC = 8;
+    RAW_REC = 9;
+    AUDIO_REC = 10;
+    HIFI_RX = 11;
+    HIFI_TX = 12;
+    IMMUTABLE_RX = 13;
+    CUSTOM_PCM_1 = 14;
+    CUSTOM_PCM_2 = 15;
+    CUSTOM_PCM_3 = 16;
+    CUSTOM_PCM_4 = 17;
+    CUSTOM_PCM_5 = 18;
+  };
+  /* Type of PCM */
+  optional HalPcmType type = 2;
+  /* Average latency in millisecond of the pcm type per day. */
+  optional int32 pcm_open_latency_avg_ms_per_day = 3;
+  /* Total active count of the pcm type per day. */
+  optional int32 pcm_active_counts_per_day = 4;
+}
+
+/**
+  * Keep track of information about a USB data session, which is defined
+  * as the period when a port enters a data role (either host or device) to
+  * when the port exits the data role.
+  */
+message VendorUsbDataSessionEvent {
+  /* Vendor reverse domain name (expecting "com.google.pixel") */
+  optional string reverse_domain_name = 1;
+
+  enum UsbDataRole {
+    USB_ROLE_UNKNOWN = 0;
+    USB_ROLE_DEVICE = 1;
+    USB_ROLE_HOST = 2;
+  }
+  /**
+    * USB device states are key milestones in a USB connection.
+    * For device data role, a typical transition would be like:
+    * not attached -> default -> addressed -> configured.
+    * For host data role, a typical transition would be like
+    * not attached -> powered -> default -> addressed -> configured.
+    */
+  enum UsbDeviceState {
+    USB_STATE_UNKNOWN = 0;
+    USB_STATE_NOT_ATTACHED = 1;
+    USB_STATE_ATTACHED = 2;
+    USB_STATE_POWERED = 3;
+    USB_STATE_DEFAULT = 4;
+    USB_STATE_ADDRESSED = 5;
+    USB_STATE_CONFIGURED = 6;
+    USB_STATE_SUSPENDED = 7;
+  }
+  /* USB data role of the data session. */
+  optional UsbDataRole usb_role = 2;
+  /* Usb device state transitions during the data session. */
+  repeated UsbDeviceState usb_states = 3;
+  /**
+    * Elapsed time from the start of the data session when entering the
+    * state, mapped 1-1 to the usb_states field.
+    */
+  repeated int64 elapsed_time_ms = 4;
+  // Duration of the data session.
+  optional int64 duration_ms = 5;
+}
+
+/*
+ * Logs the thermal sensor abnormal event when detected.
+ * Logged from:
+ *    virtual sensors: hardware/google/pixel/thermal/utils/thermal_stats_helper.cpp
+ *    thermistors & SoC: hardware/google/pixel/pixelstats/UeventListener.cpp
+ */
+message ThermalSensorAbnormalityDetected {
+  enum AbnormalityType {
+    UNKNOWN = 0;
+    SENSOR_STUCK = 1;
+    EXTREME_HIGH_TEMP = 2;
+    EXTREME_LOW_TEMP = 3;
+    HIGH_RISING_SPEED = 4;
+    TEMP_READ_FAIL = 5;
+  }
+
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+  /* Type of Thermal Sensor Abnormality */
+  optional AbnormalityType type = 2;
+  /* Name of the problematic sensor */
+  optional string sensor = 3;
+  /* Abnormal temp reading of sensor */
+  optional int32 temp = 4;
+}
+
+/**
+ * Logs the reported vendor audio offloaded effects usage stats.
+ */
+message VendorAudioOffloadedEffectStatsReported {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  /* UUID most significant bit */
+  optional int64 effect_uuid_msb = 2;
+
+  /* UUID least significant bit */
+  optional int64 effect_uuid_lsb = 3;
+
+  /* Active seconds per day. */
+  optional int32 effect_active_seconds_per_day = 4;
+}
+
+/*
+ * Logs the Bluetooth Audio stats.
+ * Two stats are recorded, count and duration (in ms) per features.
+ */
+message VendorAudioBtMediaStatsReported {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  enum Codec {
+    UNKNOWN = 0;
+    SBC = 1;
+    AAC = 2;
+    OPUS = 3;
+    LC3 = 4;
+  }
+  /* Codec to record. */
+  optional Codec bt_codec_type = 2;
+  /* Total active seconds to record. */
+  optional int32 active_seconds_per_day = 3;
+}
+
+/*
+ * Logs the usage of APIs in Pixel Impulse.
+ */
+message PixelImpulseUsageReported {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  /* UID of the caller package */
+  optional int32 caller_uid = 2 [(android.os.statsd.is_uid) = true];
+
+  /* UID of the callee package */
+  optional int32 callee_uid = 3 [(android.os.statsd.is_uid) = true];
+
+  enum ApiName {
+      API_UNKNOWN = 0;
+      /* Server side */
+      API_SERVICE_BIND = 1;
+      API_SERVICE_UNBIND = 2;
+      API_REGISTER = 3;
+      API_UNREGISTER = 4;
+      API_CLEAR_APP_DATA = 100;
+      /* Client side */
+      API_SERVER_START = 1001;
+      API_PIXEL_STATE_CHANGE = 1002;
+  }
+  /* Invoked API name */
+  optional ApiName api_name = 4;
+
+  enum Tag {
+      TAG_UNKNOWN = 0;
+  }
+  /* Tag for debugging purpose */
+  optional Tag tag = 5;
+
+  /* Timestamp of the usage start in epoch time */
+  optional int64 usage_start_epoch_millis = 6;
+
+  /* Timestamp of the usage start since device boot */
+  optional int64 usage_start_uptime_millis = 7;
+
+  /* Duration of the usage */
+  optional int64 usage_duration_millis = 8;
+
+  /* Whether the invocation was successful */
+  optional bool success = 9;
+
+  enum FailReason {
+      FAIL_REASON_UNKNOWN = 0;
+      FAIL_REASON_INVALID_ARGUMENT = 1;
+      FAIL_REASON_UNAUTHORIZED = 2;
+      FAIL_REASON_TIMEOUT = 3;
+      FAIL_REASON_NOT_FOUND = 4;
+      FAIL_REASON_INVALID_STATE = 5;
+  }
+  /* Fail reason (if success == false) */
+  optional FailReason fail_reason = 10;
+
+  /* Size of the arguments */
+  optional int32 request_size = 11;
+}
+
+/**
+ * Log DisplayPort link error statistics.
+ */
+message DisplayPortErrorStats {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  /* The error count due to link training failed. */
+  optional int32 link_negotiation_failures = 2;
+  /* The error count due to read EDID failed. */
+  optional int32 edid_read_failures = 3;
+  /* The error count due to read dpcd failed. */
+  optional int32 dpcd_read_failures = 4;
+  /* The error count due to EDID is invalid. */
+  optional int32 edid_invalid_failures = 5;
+  /* The error count due to sink count is invalid. */
+  optional int32 sink_count_invalid_failures = 6;
+  /* The error count due to link unstable. */
+  optional int32 link_unstable_failures = 7;
+}
+
+/**
+ * Log HDCP authentication type statistics.
+ */
+message HDCPAuthTypeStats {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  /* The count due to hdcp2 success */
+  optional int32 hdcp2_success_count = 2;
+  /* The count due to hdcp2 fallback */
+  optional int32 hdcp2_fallback_count = 3;
+  /* The count due to hdcp2 fail */
+  optional int32 hdcp2_fail_count = 4;
+  /* The count due to hdcp1 success */
+  optional int32 hdcp1_success_count = 5;
+  /* The count due to hdcp1 fail */
+  optional int32 hdcp1_fail_count = 6;
+  /* The count due to hdcp0 */
+  optional int32 hdcp0_count = 7;
+}
+
+/**
+ * A message containing how DisplayPort is being used in a day.
+ */
+message DisplayPortUsage {
+  /* Vendor reverse domain name */
+  optional string reverse_domain_name = 1;
+
+  /* resolution width */
+  optional int32 width = 2;
+  /* resolution height */
+  optional int32 height = 3;
+  /* refresh rate */
+  optional float refresh_rate = 4;
+  /* vendor ID. */
+  optional int32 vendor_id = 5;
+  /* product ID. */
+  optional int32 product_id = 6;
+  /* indicated start/stop event of DP usage */
+  optional bool connected = 7;
+}

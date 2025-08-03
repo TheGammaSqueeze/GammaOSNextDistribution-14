@@ -1,0 +1,2769 @@
+// This is auto-generated. DO NOT EDIT.
+
+// Soong config variable stanza added by vendor/google/build/mainline_modules_sdks.py.
+soong_config_module_type_import {
+    from: "prebuilts/module_sdk/art/SoongConfig.bp",
+    module_types: [
+        "art_prebuilt_cc_prebuilt_library_headers",
+        "art_prebuilt_cc_prebuilt_library_shared",
+        "art_prebuilt_cc_prebuilt_library_static",
+        "art_prebuilt_java_import",
+        "art_prebuilt_java_sdk_library_import",
+        "art_prebuilt_java_system_modules_import",
+        "art_prebuilt_prebuilt_bootclasspath_fragment",
+        "art_prebuilt_prebuilt_platform_compat_config",
+        "art_prebuilt_prebuilt_systemserverclasspath_fragment",
+    ],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "art-module-sdk_art-bootclasspath-fragment@current",
+    sdk_member_name: "art-bootclasspath-fragment",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/boot",
+        "//art/build/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    image_name: "art",
+    contents: [
+        "art-module-sdk_core-oj@current",
+        "art-module-sdk_core-libart@current",
+        "art-module-sdk_okhttp@current",
+        "art-module-sdk_bouncycastle@current",
+        "art-module-sdk_apache-xml@current",
+    ],
+    api: {
+        stub_libs: ["art-module-sdk_art.module.public.api@current"],
+    },
+    core_platform_api: {
+        stub_libs: ["art-module-sdk_art.module.public.api.stubs.module_lib@current"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        blocked: ["hiddenapi/hiddenapi-blocked.txt"],
+        unsupported_packages: ["hiddenapi/hiddenapi-unsupported-packages.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+art_prebuilt_prebuilt_bootclasspath_fragment {
+    name: "art-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/boot",
+        "//art/build/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    image_name: "art",
+    contents: [
+        "core-oj",
+        "core-libart",
+        "okhttp",
+        "bouncycastle",
+        "apache-xml",
+    ],
+    api: {
+        stub_libs: ["art.module.public.api"],
+    },
+    core_platform_api: {
+        stub_libs: ["art.module.public.api.stubs.module_lib"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        blocked: ["hiddenapi/hiddenapi-blocked.txt"],
+        unsupported_packages: ["hiddenapi/hiddenapi-unsupported-packages.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+prebuilt_platform_compat_config {
+    name: "art-module-sdk_libcore-platform-compat-config@current",
+    sdk_member_name: "libcore-platform-compat-config",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    metadata: "compat_configs/libcore-platform-compat-config/libcore-platform-compat-config_meta.xml",
+}
+
+art_prebuilt_prebuilt_platform_compat_config {
+    name: "libcore-platform-compat-config",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    metadata: "compat_configs/libcore-platform-compat-config/libcore-platform-compat-config_meta.xml",
+}
+
+java_import {
+    name: "art-module-sdk_core-oj@current",
+    sdk_member_name: "core-oj",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/core-oj.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "core-oj",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/core-oj.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_core-libart@current",
+    sdk_member_name: "core-libart",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/core-libart.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "core-libart",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/core-libart.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_okhttp@current",
+    sdk_member_name: "okhttp",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/grpc-grpc-java/okhttp",
+        "//external/okhttp",
+        "//external/robolectric-shadows",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_okhttp_license@current"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/okhttp.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "okhttp",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/grpc-grpc-java/okhttp",
+        "//external/okhttp",
+        "//external/robolectric-shadows",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_okhttp_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/okhttp.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_bouncycastle@current",
+    sdk_member_name: "bouncycastle",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/bouncycastle",
+        "//external/wycheproof",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_bouncycastle_license@current"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/bouncycastle.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "bouncycastle",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/bouncycastle",
+        "//external/wycheproof",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_bouncycastle_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/bouncycastle.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_apache-xml@current",
+    sdk_member_name: "apache-xml",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/apache-xml",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_apache-xml_license@current"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/apache-xml.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "apache-xml",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/apache-xml",
+        "//libcore",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_external_apache-xml_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/apache-xml.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_core-lambda-stubs@current",
+    sdk_member_name: "core-lambda-stubs",
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/core-lambda-stubs.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "core-lambda-stubs",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/core-lambda-stubs.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_core-lambda-stubs-for-system-modules@current",
+    sdk_member_name: "core-lambda-stubs-for-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/core-lambda-stubs-for-system-modules.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "core-lambda-stubs-for-system-modules",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/core-lambda-stubs-for-system-modules.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_core-generated-annotation-stubs@current",
+    sdk_member_name: "core-generated-annotation-stubs",
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/core-generated-annotation-stubs.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "core-generated-annotation-stubs",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/core-generated-annotation-stubs.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_art.module.api.annotations.for.system.modules@current",
+    sdk_member_name: "art.module.api.annotations.for.system.modules",
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/art.module.api.annotations.for.system.modules.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "art-module-sdk_art.module.api.annotations.for.system.modules",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/art.module.api.annotations.for.system.modules.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_stub-annotations@current",
+    sdk_member_name: "stub-annotations",
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_Android-Apache-2.0@current"],
+    jars: ["java/stub-annotations.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "art-module-sdk_stub-annotations",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_Android-Apache-2.0"],
+    jars: ["java/stub-annotations.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_art.module.intra.core.api.stubs@current",
+    sdk_member_name: "art.module.intra.core.api.stubs",
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/art.module.intra.core.api.stubs.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "art-module-sdk_art.module.intra.core.api.stubs",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/art.module.intra.core.api.stubs.jar"],
+}
+
+java_import {
+    name: "art-module-sdk_art-module-intra-core-api-stubs-system-modules-lib@current",
+    sdk_member_name: "art-module-intra-core-api-stubs-system-modules-lib",
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    jars: ["java/art-module-intra-core-api-stubs-system-modules-lib.jar"],
+}
+
+art_prebuilt_java_import {
+    name: "art-module-sdk_art-module-intra-core-api-stubs-system-modules-lib",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:private"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/art-module-intra-core-api-stubs-system-modules-lib.jar"],
+}
+
+java_sdk_library_import {
+    name: "art-module-sdk_art.module.public.api@current",
+    sdk_member_name: "art.module.public.api",
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    shared_library: false,
+    compile_dex: true,
+    doctag_files: ["doctags/known_oj_tags.txt"],
+    public: {
+        jars: ["sdk_library/public/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/art.module.public.api.srcjar"],
+        current_api: "sdk_library/public/art.module.public.api.txt",
+        removed_api: "sdk_library/public/art.module.public.api-removed.txt",
+        annotations: "sdk_library/public/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    system: {
+        jars: ["sdk_library/system/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/system/art.module.public.api.srcjar"],
+        current_api: "sdk_library/system/art.module.public.api.txt",
+        removed_api: "sdk_library/system/art.module.public.api-removed.txt",
+        annotations: "sdk_library/system/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/art.module.public.api.srcjar"],
+        current_api: "sdk_library/module-lib/art.module.public.api.txt",
+        removed_api: "sdk_library/module-lib/art.module.public.api-removed.txt",
+        annotations: "sdk_library/module-lib/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+}
+
+art_prebuilt_java_sdk_library_import {
+    name: "art.module.public.api",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libcore_license"],
+    shared_library: false,
+    compile_dex: true,
+    doctag_files: ["doctags/known_oj_tags.txt"],
+    public: {
+        jars: ["sdk_library/public/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/art.module.public.api.srcjar"],
+        current_api: "sdk_library/public/art.module.public.api.txt",
+        removed_api: "sdk_library/public/art.module.public.api-removed.txt",
+        annotations: "sdk_library/public/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    system: {
+        jars: ["sdk_library/system/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/system/art.module.public.api.srcjar"],
+        current_api: "sdk_library/system/art.module.public.api.txt",
+        removed_api: "sdk_library/system/art.module.public.api-removed.txt",
+        annotations: "sdk_library/system/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/art.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/art.module.public.api.srcjar"],
+        current_api: "sdk_library/module-lib/art.module.public.api.txt",
+        removed_api: "sdk_library/module-lib/art.module.public.api-removed.txt",
+        annotations: "sdk_library/module-lib/art.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "art-module-sdk_service-art@current",
+    sdk_member_name: "service-art",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    shared_library: false,
+    compile_dex: true,
+    permitted_packages: ["com.android.server.art"],
+    public: {
+        jars: ["sdk_library/public/service-art-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-art.srcjar"],
+        current_api: "sdk_library/public/service-art.txt",
+        removed_api: "sdk_library/public/service-art-removed.txt",
+        annotations: "sdk_library/public/service-art_annotations.zip",
+        sdk_version: "core_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-art-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-art.srcjar"],
+        current_api: "sdk_library/system-server/service-art.txt",
+        removed_api: "sdk_library/system-server/service-art-removed.txt",
+        annotations: "sdk_library/system-server/service-art_annotations.zip",
+        sdk_version: "core_current",
+    },
+}
+
+art_prebuilt_java_sdk_library_import {
+    name: "service-art",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    shared_library: false,
+    compile_dex: true,
+    permitted_packages: ["com.android.server.art"],
+    public: {
+        jars: ["sdk_library/public/service-art-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-art.srcjar"],
+        current_api: "sdk_library/public/service-art.txt",
+        removed_api: "sdk_library/public/service-art-removed.txt",
+        annotations: "sdk_library/public/service-art_annotations.zip",
+        sdk_version: "core_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-art-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-art.srcjar"],
+        current_api: "sdk_library/system-server/service-art.txt",
+        removed_api: "sdk_library/system-server/service-art-removed.txt",
+        annotations: "sdk_library/system-server/service-art_annotations.zip",
+        sdk_version: "core_current",
+    },
+}
+
+java_system_modules_import {
+    name: "art-module-sdk_art-module-public-api-stubs-system-modules@current",
+    sdk_member_name: "art-module-public-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//external/wycheproof",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    libs: [
+        "art-module-sdk_art.module.public.api.stubs@current",
+        "art-module-sdk_core-lambda-stubs-for-system-modules@current",
+        "art-module-sdk_core-generated-annotation-stubs@current",
+        "art-module-sdk_art.module.api.annotations.for.system.modules@current",
+        "art-module-sdk_stub-annotations@current",
+    ],
+}
+
+art_prebuilt_java_system_modules_import {
+    name: "art-module-public-api-stubs-system-modules",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//external/wycheproof",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    libs: [
+        "art.module.public.api.stubs",
+        "core-lambda-stubs-for-system-modules",
+        "core-generated-annotation-stubs",
+        "art-module-sdk_art.module.api.annotations.for.system.modules",
+        "art-module-sdk_stub-annotations",
+    ],
+}
+
+java_system_modules_import {
+    name: "art-module-sdk_art-module-lib-api-stubs-system-modules@current",
+    sdk_member_name: "art-module-lib-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    libs: ["art-module-sdk_art.module.public.api.stubs.module_lib@current"],
+}
+
+art_prebuilt_java_system_modules_import {
+    name: "art-module-lib-api-stubs-system-modules",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    libs: ["art.module.public.api.stubs.module_lib"],
+}
+
+java_system_modules_import {
+    name: "art-module-sdk_art-module-intra-core-api-stubs-system-modules@current",
+    sdk_member_name: "art-module-intra-core-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/bouncycastle",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//libcore/mmodules/intracoreapi",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    libs: [
+        "art-module-sdk_art.module.intra.core.api.stubs@current",
+        "art-module-sdk_art-module-intra-core-api-stubs-system-modules-lib@current",
+    ],
+}
+
+art_prebuilt_java_system_modules_import {
+    name: "art-module-intra-core-api-stubs-system-modules",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//external/bouncycastle",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//libcore/mmodules/intracoreapi",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    libs: [
+        "art-module-sdk_art.module.intra.core.api.stubs",
+        "art-module-sdk_art-module-intra-core-api-stubs-system-modules-lib",
+    ],
+}
+
+license {
+    name: "art-module-sdk_art_license@current",
+    sdk_member_name: "art_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: ["licenses/art/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_art_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: ["licenses/art/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_libnativehelper_license@current",
+    sdk_member_name: "libnativehelper_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/libnativehelper/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_libnativehelper_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/libnativehelper/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_art_openjdkjvmti_license@current",
+    sdk_member_name: "art_openjdkjvmti_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-with-classpath-exception",
+    ],
+    license_text: ["licenses/art/openjdkjvmti/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_art_openjdkjvmti_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-with-classpath-exception",
+    ],
+    license_text: ["licenses/art/openjdkjvmti/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_libcore_license@current",
+    sdk_member_name: "libcore_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/libcore/LICENSE",
+        "licenses/libcore/NOTICE",
+    ],
+}
+
+license {
+    name: "art-module-sdk_libcore_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/libcore/LICENSE",
+        "licenses/libcore/NOTICE",
+    ],
+}
+
+license {
+    name: "art-module-sdk_external_okhttp_license@current",
+    sdk_member_name: "external_okhttp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/okhttp/LICENSE.txt"],
+}
+
+license {
+    name: "art-module-sdk_external_okhttp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/okhttp/LICENSE.txt"],
+}
+
+license {
+    name: "art-module-sdk_external_bouncycastle_license@current",
+    sdk_member_name: "external_bouncycastle_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: ["licenses/external/bouncycastle/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_external_bouncycastle_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: ["licenses/external/bouncycastle/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_external_apache-xml_license@current",
+    sdk_member_name: "external_apache-xml_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-W3C",
+    ],
+    license_text: ["licenses/external/apache-xml/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_external_apache-xml_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-W3C",
+    ],
+    license_text: ["licenses/external/apache-xml/NOTICE"],
+}
+
+license {
+    name: "art-module-sdk_Android-Apache-2.0@current",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "art-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_jni_headers@current",
+    sdk_member_name: "jni_headers",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license@current"],
+    host_supported: true,
+    native_bridge_supported: true,
+    ramdisk_available: true,
+    recovery_available: true,
+    vendor_available: true,
+    sdk_version: "minimum",
+    stl: "none",
+    compile_multilib: "both",
+    system_shared_libs: [],
+    export_include_dirs: ["common_os/include/libnativehelper/include_jni"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "jni_headers",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license"],
+    host_supported: true,
+    native_bridge_supported: true,
+    ramdisk_available: true,
+    recovery_available: true,
+    vendor_available: true,
+    sdk_version: "minimum",
+    stl: "none",
+    compile_multilib: "both",
+    system_shared_libs: [],
+    export_include_dirs: ["common_os/include/libnativehelper/include_jni"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_libartpalette-headers@current",
+    sdk_member_name: "libartpalette-headers",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+        "//system/libartpalette",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: ["common_os/include/art/libartpalette/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "libartpalette-headers",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+        "//system/libartpalette",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: ["common_os/include/art/libartpalette/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_libnativehelper_header_only@current",
+    sdk_member_name: "libnativehelper_header_only",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license@current"],
+    host_supported: true,
+    sdk_version: "minimum",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "libnativehelper_header_only",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license"],
+    host_supported: true,
+    sdk_version: "minimum",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_libopenjdkjvmti_headers@current",
+    sdk_member_name: "libopenjdkjvmti_headers",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_openjdkjvmti_license@current"],
+    host_supported: true,
+    sdk_version: "current",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/openjdkjvmti/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "libopenjdkjvmti_headers",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_openjdkjvmti_license"],
+    host_supported: true,
+    sdk_version: "current",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/openjdkjvmti/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_odrefresh_headers@current",
+    sdk_member_name: "odrefresh_headers",
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    sdk_version: "minimum",
+    stl: "none",
+    compile_multilib: "both",
+    system_shared_libs: [],
+    export_include_dirs: ["common_os/include/art/odrefresh/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "odrefresh_headers",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    sdk_version: "minimum",
+    stl: "none",
+    compile_multilib: "both",
+    system_shared_libs: [],
+    export_include_dirs: ["common_os/include/art/odrefresh/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "art-module-sdk_libnativeloader-headers@current",
+    sdk_member_name: "libnativeloader-headers",
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/av/media/libstagefright",
+        "//frameworks/native/libs/graphicsenv",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.media",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    compile_multilib: "both",
+    export_include_dirs: [
+        "include/art/libnativeloader/include",
+        "include/libnativehelper/include_jni",
+    ],
+}
+
+art_prebuilt_cc_prebuilt_library_headers {
+    name: "libnativeloader-headers",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/av/media/libstagefright",
+        "//frameworks/native/libs/graphicsenv",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.media",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    compile_multilib: "both",
+    export_include_dirs: [
+        "include/art/libnativeloader/include",
+        "include/libnativehelper/include_jni",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libandroidio@current",
+    sdk_member_name: "libandroidio",
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libandroidio.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libandroidio.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libandroidio.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libandroidio.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libandroidio.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libandroidio.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libandroidio",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libandroidio.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libandroidio.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libandroidio.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libandroidio.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libandroidio.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libandroidio.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libdexfile@current",
+    sdk_member_name: "libdexfile",
+    visibility: [
+        "//art:__subpackages__",
+        "//external/perfetto",
+        "//prebuilts:__subpackages__",
+        "//system/core/debuggerd",
+        "//system/extras/simpleperf",
+        "//system/unwinding/libunwindstack",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libdexfile",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/art/libdexfile/external/include",
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+        "common_os/include/art/libartbase",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libdexfile",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//external/perfetto",
+        "//prebuilts:__subpackages__",
+        "//system/core/debuggerd",
+        "//system/extras/simpleperf",
+        "//system/unwinding/libunwindstack",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libdexfile",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/art/libdexfile/external/include",
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+        "common_os/include/art/libartbase",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativebridge@current",
+    sdk_member_name: "libnativebridge",
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//frameworks/base/native/webview/loader/libwebviewchromium_loader",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libnativebridge/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativebridge.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativebridge.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativebridge.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativebridge.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativebridge.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativebridge.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativebridge",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//frameworks/base/native/webview/loader/libwebviewchromium_loader",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libnativebridge/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativebridge.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativebridge.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativebridge.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativebridge.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativebridge.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativebridge.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativehelper@current",
+    sdk_member_name: "libnativehelper",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license@current"],
+    host_supported: true,
+    installable: false,
+    stl: "none",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/libnativehelper/include_platform",
+        "common_os/include/libnativehelper/include_platform_header_only",
+    ],
+    stubs: {
+        versions: [
+            "31",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativehelper.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativehelper.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativehelper.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativehelper.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativehelper.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativehelper.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativehelper",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license"],
+    host_supported: true,
+    stl: "none",
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/libnativehelper/include_platform",
+        "common_os/include/libnativehelper/include_platform_header_only",
+    ],
+    stubs: {
+        versions: [
+            "31",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativehelper.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativehelper.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativehelper.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativehelper.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativehelper.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativehelper.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativeloader@current",
+    sdk_member_name: "libnativeloader",
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//frameworks/base/native/webview/loader",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libnativeloader/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativeloader.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativeloader.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativeloader.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativeloader.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativeloader.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativeloader.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativeloader",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//frameworks/base/native/webview/loader",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/art/libnativeloader/include",
+        "common_os/include/libnativehelper/include_jni",
+    ],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativeloader.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativeloader.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativeloader.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativeloader.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativeloader.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativeloader.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libsigchain@current",
+    sdk_member_name: "libsigchain",
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    export_include_dirs: ["common_os/include/art/sigchainlib"],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libsigchain.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libsigchain.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libsigchain.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libsigchain.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libsigchain.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libsigchain.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libsigchain",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/cmds/app_process",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: ["common_os/include/art/sigchainlib"],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libsigchain.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libsigchain.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libsigchain.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libsigchain.so"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libsigchain.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libsigchain.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativebridge_lazy@current",
+    sdk_member_name: "libnativebridge_lazy",
+    visibility: [
+        "//art/libnativebridge/tests",
+        "//art:__subpackages__",
+        "//frameworks/base/core/jni",
+        "//frameworks/native/opengl/libs",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    installable: false,
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/libnativehelper/include_jni",
+        "include/art/libnativebridge/include",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativebridge_lazy.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativebridge_lazy.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativebridge_lazy.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativebridge_lazy.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativebridge_lazy",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/libnativebridge/tests",
+        "//art:__subpackages__",
+        "//frameworks/base/core/jni",
+        "//frameworks/native/opengl/libs",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/libnativehelper/include_jni",
+        "include/art/libnativebridge/include",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativebridge_lazy.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativebridge_lazy.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativebridge_lazy.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativebridge_lazy.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativehelper_compat_libc++@current",
+    sdk_member_name: "libnativehelper_compat_libc++",
+    visibility: [
+        "//art:__subpackages__",
+        "//cts:__subpackages__",
+        "//external/perfetto:__subpackages__",
+        "//frameworks/base/packages/Connectivity/tests/integration",
+        "//frameworks/base/packages/ConnectivityT:__subpackages__",
+        "//frameworks/base/packages/Tethering:__subpackages__",
+        "//frameworks/libs/net/common/native/bpfmapjni",
+        "//frameworks/libs/net/common/native/bpfutiljni",
+        "//libcore:__subpackages__",
+        "//libnativehelper:__subpackages__",
+        "//packages/modules/Connectivity:__subpackages__",
+        "//packages/modules/ExtServices:__subpackages__",
+        "//packages/modules/NetworkStack:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.extservices",
+        "com.android.tethering",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license@current"],
+    installable: false,
+    stl: "none",
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/libnativehelper/header_only_include",
+        "include/libnativehelper/include",
+        "include/libnativehelper/include_jni",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativehelper_compat_libc++.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativehelper_compat_libc++.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativehelper_compat_libc++.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativehelper_compat_libc++.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativehelper_compat_libc++",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//cts:__subpackages__",
+        "//external/perfetto:__subpackages__",
+        "//frameworks/base/packages/Connectivity/tests/integration",
+        "//frameworks/base/packages/ConnectivityT:__subpackages__",
+        "//frameworks/base/packages/Tethering:__subpackages__",
+        "//frameworks/libs/net/common/native/bpfmapjni",
+        "//frameworks/libs/net/common/native/bpfutiljni",
+        "//libcore:__subpackages__",
+        "//libnativehelper:__subpackages__",
+        "//packages/modules/Connectivity:__subpackages__",
+        "//packages/modules/ExtServices:__subpackages__",
+        "//packages/modules/NetworkStack:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.extservices",
+        "com.android.tethering",
+    ],
+    licenses: ["art-module-sdk_libnativehelper_license"],
+    stl: "none",
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/libnativehelper/header_only_include",
+        "include/libnativehelper/include",
+        "include/libnativehelper/include_jni",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativehelper_compat_libc++.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativehelper_compat_libc++.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativehelper_compat_libc++.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativehelper_compat_libc++.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-sdk_libnativeloader_lazy@current",
+    sdk_member_name: "libnativeloader_lazy",
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/core/jni",
+        "//frameworks/native/opengl/libs",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    installable: false,
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/art/libnativeloader/include",
+        "include/libnativehelper/include_jni",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativeloader_lazy.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativeloader_lazy.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativeloader_lazy.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativeloader_lazy.so"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_shared {
+    name: "libnativeloader_lazy",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/core/jni",
+        "//frameworks/native/opengl/libs",
+        "//frameworks/native/vulkan/libvulkan",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/art/libnativeloader/include",
+        "include/libnativehelper/include_jni",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libnativeloader_lazy.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libnativeloader_lazy.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libnativeloader_lazy.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libnativeloader_lazy.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "art-module-sdk_libdexfile_support@current",
+    sdk_member_name: "libdexfile_support",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.media",
+        "com.android.media.swcodec",
+        "com.android.runtime",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    shared_libs: [
+        "liblog",
+        "libbase",
+    ],
+    export_include_dirs: [
+        "common_os/include/art/libdexfile/external/include",
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile_support.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile_support.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile_support.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile_support.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile_support.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile_support.a"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_static {
+    name: "libdexfile_support",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.media",
+        "com.android.media.swcodec",
+        "com.android.runtime",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    shared_libs: [
+        "liblog",
+        "libbase",
+    ],
+    export_include_dirs: [
+        "common_os/include/art/libdexfile/external/include",
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile_support.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile_support.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile_support.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile_support.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile_support.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile_support.a"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "art-module-sdk_libdexfile_static@current",
+    sdk_member_name: "libdexfile_static",
+    visibility: [
+        "//art:__subpackages__",
+        "//cts/tests/tests/simpleperf",
+        "//prebuilts:__subpackages__",
+        "//system/extras/simpleperf",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+        "common_os/include/art/libartpalette/include",
+        "common_os/include/system/logging/liblog/include",
+        "common_os/include/external/zlib",
+        "common_os/include/system/libziparchive/include",
+        "common_os/include/external/googletest/googletest/include",
+        "common_os/include/art/libartbase",
+        "common_os/include/art/libdexfile",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/art/libdexfile/external/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile_static.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile_static.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile_static.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile_static.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile_static.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile_static.a"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_static {
+    name: "libdexfile_static",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//cts/tests/tests/simpleperf",
+        "//prebuilts:__subpackages__",
+        "//system/extras/simpleperf",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_art_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    export_include_dirs: [
+        "common_os/include/system/libbase/include",
+        "common_os/include/external/fmtlib/include",
+        "common_os/include/art/libartpalette/include",
+        "common_os/include/system/logging/liblog/include",
+        "common_os/include/external/zlib",
+        "common_os/include/system/libziparchive/include",
+        "common_os/include/external/googletest/googletest/include",
+        "common_os/include/art/libartbase",
+        "common_os/include/art/libdexfile",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/art/libdexfile/external/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libdexfile_static.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libdexfile_static.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libdexfile_static.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libdexfile_static.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libdexfile_static.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libdexfile_static.a"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "art-module-sdk_libnativehelper_lazy@current",
+    sdk_member_name: "libnativehelper_lazy",
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libnativehelper_license@current"],
+    host_supported: true,
+    installable: false,
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/libnativehelper/include_platform",
+        "common_os/include/libnativehelper/include_platform_header_only",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativehelper_lazy.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativehelper_lazy.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativehelper_lazy.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativehelper_lazy.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativehelper_lazy.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativehelper_lazy.a"],
+        },
+    },
+}
+
+art_prebuilt_cc_prebuilt_library_static {
+    name: "libnativehelper_lazy",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-sdk_libnativehelper_license"],
+    host_supported: true,
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "common_os/include/libnativehelper/header_only_include",
+        "common_os/include/libnativehelper/include",
+        "common_os/include/libnativehelper/include_jni",
+        "common_os/include/libnativehelper/include_platform",
+        "common_os/include/libnativehelper/include_platform_header_only",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libnativehelper_lazy.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libnativehelper_lazy.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libnativehelper_lazy.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libnativehelper_lazy.a"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libnativehelper_lazy.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libnativehelper_lazy.a"],
+        },
+    },
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "art-module-sdk_art-systemserverclasspath-fragment@current",
+    sdk_member_name: "art-systemserverclasspath-fragment",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license@current"],
+    contents: ["art-module-sdk_service-art@current"],
+}
+
+art_prebuilt_prebuilt_systemserverclasspath_fragment {
+    name: "art-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    contents: ["service-art"],
+}
+
+sdk_snapshot {
+    name: "art-module-sdk@current",
+    visibility: ["//art:__subpackages__"],
+    host_supported: true,
+    native_static_libs: [
+        "art-module-sdk_libdexfile_support@current",
+        "art-module-sdk_libdexfile_static@current",
+        "art-module-sdk_libnativehelper_lazy@current",
+    ],
+    target: {
+        android: {
+            bootclasspath_fragments: ["art-module-sdk_art-bootclasspath-fragment@current"],
+            compat_configs: ["art-module-sdk_libcore-platform-compat-config@current"],
+            java_boot_libs: [
+                "art-module-sdk_core-oj@current",
+                "art-module-sdk_core-libart@current",
+                "art-module-sdk_okhttp@current",
+                "art-module-sdk_bouncycastle@current",
+                "art-module-sdk_apache-xml@current",
+            ],
+            java_header_libs: [
+                "art-module-sdk_core-lambda-stubs@current",
+                "art-module-sdk_core-lambda-stubs-for-system-modules@current",
+                "art-module-sdk_core-generated-annotation-stubs@current",
+            ],
+            java_sdk_libs: [
+                "art-module-sdk_art.module.public.api@current",
+                "art-module-sdk_service-art@current",
+            ],
+            java_system_modules: [
+                "art-module-sdk_art-module-public-api-stubs-system-modules@current",
+                "art-module-sdk_art-module-lib-api-stubs-system-modules@current",
+                "art-module-sdk_art-module-intra-core-api-stubs-system-modules@current",
+            ],
+            native_header_libs: [
+                "art-module-sdk_jni_headers@current",
+                "art-module-sdk_libartpalette-headers@current",
+                "art-module-sdk_libnativehelper_header_only@current",
+                "art-module-sdk_libopenjdkjvmti_headers@current",
+                "art-module-sdk_odrefresh_headers@current",
+                "art-module-sdk_libnativeloader-headers@current",
+            ],
+            native_shared_libs: [
+                "art-module-sdk_libandroidio@current",
+                "art-module-sdk_libdexfile@current",
+                "art-module-sdk_libnativebridge@current",
+                "art-module-sdk_libnativehelper@current",
+                "art-module-sdk_libnativeloader@current",
+                "art-module-sdk_libsigchain@current",
+                "art-module-sdk_libnativebridge_lazy@current",
+                "art-module-sdk_libnativehelper_compat_libc++@current",
+                "art-module-sdk_libnativeloader_lazy@current",
+            ],
+            systemserverclasspath_fragments: ["art-module-sdk_art-systemserverclasspath-fragment@current"],
+        },
+        linux_glibc: {
+            native_header_libs: [
+                "art-module-sdk_jni_headers@current",
+                "art-module-sdk_libartpalette-headers@current",
+                "art-module-sdk_libnativehelper_header_only@current",
+                "art-module-sdk_libopenjdkjvmti_headers@current",
+                "art-module-sdk_odrefresh_headers@current",
+            ],
+            native_shared_libs: [
+                "art-module-sdk_libandroidio@current",
+                "art-module-sdk_libdexfile@current",
+                "art-module-sdk_libnativebridge@current",
+                "art-module-sdk_libnativehelper@current",
+                "art-module-sdk_libnativeloader@current",
+                "art-module-sdk_libsigchain@current",
+            ],
+        },
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}

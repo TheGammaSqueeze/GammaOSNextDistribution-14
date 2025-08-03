@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="phoneAppLabel" product="tablet">Dâts mobii</string>
+    <string name="phoneAppLabel" product="default">Servizis telefonics</string>
+    <string name="emergencyDialerIconLabel">Clamade di emergjence</string>
+    <string name="phoneIconLabel">Telefon</string>
+    <string name="fdnListLabel">Liste FDN</string>
+    <string name="unknown">No cognossût</string>
+    <string name="private_num">Numar privât</string>
+    <string name="payphone">Cabine telefoniche</string>
+    <string name="onHold">In spiete</string>
+    <string name="carrier_mmi_msg_title">Messaç <xliff:g id="mmicarrier" example="T-Mobile">%s</xliff:g></string>
+    <string name="default_carrier_mmi_msg_title">Messaç dal operadôr</string>
+    <string name="mmiStarted">Codiç MMI inviât</string>
+    <string name="ussdRunning">Esecuzion codiç USSD\u2026</string>
+    <string name="mmiCancelled">Codiç MMI anulât</string>
+    <string name="cancel">Anule</string>
+    <string name="enter_input">Il messaç USSD al à di sei comprindût tra <xliff:g id="min_len">%1$d</xliff:g> e <xliff:g id="max_len">%2$d</xliff:g> caratars. Torne prove.</string>
+    <string name="manageConferenceLabel">Gjestìs conference telefoniche</string>
+    <string name="ok">Va ben</string>
+    <string name="audio_mode_speaker">Casse</string>
+    <string name="audio_mode_earpiece">Auricolâr portatil</string>
+    <string name="audio_mode_wired_headset">Scufis cun fîl</string>
+    <string name="audio_mode_bluetooth">Bluetooth</string>
+    <string name="wait_prompt_str">Inviâ chescj tons?\n</string>
+    <string name="pause_prompt_str">Daûr a inviâ i tons\n</string>
+    <string name="send_button">Invie</string>
+    <string name="pause_prompt_yes">Sì</string>
+    <string name="pause_prompt_no">No</string>
+    <string name="wild_prompt_str">Sostituìs caratar mate cun</string>
+    <string name="no_vm_number">Al mancje il numar de segretarie</string>
+    <string name="no_vm_number_msg">Su la schede SIM nol è stât memorizât nissun numar di segretarie.</string>
+    <string name="add_vm_number_str">Zonte numar</string>
+    <string name="voice_number_setting_primary_user_only">Lis impostazions de segretarie a puedin vignî modificadis dome dal utent primari.</string>
+    <string name="puk_unlocked">La tô schede SIM e je stade sblocade. Il telefon al è daûr a sblocâsi\u2026</string>
+    <string name="label_ndp">PIN di sbloc de rêt de SIM</string>
+    <string name="label_phoneid">SIM blocade pal operadôr</string>
+    <string name="sim_ndp_unlock_text">Sbloche</string>
+    <string name="sim_ndp_dismiss_text">Siere</string>
+    <string name="requesting_unlock">Domande di sbloc de rêt\u2026</string>
+    <string name="unlock_failed">Domande di sbloc de rêt lade strucje.</string>
+    <string name="unlock_success">Sbloc de rêt lât a bon fin.</string>
+    <string name="mobile_network_settings_not_available">Lis impostazions de rêt mobile no son disponibilis par chest utent</string>
+    <string name="labelGSMMore">Impostazions clamadis GSM</string>
+    <string name="labelGsmMore_with_label">Impostazions clamadis GSM (<xliff:g id="subscriptionlabel" example="T-Mobile">%s</xliff:g>)</string>
+    <string name="labelCDMAMore">Impostazions clamadis CDMA</string>
+    <string name="labelCdmaMore_with_label">Impostazions clamadis CDMA (<xliff:g id="subscriptionlabel" example="Verizon">%s</xliff:g>)</string>
+    <string name="apn_settings">Nons dai ponts di acès</string>
+    <string name="settings_label">Impostazions di rêt</string>
+    <string name="phone_accounts">Accounts des clamadis</string>
+    <string name="phone_accounts_make_calls_with">Fâs clamadis cun</string>
+    <string name="phone_accounts_make_sip_calls_with">Fâs clamadis SIP cun</string>
+    <string name="phone_accounts_ask_every_time">Domande prime</string>
+    <string name="phone_accounts_default_account_label">Nissune rêt disponibile</string>
+    <string name="phone_accounts_settings_header">Impostazions</string>
+    <string name="phone_accounts_choose_accounts">Sielç accounts</string>
+    <string name="phone_accounts_selection_header">Accounts di telefon</string>
+    <string name="phone_accounts_add_sip_account">Zonte account SIP</string>
+    <string name="phone_accounts_configure_account_settings">Configure impostazions account</string>
+    <string name="phone_accounts_all_calling_accounts">Ducj i accounts des clamadis</string>
+    <string name="phone_accounts_all_calling_accounts_summary">Selezione i accounts che a puedin fâ clamadis</string>
+    <string name="wifi_calling">Clamadis Wi-Fi</string>
+    <string name="connection_service_default_label">Servizi di conession integrât</string>
+    <string name="voicemail">Segretarie</string>
+    <string name="voicemail_settings_with_label">Segretarie telefoniche (<xliff:g id="subscriptionlabel" example="Mock Carrier">%s</xliff:g>)</string>
+    <string name="voicemail_abbreviated">ST:</string>
+    <string name="make_and_receive_calls">Fâ e ricevi clamadis</string>
+    <string name="smart_forwarding_settings_menu">Deviazion inteligjente</string>
+    <string name="smart_forwarding_settings_menu_summary">Se no si rive a contatâ un dai tiei numars, devie simpri lis clamadis al altri to numar</string>
+    <string name="voicemail_notifications_preference_title">Notifichis</string>
+    <string name="cell_broadcast_settings">Trasmissions di emergjence</string>
+    <string name="call_settings">Impostazions clamadis</string>
+    <string name="additional_gsm_call_settings">Altris impostazions</string>
+    <string name="additional_gsm_call_settings_with_label">Altris impostazions (<xliff:g id="subscriptionlabel" example="Verizon">%s</xliff:g>)</string>
+    <string name="sum_gsm_call_settings">Altris impostazions di clamade dome GSM</string>
+    <string name="additional_cdma_call_settings">Altris impostazions di clamade CDMA</string>
+    <string name="sum_cdma_call_settings">Altris impostazions di clamade dome CDMA</string>
+    <string name="labelNwService">Impostazions servizi di rêt</string>
+    <string name="labelCallerId">ID di chel che al clame</string>
+    <string name="sum_loading_settings">Daûr a cjariâ lis impostazions\u2026</string>
+    <string name="sum_hide_caller_id">Numar platât tes clamadis in jessude</string>
+    <string name="sum_show_caller_id">Numar visualizât tes clamadis in jessude</string>
+    <string name="sum_default_caller_id">Dopre lis impostazions predefinidis dal operadôr par visualizâ il gno numar tes clamadis in jessude</string>
+    <string name="labelCW">Clamade in spiete</string>
+    <string name="sum_cw_enabled">Intant che o soi intune clamade, notifichimi lis clamadis in jentrade</string>
+    <string name="sum_cw_disabled">Intant che o soi intune clamade, notifichimi lis clamadis in jentrade</string>
+    <string name="call_forwarding_settings">Impostazions di deviazion clamade</string>
+    <string name="call_forwarding_settings_with_label">Impostazions di deviazion clamade (<xliff:g id="subscriptionlabel" example="Verizon">%s</xliff:g>)</string>
+    <string name="labelCF">Deviazion clamadis</string>
+    <string name="labelCFU">Devie simpri</string>
+    <string name="messageCFU">Dopre simpri chest numar</string>
+    <string name="sum_cfu_enabled_indicator">Deviazion di dutis lis clamadis</string>
+    <string name="sum_cfu_enabled">Deviazion di dutis lis clamadis a <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfu_enabled_no_number">Il numar nol è disponibil</string>
+    <string name="sum_cfu_disabled">Off</string>
+    <string name="labelCFB">Se ocupât</string>
+    <string name="messageCFB">Numar se ocupât</string>
+    <string name="sum_cfb_enabled">Deviazion a <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfb_disabled">Off</string>
+    <string name="disable_cfb_forbidden">Il to operadôr nol supuarte la disativazion de deviazion des clamadis cuant che il to telefon al è ocupât.</string>
+    <string name="labelCFNRy">Se no rispuindude</string>
+    <string name="messageCFNRy">Numar se no rispuindude</string>
+    <string name="sum_cfnry_enabled">Deviazion a <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfnry_disabled">Off</string>
+    <string name="disable_cfnry_forbidden">Il to operadôr nol supuarte la disativazion de deviazion des clamadis cuant che il to telefon nol rispuint.</string>
+    <string name="labelCFNRc">Se impussibil rivâ a contatâti</string>
+    <string name="messageCFNRc">Numar se impussibil rivâ a contatâti</string>
+    <string name="sum_cfnrc_enabled">Deviazion a <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfnrc_disabled">Off</string>
+    <string name="disable_cfnrc_forbidden">Il to operadôr nol supuarte la disativazion de deviazion des clamadis cuant che nol è pussibil rivâ a contatâ il to telefon.</string>
+    <string name="registration_cf_forbidden">Il to operadôr nol supuarte la deviazion di clamade.</string>
+    <string name="cdma_call_waiting">Ativâ la clamade in spiete?</string>
+    <string name="enable_cdma_call_waiting_setting">Intant che tu sês intune clamade, tu ricevarâs notifichis su lis clamadis in jentrade</string>
+    <string name="enable_cdma_cw">Ative</string>
+    <string name="disable_cdma_cw">Anule</string>
+    <string name="cdma_call_waiting_in_ims_on">Clamade in spiete CDMA sot di IMS atîf</string>
+    <string name="cdma_call_waiting_in_ims_off">Clamade in spiete CDMA sot di IMS inatîf</string>
+    <string name="updating_title">Impostazions clamadis</string>
+    <string name="call_settings_admin_user_only">Dome l\'utent aministradôr al pues cambiâ lis impostazions des clamadis.</string>
+    <string name="phone_account_settings_user_restriction">Dome l\'aministradôr o l\'utent di lavôr a puedin cambiâ lis impostazions dal account par telefonâ.</string>
+    <string name="call_settings_with_label">Impostazions (<xliff:g id="subscriptionlabel" example="Mock Carrier">%s</xliff:g>)</string>
+    <string name="error_updating_title">Erôr impostazions clamadis</string>
+    <string name="reading_settings">Daûr a lei lis impostazions\u2026</string>
+    <string name="updating_settings">Daûr a inzornâ lis impostazions\u2026</string>
+    <string name="reverting_settings">Daûr a anulâ lis modifichis des impostazions\u2026</string>
+    <string name="response_error">Rispueste inspietade de rêt.</string>
+    <string name="exception_error">Erôr di rêt o de schede SIM.</string>
+    <string name="stk_cc_ss_to_dial_error">Richieste SS cambiade a clamade regolâr</string>
+    <string name="stk_cc_ss_to_ussd_error">Richieste SS cambiade a richieste USSD</string>
+    <string name="stk_cc_ss_to_ss_error">Cambiât a gnove richieste SS</string>
+    <string name="stk_cc_ss_to_dial_video_error">Richieste SS cambiade a videoclamade</string>
+    <string name="fdn_check_failure">La impostazion dai numars di composizion fis de tô aplicazion Telefon e je ative. Duncje cualchi funzion relative aes clamadis no funzione.</string>
+    <string name="radio_off_error">Ative il segnâl celulâr prime di visualizâ chestis impostazions.</string>
+    <string name="close_dialog">Va ben</string>
+    <string name="enable">Ative</string>
+    <string name="disable">Disative</string>
+    <string name="change_num">Inzorne</string>
+    <string-array name="clir_display_values">
+        <item>Predefinît de rêt</item>
+        <item>Plate numar</item>
+        <item>Mostre numar</item>
+    </string-array>
+    <string name="vm_changed">Numar de segretarie cambiât.</string>
+    <string name="vm_change_failed">Impussibil cambiâ il numar de segretarie.\nContate il to operadôr se chest probleme al persist.</string>
+    <string name="fw_change_failed">Impussibil cambiâ il numar di deviazion.\nContate il to operadôr se il probleme al persist.</string>
+    <string name="fw_get_in_vm_failed">Impussibil recuperâ e salvâ lis impostazions atuâls pai numars di deviazion.\nPassâ al gnûf furnidôr di istès?</string>
+    <string name="no_change">No je stade fate nissune modifiche.</string>
+    <string name="sum_voicemail_choose_provider">Sielç il servizi di segretarie</string>
+    <string name="voicemail_default">Il to operadôr</string>
+    <string name="vm_change_pin_old_pin">PIN vecjo</string>
+    <string name="vm_change_pin_new_pin">Gnûf PIN</string>
+    <string name="vm_change_pin_progress_message">Par plasê spiete.</string>
+    <string name="vm_change_pin_error_too_short">Il gnûf PIN al è masse curt.</string>
+    <string name="vm_change_pin_error_too_long">Il gnûf PIN al è masse lunc.</string>
+    <string name="vm_change_pin_error_too_weak">Il gnûf PIN al è masse sempliç. Une password fuarte no varès di vê secuencis continuis o cifris ripetudis.</string>
+    <string name="vm_change_pin_error_mismatch">Il PIN vecjo nol corispuint.</string>
+    <string name="vm_change_pin_error_invalid">Il gnûf PIN al conten caratars no valits.</string>
+    <string name="vm_change_pin_error_system_error">Impussibil cambiâ il PIN</string>
+    <string name="vvm_unsupported_message_format">Gjenar di messaç no supuartât, clame <xliff:g id="number" example="*86">%s</xliff:g> par scoltâ.</string>
+    <string name="network_settings_title">Rêt mobile</string>
+    <string name="label_available">Rêts disponibilis</string>
+    <string name="load_networks_progress">Daûr a cirî\u2026</string>
+    <string name="empty_networks_list">Nissune rêt cjatade.</string>
+    <string name="network_query_error">Impussibil cjatâ rêts. Torne prove.</string>
+    <string name="register_on_network">Regjistrazion su <xliff:g id="network">%s</xliff:g>\u2026</string>
+    <string name="not_allowed">La tô schede SIM no permet une conession cun cheste rêt.</string>
+    <string name="connect_later">Impussibil conetisi cumò a cheste rêt. Torne prove plui indevant.</string>
+    <string name="registration_done">Regjistrât su rêt.</string>
+    <string name="already_auto">Za in selezion automatiche.</string>
+    <string name="select_automatically">Selezione in automatic la rêt</string>
+    <string name="manual_mode_disallowed_summary">No disponibil se conetût a %1$s</string>
+    <string name="network_select_title">Rêt</string>
+    <string name="register_automatically">Regjistrazion automatiche\u2026</string>
+    <string name="preferred_network_mode_title">Gjenar di rêt preferît</string>
+    <string name="preferred_network_mode_summary">Cambie la modalitât di funzionament de rêt</string>
+    <string name="preferred_network_mode_dialogtitle">Gjenar di rêt preferît</string>
+    <string name="forbidden_network">(vietade)</string>
+    <string name="choose_network_title">Sielç rêt</string>
+    <string name="network_disconnected">Disconetût</string>
+    <string name="network_connected">Conetût</string>
+    <string name="network_connecting">Daûr a coneti...</string>
+    <string name="network_could_not_connect">Impussibil conetisi</string>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA preferît</item>
+        <item>Dome GSM</item>
+        <item>Dome WCDMA</item>
+        <item>GSM/WCDMA automatic</item>
+        <item>CDMA/EvDo automatic</item>
+        <item>CDMA cence EvDo</item>
+        <item>Dome EvDo</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>Globâl</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>Dome TDSCDMA</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>Dome NR</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>NR/LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string name="preferred_network_mode_wcdma_perf_summary">Modalitât di rêt preferide: WCDMA preferide</string>
+    <string name="preferred_network_mode_gsm_only_summary">Modalitât di rêt preferide: dome GSM</string>
+    <string name="preferred_network_mode_wcdma_only_summary">Modalitât di rêt preferide: dome WCDMA</string>
+    <string name="preferred_network_mode_gsm_wcdma_summary">Modalitât di rêt preferide: GSM / WCDMA</string>
+    <string name="preferred_network_mode_cdma_summary">Modalitât di rêt preferide: CDMA</string>
+    <string name="preferred_network_mode_cdma_evdo_summary">Modalitât di rêt preferide: CDMA / EvDo</string>
+    <string name="preferred_network_mode_cdma_only_summary">Modalitât di rêt preferide: dome CDMA</string>
+    <string name="preferred_network_mode_evdo_only_summary">Modalitât di rêt preferide: dome EvDo</string>
+    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_summary">Modalitât di rêt preferide: LTE </string>
+    <string name="preferred_network_mode_lte_gsm_wcdma_summary">Modalitât di rêt preferide: GSM/WCDMA/LTE</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_summary">Modalitât di rêt preferide: CDMA+LTE/EVDO</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: LTE/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_global_summary">Modalitât di rêt preferide: globâl</string>
+    <string name="preferred_network_mode_lte_wcdma_summary">Modalitât di rêt preferide: LTE / WCDMA</string>
+    <string name="preferred_network_mode_lte_gsm_umts_summary">Modalitât di rêt preferide: LTE / GSM / UMTS</string>
+    <string name="preferred_network_mode_lte_cdma_summary">Modalitât di rêt preferide: LTE / CDMA</string>
+    <string name="preferred_network_mode_tdscdma_summary">Modalitât di rêt preferide: TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_wcdma_summary">Modalitât di rêt preferide: TDSCDMA / WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_summary">Modalitât di rêt preferide: LTE / TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_gsm_summary">Modalitât di rêt preferide: TDSCDMA / GSM</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_summary">Modalitât di rêt preferide: LTE/GSM/TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_gsm_wcdma_summary">Modalitât di rêt preferide: TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_wcdma_summary">Modalitât di rêt preferide: LTE/TDSCDMA/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_wcdma_summary">Modalitât di rêt preferide: LTE/TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_tdscdma_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_only_summary">Modalitât di rêt preferide: dome NR</string>
+    <string name="preferred_network_mode_nr_lte_summary">Modalitât di rêt preferide: NR / LTE</string>
+    <string name="preferred_network_mode_nr_lte_cdma_evdo_summary">Modalitât di rêt preferide: NR/LTE/CDMA/EvDo</string>
+    <string name="preferred_network_mode_nr_lte_gsm_wcdma_summary">Modalitât di rêt preferide: NR/LTE/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: NR/LTE/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_wcdma_summary">Modalitât di rêt preferide: NR/LTE/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_summary">Modalitât di rêt preferide: NR/LTE/TDSCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_gsm_summary">Modalitât di rêt preferide: NR/LTE/TDSCDMA/GSM</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_wcdma_summary">Modalitât di rêt preferide: NR/LTE/TDSCDMA/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_gsm_wcdma_summary">Modalitât di rêt preferide: NR/LTE/TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_cdma_evdo_gsm_wcdma_summary">Modalitât di rêt preferide: NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="call_category">Clamadis</string>
+    <string name="network_operator_category">Rêt</string>
+    <string name="enhanced_4g_lte_mode_title">Modalitât 4G LTE miorade</string>
+    <string name="enhanced_4g_lte_mode_summary">Dopre i servizis LTE par miorâ la vôs e altris comunicazions (conseât)</string>
+    <string name="enhanced_4g_lte_mode_summary_o2">Dopre i servizis 4G par miorâ la vôs e altris comunicazions (conseât)</string>
+    <string-array name="enhanced_4g_lte_mode_sumary_variant">
+        <item>@string/enhanced_4g_lte_mode_summary</item>
+        <item>@string/enhanced_4g_lte_mode_summary</item>
+        <item>@string/enhanced_4g_lte_mode_summary_o2</item>
+    </string-array>
+    <string name="data_enabled">Dâts ativâts</string>
+    <string name="data_enable_summary">Permet utilizazion dâts</string>
+    <string name="dialog_alert_title">Atenzion</string>
+    <string name="roaming">Roaming</string>
+    <string name="roaming_enable">Conet ai servizis di dâts se in roaming</string>
+    <string name="roaming_disable">Conet ai servizis di dâts se in roaming</string>
+    <string name="roaming_reenable_message">Il roaming dai dâts al è disativât. Tocje par ativâ.</string>
+    <string name="roaming_enabled_message">A podaressin jessi aplicâts coscj pal roaming. Tocje par modificâ.</string>
+    <string name="roaming_notification_title">Conession dâts mobile pierdude</string>
+    <string name="roaming_on_notification_title">Il roaming dai dâts al è atîf</string>
+    <string name="roaming_warning">Tu podaressis intivâti in spesis consistentis.</string>
+    <string name="roaming_check_price_warning">Verifiche i coscj cul to operadôr di rêt.</string>
+    <string name="roaming_alert_title">Permeti il roaming dai dâts?</string>
+    <string name="limited_sim_function_notification_title">Funzionalitât SIM limitade</string>
+    <string name="limited_sim_function_with_phone_num_notification_message">Lis clamadis e i servizis dâts di <xliff:g id="carrier_name">%1$s</xliff:g> a podaressin jessi blocâts intant che tu dopris il numar <xliff:g id="phone_number">%2$s</xliff:g>.</string>
+    <string name="limited_sim_function_notification_message">Lis clamadis e i servizis dâts di <xliff:g id="carrier_name">%1$s</xliff:g> a podaressin jessi blocâts intant che tu dopris une altre SIM.</string>
+    <string name="sip_accounts_removed_notification_title">Cjatâts e gjavâts accounts SIP deplorâts</string>
+    <string name="sip_accounts_removed_notification_message">        Lis clamadis SIP no son plui supuartadis de plateforme Android.\nI tiei accounts SIP esistents <xliff:g id="removed_sip_accounts">%s</xliff:g> a son stâts gjavâts.\nPar plasê conferme la impostazion dal account predefinît par clamâ.
+    </string>
+    <string name="sip_accounts_removed_notification_action">Va tes impostazions</string>
+    <string name="data_usage_title">Utilizazion dâts des aplicazions</string>
+    <string name="data_usage_template"><xliff:g name="amount" example="200 MB">%1$s</xliff:g> di dâts mobii doprâts tal periodi <xliff:g name="date_range" example="Jan 1 -- Feb 2">%2$s</xliff:g></string>
+    <string name="advanced_options_title">Avanzadis</string>
+    <string name="carrier_settings_euicc">Operadôr</string>
+    <string name="keywords_carrier_settings_euicc">operadôr, esim, sim, euicc, cambie operadôr, zonte operadôr</string>
+    <string name="carrier_settings_euicc_summary"><xliff:g id="carrier_name">%1$s</xliff:g> — <xliff:g id="phone_number">%2$s</xliff:g></string>
+    <string name="mobile_data_settings_title">Dâts mobii</string>
+    <string name="mobile_data_settings_summary">Acêt ai dâts doprant la rêt mobile</string>
+    <string name="data_usage_disable_mobile">Disativâ i dâts mobii?</string>
+    <string name="sim_selection_required_pref">Fâs une sielte</string>
+    <string name="sim_change_data_title">Cambiâ la SIM pai dâts?</string>
+    <string name="sim_change_data_message">Doprâ <xliff:g id="new_sim">%1$s</xliff:g> invezit di <xliff:g id="old_sim">%2$s</xliff:g> pai dâts mobii?</string>
+    <string name="wifi_calling_settings_title">Clamadis Wi-Fi</string>
+    <string name="video_calling_settings_title">Videoclamade dal operadôr</string>
+    <string name="gsm_umts_options">Opzions GSM/UMTS</string>
+    <string name="cdma_options">Opzions CDMA</string>
+    <string name="throttle_data_usage">Utilizazion dâts</string>
+    <string name="throttle_current_usage">Dâts doprât in chest periodi</string>
+    <string name="throttle_time_frame">Periodi utilizazion dâts</string>
+    <string name="throttle_rate">Politiche su la velocitât dai dâts</string>
+    <string name="throttle_help">Plui informazions</string>
+    <string name="throttle_status_subtext"><xliff:g id="used">%1$s</xliff:g> (<xliff:g id="used">%2$d</xliff:g>\u066A) dal <xliff:g id="used">%3$s</xliff:g> max periodi\nIl periodi sucessîf al scomence ca di <xliff:g id="used">%4$d</xliff:g> dîs (<xliff:g id="used">%5$s</xliff:g>)</string>
+    <string name="throttle_data_usage_subtext"><xliff:g id="used">%1$s</xliff:g> (<xliff:g id="used">%2$d</xliff:g>\u066A) dal <xliff:g id="used">%3$s</xliff:g> max periodi</string>
+    <string name="throttle_data_rate_reduced_subtext"><xliff:g id="used">%1$s</xliff:g> max superât\nVelocitât dâts ridusude a <xliff:g id="used">%2$d</xliff:g> Kb/s</string>
+    <string name="throttle_time_frame_subtext"><xliff:g id="used">%1$d</xliff:g>\u066A dal cicli passât\nIl periodi sucessîf al scomence ca di <xliff:g id="used">%2$d</xliff:g> dîs (<xliff:g id="used">%3$s</xliff:g>)</string>
+    <string name="throttle_rate_subtext">Velocitât dâts ridusude a <xliff:g id="used">%1$d</xliff:g> Kb/s se il limit di utilizazion dai dâts al ven superât</string>
+    <string name="throttle_help_subtext">Informazions su lis normis di utilizazion dai dâts de rêt celulâr dal operadôr</string>
+    <string name="cell_broadcast_sms">SMS di difusion de cele</string>
+    <string name="enable_disable_cell_bc_sms">SMS di difusion de cele</string>
+    <string name="cell_bc_sms_enable">SMS difusion cele ativât</string>
+    <string name="cell_bc_sms_disable">SMS difusion cele disativât</string>
+    <string name="cb_sms_settings">Impostazions SMS difusion cele</string>
+    <string name="enable_disable_emergency_broadcast">Trasmission di emergjence</string>
+    <string name="emergency_broadcast_enable">Trasmission di emergjence ativade</string>
+    <string name="emergency_broadcast_disable">Trasmission di emergjence disativade</string>
+    <string name="enable_disable_administrative">Aministrativis</string>
+    <string name="administrative_enable">Aministrativis ativadis</string>
+    <string name="administrative_disable">Aministrativis disativadis</string>
+    <string name="enable_disable_maintenance">Manutenzion</string>
+    <string name="maintenance_enable">Manutenzion ativade</string>
+    <string name="maintenance_disable">Manutenzion disativade</string>
+    <string name="general_news_settings">Notiziis gjenerichis</string>
+    <string name="bf_news_settings">Notiziis di economie e finance</string>
+    <string name="sports_news_settings">Notiziis sportivis</string>
+    <string name="entertainment_news_settings">Notiziis di intratigniment</string>
+    <string name="enable_disable_local">Locâls</string>
+    <string name="local_enable">Notiziis locâls ativadis</string>
+    <string name="local_disable">Notiziis locâls disativadis</string>
+    <string name="enable_disable_regional">Regjonâls</string>
+    <string name="regional_enable">Notiziis regjonâls ativadis</string>
+    <string name="regional_disable">Notiziis regjonâls disativadis</string>
+    <string name="enable_disable_national">Nazionâls</string>
+    <string name="national_enable">Notiziis nazionâls ativadis</string>
+    <string name="national_disable">Notiziis nazionâls disativadis</string>
+    <string name="enable_disable_international">Internazionâls</string>
+    <string name="international_enable">Notiziis internazionâls ativadis</string>
+    <string name="international_disable">Notiziis internazionâls disativadis</string>
+    <string name="list_language_title">Lenghe</string>
+    <string name="list_language_summary">Selezione la lenghe des notiziis</string>
+    <string-array name="list_language_entries">
+        <item>Inglês</item>
+        <item>Francês</item>
+        <item>Spagnûl</item>
+        <item>Gjaponês</item>
+        <item>Corean</item>
+        <item>Cinês</item>
+        <item>Ebraic</item>
+    </string-array>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string name="list_language_dtitle">Lenghis</string>
+    <string name="enable_disable_local_weather">Meteo locâl</string>
+    <string name="local_weather_enable">Meteo locâl ativât</string>
+    <string name="local_weather_disable">Meteo locâl disativât</string>
+    <string name="enable_disable_atr">Boletins sul trafic de aree</string>
+    <string name="atr_enable">Boletins sul trafic de aree ativâts</string>
+    <string name="atr_disable">Boletins sul trafic de aree disativâts</string>
+    <string name="enable_disable_lafs">Oraris di svol dal aeropuart locâl</string>
+    <string name="lafs_enable">Oraris di svol dal aeropuart locâl ativâts</string>
+    <string name="lafs_disable">Oraris di svol dal aeropuart locâl disativâts</string>
+    <string name="enable_disable_restaurants">Ristorants</string>
+    <string name="restaurants_enable">Ristorants ativâts</string>
+    <string name="restaurants_disable">Ristorants disativâts</string>
+    <string name="enable_disable_lodgings">Albiercs</string>
+    <string name="lodgings_enable">Albiercs ativâts</string>
+    <string name="lodgings_disable">Albiercs disativâts</string>
+    <string name="enable_disable_retail_directory">Liste di vendite al detai</string>
+    <string name="retail_directory_enable">Liste di vendite al detai ativade</string>
+    <string name="retail_directory_disable">Liste di vendite al detai disativade</string>
+    <string name="enable_disable_advertisements">Publicitâts</string>
+    <string name="advertisements_enable">Publicitâts ativadis</string>
+    <string name="advertisements_disable">Publicitâts disativadis</string>
+    <string name="enable_disable_stock_quotes">Cuotazion titui</string>
+    <string name="stock_quotes_enable">Cuotazion titui ativade</string>
+    <string name="stock_quotes_disable">Cuotazion titui disativade</string>
+    <string name="enable_disable_eo">Oportunitâts di lavôr</string>
+    <string name="eo_enable">Oportunitâts di lavôr ativadis</string>
+    <string name="eo_disable">Oportunitâts di lavôr disativadis</string>
+    <string name="enable_disable_mhh">Midisine, salût e ospedâl</string>
+    <string name="mhh_enable">Midisine, salût e ospedâl ativâts</string>
+    <string name="mhh_disable">Midisine, salût e ospedâl disativâts</string>
+    <string name="enable_disable_technology_news">Notiziis di tecnologjie</string>
+    <string name="technology_news_enable">Notiziis di tecnologjie ativadis</string>
+    <string name="technology_news_disable">Notiziis di tecnologjie disativadis</string>
+    <string name="enable_disable_multi_category">Multi-categorie</string>
+    <string name="multi_category_enable">Multi-categorie ativade</string>
+    <string name="multi_category_disable">Multi-categorie disativade</string>
+    <string name="network_recommended">\u0020(opzion conseade)</string>
+    <string name="network_lte">LTE (opzion conseade)</string>
+    <string name="network_4G">4G (opzion conseade)</string>
+    <string name="network_global">Globâl</string>
+    <string name="cdma_system_select_title">Selezion sisteme</string>
+    <string name="cdma_system_select_summary">Cambie la modalitât di roaming CDMA</string>
+    <string name="cdma_system_select_dialogtitle">Selezion sisteme</string>
+    <string-array name="cdma_system_select_choices">
+        <item>Dome domestiche</item>
+        <item>Automatiche</item>
+    </string-array>
+    <string name="cdma_subscription_title">Abonament CDMA</string>
+    <string name="cdma_subscription_summary">Cambie tra RUIM/SIM e NV</string>
+    <string name="cdma_subscription_dialogtitle">abonament</string>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="cdma_subscription_values">
+        <item>"0"</item>
+        <item>"1"</item>
+    </string-array>
+    <string name="cdma_activate_device">Ative dispositîf</string>
+    <string name="cdma_lte_data_service">Configure il servizi dâts</string>
+    <string name="carrier_settings_title">Impostazions operadôr</string>
+    <string name="fdn">Numars di composizion fis</string>
+    <string name="fdn_with_label">Numars di composizion fis (<xliff:g id="subscriptionlabel" example="Verizon">%s</xliff:g>)</string>
+    <string name="manage_fdn_list">Liste FDN</string>
+    <string name="fdn_list_with_label">Liste FDN (<xliff:g id="subscriptionlabel" example="Verizon">%s</xliff:g>)</string>
+    <string name="fdn_activation">Ativazion FDN</string>
+    <string name="fdn_enabled">I numars di composizion fis (FDN) a son atîfs</string>
+    <string name="fdn_disabled">I numars di composizion fis (FDN) a son disativâts</string>
+    <string name="enable_fdn">Ative FDN</string>
+    <string name="disable_fdn">Disative FDN</string>
+    <string name="change_pin2">Cambie PIN2</string>
+    <string name="enable_fdn_ok">Disative FDN</string>
+    <string name="disable_fdn_ok">Ative FDN</string>
+    <string name="sum_fdn">Gjestìs numars di composizion fis</string>
+    <string name="sum_fdn_change_pin">Cambie il PIN pal acès FDN</string>
+    <string name="sum_fdn_manage_list">Gjestìs la liste dai numars</string>
+    <string name="voice_privacy">Riservatece pachets vocâi</string>
+    <string name="voice_privacy_summary">Ative modalitât riservatece miorade</string>
+    <string name="tty_mode_option_title">Modalitât TTY</string>
+    <string name="tty_mode_option_summary">Configure modalitât TTY</string>
+    <string name="auto_retry_mode_title">Gnûf tentatîf automatic</string>
+    <string name="auto_retry_mode_summary">Ative la modalitât gnûf tentatîf automatic</string>
+    <string name="tty_mode_not_allowed_video_call">La modifiche de modalitât TTY no je consintude dilunc une videoclamade</string>
+    <string name="menu_add">Zonte contat</string>
+    <string name="menu_edit">Modifiche contat</string>
+    <string name="menu_delete">Elimine contat</string>
+    <string name="menu_dial">Compon numar contat</string>
+    <string name="get_pin2">Scrîf il PIN2</string>
+    <string name="name">Non</string>
+    <string name="number">Numar</string>
+    <string name="save">Salve</string>
+    <string name="add_fdn_contact">Zonte numar di composizion fis</string>
+    <string name="adding_fdn_contact">Daûr a zontâ il numar di composizion fis\u2026</string>
+    <string name="fdn_contact_added">Numar di composizion fis zontât.</string>
+    <string name="edit_fdn_contact">Modifiche numar di composizion fis</string>
+    <string name="updating_fdn_contact">Daûr a inzornâ il numar di composizion fis\u2026</string>
+    <string name="fdn_contact_updated">Numar di composizion fis inzornât.</string>
+    <string name="delete_fdn_contact">Elimine numar di composizion fis</string>
+    <string name="deleting_fdn_contact">Daûr a eliminâ il numar di composizion fis\u2026</string>
+    <string name="fdn_contact_deleted">Numar di composizion fis eliminât.</string>
+    <string name="pin2_invalid">Il FDN nol è stât inzornât parcè che tu âs inserît un PIN sbaliât.</string>
+    <string name="fdn_invalid_number">Il FDN nol è stât inzornât parcè che il numar al supere <xliff:g id="FDN_NUMBER_LIMIT_LENGTH">%d</xliff:g> cifris.</string>
+    <string name="pin2_or_fdn_invalid">Il FDN nol è stât inzornât. Il PIN2 al jere sbaliât opûr il numar di telefon al è stât refudât.</string>
+    <string name="fdn_failed">Operazion FDN falide.</string>
+    <string name="simContacts_emptyLoading">Leture de schede SIM\u2026</string>
+    <string name="simContacts_empty">Nissun contat su la schede SIM.</string>
+    <string name="simContacts_title">Selezione i contats di impuartâ</string>
+    <string name="simContacts_airplaneMode">Disative la modalitât avion par impuartâ i contats de schede SIM.</string>
+    <string name="enable_pin">Ative/disative PIN de SIM</string>
+    <string name="change_pin">Cambie il PIN de SIM</string>
+    <string name="enter_pin_text">PIN de SIM:</string>
+    <string name="oldPinLabel">PIN vecjo</string>
+    <string name="newPinLabel">Gnûf PIN</string>
+    <string name="confirmPinLabel">Conferme gnûf PIN</string>
+    <string name="badPin">Il PIN vieri inserît nol è just. Torne prove.</string>
+    <string name="mismatchPin">I PINs inserîts no corispuindin. Torne prove.</string>
+    <string name="invalidPin">Scrîf un PIN che al vedi di 4 a 8 numars.</string>
+    <string name="disable_sim_pin">Scancele il PIN de SIM</string>
+    <string name="enable_sim_pin">Stabilìs il PIN de SIM</string>
+    <string name="enable_in_progress">Daûr a stabilî il PIN\u2026</string>
+    <string name="enable_pin_ok">PIN stabilît</string>
+    <string name="disable_pin_ok">PIN scancelât</string>
+    <string name="pin_failed">PIN sbaliât</string>
+    <string name="pin_changed">PIN inzornât</string>
+    <string name="puk_requested">Password sbaliade. Cumò il PIN al è blocât. PUK necessari.</string>
+    <string name="enter_pin2_text">PIN2</string>
+    <string name="oldPin2Label">PIN2 vecjo</string>
+    <string name="newPin2Label">Gnûf PIN2</string>
+    <string name="confirmPin2Label">Conferme gnûf PIN2</string>
+    <string name="badPuk2">PUK2 sbaliât. Torne prove.</string>
+    <string name="badPin2">PIN2 vecjo sbaliât. Torne prove.</string>
+    <string name="mismatchPin2">I PIN2s no corispuindin. Torne prove.</string>
+    <string name="invalidPin2">Inserìs un PIN2 che al vedi di 4 a 8 numars.</string>
+    <string name="invalidPuk2">Inserìs un PUK2 che al vedi 8 numars.</string>
+    <string name="pin2_changed">PIN2 inzornât</string>
+    <string name="label_puk2_code">Inserìs il codiç PUK2</string>
+    <string name="fdn_enable_puk2_requested">Password sbaliade. Cumò il PIN2 al è blocât. Par tornâ a provâ, cambie il PIN 2.</string>
+    <string name="puk2_requested">Password sbaliade. Cumò la SIM e je blocade. Inserìs il PUK2.</string>
+    <string name="puk2_blocked">Il PUK2 al è blocât in mût permanent.</string>
+    <string name="pin2_attempts">\nTu âs ancjemò <xliff:g id="number">%d</xliff:g> tentatîfs.</string>
+    <string name="puk2_locked">PUK2 blocât. Contate il furnidôr dal servizi par sblocâ.</string>
+    <string name="pin2_unblocked">Il PIN2 nol è plui blocât</string>
+    <string name="pin2_error_exception">Erôr di rêt o de schede SIM</string>
+    <string name="doneButton">Fat</string>
+    <string name="voicemail_settings_number_label">Numar de segretarie</string>
+    <string name="card_title_dialing">Composizion</string>
+    <string name="card_title_redialing">Gnûf tentatîf di composizion</string>
+    <string name="card_title_conf_call">Conference telefoniche</string>
+    <string name="card_title_incoming_call">Clamade in jentrade</string>
+    <string name="card_title_call_ended">Clamade terminade</string>
+    <string name="card_title_on_hold">In spiete</string>
+    <string name="card_title_hanging_up">Daûr a butâ jù</string>
+    <string name="card_title_in_call">In clamade</string>
+    <string name="notification_voicemail_title">Gnûf messaç vocâl</string>
+    <string name="notification_voicemail_title_count">Gnûf messaç vocâl (<xliff:g id="count">%d</xliff:g>)</string>
+    <string name="notification_voicemail_text_format">Compon <xliff:g id="voicemail_number">%s</xliff:g></string>
+    <string name="notification_voicemail_no_vm_number">Numar de segretarie no cognossût</string>
+    <string name="notification_network_selection_title">Nissun servizi</string>
+    <string name="notification_network_selection_text">Rêt <xliff:g id="operator_name">%s</xliff:g> selezionade, no disponibile</string>
+    <string name="incall_error_power_off" product="watch">Ative la rêt celulâr, disative la modalitât avion o disative la modalitât sparagn energjetic par fâ une clamade.</string>
+    <string name="incall_error_power_off" product="default">Disative la modalitât avion par une clamade.</string>
+    <string name="incall_error_power_off_wfc">Disative la modalitât avion opûr conetiti a une rêt cence fîi par fâ une clamade.</string>
+    <string name="incall_error_power_off_thermal" product="default"><b>Telefon masse cjalt</b>\n\nImpussibil completâ cheste clamade. Torne prove une volte che il telefon si è disfredât.\n\nTu podarâs fâ distès clamadis di emergjence.</string>
+    <string name="incall_error_ecm_emergency_only">Jes de modalitât clamade di rispueste di emergjence par fâ une clamade che no je di emergjence.</string>
+    <string name="incall_error_emergency_only">No regjistrât su rêt.</string>
+    <string name="incall_error_out_of_service">Rêt celulâr no disponibile.</string>
+    <string name="incall_error_out_of_service_wfc">La rêt celulâr no je disponibile. Conetiti a une rêt cence fîi par fâ une clamade.</string>
+    <string name="incall_error_no_phone_number_supplied">Par fâ une clamade, inserìs un numar valit.</string>
+    <string name="incall_error_call_failed">Clamade falide.</string>
+    <string name="incall_error_cannot_add_call">In chest moment nol è pussibil zontâ la clamade. Prove a mandâ un messaç.</string>
+    <string name="incall_error_supp_service_unknown">Servizi no supuartât</string>
+    <string name="incall_error_supp_service_switch">Impussibil cambiâ clamade.</string>
+    <string name="incall_error_supp_service_resume">Impussibil ripiâ la clamade.</string>
+    <string name="incall_error_supp_service_separate">Impussibil separâ la clamade.</string>
+    <string name="incall_error_supp_service_transfer">Impussibil trasferî.</string>
+    <string name="incall_error_supp_service_conference">Impussibil unî lis clamadis.</string>
+    <string name="incall_error_supp_service_reject">Impussibil refudâ la clamade.</string>
+    <string name="incall_error_supp_service_hangup">Impussibil butâ jù.</string>
+    <string name="incall_error_supp_service_hold">Impussibil meti in spiete lis clamadis.</string>
+    <string name="incall_error_wfc_only_no_wireless_network">Conetiti a une rêt cence fîi par fa une clamade.</string>
+    <string name="incall_error_promote_wfc">Ative lis clamadis Wi-Fi par fâ une clamade.</string>
+    <string name="incall_error_satellite_enabled">Disative modalitât satelit par fâ une clamade.</string>
+    <string name="emergency_information_hint">Informazions di emergjence</string>
+    <string name="emergency_information_owner_hint">Proprietari</string>
+    <string name="emergency_information_confirm_hint">Tocje di gnûf par viodi lis informazions</string>
+    <string name="emergency_enable_radio_dialog_title">Clamade di emergjence</string>
+    <string name="single_emergency_number_title">Numar di emergjence</string>
+    <string name="numerous_emergency_numbers_title">Numars di emergjence</string>
+    <string name="emergency_call_shortcut_hint">Tocje di gnûf par clamâ <xliff:g id="emergency_number">%s</xliff:g></string>
+    <string name="emergency_enable_radio_dialog_message">Ativazion segnâl celulâr\u2026</string>
+    <string name="emergency_enable_radio_dialog_retry">Nissun servizi. Gnûf tentatîf\u2026</string>
+    <string name="radio_off_during_emergency_call">Impussibil jentrâ in modalitât avion dilunc une clamade di emergjence.</string>
+    <string name="dial_emergency_error">Impussibil clamâ. <xliff:g id="non_emergency_number">%s</xliff:g> nol è un numar di emergjence.</string>
+    <string name="dial_emergency_empty_error">Impussibil clamâ. Compon un numar di emergjence.</string>
+    <string name="dial_emergency_calling_not_available">Lis clamadis di emergjence no son disponibilis</string>
+    <string name="pin_puk_system_user_only">Dome il proprietari dal dispositîf al pues inserî i codiçs PIN/PUK.</string>
+    <string name="police_type_description">Polizie</string>
+    <string name="ambulance_type_description">Ambulance</string>
+    <string name="fire_type_description">Pompîrs</string>
+    <string name="description_concat_format">%1$s, %2$s</string>
+    <string name="dialerKeyboardHintText">Dopre la tastiere par componi</string>
+    <string name="onscreenHoldText">In spiete</string>
+    <string name="onscreenEndCallText">Bute jù</string>
+    <string name="onscreenShowDialpadText">Tastiere telefon</string>
+    <string name="onscreenMuteText">Cidine</string>
+    <string name="onscreenAddCallText">Zonte clamade</string>
+    <string name="onscreenMergeCallsText">Unìs clamadis</string>
+    <string name="onscreenSwapCallsText">Scambie</string>
+    <string name="onscreenManageCallsText">Gjestìs clamadis</string>
+    <string name="onscreenManageConferenceText">Gjestìs conference</string>
+    <string name="onscreenAudioText">Audio</string>
+    <string name="onscreenVideoCallText">Videoclamade</string>
+    <string name="importSimEntry">Impuarte</string>
+    <string name="importAllSimEntries">Impuarte ducj</string>
+    <string name="importingSimContacts">Daûr a impuartâ i contats de SIM</string>
+    <string name="importToFDNfromContacts">Impuarte dai contats</string>
+    <string name="singleContactImportedMsg">Contat impuartât</string>
+    <string name="failedToImportSingleContactMsg">Nol è stât pussibil impuartâ il contat</string>
+    <string name="hac_mode_title">Aparâts acustics</string>
+    <string name="hac_mode_summary">Ative la compatibilitât cui aparâts acustics</string>
+    <string name="rtt_mode_title">Clamade test in timp reâl (RTT)</string>
+    <string name="rtt_mode_summary">Permet di mandâ messaçs dentri di une clamade vocâl</string>
+    <string name="rtt_mode_more_information">       RTT (test in timp reâl) al jude i interlocutôrs sorts, che a fasin fadie a sintî,
+       che a àn mancjancis tal fevelâ o che a àn bisugne di alc in plui rispiet ae sole
+       vôs.&lt;br&gt;
+       &lt;a href=\"<xliff:g example="http://www.google.com" id="url">http://support.google.com/mobile?p=telephony_rtt</xliff:g>\"&gt;Scuvierç di plui&lt;/a&gt;
+       &lt;br&gt;&lt;br&gt; - Lis clamadis RTT a son salvadis come une trascrizion dal messaç
+       &lt;br&gt; - RTT nol è disponibil pes videoclamadis</string>
+    <string name="no_rtt_when_roaming">Note: il RTT nol è disponibil in roaming</string>
+    <string-array name="tty_mode_entries">
+        <item>TTY disativât</item>
+        <item>TTY plene</item>
+        <item>TTY HCO</item>
+        <item>TTY VCO</item>
+    </string-array>
+    <string name="dtmf_tones_title">Tons DTMF</string>
+    <string name="dtmf_tones_summary">Stabilìs la lungjece dai tons DTMF</string>
+    <string-array name="dtmf_tone_entries">
+        <item>Normâi</item>
+        <item>Luncs</item>
+    </string-array>
+    <string name="network_info_message">Messaç di rêt</string>
+    <string name="network_error_message">Messaç di erôr</string>
+    <string name="ota_title_activate">Ative il telefon</string>
+    <string name="ota_touch_activate">E covente une clamade speciâl par ativâ il servizi dal to telefon.
+    \n\nDopo vê fracât \u201CAtive\u201D, scolte lis istruzions proviodudis par ativâ il telefon.</string>
+    <string name="ota_hfa_activation_title">Daûr a ativâ...</string>
+    <string name="ota_hfa_activation_dialog_message">Il telefon al sta ativant il servizi di dâts mobii.\n\nCheste operazion e podarès puartâ vie fin a 5 minûts.</string>
+    <string name="ota_skip_activation_dialog_title">Saltâ la ativazion?</string>
+    <string name="ota_skip_activation_dialog_message">Se tu saltis la ativazion, no tu podarâs fâ clamadis o conetiti aes rêts di dâts mobii (dut câs tu podarâs conetii aes rêts Wi-Fi). Fintremai che no tu ativis il to telefon, ogni volte che tu lu impiis ti vignarà domandât di ativâlu.</string>
+    <string name="ota_skip_activation_dialog_skip_label">Salte</string>
+    <string name="ota_activate">Ative</string>
+    <string name="ota_title_activate_success">Il telefon al è ativât.</string>
+    <string name="ota_title_problem_with_activation">Probleme cu la ativazion</string>
+    <string name="ota_listen">Va daûr aes istruzions feveladis fintremai che tu sintis che la ativazion e je stade completade.</string>
+    <string name="ota_speaker">Casse amplificade</string>
+    <string name="ota_progress">Daûr a programâ il to telefon\u2026</string>
+    <string name="ota_failure">Impussibil programâ il to telefon</string>
+    <string name="ota_successful">Cumò il telefon al è ativât.  Al è pussibil che a coventedin fin a 15 minûts pal inviament dal servizi.</string>
+    <string name="ota_unsuccessful">Il telefon nol è stât ativât.
+    \nTu podaressis vê bisugne di cjatâ un puest cuntune miôr cuvierture (dongje di un barcon o fûr).
+    \n\nTorne prove o clame il servizi clients par vê altris opzions.</string>
+    <string name="ota_spc_failure">MASSE ERÔRS SPC</string>
+    <string name="ota_call_end">Indaûr</string>
+    <string name="ota_try_again">Torne prove</string>
+    <string name="ota_next">Indenant</string>
+    <string name="ecm_exit_dialog">EcmExitDialog</string>
+    <string name="phone_entered_ecm_text">Jentrât in modalitât clamade di rispueste pe emergjence</string>
+    <string name="phone_in_ecm_notification_title">Modalitât clamade di rispueste pe emergjence</string>
+    <string name="phone_in_ecm_call_notification_text">Conession dâts disabilitade</string>
+    <string name="phone_in_ecm_notification_complete_time">Nissune conession dâts fin ae ore: <xliff:g id="completeTime">%s</xliff:g></string>
+    <string name="alert_dialog_exit_ecm"> {count, plural,
+        </string>
+    <string name="alert_dialog_not_avaialble_in_ecm"> {count, plural,
+        </string>
+    <string name="alert_dialog_in_ecm_call">La azion selezionade no je disponibile intant di une clamade di emergjence.</string>
+    <string name="progress_dialog_exiting_ecm">Daûr a lâ fûr de modalitât di clamade di rispueste di emergjence</string>
+    <string name="alert_dialog_yes">Sì</string>
+    <string name="alert_dialog_no">No</string>
+    <string name="alert_dialog_dismiss">Ignore</string>
+    <string name="phone_in_ecm_call_notification_text_without_data_restriction_hint">Il telefon al è in modalitât di clamade di rispueste di emergjence.</string>
+    <string name="phone_in_ecm_notification_complete_time_without_data_restriction_hint">Sin <xliff:g id="completeTime">%s</xliff:g></string>
+    <string name="alert_dialog_exit_ecm_without_data_restriction_hint"> {count, plural,
+        </string>
+    <string name="voicemail_provider">Servizi</string>
+    <string name="voicemail_settings">Configurazion</string>
+    <string name="voicemail_number_not_set">&lt;No configurât&gt;</string>
+    <string name="other_settings">Altris impostazions di clamade</string>
+    <string name="calling_via_template">Clamade vie <xliff:g id="provider_name">%s</xliff:g></string>
+    <string name="contactPhoto">foto dal contat</string>
+    <string name="goPrivate">va in privât</string>
+    <string name="selectContact">selezione contat</string>
+    <string name="not_voice_capable">Clamadis vocâls no supuartadis</string>
+    <string name="description_dial_button">compon</string>
+    <string name="description_dialpad_button">mostre tastiere telefoniche</string>
+    <string name="pane_title_emergency_dialpad">Tastiere telefoniche pe emergjence</string>
+    <string name="voicemail_visual_voicemail_switch_title">Segretarie visive</string>
+    <string name="voicemail_set_pin_dialog_title">Stabilìs PIN</string>
+    <string name="voicemail_change_pin_dialog_title">Cambie PIN</string>
+    <string name="preference_category_ringtone">Sunarie e vibrazion</string>
+    <string name="call_settings_title_font_family">sans-serif-light</string>
+    <string name="pstn_connection_service_label">Schedis SIM integradis</string>
+    <string name="enable_video_calling_title">Ative videoclamade</string>
+    <string name="enable_video_calling_dialog_msg">        Par ativâ la videoclamade, tu scugnis ativâ la modalitât 4G LTE miorade tes impostazions di rêt.
+    </string>
+    <string name="enable_video_calling_dialog_settings">Impostazions di rêt</string>
+    <string name="enable_video_calling_dialog_close">Siere</string>
+    <string name="sim_label_emergency_calls">Clamadis di emergjence</string>
+    <string name="sim_description_emergency_calls">Dome clamadis di emergjence</string>
+    <string name="sim_description_default">Schede SIM, spazi <xliff:g id="slot_id">%s</xliff:g></string>
+    <string name="accessibility_settings_activity_title">Acès facilitât</string>
+    <string name="status_hint_label_incoming_wifi_call">Clamade Wi-Fi di</string>
+    <string name="status_hint_label_wifi_call">Clamade Wi-Fi</string>
+    <string name="voicemail_visual_voicemail_key">voicemail_visual_voicemail_key</string>
+    <string name="voicemail_change_pin_key">voicemail_change_pin_key</string>
+    <string name="tty_mode_key">button_tty_mode_key</string>
+    <string name="wifi_calling_settings_key">button_wifi_calling_settings_key</string>
+    <string name="message_decode_error">Al è capitât un erôr intant che il messaç al vignive decodificât.</string>
+    <string name="callFailed_cdma_activation">        Une schede SIM e à ativât il servizi e e à inzornât lis funzionalitâts di roaming dal telefon.
+    </string>
+    <string name="callFailed_cdma_call_limit">        A son masse clamadis ativis. Bute jù o unìs lis clamadis esistentis prime di fânt une gnove.
+    </string>
+    <string name="callFailed_imei_not_accepted">        Impussibil conetisi, inserìs une schede SIM valide.
+    </string>
+    <string name="callFailed_wifi_lost">        Conession Wi-Fi pierdude.  Clamade terminade.
+    </string>
+    <string name="dialFailed_low_battery">Nol è pussibil fâ la tô videoclamade par vie de batarie in esauriment.</string>
+    <string name="callFailed_low_battery">Videoclamade butade jù par vie de batarie in esauriment.</string>
+    <string name="callFailed_emergency_call_over_wfc_not_available">Lis clamadis di emergjence midiant lis clamadis Wi-Fi no son disponibilis il chest lûc.</string>
+    <string name="callFailed_wfc_service_not_available_in_this_location">Lis clamadis Wi-Fi no son disponibilis in chest lûc.</string>
+    <string name="change_pin_title">Cambie PIN de segretarie</string>
+    <string name="change_pin_continue_label">Continue</string>
+    <string name="change_pin_cancel_label">Anule</string>
+    <string name="change_pin_ok_label">Va ben</string>
+    <string name="change_pin_enter_old_pin_header">Conferme il PIN vecjo</string>
+    <string name="change_pin_enter_old_pin_hint">Inserìs il PIN de segretarie par continuâ.</string>
+    <string name="change_pin_enter_new_pin_header">Stabilìs un gnûf PIN</string>
+    <string name="change_pin_enter_new_pin_hint">Il PIN al à di vê di <xliff:g id="min" example="4">%1$d</xliff:g> a <xliff:g id="max" example="7">%2$d</xliff:g> cifris.</string>
+    <string name="change_pin_confirm_pin_header">Conferme il to PIN</string>
+    <string name="change_pin_confirm_pins_dont_match">I PINs no corispuindin</string>
+    <string name="change_pin_succeeded">PIN segretarie inzornât</string>
+    <string name="change_pin_system_error">Impussibil configurâ il PIN</string>
+    <string name="mobile_data_status_roaming_turned_off_subtext">Il roaming dai dâts al è disativât</string>
+    <string name="mobile_data_status_roaming_turned_on_subtext">Il roaming dai dâts al è ativât</string>
+    <string name="mobile_data_status_roaming_without_plan_subtext">In roaming in chest moment, al covente un plan dâts</string>
+    <string name="mobile_data_status_roaming_with_plan_subtext">In roaming in chest moment, il plan dâts al è atîf</string>
+    <string name="mobile_data_status_no_plan_subtext">Dâts mobii esaurîts</string>
+    <string name="mobile_data_activate_prepaid">Dâts mobii esaurîts</string>
+    <string name="mobile_data_activate_prepaid_summary">Zonte dâts mobii midiant <xliff:g id="provider_name">%s</xliff:g></string>
+    <string name="mobile_data_activate_roaming_plan">Nissun plan di roaming</string>
+    <string name="mobile_data_activate_roaming_plan_summary">Zonte un plan di roaming midiant <xliff:g id="provider_name">%s</xliff:g></string>
+    <string name="mobile_data_activate_footer">Tu puedis zontâ dâts mobii o un plan di roaming midiant il to operadôr, <xliff:g id="provider_name">%s</xliff:g>.</string>
+    <string name="mobile_data_activate_diag_title">Zontâ dâts?</string>
+    <string name="mobile_data_activate_diag_message">Tu podaressis vê di zontâ dâts midiant <xliff:g id="provider_name">%s</xliff:g></string>
+    <string name="mobile_data_activate_button">ZONTE DÂTS</string>
+    <string name="mobile_data_activate_cancel_button">ANULE</string>
+    <string name="clh_card_title_call_ended_txt">Clamade terminade</string>
+    <string name="clh_callFailed_powerOff_txt">La modalitât avion e je ative</string>
+    <string name="clh_callFailed_simError_txt">Impussibil acedi ae schede SIM</string>
+    <string name="clh_incall_error_out_of_service_txt">Rêt celulâr no disponibile</string>
+    <string name="clh_callFailed_satelliteEnabled_txt">La modalitât satelit e je ative</string>
+    <string name="clh_callFailed_unassigned_number_txt">Probleme cul numar di telefon che tu stâs cirint di componi. Codiç di erôr 1.</string>
+    <string name="clh_callFailed_no_route_to_destination_txt">Impussibil completâ la clamade. Codiç di erôr 3.</string>
+    <string name="clh_callFailed_channel_unacceptable_txt">Impussibil completâ la clamade. Codiç di erôr 6.</string>
+    <string name="clh_callFailed_operator_determined_barring_txt">Impussibil completâ la clamade. Codiç di erôr 8.</string>
+    <string name="clh_callFailed_normal_call_clearing_txt">Impussibil completâ la clamade. Codiç di erôr 16.</string>
+    <string name="clh_callFailed_user_busy_txt">Utent ocupât</string>
+    <string name="clh_callFailed_no_user_responding_txt">L\'utent nol rispuint</string>
+    <string name="clh_callFailed_user_alerting_txt">Impussibil completâ la clamade. Codiç di erôr 19.</string>
+    <string name="clh_callFailed_call_rejected_txt">Clamade refudade</string>
+    <string name="clh_callFailed_number_changed_txt">Numar cambiât</string>
+    <string name="clh_callFailed_pre_emption_txt">Impussibil completâ la clamade. Codiç di erôr 25.</string>
+    <string name="clh_callFailed_non_selected_user_clearing_txt">Impussibil completâ la clamade. Codiç di erôr 26.</string>
+    <string name="clh_callFailed_destination_out_of_order_txt">Impussibil completâ la clamade. Codiç di erôr 27.</string>
+    <string name="clh_callFailed_invalid_number_format_txt">Formât di numar no valit (numar incomplet)</string>
+    <string name="clh_callFailed_facility_rejected_txt">Impussibil completâ la clamade. Codiç di erôr 29.</string>
+    <string name="clh_callFailed_response_to_STATUS_ENQUIRY_txt">Impussibil completâ la clamade. Codiç di erôr 30.</string>
+    <string name="clh_callFailed_normal_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 31.</string>
+    <string name="clh_callFailed_no_circuit_available_txt">Impussibil completâ la clamade. Codiç di erôr 34.</string>
+    <string name="clh_callFailed_network_out_of_order_txt">Impussibil completâ la clamade. Codiç di erôr 38.</string>
+    <string name="clh_callFailed_temporary_failure_txt">Impussibil completâ la clamade. Codiç di erôr 41.</string>
+    <string name="clh_callFailed_switching_equipment_congestion_txt">Impussibil completâ la clamade. Codiç di erôr 42.</string>
+    <string name="clh_callFailed_access_information_discarded_txt">Impussibil completâ la clamade. Codiç di erôr 43.</string>
+    <string name="clh_callFailed_requested_circuit_txt">Impussibil completâ la clamade. Codiç di erôr 44.</string>
+    <string name="clh_callFailed_resources_unavailable_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 47.</string>
+    <string name="clh_callFailed_quality_of_service_unavailable_txt">Impussibil completâ la clamade. Codiç di erôr 49.</string>
+    <string name="clh_callFailed_requested_facility_not_subscribed_txt">Impussibil completâ la clamade. Codiç di erôr 50.</string>
+    <string name="clh_callFailed_incoming_calls_barred_within_the_CUG_txt">Impussibil completâ la clamade. Codiç di erôr 55.</string>
+    <string name="clh_callFailed_bearer_capability_not_authorized_txt">Impussibil completâ la clamade. Codiç di erôr 57.</string>
+    <string name="clh_callFailed_bearer_capability_not_presently_available_txt">Impussibil completâ la clamade. Codiç di erôr 58.</string>
+    <string name="clh_callFailed_service_or_option_not_available_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 63.</string>
+    <string name="clh_callFailed_bearer_service_not_implemented_txt">Impussibil completâ la clamade. Codiç di erôr 65.</string>
+    <string name="clh_callFailed_ACM_equal_to_or_greater_than_ACMmax_txt">Impussibil completâ la clamade. Codiç di erôr 68.</string>
+    <string name="clh_callFailed_requested_facility_not_implemented_txt">Impussibil completâ la clamade. Codiç di erôr 69.</string>
+    <string name="clh_callFailed_only_restricted_digital_information_bearer_capability_is_available_txt">Impussibil completâ la clamade. Codiç di erôr 70.</string>
+    <string name="clh_callFailed_service_or_option_not_implemented_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 79.</string>
+    <string name="clh_callFailed_invalid_transaction_identifier_value_txt">Impussibil completâ la clamade. Codiç di erôr 81.</string>
+    <string name="clh_callFailed_user_not_member_of_CUG_txt">Impussibil completâ la clamade. Codiç di erôr 87.</string>
+    <string name="clh_callFailed_incompatible_destination_txt">Impussibil completâ la clamade. Codiç di erôr 88.</string>
+    <string name="clh_callFailed_invalid_transit_network_selection_txt">Impussibil completâ la clamade. Codiç di erôr 91.</string>
+    <string name="clh_callFailed_semantically_incorrect_message_txt">Impussibil completâ la clamade. Codiç di erôr 95.</string>
+    <string name="clh_callFailed_invalid_mandatory_information_txt">Impussibil completâ la clamade. Codiç di erôr 96.</string>
+    <string name="clh_callFailed_message_type_non_existent_or_not_implemented_txt">Impussibil completâ la clamade. Codiç di erôr 97.</string>
+    <string name="clh_callFailed_message_type_not_compatible_with_protocol_state_txt">Impussibil completâ la clamade. Codiç di erôr 98.</string>
+    <string name="clh_callFailed_information_element_non_existent_or_not_implemented_txt">Impussibil completâ la clamade. Codiç di erôr 99.</string>
+    <string name="clh_callFailed_conditional_IE_error_txt">Impussibil completâ la clamade. Codiç di erôr 100.</string>
+    <string name="clh_callFailed_message_not_compatible_with_protocol_state_txt">Impussibil completâ la clamade. Codiç di erôr 101.</string>
+    <string name="clh_callFailed_recovery_on_timer_expiry_txt">Impussibil completâ la clamade. Codiç di erôr 102.</string>
+    <string name="clh_callFailed_protocol_Error_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 111.</string>
+    <string name="clh_callFailed_interworking_unspecified_txt">Impussibil completâ la clamade. Codiç di erôr 127.</string>
+    <string name="labelCallBarring">Bloc des clamadis</string>
+    <string name="sum_call_barring_enabled">On</string>
+    <string name="sum_call_barring_disabled">Off</string>
+    <string name="call_barring_baoc">Dutis in jessude</string>
+    <string name="call_barring_baoc_enabled">Disativâ il bloc di dutis lis clamadis in jessude?</string>
+    <string name="call_barring_baoc_disabled">Blocâ dutis lis clamadis in jessude?</string>
+    <string name="call_barring_baoic">Internazionâls in jessude</string>
+    <string name="call_barring_baoic_enabled">Disativâ il bloc des clamadis internazionâls in jessude?</string>
+    <string name="call_barring_baoic_disabled">Blocâ lis clamadis internazionâls in jessude?</string>
+    <string name="call_barring_baoicr">Roaming internazionâl in jessude</string>
+    <string name="call_barring_baoicr_enabled">Disativâ il bloc dal roaming internazionâl in jessude?</string>
+    <string name="call_barring_baoicr_disabled">Blocâ il roaming internazionâl in jessude?</string>
+    <string name="call_barring_baic">Dutis in jentrade</string>
+    <string name="call_barring_baic_enabled">Disativâ il bloc di dutis lis clamadis in jentrade?</string>
+    <string name="call_barring_baic_disabled">Blocâ dutis lis clamadis in jentrade?</string>
+    <string name="call_barring_baicr">Roaming internazionâl in jentrade</string>
+    <string name="call_barring_baicr_enabled">Disativâ il bloc di dut il roaming internazionâl in jentrade?</string>
+    <string name="call_barring_baicr_disabled">Blocâ il roaming internazionâl in jentrade?</string>
+    <string name="call_barring_deactivate_all">Disative dut</string>
+    <string name="call_barring_deactivate_all_description">Disative dutis lis impostazions di bloc des clamadis</string>
+    <string name="call_barring_deactivate_success">Bloc des clamadis disativât</string>
+    <string name="call_barring_change_pwd">Cambie password</string>
+    <string name="call_barring_change_pwd_description">Modifiche la password dal bloc des clamadis</string>
+    <string name="call_barring_change_pwd_description_disabled">Impussibil cambiâ la password dal bloc des clamadis</string>
+    <string name="call_barring_pwd_not_match">Lis passwords no corispuindin</string>
+    <string name="call_barring_right_pwd_number">Inserìs une password cun 4 numars</string>
+    <string name="call_barring_change_pwd_success">Password cambiade</string>
+    <string name="call_barring_old_pwd">Password vecje</string>
+    <string name="call_barring_new_pwd">Gnove password</string>
+    <string name="call_barring_confirm_pwd">Conferme password</string>
+    <string name="messageCallBarring">Inserìs password</string>
+    <string name="call_barring_settings">Impostazions di bloc des clamadis</string>
+    <string name="callFailed_NetworkBusy">La rêt e je ocupade.  Prove a clamâ di gnûf plui tart.</string>
+    <string name="callFailed_NetworkCongested">La rêt e je congjestionade.  Contate il to gjestôr di telefonie
+    par vê assistence.</string>
+    <string name="supp_service_notification_call_deflected">Clamade deviade</string>
+    <string name="supp_service_notification_call_forwarded">Clamade trasferide.</string>
+    <string name="supp_service_notification_call_waiting">Clamade in spiete.</string>
+    <string name="supp_service_clir_suppression_rejected">Bloc dal numar refudât.</string>
+    <string name="supp_service_closed_user_group_call">Clamade al grup sierât di utents.</string>
+    <string name="supp_service_incoming_calls_barred">Clamadis in jentrade blocadis.</string>
+    <string name="supp_service_outgoing_calls_barred">Clamadis in jessude blocadis.</string>
+    <string name="supp_service_call_forwarding_active">Deviazion clamadis ative.</string>
+    <string name="supp_service_additional_call_forwarded">Clamade in plui deviade.</string>
+    <string name="supp_service_additional_ect_connected">Trasferiment esplicit di clamade completât.</string>
+    <string name="supp_service_additional_ect_connecting">Trasferiment esplicit di clamade in cors.</string>
+    <string name="supp_service_call_on_hold">Clamade in spiete.</string>
+    <string name="supp_service_call_resumed">Clamade ripiade.</string>
+    <string name="supp_service_deflected_call">La clamade e je stade deviade.</string>
+    <string name="supp_service_forwarded_call">Clamade trasferide.</string>
+    <string name="supp_service_conference_call">Acès ae conference telefoniche.</string>
+    <string name="supp_service_held_call_released">La clamade in spiete e je stade butade jù.</string>
+    <string name="callFailed_otasp_provisioning_in_process">Impussibil fâ une clamade viodût che il dispositîf al è in fase di provision.</string>
+    <string name="callFailed_already_dialing">Impussibil fâ une clamade viodût che une altre clamade in jessude e je in fase di composizion.</string>
+    <string name="callFailed_already_ringing">Impussibil fâ une clamade viodût che e je une clamade in jentrade che no je stade rispuindude.  Rispuint o refude la clamade in jentrade prime di fânt une gnove.</string>
+    <string name="callFailed_calling_disabled">Impussibil fâ une clamade viodût che lis clamadis a son stadis disativadis doprant la proprietât di sisteme ro.telephony.disable-call.</string>
+    <string name="callFailed_too_many_calls">Impussibil fâ une clamade viodût che a son za in cors dôs clamadis.  Disconet une des dôs o unissilis intune conference prime di fâ une gnove clamade.</string>
+    <string name="supp_service_over_ut_precautions">Par doprâ <xliff:g id="supp service">%s</xliff:g>, controle di vê ativât i dâts mobii. Tu puedis cambiâ cheste opzion tes impostazions de rêt mobile.</string>
+    <string name="supp_service_over_ut_precautions_roaming">Par doprâ <xliff:g id="supp service">%s</xliff:g>, controle di vê ativât i dâts mobii e il roaming dai dâts. Tu puedis cambiâ chestis opzions tes impostazions de rêt mobile.</string>
+    <string name="supp_service_over_ut_precautions_dual_sim">Par doprâ <xliff:g id="supp service">%1$s</xliff:g>, controle di vê ativât i dâts mobii pe SIM <xliff:g id="sim number">%2$d</xliff:g>. Tu puedis cambiâ cheste opzion tes impostazions de rêt mobile.</string>
+    <string name="supp_service_over_ut_precautions_roaming_dual_sim">Par doprâ <xliff:g id="supp service">%1$s</xliff:g>, controle di vê ativât i dâts mobii e il roaming dai dâts pe SIM <xliff:g id="sim number">%2$d</xliff:g>. Tu puedis cambiâ chestis opzions tes impostazions de rêt mobile.</string>
+    <string name="supp_service_over_ut_precautions_dialog_dismiss">Ignore</string>
+    <string name="radio_info_data_connection_enable">Ative conession dâts</string>
+    <string name="radio_info_data_connection_disable">Disative conession dâts</string>
+    <string name="volte_provisioned_switch_string">Furnît di VoLTE</string>
+    <string name="vt_provisioned_switch_string">Furnît di videoclamadis</string>
+    <string name="wfc_provisioned_switch_string">Furnît di clamadis wifi</string>
+    <string name="eab_provisioned_switch_string">Furnît di EAB/Presence</string>
+    <string name="cbrs_data_switch_string">Dâts cbrs</string>
+    <string name="dsds_switch_string">Abilite DSDS</string>
+    <string name="dsds_dialog_title">Tornâ a inviâ il dispositîf?</string>
+    <string name="dsds_dialog_message">Tu scugnis tornâ a inviâ il dispositîf par cambiâ cheste impostazion.</string>
+    <string name="dsds_dialog_confirm">Torne invie</string>
+    <string name="dsds_dialog_cancel">Anule</string>
+    <string name="removable_esim_string">Met la eSIM che si pues gjavâ come predefinide</string>
+    <string name="radio_info_radio_power">Potence dal segnâl radio mobil</string>
+    <string name="simulate_out_of_service_string">Simule Fûr servizi (dome version di debug)</string>
+    <string name="radioInfo_menu_viewADN">Visualize la rubriche de SIM</string>
+    <string name="radioInfo_menu_viewFDN">Visualize numars di composizion fis</string>
+    <string name="radioInfo_menu_viewSDN">Visualize numars di composizion di servizi</string>
+    <string name="radioInfo_menu_getIMS">Stât dal servizi IMS</string>
+    <string name="radio_info_ims_reg_status_title">Stât IMS</string>
+    <string name="radio_info_ims_reg_status_registered">Regjistrât</string>
+    <string name="radio_info_ims_reg_status_not_registered">No regjistrât</string>
+    <string name="radio_info_ims_feature_status_available">Disponibil</string>
+    <string name="radio_info_ims_feature_status_unavailable">No disponibil</string>
+    <string name="radio_info_ims_reg_status">Regjistrazion IMS: <xliff:g id="status" example="registered">%1$s</xliff:g>\u000AVôs sore LTE: <xliff:g id="availability" example="available">%2$s</xliff:g>\u000AVôs sore WiFi: <xliff:g id="availability" example="available">%3$s</xliff:g>\u000AVideoclamade: <xliff:g id="availability" example="available">%4$s</xliff:g>\u000AInterface UT: <xliff:g id="availability" example="available">%5$s</xliff:g></string>
+    <string name="radioInfo_service_in">In servizi</string>
+    <string name="radioInfo_service_out">Fûr servizi</string>
+    <string name="radioInfo_service_emergency">Dome clamadis di emergjence</string>
+    <string name="radioInfo_service_off">Segnâl radio disativât</string>
+    <string name="radioInfo_roaming_in">Roaming</string>
+    <string name="radioInfo_roaming_not">No in roaming</string>
+    <string name="radioInfo_phone_idle">Inatîf</string>
+    <string name="radioInfo_phone_ringing">Al sta sunant</string>
+    <string name="radioInfo_phone_offhook">Clamade in cors</string>
+    <string name="radioInfo_data_disconnected">Disconetût</string>
+    <string name="radioInfo_data_connecting">Daûr a coneti</string>
+    <string name="radioInfo_data_connected">Conetût</string>
+    <string name="radioInfo_data_suspended">Sospindût</string>
+    <string name="radioInfo_unknown">No cognossût</string>
+    <string name="radioInfo_imei_primary">Primari</string>
+    <string name="radioInfo_display_packets">pkts</string>
+    <string name="radioInfo_display_bytes">bytes</string>
+    <string name="radioInfo_display_dbm">dBm</string>
+    <string name="radioInfo_display_asu">asu</string>
+    <string name="radioInfo_lac">LAC</string>
+    <string name="radioInfo_cid">CID</string>
+    <string name="radio_info_subid">ID secondari corint:</string>
+    <string name="radio_info_dds">ID secondari de SIM dâts predefinide:</string>
+    <string name="radio_info_dl_kbps">Largjece di bande DL (kbps):</string>
+    <string name="radio_info_ul_kbps">Largjece di bande UL (kbps):</string>
+    <string name="radio_info_phy_chan_config">Configurazions canâl fisic:</string>
+    <string name="radio_info_cell_info_refresh_rate">Frecuence di inzornament des informazions su lis celis:</string>
+    <string name="radio_info_cellinfo_label">Informazions su la misurazion di dutis lis celis:</string>
+    <string name="radio_info_gprs_service_label">Servizi dâts:</string>
+    <string name="radio_info_roaming_label">Roaming:</string>
+    <string name="radio_info_imei_label">IMEI:</string>
+    <string name="radio_info_imsi_label">IMSI:</string>
+    <string name="radio_info_call_redirect_label">Deviazion clamadis:</string>
+    <string name="radio_info_ppp_resets_label">Numar di PPP tornâts a configurâ dal inviament:</string>
+    <string name="radio_info_current_network_label">Rêt atuâl:</string>
+    <string name="radio_info_ppp_received_label">Dâts ricevûts:</string>
+    <string name="radio_info_gsm_service_label">Servizi vôs:</string>
+    <string name="radio_info_signal_strength_label">Fuarce dal segnâl:</string>
+    <string name="radio_info_call_status_label">Stât de clamade vocâl:</string>
+    <string name="radio_info_ppp_sent_label">Dâts inviâts:</string>
+    <string name="radio_info_message_waiting_label">Messaç in spiete:</string>
+    <string name="radio_info_phone_number_label">Numar di telefon:</string>
+    <string name="radio_info_voice_network_type_label">Gjenar di rêt vocâl:</string>
+    <string name="radio_info_data_network_type_label">Gjenar di rêt dâts:</string>
+    <string name="radio_info_override_network_type_label">Sostituìs gjenar di rêt:</string>
+    <string name="radio_info_voice_raw_registration_state_label">Stât regjistrazion grese de vôs:</string>
+    <string name="radio_info_data_raw_registration_state_label">Stât regjistrazion grese dai dâts:</string>
+    <string name="radio_info_wlan_data_raw_registration_state_label">Stât regjistrazion grese dai dâts WLAN:</string>
+    <string name="phone_index_label">Selezione indicadôr dal telefon</string>
+    <string name="radio_info_set_perferred_label">Stabilìs il gjenar di rêt preferide:</string>
+    <string name="radio_info_ping_hostname_v4">Ping non host (www.google.com) IPv4:</string>
+    <string name="radio_info_ping_hostname_v6">Ping non host (www.google.com) IPv6:</string>
+    <string name="radio_info_http_client_test">Prove client HTTP:</string>
+    <string name="ping_test_label">Eseguìs la prove ping</string>
+    <string name="radio_info_smsc_label">SMSC:</string>
+    <string name="radio_info_smsc_update_label">Inzorne</string>
+    <string name="radio_info_smsc_refresh_label">Inzorne</string>
+    <string name="radio_info_toggle_dns_check_label">Comute control DNS</string>
+    <string name="oem_radio_info_label">Info/impostazions specifichis OEM</string>
+    <string name="radio_info_endc_available">EN-DC disponibil (NSA):</string>
+    <string name="radio_info_dcnr_restricted">DCNR limitât (NSA):</string>
+    <string name="radio_info_nr_available">NR disponibil (NSA):</string>
+    <string name="radio_info_nr_state">NR stât (NSA):</string>
+    <string name="radio_info_nr_frequency">Frecuence NR:</string>
+    <string name="band_mode_title">Stabilìs modalitât bande radio</string>
+    <string name="band_mode_loading">Daûr a cjariâ la liste des bandis\u2026</string>
+    <string name="band_mode_set">Stabilìs</string>
+    <string name="band_mode_failed">Operazion lade strucje</string>
+    <string name="band_mode_succeeded">Operazion lade a bon fin</string>
+    <string name="phone_info_label" product="tablet">Informazions tablet</string>
+    <string name="phone_info_label" product="default">Informazions telefon</string>
+    <string name="carrier_provisioning">Informazions su la provision dal operadôr</string>
+    <string name="trigger_carrier_provisioning">Ative provision operadôr</string>
+    <string name="call_quality_notification_bluetooth_details">        Il segnâl bluetooth al è debil.  Prove a passâ al amplificadôr pe casse dal telefon.</string>
+    <string name="call_quality_notification_name">Notifiche su la cualitât de clamade</string>
+    <string name="notification_channel_sip_account">Accounts SIP deplorâts</string>
+    <string name="send_from_work_profile_title">Impussibil mandâ messaçs di une aplicazion personâl</string>
+    <string name="send_from_work_profile_description">La tô organizazion ti permet di mandâ messaçs dome cu lis aplicazions di lavôr</string>
+    <string name="send_from_work_profile_cancel">Anule</string>
+    <string name="send_from_work_profile_action_str">Passe al profîl di lavôr</string>
+    <string name="install_messages_on_work_profile_action_str">Instale une aplicazion di lavôr pai messaçs</string>
+</resources>
