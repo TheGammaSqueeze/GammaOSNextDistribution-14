@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="yes">"Sí"</string>
+    <string name="no">"Non"</string>
+    <string name="create">Crear</string>
+    <string name="allow">Permitir</string>
+    <string name="confirmation_turn_on">Activar</string>
+    <string name="device_info_protected_single_press">Toca p\'amosar la información</string>
+    <string name="show_dev_countdown">{count, plural,
+      one {}=1      {Tas a # calcu d\'activar la configuración pa desendolcadores.}
+      other   {Tas a # calcos d\'activar la configuración pa desendolcadores.}
+    }</string>
+    <string name="dev_settings_disabled_warning">Activa primero les opciones pa desendolcadores.</string>
+    <string name="dev_settings_available_to_admin_only_warning">Namás los usuarios de l\'alministración puen acceder a la configuración pa desendolcadores.</string>
+    <string name="header_category_system">Sistema</string>
+    <string name="radioInfo_service_in">En serviciu</string>
+    <string name="radioInfo_roaming_in">Roaming</string>
+    <string name="radioInfo_roaming_not">Ensin roaming</string>
+    <string name="radioInfo_data_connecting">Conectando</string>
+    <string name="stay_awake_on_fold_title">Siempre</string>
+    <string name="stay_awake_on_fold_summary">La pantalla frontal priéndese cuando pliegues el preséu</string>
+    <string name="selective_stay_awake_title">Namás xuegos, vídeos y más</string>
+    <string name="selective_stay_awake_summary">La pantalla frontal priéndese pa les aplicaciones qu\'impidan que la pantalla quede inactiva</string>
+    <string name="sleep_on_fold_title">Enxamás</string>
+    <string name="sleep_on_fold_summary">La pantalla frontal blóquiase cuando pliegues el preséu</string>
+    <string name="smart_rotate_text_headline">La deteición facial usa la cámara d\'alantre p\'ameyorar la precisión del voltéu automáticu. Les imáxenes enxamás s\'atroxen nin s\'unvien a Google.</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="bluetooth_disconnect_title">¿Quies desconectar el preséu?</string>
+    <string name="keywords_add_bt_device">bluetooth</string>
+    <string name="bluetooth_screen_auto_on_title">Volver activar automáticamente mañana</string>
+    <string name="bluetooth_pair_right_ear_button">Empareyar derechu</string>
+    <string name="bluetooth_pair_left_ear_button">Empareyar esquierdu</string>
+    <string name="bluetooth_pair_other_ear_dialog_title">Empareya l\'otru audífonu</string>
+    <string name="bluetooth_pair_other_ear_dialog_left_ear_message">L\'audífonu esquierdu ta conectáu.\n\nPa empareyar el derechu, asegúrate de que ta encesu y preparáu pa empareyase.</string>
+    <string name="bluetooth_pair_other_ear_dialog_right_ear_message">L\'audífonu derechu ta conectáu.\n\nPa empareyar l\'esquierdu, asegúrate de que ta encesu y preparáu pa empareyase.</string>
+    <string name="bluetooth_pair_other_ear_dialog_right_ear_positive_button">Empareyar derechu</string>
+    <string name="bluetooth_pair_other_ear_dialog_left_ear_positive_button">Empareyar esquierdu</string>
+    <string name="bluetooth_device_controls_general">Pa tolos audífonos disponibles</string>
+    <string name="bluetooth_device_controls_title">Más opciones de los audífonos</string>
+    <string name="bluetooth_device_controls_summary">Camuda la configuración multipreséu, como los atayos y los controles de la telebobina</string>
+    <string name="bluetooth_device_controls_specific">Pa esti preséu</string>
+    <string name="bluetooth_audio_routing_title">Salida del audiu</string>
+    <string name="bluetooth_audio_routing_about_title">Tocante a la salida del audiu</string>
+    <string name="bluetooth_audio_routing_summary">Encamina los soníos al audífonu o al altavoz del teléfonu</string>
+    <string name="bluetooth_ringtone_title">Timbres y alarmes</string>
+    <string name="bluetooth_call_title">Audiu demientres les llamaes</string>
+    <string name="bluetooth_audio_routing_footer_summary">Por defeutu, cada aplicación determina la salida del audiu</string>
+    <string name="bluetooth_disable_hw_offload_dialog_title">¿Quies reaniciar el preséu?</string>
+    <string name="bluetooth_disable_hw_offload_dialog_message">Tienes de reaniciar el preséu pa camudar esta opción.</string>
+    <string name="bluetooth_disable_leaudio">Desactivar l\'audiu de baxu consumu de BT</string>
+    <string name="bluetooth_disable_leaudio_summary">Desactiva la función del audiu de baxu consumu de Bluetooth si\'l preséu ye compatible coles capacidaes de hardware del audiu de consumu baxu.</string>
+    <string name="bluetooth_show_leaudio_device_details">Audiu de consumu baxu en «Detalles del preséu»</string>
+    <string name="bluetooth_bypass_leaudio_allowlist">Saltar llista d\'inclusión d\'audiu de consumu baxu de BT</string>
+    <string name="bluetooth_bypass_leaudio_allowlist_summary">Usa l\'audiu de baxu consumu de Bluetooth por defeutu, magar que nun se verificara si\'l periféricu d\'audiu de consumu baxu cumple los criterios de la llista d\'inclusión.</string>
+    <string name="connected_device_other_device_title">Otros preseos</string>
+    <string name="connected_device_previously_associated_fast_pair_device_title">Usóse anteriormente cola cuenta</string>
+    <string name="stylus_device_details_title">Llapiceru</string>
+    <string name="stylus_default_notes_summary_work"><xliff:g id="app_name" example="Mail">%s</xliff:g> (perfil llaboral)</string>
+    <string name="stylus_textfield_handwriting">Escritura nos campos de testu</string>
+    <string name="stylus_ignore_button">Inorar los calcos de los botones del llapiceru</string>
+    <string name="stylus_connected_devices_title">Llapiceru</string>
+    <string name="audio_streams_empty">Nun s\'atopó nengún fluxu d\'audiu próximu.</string>
+    <string name="date_and_time">Data y hora</string>
+    <string name="proxy_settings_title">Proxy</string>
+    <string name="proxy_clear_text">Borrar</string>
+    <string name="proxy_action_text">Fecho</string>
+    <string name="proxy_error_dismiss">D\'acuerdu</string>
+    <string name="skip_label">Saltar</string>
+    <string name="next_label">Siguiente</string>
+    <string name="language_picker_title">Llingües</string>
+    <string name="language_picker_category_title">Orde de les llingües preferíes</string>
+    <string name="desc_current_default_language">Llingua del sistema</string>
+    <string name="locale_picker_category_title">Llingua preferida</string>
+    <string name="app_locales_picker_menu_title">Llingües de les aplicaciones</string>
+    <string name="app_locale_picker_title">Llingua de l\'aplicación</string>
+    <string name="suggested_app_locales_title">Llingües suxeríes</string>
+    <string name="all_supported_app_locales_title">Toles llingües</string>
+    <string name="preference_of_system_locale_title">Llingua del sistema</string>
+    <string name="desc_no_available_supported_locale">La seleición de llingua pa esta aplicación nun ta disponible dende Configuración</string>
+    <string name="desc_app_locale_disclaimer">Ye posible que la llingua nun concase coles disponibles na aplicación. Dalgunes aplicaciones nun son compatibles con esta opción.</string>
+    <string name="desc_app_locale_selection_supported">Afita la llingua de cada aplicación.</string>
+    <string name="desc_introduction_of_language_picker">El sistema, les aplicaciones y los sitios web usen la primer llingua compatible de les tos llingües preferíes.</string>
+    <string name="desc_notice_of_language_picker">Pa seleicionar una llingua pa cada aplicación, ve a la configuración de la llingua de les aplicaciones</string>
+    <string name="desc_locale_helper_footer_general">Saber más tocante a les llingües de les aplicaciones</string>
+    <string name="title_change_system_locale">¿Quies camudar la llingua del sistema a «%s»?</string>
+    <string name="title_system_locale_addition">¿Quies amestar «%s» a les llingües preferíes?</string>
+    <string name="desc_system_locale_addition">Esta aición permite que les aplicaciones y los sitios web sepan que tamién prefieres esta llingua.</string>
+    <string name="desc_notice_device_locale_settings_change">La configuración y les preferencies rexonales del preséu van camudar</string>
+    <string name="button_label_confirmation_of_system_locale_change">Camudar</string>
+    <string name="title_unavailable_locale">«%s» nun ta disponible</string>
+    <string name="desc_unavailable_locale">Esta llingua nun se pue usar como llingua del sistema, mas dexesti que les aplicaciones y los sitios web sepan cuála prefieres.</string>
+    <string name="regional_preferences_title">Preferencies rexonales</string>
+    <string name="regional_preferences_summary">Configura les preferencies d\'unidaes y númberos</string>
+    <string name="regional_preferences_main_page_sub_title">Dexa que les aplicaciones sepan les tos preferencies rexonales pa que puedan personalizar la esperiencia.</string>
+    <string name="regional_preferences_option_page_sub_title">Les aplicaciones van usar les tos preferencies rexonales cuando seya posible</string>
+    <string name="temperature_preferences_title">Temperatura</string>
+    <string name="first_day_of_week_preferences_title">Primer día de la selmana</string>
+    <string name="numbers_preferences_title">Preferencies de númberos</string>
+    <string name="celsius_temperature_unit">Celsius (\u00B0C)</string>
+    <string name="fahrenheit_temperature_unit">Fahrenheit (\u00B0F)</string>
+    <string name="sunday_first_day_of_week">Domingu</string>
+    <string name="monday_first_day_of_week">Llunes</string>
+    <string name="tuesday_first_day_of_week">Martes</string>
+    <string name="wednesday_first_day_of_week">Miércoles</string>
+    <string name="thursday_first_day_of_week">Xueves</string>
+    <string name="friday_first_day_of_week">Vienres</string>
+    <string name="saturday_first_day_of_week">Sábadu</string>
+    <string name="title_regional_pref_footer">Si una aplicación nun ye compatible coles preferencies rexonales, va usar la so configuración predeterminada de la locale.</string>
+    <string name="desc_regional_pref_footer_learn_more">Saber más tocante a les preferencies de llingua.</string>
+    <string name="category_title_terms_of_address">Preferencies adicionales</string>
+    <string name="terms_of_address_title">Tratu de xéneru</string>
+    <string name="terms_of_address_summary">Configura cómo quies que se dirixan a ti</string>
+    <string name="terms_of_address_intro_title">Les aplicaciones puen usar el tratu de xéneru qu\'escueyas pa personalizar cómo se dirixen a ti.</string>
+    <string name="terms_of_address_not_specified">Ensin especificar</string>
+    <string name="terms_of_address_feminine">Femenín</string>
+    <string name="terms_of_address_masculine">Masculín</string>
+    <string name="terms_of_address_neutral">Neutral</string>
+    <string name="dlg_remove_locales_title">{count, plural,
+      one {}=1      {¿Quies quitar la llingua seleicionada?}
+      other   {¿Quies quitar la llingües seleicionaes?}
+    }</string>
+    <string name="dlg_remove_locales_message">El testu va amosase n\'otra llingua.</string>
+    <string name="dlg_remove_locales_error_title">Nun pues quitar toles llingües</string>
+    <string name="dlg_remove_locales_error_message">Caltén polo menos una llingua preferida</string>
+    <string name="locale_not_translated">Nun ta disponible como llingua del sistema</string>
+    <string name="action_drag_label_move_up">Xubir</string>
+    <string name="action_drag_label_move_down">Baxar</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="okay">D\'acuerdu</string>
+    <string name="forget">Escaecer</string>
+    <string name="save">Guardar</string>
+    <string name="done">Fecho</string>
+    <string name="apply">Aplicar</string>
+    <string name="share">Compartir</string>
+    <string name="add">Amestar</string>
+    <string name="remove">Quitar</string>
+    <string name="settings_label">Configuración</string>
+    <string name="settings_label_launcher">Configuración</string>
+    <string name="airplane_mode">Mou avión</string>
+    <string name="wireless_networks_settings_title">Conexones ensin fillo y redes</string>
+    <string name="roaming">Roaming</string>
+    <string name="date_time_auto">Afitar automáticamente la hora</string>
+    <string name="date_time_set_time_title">Hora</string>
+    <string name="time_format_category_title">Formatu de la hora</string>
+    <string name="date_time_set_date_title">Data</string>
+    <string name="date_time_select_region">Rexón</string>
+    <string name="zone_info_footer_first_sentence">Usa «<xliff:g id="offset_and_name" example="Pacific Time (GMT-08:00)">%1$s</xliff:g>». <xliff:g id="second_sentence" example="Pacific Daylight Time starts on Mar 11 2018.">%2$s</xliff:g></string>
+    <string name="zone_info_footer_second_sentence"><xliff:g id="dst_time_type" example="Pacific Daylight Time">%1$s</xliff:g> comienza\'l <xliff:g id="transition_date" example="Mar 11 2018">%2$s</xliff:g>.</string>
+    <string name="zone_time_type_dst">Horariu braniegu</string>
+    <string name="zone_time_type_standard">Horariu estándar</string>
+    <string name="location_settings_title">Llocalización</string>
+    <string name="location_settings_summary_location_on">{count, plural,
+      one {}=1      {Sí / # aplicación tien accesu a la llocalización}
+      other   {Sí / # aplicaciones tienen accesu a la llocalización}
+    }</string>
+    <string name="location_settings_loading_app_permission_stats">Cargando\u2026</string>
+    <string name="location_settings_footer_learn_more_content_description">        Saber más tocante a la configuración de la llocalización
+    </string>
+    <string name="security_settings_title">Seguranza</string>
+    <string name="safety_center_title">Seguranza y privacidá</string>
+    <string name="security_settings_face_preference_title">Desbloquéu facial</string>
+    <string name="security_settings_face_enroll_education_start">Aniciar</string>
+    <string name="security_settings_face_enroll_education_accessibility_dialog_negative">Dir p\'atrás</string>
+    <string name="security_settings_face_enroll_introduction_cancel">Encaboxar</string>
+    <string name="security_settings_face_enroll_introduction_no_thanks">Non, gracies</string>
+    <string name="security_settings_face_enroll_introduction_agree">Acepto</string>
+    <string name="security_settings_face_enroll_introduction_more">Más</string>
+    <string name="security_settings_face_enroll_enrolling_skip">Saltar</string>
+    <string name="security_settings_face_enroll_dialog_ok">D\'acuerdu</string>
+    <string name="security_settings_face_enroll_done">Fecho</string>
+    <string name="security_settings_face_remove_dialog_details_fingerprint">Va desanciase\'l modelu facial de forma permanente y segura.\n\nDempués del desaniciu, tienes de configurar una buelga, un PIN, una contraseña o un patrón pa desbloquiar el teléfonu o p\'autenticate nes aplicaciones.</string>
+    <string name="security_settings_face_remove_dialog_details_fingerprint_conv">Va desanciase\'l modelu facial de forma permanente y segura.\n\nDempués del desaniciu, tienes de configurar una buelga, un PIN, una contraseña o un patrón pa desbloquiar el teléfonu.</string>
+    <string name="security_settings_fingerprint">Buelga</string>
+    <string name="security_settings_fingerprint_preference_title">Buelga</string>
+    <string name="security_settings_fingerprint_settings_preferences_category">Al usar el desbloquéu cola buelga</string>
+    <string name="security_settings_fingerprint_preference_summary">{count, plural,
+      one {}=1      {Amestóse una buelga}
+      other   {Amestáronse # buelgues}
+    }</string>
+    <string name="security_settings_fingerprint_settings_footer_learn_more">Saber más tocante al desbloquéu cola buelga</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel">Encaboxar</string>
+    <string name="security_settings_fingerprint_enroll_introduction_no_thanks">Non, gracies</string>
+    <string name="security_settings_fingerprint_enroll_introduction_agree">Acepto</string>
+    <string name="security_settings_fingerprint_v2_enroll_introduction_footer_title_2">Cómo funciona</string>
+    <string name="security_settings_activeunlock_preference_title">Desbloquéu col reló</string>
+    <string name="biometric_settings_intro_with_activeunlock">Cuando configures «Desbloquéu facial» y «Desbloquéu cola buelga», el teléfonu va pidite la buelga cuando lleves una mázcara o teas nun llugar escuru.\n\n«Desbloquéu col reló» ye otra forma afayadiza de desbloquiar el teléfonu, por exemplu, cuando tienes los deos moyaos o nun se reconoz la to cara.</string>
+    <string name="biometric_settings_intro_with_fingerprint">El desbloquéu col reló ye otra forma afayadiza de desbloquiar el teléfonu, por exemplu, cuando nun se reconoz la buelga.</string>
+    <string name="biometric_settings_intro_with_face">El desbloquéu col reló ye otra forma afayadiza de desbloquiar el teléfonu, por exemplu, cuando nun se reconoz la cara.</string>
+    <string name="biometric_settings_use_fingerprint_or_watch_for">Usa\'l reló o la buelga pa</string>
+    <string name="biometric_settings_use_face_or_watch_for">Usa la cara o\'l reló pa</string>
+    <string name="biometric_settings_use_face_fingerprint_or_watch_for">Usa la cara, el reló o la buelga pa</string>
+    <string name="biometric_settings_use_watch_for">Usa\'l reló pa</string>
+    <string name="security_settings_activeunlock_biometric_setup">Configurar</string>
+    <string name="security_settings_remoteauth_preference_title">Desbloquéu con «Remote Authenticator»</string>
+    <string name="security_settings_remoteauth_preference_summary">Amestóse\'l reló</string>
+    <string name="security_settings_remoteauth_enroll_introduction_title">Configuración d\'un reló</string>
+    <string name="security_settings_remoteauth_enroll_introduction_message">El desbloquéu col reló ye otra forma afayadiza de desbloquiar esti teléfonu, por exemplu, cuando los deos tán moyaos o nun se reconoz la cara.\n\nPues usar el reló pa desbloquiar el teléfonu cuando:</string>
+    <string name="security_settings_remoteauth_enroll_introduction_disagree">Agora non</string>
+    <string name="security_settings_remoteauth_enroll_introduction_agree">Siguir</string>
+    <string name="security_settings_remoteauth_enroll_introduction_more">Más</string>
+    <string name="security_settings_remoteauth_enroll_introduction_how_title">Cómo funciona</string>
+    <string name="security_settings_remoteauth_enroll_introduction_info_notifications">Cuando esti teléfonu tea desbloquiáu, vas recibir un avisu nel reló. Si se desbloquió ensin querer, toca l\'avisu pa volver bloquialu.</string>
+    <string name="security_settings_remoteauth_enroll_introduction_info_remove_watch">Pues quitar el reló de «Desbloquéu col reló» en cualesquier momentu dende Configuración</string>
+    <string name="security_settings_remoteauth_enroll_introduction_animation_tap_notification">Toca un avisu</string>
+    <string name="security_settings_remoteauth_enroll_introduction_animation_swipe_up">Esliza p\'arriba na pantalla de bloquéu</string>
+    <string name="security_settings_remoteauth_enroll_enrolling_title">Escueyi\'l to reló</string>
+    <string name="security_settings_remoteauth_enroll_enrolling_list_heading">Relós disponibles</string>
+    <string name="security_settings_remoteauth_enroll_enrolling_agree">Confirmar</string>
+    <string name="security_settings_remoteauth_enroll_finish_title">¡Acabesti!</string>
+    <string name="security_settings_remoteauth_enroll_finish_description">Yá pues usar el reló pa desbloquiar esti teléfonu cuando eslices p\'arriba na pantalla de bloquéu o toques un avisu</string>
+    <string name="security_settings_remoteauth_enroll_finish_btn_next">Fecho</string>
+    <string name="security_settings_remoteauth_settings_title">Desbloquéu col reló</string>
+    <string name="security_settings_remoteauth_settings_description">Pues usar el reló pa desbloquiar esti teléfonu cuando eslices p\'arriba na pantalla de bloquéu o toques un avisu</string>
+    <string name="security_settings_remoteauth_settings_learn_more">Saber más tocante al desbloquéu col reló</string>
+    <string name="security_settings_remoteauth_settings_register_new_authenticator">Amestar un reló</string>
+    <string name="security_settings_remoteauth_settings_remove_device">Quitar el reló</string>
+    <string name="security_settings_biometric_preference_title">Desbloquéu facial y cola buelga</string>
+    <string name="biometric_settings_category_use_face_fingerprint">Usa la cara o la buelga pa</string>
+    <string name="biometric_settings_hand_back_to_guardian_ok">D\'acuerdu</string>
+    <string name="biometric_settings_add_face_in_split_mode_title">Nun pues configurar el desbloquéu facial</string>
+    <string name="biometric_settings_add_face_in_split_mode_message">Cola de la pantalla dixebrada pa configurar el desbloquéu facial</string>
+    <string name="biometric_settings_add_fingerprint_in_split_mode_title">Nun se pue configurar la buelga</string>
+    <string name="biometric_settings_add_fingerprint_in_split_mode_message">Cola de la pantalla dixebrada pa configurar el desbloquéu cola buelga</string>
+    <string name="biometric_settings_add_biometrics_in_split_mode_ok">D\'acuerdu</string>
+    <string name="skip_anyway_button_label">Saltar de toes toes</string>
+    <string name="go_back_button_label">Dir p\'atrás</string>
+    <string name="skip_lock_screen_dialog_button_label">Saltar</string>
+    <string name="cancel_lock_screen_dialog_button_label">Encaboxar</string>
+    <string name="security_settings_sfps_enroll_find_sensor_title">Toca\'l botón d\'apagáu ensin primilu</string>
+    <string name="security_settings_udfps_enroll_find_sensor_start_button">Aniciar</string>
+    <string name="security_settings_fingerprint_enroll_dialog_ok">D\'acuerdu</string>
+    <string name="security_settings_fingerprint_enroll_dialog_try_again">Retentar</string>
+    <string name="security_settings_fingerprint_enroll_dialog_delete">Desaniciar</string>
+    <string name="security_settings_sfps_animation_a11y_label">Rexistróse\'l <xliff:g id="percentage" example="10">%d</xliff:g> por cientu</string>
+    <string name="security_settings_require_screen_on_to_auth_title">Toca pa desbloquiar en cualesquier momentu</string>
+    <string name="security_settings_require_screen_on_to_auth_description">Toca\'l sensor pa desbloquiar el preséu, magar que la pantalla tea apagada. Esta opción va facer que seya más probable que se desbloquie accidentalmente.</string>
+    <string name="security_settings_require_screen_on_to_auth_keywords">pantalla, desbloquéu, desbloquiar</string>
+    <string name="security_settings_fingerprint_enroll_enrolling_skip">Facelo dempués</string>
+    <string name="lock_screen_skip_setup_title">¿Quies saltar la configuración de «<xliff:g id="options" example="PIN • Face • Fingerprint">%s</xliff:g>»?</string>
+    <string name="security_settings_fingerprint_enroll_done">Fecho</string>
+    <string name="security_settings_fingerprint_enroll_touch_dialog_title">¡Meca! Eso nun ye\u2019l sensor, ho</string>
+    <string name="security_settings_fingerprint_enroll_error_unable_to_process_dialog_title">Nun se pue completar la configuración de la buelga</string>
+    <string name="security_settings_fingerprint_enroll_error_unable_to_process_message_setup">Pues volver probar agora o configurar la buelga dempués en Configuración.</string>
+    <string name="security_settings_fingerprint_enroll_error_unable_to_process_message">Pues volver probar agora o configurar la buelga dempués.</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title">Escosó\'l tiempu pa configurar la buelga</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message_setup">Pues configurar la buelga dempués en Configuración.</string>
+    <string name="security_settings_fingerprint_enroll_error_generic_dialog_message_setup">Prodúxose un error. Pues configurar la buelga dempués en Configuración.</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message">Pues configurar la buelga dempués.</string>
+    <string name="security_settings_fingerprint_enroll_error_generic_dialog_message">Prodúxose un error. Pues configurar la buelga dempués.</string>
+    <string name="fingerprint_enroll_button_add">Amestar otra</string>
+    <string name="fingerprint_enroll_button_next">Siguiente</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again">Llevanta\'l deu y volvi tocar el sensor</string>
+    <string name="security_settings_fingerprint_bad_calibration_title">Nun se pue usar el sensor de buelgues</string>
+    <string name="security_settings_fingerprint_bad_calibration">Visita un fornidor de reparaciones.</string>
+    <string name="more_security_privacy_settings">Más seguranza y privacidá</string>
+    <string name="security_header">Seguranza</string>
+    <string name="privacy_header">Privacidá</string>
+    <string name="work_profile_category_header">Perfil llaboral</string>
+    <string name="private_space_title">Espaciu priváu</string>
+    <string name="private_space_summary">Caltién les aplicaciones privaes bloquiaes y escondíes</string>
+    <string name="private_space_description">Caltén les aplicaciones privaes nun espaciu separtáu que pues esconder o bloquiar</string>
+    <string name="private_space_lock_title">Bloquéu del espaciu priváu</string>
+    <string name="private_space_one_lock_summary">Pues desbloquiar l\'espaciu priváu de la mesma manera que desbloquies el preséu, o escoyer otru bloquéu</string>
+    <string name="private_space_screen_lock_title">Usar el bloquéu de pantalla del preséu</string>
+    <string name="private_space_fingerprint_title">Desbloquéu cola buelga</string>
+    <string name="private_space_face_title">Desbloquéu facial</string>
+    <string name="private_space_fingerprint_unlock_title">Desbloquéu cola buelga pal espaciu priváu</string>
+    <string name="private_space_face_unlock_title">Desbloquéu facial pal espaciu priváu</string>
+    <string name="private_space_screen_lock_summary">El mesmu bloquéu de pantalla que\'l del preséu</string>
+    <string name="private_space_new_lock_title">¿Quies escoyer otru bloquéu pal espaciu priváu?</string>
+    <string name="private_space_auto_lock_title">Bloquiar automáticamente l\'espaciu priváu</string>
+    <string name="private_space_auto_lock_page_summary">Pues bloquiar automáticamente l\'espaciu priváu si nun usesti\'l preséu demientres un tiempu</string>
+    <string name="private_space_auto_lock_every_time">Cada vegada que se bloquie\'l preséu</string>
+    <string name="private_space_auto_lock_after_inactivity">Dempués de 5 minutos d\'inactividá</string>
+    <string name="private_space_auto_lock_never">Enxamás</string>
+    <string name="private_space_hide_title">Esconder cuando tea bloquiáu</string>
+    <string name="private_space_category_system">Sistema</string>
+    <string name="private_space_delete_title">Desaniciar l\'espaciu priváu</string>
+    <string name="private_space_delete_header">¿Quies desaniciar l\'espaciu priváu?</string>
+    <string name="private_space_delete_button_label">Desaniciar</string>
+    <string name="private_space_confirm_deletion_header">Desaniciando l\'espaciu priváu\u2026</string>
+    <string name="private_space_confirm_deletion_summary">Esta aición va tardar un momentu</string>
+    <string name="private_space_deleted">Desanicióse l\'espaciu priváu</string>
+    <string name="private_space_unlocked">Desbloquióse l\'espaciu priváu</string>
+    <string name="private_space_setup_button_label">Configurar</string>
+    <string name="private_space_setup_title">Espaciu priváu</string>
+    <string name="private_space_protected_lock_text"><b>Configuración d\'un bloquéu</b>\nBloquia l\'espaciu pa impidir qu\'otres persones lu abran</string>
+    <string name="private_space_apps_permission_text">Cuando l\'espaciu priváu ta bloquiáu, les sos aplicaciones nun apaecen nel xestor de permisos, nel panel de privacidá nin n\'otres opciones.\n\nSi quies usar l\'espaciu priváu n\'otru preséu, tienes de configuralu nesi preséu darréu que los espacios privaos nun se puen treslladar.\n\nCualesquier persona que conecte\'l preséu a un ordenador o instale aplicaciones dañibles nel preséu pue acceder al espaciu priváu.</string>
+    <string name="private_space_setting_up_text">Configurando l\'espaciu priváu\u2026</string>
+    <string name="private_space_notifications_hidden_title">Cuando l\'espaciu priváu ta bloquiáu, escuéndense los avisos de les sos aplicaciones</string>
+    <string name="private_space_explore_settings_title">Esplora la configuración del espaciu priváu pa escondelu y configurar el bloquéu automáticu</string>
+    <string name="private_space_apps_installed_title">Les aplicaciones obligatories yá tán instalaes nel espaciu priváu</string>
+    <string name="private_space_error_screen_title">Nun se pudo configurar l\'espaciu priváu</string>
+    <string name="private_space_tryagain_label">Retentar</string>
+    <string name="private_space_lockscreen_title">¿Quies usar el bloquéu de pantalla pa desbloquiar l\'espaciu priváu?</string>
+    <string name="private_space_lockscreen_summary">Pues desbloquiar l\'espaciu priváu de la mesma manera que desbloquies el preséu, o escoyer otru bloquéu</string>
+    <string name="private_space_use_screenlock_label">Usar el bloquéu de pantalla</string>
+    <string name="private_space_set_lock_label">Escoyer otru bloquéu</string>
+    <string name="private_space_success_title">¡Acabesti!</string>
+    <string name="private_space_access_text">P\'atopar l\'espaciu priváu, ve a la llista d\'aplicaciones y desplázate p\'abaxo</string>
+    <string name="private_space_done_label">Fecho</string>
+    <string name="private_space_scrolldown_to_access">Desplázate p\'abaxo p\'atopar l\'espaciu priváu</string>
+    <string name="private_space_skip_login_label">Agora non</string>
+    <string name="private_space_continue_login_label">Siguir</string>
+    <string name="private_space_lock_setup_title">Seleición d\'un bloquéu pal espaciu priváu</string>
+    <string name="private_space_lock_setup_description">Pues desbloquiar l\'espaciu priváu cola buelga. Por seguranza, esta opción rique un bloquéu secundariu.</string>
+    <string name="private_space_apps_and_notifications_header">Aplicaciones y avisos</string>
+    <string name="private_space_gaia_education_title">Crea una cuenta de Google pa que t\'ayude a caltener la privacidá de los tos datos</string>
+    <string name="private_space_gaia_education_description">Na pantalla siguiente pues aniciar la sesión nuna cuenta pa usala col espaciu priváu</string>
+    <string name="private_space_gaia_education_header"><b>Crea una cuenta dedicada pa que t\'ayude a impidir que los datos apaezan fuera del espaciu priváu, como:</b></string>
+    <string name="private_space_gaia_education_bullet1">Semeyes, ficheros, mensaxes de corréu electrónicu, contautos y otros datos sincronizaos</string>
+    <string name="private_space_gaia_education_bullet2">Historial d\'aplicaciones baxaes y recomendaciones</string>
+    <string name="private_space_gaia_education_bullet3">Historial de restolar, marcadores y contraseñes guardaes</string>
+    <string name="private_space_gaia_education_bullet4">Conteníu suxeríu en función de la to actividá nes aplicaciones del espaciu priváu</string>
+    <string name="private_space_gaia_education_got_it">Entendílo</string>
+    <string name="fingerprint_add_max">Pues amestar hasta <xliff:g id="count" example="5">%d</xliff:g> buelgues</string>
+    <string name="fingerprint_intro_error_unknown">Nun pues amestar más buelgues</string>
+    <string name="encryption_settings_title">Cifráu</string>
+    <string name="unlock_set_unlock_pattern_title">Patrón</string>
+    <string name="unlock_set_unlock_password_title">Contraseña</string>
+    <string name="unlock_set_do_later_title">Agora non</string>
+    <string name="fingerprint_unlock_set_unlock_pattern">Patrón \u2022 Buelga</string>
+    <string name="fingerprint_unlock_set_unlock_pin">PIN \u2022 Buelga</string>
+    <string name="fingerprint_unlock_set_unlock_password">Contraseña \u2022 Buelga</string>
+    <string name="face_unlock_set_unlock_pattern">Patrón \u2022 Cara</string>
+    <string name="face_unlock_set_unlock_pin">PIN \u2022 Cara</string>
+    <string name="face_unlock_set_unlock_password">Contraseña \u2022 Cara</string>
+    <string name="unlock_set_unlock_mode_pattern">Patrón</string>
+    <string name="unlock_set_unlock_mode_password">Contraseña</string>
+    <string name="lockpassword_password_too_short">{count, plural,
+      one {}=1      {Ha contener polo menos # caráuter}
+      other   {Ha contener polo menos # caráuteres}
+    }</string>
+    <string name="lockpassword_pin_too_short">{count, plural,
+      one {}=1      {El PIN ha contener polo menos # díxitu}
+      other   {El PIN ha contener polo menos # díxitos}
+    }</string>
+    <string name="lockpassword_pin_too_short_autoConfirm_extra_message">{count, plural,
+        one {}=1      {El PIN ha contener polo menos # díxitu, mas aconséyase un PIN de {minAutoConfirmLen} díxitos pa tener más seguranza}
+        other   {El PIN ha contener polo menos # díxitos, mas aconséyase un PIN de {minAutoConfirmLen} díxitos pa tener más seguranza}
+        }</string>
+    <string name="lockpassword_password_requires_letters">{count, plural,
+      one {}=1      {Ha contener polo menos 1 lletra}
+      other   {Ha contener polo menos # lletres}
+    }</string>
+    <string name="lockpassword_password_requires_lowercase">{count, plural,
+      one {}=1      {Ha contener polo menos 1 lletra minúscula}
+      other   {Ha contener polo menos # lletres minúscules}
+    }</string>
+    <string name="lockpassword_password_requires_uppercase">{count, plural,
+      one {}=1      {Ha contener polo menos 1 lletra mayúscula}
+      other   {Ha contener polo menos # lletres mayúscules}
+    }</string>
+    <string name="lockpassword_password_requires_numeric">{count, plural,
+      one {}=1      {Ha contener polo menos 1 díxitu}
+      other   {Ha contener polo menos # díxitos}
+    }</string>
+    <string name="lockpassword_confirm_label">Confirmar</string>
+    <string name="lockpassword_clear_label">Borrar</string>
+    <string name="lockpattern_tutorial_continue_label">Siguiente</string>
+    <string name="manage_trust_agents">Axentes d\'enfotu</string>
+    <string name="bluetooth_enable_alphanumeric_pin">El PIN contién lletres o símbolos.</string>
+    <string name="bluetooth_device_keyboard_settings_preference_title">Configuración del tecláu</string>
+    <string name="bluetooth_unpair_dialog_title">¿Quies escaecer el preséu?</string>
+    <string name="nfc_reboot_dialog_title">¿Quies reaniciar el preséu?</string>
+    <string name="keywords_wifi_display_settings">espeyar, espeyu</string>
+    <string name="wifi_display_options_forget">Escaecer</string>
+    <string name="wifi_display_options_done">Fecho</string>
+    <string name="wifi_band_24ghz">2,4 GHz</string>
+    <string name="wifi_sign_in_button_text">Aniciar la sesión</string>
+    <string name="android_beam_settings_title">Android Beam</string>
+    <string name="wifi_error">Error</string>
+    <string name="wifi_sap_no_channel_error">La banda de 5GHz nun ta disponible nesti país</string>
+    <string name="wifi_in_airplane_mode">Nel mou avión</string>
+    <string name="wifi_allow_wep_networks">Permitir les redes WEP</string>
+    <string name="wifi_allow_wep_networks_summary">WEP ye un protocolu de seguranza antiguu que ye menos seguru</string>
+    <string name="wifi_allow_wep_networks_summary_carrier_not_allow">La operadora nun permite les redes WEP porque son menos segures</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_off">La conexón Wi\u2011F1 nun se vuelve activar automáticamente</string>
+    <string name="wifi_settings_warning_wep_network">Esta rede usa un protocolu de seguranza antiguu que ye menos seguru</string>
+    <string name="wifi_settings_ssid_block_button_close">Zarrar</string>
+    <string name="wifi_security">Seguranza</string>
+    <string name="wifi_signal">Intensidá de la señal</string>
+    <string name="wifi_status">Estáu</string>
+    <string name="tx_wifi_speed">Velocidá del enllaz de tresmisión</string>
+    <string name="rx_wifi_speed">Velocidá del enllaz de receición</string>
+    <string name="wifi_speed">Velocidá del enllaz</string>
+    <string name="wifi_frequency">Frecuencia</string>
+    <string name="wifi_ip_address">Direición IP</string>
+    <string name="wifi_eap_domain">Dominiu</string>
+    <string name="wifi_eap_identity">Identidá</string>
+    <string name="wifi_eap_anonymous">Identidá anónima</string>
+    <string name="wifi_password">Contraseña</string>
+    <string name="wifi_ap_choose_2G">Banda de 2,4 GHz</string>
+    <string name="wifi_privacy_settings">Privacidá</string>
+    <string name="wifi_subscription">Soscripción</string>
+    <string name="wifi_dpp_could_not_add_device">Nun se pudo amestar el preséu</string>
+    <string name="wifi_dpp_connecting">Conectando\u2026</string>
+    <string name="wifi_dpp_add_device">Amestar un preséu</string>
+    <string name="wifi_dpp_connect_network_using_qr_code">Usa un códigu QR p\'amestar un preséu a esta rede</string>
+    <string name="wifi_connecting">Conectando\u2026</string>
+    <string name="wifi_forget">Escaecer</string>
+    <string name="wifi_save">Guardar</string>
+    <string name="wifi_forget_dialog_title">¿Quies escaecer la rede?</string>
+    <string name="wifi_saved_access_points_summary">{count, plural,
+      one {}=1      {1 rede}
+      other   {# redes}
+    }</string>
+    <string name="wifi_saved_passpoint_access_points_summary">{count, plural,
+      one {}=1      {1 soscripción}
+      other   {# soscripciones}
+    }</string>
+    <string name="wifi_advanced_randomized_mac_address_title">Direición MAC aleatoria</string>
+    <string name="wifi_details_title">Detalles de la rede</string>
+    <string name="wifi_details_subnet_mask">Mázcara de sorrede</string>
+    <string name="wifi_type_title">Tipu</string>
+    <string name="wifi_details_ipv6_address_header">Direiciones IPv6</string>
+    <string name="hotspot_device_details_internet_source">Fonte d\'internet</string>
+    <string name="hotspot_connection_strength">Intensidá de la conexón</string>
+    <string name="wifi_saved_access_points_label">Redes guardaes</string>
+    <string name="wifi_subscribed_access_points_tab">Soscripciones</string>
+    <string name="wifi_saved_other_networks_tab">Otres redes</string>
+    <string name="wifi_gateway">Pasera</string>
+    <string name="wifi_p2p_delete_group_message">¿Quies escaecer esti grupu?</string>
+    <string name="wifi_hotspot_speed_title">Velocidá y compatibilidá</string>
+    <string name="wifi_hotspot_speed_summary_2g">2,4 GHz / Compatible cola mayoría de preseos</string>
+    <string name="wifi_hotspot_speed_summary_5g">5 GHz / Compatible con munchos preseos</string>
+    <string name="wifi_hotspot_speed_summary_6g">6 GHz / Compatible con pocos preseos</string>
+    <string name="wifi_hotspot_speed_summary_2g_and_5g">2,4 y 5 GHz / Compatible cola mayoría de preseos</string>
+    <string name="wifi_hotspot_speed_intro">Escueyi una frecuencia pal puntu Wi-Fi. La frecuencia afeuta a la velocidá de la conexón y qué tipos de preseos puen atopar el puntu Wi-Fi</string>
+    <string name="wifi_hotspot_speed_category">Frecuencia preferida</string>
+    <string name="wifi_hotspot_speed_2g">2,4 GHz</string>
+    <string name="wifi_hotspot_speed_2g_5g">2,4 y 5 GHz</string>
+    <string name="wifi_hotspot_speed_summary_unavailable">Nun ta disponible nel país o na rexón de to</string>
+    <string name="wifi_hotspot_security_summary_unavailable">Nun ta disponible con 6GHz</string>
+    <string name="wifi_hotspot_security_footer">La configuración de seguranza pue camudar si camudes la frecuencia del puntu Wi-Fi</string>
+    <string name="wifi_add_app_single_network_title">¿Quies guardar esta rede?</string>
+    <string name="wifi_add_app_single_network_saving_summary">Guardando\u2026</string>
+    <string name="wifi_add_app_networks_title">¿Quies guardar les redes?</string>
+    <string name="sound_settings">Soníu y vibración</string>
+    <string name="account_settings">Cuentes</string>
+    <string name="accessibility_category_work">Cuentes del perfil llaboral - <xliff:g id="managed_by" example="Managed by Corporate application">%s</xliff:g></string>
+    <string name="accessibility_category_personal">Cuentes del perfil personal</string>
+    <string name="accessibility_work_account_title">Cuenta llaboral - <xliff:g id="managed_by" example="Email provider">%s</xliff:g></string>
+    <string name="accessibility_personal_account_title">Cuenta personal - <xliff:g id="managed_by" example="Email provider">%s</xliff:g></string>
+    <string name="screen_resolution_title">Resolución de la pantalla</string>
+    <string name="screen_resolution_option_high">Resolución alta</string>
+    <string name="screen_resolution_option_full">Resolución completa</string>
+    <string name="color_mode_title">Colores</string>
+    <string name="auto_brightness_title">Brillu adautable</string>
+    <string name="night_display_title">Lluz nocherniega</string>
+    <string name="night_display_temperature_title">Intensidá</string>
+    <string name="dark_ui_status_title">Estáu</string>
+    <string name="screensaver_settings_title">Curiapantalles</string>
+    <string name="keywords_screensaver">curiapantalles</string>
+    <string name="screensaver_settings_toggle_title">Usar el curiapantalles</string>
+    <string name="screensaver_settings_summary_dock_and_charging">Mentanto tea cargando na base</string>
+    <string name="screensaver_settings_summary_never">Enxamás</string>
+    <string name="screensaver_settings_summary_on">        Sí / <xliff:g id="screen_saver" example="Art gallery">%1$s</xliff:g>
+    </string>
+    <string name="sim_lock_settings_category">Bloquéu de la SIM</string>
+    <string name="sim_enter_pin">PIN de la SIM</string>
+    <string name="sim_change_pin">PIN de la SIM</string>
+    <string name="sim_enter_ok">D\'acuerdu</string>
+    <string name="sim_preferred_message">«<xliff:g id="new_sim">%1$s</xliff:g>» ye la única SIM del preséu. ¿Quies usala pa los datos móviles, les llames y los mensaxes SMS?</string>
+    <string name="wrong_pin_code">{count, plural,
+      one {}=1      {El códigu PIN de la SIM ye incorreutu. Quédate # intentu enantes de tener de ponete en contautu cola operadora pa desbloquiar el preséu.}
+      other   {El códigu PIN de la SIM ye incorreutu. Quédente # intentos.}
+    }</string>
+    <string name="system_update_settings_list_item_title">Anovamientos del sistema</string>
+    <string name="model_info">Modelu</string>
+    <string name="manufactured_year">Añu de fabricación</string>
+    <string name="status_signal_strength">Intensidá de la señal</string>
+    <string name="storage_menu_format_button">Formatiar la tarxeta</string>
+    <string name="storage_menu_forget">Escaecer</string>
+    <string name="storage_other_users">Otros usuarios</string>
+    <string name="storage_wizard_init_v2_external_action">Formatiar</string>
+    <string name="storage_wizard_init_v2_later">Configurar dempués</string>
+    <string name="storage_wizard_format_confirm_v2_action">Formatiar «<xliff:g id="name" example="SD card">^1</xliff:g>»</string>
+    <string name="storage_wizard_ready_v2_external_body">Pues comenzar a usar l\'almacenamientu «<xliff:g id="name" example="SD card">^1</xliff:g>»</string>
+    <string name="storage_wizard_ready_v2_internal_body">Pues comenzar a usar l\'almacenamientu «<xliff:g id="name" example="SD card">^1</xliff:g>»</string>
+    <string name="storage_wizard_ready_v2_internal_moved_body">Pues comenzar a usar l\'almacenamientu «<xliff:g id="name" example="SD card">^1</xliff:g>»</string>
+    <string name="satellite_setting">Mensaxería per satélite</string>
+    <string name="menu_save">Guardar</string>
+    <string name="usb_tethering_button_text">Tethering per USB</string>
+    <string name="tethering_help_button_text">Ayuda</string>
+    <string name="sms_application_title" translatable="true">Aplicación de SMS</string>
+    <string name="sms_change_default_dialog_title" translatable="true">¿Quies camudar l\'aplicación de SMS?</string>
+    <string name="sms_change_default_no_previous_dialog_text" translatable="true">¿Quies usar «<xliff:g id="new_app">%s</xliff:g>» como aplicación de SMS?</string>
+    <string name="location_app_permission_summary_location_on">{count, plural,
+      one {}=1      {# de {total} aplicaciones tien accesu a la llocalización}
+      other   {# de {total} aplicaciones tienen accesu a la llocalización}
+    }</string>
+    <string name="location_recent_location_access_view_details">Ver los detalles</string>
+    <string name="location_time_zone_detection_toggle_title">Usar la llocalización</string>
+    <string name="location_time_zone_detection_status_title">Nun se pue afitar automáticamente\'l fusu horariu</string>
+    <string name="location_time_zone_detection_status_summary_blocked_by_settings">La llocalización o los sos servicios tán desactivaos</string>
+    <string name="location_time_zone_provider_fix_dialog_ok_button">Igualo</string>
+    <string name="lockpassword_forgot_password">¿Escaeciesti la contraseña?</string>
+    <string name="lockpassword_forgot_pattern">¿Escaeciesti\'l patrón?</string>
+    <string name="lockpassword_forgot_pin">¿Escaeciesti\'l PIN?</string>
+    <string name="lockpassword_confirm_your_pattern_generic">Dibuxa\'l patrón pa siguir</string>
+    <string name="lockpassword_confirm_your_pin_generic">Introduz el PIN pa siguir</string>
+    <string name="lockpassword_confirm_your_password_generic">Introduz la contraseña pa siguir</string>
+    <string name="work_challenge_emergency_button_text">Emerxencia</string>
+    <string name="lockpattern_continue_button_text">Siguir</string>
+    <string name="lockpattern_settings_enhanced_pin_privacy_summary">Desactiva les animaciones mentanto s\'introduz el PIN</string>
+    <string name="activity_not_found">L\'aplicación nun ta instalada nel teléfonu.</string>
+    <string name="lock_settings_profile_title">Seguranza del perfil llaboral</string>
+    <string name="lock_settings_profile_unified_summary">El mesmu bloquéu de pantalla que\'l del preséu</string>
+    <string name="advanced_settings">Configuración avanzada</string>
+    <string name="permissions_label">Permisos</string>
+    <string name="uri_permissions_text">{count, plural,
+      one {}=1      {1 elementu}
+      other   {# elementos}
+    }</string>
+    <string name="force_stop">Forciar parada</string>
+    <string name="archive">Archivar</string>
+    <string name="restore">Restaurar</string>
+    <string name="restoring_step_one">Restaurando</string>
+    <string name="restoring_step_two">Restaurando.</string>
+    <string name="restoring_step_three">Restaurando‥</string>
+    <string name="restoring_step_four">Restaurando…</string>
+    <string name="uninstall_text">Desinstalar</string>
+    <string name="install_text">Instalar</string>
+    <string name="disable_text">Desactivar</string>
+    <string name="enable_text">Activar</string>
+    <string name="app_restricted_settings_lockscreen_title">Permitir la configuración restrinxida</string>
+    <string name="internal_storage">Almacenamientu internu</string>
+    <string name="dlg_ok">D\'acuerdu</string>
+    <string name="dlg_cancel">Encaboxar</string>
+    <string name="computing_size">Calculando\u2026</string>
+    <string name="invalid_size_value">Nun se pudo calcular el tamañu del paquete.</string>
+    <string name="version_text">versión <xliff:g id="VERSION_NUM">%1$s</xliff:g></string>
+    <string name="does_not_exist">L\'aplicación nun esiste.</string>
+    <string name="force_stop_dlg_title">¿Quies forciar la parada?</string>
+    <string name="force_stop_dlg_text">Si forcies la parada d\'una aplicación, ye posible que nun funcione bien.</string>
+    <string name="app_install_details_group_title">Tienda</string>
+    <string name="app_ops_running">N\'execución</string>
+    <string name="running_processes_header_apps_prefix">Aplicaciones</string>
+    <string name="running_processes_header_free_prefix">Ensin usar</string>
+    <string name="running_processes_header_used_prefix">N\'usu</string>
+    <string name="running_processes_header_cached_prefix">Na caché</string>
+    <string name="running_processes_header_ram"><xliff:g id="ram">%1$s</xliff:g> de RAM</string>
+    <string name="runningservicedetails_services_title">Servicios</string>
+    <string name="runningservicedetails_processes_title">Procesos</string>
+    <string name="service_manage">Configuración</string>
+    <string name="languages_settings">Llingües</string>
+    <string name="keyboard_settings">Tecláu</string>
+    <string name="system_language">Llingües del sistema</string>
+    <string name="phone_language">Llingües</string>
+    <string name="spellchecker_quick_settings">Configuración</string>
+    <string name="spellchecker_language">Llingua</string>
+    <string name="keyboard_options_category">Opciones</string>
+    <string name="keyboard_a11y_category">Accesibilidá</string>
+    <string name="physical_keyboard_title">Tecláu físicu</string>
+    <string name="trackpad_settings">Panel táctil</string>
+    <string name="trackpad_mouse_settings">Panel táctil y mur</string>
+    <string name="trackpad_touchpad_gesture_title">Xestos del panel táctil</string>
+    <string name="trackpad_touchpad_gesture_summary">Personaliza los xestos de navegación del panel táctil</string>
+    <string name="trackpad_reverse_scrolling_title">Desplazamientu inversu</string>
+    <string name="trackpad_reverse_scrolling_summary">El conteníu muévese p\'arriba cuando te desplaces p\'abaxo</string>
+    <string name="trackpad_pointer_speed">Velocidá del punteru</string>
+    <string name="gesture_title_go_back">Dir p\'atrás</string>
+    <string name="gesture_title_recent_apps">Ver les aplicaciones de recién</string>
+    <string name="gesture_button_skip">Saltar</string>
+    <string name="gesture_button_next">Siguiente</string>
+    <string name="gesture_button_done">Fecho</string>
+    <string name="trackpad_go_back_title">Dir p\'atrás</string>
+    <string name="trackpad_notifications_title">Avisos</string>
+    <string name="modifier_keys_done">Fecho</string>
+    <string name="pointer_speed">Velocidá del punteru</string>
+    <string name="user_dict_settings_title">Diccionariu personal</string>
+    <string name="user_dict_settings_add_screen_title">Fras</string>
+    <string name="user_dict_settings_add_dialog_more_options">Más opciones</string>
+    <string name="user_dict_settings_add_dialog_less_options">Menos opciones</string>
+    <string name="user_dict_settings_add_dialog_confirm">D\'acuerdu</string>
+    <string name="user_dict_settings_add_word_option_name">Pallabra:</string>
+    <string name="user_dict_settings_add_shortcut_option_name">Atayu:</string>
+    <string name="user_dict_settings_add_locale_option_name">Llingua:</string>
+    <string name="user_dict_settings_context_menu_edit_title">Editar</string>
+    <string name="user_dict_settings_all_languages">Pa toles llingües</string>
+    <string name="user_dict_settings_more_languages">Más llingües…</string>
+    <string name="accessibility_settings">Accesibilidá</string>
+    <string name="captions_category_title">Sotítulos</string>
+    <string name="audio_category_title">Audiu</string>
+    <string name="accessibility_color_and_motion_title">Color y movimentu</string>
+    <string name="accessibility_screen_magnification_title">Agrandamientu</string>
+    <string name="accessibility_screen_magnification_follow_typing_title">Agrandar al teclexar</string>
+    <string name="accessibility_magnification_triple_tap_warning_positive_button">Siguir de toes toes</string>
+    <string name="accessibility_text_reading_options_title">Testu y tamañu de visualización</string>
+    <string name="accessibility_text_reading_options_suggestion_title">Camudar cómo s\'amuesa\'l testu</string>
+    <string name="accessibility_text_reading_preview_mail_subject">Asuntu: Diseños de globos aeroestáticos</string>
+    <string name="accessibility_text_reading_preview_mail_from">De: Nel</string>
+    <string name="accessibility_text_reading_preview_mail_content">¡Bonos díes!\n\nNamás quería saber cómo van los diseños. ¿Van tar acabaos enantes de que comencemos a fabricar globos nuevos?</string>
+    <string name="accessibility_text_reading_conversation_message_1">¿Vas facer daqué esta fin de selmana?</string>
+    <string name="accessibility_text_reading_conversation_message_2">Voi dir pa la playa, ¿Quies venir?</string>
+    <string name="accessibility_screen_option">Opciones</string>
+    <string name="accessibility_screen_magnification_intro_text">Avera aína\'l conteníu de la pantalla p\'agrandalu</string>
+    <string name="accessibility_screen_magnification_summary"><![CDATA[        <b>P\'averar:</b><br/>
+        {0,number,integer}. Usa l\'atayu p\'aniciar l\'aumentu<br/>
+        {1,number,integer}. Toca la pantalla<br/>
+        {2,number,integer}. Arrastra 2 deos pa movete pela pantalla<br/>
+        {3,number,integer}. Plizca con 2 deos p\'axustar el zoom<br/>
+        {4,number,integer}. Usa l\'atayu pa dexar d\'aumentar<br/><br/>
+        <b>P\'averar temporalmente:</b><br/>
+        {0,number,integer}. Asegúrate de que\'l tipu d\'aumentu ta configuráu como pantalla completa<br/>
+        {1,number,integer}. Usa l\'atayu p\'aniciar l\'aumentu<br/>
+        {2,number,integer}. Ten primío en cualesquier parte de la pantalla<br/>
+        {3,number,integer}. Arrastra\'l deu pa movete pela pantalla<br/>
+        {4,number,integer}. Llevanta\'l deu pa dexar d\'aumentar
+        ]]></string>
+    <string name="accessibility_screen_magnification_navbar_summary">Cuando s\'activa l\'agrandamientu, pues averar la pantalla.\n\n<b>Pa facer zoom</b>, anicia l\'agrandamientu, dempués toca cualesquier parte de la pantalla.\n<ul><li>Arrastra 2 deos o más pa desplazate</li>\n<li>Plizca con 2 deos o más p\'axustar el zoom</li></ul>\n\n<b>Pa facer zoom temporalmente</b>, anicia l\'agrandamientu y con 1 deu, ten primida cualesquier parte de la pantalla.\n<ul><li>Arrastra con 1 deu pa movete pela pantalla</li>\n<li>Llevanta\'l deu p\'alloñar</li></ul>\n\nNun pues averar el tecláu nin la barra de navegación.</string>
+    <string name="accessibility_tutorial_dialog_button">Entendílo</string>
+    <string name="accessibility_shortcut_edit_dialog_summary_software_floating"><annotation id="link">Más opciones</annotation></string>
+    <string name="accessibility_button_intro_text">Accedi aína a les funciones d\'accesibilidá dende cualesquier pantalla</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title">Testu de contraste fuerte</string>
+    <string name="accessibility_disable_animations_summary">Amenorga\'l movimientu na pantalla</string>
+    <string name="accessibility_timeout_10secs">10 segundos</string>
+    <string name="accessibility_timeout_30secs">30 segundos</string>
+    <string name="accessibility_timeout_1min">1 minutu</string>
+    <string name="accessibility_timeout_2mins">2 minutos</string>
+    <string name="accessibility_autoclick_short_summary">0,2 segundos</string>
+    <string name="accessibility_autoclick_medium_summary">0,6 segundos</string>
+    <string name="accessibility_autoclick_long_summary">1 segundu</string>
+    <string name="accessibility_vibration_settings_title">Vibración y función háptica</string>
+    <string name="accessibility_call_vibration_category_title">Llamaes</string>
+    <string name="accessibility_notification_alarm_vibration_category_title">Avisos y alarmes</string>
+    <string name="accessibility_interactive_haptics_category_title">Rempuestes háptiques interactives</string>
+    <string name="accessibility_vibration_primary_switch_title">Usar la vibración y la función háptica</string>
+    <string name="accessibility_keyboard_vibration_title">Vibración del tecláu</string>
+    <string name="captioning_more_options_title">Más opciones</string>
+    <string name="accessibility_hearingaid_instruction_continue_button">Siguir</string>
+    <string name="accessibility_hearingaid_title">Audífonos</string>
+    <string name="accessibility_hearing_device_connected_title">Audífonos</string>
+    <string name="accessibility_hearing_device_control">Controles del audífonu</string>
+    <string name="accessibility_hearing_device_shortcut_title">Atayu del audífonu</string>
+    <string name="accessibility_hac_mode_title">Compatibilidá con audífonos</string>
+    <string name="accessibility_found_all_devices">¿Nun ves l\'audífonu?</string>
+    <string name="accessibility_list_all_devices_title">Ver más preseos</string>
+    <string name="daltonizer_mode_tritanomaly_summary">Tritanomalía</string>
+    <string name="reduce_bright_colors_intensity_preference_title">Intensidá</string>
+    <string name="accessibility_menu_item_settings">Configuración</string>
+    <string name="captioning_standard_options_title">Opciones estándar</string>
+    <string name="captioning_locale">Llingua</string>
+    <string name="color_title">Color</string>
+    <string name="color_white">Blancu</string>
+    <string name="color_gray">Buxu</string>
+    <string name="color_black">Prietu</string>
+    <string name="color_red">Coloráu</string>
+    <string name="color_green">Verde</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_yellow">Mariellu</string>
+    <string name="color_magenta">Maxenta</string>
+    <string name="accessibility_dialog_button_allow">Permitir</string>
+    <string name="accessibility_no_services_installed">Nun hai nengún serviciu instaláu</string>
+    <string name="accessibility_no_service_selected">Nun se seleicionó nengún serviciu</string>
+    <string name="accessibility_service_default_description">Nun se fornió nenguna descripción.</string>
+    <string name="settings_button">Configuración</string>
+    <string name="keywords_reduce_bright_colors">sensibilidá a la lluz, fotofobia, estilu escuru, xaqueca, dolor de cabeza, cefalalxa, mou de llectura, mou nocherniegu, amenorgar el brillu, puntu blancu</string>
+    <string name="print_settings">Imprentación</string>
+    <string name="print_settings_title">Servicios d\'imprentación</string>
+    <string name="print_no_services_installed">Nun hai nengún serviciu instaláu</string>
+    <string name="print_no_printers_found">Nun s\'atopó nenguna imprentadora</string>
+    <string name="print_menu_item_settings">Configuración</string>
+    <string name="print_print_jobs">Trabayos d\'imprentación</string>
+    <string name="print_print_job">Trabayu d\'imprentación</string>
+    <string name="printer_info_desc">Más información tocante a esta imprentadora</string>
+    <string name="power_usage_summary_title">Batería</string>
+    <string name="battery_tip_low_battery_summary">Activa l\'aforrador d\'enerxía pa prollongar la duración de la batería</string>
+    <string name="battery_tip_limited_temporarily_summary">P\'ayudate a prollongar la vida útil de la batería, optimizóse la carga</string>
+    <string name="battery_tip_limited_temporarily_sec_button_content_description">Saber más tocante a la carga en posa</string>
+    <string name="battery_tip_restrict_summary">{count, plural,
+      one {}=1      {«{label}» consume muncha batería en segundu planu}
+      other   {# consumen muncha batería en segundu planu}
+    }</string>
+    <string name="battery_tip_restrict_handled_summary">{count, plural,
+      one {}=1      {Esta aplicación nun se pue executar en segundu planu}
+      other   {Estes aplicaciones nun se pue executar en segundu planu}
+    }</string>
+    <string name="power_screen">Pantalla</string>
+    <string name="power_cpu">CPU</string>
+    <string name="power_flashlight">Llinterna</string>
+    <string name="power_camera">Cámara</string>
+    <string name="power_cell">Rede móvil</string>
+    <string name="power_phone">Llamaes de voz</string>
+    <string name="battery_footer_summary">La duración que-y queda a la batería ye aproximada y pue camudar según l\'usu</string>
+    <string name="battery_usage_system_apps">Aplicaciones del sistema</string>
+    <string name="battery_usage_uninstalled_apps">Aplicaciones desinstalaes</string>
+    <string name="battery_usage_screen_time">Tiempu d\'usu: <xliff:g id="time">%s</xliff:g></string>
+    <string name="battery_usage_screen_footer_empty">Los datos d\'usu de la batería van tar disponibles nunes hores, namás que se complete la carga</string>
+    <string name="battery_usage_chart_label_now">agora</string>
+    <string name="battery_usage_less_than_percent">&lt; <xliff:g id="percentage">%1$s</xliff:g></string>
+    <string name="process_stats_os_label">SO Android</string>
+    <string name="menu_duration_1d">1 día</string>
+    <string name="on_device_recognition_settings">Configuración del reconocimientu nel preséu</string>
+    <string name="on_device_recognition_settings_title">Reconocimientu nel preséu</string>
+    <string name="on_device_recognition_settings_summary">Reconocimientu de voz nel preséu</string>
+    <string name="tts_install_voice_title">Voces</string>
+    <string name="tts_install_voices_open">Abrir l\'aplicación</string>
+    <string name="tts_play">Reproducir</string>
+    <string name="adaptive_connectivity_title">Conectividá adautable</string>
+    <string name="adaptive_connectivity_summary">Prollonga la duración de la batería y ameyora\'l rindimientu del preséu xestionando automáticamente les conexones a la rede</string>
+    <string name="adaptive_connectivity_switch_on">Sí</string>
+    <string name="adaptive_connectivity_switch_off">Non</string>
+    <string name="adaptive_connectivity_main_switch_title">Usar la conectividá adautable</string>
+    <string name="request_manage_credentials_allow">Permitir</string>
+    <string name="request_manage_credentials_more">Amosar más</string>
+    <string name="remove_credential_management_app">Quitar l\'aplicación</string>
+    <string name="remove_credential_management_app_dialog_title">¿Quies quitar esta aplicación?</string>
+    <string name="number_of_urls">{count, plural,
+      one {}=1      {# URL}
+      other   {# URLs}
+    }</string>
+    <string name="uninstall_device_admin">Desinstalar l\'aplicación</string>
+    <string name="remove_and_uninstall_device_admin">Desactivar y desinstalar</string>
+    <string name="notification_history_count">{count, plural,
+      one {}=1      {# avisu}
+      other   {# avisos}
+    }</string>
+    <string name="wifi_setup_detail">Detalles de la rede</string>
+    <string name="remove_managed_profile_label">Quitar el perfil llaboral</string>
+    <string name="sync_calendar">Calendariu</string>
+    <string name="sync_contacts">Contautos</string>
+    <string name="remove_account_label">Quitar la cuenta</string>
+    <string name="really_remove_account_title">¿Quies quitar la cuenta?</string>
+    <string name="remove_account_failed">L\'alministrador nun permite esti cambéu</string>
+    <string name="delete">Desaniciar</string>
+    <string name="data_usage_disable_mobile">¿Quies desactivar los datos móviles?</string>
+    <string name="data_usage_enable_mobile">Datos móviles</string>
+    <string name="data_usage_enable_3g">Datos 2G-3G</string>
+    <string name="data_usage_enable_4g">Datos 4G</string>
+    <string name="data_roaming_enable_mobile">Roaming</string>
+    <string name="wifi_metered_title">Usu de la rede</string>
+    <string name="vpn_username">Nome d\'usuariu</string>
+    <string name="vpn_password">Contraseña</string>
+    <string name="vpn_cancel">Encaboxar</string>
+    <string name="vpn_done">Escartar</string>
+    <string name="vpn_save">Guardar</string>
+    <string name="vpn_connect">Conectar</string>
+    <string name="vpn_replace">Sustituyir</string>
+    <string name="vpn_forget">Escaecer</string>
+    <string name="vpn_disconnect">Desconectar</string>
+    <string name="vpn_version">Versión</string>
+    <string name="vpn_forget_long">Escaecer la VPN</string>
+    <string name="vpn_no_vpns_added">Nun s\'amestó nenguna VPN</string>
+    <string name="trusted_credentials_disable_label">Desactivar</string>
+    <string name="trusted_credentials_enable_label">Activar</string>
+    <string name="trusted_credentials_remove_label">Desinstalar</string>
+    <string name="backup_pw_cancel_button_text">Encaboxar</string>
+    <string name="ssl_ca_cert_warning">La rede pue tar supervisada</string>
+    <string name="done_button">Fecho</string>
+    <string name="user_profile_confirm_remove_title">¿Quitar esti perfil?</string>
+    <string name="work_profile_confirm_remove_title">¿Quitar perfil llaboral?</string>
+    <string name="user_delete_button">Desaniciar</string>
+    <string name="user_exit_guest_dialog_remove">Quitar</string>
+    <string name="guest_category_title">Convidáu (tu)</string>
+    <string name="user_category_title">Usuarios</string>
+    <string name="other_user_category_title">Otros usuarios</string>
+    <string name="enable_guest_calling">Permitir al convidáu que faiga llamaes</string>
+    <string name="enable_guest_calling_summary">L\'historial de llamaes va compartise col usuariu convidáu</string>
+    <string name="emergency_info_title">Información d\'emerxencia</string>
+    <string name="nfc_default_payment_workapp_confirmation_message_title">Pa pagar con una aplicación llaboral:</string>
+    <string name="nfc_default_payment_workapp_confirmation_message_1">el perfil llaboral ha tar activáu</string>
+    <string name="nfc_default_payment_workapp_confirmation_message_2">tienes d\'introducir el PIN, patrón o contraseña del perfil llaboral si tienes.</string>
+    <string name="nfc_payment_how_it_works">Cómo funciona</string>
+    <string name="nfc_how_it_works_got_it">Entendílo</string>
+    <string name="nfc_more_title">Más\u2026</string>
+    <string name="nfc_payment_btn_text_update">Anovar</string>
+    <string name="user_account_title">Cuenta pal conteníu</string>
+    <string name="amber_alerts_title">Alertes AMBER</string>
+    <string name="preferred_network_type_title">Tipu de rede preferente</string>
+    <string name="mms_message_title">Mensaxes MMS</string>
+    <string name="app_sees_restricted_accounts">Esta aplicación pue acceder a les cuentes</string>
+    <string name="restriction_location_enable_title">Llocalización</string>
+    <string name="wizard_back">Atrás</string>
+    <string name="wizard_next">Siguiente</string>
+    <string name="wizard_back_adoptable">Formatiar d\'otra forma</string>
+    <string name="select_sim_for_data">Seleiciona una SIM pa los datos móviles</string>
+    <string name="select_specific_sim_for_data_title">¿Quies usar a «<xliff:g id="new_sim" example="carrierA">%1$s</xliff:g>» pa los datos móviles?</string>
+    <string name="select_specific_sim_for_data_msg">Si cambies a «<xliff:g id="new_sim" example="carrierA">%1$s</xliff:g>», «<xliff:g id="old_sim" example="carrierB">%2$s</xliff:g>» yá nun va usase pa los datos móviles.</string>
+    <string name="select_specific_sim_for_data_button">Usar «<xliff:g id="new_sim" example="carrierA">%1$s</xliff:g>»</string>
+    <string name="color_orange">Naranxa</string>
+    <string name="color_purple">Moráu</string>
+    <string name="dashboard_title">Configuración</string>
+    <string name="account_dashboard_title">Contraseñes y cuentes</string>
+    <string name="account_dashboard_default_summary">Suxerencies pal aniciu de sesión y el rellenu automáticu</string>
+    <string name="cloned_apps_dashboard_title">Aplicaciones clonaes</string>
+    <string name="keywords_wifi_data_usage">usu de datos</string>
+    <string name="keywords_applications_settings">Aplicaciones</string>
+    <string name="keywords_printing">imprentadora</string>
+    <string name="keywords_sounds">altavoz, bip, pitíu, pitar, volume, desactivar, silenciu, audiu, música, soníu, función, teunoloxía háptica, vibrar, vibración, vibrador</string>
+    <string name="keywords_accounts">cuenta, amestar, amiestu, quitar, desaniciar, desaniciu, perfil, llaboral</string>
+    <string name="keywords_keyboard_and_ime">testu, correición, correxir, soníu, sonar, vibración, vibrar, auto, llingua, xestu, suxerir, suxerencia, estilu, ofiensa, ofensivu, ofensiva, ofensivo, pallabra, teclexar, escribir, emoji, fustaxe, internacional</string>
+    <string name="keywords_app_permissions">aplicaciones, permisos, seguranza</string>
+    <string name="keywords_screen_resolution">FHD, QHD, resolución, 1080p, 1440p</string>
+    <string name="keywords_gesture">xestos</string>
+    <string name="keywords_sim_status_iccid_esim">rede, estáu de la rede móvil, estáu del serviciu, estáu de la cobertoria, intensidá de la señal, tipu de rede móvil, roaming, iccid, eid</string>
+    <string name="keywords_model_and_hardware">númberu de serie, versión del hardware</string>
+    <string name="keywords_systemui_theme">estilu escuru</string>
+    <string name="keywords_face_settings">cara</string>
+    <string name="keywords_accessibility_vibration_primary_switch">función, teunoloxía háptica, vibrar, vibración, vibrador</string>
+    <string name="keywords_ramping_ringer_vibration">función, teunoloxía háptica, vibrar, vibración, vibrador, teléfonu, llamar, llamada, sonar, timbre, gradualmente</string>
+    <string name="keywords_notification_vibration">función, teunoloxía háptica, sensibilidá, avisu, vibrar, vibrador, vibración</string>
+    <string name="keywords_alarm_vibration">función, teunoloxía háptica, sensibilidá, alarma, vibrar, vibrador, vibración</string>
+    <string name="keywords_media_vibration">función, teunoloxía háptica, sensibilidá, conteníu multimedia, vibrar, vibrador, vibración</string>
+    <string name="keywords_vibration">función, teunoloxía háptica, vibrar, vibración, vibrar, vibrador, vibración</string>
+    <string name="keywords_change_nfc_tag_apps_state">nfc, etiqueta, llector</string>
+    <string name="keywords_keyboard_vibration">tecláu, teunoloxía hápica, vibración, vibrar,</string>
+    <string name="separate_ring_volume_option_title">Volume del timbre</string>
+    <string name="notification_volume_disabled_summary">Nun ta disponible porque\'l timbre ta desactiváu</string>
+    <string name="spatial_audio_title">Audiu espacial</string>
+    <string name="touch_sounds_title">Soníos al tocar y calcar</string>
+    <string name="spatial_audio_wired_headphones">Auriculares con cable</string>
+    <string name="spatial_audio_text">L\'audiu del conteníu multimedia compatible vuélvese más inmersivu</string>
+    <string name="spatial_summary_on_one">Sí / <xliff:g id="output device" example="Phone speaker">%1$s</xliff:g></string>
+    <string name="spatial_summary_on_two">Sí / <xliff:g id="output device" example="Phone speaker">%1$s</xliff:g> y <xliff:g id="output device" example="Wired headphones">%2$s</xliff:g></string>
+    <string name="spatial_audio_footer_title">Tamién pues activar l\'audiu espacial pa los preseos Bluetooth.</string>
+    <string name="zen_mode_schedule_delete">Desaniciar</string>
+    <string name="zen_mode_rule_name_edit">Editar</string>
+    <string name="zen_mode_block_effect_summary_none">Enxamás</string>
+    <string name="zen_mode_other_options">otres opciones</string>
+    <string name="zen_mode_add">Amestar</string>
+    <string name="zen_mode_duration_summary_time_hours">        {count, plural, one {}
+            =1    {1 hora}
+            other {# hores}
+        }
+    </string>
+    <string name="zen_mode_duration_summary_time_minutes">        {count, plural,
+            =1    {1 minutu}
+            other {# minutos}
+        }
+    </string>
+    <string name="zen_category_people">Persones</string>
+    <string name="zen_category_apps">Aplicaciones</string>
+    <string name="zen_custom_settings_dialog_ok">Entendílo</string>
+    <string name="zen_custom_settings_notifications_header">Avisos</string>
+    <string name="zen_custom_settings_duration_header">Duración</string>
+    <string name="zen_msg_event_reminder_title">Mensaxes, eventos &amp; recordatorios</string>
+    <string name="zen_onboarding_ok">Fecho</string>
+    <string name="zen_onboarding_settings">Configuración</string>
+    <string name="sound_work_settings">Soníos del perfil llaboral</string>
+    <string name="work_use_personal_sounds_title">Usar los soníos del perfil personal</string>
+    <string name="work_sync_dialog_title">¿Quies usar los soníos del perfil personal?</string>
+    <string name="configure_notification_settings">Avisos</string>
+    <string name="conversation_notifs_category">Conversación</string>
+    <string name="profile_section_header_for_advanced_privacy">Perfil llaboral</string>
+    <string name="lock_screen_notifications_interstitial_message">¿Qué quies qu\'amuese la pantalla de bloquéu?</string>
+    <string name="notification_importance_title">Comportamientu</string>
+    <string name="conversations_category_title">Conversaciones</string>
+    <string name="notification_priority_title">Prioridá</string>
+    <string name="notifications_sent_never">Enxamás</string>
+    <string name="manage_notification_access_title">Preséu y avisos</string>
+    <string name="notification_assistant_security_warning_summary">        Los avisos ameyoraos sustituyeron a los avisos adautables n\'Android 12.
+        Esta función amuesa aiciones y rempuestes suxeríes, y organiza los avisos.
+        \n\nLos avisos ameyoraos puen acceder al conteníu de los avisos, incluyida la información
+        personal como los nomes y los mensaxes de los contautos. Esta función tamién pue escartar
+        o responder a los avisos; por exemplu, pue contestar llamaes y controlar el mou «Nun molestar».
+    </string>
+    <string name="nls_feature_read_title">Lleer los avisos</string>
+    <string name="nls_feature_read_summary">Pue lleer los avisos, incluyida la información personal como los contautos, les semeyes y los mensaxes.</string>
+    <string name="nls_feature_reply_title">Responder a mensaxes</string>
+    <string name="nls_feature_reply_summary">Pue responder a mensaxes y facer aiciones colos botones de los avisos, como aplazar o escartar avisos y contestar llamaes.</string>
+    <string name="nls_feature_settings_title">Camudar la configuración</string>
+    <string name="nls_feature_settings_summary">Pue des/activar la función «Nun molestar» y camudar les opciones rellacionaes</string>
+    <string name="notif_type_conversation">Conversaciones</string>
+    <string name="notif_type_alerting">Avisos</string>
+    <string name="notif_listener_more_settings">Más opciones</string>
+    <string name="app_notifications_not_send_desc">Esta aplicación nun unvia avisos</string>
+    <string name="notification_channels">Categoríes</string>
+    <string name="app_notifications_dialog_done">Fecho</string>
+    <string name="notification_vibrate_title">Vibración</string>
+    <string name="notification_channel_sound_title">Soníu</string>
+    <string name="notification_conversation_important">Prioridá</string>
+    <string name="zen_schedule_rule_type_name">Hora</string>
+    <string name="zen_event_rule_type_name">Eventu</string>
+    <string name="zen_mode_event_rule_reply_yes">Sí</string>
+    <string name="zen_mode_schedule_rule_days">Díes</string>
+    <string name="zen_mode_conversations_title">Conversaciones</string>
+    <string name="zen_mode_from_all_conversations">Toles conversaciones</string>
+    <string name="zen_mode_from_important_conversations">Conversaciones con prioridá</string>
+    <string name="zen_mode_from_important_conversations_second">conversaciones prioritaries</string>
+    <string name="zen_mode_calls_title">Llamaes</string>
+    <string name="zen_mode_calls">Llamaes</string>
+    <string name="zen_mode_reminders">Recordatorios</string>
+    <string name="zen_mode_reminders_list_first">Recordatorios</string>
+    <string name="zen_mode_events_list_first">Eventos</string>
+    <string name="zen_mode_bypassing_apps_summary_all">Tolos avisos</string>
+    <string name="zen_mode_bypassing_apps_summary_some">Dalgunos avisos</string>
+    <string name="zen_mode_bypassing_apps_title">Aplicaciones</string>
+    <string name="suggestion_button_close">Zarrar</string>
+    <string name="memtag_toggle">Proteición avanzada de la memoria</string>
+    <string name="memtag_force_off">Nun ta disponible pal preséu</string>
+    <string name="memtag_reboot_title">¿Quies reaniciar el preséu?</string>
+    <string name="memtag_reboot_no">Agora non</string>
+    <string name="memtag_learn_more">Saber más tocante a la proteición avanzada de la memoria.</string>
+    <string name="opening_paragraph_delete_profile_unknown_company">Esti perfil llaboral ta xestionáu por:</string>
+    <string name="app_launch_dialog_ok">D\'acuerdu</string>
+    <string name="app_launch_dialog_cancel">Encaboxar</string>
+    <string name="app_launch_supported_links_add">Amestar</string>
+    <string name="storage_type_internal">almacenamientu internu</string>
+    <string name="storage_type_external">almacenamientu esternu</string>
+    <string name="change">Camudar</string>
+    <string name="notifications_label">Avisos</string>
+    <string name="runtime_permissions_summary_no_permissions_granted">Nun se concedió nengún permisu</string>
+    <string name="runtime_permissions_summary_no_permissions_requested">Nun se solicitó nengún permisu</string>
+    <string name="unused_apps_category">Configuración d\'aplicaciones non usaes</string>
+    <string name="unused_apps_switch_summary">Quita los permisos, desanicia los ficheros temporales y para los avisos</string>
+    <string name="unused_apps_switch_v2">Xestionar l\'aplicación si nun s\'usa</string>
+    <string name="unused_apps_switch_summary_v2">Quita los permisos, desanicia los ficheros temporales, para los avisos y archiva l\'aplicación</string>
+    <string name="filter_all_apps">Toles aplicaciones</string>
+    <string name="filter_instant_apps">Aplicaciones instantánees</string>
+    <string name="memory_settings_title">Memoria</string>
+    <string name="usb_use_file_transfers">Tresferencia de ficheros</string>
+    <string name="usb_use_uvc_webcam">Cámara web</string>
+    <string name="usb_use_tethering">Tethering per USB</string>
+    <string name="usb_control_device">Esti preséu</string>
+    <string name="usb_summary_file_transfers">Tresferencia de ficheros</string>
+    <string name="usb_summary_tether">Tethering per USB</string>
+    <string name="usb_summary_UVC">Cámara web</string>
+    <string name="memory_details">Detalles</string>
+    <string name="memory_performance">Rindimientu</string>
+    <string name="total_memory">Memoria total</string>
+    <string name="free_memory">Ensin usar</string>
+    <string name="running_frequency">Frecuencia</string>
+    <string name="memory_maximum_usage">Usu máximu</string>
+    <string name="admin_profile_owner_message">L\'alministrador pue supervisar y xestionar les aplicaciones
+        y los datos asociaos al perfil llaboral, como la configuración, los permisos, l\'accesu
+        corporativu, l\'actividá na rede y la información de llocalización del preséu.</string>
+    <string name="condition_bg_data_title">Aforrador de datos</string>
+    <string name="color_temperature_toast">P\'aplicar el cambéu de color, apaga la pantalla</string>
+    <string name="non_carrier_data_usage">Usu de datos ensin rede móvil</string>
+    <string name="configure">Configurar</string>
+    <string name="data_usage_wifi_title">Datos Wi\u2011Fi</string>
+    <string name="billing_cycle_less_than_one_day_left">Queda menos d\'un día</string>
+    <string name="launch_wifi_text">Ver los detalles</string>
+    <string name="data_saver_title">Aforrador de datos</string>
+    <string name="restrict_background_blocklisted">Desactiváronse los datos en segundu planu</string>
+    <string name="data_saver_on">Sí</string>
+    <string name="data_saver_off">Non</string>
+    <string name="data_saver_switch_title">Usar l\'aforrador de datos</string>
+    <string name="battery_tips_card_dismiss_button">Entendílo</string>
+    <string name="battery_tips_apps_summary_always_high">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería</string>
+    <string name="battery_tips_apps_summary_higher_than_usual">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería de lo habitual</string>
+    <string name="battery_tips_apps_summary_always_high_in_background">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería mentanto taba en segundu planu</string>
+    <string name="battery_tips_apps_summary_higher_than_usual_in_background">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería de lo habitual mentanto taba en segundu planu</string>
+    <string name="battery_tips_apps_summary_always_high_in_foreground">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería mentanto taba en primer planu</string>
+    <string name="battery_tips_apps_summary_higher_than_usual_in_foreground">«<xliff:g id="app_label" example="Pokemon Go">%1$s</xliff:g>» consumió más batería de lo normal mentanto taba en primer planu</string>
+    <string name="notification_log_details_group_summary"> (resume)</string>
+    <string name="notification_log_details_importance">importancia</string>
+    <string name="notification_log_details_actions">aiciones</string>
+    <string name="notification_log_details_icon">iconu</string>
+    <string name="notification_log_channel">canal</string>
+    <string name="managed_profile_settings_footer">Cuando les aplicaciones llaborales tán desactivaes, pósense y nun pues acceder a elles nin te puen unviar avisos</string>
+    <string name="gesture_preference_title">Xestos</string>
+    <string name="system_navigation_title">Mou de navegación</string>
+    <string name="assistant_gesture_category_title">Asistente dixital</string>
+    <string name="button_navigation_settings_activity_title">Navegación pente botones</string>
+    <string name="keywords_button_navigation_settings">navegar, navegación, botón d\'aniciu, aniciu</string>
+    <string name="emergency_gesture_screen_title">SOS d\'emerxencia</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked">El cargador d\'arrinque yá ta desbloquiáu</string>
+    <string name="web_action_enable_title">Aplicaciones instantánees</string>
+    <string name="web_action_section_title">Aplicaciones instantánees</string>
+    <string name="automatic_storage_manager_activation_warning">El xestor d\'almacenamientu ta xestionando l\'almacenamientu</string>
+    <string name="enterprise_privacy_number_packages">{count, plural,
+      one {}=1      {# aplicación}
+      other   {# aplicaciones}
+    }</string>
+    <string name="enterprise_privacy_wipe_device">L\'alministrador pue desaniciar tolos datos del preséu</string>
+    <string name="enterprise_privacy_number_failed_password_wipe">{count, plural,
+      one {}=1      {# intentu}
+      other   {# intentos}
+    }</string>
+    <string name="do_disclosure_generic">La to organización xestiona esti preséu.</string>
+    <string name="do_disclosure_with_name">«<xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g>» xestiona esti preséu.</string>
+    <string name="learn_more">Saber más</string>
+    <string name="blocked_by_restricted_settings_title">Opción restrinxida</string>
+    <string name="financed_privacy_intro">El fornidor de creitos pue camudar la configuración ya instalar software nesti preséu demientres la configuración.\n\nSi falta un pagu, el fornidor de creitos pue bloquiar el preséu y camuda-y la configuración.\n\nPa saber más, ponte en contautu col fornidor de creitos.</string>
+    <string name="financed_privacy_fully_paid_category">Namás que pagues l\'importe total:</string>
+    <string name="storage_default_internal_storage">Esti preséu</string>
+    <string name="storage_games">Xuegos</string>
+    <string name="storage_files">Ficheros</string>
+    <string name="storage_images">Imáxenes</string>
+    <string name="storage_videos">Vídeos</string>
+    <string name="storage_audio">Audiu</string>
+    <string name="storage_apps">Aplicaciones</string>
+    <string name="storage_system">Sistema</string>
+    <string name="launch_instant_app">Abrir</string>
+    <string name="game_storage_settings">Xuegos</string>
+    <string name="autofill_passwords">Contraseñes</string>
+    <string name="autofill_passwords_count">{count, plural,
+      one {}=1      {# contraseña}
+      other   {# contraseñes}
+    }</string>
+    <string name="credman_keywords">datos, datu, clave d\'accesu, contraseña</string>
+    <string name="credman_autofill_keywords">rellenar, rellenu automáticu, rellenar automáticamente, datos, datu, clave d\'accesu, contraseña</string>
+    <string name="credman_button_change">Camudar</string>
+    <string name="credman_button_open">Abrir</string>
+    <string name="credman_autofill_confirmation_message"><![CDATA[        <b>¿Quies usar «<xliff:g id="app_name" example="Provider">%1$s</xliff:g>»?</b>
+        <br/>
+        <br/>
+        Dende esti momentu, les contraseñes, les claves d\'accesu y demás información va
+        guardase equí. Ye posible que\'l fornidor «<xliff:g id="app_name" example="Provider">%1$s</xliff:g>»
+        use lo qu\'apaeza na pantalla pa determinar lo que se pue rellenar automáticamente.
+        ]]></string>
+    <string name="credman_confirmation_message_title">¿Quies desactivar «%1$s»?</string>
+    <string name="credman_confirmation_message"><![CDATA[        <b>¿Quies desactivar esti serviciu?</b>
+        <br/>
+        <br/>
+        Cuando anicies la sesión, nun se va rellenar la información guardada (contraseñes,
+        claves d\'accesu métodos de pagu, etc). Pa usar la información guardada, escueyi una
+        contraseña, un serviciu de datos o una clave d\'accesu.
+        
+        ]]></string>
+    <string name="account_dashboard_title_with_passkeys">Contraseñes, claves y rellenu automáticu</string>
+    <string name="credman_enable_confirmation_message_title">¿Quies usar «%1$s»?</string>
+    <string name="credman_confirmation_change_provider_positive_button">Camudar</string>
+    <string name="credman_enable_confirmation_message">«%1$s» usa lo qu\'apaez na pantalla pa determinar qué se pue rellenar automáticamente.</string>
+    <string name="credman_error_message_title">Llende de contraseñes, claves d\'accesu y servicios de datos</string>
+    <string name="credman_error_message">Pues tener hasta 5 contraseñes, claves d\'accesu y servicios de datos activos al empar. Desactiva un serviciu p\'amestar más.</string>
+    <string name="location_category">Llocalización</string>
+    <string name="input_method_category">Métodu d\'entrada</string>
+    <string name="stylus_handwriting">Escritura con llapiceru</string>
+    <string name="stylus_handwriting_summary">Cuando s\'activa esta opción, el métodu d\'entrada actual recibe l\'eventu de movientu del llapiceru si s\'enfoca un editor.</string>
+    <string name="install_type_instant">Aplicación instantánea</string>
+    <string name="disabled_feature">Función non disponible</string>
+    <string name="disabled_feature_reason_slow_down_phone">Desactivóse esta función porque fai que\'l teléfonu vaiga lentu</string>
+    <string name="my_device_info_account_preference_title">Cuenta</string>
+    <string name="my_device_info_account_preference_summary">%d cuentes</string>
+    <string name="my_device_info_basic_info_category_title">Información básica</string>
+    <string name="media_output_default_summary">Esti preséu</string>
+    <string name="pref_title_network_details">Detalles de la rede</string>
+    <string name="devices_title">Preseos</string>
+    <string name="network_connecting">Conectando\u2026</string>
+    <string name="empty_networks_list">Nun s\'atopó nenguna rede.</string>
+    <string name="preferred_network_mode_wcdma_perf_summary">Mou de rede preferente: prefierse WCDMA</string>
+    <string name="preferred_network_mode_gsm_only_summary">Mou de rede preferente: namás GSM</string>
+    <string name="preferred_network_mode_wcdma_only_summary">Mou de rede preferente: namás WCDMA</string>
+    <string name="preferred_network_mode_gsm_wcdma_summary">Mou de rede preferente: GSM/WCDMA</string>
+    <string name="preferred_network_mode_cdma_summary">Mou de rede preferente: CDMA</string>
+    <string name="preferred_network_mode_cdma_evdo_summary">Mou de rede preferente: CDMA/EvDo</string>
+    <string name="preferred_network_mode_cdma_only_summary">Mou de rede preferente: namás CDMA</string>
+    <string name="preferred_network_mode_evdo_only_summary">Mou de rede preferente: namás EvDo</string>
+    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_summary">Mou de rede preferente: LTE </string>
+    <string name="preferred_network_mode_lte_gsm_wcdma_summary">Mou de rede preferente: GSM/WCDMA/LTE</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_summary">Mou de rede preferente: CDMA+LTE/EVDO</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: LTE/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_global_summary">Mou de rede preferente: global</string>
+    <string name="preferred_network_mode_lte_wcdma_summary">Mou de rede preferente: LTE/WCDMA</string>
+    <string name="preferred_network_mode_lte_gsm_umts_summary">Mou de rede preferente: LTE/GSM/UMTS</string>
+    <string name="preferred_network_mode_lte_cdma_summary">Mou de rede preferente: LTE/CDMA</string>
+    <string name="preferred_network_mode_tdscdma_summary">Mou de rede preferente: TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_wcdma_summary">Mou de rede preferente: TDSCDMA/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_summary">Mou de rede preferente: LTE/TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_gsm_summary">Mou de rede preferente: TDSCDMA/GSM</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_summary">Mou de rede preferente: LTE/GSM/TDSCDMA</string>
+    <string name="preferred_network_mode_tdscdma_gsm_wcdma_summary">Mou de rede preferente: TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_wcdma_summary">Mou de rede preferente: LTE/TDSCDMA/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_wcdma_summary">Mou de rede preferente: LTE/TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_tdscdma_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_tdscdma_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_only_summary">Mou de rede preferente: namás NR</string>
+    <string name="preferred_network_mode_nr_lte_summary">Mou de rede preferente: NR/LTE</string>
+    <string name="preferred_network_mode_nr_lte_cdma_evdo_summary">Mou de rede preferente: NR/LTE/CDMA/EvDo</string>
+    <string name="preferred_network_mode_nr_lte_gsm_wcdma_summary">Mou de rede preferente: NR/LTE/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: NR/LTE/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_wcdma_summary">Mou de rede preferente: NR/LTE/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_summary">Mou de rede preferente: NR/LTE/TDSCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_gsm_summary">Mou de rede preferente: NR/LTE/TDSCDMA/GSM</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_wcdma_summary">Mou de rede preferente: NR/LTE/TDSCDMA/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_gsm_wcdma_summary">Mou de rede preferente: NR/LTE/TDSCDMA/GSM/WCDMA</string>
+    <string name="preferred_network_mode_nr_lte_tdscdma_cdma_evdo_gsm_wcdma_summary">Mou de rede preferente: NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</string>
+    <string name="network_5G_recommended">5G (opción aconseyada)</string>
+    <string name="network_lte">LTE (opción aconseyada)</string>
+    <string name="network_4G">4G (opción aconseyada)</string>
+    <string name="mobile_data_settings_title">Datos móviles</string>
+    <string name="mobile_network_active_esim">Serviciu activu / eSIM</string>
+    <string name="mobile_network_inactive_esim">Serviciu inactivu / eSIM</string>
+    <string name="mobile_network_sim_name_rename">Guardar</string>
+    <string name="mobile_network_use_sim_on">Usar esta SIM</string>
+    <string name="mobile_network_disable_sim_explanation">        Pa desactivar esta SIM, estrái la tarxeta SIM
+    </string>
+    <string name="preferred_network_mode_title">Tipu de rede preferente</string>
+    <string name="preferred_network_mode_dialogtitle">Tipu de rede preferente</string>
+    <string name="network_operator_category">Rede</string>
+    <string name="cdma_subscription_dialogtitle">soscripción</string>
+    <string name="register_automatically">Rexistru automáticu\u2026</string>
+    <string name="roaming_alert_title">¿Quies permitir el roaming de datos?</string>
+    <string name="satellite_setting_title">Mensaxería per satélite</string>
+    <string name="keywords_satellite_setting">Mensaxería per satélite</string>
+    <string name="category_title_your_satellite_plan">El to plan de la operadora «<xliff:g id="carrier_name" example="T-Mobile">%1$s</xliff:g>»</string>
+    <string name="title_have_satellite_plan">La mensaxería per satélite inclúise na cuenta</string>
+    <string name="title_no_satellite_plan">La mensaxería per satélite nun s\'inclúi na cuenta</string>
+    <string name="category_name_how_it_works">Cómo funciona</string>
+    <string name="title_supported_service">Dempués de que\'l teléfonu se conecte a un satélite</string>
+    <string name="summary_supported_service">Pues unviar mensaxes a cualesquier persona, incluyíos los servicios d\'emerxencia. El teléfonu va volver conectase a una rede móvil cuando tea disponible.</string>
+    <string name="satellite_setting_summary_more_information">La mensaxería per satélite pue tardar más y namás ta disponible en dalgunes zones. Ye posible que\'l clima y determinaes estructures afeuten a la conexón per satélite. Les llamaes per satélite nun tán disponibles. Los cambeos puen tardar tiempu n\'apaecer en Configuración. Ponte en contautu con <xliff:g id="carrier_name" example="T-Mobile">%1$s</xliff:g> pa consiguir más información.</string>
+    <string name="keywords_access_point_names">apn</string>
+    <string name="sim_action_enable_sub_dialog_title">¿Quies activar «<xliff:g id="carrier_name" example="Google Fi">%1$s</xliff:g>»?</string>
+    <string name="sim_action_enable_sub_dialog_title_without_carrier_name">¿Quies activar la SIM?</string>
+    <string name="sim_action_switch_sub_dialog_mep_text">Pues usar 2 SIMs al empar. Pa usar «<xliff:g id="carrier_name" example="Google Fi">%1$s</xliff:g>», desactiva la otra SIM.</string>
+    <string name="sim_action_enabling_sim_without_carrier_name">Activando la SIM…</string>
+    <string name="sim_action_switch_sub_dialog_progress">Cambiando a la operadora «<xliff:g id="carrier_name" example="Google Fi">%1$s</xliff:g>»</string>
+    <string name="privileged_action_disable_sub_dialog_title_without_carrier">¿Quies desactivar la SIM?</string>
+    <string name="privileged_action_disable_sub_dialog_progress">Desactivando la SIM<xliff:g id="ellipsis" example="...">…</xliff:g></string>
+    <string name="sim_action_enable_dsds_title">¿Quies usar 2 SIMs?</string>
+    <string name="sim_action_enable_dsds_text">Esti preséu pue tener 2 SIMs activaes al empar. Pa siguir usando namás 1 SIM, toca «Non, gracies».</string>
+    <string name="sim_action_restart_title">¿Quies reaniciar el preséu?</string>
+    <string name="sim_action_yes">Sí</string>
+    <string name="sim_action_reboot">Reaniciar</string>
+    <string name="sim_action_no_thanks">Non, gracies</string>
+    <string name="primary_sim_calls_title">Llamaes</string>
+    <string name="sim_onboarding_setup">Configurar</string>
+    <string name="sim_onboarding_next">Siguiente</string>
+    <string name="network_changed_notification_text">La rede móvil camudó</string>
+    <string name="erase_sim_dialog_title">¿Quies desaniciar esta eSIM?</string>
+    <string name="erase_sim_confirm_button">Desaniciar</string>
+    <string name="wifi_warning_return_button">D\'acuerdu</string>
+    <string name="network_connection_timeout_dialog_ok">Retentar</string>
+    <string name="network_connection_request_dialog_showall">Amosar too</string>
+    <string name="privacy_dashboard_title">Privacidá</string>
+    <string name="privacy_controls_title">Controles</string>
+    <string name="contextual_card_dismiss_remove">Quitar</string>
+    <string name="contextual_card_dismiss_keep">Caltener</string>
+    <string name="contextual_card_dismiss_confirm_message">¿Quies quitar esta suxerencia?</string>
+    <string name="wfc_disclaimer_title_text">Información importante</string>
+    <string name="wfc_disclaimer_agree_button_text">SIGUIR</string>
+    <string name="wfc_disclaimer_disagree_text">NON, GRACIES</string>
+    <string name="wfc_disclaimer_location_title_text">Llocalización</string>
+    <string name="development_memtag_page_title">Estensión d\'etiquetaxe de memoria</string>
+    <string name="development_memtag_intro">La Estensión d\'Etiquetaxe de Memoria (MTE) facilita la deteición de problemes de seguranza de la memoria na aplicación y fai que\'l códigu nativu de l\'aplicación seya más seguru.</string>
+    <string name="wifi_disconnect_button_text">Desconectar</string>
+    <string name="enable_mms_notification_channel_title">Mensaxe MMS</string>
+    <string name="select_invalid_bug_report_handler_toast_text">Esta opción yá nun ye válida. Volvi tentalo.</string>
+    <string name="power_menu_long_press_for_power_menu_title">Menú d\'apagáu</string>
+    <string name="power_menu_long_press_for_assistant_title">Asistente dixital</string>
+    <string name="power_menu_power_volume_up_hint">Menú d\'apagáu:\nPrimi al empar el botón d\'apagáu y el de xubir el volume</string>
+    <string name="lockscreen_privacy_wallet_summary">Permite l\'accesu a la cartera dende la pantalla de bloquéu</string>
+    <string name="lockscreen_privacy_qr_code_scanner_setting_toggle">Amosar l\'escáner de códigos QR</string>
+    <string name="lockscreen_privacy_qr_code_scanner_summary">Permite l\'accesu al escáner de códigos QR dende la pantalla de bloquéu</string>
+    <string name="lockscreen_privacy_controls_summary">Dende la pantalla de bloquéu</string>
+    <string name="lockscreen_double_line_clock_summary">El tamañu del reló camuda acordies col conteníu de la pantalla de bloquéu</string>
+    <string name="lockscreen_double_line_clock_setting_toggle">Reló dinámicu</string>
+    <string name="lockscreen_quick_affordances_title">Atayos</string>
+    <string name="allow_mock_modem">Permitir un módem ficticiu</string>
+    <string name="network_and_internet_preferences_title">Preferencies de rede</string>
+    <string name="downloaded_sim_category_title">eSIM</string>
+    <string name="downloaded_sims_category_title">eSIMs</string>
+    <string name="wifi_scan_notify_message">P\'ameyorar la esperiencia del preséu, les aplicaciones y los servicios puen siguir buscando redes Wi-Fi en cualesquier momentu, magar que\'l Wi-Fi tea inhabilitáu. Esta opción pue usase, por exemplu, p\'ameyorar les funciones y los servicios basaos na llocalización. Pues camudar esti comportamientu na configuración de busca de redes Wi-Fi.</string>
+    <string name="mobile_data_disable_title">¿Quies desactivar los datos móviles?</string>
+    <string name="apps_dashboard_title">Aplicaciones</string>
+    <string name="bluetooth_message_access_dialog_title">¿Quies permitir l\'accesu a los mensaxes?</string>
+    <string name="category_name_brightness">Brillu</string>
+    <string name="category_name_appearance">Aspeutu</string>
+    <string name="category_name_color">Color</string>
+    <string name="smart_forwarding_ongoing_text">Anovando la configuración…</string>
+    <string name="smart_forwarding_failed_text">Error de la rede o la SIM.</string>
+    <string name="enable_2g_summary">La teunoloxía 2G ye menos segura mas pue ameyorar la conexón en dalgunos llugares. Pa les llamaes d\'emerxencia siempre se permite esta teunoloxía.</string>
+    <string name="enable_2g_summary_disabled_carrier">«<xliff:g id="carrier_name_2g" example="Google Fi">%1$s</xliff:g>» rique la teunoloxía 2G pa tar disponible</string>
+    <string name="app_info_all_services_label">Tolos servicios</string>
+    <string name="all_apps">Toles aplicaciones</string>
+    <string name="mic_toggle_title">Accesu al micrófonu</string>
+    <string name="next_page_content_description">Siguiente</string>
+    <string name="bluetooth_sim_card_access_notification_content">Un preséu quier acceder a la SIM. Toca pa ver los detalles.</string>
+    <string name="bluetooth_sim_card_access_dialog_title">¿Quies permitir l\'accesu a la SIM?</string>
+    <string name="bluetooth_sim_card_access_dialog_content">Un preséu Bluetooth, «<xliff:g id="device_name" example="My device">%1$s</xliff:g>», quier acceder a los datos de la SIM. Esto inclúi los contautos.\n\nMentanto tea conectáu, «<xliff:g id="device_name" example="My device">%2$s</xliff:g>» va recibir llamaes feches al <xliff:g id="phone_number" example="0912345678">%3$s</xliff:g></string>
+    <string name="bluetooth_connect_access_dialog_positive">Conectar</string>
+    <string name="tare_revert">Restaurar la config. predeterminada</string>
+    <string name="tare_settings_reverted_toast">Restauróse la config. predeterminada</string>
+    <string name="tare_max_satiated_balance">Saldu máximu cola carga completa</string>
+    <string name="tare_balances">Saldos</string>
+    <string name="tare_consumption_limits">Llendes de consumu</string>
+    <string name="tare_initial_consumption_limit">Llende de consumu inicial</string>
+    <string name="tare_max_consumption_limit">Llende de consumu máxima</string>
+    <string name="tare_modifiers">Modificadores</string>
+    <string name="tare_actions_ctp">Aiciones (costu de producción)</string>
+    <string name="tare_actions_base_price">Aiciones (preciu base)</string>
+    <string name="tare_rewards_instantaneous">Recompenses per cada eventu</string>
+    <string name="tare_rewards_ongoing">Recompenses per cada segundu del eventu</string>
+    <string name="tare_rewards_max">Númberu máximu de recompenses per día</string>
+    <string name="tare_app_install">Instalación de l\'aplicación</string>
+    <string name="tare_top_activity">Actividá principal</string>
+    <string name="tare_notification_seen">Avisu vistu</string>
+    <string name="tare_notification_seen_15_min">Avisu vistu nel plazu de 15 minutos</string>
+    <string name="tare_notification_interaction">Interaición con un avisu</string>
+    <string name="tare_widget_interaction">Interaición con un widget</string>
+    <string name="tare_other_interaction">Otra interaición del usuariu</string>
+    <string-array name="tare_modifiers_subfactors">
+        <item>Charging</item>
+        <item>Doze</item>
+        <item>Mou d\'aforru d\'enerxía</item>
+        <item>Estáu del procesu</item>
+    </string-array>
+    <string name="tare_dialog_confirm_button_title">Confirmar</string>
+    <string name="dream_preview_button_title">Previsualizar</string>
+    <string name="dream_picker_category">Seleición d\'un curiapantalles</string>
+    <string name="dream_complications_toggle_title">Amosar información adicional</string>
+    <string name="dream_complications_toggle_summary">Amuesa elementos como la hora, el clima o otra información nel curiapantalles</string>
+    <string name="dream_more_settings_category">Más opciones</string>
+    <string name="customize_button_title">Personalizar</string>
+    <string name="customize_button_description">Personalizar «<xliff:g id="screensaver_name" example="Art Gallery">%1$s</xliff:g>»</string>
+    <string name="reboot_dialog_reboot_now">Reaniciar agora</string>
+    <string name="reboot_dialog_reboot_later">Reaniciar dempués</string>
+    <string name="bluetooth_details_spatial_audio_title">Audiu espacial</string>
+    <string name="bluetooth_details_spatial_audio_summary">L\'audiu del conteníu multimedia compatible vuélvese más inmersivu</string>
+    <string name="bluetooth_details_head_tracking_title">Siguimientu de la cabeza</string>
+    <string name="bluetooth_details_head_tracking_summary">L\'audiu camuda a midida que mueves la cabeza pa sonar más natural</string>
+    <string name="bluetooth_details_audio_device_type_speaker">Altavoz</string>
+    <string name="bluetooth_details_audio_device_type_headphones">Auriculares</string>
+    <string name="bluetooth_details_audio_device_type_hearing_aid">Audífonu</string>
+    <string name="ingress_rate_limit_title">Llende de la velocidá de baxada de la rede</string>
+    <string name="ingress_rate_limit_no_limit_entry">Ensin llende</string>
+    <string name="bluetooth_broadcast_dialog_title">Emisión</string>
+    <string name="bluetooth_broadcast_dialog_broadcast_message">Emiti conteníu multimedia a preseos próximos a ti o sienti la emisión d\'otra persona</string>
+    <string name="bluetooth_find_broadcast_title">Emisiones</string>
+    <string name="bluetooth_find_broadcast">Atopar emisiones</string>
+    <string name="bluetooth_find_broadcast_button_leave">Colar de la emisión</string>
+    <string name="find_broadcast_password_dialog_title">Introduz la contraseña</string>
+    <string name="find_broadcast_password_dialog_connection_error">Nun se pue conectar. Volvi tentalo.</string>
+    <string name="bt_le_audio_scan_qr_code_scanner">Pa comenzar a escuchar, centra\'l códigu QR d\'abaxo</string>
+    <string name="convert_to_esim_title">Convertir a eSIM</string>
+    <string name="transfer_esim_to_another_device_title">Tresferir la eSIM a otru preséu</string>
+    <string name="background_install_preference_summary">{count, plural,
+    one {}=1    {# aplicación}
+    other {# aplicaciones}
+    }</string>
+    <string name="background_install_uninstall_button_description">Desinstalar l\'aplicación</string>
+    <string name="aspect_ratio_title">Proporción del aspeutu</string>
+    <string name="user_aspect_ratio_suggested_apps_label">Aplicaciones suxeríes</string>
+    <string name="user_aspect_ratio_changed_apps_label">Aplicaciones camudaes</string>
+    <string name="user_aspect_ratio_16_9">16:9</string>
+    <string name="user_aspect_ratio_3_2">3:2</string>
+    <string name="user_aspect_ratio_4_3">4:3</string>
+    <string name="aspect_ratio_experimental_title">Proporción del aspeutu (esperimental)</string>
+    <string name="aspect_ratio_experiment_title">Proporción del aspeutu (esperimentu)</string>
+    <string name="aspect_ratio_labs_title">Proporción del aspeutu (labs)</string>
+    <string name="aspect_ratio_experiment_label">Esperimentu</string>
+    <string name="aspect_ratio_labs_label">Labs</string>
+    <string name="accessibility_fingerprint_label">Sensor de buelgues</string>
+    <string name="flash_notifications_summary_on_camera">Sí / Flax de la cámara</string>
+    <string name="flash_notifications_summary_on_screen">Sí / Flax de la pantalla</string>
+    <string name="flash_notifications_summary_on_camera_and_screen">Sí / Flax de la cámara y de la pantalla</string>
+    <string name="flash_notifications_note">Ten curiáu al usar los avisos con flax si yes sensible a la lluz</string>
+    <string name="flash_notifications_preview">Previsualizar</string>
+    <string name="camera_flash_notification_title">Flax de la cámara</string>
+    <string name="screen_flash_notification_title">Flax de la pantalla</string>
+    <string name="screen_flash_notification_color_title">Color del flax de la pantalla</string>
+    <string name="screen_flash_color_blue">Azul</string>
+    <string name="screen_flash_color_azure">Azul celeste</string>
+    <string name="screen_flash_color_spring_green">Verde primavera</string>
+    <string name="screen_flash_color_green">Verde</string>
+    <string name="screen_flash_color_chartreuse_green">Verde amarellao</string>
+    <string name="screen_flash_color_yellow">Mariellu</string>
+    <string name="screen_flash_color_orange">Naranxa</string>
+    <string name="screen_flash_color_red">Coloráu</string>
+    <string name="screen_flash_color_rose">Rosa</string>
+    <string name="screen_flash_color_magenta">Maxenta</string>
+    <string name="screen_flash_color_violet">Violeta</string>
+    <string name="color_selector_dialog_done">Fecho</string>
+    <string name="contrast_title">Contraste</string>
+    <string name="contrast_standard">Estándar</string>
+    <string name="dock_multi_instances_not_supported_text">"Esta aplicación namás pue abrise nuna ventana"</string>
+    <string name="grammatical_gender_title">Xéneru gramatical</string>
+</resources>

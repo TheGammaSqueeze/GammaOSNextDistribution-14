@@ -1,0 +1,6147 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x016e717d
+  kind: POINTER
+  pointee_type_id: 0x2ff92368
+}
+pointer_reference {
+  id: 0x03c8f98e
+  kind: POINTER
+  pointee_type_id: 0x256300a6
+}
+pointer_reference {
+  id: 0x0412401e
+  kind: POINTER
+  pointee_type_id: 0x3a09e6e6
+}
+pointer_reference {
+  id: 0x0483e6f8
+  kind: POINTER
+  pointee_type_id: 0x384f7d7c
+}
+pointer_reference {
+  id: 0x0484de69
+  kind: POINTER
+  pointee_type_id: 0x38539f38
+}
+pointer_reference {
+  id: 0x048a8dc2
+  kind: POINTER
+  pointee_type_id: 0x386ad197
+}
+pointer_reference {
+  id: 0x08a987db
+  kind: POINTER
+  pointee_type_id: 0x08e6f9f2
+}
+pointer_reference {
+  id: 0x08ba5851
+  kind: POINTER
+  pointee_type_id: 0x08a987db
+}
+pointer_reference {
+  id: 0x08beafb3
+  kind: POINTER
+  pointee_type_id: 0x08ba5851
+}
+pointer_reference {
+  id: 0x095e2d77
+  kind: POINTER
+  pointee_type_id: 0x0f385340
+}
+pointer_reference {
+  id: 0x09fdad3b
+  kind: POINTER
+  pointee_type_id: 0x0db65273
+}
+pointer_reference {
+  id: 0x0b155f3e
+  kind: POINTER
+  pointee_type_id: 0x06159a65
+}
+pointer_reference {
+  id: 0x0b65af3c
+  kind: POINTER
+  pointee_type_id: 0x07d65a6e
+}
+pointer_reference {
+  id: 0x0cbf60eb
+  kind: POINTER
+  pointee_type_id: 0x18bd6530
+}
+pointer_reference {
+  id: 0x0d07dc96
+  kind: POINTER
+  pointee_type_id: 0x1e5f94c6
+}
+pointer_reference {
+  id: 0x0d42f4b7
+  kind: POINTER
+  pointee_type_id: 0x1f4b3441
+}
+pointer_reference {
+  id: 0x0d9f5631
+  kind: POINTER
+  pointee_type_id: 0x1c3dbe5a
+}
+pointer_reference {
+  id: 0x0f01e5de
+  kind: POINTER
+  pointee_type_id: 0x164771e6
+}
+pointer_reference {
+  id: 0x0f369e3f
+  kind: POINTER
+  pointee_type_id: 0x169a9e63
+}
+pointer_reference {
+  id: 0x13580d6c
+  kind: POINTER
+  pointee_type_id: 0x6720d32f
+}
+pointer_reference {
+  id: 0x15698814
+  kind: POINTER
+  pointee_type_id: 0x7fe6c6cd
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x18ea281d
+  kind: POINTER
+  pointee_type_id: 0x49e846eb
+}
+pointer_reference {
+  id: 0x1a6a7d94
+  kind: POINTER
+  pointee_type_id: 0x43e910ce
+}
+pointer_reference {
+  id: 0x1e498ec1
+  kind: POINTER
+  pointee_type_id: 0x5366dd99
+}
+pointer_reference {
+  id: 0x1e55c947
+  kind: POINTER
+  pointee_type_id: 0x5317c383
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x1f4b3441
+  kind: POINTER
+  pointee_type_id: 0x576c379b
+}
+pointer_reference {
+  id: 0x1f5099bd
+  kind: POINTER
+  pointee_type_id: 0x5702806b
+}
+pointer_reference {
+  id: 0x1f5b8148
+  kind: POINTER
+  pointee_type_id: 0x572ee3bc
+}
+pointer_reference {
+  id: 0x1f936fd2
+  kind: POINTER
+  pointee_type_id: 0x540d59d4
+}
+pointer_reference {
+  id: 0x1fe64a61
+  kind: POINTER
+  pointee_type_id: 0x55d9cf18
+}
+pointer_reference {
+  id: 0x2190f8f9
+  kind: POINTER
+  pointee_type_id: 0xac030578
+}
+pointer_reference {
+  id: 0x21aba7d1
+  kind: POINTER
+  pointee_type_id: 0xacee79d8
+}
+pointer_reference {
+  id: 0x23158137
+  kind: POINTER
+  pointee_type_id: 0xa616e242
+}
+pointer_reference {
+  id: 0x253d9322
+  kind: POINTER
+  pointee_type_id: 0xbeb6aa15
+}
+pointer_reference {
+  id: 0x284f2578
+  kind: POINTER
+  pointee_type_id: 0x8b7c737e
+}
+pointer_reference {
+  id: 0x28e7c695
+  kind: POINTER
+  pointee_type_id: 0x89dffccb
+}
+pointer_reference {
+  id: 0x295869de
+  kind: POINTER
+  pointee_type_id: 0x8f2141e7
+}
+pointer_reference {
+  id: 0x2be4a75b
+  kind: POINTER
+  pointee_type_id: 0x85d27bf1
+}
+pointer_reference {
+  id: 0x2d09a538
+  kind: POINTER
+  pointee_type_id: 0x9e66727d
+}
+pointer_reference {
+  id: 0x2e3127e0
+  kind: POINTER
+  pointee_type_id: 0x9284791f
+}
+pointer_reference {
+  id: 0x30c55d0d
+  kind: POINTER
+  pointee_type_id: 0xe95592a9
+}
+pointer_reference {
+  id: 0x3124ab68
+  kind: POINTER
+  pointee_type_id: 0xeed24b3d
+}
+pointer_reference {
+  id: 0x31b2351f
+  kind: POINTER
+  pointee_type_id: 0xec8832e3
+}
+pointer_reference {
+  id: 0x31db8991
+  kind: POINTER
+  pointee_type_id: 0xed2ec0d8
+}
+pointer_reference {
+  id: 0x32710d89
+  kind: POINTER
+  pointee_type_id: 0xe384d0bb
+}
+pointer_reference {
+  id: 0x3450b573
+  kind: POINTER
+  pointee_type_id: 0xfb023351
+}
+pointer_reference {
+  id: 0x34d3469d
+  kind: POINTER
+  pointee_type_id: 0xf90dfce8
+}
+pointer_reference {
+  id: 0x36ae7c82
+  kind: POINTER
+  pointee_type_id: 0xf0f91494
+}
+pointer_reference {
+  id: 0x379d63b0
+  kind: POINTER
+  pointee_type_id: 0xf435685e
+}
+pointer_reference {
+  id: 0x37b0729c
+  kind: POINTER
+  pointee_type_id: 0xf4812cef
+}
+pointer_reference {
+  id: 0x38539f38
+  kind: POINTER
+  pointee_type_id: 0xcb0e9a7f
+}
+pointer_reference {
+  id: 0x38d49752
+  kind: POINTER
+  pointee_type_id: 0xc912bbd7
+}
+pointer_reference {
+  id: 0x38e281b6
+  kind: POINTER
+  pointee_type_id: 0xc9cae044
+}
+pointer_reference {
+  id: 0x38e46ac9
+  kind: POINTER
+  pointee_type_id: 0xc9d14db8
+}
+pointer_reference {
+  id: 0x39182153
+  kind: POINTER
+  pointee_type_id: 0xce2063d0
+}
+pointer_reference {
+  id: 0x391f15ea
+  kind: POINTER
+  pointee_type_id: 0xce3cb135
+}
+pointer_reference {
+  id: 0x39aad3c3
+  kind: POINTER
+  pointee_type_id: 0xcceba991
+}
+pointer_reference {
+  id: 0x3a09e6e6
+  kind: POINTER
+  pointee_type_id: 0xc2677d06
+}
+pointer_reference {
+  id: 0x3a1ac44a
+  kind: POINTER
+  pointee_type_id: 0xc22bf7b5
+}
+pointer_reference {
+  id: 0x3b909d21
+  kind: POINTER
+  pointee_type_id: 0xc402921a
+}
+pointer_reference {
+  id: 0x3baf14dd
+  kind: POINTER
+  pointee_type_id: 0xc4fcb5eb
+}
+pointer_reference {
+  id: 0x3c435c95
+  kind: POINTER
+  pointee_type_id: 0xdb4d94ca
+}
+pointer_reference {
+  id: 0x3c45a3ea
+  kind: POINTER
+  pointee_type_id: 0xdb566935
+}
+pointer_reference {
+  id: 0x3d3d3a62
+  kind: POINTER
+  pointee_type_id: 0xdeb40f16
+}
+pointer_reference {
+  id: 0x3d67c7fb
+  kind: POINTER
+  pointee_type_id: 0xdfdff972
+}
+pointer_reference {
+  id: 0x3dd9738b
+  kind: POINTER
+  pointee_type_id: 0xdd2528b1
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+pointer_reference {
+  id: 0x3e4e9d4b
+  kind: POINTER
+  pointee_type_id: 0xd37a93b1
+}
+pointer_reference {
+  id: 0x3fc92392
+  kind: POINTER
+  pointee_type_id: 0xd56468d7
+}
+pointer_reference {
+  id: 0xf067d12c
+  kind: LVALUE_REFERENCE
+  pointee_type_id: 0xdfdff972
+}
+typedef {
+  id: 0x12f56065
+  name: "AAdditionalInfoEvent"
+  referred_type_id: 0xff1071cc
+}
+typedef {
+  id: 0xe95592a9
+  name: "AAsset"
+  referred_type_id: 0x02e8c34d
+}
+typedef {
+  id: 0xd37a93b1
+  name: "AAssetDir"
+  referred_type_id: 0x9b86ad7d
+}
+typedef {
+  id: 0x5366dd99
+  name: "AAssetManager"
+  referred_type_id: 0xae06e3b7
+}
+typedef {
+  id: 0xdeb40f16
+  name: "AChoreographer"
+  referred_type_id: 0xa2ebc837
+}
+typedef {
+  id: 0x67460528
+  name: "AChoreographer_frameCallback"
+  referred_type_id: 0x016e717d
+}
+typedef {
+  id: 0x655951ea
+  name: "AChoreographer_frameCallback64"
+  referred_type_id: 0x09fdad3b
+}
+typedef {
+  id: 0x48b873a2
+  name: "AChoreographer_refreshRateCallback"
+  referred_type_id: 0x09fdad3b
+}
+typedef {
+  id: 0x89dffccb
+  name: "AConfiguration"
+  referred_type_id: 0x5d244f87
+}
+typedef {
+  id: 0x597d1e45
+  name: "ADynamicSensorEvent"
+  referred_type_id: 0xa2cb4205
+}
+typedef {
+  id: 0xc4fcb5eb
+  name: "AFont"
+  referred_type_id: 0xbcb65d2d
+}
+typedef {
+  id: 0x540d59d4
+  name: "AFontMatcher"
+  referred_type_id: 0xc25b3f15
+}
+typedef {
+  id: 0xcb0e9a7f
+  name: "AHardwareBuffer"
+  referred_type_id: 0xda3b284e
+}
+typedef {
+  id: 0x5702806b
+  name: "AHardwareBuffer_Desc"
+  referred_type_id: 0x1181d4aa
+}
+typedef {
+  id: 0x2d4df7eb
+  name: "AHardwareBuffer_Plane"
+  referred_type_id: 0x3b5eb23e
+}
+typedef {
+  id: 0x572ee3bc
+  name: "AHardwareBuffer_Planes"
+  referred_type_id: 0xd36c0c98
+}
+typedef {
+  id: 0x25b5a958
+  name: "AHeadTrackerEvent"
+  referred_type_id: 0x4011274e
+}
+typedef {
+  id: 0x503a7d6d
+  name: "AHeadingEvent"
+  referred_type_id: 0xd053be7c
+}
+typedef {
+  id: 0xabf3dc39
+  name: "AHeartRateEvent"
+  referred_type_id: 0xa2ef8365
+}
+typedef {
+  id: 0xc2677d06
+  name: "AInputEvent"
+  referred_type_id: 0x882d2b75
+}
+typedef {
+  id: 0xac030578
+  name: "AInputQueue"
+  referred_type_id: 0x4257a5a2
+}
+typedef {
+  id: 0x43ee221a
+  name: "ALimitedAxesImuEvent"
+  referred_type_id: 0x4924721c
+}
+typedef {
+  id: 0xcbfd0de3
+  name: "ALimitedAxesImuUncalibratedEvent"
+  referred_type_id: 0xfa57304d
+}
+typedef {
+  id: 0xce2063d0
+  name: "ALooper"
+  referred_type_id: 0x8ba440d0
+}
+typedef {
+  id: 0x1f90c08d
+  name: "ALooper_callbackFunc"
+  referred_type_id: 0x2be4a75b
+}
+typedef {
+  id: 0x7f8eda37
+  name: "AMetaDataEvent"
+  referred_type_id: 0x0283617b
+}
+typedef {
+  id: 0x9284791f
+  name: "ANativeActivity"
+  referred_type_id: 0xec8b6f66
+}
+typedef {
+  id: 0x256300a6
+  name: "ANativeWindow"
+  referred_type_id: 0x56e357ff
+}
+typedef {
+  id: 0xa616e242
+  name: "ANativeWindow_Buffer"
+  referred_type_id: 0x26e0860b
+}
+typedef {
+  id: 0xbeb6aa15
+  name: "AObbInfo"
+  referred_type_id: 0x630dced5
+}
+typedef {
+  id: 0x0f385340
+  name: "ARect"
+  referred_type_id: 0x146735cc
+}
+typedef {
+  id: 0x04d3144e
+  name: "ASensor"
+  referred_type_id: 0xf4ab28ee
+}
+typedef {
+  id: 0x9e66727d
+  name: "ASensorEvent"
+  referred_type_id: 0xa03d1da0
+}
+typedef {
+  id: 0x386ad197
+  name: "ASensorEventQueue"
+  referred_type_id: 0xfbb781ba
+}
+typedef {
+  id: 0x7fe6c6cd
+  name: "ASensorList"
+  referred_type_id: 0x37b0729c
+}
+typedef {
+  id: 0x5317c383
+  name: "ASensorManager"
+  referred_type_id: 0x2a43c623
+}
+typedef {
+  id: 0xa2430535
+  name: "ASensorRef"
+  referred_type_id: 0x3dd9738b
+}
+typedef {
+  id: 0x3b3c8f5f
+  name: "ASensorVector"
+  referred_type_id: 0x751652d2
+}
+typedef {
+  id: 0x49e846eb
+  name: "AStorageManager"
+  referred_type_id: 0x0f48aaa3
+}
+typedef {
+  id: 0x748a49f3
+  name: "AStorageManager_obbCallbackFunc"
+  referred_type_id: 0x0d07dc96
+}
+typedef {
+  id: 0x08e6f9f2
+  name: "ASurfaceControl"
+  referred_type_id: 0x601bf134
+}
+typedef {
+  id: 0xd56468d7
+  name: "ASurfaceTexture"
+  referred_type_id: 0xb8c24814
+}
+typedef {
+  id: 0x8f2141e7
+  name: "ASurfaceTransaction"
+  referred_type_id: 0xd430e13e
+}
+typedef {
+  id: 0x07d65a6e
+  name: "ASurfaceTransactionStats"
+  referred_type_id: 0xab2ace83
+}
+typedef {
+  id: 0xeff9bd1e
+  name: "ASurfaceTransaction_OnComplete"
+  referred_type_id: 0x0f369e3f
+}
+typedef {
+  id: 0x55d9cf18
+  name: "ASystemFontIterator"
+  referred_type_id: 0xc3af4c10
+}
+typedef {
+  id: 0xc402921a
+  name: "AThermalManager"
+  referred_type_id: 0xe6c18de5
+}
+typedef {
+  id: 0x4a572bcd
+  name: "AThermal_StatusCallback"
+  referred_type_id: 0x0f01e5de
+}
+typedef {
+  id: 0x171ff86e
+  name: "AUncalibratedEvent"
+  referred_type_id: 0xb7cd3e7d
+}
+typedef {
+  id: 0xacee79d8
+  name: "JNIEnv"
+  referred_type_id: 0xc4cb203f
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0x39470e64
+}
+typedef {
+  id: 0x8f1f16be
+  name: "__int8_t"
+  referred_type_id: 0x5ab350f8
+}
+typedef {
+  id: 0xbf704b80
+  name: "__kernel_loff_t"
+  referred_type_id: 0x39470e64
+}
+typedef {
+  id: 0x68035002
+  name: "__kernel_long_t"
+  referred_type_id: 0xfc0e1dbd
+}
+typedef {
+  id: 0x2d60633e
+  name: "__kernel_off_t"
+  referred_type_id: 0x68035002
+}
+typedef {
+  id: 0x2da051ab
+  name: "__kernel_ssize_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x646441ef
+  name: "__socklen_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x092f630f
+  name: "__uint16_t"
+  referred_type_id: 0xc93e017b
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x854daa2a
+  name: "__uint64_t"
+  referred_type_id: 0xd5df6730
+}
+typedef {
+  id: 0x2ebf28fa
+  name: "__uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0xde365fc3
+  name: "int8_t"
+  referred_type_id: 0x8f1f16be
+}
+typedef {
+  id: 0x0e97f05a
+  name: "jobject"
+  referred_type_id: 0x32710d89
+}
+typedef {
+  id: 0x27a7c613
+  name: "loff_t"
+  referred_type_id: 0xbf704b80
+}
+typedef {
+  id: 0x78e8685c
+  name: "native_handle_t"
+  referred_type_id: 0x2e15af11
+}
+typedef {
+  id: 0x00b2d428
+  name: "net_handle_t"
+  referred_type_id: 0x1c898f28
+}
+typedef {
+  id: 0xfb023351
+  name: "off64_t"
+  referred_type_id: 0x27a7c613
+}
+typedef {
+  id: 0xdb566935
+  name: "off_t"
+  referred_type_id: 0x2d60633e
+}
+typedef {
+  id: 0x3032dbe6
+  name: "sa_family_t"
+  referred_type_id: 0xc93e017b
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0xa64508d6
+  name: "socklen_t"
+  referred_type_id: 0x646441ef
+}
+typedef {
+  id: 0xd5cc9c9a
+  name: "ssize_t"
+  referred_type_id: 0x2da051ab
+}
+typedef {
+  id: 0xb3a3e4db
+  name: "uint16_t"
+  referred_type_id: 0x092f630f
+}
+typedef {
+  id: 0x1c3dbe5a
+  name: "uint32_t"
+  referred_type_id: 0x903f4c78
+}
+typedef {
+  id: 0x1c898f28
+  name: "uint64_t"
+  referred_type_id: 0x854daa2a
+}
+typedef {
+  id: 0x43e910ce
+  name: "uint8_t"
+  referred_type_id: 0x2ebf28fa
+}
+qualified {
+  id: 0xc22bf7b5
+  qualifier: CONST
+  qualified_type_id: 0x78e8685c
+}
+qualified {
+  id: 0xc912bbd7
+  qualifier: CONST
+  qualified_type_id: 0x540d59d4
+}
+qualified {
+  id: 0xc9cae044
+  qualifier: CONST
+  qualified_type_id: 0x576c379b
+}
+qualified {
+  id: 0xc9d14db8
+  qualifier: CONST
+  qualified_type_id: 0x5702806b
+}
+qualified {
+  id: 0xcceba991
+  qualifier: CONST
+  qualified_type_id: 0x43e910ce
+}
+qualified {
+  id: 0xce3cb135
+  qualifier: CONST
+  qualified_type_id: 0x48b5725f
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xdd2528b1
+  qualifier: CONST
+  qualified_type_id: 0x04d3144e
+}
+qualified {
+  id: 0xdfdff972
+  qualifier: CONST
+  qualified_type_id: 0x0f385340
+}
+qualified {
+  id: 0xec8832e3
+  qualifier: CONST
+  qualified_type_id: 0xc2677d06
+}
+qualified {
+  id: 0xed2ec0d8
+  qualifier: CONST
+  qualified_type_id: 0xc4fcb5eb
+}
+qualified {
+  id: 0xeed24b3d
+  qualifier: CONST
+  qualified_type_id: 0xcb0e9a7f
+}
+qualified {
+  id: 0xf0f91494
+  qualifier: CONST
+  qualified_type_id: 0xb3a3e4db
+}
+qualified {
+  id: 0xf4812cef
+  qualifier: CONST
+  qualified_type_id: 0xa2430535
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x39470e64
+  name: "long long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5ab350f8
+  name: "signed char"
+  encoding: SIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x62aebfd4
+  name: "bool"
+  encoding: BOOLEAN
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xc93e017b
+  name: "unsigned short"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000002
+}
+primitive {
+  id: 0xd5df6730
+  name: "unsigned long long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+array {
+  id: 0x023fb107
+  number_of_elements: 3
+  element_type_id: 0x43e910ce
+}
+array {
+  id: 0x06998191
+  number_of_elements: 3
+  element_type_id: 0x5171d297
+}
+array {
+  id: 0x301ae9eb
+  number_of_elements: 3
+  element_type_id: 0x8b7c737e
+}
+array {
+  id: 0x6eecde4e
+  number_of_elements: 16
+  element_type_id: 0x8b7c737e
+}
+array {
+  id: 0x871e6ee0
+  number_of_elements: 4
+  element_type_id: 0x2d4df7eb
+}
+array {
+  id: 0xc81fbba9
+  number_of_elements: 14
+  element_type_id: 0x5171d297
+}
+array {
+  id: 0xd2501053
+  number_of_elements: 14
+  element_type_id: 0x384f7d7c
+}
+array {
+  id: 0xe31cebd8
+  number_of_elements: 8
+  element_type_id: 0x1c898f28
+}
+array {
+  id: 0xfe9cd3d3
+  number_of_elements: 14
+  element_type_id: 0x8b7c737e
+}
+member {
+  id: 0x26364e2c
+  type_id: 0x17f748a1
+}
+member {
+  id: 0x263f5085
+  type_id: 0x17d33207
+}
+member {
+  id: 0x2685a918
+  type_id: 0x1538d473
+}
+member {
+  id: 0x2bd9d7f6
+  type_id: 0x20492fcb
+}
+member {
+  id: 0x2fdce1d4
+  type_id: 0x305df743
+}
+member {
+  id: 0x34064f0c
+  type_id: 0x5f376a2f
+  offset: 96
+}
+member {
+  id: 0x34f72fdb
+  type_id: 0x5cf2cf7f
+}
+member {
+  id: 0x35b9db3b
+  type_id: 0x59c90f7b
+  offset: 64
+}
+member {
+  id: 0x35e1b3c8
+  type_id: 0x58a89c16
+  offset: 192
+}
+member {
+  id: 0x36e57a5f
+  type_id: 0x54bb996d
+}
+member {
+  id: 0x3891d1e8
+  type_id: 0x6d6937b0
+}
+member {
+  id: 0x3982d0a4
+  type_id: 0x69253281
+}
+member {
+  id: 0x3e0228ba
+  type_id: 0x7726f4f5
+  offset: 96
+}
+member {
+  id: 0x3e0229f0
+  type_id: 0x7726f4f5
+  offset: 192
+}
+member {
+  id: 0xe05a44ed
+  name: "acceleration"
+  type_id: 0x3b3c8f5f
+}
+member {
+  id: 0x6bfffb20
+  name: "accuracy"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0x9153e04b
+  name: "additional_info"
+  type_id: 0x12f56065
+}
+member {
+  id: 0x0ba2dd96
+  name: "ai_addr"
+  type_id: 0x34d3469d
+  offset: 192
+}
+member {
+  id: 0x1184eccc
+  name: "ai_addrlen"
+  type_id: 0xa64508d6
+  offset: 128
+}
+member {
+  id: 0x0a4fe5eb
+  name: "ai_canonname"
+  type_id: 0x0483e6f8
+  offset: 160
+}
+member {
+  id: 0xaac881f5
+  name: "ai_family"
+  type_id: 0x6720d32f
+  offset: 32
+}
+member {
+  id: 0xd7732b1e
+  name: "ai_flags"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x04e5d9ff
+  name: "ai_next"
+  type_id: 0x1f4b3441
+  offset: 224
+}
+member {
+  id: 0x29d2faf4
+  name: "ai_protocol"
+  type_id: 0x6720d32f
+  offset: 96
+}
+member {
+  id: 0x5ba166df
+  name: "ai_socktype"
+  type_id: 0x6720d32f
+  offset: 64
+}
+member {
+  id: 0x3e969cc1
+  name: "azimuth"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x2710e0e9
+  name: "bias"
+  type_id: 0x301ae9eb
+}
+member {
+  id: 0xfac54e4d
+  name: "bottom"
+  type_id: 0x5171d297
+  offset: 96
+}
+member {
+  id: 0xbe7cd0f6
+  name: "bpm"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x092ace50
+  name: "calib"
+  type_id: 0x301ae9eb
+}
+member {
+  id: 0x792ded4f
+  name: "connected"
+  type_id: 0x5171d297
+}
+member {
+  id: 0xff713887
+  name: "data"
+  type_id: 0xe31cebd8
+}
+member {
+  id: 0xff8a9909
+  name: "data"
+  type_id: 0x18bd6530
+}
+member {
+  id: 0xfffcc8b2
+  name: "data"
+  type_id: 0x6eecde4e
+}
+member {
+  id: 0xf7649b53
+  name: "data_float"
+  type_id: 0xfe9cd3d3
+}
+member {
+  id: 0x3c382e71
+  name: "data_int32"
+  type_id: 0xc81fbba9
+}
+member {
+  id: 0x6f7e91b8
+  name: "discontinuity_count"
+  type_id: 0x5171d297
+  offset: 192
+}
+member {
+  id: 0x5f9cb109
+  name: "displayPrimaryBlue"
+  type_id: 0x0591def3
+  offset: 128
+}
+member {
+  id: 0xe5c15598
+  name: "displayPrimaryGreen"
+  type_id: 0x0591def3
+  offset: 64
+}
+member {
+  id: 0xf896e3ed
+  name: "displayPrimaryRed"
+  type_id: 0x0591def3
+}
+member {
+  id: 0xa4d27649
+  name: "distance"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0xd1bfb67d
+  name: "dynamic_sensor_meta"
+  type_id: 0x597d1e45
+}
+member {
+  id: 0x2d74bbdd
+  name: "flags"
+  type_id: 0x1c3dbe5a
+  offset: 704
+}
+member {
+  id: 0x084b6793
+  name: "format"
+  type_id: 0x1c3dbe5a
+  offset: 96
+}
+member {
+  id: 0x0dee7b9a
+  name: "gyro"
+  type_id: 0x3b3c8f5f
+}
+member {
+  id: 0xb8b2e9e4
+  name: "handle"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0x20aed1ce
+  name: "head_tracker"
+  type_id: 0x25b5a958
+}
+member {
+  id: 0x8740676b
+  name: "heading"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x879b2165
+  name: "heading"
+  type_id: 0x503a7d6d
+}
+member {
+  id: 0x76737aa1
+  name: "heart_rate"
+  type_id: 0xabf3dc39
+}
+member {
+  id: 0x2b01dca7
+  name: "height"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0x6e6e19ef
+  name: "layers"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0x35a81977
+  name: "left"
+  type_id: 0x5171d297
+}
+member {
+  id: 0x48406667
+  name: "light"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x65121ed0
+  name: "limited_axes_imu"
+  type_id: 0x43ee221a
+}
+member {
+  id: 0x4945ee93
+  name: "limited_axes_imu_uncalibrated"
+  type_id: 0xcbfd0de3
+}
+member {
+  id: 0xa3ec1e52
+  name: "magnetic"
+  type_id: 0x3b3c8f5f
+}
+member {
+  id: 0x25370a76
+  name: "maxContentLightLevel"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x4e721e09
+  name: "maxFrameAverageLightLevel"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0xe7fd7d1e
+  name: "maxLuminance"
+  type_id: 0x8b7c737e
+  offset: 256
+}
+member {
+  id: 0x7df11546
+  name: "meta_data"
+  type_id: 0x7f8eda37
+}
+member {
+  id: 0xd6488a61
+  name: "minLuminance"
+  type_id: 0x8b7c737e
+  offset: 288
+}
+member {
+  id: 0xfaa3ce3f
+  name: "pitch"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0x731f40af
+  name: "pixelStride"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0xe8119d2e
+  name: "planeCount"
+  type_id: 0x1c3dbe5a
+}
+member {
+  id: 0x2993bb9b
+  name: "planes"
+  type_id: 0x871e6ee0
+  offset: 32
+}
+member {
+  id: 0x9b2b6a99
+  name: "pressure"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0xac7e1986
+  name: "relative_humidity"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0xd461906b
+  name: "reserved"
+  type_id: 0x023fb107
+  offset: 104
+}
+member {
+  id: 0x8fe46a23
+  name: "reserved0"
+  type_id: 0x5171d297
+  offset: 96
+}
+member {
+  id: 0xcbec25ce
+  name: "reserved1"
+  type_id: 0x06998191
+  offset: 736
+}
+member {
+  id: 0xcec14abc
+  name: "rfu0"
+  type_id: 0x1c3dbe5a
+  offset: 224
+}
+member {
+  id: 0x0f0cadf4
+  name: "rfu1"
+  type_id: 0x1c898f28
+  offset: 256
+}
+member {
+  id: 0x0b27cdaf
+  name: "right"
+  type_id: 0x5171d297
+  offset: 64
+}
+member {
+  id: 0x0ee40211
+  name: "roll"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+member {
+  id: 0x34ce5ee4
+  name: "rowStride"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0x6c7b3b89
+  name: "rx"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x23ba57f8
+  name: "ry"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0xedf82118
+  name: "rz"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+member {
+  id: 0x6f6a03e4
+  name: "sa_data"
+  type_id: 0xd2501053
+  offset: 16
+}
+member {
+  id: 0xac335a9e
+  name: "sa_family"
+  type_id: 0x3032dbe6
+}
+member {
+  id: 0x4f8ba3b2
+  name: "sensor"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0xa7d433f0
+  name: "serial"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0x20b91858
+  name: "status"
+  type_id: 0xde365fc3
+  offset: 96
+}
+member {
+  id: 0x20b91ce0
+  name: "status"
+  type_id: 0xde365fc3
+  offset: 32
+}
+member {
+  id: 0x0cd6188b
+  name: "step_counter"
+  type_id: 0x1c898f28
+}
+member {
+  id: 0x5e4942f4
+  name: "stride"
+  type_id: 0x1c3dbe5a
+  offset: 192
+}
+member {
+  id: 0x875b7d04
+  name: "supported"
+  type_id: 0x301ae9eb
+}
+member {
+  id: 0x0acf4923
+  name: "temperature"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x5a91f0d2
+  name: "timestamp"
+  type_id: 0x7533d9d0
+  offset: 128
+}
+member {
+  id: 0xb61db703
+  name: "top"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0x5c07a04d
+  name: "type"
+  type_id: 0x5171d297
+  offset: 64
+}
+member {
+  id: 0x5c07a4ac
+  name: "type"
+  type_id: 0x5171d297
+}
+member {
+  id: 0xcbd7f878
+  name: "u64"
+  type_id: 0x6925a666
+}
+member {
+  id: 0xee692c6f
+  name: "uncalib"
+  type_id: 0x301ae9eb
+}
+member {
+  id: 0x3c16c414
+  name: "uncalibrated_acceleration"
+  type_id: 0x171ff86e
+}
+member {
+  id: 0xb86bd984
+  name: "uncalibrated_gyro"
+  type_id: 0x171ff86e
+}
+member {
+  id: 0x245319d2
+  name: "uncalibrated_magnetic"
+  type_id: 0x171ff86e
+}
+member {
+  id: 0x07760962
+  name: "usage"
+  type_id: 0x1c898f28
+  offset: 128
+}
+member {
+  id: 0x280fb02c
+  name: "v"
+  type_id: 0x301ae9eb
+}
+member {
+  id: 0x8395e77d
+  name: "vector"
+  type_id: 0x3b3c8f5f
+}
+member {
+  id: 0xa63045a8
+  name: "version"
+  type_id: 0x5171d297
+}
+member {
+  id: 0x6176d919
+  name: "vx"
+  type_id: 0x8b7c737e
+  offset: 96
+}
+member {
+  id: 0x0eb7569c
+  name: "vy"
+  type_id: 0x8b7c737e
+  offset: 128
+}
+member {
+  id: 0xe2f5d596
+  name: "vz"
+  type_id: 0x8b7c737e
+  offset: 160
+}
+member {
+  id: 0x34bd2b46
+  name: "what"
+  type_id: 0x5171d297
+}
+member {
+  id: 0x81094ad4
+  name: "whitePoint"
+  type_id: 0x0591def3
+  offset: 192
+}
+member {
+  id: 0x0a91c7be
+  name: "width"
+  type_id: 0x1c3dbe5a
+}
+member {
+  id: 0xa03917a5
+  name: "x"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x3ecd0859
+  name: "x_bias"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0xe0178c84
+  name: "x_supported"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0x35fb61f9
+  name: "x_uncalib"
+  type_id: 0x8b7c737e
+}
+member {
+  id: 0xfff87bcc
+  name: "y"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0x30ab1f11
+  name: "y_bias"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0x8246e748
+  name: "y_supported"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0xa986c79d
+  name: "y_uncalib"
+  type_id: 0x8b7c737e
+  offset: 32
+}
+member {
+  id: 0x21be0d24
+  name: "z"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+member {
+  id: 0x7835d471
+  name: "z_bias"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+member {
+  id: 0x6622f7c4
+  name: "z_supported"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+member {
+  id: 0xa59e178f
+  name: "z_uncalib"
+  type_id: 0x8b7c737e
+  offset: 64
+}
+struct_union {
+  id: 0x1538d473
+  kind: STRUCT
+  definition {
+    bytesize: 12
+    member_id: 0x35fb61f9
+    member_id: 0xa986c79d
+    member_id: 0xa59e178f
+  }
+}
+struct_union {
+  id: 0x17d33207
+  kind: STRUCT
+  definition {
+    bytesize: 12
+    member_id: 0x3ecd0859
+    member_id: 0x30ab1f11
+    member_id: 0x7835d471
+  }
+}
+struct_union {
+  id: 0x17f748a1
+  kind: STRUCT
+  definition {
+    bytesize: 12
+    member_id: 0x3e969cc1
+    member_id: 0xfaa3ce3f
+    member_id: 0x0ee40211
+  }
+}
+struct_union {
+  id: 0x20492fcb
+  kind: STRUCT
+  definition {
+    bytesize: 12
+    member_id: 0xe0178c84
+    member_id: 0x8246e748
+    member_id: 0x6622f7c4
+  }
+}
+struct_union {
+  id: 0x305df743
+  kind: STRUCT
+  definition {
+    bytesize: 12
+    member_id: 0xa03917a5
+    member_id: 0xfff87bcc
+    member_id: 0x21be0d24
+  }
+}
+struct_union {
+  id: 0x54bb996d
+  kind: UNION
+  definition {
+    bytesize: 12
+    member_id: 0x092ace50
+    member_id: 0x2fdce1d4
+  }
+}
+struct_union {
+  id: 0x58a89c16
+  kind: UNION
+  definition {
+    bytesize: 64
+    member_id: 0x3982d0a4
+    member_id: 0xcbd7f878
+  }
+}
+struct_union {
+  id: 0x59c90f7b
+  kind: UNION
+  definition {
+    bytesize: 56
+    member_id: 0x3c382e71
+    member_id: 0xf7649b53
+  }
+}
+struct_union {
+  id: 0x5cf2cf7f
+  kind: UNION
+  definition {
+    bytesize: 12
+    member_id: 0x280fb02c
+    member_id: 0x2fdce1d4
+    member_id: 0x26364e2c
+  }
+}
+struct_union {
+  id: 0x5f376a2f
+  kind: UNION
+  definition {
+    bytesize: 12
+    member_id: 0x2710e0e9
+    member_id: 0x263f5085
+  }
+}
+struct_union {
+  id: 0x69253281
+  kind: UNION
+  definition {
+    bytesize: 64
+    member_id: 0xfffcc8b2
+    member_id: 0x8395e77d
+    member_id: 0xe05a44ed
+    member_id: 0x0dee7b9a
+    member_id: 0xa3ec1e52
+    member_id: 0x0acf4923
+    member_id: 0xa4d27649
+    member_id: 0x48406667
+    member_id: 0x9b2b6a99
+    member_id: 0xac7e1986
+    member_id: 0x3c16c414
+    member_id: 0xb86bd984
+    member_id: 0x245319d2
+    member_id: 0x7df11546
+    member_id: 0x76737aa1
+    member_id: 0xd1bfb67d
+    member_id: 0x9153e04b
+    member_id: 0x20aed1ce
+    member_id: 0x65121ed0
+    member_id: 0x4945ee93
+    member_id: 0x879b2165
+  }
+}
+struct_union {
+  id: 0x6925a666
+  kind: UNION
+  definition {
+    bytesize: 64
+    member_id: 0xff713887
+    member_id: 0x0cd6188b
+  }
+}
+struct_union {
+  id: 0x6d6937b0
+  kind: UNION
+  definition {
+    bytesize: 12
+    member_id: 0xee692c6f
+    member_id: 0x2685a918
+  }
+}
+struct_union {
+  id: 0x7726f4f5
+  kind: UNION
+  definition {
+    bytesize: 12
+    member_id: 0x875b7d04
+    member_id: 0x2bd9d7f6
+  }
+}
+struct_union {
+  id: 0xff1071cc
+  kind: STRUCT
+  name: "AAdditionalInfoEvent"
+  definition {
+    bytesize: 64
+    member_id: 0x5c07a4ac
+    member_id: 0xa7d433f0
+    member_id: 0x35b9db3b
+  }
+}
+struct_union {
+  id: 0x02e8c34d
+  kind: STRUCT
+  name: "AAsset"
+}
+struct_union {
+  id: 0x9b86ad7d
+  kind: STRUCT
+  name: "AAssetDir"
+}
+struct_union {
+  id: 0xae06e3b7
+  kind: STRUCT
+  name: "AAssetManager"
+}
+struct_union {
+  id: 0xa2ebc837
+  kind: STRUCT
+  name: "AChoreographer"
+}
+struct_union {
+  id: 0x0591def3
+  kind: STRUCT
+  name: "AColor_xy"
+  definition {
+    bytesize: 8
+    member_id: 0xa03917a5
+    member_id: 0xfff87bcc
+  }
+}
+struct_union {
+  id: 0x5d244f87
+  kind: STRUCT
+  name: "AConfiguration"
+}
+struct_union {
+  id: 0xa2cb4205
+  kind: STRUCT
+  name: "ADynamicSensorEvent"
+  definition {
+    bytesize: 8
+    member_id: 0x792ded4f
+    member_id: 0xb8b2e9e4
+  }
+}
+struct_union {
+  id: 0xbcb65d2d
+  kind: STRUCT
+  name: "AFont"
+}
+struct_union {
+  id: 0xc25b3f15
+  kind: STRUCT
+  name: "AFontMatcher"
+}
+struct_union {
+  id: 0xda3b284e
+  kind: STRUCT
+  name: "AHardwareBuffer"
+}
+struct_union {
+  id: 0x1181d4aa
+  kind: STRUCT
+  name: "AHardwareBuffer_Desc"
+  definition {
+    bytesize: 40
+    member_id: 0x0a91c7be
+    member_id: 0x2b01dca7
+    member_id: 0x6e6e19ef
+    member_id: 0x084b6793
+    member_id: 0x07760962
+    member_id: 0x5e4942f4
+    member_id: 0xcec14abc
+    member_id: 0x0f0cadf4
+  }
+}
+struct_union {
+  id: 0x3b5eb23e
+  kind: STRUCT
+  name: "AHardwareBuffer_Plane"
+  definition {
+    bytesize: 12
+    member_id: 0xff8a9909
+    member_id: 0x731f40af
+    member_id: 0x34ce5ee4
+  }
+}
+struct_union {
+  id: 0xd36c0c98
+  kind: STRUCT
+  name: "AHardwareBuffer_Planes"
+  definition {
+    bytesize: 52
+    member_id: 0xe8119d2e
+    member_id: 0x2993bb9b
+  }
+}
+struct_union {
+  id: 0xdb4d94ca
+  kind: STRUCT
+  name: "AHdrMetadata_cta861_3"
+  definition {
+    bytesize: 8
+    member_id: 0x25370a76
+    member_id: 0x4e721e09
+  }
+}
+struct_union {
+  id: 0x06159a65
+  kind: STRUCT
+  name: "AHdrMetadata_smpte2086"
+  definition {
+    bytesize: 40
+    member_id: 0xf896e3ed
+    member_id: 0xe5c15598
+    member_id: 0x5f9cb109
+    member_id: 0x81094ad4
+    member_id: 0xe7fd7d1e
+    member_id: 0xd6488a61
+  }
+}
+struct_union {
+  id: 0x4011274e
+  kind: STRUCT
+  name: "AHeadTrackerEvent"
+  definition {
+    bytesize: 28
+    member_id: 0x6c7b3b89
+    member_id: 0x23ba57f8
+    member_id: 0xedf82118
+    member_id: 0x6176d919
+    member_id: 0x0eb7569c
+    member_id: 0xe2f5d596
+    member_id: 0x6f7e91b8
+  }
+}
+struct_union {
+  id: 0xd053be7c
+  kind: STRUCT
+  name: "AHeadingEvent"
+  definition {
+    bytesize: 8
+    member_id: 0x8740676b
+    member_id: 0x6bfffb20
+  }
+}
+struct_union {
+  id: 0xa2ef8365
+  kind: STRUCT
+  name: "AHeartRateEvent"
+  definition {
+    bytesize: 8
+    member_id: 0xbe7cd0f6
+    member_id: 0x20b91ce0
+  }
+}
+struct_union {
+  id: 0x882d2b75
+  kind: STRUCT
+  name: "AInputEvent"
+}
+struct_union {
+  id: 0x4257a5a2
+  kind: STRUCT
+  name: "AInputQueue"
+}
+struct_union {
+  id: 0x4924721c
+  kind: STRUCT
+  name: "ALimitedAxesImuEvent"
+  definition {
+    bytesize: 24
+    member_id: 0x36e57a5f
+    member_id: 0x3e0228ba
+  }
+}
+struct_union {
+  id: 0xfa57304d
+  kind: STRUCT
+  name: "ALimitedAxesImuUncalibratedEvent"
+  definition {
+    bytesize: 36
+    member_id: 0x3891d1e8
+    member_id: 0x34064f0c
+    member_id: 0x3e0229f0
+  }
+}
+struct_union {
+  id: 0x8ba440d0
+  kind: STRUCT
+  name: "ALooper"
+}
+struct_union {
+  id: 0x0283617b
+  kind: STRUCT
+  name: "AMetaDataEvent"
+  definition {
+    bytesize: 8
+    member_id: 0x34bd2b46
+    member_id: 0x4f8ba3b2
+  }
+}
+struct_union {
+  id: 0xec8b6f66
+  kind: STRUCT
+  name: "ANativeActivity"
+}
+struct_union {
+  id: 0x56e357ff
+  kind: STRUCT
+  name: "ANativeWindow"
+}
+struct_union {
+  id: 0x26e0860b
+  kind: STRUCT
+  name: "ANativeWindow_Buffer"
+}
+struct_union {
+  id: 0x630dced5
+  kind: STRUCT
+  name: "AObbInfo"
+}
+struct_union {
+  id: 0x146735cc
+  kind: STRUCT
+  name: "ARect"
+  definition {
+    bytesize: 16
+    member_id: 0x35a81977
+    member_id: 0xb61db703
+    member_id: 0x0b27cdaf
+    member_id: 0xfac54e4d
+  }
+}
+struct_union {
+  id: 0xf4ab28ee
+  kind: STRUCT
+  name: "ASensor"
+}
+struct_union {
+  id: 0xa03d1da0
+  kind: STRUCT
+  name: "ASensorEvent"
+  definition {
+    bytesize: 104
+    member_id: 0xa63045a8
+    member_id: 0x4f8ba3b2
+    member_id: 0x5c07a04d
+    member_id: 0x8fe46a23
+    member_id: 0x5a91f0d2
+    member_id: 0x35e1b3c8
+    member_id: 0x2d74bbdd
+    member_id: 0xcbec25ce
+  }
+}
+struct_union {
+  id: 0xfbb781ba
+  kind: STRUCT
+  name: "ASensorEventQueue"
+}
+struct_union {
+  id: 0x2a43c623
+  kind: STRUCT
+  name: "ASensorManager"
+}
+struct_union {
+  id: 0x751652d2
+  kind: STRUCT
+  name: "ASensorVector"
+  definition {
+    bytesize: 16
+    member_id: 0x34f72fdb
+    member_id: 0x20b91858
+    member_id: 0xd461906b
+  }
+}
+struct_union {
+  id: 0x0f48aaa3
+  kind: STRUCT
+  name: "AStorageManager"
+}
+struct_union {
+  id: 0x601bf134
+  kind: STRUCT
+  name: "ASurfaceControl"
+}
+struct_union {
+  id: 0xb8c24814
+  kind: STRUCT
+  name: "ASurfaceTexture"
+}
+struct_union {
+  id: 0xd430e13e
+  kind: STRUCT
+  name: "ASurfaceTransaction"
+}
+struct_union {
+  id: 0xab2ace83
+  kind: STRUCT
+  name: "ASurfaceTransactionStats"
+}
+struct_union {
+  id: 0xc3af4c10
+  kind: STRUCT
+  name: "ASystemFontIterator"
+}
+struct_union {
+  id: 0xe6c18de5
+  kind: STRUCT
+  name: "AThermalManager"
+}
+struct_union {
+  id: 0xb7cd3e7d
+  kind: STRUCT
+  name: "AUncalibratedEvent"
+  definition {
+    bytesize: 24
+    member_id: 0x3891d1e8
+    member_id: 0x34064f0c
+  }
+}
+struct_union {
+  id: 0xc4cb203f
+  kind: STRUCT
+  name: "_JNIEnv"
+}
+struct_union {
+  id: 0xe384d0bb
+  kind: STRUCT
+  name: "_jobject"
+}
+struct_union {
+  id: 0x576c379b
+  kind: STRUCT
+  name: "addrinfo"
+  definition {
+    bytesize: 32
+    member_id: 0xd7732b1e
+    member_id: 0xaac881f5
+    member_id: 0x5ba166df
+    member_id: 0x29d2faf4
+    member_id: 0x1184eccc
+    member_id: 0x0a4fe5eb
+    member_id: 0x0ba2dd96
+    member_id: 0x04e5d9ff
+  }
+}
+struct_union {
+  id: 0x2e15af11
+  kind: STRUCT
+  name: "native_handle"
+}
+struct_union {
+  id: 0xf90dfce8
+  kind: STRUCT
+  name: "sockaddr"
+  definition {
+    bytesize: 16
+    member_id: 0xac335a9e
+    member_id: 0x6f6a03e4
+  }
+}
+enumeration {
+  id: 0x8f8b51f7
+  name: "ADataSpace"
+  definition {
+    underlying_type_id: 0x5171d297
+    enumerator {
+      name: "ADATASPACE_UNKNOWN"
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_MASK"
+      value: 4128768
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_UNSPECIFIED"
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT709"
+      value: 65536
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT601_625"
+      value: 131072
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT601_625_UNADJUSTED"
+      value: 196608
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT601_525"
+      value: 262144
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT601_525_UNADJUSTED"
+      value: 327680
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT2020"
+      value: 393216
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT2020_CONSTANT_LUMINANCE"
+      value: 458752
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_BT470M"
+      value: 524288
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_FILM"
+      value: 589824
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_DCI_P3"
+      value: 655360
+    }
+    enumerator {
+      name: "ADATASPACE_STANDARD_ADOBE_RGB"
+      value: 720896
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_MASK"
+      value: 130023424
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_UNSPECIFIED"
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_LINEAR"
+      value: 4194304
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_SRGB"
+      value: 8388608
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_SMPTE_170M"
+      value: 12582912
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_GAMMA2_2"
+      value: 16777216
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_GAMMA2_6"
+      value: 20971520
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_GAMMA2_8"
+      value: 25165824
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_ST2084"
+      value: 29360128
+    }
+    enumerator {
+      name: "ADATASPACE_TRANSFER_HLG"
+      value: 33554432
+    }
+    enumerator {
+      name: "ADATASPACE_RANGE_MASK"
+      value: 939524096
+    }
+    enumerator {
+      name: "ADATASPACE_RANGE_UNSPECIFIED"
+    }
+    enumerator {
+      name: "ADATASPACE_RANGE_FULL"
+      value: 134217728
+    }
+    enumerator {
+      name: "ADATASPACE_RANGE_LIMITED"
+      value: 268435456
+    }
+    enumerator {
+      name: "ADATASPACE_RANGE_EXTENDED"
+      value: 402653184
+    }
+    enumerator {
+      name: "ADATASPACE_SCRGB_LINEAR"
+      value: 406913024
+    }
+    enumerator {
+      name: "ADATASPACE_SRGB"
+      value: 142671872
+    }
+    enumerator {
+      name: "ADATASPACE_SCRGB"
+      value: 411107328
+    }
+    enumerator {
+      name: "ADATASPACE_DISPLAY_P3"
+      value: 143261696
+    }
+    enumerator {
+      name: "ADATASPACE_BT2020_PQ"
+      value: 163971072
+    }
+    enumerator {
+      name: "ADATASPACE_BT2020_ITU_PQ"
+      value: 298188800
+    }
+    enumerator {
+      name: "ADATASPACE_ADOBE_RGB"
+      value: 151715840
+    }
+    enumerator {
+      name: "ADATASPACE_JFIF"
+      value: 146931712
+    }
+    enumerator {
+      name: "ADATASPACE_BT601_625"
+      value: 281149440
+    }
+    enumerator {
+      name: "ADATASPACE_BT601_525"
+      value: 281280512
+    }
+    enumerator {
+      name: "ADATASPACE_BT2020"
+      value: 147193856
+    }
+    enumerator {
+      name: "ADATASPACE_BT709"
+      value: 281083904
+    }
+    enumerator {
+      name: "ADATASPACE_DCI_P3"
+      value: 155844608
+    }
+    enumerator {
+      name: "ADATASPACE_SRGB_LINEAR"
+      value: 138477568
+    }
+    enumerator {
+      name: "ADATASPACE_BT2020_HLG"
+      value: 168165376
+    }
+    enumerator {
+      name: "ADATASPACE_BT2020_ITU_HLG"
+      value: 302383104
+    }
+    enumerator {
+      name: "ADATASPACE_DEPTH"
+      value: 4096
+    }
+    enumerator {
+      name: "ADATASPACE_DYNAMIC_DEPTH"
+      value: 4098
+    }
+    enumerator {
+      name: "STANDARD_MASK"
+      value: 4128768
+    }
+    enumerator {
+      name: "STANDARD_UNSPECIFIED"
+    }
+    enumerator {
+      name: "STANDARD_BT709"
+      value: 65536
+    }
+    enumerator {
+      name: "STANDARD_BT601_625"
+      value: 131072
+    }
+    enumerator {
+      name: "STANDARD_BT601_625_UNADJUSTED"
+      value: 196608
+    }
+    enumerator {
+      name: "STANDARD_BT601_525"
+      value: 262144
+    }
+    enumerator {
+      name: "STANDARD_BT601_525_UNADJUSTED"
+      value: 327680
+    }
+    enumerator {
+      name: "STANDARD_BT470M"
+      value: 524288
+    }
+    enumerator {
+      name: "STANDARD_BT2020"
+      value: 393216
+    }
+    enumerator {
+      name: "STANDARD_FILM"
+      value: 589824
+    }
+    enumerator {
+      name: "STANDARD_DCI_P3"
+      value: 655360
+    }
+    enumerator {
+      name: "STANDARD_ADOBE_RGB"
+      value: 720896
+    }
+    enumerator {
+      name: "TRANSFER_MASK"
+      value: 130023424
+    }
+    enumerator {
+      name: "TRANSFER_UNSPECIFIED"
+    }
+    enumerator {
+      name: "TRANSFER_LINEAR"
+      value: 4194304
+    }
+    enumerator {
+      name: "TRANSFER_SMPTE_170M"
+      value: 12582912
+    }
+    enumerator {
+      name: "TRANSFER_GAMMA2_2"
+      value: 16777216
+    }
+    enumerator {
+      name: "TRANSFER_GAMMA2_6"
+      value: 20971520
+    }
+    enumerator {
+      name: "TRANSFER_GAMMA2_8"
+      value: 25165824
+    }
+    enumerator {
+      name: "TRANSFER_SRGB"
+      value: 8388608
+    }
+    enumerator {
+      name: "TRANSFER_ST2084"
+      value: 29360128
+    }
+    enumerator {
+      name: "TRANSFER_HLG"
+      value: 33554432
+    }
+    enumerator {
+      name: "RANGE_MASK"
+      value: 939524096
+    }
+    enumerator {
+      name: "RANGE_UNSPECIFIED"
+    }
+    enumerator {
+      name: "RANGE_FULL"
+      value: 134217728
+    }
+    enumerator {
+      name: "RANGE_LIMITED"
+      value: 268435456
+    }
+    enumerator {
+      name: "RANGE_EXTENDED"
+      value: 402653184
+    }
+  }
+}
+enumeration {
+  id: 0x3c1e4e7f
+  name: "AThermalStatus"
+  definition {
+    underlying_type_id: 0x6720d32f
+    enumerator {
+      name: "ATHERMAL_STATUS_ERROR"
+      value: -1
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_NONE"
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_LIGHT"
+      value: 1
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_MODERATE"
+      value: 2
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_SEVERE"
+      value: 3
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_CRITICAL"
+      value: 4
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_EMERGENCY"
+      value: 5
+    }
+    enumerator {
+      name: "ATHERMAL_STATUS_SHUTDOWN"
+      value: 6
+    }
+  }
+}
+enumeration {
+  id: 0x9b5bef8e
+  name: "ResNsendFlags"
+  definition {
+    underlying_type_id: 0x1c3dbe5a
+    enumerator {
+      name: "ANDROID_RESOLV_NO_RETRY"
+      value: 1
+    }
+    enumerator {
+      name: "ANDROID_RESOLV_NO_CACHE_STORE"
+      value: 2
+    }
+    enumerator {
+      name: "ANDROID_RESOLV_NO_CACHE_LOOKUP"
+      value: 4
+    }
+  }
+}
+function {
+  id: 0x004b9ee3
+  return_type_id: 0x03c8f98e
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0x05c9102c
+  return_type_id: 0x1fe64a61
+}
+function {
+  id: 0x07e96032
+  return_type_id: 0x03c8f98e
+  parameter_id: 0x3fc92392
+}
+function {
+  id: 0x09506558
+  return_type_id: 0x48b5725f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x0b9ccc4e
+  return_type_id: 0x38539f38
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0x0db65273
+  return_type_id: 0x48b5725f
+  parameter_id: 0x7533d9d0
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x106a6ff0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x126e27ba
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0b65af3c
+  parameter_id: 0x08beafb3
+  parameter_id: 0x379d63b0
+}
+function {
+  id: 0x12b23065
+  return_type_id: 0x48b5725f
+  parameter_id: 0x08a987db
+}
+function {
+  id: 0x12b6c787
+  return_type_id: 0x48b5725f
+  parameter_id: 0x08ba5851
+}
+function {
+  id: 0x155a693f
+  return_type_id: 0xd5cc9c9a
+  parameter_id: 0x048a8dc2
+  parameter_id: 0x2d09a538
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x15aaae5b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1f936fd2
+  parameter_id: 0xb3a3e4db
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x16428572
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18ea281d
+  parameter_id: 0x3e10b518
+  parameter_id: 0x6720d32f
+  parameter_id: 0x748a49f3
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x164771e6
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x3c1e4e7f
+}
+function {
+  id: 0x1654c96b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18ea281d
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0x748a49f3
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1691a08e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x169a9e63
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x0b65af3c
+}
+function {
+  id: 0x16a2db94
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18ea281d
+}
+function {
+  id: 0x170c7c9e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1f936fd2
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x1761c30b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1fe64a61
+}
+function {
+  id: 0x177c8a67
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1f936fd2
+}
+function {
+  id: 0x1784c8b3
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1f936fd2
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x1801bf70
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2190f8f9
+  parameter_id: 0x39182153
+  parameter_id: 0x6720d32f
+  parameter_id: 0x1f90c08d
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x180d8002
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2190f8f9
+  parameter_id: 0x3a09e6e6
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x18fc6fad
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2190f8f9
+}
+function {
+  id: 0x19d7355b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x253d9322
+}
+function {
+  id: 0x1a023f2c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+  parameter_id: 0x28e7c695
+}
+function {
+  id: 0x1a51df21
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e3127e0
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x1a59e2e2
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x1a97401f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x18bd6530
+  parameter_id: 0xeff9bd1e
+}
+function {
+  id: 0x1aa1a036
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+}
+function {
+  id: 0x1ab3afad
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+  parameter_id: 0x0483e6f8
+}
+function {
+  id: 0x1acc3fc7
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8f8b51f7
+}
+function {
+  id: 0x1acd4a3e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x8b7c737e
+  parameter_id: 0xde365fc3
+}
+function {
+  id: 0x1ace32e7
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0x1ace4be4
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+}
+function {
+  id: 0x1acf0f2f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x8f8b51f7
+}
+function {
+  id: 0x1ad321cc
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0xf067d12c
+  parameter_id: 0xf067d12c
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x1ad8860d
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+  parameter_id: 0x1e498ec1
+}
+function {
+  id: 0x1adb606c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0xde365fc3
+}
+function {
+  id: 0x1ae3659f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x38539f38
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x1ae3c4fc
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x1ae3fd2c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x3c435c95
+}
+function {
+  id: 0x1aee28ac
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x0b155f3e
+}
+function {
+  id: 0x1aeec79a
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x08a987db
+}
+function {
+  id: 0x1af0903b
+  return_type_id: 0x1f936fd2
+}
+function {
+  id: 0x1af8b18f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x08a987db
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x1b14186b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e3127e0
+}
+function {
+  id: 0x1b1a8483
+  return_type_id: 0x48b5725f
+  parameter_id: 0x295869de
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x1b63e1fd
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e3127e0
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x1b64ee92
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e3127e0
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x1be4677c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x28e7c695
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x1ca906d0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x30c55d0d
+}
+function {
+  id: 0x1cac392f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x1f5099bd
+}
+function {
+  id: 0x1dc40be3
+  return_type_id: 0x3c1e4e7f
+  parameter_id: 0x3b909d21
+}
+function {
+  id: 0x1e4425e3
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d3d3a62
+  parameter_id: 0x655951ea
+  parameter_id: 0x18bd6530
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x1e445515
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d3d3a62
+  parameter_id: 0x655951ea
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1e4c2846
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d3d3a62
+  parameter_id: 0x67460528
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1e4fd87e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d3d3a62
+  parameter_id: 0x67460528
+  parameter_id: 0x18bd6530
+  parameter_id: 0xfc0e1dbd
+}
+function {
+  id: 0x1e59bb9f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x1e5f94c6
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x5171d297
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1e7394a4
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3baf14dd
+}
+function {
+  id: 0x1e7c76db
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3b909d21
+}
+function {
+  id: 0x1e8cb65d
+  return_type_id: 0x48b5725f
+  parameter_id: 0x38539f38
+}
+function {
+  id: 0x1ec8b3b2
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x1ede59c7
+  return_type_id: 0x48b5725f
+  parameter_id: 0x39182153
+}
+function {
+  id: 0x1ef3d19c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d3d3a62
+  parameter_id: 0x48b873a2
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1f0bf6c1
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e4e9d4b
+}
+function {
+  id: 0x1f1c7cd5
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x1f6a1977
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3fc92392
+}
+function {
+  id: 0x1fcb25e2
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3fc92392
+  parameter_id: 0x284f2578
+}
+function {
+  id: 0x263b803f
+  return_type_id: 0x3baf14dd
+  parameter_id: 0x38d49752
+  parameter_id: 0x3e10b518
+  parameter_id: 0x36ae7c82
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x0d9f5631
+}
+function {
+  id: 0x2d47c97e
+  return_type_id: 0x3fc92392
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0x2f02ada9
+  return_type_id: 0x3baf14dd
+  parameter_id: 0x1fe64a61
+}
+function {
+  id: 0x2ff92368
+  return_type_id: 0x48b5725f
+  parameter_id: 0xfc0e1dbd
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x303e03dc
+  return_type_id: 0x3b909d21
+}
+function {
+  id: 0x3f199f4c
+  return_type_id: 0x1c3dbe5a
+  parameter_id: 0x31db8991
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x3f8b6c2b
+  return_type_id: 0x048a8dc2
+  parameter_id: 0x1e55c947
+  parameter_id: 0x39182153
+  parameter_id: 0x6720d32f
+  parameter_id: 0x1f90c08d
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x418de8a1
+  return_type_id: 0x18ea281d
+}
+function {
+  id: 0x4a7c2cef
+  return_type_id: 0x3d3d3a62
+}
+function {
+  id: 0x4c219911
+  return_type_id: 0x39182153
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x4d8c7347
+  return_type_id: 0x08a987db
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x4f542cd2
+  return_type_id: 0x08a987db
+  parameter_id: 0x08a987db
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x504ba8b2
+  return_type_id: 0x295869de
+}
+function {
+  id: 0x55e9adda
+  return_type_id: 0x39182153
+}
+function {
+  id: 0x5b9e2dc6
+  return_type_id: 0x391f15ea
+  parameter_id: 0x30c55d0d
+}
+function {
+  id: 0x5beee2d9
+  return_type_id: 0x253d9322
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x619d7da5
+  return_type_id: 0x30c55d0d
+  parameter_id: 0x1e498ec1
+  parameter_id: 0x3e10b518
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x742900cf
+  return_type_id: 0x28e7c695
+}
+function {
+  id: 0x82fa95a8
+  return_type_id: 0x3e4e9d4b
+  parameter_id: 0x1e498ec1
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x8400fd9b
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x13580d6c
+  parameter_id: 0x1a6a7d94
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x8401532f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x13580d6c
+  parameter_id: 0x13580d6c
+  parameter_id: 0x0cbf60eb
+}
+function {
+  id: 0x845ac49d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0x85d27bf1
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x85d454a8
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x8ef7fd99
+  return_type_id: 0xf435685e
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x90554ab9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x914fb38b
+  return_type_id: 0x6720d32f
+  parameter_id: 0x30c55d0d
+  parameter_id: 0x3c45a3ea
+  parameter_id: 0x3c45a3ea
+}
+function {
+  id: 0x915059d4
+  return_type_id: 0xb3a3e4db
+  parameter_id: 0x31db8991
+}
+function {
+  id: 0x916de294
+  return_type_id: 0x6720d32f
+  parameter_id: 0x30c55d0d
+  parameter_id: 0x3450b573
+  parameter_id: 0x3450b573
+}
+function {
+  id: 0x91b1b46c
+  return_type_id: 0x6720d32f
+  parameter_id: 0x30c55d0d
+}
+function {
+  id: 0x91d41bc8
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x91ee4ca2
+  return_type_id: 0x6720d32f
+  parameter_id: 0x30c55d0d
+  parameter_id: 0x18bd6530
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x92025d32
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3fc92392
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x92423b06
+  return_type_id: 0x6720d32f
+  parameter_id: 0x39182153
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x1f90c08d
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x924bb791
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3b909d21
+  parameter_id: 0x4a572bcd
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x925a6837
+  return_type_id: 0x6720d32f
+  parameter_id: 0x39182153
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9272abcb
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3fc92392
+}
+function {
+  id: 0x92f6bfcd
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3dd9738b
+}
+function {
+  id: 0x93abeae4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38e46ac9
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0x93b9f99d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38e46ac9
+}
+function {
+  id: 0x93ef35d5
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x93f28819
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x0cbf60eb
+}
+function {
+  id: 0x93f28865
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x0cbf60eb
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x93f28ce0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x1f5b8148
+}
+function {
+  id: 0x9486df70
+  return_type_id: 0x3e10b518
+  parameter_id: 0x18ea281d
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x95d0551a
+  return_type_id: 0x6720d32f
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0x9a07bb49
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x048a8dc2
+}
+function {
+  id: 0x9a40375e
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x15698814
+}
+function {
+  id: 0x9aec0e89
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x3124ab68
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9afaa007
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x3dd9738b
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9b0b736b
+  return_type_id: 0x3e10b518
+  parameter_id: 0x253d9322
+}
+function {
+  id: 0x9b422bfc
+  return_type_id: 0x6720d32f
+  parameter_id: 0x18ea281d
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x9b492b36
+  return_type_id: 0xf435685e
+  parameter_id: 0x31db8991
+}
+function {
+  id: 0x9b534415
+  return_type_id: 0xf435685e
+  parameter_id: 0x31b2351f
+}
+function {
+  id: 0x9b891d97
+  return_type_id: 0x3a1ac44a
+  parameter_id: 0x3124ab68
+}
+function {
+  id: 0x9bb41f68
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1e55c947
+  parameter_id: 0x6720d32f
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9c30d569
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00b2d428
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9c40ad2a
+  return_type_id: 0x6720d32f
+  parameter_id: 0x048a8dc2
+  parameter_id: 0x3dd9738b
+  parameter_id: 0x5171d297
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x9c4179e5
+  return_type_id: 0x6720d32f
+  parameter_id: 0x048a8dc2
+  parameter_id: 0x3dd9738b
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x9c552591
+  return_type_id: 0x6720d32f
+  parameter_id: 0x048a8dc2
+  parameter_id: 0x3dd9738b
+}
+function {
+  id: 0x9ca2405f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x048a8dc2
+}
+function {
+  id: 0x9cf4cf28
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31b2351f
+  parameter_id: 0x5171d297
+  parameter_id: 0xf435685e
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9cf71ffd
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31b2351f
+  parameter_id: 0x5171d297
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9d28faa0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x048a8dc2
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x9d324b41
+  return_type_id: 0x3e10b518
+  parameter_id: 0x3dd9738b
+}
+function {
+  id: 0x9d4c6690
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00b2d428
+  parameter_id: 0x3e10b518
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x9b5bef8e
+}
+function {
+  id: 0x9d5b7006
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00b2d428
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0x38e281b6
+  parameter_id: 0x0d42f4b7
+}
+function {
+  id: 0x9d759d5f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00b2d428
+  parameter_id: 0x39aad3c3
+  parameter_id: 0xf435685e
+  parameter_id: 0x9b5bef8e
+}
+function {
+  id: 0x9d8fd5ed
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31b2351f
+}
+function {
+  id: 0x9dac5625
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00b2d428
+}
+function {
+  id: 0x9dd7b0f1
+  return_type_id: 0x3e10b518
+  parameter_id: 0x3e4e9d4b
+}
+function {
+  id: 0x9de54c37
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31db8991
+  parameter_id: 0x1c3dbe5a
+}
+function {
+  id: 0x9e32f5c7
+  return_type_id: 0x3e10b518
+  parameter_id: 0x31db8991
+}
+function {
+  id: 0x9e5f004c
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31b2351f
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9e620d16
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x31b2351f
+  parameter_id: 0xf435685e
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9e950448
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x3dd9738b
+}
+function {
+  id: 0x9f5988e0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x0b65af3c
+}
+function {
+  id: 0x9f7b2eff
+  return_type_id: 0x6720d32f
+  parameter_id: 0x0b65af3c
+  parameter_id: 0x08a987db
+}
+function {
+  id: 0xa47b1787
+  return_type_id: 0x1e55c947
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0xa4807b91
+  return_type_id: 0x1e498ec1
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0xa5a6ed81
+  return_type_id: 0x3dd9738b
+  parameter_id: 0x1e55c947
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0xa5be462e
+  return_type_id: 0x3dd9738b
+  parameter_id: 0x1e55c947
+  parameter_id: 0x6720d32f
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0xabff3ac1
+  return_type_id: 0x1e55c947
+}
+function {
+  id: 0xb0bab410
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x3dd9738b
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0xb126375c
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x3dd9738b
+}
+function {
+  id: 0xb22689da
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x31db8991
+}
+function {
+  id: 0xbe506bbe
+  return_type_id: 0x62aebfd4
+}
+function {
+  id: 0xc45915d9
+  return_type_id: 0x0e97f05a
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x38539f38
+}
+function {
+  id: 0xc4b77843
+  return_type_id: 0x0e97f05a
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0xd061a573
+  return_type_id: 0x5171d297
+  parameter_id: 0x2190f8f9
+}
+function {
+  id: 0xd071ec73
+  return_type_id: 0x5171d297
+  parameter_id: 0x2190f8f9
+  parameter_id: 0x0412401e
+}
+function {
+  id: 0xd08982e8
+  return_type_id: 0x5171d297
+  parameter_id: 0x2190f8f9
+  parameter_id: 0x3a09e6e6
+}
+function {
+  id: 0xd14aff85
+  return_type_id: 0x5171d297
+  parameter_id: 0x253d9322
+}
+function {
+  id: 0xd23c6ae8
+  return_type_id: 0x5171d297
+  parameter_id: 0x28e7c695
+}
+function {
+  id: 0xd295cc03
+  return_type_id: 0x5171d297
+  parameter_id: 0x28e7c695
+  parameter_id: 0x28e7c695
+  parameter_id: 0x28e7c695
+}
+function {
+  id: 0xd29ff5f2
+  return_type_id: 0x5171d297
+  parameter_id: 0x28e7c695
+  parameter_id: 0x28e7c695
+}
+function {
+  id: 0xd469160a
+  return_type_id: 0x5171d297
+  parameter_id: 0x31b2351f
+}
+function {
+  id: 0xd7b9c3ab
+  return_type_id: 0x5171d297
+  parameter_id: 0x31b2351f
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0xd879a4a1
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x23158137
+  parameter_id: 0x095e2d77
+}
+function {
+  id: 0xd8f7a52e
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0xd9a77bd7
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0xe0c3f49b
+  return_type_id: 0xfb023351
+  parameter_id: 0x30c55d0d
+}
+function {
+  id: 0xe3363462
+  return_type_id: 0xfb023351
+  parameter_id: 0x30c55d0d
+  parameter_id: 0xfb023351
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0xf100b8e4
+  return_type_id: 0xdb566935
+  parameter_id: 0x30c55d0d
+  parameter_id: 0xdb566935
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0xf2742974
+  return_type_id: 0xdb566935
+  parameter_id: 0x30c55d0d
+}
+function {
+  id: 0xf50c2bf6
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x0b65af3c
+}
+function {
+  id: 0xf52e8de9
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x0b65af3c
+  parameter_id: 0x08a987db
+}
+function {
+  id: 0xf82708dd
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x3fc92392
+}
+function {
+  id: 0xf86918df
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x31b2351f
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0xfbb9cd7e
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x31b2351f
+}
+elf_symbol {
+  id: 0x42cb2f32
+  name: "AAssetDir_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1f0bf6c1
+  full_name: "AAssetDir_close"
+}
+elf_symbol {
+  id: 0x3903ea8d
+  name: "AAssetDir_getNextFileName"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9dd7b0f1
+  full_name: "AAssetDir_getNextFileName"
+}
+elf_symbol {
+  id: 0x5a43ddbe
+  name: "AAssetDir_rewind"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1f0bf6c1
+  full_name: "AAssetDir_rewind"
+}
+elf_symbol {
+  id: 0x9da8b211
+  name: "AAssetManager_fromJava"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa4807b91
+  full_name: "AAssetManager_fromJava"
+}
+elf_symbol {
+  id: 0xd7885c65
+  name: "AAssetManager_open"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x619d7da5
+  full_name: "AAssetManager_open"
+}
+elf_symbol {
+  id: 0x16e89685
+  name: "AAssetManager_openDir"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x82fa95a8
+  full_name: "AAssetManager_openDir"
+}
+elf_symbol {
+  id: 0xc4c8b776
+  name: "AAsset_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ca906d0
+  full_name: "AAsset_close"
+}
+elf_symbol {
+  id: 0x78911e99
+  name: "AAsset_getBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5b9e2dc6
+  full_name: "AAsset_getBuffer"
+}
+elf_symbol {
+  id: 0xa8cf99cf
+  name: "AAsset_getLength"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf2742974
+  full_name: "AAsset_getLength"
+}
+elf_symbol {
+  id: 0x5de115bd
+  name: "AAsset_getLength64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe0c3f49b
+  full_name: "AAsset_getLength64"
+}
+elf_symbol {
+  id: 0xf31707e4
+  name: "AAsset_getRemainingLength"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf2742974
+  full_name: "AAsset_getRemainingLength"
+}
+elf_symbol {
+  id: 0xebdad276
+  name: "AAsset_getRemainingLength64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe0c3f49b
+  full_name: "AAsset_getRemainingLength64"
+}
+elf_symbol {
+  id: 0x4a6c1671
+  name: "AAsset_isAllocated"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91b1b46c
+  full_name: "AAsset_isAllocated"
+}
+elf_symbol {
+  id: 0xc7b8bf6a
+  name: "AAsset_openFileDescriptor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x914fb38b
+  full_name: "AAsset_openFileDescriptor"
+}
+elf_symbol {
+  id: 0xa88ae02e
+  name: "AAsset_openFileDescriptor64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x916de294
+  full_name: "AAsset_openFileDescriptor64"
+}
+elf_symbol {
+  id: 0x0a2e42e7
+  name: "AAsset_read"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91ee4ca2
+  full_name: "AAsset_read"
+}
+elf_symbol {
+  id: 0x4c89b810
+  name: "AAsset_seek"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf100b8e4
+  full_name: "AAsset_seek"
+}
+elf_symbol {
+  id: 0x5bdc2442
+  name: "AAsset_seek64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe3363462
+  full_name: "AAsset_seek64"
+}
+elf_symbol {
+  id: 0xc4860358
+  name: "AChoreographer_getInstance"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4a7c2cef
+  full_name: "AChoreographer_getInstance"
+}
+elf_symbol {
+  id: 0x53364bbd
+  name: "AChoreographer_postFrameCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e4c2846
+  full_name: "AChoreographer_postFrameCallback"
+}
+elf_symbol {
+  id: 0xd7a46f89
+  name: "AChoreographer_postFrameCallback64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e445515
+  full_name: "AChoreographer_postFrameCallback64"
+}
+elf_symbol {
+  id: 0xedb3900a
+  name: "AChoreographer_postFrameCallbackDelayed"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e4fd87e
+  full_name: "AChoreographer_postFrameCallbackDelayed"
+}
+elf_symbol {
+  id: 0xb0f9ac48
+  name: "AChoreographer_postFrameCallbackDelayed64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e4425e3
+  full_name: "AChoreographer_postFrameCallbackDelayed64"
+}
+elf_symbol {
+  id: 0x401a54b7
+  name: "AChoreographer_registerRefreshRateCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ef3d19c
+  full_name: "AChoreographer_registerRefreshRateCallback"
+}
+elf_symbol {
+  id: 0xbaa08a28
+  name: "AChoreographer_unregisterRefreshRateCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ef3d19c
+  full_name: "AChoreographer_unregisterRefreshRateCallback"
+}
+elf_symbol {
+  id: 0xbbd67e0c
+  name: "AConfiguration_copy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a023f2c
+  full_name: "AConfiguration_copy"
+}
+elf_symbol {
+  id: 0xe08c15d8
+  name: "AConfiguration_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1aa1a036
+  full_name: "AConfiguration_delete"
+}
+elf_symbol {
+  id: 0x74af8b78
+  name: "AConfiguration_diff"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd29ff5f2
+  full_name: "AConfiguration_diff"
+}
+elf_symbol {
+  id: 0x789b012a
+  name: "AConfiguration_fromAssetManager"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ad8860d
+  full_name: "AConfiguration_fromAssetManager"
+}
+elf_symbol {
+  id: 0x384ad56f
+  name: "AConfiguration_getCountry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ab3afad
+  full_name: "AConfiguration_getCountry"
+}
+elf_symbol {
+  id: 0x9ab52333
+  name: "AConfiguration_getDensity"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getDensity"
+}
+elf_symbol {
+  id: 0x8b044d8b
+  name: "AConfiguration_getKeyboard"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getKeyboard"
+}
+elf_symbol {
+  id: 0xd7984ac7
+  name: "AConfiguration_getKeysHidden"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getKeysHidden"
+}
+elf_symbol {
+  id: 0x81ae1f63
+  name: "AConfiguration_getLanguage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ab3afad
+  full_name: "AConfiguration_getLanguage"
+}
+elf_symbol {
+  id: 0xa3b1ee90
+  name: "AConfiguration_getLayoutDirection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getLayoutDirection"
+}
+elf_symbol {
+  id: 0x1d418ecd
+  name: "AConfiguration_getMcc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getMcc"
+}
+elf_symbol {
+  id: 0x1a0d68fd
+  name: "AConfiguration_getMnc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getMnc"
+}
+elf_symbol {
+  id: 0x92425a52
+  name: "AConfiguration_getNavHidden"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getNavHidden"
+}
+elf_symbol {
+  id: 0xb05e6e79
+  name: "AConfiguration_getNavigation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getNavigation"
+}
+elf_symbol {
+  id: 0x6542bc9b
+  name: "AConfiguration_getOrientation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getOrientation"
+}
+elf_symbol {
+  id: 0x8ed134d4
+  name: "AConfiguration_getScreenHeightDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getScreenHeightDp"
+}
+elf_symbol {
+  id: 0xeeae116e
+  name: "AConfiguration_getScreenLong"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getScreenLong"
+}
+elf_symbol {
+  id: 0x82754fc6
+  name: "AConfiguration_getScreenRound"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getScreenRound"
+}
+elf_symbol {
+  id: 0x1ea32c62
+  name: "AConfiguration_getScreenSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getScreenSize"
+}
+elf_symbol {
+  id: 0x28f3ff8c
+  name: "AConfiguration_getScreenWidthDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getScreenWidthDp"
+}
+elf_symbol {
+  id: 0x6c33fb32
+  name: "AConfiguration_getSdkVersion"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getSdkVersion"
+}
+elf_symbol {
+  id: 0x75402748
+  name: "AConfiguration_getSmallestScreenWidthDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getSmallestScreenWidthDp"
+}
+elf_symbol {
+  id: 0x0a48f529
+  name: "AConfiguration_getTouchscreen"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getTouchscreen"
+}
+elf_symbol {
+  id: 0x97c3b7ae
+  name: "AConfiguration_getUiModeNight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getUiModeNight"
+}
+elf_symbol {
+  id: 0xb2b12d41
+  name: "AConfiguration_getUiModeType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd23c6ae8
+  full_name: "AConfiguration_getUiModeType"
+}
+elf_symbol {
+  id: 0x35aac0cd
+  name: "AConfiguration_isBetterThan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd295cc03
+  full_name: "AConfiguration_isBetterThan"
+}
+elf_symbol {
+  id: 0x9f5a30a1
+  name: "AConfiguration_match"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd29ff5f2
+  full_name: "AConfiguration_match"
+}
+elf_symbol {
+  id: 0xca9fbeab
+  name: "AConfiguration_new"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x742900cf
+  full_name: "AConfiguration_new"
+}
+elf_symbol {
+  id: 0x00a61894
+  name: "AConfiguration_setCountry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a59e2e2
+  full_name: "AConfiguration_setCountry"
+}
+elf_symbol {
+  id: 0x8d93ff30
+  name: "AConfiguration_setDensity"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setDensity"
+}
+elf_symbol {
+  id: 0x7fb7d486
+  name: "AConfiguration_setKeyboard"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setKeyboard"
+}
+elf_symbol {
+  id: 0x16dec5bc
+  name: "AConfiguration_setKeysHidden"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setKeysHidden"
+}
+elf_symbol {
+  id: 0xf14aeff2
+  name: "AConfiguration_setLanguage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a59e2e2
+  full_name: "AConfiguration_setLanguage"
+}
+elf_symbol {
+  id: 0xcdb20ef9
+  name: "AConfiguration_setLayoutDirection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setLayoutDirection"
+}
+elf_symbol {
+  id: 0xb68c1aa6
+  name: "AConfiguration_setMcc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setMcc"
+}
+elf_symbol {
+  id: 0x7afd7172
+  name: "AConfiguration_setMnc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setMnc"
+}
+elf_symbol {
+  id: 0x55a3f3f9
+  name: "AConfiguration_setNavHidden"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setNavHidden"
+}
+elf_symbol {
+  id: 0xa1bf21bc
+  name: "AConfiguration_setNavigation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setNavigation"
+}
+elf_symbol {
+  id: 0x21b5bb2e
+  name: "AConfiguration_setOrientation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setOrientation"
+}
+elf_symbol {
+  id: 0x9da019b3
+  name: "AConfiguration_setScreenHeightDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setScreenHeightDp"
+}
+elf_symbol {
+  id: 0x7720b4c3
+  name: "AConfiguration_setScreenLong"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setScreenLong"
+}
+elf_symbol {
+  id: 0x2193ef33
+  name: "AConfiguration_setScreenSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setScreenSize"
+}
+elf_symbol {
+  id: 0x692396af
+  name: "AConfiguration_setScreenWidthDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setScreenWidthDp"
+}
+elf_symbol {
+  id: 0xcbc1f7ab
+  name: "AConfiguration_setSdkVersion"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setSdkVersion"
+}
+elf_symbol {
+  id: 0xe8230d3b
+  name: "AConfiguration_setSmallestScreenWidthDp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setSmallestScreenWidthDp"
+}
+elf_symbol {
+  id: 0xfa198c34
+  name: "AConfiguration_setTouchscreen"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setTouchscreen"
+}
+elf_symbol {
+  id: 0xd46ea731
+  name: "AConfiguration_setUiModeNight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setUiModeNight"
+}
+elf_symbol {
+  id: 0xa6cdd328
+  name: "AConfiguration_setUiModeType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1be4677c
+  full_name: "AConfiguration_setUiModeType"
+}
+elf_symbol {
+  id: 0x1f44fbb6
+  name: "AFontMatcher_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1af0903b
+  full_name: "AFontMatcher_create"
+}
+elf_symbol {
+  id: 0xb1004f0e
+  name: "AFontMatcher_destroy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x177c8a67
+  full_name: "AFontMatcher_destroy"
+}
+elf_symbol {
+  id: 0x205d98c4
+  name: "AFontMatcher_match"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x263b803f
+  full_name: "AFontMatcher_match"
+}
+elf_symbol {
+  id: 0xbb7322c9
+  name: "AFontMatcher_setFamilyVariant"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x170c7c9e
+  full_name: "AFontMatcher_setFamilyVariant"
+}
+elf_symbol {
+  id: 0xab5a6b13
+  name: "AFontMatcher_setLocales"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1784c8b3
+  full_name: "AFontMatcher_setLocales"
+}
+elf_symbol {
+  id: 0xa7b3fcab
+  name: "AFontMatcher_setStyle"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x15aaae5b
+  full_name: "AFontMatcher_setStyle"
+}
+elf_symbol {
+  id: 0x8e8bb45f
+  name: "AFont_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e7394a4
+  full_name: "AFont_close"
+}
+elf_symbol {
+  id: 0x25417c90
+  name: "AFont_getAxisCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b492b36
+  full_name: "AFont_getAxisCount"
+}
+elf_symbol {
+  id: 0x7db2c08b
+  name: "AFont_getAxisTag"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3f199f4c
+  full_name: "AFont_getAxisTag"
+}
+elf_symbol {
+  id: 0x086bc24a
+  name: "AFont_getAxisValue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9de54c37
+  full_name: "AFont_getAxisValue"
+}
+elf_symbol {
+  id: 0xbb883ece
+  name: "AFont_getCollectionIndex"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b492b36
+  full_name: "AFont_getCollectionIndex"
+}
+elf_symbol {
+  id: 0x45d05afa
+  name: "AFont_getFontFilePath"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e32f5c7
+  full_name: "AFont_getFontFilePath"
+}
+elf_symbol {
+  id: 0xac6a86d6
+  name: "AFont_getLocale"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e32f5c7
+  full_name: "AFont_getLocale"
+}
+elf_symbol {
+  id: 0xd2e6e869
+  name: "AFont_getWeight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x915059d4
+  full_name: "AFont_getWeight"
+}
+elf_symbol {
+  id: 0x0a2dd96e
+  name: "AFont_isItalic"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb22689da
+  full_name: "AFont_isItalic"
+}
+elf_symbol {
+  id: 0x83b535a6
+  name: "AHardwareBuffer_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e8cb65d
+  full_name: "AHardwareBuffer_acquire"
+}
+elf_symbol {
+  id: 0xcdb6ed22
+  name: "AHardwareBuffer_allocate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93abeae4
+  full_name: "AHardwareBuffer_allocate"
+}
+elf_symbol {
+  id: 0xba4a7385
+  name: "AHardwareBuffer_describe"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1cac392f
+  full_name: "AHardwareBuffer_describe"
+}
+elf_symbol {
+  id: 0x4dfb2214
+  name: "AHardwareBuffer_fromHardwareBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x0b9ccc4e
+  full_name: "AHardwareBuffer_fromHardwareBuffer"
+}
+elf_symbol {
+  id: 0x997fae7f
+  name: "AHardwareBuffer_getNativeHandle"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b891d97
+  full_name: "AHardwareBuffer_getNativeHandle"
+}
+elf_symbol {
+  id: 0xee47bd37
+  name: "AHardwareBuffer_isSupported"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93b9f99d
+  full_name: "AHardwareBuffer_isSupported"
+}
+elf_symbol {
+  id: 0x409a6a1b
+  name: "AHardwareBuffer_lock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28819
+  full_name: "AHardwareBuffer_lock"
+}
+elf_symbol {
+  id: 0xd1a32559
+  name: "AHardwareBuffer_lockAndGetInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28865
+  full_name: "AHardwareBuffer_lockAndGetInfo"
+}
+elf_symbol {
+  id: 0x86571d6a
+  name: "AHardwareBuffer_lockPlanes"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28ce0
+  full_name: "AHardwareBuffer_lockPlanes"
+}
+elf_symbol {
+  id: 0xfa67aafd
+  name: "AHardwareBuffer_recvHandleFromUnixSocket"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x845ac49d
+  full_name: "AHardwareBuffer_recvHandleFromUnixSocket"
+}
+elf_symbol {
+  id: 0x196e732c
+  name: "AHardwareBuffer_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e8cb65d
+  full_name: "AHardwareBuffer_release"
+}
+elf_symbol {
+  id: 0xb74ef162
+  name: "AHardwareBuffer_sendHandleToUnixSocket"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90554ab9
+  full_name: "AHardwareBuffer_sendHandleToUnixSocket"
+}
+elf_symbol {
+  id: 0x73fe3799
+  name: "AHardwareBuffer_toHardwareBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc45915d9
+  full_name: "AHardwareBuffer_toHardwareBuffer"
+}
+elf_symbol {
+  id: 0x7815dfb1
+  name: "AHardwareBuffer_unlock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93ef35d5
+  full_name: "AHardwareBuffer_unlock"
+}
+elf_symbol {
+  id: 0xbf0e1e3c
+  name: "AInputEvent_getDeviceId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AInputEvent_getDeviceId"
+}
+elf_symbol {
+  id: 0x26f9ffb0
+  name: "AInputEvent_getSource"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AInputEvent_getSource"
+}
+elf_symbol {
+  id: 0xa76693aa
+  name: "AInputEvent_getType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AInputEvent_getType"
+}
+elf_symbol {
+  id: 0x87a8aba8
+  name: "AInputQueue_attachLooper"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1801bf70
+  full_name: "AInputQueue_attachLooper"
+}
+elf_symbol {
+  id: 0x2a2b0cb3
+  name: "AInputQueue_detachLooper"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18fc6fad
+  full_name: "AInputQueue_detachLooper"
+}
+elf_symbol {
+  id: 0xa6fa3758
+  name: "AInputQueue_finishEvent"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x180d8002
+  full_name: "AInputQueue_finishEvent"
+}
+elf_symbol {
+  id: 0xa13402ab
+  name: "AInputQueue_getEvent"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd071ec73
+  full_name: "AInputQueue_getEvent"
+}
+elf_symbol {
+  id: 0x964771d5
+  name: "AInputQueue_hasEvents"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd061a573
+  full_name: "AInputQueue_hasEvents"
+}
+elf_symbol {
+  id: 0xbb387a98
+  name: "AInputQueue_preDispatchEvent"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd08982e8
+  full_name: "AInputQueue_preDispatchEvent"
+}
+elf_symbol {
+  id: 0x307e980b
+  name: "AKeyEvent_getAction"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getAction"
+}
+elf_symbol {
+  id: 0xce7c9a76
+  name: "AKeyEvent_getDownTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfbb9cd7e
+  full_name: "AKeyEvent_getDownTime"
+}
+elf_symbol {
+  id: 0x2b437fa7
+  name: "AKeyEvent_getEventTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfbb9cd7e
+  full_name: "AKeyEvent_getEventTime"
+}
+elf_symbol {
+  id: 0x42d16679
+  name: "AKeyEvent_getFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getFlags"
+}
+elf_symbol {
+  id: 0x710bceab
+  name: "AKeyEvent_getKeyCode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getKeyCode"
+}
+elf_symbol {
+  id: 0xf19350d3
+  name: "AKeyEvent_getMetaState"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getMetaState"
+}
+elf_symbol {
+  id: 0x4c756708
+  name: "AKeyEvent_getRepeatCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getRepeatCount"
+}
+elf_symbol {
+  id: 0x32aaf8fc
+  name: "AKeyEvent_getScanCode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AKeyEvent_getScanCode"
+}
+elf_symbol {
+  id: 0xc10bf025
+  name: "ALooper_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ede59c7
+  full_name: "ALooper_acquire"
+}
+elf_symbol {
+  id: 0x2b787f26
+  name: "ALooper_addFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92423b06
+  full_name: "ALooper_addFd"
+}
+elf_symbol {
+  id: 0xc9f7a11b
+  name: "ALooper_forThread"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x55e9adda
+  full_name: "ALooper_forThread"
+}
+elf_symbol {
+  id: 0x814fcad6
+  name: "ALooper_pollAll"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8401532f
+  full_name: "ALooper_pollAll"
+}
+elf_symbol {
+  id: 0xa4904ff2
+  name: "ALooper_pollOnce"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8401532f
+  full_name: "ALooper_pollOnce"
+}
+elf_symbol {
+  id: 0x8466b518
+  name: "ALooper_prepare"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4c219911
+  full_name: "ALooper_prepare"
+}
+elf_symbol {
+  id: 0xe3c78f74
+  name: "ALooper_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ede59c7
+  full_name: "ALooper_release"
+}
+elf_symbol {
+  id: 0xbdf7f54e
+  name: "ALooper_removeFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x925a6837
+  full_name: "ALooper_removeFd"
+}
+elf_symbol {
+  id: 0xeebb64e7
+  name: "ALooper_wake"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ede59c7
+  full_name: "ALooper_wake"
+}
+elf_symbol {
+  id: 0x80920c81
+  name: "AMotionEvent_getAction"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AMotionEvent_getAction"
+}
+elf_symbol {
+  id: 0xcefd76c3
+  name: "AMotionEvent_getAxisValue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9cf71ffd
+  full_name: "AMotionEvent_getAxisValue"
+}
+elf_symbol {
+  id: 0x746aee61
+  name: "AMotionEvent_getButtonState"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AMotionEvent_getButtonState"
+}
+elf_symbol {
+  id: 0xaebc4568
+  name: "AMotionEvent_getDownTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfbb9cd7e
+  full_name: "AMotionEvent_getDownTime"
+}
+elf_symbol {
+  id: 0xb84527db
+  name: "AMotionEvent_getEdgeFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AMotionEvent_getEdgeFlags"
+}
+elf_symbol {
+  id: 0x24e25810
+  name: "AMotionEvent_getEventTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfbb9cd7e
+  full_name: "AMotionEvent_getEventTime"
+}
+elf_symbol {
+  id: 0xc7185b3c
+  name: "AMotionEvent_getFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AMotionEvent_getFlags"
+}
+elf_symbol {
+  id: 0x8c79feb2
+  name: "AMotionEvent_getHistoricalAxisValue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9cf4cf28
+  full_name: "AMotionEvent_getHistoricalAxisValue"
+}
+elf_symbol {
+  id: 0xcccf8a29
+  name: "AMotionEvent_getHistoricalEventTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf86918df
+  full_name: "AMotionEvent_getHistoricalEventTime"
+}
+elf_symbol {
+  id: 0x10990161
+  name: "AMotionEvent_getHistoricalOrientation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalOrientation"
+}
+elf_symbol {
+  id: 0x636bb2e6
+  name: "AMotionEvent_getHistoricalPressure"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalPressure"
+}
+elf_symbol {
+  id: 0x170ea959
+  name: "AMotionEvent_getHistoricalRawX"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalRawX"
+}
+elf_symbol {
+  id: 0x55cecba6
+  name: "AMotionEvent_getHistoricalRawY"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalRawY"
+}
+elf_symbol {
+  id: 0x7918045f
+  name: "AMotionEvent_getHistoricalSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalSize"
+}
+elf_symbol {
+  id: 0x989039dd
+  name: "AMotionEvent_getHistoricalToolMajor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalToolMajor"
+}
+elf_symbol {
+  id: 0x76e2ab9e
+  name: "AMotionEvent_getHistoricalToolMinor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalToolMinor"
+}
+elf_symbol {
+  id: 0xa6351eca
+  name: "AMotionEvent_getHistoricalTouchMajor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalTouchMajor"
+}
+elf_symbol {
+  id: 0xae2ac697
+  name: "AMotionEvent_getHistoricalTouchMinor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalTouchMinor"
+}
+elf_symbol {
+  id: 0xef41a70a
+  name: "AMotionEvent_getHistoricalX"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalX"
+}
+elf_symbol {
+  id: 0x2e0238bd
+  name: "AMotionEvent_getHistoricalY"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e620d16
+  full_name: "AMotionEvent_getHistoricalY"
+}
+elf_symbol {
+  id: 0x80643034
+  name: "AMotionEvent_getHistorySize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b534415
+  full_name: "AMotionEvent_getHistorySize"
+}
+elf_symbol {
+  id: 0x5f54d173
+  name: "AMotionEvent_getMetaState"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd469160a
+  full_name: "AMotionEvent_getMetaState"
+}
+elf_symbol {
+  id: 0x954b4d58
+  name: "AMotionEvent_getOrientation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getOrientation"
+}
+elf_symbol {
+  id: 0x5d263aec
+  name: "AMotionEvent_getPointerCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b534415
+  full_name: "AMotionEvent_getPointerCount"
+}
+elf_symbol {
+  id: 0xf53c74f1
+  name: "AMotionEvent_getPointerId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7b9c3ab
+  full_name: "AMotionEvent_getPointerId"
+}
+elf_symbol {
+  id: 0x3fca7a79
+  name: "AMotionEvent_getPressure"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getPressure"
+}
+elf_symbol {
+  id: 0x60ac22f2
+  name: "AMotionEvent_getRawX"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getRawX"
+}
+elf_symbol {
+  id: 0x23ec4145
+  name: "AMotionEvent_getRawY"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getRawY"
+}
+elf_symbol {
+  id: 0x2fc2a13a
+  name: "AMotionEvent_getSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getSize"
+}
+elf_symbol {
+  id: 0xaf4fc2b0
+  name: "AMotionEvent_getToolMajor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getToolMajor"
+}
+elf_symbol {
+  id: 0x5389fb77
+  name: "AMotionEvent_getToolMinor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getToolMinor"
+}
+elf_symbol {
+  id: 0x9ee8f347
+  name: "AMotionEvent_getToolType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7b9c3ab
+  full_name: "AMotionEvent_getToolType"
+}
+elf_symbol {
+  id: 0xffbb60ef
+  name: "AMotionEvent_getTouchMajor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getTouchMajor"
+}
+elf_symbol {
+  id: 0x74978322
+  name: "AMotionEvent_getTouchMinor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getTouchMinor"
+}
+elf_symbol {
+  id: 0x2d8c8b8f
+  name: "AMotionEvent_getX"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getX"
+}
+elf_symbol {
+  id: 0x9bd2258c
+  name: "AMotionEvent_getXOffset"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d8fd5ed
+  full_name: "AMotionEvent_getXOffset"
+}
+elf_symbol {
+  id: 0xcda9a724
+  name: "AMotionEvent_getXPrecision"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d8fd5ed
+  full_name: "AMotionEvent_getXPrecision"
+}
+elf_symbol {
+  id: 0xf2cd6838
+  name: "AMotionEvent_getY"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e5f004c
+  full_name: "AMotionEvent_getY"
+}
+elf_symbol {
+  id: 0x01d75267
+  name: "AMotionEvent_getYOffset"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d8fd5ed
+  full_name: "AMotionEvent_getYOffset"
+}
+elf_symbol {
+  id: 0xda29d2f7
+  name: "AMotionEvent_getYPrecision"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d8fd5ed
+  full_name: "AMotionEvent_getYPrecision"
+}
+elf_symbol {
+  id: 0x18e15117
+  name: "ANativeActivity_finish"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b14186b
+  full_name: "ANativeActivity_finish"
+}
+elf_symbol {
+  id: 0x74e6d13a
+  name: "ANativeActivity_hideSoftInput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b64ee92
+  full_name: "ANativeActivity_hideSoftInput"
+}
+elf_symbol {
+  id: 0xa4d3105e
+  name: "ANativeActivity_setWindowFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b63e1fd
+  full_name: "ANativeActivity_setWindowFlags"
+}
+elf_symbol {
+  id: 0xc2d56581
+  name: "ANativeActivity_setWindowFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a51df21
+  full_name: "ANativeActivity_setWindowFormat"
+}
+elf_symbol {
+  id: 0xabfb2f7f
+  name: "ANativeActivity_showSoftInput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b64ee92
+  full_name: "ANativeActivity_showSoftInput"
+}
+elf_symbol {
+  id: 0x475e13d9
+  name: "ANativeWindow_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x106a6ff0
+  full_name: "ANativeWindow_acquire"
+}
+elf_symbol {
+  id: 0x5893ad35
+  name: "ANativeWindow_fromSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x004b9ee3
+  full_name: "ANativeWindow_fromSurface"
+}
+elf_symbol {
+  id: 0xd406255c
+  name: "ANativeWindow_getFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getFormat"
+}
+elf_symbol {
+  id: 0x73bf11ac
+  name: "ANativeWindow_getHeight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getHeight"
+}
+elf_symbol {
+  id: 0x47ef1a0e
+  name: "ANativeWindow_getWidth"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getWidth"
+}
+elf_symbol {
+  id: 0x50ee8dae
+  name: "ANativeWindow_lock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd879a4a1
+  full_name: "ANativeWindow_lock"
+}
+elf_symbol {
+  id: 0x44c9d0ee
+  name: "ANativeWindow_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x106a6ff0
+  full_name: "ANativeWindow_release"
+}
+elf_symbol {
+  id: 0x3989e497
+  name: "ANativeWindow_setBuffersGeometry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd9a77bd7
+  full_name: "ANativeWindow_setBuffersGeometry"
+}
+elf_symbol {
+  id: 0xf2646958
+  name: "ANativeWindow_toSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc4b77843
+  full_name: "ANativeWindow_toSurface"
+}
+elf_symbol {
+  id: 0xf129b964
+  name: "ANativeWindow_unlockAndPost"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_unlockAndPost"
+}
+elf_symbol {
+  id: 0x96d2c6fa
+  name: "AObbInfo_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19d7355b
+  full_name: "AObbInfo_delete"
+}
+elf_symbol {
+  id: 0x23d5888b
+  name: "AObbInfo_getFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd14aff85
+  full_name: "AObbInfo_getFlags"
+}
+elf_symbol {
+  id: 0xef2a0bb6
+  name: "AObbInfo_getPackageName"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b0b736b
+  full_name: "AObbInfo_getPackageName"
+}
+elf_symbol {
+  id: 0x67f83d16
+  name: "AObbInfo_getVersion"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd14aff85
+  full_name: "AObbInfo_getVersion"
+}
+elf_symbol {
+  id: 0x388530cc
+  name: "AObbScanner_getObbInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5beee2d9
+  full_name: "AObbScanner_getObbInfo"
+}
+elf_symbol {
+  id: 0x4e9b3771
+  name: "ASensorEventQueue_disableSensor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c552591
+  full_name: "ASensorEventQueue_disableSensor"
+}
+elf_symbol {
+  id: 0x8cff64ae
+  name: "ASensorEventQueue_enableSensor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c552591
+  full_name: "ASensorEventQueue_enableSensor"
+}
+elf_symbol {
+  id: 0x1334217b
+  name: "ASensorEventQueue_getEvents"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x155a693f
+  full_name: "ASensorEventQueue_getEvents"
+}
+elf_symbol {
+  id: 0x84c25642
+  name: "ASensorEventQueue_hasEvents"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9ca2405f
+  full_name: "ASensorEventQueue_hasEvents"
+}
+elf_symbol {
+  id: 0x9957891e
+  name: "ASensorEventQueue_registerSensor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c40ad2a
+  full_name: "ASensorEventQueue_registerSensor"
+}
+elf_symbol {
+  id: 0xec32826b
+  name: "ASensorEventQueue_requestAdditionalInfoEvents"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d28faa0
+  full_name: "ASensorEventQueue_requestAdditionalInfoEvents"
+}
+elf_symbol {
+  id: 0xdbb6ec6d
+  name: "ASensorEventQueue_setEventRate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c4179e5
+  full_name: "ASensorEventQueue_setEventRate"
+}
+elf_symbol {
+  id: 0xc77bf29e
+  name: "ASensorManager_configureDirectReport"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9afaa007
+  full_name: "ASensorManager_configureDirectReport"
+}
+elf_symbol {
+  id: 0x7c86a3b6
+  name: "ASensorManager_createEventQueue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3f8b6c2b
+  full_name: "ASensorManager_createEventQueue"
+}
+elf_symbol {
+  id: 0x91558c53
+  name: "ASensorManager_createHardwareBufferDirectChannel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9aec0e89
+  full_name: "ASensorManager_createHardwareBufferDirectChannel"
+}
+elf_symbol {
+  id: 0xfb696b6d
+  name: "ASensorManager_createSharedMemoryDirectChannel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9bb41f68
+  full_name: "ASensorManager_createSharedMemoryDirectChannel"
+}
+elf_symbol {
+  id: 0xd1d809e3
+  name: "ASensorManager_destroyDirectChannel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1691a08e
+  full_name: "ASensorManager_destroyDirectChannel"
+}
+elf_symbol {
+  id: 0x14a47e6f
+  name: "ASensorManager_destroyEventQueue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9a07bb49
+  full_name: "ASensorManager_destroyEventQueue"
+}
+elf_symbol {
+  id: 0x69e26378
+  name: "ASensorManager_getDefaultSensor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa5a6ed81
+  full_name: "ASensorManager_getDefaultSensor"
+}
+elf_symbol {
+  id: 0x69330cd2
+  name: "ASensorManager_getDefaultSensorEx"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa5be462e
+  full_name: "ASensorManager_getDefaultSensorEx"
+}
+elf_symbol {
+  id: 0x502efeb9
+  name: "ASensorManager_getInstance"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xabff3ac1
+  full_name: "ASensorManager_getInstance"
+}
+elf_symbol {
+  id: 0xf10123f3
+  name: "ASensorManager_getInstanceForPackage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa47b1787
+  full_name: "ASensorManager_getInstanceForPackage"
+}
+elf_symbol {
+  id: 0xc9387eba
+  name: "ASensorManager_getSensorList"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9a40375e
+  full_name: "ASensorManager_getSensorList"
+}
+elf_symbol {
+  id: 0x120d7d54
+  name: "ASensor_getFifoMaxEventCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getFifoMaxEventCount"
+}
+elf_symbol {
+  id: 0xa49f5962
+  name: "ASensor_getFifoReservedEventCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getFifoReservedEventCount"
+}
+elf_symbol {
+  id: 0xb3e21c12
+  name: "ASensor_getHandle"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getHandle"
+}
+elf_symbol {
+  id: 0x70acb596
+  name: "ASensor_getHighestDirectReportRateLevel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getHighestDirectReportRateLevel"
+}
+elf_symbol {
+  id: 0x35c189aa
+  name: "ASensor_getMinDelay"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getMinDelay"
+}
+elf_symbol {
+  id: 0x76ce3b8a
+  name: "ASensor_getName"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d324b41
+  full_name: "ASensor_getName"
+}
+elf_symbol {
+  id: 0x374b57e5
+  name: "ASensor_getReportingMode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getReportingMode"
+}
+elf_symbol {
+  id: 0xb75670f9
+  name: "ASensor_getResolution"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e950448
+  full_name: "ASensor_getResolution"
+}
+elf_symbol {
+  id: 0xddd30feb
+  name: "ASensor_getStringType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d324b41
+  full_name: "ASensor_getStringType"
+}
+elf_symbol {
+  id: 0x25b64875
+  name: "ASensor_getType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92f6bfcd
+  full_name: "ASensor_getType"
+}
+elf_symbol {
+  id: 0xc8fb9adc
+  name: "ASensor_getVendor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d324b41
+  full_name: "ASensor_getVendor"
+}
+elf_symbol {
+  id: 0xa5635151
+  name: "ASensor_isDirectChannelTypeSupported"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb0bab410
+  full_name: "ASensor_isDirectChannelTypeSupported"
+}
+elf_symbol {
+  id: 0xbebc5f14
+  name: "ASensor_isWakeUpSensor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb126375c
+  full_name: "ASensor_isWakeUpSensor"
+}
+elf_symbol {
+  id: 0x7b70a23a
+  name: "ASharedMemory_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91d41bc8
+  full_name: "ASharedMemory_create"
+}
+elf_symbol {
+  id: 0x0697b8f9
+  name: "ASharedMemory_dupFromJava"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95d0551a
+  full_name: "ASharedMemory_dupFromJava"
+}
+elf_symbol {
+  id: 0xa3156752
+  name: "ASharedMemory_getSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8ef7fd99
+  full_name: "ASharedMemory_getSize"
+}
+elf_symbol {
+  id: 0x5cdd3f69
+  name: "ASharedMemory_setProt"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+  full_name: "ASharedMemory_setProt"
+}
+elf_symbol {
+  id: 0x780171bf
+  name: "AStorageManager_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x16a2db94
+  full_name: "AStorageManager_delete"
+}
+elf_symbol {
+  id: 0x4ccd68c7
+  name: "AStorageManager_getMountedObbPath"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9486df70
+  full_name: "AStorageManager_getMountedObbPath"
+}
+elf_symbol {
+  id: 0x472aeb85
+  name: "AStorageManager_isObbMounted"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b422bfc
+  full_name: "AStorageManager_isObbMounted"
+}
+elf_symbol {
+  id: 0x4d10ef1d
+  name: "AStorageManager_mountObb"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1654c96b
+  full_name: "AStorageManager_mountObb"
+}
+elf_symbol {
+  id: 0xc6c0aefe
+  name: "AStorageManager_new"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x418de8a1
+  full_name: "AStorageManager_new"
+}
+elf_symbol {
+  id: 0x46b1c655
+  name: "AStorageManager_unmountObb"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x16428572
+  full_name: "AStorageManager_unmountObb"
+}
+elf_symbol {
+  id: 0x98654be8
+  name: "ASurfaceControl_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f542cd2
+  full_name: "ASurfaceControl_create"
+}
+elf_symbol {
+  id: 0x4d81b646
+  name: "ASurfaceControl_createFromWindow"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4d8c7347
+  full_name: "ASurfaceControl_createFromWindow"
+}
+elf_symbol {
+  id: 0xbccbe123
+  name: "ASurfaceControl_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x12b23065
+  full_name: "ASurfaceControl_release"
+}
+elf_symbol {
+  id: 0x284750a0
+  name: "ASurfaceTexture_acquireANativeWindow"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x07e96032
+  full_name: "ASurfaceTexture_acquireANativeWindow"
+}
+elf_symbol {
+  id: 0xeec3f9af
+  name: "ASurfaceTexture_attachToGLContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92025d32
+  full_name: "ASurfaceTexture_attachToGLContext"
+}
+elf_symbol {
+  id: 0x16fc31af
+  name: "ASurfaceTexture_detachFromGLContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9272abcb
+  full_name: "ASurfaceTexture_detachFromGLContext"
+}
+elf_symbol {
+  id: 0x4894cd3a
+  name: "ASurfaceTexture_fromSurfaceTexture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2d47c97e
+  full_name: "ASurfaceTexture_fromSurfaceTexture"
+}
+elf_symbol {
+  id: 0x9373ae7d
+  name: "ASurfaceTexture_getTimestamp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf82708dd
+  full_name: "ASurfaceTexture_getTimestamp"
+}
+elf_symbol {
+  id: 0x65c85e07
+  name: "ASurfaceTexture_getTransformMatrix"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1fcb25e2
+  full_name: "ASurfaceTexture_getTransformMatrix"
+}
+elf_symbol {
+  id: 0xc7dd9304
+  name: "ASurfaceTexture_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1f6a1977
+  full_name: "ASurfaceTexture_release"
+}
+elf_symbol {
+  id: 0xd302a117
+  name: "ASurfaceTexture_updateTexImage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9272abcb
+  full_name: "ASurfaceTexture_updateTexImage"
+}
+elf_symbol {
+  id: 0x284a9fff
+  name: "ASurfaceTransactionStats_getASurfaceControls"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x126e27ba
+  full_name: "ASurfaceTransactionStats_getASurfaceControls"
+}
+elf_symbol {
+  id: 0xb3a02692
+  name: "ASurfaceTransactionStats_getAcquireTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf52e8de9
+  full_name: "ASurfaceTransactionStats_getAcquireTime"
+}
+elf_symbol {
+  id: 0x68ec6b83
+  name: "ASurfaceTransactionStats_getLatchTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf50c2bf6
+  full_name: "ASurfaceTransactionStats_getLatchTime"
+}
+elf_symbol {
+  id: 0x274a8c6a
+  name: "ASurfaceTransactionStats_getPresentFenceFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9f5988e0
+  full_name: "ASurfaceTransactionStats_getPresentFenceFd"
+}
+elf_symbol {
+  id: 0x4031605b
+  name: "ASurfaceTransactionStats_getPreviousReleaseFenceFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9f7b2eff
+  full_name: "ASurfaceTransactionStats_getPreviousReleaseFenceFd"
+}
+elf_symbol {
+  id: 0x82999b83
+  name: "ASurfaceTransactionStats_releaseASurfaceControls"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x12b6c787
+  full_name: "ASurfaceTransactionStats_releaseASurfaceControls"
+}
+elf_symbol {
+  id: 0x2150aa8a
+  name: "ASurfaceTransaction_apply"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ace4be4
+  full_name: "ASurfaceTransaction_apply"
+}
+elf_symbol {
+  id: 0xfaece02d
+  name: "ASurfaceTransaction_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x504ba8b2
+  full_name: "ASurfaceTransaction_create"
+}
+elf_symbol {
+  id: 0xbb8679e0
+  name: "ASurfaceTransaction_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ace4be4
+  full_name: "ASurfaceTransaction_delete"
+}
+elf_symbol {
+  id: 0x48e077d2
+  name: "ASurfaceTransaction_reparent"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1aeec79a
+  full_name: "ASurfaceTransaction_reparent"
+}
+elf_symbol {
+  id: 0xd693e389
+  name: "ASurfaceTransaction_setBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ae3659f
+  full_name: "ASurfaceTransaction_setBuffer"
+}
+elf_symbol {
+  id: 0x1b8c8946
+  name: "ASurfaceTransaction_setBufferAlpha"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ace32e7
+  full_name: "ASurfaceTransaction_setBufferAlpha"
+}
+elf_symbol {
+  id: 0x6cfd7d2e
+  name: "ASurfaceTransaction_setBufferDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1acf0f2f
+  full_name: "ASurfaceTransaction_setBufferDataSpace"
+}
+elf_symbol {
+  id: 0xd12a3492
+  name: "ASurfaceTransaction_setBufferTransparency"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1adb606c
+  full_name: "ASurfaceTransaction_setBufferTransparency"
+}
+elf_symbol {
+  id: 0x4bf0f022
+  name: "ASurfaceTransaction_setColor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1acc3fc7
+  full_name: "ASurfaceTransaction_setColor"
+}
+elf_symbol {
+  id: 0xf3b10764
+  name: "ASurfaceTransaction_setDamageRegion"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ae3c4fc
+  full_name: "ASurfaceTransaction_setDamageRegion"
+}
+elf_symbol {
+  id: 0x63683f00
+  name: "ASurfaceTransaction_setDesiredPresentTime"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b1a8483
+  full_name: "ASurfaceTransaction_setDesiredPresentTime"
+}
+elf_symbol {
+  id: 0xfaf67e81
+  name: "ASurfaceTransaction_setFrameRate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1acd4a3e
+  full_name: "ASurfaceTransaction_setFrameRate"
+}
+elf_symbol {
+  id: 0x442c6fa1
+  name: "ASurfaceTransaction_setGeometry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ad321cc
+  full_name: "ASurfaceTransaction_setGeometry"
+}
+elf_symbol {
+  id: 0x98ee8f9c
+  name: "ASurfaceTransaction_setHdrMetadata_cta861_3"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ae3fd2c
+  full_name: "ASurfaceTransaction_setHdrMetadata_cta861_3"
+}
+elf_symbol {
+  id: 0xf656864a
+  name: "ASurfaceTransaction_setHdrMetadata_smpte2086"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1aee28ac
+  full_name: "ASurfaceTransaction_setHdrMetadata_smpte2086"
+}
+elf_symbol {
+  id: 0x053306e4
+  name: "ASurfaceTransaction_setOnComplete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a97401f
+  full_name: "ASurfaceTransaction_setOnComplete"
+}
+elf_symbol {
+  id: 0x0011fea6
+  name: "ASurfaceTransaction_setVisibility"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1adb606c
+  full_name: "ASurfaceTransaction_setVisibility"
+}
+elf_symbol {
+  id: 0xfc89fc92
+  name: "ASurfaceTransaction_setZOrder"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1af8b18f
+  full_name: "ASurfaceTransaction_setZOrder"
+}
+elf_symbol {
+  id: 0xc32e8ce2
+  name: "ASystemFontIterator_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1761c30b
+  full_name: "ASystemFontIterator_close"
+}
+elf_symbol {
+  id: 0xd99af09b
+  name: "ASystemFontIterator_next"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2f02ada9
+  full_name: "ASystemFontIterator_next"
+}
+elf_symbol {
+  id: 0xa0e0c1cd
+  name: "ASystemFontIterator_open"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x05c9102c
+  full_name: "ASystemFontIterator_open"
+}
+elf_symbol {
+  id: 0xbf2e2ef6
+  name: "AThermal_acquireManager"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x303e03dc
+  full_name: "AThermal_acquireManager"
+}
+elf_symbol {
+  id: 0x68257888
+  name: "AThermal_getCurrentThermalStatus"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1dc40be3
+  full_name: "AThermal_getCurrentThermalStatus"
+}
+elf_symbol {
+  id: 0x5309a7ad
+  name: "AThermal_registerThermalStatusListener"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x924bb791
+  full_name: "AThermal_registerThermalStatusListener"
+}
+elf_symbol {
+  id: 0x002efe90
+  name: "AThermal_releaseManager"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e7c76db
+  full_name: "AThermal_releaseManager"
+}
+elf_symbol {
+  id: 0x53b4ae39
+  name: "AThermal_unregisterThermalStatusListener"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x924bb791
+  full_name: "AThermal_unregisterThermalStatusListener"
+}
+elf_symbol {
+  id: 0xb29a57f3
+  name: "ATrace_beginAsyncSection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e59bb9f
+  full_name: "ATrace_beginAsyncSection"
+}
+elf_symbol {
+  id: 0xa9506b43
+  name: "ATrace_beginSection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1f1c7cd5
+  full_name: "ATrace_beginSection"
+}
+elf_symbol {
+  id: 0x8b297031
+  name: "ATrace_endAsyncSection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e59bb9f
+  full_name: "ATrace_endAsyncSection"
+}
+elf_symbol {
+  id: 0xe565a201
+  name: "ATrace_endSection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "ATrace_endSection"
+}
+elf_symbol {
+  id: 0xa3969a24
+  name: "ATrace_isEnabled"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xbe506bbe
+  full_name: "ATrace_isEnabled"
+}
+elf_symbol {
+  id: 0x1e49cc3b
+  name: "ATrace_setCounter"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ec8b3b2
+  full_name: "ATrace_setCounter"
+}
+elf_symbol {
+  id: 0x6ce2c8c2
+  name: "android_getaddrinfofornetwork"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d5b7006
+  full_name: "android_getaddrinfofornetwork"
+}
+elf_symbol {
+  id: 0x4b24b07d
+  name: "android_res_cancel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x09506558
+  full_name: "android_res_cancel"
+}
+elf_symbol {
+  id: 0x47c3be1d
+  name: "android_res_nquery"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d4c6690
+  full_name: "android_res_nquery"
+}
+elf_symbol {
+  id: 0x9b3d4c73
+  name: "android_res_nresult"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8400fd9b
+  full_name: "android_res_nresult"
+}
+elf_symbol {
+  id: 0xae4581a1
+  name: "android_res_nsend"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d759d5f
+  full_name: "android_res_nsend"
+}
+elf_symbol {
+  id: 0xc22dc6e0
+  name: "android_setprocnetwork"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9dac5625
+  full_name: "android_setprocnetwork"
+}
+elf_symbol {
+  id: 0x40b62e0a
+  name: "android_setsocknetwork"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c30d569
+  full_name: "android_setsocknetwork"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x42cb2f32
+  symbol_id: 0x3903ea8d
+  symbol_id: 0x5a43ddbe
+  symbol_id: 0x9da8b211
+  symbol_id: 0xd7885c65
+  symbol_id: 0x16e89685
+  symbol_id: 0xc4c8b776
+  symbol_id: 0x78911e99
+  symbol_id: 0xa8cf99cf
+  symbol_id: 0x5de115bd
+  symbol_id: 0xf31707e4
+  symbol_id: 0xebdad276
+  symbol_id: 0x4a6c1671
+  symbol_id: 0xc7b8bf6a
+  symbol_id: 0xa88ae02e
+  symbol_id: 0x0a2e42e7
+  symbol_id: 0x4c89b810
+  symbol_id: 0x5bdc2442
+  symbol_id: 0xc4860358
+  symbol_id: 0x53364bbd
+  symbol_id: 0xd7a46f89
+  symbol_id: 0xedb3900a
+  symbol_id: 0xb0f9ac48
+  symbol_id: 0x401a54b7
+  symbol_id: 0xbaa08a28
+  symbol_id: 0xbbd67e0c
+  symbol_id: 0xe08c15d8
+  symbol_id: 0x74af8b78
+  symbol_id: 0x789b012a
+  symbol_id: 0x384ad56f
+  symbol_id: 0x9ab52333
+  symbol_id: 0x8b044d8b
+  symbol_id: 0xd7984ac7
+  symbol_id: 0x81ae1f63
+  symbol_id: 0xa3b1ee90
+  symbol_id: 0x1d418ecd
+  symbol_id: 0x1a0d68fd
+  symbol_id: 0x92425a52
+  symbol_id: 0xb05e6e79
+  symbol_id: 0x6542bc9b
+  symbol_id: 0x8ed134d4
+  symbol_id: 0xeeae116e
+  symbol_id: 0x82754fc6
+  symbol_id: 0x1ea32c62
+  symbol_id: 0x28f3ff8c
+  symbol_id: 0x6c33fb32
+  symbol_id: 0x75402748
+  symbol_id: 0x0a48f529
+  symbol_id: 0x97c3b7ae
+  symbol_id: 0xb2b12d41
+  symbol_id: 0x35aac0cd
+  symbol_id: 0x9f5a30a1
+  symbol_id: 0xca9fbeab
+  symbol_id: 0x00a61894
+  symbol_id: 0x8d93ff30
+  symbol_id: 0x7fb7d486
+  symbol_id: 0x16dec5bc
+  symbol_id: 0xf14aeff2
+  symbol_id: 0xcdb20ef9
+  symbol_id: 0xb68c1aa6
+  symbol_id: 0x7afd7172
+  symbol_id: 0x55a3f3f9
+  symbol_id: 0xa1bf21bc
+  symbol_id: 0x21b5bb2e
+  symbol_id: 0x9da019b3
+  symbol_id: 0x7720b4c3
+  symbol_id: 0x2193ef33
+  symbol_id: 0x692396af
+  symbol_id: 0xcbc1f7ab
+  symbol_id: 0xe8230d3b
+  symbol_id: 0xfa198c34
+  symbol_id: 0xd46ea731
+  symbol_id: 0xa6cdd328
+  symbol_id: 0x1f44fbb6
+  symbol_id: 0xb1004f0e
+  symbol_id: 0x205d98c4
+  symbol_id: 0xbb7322c9
+  symbol_id: 0xab5a6b13
+  symbol_id: 0xa7b3fcab
+  symbol_id: 0x8e8bb45f
+  symbol_id: 0x25417c90
+  symbol_id: 0x7db2c08b
+  symbol_id: 0x086bc24a
+  symbol_id: 0xbb883ece
+  symbol_id: 0x45d05afa
+  symbol_id: 0xac6a86d6
+  symbol_id: 0xd2e6e869
+  symbol_id: 0x0a2dd96e
+  symbol_id: 0x83b535a6
+  symbol_id: 0xcdb6ed22
+  symbol_id: 0xba4a7385
+  symbol_id: 0x4dfb2214
+  symbol_id: 0x997fae7f
+  symbol_id: 0xee47bd37
+  symbol_id: 0x409a6a1b
+  symbol_id: 0xd1a32559
+  symbol_id: 0x86571d6a
+  symbol_id: 0xfa67aafd
+  symbol_id: 0x196e732c
+  symbol_id: 0xb74ef162
+  symbol_id: 0x73fe3799
+  symbol_id: 0x7815dfb1
+  symbol_id: 0xbf0e1e3c
+  symbol_id: 0x26f9ffb0
+  symbol_id: 0xa76693aa
+  symbol_id: 0x87a8aba8
+  symbol_id: 0x2a2b0cb3
+  symbol_id: 0xa6fa3758
+  symbol_id: 0xa13402ab
+  symbol_id: 0x964771d5
+  symbol_id: 0xbb387a98
+  symbol_id: 0x307e980b
+  symbol_id: 0xce7c9a76
+  symbol_id: 0x2b437fa7
+  symbol_id: 0x42d16679
+  symbol_id: 0x710bceab
+  symbol_id: 0xf19350d3
+  symbol_id: 0x4c756708
+  symbol_id: 0x32aaf8fc
+  symbol_id: 0xc10bf025
+  symbol_id: 0x2b787f26
+  symbol_id: 0xc9f7a11b
+  symbol_id: 0x814fcad6
+  symbol_id: 0xa4904ff2
+  symbol_id: 0x8466b518
+  symbol_id: 0xe3c78f74
+  symbol_id: 0xbdf7f54e
+  symbol_id: 0xeebb64e7
+  symbol_id: 0x80920c81
+  symbol_id: 0xcefd76c3
+  symbol_id: 0x746aee61
+  symbol_id: 0xaebc4568
+  symbol_id: 0xb84527db
+  symbol_id: 0x24e25810
+  symbol_id: 0xc7185b3c
+  symbol_id: 0x8c79feb2
+  symbol_id: 0xcccf8a29
+  symbol_id: 0x10990161
+  symbol_id: 0x636bb2e6
+  symbol_id: 0x170ea959
+  symbol_id: 0x55cecba6
+  symbol_id: 0x7918045f
+  symbol_id: 0x989039dd
+  symbol_id: 0x76e2ab9e
+  symbol_id: 0xa6351eca
+  symbol_id: 0xae2ac697
+  symbol_id: 0xef41a70a
+  symbol_id: 0x2e0238bd
+  symbol_id: 0x80643034
+  symbol_id: 0x5f54d173
+  symbol_id: 0x954b4d58
+  symbol_id: 0x5d263aec
+  symbol_id: 0xf53c74f1
+  symbol_id: 0x3fca7a79
+  symbol_id: 0x60ac22f2
+  symbol_id: 0x23ec4145
+  symbol_id: 0x2fc2a13a
+  symbol_id: 0xaf4fc2b0
+  symbol_id: 0x5389fb77
+  symbol_id: 0x9ee8f347
+  symbol_id: 0xffbb60ef
+  symbol_id: 0x74978322
+  symbol_id: 0x2d8c8b8f
+  symbol_id: 0x9bd2258c
+  symbol_id: 0xcda9a724
+  symbol_id: 0xf2cd6838
+  symbol_id: 0x01d75267
+  symbol_id: 0xda29d2f7
+  symbol_id: 0x18e15117
+  symbol_id: 0x74e6d13a
+  symbol_id: 0xa4d3105e
+  symbol_id: 0xc2d56581
+  symbol_id: 0xabfb2f7f
+  symbol_id: 0x475e13d9
+  symbol_id: 0x5893ad35
+  symbol_id: 0xd406255c
+  symbol_id: 0x73bf11ac
+  symbol_id: 0x47ef1a0e
+  symbol_id: 0x50ee8dae
+  symbol_id: 0x44c9d0ee
+  symbol_id: 0x3989e497
+  symbol_id: 0xf2646958
+  symbol_id: 0xf129b964
+  symbol_id: 0x96d2c6fa
+  symbol_id: 0x23d5888b
+  symbol_id: 0xef2a0bb6
+  symbol_id: 0x67f83d16
+  symbol_id: 0x388530cc
+  symbol_id: 0x4e9b3771
+  symbol_id: 0x8cff64ae
+  symbol_id: 0x1334217b
+  symbol_id: 0x84c25642
+  symbol_id: 0x9957891e
+  symbol_id: 0xec32826b
+  symbol_id: 0xdbb6ec6d
+  symbol_id: 0xc77bf29e
+  symbol_id: 0x7c86a3b6
+  symbol_id: 0x91558c53
+  symbol_id: 0xfb696b6d
+  symbol_id: 0xd1d809e3
+  symbol_id: 0x14a47e6f
+  symbol_id: 0x69e26378
+  symbol_id: 0x69330cd2
+  symbol_id: 0x502efeb9
+  symbol_id: 0xf10123f3
+  symbol_id: 0xc9387eba
+  symbol_id: 0x120d7d54
+  symbol_id: 0xa49f5962
+  symbol_id: 0xb3e21c12
+  symbol_id: 0x70acb596
+  symbol_id: 0x35c189aa
+  symbol_id: 0x76ce3b8a
+  symbol_id: 0x374b57e5
+  symbol_id: 0xb75670f9
+  symbol_id: 0xddd30feb
+  symbol_id: 0x25b64875
+  symbol_id: 0xc8fb9adc
+  symbol_id: 0xa5635151
+  symbol_id: 0xbebc5f14
+  symbol_id: 0x7b70a23a
+  symbol_id: 0x0697b8f9
+  symbol_id: 0xa3156752
+  symbol_id: 0x5cdd3f69
+  symbol_id: 0x780171bf
+  symbol_id: 0x4ccd68c7
+  symbol_id: 0x472aeb85
+  symbol_id: 0x4d10ef1d
+  symbol_id: 0xc6c0aefe
+  symbol_id: 0x46b1c655
+  symbol_id: 0x98654be8
+  symbol_id: 0x4d81b646
+  symbol_id: 0xbccbe123
+  symbol_id: 0x284750a0
+  symbol_id: 0xeec3f9af
+  symbol_id: 0x16fc31af
+  symbol_id: 0x4894cd3a
+  symbol_id: 0x9373ae7d
+  symbol_id: 0x65c85e07
+  symbol_id: 0xc7dd9304
+  symbol_id: 0xd302a117
+  symbol_id: 0x284a9fff
+  symbol_id: 0xb3a02692
+  symbol_id: 0x68ec6b83
+  symbol_id: 0x274a8c6a
+  symbol_id: 0x4031605b
+  symbol_id: 0x82999b83
+  symbol_id: 0x2150aa8a
+  symbol_id: 0xfaece02d
+  symbol_id: 0xbb8679e0
+  symbol_id: 0x48e077d2
+  symbol_id: 0xd693e389
+  symbol_id: 0x1b8c8946
+  symbol_id: 0x6cfd7d2e
+  symbol_id: 0xd12a3492
+  symbol_id: 0x4bf0f022
+  symbol_id: 0xf3b10764
+  symbol_id: 0x63683f00
+  symbol_id: 0xfaf67e81
+  symbol_id: 0x442c6fa1
+  symbol_id: 0x98ee8f9c
+  symbol_id: 0xf656864a
+  symbol_id: 0x053306e4
+  symbol_id: 0x0011fea6
+  symbol_id: 0xfc89fc92
+  symbol_id: 0xc32e8ce2
+  symbol_id: 0xd99af09b
+  symbol_id: 0xa0e0c1cd
+  symbol_id: 0xbf2e2ef6
+  symbol_id: 0x68257888
+  symbol_id: 0x5309a7ad
+  symbol_id: 0x002efe90
+  symbol_id: 0x53b4ae39
+  symbol_id: 0xb29a57f3
+  symbol_id: 0xa9506b43
+  symbol_id: 0x8b297031
+  symbol_id: 0xe565a201
+  symbol_id: 0xa3969a24
+  symbol_id: 0x1e49cc3b
+  symbol_id: 0x6ce2c8c2
+  symbol_id: 0x4b24b07d
+  symbol_id: 0x47c3be1d
+  symbol_id: 0x9b3d4c73
+  symbol_id: 0xae4581a1
+  symbol_id: 0xc22dc6e0
+  symbol_id: 0x40b62e0a
+}

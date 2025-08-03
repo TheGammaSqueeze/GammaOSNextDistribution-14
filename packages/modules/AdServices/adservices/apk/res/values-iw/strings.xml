@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"גישה לממשק ה‑API של \'נושאים\' (Topics) ב‑AdServices"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"מאפשרת לאפליקציה לגשת לממשק ה‑API של \'נושאים\' (Topics) ב‑AdServices."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"גישה לממשקי ה‑API של \'שיוך\' (Attribution) ב‑AdServices"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"מאפשרת לאפליקציה לגשת לממשקי ה‑API של \'שיוך\' (Attribution) ב‑AdServices."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"גישה לממשק ה‑API של \'קהל\' (Audience) ב‑AdServices"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"מאפשרת לאפליקציה לגשת לממשק ה‑API של \'קהל בהתאמה אישית\' (Custom Audience) ב‑AdServices."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"גישה לממשק ה‑API של מזהה הפרסום"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"מאפשרת לאפליקציה לגשת לממשק ה-API של מזהה הפרסום."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"גישה לממשק ה‑API של \'הסכמה\' (Consent) ב‑AdServices"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"מאפשרת לאפליקציה לגשת לממשק ה‑API של \'הסכמה\' (Consent) ב‑AdServices."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"גישה לממשק ה‑API של מזהה המודעה"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"מאפשרת לאפליקציה לגשת ל-API של מזהה ההודעה."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"גישה לממשק ה-API של AdServices Cobalt Upload"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"ההגדרה הזו מאפשרת לאפליקציה לגשת לממשק ה-API של AdServices Cobalt Upload."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"גישה לממשק ה‑API של מזהה קבוצת האפליקציות"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"מאפשרת לאפליקציה לגשת ל-API של מזהה קבוצת האפליקציות."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"גישה לממשק ה-API של \'שירות הסכמה\'"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"מאפשרת לאפליקציה לגשת לממשק ה-API של \'שירות הסכמה\' (Consent Service)."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"גישה לשינוי מצב ההפעלה של ממשק ה-API ב-AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"מאפשרת לאפליקציה לגשת לשינוי מצב ההפעלה של ממשק ה-API ב-AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"גישה למצב ההפעלה של ממשק ה-API ב-AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"מאפשרת לאפליקציה לגשת למצב ההפעלה של ממשק ה-API ב-AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"גישה לממשק ה-API של AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"ההגדרה הזו מאפשרת לאפליקציה לגשת לממשק ה-API של AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"ההרשאה הזו מאפשרת לגשת לממשק ה-API של עדכון מזהה הפרסום ב-AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"ההרשאה הזו מאפשרת לאפליקציה לגשת לממשק ה-API של עדכון מזהה הפרסום ב-AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"פרטיות בפרסום"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"רוצה להצטרף לתוכנית הבטא של פרטיות בפרסום ב-Android?"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"מערכת Android בודקת איך האפליקציות יכולות להציג לך מודעות בדרכים פרטיות יותר"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"מידע נוסף"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"תוכנית הבטא של פרטיות בפרסום ב-Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"מה חדש"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"תכונות הפרטיות החדשות בארגז החול לפרטיות מאפשרות לאפליקציות להציג לך מודעות רלוונטיות, אך מגבילות את הנתונים שאותן אפליקציות יכולות לקבל לגבי הפעילויות שלך באתרים ובאפליקציות של מפתחים אחרים."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"איך זה עובד?"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"איך משתתפים"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"הפעלת תוכנית הבטא מאפשרת לאפליקציות לבדוק איך להציג לך מודעות בדרכים חדשות ופרטיות יותר. אפשר להשבית את תוכנית הבטא בכל שלב בהגדרות הפרטיות."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"לא תודה"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"הפעלה"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"עוד"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"תודה על השתתפותך"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"הצטרפת לתוכנית הבטא של פרטיות בפרסום ב-Android. ארגז החול לפרטיות מופעל במכשיר.\n\nאפשר לקרוא מידע נוסף או להשבית את תוכנית הבטא בכל שלב בהגדרות הפרטיות."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"בחרת שלא להשתתף"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"תודה על התשובה. ארגז החול לפרטיות מושבת במכשיר.\n\nכדי להפעיל אותו או לקבל מידע נוסף, אפשר לעבור להגדרות הפרטיות."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"הגדרות הפרטיות"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"הבנתי"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"הצטרפת לתוכנית הבטא"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"ארגז החול לפרטיות מופעל במכשיר שלך, והאפליקציות יכולות לבדוק איך להציג לך מודעות בדרכים חדשות ופרטיות יותר. אפשר להשבית את תוכנית הבטא בכל שלב בהגדרות הפרטיות."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"הבנתי"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"ארגז החול של Android לפרטיות מספק תכונות חדשות שמאפשרות לאפליקציות להציג לך מודעות שעשויות להיות רלוונטיות עבורך. בטכנולוגיות האלה לא נעשה שימוש במזהי המכשיר.\n\nמערכת Android והאפליקציות יכולות להעריך אילו סוגי מודעות עשויים לעניין אותך, ולשמור את תחומי העניין האלה באופן זמני במכשיר. באופן הזה, האפליקציות יכולות להראות לך מודעות רלוונטיות בלי לעקוב אחרי הפעילות שלך באתרים ובאפליקציות של מפתחים אחרים."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"התאמה אישית של מודעות באמצעות ארגז החול לפרטיות"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  תחומי עניין שזוהו על ידי Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"מערכת Android מעריכה מדי פעם את תחומי העניין שלך על סמך האפליקציות שבהן השתמשת, לדוגמה, \'ספורט\' או \'טיולים\'.\n\nבהמשך, אחת האפליקציות יכולה לבקש מ-Android להשתמש בתחומי העניין האלה כדי להציג לך מודעות רלוונטיות יותר.\n\nבהגדרות הפרטיות אפשר לראות את הרשימה הנוכחית של תחומי העניין, ולחסום תחומי עניין לא רצויים."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  תחומי עניין שזוהו על ידי האפליקציות"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"האפליקציות יכולות להעריך את תחומי העניין שלך ולשמור אותם באופן זמני באמצעות Android. לדוגמה, אפליקציה שבה השתמשת כדי לקנות נעלי ריצה עשויה להעריך שאחד מתחומי העניין שלך הוא \'ריצת מרתונים\'.\n\nבהמשך, על סמך תחום העניין הזה, אפליקציה אחרת יכולה להציג לך מודעה שקשורה למרתונים.\n\nבהגדרות הפרטיות אפשר לנהל את רשימת האפליקציות ששמרו את תחומי העניין."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"תכונות חדשות של פרטיות בפרסום"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"נושאי המודעות ואמצעי בקרה חדשים מאפשרים לך לבחור טוב יותר את המודעות שמוצגות לך"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"תכונות חדשות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"מתגבשת ב-Android רשימה של נושאים שמעניינים אותך על סמך האפליקציות שבהן השתמשת לאחרונה. גם האפליקציות עצמן יכולות להעריך מה מעניין אותך. לאחר מכן, האפליקציות יכולות לשלוח בקשה לקבלת המידע הזה כדי להציג לך מודעות בהתאמה אישית. יש לך אפשרות לבחור אילו אפליקציות ונושאים ישמשו כדי להציג לך מודעות."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"כדי למדוד את הביצועים של מודעה מסוימת, סוגים מסוימים של נתונים ישותפו בין האפליקציות."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"מידע נוסף על מודעות ב-Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"מודעות מועילות יותר"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"האפליקציות יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן להתאים אישית את המודעות שמוצגות לך."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  נערכת ב-Android רשימה של נושאים שמעניינים אותך על סמך האפליקציות שבהן השתמשת לאחרונה."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  אפליקציות שבהן השתמשת יכולות להעריך מה מעניין אותך על סמך אופן השימוש שלך בהן. לדוגמה, אם השתמשת באפליקציה שמוכרת נעלי ריצה למרחקים ארוכים, אותה אפליקציה עשויה להעריך שאחד מנושאי העניין שלך הוא ריצת מרתונים."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"לאחר מכן, אפליקציה שבה השתמשת יכולה לשלוח בקשה לקבלת המידע הזה – נושאי המודעות שלך או המודעות שהציעו האפליקציות שבהן השתמשת."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"נושאי המודעות והנתונים שקשורים למודעות שאפליקציות מציעות נמחקים אוטומטית מ-Android באופן קבוע. יש לך גם אפשרות לחסום אפליקציות ונושאים מסוימים ולא יוצעו לגביהם מודעות."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"מדידת הביצועים של מודעה מסוימת"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"האפליקציות שבהן השתמשת יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. אפליקציות ב-Android מורשות לאסוף סוגים מסוימים של נתונים, למשל השעה ביום שבה הוצגה לך מודעה מסוימת."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"רוצה לנסות את התכונות החדשות של פרטיות בפרסום?"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"נושאי המודעות מאפשרים לך לבחור טוב יותר את המודעות שיוצגו"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"לפרטים"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"רוצה לנסות את התכונות החדשות של פרטיות בפרסום?"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"מושקות ב-Android תכונות פרטיוּת חדשות שיעניקו לך יותר אפשרויות בחירה לגבי המודעות שיוצגו לך."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"נושאים של מודעות עוזרים לאפליקציות להציג לך מודעות רלוונטיות, תוך הגנה על הזהות שלך ועל מידע לגבי השימוש שלך באפליקציות. Android יכול לזהות נושאים שמעניינים אותך על סמך האפליקציות שהשתמשת בהן בזמן האחרון. לאחר מכן, אפליקציה שבחרת להשתמש בה יכולה לשלוח ל-Android בקשה לקבלת נושאים רלוונטיים כדי להתאים אישית את המודעות שמוצגות לך."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"אפשר לראות את הנושאים של המודעות בהגדרות של המכשיר, ולחסום את הנושאים שלא רוצים שישותפו עם האפליקציות. בנוסף, נושאי מודעות נמחקים אוטומטית מ-Android באופן קבוע."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"אפשר לשנות את ההחלטה בכל שלב בהגדרות הפרטיות."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"מידע נוסף על נושאי מודעות"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"אפשר לקרוא מידע נוסף על האופן שבו Android מגן על הנתונים שלך ב"<a href="https://policies.google.com/privacy">"מדיניות הפרטיות"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"אני רוצה לנסות"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  אילו נתונים יהיו בשימוש"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"הנושאים של המודעות שלך מבוססים על אפליקציות שבהן השתמשת לאחרונה במכשיר הזה ועל תדירות השימוש בהן."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  איך אנחנו משתמשים בנתונים האלה"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"בזמן השימוש באפליקציות, מתגבשת ב-Android רשימה של נושאים שמעניינים אותך. התוויות של הנושאים מוגדרות מראש וכוללות בין היתר \'אומנויות ובידור\', \'קניות\' ו\'ספורט\'. לאחר מכן, אפליקציה שבה השתמשת יכולה לשלוח ל-Android בקשה לקבלת מידע על חלק מהנושאים (אבל היא לא יכולה לבקש נתונים על השימוש שלך באפליקציה או על הזהות שלך) כדי להתאים אישית את המודעות שמוצגות לך."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  מה האפשרויות שזמינות לך לניהול הנתונים שלך"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"נושאים נמחקים ב-Android באופן קבוע. אם המשכת להשתמש באפליקציות, אחד הנושאים עשוי להופיע ברשימה מחדש. בכל שלב ניתן להיכנס להגדרות הפרטיות, למנוע שיתוף של נושאים מסוימים בין Android לאפליקציות ולהשבית את נושאי המודעות."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"אפשר לערוך שינויים בהגדרות הפרטיות."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"תכונות נוספות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"ב-Android יש גם דרכים חדשות שיאפשרו להגביל את מה שהאפליקציות יכולות לגלות עליך כשהן מציגות לך מודעות בהתאמה אישית."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  מודעות שאפליקציות מציעות עוזרות להגן על הזהות שלך ועל המידע לגבי השימוש שלך באפליקציות, ובמקביל מאפשרות לאפליקציות להציג לך מודעות רלוונטיות. על סמך הפעילות שלך, אפליקציה יכולה להציע מודעות קשורות באפליקציות אחרות. בהגדרות הפרטיות אפשר לראות את רשימת האפליקציות ולחסום את האפשרות שלהן להציע מודעות."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  במסגרת מדידת הנתונים של המודעות, סוגים מסוימים של נתונים ישותפו בין אפליקציות כדי למדוד את הביצועים של המודעות שלהן. למשל, השעה ביום שבה הוצגה לך מודעה מסוימת."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"מידע נוסף על מודעות שאפליקציות מציעות ועל מדידת הנתונים של המודעות"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"מודעות שאפליקציות מציעות"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  באילו נתונים נעשה שימוש"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"הפעילות שלך באפליקציה שבה השתמשת במכשיר הזה."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  איך אפליקציות משתמשות בנתונים האלה"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"האפליקציות יכולות לאחסן מידע ב-Android לגבי דברים שמעניינים אותך. לדוגמה, אפליקציה שבה השתמשת כדי להתאמן לריצת מרתון עשויה להעריך שיש לך עניין בנעלי ריצה. לאחר מכן, בזמן השימוש באפליקציה אחרת, יכול להיות שתוצג לך מודעה לנעלי ריצה שהוצעה על ידי האפליקציה הראשונה."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  מה האפשרויות שזמינות לך לניהול הנתונים שלך"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"הנתונים שקשורים להצעות מאפליקציות נמחקים אוטומטית מ-Android באופן קבוע. אפליקציה שמשתמשים בה שוב עשויה להופיע ברשימה מחדש."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"בכל שלב, ניתן גם להיכנס להגדרות הפרטיות ולחסום את האפשרות של אפליקציה להציע לך מודעות, לאפס את כל הנתונים שקשורים להצעת מודעות או להשבית את ההצעות למודעות מאפליקציות."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"האפליקציות שבהן השתמשת יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. הפרטיות שלך מוגנת ב-Android כי המידע שהאפליקציות יכולות לשתף זו עם זו מוגבל."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"תכונות חדשות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"משתמשים נהנים מיותר השפעה על המודעות שיוצגו להם, ונתוני הזהות שלהם נשארים מוגנים"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"תכונות חדשות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"ב-Android מושקות דרכים חדשות שיאפשרו להגביל את מה שהאפליקציות יכולות לגלות עליך כשהן מציגות לך מודעות בהתאמה אישית."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  התכונה \'מודעות שאפליקציות מציעות\' מעניקה לך פרטיות רבה יותר – אפליקציות יכולות להציג לך מודעות רלוונטיות, ויחד עם זאת, הזהות שלך והמידע לגבי השימוש שלך באפליקציות נשארים מוגנים. על סמך הפעילות שלך, אפליקציה יכולה להציע לך מודעות קשורות באפליקציות אחרות. בהגדרות הפרטיות ניתן לראות את רשימת האפליקציות ולחסום את האפשרות שלהן להציע מודעות."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  במסגרת מדידת הנתונים של המודעות, סוגים מסוימים של נתונים ישותפו בין אפליקציות כדי לבדוק את הביצועים של המודעות שלהן, למשל השעה ביום שבה הוצגה לך מודעה מסוימת."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"הפעילות שלך באפליקציה במכשיר הזה יכולה לשמש כדי להציע לך מודעות."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"הפעלת תכונה נוספת לשמירה על פרטיות בפרסום"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"ב-Android יש גם תכונת פרטיות חדשה שנותנת לך יותר שליטה על המודעות שמוצגות לך."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"כשאפליקציות מציגות לך מודעות לפי נושאי המודעות שלך, המודעות שמוצגות לך רלוונטיות ובכל זאת הזהות שלך והמידע לגבי השימוש שלך באפליקציות נשארים מוגנים. ב-Android יכולה להופיע רשימה של נושאים שמעניינים אותך על סמך האפליקציות שבהן השתמשת לאחרונה. לאחר מכן, אפליקציה שבה השתמשת יכולה לשלוח ל-Android בקשה לקבלת מידע על חלק מהנושאים כדי להציג לך מודעות רלוונטיות יותר."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"אפשר לראות את הנושאים של המודעות בהגדרות הפרטיות, ולחסום את הנושאים שלא רוצים שישותפו עם האפליקציות. בנוסף, נושאי מודעות נמחקים אוטומטית מ-Android באופן קבוע."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"להפעלת ההגדרה"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"תכונות חדשות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"עכשיו יש למשתמשים יותר השפעה על המודעות שיוצגו להם, ונתוני הזהות שלהם נשארים מוגנים"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"תכונות חדשות לשמירה על פרטיות בפרסום זמינות עכשיו"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"ב-Android יש עכשיו תכונות פרטיות חדשות שנותנות לך יותר שליטה על המודעות שמוצגות לך."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"הבא"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"ארגז חול לפרטיות"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"השתתפות בתוכנית הבטא של פרטיות בפרסום ב-Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"ארגז חול לפרטיות"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"תחומי עניין שזוהו על ידי Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"אפליקציות שמזהות תחומי עניין"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"מדידת ביצועים של מודעות"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"האפליקציות יכולות להשתמש בארגז החול לפרטיות כדי למדוד את היעילות של המודעות שלהן. כדי לעשות זאת, המפרסמים יכולים לשמור באופן זמני נתונים ב-Android לגבי האינטראקציות שלך עם המודעות והאפליקציות שלהם. כמות הנתונים שהם יכולים לשמור היא מוגבלת, והנתונים יימחקו באופן סדיר.\n\nיש לך אפשרות למחוק את הנתונים האלה בכל שלב באמצעות השבתה של ארגז החול לפרטיות."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"מערכת Android מעריכה מדי פעם את תחומי העניין המובילים שלך על סמך האפליקציות שבהן השתמשת. האפליקציות יכולות לבקש מ-Android להשתמש בתחומי העניין האלה כדי להציג לך מודעות רלוונטיות יותר.\n\nאם בחרת לחסום תחום עניין, הוא לא יתווסף לרשימה הזו אלא אם החסימה תבוטל. יכול להיות שעדיין יוצגו לך כמה מודעות קשורות."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"חסימה"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"ביטול חסימה"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"תחומי עניין שחסמת"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"איפוס כל תחומי העניין"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"אין כרגע תחומי עניין שאפשר להציג."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"אין כרגע נושאים שאפשר להציג.\nמידע נוסף על "<a href="https://support.google.com/android?p=ad_privacy">"נושאים של מודעות"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"ארגז חול לפרטיות"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"תוכנית הבטא של פרטיות בפרסום ב-Android מספקת תכונות חדשות שמאפשרות לאפליקציות להציג לך מודעות שעשויות להיות רלוונטיות עבורך. בטכנולוגיות האלה לא נעשה שימוש במזהי המכשיר.\n\nמערכת Android יכולה להעריך אילו סוגי מודעות עשויים לעניין אותך, ולשמור את תחומי העניין האלה באופן זמני על המכשיר. באופן הזה, האפליקציות יכולות להציג לך מודעות רלוונטיות בלי לעקוב אחרי הפעילות שלך באתרים ובאפליקציות של מפתחים אחרים."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"לא חסמת אף תחום עניין"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"אין נושאים חסומים"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"הצגת הנושאים החסומים"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"תחומי העניין אופסו"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"הנושאים אופסו"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"האפליקציות יכולות להעריך את תחומי העניין שלך ולשמור אותם באופן זמני באמצעות Android. בהמשך, אפליקציות אחרות יוכלו להציג לך מודעות על סמך תחומי העניין האלה.\n\nאם בחרת לחסום אפליקציה מסוימת, היא לא תוכל להעריך את תחומי העניין שלך יותר. האפליקציה הזו לא תתווסף שוב לרשימת האפליקציות אלא אם החסימה תבוטל. כל תחומי העניין שהאפליקציה כבר העריכה יימחקו, אך יכול להיות שעדיין יוצגו לך כמה מודעות קשורות."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"אפליקציות שחסמת"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"הצגת האפליקציות החסומות"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"איפוס הנתונים שהוערכו על ידי האפליקציות"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"אף אפליקציה לא מייצרת תחומי עניין עבורך כרגע"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"אין כרגע אפליקציות שאפשר להציג. \nמידע נוסף על "<a href="https://support.google.com/android?p=ad_privacy">"מודעות שאפליקציות מציעות"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"ארגז חול לפרטיות"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"תוכנית הבטא של פרטיות בפרסום ב-Android מספקת תכונות חדשות שמאפשרות לאפליקציות להציג לך מודעות שעשויות להיות רלוונטיות עבורך. בטכנולוגיות האלה לא נעשה שימוש במזהי המכשיר.\n\nהאפליקציות יכולות להעריך אילו סוגי מודעות עשויים לעניין אותך, ולשמור את תחומי העניין האלה באופן זמני על המכשיר. באופן הזה, האפליקציות יכולות להציג לך מודעות רלוונטיות בלי לעקוב אחרי הפעילות שלך באתרים ובאפליקציות של מפתחים אחרים."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"לא חסמת אף אפליקציה"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"אין אפליקציות חסומות"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"מתן הרשאה למדידת הנתונים של מודעות"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"אפליקציות ומפרסמים יכולים לשלוח ל-Android בקשה לקבלת מידע שיעזור להם למדוד את הביצועים של המודעות שלהם.\n\nהנתונים של מדידת המודעות נמחקים באופן קבוע מהמכשיר."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"איפוס נתוני המדידה"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"הפרטיות שלך מוגנת ב-Android כי המידע שהאפליקציות יכולות לשתף זו עם זו מוגבל. הדיווחים נשלחים בעיכוב כדי להגן על הזהות שלך.\n\nייתכן שבדפדפן שלך יש הגדרה דומה. אם מדידת הביצועים של המודעות מופעלת גם ב-Android וגם בדפדפן, חברה כלשהי יכולה למדוד את היעילות של מודעה מסוימת באפליקציות שבהן השתמשת לעומת היעילות באתרים שבהם ביקרת. היסטוריית הגלישה שלך נשארת פרטית ולא יוצאת מהמכשיר.\n\nאפשר לקרוא מידע נוסף על האופן שבו הנתונים שלך מוגנים ב-Android ב"<a href="https://policies.google.com/privacy">"מדיניות הפרטיות"</a>" שלנו."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"הנתונים של מדידת המודעות אופסו"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"ביטול"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"להשבית את ארגז החול לפרטיות?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"אם שינית את דעתך או שברצונך לקבל מידע נוסף על תוכנית הבטא של \'פרטיות בפרסום\' ב-Android, אפשר להיכנס אל הגדרות הפרטיות"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"השבתה"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"לחסום את <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"הנושא הזה ייחסם ולא יתווסף שוב לרשימה שלך, אלא אם הוספת אותו בחזרה. ייתכן שעדיין יוצגו כמה מודעות קשורות."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"חסימה"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"בוטלה החסימה של <xliff:g id="TOPIC">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"ייתכן שהנושא הזה יתווסף מחדש לרשימה ב-Android, אבל אולי לא יופיע מיד"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"אישור"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"לאפס את כל נושאי המודעות?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"הרשימה שלך תימחק ומעכשיו יתווספו נושאים חדשים. ייתכן שעדיין יוצגו כמה מודעות הקשורות לנושאים שאיפסת."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"איפוס"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"לחסום את <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"האפליקציה הזו לא תציע לך מודעות ולא תתווסף שוב לרשימה שלך, אלא אם ביטלת את החסימה שלה. יכול להיות שעדיין יוצגו לך כמה מודעות קשורות."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"בוטלה החסימה של <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"האפליקציה הזו יכולה שוב להציע לך מודעות, אבל אולי היא לא תופיע מיד ברשימה. הצגת כל המודעות הקשורות עשויה לקחת זמן מה."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"לאפס את הנתונים של מודעות שהאפליקציות מציעות?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"הנתונים של המודעות שהציעו האפליקציות ברשימה שלך יימחקו, ומעכשיו האפליקציות האלה יציעו לך מודעות חדשות. ייתכן שעדיין יוצגו כמה מודעות קשורות."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"נתוני האפליקציות אופסו"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"האפשרות \'נושאי מודעות\' מופעלת"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"מערכת Android תתחיל לשמור נושאים שעשויים לעניין אותך, אבל יכול להיות שייקח זמן עד שהנושאים הראשונים יופיעו."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"להשבית את האפשרות \'נושאי מודעות\'?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"רשימת הנושאים הזו תימחק. מערכת Android לא תשמור יותר נושאים שעשויים לעניין אותך, אבל יכול להיות שעדיין יוצגו מודעות רלוונטיות."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"התכונה \'מודעות שאפליקציות מציעות\' מופעלת"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"אפליקציות יכולות להציע מודעות. תופיע רשימה של אפליקציות ברגע שהן יתחילו להציע מודעות."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"להשבית את התכונה \'מודעות שאפליקציות מציעות\'?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"כל הנתונים של המודעות שאפליקציות מציעות יימחקו. אפליקציות כבר לא יוכלו להציע מודעות, אבל יכול להיות שעדיין יוצגו מודעות רלוונטיות."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"האפשרות \'מדידת ביצועים של מודעות\' מופעלת"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"מערכת Android יכולה לשתף רק מידע מוגבל מאוד עם אפליקציות כדי לעזור להן למדוד את ביצועי המודעות שלהן."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"להשבית את האפשרות \'מדידת ביצועים של מודעות\'?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"כל הדוחות הממתינים של \'מדידת ביצועים של מודעות\' יימחקו. לא יופקו או ישותפו דוחות חדשים."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"פרטיות בפרסום"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"נושאי מודעות"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"מודעות שאפליקציות מציעות"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"נערכת ב-Android רשימה של נושאים שמעניינים אותך על סמך האפליקציות שבהן השתמשת לאחרונה ותדירות השימוש בהן."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"אפליקציות שבהן השתמשת יכולות להעריך מה מעניין אותך על סמך אופן השימוש שלך בהן."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"האפליקציות שבהן השתמשת יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. אפליקציות ב-Android מורשות לאסוף סוגים מסוימים של נתונים."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"מידע נוסף על "<a href="https://support.google.com/android?p=ad_privacy">"פרטיות בפרסום ב-Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"מופעלת / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> נושאים"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{מופעל / נושא אחד (#)}one{מופעל / # נושאים}two{מופעל / # נושאים}other{מופעל / # נושאים}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"מופעלת / <xliff:g id="APPS_COUNT">%1$d</xliff:g> אפליקציות"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{מופעל / אפליקציה אחת (#)}one{מופעל / # אפליקציות}two{מופעל / # אפליקציות}other{מופעל / # אפליקציות}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"מופעלת"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"מושבתת"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"הנושאים של המודעות שלך מבוססים על אפליקציות שבהן השתמשת לאחרונה. האפליקציות משתמשות בנושאים האלה כדי להציג לך מודעות בהתאמה אישית.\n\nניתן לחסום נושאים כדי שלא ישותפו עם האפליקציות. בנוסף הנושאים נמחקים אוטומטית מ-Android באופן קבוע.\n\nלמרות שניתן להפעיל את התכונה הזו, ייתכן שלא תוצג לך רשימה של נושאים עד שהתכונה הזו תהיה זמינה במלואה ואפליקציות יתחילו להשתמש בה."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"מתן הרשאה לנושאים של מודעות"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"נושאי מודעות שחסמת"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"איפוס כל נושאי המודעות"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android עורך רשימה של נושאים שמעניינים אותך על סמך האפליקציות שהשתמשת בהן בשבועות האחרונים.\n\nלאחר מכן, אפליקציה שהשתמשת בה יכולה לשלוח ל-Android בקשה לקבלת מידע על הנושאים האלה כדי להתאים אישית את המודעות שמוצגות לך. Android משתף עד 3 נושאים ומגן על הזהות שלך ועל הנתונים לגבי השימוש שלך באפליקציות.\n\nנושאים נמחקים אוטומטית מ-Android באופן קבוע. אם המשכת להשתמש באפליקציות, אחד הנושאים עשוי להופיע ברשימה מחדש. ניתן גם לחסום נושאים כדי שלא ישותפו בין Android לאפליקציות.\n\nיכול להיות שיוצגו מודעות מותאמות אישית באפליקציות שלך בהתאם להגדרה הזו, להגדרה של המודעות שאפליקציות מציעות, להגדרות של מזהי הפרסום ולשאלה אם באפליקציה שבה השתמשת מוצגות מודעות בהתאמה אישית."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"מתן הרשאה למודעות שהאפליקציות מציעות"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"האפליקציות שבהן השתמשת יכולות להעריך מה מעניין אותך ואז להציע לך מודעות באפליקציות אחרות.\n\nניתן לחסום את האפשרות של אפליקציות מסוימות להציע לך מודעות. בנוסף, הנתונים שקשורים למודעות שאפליקציות מציעות נמחקים אוטומטית מ-Android באופן קבוע.\n\nלמרות שניתן להפעיל את התכונה הזו, ייתכן שלא תוצג לך רשימה של אפליקציות עד שהתכונה הזו תהיה זמינה במלואה ואפליקציות יתחילו להשתמש בה."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"אפליקציות שחסמת"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"איפוס הנתונים שקשורים להצעות מאפליקציות"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"האפליקציות שלך עורכות רישום של הדברים שמעניינים אותך כדי להתאים לך אישית את חוויית השימוש. האפליקציות גם יכולות לאחסן מידע ב-Android לגבי הנושאים האלה.\n\nלדוגמה, אפליקציה שבה השתמשת כדי להתאמן לריצת מרתון עשויה להעריך שיש לך עניין בנעלי ריצה. לאחר מכן, בזמן השימוש באפליקציה אחרת, אותה אפליקציה עשויה להציג לך מודעה לנעלי ריצה שהוצעה על ידי האפליקציה הראשונה.\n\nהנתונים שקשורים למודעות שאפליקציות מציעות נמחקים אוטומטית מ-Android באופן קבוע. אפליקציה שבה נעשה שימוש שוב עשויה להופיע ברשימה מחדש. ניתן גם לחסום את האפשרות של האפליקציות להציע לך מודעות.\n\nיכול להיות שיוצגו מודעות מותאמות אישית באפליקציות שלך בהתאם להגדרה הזו, להגדרה של נושאי מודעות, להגדרות של מזהי פרסום ולשאלה אם האפליקציה שבה השתמשת מציגה מודעות בהתאמה אישית."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"תכונה חדשה לשמירה על פרטיות בפרסום זמינה עכשיו"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"רק מידע מוגבל מאוד משותף בין אפליקציות כדי לעזור למדוד את ביצועי המודעות"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"אנחנו משיקים תכונה חדשה לשמירה על פרטיות בפרסום שנקראת \'מדידת ביצועים של מודעות\'. מערכת Android משתפת מידע מוגבל מאוד בין אפליקציות, למשל מתי הוצגה לך מודעה, כדי לעזור לאפליקציות למדוד את ביצועי המודעות."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"אפשר לערוך שינויים בהגדרות הפרטיות של המודעות."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"האפליקציות שהשתמשת בהן יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. אפליקציות ב-Android מורשות לאסוף רק סוגים מסוימים של נתונים."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"תכונות חדשות לשמירה על פרטיות בפרסום"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"משתמשים נהנים מיותר השפעה על המודעות שיוצגו להם ויקבלו עזרה בהגנה על נתוני הזהות שלהם"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"עדכונים בתכונות לשמירה על פרטיות בפרסום"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"משתמשים נהנים מיותר השפעה על המודעות שיוצגו להם ויקבלו עזרה בהגנה על נתוני הזהות שלהם"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"מערכת Android מציעה עכשיו יותר תכונות לשמירה על הפרטיות בפרסום כדי להגביל את המידע שהאפליקציות יכולות ללמוד עליך כשהן מציגות לך מודעות בהתאמה אישית."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"האפליקציות והשותפים שלהן לקניית שטחי פרסום יכולים להשתמש בפעילות שלך באפליקציות אחרות במכשיר הזה כדי להתאים אישית את המודעות ולעזור בשמירה על הפרטיות והאבטחה של הזהות שלך."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"מידע נוסף על מודעות שאפליקציות מציעות"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"סוגים מסוימים של נתונים ישותפו בין אפליקציות כדי לבדוק את הביצועים של המודעות שלהן, למשל השעה ביום שבה הוצגה לך מודעה מסוימת."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"מידע נוסף על מדידת ביצועים של מודעות"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"מתגבשת ב-Android רשימה של נושאים שמעניינים אותך על סמך האפליקציות שבהן השתמשת לאחרונה. בנוסף, האפליקציות והשותפים שלהן לקניית שטחי פרסום יכולים להשתמש בפעילות שלך באפליקציות אחרות במכשיר הזה כדי להתאים אישית את המודעות ולעזור בשמירה על הפרטיות והאבטחה של הזהות שלך."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  אפליקציות שהשתמשת בהן יכולות להעריך מה מעניין אותך על סמך הפעילות שלך בהן. לדוגמה, אם השתמשת באופן קבוע באפליקציות בישול, יכול להיות שיוצגו לך מודעות לשירותי משלוחים של מצרכים או תוכן קשור באפליקציות אחרות.\n\nהאפליקציות יכולות לאחסן את המידע הזה באופן מאובטח כך שייעשה בו שימוש רק על ידי השותפים שלהן לקניית שטחי פרסום, לצורך התאמה אישית של מודעות באפליקציות אחרות."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"לאחר מכן, אפליקציה שבה השתמשת יכולה לשלוח בקשה לקבלת המידע הזה – הנושאים של המודעות או המודעות שהציעו האפליקציות שבהן השתמשת."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"האפליקציות שהשתמשת בהן יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. מערכת Android עוזרת לך להגן על הפרטיות כי המידע שהאפליקציות יכולות לשתף זו עם זו מוגבל."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"אילו נתונים יהיו בשימוש?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"האפליקציות שבהן השתמשת יכולות לשלוח ל-Android בקשה לקבלת מידע שיעזור להן למדוד את ביצועי המודעות שלהן. מערכת Android עוזרת להגן על הפרטיות שלך כי המידע שהאפליקציות יכולות לשתף זו עם זו מוגבל."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"איך הזהות שלי תישמר מוגנת?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"מערכת Android משתמשת בכמה מדדים לשמירה על הפרטיות, למשל צבירת נתונים וכמות נתונים \'רועשים\', כדי להגביל את המידע שאפליקציות יכולות לשתף זו עם זו ולעזור בהגנה על הזהות שלך.\n\nבנוסף, הנתונים של מדידת הביצועים של מודעות נמחקים באופן קבוע מהמכשיר."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"הפעילות שלך באפליקציה יכולה לשמש כדי להציע לך מודעות."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"איך האפליקציות משתמשות בנתונים?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"האפליקציות יכולות לאחסן את המידע הזה באופן מאובטח כך שייעשה בו שימוש רק על ידי השותפים שלהן לקניית שטחי פרסום, לצורך התאמה אישית של מודעות באפליקציות אחרות. לדוגמה, אם השתמשת באופן קבוע באפליקציות בישול, יכול להיות שיוצגו לך מודעות לשירותי משלוחים של מצרכים או תוכן קשור באפליקציות אחרות."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"איך אפשר לנהל את הנתונים?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"יש לך אפשרות לחסום את היכולת של אפליקציות מסוימות לשתף את נתוני הפעילות שלך עם השותפים שלהן לקניית שטחי פרסום. בכל שלב ניתן להיכנס להגדרות הפרטיות, לאפס את כל הנתונים שקשורים להצעת מודעות או להשבית את המודעות שהאפליקציות מציעות. הנתונים האלה נמחקים אוטומטית מ-Android באופן קבוע."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"מידע נוסף על האופן שבו מערכת Android עוזרת להגן על הפרטיות שלך"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"האפליקציות והשותפים שלהן לקניית שטחי פרסום יכולים להשתמש בפעילות שלך באפליקציות אחרות במכשיר הזה כדי להתאים אישית את המודעות ועדיין לעזור בשמירה על הפרטיות והאבטחה שלך.\n\nלדוגמה, אם השתמשת באופן קבוע באפליקציות בישול, יכול להיות שיוצגו לך מודעות לשירותי משלוחים של מצרכים או תוכן קשור באפליקציות אחרות.\n\nהנתונים האלה נמחקים אוטומטית מ-Android באופן קבוע, אבל עדיין יש לך אפשרות לחסום את היכולת של אפליקציות לשתף את הנתונים האלה עם השותפים שלהן לקניית שטחי פרסום."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"האפליקציות והשותפים שלהן לקניית שטחי פרסום נוהגים לשמור פרטים מסוימים לגבי דברים שהתעניינת בהם, כדי להתאים אישית את חוויית השימוש שלך. האפליקציות יכולות לאחסן את המידע הזה באופן מאובטח כך שייעשה בו שימוש רק על ידי השותפים שלהן לקניית שטחי פרסום, לצורך הצגת מודעות באפליקציות אחרות.\n\nיש לך אפשרות לחסום את היכולת של אפליקציה מסוימת לשתף את נתוני הפעילות שלך עם השותפים שלה לקניית שטחי פרסום. בנוסף, נתוני הפעילות המשותפים נמחקים אוטומטית מ-Android באופן קבוע, כך שאם השתמשת שוב באפליקציה מסוימת, היא עשויה להופיע מחדש ברשימה הזו.\n\nיכול להיות שיוצגו מודעות מותאמות אישית באפליקציות שלך בהתאם להגדרה הזו, להגדרה של נושאי המודעות, להגדרות של מזהי הפרסום ולשאלה אם באפליקציה שבה השתמשת מוצגות מודעות בהתאמה אישית.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"מידע נוסף על מודעות שאפליקציות מציעות"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"מערכת Android משתמשת בכמה מדדים לשמירה על הפרטיות, למשל צבירת נתונים וכמות נתונים \'רועשים\', כדי להגביל את המידע שאפליקציות יכולות לשתף זו עם זו ולעזור בהגנה על הזהות שלך.\n\nיכול להיות שבדפדפן שלך יש הגדרה דומה. אם מדידת הביצועים של המודעות מופעלת גם ב-Android וגם בדפדפן, חברה כלשהי יכולה למדוד את היעילות של מודעה מסוימת באפליקציות שבהן השתמשת לעומת יעילותה באתרים שבהם ביקרת. היסטוריית הגלישה שלך נשארת פרטית ולא יוצאת מהמכשיר.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"מידע נוסף על מדידת ביצועים של מודעות"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"במערכת Android מתגבשת רשימה של נושאים שמעניינים אותך על סמך האפליקציות שהשתמשת בהן בשבועות האחרונים.\n\nלאחר מכן, אפליקציה שהשתמשת בה יכולה לשלוח ל-Android בקשה לקבלת מידע על הנושאים האלה כדי להתאים אישית את המודעות שמוצגות לך. מערכת Android משתפת עד 3 נושאים ועוזרת להגן על הזהות שלך ועל הנתונים לגבי השימוש שלך באפליקציות.\n\nהנושאים נמחקים אוטומטית מ-Android באופן קבוע. אם המשכת להשתמש באפליקציות, אחד הנושאים עשוי להופיע ברשימה מחדש. ניתן גם לחסום נושאים כדי שלא ישותפו בין Android לאפליקציות.\n\nיכול להיות שיוצגו מודעות מותאמות אישית באפליקציות שלך בהתאם להגדרה הזו, להגדרה של המודעות שאפליקציות מציעות, להגדרות של מזהי הפרסום ולשאלה אם באפליקציה שבה השתמשת מוצגות מודעות בהתאמה אישית.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"מידע נוסף על נושאי מודעות"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"איור צבעוני של סמלים המייצגים נושאים מעניינים כמו מוזיקה, חדשות וספורט"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"איור צבעוני של מנעול בתוך עיגול"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"איור קטן בשחור-לבן של תשע נקודות היוצרות ריבוע"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"איור קטן בשחור-לבן של צורות פשוטות כמו לב, משולש וריבוע"</string>
+    <string name="topic10001" msgid="1270825507916795717">"אומנות ובידור"</string>
+    <string name="topic10002" msgid="8657696153158750159">"משחק ותיאטרון"</string>
+    <string name="topic10003" msgid="8107343709605778937">"אנימה ומנגה"</string>
+    <string name="topic10004" msgid="8860839733494442614">"סרטים מצוירים"</string>
+    <string name="topic10005" msgid="2366794377271477958">"קומיקס"</string>
+    <string name="topic10006" msgid="3856192433168050494">"קונצרטים ופסטיבלי מוזיקה"</string>
+    <string name="topic10007" msgid="7701054618107492020">"ריקוד"</string>
+    <string name="topic10008" msgid="5566660187422751041">"תעשיית הבידור"</string>
+    <string name="topic10009" msgid="9048499060637442408">"שעשועונים וטריוויה"</string>
+    <string name="topic10010" msgid="2312303716461948144">"מבדקים כיפיים וסקרים שטותיים"</string>
+    <string name="topic10011" msgid="175945911179628507">"הומור"</string>
+    <string name="topic10012" msgid="7308795546139033442">"תמונות וסרטונים מצחיקים"</string>
+    <string name="topic10013" msgid="1525199586552473496">"מופעי סטנד-אפ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"אירועי ספורט בשידור חי"</string>
+    <string name="topic10015" msgid="726046067079821146">"קסמים"</string>
+    <string name="topic10016" msgid="2349985783026324836">"רשימות סרטים בקולנוע וזמני הקרנה"</string>
+    <string name="topic10017" msgid="5137452934538259985">"סרטים"</string>
+    <string name="topic10018" msgid="2701694124396534094">"סרטי פעולה והרפתקאות"</string>
+    <string name="topic10019" msgid="4229784972880729321">"סרטי אנימציה"</string>
+    <string name="topic10020" msgid="7406506079009096133">"סרטים קומיים"</string>
+    <string name="topic10021" msgid="8455397230215712525">"סרטי קאלט ואינדי"</string>
+    <string name="topic10022" msgid="4121646102859453428">"סרטים דוקומנטריים"</string>
+    <string name="topic10023" msgid="254151319845267278">"סרטי דרמה"</string>
+    <string name="topic10024" msgid="9166490951622139148">"סרטים לכל המשפחה"</string>
+    <string name="topic10025" msgid="4556814606759167730">"סרטי אימה"</string>
+    <string name="topic10026" msgid="210222384439682793">"סרטים רומנטיים"</string>
+    <string name="topic10027" msgid="6865151893887179263">"מותחנים"</string>
+    <string name="topic10028" msgid="7591747452141916447">"מוזיקה ואודיו"</string>
+    <string name="topic10029" msgid="2603521148910221418">"בלוז"</string>
+    <string name="topic10030" msgid="1882645896051165373">"מוזיקה קלאסית"</string>
+    <string name="topic10031" msgid="3075843490601826275">"מוזיקת קאנטרי"</string>
+    <string name="topic10032" msgid="5492959212920168739">"מוזיקת דאנס ומוזיקה אלקטרונית"</string>
+    <string name="topic10033" msgid="895853536740398847">"מוזיקת פולק ומוזיקה מסורתית"</string>
+    <string name="topic10034" msgid="4234814709585731313">"ג\'אז"</string>
+    <string name="topic10035" msgid="4357756001621317728">"סטרימינג והורדות מוזיקה"</string>
+    <string name="topic10036" msgid="449833307315797283">"סרטוני מוזיקה"</string>
+    <string name="topic10037" msgid="51698216720637667">"כלי נגינה"</string>
+    <string name="topic10038" msgid="8450729953573104572">"פסנתר וקלידים"</string>
+    <string name="topic10039" msgid="9069435933476958784">"מוזיקת פופ"</string>
+    <string name="topic10040" msgid="2307340564445486423">"רדיו"</string>
+    <string name="topic10041" msgid="7067032299296103616">"תוכניות ראיונות ברדיו"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ראפ והיפ-הופ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"מוזיקת רוק"</string>
+    <string name="topic10044" msgid="6201404431104417585">"רוק קלאסי ומוזיקת אולדיז"</string>
+    <string name="topic10045" msgid="3723162035372109422">"רוק כבד ופרוגרסיב"</string>
+    <string name="topic10046" msgid="4700537150965749092">"מוזיקת אינדי ומוזיקה אלטרנטיבית"</string>
+    <string name="topic10047" msgid="6868724754947095800">"ספריות צלילים וסמפלים"</string>
+    <string name="topic10048" msgid="1968071881240362644">"אר-אנד-בי וסול"</string>
+    <string name="topic10049" msgid="3935800983716699672">"פסקולים"</string>
+    <string name="topic10050" msgid="1374275552775889532">"מוזיקת עולם"</string>
+    <string name="topic10051" msgid="5719726125732251258">"רגאיי ומוזיקה קאריבית"</string>
+    <string name="topic10052" msgid="1284902821545612733">"גלריות תמונות אונליין"</string>
+    <string name="topic10053" msgid="5420622301656482567">"סרטוני וידאו אונליין"</string>
+    <string name="topic10054" msgid="4562235511593399260">"וידאו סטרימינג בשידור חי"</string>
+    <string name="topic10055" msgid="3752987507076288470">"סטרימינג של סרטים ותוכניות טלוויזיה"</string>
+    <string name="topic10056" msgid="1316228709578133569">"אופרה"</string>
+    <string name="topic10057" msgid="3265794667031664331">"מדריכי טלוויזיה"</string>
+    <string name="topic10058" msgid="8409884272709263707">"רשתות ותחנות טלוויזיה"</string>
+    <string name="topic10059" msgid="6770193120260554722">"תוכניות וסדרות טלוויזיה"</string>
+    <string name="topic10060" msgid="2410694865246432781">"תוכניות קומיות בטלוויזיה"</string>
+    <string name="topic10061" msgid="7733515887806604226">"תוכניות דוקומנטריות ותוכניות עיון בטלוויזיה"</string>
+    <string name="topic10062" msgid="2539857914076699714">"תוכניות דרמה בטלוויזיה"</string>
+    <string name="topic10063" msgid="7645361077069015698">"אופרות סבון בטלוויזיה"</string>
+    <string name="topic10064" msgid="3322306867038013554">"תוכניות טלוויזיה לכל המשפחה"</string>
+    <string name="topic10065" msgid="6361928032564256523">"תוכניות ריאליטי בטלוויזיה"</string>
+    <string name="topic10066" msgid="9206067258196707389">"תוכניות מד\"ב ופנטזיה בטלוויזיה"</string>
+    <string name="topic10067" msgid="6479768451596254929">"אומנות חזותית ועיצוב"</string>
+    <string name="topic10068" msgid="7999222744500155387">"עיצוב"</string>
+    <string name="topic10069" msgid="3345227631449580699">"ציור"</string>
+    <string name="topic10070" msgid="8921241315781663883">"אומנות הצילום ואומנות דיגיטלית"</string>
+    <string name="topic10071" msgid="5802889978655775195">"מכוניות וכלי רכב"</string>
+    <string name="topic10072" msgid="7699714565299422080">"משאיות ונגררים"</string>
+    <string name="topic10073" msgid="8309536003187424408">"כלי רכב קלאסיים"</string>
+    <string name="topic10074" msgid="7682849385993670574">"כלי רכב משופרים ובהתאמה אישית"</string>
+    <string name="topic10075" msgid="6556611554556269074">"מחירי דלק ותדלוק"</string>
+    <string name="topic10076" msgid="4919696820372108489">"כלי רכב מנועיים (לפי סוג)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"כלי רכב אוטונומיים"</string>
+    <string name="topic10078" msgid="4334233882549881927">"מכוניות קבריולה"</string>
+    <string name="topic10079" msgid="3172046203487780210">"מכוניות קוּפּה"</string>
+    <string name="topic10080" msgid="8163934214927408125">"מכוניות האצ\'בק"</string>
+    <string name="topic10081" msgid="577995777553561437">"כלי רכב היברידיים ואלטרנטיביים"</string>
+    <string name="topic10082" msgid="9109129029552185357">"מכוניות יוקרה"</string>
+    <string name="topic10083" msgid="2403537768530923605">"מכוניות מיני וסופר-מיני"</string>
+    <string name="topic10084" msgid="8422281545992763598">"אופנועים"</string>
+    <string name="topic10085" msgid="8083861494180925476">"רכבי שטח"</string>
+    <string name="topic10086" msgid="7643969175312645412">"טנדרים"</string>
+    <string name="topic10087" msgid="2731154517409527341">"קטנועים וטוסטוסים"</string>
+    <string name="topic10088" msgid="3252737061574829966">"מכוניות משפחתיות"</string>
+    <string name="topic10089" msgid="5296300331452192377">"מכוניות סטיישן"</string>
+    <string name="topic10090" msgid="3420243367635085619">"רכבי פנאי ורכבי קרוסאובר"</string>
+    <string name="topic10091" msgid="1855954783407839458">"רכבי קרוסאובר"</string>
+    <string name="topic10092" msgid="3748598147176261608">"רכבים מסחריים ורכבי מיניוואן"</string>
+    <string name="topic10093" msgid="4427294934418177183">"גרירה ושירותי דרך"</string>
+    <string name="topic10094" msgid="2377839138225502290">"בטיחות רכב ובטיחות בדרכים"</string>
+    <string name="topic10095" msgid="84682415803421329">"חלקי חילוף ואביזרים לרכב"</string>
+    <string name="topic10096" msgid="8920802377602814882">"תחזוקה ותיקון של רכבים"</string>
+    <string name="topic10097" msgid="1171171183482751335">"קניית רכב"</string>
+    <string name="topic10098" msgid="2079957196489295765">"רכבים משומשים"</string>
+    <string name="topic10099" msgid="8979943848539150620">"תערוכות רכב"</string>
+    <string name="topic10100" msgid="4197262693717174623">"יופי וכושר גופני"</string>
+    <string name="topic10101" msgid="7348658588841917441">"אומנות הגוף"</string>
+    <string name="topic10102" msgid="3638722720071045006">"טיפוח פנים וגוף"</string>
+    <string name="topic10103" msgid="7505482487921433611">"תכשירים נגד הזעה"</string>
+    <string name="topic10104" msgid="6370054283334591202">"מוצרי רחצה וטיפוח הגוף"</string>
+    <string name="topic10105" msgid="1191169056931411220">"קוסמטיקה ידידותית לסביבה"</string>
+    <string name="topic10106" msgid="3928455104996075953">"איפור וקוסמטיקה"</string>
+    <string name="topic10107" msgid="3798923390765338227">"מוצרי טיפוח לציפורניים"</string>
+    <string name="topic10108" msgid="577259588028933025">"בשמים וניחוחות"</string>
+    <string name="topic10109" msgid="2191558742276310934">"סכיני גילוח ומכונות גילוח"</string>
+    <string name="topic10110" msgid="4668859731019222824">"אופנה וסגנון"</string>
+    <string name="topic10111" msgid="8382751996496129758">"כושר גופני"</string>
+    <string name="topic10112" msgid="2904455776326272301">"פיתוח גוף"</string>
+    <string name="topic10113" msgid="8931680908070341060">"הדרכת כושר גופני ואימון אישי"</string>
+    <string name="topic10114" msgid="1666144425445242905">"מוצרי כושר טכנולוגיים"</string>
+    <string name="topic10115" msgid="3024886857586781525">"טיפוח השיער"</string>
+    <string name="topic10116" msgid="763642849903586689">"ספרים וספרות"</string>
+    <string name="topic10117" msgid="2897295398887355445">"ספרות ילדים"</string>
+    <string name="topic10118" msgid="8261966919146004082">"ספרים דיגיטליים"</string>
+    <string name="topic10119" msgid="894448782525835364">"כתבי עת"</string>
+    <string name="topic10120" msgid="6413553316742475453">"שירה"</string>
+    <string name="topic10121" msgid="5743038898774111015">"עסקים ותעשייה"</string>
+    <string name="topic10122" msgid="9008408720895399838">"שיווק ופרסום"</string>
+    <string name="topic10123" msgid="2259134467663515137">"מכירות"</string>
+    <string name="topic10124" msgid="6342988250432534253">"חקלאות ויערנות"</string>
+    <string name="topic10125" msgid="4258543381071903891">"ייצור מזון"</string>
+    <string name="topic10126" msgid="7175643869342613083">"תעשיית הרכב"</string>
+    <string name="topic10127" msgid="6431712570995680971">"תעשייה אווירית"</string>
+    <string name="topic10128" msgid="4235280795901477432">"פעילות עסקית"</string>
+    <string name="topic10129" msgid="7076722669374577677">"הסדרי עבודה גמישים"</string>
+    <string name="topic10130" msgid="3611582433482627069">"משאבי אנוש"</string>
+    <string name="topic10131" msgid="1372513307847962621">"אשראי מסחרי"</string>
+    <string name="topic10132" msgid="4784716346965522438">"בניין ותחזוקה"</string>
+    <string name="topic10133" msgid="7421272318291450977">"הנדסה אזרחית"</string>
+    <string name="topic10134" msgid="6960637850006318075">"תעשיית ההגנה"</string>
+    <string name="topic10135" msgid="3682767135401089609">"אנרגיה ותשתיות"</string>
+    <string name="topic10136" msgid="455894912948558854">"אספקת מים וטיהור מים"</string>
+    <string name="topic10137" msgid="8298610586001250767">"תעשיית מלונאות ואירוח"</string>
+    <string name="topic10138" msgid="1297997683887620829">"ייצור"</string>
+    <string name="topic10139" msgid="2881410777083033235">"מתכות וכרייה"</string>
+    <string name="topic10140" msgid="3210849036014636721">"שיווק רב-שכבתי והזדמנויות עסקיות"</string>
+    <string name="topic10141" msgid="2209863158714894227">"פרמצבטיקה וביוטכנולוגיה"</string>
+    <string name="topic10142" msgid="5503134498670972397">"דפוס והוצאה לאור"</string>
+    <string name="topic10143" msgid="7443122495469194311">"מסחר קמעונאי"</string>
+    <string name="topic10144" msgid="4491152042745513902">"הון סיכון"</string>
+    <string name="topic10145" msgid="7181389660165515306">"מחשבים ואלקטרוניקה"</string>
+    <string name="topic10146" msgid="5319328674320188177">"ציוד היקפי למחשב"</string>
+    <string name="topic10147" msgid="3115360970477190823">"מדפסות"</string>
+    <string name="topic10148" msgid="388392714835039199">"אבטחת מחשבים"</string>
+    <string name="topic10149" msgid="8669494095915530311">"אנטי וירוס וכלים נגד תוכנות זדוניות"</string>
+    <string name="topic10150" msgid="7287887356428407082">"אבטחת רשת"</string>
+    <string name="topic10151" msgid="1896865948857670589">"מוצרי חשמל"</string>
+    <string name="topic10152" msgid="2229775287055715130">"מצלמות וידאו וסטילס"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS וניווט"</string>
+    <string name="topic10154" msgid="6865619906648095342">"אוטומציה של הבית"</string>
+    <string name="topic10155" msgid="6083736045761149547">"מערכות קולנוע ביתי"</string>
+    <string name="topic10156" msgid="5908298124114814149">"נגני MP3 ונגני מדיה ניידים"</string>
+    <string name="topic10157" msgid="5681638457846277732">"טכנולוגיה לבישה"</string>
+    <string name="topic10158" msgid="3203453971647354680">"גיבוי ושחזור מידע"</string>
+    <string name="topic10159" msgid="5630430439595766824">"מחשבים"</string>
+    <string name="topic10160" msgid="4829448963240629016">"מחשבים ניידים ונישאים"</string>
+    <string name="topic10161" msgid="172004201167511870">"רשתות"</string>
+    <string name="topic10162" msgid="6091195506695436179">"מחשוב מבוזר ומחשוב ענן"</string>
+    <string name="topic10163" msgid="1151401754761855146">"תכנות"</string>
+    <string name="topic10164" msgid="9084381711034794904">"תוכנות"</string>
+    <string name="topic10165" msgid="7794619191364239903">"תוכנות מוזיקה ואודיו"</string>
+    <string name="topic10166" msgid="8763250476037582784">"תוכנות לעסקים ולפרודוקטיביות"</string>
+    <string name="topic10167" msgid="2049380875864013534">"תוכנות יומן ולוח שנה"</string>
+    <string name="topic10168" msgid="8902187628490964169">"תוכנות שיתופיות ותוכנות לשיחות ועידה"</string>
+    <string name="topic10169" msgid="827557334245484202">"תוכנות מצגות"</string>
+    <string name="topic10170" msgid="9004257492478793528">"תוכנות גיליונות אלקטרוניים"</string>
+    <string name="topic10171" msgid="7993474143932045967">"תוכנות עיבוד תמלילים"</string>
+    <string name="topic10172" msgid="7796145013604839047">"הוצאה לאור שולחנית"</string>
+    <string name="topic10173" msgid="2914187257631238849">"גופנים"</string>
+    <string name="topic10174" msgid="2115617300581130014">"מנהלי הורדות"</string>
+    <string name="topic10175" msgid="5871766754983733443">"תוכנות חינמיות ותוכנות שיתופיות"</string>
+    <string name="topic10176" msgid="4556902534984350353">"תוכנות גרפיקה ואנימציה"</string>
+    <string name="topic10177" msgid="5020885617411375213">"עוזרים אישיים וירטואליים"</string>
+    <string name="topic10178" msgid="6156514295355993755">"נגני מדיה"</string>
+    <string name="topic10179" msgid="4166560755175055525">"תוכנות מעקב"</string>
+    <string name="topic10180" msgid="1616408866159152420">"מערכות הפעלה"</string>
+    <string name="topic10181" msgid="1104637623376778918">"תוכנות וידאו ותמונות"</string>
+    <string name="topic10182" msgid="4433309778429721885">"תוכנות לתמונות"</string>
+    <string name="topic10183" msgid="7726225846283601216">"תוכנות וידאו"</string>
+    <string name="topic10184" msgid="7666718573841178521">"תוכנות עזר"</string>
+    <string name="topic10185" msgid="7090504131394943791">"דפדפני אינטרנט"</string>
+    <string name="topic10186" msgid="2894398454040127175">"פיננסים"</string>
+    <string name="topic10187" msgid="3321209590831212269">"חשבונאות וביקורת"</string>
+    <string name="topic10188" msgid="6091864564976149142">"ייעוץ ותכנון מס"</string>
+    <string name="topic10189" msgid="5722909809680931661">"בנקאות"</string>
+    <string name="topic10190" msgid="4954502185848303449">"שירותי העברת כספים"</string>
+    <string name="topic10191" msgid="374364159635356705">"אשראי והלוואות"</string>
+    <string name="topic10192" msgid="4780985034026130257">"כרטיסי אשראי"</string>
+    <string name="topic10193" msgid="5010972379907168829">"מימון לבית"</string>
+    <string name="topic10194" msgid="1311944420068992723">"הלוואות אישיות"</string>
+    <string name="topic10195" msgid="7554681395283728871">"הלוואות לסטודנטים ומימון השכלה גבוהה"</string>
+    <string name="topic10196" msgid="1390058955048742733">"תכנון וניהול פיננסי"</string>
+    <string name="topic10197" msgid="6999203003544574270">"פרישה ופנסיה"</string>
+    <string name="topic10198" msgid="1172025416206301419">"מענקים"</string>
+    <string name="topic10199" msgid="2817599683028682473">"מענקים"</string>
+    <string name="topic10200" msgid="4560138974690686847">"ביטוח"</string>
+    <string name="topic10201" msgid="447240478385298875">"ביטוח לרכב"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ביטוח רפואי"</string>
+    <string name="topic10203" msgid="6593194921457271151">"ביטוח לבית"</string>
+    <string name="topic10204" msgid="4634976092969827804">"ביטוח חיים"</string>
+    <string name="topic10205" msgid="262581473890356377">"ביטוח נסיעות"</string>
+    <string name="topic10206" msgid="5534905376642807172">"השקעות"</string>
+    <string name="topic10207" msgid="2202788132330201137">"מסחר בסחורות ובחוזים עתידיים"</string>
+    <string name="topic10208" msgid="1250532081213960304">"מטבעות והמרת מטבע זר"</string>
+    <string name="topic10209" msgid="7384658616986998949">"קרנות גידור"</string>
+    <string name="topic10210" msgid="5646412565978393234">"קרנות נאמנות"</string>
+    <string name="topic10211" msgid="2001835133812379482">"מניות ואג\"ח"</string>
+    <string name="topic10212" msgid="2364530251853656532">"מזון ומשקאות"</string>
+    <string name="topic10213" msgid="805716705436663130">"בישול ומתכונים"</string>
+    <string name="topic10214" msgid="726298155737413779">"ברביקיו וצלייה"</string>
+    <string name="topic10215" msgid="1502589059550612499">"סגנונות בישול"</string>
+    <string name="topic10216" msgid="7699499757302291329">"מטבח צמחוני"</string>
+    <string name="topic10217" msgid="2160292055279553771">"מטבח טבעוני"</string>
+    <string name="topic10218" msgid="4090671581843003332">"תזונה בריאה"</string>
+    <string name="topic10219" msgid="7663946426520362378">"קמעונאי מזון ומצרכים"</string>
+    <string name="topic10220" msgid="4812477283307222367">"משחקים"</string>
+    <string name="topic10221" msgid="2320959705105050635">"מכונות משחק המופעלות במטבעות"</string>
+    <string name="topic10222" msgid="1659423113675232767">"ביליארד"</string>
+    <string name="topic10223" msgid="3526662148224862522">"משחקי לוח"</string>
+    <string name="topic10224" msgid="8806949357679505576">"שחמט ומשחקי אסטרטגיה מופשטת"</string>
+    <string name="topic10225" msgid="564207834821286301">"משחקי קלפים"</string>
+    <string name="topic10226" msgid="6918788605930334066">"משחקי קלפים לאספנות"</string>
+    <string name="topic10227" msgid="7011042093822468388">"משחקי וידאו ומחשב"</string>
+    <string name="topic10228" msgid="6883716111007300369">"משחקי פעולה ומשחקי פלטפורמה"</string>
+    <string name="topic10229" msgid="1448569034984381121">"משחקי הרפתקאות"</string>
+    <string name="topic10230" msgid="3350872631578952799">"משחקים לקהל הרחב"</string>
+    <string name="topic10231" msgid="405082026972839048">"משחקי וידאו תחרותיים"</string>
+    <string name="topic10232" msgid="1839026948327779776">"משחקי נהיגה ומירוצים"</string>
+    <string name="topic10233" msgid="1188186151495453281">"משחקי לחימה"</string>
+    <string name="topic10234" msgid="693433817142162565">"מידע וביקורות גיימינג"</string>
+    <string name="topic10235" msgid="8703923040923920090">"טיפים ורמזים למשחקי וידאו"</string>
+    <string name="topic10236" msgid="320145832033080647">"משחקים רבי-משתתפים"</string>
+    <string name="topic10237" msgid="5441671482070243974">"משחקי מוזיקה וריקוד"</string>
+    <string name="topic10238" msgid="124952008622371505">"משחקים בסגנון ארגז חול"</string>
+    <string name="topic10239" msgid="8116373838332949879">"משחקי יריות"</string>
+    <string name="topic10240" msgid="429738690314619395">"משחקי הדמיה"</string>
+    <string name="topic10241" msgid="6759586807395308444">"משחקי טייקון ועסקים"</string>
+    <string name="topic10242" msgid="6446465880310926504">"משחקים לבניית ערים"</string>
+    <string name="topic10243" msgid="1900180483768183189">"משחקי הדמיית מציאות"</string>
+    <string name="topic10244" msgid="7177785844550764762">"סימולטורים של כלי רכב"</string>
+    <string name="topic10245" msgid="3479291573578622081">"משחקי ספורט"</string>
+    <string name="topic10246" msgid="1362878793775338590">"משחקי ניהול בספורט"</string>
+    <string name="topic10247" msgid="7167743512938031275">"משחקי אסטרטגיה"</string>
+    <string name="topic10248" msgid="279151815457227293">"מודים ותוספים למשחקי וידאו"</string>
+    <string name="topic10249" msgid="631580828608894782">"משחקים לימודיים"</string>
+    <string name="topic10250" msgid="8788829601095126859">"משחקים ופעילויות לכל המשפחה"</string>
+    <string name="topic10251" msgid="4289374662760140512">"ציור וצביעה"</string>
+    <string name="topic10252" msgid="3704663832286223948">"משחקי הלבשת בובות ואופנה"</string>
+    <string name="topic10253" msgid="385499297969826942">"תשבצים וחידות הגיון"</string>
+    <string name="topic10254" msgid="3407688580587226586">"משחקי תפקידים"</string>
+    <string name="topic10255" msgid="5123382868307815261">"טניס שולחן"</string>
+    <string name="topic10256" msgid="3732657908002298514">"משחקי אריחים"</string>
+    <string name="topic10257" msgid="1563737702727245186">"משחקי מילים"</string>
+    <string name="topic10258" msgid="3098024313656910144">"תחביבים ופנאי"</string>
+    <string name="topic10259" msgid="4943419230459875946">"ימי שנה"</string>
+    <string name="topic10260" msgid="8082531986100775125">"ימי הולדת"</string>
+    <string name="topic10261" msgid="5848226607755547256">"צלילה ופעילויות תת-מימיות"</string>
+    <string name="topic10262" msgid="7200864040450019529">"אומנות טקסטיל ואריגים"</string>
+    <string name="topic10263" msgid="361345691023794788">"פעילויות חוץ"</string>
+    <string name="topic10264" msgid="1786205972094583167">"דיג"</string>
+    <string name="topic10265" msgid="2823178926106728570">"ציד וירי"</string>
+    <string name="topic10266" msgid="8850275614185862002">"פיינטבול"</string>
+    <string name="topic10267" msgid="3722262029580639019">"דגמים בשלט רחוק"</string>
+    <string name="topic10268" msgid="3854589101176380228">"חתונות"</string>
+    <string name="topic10269" msgid="6274589872519767859">"לבית ולגינה"</string>
+    <string name="topic10270" msgid="6333380157855869252">"גינון"</string>
+    <string name="topic10271" msgid="7654177637864012480">"עיצוב הבית ועיצוב פנים"</string>
+    <string name="topic10272" msgid="3679206633003573176">"מוצרי חשמל ביתיים"</string>
+    <string name="topic10273" msgid="7964372799408781017">"שיפוץ הבית"</string>
+    <string name="topic10274" msgid="7438404923297950713">"בטיחות ואבטחה בבית"</string>
+    <string name="topic10275" msgid="682064062059687444">"מוצרים לבית"</string>
+    <string name="topic10276" msgid="6967461678618700017">"עיצוב נוף"</string>
+    <string name="topic10277" msgid="5888643119731566320">"אינטרנט וטלקום"</string>
+    <string name="topic10278" msgid="1736187026108921963">"אימייל והעברת הודעות"</string>
+    <string name="topic10279" msgid="9034205050642228743">"אימייל"</string>
+    <string name="topic10280" msgid="3168053876492638177">"העברת הודעות מיידיות והודעות טקסט"</string>
+    <string name="topic10281" msgid="582764575763317221">"צ\'אט קולי וצ\'אט בווידאו"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ספקי אינטרנט (ISP)"</string>
+    <string name="topic10283" msgid="4990902662337451282">"ספקי שירותים טלפוניים"</string>
+    <string name="topic10284" msgid="8298837964949288587">"רינגטונים ועיצובים לנייד"</string>
+    <string name="topic10285" msgid="5409600379647005862">"מנועי חיפוש"</string>
+    <string name="topic10286" msgid="5120434472606081895">"מכשירי סמארטפון"</string>
+    <string name="topic10287" msgid="3350459436622898201">"שיחות ועידה בווידאו"</string>
+    <string name="topic10288" msgid="4197272921112835157">"אפליקציות אינטרנט וכלי אינטרנט"</string>
+    <string name="topic10289" msgid="5361961713593805925">"שירותי אינטרנט"</string>
+    <string name="topic10290" msgid="1030690821237195132">"אחסון בענן"</string>
+    <string name="topic10291" msgid="4049265350889304495">"עיצוב ופיתוח באינטרנט"</string>
+    <string name="topic10292" msgid="3386329227033265361">"אירוח באינטרנט"</string>
+    <string name="topic10293" msgid="5737650187548034975">"משרות וחינוך"</string>
+    <string name="topic10294" msgid="4134169605040294646">"חינוך"</string>
+    <string name="topic10295" msgid="331240908257602211">"כנסים ופרסומים אקדמיים"</string>
+    <string name="topic10296" msgid="8588303480683748067">"מכללות ואוניברסיטאות"</string>
+    <string name="topic10297" msgid="6374270931732387420">"למידה מרחוק"</string>
+    <string name="topic10298" msgid="1588575102152049123">"חינוך לגיל הרך"</string>
+    <string name="topic10299" msgid="2437152839161363820">"פעוטות וגן"</string>
+    <string name="topic10300" msgid="1716635660730089544">"חינוך ביתי"</string>
+    <string name="topic10301" msgid="7986927377838820550">"בחינות סטנדרטיות ובחינות קבלה"</string>
+    <string name="topic10302" msgid="5998774512114172286">"הוראה ומשאבים לכיתות"</string>
+    <string name="topic10303" msgid="4585533807035591476">"חינוך מקצועי ולימודי המשך"</string>
+    <string name="topic10304" msgid="7882895278855442691">"משרות"</string>
+    <string name="topic10305" msgid="5595618454946980801">"משאבים ותכנון קריירה"</string>
+    <string name="topic10306" msgid="2721676636117931598">"מודעות דרושים"</string>
+    <string name="topic10307" msgid="1718396745825058084">"חוק וממשל"</string>
+    <string name="topic10308" msgid="5324738087341048710">"פשיעה ומשפט"</string>
+    <string name="topic10309" msgid="6295029954614836413">"משפטי"</string>
+    <string name="topic10310" msgid="8422735354338745855">"שירותים משפטיים"</string>
+    <string name="topic10311" msgid="1230675855406761762">"חדשות"</string>
+    <string name="topic10312" msgid="6827799049548932141">"חדשות כלכלה"</string>
+    <string name="topic10313" msgid="2329065661493302739">"חדשות מקומיות"</string>
+    <string name="topic10314" msgid="8901835561696055036">"מיזוגים ורכישות"</string>
+    <string name="topic10315" msgid="5854338074460033131">"עיתונים"</string>
+    <string name="topic10316" msgid="5102748655058857401">"פוליטיקה"</string>
+    <string name="topic10317" msgid="888696185673599406">"חדשות ספורט"</string>
+    <string name="topic10318" msgid="8287583657423629224">"מזג אוויר"</string>
+    <string name="topic10319" msgid="8709805241522664825">"חדשות מהעולם"</string>
+    <string name="topic10320" msgid="2512907250610386132">"קהילות באינטרנט"</string>
+    <string name="topic10321" msgid="7457693963027299711">"קליפ ארט ואנימציות GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"שידוכים והכרויות"</string>
+    <string name="topic10323" msgid="6172125921314846923">"אתרי אגרגטור וסימניות חברתיות"</string>
+    <string name="topic10324" msgid="6723820054750378285">"שיתוף ואירוח קבצים"</string>
+    <string name="topic10325" msgid="916412844647169263">"ספקי פורומים וצ\'אטים"</string>
+    <string name="topic10326" msgid="9167525727089128814">"מיקרו-בלוגים"</string>
+    <string name="topic10327" msgid="3594488251348215868">"שיתוף וידאו ותמונות"</string>
+    <string name="topic10328" msgid="5431605505487660527">"שיתוף תמונות"</string>
+    <string name="topic10329" msgid="2949598007790820705">"שיתוף וידאו"</string>
+    <string name="topic10330" msgid="4210169032750748349">"סקינים"</string>
+    <string name="topic10331" msgid="9148081156366912077">"אפליקציות ותוספים לרשתות חברתיות"</string>
+    <string name="topic10332" msgid="1812925257476776861">"רשתות חברתיות"</string>
+    <string name="topic10333" msgid="5793613565022694596">"אנשים וחברה"</string>
+    <string name="topic10334" msgid="2146426680680125392">"משפחה ומערכות יחסים"</string>
+    <string name="topic10335" msgid="8268284709343326034">"חקר יוחסין וגנאלוגיה"</string>
+    <string name="topic10336" msgid="360328903013424569">"נישואים"</string>
+    <string name="topic10337" msgid="6450553850860149046">"הורות"</string>
+    <string name="topic10338" msgid="3722340462966505867">"אימוץ"</string>
+    <string name="topic10339" msgid="8126807339140404862">"תינוקות ופעוטות"</string>
+    <string name="topic10340" msgid="259457452971577855">"בטיחות ילדים באינטרנט"</string>
+    <string name="topic10341" msgid="9138253009638520984">"רומנטיקה"</string>
+    <string name="topic10342" msgid="3272595442607863965">"מדע בדיוני ופנטזיה"</string>
+    <string name="topic10343" msgid="7170264926050881882">"חיות מחמד ובעלי חיים"</string>
+    <string name="topic10344" msgid="6956876217624431965">"מזון וציוד לחיות מחמד"</string>
+    <string name="topic10345" msgid="8114717708270133007">"חיות מחמד"</string>
+    <string name="topic10346" msgid="3632598362312784148">"ציפורים"</string>
+    <string name="topic10347" msgid="1650823938622414225">"חתולים"</string>
+    <string name="topic10348" msgid="570783769757187957">"כלבים"</string>
+    <string name="topic10349" msgid="6069145390145874420">"דגים ואקווריומים"</string>
+    <string name="topic10350" msgid="7438757598978766290">"זוחלים ודו-חיים"</string>
+    <string name="topic10351" msgid="2065353497413573236">"וטרינרים"</string>
+    <string name="topic10352" msgid="2787610393079898221">"נדל\"ן"</string>
+    <string name="topic10353" msgid="230887584509968233">"חלקות וקרקעות"</string>
+    <string name="topic10354" msgid="2552020152740480445">"יחידות נופש משותפות ונכסים לנופש"</string>
+    <string name="topic10355" msgid="3803439663410756731">"חומרי עזר"</string>
+    <string name="topic10356" msgid="1282534977124646845">"רשימות עסקיות ואישיות"</string>
+    <string name="topic10357" msgid="1506615046588912749">"חומר עיוני כללי"</string>
+    <string name="topic10358" msgid="4670198218200218886">"מחשבונים וכלי עזר"</string>
+    <string name="topic10359" msgid="4422164571631604534">"מילונים ואנציקלופדיות"</string>
+    <string name="topic10360" msgid="4777419229443131291">"משאבים חינוכיים"</string>
+    <string name="topic10361" msgid="2911719878674200735">"מדריכים"</string>
+    <string name="topic10362" msgid="8045493635242789203">"ניהול זמן ויומנים"</string>
+    <string name="topic10363" msgid="3433488479827868110">"משאבים לשוניים"</string>
+    <string name="topic10364" msgid="7272051128606899896">"לימודי שפות זרות"</string>
+    <string name="topic10365" msgid="1638685557205583094">"כלי תרגום ומשאבי תרגום"</string>
+    <string name="topic10366" msgid="5972643213789684860">"מפות"</string>
+    <string name="topic10367" msgid="4693720215957988260">"מדע"</string>
+    <string name="topic10368" msgid="7342229547845270303">"מציאות רבודה ומציאות מדומה"</string>
+    <string name="topic10369" msgid="7623948477078242419">"מדעי הביולוגיה"</string>
+    <string name="topic10370" msgid="1849957115993781053">"גנטיקה"</string>
+    <string name="topic10371" msgid="5801324530787262649">"כימיה"</string>
+    <string name="topic10372" msgid="7043359432633182804">"אקולוגיה וסביבה"</string>
+    <string name="topic10373" msgid="1506052968197311461">"גאולוגיה"</string>
+    <string name="topic10374" msgid="5081919530597944716">"למידת מכונה ובינה מלאכותית (AI)"</string>
+    <string name="topic10375" msgid="7880740430968664319">"מתמטיקה"</string>
+    <string name="topic10376" msgid="8685831276841267222">"פיזיקה"</string>
+    <string name="topic10377" msgid="8162056465305020784">"רובוטיקה"</string>
+    <string name="topic10378" msgid="6048245367747141920">"קניות"</string>
+    <string name="topic10379" msgid="3561154473861357708">"עתיקות ואספנות"</string>
+    <string name="topic10380" msgid="3001377458860648561">"ביגוד"</string>
+    <string name="topic10381" msgid="1050316146323573972">"בגדי ילדים"</string>
+    <string name="topic10382" msgid="1131102032733237256">"תחפושות"</string>
+    <string name="topic10383" msgid="2953255538603038999">"בגדי גברים"</string>
+    <string name="topic10384" msgid="5208244211687593882">"בגדי נשים"</string>
+    <string name="topic10385" msgid="3335546606796359244">"מודעות דרושים"</string>
+    <string name="topic10386" msgid="6517746237788385147">"משאבים לצרכן"</string>
+    <string name="topic10387" msgid="8607123472737800846">"שוברים והנחות"</string>
+    <string name="topic10388" msgid="1641030315133068943">"תוכניות וכרטיסים של מועדון לקוחות"</string>
+    <string name="topic10389" msgid="8196319126164726646">"תמיכה טכנית ותיקונים"</string>
+    <string name="topic10390" msgid="1361120031667629697">"פרחים"</string>
+    <string name="topic10391" msgid="9119667040520612849">"כרטיסי ברכה"</string>
+    <string name="topic10392" msgid="6877484311325584713">"מוצרים למסיבות ולחגים"</string>
+    <string name="topic10393" msgid="7537523054091079737">"פורטלים לקניות"</string>
+    <string name="topic10394" msgid="5321887056912883029">"ספורט"</string>
+    <string name="topic10395" msgid="8799420706106672054">"פוטבול"</string>
+    <string name="topic10396" msgid="2048632371307841946">"פוטבול אוסטרלי"</string>
+    <string name="topic10397" msgid="653991203228840785">"מרוצי מכוניות"</string>
+    <string name="topic10398" msgid="5412613151176189985">"בייסבול"</string>
+    <string name="topic10399" msgid="2009283546036614639">"כדורסל"</string>
+    <string name="topic10400" msgid="5034305624605462351">"באולינג"</string>
+    <string name="topic10401" msgid="26807857115228330">"אגרוף"</string>
+    <string name="topic10402" msgid="6218088033939518718">"עידוד"</string>
+    <string name="topic10403" msgid="3030076002966858939">"ספורט אוניברסיטאי"</string>
+    <string name="topic10404" msgid="4018137098149287073">"קריקט"</string>
+    <string name="topic10405" msgid="9036991434485987285">"רכיבה על אופניים"</string>
+    <string name="topic10406" msgid="7185471418082005024">"רכיבה על סוסים"</string>
+    <string name="topic10407" msgid="316266982792700993">"ספורט אקסטרים"</string>
+    <string name="topic10408" msgid="2571246233605408148">"קירות טיפוס וטיפוס הרים"</string>
+    <string name="topic10409" msgid="1182462921341224299">"ליגת החלומות"</string>
+    <string name="topic10410" msgid="7501849152641094734">"גולף"</string>
+    <string name="topic10411" msgid="6678464213609789748">"התעמלות"</string>
+    <string name="topic10412" msgid="335770351079973128">"הוקי"</string>
+    <string name="topic10413" msgid="416366556259783701">"החלקה על קרח"</string>
+    <string name="topic10414" msgid="6909439381556710013">"אומנויות לחימה"</string>
+    <string name="topic10415" msgid="4535534983750709163">"מרוצי אופנועים"</string>
+    <string name="topic10416" msgid="1687911875093638923">"אולימפיאדה"</string>
+    <string name="topic10417" msgid="2735521554483279111">"רוגבי"</string>
+    <string name="topic10418" msgid="8763139538107186007">"ריצה והליכה"</string>
+    <string name="topic10419" msgid="979581105119036716">"גלישת סקי וסנובורד"</string>
+    <string name="topic10420" msgid="5256622299392338856">"כדורגל"</string>
+    <string name="topic10421" msgid="2654561933626679644">"גלישת גלים"</string>
+    <string name="topic10422" msgid="978920114358054206">"שחייה"</string>
+    <string name="topic10423" msgid="4476847046369253369">"טניס"</string>
+    <string name="topic10424" msgid="6170255954653344524">"אתלטיקה"</string>
+    <string name="topic10425" msgid="3357509018485364691">"כדורעף"</string>
+    <string name="topic10426" msgid="3761026182327229458">"היאבקות"</string>
+    <string name="topic10427" msgid="3748043578314103947">"נסיעות ותחבורה"</string>
+    <string name="topic10428" msgid="7483002505617756861">"טיולי הרפתקאות"</string>
+    <string name="topic10429" msgid="8091163959414149724">"טיסות"</string>
+    <string name="topic10430" msgid="1917556952821193760">"נסיעות עסקים"</string>
+    <string name="topic10431" msgid="7980462767288577734">"השכרות רכב"</string>
+    <string name="topic10432" msgid="4266685292456713522">"הפלגות ושיט תענוגות"</string>
+    <string name="topic10433" msgid="5001290528529256942">"נסיעות משפחתיות"</string>
+    <string name="topic10434" msgid="6310190021663379686">"ירח דבש וחופשות רומנטיות"</string>
+    <string name="topic10435" msgid="8897799078890998992">"מלונות ואירוח"</string>
+    <string name="topic10436" msgid="6778700611322666596">"אוטובוסים ורכבות למרחקים ארוכים"</string>
+    <string name="topic10437" msgid="4764816005841382091">"נסיעות מוזלות ונסיעות בדקה ה-90"</string>
+    <string name="topic10438" msgid="1305380730693546021">"מזוודות ואביזרים לנסיעה"</string>
+    <string name="topic10439" msgid="7731122187851230543">"יעדים תיירותיים"</string>
+    <string name="topic10440" msgid="8071652555461175118">"חופים ואיים"</string>
+    <string name="topic10441" msgid="7182533767302670894">"פארקים וגנים אזוריים"</string>
+    <string name="topic10442" msgid="6462141176894347324">"פארקי שעשועים"</string>
+    <string name="topic10443" msgid="7234914754801803285">"גני חיות"</string>
+    <string name="topic10444" msgid="4322315510441782805">"תכנון מסלול ותנועה"</string>
+    <string name="topic10445" msgid="1182221450749409373">"סוכנויות נסיעות ושירותי נסיעות"</string>
+    <string name="topic10446" msgid="3104259094878772333">"מדריכי נסיעות ויומני מסע"</string>
+</resources>
