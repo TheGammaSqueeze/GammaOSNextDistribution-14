@@ -1,0 +1,92 @@
+/*
+ * This file contains expectations for ART's buildbot when running gcstress in debug mode.
+ * The script that uses this file is art/tools/run-libcore-tests.sh.
+ */
+
+[
+{
+  description: "Timeouts on target with gcstress and debug.",
+  result: EXEC_FAILED,
+  modes: [device],
+  names: ["jsr166.ExecutorsTest#testTimedCallable",
+          "jsr166.RecursiveActionTest#testJoinIgnoresInterruptsOutsideForkJoinPool",
+          "libcore.java.text.DecimalFormatTest#testWhitespaceError",
+          "libcore.java.text.DecimalFormatTest#testWhitespaceTolerated",
+          "libcore.java.text.DecimalFormatTest#test_exponentSeparator",
+          "libcore.java.text.DecimalFormatTest#test_setMaximumFractionDigitsAffectsRoundingMode",
+          "libcore.java.util.jar.OldJarFileTest#test_ConstructorLjava_io_File",
+          "libcore.java.util.jar.OldJarFileTest#test_ConstructorLjava_lang_StringZ",
+          "libcore.java.util.jar.OldJarInputStreamTest#test_read$ZII",
+          "libcore.java.util.TimeZoneTest#testSetDefaultDeadlock",
+          "libcore.javax.crypto.CipherBasicsTest#testBasicEncryption",
+          "org.apache.harmony.tests.java.lang.ref.ReferenceQueueTest#test_removeJ",
+          "org.apache.harmony.tests.java.text.MessageFormatTest#test_parseLjava_lang_String",
+          "org.apache.harmony.tests.java.util.ControlTest#test_toBundleName_LStringLLocale",
+          "org.apache.harmony.tests.java.util.TimerTest#testThrowingTaskKillsTimerThread"
+        ]
+},
+{
+  description: "Timeouts on host with gcstress and debug.",
+  result: EXEC_FAILED,
+  modes: [host],
+  names: ["jsr166.ForkJoinPoolTest#testIsQuiescent",
+          "jsr166.ScheduledExecutorSubclassTest#testTimedInvokeAll4",
+          "jsr166.StampedLockTest#testWriteAfterReadLock",
+          "jsr166.StampedLockTest#testReadTryLock_Interruptible",
+          "jsr166.StampedLockTest#testReadLockInterruptibly_Interruptible",
+          "jsr166.StampedLockTest#testReadLockInterruptibly",
+          "jsr166.StampedLockTest#testWriteLockInterruptibly",
+          "jsr166.TimeUnitTest#testConvert",
+          "jsr166.TreeSetTest#testRecursiveSubSets",
+          "libcore.java.lang.OldThreadTest#test_getState",
+          "libcore.java.lang.StringTest#testFastPathString_wellFormedUtf8Sequence",
+          "libcore.java.math.BigIntegerTest#test_Constructor_IILjava_util_Random",
+          "libcore.java.math.BigIntegerTest#test_probablePrime",
+          "libcore.java.util.concurrent.ReentrantReadWriteLockTest#testGetQueuedReaderThreads",
+          "libcore.java.util.stream.CollectorsTest#counting_largeStream",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.http.HttpURLConnectionTest#testUsingProxy",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.http.HttpURLConnectionTest#testUsingProxySelector",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testConsequentProxyConnection",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testHttpsConnection",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection",
+          "org.apache.harmony.luni.tests.internal.net.www.protocol.https.HttpsURLConnectionTest#testProxyAuthConnection_doOutput",
+          "org.apache.harmony.tests.java.lang.ref.ReferenceQueueTest#test_removeJ",
+          "org.apache.harmony.tests.java.lang.ProcessManagerTest#testSleep",
+          "org.apache.harmony.tests.java.util.TimerTest#testOverdueTaskExecutesImmediately",
+          "org.apache.harmony.tests.java.util.WeakHashMapTest#test_keySet_hasNext"
+  ]
+},
+{
+  description: "Stack unwinding failures on LUCI hosts with gcstress and debug.",
+  bug: 189826569,
+  result: ERROR,
+  modes: [host],
+  names: ["libcore.java.lang.ThreadTest#nativeThreadNames",
+          "jsr166.ThreadLocalTest#testGenericITL"
+  ]
+},
+{
+  description: "Failure with gcstress and debug.",
+  bug: 313922528,
+  result: ERROR,
+  modes: [host],
+  names: ["libcore.java.util.jar.OldManifestTest#test_equals",
+          "test.java.util.Collection",
+          "test.java.util.TestFormatter"
+  ]
+},
+{
+  description: "Time-sensitive test fails check of elapsed time with gcstress",
+  result: EXEC_FAILED,
+  bug: 205007075,
+  names: ["jsr166.CompletableFutureTest#testCompleteOnTimeout_completed",
+          "jsr166.CompletableFutureTest#testDelayedExecutor"
+         ]
+},
+{
+  description: "SocketTimeout test gcstress and debug.",
+  result: EXEC_FAILED,
+  bug: 259530489,
+  names: ["org.apache.harmony.luni.tests.java.net.URLConnectionTest#test_setReadTimeoutI_SocketTimeoutException"]
+}
+]

@@ -1,0 +1,6 @@
+A test for reference processing correctness.
+
+The emphasis here is on fundamental properties. In particular, references to
+unreachable referents should be enqueued, and this should ensure that uncleared
+References don't point to objects for which References were enqueued. We also
+check various other ordering properties for java.lang.ref.References.

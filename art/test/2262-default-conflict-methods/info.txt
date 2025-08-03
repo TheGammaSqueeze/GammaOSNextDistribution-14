@@ -1,0 +1,1 @@
+Tests handling of method ids for default method conflicts.

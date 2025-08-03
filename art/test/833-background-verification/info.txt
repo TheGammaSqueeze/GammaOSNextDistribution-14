@@ -1,0 +1,4 @@
+Regression test for the secondary dex file background verification which used to
+run on user-defined class loaders, which can provoke races between the other
+Java threads verifying the classes and being able to load classes, and the
+background verification not being able to load classes.

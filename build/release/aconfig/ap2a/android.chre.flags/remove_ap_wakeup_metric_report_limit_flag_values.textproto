@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.chre.flags"
+  name: "remove_ap_wakeup_metric_report_limit"
+  state: ENABLED
+  permission: READ_ONLY
+}

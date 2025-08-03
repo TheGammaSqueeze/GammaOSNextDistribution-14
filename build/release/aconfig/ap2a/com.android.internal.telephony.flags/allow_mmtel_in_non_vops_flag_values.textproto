@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "allow_mmtel_in_non_vops"
+  state: ENABLED
+  permission: READ_ONLY
+}

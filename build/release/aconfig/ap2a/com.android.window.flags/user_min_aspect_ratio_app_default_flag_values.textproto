@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "user_min_aspect_ratio_app_default"
+  state: ENABLED
+  permission: READ_ONLY
+}

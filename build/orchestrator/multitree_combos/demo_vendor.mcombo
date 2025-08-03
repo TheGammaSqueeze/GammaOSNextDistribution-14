@@ -1,0 +1,7 @@
+{
+    "lunchable": true,
+    "vendor": {
+        "inner-tree": ["demo-vendor"],
+        "product": "cf_x86_64_phone_vendor"
+    }
+}

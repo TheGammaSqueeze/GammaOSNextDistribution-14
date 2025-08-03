@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.content.pm"
+  name: "lightweight_invisible_label_detection"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "rnr_cancel_before_event_race"
+  state: ENABLED
+  permission: READ_ONLY
+}

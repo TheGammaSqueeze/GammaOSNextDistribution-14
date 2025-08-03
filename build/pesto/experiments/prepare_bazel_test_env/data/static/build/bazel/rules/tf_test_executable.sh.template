@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Script that handles set up for test execution in a Bazel environment.
+# This script sets the PATH, LD_LIBRARY_PATH, TF_PATH, and TF_JAR_DIR
+# that the called launcher script uses to execute the test.
+
+BAZEL_BIN_WORK_DIR="$(dirname $0)/$0.runfiles/__main__/"
+
+# Use the directory corresponding to the current module for running, this
+# ensures that when Tradefed scans for tests, only the tests
+# that were included as a dependency to the rule are referenced.
+TESTCASE_RELPATH="{module_path}"
+
+# Ensure that the test is executing from the top of the runfiles dir.
+if [[ -d $BAZEL_BIN_WORK_DIR/$TESTCASE_RELPATH ]]
+then
+    cd $BAZEL_BIN_WORK_DIR || exit 1
+fi
+
+# Verify we can find the Tradefed launch script.
+ATEST_TRADEFED_LAUNCHER="{tradefed_launcher_module_path}/atest_tradefed.sh"
+if ! [[ -f $ATEST_TRADEFED_LAUNCHER ]]
+then
+    echo "ERROR: Cannot find Tradefed launch script" >&2
+    exit 1
+fi
+
+# Set the required variables for the environment.
+export PATH={path_additions}:$PATH
+export LD_LIBRARY_PATH="$TESTCASE_RELPATH/lib:$TESTCASE_RELPATH/lib64:"
+export TF_PATH="{tradefed_deps_module_path}/*"
+export TF_JAR_DIR="{tradefed_deps_module_path}/"
+
+# Call the test launcher, passing the module name and testcase directory
+# and any additional arguments.
+exec {launcher_path} $ATEST_TRADEFED_LAUNCHER "{module_name}" "$TESTCASE_RELPATH" "$@"

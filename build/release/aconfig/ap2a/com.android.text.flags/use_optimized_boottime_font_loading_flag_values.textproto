@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.text.flags"
+  name: "use_optimized_boottime_font_loading"
+  state: ENABLED
+  permission: READ_ONLY
+}

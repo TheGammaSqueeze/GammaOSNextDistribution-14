@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "reorganize_roaming_notification"
+  state: ENABLED
+  permission: READ_ONLY
+}

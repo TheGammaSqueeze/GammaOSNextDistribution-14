@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settings.flags"
+  name: "mainline_module_explicit_intent"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.systemui"
+  name: "refactor_get_current_user"
+  state: ENABLED
+  permission: READ_ONLY
+}

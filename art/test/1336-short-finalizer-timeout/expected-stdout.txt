@@ -1,0 +1,5 @@
+Finalizer timeout = 500 msecs.
+About to null reference.
+Finalizer started and snoozing...
+Finalizer done snoozing.
+Finalizer sleeping forever now.

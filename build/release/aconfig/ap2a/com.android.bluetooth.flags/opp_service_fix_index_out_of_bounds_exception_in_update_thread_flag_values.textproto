@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "opp_service_fix_index_out_of_bounds_exception_in_update_thread"
+  state: ENABLED
+  permission: READ_ONLY
+}

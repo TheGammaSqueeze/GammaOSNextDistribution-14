@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settings.flags"
+  name: "enable_bluetooth_profile_toggle_visibility_checker"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "use_new_satellite_mode"
+  state: ENABLED
+  permission: READ_ONLY
+}

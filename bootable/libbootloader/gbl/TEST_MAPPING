@@ -1,0 +1,8 @@
+{
+  // TODO(b/292250955): Enable presumbit when SLO is met
+  "postsubmit": [
+    {
+       "name": "libgbl_device_test"
+    }
+  ]
+}

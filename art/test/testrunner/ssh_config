@@ -1,0 +1,6 @@
+Host *
+    IdentityFile ~/.ssh/ubuntu
+    StrictHostKeyChecking no
+    ControlMaster auto
+    ControlPersist 10m
+    ControlPath /run/user/%i/ssh-%C

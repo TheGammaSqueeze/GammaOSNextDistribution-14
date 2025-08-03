@@ -1,0 +1,28 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "lib_linker_config_proto_lite",
+    host_supported: true,
+    recovery_available: true,
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+    },
+    srcs: ["linker_config.proto"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+python_library_host {
+    name: "linker_config_proto",
+    srcs: [
+        "linker_config.proto",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "remove_bond_with_address_map"
+  state: ENABLED
+  permission: READ_ONLY
+}

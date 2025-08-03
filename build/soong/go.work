@@ -1,0 +1,21 @@
+go 1.21
+
+use (
+	.
+	../../external/go-cmp
+	../../external/golang-protobuf
+	../../external/starlark-go
+	../../prebuilts/bazel/common/proto/analysis_v2
+	../../prebuilts/bazel/common/proto/build
+	../blueprint
+)
+
+replace (
+	github.com/golang/protobuf v0.0.0 => ../../external/golang-protobuf
+	github.com/google/blueprint v0.0.0 => ../blueprint
+	github.com/google/go-cmp v0.0.0 => ../../external/go-cmp
+	google.golang.org/protobuf v0.0.0 => ../../external/golang-protobuf
+	prebuilts/bazel/common/proto/analysis_v2 v0.0.0 => ../../prebuilts/bazel/common/proto/analysis_v2
+	prebuilts/bazel/common/proto/build v0.0.0 => ../../prebuilts/bazel/common/proto/build
+	go.starlark.net v0.0.0 => ../../external/starlark-go
+)

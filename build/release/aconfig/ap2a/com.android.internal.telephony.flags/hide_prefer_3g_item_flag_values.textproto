@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "hide_prefer_3g_item"
+  state: ENABLED
+  permission: READ_ONLY
+}

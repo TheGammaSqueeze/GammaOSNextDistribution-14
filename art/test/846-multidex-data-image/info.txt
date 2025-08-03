@@ -1,0 +1,2 @@
+Test the generation of app image at runtime, when the primary APK contains
+multiple dex files.

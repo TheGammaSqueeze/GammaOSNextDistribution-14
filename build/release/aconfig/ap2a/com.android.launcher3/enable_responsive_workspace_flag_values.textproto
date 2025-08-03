@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.launcher3"
+  name: "enable_responsive_workspace"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,12 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_test_host {
+    name: "py_dont_add_top_level_dirs_test",
+    main: "main.py",
+    srcs: [
+        "main.py",
+        "mypkg/mymodule.py",
+    ],
+}

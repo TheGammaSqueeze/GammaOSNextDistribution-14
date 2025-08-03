@@ -1,0 +1,206 @@
+# Use the target platform (android_x86, android_arm) in the bazel-out/ output
+# directory name fragment instead of the CPU (darwin, k8). This avoids
+# thrashing the output directory when switching between top level target
+# --platforms values.
+build --experimental_platform_in_output_dir
+
+# Use toolchain resolution to find the cc toolchain.
+build --incompatible_enable_cc_toolchain_resolution
+
+# Ensure that the host_javabase always use the checked-in JDK.
+build --tool_java_runtime_version=jdk17
+build --java_runtime_version=jdk17
+
+# Lock down the PATH variable in actions to /usr/bin and /usr/local/bin.
+build --experimental_strict_action_env
+
+# Explicitly allow unresolved symlinks (it's an experimental Bazel feature)
+build --experimental_allow_unresolved_symlinks
+
+# Enable SCL because some files are shared between bazel and make/soong
+common --experimental_enable_scl_dialect
+
+# Enable usage of experimental cc-related build APIs
+common --experimental_cc_shared_library
+build --experimental_starlark_cc_import
+
+# Do not enable BzlMod as the migration to bzlmod has not been done yet
+common --noenable_bzlmod
+
+# Do not tokenize copts, other than strings that consist of a single Make
+# variable.  This prevents the need to double-escape characters like backslashes
+# and quotes in copts.
+build --features no_copts_tokenization
+
+# Disable local cpp toolchain detection, as it is explicitly declared in AOSP.
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+build --proto_compiler=//external/protobuf:aprotoc
+
+# Disable sandboxing for CppCompile actions, as headers are not fully specified.
+# TODO(b/186116353): This is a temporary fix, as appropriately-sandboxed actions
+# are a long term goal.
+build --strategy=CppCompile=standalone
+
+# Enable use of the implementation_deps attribute in native cc rules
+build --experimental_cc_implementation_deps
+
+# Use the llvm_coverage_map_format feature to turn on native code coverage.
+build --experimental_use_llvm_covmap
+
+# Always emit the stdout of failing tests as they should be emphasized. (b/247516541)
+test --test_output=errors
+
+# Enable building targets in //external:__subpackages__.
+common --experimental_sibling_repository_layout
+common --experimental_disable_external_package
+
+# Disable all repository_ctx.download calls.
+common --repository_disable_download
+
+# Increase refresh rate of command line UI for improved perceived responsiveness.
+common --show_progress_rate_limit=0.05
+
+# These are disabled when running under soong_ui (default = auto). Force enable them here.
+common --color=yes
+common --curses=yes
+
+# Configurations specific to CI builds, generally to improve signal-to-noise ratio in server logs.
+common:ci --color=yes
+common:ci --curses=no
+common:ci --show_progress_rate_limit=5
+common:ci --noshow_loading_progress
+# Show the full set of flags for observability and debuggability.
+common:ci --announce_rc
+build:ci --verbose_failures
+test:ci --keep_going
+
+# Support a local user-specific bazelrc file.
+try-import %workspace%/user.bazelrc
+
+# Get rid no-op "affected by Starlark transition" config when label-based flag
+# (i.e. //command_line_option:fdo_profile) is set back to None
+build --experimental_output_directory_naming_scheme=diff_against_baseline
+common --experimental_google_legacy_api
+build --android_sdk=//prebuilts/sdk:android_sdk
+build --incompatible_enable_android_toolchain_resolution
+common --experimental_enable_android_migration_apis
+common --incompatible_java_common_parameters
+build --android_databinding_use_v3_4_args
+build --experimental_android_databinding_v2
+build --define=android_incremental_dexing_tool=d8_dexbuilder
+build --define=android_dexmerger_tool=d8_dexmerger
+
+# TODO(b/199038020): Use a python_toolchain when we have Starlark rules_python.
+# This also means all python scripts are using py3 runtime.
+build --python_top=//prebuilts/build-tools:python3
+build --noincompatible_use_python_toolchains
+
+
+# Enable optimization compilation mode to build cc with fdo
+# https://github.com/bazelbuild/bazel/blob/de7b26acfdfcd9c36ec957305a889ac29f0da30e/src/main/java/com/google/devtools/build/lib/rules/cpp/FdoHelper.java#L55
+build --compilation_mode=opt
+
+common --incompatible_remove_rule_name_parameter=false
+
+common --override_repository=rules_java_builtin=%workspace%/external/bazelbuild-rules_java
+
+# TODO(b/264304464): Remove when bugs with java_binary starlark impl are fixed.
+
+common --experimental_builtins_injection_override=-java_binary
+
+common --experimental_java_library_export
+
+# Set writable bit for all bazel outputs. This makes it easy to remove
+# the output directory and its contents after a build (using `rm`).
+build --experimental_writable_outputs
+
+# Make the Linux sandbox work under /tmp
+build --incompatible_sandbox_hermetic_tmp
+
+# TODO(b/275690057, b/275727890): Remove this and fix cc_shared_library usage proper.
+build --noexperimental_link_static_libraries_once
+
+# native.py rules are being ported to Starlark: https://github.com/bazelbuild/bazel/issues/15897
+#
+# TODO(b/200202912): Resolve/delete this when rules_python is pulled into AOSP.
+#
+# Need this, otherwise:
+#
+# ERROR: .. in py_runtime rule //prebuilts/build-tools:python2:
+# Traceback (most recent call last):
+# 	File "/virtual_builtins_bzl/common/python/py_runtime_rule.bzl", line 24, column 25, in _py_runtime_impl
+# 	File "/virtual_builtins_bzl/common/python/common.bzl", line 509, column 13, in check_native_allowed
+# Error in fail: //prebuilts/build-tools:python2 not allowed to use native.py_runtime
+# Generated by: py_runtime(name=python2) in prebuilts/build-tools/BUILD.bazel:63:11
+# Allowlist: no allowlist specified; all disallowed; specify one with --python_native_rules_allowlist
+# Migrate to using @rules_python, see https://github.com/bazelbuild/bazel/issues/17773
+# FIXCMD: add_python_loads --target=//prebuilts/build-tools:python2 --rule=py_runtime --generator_name=python2 --location=prebuilts/build-tools/BUILD.bazel:63:11
+#
+# See also message in https://github.com/bazelbuild/bazel/commit/2e558ed5dccdcc72622df52bf6d4dfe90ddc390c
+build --noincompatible_python_disallow_native_rules
+
+# Google internal operations
+try-import %workspace%/vendor/google/tools/soong_config/googler.bazelrc
+
+build --incompatible_visibility_private_attributes_at_definition
+
+# Some targets in rules_go use config_setting(s) that are not visible to them
+# TODO -  b/289074954: Fix the visibility defs in rules_go and re-enable this enforcement.
+build --incompatible_enforce_config_setting_visibility=false
+
+# By default, b test will run all tests regardless of deviceless or device variants.
+# Use these configs to filter the tests to run, e.g. b test //system/... --config=deviceless_tests
+# The filter value is the name of the rule, but without the "_test" suffix.
+test:deviceless_tests --test_lang_filters=tradefed_deviceless
+test:device_tests --test_lang_filters=tradefed_device_driven,tradefed_host_driven_device
+
+# Supporting cgo for building go code is not required
+# Disable it explcitly to prevent issues with C toolchain setup
+build --@io_bazel_rules_go//go/config:pure
+
+# Breaking bazel feature for the 7/25 release. b/292565910
+common --noincompatible_use_host_features
+
+# Run GoToolchainBinaryBuild in a sandbox
+# Without sandboxing, the action will run in an execution root that contains a symlink to prebuilts/go
+# This causes issues due to two separate factors combining together
+# a. The GOROOT in our checked in go binary is relative to android build top
+# b. GoToolchainBinaryBuild uses GOCACHE=$(mktemp -d)
+build --strategy GoToolchainBinaryBuild=sandboxed
+
+startup --connect_timeout_secs=45
+
+# TODO(b/300376073): Reuse the RBE instance of BES for remote test.
+###### Remote Virtual Device Test Execution Configuration.
+######
+# --flag_alias does not work with --config, has to be defined for top level build command
+build --flag_alias=ab_build_id=//build/bazel_common_rules/rules/remote_device:build_id
+build --flag_alias=ab_target=//build/bazel_common_rules/rules/remote_device:target
+build --flag_alias=ab_branch=//build/bazel_common_rules/rules/remote_device:branch
+
+test:remote_avd  --config=remote
+test:remote_avd  --test_timeout=3600
+test:remote_avd  --//build/bazel_common_rules/rules/remote_device:target_device=//build/bazel_common_rules/rules/remote_device:cf_x86_64_phone
+test:remote_avd  --//build/bazel_common_rules/rules/remote_device:exec_mode=remote
+test:remote_avd --experimental_credential_helper_timeout=60s
+test:remote_avd --google_default_credentials=true
+
+build:remote_avd --spawn_strategy=sandboxed # force disable remote cache, some actions don't work with it
+build:remote_avd --strategy=AbiDump=local # force disable sandbox
+build:remote_avd --strategy=AbiLink=local # force disable sandbox
+build:remote_avd --strategy=AbiDiff=local # force disable sandbox
+test:remote_avd --strategy=DownloadCvd=remote
+# Certain tests are tagged "no-remote", so allow sandboxed fallback to avoid forcing all tests to run remotely.
+test:remote_avd --strategy=TestRunner=remote,sandboxed
+test:remote_avd --test_env=PATH="/bin:/usr/bin/"
+
+# Depending on how many machines are in the remote execution instance, setting
+# this higher can make builds faster by allowing more jobs to run in parallel.
+# Setting it too high can result in jobs that timeout, however, while waiting
+# for a remote machine to execute them.
+test:remote --jobs=200
+test:remote --remote_cache=grpcs://remotebuildexecution.googleapis.com
+test:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
+test:remote --remote_timeout=3600
+

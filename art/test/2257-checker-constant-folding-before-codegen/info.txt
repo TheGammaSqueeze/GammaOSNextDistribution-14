@@ -1,0 +1,1 @@
+Test the benefits of running constant folding after LSE.

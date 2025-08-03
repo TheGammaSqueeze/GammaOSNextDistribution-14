@@ -1,0 +1,19 @@
+// Copyright 2005 The Android Open Source Project
+//
+// Custom version of cp.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary_host {
+
+    srcs: ["acp.c"],
+    cflags: ["-Wall", "-Werror"],
+
+    static_libs: ["libhost"],
+    name: "acp",
+    stl: "none",
+
+}

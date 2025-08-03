@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "refine_preferred_data_profile_selection"
+  state: ENABLED
+  permission: READ_ONLY
+}

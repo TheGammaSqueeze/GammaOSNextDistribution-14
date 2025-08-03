@@ -1,0 +1,2 @@
+Tests that we can redirect branches if the block and its dominator
+have the same condition, or the exact opposite condition.

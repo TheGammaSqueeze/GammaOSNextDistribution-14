@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.widget.flags"
+  name: "enable_platform_widget_differential_motion_fling"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "force_bredr_for_sdp_retry"
+  state: ENABLED
+  permission: READ_ONLY
+}

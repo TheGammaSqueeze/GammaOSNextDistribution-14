@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "close_rfcomm_instead_of_reset"
+  state: ENABLED
+  permission: READ_ONLY
+}

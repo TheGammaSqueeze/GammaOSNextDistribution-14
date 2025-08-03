@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "log_mms_sms_database_access_info"
+  state: ENABLED
+  permission: READ_ONLY
+}

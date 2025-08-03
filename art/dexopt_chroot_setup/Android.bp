@@ -1,0 +1,111 @@
+//
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "dexopt_chroot_setup_defaults",
+    defaults: ["art_defaults"],
+    srcs: [
+        "dexopt_chroot_setup.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "dexopt_chroot_setup-aidl-ndk",
+    ],
+}
+
+art_cc_binary {
+    name: "dexopt_chroot_setup",
+    defaults: ["dexopt_chroot_setup_defaults"],
+    srcs: [
+        "dexopt_chroot_setup_main.cc",
+    ],
+    shared_libs: [
+        "libart",
+        "libartbase",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_dexopt_chroot_setup_tests_defaults",
+    defaults: ["dexopt_chroot_setup_defaults"],
+    static_libs: [
+        "libgmock",
+    ],
+    srcs: [
+        "dexopt_chroot_setup_test.cc",
+    ],
+}
+
+// Version of ART gtest `art_dexopt_chroot_setup_tests` bundled with the ART
+// APEX on target.
+//
+// This test requires the full libbinder_ndk implementation on host, which is
+// not available as a prebuilt on the thin master-art branch. Hence it won't
+// work there, and there's a conditional in Android.gtest.mk to exclude it from
+// test-art-host-gtest.
+art_cc_test {
+    name: "art_dexopt_chroot_setup_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_dexopt_chroot_setup_tests_defaults",
+    ],
+}
+
+// Standalone version of ART gtest `art_dexopt_chroot_setup_tests`, not bundled
+// with the ART APEX on target.
+art_cc_test {
+    name: "art_standalone_dexopt_chroot_setup_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_dexopt_chroot_setup_tests_defaults",
+    ],
+}
+
+cc_fuzz {
+    name: "dexopt_chroot_setup_fuzzer",
+    defaults: [
+        "service_fuzzer_defaults",
+        "art_module_source_build_defaults",
+        "dexopt_chroot_setup_defaults",
+    ],
+    host_supported: true,
+    srcs: ["dexopt_chroot_setup_fuzzer.cc"],
+    shared_libs: [
+        "libart",
+        "libartbase",
+        "liblog",
+    ],
+    fuzz_config: {
+        cc: [
+            "art-module-team@google.com",
+        ],
+    },
+}

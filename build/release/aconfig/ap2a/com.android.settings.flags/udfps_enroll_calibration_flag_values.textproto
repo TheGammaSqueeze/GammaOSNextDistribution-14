@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settings.flags"
+  name: "udfps_enroll_calibration"
+  state: ENABLED
+  permission: READ_ONLY
+}

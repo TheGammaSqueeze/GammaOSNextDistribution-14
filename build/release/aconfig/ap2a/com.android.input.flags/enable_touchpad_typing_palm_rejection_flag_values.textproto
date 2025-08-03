@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_touchpad_typing_palm_rejection"
+  state: ENABLED
+  permission: READ_ONLY
+}

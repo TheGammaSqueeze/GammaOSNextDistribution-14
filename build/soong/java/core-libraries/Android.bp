@@ -1,0 +1,577 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Definitions for building the Android core libraries, i.e. ART, I18n and
+// Conscrypt.
+//
+// These are here as the definitions are used by the build itself and include
+// parts from all three of those modules.
+//
+
+// A stubs target containing the parts of the public SDK API provided by the
+// core libraries.
+//
+// Don't use this directly, use "sdk_version: core_current".
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+dist_targets = [
+    "sdk",
+    "win_sdk",
+]
+
+java_defaults {
+    name: "core.current.stubs.defaults",
+    visibility: ["//visibility:public"],
+    sdk_version: "none",
+    system_modules: "none",
+}
+
+java_library {
+    name: "core.current.stubs.from-source",
+    defaults: [
+        "core.current.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs",
+        "conscrypt.module.public.api.stubs",
+        "i18n.module.public.api.stubs",
+    ],
+}
+
+java_api_library {
+    name: "core.current.stubs.from-text",
+    api_surface: "core",
+    api_contributions: [
+        "art.module.public.api.stubs.source.api.contribution",
+        "conscrypt.module.public.api.stubs.source.api.contribution",
+        "i18n.module.public.api.stubs.source.api.contribution",
+    ],
+    libs: [
+        "stub-annotations",
+    ],
+    enable_validation: false,
+    stubs_type: "everything",
+}
+
+java_library {
+    name: "core.current.stubs",
+    defaults: [
+        "core.current.stubs.defaults",
+    ],
+    static_libs: [
+        "core.current.stubs.from-source",
+    ],
+    product_variables: {
+        build_from_text_stub: {
+            static_libs: [
+                "core.current.stubs.from-text",
+            ],
+            exclude_static_libs: [
+                "core.current.stubs.from-source",
+            ],
+        },
+    },
+}
+
+java_library {
+    name: "core.current.stubs.exportable.from-source",
+    defaults: [
+        "core.current.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs.exportable",
+        "conscrypt.module.public.api.stubs.exportable",
+        "i18n.module.public.api.stubs.exportable",
+    ],
+    dist: {
+        targets: dist_targets,
+        dest: "core.current.stubs.jar",
+    },
+}
+
+java_library {
+    name: "core.current.stubs.exportable",
+    defaults: [
+        "core.current.stubs.defaults",
+    ],
+    static_libs: [
+        "core.current.stubs.exportable.from-source",
+    ],
+}
+
+// Distributed with the SDK for turning into system modules to compile apps
+// against.
+//
+// Also, produces dist files that are used by the
+// prebuilts/sdk/update_prebuilts.py script to update the prebuilts/sdk
+// directory.
+java_library {
+    name: "core-current-stubs-for-system-modules",
+    visibility: ["//development/sdk"],
+    static_libs: [
+        "core.current.stubs",
+        // This one is not on device but it's needed when javac compiles code
+        // containing lambdas.
+        "core-lambda-stubs-for-system-modules",
+    ],
+    sdk_version: "none",
+    system_modules: "none",
+    dists: [
+        {
+            // Legacy dist location for the public file.
+            dest: "core-for-system-modules.jar",
+            targets: dist_targets,
+        },
+        {
+            dest: "system-modules/public/core-for-system-modules.jar",
+            targets: dist_targets,
+        },
+    ],
+}
+
+// Defaults module to strip out android annotations
+java_defaults {
+    name: "system-modules-no-annotations",
+    sdk_version: "none",
+    system_modules: "none",
+    jarjar_rules: "jarjar-strip-annotations-rules.txt",
+}
+
+// Same as core-current-stubs-for-system-modules, but android annotations are
+// stripped.
+java_library {
+    name: "core-current-stubs-for-system-modules-no-annotations",
+    visibility: ["//development/sdk"],
+    defaults: [
+        "system-modules-no-annotations",
+    ],
+    static_libs: [
+        "core-current-stubs-for-system-modules",
+    ],
+    dists: [
+        {
+            // Legacy dist location for the public file.
+            dest: "core-for-system-modules-no-annotations.jar",
+            targets: dist_targets,
+        },
+        {
+            dest: "system-modules/public/core-for-system-modules-no-annotations.jar",
+            targets: dist_targets,
+        },
+    ],
+}
+
+// Used when compiling higher-level code against core.current.stubs.
+java_system_modules {
+    name: "core-public-stubs-system-modules",
+    visibility: ["//visibility:public"],
+    libs: [
+        "core-current-stubs-for-system-modules-no-annotations",
+    ],
+}
+
+java_defaults {
+    name: "core.module_lib.stubs.defaults",
+    visibility: ["//visibility:private"],
+    sdk_version: "none",
+    system_modules: "none",
+}
+
+// A stubs target containing the parts of the public SDK & @SystemApi(MODULE_LIBRARIES) API
+// provided by the core libraries.
+//
+// Don't use this directly, use "sdk_version: module_current".
+java_library {
+    name: "core.module_lib.stubs",
+    defaults: [
+        "core.module_lib.stubs.defaults",
+    ],
+    static_libs: [
+        "core.module_lib.stubs.from-source",
+    ],
+    product_variables: {
+        build_from_text_stub: {
+            static_libs: [
+                "core.module_lib.stubs.from-text",
+            ],
+            exclude_static_libs: [
+                "core.module_lib.stubs.from-source",
+            ],
+        },
+    },
+}
+
+java_library {
+    name: "core.module_lib.stubs.from-source",
+    defaults: [
+        "core.module_lib.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs.module_lib",
+
+        // Replace the following with the module-lib correspondence when Conscrypt or i18N module
+        // provides @SystemApi(MODULE_LIBRARIES). Currently, assume that only ART module provides
+        // @SystemApi(MODULE_LIBRARIES).
+        "conscrypt.module.public.api.stubs",
+        "i18n.module.public.api.stubs",
+    ],
+}
+
+java_api_library {
+    name: "core.module_lib.stubs.from-text",
+    api_surface: "module-lib",
+    api_contributions: [
+        "art.module.public.api.stubs.source.api.contribution",
+        "art.module.public.api.stubs.source.system.api.contribution",
+        "art.module.public.api.stubs.source.module_lib.api.contribution",
+
+        // Add the module-lib correspondence when Conscrypt or i18N module
+        // provides @SystemApi(MODULE_LIBRARIES). Currently, assume that only ART module provides
+        // @SystemApi(MODULE_LIBRARIES).
+        "conscrypt.module.public.api.stubs.source.api.contribution",
+        "i18n.module.public.api.stubs.source.api.contribution",
+    ],
+    libs: [
+        "stub-annotations",
+    ],
+    visibility: ["//visibility:private"],
+    stubs_type: "everything",
+}
+
+// Produces a dist file that is used by the
+// prebuilts/sdk/update_prebuilts.py script to update the prebuilts/sdk
+// directory.
+java_library {
+    name: "core-module-lib-stubs-for-system-modules",
+    visibility: ["//visibility:private"],
+    static_libs: [
+        "core.module_lib.stubs",
+        // This one is not on device but it's needed when javac compiles code
+        // containing lambdas.
+        "core-lambda-stubs-for-system-modules",
+    ],
+    sdk_version: "none",
+    system_modules: "none",
+    dist: {
+        dest: "system-modules/module-lib/core-for-system-modules.jar",
+        targets: dist_targets,
+    },
+}
+
+// Same as core-module-lib-stubs-for-system-modules, but android annotations are
+// stripped. This is used by the Java toolchain, while the annotated stub is to
+// be used by Kotlin one.
+java_library {
+    name: "core-module-lib-stubs-for-system-modules-no-annotations",
+    visibility: ["//visibility:private"],
+    defaults: [
+        "system-modules-no-annotations",
+    ],
+    static_libs: [
+        "core-module-lib-stubs-for-system-modules",
+    ],
+    dist: {
+        dest: "system-modules/module-lib/core-for-system-modules-no-annotations.jar",
+        targets: dist_targets,
+    },
+}
+
+// Used when compiling higher-level code with sdk_version "module_current"
+java_system_modules {
+    name: "core-module-lib-stubs-system-modules",
+    libs: [
+        "core-module-lib-stubs-for-system-modules-no-annotations",
+    ],
+    visibility: ["//visibility:public"],
+}
+
+// Ideally this should be a restricted allowlist but there are hundreds of modules that depend on
+// this.
+// TODO(http://b/134561230) - limit the number of dependents on this.
+core_platform_visibility = ["//visibility:public"]
+
+// Libraries containing the core platform API stubs for the core libraries.
+//
+// Although this stubs library is primarily used by the Java compiler / build to indicate
+// the core platform API surface area, compile_dex: true is used so that the Core Platform
+// API annotations are available to the dex tools that enable enforcement of runtime
+// accessibility. b/119068555
+java_library {
+    name: "legacy.core.platform.api.stubs.from-source",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs.module_lib",
+        "conscrypt.module.platform.api.stubs",
+        "legacy.i18n.module.platform.api.stubs",
+    ],
+}
+
+java_library {
+    name: "legacy.core.platform.api.stubs.exportable.from-source",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs.exportable.module_lib",
+        "conscrypt.module.platform.api.stubs.exportable",
+        "legacy.i18n.module.platform.api.stubs.exportable",
+    ],
+}
+
+java_defaults {
+    name: "android_core_platform_stubs_current_contributions",
+    api_surface: "core_platform",
+    api_contributions: [
+        "art.module.public.api.stubs.source.api.contribution",
+        "art.module.public.api.stubs.source.system.api.contribution",
+        "art.module.public.api.stubs.source.module_lib.api.contribution",
+        "conscrypt.module.platform.api.stubs.source.api.contribution",
+        "i18n.module.public.api.stubs.source.api.contribution",
+    ],
+}
+
+java_api_library {
+    name: "legacy.core.platform.api.stubs.from-text",
+    api_surface: "core_platform",
+    defaults: [
+        "android_core_platform_stubs_current_contributions",
+    ],
+    api_contributions: [
+        "legacy.i18n.module.platform.api.stubs.source.api.contribution",
+    ],
+    libs: [
+        "stub-annotations",
+    ],
+    stubs_type: "everything",
+}
+
+java_library {
+    name: "legacy.core.platform.api.stubs",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "legacy.core.platform.api.stubs.from-source",
+    ],
+    product_variables: {
+        build_from_text_stub: {
+            static_libs: [
+                "legacy.core.platform.api.stubs.from-text",
+            ],
+            exclude_static_libs: [
+                "legacy.core.platform.api.stubs.from-source",
+            ],
+        },
+    },
+}
+
+java_library {
+    name: "legacy.core.platform.api.stubs.exportable",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "legacy.core.platform.api.stubs.exportable.from-source",
+    ],
+}
+
+java_defaults {
+    name: "core.platform.api.stubs.defaults",
+    hostdex: true,
+    compile_dex: true,
+
+    sdk_version: "none",
+    system_modules: "none",
+    patch_module: "java.base",
+}
+
+// Same as legacy.core.platform.api.stubs, but android annotations are
+// stripped. This is used by the Java toolchain, while the annotated stub is to
+// be used by Kotlin one.
+java_library {
+    name: "legacy.core.platform.api.no.annotations.stubs",
+    visibility: core_platform_visibility,
+    defaults: [
+        "system-modules-no-annotations",
+    ],
+    hostdex: true,
+    compile_dex: true,
+
+    static_libs: [
+        "legacy.core.platform.api.stubs",
+    ],
+    patch_module: "java.base",
+}
+
+java_library {
+    name: "stable.core.platform.api.stubs.from-source",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "art.module.public.api.stubs.module_lib",
+        // conscrypt only has a stable version, so it is okay to depend on it here:
+        "conscrypt.module.platform.api.stubs",
+        "stable.i18n.module.platform.api.stubs",
+    ],
+}
+
+java_api_library {
+    name: "stable.core.platform.api.stubs.from-text",
+    api_surface: "core_platform",
+    defaults: [
+        "android_core_platform_stubs_current_contributions",
+    ],
+    api_contributions: [
+        "stable.i18n.module.platform.api.stubs.source.api.contribution",
+    ],
+    libs: [
+        "stub-annotations",
+    ],
+    stubs_type: "everything",
+}
+
+java_library {
+    name: "stable.core.platform.api.stubs",
+    visibility: core_platform_visibility,
+    defaults: [
+        "core.platform.api.stubs.defaults",
+    ],
+    static_libs: [
+        "stable.core.platform.api.stubs.from-source",
+    ],
+    product_variables: {
+        build_from_text_stub: {
+            static_libs: [
+                "stable.core.platform.api.stubs.from-text",
+            ],
+            exclude_static_libs: [
+                "stable.core.platform.api.stubs.from-source",
+            ],
+        },
+    },
+}
+
+// Same as stable.core.platform.api.stubs, but android annotations are
+// stripped. This is used by the Java toolchain, while the annotated stub is to
+// be used by Kotlin one.
+java_library {
+    name: "stable.core.platform.api.no.annotations.stubs",
+    visibility: core_platform_visibility,
+    defaults: [
+        "system-modules-no-annotations",
+    ],
+    hostdex: true,
+    compile_dex: true,
+
+    static_libs: [
+        "stable.core.platform.api.stubs",
+    ],
+    patch_module: "java.base",
+}
+
+// Used when compiling higher-level code against *.core.platform.api.stubs.
+java_system_modules {
+    name: "legacy-core-platform-api-stubs-system-modules",
+    visibility: core_platform_visibility,
+    libs: [
+        "legacy.core.platform.api.no.annotations.stubs",
+        // This one is not on device but it's needed when javac compiles code
+        // containing lambdas.
+        "core-lambda-stubs-for-system-modules",
+    ],
+}
+
+java_system_modules {
+    name: "stable-core-platform-api-stubs-system-modules",
+    visibility: core_platform_visibility,
+    libs: [
+        "stable.core.platform.api.no.annotations.stubs",
+        // This one is not on device but it's needed when javac compiles code
+        // containing lambdas.
+        "core-lambda-stubs-for-system-modules",
+    ],
+}
+
+// Used when compiling higher-level code against art.module.public.api.stubs.
+// This abstraction should come from the inner tree linking against the stubs
+// and not from an "sdk", since parts of this abstraction do not belong to an
+// official API (e.g. stub-annotations).
+//
+// This is only intended for use within core libraries and must not be used
+// from outside.
+java_system_modules {
+    name: "art-module-public-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+        "//external/wycheproof",
+    ],
+    libs: [
+        "art.module.public.api.stubs",
+        // This one is not on device but it's needed when javac compiles code
+        // containing lambdas.
+        "core-lambda-stubs-for-system-modules",
+
+        // Ensure that core libraries that depend on the public API can access
+        // the UnsupportedAppUsage, CorePlatformApi and IntraCoreApi
+        // annotations.
+        "art.module.api.annotations.for.system.modules",
+    ],
+}
+
+// Used when compiling higher-level code against art.module.public.api.stubs.module_lib.
+//
+// This is only intended for use within core libraries and must not be used
+// from outside.
+java_system_modules {
+    name: "art-module-lib-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+    ],
+    libs: [
+        "art.module.public.api.stubs.module_lib",
+    ],
+}
+
+// Used when compiling against art.module.intra.core.api.stubs.
+java_system_modules {
+    name: "art-module-intra-core-api-stubs-system-modules",
+    visibility: [
+        "//art/build/sdk",
+        "//external/bouncycastle",
+        "//external/conscrypt",
+        "//external/icu/android_icu4j",
+    ],
+    libs: [
+        // The intra core API stubs library.
+        "art.module.intra.core.api.stubs",
+
+        // Additional classes needed by javac but which are not present in the stubs.
+        "art-module-intra-core-api-stubs-system-modules-lib",
+    ],
+}

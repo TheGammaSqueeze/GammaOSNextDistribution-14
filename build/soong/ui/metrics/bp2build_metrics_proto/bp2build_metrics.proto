@@ -1,0 +1,105 @@
+// Copyright 2021 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package soong_build_bp2build_metrics;
+option go_package = "android/soong/ui/metrics/bp2build_metrics_proto";
+
+message Bp2BuildMetrics {
+  // Total number of Soong modules converted to generated targets
+  uint64 generatedModuleCount = 1;
+
+  // Total number of Soong modules converted to handcrafted targets
+  uint64 handCraftedModuleCount = 2;
+
+  // Total number of unconverted Soong modules
+  uint64 unconvertedModuleCount = 3;
+
+  // Counts of symlinks in synthetic bazel workspace
+  uint64 workspaceSymlinkCount= 9;
+
+  // Counts of mkdir calls during creation of synthetic bazel workspace
+  uint64 workspaceMkDirCount= 10;
+
+  // Counts of generated Bazel targets per Bazel rule class
+  map<string, uint64> ruleClassCount = 4;
+
+  // List of converted modules
+  repeated string convertedModules = 5;
+
+  // Unconverted modules, mapped to the reason the module was not converted.
+  map<string, UnconvertedReason> unconvertedModules = 11;
+
+  // Counts of converted modules by module type.
+  map<string, uint64> convertedModuleTypeCount = 6;
+
+  // Counts of total modules by module type.
+  map<string, uint64> totalModuleTypeCount = 7;
+
+  // List of traced runtime events of bp2build, useful for tracking bp2build
+  // runtime.
+  repeated Event events = 8;
+}
+
+// Traced runtime event of bp2build.
+message Event {
+  // The event name.
+  string name = 1;
+
+  // The absolute start time of the event
+  // The number of nanoseconds elapsed since January 1, 1970 UTC.
+  uint64 start_time = 2;
+
+  // The real running time.
+  // The number of nanoseconds elapsed since start_time.
+  uint64 real_time = 3;
+}
+
+message UnconvertedReason {
+  // The type of reason that the module could not be converted.
+  UnconvertedReasonType type = 1;
+
+  // Descriptive details describing why the module could not be converted.
+  // This detail should be kept very short and should be in the context of
+  // the type. (Otherwise, this would significantly bloat metrics.)
+  string detail = 2;
+}
+
+enum UnconvertedReasonType {
+  // Bp2build does not know how to convert this specific module for some reason
+  // not covered by other reason types. The reason detail should explain the
+  // specific issue.
+  UNSUPPORTED = 0;
+
+  // The module was already defined in a BUILD file available in the source tree.
+  DEFINED_IN_BUILD_FILE = 1;
+
+  // The module was explicitly denylisted by name.
+  DENYLISTED = 2;
+
+  // The module's type has no bp2build implementation.
+  TYPE_UNSUPPORTED = 3;
+
+  // The module has a property not yet supported. The detail field should
+  // name the unsupported property name.
+  PROPERTY_UNSUPPORTED = 4;
+
+  // The module has an unconverted dependency. The detail should consist of
+  // the name of the unconverted module.
+  UNCONVERTED_DEP = 5;
+
+  // The module has a source file with the same name as the module itself.
+  SRC_NAME_COLLISION = 6;
+}

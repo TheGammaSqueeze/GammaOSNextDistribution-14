@@ -1,0 +1,3 @@
+Two regression tests:
+1) Regression test to honor the write barrier kind and set the dirty bit.
+2) Regression test for skipping a needed write barrier at runtime.

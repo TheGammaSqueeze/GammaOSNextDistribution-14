@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.companion.virtual"
+  name: "dump_history"
+  state: ENABLED
+  permission: READ_ONLY
+}

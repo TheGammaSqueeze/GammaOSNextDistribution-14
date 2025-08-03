@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+DeprecationMismatch: com.android.server.art.ArtManagerLocal#ArtManagerLocal():
+    Constructor com.android.server.art.ArtManagerLocal.ArtManagerLocal(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+
+
+UnflaggedApi: com.android.server.art.model.DexoptResult#EXTENDED_BAD_EXTERNAL_PROFILE:
+    New API must be flagged with @FlaggedApi: field com.android.server.art.model.DexoptResult.EXTENDED_BAD_EXTERNAL_PROFILE
+UnflaggedApi: com.android.server.art.model.DexoptResult#EXTENDED_SKIPPED_NO_DEX_CODE:
+    New API must be flagged with @FlaggedApi: field com.android.server.art.model.DexoptResult.EXTENDED_SKIPPED_NO_DEX_CODE
+UnflaggedApi: com.android.server.art.model.DexoptResult#EXTENDED_SKIPPED_STORAGE_LOW:
+    New API must be flagged with @FlaggedApi: field com.android.server.art.model.DexoptResult.EXTENDED_SKIPPED_STORAGE_LOW
+UnflaggedApi: com.android.server.art.model.DexoptResult.DexContainerFileDexoptResult#getExtendedStatusFlags():
+    New API must be flagged with @FlaggedApi: method com.android.server.art.model.DexoptResult.DexContainerFileDexoptResult.getExtendedStatusFlags()
+UnflaggedApi: com.android.server.art.model.DexoptResult.DexContainerFileDexoptResult#getExternalProfileErrors():
+    New API must be flagged with @FlaggedApi: method com.android.server.art.model.DexoptResult.DexContainerFileDexoptResult.getExternalProfileErrors()

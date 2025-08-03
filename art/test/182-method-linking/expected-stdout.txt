@@ -1,0 +1,50 @@
+Calling pkg1.A.foo on pkg1.A
+pkg1.A.foo
+Calling pkg1.A.foo on pkg2.B
+pkg1.A.foo
+Calling pkg2.B.foo on pkg2.B
+pkg2.B.foo
+Calling pkg1.A.foo on pkg1.C
+pkg1.C.foo
+Calling pkg2.B.foo on pkg1.C
+pkg2.B.foo
+Calling pkg1.C.foo on pkg1.C
+pkg1.C.foo
+Calling pkg1.A.foo on pkg2.D
+pkg1.C.foo
+Calling pkg2.B.foo on pkg2.D
+pkg2.D.foo
+Calling pkg1.C.foo on pkg2.D
+pkg1.C.foo
+Calling pkg2.D.foo on pkg2.D
+pkg2.D.foo
+Calling pkg1.A.foo on pkg1.C2
+pkg1.C2.foo
+Calling pkg2.B.foo on pkg1.C2
+pkg2.B.foo
+Calling pkg1.C2.foo on pkg1.C2
+pkg1.C2.foo
+Calling pkg1.A.foo on pkg2.D2
+pkg2.D2.foo
+Calling pkg2.B.foo on pkg2.D2
+pkg2.D2.foo
+Calling pkg1.C2.foo on pkg2.D2
+pkg2.D2.foo
+Calling pkg2.D2.foo on pkg2.D2
+pkg2.D2.foo
+Calling pkg1.I1.foo on pkg1.C2I1
+pkg1.C2.foo
+Calling pkg2.I2.foo on pkg1.C2I2
+pkg1.C2.foo
+Calling pkg1.I1.foo on pkg2.D2I1
+pkg2.D2.foo
+Calling pkg2.I2.foo on pkg2.D2I2
+pkg2.D2.foo
+Calling pkg1.I1.foo on pkg1.CXI1
+Caught IllegalAccessError
+Calling pkg2.I2.foo on pkg1.CXI2
+Caught IllegalAccessError
+Calling pkg1.I1.foo on pkg2.DXI1
+Caught IllegalAccessError
+Calling pkg2.I2.foo on pkg2.DXI2
+Caught IllegalAccessError

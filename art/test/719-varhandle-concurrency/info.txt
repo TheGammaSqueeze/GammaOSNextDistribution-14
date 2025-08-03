@@ -1,0 +1,1 @@
+Tests concurrency guarantees of VarHandles. Written to test the core issue in b/208156527.

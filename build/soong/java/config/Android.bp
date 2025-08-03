@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-java-config",
+    pkgPath: "android/soong/java/config",
+    deps: [
+        "blueprint-proptools",
+        "soong-android",
+        "soong-remoteexec",
+    ],
+    srcs: [
+        "config.go",
+        "droidstubs.go",
+        "error_prone.go",
+        "kotlin.go",
+        "makevars.go",
+    ],
+}

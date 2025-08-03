@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.systemui"
+  name: "unfold_animation_background_progress"
+  state: ENABLED
+  permission: READ_ONLY
+}

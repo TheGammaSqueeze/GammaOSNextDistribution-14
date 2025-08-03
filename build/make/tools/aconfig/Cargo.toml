@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+    "aconfig",
+    "aconfig_protos",
+    "aconfig_storage_file",
+    "aflags",
+    "printflags"
+]
+
+resolver = "2"

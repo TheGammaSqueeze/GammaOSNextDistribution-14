@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_pointer_choreographer"
+  state: ENABLED
+  permission: READ_ONLY
+}

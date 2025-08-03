@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "connected_display"
+  state: ENABLED
+  permission: READ_ONLY
+}

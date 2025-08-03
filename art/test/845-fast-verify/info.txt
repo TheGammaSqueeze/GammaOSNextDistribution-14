@@ -1,0 +1,46 @@
+Regression test for the combination of dex2oat using:
+- jar with multidex
+- vdex file where one dex file fails to fast verify (for example because of a
+  boot classpath change)
+- dex files being compiled individually
+
+We used to crash in CompilerDriver::FastVerify, assuming that only FastVerify
+can update the compiled_classes_ map. However, this isn't the case if one of the
+dex file ended up needing full verification.
+
+We need prebuilts of the .jar and .dm file as we rely on the bootclasspath to
+change which isn't expressable in a run-test. So we locally modified
+android.system.Int32Ref to inherit java.util.HashMap.
+
+The code that was used to generate the prebuilts is as follows:
+
+
+file Main.java in classes.dex:
+
+import java.util.HashMap;
+import android.system.Int32Ref;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    try {
+      FailVerification.foo();
+      throw new Exception("Expected error");
+    } catch (Error expected) {
+    }
+  }
+}
+
+class FailVerification extends Foo {
+
+  public static void foo() {
+    Int32Ref ref = new Int32Ref(42);
+    takeHashMap(ref);
+  }
+
+  public static void takeHashMap(HashMap m) {}
+}
+
+file Foo.java in classes2.dex:
+
+public class Foo {
+}

@@ -1,0 +1,662 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Module-specific defaults.
+//
+// For module X, if we need to build it both as a library and an executable:
+//  - A default rule `releasetools_X_defaults` is created, which lists `srcs`, `libs` and
+//    `required` properties.
+//  - `python_library_host` and `python_binary_host` are created by listing
+//    `releasetools_X_defaults` in their defaults.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "releasetools_add_img_to_target_files_defaults",
+    srcs: [
+        "add_img_to_target_files.py",
+    ],
+    libs: [
+        "ota_metadata_proto",
+        "releasetools_apex_utils",
+        "releasetools_build_image",
+        "releasetools_build_super_image",
+        "releasetools_common",
+        "libavbtool",
+    ],
+    required: [
+        "care_map_generator",
+    ],
+}
+
+python_defaults {
+    name: "releasetools_build_image_defaults",
+    srcs: [
+        "build_image.py",
+    ],
+    libs: [
+        "releasetools_common",
+        "releasetools_fsverity_metadata_generator",
+        "releasetools_verity_utils",
+    ],
+    required: [
+        "blk_alloc_to_base_fs",
+        "e2fsck",
+        "fsck.erofs",
+        "img2simg",
+        "mkfs.erofs",
+        "mkuserimg_mke2fs",
+        "simg2img",
+        "tune2fs",
+        "mkf2fsuserimg",
+        "fsck.f2fs",
+    ],
+}
+
+python_defaults {
+    name: "releasetools_build_super_image_defaults",
+    srcs: [
+        "build_super_image.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+}
+
+python_defaults {
+    name: "releasetools_img_from_target_files_defaults",
+    srcs: [
+        "img_from_target_files.py",
+    ],
+    libs: [
+        "releasetools_build_super_image",
+        "releasetools_common",
+    ],
+}
+
+python_defaults {
+    name: "releasetools_check_target_files_vintf_defaults",
+    srcs: [
+        "check_target_files_vintf.py",
+    ],
+    libs: [
+        "apex_manifest",
+        "releasetools_common",
+    ],
+    required: [
+        "apexd_host",
+        "checkvintf",
+    ],
+}
+
+python_library_host {
+    name: "ota_metadata_proto",
+    srcs: [
+       "ota_metadata.proto",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}
+
+cc_library_static {
+    name: "ota_metadata_proto_cc",
+    srcs: [
+       "ota_metadata.proto",
+    ],
+    host_supported: true,
+    recovery_available: true,
+    proto: {
+        canonical_path_from_root: false,
+        type: "lite",
+        export_proto_headers: true,
+    },
+}
+
+java_library_static {
+    name: "ota_metadata_proto_java",
+    host_supported: true,
+    proto: {
+        type: "nano",
+    },
+    srcs: ["ota_metadata.proto"],
+    sdk_version: "9",
+    target: {
+        android: {
+            jarjar_rules: "jarjar-rules.txt",
+        },
+        host: {
+            static_libs: ["libprotobuf-java-nano"],
+        },
+    },
+    visibility: ["//frameworks/base:__subpackages__"]
+}
+
+python_defaults {
+    name: "releasetools_ota_from_target_files_defaults",
+    srcs: [
+        "edify_generator.py",
+        "non_ab_ota.py",
+        "ota_from_target_files.py",
+        "target_files_diff.py",
+    ],
+    libs: [
+        "ota_metadata_proto",
+        "releasetools_check_target_files_vintf",
+        "releasetools_common",
+        "releasetools_verity_utils",
+        "apex_manifest",
+        "care_map_proto_py",
+        "ota_utils_lib",
+    ],
+    required: [
+        "apexd_host",
+        "brillo_update_payload",
+        "checkvintf",
+        "lz4",
+        "toybox",
+        "unpack_bootimg",
+        "deapexer",
+    ],
+    target: {
+        darwin: {
+            // required module "brillo_update_payload" is disabled on darwin
+            enabled: false,
+        },
+    },
+}
+
+//
+// Host libraries.
+//
+
+python_library_host {
+    name: "releasetools_add_img_to_target_files",
+    defaults: [
+        "releasetools_add_img_to_target_files_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_apex_utils",
+    srcs: [
+        "apex_utils.py",
+    ],
+    libs: [
+        "apex_manifest",
+        "ota_metadata_proto",
+        "releasetools_common",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_build_image",
+    defaults: [
+        "releasetools_build_image_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_build_super_image",
+    defaults: [
+        "releasetools_build_super_image_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_check_target_files_vintf",
+    defaults: [
+        "releasetools_check_target_files_vintf_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_common",
+    srcs: [
+        "blockimgdiff.py",
+        "common.py",
+        "images.py",
+        "rangelib.py",
+        "sparse_img.py",
+    ],
+    data: [
+        ":zip2zip",
+    ],
+    // Only the tools that are referenced directly are listed as required modules. For example,
+    // `avbtool` is not here, as the script always uses the one from info_dict['avb_avbtool'].
+    required: [
+        "aapt2",
+        "boot_signer",
+        "brotli",
+        "bsdiff",
+        "imgdiff",
+        "lz4",
+        "mkbootfs",
+        "signapk",
+        "toybox",
+        "unpack_bootimg",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_img_from_target_files",
+    defaults: [
+        "releasetools_img_from_target_files_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_ota_from_target_files",
+    defaults: [
+        "releasetools_ota_from_target_files_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_fsverity_metadata_generator",
+    srcs: [
+        "fsverity_metadata_generator.py",
+    ],
+    libs: [
+        "fsverity_digests_proto_python",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_verity_utils",
+    srcs: [
+        "verity_utils.py",
+    ],
+    required: [
+        "append2simg",
+        "build_verity_metadata",
+        "build_verity_tree",
+        "fec",
+    ],
+}
+
+//
+// Host binaries.
+//
+
+python_defaults {
+    name: "releasetools_binary_defaults",
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    // TODO (b/140144201) Build imgdiff from releasetools_common
+    required: [
+        "aapt2",
+        "boot_signer",
+        "brotli",
+        "bsdiff",
+        "deapexer",
+        "imgdiff",
+        "lz4",
+        "mkbootfs",
+        "signapk",
+        "toybox",
+        "unpack_bootimg",
+    ],
+}
+
+python_binary_host {
+    name: "add_img_to_target_files",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_add_img_to_target_files_defaults",
+    ],
+}
+
+python_library_host {
+    name: "ota_utils_lib",
+    srcs: [
+        "ota_utils.py",
+        "payload_signer.py",
+        "ota_signing_utils.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "merge_ota",
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    srcs: [
+        "merge_ota.py",
+    ],
+    libs: [
+        "ota_metadata_proto",
+        "update_payload",
+        "care_map_proto_py",
+        "releasetools_common",
+        "ota_utils_lib",
+    ],
+}
+
+python_binary_host {
+    name: "create_brick_ota",
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    srcs: [
+        "create_brick_ota.py",
+    ],
+    libs: [
+        "ota_utils_lib",
+    ],
+}
+
+python_binary_host {
+    name: "build_image",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_build_image_defaults",
+    ],
+}
+
+python_binary_host {
+    name: "build_super_image",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_build_super_image_defaults",
+    ],
+}
+
+python_binary_host {
+    name: "check_partition_sizes",
+    srcs: [
+        "check_partition_sizes.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+    defaults: [
+        "releasetools_binary_defaults",
+    ],
+}
+
+python_binary_host {
+    name: "check_ota_package_signature",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "check_ota_package_signature.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+    required: [
+        "delta_generator",
+    ],
+    target: {
+        darwin: {
+            // required module "delta_generator" is disabled on darwin
+            enabled: false,
+        },
+    },
+}
+
+python_binary_host {
+    name: "check_target_files_signatures",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "check_target_files_signatures.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+    required: [
+        "aapt2",
+    ],
+}
+
+python_binary_host {
+    name: "check_target_files_vintf",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_check_target_files_vintf_defaults"
+    ],
+}
+
+python_binary_host {
+    name: "img_from_target_files",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_img_from_target_files_defaults",
+    ],
+}
+
+python_defaults {
+    name: "releasetools_find_shareduid_violation_defaults",
+    srcs: [
+        "find_shareduid_violation.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "find_shareduid_violation",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_find_shareduid_violation_defaults",
+    ],
+}
+
+python_library_host {
+    name: "releasetools_find_shareduid_violation",
+    defaults: [
+        "releasetools_find_shareduid_violation_defaults",
+    ],
+}
+
+python_binary_host {
+    name: "make_recovery_patch",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "make_recovery_patch.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "ota_from_target_files",
+    defaults: [
+        "releasetools_binary_defaults",
+        "releasetools_ota_from_target_files_defaults",
+    ],
+}
+
+python_binary_host {
+    name: "ota_from_raw_img",
+    srcs: [
+        "ota_from_raw_img.py",
+    ],
+    main: "ota_from_raw_img.py",
+    defaults: [
+        "releasetools_binary_defaults",
+    ],
+    required: [
+        "delta_generator",
+    ],
+    libs: [
+        "ota_metadata_proto",
+        "releasetools_common",
+        "ota_utils_lib",
+    ],
+}
+
+python_binary_host {
+    name: "ota_package_parser",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "ota_package_parser.py",
+        "rangelib.py",
+    ],
+}
+
+python_binary_host {
+    name: "sparse_img",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "rangelib.py",
+        "sparse_img.py",
+    ],
+}
+
+python_binary_host {
+    name: "sign_apex",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "sign_apex.py",
+    ],
+    libs: [
+        "releasetools_apex_utils",
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "sign_target_files_apks",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "sign_target_files_apks.py",
+        "payload_signer.py",
+        "ota_signing_utils.py",
+    ],
+    libs: [
+        "releasetools_add_img_to_target_files",
+        "releasetools_apex_utils",
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "validate_target_files",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "validate_target_files.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+}
+
+python_binary_host {
+    name: "verity_utils",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "verity_utils.py",
+    ],
+    libs: [
+        "releasetools_common",
+    ],
+    required: [
+        "append2simg",
+        "build_verity_metadata",
+        "build_verity_tree",
+        "fec",
+    ],
+}
+
+python_binary_host {
+    name: "fsverity_metadata_generator",
+    defaults: ["releasetools_binary_defaults"],
+    srcs: [
+        "fsverity_metadata_generator.py",
+    ],
+    required: [
+        "fsverity",
+    ],
+}
+
+//
+// Tests.
+//
+
+python_defaults {
+    name: "releasetools_test_defaults",
+    srcs: [
+        "check_ota_package_signature.py",
+        "check_partition_sizes.py",
+        "check_target_files_signatures.py",
+        "make_recovery_patch.py",
+        "ota_package_parser.py",
+        "sign_apex.py",
+        "sign_target_files_apks.py",
+        "validate_target_files.py",
+        "merge_ota.py",
+        ":releasetools_merge_sources",
+        ":releasetools_merge_tests",
+
+        "test_*.py",
+    ],
+    libs: [
+        "releasetools_add_img_to_target_files",
+        "releasetools_apex_utils",
+        "releasetools_build_image",
+        "releasetools_build_super_image",
+        "releasetools_check_target_files_vintf",
+        "releasetools_common",
+        "releasetools_find_shareduid_violation",
+        "releasetools_img_from_target_files",
+        "releasetools_ota_from_target_files",
+        "releasetools_verity_utils",
+        "update_payload",
+    ],
+    data: [
+        "testdata/**/*",
+        ":com.android.apex.compressed.v1",
+        ":com.android.apex.compressed.v1_original",
+        ":com.android.apex.vendor.foo.with_vintf"
+    ],
+    target: {
+        darwin: {
+            // libs dep "releasetools_ota_from_target_files" is disabled on darwin
+            enabled: false,
+        },
+    },
+    required: [
+        "apexd_host",
+        "deapexer",
+    ],
+}
+
+python_test_host {
+    name: "releasetools_test",
+    defaults: ["releasetools_test_defaults"],
+    main: "test_utils.py",
+    // Don't use embedded_launcher, atest will try (but may fail) to load libc++.so from
+    // host, because the test executable won't be able to find the needed libs via its
+    // runpath.
+    test_options: {
+        unit_test: true,
+    },
+}

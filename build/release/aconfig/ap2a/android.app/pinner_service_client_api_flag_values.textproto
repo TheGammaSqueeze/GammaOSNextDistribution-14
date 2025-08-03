@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.app"
+  name: "pinner_service_client_api"
+  state: ENABLED
+  permission: READ_ONLY
+}

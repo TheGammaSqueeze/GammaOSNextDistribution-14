@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "ignore_bond_type_for_le"
+  state: ENABLED
+  permission: READ_ONLY
+}

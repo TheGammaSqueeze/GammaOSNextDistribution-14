@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.systemui"
+  name: "nssl_falsing_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

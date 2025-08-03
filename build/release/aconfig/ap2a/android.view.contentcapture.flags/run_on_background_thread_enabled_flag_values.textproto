@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.view.contentcapture.flags"
+  name: "run_on_background_thread_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

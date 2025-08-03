@@ -1,0 +1,22 @@
+#!/bin/bash
+
+BUILD_ID="{build_id}"
+ARTIFACT_PATH="{artifact_path}"
+OUTPUT_DIR="{output_dir}"
+BRANCH="{branch}"
+TARGET="{target}"
+
+recipe_file=/tradefed/android_build_downloader/recipe
+cat > "$recipe_file" << EOF
+build_artifact_group {
+    build_id: "$BUILD_ID",
+    branch: "$BRANCH"
+    target: "$TARGET",
+    artifact_path: "$ARTIFACT_PATH"
+}
+
+EOF
+
+/tradefed/android_build_downloader/downloader.sh \
+  --output_dir $OUTPUT_DIR \
+  --recipe_file /tradefed/android_build_downloader/recipe

@@ -1,0 +1,11 @@
+1803948 ./bin/adbd
+772404 ./lib/libcrypto.so
+443480 ./lib/libc++.so
+291756 ./lib/libadb_pairing_connection.so
+174552 ./lib/libbase.so
+124604 ./lib/libadb_pairing_auth.so
+124220 ./lib/libadbconnection_client.so
+60712 ./lib/libcutils.so
+36688 ./lib/libadb_pairing_server.so
+3956 ./lib/libcrypto_utils.so
+181 ./etc/init.rc

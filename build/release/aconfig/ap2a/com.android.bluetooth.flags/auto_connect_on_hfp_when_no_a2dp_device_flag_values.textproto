@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "auto_connect_on_hfp_when_no_a2dp_device"
+  state: ENABLED
+  permission: READ_ONLY
+}

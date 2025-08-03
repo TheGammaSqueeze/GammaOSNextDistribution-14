@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+source $(cd $(dirname $BASH_SOURCE) &> /dev/null && pwd)/../../make/shell_utils.sh
+require_top
+
+aconfig="$ANDROID_SOONG_HOST_OUT"/bin/aconfig
+flags_file="$(getoutdir)"/soong/.intermediates/all_aconfig_declarations.pb
+if [[ ! -f "$aconfig" || ! -f "$flags_file" ]]; then
+   echo "Missing dependencies: please run 'm all_aconfig_declarations' and try again."
+   exit 1
+fi
+$aconfig dump-cache --cache "$flags_file" "$@"

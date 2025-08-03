@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.display.feature.flags"
+  name: "enable_mode_limit_for_external_display"
+  state: ENABLED
+  permission: READ_ONLY
+}

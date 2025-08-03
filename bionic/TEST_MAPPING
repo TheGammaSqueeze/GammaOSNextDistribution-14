@@ -1,0 +1,98 @@
+{
+  "presubmit": [
+    {
+      "name": "bionic-unit-tests"
+    },
+    {
+      "name": "bionic-unit-tests-static"
+    },
+    {
+      "name": "linker-unit-tests"
+    },
+    {
+      "name": "CtsBionicAppTestCases"
+    },
+    {
+      "name": "CtsBionicTestCases"
+    },
+    {
+      "name": "CtsGwpAsanTestCases"
+    },
+    {
+      "name": "CtsTaggingHostTestCases"
+    },
+    {
+      "name": "debuggerd_test"
+    },
+    {
+      "name": "fdtrack_test"
+    },
+    {
+      "name": "gwp_asan_unittest"
+    },
+    {
+      "name": "malloc_debug_unit_tests"
+    },
+    {
+      "name": "malloc_debug_system_tests"
+    },
+    {
+      "name": "malloc_hooks_system_tests"
+    },
+    {
+      "name": "memunreachable_unit_test"
+    },
+    {
+      "name": "toybox-tests"
+    }
+  ],
+  "hwasan-presubmit": [
+    {
+      "name": "bionic-unit-tests"
+    },
+    {
+      "name": "bionic-unit-tests-static"
+    },
+    {
+      "name": "linker-unit-tests"
+    },
+    {
+      "name": "CtsBionicAppTestCases"
+    },
+    {
+      "name": "CtsBionicTestCases"
+    },
+    {
+      "name": "CtsGwpAsanTestCases"
+    },
+    {
+      "name": "debuggerd_test"
+    },
+    {
+      "name": "fdtrack_test"
+    },
+    {
+      "name": "gwp_asan_unittest"
+    },
+    {
+      "name": "malloc_debug_unit_tests"
+    },
+    {
+      "name": "malloc_debug_system_tests"
+    },
+    {
+      "name": "malloc_hooks_system_tests"
+    },
+    {
+      "name": "memunreachable_unit_test"
+    },
+    {
+      "name": "toybox-tests"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsBionicTestCases"
+    }
+  ]
+}

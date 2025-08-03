@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "VtsBootconfigTest"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "VtsBootconfigTest"
+    }
+  ]
+}

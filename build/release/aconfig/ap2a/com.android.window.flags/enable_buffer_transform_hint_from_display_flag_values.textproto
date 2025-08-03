@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "enable_buffer_transform_hint_from_display"
+  state: ENABLED
+  permission: READ_ONLY
+}

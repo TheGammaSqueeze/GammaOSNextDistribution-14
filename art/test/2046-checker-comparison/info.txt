@@ -1,0 +1,1 @@
+Tests that we optimize comparisons where lhs and rhs are the same.

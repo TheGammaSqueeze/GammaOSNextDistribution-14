@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.deviceaswebcam.flags"
+  name: "high_quality_toggle"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,3 @@
+Regression tests for x86-64 bug in bounds check slow path that resulted
+in a live register being clobbered when throwing AIOOBE. The value must
+be correctly preserved for a catch handler in the same method.

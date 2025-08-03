@@ -1,0 +1,4 @@
+JNI_OnLoad called
+Message includes "Too many open files"
+thread run.
+done.

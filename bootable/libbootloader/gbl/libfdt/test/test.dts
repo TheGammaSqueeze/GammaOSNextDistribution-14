@@ -1,0 +1,21 @@
+/dts-v1/;
+
+/ {
+	info = "test device tree";
+
+    dev-1 {};
+
+    dev-2 {
+        dev-2.1 {};
+
+        dev-2.2 {
+            dev-2.2.1 {
+                property-1 = "dev-2.2.1-property-1";
+            };
+        };
+
+        dev-1.3 {};
+    };
+
+    dev-3 {};
+};

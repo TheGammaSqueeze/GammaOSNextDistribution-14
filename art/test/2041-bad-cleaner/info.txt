@@ -1,0 +1,5 @@
+This is an adaptation of 030-bad-finalizers to Java 8 Cleaners, which
+run directly in the ReferenceQueueDaemon. The Cleaner never finishes.
+ART is expected to detect this situation and abort the VM (so you should
+see a message to that effect in the log output).
+

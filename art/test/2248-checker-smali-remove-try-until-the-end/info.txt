@@ -1,0 +1,2 @@
+Smali test checking that we correctly set the domination graph when having a
+try until the end of the method, and the catch doesn't flow to the exit.

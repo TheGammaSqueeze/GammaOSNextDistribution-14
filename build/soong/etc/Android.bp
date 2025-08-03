@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-etc",
+    pkgPath: "android/soong/etc",
+    deps: [
+        "blueprint",
+        "soong",
+        "soong-android",
+        "soong-snapshot",
+    ],
+    srcs: [
+        "prebuilt_etc.go",
+        "snapshot_etc.go",
+        "install_symlink.go",
+    ],
+    testSrcs: [
+        "prebuilt_etc_test.go",
+        "snapshot_etc_test.go",
+        "install_symlink_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

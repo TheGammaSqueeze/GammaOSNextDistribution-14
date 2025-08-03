@@ -1,0 +1,43 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-bp2build",
+    pkgPath: "android/soong/bp2build",
+    srcs: [
+        "androidbp_to_build_templates.go",
+        "build_conversion.go",
+        "bzl_conversion.go",
+        "configurability.go",
+        "constants.go",
+        "conversion.go",
+    ],
+    deps: [
+        "blueprint-bootstrap",
+        "soong-aidl-library",
+        "soong-aconfig",
+        "soong-android",
+        "soong-android-allowlists",
+        "soong-android-soongconfig",
+        "soong-apex",
+        "soong-bazel",
+        "soong-cc",
+        "soong-cc-config",
+        "soong-etc",
+        "soong-genrule",
+        "soong-linkerconfig",
+        "soong-python",
+        "soong-rust",
+        "soong-sh",
+        "soong-shared",
+        "soong-starlark-format",
+        "soong-ui-metrics",
+    ],
+    testSrcs: [
+        "conversion_test.go",
+    ],
+    pluginFor: [
+        "soong_build",
+    ],
+}

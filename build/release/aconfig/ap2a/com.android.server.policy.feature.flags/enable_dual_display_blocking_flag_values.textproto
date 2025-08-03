@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.policy.feature.flags"
+  name: "enable_dual_display_blocking"
+  state: ENABLED
+  permission: READ_ONLY
+}

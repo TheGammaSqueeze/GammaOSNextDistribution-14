@@ -1,0 +1,4 @@
+About to null reference.
+Finalizer started and sleeping briefly...
+Finalizer done snoozing.
+Finalizer sleeping forever now.

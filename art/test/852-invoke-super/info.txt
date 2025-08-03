@@ -1,0 +1,1 @@
+Regression test on checking argument types for unresolved invoke-super.

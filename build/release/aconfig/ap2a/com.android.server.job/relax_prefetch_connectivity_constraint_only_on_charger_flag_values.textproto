@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.job"
+  name: "relax_prefetch_connectivity_constraint_only_on_charger"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,51 @@
+load("//build/bazel_common_rules/rules/remote_device/device:cuttlefish_device.bzl", "cuttlefish_device")
+load("//build/bazel_common_rules/rules/remote_device/device:single_local_device.bzl", "local_device")
+load("//build/bazel_common_rules/rules/remote_device/downloader:download_cvd_artifact.bzl", "download_cvd_artifact")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = "build_id",
+    build_setting_default = "",
+)
+
+string_flag(
+    name = "branch",
+    build_setting_default = "aosp-main",
+)
+
+string_flag(
+    name = "target",
+    build_setting_default = "aosp_cf_x86_64_phone-trunk_staging-userdebug",
+)
+
+string_flag(
+    name = "exec_mode",
+    build_setting_default = "local",
+)
+
+download_cvd_artifact(
+    name = "cvd_artifacts",
+    branch = ":branch",
+    build_id = ":build_id",
+    tags = ["manual"],
+    target = ":target",
+)
+
+cuttlefish_device(
+    name = "cf_x86_64_phone",
+    out = "android_cuttlefish.sh",
+    cvd_build_artifacts = ":cvd_artifacts",
+    tags = ["manual"],
+)
+
+local_device(
+    name = "local_device",
+    out = "single_local_device.sh",
+)
+
+label_flag(
+    name = "target_device",
+    build_setting_default = ":local_device",
+)

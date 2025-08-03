@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "synchronous_bta_sec"
+  state: ENABLED
+  permission: READ_ONLY
+}

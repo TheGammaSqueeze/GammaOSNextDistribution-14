@@ -1,0 +1,2 @@
+Regression test for doing an invokeinterface on a default method whose
+dex method index is greater than the imt size.

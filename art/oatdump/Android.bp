@@ -1,0 +1,241 @@
+//
+// Copyright (C) 2011 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "oatdump-defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: ["oatdump.cc"],
+    header_libs: [
+        "art_cmdlineparser_headers",
+    ],
+}
+
+// Collect all the static defaults and build a host-only static library, which
+// is then used for the (mostly) static host oatdump binary.
+art_cc_library_static {
+    name: "liboatdump_static",
+    device_supported: false,
+    host_supported: true,
+    defaults: [
+        "libart-dexlayout_static_defaults",
+        "libart-disassembler_static_defaults",
+        "libart_static_defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+        "libprofile_static_defaults",
+        "oatdump-defaults",
+    ],
+    whole_static_libs: [
+        "libbase",
+    ],
+}
+
+art_cc_binary {
+    name: "oatdump",
+    defaults: ["oatdump-defaults"],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libart",
+                "libart-dexlayout",
+                "libart-disassembler",
+                "libartbase",
+                "libbase",
+                "libdexfile",
+                "libprofile",
+            ],
+            static_libs: [
+                "libelffile",
+            ],
+        },
+        host: {
+            // Make the host binary static, except for system libraries.
+            static_libs: ["liboatdump_static"],
+            stl: "c++_static",
+        },
+    },
+
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+}
+
+// Collect all the static defaults and build a host-only static library, which
+// is then used for the (mostly) static host oatdump binary.
+art_cc_library_static {
+    name: "liboatdumpd_static",
+    device_supported: false,
+    host_supported: true,
+    defaults: [
+        "libartd-dexlayout_static_defaults",
+        "libartd-disassembler_static_defaults",
+        "libartd_static_defaults",
+        "libartbased_static_defaults",
+        "libdexfiled_static_defaults",
+        "libprofiled_static_defaults",
+        "oatdump-defaults",
+    ],
+    whole_static_libs: [
+        "libbase",
+    ],
+}
+
+art_cc_binary {
+    name: "oatdumpd",
+    defaults: [
+        "art_debug_defaults",
+        "oatdump-defaults",
+    ],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libartbased",
+                "libartd",
+                "libartd-dexlayout",
+                "libartd-disassembler",
+                "libbase",
+                "libdexfiled",
+                "libprofiled",
+            ],
+            static_libs: [
+                "libelffiled",
+            ],
+        },
+        host: {
+            // Make the host binary static, except for system libraries.
+            static_libs: ["liboatdumpd_static"],
+            stl: "c++_static",
+        },
+    },
+
+    apex_available: [
+        "com.android.art.debug",
+    ],
+}
+
+cc_defaults {
+    name: "oatdumps-defaults",
+    device_supported: false,
+    static_executable: true,
+    defaults: [
+        "oatdump-defaults",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    ldflags: [
+        // We need this because GC stress mode makes use of
+        // _Unwind_GetIP and _Unwind_Backtrace and the symbols are also
+        // defined in libgcc_eh.a(unwind-dw2.o)
+        // TODO: Having this is not ideal as it might obscure errors.
+        // Try to get rid of it.
+        "-z muldefs",
+    ],
+    static_libs: ["libsigchain_fake"],
+}
+
+art_cc_binary {
+    name: "oatdumps",
+    defaults: [
+        "libart_static_defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+        "libprofile_static_defaults",
+        "libart-dexlayout_static_defaults",
+        "oatdumps-defaults",
+    ],
+    static_libs: [
+        "libart-disassembler",
+        "libvixl",
+    ],
+}
+
+art_cc_binary {
+    name: "oatdumpds",
+    defaults: [
+        "art_debug_defaults",
+        "libartd_static_defaults",
+        "libartbased_static_defaults",
+        "libdexfiled_static_defaults",
+        "libprofiled_static_defaults",
+        "libartd-dexlayout_static_defaults",
+        "oatdumps-defaults",
+    ],
+    static_libs: [
+        "libartd-disassembler",
+        "libvixld",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_oatdump_tests_defaults",
+    data: [
+        ":art-gtest-jars-ProfileTestMultiDex",
+    ],
+    srcs: [
+        "oatdump_app_test.cc",
+        "oatdump_test.cc",
+        "oatdump_image_test.cc",
+    ],
+    target: {
+        host: {
+            required: [
+                "dex2oatd",
+                "dex2oatds",
+                "dexdump",
+                "oatdumpd",
+                "oatdumpds",
+            ],
+        },
+    },
+}
+
+// Version of ART gtest `art_oatdump_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_oatdump_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_oatdump_tests_defaults",
+    ],
+}
+
+// Standalone version of ART gtest `art_oatdump_tests`, not bundled with the ART APEX on target.
+art_cc_test {
+    name: "art_standalone_oatdump_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_oatdump_tests_defaults",
+    ],
+    data: [":generate-boot-image"],
+    test_config: "art_standalone_oatdump_tests.xml",
+}

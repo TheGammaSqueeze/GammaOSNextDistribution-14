@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_gestures_library_timer_provider"
+  state: ENABLED
+  permission: READ_ONLY
+}

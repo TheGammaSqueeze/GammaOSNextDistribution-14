@@ -1,0 +1,112 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+load("@bazel_skylib//rules:common_settings.bzl", "int_setting", "string_setting")
+load("//build/bazel/rules/common:sdk_version.bzl", "sdk_version")
+load("//build/bazel/rules/common:api.bzl", "api")
+load("//build/bazel/rules/java:versions.bzl", "java_versions")
+load(":config_setting_names.bzl", "config_setting_names")
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//prebuilts/sdk:utils.bzl", "prebuilt_sdk_utils")
+
+string_setting(
+    name = "kind",
+    build_setting_default = sdk_version.KIND_PUBLIC,
+    values = sdk_version.ALL_KINDS,
+)
+
+int_setting(
+    name = "api_level",
+    build_setting_default = api.FUTURE_API_LEVEL,
+)
+
+# The settings below are used to properly define a device java and android toolchain.
+
+# The SDK_NONE config setting maps to sdk_version = "none". In this configuration the java toolchain
+# will provide nothing on the bootclasspath, not even the standard java.* libraries.
+# The android toolchain is undefined in this configuration.
+config_setting(
+    name = config_setting_names.SDK_NONE,
+    flag_values = {
+        "//build/bazel/rules/java/sdk:kind": sdk_version.KIND_NONE,
+    },
+)
+
+# Pre and Post Java 9 configs differ in how the bootclasspath is constructed and what arguments must
+# be passed to javac. Pre Java 9, the SDK is passed as a whole to the --bootclasspath argument of
+# javac. Post Java 9, the SDK is split between core libraries, passed using system modules and the
+# --system javac argument, and the rest, added at the beginning of the classpath.
+selects.config_setting_group(
+    name = config_setting_names.PRE_JAVA_9,
+    match_any = [
+        "//build/bazel/rules/java:" + java_versions.VERSION_TO_CONFIG_SETTING[version]
+        for version in java_versions.VERSION_TO_CONFIG_SETTING.keys()
+        if version < 9
+    ],
+)
+
+selects.config_setting_group(
+    name = config_setting_names.POST_JAVA_9,
+    match_any = [
+        "//build/bazel/rules/java:" + java_versions.VERSION_TO_CONFIG_SETTING[version]
+        for version in java_versions.VERSION_TO_CONFIG_SETTING.keys()
+        if version >= 9
+    ],
+)
+
+# Specific configuration at a given kind and api level will have the java and android toolchains
+# pointed to the proper android.jar and framework.aidl files.
+[
+    config_setting(
+        name = config_setting_names.kind_api(kind, api_level),
+        flag_values = {
+            "//build/bazel/rules/java/sdk:kind": kind,
+            "//build/bazel/rules/java/sdk:api_level": str(api_level),
+        },
+    )
+    for api_level in prebuilt_sdk_utils.API_LEVELS
+    for kind in prebuilt_sdk_utils.available_kinds_for_api_level(api_level)
+]
+
+# The bootclasspath is a function of sdk kind, api level, and whether building for pre or post java
+# 9 sources.
+[
+    selects.config_setting_group(
+        name = config_setting_names.kind_api_pre_java_9(kind, api_level),
+        match_all = [
+            config_setting_names.kind_api(kind, api_level),
+            config_setting_names.PRE_JAVA_9,
+        ],
+    )
+    for api_level in prebuilt_sdk_utils.API_LEVELS
+    for kind in prebuilt_sdk_utils.available_kinds_for_api_level(api_level)
+    if java_versions.supports_pre_java_9(api_level)
+]
+
+[
+    selects.config_setting_group(
+        name = config_setting_names.kind_api_post_java_9(kind, api_level),
+        match_all = [
+            config_setting_names.kind_api(kind, api_level),
+            config_setting_names.POST_JAVA_9,
+        ],
+    )
+    for api_level in prebuilt_sdk_utils.API_LEVELS
+    for kind in prebuilt_sdk_utils.available_kinds_for_api_level(api_level)
+    if java_versions.supports_post_java_9(api_level)
+]

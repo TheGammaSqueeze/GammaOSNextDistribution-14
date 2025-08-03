@@ -1,0 +1,1 @@
+Tests that we don't inline methods if their basic blocks end with a throw.

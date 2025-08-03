@@ -1,0 +1,551 @@
+// ART APEX module
+//
+// Contains both the Android Managed Runtime (ART) and the Android Core Library
+// (Libcore).
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+soong_config_module_type_import {
+    from: "art/build/SoongConfig.bp",
+    module_types: [
+        "art_module_apex_defaults",
+        "art_module_cc_defaults",
+    ],
+}
+
+// Binaries for which both 32- and 64-bit versions are built, if possible.
+art_runtime_binaries_both = [
+    "dalvikvm",
+    "dex2oat",
+]
+
+// Binaries for which the "first" version is preferred.
+art_runtime_binaries_first = [
+    "dexdump",
+    "dexlist",
+    "dexoptanalyzer",
+    "oatdump",
+    "profman",
+]
+
+// - Base requirements (libraries).
+//
+// Note: ART on-device chroot-based testing and benchmarking is not yet using
+// the ART APEX, meaning that copies of some of these libraries have to be
+// installed in `/system` for the ART Buildbot set-up to work properly. This is
+// done by the `standalone-apex-files` Make phony target, used by the ART
+// Buildbot and Golem (see `art/Android.mk`). If you add libraries to this list,
+// you may have to also add them to `PRIVATE_ART_APEX_DEPENDENCY_LIBS` in
+// `art/Android.mk`.
+// TODO(b/121117762): Remove this note when both the ART Buildbot and Golem use
+// the ART APEX.
+art_runtime_base_native_shared_libs_minus_libart = [
+    // External API (having APEX stubs).
+    "libdexfile",
+    "libnativebridge",
+    "libnativehelper",
+    "libnativeloader",
+    "libsigchain",
+    // libadbconnection is internal and loaded with dlopen(), but it cannot use
+    // "required" because of cyclic dependency (b/124505714).
+    "libadbconnection",
+    // TODO(b/124476339): Clean up the following libraries once "required"
+    // dependencies work with APEX libraries.
+    "libdt_fd_forward",
+    "libdt_socket",
+    "libjdwp",
+    "libnpt",
+    "libopenjdkjvm",
+    "libopenjdkjvmti",
+    "libperfetto_hprof",
+    // TODO(chriswailes): Make libarttools a dependency for another target
+    // when such a target exists
+    "libarttools",
+]
+// Actual version of ART runtime base libs, used in non-test ART APEXes.
+art_runtime_base_native_shared_libs = ["libart"] +
+    art_runtime_base_native_shared_libs_minus_libart
+// "Broken" version of ART runtime base libs, used for testing purposes.
+art_runtime_base_broken_native_shared_libs = ["libart-broken"] +
+    art_runtime_base_native_shared_libs_minus_libart
+
+// - Debug variants (libraries).
+art_runtime_debug_native_shared_libs = [
+    "libadbconnectiond",
+    "libartd",
+    "libdexfiled",
+    "libopenjdkjvmd",
+    "libopenjdkjvmtid",
+    "libperfetto_hprofd",
+    // Libraries needed to execute ART run-tests.
+    // TODO(b/124476339): When bug 124476339 is fixed, add these libraries as `runtime_libs`
+    // dependencies of `libartd-compiler`, and remove them here.
+    "libart-disassembler",
+    "libartd-disassembler",
+]
+
+// Debug binaries for which both 32- and 64-bit versions are built, if possible.
+art_debug_binaries_both = [
+    "dex2oatd",
+    "imgdiag",
+    "imgdiagd",
+]
+
+// Debug binaries for which the "first" version is preferred.
+art_debug_binaries_first = [
+    "dexanalyze",
+    "dexdiag",
+    "dexlayout",
+    "dexlayoutd",
+    "dexoptanalyzerd",
+    "oatdumpd",
+    "profmand",
+]
+
+// Core Java libraries.
+// This list must be the same as art-bootclasspath-fragment because it's that which is pulled in
+// through bootclasspath_fragments below. (com.android.art-defaults-minus-odrefresh)
+libcore_java_libs = [
+    "core-oj",
+    "core-libart",
+    "okhttp",
+    "bouncycastle",
+    "apache-xml",
+]
+
+// Create combined library which is used for compiling run-tests.
+// This is much easier than trying to make the test depend on them directly,
+// or than trying to make the test compilation depend on the apex module.
+// Some of the components are only visible here (but not in test Android.bp).
+java_library {
+    name: "art-run-test-bootclasspath",
+    sdk_version: "core_platform",
+    static_libs: libcore_java_libs + [
+        "framework-annotations-lib",
+    ],
+}
+
+// Native libraries that support the core Java libraries.
+//
+// Note: ART on-device chroot-based testing and benchmarking is not yet using
+// the ART APEX, meaning that copies of some of these libraries have to be
+// installed in `/system` for the ART Buildbot set-up to work properly. This is
+// done by the `standalone-apex-files` Make phony target, used by the ART
+// Buildbot and Golem (see `art/Android.mk`). If you add libraries to this list,
+// you may have to also add them to `PRIVATE_ART_APEX_DEPENDENCY_LIBS` in
+// `art/Android.mk`.
+// TODO(b/121117762): Remove this note when both the ART Buildbot and Golem use
+// the ART APEX.
+libcore_native_shared_libs = [
+    // External API (having APEX stubs).
+    "libandroidio",
+    // TODO(b/124476339): Clean up the following libraries once "required"
+    // dependencies work with APEX libraries.
+    "libexpat",
+    "libjavacore",
+    "libopenjdk",
+]
+libcore_debug_native_shared_libs = [
+    "libopenjdkd",
+]
+
+android_app_certificate {
+    name: "com.android.art.certificate",
+    certificate: "com.android.art",
+}
+
+apex_key {
+    name: "com.android.art.key",
+    public_key: "com.android.art.avbpubkey",
+    private_key: "com.android.art.pem",
+}
+
+// Default shared by all ART APEXes.
+art_module_apex_defaults {
+    name: "com.android.art-base-defaults",
+
+    // Enable if ART_MODULE_BUILD_FROM_SOURCE is true
+    enabled: false,
+    soong_config_variables: {
+        source_build: {
+            enabled: true,
+        },
+    },
+
+    target: {
+        windows: {
+            // When the Soong config variable above sets enabled:true, it
+            // overrides the default false for targets, so we need to disable
+            // windows explicitly.
+            enabled: false,
+        },
+    },
+}
+
+prebuilt_etc {
+    name: "com.android.art.init.rc",
+    src: "art.rc",
+    filename: "init.rc",
+    installable: false,
+}
+
+// Default values shared by APEXes except test_broken_com.android.art.
+apex_defaults {
+    name: "com.android.art-defaults-minus-odrefresh",
+    defaults: [
+        "com.android.art-base-defaults",
+        "s-launched-apex-module",
+    ],
+    compile_multilib: "both",
+    manifest: "manifest-art.json",
+    bootclasspath_fragments: ["art-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["art-systemserverclasspath-fragment"],
+    compat_configs: ["libcore-platform-compat-config"],
+    native_shared_libs: art_runtime_base_native_shared_libs +
+        libcore_native_shared_libs,
+    jni_libs: [
+        "libartservice",
+    ],
+    binaries: [
+        "art_boot",
+        "art_exec",
+        "artd",
+        "dexopt_chroot_setup",
+    ],
+    multilib: {
+        both: {
+            binaries: art_runtime_binaries_both,
+        },
+        first: {
+            binaries: art_runtime_binaries_first,
+        },
+    },
+    key: "com.android.art.key",
+    required: [
+        "com.android.i18n",
+    ],
+    prebuilts: [
+        "art-linker-config",
+        "com.android.art.init.rc",
+        "current_sdkinfo",
+    ],
+}
+
+// Default values shared by Release, Debug, and Testing APEXes.
+apex_defaults {
+    name: "com.android.art-defaults",
+    defaults: ["com.android.art-defaults-minus-odrefresh"],
+    multilib: {
+        first: {
+            binaries: ["odrefresh"],
+        },
+    },
+}
+
+// Default values shared by Debug and Testing ART APEXes.
+apex_defaults {
+    name: "com.android.art-devel-defaults",
+    defaults: ["com.android.art-defaults"],
+    native_shared_libs: art_runtime_debug_native_shared_libs +
+        libcore_debug_native_shared_libs,
+    jni_libs: [
+        "libartserviced",
+    ],
+    multilib: {
+        both: {
+            binaries: art_debug_binaries_both,
+        },
+        first: {
+            binaries: art_debug_binaries_first,
+        },
+    },
+}
+
+// "Broken" test APEX, only used for testing, including module
+// `libart-broken` instead of `libart`.
+apex_test {
+    name: "test_broken_com.android.art",
+    // Use of "s-launched-apex-module" does not imply that this is a released
+    // module.
+    defaults: [
+        "com.android.art-base-defaults",
+        "s-launched-apex-module",
+    ],
+
+    // Only include native libraries in this test APEX. The intention
+    // was to not include binaries (and maybe other artifacts) for now,
+    // as they'd pull the "non-broken" `libart` module into this test
+    // APEX and overwrite `libart-broken`. However, with
+    // unwanted_transitive_deps we can ensure `libart` gets excluded
+    // anyway.
+    // TODO(mast): Add back the binaries and clean this up.
+    native_shared_libs: art_runtime_base_broken_native_shared_libs,
+    unwanted_transitive_deps: ["libart"],
+    compile_multilib: "both",
+
+    key: "com.android.art.key",
+    manifest: "test_apex_manifest.json",
+    file_contexts: ":com.android.art-file_contexts",
+    certificate: ":com.android.art.certificate",
+    installable: false,
+    compressible: false,
+}
+
+apex_test {
+    name: "test_jitzygote_com.android.art",
+    defaults: ["com.android.art-defaults-minus-odrefresh"],
+    multilib: {
+        first: {
+            binaries: ["odrefresh_broken"],
+        },
+    },
+    key: "com.android.art.key",
+    manifest: "test_apex_manifest.json",
+    file_contexts: ":com.android.art-file_contexts",
+    certificate: ":com.android.art.certificate",
+    installable: false,
+}
+
+// Release version of the ART APEX module (not containing debug
+// variants nor tools), included in user builds. Also used for
+// storage-constrained devices in userdebug and eng builds.
+apex {
+    name: "com.android.art",
+    defaults: ["com.android.art-defaults"],
+    certificate: ":com.android.art.certificate",
+}
+
+// "Debug" version of the ART APEX module (containing both release and
+// debug variants, as well as additional tools), included in userdebug and
+// eng build.
+apex {
+    name: "com.android.art.debug",
+    defaults: ["com.android.art-devel-defaults"],
+    certificate: ":com.android.art.certificate",
+}
+
+// ART gtests with dependencies on internal ART APEX libraries.
+art_gtests = [
+    "art_artd_tests",
+    "art_cmdline_tests",
+    "art_compiler_tests",
+    "art_dex2oat_tests",
+    "art_dexanalyze_tests",
+    "art_dexdiag_tests",
+    "art_dexdump_tests",
+    "art_dexlayout_tests",
+    "art_dexlist_tests",
+    "art_dexopt_chroot_setup_tests",
+    "art_disassembler_tests",
+    "art_dexoptanalyzer_tests",
+    "art_imgdiag_tests",
+    "art_libartbase_tests",
+    "art_libartpalette_tests",
+    "art_libartservice_tests",
+    "art_libarttools_tests",
+    "art_libdexfile_tests",
+    "art_libdexfile_support_tests",
+    "art_libprofile_tests",
+    "art_oatdump_tests",
+    "art_odrefresh_tests",
+    "art_profman_tests",
+    "art_runtime_tests",
+    "art_sigchain_tests",
+]
+
+// "Testing" version of the ART APEX module (containing both release
+// and debug variants, additional tools, and ART gtests), for testing
+// purposes only.
+apex_test {
+    name: "com.android.art.testing",
+    defaults: ["com.android.art-devel-defaults"],
+    file_contexts: ":com.android.art.debug-file_contexts",
+    certificate: ":com.android.art.certificate",
+    tests: art_gtests,
+    binaries: ["signal_dumper"], // Need signal_dumper for run-tests.
+    // Mark this test APEX as non-updatable, as its contains
+    // additional files (used only for testing) that would not pass
+    // dependency checks performed on updatable APEXes (see
+    // go/apex-allowed-deps-error).
+    updatable: false,
+    // Because this APEX is non-updatable, some of its native shared
+    // libraries (implicitly added as dependencies) are eligible to
+    // the symlink optimization. As we want this APEX to be
+    // self-contained (for testing purposes), we want to package
+    // these dependencies in this APEX, instead of symbolic links to
+    // their counterparts on the `system` partition, which may not
+    // even exist, as in the case of `libbacktrace` (see b/232790938
+    // and b/233357459). Marking this APEX as "future updatable"
+    // disables all symlink optimizations for it.
+    future_updatable: true,
+}
+
+// TODO(b/279835185) This is a placeholder to satisfy the current references.
+//   Remove this when all references are removed.
+host_snapshot {
+    name: "com.android.art.host",
+}
+
+python_binary_host {
+    name: "art-apex-tester",
+    srcs: ["art_apex_test.py"],
+    main: "art_apex_test.py",
+}
+
+// Genrules so we can run the checker, and empty Java library so that it gets executed.
+
+art_check_apex_gen_stem = "$(location art-apex-tester)" +
+    " --deapexer $(location deapexer)" +
+    " --debugfs $(location debugfs_static)" +
+    " --fsckerofs $(location fsck.erofs)" +
+    " --tmpdir $(genDir)"
+
+// The non-flattened APEXes are always checked, as they are always generated
+// (even when APEX flattening is enabled).
+genrule_defaults {
+    name: "art-check-apex-gen-defaults",
+    defaults: ["art_module_source_build_genrule_defaults"],
+    tools: [
+        "art-apex-tester",
+        "deapexer",
+        "debugfs_static",
+        "fsck.erofs",
+    ],
+}
+
+art_module_cc_defaults {
+    name: "art-check-apex-gen-fakebin-defaults",
+    host_supported: true,
+    device_supported: false,
+
+    // Enable if ART_MODULE_BUILD_FROM_SOURCE is true
+    enabled: false,
+    soong_config_variables: {
+        source_build: {
+            enabled: true,
+        },
+    },
+
+    target: {
+        darwin: {
+            enabled: false, // No python3.
+        },
+    },
+}
+
+genrule {
+    name: "art-check-release-apex-gen",
+    defaults: ["art-check-apex-gen-defaults"],
+    srcs: [":com.android.art"],
+    cmd: art_check_apex_gen_stem +
+        " --flavor release" +
+        " $(in)" +
+        " && touch $(out)" +
+        " && chmod a+x $(out)",
+    out: ["art-check-release-apex-gen.unused"],
+}
+
+cc_prebuilt_binary {
+    name: "art-check-release-apex-gen-fakebin",
+    defaults: ["art-check-apex-gen-fakebin-defaults"],
+    srcs: [":art-check-release-apex-gen"],
+}
+
+genrule {
+    name: "art-check-debug-apex-gen",
+    defaults: ["art-check-apex-gen-defaults"],
+    srcs: [":com.android.art.debug"],
+    cmd: art_check_apex_gen_stem +
+        " --flavor debug" +
+        " $(in)" +
+        " && touch $(out)" +
+        " && chmod a+x $(out)",
+    out: ["art-check-debug-apex-gen.unused"],
+}
+
+cc_prebuilt_binary {
+    name: "art-check-debug-apex-gen-fakebin",
+    defaults: ["art-check-apex-gen-fakebin-defaults"],
+    srcs: [":art-check-debug-apex-gen"],
+}
+
+genrule {
+    name: "art-check-testing-apex-gen",
+    defaults: ["art-check-apex-gen-defaults"],
+    srcs: [":com.android.art.testing"],
+    cmd: art_check_apex_gen_stem +
+        " --flavor testing" +
+        " $(in)" +
+        " && touch $(out)" +
+        " && chmod a+x $(out)",
+    out: ["art-check-testing-apex-gen.unused"],
+}
+
+cc_prebuilt_binary {
+    name: "art-check-testing-apex-gen-fakebin",
+    defaults: ["art-check-apex-gen-fakebin-defaults"],
+    srcs: [":art-check-testing-apex-gen"],
+}
+
+linker_config {
+    name: "art-linker-config",
+    src: "linker.config.json",
+    installable: false,
+}
+
+// sdk module types have 3 (maybe 4 for windows?) variants: linux, android, and common_os.
+// common_os depends on the linux/android variants and packages their artifacts into a zip file.
+// We want access to that zip file in art_release_zip, so we need to depend on only the common_os
+// variant of art-module-host-exports, which is what sdk_genrule does. Since sdk_genrule only has
+// 1 variant, we can then depend on it from a different type of genrule like regular genrule.
+sdk_genrule {
+    name: "art-module-host-exports-for-genrule",
+    defaults: ["art_module_source_build_genrule_defaults"],
+    srcs: [":art-module-host-exports"],
+    out: ["art-module-host-exports-current.zip"],
+    cmd: "cp $(in) $(out)",
+}
+
+// A zip containing ART binaries and ART bootclasspath jars.
+// At the time of writing, this is only for Compiler Explorer (https://godbolt.org).
+genrule {
+    name: "art_release_zip",
+    defaults: ["art_module_source_build_genrule_defaults"],
+    srcs: [
+        ":art-module-host-exports-for-genrule",
+        ":com.android.art",
+    ],
+    out: [
+        "art_release.zip",
+    ],
+    tools: [
+        "deapexer",
+        "debugfs",
+        "fsck.erofs",
+        "merge_zips",
+        "soong_zip",
+    ],
+    cmd: "$(location deapexer) " +
+        "--debugfs_path $(location debugfs) " +
+        "--fsckerofs_path $(location fsck.erofs) " +
+        "extract $(location :com.android.art) $(genDir)/extracted && " +
+
+        "$(location soong_zip) -o $(out).tmp -P bootjars -j " +
+        "-f $(genDir)/extracted/javalib/core-oj.jar " +
+        "-f $(genDir)/extracted/javalib/core-libart.jar " +
+        "-f $(genDir)/extracted/javalib/okhttp.jar " +
+        "-f $(genDir)/extracted/javalib/bouncycastle.jar " +
+        "-f $(genDir)/extracted/javalib/apache-xml.jar && " +
+
+        "$(location merge_zips) $(out) $(out).tmp $(location :art-module-host-exports-for-genrule)",
+    dist: {
+        targets: ["droidcore"],
+    },
+}

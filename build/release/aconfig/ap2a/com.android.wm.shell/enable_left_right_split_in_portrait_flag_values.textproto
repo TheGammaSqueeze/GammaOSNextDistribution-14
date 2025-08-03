@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.wm.shell"
+  name: "enable_left_right_split_in_portrait"
+  state: ENABLED
+  permission: READ_ONLY
+}

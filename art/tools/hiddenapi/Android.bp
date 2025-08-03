@@ -1,0 +1,90 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "hiddenapi-defaults",
+    host_supported: true,
+    device_supported: false,
+    defaults: ["art_defaults"],
+    srcs: [
+        "hiddenapi.cc",
+    ],
+
+    target: {
+        darwin: {
+            enabled: true,
+        },
+    },
+
+    stl: "c++_static",
+    static_libs: [
+        "libbase",
+        "libcrypto",
+    ],
+}
+
+art_cc_binary {
+    name: "hiddenapi",
+    defaults: [
+        "hiddenapi-defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+    ],
+    target: {
+        host: {
+            // Override the prefer32 added by art_cc_binary when
+            // HOST_PREFER_32_BIT is in use. Note that this override cannot be
+            // in cc_defaults because it'd get overridden by the load hook even
+            // when it uses PrependProperties.
+            compile_multilib: "64",
+        },
+    },
+}
+
+art_cc_binary {
+    name: "hiddenapid",
+    defaults: [
+        "art_debug_defaults",
+        "hiddenapi-defaults",
+        "libartbased_static_defaults",
+        "libdexfiled_static_defaults",
+    ],
+}
+
+art_cc_test {
+    name: "art_hiddenapi_tests",
+    host_supported: true,
+    device_supported: false,
+    defaults: [
+        "art_gtest_defaults",
+    ],
+    data: [
+        ":art-gtest-jars-HiddenApi",
+        ":art-gtest-jars-HiddenApiStubs",
+    ],
+    tidy_timeout_srcs: ["hiddenapi_test.cc"],
+    srcs: ["hiddenapi_test.cc"],
+    required: ["hiddenapid"],
+}

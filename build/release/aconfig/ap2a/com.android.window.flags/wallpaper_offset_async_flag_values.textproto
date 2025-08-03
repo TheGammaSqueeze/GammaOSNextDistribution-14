@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "wallpaper_offset_async"
+  state: ENABLED
+  permission: READ_ONLY
+}

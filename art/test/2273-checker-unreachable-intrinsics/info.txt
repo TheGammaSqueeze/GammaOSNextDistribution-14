@@ -1,0 +1,1 @@
+Tests we don't inline intrinsics with specialized HIR

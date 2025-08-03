@@ -1,0 +1,1 @@
+libadb_pairing_auth.so libadb_pairing_connection.so libadb_pairing_server.so libadbconnection_client.so libbase.so libc++.so libcrypto.so libcrypto_utils.so libcutils.so

@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-genrule",
+    pkgPath: "android/soong/genrule",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "sbox_proto",
+        "soong",
+        "soong-android",
+        "soong-shared",
+    ],
+    srcs: [
+        "allowlists.go",
+        "genrule.go",
+        "locations.go",
+    ],
+    testSrcs: [
+        "genrule_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

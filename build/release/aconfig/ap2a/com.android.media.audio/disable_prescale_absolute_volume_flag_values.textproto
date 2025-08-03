@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.audio"
+  name: "disable_prescale_absolute_volume"
+  state: ENABLED
+  permission: READ_ONLY
+}

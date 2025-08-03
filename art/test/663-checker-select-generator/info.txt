@@ -1,0 +1,26 @@
+Test for select generation for conditional returns.
+
+For example rewrites a simpled diamond pattern e.g.:
+             If [ Condition ]
+               /          \
+     false branch        true branch
+               \          /
+     Return Phi[FalseValue, TrueValue]
+
+to:
+     true branch
+     false branch
+     return Select [FalseValue, TrueValue, Condition]
+
+It tests:
+* Simple diamond pattern with:
+  * Same value on each branch
+  * Different value
+* Double diamond pattern (i.e. nested simple diamonds) with:
+  * Same value
+  * All different values
+  * Same value in some cases but not all
+
+For all cases it tests:
+* Branches merging with a Phi.
+* Branches returning instead of having a Phi.

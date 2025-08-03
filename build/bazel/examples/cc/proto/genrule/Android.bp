@@ -1,0 +1,38 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// genrules are sometimes used to fix the import path for .h files generated from .proto files
+genrule {
+    name: "genrule_that_changes_import_path",
+    srcs: ["proto.proto"],
+    out: ["mydir/proto.proto"], // headers will be imported as `#include "mydir/proto.pb.h"`
+    cmd: "cp $(in) $(out)",
+}
+
+cc_library_static {
+    name: "cc_library_that_uses_proto_from_genrule",
+    generated_sources: ["genrule_that_changes_import_path"],
+    srcs: ["foo.cc"],
+    host_supported: true,
+    proto: {
+        canonical_path_from_root: false,
+    },
+    shared_libs: ["libprotobuf-cpp-lite"],
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "fix_le_oob_pairing_bypass"
+  state: ENABLED
+  permission: READ_ONLY
+}

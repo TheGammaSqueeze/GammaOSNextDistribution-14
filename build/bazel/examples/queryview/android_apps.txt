@@ -1,0 +1,1 @@
+kind("android_app rule", //...)

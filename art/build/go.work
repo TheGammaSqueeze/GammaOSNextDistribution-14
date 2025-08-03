@@ -1,0 +1,17 @@
+go 1.19
+
+use (
+	.
+	../../external/go-cmp
+	../../external/golang-protobuf
+	../../build/blueprint
+	../../build/soong
+)
+
+replace (
+	github.com/golang/protobuf v0.0.0 => ../../external/golang-protobuf
+	github.com/google/blueprint v0.0.0 => ../../build/blueprint
+	github.com/google/go-cmp v0.0.0 => ../../external/go-cmp
+	google.golang.org/protobuf v0.0.0 => ../../external/golang-protobuf
+	android/soong v0.0.0 => ../../build/soong
+)

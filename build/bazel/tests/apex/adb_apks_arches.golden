@@ -1,0 +1,14 @@
+standalone-arm64_v8a.apex:
+  lib64/libcutils.so: AArch64
+standalone-armeabi_v7a.apex:
+  lib/libcutils.so: ARM
+standalone-armeabi_v7a.arm64_v8a.apex:
+  lib/libcutils.so: ARM
+  lib64/libcutils.so: AArch64
+standalone-x86.apex:
+  lib/libcutils.so: Intel 80386
+standalone-x86.x86_64.apex:
+  lib/libcutils.so: Intel 80386
+  lib64/libcutils.so: Advanced Micro Devices X86-64
+standalone-x86_64.apex:
+  lib64/libcutils.so: Advanced Micro Devices X86-64

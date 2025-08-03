@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.camera.flags"
+  name: "inject_session_params"
+  state: ENABLED
+  permission: READ_ONLY
+}

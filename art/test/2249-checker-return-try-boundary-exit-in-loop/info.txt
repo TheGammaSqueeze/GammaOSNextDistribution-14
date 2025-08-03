@@ -1,0 +1,3 @@
+Tests that there is a case in which we have a
+  Return->TryBoundary kind:exit->Exit
+chain inside of a loop, and that said TryBoundary has loop information.

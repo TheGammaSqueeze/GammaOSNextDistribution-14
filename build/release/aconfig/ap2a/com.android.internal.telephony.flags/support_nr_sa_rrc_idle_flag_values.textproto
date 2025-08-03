@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "support_nr_sa_rrc_idle"
+  state: ENABLED
+  permission: READ_ONLY
+}

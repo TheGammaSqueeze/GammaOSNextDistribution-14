@@ -1,0 +1,2 @@
+Throw an uncaught unchecked exception from a SystemCleaner Runnable. Check that
+this crashes the process, and is not ignored.

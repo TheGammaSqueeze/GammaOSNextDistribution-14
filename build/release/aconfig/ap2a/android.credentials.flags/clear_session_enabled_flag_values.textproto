@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.credentials.flags"
+  name: "clear_session_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

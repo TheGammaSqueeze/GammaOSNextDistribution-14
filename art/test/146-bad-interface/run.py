@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Copyright (C) 2015 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+def run(ctx, args):
+  # Use the `--secondary-class-loader-context` switch to compile the secondary dex
+  # file with the right class loader context. Do not use `--secondary` as we're
+  # loading the *-ex.jar file in a separate class loader.
+  pcl = f"PCL[{ctx.env.DEX_LOCATION}/{ctx.env.TEST_NAME}.jar]"
+  ctx.default_run(args, secondary_class_loader_context=pcl)
+
+  # Oat file manager will complain about duplicate dex files. Ignore.
+  ctx.run(fr"sed -i '/.*oat_file_manager.*/d' '{args.stderr_file}'")

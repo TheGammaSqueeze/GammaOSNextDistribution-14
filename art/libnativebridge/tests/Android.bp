@@ -1,0 +1,249 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "libnativebridge-test-case-defaults",
+    defaults: [
+        "art_defaults",
+        "art_test_defaults",
+    ],
+    // TODO(mast): Split up art_gtest_defaults so that it can be used for the
+    // following without pulling in lots of libs.
+    target: {
+        linux: {
+            cflags: [
+                // gtest issue
+                "-Wno-used-but-marked-unused",
+                "-Wno-deprecated",
+                "-Wno-missing-noreturn",
+            ],
+        },
+    },
+    header_libs: [
+        "jni_headers",
+        "libnativebridge-headers",
+    ],
+    cppflags: ["-fvisibility=protected"],
+}
+
+cc_test_library {
+    name: "libnativebridge-test-case",
+    srcs: ["NativeBridgeTestCase.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+}
+
+cc_test_library {
+    name: "libnativebridge2-test-case",
+    srcs: ["NativeBridgeTestCase2.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+}
+
+cc_test_library {
+    name: "libnativebridge3-test-case",
+    srcs: ["NativeBridgeTestCase3.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+}
+
+cc_test_library {
+    name: "libnativebridge6-test-case",
+    srcs: ["NativeBridgeTestCase6.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+    shared_libs: [
+        "libnativebridge6prezygotefork",
+    ],
+}
+
+cc_test_library {
+    name: "libnativebridge7-test-case",
+    srcs: ["NativeBridgeTestCase7.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+    shared_libs: [
+        "libnativebridge7criticalnative",
+    ],
+}
+
+// A helper library to produce test-case side effect of PreZygoteForkNativeBridge.
+cc_test_library {
+    name: "libnativebridge6prezygotefork",
+    srcs: ["NativeBridge6PreZygoteFork_lib.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+}
+
+cc_test_library {
+    name: "libnativebridge7criticalnative",
+    srcs: ["NativeBridge7CriticalNative_lib.cpp"],
+    defaults: ["libnativebridge-test-case-defaults"],
+}
+
+cc_defaults {
+    name: "libnativebridge-tests-defaults",
+    defaults: [
+        "art_defaults",
+        "art_test_defaults",
+    ],
+    // TODO(mast): Split up art_gtest_defaults so that it can be used for the
+    // following without pulling in lots of libs.
+    target: {
+        linux: {
+            cflags: [
+                // gtest issue
+                "-Wno-used-but-marked-unused",
+                "-Wno-deprecated",
+                "-Wno-missing-noreturn",
+            ],
+        },
+    },
+}
+
+cc_test {
+    name: "libnativebridge-tests",
+    defaults: ["libnativebridge-tests-defaults"],
+
+    // native_bridge.cc doesn't support reloading the native bridge after
+    // unloading, so each test needs to be its own process.
+    test_per_src: true,
+
+    // Disable pre-submit host unit-testing for this test module, as
+    // it is not compatible with TradeFed (because of the use of the
+    // `test_per_src` feature above) and meant to be executed with the
+    // `runtests.sh` script instead.
+    test_options: {
+        unit_test: false,
+    },
+
+    srcs: [
+        "NativeBridgeApi.c",
+        "CodeCacheCreate_test.cpp",
+        "CodeCacheExists_test.cpp",
+        "CodeCacheStatFail_test.cpp",
+        "CompleteFlow_test.cpp",
+        "InvalidCharsNativeBridge_test.cpp",
+        "NativeBridge2Signal_test.cpp",
+        "NativeBridgeVersion_test.cpp",
+        "NeedsNativeBridge_test.cpp",
+        "PreInitializeNativeBridge_test.cpp",
+        "PreInitializeNativeBridgeFail2_test.cpp",
+        "ReSetupNativeBridge_test.cpp",
+        "UnavailableNativeBridge_test.cpp",
+        "ValidNameNativeBridge_test.cpp",
+        "NativeBridge3UnloadLibrary_test.cpp",
+        "NativeBridge3GetError_test.cpp",
+        "NativeBridge3IsPathSupported_test.cpp",
+        "NativeBridge3InitAnonymousNamespace_test.cpp",
+        "NativeBridge3CreateNamespace_test.cpp",
+        "NativeBridge3LoadLibraryExt_test.cpp",
+        "NativeBridge6PreZygoteFork_test.cpp",
+        "NativeBridge7CriticalNative_test.cpp",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libnativebridge",
+        "libnativebridge-test-case",
+        "libnativebridge2-test-case",
+        "libnativebridge3-test-case",
+        "libnativebridge6-test-case",
+        "libnativebridge7-test-case",
+        "libnativebridge6prezygotefork",
+        "libnativebridge7criticalnative",
+    ],
+    header_libs: ["libbase_headers"],
+}
+
+// Variant of libnativebridge-tests that is part of CTS to verify backed-by API
+// coverage.
+cc_test {
+    name: "art_libnativebridge_cts_tests",
+    defaults: [
+        "art_standalone_test_defaults",
+        "libnativebridge-tests-defaults",
+    ],
+
+    // TODO(b/189484095): Pick only a subset of the tests in
+    // libnativebridge-tests that don't require the native bridge lib to be
+    // loaded, to avoid the problems with test_per_src and pushing the extra
+    // libnativebridge*-test-case.so files to device through tradefed.
+    srcs: [
+        "NeedsNativeBridge_test.cpp",
+        "UnavailableNativeBridge_test.cpp",
+    ],
+    static_libs: [
+        "libdl_android",
+        "libnativebridge",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    header_libs: ["libbase_headers"],
+
+    test_config_template: ":art-gtests-target-standalone-cts-template",
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-art",
+        "mcts-art",
+    ],
+}
+
+// ValidNameNativeBridge_test.cpp needs to be in it own executable due
+// to global state had_error that isn't reset between tests.
+cc_test {
+    name: "art_libnativebridge_valid_name_cts_tests",
+    defaults: [
+        "art_standalone_test_defaults",
+        "libnativebridge-tests-defaults",
+    ],
+
+    srcs: [
+        "ValidNameNativeBridge_test.cpp",
+    ],
+    static_libs: [
+        "libdl_android",
+        "libnativebridge",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    header_libs: ["libbase_headers"],
+
+    test_config_template: ":art-gtests-target-standalone-cts-template",
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-art",
+    ],
+}
+
+cc_test {
+    name: "libnativebridge-lazy-tests",
+    defaults: ["libnativebridge-tests-defaults"],
+    host_supported: false,
+    test_suites: ["device-tests"],
+    static_libs: [
+        "libbase",
+        "libnativebridge_lazy",
+    ],
+    srcs: ["libnativebridge_lazy_test.cpp"],
+}

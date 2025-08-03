@@ -1,0 +1,15 @@
+/*
+ * This file contains expectations for ART's buildbot. The purpose of this file is
+ * to temporarily list failing tests and not break the bots.
+ *
+ * This file contains the expectations for the 'libjdwp-aot' and 'libjdwp-jit'
+ * test groups on the chromium buildbot running with 'gcstress' and 'debug'.
+ */
+[
+{
+  description: "Test times out",
+  result: EXEC_FAILED,
+  bug: 187141551,
+  name: "org.apache.harmony.jpda.tests.jdwp.ClassType_SetValuesTest#testSetValues001"
+}
+]

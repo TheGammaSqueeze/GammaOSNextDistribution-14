@@ -1,0 +1,4 @@
+#quoting.dex
+0x00000158 8 Quoting <init> ()V Quoting.java 2
+0x00000170 40 Quoting append1 (Ljava/lang/String;)Ljava/lang/String; Quoting.java 5
+0x000001a8 6 Quoting unicode ()Ljava/lang/String; Quoting.java 10

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "use_alarm_callback"
+  state: ENABLED
+  permission: READ_ONLY
+}

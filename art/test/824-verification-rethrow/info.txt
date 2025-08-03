@@ -1,0 +1,2 @@
+Regression test that a VerifyError does not get wrapped in a
+NoClassDefFoundError.

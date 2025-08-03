@@ -1,0 +1,2 @@
+Make sure that a pathological case in induction var analysis
+doesn't hang up the compiler.

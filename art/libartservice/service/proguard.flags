@@ -1,0 +1,10 @@
+# Proto field names are used by MessageLiteToString.toString through reflection.
+-keepclassmembers class * extends
+    com.android.server.art.jarjar.com.google.protobuf.GeneratedMessageLite {
+  *** get*();
+  *** set*(***);
+  *** has*();
+}
+
+# A job service is referenced by the framework through reflection.
+-keep class * extends android.app.job.JobService { *; }

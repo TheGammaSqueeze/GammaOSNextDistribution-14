@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.speech.flags"
+  name: "multilang_extra_launch"
+  state: ENABLED
+  permission: READ_ONLY
+}

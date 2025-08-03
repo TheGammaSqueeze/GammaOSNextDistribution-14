@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-dexpreopt",
+    pkgPath: "android/soong/dexpreopt",
+    srcs: [
+        "class_loader_context.go",
+        "config.go",
+        "dexpreopt.go",
+        "testing.go",
+    ],
+    testSrcs: [
+        "class_loader_context_test.go",
+        "dexpreopt_test.go",
+    ],
+    deps: [
+        "blueprint-pathtools",
+        "soong-android",
+    ],
+}

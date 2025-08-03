@@ -1,0 +1,1 @@
+Tests that we inline unimplemented intrinsics.

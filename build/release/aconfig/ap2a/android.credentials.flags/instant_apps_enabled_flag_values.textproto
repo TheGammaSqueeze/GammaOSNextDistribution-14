@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.credentials.flags"
+  name: "instant_apps_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

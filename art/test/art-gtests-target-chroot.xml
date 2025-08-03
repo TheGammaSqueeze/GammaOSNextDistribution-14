@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="ART gtests for target (using chroot)">
+    <option name="test-suite-tag" value="art-target-gtest-chroot" />
+
+    <target_preparer class="com.android.tradefed.targetprep.RebootTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.DisableSELinuxTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.ArtChrootPreparer" />
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="append-bitness" value="true" />
+        <option name="push-file" key="generate-boot-image" value="/data/local/tmp/art-test-chroot/data/local/tmp/generate-boot-image" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="throw-if-cmd-fail" value="true" />
+        <option name="run-command" value="mkdir -p /data/local/tmp/art-test-chroot/data/local/tmp/art_boot_images" />
+        <!-- `compiler-filter=speed-profile` is required because OatDumpTest checks the compiled code in the boot image. -->
+        <option name="run-command" value="chroot /data/local/tmp/art-test-chroot /data/local/tmp/generate-boot-image --output-dir=/data/local/tmp/art_boot_images --compiler-filter=speed-profile" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/art-test-chroot/data/local/tmp/art_boot_images" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.ArtGTest" >
+        <!-- TODO(b/147821328): These tests do not work since they need to write to /system -->
+        <option name="exclude-filter" value="HiddenApiTest.DexDomain_System*:OatFileAssistantBaseTest.SystemFrameworkDir" />
+        <option name="native-test-timeout" value="600000" />
+        <option name="native-test-device-path" value="/data/local/tmp/art-test-chroot/apex/com.android.art/bin/art" />
+    </test>
+
+    <!-- When this test is run in a Mainline context (e.g. with `mts-tradefed`), only enable it if
+         one of the Mainline modules below is present on the device used for testing. -->
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MainlineTestModuleController">
+        <!-- ART Mainline Module (internal version). -->
+        <option name="mainline-module-package-name" value="com.google.android.art" />
+        <!-- ART Mainline Module (external (AOSP) version). -->
+        <option name="mainline-module-package-name" value="com.android.art" />
+    </object>
+
+    <!-- Only run tests if the device under test is SDK version 31 (Android 12) or above. -->
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.Sdk31ModuleController" />
+</configuration>

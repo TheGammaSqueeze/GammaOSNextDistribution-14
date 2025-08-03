@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.view.flags"
+  name: "use_view_based_rotary_encoder_scroll_haptics"
+  state: ENABLED
+  permission: READ_ONLY
+}

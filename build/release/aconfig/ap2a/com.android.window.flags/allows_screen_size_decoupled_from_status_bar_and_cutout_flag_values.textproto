@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "allows_screen_size_decoupled_from_status_bar_and_cutout"
+  state: ENABLED
+  permission: READ_ONLY
+}

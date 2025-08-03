@@ -1,0 +1,15 @@
+load("//build/bazel/rules:common.bzl", "repeatable_string_flag")
+load(":tradefed_test.bzl", "tradefed_test_suite")
+
+exports_files(glob(["*.tpl"]))
+
+tradefed_test_suite(name = "tradefed_tests")
+
+# A repeatable string flag used to accept the test references.
+# Each test reference is a string in the test reference format of ATest:
+#     <module name>:<class name>#<method name>,<method name>
+repeatable_string_flag(
+    name = "test_reference",
+    build_setting_default = "",
+    visibility = ["//visibility:public"],
+)

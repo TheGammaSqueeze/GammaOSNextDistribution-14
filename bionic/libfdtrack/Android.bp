@@ -1,0 +1,49 @@
+package {
+    default_team: "trendy_team_native_tools_libraries",
+    default_applicable_licenses: ["bionic_libfdtrack_license"],
+}
+
+license {
+    name: "bionic_libfdtrack_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_shared {
+    name: "libfdtrack",
+    srcs: ["fdtrack.cpp"],
+    stl: "libc++_static",
+
+    header_libs: ["bionic_libc_platform_headers"],
+    static_libs: [
+        "libasync_safe",
+        "libbase",
+        "libdexfile_support",
+        "libunwindstack",
+        "liblzma",
+        "liblog",
+    ],
+    target: {
+        recovery: {
+            exclude_static_libs: ["libdexfile_support"],
+        },
+    },
+    version_script: "libfdtrack.map.txt",
+
+    allow_undefined_symbols: true,
+    recovery_available: true,
+}
+
+cc_test {
+    name: "fdtrack_test",
+    srcs: ["fdtrack_test.cpp"],
+    whole_static_libs: ["libBionicCtsGtestMain"],
+    static_libs: ["liblog"],
+    test_suites: ["device-tests"],
+    runtime_libs: ["libfdtrack"],
+}

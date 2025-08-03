@@ -1,0 +1,2 @@
+Regression test for ArtMethod::CopyFrom, which used to wrongly override the
+imt_index_ of abstract methods with 0.

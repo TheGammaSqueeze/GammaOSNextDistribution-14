@@ -1,0 +1,5 @@
+LNotInAbstractParent;->methodPublicSdkNotInAbstractParent()I,blocked
+LOtherInterface;->methodPublicSdkNotInAbstractParent()I,blocked
+LNotInAbstractParent;->methodUnsupportedNotInAbstractParent()I,blocked
+LOtherInterface;->methodUnsupportedNotInAbstractParent()I,blocked
+LNotInAbstractInterface;->methodUnsupportedNotInAbstractParent()I,unsupported

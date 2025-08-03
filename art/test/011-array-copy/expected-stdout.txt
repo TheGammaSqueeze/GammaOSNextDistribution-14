@@ -1,0 +1,40 @@
+string -> object
+object -> string
+object -> string (modified)
+caught ArrayStoreException (expected)
+copy: 0,0,0: [0, 1, 2, 3, 4, 5, 6, 7]
+copy: 0,0,8: [0, 1, 2, 3, 4, 5, 6, 7]
+copy: 0,2,4: [0, 1, 0, 1, 2, 3, 6, 7]
+copy: 2,0,4: [2, 3, 4, 5, 4, 5, 6, 7]
+copy: 1,3,4: [0, 1, 2, 1, 2, 3, 4, 7]
+copy: 3,1,4: [0, 3, 4, 5, 6, 5, 6, 7]
+copy: 3,1,5: [0, 3, 4, 5, 6, 7, 6, 7]
+copy: 1,3,5: [0, 1, 2, 1, 2, 3, 4, 5]
+copy: 0,3,5: [0, 1, 2, 0, 1, 2, 3, 4]
+copy: 3,0,5: [3, 4, 5, 6, 7, 5, 6, 7]
+copy: 0,5,1: [0, 1, 2, 3, 4, 0, 6, 7]
+arraycopy(char) const case 2 passed
+arraycopy(char) const case 3 passed
+arraycopy(char) const case 5 passed
+arraycopy(char) const case 7 passed
+arraycopy(char) const case 8 passed
+arraycopy(char) const case 9 passed
+arraycopy(char) const case 11 passed
+arraycopy(char) 0 passed
+arraycopy(char) 1 passed
+arraycopy(char) 3 passed
+arraycopy(char) 4 passed
+arraycopy(char) 5 passed
+arraycopy(char) 7 passed
+arraycopy(char) 15 passed
+arraycopy(char) 16 passed
+arraycopy(char) 17 passed
+arraycopy(char) 31 passed
+arraycopy(char) 32 passed
+arraycopy(char) 33 passed
+arraycopy(char) 63 passed
+arraycopy(char) 64 passed
+arraycopy(char) 65 passed
+arraycopy(char) 255 passed
+arraycopy(char) 513 passed
+arraycopy(char) 1025 passed

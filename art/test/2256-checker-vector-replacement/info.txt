@@ -1,0 +1,2 @@
+Regression test to check we can perform LSE even when vector and
+non-vector operations reference the same heap location.

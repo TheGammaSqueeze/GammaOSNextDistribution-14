@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.backup"
+  name: "enable_max_size_writes_to_pipes"
+  state: ENABLED
+  permission: READ_ONLY
+}

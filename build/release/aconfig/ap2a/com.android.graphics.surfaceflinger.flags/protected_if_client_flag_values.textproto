@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "protected_if_client"
+  state: ENABLED
+  permission: READ_ONLY
+}

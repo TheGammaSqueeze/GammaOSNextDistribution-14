@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "task_fragment_system_organizer_flag"
+  state: ENABLED
+  permission: READ_ONLY
+}

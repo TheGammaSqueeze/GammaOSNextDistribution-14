@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.systemui"
+  name: "enable_background_keyguard_ondrawn_callback"
+  state: ENABLED
+  permission: READ_ONLY
+}

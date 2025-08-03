@@ -1,0 +1,103 @@
+// Set up Soong config variables.
+// https://android.googlesource.com/platform/build/soong/+/master/README.md#soong-config-variables
+
+// The source_build variable in the art_module namespace is used to enable the
+// apex, sdk, and module_exports modules that make up the ART Module by calling
+// $(call soong_config_set,art_module,source_build,true) in make. (which is
+// set to the value of the ART_MODULE_BUILD_FROM_SOURCE variable)
+// TODO(b/172480617): Clean up when ART source is no longer in the platform
+// manifest.
+soong_config_bool_variable {
+    name: "source_build",
+}
+
+soong_config_module_type {
+    name: "art_module_art_global_defaults",
+    module_type: "art_global_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_apex_defaults",
+    module_type: "apex_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: [
+        "enabled",
+        "target.android.test_for",
+    ],
+}
+
+soong_config_module_type {
+    name: "art_module_cc_genrule",
+    module_type: "cc_genrule",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_exports",
+    module_type: "module_exports",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_java_defaults",
+    module_type: "java_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_genrule_defaults",
+    module_type: "genrule_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_prebuilt_defaults",
+    module_type: "prebuilt_defaults",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_sdk",
+    module_type: "sdk",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_module_sh_binary",
+    module_type: "sh_binary",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "art_debug_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "art_module",
+    value_variables: ["art_debug_opt_flag"],
+    properties: ["cflags"],
+}

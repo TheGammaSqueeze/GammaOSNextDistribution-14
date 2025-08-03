@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settings.flags"
+  name: "enable_sound_backup"
+  state: ENABLED
+  permission: READ_ONLY
+}

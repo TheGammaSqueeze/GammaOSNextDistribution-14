@@ -1,0 +1,7 @@
+f 666 standalones/standalone-arm64_v8a.apex
+f 666 standalones/standalone-armeabi_v7a.apex
+f 666 standalones/standalone-armeabi_v7a.arm64_v8a.apex
+f 666 standalones/standalone-x86.apex
+f 666 standalones/standalone-x86.x86_64.apex
+f 666 standalones/standalone-x86_64.apex
+f 666 toc.pb

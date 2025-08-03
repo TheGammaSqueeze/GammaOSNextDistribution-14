@@ -1,0 +1,2 @@
+Tests that GVN doesn't deduplicate HBitwiseNegatedRight
+instructions with different kind.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "force_iwlan_mms"
+  state: ENABLED
+  permission: READ_ONLY
+}

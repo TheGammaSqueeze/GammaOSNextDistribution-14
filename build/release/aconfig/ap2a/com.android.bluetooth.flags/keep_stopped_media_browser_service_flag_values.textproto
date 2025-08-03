@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "keep_stopped_media_browser_service"
+  state: ENABLED
+  permission: READ_ONLY
+}

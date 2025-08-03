@@ -1,0 +1,131 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "dexoptanalyzer-defaults",
+    host_supported: true,
+    defaults: ["art_defaults"],
+    srcs: [
+        "dexoptanalyzer.cc",
+    ],
+
+    target: {
+        android: {
+            compile_multilib: "first",
+        },
+    },
+
+    shared_libs: [
+        "libbase",
+    ],
+}
+
+cc_library_headers {
+    name: "dexoptanalyzer_headers",
+    defaults: ["art_defaults"],
+    export_include_dirs: ["."],
+    host_supported: true,
+    apex_available: [
+        "com.android.art.debug",
+        "com.android.art",
+    ],
+}
+
+art_cc_binary {
+    name: "dexoptanalyzer",
+    defaults: ["dexoptanalyzer-defaults"],
+    shared_libs: [
+        "libart",
+        "libartbase",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_binary {
+    name: "dexoptanalyzerd",
+    defaults: [
+        "art_debug_defaults",
+        "dexoptanalyzer-defaults",
+    ],
+    shared_libs: [
+        "libartd",
+        "libartbased",
+    ],
+    apex_available: [
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_dexoptanalyzer_tests_defaults",
+    shared_libs: [
+        "libunwindstack",
+    ],
+    data: [
+        ":art-gtest-jars-LinkageTest",
+        ":art-gtest-jars-Main",
+        ":art-gtest-jars-MainStripped",
+        ":art-gtest-jars-MultiDex",
+        ":art-gtest-jars-MultiDexModifiedSecondary",
+        ":art-gtest-jars-MyClassNatives",
+        ":art-gtest-jars-Nested",
+        ":art-gtest-jars-VerifierDeps",
+        ":art-gtest-jars-VerifierDepsMulti",
+    ],
+    srcs: ["dexoptanalyzer_test.cc"],
+    target: {
+        host: {
+            required: [
+                "dex2oatd",
+                "dexoptanalyzerd",
+            ],
+        },
+    },
+}
+
+// Version of ART gtest `art_dexoptanalyzer_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_dexoptanalyzer_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_dexoptanalyzer_tests_defaults",
+    ],
+}
+
+// Standalone version of ART gtest `art_dexoptanalyzer_tests`, not bundled with the ART APEX on
+// target.
+art_cc_test {
+    name: "art_standalone_dexoptanalyzer_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_dexoptanalyzer_tests_defaults",
+    ],
+    data: [":generate-boot-image"],
+    test_config_template: "art_standalone_dexoptanalyzer_tests.xml",
+}

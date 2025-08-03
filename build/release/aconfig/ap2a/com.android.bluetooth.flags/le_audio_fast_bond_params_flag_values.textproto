@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "le_audio_fast_bond_params"
+  state: ENABLED
+  permission: READ_ONLY
+}

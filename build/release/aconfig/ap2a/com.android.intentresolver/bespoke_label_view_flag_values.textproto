@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.intentresolver"
+  name: "bespoke_label_view"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.systemui"
+  name: "pss_app_selector_abrupt_exit_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

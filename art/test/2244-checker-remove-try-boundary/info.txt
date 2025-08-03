@@ -1,0 +1,2 @@
+Tests that we remove TryBoundary instructions if doesn't contain instructions that can throw.
+Sometimes we can remove the catch blocks too.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "notify_data_activity_changed_with_slot"
+  state: ENABLED
+  permission: READ_ONLY
+}

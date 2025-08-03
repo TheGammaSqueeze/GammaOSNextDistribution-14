@@ -1,0 +1,211 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "libprofile_defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "profile/profile_boot_info.cc",
+        "profile/profile_compilation_info.cc",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libartpalette",
+                "libbase",
+                "libz",
+            ],
+            static_libs: [
+                "libmodules-utils-build",
+                // ZipArchive support, the order matters here to get all symbols.
+                "libziparchive",
+            ],
+            export_shared_lib_headers: ["libbase"], // ART's macros.h depends on libbase's macros.h.
+        },
+        not_windows: {
+            shared_libs: [
+                "libartpalette",
+                "libziparchive",
+                "libz",
+                "libbase",
+            ],
+            export_shared_lib_headers: ["libbase"], // ART's macros.h depends on libbase's macros.h.
+        },
+        windows: {
+            cflags: ["-Wno-thread-safety"],
+            static_libs: [
+                "libartpalette",
+                "libziparchive",
+                "libz",
+                "libbase",
+            ],
+            export_static_lib_headers: ["libbase"], // ART's macros.h depends on libbase's macros.h.
+        },
+        darwin: {
+            enabled: true,
+        },
+    },
+    //generated_sources: ["art_libartbase_operator_srcs"],
+    export_include_dirs: ["."],
+}
+
+cc_defaults {
+    name: "libprofile_static_base_defaults",
+    whole_static_libs: [
+        "libbase",
+        "libz",
+        "libziparchive",
+    ],
+}
+
+cc_defaults {
+    name: "libprofile_static_defaults",
+    defaults: [
+        "libprofile_static_base_defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+    ],
+    whole_static_libs: ["libprofile"],
+}
+
+cc_defaults {
+    name: "libprofiled_static_defaults",
+    defaults: [
+        "libprofile_static_base_defaults",
+        "libartbased_static_defaults",
+        "libdexfiled_static_defaults",
+    ],
+    whole_static_libs: ["libprofiled"],
+}
+
+art_cc_library {
+    name: "libprofile",
+    defaults: [
+        "libprofile_defaults",
+        "libart_nativeunwind_defaults",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libartbase",
+                "libdexfile",
+            ],
+        },
+        not_windows: {
+            shared_libs: [
+                "libartbase",
+                "libdexfile",
+            ],
+        },
+        windows: {
+            enabled: true,
+            shared: {
+                enabled: false,
+            },
+            static_libs: [
+                "libartbase",
+                "libdexfile",
+            ],
+        },
+    },
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+}
+
+art_cc_library {
+    name: "libprofiled",
+    defaults: [
+        "art_debug_defaults",
+        "libprofile_defaults",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libartbased",
+                "libdexfiled",
+            ],
+        },
+        not_windows: {
+            shared_libs: [
+                "libartbased",
+                "libdexfiled",
+            ],
+        },
+        windows: {
+            static_libs: [
+                "libartbased",
+                "libdexfiled",
+            ],
+        },
+    },
+    apex_available: [
+        "com.android.art.debug",
+        // TODO(b/183882457): This lib doesn't go into com.android.art, but
+        // apex_available lists need to be the same for internal libs to avoid
+        // stubs, and libartd depends on this.
+        "com.android.art",
+        "test_broken_com.android.art",
+    ],
+}
+
+// For now many of these tests still use CommonRuntimeTest, almost universally because of
+// ScratchFile and related.
+// TODO: Remove CommonRuntimeTest dependency from these tests.
+art_cc_defaults {
+    name: "art_libprofile_tests_defaults",
+    data: [
+        ":art-gtest-jars-ManyMethods",
+        ":art-gtest-jars-MultiDex",
+        ":art-gtest-jars-ProfileTestMultiDex",
+    ],
+    srcs: [
+        "profile/profile_boot_info_test.cc",
+        "profile/profile_compilation_info_test.cc",
+    ],
+}
+
+// Version of ART gtest `art_libprofile_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_libprofile_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_libprofile_tests_defaults",
+    ],
+}
+
+// Standalone version of ART gtest `art_libprofile_tests`, not bundled with the ART APEX on target.
+art_cc_test {
+    name: "art_standalone_libprofile_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_libprofile_tests_defaults",
+    ],
+    test_config: "art_standalone_libprofile_tests.xml",
+}

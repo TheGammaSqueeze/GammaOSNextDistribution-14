@@ -1,0 +1,2 @@
+MethodHandles.identity is calling findStatic, which
+tries to find hidden "identity(primitive)" methods reflectively.

@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+import "foo.proto";
+
+message ImportFoo {
+}

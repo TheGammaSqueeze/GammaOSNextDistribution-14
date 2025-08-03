@@ -1,0 +1,2 @@
+Test that fault-handler doesn't cause userfaultfd kernel-faults, which are not
+allowed in unpriviledged processes.

@@ -1,0 +1,2 @@
+Regression test for the load-store-elimination pass, which used to remove stores
+too agressively.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.view.contentprotection.flags"
+  name: "setting_ui_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

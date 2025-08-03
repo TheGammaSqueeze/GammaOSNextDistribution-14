@@ -1,0 +1,21 @@
+# Copyright 2023 Google LLC
+
+# For now, as we figure out exactly how flagging will work, please send all
+# reviews to this directory to joeo, with the others as backups for emergencies.
+
+# As we build out the tooling and guardrails:
+#   - More OWNERS, including around the world coverage.
+#   - More clear policies will be made for adding new build flags, and
+#     the expectation that most flags will be aconfig flags and settable
+#     at runtime will become more firm.
+#   - The build_config and aconfig directories will be managed
+#     directly by gantry.
+
+joeo@google.com # Temporary primary
+lamontjones@google.com # Temporary primary
+morrislin@google.com # Temporary primary
+
+jham@google.com # emergency backup #{LAST_RESORT_SUGGESTION}
+amithds@google.com # emergency backup #{LAST_RESORT_SUGGESTION}
+rassb@google.com # emergency backup #{LAST_RESORT_SUGGESTION}
+

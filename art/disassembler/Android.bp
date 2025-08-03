@@ -1,0 +1,171 @@
+//
+// Copyright (C) 2012 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+art_cc_defaults {
+    name: "libart-disassembler-defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "disassembler.cc",
+    ],
+    codegen: {
+        arm: {
+            srcs: ["disassembler_arm.cc"],
+        },
+        arm64: {
+            srcs: ["disassembler_arm64.cc"],
+        },
+        riscv64: {
+            srcs: ["disassembler_riscv64.cc"],
+        },
+        x86: {
+            srcs: ["disassembler_x86.cc"],
+        },
+        x86_64: {
+            srcs: ["disassembler_x86.cc"],
+        },
+    },
+    shared_libs: [
+        "libbase",
+    ],
+    header_libs: [
+        "libart_headers",
+    ],
+    export_include_dirs: ["."],
+}
+
+art_cc_library {
+    name: "libart-disassembler",
+    defaults: ["libart-disassembler-defaults"],
+    codegen: {
+        arm: {
+            static_libs: [
+                // For disassembler_arm*.
+                "libvixl",
+            ],
+        },
+        arm64: {
+            static_libs: [
+                // For disassembler_arm*.
+                "libvixl",
+            ],
+        },
+    },
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+cc_defaults {
+    name: "libart-disassembler_static_defaults",
+    whole_static_libs: [
+        "libart-disassembler",
+        "libvixl",
+    ],
+}
+
+art_cc_library {
+    name: "libartd-disassembler",
+    defaults: [
+        "art_debug_defaults",
+        "libart-disassembler-defaults",
+    ],
+    codegen: {
+        arm: {
+            static_libs: [
+                // For disassembler_arm*.
+                "libvixld",
+            ],
+        },
+        arm64: {
+            static_libs: [
+                // For disassembler_arm*.
+                "libvixld",
+            ],
+        },
+    },
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+cc_defaults {
+    name: "libartd-disassembler_static_defaults",
+    whole_static_libs: [
+        "libartd-disassembler",
+        "libvixld",
+    ],
+}
+
+cc_library_headers {
+    name: "art_disassembler_headers",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    export_include_dirs: [
+        ".",
+    ],
+
+    apex_available: [
+        "com.android.art.debug",
+        "com.android.art",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_disassembler_tests_defaults",
+    codegen: {
+        arm64: {
+            srcs: ["disassembler_arm64_test.cc"],
+        },
+    },
+}
+
+// Version of ART gtest `art_disassembler_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_disassembler_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_disassembler_tests_defaults",
+    ],
+    static_libs: [
+        "libvixld",
+    ],
+}
+
+// Standalone version of ART gtest `art_disassembler_tests`,
+// not bundled with the ART APEX on target.
+art_cc_test {
+    name: "art_standalone_disassembler_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_disassembler_tests_defaults",
+    ],
+    static_libs: [
+        "libvixl",
+    ],
+}

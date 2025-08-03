@@ -1,0 +1,3 @@
+Tests that if we devirtualize a method that throws given the
+parameters, then we should also set the devirtualization as always
+throws.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "delay_bonding_when_busy"
+  state: ENABLED
+  permission: READ_ONLY
+}

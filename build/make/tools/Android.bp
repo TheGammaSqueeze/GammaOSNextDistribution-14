@@ -1,0 +1,117 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_binary_host {
+    name: "generate-self-extracting-archive",
+    srcs: ["generate-self-extracting-archive.py"],
+}
+
+python_binary_host {
+    name: "post_process_props",
+    srcs: ["post_process_props.py"],
+    libs: [
+        "uffd_gc_utils",
+    ],
+}
+
+python_test_host {
+    name: "post_process_props_unittest",
+    main: "test_post_process_props.py",
+    srcs: [
+        "post_process_props.py",
+        "test_post_process_props.py",
+    ],
+    libs: [
+        "uffd_gc_utils",
+    ],
+    test_config: "post_process_props_unittest.xml",
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "extract_kernel",
+    srcs: ["extract_kernel.py"],
+}
+
+genrule_defaults {
+    name: "extract_kernel_release_defaults",
+    tools: [
+        "extract_kernel",
+        "lz4",
+    ],
+    out: ["kernel_release.txt"],
+    cmd: "$(location) --tools lz4:$(location lz4) --input $(in) --output-release > $(out)",
+}
+
+cc_binary_host {
+    name: "build-runfiles",
+    srcs: ["build-runfiles.cc"],
+}
+
+python_binary_host {
+    name: "check_radio_versions",
+    srcs: ["check_radio_versions.py"],
+}
+
+python_binary_host {
+    name: "check_elf_file",
+    srcs: ["check_elf_file.py"],
+}
+
+python_binary_host {
+    name: "generate_gts_shared_report",
+    srcs: ["generate_gts_shared_report.py"],
+}
+
+python_binary_host {
+    name: "list_files",
+    main: "list_files.py",
+    srcs: [
+        "list_files.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "auto_gen_test_config_test",
+    main: "auto_gen_test_config_test.py",
+    srcs: [
+        "auto_gen_test_config.py",
+        "auto_gen_test_config_test.py",
+    ],
+    auto_gen_config: true,
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "characteristics_rro_generator",
+    srcs: ["characteristics_rro_generator.py"],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}

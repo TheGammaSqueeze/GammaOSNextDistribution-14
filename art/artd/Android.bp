@@ -1,0 +1,147 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "artd_defaults",
+    defaults: ["art_defaults"],
+    srcs: [
+        "artd.cc",
+        "file_utils.cc",
+        "path_utils.cc",
+    ],
+    header_libs: [
+        "art_cmdlineparser_headers",
+        "profman_headers",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libselinux",
+    ],
+    static_libs: [
+        "artd-aidl-ndk",
+        "libfstab",
+    ],
+}
+
+art_cc_binary {
+    name: "artd",
+    defaults: ["artd_defaults"],
+    srcs: [
+        "artd_main.cc",
+    ],
+    shared_libs: [
+        "libart",
+        "libartbase",
+        "libartservice",
+        "libarttools", // Contains "libc++fs".
+        "libdexfile",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_artd_tests_defaults",
+    defaults: ["artd_defaults"],
+    static_libs: [
+        "libgmock",
+    ],
+    srcs: [
+        "artd_test.cc",
+        "file_utils_test.cc",
+        "path_utils_test.cc",
+    ],
+    data: [
+        ":art-gtest-jars-Main",
+        ":art-gtest-jars-Nested",
+    ],
+}
+
+// Version of ART gtest `art_artd_tests` bundled with the ART APEX on target.
+//
+// This test requires the full libbinder_ndk implementation on host, which is
+// not available as a prebuilt on the thin master-art branch. Hence it won't
+// work there, and there's a conditional in Android.gtest.mk to exclude it from
+// test-art-host-gtest.
+art_cc_test {
+    name: "art_artd_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_artd_tests_defaults",
+    ],
+    shared_libs: [
+        "libartservice",
+        "libarttools",
+        "libdexfile",
+    ],
+}
+
+// Standalone version of ART gtest `art_artd_tests`, not bundled with the ART
+// APEX on target.
+art_cc_test {
+    name: "art_standalone_artd_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_artd_tests_defaults",
+    ],
+    static_libs: [
+        "libartservice",
+        "libarttools",
+        "libdexfile",
+    ],
+    test_config_template: "art_standalone_artd_tests.xml",
+}
+
+cc_fuzz {
+    name: "artd_fuzzer",
+    defaults: [
+        "service_fuzzer_defaults",
+        "art_module_source_build_defaults",
+        "artd_defaults",
+        // Fuzzer is on a special variant, different from the APEX variant. When
+        // linking against "libdexfile" as a shared library, the build system
+        // incorrectly picks the platform variant, which only exposes system
+        // APIs. As a workaround, we link against "libdexfile" as a static
+        // library.
+        "libdexfile_static_defaults",
+    ],
+    host_supported: true,
+    srcs: ["artd_fuzzer.cc"],
+    shared_libs: [
+        "libart",
+        "libartbase",
+        "libartservice",
+        "libarttools",
+        "libdexfile",
+        "liblog",
+    ],
+    fuzz_config: {
+        cc: [
+            "art-module-team@google.com",
+        ],
+    },
+}

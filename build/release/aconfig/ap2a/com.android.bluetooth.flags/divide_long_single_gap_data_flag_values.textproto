@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "divide_long_single_gap_data"
+  state: ENABLED
+  permission: READ_ONLY
+}

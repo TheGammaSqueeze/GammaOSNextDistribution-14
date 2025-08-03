@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-sysprop",
+    pkgPath: "android/soong/sysprop",
+    deps: [
+        "blueprint",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-java",
+        "soong-rust",
+    ],
+    srcs: [
+        "sysprop_library.go",
+        "testing.go",
+    ],
+    testSrcs: [
+        "sysprop_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

@@ -1,0 +1,2 @@
+Regression test for Thread::DeoptimizeWithDeoptimizationException which always
+expected to have a shadow frame to execute.

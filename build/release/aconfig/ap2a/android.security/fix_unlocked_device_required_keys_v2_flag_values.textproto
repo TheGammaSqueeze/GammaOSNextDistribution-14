@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.security"
+  name: "fix_unlocked_device_required_keys_v2"
+  state: ENABLED
+  permission: READ_ONLY
+}

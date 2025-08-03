@@ -1,0 +1,181 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+// TODO: b/319697968 - Remove the conditional logic and let art-bootclasspath-fragment always
+// depend on the exportable stubs once metalava fully supports flagged api handling.
+soong_config_module_type {
+    name: "art_bootclasspath_fragment_soong_config_defaults",
+    module_type: "java_defaults",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_hidden_api_exportable_stubs",
+    ],
+    properties: [
+        "core_platform_api.stub_libs",
+    ],
+}
+
+art_bootclasspath_fragment_soong_config_defaults {
+    name: "art-bootclasspath-fragment-soong-config-defaults",
+    soong_config_variables: {
+        release_hidden_api_exportable_stubs: {
+            // When "RELEASE_HIDDEN_API_EXPORTABLE_STUBS" build flag is set,
+            // depend on the exportable stubs
+            core_platform_api: {
+                stub_libs: [
+                    // Core platform (aka. module_lib) stubs for all the non-coverage contents.
+                    "art.module.public.api.stubs.exportable.module_lib",
+                ],
+            },
+            conditions_default: {
+                // When "RELEASE_HIDDEN_API_EXPORTABLE_STUBS" build flag is not set,
+                // depend on the everything stubs
+                core_platform_api: {
+                    stub_libs: [
+                        // Core platform (aka. module_lib) stubs for all the non-coverage contents.
+                        "art.module.public.api.stubs.module_lib",
+                    ],
+                },
+            },
+        },
+    },
+}
+
+// Encapsulate the contributions made by the com.android.art to the bootclasspath.
+bootclasspath_fragment {
+    name: "art-bootclasspath-fragment",
+    defaults: [
+        "art-bootclasspath-fragment-soong-config-defaults",
+    ],
+    image_name: "art",
+    // Must match the ART_APEX_JARS set in build/make/core/envsetup.mk
+    contents: [
+        "core-oj",
+        "core-libart",
+        "okhttp",
+        "bouncycastle",
+        "apache-xml",
+    ],
+
+    api: {
+        stub_libs: [
+            // Stubs for the core-oj and core-libart. The other modules do not
+            // have any public API.
+            "art.module.public.api",
+        ],
+    },
+
+    // Additional properties to append when coverage is enabled, i.e. when
+    // EMMA_INSTRUMENT_FRAMEWORK=true
+    coverage: {
+        contents: [
+            "jacocoagent",
+        ],
+        api: {
+            stub_libs: [
+                // Stubs for the jacocoagent.
+                "jacoco-stubs",
+            ],
+        },
+
+        hidden_api: {
+            // Additional packages provided by jacoagent
+            package_prefixes: [
+                "com.vladium.emma.rt",
+                "org.jacoco",
+                "org.objectweb.asm",
+            ],
+
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+
+    hidden_api: {
+        blocked: ["hiddenapi/hiddenapi-blocked.txt"],
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        unsupported_packages: ["hiddenapi/hiddenapi-unsupported-packages.txt"],
+
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages currently only contain classes from this
+        // bootclasspath_fragment but some of their sub-packages contain classes
+        // from other bootckasspath modules. Packages should only be listed here
+        // when necessary for legacy purposes, new packages should match a
+        // package prefix.
+        single_packages: [
+            "android.system",
+        ],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.compat",
+            "android.crypto.hpke",
+            "com.android.okhttp",
+            "com.android.org.bouncycastle",
+            "com.android.org.kxml2",
+            "com.sun",
+            "dalvik",
+            "java",
+            "javax.annotation",
+            "javax.crypto",
+            "javax.net",
+            "javax.security",
+            "javax.sql",
+            "javax.xml",
+            "jdk",
+            "libcore",
+            "org.apache.harmony",
+            "org.apache.xalan",
+            "org.apache.xml",
+            "org.apache.xpath",
+            "org.json",
+            "org.w3c",
+            "org.xml",
+            "org.xmlpull",
+            "sun",
+        ],
+    },
+}
+
+// Encapsulate the contributions made by the com.android.art to the systemserverclasspath.
+systemserverclasspath_fragment {
+    name: "art-systemserverclasspath-fragment",
+    contents: ["service-art"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}

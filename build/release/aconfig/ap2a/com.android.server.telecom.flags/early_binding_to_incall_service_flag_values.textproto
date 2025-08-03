@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "early_binding_to_incall_service"
+  state: ENABLED
+  permission: READ_ONLY
+}

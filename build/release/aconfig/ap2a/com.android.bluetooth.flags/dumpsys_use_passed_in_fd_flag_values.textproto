@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "dumpsys_use_passed_in_fd"
+  state: ENABLED
+  permission: READ_ONLY
+}

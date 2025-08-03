@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_multi_device_input"
+  state: ENABLED
+  permission: READ_ONLY
+}

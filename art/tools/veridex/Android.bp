@@ -1,0 +1,161 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_binary {
+    name: "veridex",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "flow_analysis.cc",
+        "hidden_api.cc",
+        "hidden_api_finder.cc",
+        "precise_hidden_api_finder.cc",
+        "resolver.cc",
+        "veridex.cc",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    static_libs: [
+        "libdexfile",
+        "libartbase",
+        "libartpalette",
+        "libbase",
+        "liblog",
+        "libz",
+        "libziparchive",
+    ],
+    stl: "libc++_static",
+    header_libs: [
+        "art_libartbase_headers",
+    ],
+    target: {
+        darwin: {
+            enabled: true,
+        },
+    },
+}
+
+// Expose the appcompat.sh script for use by the build.
+sh_binary_host {
+    name: "veridex-appcompat",
+    src: "appcompat.sh",
+    filename_from_src: true,
+}
+
+genrule {
+    name: "system_stub_dex_d8_input_jar",
+    srcs: [":system_android_jar"],
+    tools: ["zip2zip"],
+    out: ["system_stub_dex_d8_input.jar"],
+    cmd: "$(location zip2zip) " +
+        "-j -i $(in) " +
+        "-o $(out) \"**/*.class\" ",
+}
+
+genrule {
+    name: "system_stub_dex",
+    srcs: [
+        ":system_stub_dex_d8_input_jar",
+    ],
+    tools: [
+        "d8",
+    ],
+    out: [
+        "dex_dir/classes.dex",
+        "dex_dir/classes2.dex",
+    ],
+    cmd: "mkdir -p $(genDir)/dex_dir &&" +
+        "$(location d8) " +
+        "-JXmx4096M -JXX:+TieredCompilation -JXX:TieredStopAtLevel=1 " +
+        "-JDcom.android.tools.r8.emitRecordAnnotationsInDex " +
+        "-JDcom.android.tools.r8.emitPermittedSubclassesAnnotationsInDex " +
+        "-JXX:OnError=\"cat hs_err_pid%p.log\" " +
+        "-JXX:CICompilerCount=6 -JXX:+UseDynamicNumberOfGCThreads " +
+        "--output $(genDir)/dex_dir " +
+        "--min-api 1000 " +
+        "$(in)",
+}
+
+genrule {
+    name: "public_oahl_stub_dex_d8_input_jar",
+    srcs: [":public.org.apache.http.legacy.jar"],
+    tools: ["zip2zip"],
+    out: ["oahl_stub_dex_d8_input.jar"],
+    cmd: "$(location zip2zip) " +
+        "-j -i $(in) " +
+        "-o $(out) \"**/*.class\" ",
+}
+
+genrule {
+    name: "public_oahl_stub_dex",
+    srcs: [
+        ":public_oahl_stub_dex_d8_input_jar",
+    ],
+    tools: [
+        "d8",
+    ],
+    out: [
+        "dex_dir/classes.dex",
+    ],
+    cmd: "mkdir -p $(genDir)/dex_dir &&" +
+        "$(location d8) " +
+        "-JXmx4096M -JXX:+TieredCompilation -JXX:TieredStopAtLevel=1 " +
+        "-JDcom.android.tools.r8.emitRecordAnnotationsInDex " +
+        "-JDcom.android.tools.r8.emitPermittedSubclassesAnnotationsInDex " +
+        "-JXX:OnError=\"cat hs_err_pid%p.log\" " +
+        "-JXX:CICompilerCount=6 -JXX:+UseDynamicNumberOfGCThreads " +
+        "--output $(genDir)/dex_dir " +
+        "--min-api 1000 " +
+        "$(in)",
+}
+
+genrule {
+    name: "veridex_zip",
+    srcs: [
+        "appcompat.sh",
+        ":platform-bootclasspath{hiddenapi-flags.csv}",
+        ":system_stub_dex",
+        ":public_oahl_stub_dex",
+    ],
+    tools: [
+        "soong_zip",
+        "veridex",
+    ],
+    out: ["veridex.zip"],
+    cmd: "mkdir -p $(genDir)/tmp &&" +
+        "ls -1 $(locations :system_stub_dex) | sort > $(genDir)/tmp/system-stubs.zip.list && " +
+        "$(locations soong_zip) -o $(genDir)/tmp/system-stubs.zip" +
+        " -j -l $(genDir)/tmp/system-stubs.zip.list && " +
+        "ls -1 $(locations :public_oahl_stub_dex) | sort > $(genDir)/tmp/org.apache.http.legacy-stubs.zip.list && " +
+        "$(locations soong_zip) -o $(genDir)/tmp/org.apache.http.legacy-stubs.zip " +
+        " -j -l $(genDir)/tmp/org.apache.http.legacy-stubs.zip.list && " +
+        "$(locations soong_zip) -o $(out)" +
+        " -C `dirname $(location appcompat.sh)` -f $(location appcompat.sh)" +
+        " -C `dirname $(location :platform-bootclasspath{hiddenapi-flags.csv})` -f $(location :platform-bootclasspath{hiddenapi-flags.csv})" +
+        " -C `dirname $(location veridex)` -f $(location veridex)" +
+        " -j -f $(genDir)/tmp/system-stubs.zip" +
+        " -j -f $(genDir)/tmp/org.apache.http.legacy-stubs.zip",
+    visibility: ["//visibility:public"],
+}

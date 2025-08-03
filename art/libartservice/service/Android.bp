@@ -1,0 +1,275 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+// This native library contains JNI support code for the ART Service Java
+// Language library.
+cc_defaults {
+    name: "libartservice_defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "native/service.cc",
+    ],
+    export_include_dirs: ["native"],
+    shared_libs: [
+        "libbase",
+        "libnativehelper",
+    ],
+}
+
+cc_library {
+    name: "libartservice",
+    defaults: ["libartservice_defaults"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    shared_libs: [
+        "libart",
+        "libartbase",
+        "libarttools", // Contains "libc++fs".
+    ],
+}
+
+cc_library {
+    name: "libartserviced",
+    defaults: [
+        "libartservice_defaults",
+        "art_debug_defaults",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    shared_libs: [
+        "libartd",
+        "libartbased",
+        "libarttools", // Contains "libc++fs".
+    ],
+}
+
+java_defaults {
+    name: "service-art-defaults",
+    defaults: [
+        "framework-system-server-module-defaults",
+    ],
+    sdk_version: "system_server_current",
+    min_sdk_version: "31",
+    srcs: [
+        "java/**/*.java",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "auto_value_annotations",
+        "sdk_module-lib_current_framework-permission-s",
+        // TODO(b/256866172): Transitive dependency, for r8 only.
+        "framework-statsd.stubs.module_lib",
+        // TODO(b/256866172): Transitive dependency, for r8 only. This module
+        // always refers to the jar in prebuilts/sdk. We can't use
+        // "framework-connectivity.stubs.module_lib" here because it's not
+        // available on master-art.
+        "sdk_module-lib_current_framework-connectivity",
+    ],
+    static_libs: [
+        "art-statslog-art-java",
+        "artd-aidl-java",
+        "modules-utils-package-state",
+        "modules-utils-shell-command-handler",
+        "service-art-proto-java",
+    ],
+    plugins: [
+        "auto_value_plugin",
+    ],
+}
+
+// Used by tests to allow tests to mock the right classes.
+java_library {
+    name: "service-art-pre-jarjar",
+    defaults: ["service-art-defaults"],
+    installable: false,
+    visibility: [
+        "//visibility:override",
+        "//visibility:private",
+    ],
+}
+
+// Provides the API and implementation of the ART Service class that will be
+// loaded by the System Server.
+java_sdk_library {
+    // This target is named 'service-art' to conform to the naming conventions
+    // for JAR files in the System Server.
+    name: "service-art",
+    defaults: [
+        "service-art-defaults",
+        "framework-system-server-module-optimize-defaults",
+    ],
+    permitted_packages: ["com.android.server.art"],
+    dex_preopt: {
+        profile: "art-profile",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//frameworks/base/services/core",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    jarjar_rules: "jarjar-rules.txt",
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}
+
+java_library {
+    name: "service-art-proto-java",
+    proto: {
+        type: "lite",
+    },
+    srcs: [
+        "proto/**/*.proto",
+    ],
+    sdk_version: "system_server_current",
+    min_sdk_version: "31",
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+java_library {
+    name: "art-statslog-art-java",
+    srcs: [
+        ":art-statslog-art-java-gen",
+    ],
+    libs: [
+        "framework-statsd.stubs.module_lib",
+    ],
+    sdk_version: "system_server_current",
+    min_sdk_version: "31",
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+genrule {
+    name: "art-statslog-art-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module art --javaPackage com.android.server.art --javaClass ArtStatsLog",
+    out: ["java/com/android/server/art/ArtStatsLog.java"],
+}
+
+art_cc_defaults {
+    name: "art_libartservice_tests_defaults",
+    defaults: ["libartservice_defaults"],
+    srcs: [
+        "native/service_test.cc",
+    ],
+    static_libs: [
+        "libgmock",
+    ],
+}
+
+// Version of ART gtest `art_libartservice_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_libartservice_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_libartservice_tests_defaults",
+    ],
+    shared_libs: [
+        "libarttools",
+    ],
+}
+
+// Standalone version of ART gtest `art_libartservice_tests`, not bundled with the ART APEX on
+// target.
+art_cc_test {
+    name: "art_standalone_libartservice_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_libartservice_tests_defaults",
+    ],
+    static_libs: [
+        "libarttools",
+    ],
+}
+
+android_test {
+    name: "ArtServiceTests",
+
+    // Include all test java files.
+    srcs: [
+        "javatests/**/*.java",
+    ],
+
+    // disable the target when prebuilt modules are used
+    defaults: [
+        "art_module_source_build_java_defaults",
+    ],
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+        "androidx.test.runner",
+        "artd-aidl-java",
+        "framework-annotations-lib",
+        // We need ExtendedMockito to mock static methods.
+        "mockito-target-extended-minus-junit4",
+        "modules-utils-package-state",
+        "service-art-pre-jarjar",
+        // Statically link against system server to allow us to mock system
+        // server APIs. This won't work on master-art, but it's fine because we
+        // don't run this test on master-art.
+        "services.core",
+    ],
+
+    jni_libs: [
+        "libartservice",
+        // The two libraries below are required by ExtendedMockito.
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    compile_multilib: "both",
+
+    // TODO: This module should move to sdk_version: "system_server_current" when possible,
+    //   as this will restrict the APIs available to just that expected system API. For now,
+    //   a compileOnly / runtimeOnly split for dependencies doesn't exist in the build system
+    //   and so it's not possible to enforce.
+    min_sdk_version: "31",
+
+    test_suites: ["general-tests"],
+    test_config: "ArtServiceTests.xml",
+}
+
+filegroup {
+    name: "libartservice_protos",
+    srcs: [
+        "proto/**/*.proto",
+    ],
+    visibility: [
+        "//cts/hostsidetests/compilation",
+    ],
+}

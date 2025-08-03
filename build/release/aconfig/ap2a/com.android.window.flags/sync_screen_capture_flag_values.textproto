@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "sync_screen_capture"
+  state: ENABLED
+  permission: READ_ONLY
+}

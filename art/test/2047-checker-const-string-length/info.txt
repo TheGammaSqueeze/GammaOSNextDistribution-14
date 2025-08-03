@@ -1,0 +1,1 @@
+Tests that we optimize String's length()/isEmpty() for constant strings.

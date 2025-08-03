@@ -1,0 +1,1 @@
+Tests that we inline try catches, as long as we don't inline inside of other try catches.

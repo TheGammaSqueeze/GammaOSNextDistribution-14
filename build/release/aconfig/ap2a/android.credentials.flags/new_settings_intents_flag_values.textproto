@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.credentials.flags"
+  name: "new_settings_intents"
+  state: ENABLED
+  permission: READ_ONLY
+}

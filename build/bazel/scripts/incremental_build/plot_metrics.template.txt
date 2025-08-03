@@ -1,0 +1,30 @@
+# generated script
+set datafile separator ','
+
+set terminal $term size $width, 640
+set termoption noenhanced
+
+set output '$output'
+
+set grid
+set xtics rotate by 65 right
+set ydata $ydata # to set time or leave empty to default to numeric
+set timefmt "%M:%S"  # assume no data point exceeds 59:59
+
+$$data << EOD
+$data
+EOD
+
+set boxwidth 0.5 relative
+set style fill solid 0.6
+set key autotitle columnhead left
+cuj = "sprintf('%.20s', stringcolumn('cuj')[*:20])"
+targets = "sprintf('%.12s', stringcolumn('targets')[*:12])"
+xl = "@cuj.':'.@targets"
+plot for[i=3:$column_count] $$data using (column(0)):i:xticlabels(@xl) \
+  title column with linespoints
+
+unset output
+unset grid
+set terminal dumb 120 25
+replot

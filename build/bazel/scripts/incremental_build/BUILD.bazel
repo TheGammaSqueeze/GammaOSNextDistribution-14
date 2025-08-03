@@ -1,0 +1,107 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+py_binary(
+    name = "incremental_build",
+    srcs = [
+        "clone.py",
+        "cuj.py",
+        "cuj_catalog.py",
+        "cuj_regex_based.py",
+        "go_allowlists.py",
+        "incremental_build.py",
+        "ui.py",
+    ],
+    main = "incremental_build.py",
+    python_version = "PY3",
+    deps = [
+        ":perf_metrics",
+        ":pretty",
+    ],
+)
+
+py_binary(
+    name = "pretty",
+    srcs = [
+        "plot_metrics.py",
+        "pretty.py",
+    ],
+    data = [":plot_metrics.template.txt"],
+    main = "pretty.py",
+    python_version = "PY3",
+    deps = [":util"],
+)
+
+py_test(
+    name = "pretty_test",
+    srcs = [
+        "plot_metrics_test.py",
+        "pretty_test.py",
+    ],
+    deps = [":pretty"],
+)
+
+py_binary(
+    name = "clone",
+    srcs = [
+        "clone.py",
+        "cuj.py",
+        "go_allowlists.py",
+    ],
+    main = "clone.py",
+    python_version = "PY3",
+    deps = [":util"],
+)
+
+py_test(
+    name = "clone_test",
+    srcs = [
+        "clone_test.py",
+        "go_allowlists_test.py",
+    ],
+    deps = [":clone"],
+)
+
+py_library(
+    name = "util",
+    srcs = [
+        "finder.py",
+        "util.py",
+    ],
+    imports = ["."],
+)
+
+py_test(
+    name = "util_test",
+    srcs = [
+        "finder_test.py",
+        "util_test.py",
+    ],
+    deps = [":util"],
+)
+
+py_library(
+    name = "perf_metrics",
+    srcs = ["perf_metrics.py"],
+    deps = [
+        ":util",
+        "//build/soong/ui/metrics:metrics-py-proto",
+    ],
+)
+
+py_test(
+    name = "perf_metrics_test",
+    srcs = ["perf_metrics_test.py"],
+    deps = [":perf_metrics"],
+)

@@ -1,0 +1,627 @@
+//
+// Copyright (C) 2012 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// TODO We should really separate out those files that are actually needed for both variants of an
+// architecture into its own category. Currently we just include all of the 32bit variant in the
+// 64bit variant. It also might be good to allow one to compile only the 64bit variant without the
+// 32bit one.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+// Common dependencies for libart-compiler_deps and libartd-compiler_deps.
+cc_defaults {
+    name: "libart-compiler_common_deps",
+    shared_libs: [
+        "libbase",
+        "liblzma", // libelffile(d) dependency; must be repeated here since it's a static lib.
+        "libartpalette",
+    ],
+    header_libs: [
+        "libart_headers",
+        "libart_generated_headers",
+    ],
+}
+
+// Dependencies of libart-compiler, used to propagate libart-compiler deps when static linking.
+art_cc_defaults {
+    name: "libart-compiler_deps",
+    defaults: ["libart-compiler_common_deps"],
+    shared_libs: [
+        "libartbase",
+        "libprofile",
+        "libdexfile",
+    ],
+    static_libs: ["libelffile"],
+    codegen: {
+        arm: {
+            // VIXL assembly support for ARM targets.
+            static_libs: [
+                "libvixl",
+            ],
+        },
+        arm64: {
+            // VIXL assembly support for ARM64 targets.
+            static_libs: [
+                "libvixl",
+            ],
+        },
+    },
+    // In order to save memory on device `art::HGraphVisualizerDisassembler` loads
+    // `libart-disassembler.so` dynamically. Host builds of `libart-compiler` depend on
+    // `libart-disassembler` directly with `shared_libs` or `static_libs`.
+    target: {
+        host: {
+            shared: {
+                shared_libs: [
+                    "libart-disassembler",
+                ],
+            },
+        },
+        android: {
+            runtime_libs: [
+                "libart-disassembler",
+            ],
+        },
+    },
+}
+
+// Dependencies of libartd-compiler, used to propagate libartd-compiler deps when static linking.
+art_cc_defaults {
+    name: "libartd-compiler_deps",
+    defaults: ["libart-compiler_common_deps"],
+    shared_libs: [
+        "libartbased",
+        "libprofiled",
+        "libdexfiled",
+    ],
+    static_libs: ["libelffiled"],
+    codegen: {
+        arm: {
+            // VIXL assembly support for ARM targets.
+            static_libs: [
+                "libvixld",
+            ],
+        },
+        arm64: {
+            // VIXL assembly support for ARM64 targets.
+            static_libs: [
+                "libvixld",
+            ],
+        },
+    },
+    // In order to save memory on device `art::HGraphVisualizerDisassembler` loads
+    // `libartd-disassembler.so` dynamically. Host builds of `libartd-compiler` depend on
+    // `libartd-disassembler` directly with `shared_libs` or `static_libs`.
+    target: {
+        host: {
+            shared: {
+                shared_libs: [
+                    "libartd-disassembler",
+                ],
+            },
+        },
+        android: {
+            runtime_libs: [
+                "libartd-disassembler",
+            ],
+        },
+    },
+}
+
+art_cc_defaults {
+    name: "libart-compiler-defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "debug/elf_debug_writer.cc",
+        "dex/inline_method_analyser.cc",
+        "driver/compiler_options.cc",
+        "driver/dex_compilation_unit.cc",
+        "jit/jit_compiler.cc",
+        "jit/jit_logger.cc",
+        "jni/quick/calling_convention.cc",
+        "jni/quick/jni_compiler.cc",
+        "optimizing/block_builder.cc",
+        "optimizing/block_namer.cc",
+        "optimizing/bounds_check_elimination.cc",
+        "optimizing/builder.cc",
+        "optimizing/cha_guard_optimization.cc",
+        "optimizing/code_generation_data.cc",
+        "optimizing/code_generator.cc",
+        "optimizing/code_generator_utils.cc",
+        "optimizing/code_sinking.cc",
+        "optimizing/constant_folding.cc",
+        "optimizing/constructor_fence_redundancy_elimination.cc",
+        "optimizing/data_type.cc",
+        "optimizing/dead_code_elimination.cc",
+        "optimizing/escape.cc",
+        "optimizing/graph_checker.cc",
+        "optimizing/graph_visualizer.cc",
+        "optimizing/gvn.cc",
+        "optimizing/induction_var_analysis.cc",
+        "optimizing/induction_var_range.cc",
+        "optimizing/inliner.cc",
+        "optimizing/instruction_builder.cc",
+        "optimizing/instruction_simplifier.cc",
+        "optimizing/intrinsic_objects.cc",
+        "optimizing/intrinsics.cc",
+        "optimizing/licm.cc",
+        "optimizing/linear_order.cc",
+        "optimizing/load_store_analysis.cc",
+        "optimizing/load_store_elimination.cc",
+        "optimizing/locations.cc",
+        "optimizing/loop_analysis.cc",
+        "optimizing/loop_optimization.cc",
+        "optimizing/nodes.cc",
+        "optimizing/optimization.cc",
+        "optimizing/optimizing_compiler.cc",
+        "optimizing/parallel_move_resolver.cc",
+        "optimizing/prepare_for_register_allocation.cc",
+        "optimizing/profiling_info_builder.cc",
+        "optimizing/reference_type_propagation.cc",
+        "optimizing/register_allocation_resolver.cc",
+        "optimizing/register_allocator.cc",
+        "optimizing/register_allocator_linear_scan.cc",
+        "optimizing/select_generator.cc",
+        "optimizing/scheduler.cc",
+        "optimizing/sharpening.cc",
+        "optimizing/side_effects_analysis.cc",
+        "optimizing/ssa_builder.cc",
+        "optimizing/ssa_liveness_analysis.cc",
+        "optimizing/ssa_phi_elimination.cc",
+        "optimizing/stack_map_stream.cc",
+        "optimizing/superblock_cloner.cc",
+        "optimizing/write_barrier_elimination.cc",
+        "trampolines/trampoline_compiler.cc",
+        "utils/assembler.cc",
+        "utils/jni_macro_assembler.cc",
+        "compiler.cc",
+    ],
+
+    codegen: {
+        arm: {
+            srcs: [
+                "jni/quick/arm/calling_convention_arm.cc",
+                "optimizing/code_generator_arm_vixl.cc",
+                "optimizing/code_generator_vector_arm_vixl.cc",
+                "optimizing/critical_native_abi_fixup_arm.cc",
+                "optimizing/instruction_simplifier_arm.cc",
+                "optimizing/instruction_simplifier_shared.cc",
+                "optimizing/intrinsics_arm_vixl.cc",
+                "optimizing/nodes_shared.cc",
+                "optimizing/scheduler_arm.cc",
+                "utils/arm/assembler_arm_vixl.cc",
+                "utils/arm/constants_arm.cc",
+                "utils/arm/jni_macro_assembler_arm_vixl.cc",
+                "utils/arm/managed_register_arm.cc",
+            ],
+        },
+        arm64: {
+            srcs: [
+                "jni/quick/arm64/calling_convention_arm64.cc",
+                "optimizing/code_generator_arm64.cc",
+                "optimizing/code_generator_vector_arm64_neon.cc",
+                "optimizing/code_generator_vector_arm64_sve.cc",
+                "optimizing/jit_patches_arm64.cc",
+                "optimizing/scheduler_arm64.cc",
+                "optimizing/instruction_simplifier_arm64.cc",
+                "optimizing/intrinsics_arm64.cc",
+                "utils/arm64/assembler_arm64.cc",
+                "utils/arm64/jni_macro_assembler_arm64.cc",
+                "utils/arm64/managed_register_arm64.cc",
+            ],
+        },
+        riscv64: {
+            srcs: [
+                "jni/quick/riscv64/calling_convention_riscv64.cc",
+                "optimizing/code_generator_riscv64.cc",
+                "optimizing/critical_native_abi_fixup_riscv64.cc",
+                "optimizing/intrinsics_riscv64.cc",
+                "utils/riscv64/assembler_riscv64.cc",
+                "utils/riscv64/jni_macro_assembler_riscv64.cc",
+                "utils/riscv64/managed_register_riscv64.cc",
+            ],
+        },
+        x86: {
+            srcs: [
+                "jni/quick/x86/calling_convention_x86.cc",
+                "optimizing/code_generator_x86.cc",
+                "optimizing/code_generator_vector_x86.cc",
+                "optimizing/intrinsics_x86.cc",
+                "optimizing/instruction_simplifier_x86_shared.cc",
+                "optimizing/instruction_simplifier_x86.cc",
+                "optimizing/pc_relative_fixups_x86.cc",
+                "optimizing/x86_memory_gen.cc",
+                "utils/x86/assembler_x86.cc",
+                "utils/x86/jni_macro_assembler_x86.cc",
+                "utils/x86/managed_register_x86.cc",
+            ],
+        },
+        x86_64: {
+            srcs: [
+                "jni/quick/x86_64/calling_convention_x86_64.cc",
+                "optimizing/intrinsics_x86_64.cc",
+                "optimizing/instruction_simplifier_x86_64.cc",
+                "optimizing/code_generator_x86_64.cc",
+                "optimizing/code_generator_vector_x86_64.cc",
+                "utils/x86_64/assembler_x86_64.cc",
+                "utils/x86_64/jni_macro_assembler_x86_64.cc",
+                "utils/x86_64/managed_register_x86_64.cc",
+            ],
+        },
+    },
+    generated_sources: ["art_compiler_operator_srcs"],
+    header_libs: [
+        "art_cmdlineparser_headers", // For compiler_options.
+        "art_disassembler_headers",
+        "libnativehelper_header_only",
+    ],
+
+    export_include_dirs: ["."],
+}
+
+cc_defaults {
+    name: "libart-compiler_static_base_defaults",
+    whole_static_libs: [
+        "libbase",
+    ],
+}
+
+gensrcs {
+    name: "art_compiler_operator_srcs",
+    cmd: "$(location generate_operator_out) art/compiler $(in) > $(out)",
+    tools: ["generate_operator_out"],
+    srcs: [
+        "linker/linker_patch.h",
+        "optimizing/locations.h",
+        "optimizing/nodes.h",
+        "optimizing/optimizing_compiler_stats.h",
+
+        "utils/arm/constants_arm.h",
+    ],
+    output_extension: "operator_out.cc",
+}
+
+art_cc_library_static {
+    name: "libart-compiler",
+    defaults: [
+        "libart-compiler-defaults",
+        "libart-compiler_deps",
+    ],
+    target: {
+        android: {
+            lto: {
+                thin: true,
+            },
+        },
+    },
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+}
+
+// For static linking with gtests. Same as `libart-compiler`, but without LTO.
+// When gtests static link a library with LTO enabled, they are also built with LTO.
+// This makes the build process use a lot of memory. b/277207452
+art_cc_library_static {
+    name: "libart-compiler-for-test",
+    defaults: [
+        "libart-compiler-defaults",
+        "libart-compiler_deps",
+    ],
+}
+
+cc_defaults {
+    name: "libart-compiler_static_defaults",
+    defaults: [
+        "libart-compiler_static_base_defaults",
+        "libart-disassembler_static_defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+        "libprofile_static_defaults",
+    ],
+    whole_static_libs: ["libart-compiler"],
+}
+
+// libart-compiler_static_defaults for standalone gtests.
+// Uses libart-for-test_static_defaults instead of libart_static_defaults.
+// Uses libart-compiler-for-test instead of libart-compiler.
+cc_defaults {
+    name: "libart-compiler-for-test_static_defaults",
+    defaults: [
+        "libart-compiler_static_base_defaults",
+        "libart-disassembler_static_defaults",
+        "libartbase_static_defaults",
+        "libdexfile_static_defaults",
+        "libprofile_static_defaults",
+    ],
+    whole_static_libs: ["libart-compiler-for-test"],
+}
+
+art_cc_library_static {
+    name: "libartd-compiler",
+    defaults: [
+        "art_debug_defaults",
+        "libart-compiler-defaults",
+        "libartd-compiler_deps",
+    ],
+    apex_available: [
+        "com.android.art.debug",
+        // TODO(b/183882457): This lib doesn't go into com.android.art, but
+        // apex_available lists need to be the same for internal libs to avoid
+        // stubs, and this depends on libdexfiled.
+        "com.android.art",
+    ],
+}
+
+cc_defaults {
+    name: "libartd-compiler_static_defaults",
+    defaults: [
+        "libart-compiler_static_base_defaults",
+        "libartbased_static_defaults",
+        "libartd-disassembler_static_defaults",
+        "libdexfiled_static_defaults",
+        "libprofiled_static_defaults",
+    ],
+    whole_static_libs: ["libartd-compiler"],
+}
+
+// libartd-compiler_static_defaults for gtests.
+// Uses libartd-for-test_static_defaults instead of libart_static_defaults.
+// Note that `libartd-compiler-for-test` is not required here, because `libartd-compiler`
+// doesn't use LTO.
+cc_defaults {
+    name: "libartd-compiler-for-test_static_defaults",
+    defaults: [
+        "libart-compiler_static_base_defaults",
+        "libartbased_static_defaults",
+        "libartd-disassembler_static_defaults",
+        "libdexfiled_static_defaults",
+        "libprofiled_static_defaults",
+    ],
+    whole_static_libs: ["libartd-compiler"],
+}
+
+// Export headers required by `libart-runtime` to use JIT from `libart-compiler`.
+cc_library_headers {
+    name: "libart-compiler_jit_headers",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    export_include_dirs: ["export"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+}
+
+// Properties common to `libart-compiler-gtest` and `libartd-compiler-gtest`.
+art_cc_defaults {
+    name: "libart-compiler-gtest-common",
+    srcs: [
+        "common_compiler_test.cc",
+    ],
+    header_libs: [
+        "libart_headers",
+    ],
+}
+
+art_cc_library_static {
+    name: "libart-compiler-gtest",
+    defaults: [
+        "libart-gtest-defaults",
+        "libart-compiler-gtest-common",
+        "libart-compiler-for-test_static_defaults",
+    ],
+}
+
+art_cc_library_static {
+    name: "libartd-compiler-gtest",
+    defaults: [
+        "art_debug_defaults",
+        "libart-gtest-defaults",
+        "libart-compiler-gtest-common",
+        "libartd-compiler-for-test_static_defaults",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_compiler_tests_defaults",
+    data: [
+        ":art-gtest-jars-ExceptionHandle",
+        ":art-gtest-jars-Interfaces",
+        ":art-gtest-jars-Main",
+        ":art-gtest-jars-MyClassNatives",
+    ],
+    tidy_timeout_srcs: [
+        "jni/jni_compiler_test.cc",
+        "optimizing/codegen_test.cc",
+        "optimizing/constant_folding_test.cc",
+        "optimizing/induction_var_range_test.cc",
+        "optimizing/load_store_elimination_test.cc",
+        "optimizing/ssa_test.cc",
+    ],
+    srcs: [
+        "compiler_reflection_test.cc",
+        "debug/dwarf/dwarf_test.cc",
+        "debug/src_map_elem_test.cc",
+        "exception_test.cc",
+        "jni/jni_compiler_test.cc",
+        "linker/linker_patch_test.cc",
+        "linker/output_stream_test.cc",
+        "optimizing/bounds_check_elimination_test.cc",
+        "optimizing/constant_folding_test.cc",
+        "optimizing/data_type_test.cc",
+        "optimizing/dead_code_elimination_test.cc",
+        "optimizing/dominator_test.cc",
+        "optimizing/find_loops_test.cc",
+        "optimizing/graph_checker_test.cc",
+        "optimizing/graph_test.cc",
+        "optimizing/gvn_test.cc",
+        "optimizing/induction_var_analysis_test.cc",
+        "optimizing/induction_var_range_test.cc",
+        "optimizing/licm_test.cc",
+        "optimizing/linearize_test.cc",
+        "optimizing/live_interval_test.cc",
+        "optimizing/live_ranges_test.cc",
+        "optimizing/liveness_test.cc",
+        "optimizing/loop_optimization_test.cc",
+        "optimizing/nodes_test.cc",
+        "optimizing/nodes_vector_test.cc",
+        "optimizing/parallel_move_test.cc",
+        "optimizing/pretty_printer_test.cc",
+        "optimizing/reference_type_propagation_test.cc",
+        "optimizing/select_generator_test.cc",
+        "optimizing/side_effects_test.cc",
+        "optimizing/ssa_liveness_analysis_test.cc",
+        "optimizing/ssa_test.cc",
+        "optimizing/stack_map_test.cc",
+        "optimizing/superblock_cloner_test.cc",
+        "optimizing/suspend_check_test.cc",
+        "utils/atomic_dex_ref_map_test.cc",
+        "utils/dedupe_set_test.cc",
+
+        "optimizing/codegen_test.cc",
+        "optimizing/instruction_simplifier_test.cc",
+        "optimizing/load_store_analysis_test.cc",
+        "optimizing/load_store_elimination_test.cc",
+        "optimizing/scheduler_test.cc",
+    ],
+
+    codegen: {
+        arm: {
+            srcs: [
+                "utils/arm/managed_register_arm_test.cc",
+            ],
+        },
+        arm64: {
+            srcs: [
+                "utils/arm64/managed_register_arm64_test.cc",
+            ],
+        },
+        riscv64: {
+            srcs: [
+                "utils/riscv64/managed_register_riscv64_test.cc",
+            ],
+        },
+        x86: {
+            srcs: [
+                "utils/x86/managed_register_x86_test.cc",
+
+                // This test is testing architecture-independent functionality,
+                // but happens to use x86 codegen as part of the test.
+                "optimizing/register_allocator_test.cc",
+            ],
+        },
+        x86_64: {
+            srcs: [
+                // Is this test a bit-rotten copy of the x86 test? b/77951326
+                // "utils/x86_64/managed_register_x86_64_test.cc",
+            ],
+        },
+    },
+
+    header_libs: [
+        "libart_simulator_headers",
+        "libnativehelper_header_only",
+    ],
+
+    target: {
+        host: {
+            shared_libs: [
+                "libartd-simulator",
+            ],
+        },
+    },
+}
+
+// Version of ART gtest `art_compiler_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_compiler_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_compiler_tests_defaults",
+    ],
+    static_libs: [
+        "libartd-simulator-container",
+    ],
+}
+
+// Standalone version of ART gtest `art_compiler_tests`, not bundled with the ART APEX on target.
+art_cc_test {
+    name: "art_standalone_compiler_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_compiler_tests_defaults",
+    ],
+    data: [":generate-boot-image"],
+    static_libs: [
+        "libart-simulator-container",
+    ],
+    test_config: "art_standalone_compiler_tests.xml",
+}
+
+art_cc_test {
+    name: "art_compiler_host_tests",
+    device_supported: false,
+    defaults: [
+        "art_gtest_defaults",
+    ],
+    srcs: [
+        "jni/jni_cfi_test.cc",
+        "optimizing/optimizing_cfi_test.cc",
+    ],
+    tidy_timeout_srcs: [
+        "utils/x86/assembler_x86_test.cc",
+        "utils/x86_64/assembler_x86_64_test.cc",
+    ],
+    codegen: {
+        arm: {
+            srcs: [
+                "utils/assembler_thumb_test.cc",
+            ],
+        },
+        riscv64: {
+            srcs: [
+                "utils/riscv64/assembler_riscv64_test.cc",
+                "utils/riscv64/jni_macro_assembler_riscv64_test.cc",
+            ],
+        },
+        x86: {
+            srcs: [
+                "utils/x86/assembler_x86_test.cc",
+            ],
+        },
+        x86_64: {
+            srcs: [
+                "utils/x86_64/assembler_x86_64_test.cc",
+            ],
+        },
+    },
+    static_libs: [
+        "libvixld",
+    ],
+}

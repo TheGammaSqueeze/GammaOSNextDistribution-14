@@ -1,0 +1,137 @@
+//
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["art_openjdkjvmti_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "art_openjdkjvmti_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0-with-classpath-exception",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_headers {
+    name: "libopenjdkjvmti_headers",
+    defaults: ["art_defaults"],
+    visibility: ["//visibility:public"],
+    header_libs: ["jni_headers"],
+    host_supported: true,
+    export_header_lib_headers: ["jni_headers"],
+    export_include_dirs: ["include"],
+    sdk_version: "current",
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+cc_defaults {
+    name: "libopenjdkjvmti_defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    srcs: [
+        "alloc_manager.cc",
+        "deopt_manager.cc",
+        "events.cc",
+        "object_tagging.cc",
+        "OpenjdkJvmTi.cc",
+        "ti_allocator.cc",
+        "ti_breakpoint.cc",
+        "ti_class.cc",
+        "ti_class_definition.cc",
+        "ti_class_loader.cc",
+        "ti_ddms.cc",
+        "ti_dump.cc",
+        "ti_extension.cc",
+        "ti_field.cc",
+        "ti_heap.cc",
+        "ti_jni.cc",
+        "ti_logging.cc",
+        "ti_method.cc",
+        "ti_monitor.cc",
+        "ti_object.cc",
+        "ti_phase.cc",
+        "ti_properties.cc",
+        "ti_search.cc",
+        "ti_stack.cc",
+        "ti_redefine.cc",
+        "ti_thread.cc",
+        "ti_threadgroup.cc",
+        "ti_timers.cc",
+        "transform.cc",
+    ],
+    header_libs: [
+        "art_cmdlineparser_headers",
+        "libnativehelper_header_only",
+        "libopenjdkjvmti_headers",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+}
+
+art_cc_library {
+    name: "libopenjdkjvmti",
+    defaults: ["libopenjdkjvmti_defaults"],
+    shared_libs: [
+        "libart",
+        "libdexfile",
+        "libartbase",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+}
+
+art_cc_library {
+    name: "libopenjdkjvmtid",
+    defaults: [
+        "art_debug_defaults",
+        "libopenjdkjvmti_defaults",
+    ],
+    shared_libs: [
+        "libartd",
+        "libdexfiled",
+        "libartbased",
+    ],
+    apex_available: [
+        "com.android.art.debug",
+    ],
+}

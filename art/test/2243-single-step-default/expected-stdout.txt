@@ -1,0 +1,1 @@
+art.Test2243$DefaultImpl::doSomething

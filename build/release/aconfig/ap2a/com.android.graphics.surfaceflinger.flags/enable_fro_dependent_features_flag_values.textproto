@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "enable_fro_dependent_features"
+  state: ENABLED
+  permission: READ_ONLY
+}

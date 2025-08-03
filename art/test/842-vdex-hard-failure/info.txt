@@ -1,0 +1,2 @@
+Regression test for vdex, where we were compiling methods that had hard
+failures.

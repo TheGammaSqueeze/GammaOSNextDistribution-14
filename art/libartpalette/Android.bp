@@ -1,0 +1,148 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+cc_defaults {
+    name: "libartpalette_defaults",
+    defaults: ["art_defaults"],
+    host_supported: true,
+    export_include_dirs: ["include"],
+}
+
+cc_library_headers {
+    name: "libartpalette-headers",
+    export_include_dirs: ["include"],
+    host_supported: true,
+    visibility: [
+        "//art:__subpackages__",
+        "//system/libartpalette",
+    ],
+}
+
+// libartpalette is the dynamic loader of the platform abstraction
+// layer. It is only used on Android. For other targets, it just
+// implements a fake platform implementation.
+art_cc_library {
+    name: "libartpalette",
+    defaults: ["libartpalette_defaults"],
+    visibility: [
+        // TODO(b/183483755): Please visibility checks when the prebuilt
+        // libartpalette is present but not preferred, and the prebuilt
+        // libdexfile hence depends on the source instead.
+        // TODO(b/172480617): Alternatively, clean up when we no longer need to
+        // support both prebuilts and sources present simultaneously.
+        "//prebuilts/module_sdk/art:__subpackages__",
+    ],
+    header_libs: [
+        "libbase_headers",
+        "jni_headers",
+    ],
+    export_header_lib_headers: [
+        "jni_headers",
+    ],
+    target: {
+        // Targets supporting dlopen build the client library which loads
+        // and binds the methods in the libartpalette-system library.
+        android: {
+            // libartpalette.so dlopen()'s libartpalette-system.
+            runtime_libs: ["libartpalette-system"],
+            srcs: ["apex/palette.cc"],
+            shared_libs: ["liblog"],
+            version_script: "libartpalette.map",
+        },
+        host_linux: {
+            header_libs: ["libbase_headers"],
+            srcs: ["system/palette_fake.cc"],
+            shared: {
+                shared_libs: [
+                    "libbase",
+                    "liblog",
+                ],
+            },
+            version_script: "libartpalette.map",
+        },
+        // Targets without support for dlopen just use the sources for
+        // the system library which actually implements functionality.
+        darwin: {
+            enabled: true,
+            header_libs: ["libbase_headers"],
+            srcs: ["system/palette_fake.cc"],
+            static_libs: [
+                "libbase",
+                "liblog",
+            ],
+        },
+        windows: {
+            enabled: true,
+            header_libs: ["libbase_headers"],
+            srcs: ["system/palette_fake.cc"],
+            static_libs: [
+                "libbase",
+                "liblog",
+            ],
+        },
+    },
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        // TODO(b/142944931): remove this
+        "com.android.runtime", // due to the transitive dependency from linker
+    ],
+}
+
+art_cc_defaults {
+    name: "art_libartpalette_tests_defaults",
+    srcs: ["apex/palette_test.cc"],
+    target: {
+        android: {
+            static_libs: ["libmodules-utils-build"],
+        },
+    },
+}
+
+// Version of ART gtest `art_libartpalette_tests` bundled with the ART APEX on target.
+// TODO(b/192274705): Remove this module when the migration to standalone ART gtests is complete.
+art_cc_test {
+    name: "art_libartpalette_tests",
+    defaults: [
+        "art_gtest_defaults",
+        "art_libartpalette_tests_defaults",
+    ],
+    host_supported: true,
+}
+
+// Standalone version of ART gtest `art_libartpalette_tests`, not bundled with the ART APEX on
+// target.
+art_cc_test {
+    name: "art_standalone_libartpalette_tests",
+    defaults: [
+        "art_standalone_gtest_defaults",
+        "art_libartpalette_tests_defaults",
+    ],
+    test_config_template: ":art-gtests-target-standalone-cts-template",
+    test_suites: [
+        "cts",
+        "mcts-art",
+    ],
+}

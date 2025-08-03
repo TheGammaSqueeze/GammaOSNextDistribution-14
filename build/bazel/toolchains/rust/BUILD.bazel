@@ -1,0 +1,127 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@env//:env.bzl", "env")
+load("@rules_rust//proto/protobuf:toolchain.bzl", "rust_proto_toolchain")
+load("@rules_rust//rust:toolchain.bzl", "rust_toolchain")
+load("@soong_injection//rust_toolchain:constants.bzl", "constants")
+load("//build/bazel/toolchains/rust:flags.bzl", "flags")
+load("//build/bazel/toolchains/rust:platforms.bzl", "platforms")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_version = env.get(
+    "RUST_PREBUILTS_VERSION",
+    constants.RUST_DEFAULT_VERSION,
+)
+
+rust_prebuilts_path = "//prebuilts/rust/linux-x86/" + rust_version
+
+genrule(
+    name = "no_op_file",
+    outs = ["no_op_file.txt"],
+    cmd = "touch $(OUTS)",
+)
+
+rust_proto_toolchain(
+    name = "proto-toolchain-impl",
+    edition = "2021",
+    grpc_compile_deps = [],
+    # TODO: GRPC-providing rust_protobuf_host modules still use protobuf2
+    # so that grpc_rust_plugin still depend son deprecated protobuf modules
+    # Fix libbt_facade_proto and libbt_topshim_facade_protobuf to use protobuf3
+    # and upgrade grpc_rust_plugin to use new protobuf modules like protoc-gen-rust
+    grpc_plugin = ":no_op_file",
+    proto_compile_deps = ["//external/rust/crates/protobuf:libprotobuf"],
+    proto_plugin = "//external/rust/crates/protobuf-codegen:protoc-gen-rust",
+    protoc = "//external/protobuf:aprotoc",
+)
+
+toolchain(
+    name = "proto-toolchain",
+    toolchain = ":proto-toolchain-impl",
+    toolchain_type = "@rules_rust//proto/protobuf:toolchain_type",
+)
+
+rust_toolchain(
+    name = "rust_toolchain_x86_64_unknown-linux-gnu_impl",
+    binary_ext = "",
+    default_edition = "2018",
+    dylib_ext = ".so",
+    exec_triple = "x86_64-unknown-linux-gnu",
+    extra_rustc_flags = flags.global_rustc_flags + flags.linux_host_rustc_flags,
+    rust_doc = rust_prebuilts_path + ":bin/rustdoc",
+    rust_std = rust_prebuilts_path + ":prebuilt_stdlibs",
+    rustc = rust_prebuilts_path + ":bin/rustc",
+    staticlib_ext = ".a",
+    stdlib_linkflags = [],
+    target_triple = "x86_64-unknown-linux-gnu",
+)
+
+toolchain(
+    name = "rust_toolchain_x86_64_unknown-linux-gnu",
+    exec_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+    target_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+    toolchain = ":rust_toolchain_x86_64_unknown-linux-gnu_impl",
+    toolchain_type = "@rules_rust//rust:toolchain_type",
+)
+
+[
+    rust_toolchain(
+        name = "rust_toolchain_" + os + "_" + arch + "_impl",
+        binary_ext = "",
+        clippy_driver = rust_prebuilts_path + ":bin/clippy-driver",
+        default_edition = "2018",
+        dylib_ext = ".so",
+        exec_triple = "x86_64-unknown-linux-gnu",
+        # The system sysroot for the prebuilt compiler is prebuilts/rust/linux-x86/<rust_version>
+        # At runtime, rust rules set `-L <path-to-sysroot_with_stdlibs>/lib/rustlib/<target-triple>/lib`
+        # which is the directory of standard library built from source.
+        # We set --sysroot to /dev/null so that rustc does not error due
+        # to there being multiple candidates for stdlibs.
+        #
+        # error[E0464]: multiple candidates for `rlib` dependency `std` found
+        #   |
+        #   = note: candidate #1: bazel-built <OUR_DIR>/bin/prebuilts/rust/linux-x86/1.69.0/lib/rustlib/src/rust/libstd-1674459207.rlib
+        #   = note: candidate #2: prebuilt /prebuilts/rust/linux-x86/1.69.0/lib/rustlib/aarch64-linux-android/lib/libstd-33356ea78c96f310.so
+        #
+        # See https://doc.rust-lang.org/rustc/command-line-arguments.html#--sysroot-override-the-system-root
+        extra_rustc_flags = [
+            "--sysroot=/dev/null",
+        ] + rustc_flags + flags.device_global_rustc_flags + flags.global_rustc_flags,
+        rust_doc = rust_prebuilts_path + ":bin/rustdoc",
+        rust_std = "//build/bazel/toolchains/rust/bootstrap:rust_stdlibs",
+        rustc = rust_prebuilts_path + ":bin/rustc",
+        rustc_lib = "//build/bazel/toolchains/rust/bootstrap:sysroot_with_stdlibs",
+        rustfmt = rust_prebuilts_path + ":bin/rustfmt",
+        staticlib_ext = ".a",
+        stdlib_linkflags = [],
+        target_triple = target_triple,
+    )
+    for (target_triple, os, arch, rustc_flags) in platforms
+]
+
+[
+    toolchain(
+        name = "rust_toolchain_" + os + "_" + arch,
+        exec_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+        target_compatible_with = [
+            "//build/bazel_common_rules/platforms/arch:" + arch,
+            "//build/bazel_common_rules/platforms/os:" + os,
+        ],
+        toolchain = ":rust_toolchain_" + os + "_" + arch + "_impl",
+        toolchain_type = "@rules_rust//rust:toolchain_type",
+    )
+    for (target_triple, os, arch, _) in platforms
+]

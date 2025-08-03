@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "allow_disable_activity_record_input_sink"
+  state: ENABLED
+  permission: READ_ONLY
+}

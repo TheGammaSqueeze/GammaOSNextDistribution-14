@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.flags"
+  name: "fallback_to_default_handling_when_media_session_has_fixed_volume_handling"
+  state: ENABLED
+  permission: READ_ONLY
+}

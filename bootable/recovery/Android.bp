@@ -1,0 +1,251 @@
+// Copyright (C) 2018 The Android Open Source Project
+// Copyright (C) 2019 The LineageOS Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_applicable_licenses: ["bootable_recovery_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "bootable_recovery_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OFL", // by exception only
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "recovery_defaults",
+
+    cflags: [
+        "-D_FILE_OFFSET_BITS=64",
+
+        // Must be the same as RECOVERY_API_VERSION.
+        "-DRECOVERY_API_VERSION=3",
+
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_library_static {
+    name: "librecovery_fastboot",
+    recovery_available: true,
+    defaults: [
+        "recovery_defaults",
+    ],
+
+    srcs: [
+        "fastboot/fastboot.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbootloader_message",
+        "libcutils",
+        "liblog",
+        "librecovery_ui",
+    ],
+
+    static_libs: [
+        "librecovery_ui_default",
+    ],
+}
+
+cc_defaults {
+    name: "librecovery_defaults",
+
+    defaults: [
+        "recovery_defaults",
+    ],
+
+    shared_libs: [
+        "android.hardware.boot@1.0",
+        "android.hardware.boot@1.1",
+        "android.hardware.boot-V1-ndk",
+        "libboot_control_client",
+        "libbase",
+        "libbootloader_message",
+        "libcrypto",
+        "libcutils",
+        "libfs_mgr",
+        "liblp",
+        "liblog",
+        "libprotobuf-cpp-lite",
+        "libziparchive",
+        "libvolume_manager",
+    ],
+
+    static_libs: [
+        "libc++fs",
+        "libinstall",
+        "librecovery_fastboot",
+        "libminui",
+        "librecovery_utils",
+        "libotautil",
+        "libsnapshot_nobinder",
+        "libsnapshot_cow",
+        "liblz4",
+        "libzstd",
+        "update_metadata-protos",
+    ],
+}
+
+cc_library_static {
+    name: "librecovery",
+    recovery_available: true,
+
+    defaults: [
+        "librecovery_defaults",
+    ],
+
+    srcs: [
+        "recovery.cpp",
+    ],
+
+    shared_libs: [
+        "librecovery_ui",
+    ],
+}
+
+prebuilt_etc {
+    name: "init_recovery.rc",
+    filename: "init.rc",
+    src: "etc/init.rc",
+    sub_dir: "init/hw",
+    recovery: true,
+}
+
+cc_binary {
+    name: "recovery",
+    recovery: true,
+
+    defaults: [
+        "libinstall_defaults",
+        "librecovery_defaults",
+        "librecovery_utils_defaults",
+    ],
+
+    srcs: [
+        "recovery_main.cpp",
+        "volclient.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.health-V3-ndk", // from librecovery_utils
+        "android.hardware.boot-V1-ndk",
+        "librecovery_ui",
+    ],
+
+    static_libs: [
+        "libc++fs",
+        "librecovery",
+        "librecovery_ui_default",
+    ],
+
+    required: [
+        "e2fsdroid.recovery",
+        "init_recovery.rc",
+        "librecovery_ui_ext",
+        "minadbd",
+        "mke2fs.conf.recovery",
+        "mke2fs.recovery",
+        "mkshrc.recovery",
+        "reboot.recovery",
+        "recovery_deps",
+        "ueventd.rc.recovery",
+    ],
+}
+
+// The dynamic executable that runs after /data mounts.
+cc_binary {
+    name: "recovery-persist",
+
+    defaults: [
+        "recovery_defaults",
+    ],
+
+    srcs: [
+        "recovery-persist.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+
+    static_libs: [
+        "librecovery_utils",
+    ],
+
+    init_rc: [
+        "recovery-persist.rc",
+    ],
+}
+
+// The dynamic executable that runs at init.
+cc_binary {
+    name: "recovery-refresh",
+
+    defaults: [
+        "recovery_defaults",
+    ],
+
+    srcs: [
+        "recovery-refresh.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+
+    static_libs: [
+        "librecovery_utils",
+    ],
+
+    init_rc: [
+        "recovery-refresh.rc",
+    ],
+}
+
+filegroup {
+    name: "res-testdata",
+
+    srcs: [
+        "res-*/images/*_text.png",
+    ],
+}

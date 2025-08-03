@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+blueprint_go_binary {
+    name: "cuj_tests",
+    deps: [
+        "soong-ui-build",
+        "soong-ui-logger",
+        "soong-ui-signal",
+        "soong-ui-terminal",
+        "soong-ui-tracer",
+    ],
+    srcs: [
+        "cuj.go",
+    ],
+}

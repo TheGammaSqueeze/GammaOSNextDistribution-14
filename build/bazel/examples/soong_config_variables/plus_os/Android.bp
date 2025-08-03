@@ -1,0 +1,107 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_string_variable {
+    name: "bazel_test_string_var",
+    values: [
+        "value1",
+        "value2",
+    ],
+}
+
+soong_config_bool_variable {
+    name: "bazel_test_bool_var",
+}
+
+soong_config_module_type {
+    name: "bazel_test_soong_config_cc_binary",
+    module_type: "cc_binary",
+    config_namespace: "my_namespace",
+    bool_variables: ["bazel_test_bool_var"],
+    variables: ["bazel_test_string_var"],
+    properties: [
+        "target.android.cflags",
+        "target.host.cflags",
+        "cflags",
+    ],
+}
+
+bazel_test_soong_config_cc_binary {
+    name: "build.bazel.examples.soong_config_variables.plus_os",
+    srcs: ["main.cpp"],
+    host_supported: true,
+    soong_config_variables: {
+        bazel_test_string_var: {
+            value1: {
+                cflags: ["-DVALUE1"],
+                target: {
+                    android: {
+                        cflags: ["-DVALUE1_PLUS_ANDROID"],
+                    },
+                    host: {
+                        cflags: ["-DVALUE1_PLUS_HOST"],
+                    },
+                },
+            },
+            value2: {
+                cflags: ["-DVALUE2"],
+                target: {
+                    android: {
+                        cflags: ["-DVALUE2_PLUS_ANDROID"],
+                    },
+                    host: {
+                        cflags: ["-DVALUE2_PLUS_HOST"],
+                    },
+                },
+            },
+            conditions_default: {
+                cflags: ["-DDEFAULT"],
+                target: {
+                    android: {
+                        cflags: ["-DDEFAULT_PLUS_ANDROID"],
+                    },
+                    host: {
+                        cflags: ["-DDEFAULT_PLUS_HOST"],
+                    },
+                },
+            },
+        },
+        bazel_test_bool_var: {
+            cflags: ["-DBOOL_VAR"],
+            target: {
+                android: {
+                    cflags: ["-DBOOL_VAR_PLUS_ANDROID"],
+                },
+                host: {
+                    cflags: ["-DBOOL_VAR_PLUS_HOST"],
+                },
+            },
+            conditions_default: {
+                cflags: ["-DBOOL_VAR_DEFAULT"],
+                target: {
+                    android: {
+                        cflags: ["-DBOOL_VAR_DEFAULT_PLUS_ANDROID"],
+                    },
+                    host: {
+                        cflags: ["-DBOOL_VAR_DEFAULT_PLUS_HOST"],
+                    },
+                },
+            },
+        },
+    },
+}

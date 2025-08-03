@@ -1,0 +1,1 @@
+Smali test comparing instance-of (which returns 0 or 1) with a constant 2.

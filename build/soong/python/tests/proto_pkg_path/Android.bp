@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_test_host {
+    name: "py_proto_pkg_path_test",
+    main: "main.py",
+    srcs: [
+        "main.py",
+        "proto/*.proto",
+    ],
+    pkg_path: "mylib/subpackage",
+    proto: {
+        canonical_path_from_root: false,
+    },
+}

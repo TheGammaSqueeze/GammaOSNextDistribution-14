@@ -1,0 +1,2 @@
+Small example where we don't have enough information to set an RTI
+for several instructions.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "enable_layer_command_batching"
+  state: ENABLED
+  permission: READ_ONLY
+}

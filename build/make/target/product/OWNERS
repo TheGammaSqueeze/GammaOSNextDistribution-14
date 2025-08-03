@@ -1,0 +1,10 @@
+per-file runtime_libart.mk = mast@google.com, ngeoffray@google.com, rpl@google.com, vmarko@google.com
+
+# GSI
+per-file gsi_release.mk = file:/target/product/gsi/OWNERS
+per-file developer_gsi_keys.mk = file:/target/product/gsi/OWNERS
+
+# Android Go
+per-file go_defaults.mk = gkaiser@google.com, kushg@google.com, rajekumar@google.com
+per-file go_defaults_512.mk = gkaiser@google.com, kushg@google.com, rajekumar@google.com
+per-file go_defaults_common.mk = gkaiser@google.com, kushg@google.com, rajekumar@google.com

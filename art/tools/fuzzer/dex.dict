@@ -1,0 +1,11 @@
+#
+# AFL dictionary for DEX code
+# -----------------------------
+#
+
+# Valid headers: DEX magic word + version
+header_dex_035=\x64\x65\x78\x0a\x30\x33\x35
+header_dex_037=\x64\x65\x78\x0a\x30\x33\x37
+header_dex_038=\x64\x65\x78\x0a\x30\x33\x38
+header_dex_039=\x64\x65\x78\x0a\x30\x33\x39
+header_dex_040=\x64\x65\x78\x0a\x30\x34\x30

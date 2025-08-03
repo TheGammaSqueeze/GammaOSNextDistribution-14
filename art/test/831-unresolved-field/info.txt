@@ -1,0 +1,2 @@
+Test that the verifier handles field assignments in constructors of unresolve
+classes.

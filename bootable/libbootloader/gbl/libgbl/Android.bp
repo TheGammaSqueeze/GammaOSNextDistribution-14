@@ -1,0 +1,164 @@
+// Copyright 2023, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_cloud_android",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libgbl_defaults",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libavb_rs",
+        "libbitflags",
+        "libcrc32fast",
+        "libcstr",
+        "liblazy_static",
+        "libring",
+        "libspin",
+        "libstatic_assertions",
+        "libzbi",
+        "libzerocopy",
+    ],
+}
+
+rust_defaults {
+    name: "libgbl_defaults_nostd",
+    srcs: ["src/lib.rs"],
+    rlibs: [
+        "libavb_rs_nostd",
+        "libcstr",
+        "libcrc32fast",
+        "liblazy_static_nostd",
+        "libring_nostd",
+        "libspin_nostd",
+        "libzbi_nostd",
+        "libzerocopy_nostd",
+    ],
+    no_stdlibs: true,
+}
+
+// GBL Rust library.
+rust_library {
+    name: "libgbl",
+    host_supported: true,
+    crate_name: "gbl",
+    defaults: ["libgbl_defaults"],
+}
+
+// Defining rlib here because we want to build with [no_std], but
+// don't want to define panic handlers (the library user should do that).
+// Only rlibs can compile without these definitions and allow other code
+// to provide them instead (https://stackoverflow.com/q/43097676).
+rust_library_rlib {
+    name: "libgbl_nostd",
+    crate_name: "gbl",
+    defaults: ["libgbl_defaults_nostd"],
+    prefer_rlib: true,
+}
+
+// Test binaries
+filegroup {
+    name: "gbl_test_image",
+    srcs: [
+        "testdata/test_image.img",
+    ],
+}
+
+// Unsigned vbmeta blob containing the test image descriptor for partition name "test_part".
+avb_gen_vbmeta_image {
+    name: "gbl_test_image_descriptor",
+    src: ":gbl_test_image",
+    partition_name: "test_part",
+    salt: "1000",
+}
+
+filegroup {
+    name: "gbl_testkey_rsa4096",
+    srcs: ["testdata/testkey_rsa4096.pem"],
+}
+
+genrule {
+    name: "gbl_testkey_rsa4096_pub_bin",
+    tools: ["avbtool"],
+    srcs: [":gbl_testkey_rsa4096"],
+    out: ["testdata/testkey_rsa4096_pub.bin"],
+    cmd: "$(location avbtool) extract_public_key --key $(in) --output $(out)",
+}
+
+// Standalone vbmeta image signing the test image descriptor.
+genrule {
+    name: "gbl_test_vbmeta",
+    tools: ["avbtool"],
+    srcs: [
+        ":gbl_test_image_descriptor",
+        ":gbl_testkey_rsa4096",
+    ],
+    out: ["./testdata/test_vbmeta.img"],
+    cmd: "$(location avbtool) make_vbmeta_image --key $(location :gbl_testkey_rsa4096) --algorithm SHA512_RSA4096 --include_descriptors_from_image $(location :gbl_test_image_descriptor) --output $(out)",
+}
+
+// libgbl unit tests.
+rust_defaults {
+    name: "libgbl_test_defaults",
+    defaults: ["libgbl_defaults"],
+    rustlibs: [
+        "libavb_test_rs_testops",
+        "libhex",
+        "libitertools",
+    ],
+    features: [
+        "alloc",
+        "sw_digest",
+    ],
+    data: [
+        ":gbl_testkey_rsa4096_pub_bin",
+        ":gbl_test_image",
+        ":gbl_test_vbmeta",
+    ],
+}
+
+rust_test {
+    name: "libgbl_device_test",
+    defaults: ["libgbl_test_defaults"],
+    test_suites: ["general-tests"],
+}
+
+rust_test_host {
+    name: "libgbl_unit_tests",
+    defaults: ["libgbl_test_defaults"],
+}
+
+// Test building with libgbl in a [no_std] environment.
+//
+// This is a compile-only test to ensure [no_std] works and demonstrate
+// which Rust hooks are required to implement. This code will not be exeuted,
+// so actual logic unittests go in libgbl tests instead.
+rust_binary {
+    name: "libgbl_test_nostd",
+    srcs: ["tests/nostd.rs"],
+    rustlibs: [
+        "libbuddy_system_allocator",
+        "libgbl_nostd",
+        "liblazy_static_nostd",
+    ],
+    // panic=abort to satisfy the eh_personality compile requirement.
+    flags: [
+        "-C",
+        "panic=abort",
+    ],
+    no_stdlibs: true,
+    prefer_rlib: true,
+}

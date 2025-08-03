@@ -1,0 +1,1 @@
+Tests regarding simplifying always throwing instructions in dead code elimination.

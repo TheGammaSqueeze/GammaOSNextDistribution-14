@@ -1,0 +1,3 @@
+Cleanup actions registered at android.system.SystemCleaner are run within FinalizerDaemon thread
+and the same time out rules are applied. Essentially this is SystemCleaner version of
+030-bad-finalizer.

@@ -1,0 +1,96 @@
+// Signature format: 2.0
+package com.android.art {
+
+  public class CacheInfo {
+    ctor public CacheInfo();
+    method public com.android.art.ModuleInfo getArtModuleInfo();
+    method public com.android.art.Classpath getBootClasspath();
+    method public boolean getCompilationOsMode();
+    method public com.android.art.Classpath getDex2oatBootClasspath();
+    method public com.android.art.ModuleInfoList getModuleInfoList();
+    method public com.android.art.KeyValuePairList getSystemProperties();
+    method public com.android.art.SystemServerComponents getSystemServerComponents();
+    method public void setArtModuleInfo(com.android.art.ModuleInfo);
+    method public void setBootClasspath(com.android.art.Classpath);
+    method public void setCompilationOsMode(boolean);
+    method public void setDex2oatBootClasspath(com.android.art.Classpath);
+    method public void setModuleInfoList(com.android.art.ModuleInfoList);
+    method public void setSystemProperties(com.android.art.KeyValuePairList);
+    method public void setSystemServerComponents(com.android.art.SystemServerComponents);
+  }
+
+  public class Classpath {
+    ctor public Classpath();
+    method public com.android.art.Component getComponent();
+    method public void setComponent(com.android.art.Component);
+  }
+
+  public class Component {
+    ctor public Component();
+    method public String getChecksums();
+    method public String getFile();
+    method public java.math.BigInteger getSize();
+    method public void setChecksums(String);
+    method public void setFile(String);
+    method public void setSize(java.math.BigInteger);
+  }
+
+  public class KeyValuePair {
+    ctor public KeyValuePair();
+    method public String getK();
+    method public String getV();
+    method public void setK(String);
+    method public void setV(String);
+  }
+
+  public class KeyValuePairList {
+    ctor public KeyValuePairList();
+    method public com.android.art.KeyValuePair getItem();
+    method public void setItem(com.android.art.KeyValuePair);
+  }
+
+  public class ModuleInfo {
+    ctor public ModuleInfo();
+    method public long getLastUpdateMillis();
+    method public String getName();
+    method public long getVersionCode();
+    method public String getVersionName();
+    method public void setLastUpdateMillis(long);
+    method public void setName(String);
+    method public void setVersionCode(long);
+    method public void setVersionName(String);
+  }
+
+  public class ModuleInfoList {
+    ctor public ModuleInfoList();
+    method public com.android.art.ModuleInfo getModuleInfo();
+    method public void setModuleInfo(com.android.art.ModuleInfo);
+  }
+
+  public class SystemServerComponent extends com.android.art.Component {
+    ctor public SystemServerComponent();
+    method public boolean getIsInClasspath();
+    method public void setIsInClasspath(boolean);
+  }
+
+  public class SystemServerComponents {
+    ctor public SystemServerComponents();
+    method public com.android.art.SystemServerComponent getComponent();
+    method public void setComponent(com.android.art.SystemServerComponent);
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method public static com.android.art.CacheInfo read(java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static String readText(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+  public class XmlWriter implements java.io.Closeable {
+    ctor public XmlWriter(java.io.PrintWriter);
+    method public void close();
+    method public static void write(com.android.art.XmlWriter, com.android.art.CacheInfo) throws java.io.IOException;
+  }
+
+}
+

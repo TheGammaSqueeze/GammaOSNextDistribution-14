@@ -1,0 +1,6 @@
+About to null reference.
+Cleaner started and sleeping briefly...
+Good: Survived first exception
+About to null reference.
+Cleaner started and sleeping briefly...
+Handling uncaught exception

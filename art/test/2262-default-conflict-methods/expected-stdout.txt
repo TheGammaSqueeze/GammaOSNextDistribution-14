@@ -1,0 +1,10 @@
+JNI_OnLoad called
+Create Main instance
+Calling functions on concrete Main
+Calling non-conflicting function on Main
+Test from Interface
+Unexpected normal exit from GetMethodId
+Test from Interface
+Calling conflicting function on Main
+Expected ICCE on main
+Expected ICCE on main

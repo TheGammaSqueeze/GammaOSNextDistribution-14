@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "mfi_has_uuid"
+  state: ENABLED
+  permission: READ_ONLY
+}

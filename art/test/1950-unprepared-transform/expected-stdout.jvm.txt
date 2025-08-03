@@ -1,0 +1,7 @@
+Redefine in ClassLoad on current thread.
+retransformClasses on an unprepared class succeeded
+Object out is: Transformed object!
+Redefine during ClassLoad on another thread.
+retransformClasses on an unprepared class succeeded
+Object out is: Transformed object!
+Redefinition thread finished.

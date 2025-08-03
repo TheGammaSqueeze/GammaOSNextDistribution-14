@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.service.chooser"
+  name: "legacy_chooser_pinning_removal"
+  state: ENABLED
+  permission: READ_ONLY
+}

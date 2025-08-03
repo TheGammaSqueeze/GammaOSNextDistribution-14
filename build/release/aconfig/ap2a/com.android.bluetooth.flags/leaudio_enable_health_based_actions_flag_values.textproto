@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "leaudio_enable_health_based_actions"
+  state: ENABLED
+  permission: READ_ONLY
+}

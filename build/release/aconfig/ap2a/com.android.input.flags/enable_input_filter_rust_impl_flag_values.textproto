@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_input_filter_rust_impl"
+  state: ENABLED
+  permission: READ_ONLY
+}

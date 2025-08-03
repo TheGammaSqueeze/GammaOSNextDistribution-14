@@ -1,0 +1,115 @@
+Processing 'quoting.dex'...
+Opened 'quoting.dex', DEX version '035'
+DEX file header:
+magic               : 'dex\n035\0'
+checksum            : 036e70eb
+signature           : b715...0ace
+file_size           : 868
+header_size         : 112
+link_size           : 0
+link_off            : 0 (0x000000)
+string_ids_size     : 15
+string_ids_off      : 112 (0x000070)
+type_ids_size       : 5
+type_ids_off        : 172 (0x0000ac)
+proto_ids_size      : 4
+proto_ids_off       : 192 (0x0000c0)
+field_ids_size      : 0
+field_ids_off       : 0 (0x000000)
+method_ids_size     : 7
+method_ids_off      : 240 (0x0000f0)
+class_defs_size     : 1
+class_defs_off      : 296 (0x000128)
+data_size           : 540
+data_off            : 328 (0x000148)
+
+Class #0 header:
+class_idx           : 0
+access_flags        : 0 (0x0000)
+superclass_idx      : 1
+interfaces_off      : 0 (0x000000)
+source_file_idx     : 9
+annotations_off     : 0 (0x000000)
+class_data_off      : 702 (0x0002be)
+static_fields_size  : 0
+instance_fields_size: 0
+direct_methods_size : 1
+virtual_methods_size: 2
+
+Class #0            -
+  Class descriptor  : 'LQuoting;'
+  Access flags      : 0x0000 ()
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in LQuoting;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      method_idx    : 0
+      code          -
+      registers     : 1
+      ins           : 1
+      outs          : 1
+      insns size    : 4 16-bit code units
+000148:                                        |[000148] Quoting.<init>:()V
+000158: 7010 0300 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@0003
+00015e: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+        0x0000 line=2
+      locals        :
+        0x0000 - 0x0004 reg=0 this LQuoting;
+
+  Virtual methods   -
+    #0              : (in LQuoting;)
+      name          : 'append1'
+      type          : '(Ljava/lang/String;)Ljava/lang/String;'
+      access        : 0x0001 (PUBLIC)
+      method_idx    : 1
+      code          -
+      registers     : 4
+      ins           : 2
+      outs          : 2
+      insns size    : 20 16-bit code units
+000160:                                        |[000160] Quoting.append1:(Ljava/lang/String;)Ljava/lang/String;
+000170: 2200 0300                              |0000: new-instance v0, Ljava/lang/StringBuilder; // type@0003
+000174: 7010 0400 0000                         |0002: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@0004
+00017a: 6e20 0500 3000                         |0005: invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@0005
+000180: 0c00                                   |0008: move-result-object v0
+000182: 1a01 0100                              |0009: const-string v1, "\" // string@0001\n000149: ffff                                   |0005: rat // \"" // string@0001
+000186: 6e20 0500 1000                         |000b: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@0005
+00018c: 0c00                                   |000e: move-result-object v0
+00018e: 6e10 0600 0000                         |000f: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@0006
+000194: 0c00                                   |0012: move-result-object v0
+000196: 1100                                   |0013: return-object v0
+      catches       : (none)
+      positions     :
+        0x0000 line=5
+      locals        :
+        0x0000 - 0x0014 reg=2 this LQuoting;
+        0x0000 - 0x0014 reg=3 (null) Ljava/lang/String;
+
+    #1              : (in LQuoting;)
+      name          : 'unicode'
+      type          : '()Ljava/lang/String;'
+      access        : 0x0001 (PUBLIC)
+      method_idx    : 2
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 0
+      insns size    : 3 16-bit code units
+000198:                                        |[000198] Quoting.unicode:()Ljava/lang/String;
+0001a8: 1a00 0000                              |0000: const-string v0, "\b\f\n\r\t\\\"'í ½í¸œâ˜ˆ'\"" // string@0000
+0001ac: 1100                                   |0002: return-object v0
+      catches       : (none)
+      positions     :
+        0x0000 line=10
+      locals        :
+        0x0000 - 0x0003 reg=1 this LQuoting;
+
+  source_file_idx   : 9 (Quoting.java)
+

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "metered_embb_urlcc"
+  state: ENABLED
+  permission: READ_ONLY
+}

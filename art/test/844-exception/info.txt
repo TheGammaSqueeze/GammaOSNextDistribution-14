@@ -1,0 +1,2 @@
+Regression test for Thread::QuickDeliverException which used to expect a quick
+frame to be the caller.

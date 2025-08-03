@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "enable_small_area_detection"
+  state: ENABLED
+  permission: READ_ONLY
+}

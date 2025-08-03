@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package com.android.server.art.proto;
+option java_multiple_files = true;
+
+import "art/libartservice/service/proto/common.proto";
+
+// The protobuf representation of `DexUseManagerLocal.DexUse`. See classes in
+// java/com/android/server/art/DexUseManagerLocal.java for details.
+// This proto is persisted on disk and both forward and backward compatibility are considerations.
+message DexUseProto {
+    repeated PackageDexUseProto package_dex_use = 1;
+}
+
+message PackageDexUseProto {
+    string owning_package_name = 1;  // key
+    repeated PrimaryDexUseProto primary_dex_use = 2;
+    repeated SecondaryDexUseProto secondary_dex_use = 3;
+}
+
+message PrimaryDexUseProto {
+    string dex_file = 1;  // key
+    repeated PrimaryDexUseRecordProto record = 2;
+}
+
+message PrimaryDexUseRecordProto {
+    string loading_package_name = 1;  // key
+    bool isolated_process = 2;        // key
+    int64 last_used_at_ms = 3;
+}
+
+message SecondaryDexUseProto {
+    string dex_file = 1;     // key
+    Int32Value user_id = 2;  // Must be explicitly set.
+    repeated SecondaryDexUseRecordProto record = 3;
+}
+
+message SecondaryDexUseRecordProto {
+    string loading_package_name = 1;  // key
+    bool isolated_process = 2;        // key
+    string class_loader_context = 3;
+    string abi_name = 4;
+    int64 last_used_at_ms = 5;
+}

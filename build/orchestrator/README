@@ -1,0 +1,9 @@
+DEMO
+
+To verify that the default use-case works as expected, run:
+
+  ${WORKSPACE_ROOT}/orchestrator/test_build.sh
+
+To verify a particular (multitree_build) target, run:
+
+  ${WORKSPACE_ROOT}/orchestrator/test_build.sh ${TARGET}

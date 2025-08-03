@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.audio"
+  name: "bluetooth_mac_address_anonymization"
+  state: ENABLED
+  permission: READ_ONLY
+}

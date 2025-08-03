@@ -1,0 +1,10 @@
+{
+  "permittedPaths": [
+    // JVMTI libraries used in ART testing are located under /data.
+    // TODO(b/171732668): Narrow this down.
+    "/data",
+
+    // For ART APEX primary boot image and odex files.
+    "/apex/com.android.art/javalib"
+  ]
+}

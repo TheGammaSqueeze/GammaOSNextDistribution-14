@@ -1,0 +1,2 @@
+Regression test for a dex file with 32768 classes. We used to rely on undefined
+shift behavior in the type lookup table code.

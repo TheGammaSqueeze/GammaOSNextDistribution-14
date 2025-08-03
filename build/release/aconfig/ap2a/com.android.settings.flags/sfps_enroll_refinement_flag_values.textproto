@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settings.flags"
+  name: "sfps_enroll_refinement"
+  state: ENABLED
+  permission: READ_ONLY
+}

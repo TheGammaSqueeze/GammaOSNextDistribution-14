@@ -1,0 +1,1 @@
+Tests that DCE deletes dead HPhi instructions.

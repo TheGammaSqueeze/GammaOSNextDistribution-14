@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "dismiss_network_selection_notification_on_sim_disable"
+  state: ENABLED
+  permission: READ_ONLY
+}

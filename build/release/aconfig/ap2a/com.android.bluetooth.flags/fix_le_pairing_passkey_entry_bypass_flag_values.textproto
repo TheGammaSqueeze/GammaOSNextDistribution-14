@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "fix_le_pairing_passkey_entry_bypass"
+  state: ENABLED
+  permission: READ_ONLY
+}

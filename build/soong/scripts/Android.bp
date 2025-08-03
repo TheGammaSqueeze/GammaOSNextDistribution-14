@@ -1,0 +1,294 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: ["//build/soong:__subpackages__"],
+}
+
+python_binary_host {
+    name: "check_boot_jars",
+    main: "check_boot_jars/check_boot_jars.py",
+    srcs: [
+        "check_boot_jars/check_boot_jars.py",
+    ],
+}
+
+python_binary_host {
+    name: "manifest_fixer",
+    main: "manifest_fixer.py",
+    srcs: [
+        "manifest_fixer.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+}
+
+python_test_host {
+    name: "manifest_fixer_test",
+    main: "manifest_fixer_test.py",
+    srcs: [
+        "manifest_fixer_test.py",
+        "manifest_fixer.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "manifest_utils",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_library_host {
+    name: "manifest_utils",
+    srcs: [
+        "manifest.py",
+    ],
+    visibility: ["//system/apex/apexer:__pkg__"],
+}
+
+python_binary_host {
+    name: "manifest_check",
+    main: "manifest_check.py",
+    srcs: [
+        "manifest_check.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+}
+
+python_test_host {
+    name: "manifest_check_test",
+    main: "manifest_check_test.py",
+    srcs: [
+        "manifest_check_test.py",
+        "manifest_check.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "jsonmodify",
+    main: "jsonmodify.py",
+    srcs: [
+        "jsonmodify.py",
+    ],
+}
+
+python_test_host {
+    name: "jsonmodify_test",
+    main: "jsonmodify_test.py",
+    srcs: [
+        "jsonmodify_test.py",
+        "jsonmodify.py",
+    ],
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "test_config_fixer",
+    main: "test_config_fixer.py",
+    srcs: [
+        "test_config_fixer.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+}
+
+python_test_host {
+    name: "test_config_fixer_test",
+    main: "test_config_fixer_test.py",
+    srcs: [
+        "test_config_fixer_test.py",
+        "test_config_fixer.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "construct_context",
+    main: "construct_context.py",
+    srcs: [
+        "construct_context.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+}
+
+python_test_host {
+    name: "construct_context_test",
+    main: "construct_context_test.py",
+    srcs: [
+        "construct_context_test.py",
+        "construct_context.py",
+    ],
+    libs: [
+        "manifest_utils",
+    ],
+    test_suites: ["general-tests"],
+}
+
+python_library_host {
+    name: "uffd_gc_utils",
+    srcs: [
+        "uffd_gc_utils.py",
+    ],
+    visibility: [
+        "//build/make/tools:__subpackages__",
+    ],
+}
+
+python_test_host {
+    name: "uffd_gc_utils_test",
+    main: "uffd_gc_utils_test.py",
+    srcs: [
+        "uffd_gc_utils_test.py",
+    ],
+    libs: [
+        "uffd_gc_utils",
+    ],
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "construct_uffd_gc_flag",
+    main: "construct_uffd_gc_flag.py",
+    srcs: [
+        "construct_uffd_gc_flag.py",
+    ],
+    libs: [
+        "uffd_gc_utils",
+    ],
+}
+
+python_library_host {
+    name: "ninja_rsp",
+    srcs: ["ninja_rsp.py"],
+}
+
+python_binary_host {
+    name: "lint_project_xml",
+    main: "lint_project_xml.py",
+    srcs: [
+        "lint_project_xml.py",
+    ],
+    libs: ["ninja_rsp"],
+}
+
+python_test_host {
+    name: "lint_project_xml_test",
+    main: "lint_project_xml_test.py",
+    srcs: [
+        "lint_project_xml_test.py",
+        "lint_project_xml.py",
+    ],
+    libs: ["ninja_rsp"],
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "gen-kotlin-build-file",
+    main: "gen-kotlin-build-file.py",
+    srcs: [
+        "gen-kotlin-build-file.py",
+    ],
+    libs: ["ninja_rsp"],
+}
+
+python_binary_host {
+    name: "conv_linker_config",
+    srcs: [
+        "conv_linker_config.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "linker_config_proto",
+    ],
+    visibility: ["//system/linkerconfig"],
+}
+
+python_test_host {
+    name: "conv_linker_config_test",
+    main: "conv_linker_config_test.py",
+    srcs: [
+        "conv_linker_config_test.py",
+        "conv_linker_config.py",
+    ],
+    libs: ["linker_config_proto"],
+    test_suites: ["general-tests"],
+}
+
+python_binary_host {
+    name: "get_clang_version",
+    main: "get_clang_version.py",
+    srcs: [
+        "get_clang_version.py",
+    ],
+}
+
+python_binary_host {
+    name: "build-apex-bundle",
+    main: "build-apex-bundle.py",
+    srcs: [
+        "build-apex-bundle.py",
+    ],
+    required: [
+        "bundletool",
+    ],
+}
+
+sh_binary_host {
+    name: "list_image",
+    src: "list_image.sh",
+}
+
+filegroup {
+    name: "rustfmt.toml",
+    srcs: ["rustfmt.toml"],
+    visibility: ["//visibility:public"],
+}
+
+sh_binary_host {
+    name: "jars-to-module-info-java",
+    src: "jars-to-module-info-java.sh",
+}
+
+python_binary_host {
+    name: "modify_permissions_allowlist",
+    main: "modify_permissions_allowlist.py",
+    srcs: [
+        "modify_permissions_allowlist.py",
+    ],
+}
+
+python_test_host {
+    name: "modify_permissions_allowlist_test",
+    main: "modify_permissions_allowlist_test.py",
+    srcs: [
+        "modify_permissions_allowlist_test.py",
+        "modify_permissions_allowlist.py",
+    ],
+}
+
+sh_binary_host {
+    name: "keep-flagged-apis",
+    src: "keep-flagged-apis.sh",
+}

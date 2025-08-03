@@ -1,0 +1,55 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# A service that handles dexopt. See art/artd/README.md. It's a lazy service
+# that is started and stopped dynamically as needed.
+service artd /apex/com.android.art/bin/artd
+    interface aidl artd
+    disabled  # Prevents the service from automatically starting at boot.
+    oneshot  # Prevents the service from automatically restarting each time it is stopped.
+    class core
+    user artd
+    group artd
+    capabilities DAC_OVERRIDE DAC_READ_SEARCH FOWNER CHOWN
+
+# Same as above, but for Pre-reboot Dexopt. It runs in a chroot environment that
+# is set up by dexopt_chroot_setup. It's a lazy service that is started and
+# stopped dynamically as needed.
+service artd_pre_reboot /apex/com.android.art/bin/art_exec --chroot=/mnt/pre_reboot_dexopt -- /apex/com.android.art/bin/artd --pre-reboot
+    interface aidl artd_pre_reboot
+    disabled  # Prevents the service from automatically starting at boot.
+    oneshot  # Prevents the service from automatically restarting each time it is stopped.
+    class core
+    user artd
+    group artd
+    capabilities DAC_OVERRIDE DAC_READ_SEARCH FOWNER CHOWN SYS_CHROOT
+    seclabel u:r:artd:s0
+
+# A service that sets up the chroot environment for Pre-reboot Dexopt. See
+# art/dexopt_chroot_setup/README.md. It's a lazy service that is started and
+# stopped dynamically as needed.
+service dexopt_chroot_setup /apex/com.android.art/bin/dexopt_chroot_setup
+    interface aidl dexopt_chroot_setup
+    disabled  # Prevents the service from automatically starting at boot.
+    oneshot  # Prevents the service from automatically restarting each time it is stopped.
+    class core
+    user artd
+    group artd
+
+# Run at boot in Android U and later.
+service art_boot /apex/com.android.art/bin/art_boot
+    disabled  # Started explicitly from system/core/rootdir/init.rc
+    oneshot
+    class core
+    user root

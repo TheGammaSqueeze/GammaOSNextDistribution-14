@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.google.android.iwlan.flags"
+  name: "prevent_epdg_selection_threads_exhausted"
+  state: ENABLED
+  permission: READ_ONLY
+}

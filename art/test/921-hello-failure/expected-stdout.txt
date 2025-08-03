@@ -1,0 +1,58 @@
+hello - Verification
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_FAILS_VERIFICATION (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': Failed to verify class. Error was: Verifier rejected class Transform: void Transform.sayHi(java.lang.String) failed to verify: void Transform.sayHi(java.lang.String): [0x0] return-object not expected))
+hello - Verification
+hello - NewName
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_NAMES_DONT_MATCH (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': expected file to contain class called 'LTransform;' but found 'LNotTransform;'!))
+hello - NewName
+hello - DifferentAccess
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_CLASS_MODIFIERS_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': Cannot change modifiers of class by redefinition))
+hello - DifferentAccess
+hello2 - NewInterface
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform2;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_HIERARCHY_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform2;': Interfaces added or removed))
+hello2 - NewInterface
+hello2 - MissingInterface
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform2;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_HIERARCHY_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform2;': Interfaces added or removed))
+hello2 - MissingInterface
+hello2 - ReorderInterface
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform2;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_HIERARCHY_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform2;': Interfaces changed or re-ordered))
+hello2 - ReorderInterface
+hello - MultiRedef
+hello2 - MultiRedef
+Transformation error : java.lang.Exception(Failed to redefine classes <LTransform2;, LTransform;> due to JVMTI_ERROR_NAMES_DONT_MATCH (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': expected file to contain class called 'LTransform;' but found 'LNotTransform;'!))
+hello - MultiRedef
+hello2 - MultiRedef
+Transformation error : java.lang.Exception(Failed to redefine classes <LTransform;, LTransform2;> due to JVMTI_ERROR_NAMES_DONT_MATCH (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': expected file to contain class called 'LTransform;' but found 'LNotTransform;'!))
+hello - MultiRedef
+hello2 - MultiRedef
+hello - MultiRetrans
+hello2 - MultiRetrans
+Transformation error : java.lang.Exception(Failed to retransform classes <LTransform2;, LTransform;> due to JVMTI_ERROR_NAMES_DONT_MATCH (FAILURE TO RETRANSFORM Unable to perform redefinition of 'LTransform;': expected file to contain class called 'LTransform;' but found 'LNotTransform;'!))
+hello - MultiRetrans
+hello2 - MultiRetrans
+Transformation error : java.lang.Exception(Failed to retransform classes <LTransform;, LTransform2;> due to JVMTI_ERROR_NAMES_DONT_MATCH (FAILURE TO RETRANSFORM Unable to perform redefinition of 'LTransform;': expected file to contain class called 'LTransform;' but found 'LNotTransform;'!))
+hello - MultiRetrans
+hello2 - MultiRetrans
+hello - NewMethod
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_METHOD_ADDED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': Total number of declared methods changed from 2 to 3))
+hello - NewMethod
+hello2 - MissingMethod
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform3;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_METHOD_DELETED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform3;': Total number of declared methods changed from 3 to 2))
+hello2 - MissingMethod
+hello - MethodChange
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_METHOD_MODIFIERS_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': method 'sayHi' (sig: (Ljava/lang/String;)V) had different access flags))
+hello - MethodChange
+hello - NewField
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_SCHEMA_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform;': Unknown field 'field' (sig: Ljava/lang/Object;) added!))
+hello - NewField
+hello there - MissingField
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform4;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_SCHEMA_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform4;': Field 'greeting' (sig: Ljava/lang/String;) is missing!))
+hello there - MissingField
+hello there again - FieldChange
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform4;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_SCHEMA_CHANGED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform4;': Unknown field 'greeting' (sig: Ljava/lang/Object;) added!))
+hello there again - FieldChange
+hello - Unmodifiable
+Transformation error : java.lang.Exception(Failed to redefine class <[LTransform;> due to JVMTI_ERROR_UNMODIFIABLE_CLASS (FAILURE TO REDEFINE Modification of Array classes is not supported))
+hello - Unmodifiable
+hello - Undefault
+Transformation error : java.lang.Exception(Failed to redefine class <LTransform5;> due to JVMTI_ERROR_UNSUPPORTED_REDEFINITION_METHOD_ADDED (FAILURE TO REDEFINE Unable to perform redefinition of 'LTransform5;': Total number of declared methods changed from 2 to 3))
+hello - Undefault

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "override_key_behavior_permission_apis"
+  state: ENABLED
+  permission: READ_ONLY
+}

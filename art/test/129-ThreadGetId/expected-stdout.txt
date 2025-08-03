@@ -1,0 +1,8 @@
+Thread finished
+Thread finished
+Thread finished
+Thread finished
+Thread finished
+All joined
+HeapTaskDaemon depth 0
+Finishing

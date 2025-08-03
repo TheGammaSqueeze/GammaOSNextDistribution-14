@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "report_palms_to_gestures_library"
+  state: ENABLED
+  permission: READ_ONLY
+}

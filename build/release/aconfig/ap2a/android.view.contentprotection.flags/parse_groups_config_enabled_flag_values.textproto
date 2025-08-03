@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.view.contentprotection.flags"
+  name: "parse_groups_config_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

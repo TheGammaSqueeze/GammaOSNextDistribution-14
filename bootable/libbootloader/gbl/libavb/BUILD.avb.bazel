@@ -1,0 +1,197 @@
+# Copyright (C) 2024 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@gbl//toolchain:gbl_toolchain.bzl", "link_static_cc_library")
+load("@gbl_llvm_prebuilts//:info.bzl", "LLVM_PREBUILTS_C_INCLUDE")
+load("@rules_rust//bindgen:defs.bzl", "rust_bindgen")
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+exports_files(glob(["**/*"]))
+
+# Newer version of `rust_bindgen` requires a `cc_library` target that actually produces a static
+# library and instead of only headers. Thus we generate a placeholder source file to meet the
+# requirement.
+genrule(
+    name = "bindgen_noop_cc",
+    outs = ["bindgen_noop_cc.cc"],
+    cmd = "touch $(OUTS)",
+)
+
+cc_library(
+    name = "headers",
+    srcs = [":bindgen_noop_cc"],
+    hdrs = [
+        "libavb/avb_chain_partition_descriptor.h",
+        "libavb/avb_cmdline.h",
+        "libavb/avb_crypto.h",
+        "libavb/avb_descriptor.h",
+        "libavb/avb_footer.h",
+        "libavb/avb_hash_descriptor.h",
+        "libavb/avb_hashtree_descriptor.h",
+        "libavb/avb_kernel_cmdline_descriptor.h",
+        "libavb/avb_ops.h",
+        "libavb/avb_property_descriptor.h",
+        "libavb/avb_rsa.h",
+        "libavb/avb_sha.h",
+        "libavb/avb_slot_verify.h",
+        "libavb/avb_sysdeps.h",
+        "libavb/avb_util.h",
+        "libavb/avb_vbmeta_image.h",
+        "libavb/avb_version.h",
+        "libavb/libavb.h",
+        "libavb/sha/avb_crypto_ops_impl.h",
+    ],
+    includes = [
+        ".",
+        "libavb/sha/",
+    ],
+    deps = ["@gbl//libavb:gbl_deps"],
+)
+
+cc_library(
+    name = "libavb_c",
+    srcs = [
+        "libavb/avb_chain_partition_descriptor.c",
+        "libavb/avb_cmdline.c",
+        "libavb/avb_crc32.c",
+        "libavb/avb_crypto.c",
+        "libavb/avb_descriptor.c",
+        "libavb/avb_footer.c",
+        "libavb/avb_hash_descriptor.c",
+        "libavb/avb_hashtree_descriptor.c",
+        "libavb/avb_kernel_cmdline_descriptor.c",
+        "libavb/avb_property_descriptor.c",
+        "libavb/avb_rsa.c",
+        "libavb/avb_slot_verify.c",
+        "libavb/avb_util.c",
+        "libavb/avb_vbmeta_image.c",
+        "libavb/avb_version.c",
+
+        # Contains noop placeholder for avb_printv/avb_printf
+        "@gbl//libavb:print.c",
+    ],
+    copts = [
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_POSIX_C_SOURCE=199309L",
+        "-Wa,--noexecstack",
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+        "-Wformat=2",
+        "-Wmissing-prototypes",
+        "-Wno-unused-parameter",
+        "-ffunction-sections",
+        "-g",
+        "-DAVB_ENABLE_DEBUG",
+        "-DAVB_COMPILATION",
+    ],
+    deps = [
+        ":headers",
+        "@gbl//libavb:gbl_deps",
+    ],
+)
+
+link_static_cc_library(
+    name = "libavb_c_staticlib",
+    cc_library = ":libavb_c",
+)
+
+cc_library(
+    name = "avb_crypto_ops_sha_impl",
+    srcs = [
+        "libavb/sha/sha256_impl.c",
+        "libavb/sha/sha512_impl.c",
+    ],
+    copts = ["-DAVB_COMPILATION"],
+    deps = [
+        ":headers",
+        "@gbl//libavb:gbl_deps",
+    ],
+)
+
+link_static_cc_library(
+    name = "avb_crypto_ops_sha_impl_staticlib",
+    cc_library = ":avb_crypto_ops_sha_impl",
+)
+
+rust_bindgen(
+    name = "libavb_c_bindgen",
+    bindgen_flags = [
+        "--ctypes-prefix",
+        "core::ffi",
+        "--use-core",
+        "--constified-enum-module=AvbDescriptorTag",
+        "--bitfield-enum=Avb.*Flags",
+        "--default-enum-style=rust",
+        "--with-derive-default",
+        "--with-derive-custom=Avb.*Descriptor=FromZeroes,FromBytes",
+        "--allowlist-type=AvbDescriptorTag",
+        "--allowlist-type=Avb.*Flags",
+        "--allowlist-function=.*",
+        "--allowlist-var=AVB.*",
+        "--raw-line",
+        """
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+#![allow(dead_code)]
+#![cfg_attr(not(test), no_std)]
+
+use zerocopy::{FromBytes, FromZeroes};
+""",
+    ],
+    cc_lib = "headers",
+    # For x86_32, we need to explicitly specify 32bit architecture.
+    clang_flags = select({
+        "@gbl//toolchain:gbl_rust_uefi_x86_32": ["-m32"],
+        "//conditions:default": ["-m64"],
+    }) + [
+        "-I{}".format(LLVM_PREBUILTS_C_INCLUDE),
+        "-nostdinc",
+    ],
+    header = "libavb/libavb.h",
+)
+
+rust_library(
+    name = "avb_bindgen",
+    srcs = [":libavb_c_bindgen"],
+    deps = ["@zerocopy"],
+)
+
+rust_library(
+    name = "avb",
+    srcs = glob(["rust/src/**/*.rs"]),
+    crate_features = ["uuid"],
+    edition = "2021",
+    deps = [
+        ":avb_bindgen",
+        ":libavb_c_staticlib",
+        "@uuid",
+        "@zerocopy",
+    ],
+)
+
+rust_library(
+    name = "avb_test",
+    srcs = ["rust/tests/test_ops.rs"],
+    crate_features = ["uuid"],
+    edition = "2021",
+    deps = [
+        ":avb",
+        "@uuid",
+    ],
+)

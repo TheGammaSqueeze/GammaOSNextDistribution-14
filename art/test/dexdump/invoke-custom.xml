@@ -1,0 +1,180 @@
+<api>
+<package name=""
+>
+<class name="Main"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<constructor name="Main"
+ type="Main"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</constructor>
+<method name="main"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ visibility="public"
+>
+<parameter name="arg0" type="java.lang.String[]">
+</parameter>
+</method>
+</class>
+<class name="TestBadBootstrapArguments"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<constructor name="TestBadBootstrapArguments"
+ type="TestBadBootstrapArguments"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</constructor>
+</class>
+<class name="TestInvokeCustomWithConcurrentThreads"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<implements name="java.lang.Runnable">
+</implements>
+<method name="notUsed"
+ return="int"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ visibility="public"
+>
+<parameter name="arg0" type="int">
+</parameter>
+</method>
+<method name="test"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ visibility="public"
+>
+</method>
+<method name="run"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</method>
+</class>
+<class name="TestLinkerMethodMinimalArguments"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<constructor name="TestLinkerMethodMinimalArguments"
+ type="TestLinkerMethodMinimalArguments"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</constructor>
+<method name="test"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ visibility="public"
+>
+<parameter name="arg0" type="int">
+</parameter>
+<parameter name="arg1" type="int">
+</parameter>
+<parameter name="arg2" type="int">
+</parameter>
+</method>
+</class>
+<class name="TestLinkerMethodMultipleArgumentTypes"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<constructor name="TestLinkerMethodMultipleArgumentTypes"
+ type="TestLinkerMethodMultipleArgumentTypes"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</constructor>
+<method name="test"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ visibility="public"
+>
+<parameter name="arg0" type="int">
+</parameter>
+<parameter name="arg1" type="int">
+</parameter>
+</method>
+<method name="GetBootstrapRunCount"
+ return="int"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</method>
+</class>
+<class name="TestVariableArityLinkerMethod"
+ extends="TestBase"
+ interface="false"
+ abstract="false"
+ static="false"
+ final="false"
+ visibility="public"
+>
+<constructor name="TestVariableArityLinkerMethod"
+ type="TestVariableArityLinkerMethod"
+ static="false"
+ final="false"
+ visibility="public"
+>
+</constructor>
+</class>
+</package>
+</api>

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.settingslib.flags"
+  name: "enable_cached_bluetooth_device_dedup"
+  state: ENABLED
+  permission: READ_ONLY
+}

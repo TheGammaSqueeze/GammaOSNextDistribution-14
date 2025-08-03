@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "leaudio_mcs_tbs_authorization_rebond_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

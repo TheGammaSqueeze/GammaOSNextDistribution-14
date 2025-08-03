@@ -1,0 +1,3 @@
+HSLBaseClassAnotherWrapper;->recursiveTwoWrappers()Z+LBaseClassAnotherWrapper;,LBaseClassWrapper;,LBaseClassNoRecursion;
+HSLBaseClassWrapper;->recursiveTwoWrappers()Z+LBaseClassAnotherWrapper;,LBaseClassWrapper;,LBaseClassNoRecursion;
+HSLBaseClassShallowWrapper;->recursiveShallow()Z+LBaseClassShallowWrapper;,LBaseClassShallowNoRecursion;

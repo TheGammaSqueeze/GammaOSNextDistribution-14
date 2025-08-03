@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.uwb.flags"
+  name: "use_uwbs_uci_version"
+  state: ENABLED
+  permission: READ_ONLY
+}

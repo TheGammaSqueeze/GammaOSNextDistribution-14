@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#if ASM_DEFINE_INCLUDE_DEPENDENCIES
+#include "dex/standard_dex_file.h"
+#include "dex/compact_dex_file.h"
+#endif
+
+ASM_DEFINE(CODE_ITEM_REGISTERS_SIZE_OFFSET,
+           art::StandardDexFile::CodeItem::RegistersSizeOffset())
+ASM_DEFINE(CODE_ITEM_INS_SIZE_OFFSET,
+           art::StandardDexFile::CodeItem::InsSizeOffset())
+ASM_DEFINE(CODE_ITEM_OUTS_SIZE_OFFSET,
+           art::StandardDexFile::CodeItem::OutsSizeOffset())
+ASM_DEFINE(CODE_ITEM_INSNS_OFFSET,
+           art::StandardDexFile::CodeItem::InsnsOffset())
+
+ASM_DEFINE(COMPACT_CODE_ITEM_FIELDS_OFFSET,
+           art::CompactDexFile::CodeItem::FieldsOffset())
+ASM_DEFINE(COMPACT_CODE_ITEM_FLAGS_OFFSET,
+           art::CompactDexFile::CodeItem::InsnsCountAndFlagsOffset())
+ASM_DEFINE(COMPACT_CODE_ITEM_INSNS_OFFSET,
+           art::CompactDexFile::CodeItem::InsnsOffset())
+
+ASM_DEFINE(COMPACT_CODE_ITEM_REGISTERS_INS_OUTS_FLAGS,
+           art::CompactDexFile::CodeItem::kFlagPreHeaderRegistersSize |
+           art::CompactDexFile::CodeItem::kFlagPreHeaderInsSize |
+           art::CompactDexFile::CodeItem::kFlagPreHeaderOutsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_REGISTERS_FLAG,
+           art::CompactDexFile::CodeItem::kFlagPreHeaderRegistersSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_INS_FLAG,
+           art::CompactDexFile::CodeItem::kFlagPreHeaderInsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_OUTS_FLAG,
+           art::CompactDexFile::CodeItem::kFlagPreHeaderOutsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_INSNS_FLAG,
+           art::CompactDexFile::CodeItem::kFlagPreHeaderInsnsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_REGISTERS_BIT,
+           art::CompactDexFile::CodeItem::kBitPreHeaderRegistersSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_INS_BIT,
+           art::CompactDexFile::CodeItem::kBitPreHeaderInsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_OUTS_BIT,
+           art::CompactDexFile::CodeItem::kBitPreHeaderOutsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_INSNS_BIT,
+           art::CompactDexFile::CodeItem::kBitPreHeaderInsnsSize)
+ASM_DEFINE(COMPACT_CODE_ITEM_REGISTERS_SIZE_SHIFT,
+           art::CompactDexFile::CodeItem::kRegistersSizeShift)
+ASM_DEFINE(COMPACT_CODE_ITEM_INS_SIZE_SHIFT,
+           art::CompactDexFile::CodeItem::kInsSizeShift)
+ASM_DEFINE(COMPACT_CODE_ITEM_OUTS_SIZE_SHIFT,
+           art::CompactDexFile::CodeItem::kOutsSizeShift)

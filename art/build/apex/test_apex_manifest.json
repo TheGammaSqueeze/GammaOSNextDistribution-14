@@ -1,0 +1,10 @@
+{
+  "name": "com.android.art",
+  "version": 2147483647,
+  "provideNativeLibs": [
+    "libjdwp.so"
+  ],
+  "requireNativeLibs": [
+    "libicu_jni.so"
+  ]
+}

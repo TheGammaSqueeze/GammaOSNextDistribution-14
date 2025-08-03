@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.flags"
+  name: "enable_waiting_state_for_system_session_creation_request"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,5 @@
+Tests WeakReference processing and retention of objects needed by finalizers.
+
+Can be used as Reference.get() blocking benchmark by setting PRINT_TIMES to
+true. This will print maximum observed latencies for Reference.get() when
+significant memory is only reachable from SoftReferences and Finalizers.

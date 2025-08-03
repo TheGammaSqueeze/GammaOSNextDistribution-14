@@ -1,0 +1,2 @@
+Test checking that FindDivWithInputsInBasicBlock works correctly
+if the dividend equals the divisor.

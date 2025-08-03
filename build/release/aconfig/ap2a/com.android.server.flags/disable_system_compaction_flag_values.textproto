@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.flags"
+  name: "disable_system_compaction"
+  state: ENABLED
+  permission: READ_ONLY
+}

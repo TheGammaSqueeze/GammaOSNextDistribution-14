@@ -1,0 +1,2 @@
+Regression test for b/216762268, which found a bug in
+LoopOptimization::SimplifyInduction.

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "bluffs_mitigation"
+  state: ENABLED
+  permission: READ_ONLY
+}

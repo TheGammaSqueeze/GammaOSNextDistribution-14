@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.input.flags"
+  name: "enable_new_mouse_pointer_ballistics"
+  state: ENABLED
+  permission: READ_ONLY
+}

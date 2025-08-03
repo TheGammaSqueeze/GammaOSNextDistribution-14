@@ -1,0 +1,1 @@
+Exercise class linker check for classes implements themselves (b/301108855).

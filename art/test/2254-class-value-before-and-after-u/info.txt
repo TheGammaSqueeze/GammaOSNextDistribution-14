@@ -1,0 +1,2 @@
+java.lang.ClassValue should be visible to U or newer Android, but on older versions
+Class.forName("java.lang.ClassValue") should throw CNFE. See b/259501764.

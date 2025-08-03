@@ -1,0 +1,215 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+// A native library that goes into /system or /system_ext and that depends on
+// a non-public library that is linked from the system namespace.
+cc_library {
+    name: "libsystem_testlib",
+    min_sdk_version: "31",
+    stl: "libc++_static",
+    shared_libs: ["liblog"],
+    // It's difficult to add a shared_lib dependency on a non-public library
+    // here, so it dlopens one instead.
+    srcs: ["libsystem_testlib.cc"],
+}
+
+// A native library that goes into /product.
+cc_library {
+    name: "libproduct_testlib",
+    min_sdk_version: "31",
+    stl: "none",
+    srcs: [],
+}
+
+// A native library that goes into /vendor.
+cc_library {
+    name: "libvendor_testlib",
+    min_sdk_version: "31",
+    stl: "none",
+    srcs: [],
+}
+
+// This app is just an intermediate container to be able to include the .so
+// library in the host test. It's not actually installed or started.
+android_test_helper_app {
+    name: "library_container_app",
+    defaults: ["art_module_source_build_java_defaults"],
+    min_sdk_version: "31",
+    manifest: "library_container_app_manifest.xml",
+    compile_multilib: "both",
+    jni_libs: [
+        "libsystem_testlib",
+        "libproduct_testlib",
+        "libvendor_testlib",
+    ],
+}
+
+// Test fixture that represents a shared library in /system/framework.
+java_library {
+    name: "libnativeloader_system_shared_lib",
+    sdk_version: "31",
+    installable: true,
+    srcs: ["src/android/test/systemsharedlib/SystemSharedLib.java"],
+}
+
+// Test fixture that represents a shared library in /system_ext/framework.
+java_library {
+    name: "libnativeloader_system_ext_shared_lib",
+    sdk_version: "31",
+    installable: true,
+    srcs: ["src/android/test/systemextsharedlib/SystemExtSharedLib.java"],
+}
+
+// Test fixture that represents a shared library in /product/framework.
+java_library {
+    name: "libnativeloader_product_shared_lib",
+    product_specific: true,
+    sdk_version: "31",
+    installable: true,
+    srcs: ["src/android/test/productsharedlib/ProductSharedLib.java"],
+}
+
+// Test fixture that represents a shared library in /vendor/framework.
+java_library {
+    name: "libnativeloader_vendor_shared_lib",
+    vendor: true,
+    sdk_version: "31",
+    installable: true,
+    srcs: ["src/android/test/vendorsharedlib/VendorSharedLib.java"],
+}
+
+java_library {
+    name: "loadlibrarytest_testlib",
+    sdk_version: "system_31",
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+        "androidx.test.rules",
+        "modules-utils-build_system",
+    ],
+    libs: [
+        "libnativeloader_system_shared_lib",
+        "libnativeloader_system_ext_shared_lib",
+        "libnativeloader_product_shared_lib",
+        "libnativeloader_vendor_shared_lib",
+    ],
+    srcs: ["src/android/test/lib/*.java"],
+}
+
+java_defaults {
+    name: "loadlibrarytest_app_defaults",
+    defaults: ["art_module_source_build_java_defaults"],
+    min_sdk_version: "31",
+    // Don't let targetSdkVersion become the latest codename, because
+    // PackageManager refuses to install the app on released platform images
+    // then, which makes it fail in MTS runs. Otoh, we don't want app compat
+    // measures getting enabled in these tests, so set some high number.
+    target_sdk_version: "9999",
+    static_libs: [
+        "loadlibrarytest_testlib",
+    ],
+    libs: [
+        "libnativeloader_system_shared_lib",
+        "libnativeloader_system_ext_shared_lib",
+        "libnativeloader_product_shared_lib",
+        "libnativeloader_vendor_shared_lib",
+    ],
+}
+
+android_test_helper_app {
+    name: "loadlibrarytest_system_priv_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    manifest: "loadlibrarytest_system_priv_app_manifest.xml",
+    // /system/priv-app currently reuses the same test as /system/app.
+    srcs: ["src/android/test/app/SystemAppTest.java"],
+}
+
+android_test_helper_app {
+    name: "loadlibrarytest_system_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    manifest: "loadlibrarytest_system_app_manifest.xml",
+    srcs: ["src/android/test/app/SystemAppTest.java"],
+}
+
+android_test_helper_app {
+    name: "loadlibrarytest_system_ext_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    system_ext_specific: true,
+    manifest: "loadlibrarytest_system_ext_app_manifest.xml",
+    // /system_ext should behave the same as /system, so use the same test class there.
+    srcs: ["src/android/test/app/SystemAppTest.java"],
+}
+
+android_test_helper_app {
+    name: "loadlibrarytest_product_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    product_specific: true,
+    manifest: "loadlibrarytest_product_app_manifest.xml",
+    srcs: ["src/android/test/app/ProductAppTest.java"],
+}
+
+android_test_helper_app {
+    name: "loadlibrarytest_vendor_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    vendor: true,
+    manifest: "loadlibrarytest_vendor_app_manifest.xml",
+    srcs: ["src/android/test/app/VendorAppTest.java"],
+}
+
+// A normal app installed in /data.
+android_test_helper_app {
+    name: "loadlibrarytest_data_app",
+    defaults: ["loadlibrarytest_app_defaults"],
+    manifest: "loadlibrarytest_data_app_manifest.xml",
+    srcs: ["src/android/test/app/DataAppTest.java"],
+}
+
+java_test_host {
+    name: "libnativeloader_e2e_tests",
+    defaults: ["art_module_source_build_java_defaults"],
+    srcs: ["src/android/test/hostside/*.java"],
+    libs: [
+        "compatibility-tradefed",
+        "tradefed",
+    ],
+    data: [
+        ":library_container_app",
+        ":libnativeloader_system_shared_lib",
+        ":libnativeloader_system_ext_shared_lib",
+        ":libnativeloader_product_shared_lib",
+        ":libnativeloader_vendor_shared_lib",
+        ":loadlibrarytest_system_priv_app",
+        ":loadlibrarytest_system_app",
+        ":loadlibrarytest_system_ext_app",
+        ":loadlibrarytest_product_app",
+        ":loadlibrarytest_vendor_app",
+        ":loadlibrarytest_data_app",
+    ],
+    test_config: "libnativeloader_e2e_tests.xml",
+    test_suites: [
+        "general-tests",
+        "mts-art",
+    ],
+}

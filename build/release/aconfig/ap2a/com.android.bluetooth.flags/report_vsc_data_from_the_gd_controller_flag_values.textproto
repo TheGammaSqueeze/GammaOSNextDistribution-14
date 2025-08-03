@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "report_vsc_data_from_the_gd_controller"
+  state: ENABLED
+  permission: READ_ONLY
+}

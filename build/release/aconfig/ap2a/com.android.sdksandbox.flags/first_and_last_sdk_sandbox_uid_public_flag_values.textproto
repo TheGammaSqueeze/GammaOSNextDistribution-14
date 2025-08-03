@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.sdksandbox.flags"
+  name: "first_and_last_sdk_sandbox_uid_public"
+  state: ENABLED
+  permission: READ_ONLY
+}

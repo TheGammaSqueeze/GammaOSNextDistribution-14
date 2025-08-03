@@ -1,0 +1,2 @@
+Metrics reporting thread started
+Metrics reporting thread terminating

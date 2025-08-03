@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Generate a big pile of interface classes.
+
+# Create N interface files.
+def createFiles(count):
+  for i in range(count):
+    with open("src/Interface{:03}.java".format(i), "wt") as fp:
+      fp.write("interface Interface{:03} {{\n".format(i))
+      if (i & 0x01) != 0:
+        fp.write("    int func{:03}();\n".format(i))
+      fp.write("}\n")
+
+  with open("func-decl", "wt") as fp:
+    fp.write("    implements\n")
+    for i in range(count):
+      fp.write("        Interface{:03},\n".format(i))
+    fp.write("\n")
+    for i in range(1, count, 2):
+      fp.write("    public int func{:03}() {{ return {}; }}\n".format(i, i))
+
+def main():
+  createFiles(100)
+
+if __name__ == '__main__':
+  main()

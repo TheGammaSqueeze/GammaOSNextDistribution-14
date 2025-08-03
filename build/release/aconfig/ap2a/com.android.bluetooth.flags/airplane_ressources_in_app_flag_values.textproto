@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "airplane_ressources_in_app"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration description="Runs bionic-spawn-benchmarks.">
+    <option name="test-suite-tag" value="apct" />
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="cleanup" value="true" />
+        <option name="push" value="bionic-spawn-benchmarks->/data/local/tests/unrestricted/bionic-spawn-benchmarks" />
+    </target_preparer>
+
+    <!-- TODO(b/120549168): This seems necessary for consistent results on a walleye, but it's not working with atest
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="push" value="perf-setup.sh->/data/local/tests/unrestricted/perf-setup.sh" />
+        <option name="post-push" value="chmod 755 /data/local/tests/unrestricted/perf-setup.sh;/data/local/tests/unrestricted/perf-setup.sh" />
+    </target_preparer>
+    -->
+
+    <test class="com.android.tradefed.testtype.GoogleBenchmarkTest" >
+        <option name="native-benchmark-device-path" value="/data/local/tests/unrestricted" />
+        <option name="benchmark-module-name" value="bionic-spawn-benchmarks" />
+
+        <!-- The GoogleBenchmarkTest class ordinarily expects every file in the benchmark's
+             directory (recursively) to be a google-benchmark binary, so we need this setting to
+             avoid failing on the bench_* noop programs, which don't output benchmark results. -->
+        <option name="file-exclusion-filter-regex" value=".*/bench_[^/]*$"  />
+    </test>
+
+</configuration>

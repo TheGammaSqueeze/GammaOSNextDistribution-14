@@ -1,0 +1,2 @@
+Tests that tracing handles non-invokable methods correctly without updating the
+entrypoints for non-invokable methods.

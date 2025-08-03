@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.text.flags"
+  name: "escape_clears_focus"
+  state: ENABLED
+  permission: READ_ONLY
+}

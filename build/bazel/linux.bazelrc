@@ -1,0 +1,6 @@
+import %workspace%/build/bazel/common.bazelrc
+
+build --sandbox_tmpfs_path=/tmp/
+
+# Create a build number that will be injected later.
+build --workspace_status_command=build/bazel/scripts/gen_build_number.sh

@@ -1,0 +1,2 @@
+Test that a static initializer throwing doesn't contain a static method of the
+same class in the stack trace.

@@ -1,0 +1,9 @@
+This is an adaptation of 030-bad-finalizer and 2041-bad-cleaner
+to Java 8 Cleaners created indirectly via NativeAllocationRegistry. These
+run directly in the ReferenceQueueDaemon. The native finalizer never finishes.
+ART is expected to detect this situation and abort the VM (so you should
+see a message to that effect in the log output).
+
+We have this test in addition to 2041-bad-cleaner mostly to test that the output
+includes useful information in this important case. This is also the only test
+of the toString() method provided by that Runnable.

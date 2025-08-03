@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "introduce_smoother_dimmer"
+  state: ENABLED
+  permission: READ_ONLY
+}

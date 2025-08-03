@@ -1,0 +1,1 @@
+Tests we properly optimize intrinsics during constant folding

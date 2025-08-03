@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "ignore_auto_route_to_watch_device"
+  state: ENABLED
+  permission: READ_ONLY
+}

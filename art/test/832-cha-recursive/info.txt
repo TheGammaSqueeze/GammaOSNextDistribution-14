@@ -1,0 +1,2 @@
+Regression test for the optimization compiler which used to have a bug when a
+recursive method was doing CHA inlining.

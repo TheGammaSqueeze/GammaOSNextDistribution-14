@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.os.vibrator"
+  name: "keyboard_category_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.location.flags"
+  name: "gnss_configuration_from_resource"
+  state: ENABLED
+  permission: READ_ONLY
+}

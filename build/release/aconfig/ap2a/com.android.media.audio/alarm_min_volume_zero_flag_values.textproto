@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.audio"
+  name: "alarm_min_volume_zero"
+  state: ENABLED
+  permission: READ_ONLY
+}

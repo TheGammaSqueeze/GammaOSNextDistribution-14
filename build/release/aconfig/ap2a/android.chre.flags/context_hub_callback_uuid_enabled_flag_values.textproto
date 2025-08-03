@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.chre.flags"
+  name: "context_hub_callback_uuid_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

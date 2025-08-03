@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.flags"
+  name: "pin_webview"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "sms_domain_selection_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,138 @@
+# Treat LintError as fatal to catch invocation errors
+--fatal_check LintError
+# ObsoleteLintCustomCheck is a warning by default, but lint ignores the
+# checks from the subject jar if this issue is raised.
+# This should be an error for AOSP. If we create a check, we expect it
+# to run, otherwise we want an error.
+--fatal_check ObsoleteLintCustomCheck
+
+# Checks which do not apply to the platform (implementation
+# in lint assumes that it's running on app code)
+
+--disable_check AnimatorKeep
+--disable_check AppBundleLocaleChanges
+--disable_check AppCompatCustomView
+--disable_check BlockedPrivateApi
+--disable_check CustomSplashScreen
+--disable_check CustomX509TrustManager
+--disable_check Deprecated
+--disable_check ExifInterface
+--disable_check HardwareIds
+--disable_check InvalidWakeLockTag
+--disable_check LibraryCustomView
+--disable_check MissingPermission
+--disable_check NonConstantResourceId
+--disable_check OldTargetApi
+--disable_check Override
+--disable_check PackageManagerGetSignatures
+--disable_check PrivateApi
+--disable_check ProtectedPermissions
+--disable_check QueryPermissionsNeeded
+--disable_check ReservedSystemPermission
+--disable_check ScopedStorage
+--disable_check ServiceCast
+--disable_check SoonBlockedPrivateApi
+--disable_check SuspiciousImport
+--disable_check UnusedResources
+--disable_check ViewConstructor
+# Disable NewApi checks for the platform since platform is the one that implements
+# the API. This prevents noisy lint warnings like b/228956345#1
+# NewApi checks will continue to be enforced for apex deps since
+# lint.strict_updatability_linting will be true for those Soong modules
+--disable_check NewApi
+# Disable ChromeOS specific checks
+--disable_check PermissionImpliesUnsupportedChromeOsHardware
+# Disable UnsafeImplicitIntentLaunch until it can avoid false positives/crash
+# TODO(265425607)
+--disable_check UnsafeImplicitIntentLaunch
+# InvalidId will give errors on ids defined like android:id="@androidprv:id/contentPanel"
+--disable_check InvalidId
+
+# Downgrade existing errors to warnings
+--warning_check AppCompatResource                  # 55 occurences in 10 modules
+--warning_check AppLinkUrlError                    # 111 occurences in 53 modules
+--warning_check BinderGetCallingInMainThread
+--warning_check ByteOrderMark                      # 2 occurences in 2 modules
+--warning_check DuplicateActivity                  # 3 occurences in 3 modules
+--warning_check DuplicateDefinition                # 3623 occurences in 48 modules
+--warning_check DuplicateIds                       # 207 occurences in 22 modules
+--warning_check EllipsizeMaxLines                  # 12 occurences in 7 modules
+--warning_check ExtraTranslation                   # 21276 occurences in 27 modules
+--warning_check FontValidationError                # 4 occurences in 1 modules
+--warning_check FullBackupContent                  # 16 occurences in 1 modules
+--warning_check GetContentDescriptionOverride      # 3 occurences in 2 modules
+--warning_check HalfFloat                          # 31 occurences in 1 modules
+--warning_check HardcodedDebugMode                 # 99 occurences in 95 modules
+--warning_check ImpliedQuantity                    # 703 occurences in 27 modules
+--warning_check ImpliedTouchscreenHardware         # 4 occurences in 4 modules
+--warning_check IncludeLayoutParam                 # 11 occurences in 6 modules
+--warning_check Instantiatable                     # 145 occurences in 19 modules
+--warning_check InvalidPermission                  # 6 occurences in 4 modules
+--warning_check InvalidUsesTagAttribute            # 6 occurences in 2 modules
+--warning_check JavascriptInterface                # 3 occurences in 2 modules
+--warning_check LogTagMismatch                     # 81 occurences in 13 modules
+--warning_check LongLogTag                         # 249 occurences in 12 modules
+--warning_check MenuTitle                          # 5 occurences in 4 modules
+--warning_check MissingClass                       # 537 occurences in 141 modules
+--warning_check MissingConstraints                 # 39 occurences in 10 modules
+--warning_check MissingDefaultResource             # 1257 occurences in 40 modules
+--warning_check MissingIntentFilterForMediaSearch  # 1 occurences in 1 modules
+--warning_check MissingLeanbackLauncher            # 3 occurences in 3 modules
+--warning_check MissingLeanbackSupport             # 2 occurences in 2 modules
+--warning_check MissingOnPlayFromSearch            # 1 occurences in 1 modules
+--warning_check MissingPrefix                      # 46 occurences in 41 modules
+--warning_check MissingQuantity                    # 100 occurences in 1 modules
+--warning_check MissingSuperCall                   # 121 occurences in 36 modules
+--warning_check MissingTvBanner                    # 3 occurences in 3 modules
+--warning_check NamespaceTypo                      # 3 occurences in 3 modules
+--warning_check NetworkSecurityConfig              # 46 occurences in 12 modules
+--warning_check NotSibling                         # 15 occurences in 10 modules
+--warning_check ObjectAnimatorBinding              # 14 occurences in 5 modules
+--warning_check OnClick                            # 49 occurences in 21 modules
+--warning_check Orientation                        # 77 occurences in 19 modules
+--warning_check ParcelCreator                      # 23 occurences in 2 modules
+--warning_check Range                              # 80 occurences in 28 modules
+--warning_check RecyclerView                       # 1 occurences in 1 modules
+--warning_check ReferenceType                      # 4 occurences in 1 modules
+--warning_check ResourceAsColor                    # 19 occurences in 14 modules
+--warning_check RequiredSize                       # 52 occurences in 13 modules
+--warning_check ResAuto                            # 3 occurences in 1 modules
+--warning_check ResourceCycle                      # 37 occurences in 10 modules
+--warning_check ResourceType                       # 137 occurences in 36 modules
+--warning_check RestrictedApi                      # 28 occurences in 5 modules
+--warning_check RtlCompat                          # 9 occurences in 6 modules
+--warning_check StringFormatInvalid                # 148 occurences in 11 modules
+--warning_check StringFormatMatches                # 4800 occurences in 30 modules
+--warning_check UnknownId                          # 8 occurences in 7 modules
+--warning_check UnspecifiedImmutableFlag
+--warning_check ValidFragment                      # 12 occurences in 5 modules
+--warning_check ValidRestrictions                  # 5 occurences in 1 modules
+--warning_check WebViewLayout                      # 3 occurences in 1 modules
+--warning_check WrongCall                          # 21 occurences in 3 modules
+--warning_check WrongConstant                      # 894 occurences in 126 modules
+--warning_check WrongManifestParent                # 10 occurences in 4 modules
+--warning_check WrongThread                        # 14 occurences in 6 modules
+--warning_check WrongViewCast                      # 1 occurences in 1 modules
+
+--warning_check CoarseFineLocation
+--warning_check IntentFilterExportedReceiver
+--warning_check MissingInflatedId
+--warning_check NotificationPermission
+--warning_check QueryAllPackagesPermission
+--warning_check RemoteViewLayout
+--warning_check SupportAnnotationUsage
+--warning_check UniqueConstants
+--warning_check UseSdkSuppress
+# TODO(b/303434307) The intent is for this to be set to error severity
+# once existing violations are cleaned up
+--warning_check FlaggedApi
+
+--warning_check ExactAlarm
+--warning_check ExpiredTargetSdkVersion
+--warning_check ForegroundServicePermission
+--warning_check ObsoleteSdkInt
+--warning_check ScheduleExactAlarm
+--warning_check StartActivityAndCollapseDeprecated
+--warning_check UnspecifiedRegisterReceiverFlag
+--warning_check WearMaterialTheme
+--warning_check WearStandaloneAppFlag

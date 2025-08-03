@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "network_validation"
+  state: ENABLED
+  permission: READ_ONLY
+}

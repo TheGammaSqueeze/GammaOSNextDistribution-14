@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.location.flags"
+  name: "gnss_call_stop_before_set_position_mode"
+  state: ENABLED
+  permission: READ_ONLY
+}

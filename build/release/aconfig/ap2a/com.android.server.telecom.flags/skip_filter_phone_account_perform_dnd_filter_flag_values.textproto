@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "skip_filter_phone_account_perform_dnd_filter"
+  state: ENABLED
+  permission: READ_ONLY
+}

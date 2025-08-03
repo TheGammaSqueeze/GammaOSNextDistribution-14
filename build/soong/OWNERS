@@ -1,0 +1,17 @@
+# Bug component: 99142
+# This file is included by several other projects as the list of people
+# approving build related projects.
+
+# AMER
+ccross@android.com
+colefaust@google.com
+dwillemsen@google.com
+jihoonkang@google.com
+joeo@google.com
+lamontjones@google.com
+mrziwang@google.com
+spandandas@google.com
+weiwli@google.com
+yudiliu@google.com
+
+per-file build/soong/ui/build/androidmk_denylist.go = joeo@google.com, weiwli@google.com

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "correct_bond_type_of_loaded_devices"
+  state: ENABLED
+  permission: READ_ONLY
+}

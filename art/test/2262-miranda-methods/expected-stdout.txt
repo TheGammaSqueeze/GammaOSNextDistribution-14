@@ -1,0 +1,12 @@
+JNI_OnLoad called
+Create Main instance
+Test method with concrete implementation
+Impl test correct - new
+Test method with concrete implementation via JNI call
+Abstract interface and Main have different method ids
+Impl test correct - new
+Test method with no concrete implementation
+Expected AME Thrown on Main
+Expected NoSuchMethodError on Main
+Abstract interface and Main have same method ids
+Expected AME Thrown on Main via JNI call

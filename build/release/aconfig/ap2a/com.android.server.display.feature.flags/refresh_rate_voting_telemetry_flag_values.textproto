@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.display.feature.flags"
+  name: "refresh_rate_voting_telemetry"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,117 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag", "string_flag")
+load("@env//:env.bzl", "env")
+load("//build/bazel/flags:common.bzl", "is_env_true")
+load(":cc_toolchain_clang_version_test.bzl", "cc_toolchain_clang_version_test_suite")
+load(":cc_toolchain_features_arm_isa_test.bzl", "cc_toolchain_features_arm_isa_test_suite")
+load(":cc_toolchain_features_cfi_test.bzl", "cc_toolchain_features_cfi_test_suite")
+load(":cc_toolchain_features_env_based_flags_test.bzl", "cc_toolchain_features_env_based_flags_test_suite")
+load(":cc_toolchain_features_flag_order_test.bzl", "cc_toolchain_features_flag_order_test_suite")
+load(":cc_toolchain_features_linker_alignment_test.bzl", "cc_toolchain_features_linker_alignment_test_suite")
+load(":cc_toolchain_features_memtag_test.bzl", "cc_toolchain_features_memtag_test_suite")
+load(":cc_toolchain_features_misc_test.bzl", "cc_toolchain_features_test_suite")
+load(":cc_toolchain_features_pack_relocation_test.bzl", "cc_toolchain_features_pack_relocation_test_suite")
+load(":cc_toolchain_features_thinlto_test.bzl", "cc_toolchain_features_lto_test_suite")
+load(":cc_toolchain_features_ubsan_test.bzl", "cc_toolchain_features_ubsan_test_suite")
+
+package(default_visibility = ["//build/bazel:__subpackages__"])
+
+bool_flag(
+    name = "auto_zero_initialize_env",
+    build_setting_default = is_env_true(env.get("AUTO_ZERO_INITIALIZE")),
+)
+
+bool_flag(
+    name = "auto_pattern_initialize_env",
+    build_setting_default = is_env_true(env.get("AUTO_PATTERN_INITIALIZE")),
+)
+
+bool_flag(
+    name = "auto_uninitialize_env",
+    build_setting_default = is_env_true(env.get("AUTO_UNINITIALIZE")),
+)
+
+bool_flag(
+    name = "use_ccache_env",
+    build_setting_default = is_env_true(env.get("USE_CCACHE")),
+)
+
+bool_flag(
+    name = "llvm_next_env",
+    build_setting_default = is_env_true(env.get("LLVM_NEXT")),
+)
+
+bool_flag(
+    name = "allow_unknown_warning_option_env",
+    build_setting_default = is_env_true(env.get("ALLOW_UNKNOWN_WARNING_OPTION")),
+)
+
+string_flag(
+    name = "clang_default_debug_level",
+    build_setting_default = env.get("CLANG_DEFAULT_DEBUG_LEVEL") or "",
+    values = [
+        "debug_level_g",
+        "debug_level_0",
+        "debug_level_1",
+        "debug_level_2",
+        "debug_level_3",
+        "",
+    ],
+)
+
+cc_toolchain_features_arm_isa_test_suite(
+    name = "cc_toolchain_features_arm_isa_test",
+)
+
+cc_toolchain_clang_version_test_suite(
+    name = "cc_toolchain_clang_version_tests",
+)
+
+cc_toolchain_features_test_suite(
+    name = "cc_toolchain_features_tests",
+)
+
+cc_toolchain_features_cfi_test_suite(
+    name = "cc_toolchain_features_cfi_tests",
+)
+
+cc_toolchain_features_pack_relocation_test_suite(
+    name = "cc_toolchain_features_pack_relocation_tests",
+)
+
+cc_toolchain_features_lto_test_suite(
+    name = "cc_toolchain_features_thinlto_tests",
+)
+
+cc_toolchain_features_ubsan_test_suite(
+    name = "cc_toolchain_features_ubsan_tests",
+)
+
+cc_toolchain_features_env_based_flags_test_suite(
+    name = "cc_toolchain_features_env_based_flags_tests",
+)
+
+cc_toolchain_features_flag_order_test_suite(
+    name = "cc_toolchain_features_flag_order_tests",
+)
+
+cc_toolchain_features_linker_alignment_test_suite(
+    name = "cc_toolchain_features_linker_alignment_tests",
+)
+
+cc_toolchain_features_memtag_test_suite(
+    name = "cc_toolchain_features_memtag_tests",
+)

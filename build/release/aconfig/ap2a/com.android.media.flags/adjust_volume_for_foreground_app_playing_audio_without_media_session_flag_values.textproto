@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.flags"
+  name: "adjust_volume_for_foreground_app_playing_audio_without_media_session"
+  state: ENABLED
+  permission: READ_ONLY
+}

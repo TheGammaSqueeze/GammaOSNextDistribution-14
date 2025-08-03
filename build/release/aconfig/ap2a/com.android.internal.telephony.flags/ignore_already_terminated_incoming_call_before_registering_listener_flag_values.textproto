@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "ignore_already_terminated_incoming_call_before_registering_listener"
+  state: ENABLED
+  permission: READ_ONLY
+}

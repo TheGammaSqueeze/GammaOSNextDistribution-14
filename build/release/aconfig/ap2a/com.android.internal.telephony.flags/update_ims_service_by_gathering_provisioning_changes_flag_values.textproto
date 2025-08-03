@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "update_ims_service_by_gathering_provisioning_changes"
+  state: ENABLED
+  permission: READ_ONLY
+}

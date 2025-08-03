@@ -1,0 +1,3 @@
+Tests that we perform LSE with graphs with acquire loads
+(i.e. monitor enter and volatile load) and release stores
+(i.e. monitor exit and voaltile stores)

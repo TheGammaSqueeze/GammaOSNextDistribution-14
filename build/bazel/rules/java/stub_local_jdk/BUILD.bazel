@@ -1,0 +1,25 @@
+package(default_visibility = ["//visibility:public"])
+
+# The following are just to satisfy a toolchain registration triggered from
+# a WORKSPACE suffix added by the Bazel binary, but are unused.
+java_runtime(
+    name = "placeholder_runtime",
+    java_home = None,
+    version = 0,
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "runtime_toolchain_definition",
+    exec_compatible_with = ["@platforms//:incompatible"],
+    target_compatible_with = ["@platforms//:incompatible"],
+    toolchain = "placeholder_runtime",
+    toolchain_type = "@bazel_tools//tools/jdk:runtime_toolchain_type",
+)
+
+#The Kotlin rules directly refer to @local_jdk//jar, this alias is defined to
+# keep this reference valid.
+alias(
+    name = "jar",
+    actual = "@//prebuilts/jdk/jdk17:jar",
+)

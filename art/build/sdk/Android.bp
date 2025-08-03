@@ -1,0 +1,265 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+soong_config_module_type_import {
+    from: "art/build/SoongConfig.bp",
+    module_types: [
+        "art_module_sdk",
+        "art_module_exports",
+    ],
+}
+
+// Additional visibility to add to the prebuilt modules that are part of
+// the snapshots of the ART sdk/module_exports to ensure that they are
+// visible to each other.
+prebuilt_visibility = [
+    // TODO(b/155921753): Restrict this when prebuilts are in their proper
+    // locations.
+    "//prebuilts:__subpackages__",
+]
+
+// The SDK for the art module apex.
+art_module_sdk {
+    name: "art-module-sdk",
+    host_supported: true,
+
+    // Enable if ART_MODULE_BUILD_FROM_SOURCE is true
+    enabled: false,
+    soong_config_variables: {
+        source_build: {
+            enabled: true,
+        },
+    },
+
+    prebuilt_visibility: prebuilt_visibility,
+
+    traits: {
+        native_bridge_support: [
+            "jni_headers",
+        ],
+        ramdisk_image_required: [
+            "jni_headers",
+        ],
+        recovery_image_required: [
+            "jni_headers",
+        ],
+    },
+
+    target: {
+        // Both android and host linux but not windows or darwin.
+        linux: {
+            native_header_libs: [
+                "jni_headers",
+                "libartpalette-headers",
+                "libnativehelper_header_only",
+                "libopenjdkjvmti_headers",
+                "odrefresh_headers",
+            ],
+
+            native_shared_libs: [
+                "libandroidio",
+                "libdexfile",
+                "libnativebridge",
+                "libnativehelper",
+                "libnativeloader",
+                "libsigchain",
+            ],
+
+            native_static_libs: [
+                "libdexfile_support",
+                "libdexfile_static",
+                "libnativehelper_lazy",
+            ],
+        },
+
+        android: {
+            apexes: [
+                // Adds exportable dependencies of the API to the sdk,
+                // e.g. *classpath_fragments.
+                "com.android.art",
+            ],
+
+            java_header_libs: [
+                // Needed by any module that builds against any non-numeric
+                // sdk_version other than "none".
+                //
+                // This is actually only used for compiling Java 8 and kotlin.
+                // Java 9 uses system modules which encapsulates this
+                // internally.
+                "core-lambda-stubs",
+
+                // A special form or "core-lambda-stubs" for use in
+                // java_system_modules.
+                "core-lambda-stubs-for-system-modules",
+
+                // Needed when javac compiles code containing @Generated
+                // annotations produced by some code generation tools.
+                "core-generated-annotation-stubs",
+            ],
+
+            java_sdk_libs: [
+                "art.module.public.api",
+            ],
+
+            java_system_modules: [
+                "art-module-public-api-stubs-system-modules",
+                "art-module-lib-api-stubs-system-modules",
+                "art-module-intra-core-api-stubs-system-modules",
+            ],
+            native_header_libs: [
+                "libnativeloader-headers",
+            ],
+            native_shared_libs: [
+                "libnativebridge_lazy",
+                "libnativehelper_compat_libc++",
+                "libnativeloader_lazy",
+            ],
+        },
+
+        linux_bionic: {
+            enabled: false,
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// Exported host tools and libraries.
+art_module_exports {
+    name: "art-module-host-exports",
+    host_supported: true,
+
+    // Enable if ART_MODULE_BUILD_FROM_SOURCE is true
+    enabled: false,
+    soong_config_variables: {
+        source_build: {
+            enabled: true,
+        },
+    },
+
+    prebuilt_visibility: prebuilt_visibility,
+
+    target: {
+        host: {
+            // Set in target.host because the top level compile_multilib
+            // property is fixed to "both" in the sdk/module_exports
+            // implementation and cannot be overridden any other way.
+            compile_multilib: "64",
+
+            java_libs: [
+                "art.module.api.annotations",
+            ],
+            native_binaries: [
+                "dex2oat",
+                "dex2oatd",
+                "dexdump",
+                "hiddenapi",
+                "oatdump",
+                "profman",
+                "veridex",
+            ],
+            native_libs: [
+                // libdexfile dependencies for host tests.
+                // TODO(b/178691801): Support transitive internal library
+                // dependencies in module_export snapshots and clean this up.
+                "libartpalette",
+                "libartbase",
+            ],
+        },
+
+        linux_bionic: {
+            enabled: false,
+        },
+        darwin: {
+            enabled: false,
+        },
+        windows: {
+            enabled: false,
+        },
+    },
+}
+
+// Exported tests and supporting libraries
+art_module_exports {
+    name: "art-module-test-exports",
+
+    // Enable if ART_MODULE_BUILD_FROM_SOURCE is true
+    enabled: false,
+    soong_config_variables: {
+        source_build: {
+            enabled: true,
+        },
+    },
+
+    prebuilt_visibility: prebuilt_visibility,
+
+    java_libs: [
+        "core-compat-test-rules",
+        "core-test-rules",
+        "core-tests-support",
+        "okhttp-tests-nojarjar",
+
+        // Needed for CtsJvmtiDeviceRunTestAppBase.
+        "art_cts_jvmti_test_library",
+        "expected_cts_outputs",
+
+        // Needed for robolectric.
+        "core-libart-for-host",
+        "okhttp-for-host",
+
+        // Needed for CtsLibcore...TestCases
+        "libcore-expectations-knownfailures-jar",
+        "libcore-expectations-virtualdeviceknownfailures-jar",
+
+        // Needed for CtsLibcoreOkHttpTestCases
+        "okhttp-nojarjar",
+    ],
+
+    java_tests: [
+        // Needed for CtsJdwpTestCases.
+        "apache-harmony-jdwp-tests",
+
+        "libcore-crypto-tests",
+
+        // Needed for CtsLibcoreOjTestCases
+        "core-ojtests-public",
+
+        // Needed for CtsLibcoreJsr166TestCases
+        "jsr166-tests",
+
+        // Needed for CtsLibcoreTestCases
+        "apache-harmony-tests",
+        "core-tests",
+    ],
+
+    native_shared_libs: [
+        "libjavacoretests",
+    ],
+    native_static_libs: [
+        // TODO(b/187288515): Providing this as a prebuilt introduces an issue
+        // with sdk_version propagation. Temporarily use the source library
+        // instead.
+        //"libctstiagent",
+    ],
+}

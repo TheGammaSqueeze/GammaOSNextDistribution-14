@@ -1,0 +1,2 @@
+Test that we can inline when receiver type isn't exact, but the resolved method
+is final.

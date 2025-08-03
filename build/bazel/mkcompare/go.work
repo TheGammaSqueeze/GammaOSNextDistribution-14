@@ -1,0 +1,8 @@
+go 1.19
+
+use (
+  .
+  ../../../external/go-cmp
+)
+
+replace github.com/google/go-cmp v0.0.0 => ../../../external/go-cmp

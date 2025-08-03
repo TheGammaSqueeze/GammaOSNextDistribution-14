@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "leaudio_volume_change_on_ringtone_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

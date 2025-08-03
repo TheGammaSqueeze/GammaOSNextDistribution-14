@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Generate a big pile of classes with big <clinit>.
+
+def createFiles(count, array_size):
+  for i in range(count):
+    name = "src/Test{:03}.java".format(i)
+    with open(name, "wt") as fp:
+      fp.write("public class Test{:03} {{\n".format(i))
+      fp.write("    static String[] array = new String[{}];\n".format(array_size))
+      fp.write("    static {\n")
+      for k in range(array_size):
+        fp.write("        array[{}] = \"string_{:04}\";\n".format(k, k))
+      fp.write("    }\n")
+      fp.write("}\n")
+
+  with open("src/MainTest.java", "wt") as fp:
+    fp.write("public class MainTest {\n")
+    fp.write("    public static void run() {\n")
+    for i in range(count):
+        fp.write("        System.out.println(\"Create new Test{:03}\");\n".format(i))
+        fp.write("        new Test{:03}();\n".format(i))
+    fp.write("    }\n")
+    fp.write("}\n")
+
+def main():
+  return createFiles(40, 2000)
+
+if __name__ == '__main__':
+  main()

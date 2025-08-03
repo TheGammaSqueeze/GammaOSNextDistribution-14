@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.camera.flags"
+  name: "return_buffers_outside_locks"
+  state: ENABLED
+  permission: READ_ONLY
+}

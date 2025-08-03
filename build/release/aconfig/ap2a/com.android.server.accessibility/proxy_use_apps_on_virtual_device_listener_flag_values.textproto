@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.accessibility"
+  name: "proxy_use_apps_on_virtual_device_listener"
+  state: ENABLED
+  permission: READ_ONLY
+}

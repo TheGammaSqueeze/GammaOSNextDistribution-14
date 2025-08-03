@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.app.usage"
+  name: "use_parceled_list"
+  state: ENABLED
+  permission: READ_ONLY
+}

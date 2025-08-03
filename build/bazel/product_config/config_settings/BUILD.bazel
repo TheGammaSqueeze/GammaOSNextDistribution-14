@@ -1,0 +1,142 @@
+# Copyright (C) 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@soong_injection//product_config:product_variable_constants.bzl", "product_var_constant_info")
+load("//build/bazel/platforms/arch/variants:constants.bzl", "arch_variant_to_constraints")
+load(":soong_config_variable_config_settings.bzl", "soong_config_variable_config_settings")
+
+package(default_visibility = ["//visibility:public"])
+
+# Unlike product config variables below, these are dynamically generated from
+# Soong, since the list of config variables are dynamically defined in
+# Android.bp files and not hardcoded into Soong.
+soong_config_variable_config_settings()
+
+# Add config settings for eng/debuggable. User doesn't exist because it didn't exist in soong.
+config_setting(
+    name = "eng",
+    flag_values = {
+        "//build/bazel/product_config:target_build_variant": "eng",
+    },
+)
+
+config_setting(
+    name = "userdebug",
+    flag_values = {
+        "//build/bazel/product_config:target_build_variant": "userdebug",
+    },
+    visibility = ["//visibility:private"],
+)
+
+selects.config_setting_group(
+    name = "debuggable",
+    match_any = [
+        ":eng",
+        ":userdebug",
+    ],
+)
+
+# Generate one config_setting for each product_variable.
+# The config_setting for <var> can be within a select() to specify an
+# attribute value for the same conditions product_variable.<var>, for most
+# cases, that is when the value of <var> is true. For example,
+#
+# product_variables: {
+#     debuggable: {
+#         cflags: ["debug_flag1", "debug_flag2"],
+#     },
+# }
+#
+# translates into:
+#
+# cflags = select({
+#   "//build/bazel/product_config/config_settings:debuggable": ["debug_flag1", "debug_flag2"],
+#   "//conditions:default": [],
+# }),
+[
+    config_setting(
+        name = product_variable.lower(),
+        flag_values = {
+            "//build/bazel/product_config:" + product_variable.lower(): "true",
+        },
+    )
+    for product_variable, info in product_var_constant_info.items()
+    if product_variable != "Debuggable" and product_variable != "Eng" and info.selectable and info.soongType in [
+        "bool",
+        "*bool",
+    ]
+]
+
+[
+    (
+        # We want a config setting for when the product variable is set to any non-empty string.
+        # To do that, generate an _inverse config setting that's set when the value is an empty
+        # string, and then invert it.
+        config_setting(
+            name = product_variable.lower() + "_inverse",
+            flag_values = {
+                "//build/bazel/product_config:" + product_variable.lower(): "",
+            },
+        ),
+        alias(
+            name = product_variable.lower(),
+            actual = select({
+                product_variable.lower() + "_inverse": "//build/bazel/utils:always_off_config_setting",
+                "//conditions:default": "//build/bazel/utils:always_on_config_setting",
+            }),
+        ),
+    )
+    for product_variable, info in product_var_constant_info.items()
+    if info.selectable and info.soongType in [
+        "*string",
+        "*int",
+    ]
+]
+
+# Caution: do not use these arch-variant product variables directly.
+# If you have a complex combination of product variable and architecture/os/etc,
+# prefer instead to craft an appropriate configuration in your BUILD file.
+# See: https://docs.bazel.build/versions/master/configurable-attributes.html
+# Within bp2build, :safestack-android should be used when an attribute value is
+# conditional on both safestack:true and the os is android.
+#
+# e.g.
+# target: {
+#     android: {
+#         product_variables: {
+#             safestack: {
+#                 cflags: ["-Dsafestack-android"],
+#             },
+#         },
+#     },
+# },
+#
+# would translate to:
+#
+# cflags = select({
+#     "//build/bazel/product_config/config_settings:safestack-android": ["-Dsafestack-android"],
+#     "//conditions:default": [],
+# }),
+[
+    [selects.config_setting_group(
+        name = product_variable.lower() + "-" + arch,
+        match_all = [
+            ":" + product_variable.lower(),
+            archConstraint,
+        ],
+    ) for arch, archConstraint in arch_variant_to_constraints.items()]
+    for product_variable, info in product_var_constant_info.items()
+    if info.selectable and info.archVariant
+]

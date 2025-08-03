@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.media.playback.flags"
+  name: "mediametadataretriever_default_rgba8888"
+  state: ENABLED
+  permission: READ_ONLY
+}

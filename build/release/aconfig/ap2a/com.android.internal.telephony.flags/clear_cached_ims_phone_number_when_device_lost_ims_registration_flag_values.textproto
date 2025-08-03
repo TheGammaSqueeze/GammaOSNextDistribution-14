@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "clear_cached_ims_phone_number_when_device_lost_ims_registration"
+  state: ENABLED
+  permission: READ_ONLY
+}

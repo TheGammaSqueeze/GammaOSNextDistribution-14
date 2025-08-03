@@ -1,0 +1,1 @@
+Tests that we sink Return/ReturnVoid instructions and coalesce them.

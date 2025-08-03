@@ -1,0 +1,3 @@
+Regression test for the verifier which used to needlessly cast a dex register
+containing null to a type, and then fail when using that dex register with an
+unrelated type.

@@ -1,0 +1,91 @@
+// ==============================================================
+// libc_malloc_hooks.so
+// ==============================================================
+package {
+    default_team: "trendy_team_native_tools_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "bionic_libc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["bionic_libc_license"],
+}
+
+cc_library {
+    name: "libc_malloc_hooks",
+
+    srcs: [
+        "malloc_hooks.cpp",
+    ],
+
+    static_libs: [
+        "libasync_safe",
+    ],
+
+    multilib: {
+        lib32: {
+            version_script: "exported32.map",
+        },
+        lib64: {
+            version_script: "exported64.map",
+        },
+    },
+    include_dirs: ["bionic/libc"],
+
+    sanitize: {
+        never: true,
+    },
+    native_coverage: false,
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-fno-stack-protector",
+    ],
+
+    apex_available: [
+        "com.android.runtime",
+    ],
+    static: {
+        apex_available: [
+            "//apex_available:platform",
+        ],
+    },
+}
+
+// ==============================================================
+// Unit Tests
+// ==============================================================
+cc_test {
+    name: "malloc_hooks_system_tests",
+    isolated: true,
+
+    // The clang-analyzer-unix.Malloc and other warnings in these
+    // unit tests are either false positive or in
+    // negative tests that can be ignored.
+    tidy: false,
+
+    srcs: [
+        "tests/malloc_hooks_tests.cpp",
+    ],
+
+    whole_static_libs: ["libc_malloc_hooks"],
+
+    shared_libs: ["libbase"],
+
+    local_include_dirs: ["tests"],
+    include_dirs: [
+        "bionic/libc",
+        "bionic",
+    ],
+    header_libs: [
+        "bionic_libc_platform_headers",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-O1", // FIXME: http://b/169206016 - issues with aligned_alloc and -O2
+    ],
+    test_suites: ["general-tests"],
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.permission.flags"
+  name: "wear_privacy_dashboard_enabled_read_only"
+  state: ENABLED
+  permission: READ_ONLY
+}

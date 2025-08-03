@@ -1,0 +1,30 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_static_library")
+
+rust_binary(
+    name = "hello_world",
+    srcs = ["hello_world.rs"],
+    # TODO: When building binary for android target, rustc adds `"-ldl" "-llog" "-lgcc" "-ldl" "-lc" "-lm"`
+    # that don't get resolved yet.
+    target_compatible_with = select({
+        "//build/bazel_common_rules/platforms/os:android": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+rust_library(
+    name = "hello_lib",
+    srcs = [
+        "src/greeter.rs",
+        "src/lib.rs",
+    ],
+    crate_features = ["default"],
+    rustc_flags = ["--cap-lints=allow"],
+)
+
+rust_static_library(
+    name = "hello_test_staticlib",
+    srcs = [
+        "tests/greeting.rs",
+    ],
+    deps = [":hello_lib"],
+)

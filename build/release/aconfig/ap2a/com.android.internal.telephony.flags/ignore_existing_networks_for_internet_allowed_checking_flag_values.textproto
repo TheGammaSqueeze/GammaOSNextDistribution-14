@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "ignore_existing_networks_for_internet_allowed_checking"
+  state: ENABLED
+  permission: READ_ONLY
+}

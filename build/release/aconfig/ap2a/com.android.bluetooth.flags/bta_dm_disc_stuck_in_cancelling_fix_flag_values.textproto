@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "bta_dm_disc_stuck_in_cancelling_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

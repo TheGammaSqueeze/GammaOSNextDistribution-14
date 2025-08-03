@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.app"
+  name: "notif_channel_crop_vibration_effects"
+  state: ENABLED
+  permission: READ_WRITE
+}

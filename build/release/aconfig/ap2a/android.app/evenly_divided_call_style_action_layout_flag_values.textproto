@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.app"
+  name: "evenly_divided_call_style_action_layout"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,1 @@
+Check that inline caches are saved in the profile.

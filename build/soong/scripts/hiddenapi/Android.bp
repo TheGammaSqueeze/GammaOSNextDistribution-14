@@ -1,0 +1,147 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "hiddenapi_defaults",
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_binary_host {
+    name: "analyze_bcpf",
+    main: "analyze_bcpf.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["analyze_bcpf.py"],
+    // Make sure that the bpmodify tool is built.
+    data: [":bpmodify"],
+    libs: [
+        "signature_trie",
+    ],
+}
+
+python_test_host {
+    name: "analyze_bcpf_test",
+    main: "analyze_bcpf_test.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: [
+        "analyze_bcpf.py",
+        "analyze_bcpf_test.py",
+    ],
+    // Make sure that the bpmodify tool is built.
+    data: [":bpmodify"],
+    libs: [
+        "signature_trie",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "merge_csv",
+    main: "merge_csv.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["merge_csv.py"],
+}
+
+python_binary_host {
+    name: "generate_hiddenapi_lists",
+    main: "generate_hiddenapi_lists.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["generate_hiddenapi_lists.py"],
+}
+
+python_test_host {
+    name: "generate_hiddenapi_lists_test",
+    main: "generate_hiddenapi_lists_test.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: [
+        "generate_hiddenapi_lists.py",
+        "generate_hiddenapi_lists_test.py",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_library_host {
+    name: "signature_trie",
+    srcs: ["signature_trie.py"],
+}
+
+python_test_host {
+    name: "signature_trie_test",
+    main: "signature_trie_test.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["signature_trie_test.py"],
+    libs: ["signature_trie"],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "verify_overlaps",
+    main: "verify_overlaps.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["verify_overlaps.py"],
+    libs: [
+        "signature_trie",
+    ],
+}
+
+python_test_host {
+    name: "verify_overlaps_test",
+    main: "verify_overlaps_test.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: [
+        "verify_overlaps.py",
+        "verify_overlaps_test.py",
+    ],
+    libs: [
+        "signature_trie",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "signature_patterns",
+    main: "signature_patterns.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: ["signature_patterns.py"],
+}
+
+python_test_host {
+    name: "signature_patterns_test",
+    main: "signature_patterns_test.py",
+    defaults: ["hiddenapi_defaults"],
+    srcs: [
+        "signature_patterns.py",
+        "signature_patterns_test.py",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}

@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-bazel",
+    pkgPath: "android/soong/bazel",
+    srcs: [
+        "aquery.go",
+        "bazel_proxy.go",
+        "configurability.go",
+        "constants.go",
+        "properties.go",
+        "testing.go",
+    ],
+    testSrcs: [
+        "aquery_test.go",
+        "properties_test.go",
+    ],
+    pluginFor: [
+        "soong_build",
+    ],
+    deps: [
+        "bazel_analysis_v2_proto",
+        "blueprint",
+    ],
+}

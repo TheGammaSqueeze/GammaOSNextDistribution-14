@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "delete_capture_display"
+  state: ENABLED
+  permission: READ_ONLY
+}

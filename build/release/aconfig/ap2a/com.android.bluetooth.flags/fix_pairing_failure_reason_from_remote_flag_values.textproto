@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "fix_pairing_failure_reason_from_remote"
+  state: ENABLED
+  permission: READ_ONLY
+}

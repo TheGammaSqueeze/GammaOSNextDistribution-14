@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.graphics.surfaceflinger.flags"
+  name: "display_protected"
+  state: ENABLED
+  permission: READ_ONLY
+}

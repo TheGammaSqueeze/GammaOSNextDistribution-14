@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "le_audio_dev_type_detection_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

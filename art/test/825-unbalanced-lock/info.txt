@@ -1,0 +1,2 @@
+Regression test for nterp, where we were running a method that needs lock
+counting.

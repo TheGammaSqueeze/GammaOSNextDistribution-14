@@ -1,0 +1,79 @@
+# Copyright (C) 2022 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+py_library(
+    name = "dependency_analysis",
+    srcs = ["dependency_analysis.py"],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+    deps = ["//build/soong/ui/metrics:metrics-py-proto"],
+)
+
+py_library(
+    name = "queryview_xml",
+    testonly = True,
+    srcs = ["queryview_xml.py"],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "soong_module_json",
+    testonly = True,
+    srcs = ["soong_module_json.py"],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+)
+
+py_test(
+    name = "dependency_analysis_test",
+    size = "small",
+    srcs = ["dependency_analysis_test.py"],
+    python_version = "PY3",
+    deps = [
+        ":dependency_analysis",
+        ":queryview_xml",
+        ":soong_module_json",
+    ],
+)
+
+py_binary(
+    name = "bp2build_progress",
+    srcs = ["bp2build_progress.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":dependency_analysis",
+        "//build/soong/ui/metrics/bp2build_progress_metrics_proto:bp2build_py_proto",
+    ],
+)
+
+py_test(
+    name = "bp2build_progress_test",
+    size = "small",
+    srcs = ["bp2build_progress_test.py"],
+    python_version = "PY3",
+    deps = [
+        ":bp2build_progress",
+        ":dependency_analysis",
+        ":queryview_xml",
+        ":soong_module_json",
+    ],
+)
+
+py_binary(
+    name = "bp2build_module_dep_infos",
+    srcs = ["bp2build_module_dep_infos.py"],
+    visibility = ["//visibility:public"],
+    deps = [":dependency_analysis"],
+)

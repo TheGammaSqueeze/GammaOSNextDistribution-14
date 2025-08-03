@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "surface_trusted_overlay"
+  state: ENABLED
+  permission: READ_ONLY
+}

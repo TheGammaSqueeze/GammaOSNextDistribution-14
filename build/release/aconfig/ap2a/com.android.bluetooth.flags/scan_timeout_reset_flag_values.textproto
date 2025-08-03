@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "scan_timeout_reset"
+  state: ENABLED
+  permission: READ_ONLY
+}

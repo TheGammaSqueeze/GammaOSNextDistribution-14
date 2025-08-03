@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "reset_pairing_only_for_related_service_discovery"
+  state: ENABLED
+  permission: READ_ONLY
+}

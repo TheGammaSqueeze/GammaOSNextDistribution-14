@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "leaudio_api_synchronized_block_fix"
+  state: ENABLED
+  permission: READ_ONLY
+}

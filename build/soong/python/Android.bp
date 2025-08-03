@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-python",
+    pkgPath: "android/soong/python",
+    deps: [
+        "blueprint",
+        "soong-android",
+        "soong-tradefed",
+        "soong-cc",
+        "soong-testing",
+    ],
+    srcs: [
+        "binary.go",
+        "builder.go",
+        "defaults.go",
+        "library.go",
+        "proto.go",
+        "python.go",
+        "test.go",
+        "testing.go",
+    ],
+    testSrcs: [
+        "python_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.permission.flags"
+  name: "server_side_attribution_registration"
+  state: ENABLED
+  permission: READ_ONLY
+}

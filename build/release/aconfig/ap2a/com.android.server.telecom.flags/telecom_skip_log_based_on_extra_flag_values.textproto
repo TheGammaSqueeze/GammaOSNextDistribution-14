@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "telecom_skip_log_based_on_extra"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,77 @@
+"""
+Copyright (C) 2023 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+load(":build_fingerprint.bzl", "build_fingerprint")
+load(":gensrcs_test.bzl", "gensrcs_tests_suite")
+load(":linker_config_test.bzl", "linker_config_test_suite")
+load(":prebuilt_file_test.bzl", "prebuilt_file_test_suite")
+load(":prebuilt_xml_test.bzl", "prebuilt_xml_test_suite")
+
+exports_files(["lunch.bzl"])
+
+gensrcs_tests_suite(name = "gensrcs_tests")
+
+py_binary(
+    name = "staging_dir_builder",
+    srcs = ["staging_dir_builder.py"],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "status_file_reader",
+    srcs = ["status_file_reader.py"],
+    visibility = ["//build/bazel:__subpackages__"],
+)
+
+build_fingerprint(
+    name = "build_fingerprint",
+    visibility = ["//build/bazel:__subpackages__"],
+)
+
+sh_test(
+    name = "staging_dir_builder_test",
+    srcs = ["staging_dir_builder_test.sh"],
+    data = [
+        "test.pem",
+        ":staging_dir_builder",
+        "//build/soong/zip/cmd:soong_zip",
+        "//external/avb:avbtool",
+        "//external/e2fsprogs/contrib/android:e2fsdroid",
+        "//external/e2fsprogs/debugfs",
+        "//external/e2fsprogs/misc:mke2fs",
+        "//external/e2fsprogs/resize:resize2fs",
+        "//external/erofs-utils:fsck.erofs",
+        "//external/selinux/libselinux:sefcontext_compile",
+        "//frameworks/base/tools/aapt2",
+        "//prebuilts/sdk/current:public/android.jar",
+        "//system/apex/apexer",
+        "//system/apex/apexer:conv_apex_manifest",
+        "//system/apex/tools:apex_compression_tool",
+        "//system/apex/tools:deapexer",
+    ],
+    # This is a host test.
+    target_compatible_with = select({
+        "//build/bazel_common_rules/platforms/os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)
+
+linker_config_test_suite(name = "linker_config_tests")
+
+prebuilt_xml_test_suite(name = "prebuilt_xml_tests")
+
+prebuilt_file_test_suite(name = "prebuilt_file_tests")

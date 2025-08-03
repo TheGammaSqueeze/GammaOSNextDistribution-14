@@ -1,0 +1,105 @@
+// Use local copy of the soong_config_module_type dep graph to keep this Android.bp
+// self-contained.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_string_variable {
+    name: "fake_library_linking_strategy",
+    values: [
+        "prefer_static",
+    ],
+}
+
+soong_config_module_type {
+    name: "fake_library_linking_strategy_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "bp2build",
+    variables: ["fake_library_linking_strategy"],
+    properties: [
+        "shared_libs",
+        "static_libs",
+    ],
+}
+
+// Fake cc_library modules for testing
+cc_library {
+    name: "bp2build_foo",
+    srcs: ["main.cpp"],
+}
+
+cc_library {
+    name: "bp2build_bar",
+    srcs: ["main.cpp"],
+}
+
+cc_library {
+    name: "bp2build_baz",
+    srcs: ["main.cpp"],
+}
+
+cc_library {
+    name: "bp2build_qux",
+    srcs: ["main.cpp"],
+}
+
+cc_library {
+    name: "bp2build_quux",
+    srcs: ["main.cpp"],
+}
+
+fake_library_linking_strategy_cc_defaults {
+    name: "fake_libadbd_binary_dependencies",
+    static_libs: [
+        "bp2build_foo",
+    ],
+
+    shared_libs: [
+        "bp2build_bar",
+    ],
+
+    soong_config_variables: {
+        fake_library_linking_strategy: {
+            prefer_static: {
+                static_libs: [
+                    "bp2build_baz",
+                ],
+            },
+            conditions_default: {
+                shared_libs: [
+                    "bp2build_qux",
+                ],
+            },
+        },
+    },
+
+    target: {
+        android: {
+            shared_libs: ["bp2build_quux"],
+        },
+        linux_glibc: {
+            enabled: false,
+        },
+        linux_musl: {
+            enabled: false,
+        },
+        linux_bionic: {
+            enabled: false,
+        },
+    },
+}
+
+// Experimental "stub" adbd for bp2build development
+cc_binary {
+    name: "bp2build_adbd",
+    defaults: [
+        "adbd_defaults",
+        "host_adbd_supported",
+        "fake_libadbd_binary_dependencies",
+    ],
+    srcs: [
+        "main.cpp",
+    ],
+    use_version_lib: false,
+}

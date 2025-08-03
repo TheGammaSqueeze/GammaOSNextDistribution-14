@@ -1,0 +1,5 @@
+Tests that we can simplify a Select + Binary/UnaryOps if:
+  * Both inputs to the Select instruction are constant, and
+  * The Select instruction is not used in another instruction
+    to avoid duplicating Selects.
+  * In the case of Binary ops, both inputs can't be Select.

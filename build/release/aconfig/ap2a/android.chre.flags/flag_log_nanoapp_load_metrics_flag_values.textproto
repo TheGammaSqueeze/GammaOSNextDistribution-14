@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.chre.flags"
+  name: "flag_log_nanoapp_load_metrics"
+  state: ENABLED
+  permission: READ_ONLY
+}

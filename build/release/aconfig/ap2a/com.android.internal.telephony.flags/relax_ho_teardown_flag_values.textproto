@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "relax_ho_teardown"
+  state: ENABLED
+  permission: READ_ONLY
+}

@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "leaudio_unicast_inactivate_device_based_on_context"
+  state: ENABLED
+  permission: READ_ONLY
+}

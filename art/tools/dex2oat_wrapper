@@ -1,0 +1,126 @@
+#! /bin/sh
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This script is used on host and device. It uses a common subset
+# shell dialect that should work on the host (e.g. bash), and
+# Android (e.g. mksh). Try to switch to bash if the shebang above
+# has launched a pessimal shell on host.
+if [ -z "$KSH_VERSION" -a -z "$BASH_VERSION" -a -n "$(which bash)" ]; then
+  exec bash -c ". $0" -- "$@"
+fi
+
+# The purpose of this script is to invoke dex2oat with the right
+# boot classpath and bootclasspath locations.
+
+# Follow all sym links to get the program name.
+if [[ -n "$BASH_SOURCE" ]]; then
+  PROG_NAME="$BASH_SOURCE"
+else
+  PROG_NAME="$0"
+fi
+while [ -h "$PROG_NAME" ]; do
+  # On Mac OS, readlink -f doesn't work.
+  PROG_NAME="$(readlink "$PROG_NAME")"
+done
+
+PROG_DIR="$(cd "${PROG_NAME%/*}" ; pwd -P)"
+ANDROID_ROOT="$(cd $PROG_DIR/..; pwd -P)"
+
+declare -a args=("$@")
+arg_idx=0
+while true; do
+  if [[ $1 == "-Xbootclasspath:*" ]]; then
+    DEX2OAT_BCP=$1
+    # Remove '-Xbootclasspath:' from the arguments.
+    DEX2OAT_BCP=${DEX2OAT_BCP##-Xbootclasspath:}
+    unset args[arg_idx]
+    shift
+  elif [[ $1 == "-Xbootclasspath-locations:*" ]]; then
+    DEX2OAT_BCP_LOCS=$1
+    # Remove '-Xbootclasspath-locations:' from the argument.
+    DEX2OAT_BCP_LOCS=${DEX2OAT_BCP_LOCS##-Xbootclasspath-locations:}
+    unset args[arg_idx]
+    shift
+  elif [[ $1 == "--32" ]]; then
+    BITNESS=32
+    LD_LIBRARY_PATH=$ANDROID_ROOT/lib:$LD_LIBRARY_PATH
+    unset args[arg_idx]
+    shift
+  elif [[ $1 == "--64" ]]; then
+    BITNESS=64
+    LD_LIBRARY_PATH=$ANDROID_ROOT/lib64:$LD_LIBRARY_PATH
+    unset args[arg_idx]
+    shift
+  elif [[ "$1" == "" ]]; then
+    break
+  else
+    shift
+  fi
+  arg_idx=$((arg_idx + 1))
+done
+
+if [ -z "$BITNESS" ]; then
+  echo "Either --32 or --64 is required as argument to specify bitness"
+  exit 1
+fi
+
+# Create boot class path filename or location list.
+# It takes one optional argument which is the prefix to be inserted before each entry.
+function get_boot_class_path() {
+  # Note: This must start with the CORE_IMG_JARS in Android.common_path.mk
+  local modules="core-oj core-libart okhttp bouncycastle apache-xml core-icu4j conscrypt"
+  local prefix="$1"
+  local result=""
+  local separator=""
+  for module in ${modules}; do
+    case "$module" in
+      (conscrypt)  local apex="com.android.conscrypt";;
+      (core-icu4j) local apex="com.android.i18n";;
+      (*)          local apex="com.android.art";;
+    esac
+    result+="${separator}${prefix}/apex/${apex}/javalib/${module}.jar"
+    separator=":"
+  done
+  echo "$result"
+}
+
+# Create default boot class path if none was provided.
+if [[ "$DEX2OAT_BCP" = "" ]]; then
+  ANDROID_ROOT_MINUS_PWD="${ANDROID_ROOT#$PWD/}"  # For example: out/host/linux-x86
+  if [[ "$ANDROID_ROOT_MINUS_PWD" == */host/* ]]; then
+    DEX2OAT_BCP="$(get_boot_class_path $ANDROID_ROOT)"
+    DEX2OAT_BCP_LOCS="$(get_boot_class_path $ANDROID_ROOT_MINUS_PWD)"
+  elif [[ "$ANDROID_ROOT_MINUS_PWD" == */target/* ]]; then
+    DEX2OAT_BCP="$(get_boot_class_path $ANDROID_ROOT)"
+    DEX2OAT_BCP_LOCS="$(get_boot_class_path)"
+  else
+    echo "Can not determine whether are running on host or target"
+    exit 1
+  fi
+fi
+
+# If the dex2oat binary with the bitness as a suffix doesn't exist,
+# try with a dex2oat without suffix.
+DEX2OAT_SUFFIX=$BITNESS
+if [[ ! -f $ANDROID_ROOT/bin/dex2oat${DEX2OAT_SUFFIX} ]]; then
+  DEX2OAT_SUFFIX=""
+fi
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH \
+  $ANDROID_ROOT/bin/dex2oat${DEX2OAT_SUFFIX} \
+    --android-root=$ANDROID_ROOT \
+    --runtime-arg -Xbootclasspath:$DEX2OAT_BCP \
+    --runtime-arg -Xbootclasspath-locations:$DEX2OAT_BCP_LOCS \
+    ${args[@]}

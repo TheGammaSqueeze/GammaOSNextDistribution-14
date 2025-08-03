@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.window.flags"
+  name: "bal_improve_real_caller_visibility_check"
+  state: ENABLED
+  permission: READ_ONLY
+}

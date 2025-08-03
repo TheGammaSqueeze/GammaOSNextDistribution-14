@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.os.vibrator"
+  name: "use_vibrator_haptic_feedback"
+  state: ENABLED
+  permission: READ_ONLY
+}

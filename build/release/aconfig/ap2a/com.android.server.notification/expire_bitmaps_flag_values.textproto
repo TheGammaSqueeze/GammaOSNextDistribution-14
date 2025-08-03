@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.notification"
+  name: "expire_bitmaps"
+  state: ENABLED
+  permission: READ_ONLY
+}

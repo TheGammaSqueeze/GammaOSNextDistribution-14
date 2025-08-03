@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "available_routes_never_updated_after_set_system_audio_state"
+  state: ENABLED
+  permission: READ_ONLY
+}

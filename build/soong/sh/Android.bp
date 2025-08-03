@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-sh",
+    pkgPath: "android/soong/sh",
+    deps: [
+        "blueprint",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-java",
+        "soong-testing",
+        "soong-tradefed",
+    ],
+    srcs: [
+        "sh_binary.go",
+    ],
+    testSrcs: [
+        "sh_binary_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

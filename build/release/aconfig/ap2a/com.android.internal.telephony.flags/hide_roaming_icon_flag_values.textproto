@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.internal.telephony.flags"
+  name: "hide_roaming_icon"
+  state: ENABLED
+  permission: READ_ONLY
+}

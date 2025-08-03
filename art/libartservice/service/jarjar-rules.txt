@@ -1,0 +1,3 @@
+# Repackages static libraries to make them private to ART Services.
+rule com.android.modules.utils.** com.android.server.art.jarjar.@0
+rule com.google.protobuf.** com.android.server.art.jarjar.@0

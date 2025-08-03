@@ -1,0 +1,6 @@
+{
+  "build-param": {
+    "experimental": "var-handles",
+    "jvm-supported": "false"
+  }
+}

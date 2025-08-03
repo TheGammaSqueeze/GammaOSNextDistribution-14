@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.display.feature.flags"
+  name: "brightness_wear_bedtime_mode_clamper"
+  state: ENABLED
+  permission: READ_ONLY
+}

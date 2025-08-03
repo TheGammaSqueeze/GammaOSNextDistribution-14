@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.bluetooth.flags"
+  name: "use_dsp_codec_when_controller_does_not_support"
+  state: ENABLED
+  permission: READ_ONLY
+}

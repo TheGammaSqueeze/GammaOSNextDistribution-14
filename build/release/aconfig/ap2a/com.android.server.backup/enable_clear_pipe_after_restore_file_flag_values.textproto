@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.backup"
+  name: "enable_clear_pipe_after_restore_file"
+  state: ENABLED
+  permission: READ_ONLY
+}

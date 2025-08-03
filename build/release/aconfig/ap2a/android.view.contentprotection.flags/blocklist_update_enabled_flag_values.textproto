@@ -1,0 +1,6 @@
+flag_value {
+  package: "android.view.contentprotection.flags"
+  name: "blocklist_update_enabled"
+  state: ENABLED
+  permission: READ_ONLY
+}

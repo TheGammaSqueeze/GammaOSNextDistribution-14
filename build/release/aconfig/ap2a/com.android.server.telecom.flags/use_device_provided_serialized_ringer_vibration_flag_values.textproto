@@ -1,0 +1,6 @@
+flag_value {
+  package: "com.android.server.telecom.flags"
+  name: "use_device_provided_serialized_ringer_vibration"
+  state: ENABLED
+  permission: READ_ONLY
+}
