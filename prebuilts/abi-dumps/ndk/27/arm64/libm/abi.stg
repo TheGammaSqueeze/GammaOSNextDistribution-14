@@ -1,0 +1,3075 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x06d0f3fb
+  kind: POINTER
+  pointee_type_id: 0x31032973
+}
+pointer_reference {
+  id: 0x0fd17562
+  kind: POINTER
+  pointee_type_id: 0x15053314
+}
+pointer_reference {
+  id: 0x13580d6c
+  kind: POINTER
+  pointee_type_id: 0x6720d32f
+}
+pointer_reference {
+  id: 0x1e94f220
+  kind: POINTER
+  pointee_type_id: 0x50132e1f
+}
+pointer_reference {
+  id: 0x26b3657b
+  kind: POINTER
+  pointee_type_id: 0xb08d7372
+}
+pointer_reference {
+  id: 0x284f2578
+  kind: POINTER
+  pointee_type_id: 0x8b7c737e
+}
+pointer_reference {
+  id: 0x369c95f8
+  kind: POINTER
+  pointee_type_id: 0xf032b17e
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+pointer_reference {
+  id: 0x3e847058
+  kind: POINTER
+  pointee_type_id: 0xd05127fe
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x31032973
+  name: "fenv_t"
+  referred_type_id: 0x085202da
+}
+typedef {
+  id: 0xb08d7372
+  name: "fexcept_t"
+  referred_type_id: 0x903f4c78
+}
+qualified {
+  id: 0xd05127fe
+  qualifier: CONST
+  qualified_type_id: 0x31032973
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xf032b17e
+  qualifier: CONST
+  qualified_type_id: 0xb08d7372
+}
+primitive {
+  id: 0x15053314
+  name: "double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x39470e64
+  name: "long long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x50132e1f
+  name: "long double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000010
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8ab896f0
+  name: "complex"
+  encoding: COMPLEX_NUMBER
+  bytesize: 0x00000010
+}
+primitive {
+  id: 0x8ab896f1
+  name: "complex"
+  encoding: COMPLEX_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x8ab896f2
+  name: "complex"
+  encoding: COMPLEX_NUMBER
+  bytesize: 0x00000020
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0x40709534
+  name: "__control"
+  type_id: 0x903f4c78
+}
+member {
+  id: 0x898d30df
+  name: "__status"
+  type_id: 0x903f4c78
+  offset: 32
+}
+struct_union {
+  id: 0x085202da
+  kind: STRUCT
+  definition {
+    bytesize: 8
+    member_id: 0x40709534
+    member_id: 0x898d30df
+  }
+}
+function {
+  id: 0x04e16ce0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x1e94f220
+  parameter_id: 0x1e94f220
+}
+function {
+  id: 0x15e5acde
+  return_type_id: 0x48b5725f
+  parameter_id: 0x15053314
+  parameter_id: 0x0fd17562
+  parameter_id: 0x0fd17562
+}
+function {
+  id: 0x32ec6210
+  return_type_id: 0x48b5725f
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x284f2578
+  parameter_id: 0x284f2578
+}
+function {
+  id: 0x4161a27d
+  return_type_id: 0x8ab896f0
+  parameter_id: 0x8ab896f0
+}
+function {
+  id: 0x4161a27e
+  return_type_id: 0x8ab896f1
+  parameter_id: 0x8ab896f1
+}
+function {
+  id: 0x4161a27f
+  return_type_id: 0x8ab896f2
+  parameter_id: 0x8ab896f2
+}
+function {
+  id: 0x434b4026
+  return_type_id: 0x8ab896f0
+  parameter_id: 0x8ab896f0
+  parameter_id: 0x8ab896f0
+}
+function {
+  id: 0x434b4027
+  return_type_id: 0x8ab896f1
+  parameter_id: 0x8ab896f1
+  parameter_id: 0x8ab896f1
+}
+function {
+  id: 0x434b4028
+  return_type_id: 0x8ab896f2
+  parameter_id: 0x8ab896f2
+  parameter_id: 0x8ab896f2
+}
+function {
+  id: 0x43ce891f
+  return_type_id: 0x50132e1f
+  parameter_id: 0x8ab896f2
+}
+function {
+  id: 0x44beceaf
+  return_type_id: 0x39470e64
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x45b05f68
+  return_type_id: 0x15053314
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x4c85069d
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0xfc0e1dbd
+}
+function {
+  id: 0x4e357253
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x4ee9bda7
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x4f212a27
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x4f246b6b
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x4f25fc24
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x4f385ede
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x4f4a7b3e
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+  parameter_id: 0x0fd17562
+}
+function {
+  id: 0x4f753eeb
+  return_type_id: 0x15053314
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x53a85229
+  return_type_id: 0x15053314
+  parameter_id: 0x6720d32f
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x55fb49ed
+  return_type_id: 0x39470e64
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x63209eb5
+  return_type_id: 0x39470e64
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0x689a5792
+  return_type_id: 0x15053314
+  parameter_id: 0x8ab896f0
+}
+function {
+  id: 0x6ee481e5
+  return_type_id: 0x50132e1f
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x7420fd9f
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x74242b9c
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x74302f57
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x74f8e468
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x751e34ec
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x1e94f220
+}
+function {
+  id: 0x75290711
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x75646724
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x76945f52
+  return_type_id: 0x50132e1f
+  parameter_id: 0x50132e1f
+  parameter_id: 0xfc0e1dbd
+}
+function {
+  id: 0x8448d7e4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x85ff2746
+  return_type_id: 0xfc0e1dbd
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0x898428a8
+  return_type_id: 0x6720d32f
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0x8a069dac
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x6720d32f
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0x91bb451d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x369c95f8
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9221ff39
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3e847058
+}
+function {
+  id: 0x95b0b93d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x26b3657b
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x98c1afea
+  return_type_id: 0x6720d32f
+  parameter_id: 0x15053314
+}
+function {
+  id: 0x9c34dfd1
+  return_type_id: 0x6720d32f
+  parameter_id: 0x06d0f3fb
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+function {
+  id: 0x9e6775ec
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0xa261775c
+  return_type_id: 0xfc0e1dbd
+  parameter_id: 0x15053314
+}
+function {
+  id: 0xb0cc7c03
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0xfc0e1dbd
+}
+function {
+  id: 0xb111b5b8
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0xb11563bb
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0xb1336aa4
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0xb27c08cd
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0xb2a0c739
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0xb324f01e
+  return_type_id: 0xfc0e1dbd
+  parameter_id: 0x50132e1f
+}
+function {
+  id: 0xb33c4475
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0xb34d7d16
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8ab896f1
+}
+function {
+  id: 0xb3712440
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0xb39d78e0
+  return_type_id: 0x8b7c737e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0x284f2578
+}
+function {
+  id: 0xbf5ffff0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x8b7c737e
+}
+elf_symbol {
+  id: 0x59ecfd92
+  name: "__fe_dfl_env"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd05127fe
+  full_name: "__fe_dfl_env"
+}
+elf_symbol {
+  id: 0x94a7034d
+  name: "__signbit"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x98c1afea
+  full_name: "__signbit"
+}
+elf_symbol {
+  id: 0x453711c4
+  name: "__signbitf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xbf5ffff0
+  full_name: "__signbitf"
+}
+elf_symbol {
+  id: 0xcd8b1d16
+  name: "__signbitl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x898428a8
+  full_name: "__signbitl"
+}
+elf_symbol {
+  id: 0x2b272872
+  name: "acos"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "acos"
+}
+elf_symbol {
+  id: 0xafac82ff
+  name: "acosf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "acosf"
+}
+elf_symbol {
+  id: 0x522fb76e
+  name: "acosh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "acosh"
+}
+elf_symbol {
+  id: 0x8e343c71
+  name: "acoshf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "acoshf"
+}
+elf_symbol {
+  id: 0x09b642af
+  name: "acoshl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "acoshl"
+}
+elf_symbol {
+  id: 0x572928a1
+  name: "acosl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "acosl"
+}
+elf_symbol {
+  id: 0x0c547fa9
+  name: "asin"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "asin"
+}
+elf_symbol {
+  id: 0xf38ca1b6
+  name: "asinf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "asinf"
+}
+elf_symbol {
+  id: 0x58732fb2
+  name: "asinh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "asinh"
+}
+elf_symbol {
+  id: 0x628e77f3
+  name: "asinhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "asinhf"
+}
+elf_symbol {
+  id: 0xfa08dc08
+  name: "asinhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "asinhl"
+}
+elf_symbol {
+  id: 0x57708a9b
+  name: "asinl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "asinl"
+}
+elf_symbol {
+  id: 0xa10750ea
+  name: "atan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "atan"
+}
+elf_symbol {
+  id: 0x3d89b754
+  name: "atan2"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "atan2"
+}
+elf_symbol {
+  id: 0x32c954b5
+  name: "atan2f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "atan2f"
+}
+elf_symbol {
+  id: 0xb54d5067
+  name: "atan2l"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "atan2l"
+}
+elf_symbol {
+  id: 0x5aea2017
+  name: "atanf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "atanf"
+}
+elf_symbol {
+  id: 0xd46bf936
+  name: "atanh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "atanh"
+}
+elf_symbol {
+  id: 0xc009f849
+  name: "atanhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "atanhf"
+}
+elf_symbol {
+  id: 0x4c8e4327
+  name: "atanhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "atanhl"
+}
+elf_symbol {
+  id: 0xd16c5e99
+  name: "atanl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "atanl"
+}
+elf_symbol {
+  id: 0xf8063699
+  name: "cabs"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x689a5792
+  full_name: "cabs"
+}
+elf_symbol {
+  id: 0x9f01cc66
+  name: "cabsf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb34d7d16
+  full_name: "cabsf"
+}
+elf_symbol {
+  id: 0x0a82206b
+  name: "cabsl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x43ce891f
+  full_name: "cabsl"
+}
+elf_symbol {
+  id: 0x17af1362
+  name: "cacos"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "cacos"
+}
+elf_symbol {
+  id: 0x786eff3c
+  name: "cacosf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "cacosf"
+}
+elf_symbol {
+  id: 0xfaee2c20
+  name: "cacosh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "cacosh"
+}
+elf_symbol {
+  id: 0x3dc3b35a
+  name: "cacoshf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "cacoshf"
+}
+elf_symbol {
+  id: 0xc54fb06d
+  name: "cacoshl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "cacoshl"
+}
+elf_symbol {
+  id: 0xf5ec66ef
+  name: "cacosl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "cacosl"
+}
+elf_symbol {
+  id: 0xfae811d0
+  name: "carg"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x689a5792
+  full_name: "carg"
+}
+elf_symbol {
+  id: 0x1f22ca59
+  name: "cargf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb34d7d16
+  full_name: "cargf"
+}
+elf_symbol {
+  id: 0x60a6f6ae
+  name: "cargl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x43ce891f
+  full_name: "cargl"
+}
+elf_symbol {
+  id: 0x134e3aab
+  name: "casin"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "casin"
+}
+elf_symbol {
+  id: 0x98d15f9e
+  name: "casinf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "casinf"
+}
+elf_symbol {
+  id: 0x1b5210ef
+  name: "casinh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "casinh"
+}
+elf_symbol {
+  id: 0x729ca2f8
+  name: "casinhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "casinhf"
+}
+elf_symbol {
+  id: 0xf21e5436
+  name: "casinhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "casinhl"
+}
+elf_symbol {
+  id: 0x145487e0
+  name: "casinl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "casinl"
+}
+elf_symbol {
+  id: 0x231387a7
+  name: "catan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "catan"
+}
+elf_symbol {
+  id: 0xc08bec9d
+  name: "catanf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "catanf"
+}
+elf_symbol {
+  id: 0x4b07f32f
+  name: "catanh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "catanh"
+}
+elf_symbol {
+  id: 0x87299a25
+  name: "catanhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "catanhf"
+}
+elf_symbol {
+  id: 0x1fac3358
+  name: "catanhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "catanhl"
+}
+elf_symbol {
+  id: 0x4c0440e0
+  name: "catanl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "catanl"
+}
+elf_symbol {
+  id: 0x614cb345
+  name: "cbrt"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "cbrt"
+}
+elf_symbol {
+  id: 0x5c6a2092
+  name: "cbrtf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "cbrtf"
+}
+elf_symbol {
+  id: 0xd3ee0d7f
+  name: "cbrtl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "cbrtl"
+}
+elf_symbol {
+  id: 0xf28cbd36
+  name: "ccos"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "ccos"
+}
+elf_symbol {
+  id: 0xf77a6c49
+  name: "ccosf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "ccosf"
+}
+elf_symbol {
+  id: 0x72fe88a8
+  name: "ccosh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "ccosh"
+}
+elf_symbol {
+  id: 0xbe945089
+  name: "ccoshf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "ccoshf"
+}
+elf_symbol {
+  id: 0x42185f5b
+  name: "ccoshl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "ccoshl"
+}
+elf_symbol {
+  id: 0x7ff8f727
+  name: "ccosl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "ccosl"
+}
+elf_symbol {
+  id: 0xbb449060
+  name: "ceil"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "ceil"
+}
+elf_symbol {
+  id: 0x3e8fec1a
+  name: "ceilf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "ceilf"
+}
+elf_symbol {
+  id: 0xb20bc8ad
+  name: "ceill"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "ceill"
+}
+elf_symbol {
+  id: 0x186284ca
+  name: "cexp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "cexp"
+}
+elf_symbol {
+  id: 0x2c27f2bd
+  name: "cexpf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "cexpf"
+}
+elf_symbol {
+  id: 0xb199444b
+  name: "cexpl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "cexpl"
+}
+elf_symbol {
+  id: 0xcdc33038
+  name: "cimag"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x689a5792
+  full_name: "cimag"
+}
+elf_symbol {
+  id: 0x6016beb2
+  name: "cimagf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb34d7d16
+  full_name: "cimagf"
+}
+elf_symbol {
+  id: 0xe992bb05
+  name: "cimagl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x43ce891f
+  full_name: "cimagl"
+}
+elf_symbol {
+  id: 0x57271644
+  name: "clog"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "clog"
+}
+elf_symbol {
+  id: 0x04dad5b6
+  name: "clogf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "clogf"
+}
+elf_symbol {
+  id: 0x9726d061
+  name: "clogl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "clogl"
+}
+elf_symbol {
+  id: 0x9b8cb491
+  name: "conj"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "conj"
+}
+elf_symbol {
+  id: 0xcdbaba46
+  name: "conjf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "conjf"
+}
+elf_symbol {
+  id: 0x5e26b674
+  name: "conjl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "conjl"
+}
+elf_symbol {
+  id: 0xf76783d2
+  name: "copysign"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "copysign"
+}
+elf_symbol {
+  id: 0xcfc17715
+  name: "copysignf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "copysignf"
+}
+elf_symbol {
+  id: 0x57431e63
+  name: "copysignl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "copysignl"
+}
+elf_symbol {
+  id: 0xd1873511
+  name: "cos"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "cos"
+}
+elf_symbol {
+  id: 0x2705e0c7
+  name: "cosf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "cosf"
+}
+elf_symbol {
+  id: 0xaf8b1671
+  name: "cosh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "cosh"
+}
+elf_symbol {
+  id: 0xc57905e7
+  name: "coshf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "coshf"
+}
+elf_symbol {
+  id: 0x42fae62a
+  name: "coshl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "coshl"
+}
+elf_symbol {
+  id: 0xaa89840a
+  name: "cosl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "cosl"
+}
+elf_symbol {
+  id: 0xb00b0357
+  name: "cpow"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x434b4026
+  full_name: "cpow"
+}
+elf_symbol {
+  id: 0x8b1e3f8d
+  name: "cpowf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x434b4027
+  full_name: "cpowf"
+}
+elf_symbol {
+  id: 0x0399a670
+  name: "cpowl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x434b4028
+  full_name: "cpowl"
+}
+elf_symbol {
+  id: 0xdfd13045
+  name: "cproj"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "cproj"
+}
+elf_symbol {
+  id: 0xffd3d3bc
+  name: "cprojf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "cprojf"
+}
+elf_symbol {
+  id: 0x085fcf4e
+  name: "cprojl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "cprojl"
+}
+elf_symbol {
+  id: 0x8e0c4494
+  name: "creal"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x689a5792
+  full_name: "creal"
+}
+elf_symbol {
+  id: 0x139df09d
+  name: "crealf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb34d7d16
+  full_name: "crealf"
+}
+elf_symbol {
+  id: 0x9f19f5ca
+  name: "creall"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x43ce891f
+  full_name: "creall"
+}
+elf_symbol {
+  id: 0xe999ec26
+  name: "csin"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "csin"
+}
+elf_symbol {
+  id: 0xfdf1f3d8
+  name: "csinf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "csinf"
+}
+elf_symbol {
+  id: 0x4476d42c
+  name: "csinh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "csinh"
+}
+elf_symbol {
+  id: 0xeb49043e
+  name: "csinhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "csinhf"
+}
+elf_symbol {
+  id: 0x7fb56069
+  name: "csinhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "csinhl"
+}
+elf_symbol {
+  id: 0x41776223
+  name: "csinl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "csinl"
+}
+elf_symbol {
+  id: 0x51599644
+  name: "csqrt"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "csqrt"
+}
+elf_symbol {
+  id: 0xce7255b6
+  name: "csqrtf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "csqrtf"
+}
+elf_symbol {
+  id: 0x73ce5061
+  name: "csqrtl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "csqrtl"
+}
+elf_symbol {
+  id: 0x9198f7ba
+  name: "ctan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "ctan"
+}
+elf_symbol {
+  id: 0x8077858d
+  name: "ctanf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "ctanf"
+}
+elf_symbol {
+  id: 0x0bf3e2d4
+  name: "ctanh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27d
+  full_name: "ctanh"
+}
+elf_symbol {
+  id: 0x33788a35
+  name: "ctanhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27e
+  full_name: "ctanhf"
+}
+elf_symbol {
+  id: 0xb7e46fe7
+  name: "ctanhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "ctanhl"
+}
+elf_symbol {
+  id: 0x04f52d3b
+  name: "ctanl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4161a27f
+  full_name: "ctanl"
+}
+elf_symbol {
+  id: 0x776422d8
+  name: "drem"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "drem"
+}
+elf_symbol {
+  id: 0x2f66c367
+  name: "dremf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "dremf"
+}
+elf_symbol {
+  id: 0x33219b7a
+  name: "erf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "erf"
+}
+elf_symbol {
+  id: 0x35b204e1
+  name: "erfc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "erfc"
+}
+elf_symbol {
+  id: 0x6ac41fa8
+  name: "erfcf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "erfcf"
+}
+elf_symbol {
+  id: 0xfe481b5a
+  name: "erfcl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "erfcl"
+}
+elf_symbol {
+  id: 0x70737894
+  name: "erff"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "erff"
+}
+elf_symbol {
+  id: 0xecf68707
+  name: "erfl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "erfl"
+}
+elf_symbol {
+  id: 0xbf5ca498
+  name: "exp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "exp"
+}
+elf_symbol {
+  id: 0x20c5730f
+  name: "exp2"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "exp2"
+}
+elf_symbol {
+  id: 0x1cd1e434
+  name: "exp2f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "exp2f"
+}
+elf_symbol {
+  id: 0x985349e9
+  name: "exp2l"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "exp2l"
+}
+elf_symbol {
+  id: 0x09de9592
+  name: "expf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "expf"
+}
+elf_symbol {
+  id: 0x815286e5
+  name: "expl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "expl"
+}
+elf_symbol {
+  id: 0x7491fb4a
+  name: "expm1"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "expm1"
+}
+elf_symbol {
+  id: 0x51ec569b
+  name: "expm1f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "expm1f"
+}
+elf_symbol {
+  id: 0xf56bbed0
+  name: "expm1l"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "expm1l"
+}
+elf_symbol {
+  id: 0xf0b0f4e4
+  name: "fabs"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "fabs"
+}
+elf_symbol {
+  id: 0xb413ab65
+  name: "fabsf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "fabsf"
+}
+elf_symbol {
+  id: 0x179f4917
+  name: "fabsl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "fabsl"
+}
+elf_symbol {
+  id: 0xaa0272a2
+  name: "fdim"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "fdim"
+}
+elf_symbol {
+  id: 0x94a43245
+  name: "fdimf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "fdimf"
+}
+elf_symbol {
+  id: 0x19265933
+  name: "fdiml"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "fdiml"
+}
+elf_symbol {
+  id: 0x729e2af9
+  name: "feclearexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "feclearexcept"
+}
+elf_symbol {
+  id: 0x3ada8faf
+  name: "fedisableexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "fedisableexcept"
+}
+elf_symbol {
+  id: 0x3c42fd20
+  name: "feenableexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "feenableexcept"
+}
+elf_symbol {
+  id: 0x56bb49b2
+  name: "fegetenv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c34dfd1
+  full_name: "fegetenv"
+}
+elf_symbol {
+  id: 0x5d96ca9f
+  name: "fegetexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d80e32f
+  full_name: "fegetexcept"
+}
+elf_symbol {
+  id: 0xec6f727f
+  name: "fegetexceptflag"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95b0b93d
+  full_name: "fegetexceptflag"
+}
+elf_symbol {
+  id: 0x70874e20
+  name: "fegetround"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d80e32f
+  full_name: "fegetround"
+}
+elf_symbol {
+  id: 0xbe2dd049
+  name: "feholdexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c34dfd1
+  full_name: "feholdexcept"
+}
+elf_symbol {
+  id: 0xbf57cba8
+  name: "feraiseexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "feraiseexcept"
+}
+elf_symbol {
+  id: 0xc1bc9b67
+  name: "fesetenv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9221ff39
+  full_name: "fesetenv"
+}
+elf_symbol {
+  id: 0x1211f224
+  name: "fesetexceptflag"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91bb451d
+  full_name: "fesetexceptflag"
+}
+elf_symbol {
+  id: 0x39b4fc19
+  name: "fesetround"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "fesetround"
+}
+elf_symbol {
+  id: 0x1622a41f
+  name: "fetestexcept"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8448d7e4
+  full_name: "fetestexcept"
+}
+elf_symbol {
+  id: 0x7d63b5e3
+  name: "feupdateenv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9221ff39
+  full_name: "feupdateenv"
+}
+elf_symbol {
+  id: 0xec60de21
+  name: "finite"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x98c1afea
+  full_name: "finite"
+}
+elf_symbol {
+  id: 0x4465bcce
+  name: "finitef"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xbf5ffff0
+  full_name: "finitef"
+}
+elf_symbol {
+  id: 0xd74c8e30
+  name: "floor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "floor"
+}
+elf_symbol {
+  id: 0x573eec2f
+  name: "floorf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "floorf"
+}
+elf_symbol {
+  id: 0xd3bac3fd
+  name: "floorl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "floorl"
+}
+elf_symbol {
+  id: 0xeb943950
+  name: "fma"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f246b6b
+  full_name: "fma"
+}
+elf_symbol {
+  id: 0x80914431
+  name: "fmaf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb1336aa4
+  full_name: "fmaf"
+}
+elf_symbol {
+  id: 0x081da383
+  name: "fmal"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74302f57
+  full_name: "fmal"
+}
+elf_symbol {
+  id: 0x2965a93c
+  name: "fmax"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "fmax"
+}
+elf_symbol {
+  id: 0x0c01255b
+  name: "fmaxf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "fmaxf"
+}
+elf_symbol {
+  id: 0x948d0689
+  name: "fmaxl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "fmaxl"
+}
+elf_symbol {
+  id: 0xf5c17029
+  name: "fmin"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "fmin"
+}
+elf_symbol {
+  id: 0xb03c84ae
+  name: "fminf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "fminf"
+}
+elf_symbol {
+  id: 0x0bb8601c
+  name: "fminl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "fminl"
+}
+elf_symbol {
+  id: 0x6f3bf81c
+  name: "fmod"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "fmod"
+}
+elf_symbol {
+  id: 0x37d890dd
+  name: "fmodf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "fmodf"
+}
+elf_symbol {
+  id: 0xbb5c940f
+  name: "fmodl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "fmodl"
+}
+elf_symbol {
+  id: 0x50a57257
+  name: "frexp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f385ede
+  full_name: "frexp"
+}
+elf_symbol {
+  id: 0xd7551a8d
+  name: "frexpf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb3712440
+  full_name: "frexpf"
+}
+elf_symbol {
+  id: 0x2cdbcd70
+  name: "frexpl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75290711
+  full_name: "frexpl"
+}
+elf_symbol {
+  id: 0x95d4eb62
+  name: "gamma"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "gamma"
+}
+elf_symbol {
+  id: 0xd7d97440
+  name: "gamma_r"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f385ede
+  full_name: "gamma_r"
+}
+elf_symbol {
+  id: 0x25082463
+  name: "gammaf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "gammaf"
+}
+elf_symbol {
+  id: 0xcb4b89b1
+  name: "gammaf_r"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb3712440
+  full_name: "gammaf_r"
+}
+elf_symbol {
+  id: 0x0f688d8a
+  name: "hypot"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "hypot"
+}
+elf_symbol {
+  id: 0xb6ec8b7d
+  name: "hypotf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "hypotf"
+}
+elf_symbol {
+  id: 0x3e6eda0b
+  name: "hypotl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "hypotl"
+}
+elf_symbol {
+  id: 0xba7b9311
+  name: "ilogb"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x98c1afea
+  full_name: "ilogb"
+}
+elf_symbol {
+  id: 0xeb0252c7
+  name: "ilogbf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xbf5ffff0
+  full_name: "ilogbf"
+}
+elf_symbol {
+  id: 0x7c86160a
+  name: "ilogbl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x898428a8
+  full_name: "ilogbl"
+}
+elf_symbol {
+  id: 0xe3cfb044
+  name: "j0"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "j0"
+}
+elf_symbol {
+  id: 0x841f4d45
+  name: "j0f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "j0f"
+}
+elf_symbol {
+  id: 0xa28fd7eb
+  name: "j1"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "j1"
+}
+elf_symbol {
+  id: 0x753fb519
+  name: "j1f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "j1f"
+}
+elf_symbol {
+  id: 0x9366e6c9
+  name: "jn"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x53a85229
+  full_name: "jn"
+}
+elf_symbol {
+  id: 0xfbee81b0
+  name: "jnf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a069dac
+  full_name: "jnf"
+}
+elf_symbol {
+  id: 0xd9ca83f0
+  name: "ldexpf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb2a0c739
+  full_name: "scalbnf"
+}
+elf_symbol {
+  id: 0x6d753bbb
+  name: "ldexpl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74f8e468
+  full_name: "scalbnl"
+}
+elf_symbol {
+  id: 0x8ebec766
+  name: "lgamma"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "lgamma"
+}
+elf_symbol {
+  id: 0xfa6956ac
+  name: "lgamma_r"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f385ede
+  full_name: "lgamma_r"
+}
+elf_symbol {
+  id: 0x15fb2b98
+  name: "lgammaf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "lgammaf"
+}
+elf_symbol {
+  id: 0x19d80932
+  name: "lgammaf_r"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb3712440
+  full_name: "lgammaf_r"
+}
+elf_symbol {
+  id: 0x9074cbe3
+  name: "lgammal"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "lgammal"
+}
+elf_symbol {
+  id: 0x4063b531
+  name: "lgammal_r"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75290711
+  full_name: "lgammal_r"
+}
+elf_symbol {
+  id: 0x3266dd87
+  name: "llrint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x44beceaf
+  full_name: "llrint"
+}
+elf_symbol {
+  id: 0xb68c688c
+  name: "llrintf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x63209eb5
+  full_name: "llrintf"
+}
+elf_symbol {
+  id: 0x3e0fed11
+  name: "llrintl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x55fb49ed
+  full_name: "llrintl"
+}
+elf_symbol {
+  id: 0xfc3ac277
+  name: "llround"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x44beceaf
+  full_name: "llround"
+}
+elf_symbol {
+  id: 0x24b412d0
+  name: "llroundf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x63209eb5
+  full_name: "llroundf"
+}
+elf_symbol {
+  id: 0xb936646e
+  name: "llroundl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x55fb49ed
+  full_name: "llroundl"
+}
+elf_symbol {
+  id: 0xd486312b
+  name: "log"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "log"
+}
+elf_symbol {
+  id: 0xa8cb0282
+  name: "log10"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "log10"
+}
+elf_symbol {
+  id: 0x5417bf1c
+  name: "log10f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "log10f"
+}
+elf_symbol {
+  id: 0xf099078f
+  name: "log10l"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "log10l"
+}
+elf_symbol {
+  id: 0xf8a02512
+  name: "log1p"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "log1p"
+}
+elf_symbol {
+  id: 0x8d0e8a8c
+  name: "log1pf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "log1pf"
+}
+elf_symbol {
+  id: 0x168b501f
+  name: "log1pl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "log1pl"
+}
+elf_symbol {
+  id: 0x1c742b05
+  name: "log2"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "log2"
+}
+elf_symbol {
+  id: 0xccebda7c
+  name: "log2f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "log2f"
+}
+elf_symbol {
+  id: 0x55979f8e
+  name: "log2l"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "log2l"
+}
+elf_symbol {
+  id: 0xa066edb1
+  name: "logb"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "logb"
+}
+elf_symbol {
+  id: 0xca5a6118
+  name: "logbf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "logbf"
+}
+elf_symbol {
+  id: 0x5fd6434a
+  name: "logbl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "logbl"
+}
+elf_symbol {
+  id: 0xa5670a1e
+  name: "logf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "logf"
+}
+elf_symbol {
+  id: 0x28ead160
+  name: "logl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "logl"
+}
+elf_symbol {
+  id: 0x1318330f
+  name: "lrint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa261775c
+  full_name: "lrint"
+}
+elf_symbol {
+  id: 0x6903c385
+  name: "lrintf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85ff2746
+  full_name: "lrintf"
+}
+elf_symbol {
+  id: 0xe2802b38
+  name: "lrintl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb324f01e
+  full_name: "lrintl"
+}
+elf_symbol {
+  id: 0x033647cf
+  name: "lround"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa261775c
+  full_name: "lround"
+}
+elf_symbol {
+  id: 0x4a463792
+  name: "lroundf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85ff2746
+  full_name: "lroundf"
+}
+elf_symbol {
+  id: 0xb2d8ac04
+  name: "lroundl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb324f01e
+  full_name: "lroundl"
+}
+elf_symbol {
+  id: 0xf52cd13a
+  name: "modf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f4a7b3e
+  full_name: "modf"
+}
+elf_symbol {
+  id: 0xef3f57a7
+  name: "modff"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb39d78e0
+  full_name: "modff"
+}
+elf_symbol {
+  id: 0x64b10fc9
+  name: "modfl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x751e34ec
+  full_name: "modfl"
+}
+elf_symbol {
+  id: 0xd8d878ee
+  name: "nan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x45b05f68
+  full_name: "nan"
+}
+elf_symbol {
+  id: 0x7f72deef
+  name: "nanf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e6775ec
+  full_name: "nanf"
+}
+elf_symbol {
+  id: 0xf7f0073c
+  name: "nanl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6ee481e5
+  full_name: "nanl"
+}
+elf_symbol {
+  id: 0xfcd19189
+  name: "nearbyint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "nearbyint"
+}
+elf_symbol {
+  id: 0xb515f48e
+  name: "nearbyintf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "nearbyintf"
+}
+elf_symbol {
+  id: 0x1599eb7c
+  name: "nearbyintl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "nearbyintl"
+}
+elf_symbol {
+  id: 0x890c3b38
+  name: "nextafter"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "nextafter"
+}
+elf_symbol {
+  id: 0x028b5c51
+  name: "nextafterf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "nextafterf"
+}
+elf_symbol {
+  id: 0x8e0f4066
+  name: "nextafterl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "nextafterl"
+}
+elf_symbol {
+  id: 0x95e345fe
+  name: "nexttoward"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4e357253
+  full_name: "nexttoward"
+}
+elf_symbol {
+  id: 0x8d2db62b
+  name: "nexttowardf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb27c08cd
+  full_name: "nexttowardf"
+}
+elf_symbol {
+  id: 0x06ae0d9d
+  name: "nexttowardl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "nextafterl"
+}
+elf_symbol {
+  id: 0x72a52d0e
+  name: "pow"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "pow"
+}
+elf_symbol {
+  id: 0xad181fd1
+  name: "powf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "powf"
+}
+elf_symbol {
+  id: 0x399a47cf
+  name: "powl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "powl"
+}
+elf_symbol {
+  id: 0x0cbdc614
+  name: "remainder"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "remainder"
+}
+elf_symbol {
+  id: 0xdcbcc806
+  name: "remainderf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "remainderf"
+}
+elf_symbol {
+  id: 0x4f38ec71
+  name: "remainderl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74242b9c
+  full_name: "remainderl"
+}
+elf_symbol {
+  id: 0x5d0112e7
+  name: "remquo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f25fc24
+  full_name: "remquo"
+}
+elf_symbol {
+  id: 0xd7b1e6ec
+  name: "remquof"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb11563bb
+  full_name: "remquof"
+}
+elf_symbol {
+  id: 0x2f365831
+  name: "remquol"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x7420fd9f
+  full_name: "remquol"
+}
+elf_symbol {
+  id: 0x28d01edf
+  name: "rint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "rint"
+}
+elf_symbol {
+  id: 0x93e881e4
+  name: "rintf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "rintf"
+}
+elf_symbol {
+  id: 0x126e3a39
+  name: "rintl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "rintl"
+}
+elf_symbol {
+  id: 0x9161dd0f
+  name: "round"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "round"
+}
+elf_symbol {
+  id: 0xa4877fd8
+  name: "roundf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "roundf"
+}
+elf_symbol {
+  id: 0x201a8616
+  name: "roundl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "roundl"
+}
+elf_symbol {
+  id: 0x8dcb1e63
+  name: "scalb"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f212a27
+  full_name: "scalb"
+}
+elf_symbol {
+  id: 0xebf82a31
+  name: "scalbf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb111b5b8
+  full_name: "scalbf"
+}
+elf_symbol {
+  id: 0x8447c9bc
+  name: "scalbln"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4c85069d
+  full_name: "scalbln"
+}
+elf_symbol {
+  id: 0xc35ae0d5
+  name: "scalblnf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb0cc7c03
+  full_name: "scalblnf"
+}
+elf_symbol {
+  id: 0x57de0302
+  name: "scalblnl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x76945f52
+  full_name: "scalblnl"
+}
+elf_symbol {
+  id: 0xf5c4c743
+  name: "scalbn"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4ee9bda7
+  full_name: "scalbn"
+}
+elf_symbol {
+  id: 0x9f7f53f8
+  name: "scalbnf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb2a0c739
+  full_name: "scalbnf"
+}
+elf_symbol {
+  id: 0x07fd8b45
+  name: "scalbnl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x74f8e468
+  full_name: "scalbnl"
+}
+elf_symbol {
+  id: 0x181e860a
+  name: "signgam"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x6720d32f
+  full_name: "signgam"
+}
+elf_symbol {
+  id: 0xe95fb812
+  name: "significand"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "significand"
+}
+elf_symbol {
+  id: 0x7206ab8c
+  name: "significandf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "significandf"
+}
+elf_symbol {
+  id: 0xfa80131f
+  name: "significandl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "significandl"
+}
+elf_symbol {
+  id: 0xabf57ff4
+  name: "sin"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "sin"
+}
+elf_symbol {
+  id: 0xe395ca93
+  name: "sincos"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x15e5acde
+  full_name: "sincos"
+}
+elf_symbol {
+  id: 0xec27a1e1
+  name: "sincosf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x32ec6210
+  full_name: "sincosf"
+}
+elf_symbol {
+  id: 0x609919bc
+  name: "sincosl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x04e16ce0
+  full_name: "sincosl"
+}
+elf_symbol {
+  id: 0xd729dd23
+  name: "sinf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "sinf"
+}
+elf_symbol {
+  id: 0x50ab058a
+  name: "sinh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "sinh"
+}
+elf_symbol {
+  id: 0x90dd17b7
+  name: "sinhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "sinhf"
+}
+elf_symbol {
+  id: 0x0d58ae79
+  name: "sinhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "sinhl"
+}
+elf_symbol {
+  id: 0x33a598d1
+  name: "sinl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "sinl"
+}
+elf_symbol {
+  id: 0xdf570156
+  name: "sqrt"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "sqrt"
+}
+elf_symbol {
+  id: 0xe46c9e63
+  name: "sqrtf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "sqrtf"
+}
+elf_symbol {
+  id: 0x60eef715
+  name: "sqrtl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "sqrtl"
+}
+elf_symbol {
+  id: 0xf04e9f94
+  name: "tan"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "tan"
+}
+elf_symbol {
+  id: 0xc0bba286
+  name: "tanf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "tanf"
+}
+elf_symbol {
+  id: 0x5d26148a
+  name: "tanh"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "tanh"
+}
+elf_symbol {
+  id: 0x0ff73e44
+  name: "tanhf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "tanhf"
+}
+elf_symbol {
+  id: 0x9772c457
+  name: "tanhl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "tanhl"
+}
+elf_symbol {
+  id: 0x582789f1
+  name: "tanl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "tanl"
+}
+elf_symbol {
+  id: 0x82a573b8
+  name: "tgamma"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "tgamma"
+}
+elf_symbol {
+  id: 0x996fba32
+  name: "tgammaf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "tgammaf"
+}
+elf_symbol {
+  id: 0x16eb3785
+  name: "tgammal"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "tgammal"
+}
+elf_symbol {
+  id: 0x41c0a87a
+  name: "trunc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "trunc"
+}
+elf_symbol {
+  id: 0xa0a0674d
+  name: "truncf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "truncf"
+}
+elf_symbol {
+  id: 0x2b25cffb
+  name: "truncl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x75646724
+  full_name: "truncl"
+}
+elf_symbol {
+  id: 0x89d9a405
+  name: "y0"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "y0"
+}
+elf_symbol {
+  id: 0xf1d6aba3
+  name: "y0f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "y0f"
+}
+elf_symbol {
+  id: 0xcea6bfb2
+  name: "y1"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f753eeb
+  full_name: "y1"
+}
+elf_symbol {
+  id: 0x58c6383f
+  name: "y1f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb33c4475
+  full_name: "y1f"
+}
+elf_symbol {
+  id: 0x16aa7eef
+  name: "yn"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x53a85229
+  full_name: "yn"
+}
+elf_symbol {
+  id: 0xd8e91e94
+  name: "ynf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a069dac
+  full_name: "ynf"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x59ecfd92
+  symbol_id: 0x94a7034d
+  symbol_id: 0x453711c4
+  symbol_id: 0xcd8b1d16
+  symbol_id: 0x2b272872
+  symbol_id: 0xafac82ff
+  symbol_id: 0x522fb76e
+  symbol_id: 0x8e343c71
+  symbol_id: 0x09b642af
+  symbol_id: 0x572928a1
+  symbol_id: 0x0c547fa9
+  symbol_id: 0xf38ca1b6
+  symbol_id: 0x58732fb2
+  symbol_id: 0x628e77f3
+  symbol_id: 0xfa08dc08
+  symbol_id: 0x57708a9b
+  symbol_id: 0xa10750ea
+  symbol_id: 0x3d89b754
+  symbol_id: 0x32c954b5
+  symbol_id: 0xb54d5067
+  symbol_id: 0x5aea2017
+  symbol_id: 0xd46bf936
+  symbol_id: 0xc009f849
+  symbol_id: 0x4c8e4327
+  symbol_id: 0xd16c5e99
+  symbol_id: 0xf8063699
+  symbol_id: 0x9f01cc66
+  symbol_id: 0x0a82206b
+  symbol_id: 0x17af1362
+  symbol_id: 0x786eff3c
+  symbol_id: 0xfaee2c20
+  symbol_id: 0x3dc3b35a
+  symbol_id: 0xc54fb06d
+  symbol_id: 0xf5ec66ef
+  symbol_id: 0xfae811d0
+  symbol_id: 0x1f22ca59
+  symbol_id: 0x60a6f6ae
+  symbol_id: 0x134e3aab
+  symbol_id: 0x98d15f9e
+  symbol_id: 0x1b5210ef
+  symbol_id: 0x729ca2f8
+  symbol_id: 0xf21e5436
+  symbol_id: 0x145487e0
+  symbol_id: 0x231387a7
+  symbol_id: 0xc08bec9d
+  symbol_id: 0x4b07f32f
+  symbol_id: 0x87299a25
+  symbol_id: 0x1fac3358
+  symbol_id: 0x4c0440e0
+  symbol_id: 0x614cb345
+  symbol_id: 0x5c6a2092
+  symbol_id: 0xd3ee0d7f
+  symbol_id: 0xf28cbd36
+  symbol_id: 0xf77a6c49
+  symbol_id: 0x72fe88a8
+  symbol_id: 0xbe945089
+  symbol_id: 0x42185f5b
+  symbol_id: 0x7ff8f727
+  symbol_id: 0xbb449060
+  symbol_id: 0x3e8fec1a
+  symbol_id: 0xb20bc8ad
+  symbol_id: 0x186284ca
+  symbol_id: 0x2c27f2bd
+  symbol_id: 0xb199444b
+  symbol_id: 0xcdc33038
+  symbol_id: 0x6016beb2
+  symbol_id: 0xe992bb05
+  symbol_id: 0x57271644
+  symbol_id: 0x04dad5b6
+  symbol_id: 0x9726d061
+  symbol_id: 0x9b8cb491
+  symbol_id: 0xcdbaba46
+  symbol_id: 0x5e26b674
+  symbol_id: 0xf76783d2
+  symbol_id: 0xcfc17715
+  symbol_id: 0x57431e63
+  symbol_id: 0xd1873511
+  symbol_id: 0x2705e0c7
+  symbol_id: 0xaf8b1671
+  symbol_id: 0xc57905e7
+  symbol_id: 0x42fae62a
+  symbol_id: 0xaa89840a
+  symbol_id: 0xb00b0357
+  symbol_id: 0x8b1e3f8d
+  symbol_id: 0x0399a670
+  symbol_id: 0xdfd13045
+  symbol_id: 0xffd3d3bc
+  symbol_id: 0x085fcf4e
+  symbol_id: 0x8e0c4494
+  symbol_id: 0x139df09d
+  symbol_id: 0x9f19f5ca
+  symbol_id: 0xe999ec26
+  symbol_id: 0xfdf1f3d8
+  symbol_id: 0x4476d42c
+  symbol_id: 0xeb49043e
+  symbol_id: 0x7fb56069
+  symbol_id: 0x41776223
+  symbol_id: 0x51599644
+  symbol_id: 0xce7255b6
+  symbol_id: 0x73ce5061
+  symbol_id: 0x9198f7ba
+  symbol_id: 0x8077858d
+  symbol_id: 0x0bf3e2d4
+  symbol_id: 0x33788a35
+  symbol_id: 0xb7e46fe7
+  symbol_id: 0x04f52d3b
+  symbol_id: 0x776422d8
+  symbol_id: 0x2f66c367
+  symbol_id: 0x33219b7a
+  symbol_id: 0x35b204e1
+  symbol_id: 0x6ac41fa8
+  symbol_id: 0xfe481b5a
+  symbol_id: 0x70737894
+  symbol_id: 0xecf68707
+  symbol_id: 0xbf5ca498
+  symbol_id: 0x20c5730f
+  symbol_id: 0x1cd1e434
+  symbol_id: 0x985349e9
+  symbol_id: 0x09de9592
+  symbol_id: 0x815286e5
+  symbol_id: 0x7491fb4a
+  symbol_id: 0x51ec569b
+  symbol_id: 0xf56bbed0
+  symbol_id: 0xf0b0f4e4
+  symbol_id: 0xb413ab65
+  symbol_id: 0x179f4917
+  symbol_id: 0xaa0272a2
+  symbol_id: 0x94a43245
+  symbol_id: 0x19265933
+  symbol_id: 0x729e2af9
+  symbol_id: 0x3ada8faf
+  symbol_id: 0x3c42fd20
+  symbol_id: 0x56bb49b2
+  symbol_id: 0x5d96ca9f
+  symbol_id: 0xec6f727f
+  symbol_id: 0x70874e20
+  symbol_id: 0xbe2dd049
+  symbol_id: 0xbf57cba8
+  symbol_id: 0xc1bc9b67
+  symbol_id: 0x1211f224
+  symbol_id: 0x39b4fc19
+  symbol_id: 0x1622a41f
+  symbol_id: 0x7d63b5e3
+  symbol_id: 0xec60de21
+  symbol_id: 0x4465bcce
+  symbol_id: 0xd74c8e30
+  symbol_id: 0x573eec2f
+  symbol_id: 0xd3bac3fd
+  symbol_id: 0xeb943950
+  symbol_id: 0x80914431
+  symbol_id: 0x081da383
+  symbol_id: 0x2965a93c
+  symbol_id: 0x0c01255b
+  symbol_id: 0x948d0689
+  symbol_id: 0xf5c17029
+  symbol_id: 0xb03c84ae
+  symbol_id: 0x0bb8601c
+  symbol_id: 0x6f3bf81c
+  symbol_id: 0x37d890dd
+  symbol_id: 0xbb5c940f
+  symbol_id: 0x50a57257
+  symbol_id: 0xd7551a8d
+  symbol_id: 0x2cdbcd70
+  symbol_id: 0x95d4eb62
+  symbol_id: 0xd7d97440
+  symbol_id: 0x25082463
+  symbol_id: 0xcb4b89b1
+  symbol_id: 0x0f688d8a
+  symbol_id: 0xb6ec8b7d
+  symbol_id: 0x3e6eda0b
+  symbol_id: 0xba7b9311
+  symbol_id: 0xeb0252c7
+  symbol_id: 0x7c86160a
+  symbol_id: 0xe3cfb044
+  symbol_id: 0x841f4d45
+  symbol_id: 0xa28fd7eb
+  symbol_id: 0x753fb519
+  symbol_id: 0x9366e6c9
+  symbol_id: 0xfbee81b0
+  symbol_id: 0xd9ca83f0
+  symbol_id: 0x6d753bbb
+  symbol_id: 0x8ebec766
+  symbol_id: 0xfa6956ac
+  symbol_id: 0x15fb2b98
+  symbol_id: 0x19d80932
+  symbol_id: 0x9074cbe3
+  symbol_id: 0x4063b531
+  symbol_id: 0x3266dd87
+  symbol_id: 0xb68c688c
+  symbol_id: 0x3e0fed11
+  symbol_id: 0xfc3ac277
+  symbol_id: 0x24b412d0
+  symbol_id: 0xb936646e
+  symbol_id: 0xd486312b
+  symbol_id: 0xa8cb0282
+  symbol_id: 0x5417bf1c
+  symbol_id: 0xf099078f
+  symbol_id: 0xf8a02512
+  symbol_id: 0x8d0e8a8c
+  symbol_id: 0x168b501f
+  symbol_id: 0x1c742b05
+  symbol_id: 0xccebda7c
+  symbol_id: 0x55979f8e
+  symbol_id: 0xa066edb1
+  symbol_id: 0xca5a6118
+  symbol_id: 0x5fd6434a
+  symbol_id: 0xa5670a1e
+  symbol_id: 0x28ead160
+  symbol_id: 0x1318330f
+  symbol_id: 0x6903c385
+  symbol_id: 0xe2802b38
+  symbol_id: 0x033647cf
+  symbol_id: 0x4a463792
+  symbol_id: 0xb2d8ac04
+  symbol_id: 0xf52cd13a
+  symbol_id: 0xef3f57a7
+  symbol_id: 0x64b10fc9
+  symbol_id: 0xd8d878ee
+  symbol_id: 0x7f72deef
+  symbol_id: 0xf7f0073c
+  symbol_id: 0xfcd19189
+  symbol_id: 0xb515f48e
+  symbol_id: 0x1599eb7c
+  symbol_id: 0x890c3b38
+  symbol_id: 0x028b5c51
+  symbol_id: 0x8e0f4066
+  symbol_id: 0x95e345fe
+  symbol_id: 0x8d2db62b
+  symbol_id: 0x06ae0d9d
+  symbol_id: 0x72a52d0e
+  symbol_id: 0xad181fd1
+  symbol_id: 0x399a47cf
+  symbol_id: 0x0cbdc614
+  symbol_id: 0xdcbcc806
+  symbol_id: 0x4f38ec71
+  symbol_id: 0x5d0112e7
+  symbol_id: 0xd7b1e6ec
+  symbol_id: 0x2f365831
+  symbol_id: 0x28d01edf
+  symbol_id: 0x93e881e4
+  symbol_id: 0x126e3a39
+  symbol_id: 0x9161dd0f
+  symbol_id: 0xa4877fd8
+  symbol_id: 0x201a8616
+  symbol_id: 0x8dcb1e63
+  symbol_id: 0xebf82a31
+  symbol_id: 0x8447c9bc
+  symbol_id: 0xc35ae0d5
+  symbol_id: 0x57de0302
+  symbol_id: 0xf5c4c743
+  symbol_id: 0x9f7f53f8
+  symbol_id: 0x07fd8b45
+  symbol_id: 0x181e860a
+  symbol_id: 0xe95fb812
+  symbol_id: 0x7206ab8c
+  symbol_id: 0xfa80131f
+  symbol_id: 0xabf57ff4
+  symbol_id: 0xe395ca93
+  symbol_id: 0xec27a1e1
+  symbol_id: 0x609919bc
+  symbol_id: 0xd729dd23
+  symbol_id: 0x50ab058a
+  symbol_id: 0x90dd17b7
+  symbol_id: 0x0d58ae79
+  symbol_id: 0x33a598d1
+  symbol_id: 0xdf570156
+  symbol_id: 0xe46c9e63
+  symbol_id: 0x60eef715
+  symbol_id: 0xf04e9f94
+  symbol_id: 0xc0bba286
+  symbol_id: 0x5d26148a
+  symbol_id: 0x0ff73e44
+  symbol_id: 0x9772c457
+  symbol_id: 0x582789f1
+  symbol_id: 0x82a573b8
+  symbol_id: 0x996fba32
+  symbol_id: 0x16eb3785
+  symbol_id: 0x41c0a87a
+  symbol_id: 0xa0a0674d
+  symbol_id: 0x2b25cffb
+  symbol_id: 0x89d9a405
+  symbol_id: 0xf1d6aba3
+  symbol_id: 0xcea6bfb2
+  symbol_id: 0x58c6383f
+  symbol_id: 0x16aa7eef
+  symbol_id: 0xd8e91e94
+}

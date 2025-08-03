@@ -1,0 +1,1316 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2022 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the 'License');
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an 'AS IS' BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import sys, argparse, os
+import subprocess
+import re
+import queue
+from threading  import Thread
+import itertools
+import time
+
+class CurrentUserState:
+    def __init__(self, args):
+        self.args = args
+        self.current_user = get_current_user(args)
+
+    def name(self):
+        return "RUN_ON_CURRENT_USER"
+
+    def is_active(self, device_state):
+        return True
+
+    def include_annotations(self, args):
+        return []
+
+    def initialise(self, device_state):
+        pass
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+
+    def get_user(self):
+        return self.current_user
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+class SystemUserState:
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_SYSTEM_USER"
+
+    def is_active(self, device_state):
+        return device_state["current_user"] == 0
+
+    def include_annotations(self, args):
+        if args.headless:
+            # We want to skip all of the RequireRunOnPrimaryUser ones which get assumption failed
+            return ["com.android.bedstead.harrier.annotations.RequireRunOnSystemUser"]
+        return []
+
+    def initialise(self, device_state):
+        pass
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", "0"])
+
+    def get_user(self):
+        return 0
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+class SecondaryUserState:
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_SECONDARY_USER"
+
+    def is_active(self, device_state):
+        if not is_secondary_user(device_state, device_state["users"][device_state["current_user"]]):
+            return False
+        if not self.args.headless:
+            return True
+
+        secondary_user_id = get_or_create_secondary_user(device_state, self.args)
+        return device_state["current_user"] == secondary_user_id
+
+    def include_annotations(self, args):
+        return ["com.android.bedstead.harrier.annotations.RequireRunOnSecondaryUser"]
+
+    def initialise(self, device_state):
+        self.user_id = device_state["current_user"]
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+
+        self.user_id = get_or_create_secondary_user(device_state, self.args)
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", str(self.user_id)])
+        for module in self.args.modules:
+            execute_shell_command("Test", self.args, ["adb", "shell", "pm", "install-existing", "--user", str(self.user_id), supported_modules[module][PACKAGE_NAME]])
+
+            for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+                command = ["adb", "install-existing", "--user", str(self.user_id), additional_app[PACKAGE_NAME]]
+                execute_shell_command("Test", self.args, command, shell=True, executable="/bin/bash")
+
+    def get_user(self):
+        return self.user_id
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+class AdditionalUserState:
+    """ This state is only useful for headless devices. """
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_ADDITIONAL_USER"
+
+    def is_active(self, device_state):
+        return is_additional_user(device_state, device_state["users"][device_state["current_user"]])
+
+    def include_annotations(self, args):
+        return ["com.android.bedstead.harrier.annotations.RequireRunOnAdditionalUser"]
+
+    def initialise(self, device_state):
+        self.user_id = device_state["current_user"]
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+
+        self.user_id = get_or_create_additional_user(device_state, self.args)
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", str(self.user_id)])
+        for module in self.args.modules:
+            execute_shell_command("Test", self.args, ["adb", "shell", "pm", "install-existing", "--user", str(self.user_id), supported_modules[module][PACKAGE_NAME]])
+
+            for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+                command = ["adb", "install-existing", "--user", str(self.user_id), additional_app[PACKAGE_NAME]]
+                execute_shell_command("Test", self.args, command, shell=True, executable="/bin/bash")
+
+    def get_user(self):
+        return self.user_id
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args) + ["com.android.bedstead.harrier.annotations.RequireRunOnSecondaryUser"]
+
+class WorkProfileState:
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_WORK_PROFILE"
+
+    def is_active(self, device_state):
+        if self.args.headless:
+            if device_state["current_user"] == 0:
+                return False
+        else:
+            if not device_state["current_user"] == 0:
+                return False
+        return self._has_work_profile(device_state["users"][device_state["current_user"]])
+
+    def include_annotations(self, args):
+        return ["com.android.bedstead.harrier.annotations.RequireRunOnWorkProfile"]
+
+    def initialise(self, device_state):
+        self.user_id = device_state["users"][device_state["current_user"]]["work_profile_id"]
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+        user = self._get_or_create_work_profile(device_state)
+        self.user_id = user["id"]
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", str(user["parent"])])
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "start-user ", str(self.user_id)])
+        for module in self.args.modules:
+            execute_shell_command("Test", self.args, ["adb", "shell", "pm", "install-existing", "--user", str(self.user_id), supported_modules[module][PACKAGE_NAME]])
+
+            for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+                command = ["adb", "install-existing", "--user", str(self.user_id), additional_app[PACKAGE_NAME]]
+                execute_shell_command("Test", self.args, command, shell=True, executable="/bin/bash")
+
+    def _get_or_create_work_profile(self, device_state):
+        users = get_users(self.args)
+        for user in users.values():
+            if self._is_work_profile(user):
+                return user
+
+        parent_id = 0 if not self.args.headless else get_or_create_secondary_user(device_state, self.args)
+
+        work_profile_id = create_work_profile(device_state, self.args, parent_id)
+        return {"id": work_profile_id, "type": "profile.MANAGED", "flags": None, "parent": str(parent_id)}
+
+    def get_user(self):
+        return self.user_id
+
+    def _has_work_profile(self, user):
+        return "work_profile_id" in user
+
+    def _is_work_profile(self, user):
+        return user["type"] == "profile.MANAGED"
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+class CloneProfileState:
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_CLONE_PROFILE"
+
+    def is_active(self, device_state):
+        if not is_clone_profile(device_state, device_state["users"][device_state["current_user"]]):
+            return False
+        if self.args.headless:
+            return False
+        return self._has_clone_profile(device_state["users"][device_state["current_user"]])
+
+    def include_annotations(self, args):
+        return ["com.android.bedstead.harrier.annotations.RequireRunOnCloneProfile"]
+
+    def initialise(self, device_state):
+        self.user_id = device_state["users"][device_state["current_user"]]["clone_profile_id"]
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+        user = self._get_or_create_clone_profile(device_state)
+        debug(self.args, "[Test] clone is " + str(user))
+        self.user_id = user["id"]
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", str(user["parent"])])
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "start-user ", str(self.user_id)])
+        for module in self.args.modules:
+            execute_shell_command("Test", self.args, ["adb", "shell", "pm", "install-existing", "--user", str(self.user_id), supported_modules[module][PACKAGE_NAME]])
+
+            for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+                command = ["adb", "install-existing", "--user", str(self.user_id), additional_app[PACKAGE_NAME]]
+                execute_shell_command("Test", self.args, command, shell=True, executable="/bin/bash")
+
+    def _get_or_create_clone_profile(self, device_state):
+        users = get_users(self.args)
+        for user in users.values():
+            if is_clone_profile(device_state, user):
+                return user
+
+        parent_id = 0 # Clone user only supported on system user only as of now.
+
+        clone_profile_id = create_clone_profile(device_state, self.args, parent_id)
+        return {"id": clone_profile_id, "type": "profile.CLONE", "flags": None, "parent": str(parent_id)}
+
+    def get_user(self):
+        return self.user_id
+
+    def _has_clone_profile(self, user):
+        return "clone_profile_id" in user
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+
+class PrivateProfileState:
+    def __init__(self, args):
+        self.args = args
+
+    def name(self):
+        return "RUN_ON_PRIVATE_PROFILE"
+
+    def is_active(self, device_state):
+        if not is_private_profile(device_state, device_state["users"][device_state["current_user"]]):
+            return False
+        if self.args.headless:
+            return False
+        return self._has_private_profile(device_state["users"][device_state["current_user"]])
+
+    def include_annotations(self, args):
+        return ["com.android.bedstead.harrier.annotations.RequireRunOnPrivateProfile"]
+
+    def initialise(self, device_state):
+        self.user_id = device_state["users"][device_state["current_user"]]["private_profile_id"]
+
+    def enter(self, device_state):
+        debug(self.args, "[Test] Entering state " + self.name())
+        user = self._get_or_create_private_profile(device_state)
+        debug(self.args, "[Test] private profile is " + str(user))
+        self.user_id = user["id"]
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "switch-user", str(user["parent"])])
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "start-user ", str(self.user_id)])
+        for module in self.args.modules:
+            execute_shell_command("Test", self.args, ["adb", "shell", "pm", "install-existing", "--user", str(self.user_id), supported_modules[module][PACKAGE_NAME]])
+
+            for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+                command = ["adb", "install-existing", "--user", str(self.user_id), additional_app[PACKAGE_NAME]]
+                execute_shell_command("Test", self.args, command, shell=True, executable="/bin/bash")
+
+    def _get_or_create_private_profile(self, device_state):
+        users = get_users(self.args)
+        for user in users.values():
+            if is_private_profile(device_state, user):
+                return user
+
+        parent_id = 0 # Private profiles are only supported on system user only as of now.
+
+        private_profile_id = create_private_profile(device_state, self.args, parent_id)
+        return {"id": private_profile_id, "type": "profile.PRIVATE", "flags": None, "parent": str(parent_id)}
+
+    def get_user(self):
+        return self.user_id
+
+    def _has_private_profile(self, user):
+        return "private_profile_id" in user
+
+    def all_supported_annotations(self, args):
+        return self.include_annotations(args)
+
+RUN_ON_CURRENT_USER = CurrentUserState
+RUN_ON_SYSTEM_USER = SystemUserState
+RUN_ON_SECONDARY_USER = SecondaryUserState
+RUN_ON_WORK_PROFILE = WorkProfileState
+RUN_ON_ADDITIONAL_USER = AdditionalUserState
+RUN_ON_CLONE_PROFILE = CloneProfileState
+RUN_ON_PRIVATE_PROFILE = PrivateProfileState
+
+STATE_CODES = {
+    "c": RUN_ON_CURRENT_USER,
+    "s": RUN_ON_SYSTEM_USER,
+    "y": RUN_ON_SECONDARY_USER,
+    "w": RUN_ON_WORK_PROFILE,
+    "a": RUN_ON_ADDITIONAL_USER,
+    "l": RUN_ON_CLONE_PROFILE,
+    "p": RUN_ON_PRIVATE_PROFILE,
+    "i": "i" # SPECIAL CASE DEALT WITH AT THE START OF PARSING
+}
+
+DEFAULT_STATES = "csywalp"
+
+SHORT_PACKAGE_PREFIXES = {
+    "a.d.i": "android.devicepolicy.internal",
+    "a.d.c.t": "android.devicepolicy.cts.telephony",
+    "a.d.c": "android.devicepolicy.cts",
+    "a.d.g": "android.devicepolicy.gts",
+    "a.m.c": "android.multiuser.cts",
+    "nene": "com.android.bedstead.nene"
+}
+
+# We hardcode supported modules so we can optimise for
+# development of those modules. It is not our intention to support all tests.
+supported_modules = {
+    # XTS
+    "CtsDevicePolicyTestCases": {
+        "package": "android.devicepolicy.cts",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "CtsDevicePolicySimTestCases": {
+        "package": "android.devicepolicy.cts.telephony",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "GtsDevicePolicyTestCases": {
+        "package": "android.devicepolicy.gts",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "GtsInteractiveAudioTestCases": {
+        "package": "com.google.android.audio.gts",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "CtsMultiUserTestCases": {
+        "package": "android.multiuser.cts",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "CtsAccountManagerMultiuserTestCases": {
+        "package": "android.accounts.cts.multiuser",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER]
+    },
+
+    # Internal
+    "InternalDevicePolicyTestCases": {
+        "package": "android.devicepolicy.internal",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+
+    # Bedstead
+    "ActivityContextTest": {
+        "package": "com.android.activitycontext.test",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+
+    "DeviceAdminAppTest": {
+        "package": "com.android.bedstead.deviceadminapp.test",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "EventLibTest": {
+        "package": "com.android.eventlib.test",
+        "path": "com.android.eventlib",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE],
+        "additional_apps": [{"target": "EventLibTestApp", "package": "com.android.eventlib.tests.testapp"}]
+    },
+    "HarrierTest": {
+        "package": "com.android.bedstead.harrier.test",
+        "path": "com.android.bedstead.harrier",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "NeneTest": {
+        "package": "com.android.bedstead.nene.test",
+        "path": "com.android.bedstead.nene",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE],
+        "additional_targets": ["NeneTestApp1"],
+        "files": [{"from": "NeneTestApp1.apk", "to": "/data/local/tmp/NeneTestApp1.apk"}]
+    },
+    "BedsteadQueryableTest": {
+        "package": "com.android.queryable.test",
+        "path": "com.android.queryable",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "RemoteDPCTest": {
+        "package": "com.android.bedstead.remotedpc.test",
+        "path": "com.android.bedstead.remotedpc",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "RemoteAccountAuthenticatorTest": {
+        "package": "com.android.bedstead.remoteaccountauthenticator.test",
+        "path": "com.android.bedstead.remoteaccountauthenticator",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER]
+    },
+    "TestAppTest": {
+        "package": "com.android.bedstead.testapp.test",
+        "path": "com.android.bedstead.testapp",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_SECONDARY_USER, RUN_ON_ADDITIONAL_USER, RUN_ON_CLONE_PROFILE, RUN_ON_PRIVATE_PROFILE]
+    },
+    "CtsDevicePolicySimTestCases": {
+        "package": "android.devicepolicy.cts.telephony",
+        "runner": "androidx.test.runner.AndroidJUnitRunner",
+        "states": [RUN_ON_SYSTEM_USER, RUN_ON_WORK_PROFILE, RUN_ON_ADDITIONAL_USER]
+    },
+}
+
+TARGET_NAME = "target"
+PACKAGE_NAME = "package"
+PATH = "path"
+RUNNER = "runner"
+STATES = "states"
+ADDITIONAL_APPS = "additional_apps"
+ADDITIONAL_TARGETS = "additional_targets"
+FILES = "files"
+
+# Theme configuration
+RESET_CODE = "\33[0m"
+CLASS_NAME_COLOUR_CODE = "\33[35m"
+TEST_NAME_COLOUR_CODE = "\33[33m"
+PASSED_CODE = "\33[32m"
+FAILED_CODE = "\33[31m"
+IGNORED_CODE = "\33[33m"
+
+AVAILABLE_PARAMETER_COLOUR_CODES = [
+    '\33[40m',
+    '\33[41m',
+    '\33[42m',
+    '\33[43m',
+    '\33[44m',
+    '\33[45m',
+    '\33[46m',
+    '\33[101m',
+    '\33[104m',
+    '\33[105m',
+]
+
+def find_module_for_class_method(class_method):
+    """ If only a class#method is provided, see if we can find the module. Will return None if not. """
+    matching_modules = []
+    for module in supported_modules:
+        path = supported_modules[module].get(PATH, supported_modules[module][PACKAGE_NAME])
+
+        if class_method.startswith(path):
+            matching_modules.append(module)
+
+    if len(matching_modules) == 0:
+        return None
+    elif len(matching_modules) == 1:
+        return matching_modules[0]
+    else:
+        print("Found multiple potential modules. Please add module name to command")
+        sys.exit(1)
+
+def get_args():
+    """ Parse command line arguments. """
+    parser = argparse.ArgumentParser(description="Run tests during development")
+    parser.add_argument("targets", nargs="+", type=str, help="The target to run. This is in the form module:class#method. Method and class are optional. Use LAST_PASSES, LAST_FAILURES, LAST_IGNORED, or LAST_ASSUMPTION_FAILED to include the passed/failed/ignored/assumption failed tests from the most recent run.")
+    parser.add_argument("-b", "--build", action='store_true', help="Builds test targets. (default)")
+    parser.add_argument("-i", "--install", action='store_true', help="Builds test targets. (default)")
+    parser.add_argument("-t", "--test", action='store_true', help="Builds test targets. (default)")
+    parser.add_argument("-d", "--debug", action="store_true", help="Include debug output.")
+    parser.add_argument("-c", "--coexistence", action="store", default="?", help="Force device policy coexistence on or off (ignoring bedstead test preferences)")
+    parser.add_argument("-s", "--states", help="Specify states which should be included. Options are (c)urrent (s)ystem secondar(y), (w)ork profile, c(l)one (i)nitial, (a)dditional, (p)rivate profile. Defaults to all states.")
+    parser.add_argument("-n", "--interactive", action='store', nargs='?', default="disabled", help="Run interactive tests. This will exclude non-interactive tests and will enable manual testing. Pass 'bi' to build and install automations, 't' to use automations (default) and m to enable manual interaction (default)")
+    parser.add_argument("--stop-after-first-failure", action="store_true", help="If true, will stop execution after encountering a single failure")
+    parser.add_argument("--rerun-after-all-pass", action="store_true", help="If true, will re-start the run if all pass")
+    # parser.add_argument("--capture-bugreport-after-crash", action="store_true", help="If true, will capture a bug report on failure due to a process or system server crash")
+    parser.add_argument("--timer", action="store", choices=['junit', 'btest'], default='junit', help="Either 'junit' (default) which is the internal junit timer and reflects the numbers shown on dashboards, etc. or 'btest' which tracks the actual time from the start of the test to the result being posted (including bedstead setup and teardown)")
+    args = parser.parse_args()
+    if not args.build and not args.install and not args.test:
+        args.build = True
+        args.install = True
+        args.test = True
+
+    if not args.states:
+        args.states = DEFAULT_STATES
+    args.states = set(args.states)
+    valid_states = ["c", "s", "y", "w", "l", "a", "i", "p"]
+    for state in args.states:
+        if not state in valid_states:
+            print("State " + state + " is invalid, must be one of " + str(valid_states))
+            sys.exit(1)
+    args.states = [STATE_CODES[a] for a in args.states]
+
+    args.build_interactive = False
+    args.install_interactive = False
+    args.manual_interactive = False
+    args.automate_interactive = False
+    if not args.interactive:
+        args.build_interactive = True
+        args.install_interactive = True
+        args.manual_interactive = True
+        args.automate_interactive = True
+        args.interactive = "enabled"
+
+    if args.interactive == "disabled":
+        args.interactive = False
+    elif args.interactive != "enabled":
+        valid_instructions = ["b", "i", "t", "m"]
+        for instruction in args.interactive:
+            if instruction == "b":
+                args.build_interactive = True
+            elif instruction == "i":
+                args.install_interactive = True
+            elif instruction == "t":
+                args.automate_interactive = True
+            elif instruction == "m":
+                args.manual_interactive = True
+            else:
+                print("Instruction " + instruction + " is invalid, must be one of " + str(valid_instructions))
+                sys.exit(1)
+
+    load_module_and_class_methods(args)
+
+    return args
+
+def expand_short_target(target):
+    if target == "LAST_FAILURES":
+        out = os.environ["OUT"]
+        with open(out + "/btest_failures.txt", "r") as f:
+            return [t.strip() for t in f.readlines()]
+    if target == "LAST_PASSES":
+        out = os.environ["OUT"]
+        with open(out + "/btest_passes.txt", "r") as f:
+            return [t.strip() for t in f.readlines()]
+    if target == "LAST_IGNORED":
+        out = os.environ["OUT"]
+        with open(out + "/btest_ignored.txt", "r") as f:
+            return [t.strip() for t in f.readlines()]
+    if target == "LAST_ASSUMPTION_FAILED":
+        out = os.environ["OUT"]
+        with open(out + "/btest_assumption_failed.txt", "r") as f:
+            return [t.strip() for t in f.readlines()]
+
+    for short in SHORT_PACKAGE_PREFIXES.keys():
+        if target.startswith(short):
+            target = SHORT_PACKAGE_PREFIXES[short] + target[len(short):]
+            break
+    return [target]
+
+def flatten(list_of_lists):
+    return list(itertools.chain.from_iterable(list_of_lists))
+
+def load_module_and_class_methods(args):
+    """ Parse targets from args and load module and class_method. """
+    args.targets = flatten([expand_short_target(target) for target in args.targets])
+
+    if len(args.targets) == 0:
+        print("No targets to run")
+        sys.exit(0)
+
+    new_targets = []
+
+    for target in args.targets:
+        target_parts = target.split(":", 1)
+        module = target_parts[0]
+        class_method = target_parts[1] if len(target_parts) > 1 else None
+
+        if not module in supported_modules:
+            # Let's guess that maybe they omitted the module
+            class_method = module
+            module = find_module_for_class_method(class_method)
+            if not module:
+                print("Could not find module or module not supported " + class_method + ". btest only supports a small number of test modules.")
+                sys.exit(1)
+        new_targets.append((module, class_method))
+    args.targets = new_targets
+    args.modules = set([t[0] for t in args.targets])
+
+def build_modules(args):
+    build_top = os.environ["ANDROID_BUILD_TOP"]
+
+    # Unfortunately I haven't figured out a way to just import the envsetup so we need to run it each time
+    must_build = False
+    command = ". " + build_top + "/build/envsetup.sh"
+
+    if args.build:
+        must_build = True
+        targets = args.modules.copy()
+        for t in args.targets:
+            targets.update(supported_modules[t[0]].get(ADDITIONAL_TARGETS, []))
+            targets.update([app[TARGET_NAME] for app in supported_modules[t[0]].get(ADDITIONAL_APPS, [])])
+
+        command += " &&" + " && ".join(["m " + t for t in targets])
+
+    if args.interactive and args.build_interactive:
+        must_build = True
+        command += " && m InteractiveAutomation"
+
+    if must_build:
+        debug(args, "[Build] Executing '" + command + "'")
+
+        # TODO: We should also stream the output
+        output, err = execute_shell_command("BUILD", args, [command], shell=True, executable="/bin/bash")
+        print(output)
+        if "failed to build some targets" in output:
+            sys.exit(1)
+
+
+def install(args):
+    out = os.environ["OUT"]
+
+    if args.install:
+        for module in args.modules:
+            command = ["adb install --user all -t -g " + out + "/testcases/" + module + "/*/" + module + ".apk"]
+            execute_shell_command("Install", args, command, shell=True, executable="/bin/bash")
+
+    if args.interactive and args.install_interactive:
+        command = ["adb push " + out + "/system/app/InteractiveAutomation/InteractiveAutomation.apk /sdcard"]
+        execute_shell_command("Install", args, command, shell=True, executable="/bin/bash")
+
+    for module in args.modules:
+        for additional_app in supported_modules[module].get(ADDITIONAL_APPS, []):
+            command = ["adb install --user all -t -g " + out + "/testcases/" + additional_app[TARGET_NAME] + "/*/" + additional_app[TARGET_NAME] + ".apk"]
+            execute_shell_command("Install", args, command, shell=True, executable="/bin/bash")
+
+    for module in args.modules:
+        for file in supported_modules[module].get(FILES, []):
+            command = ["adb push " + out + "/testcases/*/" + file["from"]  + " " + file["to"]]
+            execute_shell_command("Install", args, command, shell=True, executable="/bin/bash")
+
+class Test:
+
+    def __init__(self, args, module, class_methods, state, btest_run, total_test_count, next_test, include_annotations, exclude_annotations, has_later_states):
+        self.args = args
+        self.state = state
+        self.module_package = supported_modules[module][PACKAGE_NAME]
+        self.runner = supported_modules[module][RUNNER]
+        self.class_methods = class_methods
+        self.parameter_colour_codes = {}
+        self.available_parameter_colour_codes_pointer = 0
+        self.total_test_count = total_test_count
+        self.next_test = next_test
+        self.btest_run = btest_run
+        self.test_results = {}
+        self.include_annotations = include_annotations.copy()
+        self.exclude_annotations = exclude_annotations.copy()
+        self.has_no_tests = False # Marked at the end of the test if there were no new tests
+        self.has_loaded_total_test_count = False # Used to ensure we don't double count test counts
+        self.has_later_states = has_later_states # True if we don't know the full number of tests because we'll be running more states later
+
+        if self.args.interactive:
+            self.include_annotations.append("com.android.interactive.annotations.Interactive")
+        else:
+            self.exclude_annotations.append("com.android.interactive.annotations.Interactive")
+
+    def run(self):
+        execute_shell_command("Test", self.args, ["adb", "shell", "am", "start-user ", str(self.state.get_user())])
+
+        # This prepares the devices to begin running a test without a persistent adb connection.
+        # it will write the ongoing result log to /sdcard/ex.log and then we will repeatedly
+        # check that - allowing for usb disconnection without losing the results
+        execute_shell_command("Test", self.args, ["adb", "shell", "rm -f /sdcard/ex.log && rm -f /sdcard/ex_now.log && rm -f /sdcard/ex_read.log && rm -f /sdcard/test_pid.txt && touch /sdcard/ex_now.log"])
+
+        command = "adb shell nohup am instrument --user " + str(self.state.get_user())
+
+        # Use the formatted output
+        command += " -e listener com.android.bedstead.harrier.BedsteadRunListener"
+
+        if self.include_annotations:
+            command += " -e annotation " + ",".join(self.include_annotations)
+
+        if self.exclude_annotations:
+            command += " -e notAnnotation " + ",".join(self.exclude_annotations)
+
+        if self.args.interactive:
+            if self.args.manual_interactive:
+                command += " -e ENABLE_MANUAL true"
+            else:
+                command += " -e ENABLE_MANUAL false"
+            if self.args.automate_interactive:
+                command += " -e ENABLE_AUTOMATION true"
+            else:
+                command += " -e ENABLE_AUTOMATION false"
+
+        if self.args.coexistence == "yes":
+            command += " -e COEXISTENCE true"
+        elif self.args.coexistence == "no":
+            command += " -e COEXISTENCE false"
+
+        if len(self.class_methods) > 0:
+            if any("*" in s for s in self.class_methods):
+                if len(self.class_methods) > 1:
+                    print("Error. If you use a wildcard target, you can only specify one target")
+                    sys.exit(1)
+                for class_method in self.class_methods:
+                    # class_method = self.class_methods[0]
+                    # We need to escape 3 times to get through the various interpreters
+                    # Using regex adds 5 seconds or so to running a single test so has to be opt-in
+                    command += " -e tests_regex " + ".*".join([re.escape(re.escape(re.escape(s))) for s in class_method.split("*")])
+            else:
+                command += " -e class " + ",".join(self.class_methods)
+
+        command += " -w " + self.module_package + "/" + self.runner
+
+        # This means we will have /sdcard/ex.log with the test results and /sdcard/test_pid.txt
+        # with the pid of the process. We can check the pid to see if the tests are still running
+        command += " > /sdcard/ex.log 2>&1 & echo $! > /sdcard/test_pid.txt"
+
+        if self.args.debug:
+            print("[Test] Executing '" + command + "'")
+
+        def enqueue_output(queue):
+            output, stderr = execute_shell_command("Test", self.args, ["adb", "shell", "cp /sdcard/ex_now.log /sdcard/ex_read.log && cp /sdcard/ex.log /sdcard/ex_now.log && comm -23 /sdcard/ex_now.log /sdcard/ex_read.log"])
+            for line in output.split("\n"):
+                debug(self.args, "[DEBUG] " + line)
+
+                if "Time: " in line:
+                    debug(self.args, "[DEBUG] Output finished")
+                    self.tests_finished = True
+                queue.put(line)
+
+        execute_shell_command("Test", self.args, command.split(" "))
+        self.tests_finished = False
+        self.test_process_queue = queue.Queue()
+        self.test_process_thread = Thread(target=enqueue_output, args=(self.test_process_queue,))
+        self.test_process_thread.daemon = True
+        self.test_process_thread.start()
+
+        start_timer = time.monotonic_ns()
+
+        num_tests = self.get_num_tests()
+        if num_tests > -1:
+            self.total_test_count += num_tests
+
+            modified_total_test_count = str(self.total_test_count)
+            if self.has_later_states:
+                modified_total_test_count += "+"
+            total_test_length = len(modified_total_test_count)
+
+            for i in range(num_tests):
+                result = self.get_result(i)
+
+                if not result:
+                    # Process has finished
+                    break
+
+                test_name_parts = re.split('[#\[\]]', result["testName"])
+                print("[" + str(self.next_test).rjust(total_test_length) + "/" + modified_total_test_count + "] " + CLASS_NAME_COLOUR_CODE + test_name_parts[0] + RESET_CODE + "#" + TEST_NAME_COLOUR_CODE + test_name_parts[1] + RESET_CODE, end='')
+                self.next_test += 1
+
+                if len(test_name_parts) > 2:
+                    # 1 or more parameterizations - [2] will be a name, then every other one is empty
+                    parameterizations = (test_name_parts[2::2])
+                    for p in parameterizations:
+                        print("[" + self.get_parameter_colour_code(p) + p + RESET_CODE + "]", end='')
+                sys.stdout.flush()
+
+                while not result["isFinished"]:
+                    result = self.get_result(i)
+                    if not self.tests_are_running():
+                        break
+
+                if result:
+                    if self.args.timer == "btest":
+                        # Replace junit runtime with actual elapsed time
+                        result["btestRunTime"] = time.monotonic_ns() - start_timer
+                        start_timer = time.monotonic_ns()
+
+                    self.print_result(result)
+
+                    if self.args.stop_after_first_failure and str(result["result"]) == "1":
+                        # Failure
+                        self.kill()
+                        raise KeyboardInterrupt
+                        return
+
+            debug(self.args, "Waiting for tests to stop running...")
+            wait_to_end_timer = time.monotonic_ns()
+            while self.tests_are_running():
+                if time.monotonic_ns() - wait_to_end_timer > 10000000000:
+                    print("(Waited 10 seconds for test process to end. Killing)")
+                    self.kill()
+                    break
+            debug(self.args, "Done")
+
+            if self.next_test <= num_tests:
+                # Tests are missing - probably something went wrong...
+                print(">> ERROR: Expected " + str(num_tests) + " results but got " + str(self.next_test))
+                self.dump_output()
+
+        while not self.test_process_queue.empty():
+            output = self.test_process_queue.get()
+            if "(0 tests)" in output:
+                debug(self.args, "[" + self.state.name() + "] No tests to run")
+            if "Process crashed before executing the test" in output:
+                print(output)
+                sys.exit(1)
+
+    def dump_output(self):
+        while not self.test_process_queue.empty():
+            output = self.test_process_queue.get()
+            print(output)
+
+    def tests_are_running(self):
+        output, err = execute_shell_command("Test", self.args, ["adb", "shell", "ps | grep $(cat /sdcard/test_pid.txt)"])
+        return output.strip()
+
+    def kill(self):
+        execute_shell_command("Test", self.args, ["adb", "shell", "kill $(cat /sdcard/test_pid.txt)"])
+
+    def get_num_tests(self):
+        numTests = -1
+        while numTests == -1:
+            if not self.tests_are_running():
+                return -1
+
+            output, err = execute_shell_command("TEST", self.args, ["adb", "shell", "content query --user " + str(self.state.get_user()) + " --uri content://" + self.module_package + ".BedsteadRunResultsProvider/numTests"])
+            if not output:
+                continue # Not running yet?
+            if "No result found" in output:
+                continue
+            numTests = int(output.split("tests=", 2)[1].strip())
+        return numTests
+
+    def get_result(self, i):
+        result = None
+        while not result:
+            output, err = execute_shell_command("TEST", self.args, ["adb", "shell", "content query --user " + str(self.state.get_user()) + " --uri content://" + self.module_package + ".BedsteadRunResultsProvider/" + str(i)])
+            if not output:
+                continue # Not running yet?
+            if "No result found" in output:
+                if self.get_num_tests() == -1:
+                    # The process has ended
+                    return None
+
+                continue
+
+            result = {}
+            result["index"] = int(output.split("index=", 2)[1].split(",", 2)[0])
+            result["testName"] = output.split("testName=", 2)[1].split(", result=", 2)[0]
+            result["isFinished"] = output.split("isFinished=", 2)[1].strip() == "true"
+            if result["isFinished"]:
+                result["result"] = int(output.split("result=", 2)[1].split(",", 2)[0])
+                result["message"] = output.split("message=", 2)[1].split(", stackTrace=", 2)[0]
+                result["stackTrace"] = output.split("stackTrace=", 2)[1].split(", runTime=", 2)[0]
+                result["runTime"] = int(output.split("runTime=", 2)[1].split(",", 2)[0])
+
+        return result
+
+    def get_parameter_colour_code(self, parameter):
+        if not parameter in self.parameter_colour_codes:
+            self.parameter_colour_codes[parameter] = AVAILABLE_PARAMETER_COLOUR_CODES[self.available_parameter_colour_codes_pointer]
+            self.available_parameter_colour_codes_pointer = (self.available_parameter_colour_codes_pointer + 1) % len(AVAILABLE_PARAMETER_COLOUR_CODES)
+        return self.parameter_colour_codes[parameter]
+
+    def print_result(self, test_result):
+        try:
+            time_str = format_nanos(test_result["runTime"])
+            if "btestRunTime" in test_result:
+                time_str = time_str + "/" + format_nanos(test_result["btestRunTime"])
+            if test_result["result"] == 0:
+                self.btest_run.passed_tests.append(test_result)
+                print(" ✅  " + PASSED_CODE + "PASSED" + RESET_CODE + " (" + time_str + ")", flush=True)
+            elif test_result["result"] == 1:
+                self.btest_run.failed_tests.append(test_result)
+                print(" ❌  " + FAILED_CODE + "FAILED (" + test_result["message"] + ")" + RESET_CODE + " (" + time_str + ")\n\n" + test_result["stackTrace"] + "\n", flush=True)
+            elif test_result["result"]  == 2:
+                self.btest_run.ignored_tests.append(test_result)
+                print(" " + IGNORED_CODE + "// IGNORED" + RESET_CODE + " (" + time_str + ")", flush=True)
+            elif test_result["result"] == 3:
+                self.btest_run.assumption_failed_tests.append(test_result)
+                print(" " + IGNORED_CODE + "// ASSUMPTION FAILED (" + test_result["message"] + ")" + RESET_CODE + " (" + time_str + ")", flush=True)
+            return
+        except Exception as e:
+            print("Exception ", e)
+        print("ERROR PARSING TEST RESULT " + str(test_result), flush=True)
+        self.dump_output()
+        sys.exit(1)
+
+def format_nanos(nanos):
+    ms = int(nanos) / 1000000
+    seconds = ms / 1000
+    if ms < 800:
+        timestr = "{:.2f}ms".format(ms)
+    else:
+        if seconds < 60:
+            timestr = "{:.2f}s".format(seconds)
+        else:
+            minutes = seconds / 60
+            timestr = "{:.2f}m".format(minutes)
+    if seconds > 30:
+        timestr = FAILED_CODE + timestr + RESET_CODE
+    return timestr
+
+class BtestRun:
+    def __init__(self):
+        self.passed_tests = []
+        self.failed_tests = []
+        self.ignored_tests = []
+        self.assumption_failed_tests = []
+
+def execute_shell_command(stage, args, command, **extra_args):
+    debug(args, "[" + stage + "] Executing '" + " ".join(command) + "'")
+    r = subprocess.run(command, capture_output=True, text=True, **extra_args)
+    output = r.stdout
+    debug(args, "[" + stage + "] Output: '" + output + "' Err: '" + r.stderr + "'")
+
+    if r.stderr:
+        if "no devices/emulators found" in r.stderr or "device offline" in r.stderr:
+            print("\nDevice not connected to ADB. Waiting for reconnection...")
+            wait_for_adb_reconnection()
+            return execute_shell_command(stage, args, command, **extra_args)
+
+    return output, r.stderr
+
+def wait_for_adb_reconnection():
+    while True:
+        r = subprocess.run(["adb", "shell", "echo", "hello"], capture_output=True, text=True)
+        output = r.stdout
+
+        if not r.stderr or (not "no devices/emulators found" in r.stderr and not "device offline" in r.stderr):
+            print("\nFound connection")
+            return
+        time.sleep(0.5)
+
+def get_or_create_additional_user(device_state, args):
+    users = get_users(args)
+    secondary_users = sorted([u for u in users.keys() if is_secondary_user(device_state, users[u])])
+    if (len(secondary_users) == 0):
+        create_user(device_state, args)
+    if len(secondary_users) < 2:
+        return create_user(device_state, args)
+
+    return secondary_users[1]
+
+def get_or_create_secondary_user(device_state, args):
+    users = get_users(args)
+    secondary_users = sorted([u for u in users.keys() if is_secondary_user(device_state, users[u])])
+    if len(secondary_users) > 0:
+        return secondary_users[0]
+    return create_user(device_state, args)
+
+def is_additional_user(device_state, user):
+    if not is_secondary_user(device_state, user):
+        return False
+
+    secondary_users = sorted([u for u in device_state["users"].keys() if is_secondary_user(device_state, device_state["users"][u])])
+    return user["id"] != secondary_users[0]
+
+def is_for_testing(device_state, user):
+    """ FOR_TESTING introduced in SDK 34 - before that we can assume all users are suitable """
+    return device_state["sdk_version"] < 34 or "FOR_TESTING" in user["flags"]
+
+def is_secondary_user(device_state, user):
+    if ("HEADLESS" in device_state["users"][0]["type"]):
+        # The initial user is still useful for secondary user tests even if non-for-testing on
+        # headless as it's default
+        return user["type"] == "full.SECONDARY"
+    return is_for_testing(device_state, user) and user["type"] == "full.SECONDARY"
+
+def is_clone_profile(device_state, user):
+    return is_for_testing(device_state, user) and user["type"] == "profile.CLONE"
+
+def is_private_profile(device_state, user):
+    return is_for_testing(device_state, user) and user["type"] == "profile.PRIVATE"
+
+def remove_user(args, id):
+    execute_shell_command("Test", args, ["adb", "shell", "pm", "remove-user", str(id)])
+
+def create_user(device_state, args):
+    ensure_no_dpcs(device_state, args) # avoid no_add_user TODO: Be more specific
+    commands = ["adb", "shell", "pm", "create-user"]
+
+    if device_state["sdk_version"] >= 34:
+        commands.append("--for-testing")
+
+    commands.append("user")
+
+    output, err = execute_shell_command("Test", args, commands)
+    try:
+        id = int(output.rsplit(" ", 1)[1].strip())
+    except IndexError:
+        print("Error parsing user id. Output: " + output + ", err: " + err)
+        sys.exit(1)
+    execute_shell_command("Test", args, ["adb", "shell", "am start-user " + str(id)])
+    return id
+
+def create_work_profile(device_state, args, parent_id):
+    ensure_no_dpcs(device_state, args) # avoid no_add_user TODO: Be more specific
+
+    commands = ["adb", "shell", "pm", "create-user", "--managed", "--profileOf", str(parent_id)]
+
+    if device_state["sdk_version"] >= 34:
+        commands.append("--for-testing")
+
+    commands.append("user")
+
+    output, err = execute_shell_command("Test", args, commands)
+    try:
+        id = int(output.rsplit(" ", 1)[1].strip())
+    except IndexError:
+        print("Error parsing profile id. Output: " + output + ", err: " + err)
+        sys.exit(1)
+    return id
+
+def create_clone_profile(device_state, args, parent_id):
+    ensure_no_dpcs(device_state, args) # avoid no_add_clone_profile TODO: Be more specific
+    commands = ["adb", "shell", "pm", "create-user", "--profileOf", str(parent_id), "--user-type android.os.usertype.profile.CLONE"]
+    if device_state["sdk_version"] >= 34:
+        commands.append("--for-testing")
+    commands.append("user")
+
+    output, err = execute_shell_command("Test", args, commands)
+
+    try:
+        id = int(output.rsplit(" ", 1)[1].strip())
+    except IndexError:
+        print("Error parsing profile id. Output: " + output + ", err: " + err)
+        sys.exit(1)
+    return id
+
+def create_private_profile(device_state, args, parent_id):
+    ensure_no_dpcs(device_state, args) # avoid no_add_private_profile TODO: Be more specific
+    commands = ["adb", "shell", "pm", "create-user", "--profileOf", str(parent_id), "--user-type android.os.usertype.profile.PRIVATE"]
+
+    commands.append("user")
+
+    output, err = execute_shell_command("Test", args, commands)
+
+    try:
+        id = int(output.rsplit(" ", 1)[1].strip())
+    except IndexError:
+        print("Error parsing profile id. Output: " + output + ", err: " + err)
+        sys.exit(1)
+    return id
+
+def gather_device_state(args):
+    current_user = get_current_user(args)
+    users = get_users(args)
+    return {"current_user": current_user, "users": users, "sdk_version": get_sdk_version(args), "features": get_features(args)}
+
+def get_features(args):
+    return [n[8:].strip() for n in execute_shell_command("", args, ["adb", "shell", "pm", "list", "features"])[0].split("\n")]
+
+def get_sdk_version(args):
+    return int(execute_shell_command("", args, ["adb", "shell", "getprop", "ro.build.version.sdk"])[0].strip())
+
+def get_users(args):
+    users_output, err = execute_shell_command("Test", args, ["adb", "shell", "cmd user list -v"])
+    users = {}
+    for user_row in users_output.split("\n")[1:]:
+        if not user_row:
+            continue
+
+        id = int(user_row.split("id=", 2)[1].split(",", 2)[0])
+        type = user_row.split("type=", 2)[1].split(",", 2)[0]
+        flags = user_row.split("flags=", 2)[1].split(" ", 2)[0].split("|")
+        parent = None
+        if "PROFILE" in flags:
+            parent = int(user_row.split("parentId=", 2)[1].split(")", 2)[0])
+        user = {"id": id, "flags": flags, "type": type, "parent": parent}
+        users[user["id"]] = user
+
+    for user in users.values():
+        if user["type"] == "profile.MANAGED":
+            users[user["parent"]]["work_profile_id"] = user["id"]
+
+    return users
+
+def get_current_user(args):
+    output = execute_shell_command("Test", args, ["adb", "shell", "am", "get-current-user"])
+    try:
+        return int(output[0].strip())
+    except (IndexError, ValueError):
+        print("Error parsing current user. Output: " + output[0] + " Err: " + output[1])
+        sys.exit(1)
+
+def ensure_no_dpcs(device_state, args):
+    device_policy_output = execute_shell_command("", args, ["adb", "shell", "dumpsys", "device_policy"])[0]
+
+    for user in device_policy_output.split("Enabled Device Admins (")[1:]:
+        user_line, device_admin_line, other = user.split("\n", 2)
+        if len(device_admin_line.strip()) > 0:
+            user = user_line.split(" ", 1)[1].split(",", 1)[0]
+            admin_name = device_admin_line.strip().split(":", 1)[0]
+            print(execute_shell_command("", args, ["adb", "shell", "dpm", "remove-active-admin", "--user", user, admin_name]))
+
+def increase_maximum_user_limit(args):
+    default_maximum_users = 4
+    if len(args.states) > default_maximum_users:
+        execute_shell_command("Test", args, ["adb", "root"])
+        execute_shell_command("Test", args, ["adb", "wait-for-device"])
+        execute_shell_command("Test", args, ["adb", "shell", "setprop", "fw.max_users", str(len(args.states))])
+
+
+def run_tests(args):
+    test = None
+    btest_run = BtestRun()
+    total_test_count = 0
+    next_test = 1
+    has_quit = False
+
+    device_state = gather_device_state(args)
+    args.headless = "HEADLESS" in device_state["users"][0]["type"]
+
+    ensure_correct_number_of_non_for_testing_users(args, device_state)
+
+    if args.headless:
+        if RUN_ON_CLONE_PROFILE in args.states:
+            print("Not running on clone profile on headless")
+            args.states.remove(RUN_ON_CLONE_PROFILE)
+        if RUN_ON_PRIVATE_PROFILE in args.states:
+            print("Not running on private profile on headless")
+            args.states.remove(RUN_ON_PRIVATE_PROFILE)
+
+    # TODO(b/298356062): Increase this only when there is a maximum user limit exception and
+    # set the max-user limit to the default after the tests.
+    increase_maximum_user_limit(args)
+
+    # Construct modules with args
+
+    states = set()
+    for module in args.modules:
+        for m in supported_modules[module][STATES]:
+            states.add(m)
+    states = [s(args) for s in states]
+
+    if not args.headless:
+        states = [t for t in states if not t.name() == "RUN_ON_ADDITIONAL_USER"]
+
+    if not "android.software.device_admin" in device_state["features"]:
+        filtered_states = []
+        for t in states:
+            if t.name() == "RUN_ON_WORK_PROFILE":
+                print("device_admin not supported, skipping work profile state")
+                continue
+            filtered_states.append(t)
+        states = filtered_states
+
+    if "i" in args.states:
+        args.states.remove("i")
+        # Initial - replace with system or secondary
+        if args.headless:
+            args.states.append(RUN_ON_SECONDARY_USER)
+        else:
+            args.states.append(RUN_ON_SYSTEM_USER)
+
+    if RUN_ON_CURRENT_USER in args.states and len(args.states) > 1:
+        for state in states:
+            if (state.is_active(device_state)):
+                # Found current
+                args.states.append(state.__class__)
+                break
+
+    # We calculate annotations before filtering so we properly exclude all
+    all_include_annotations = []
+    for state in states:
+        all_include_annotations.extend(state.include_annotations(args))
+
+    states = [m for m in states if m.__class__ in args.states]
+
+    first_state = None
+
+    for state in states:
+        if (state.is_active(device_state)):
+            first_state = state
+            state.initialise(device_state) # Entering a state we are already in
+            break
+
+    if first_state is None:
+        # We are not in any state, enter the first one arbitrarily
+        first_state = states[0]
+        first_state.enter(device_state)
+
+    # Move to start
+    states.insert(0, states.pop(states.index(first_state)))
+    needs_to_enter_state = False
+
+    instrumented_runs = {}
+    for module in args.modules:
+        instrumented_runs[module] = [target[1] for target in args.targets if target[0] == module and target[1] is not None]
+
+    try:
+        for i, state in enumerate(states):
+            print(state.name())
+            debug(args, "[Test] Running tests for " + state.name())
+            if needs_to_enter_state:
+                state.enter(device_state)
+            include_annotations = state.include_annotations(args)
+            exclude_annotations = [x for x in all_include_annotations if not x in state.all_supported_annotations(args)]
+
+            for module in instrumented_runs:
+                test = Test(args, module, instrumented_runs[module], state, btest_run, total_test_count, next_test, include_annotations, exclude_annotations, (i < len(states) - 1))
+                test.run()
+                total_test_count = test.total_test_count
+                next_test = test.next_test
+            needs_to_enter_state = True
+    except KeyboardInterrupt:
+        # Kill the test process then move on to print the results
+        if test is not None:
+            test.kill()
+        has_quit = True
+    except Exception as e:
+        if test is not None:
+            test.kill()
+        raise e
+
+    return btest_run, has_quit
+
+def ensure_correct_number_of_non_for_testing_users(args, device_state):
+    allowed_non_for_testing_users = 1
+    if args.headless:
+        allowed_non_for_testing_users = 2
+    has_changed_users = False
+
+    for user_id in sorted(device_state["users"].keys()):
+        if is_for_testing(device_state, device_state["users"][user_id]):
+            continue
+        if allowed_non_for_testing_users <= 0:
+            print("Removing user " + str(user_id) + " as exceeded supported non-for-testing users")
+            remove_user(args, user_id)
+            has_changed_users = True
+        allowed_non_for_testing_users -= 1
+
+    if has_changed_users:
+        device_state["users"] = get_users(args)
+
+def main():
+    args = get_args()
+
+    build_modules(args)
+
+    install(args)
+
+    if args.test:
+        should_run = True
+        while should_run:
+            should_run = False
+            btest_run, has_quit = run_tests(args)
+
+            out = os.environ["OUT"]
+            with open(out + "/btest_passes.txt", "w") as o:
+                for test in btest_run.passed_tests:
+                    o.write(test["testName"] + "\n")
+            with open(out + "/btest_failures.txt", "w") as o:
+                for test in btest_run.failed_tests:
+                    o.write(test["testName"] + "\n")
+            with open(out + "/btest_ignored.txt", "w") as o:
+                for test in btest_run.ignored_tests:
+                    o.write(test["testName"] + "\n")
+            with open(out + "/btest_assumption_failed.txt", "w") as o:
+                for test in btest_run.assumption_failed_tests:
+                    o.write(test["testName"] + "\n")
+
+            print("\n" + PASSED_CODE + "Passed: " + str(len(btest_run.passed_tests)) + RESET_CODE
+                  + "," + FAILED_CODE + " Failed: " + str(len(btest_run.failed_tests)) + RESET_CODE
+                  + "," + IGNORED_CODE + " Ignored: " + str(len(btest_run.ignored_tests)) + RESET_CODE
+                  + ", " + IGNORED_CODE + "Assumption Failed: " + str(len(btest_run.assumption_failed_tests)) + RESET_CODE)
+
+            if len(btest_run.failed_tests) > 0:
+                print("\n\nFailures:")
+                for test_result in btest_run.failed_tests:
+                    print(test_result["testName"] + " ❌  " + FAILED_CODE + "FAILED (" + test_result["message"] + ")" + RESET_CODE + " (" + format_nanos(test_result["runTime"]) + ")", flush=True)
+            else:
+                # No failures
+                if args.rerun_after_all_pass and not has_quit:
+                    print("All passed. rerun-after-all-pass specified. Rerunning...")
+                    should_run = True
+
+def debug(args, msg):
+    if args.debug:
+        print(msg)
+
+if __name__ == '__main__':
+    main()

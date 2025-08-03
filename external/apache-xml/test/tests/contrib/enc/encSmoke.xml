@@ -1,0 +1,952 @@
+<?xml version="1.0" encoding="ISO-8859-7"?>
+<chartables>
+<chars enc="ISO-8859-7">
+<char dec="32" desc="SPACE"><c> </c><e>&#x20;</e></char>
+<char dec="33" desc="EXCLAMATION MARK"><c>!</c><e>&#x21;</e></char>
+<char dec="34" desc="QUOTATION MARK"><c>"</c><e>&#x22;</e></char>
+<char dec="35" desc="NUMBER SIGN"><c>#</c><e>&#x23;</e></char>
+<char dec="36" desc="DOLLAR SIGN"><c>$</c><e>&#x24;</e></char>
+<char dec="37" desc="PERCENT SIGN"><c>%</c><e>&#x25;</e></char>
+<char dec="38" desc="AMPERSAND"><c>&amp;</c><e>&#x26;</e></char>
+<char dec="39" desc="APOSTROPHE"><c>'</c><e>&#x27;</e></char>
+<char dec="40" desc="LEFT PARENTHESIS"><c>(</c><e>&#x28;</e></char>
+<char dec="41" desc="RIGHT PARENTHESIS"><c>)</c><e>&#x29;</e></char>
+<char dec="42" desc="ASTERISK"><c>*</c><e>&#x2a;</e></char>
+<char dec="43" desc="PLUS SIGN"><c>+</c><e>&#x2b;</e></char>
+<char dec="44" desc="COMMA"><c>,</c><e>&#x2c;</e></char>
+<char dec="45" desc="HYPHEN-MINUS"><c>-</c><e>&#x2d;</e></char>
+<char dec="46" desc="FULL STOP"><c>.</c><e>&#x2e;</e></char>
+<char dec="47" desc="SOLIDUS"><c>/</c><e>&#x2f;</e></char>
+<char dec="48" desc="DIGIT ZERO"><c>0</c><e>&#x30;</e></char>
+<char dec="49" desc="DIGIT ONE"><c>1</c><e>&#x31;</e></char>
+<char dec="50" desc="DIGIT TWO"><c>2</c><e>&#x32;</e></char>
+<char dec="51" desc="DIGIT THREE"><c>3</c><e>&#x33;</e></char>
+<char dec="52" desc="DIGIT FOUR"><c>4</c><e>&#x34;</e></char>
+<char dec="53" desc="DIGIT FIVE"><c>5</c><e>&#x35;</e></char>
+<char dec="54" desc="DIGIT SIX"><c>6</c><e>&#x36;</e></char>
+<char dec="55" desc="DIGIT SEVEN"><c>7</c><e>&#x37;</e></char>
+<char dec="56" desc="DIGIT EIGHT"><c>8</c><e>&#x38;</e></char>
+<char dec="57" desc="DIGIT NINE"><c>9</c><e>&#x39;</e></char>
+<char dec="58" desc="COLON"><c>:</c><e>&#x3a;</e></char>
+<char dec="59" desc="SEMICOLON"><c>;</c><e>&#x3b;</e></char>
+<char dec="60" desc="LESS-THAN SIGN"><c>&lt;</c><e>&#x3c;</e></char>
+<char dec="61" desc="EQUALS SIGN"><c>=</c><e>&#x3d;</e></char>
+<char dec="62" desc="GREATER-THAN SIGN"><c>></c><e>&#x3e;</e></char>
+<char dec="63" desc="QUESTION MARK"><c>?</c><e>&#x3f;</e></char>
+<char dec="64" desc="COMMERCIAL AT"><c>@</c><e>&#x40;</e></char>
+<char dec="65" desc="LATIN CAPITAL LETTER A"><c>A</c><e>&#x41;</e></char>
+<char dec="66" desc="LATIN CAPITAL LETTER B"><c>B</c><e>&#x42;</e></char>
+<char dec="67" desc="LATIN CAPITAL LETTER C"><c>C</c><e>&#x43;</e></char>
+<char dec="68" desc="LATIN CAPITAL LETTER D"><c>D</c><e>&#x44;</e></char>
+<char dec="69" desc="LATIN CAPITAL LETTER E"><c>E</c><e>&#x45;</e></char>
+<char dec="70" desc="LATIN CAPITAL LETTER F"><c>F</c><e>&#x46;</e></char>
+<char dec="71" desc="LATIN CAPITAL LETTER G"><c>G</c><e>&#x47;</e></char>
+<char dec="72" desc="LATIN CAPITAL LETTER H"><c>H</c><e>&#x48;</e></char>
+<char dec="73" desc="LATIN CAPITAL LETTER I"><c>I</c><e>&#x49;</e></char>
+<char dec="74" desc="LATIN CAPITAL LETTER J"><c>J</c><e>&#x4a;</e></char>
+<char dec="75" desc="LATIN CAPITAL LETTER K"><c>K</c><e>&#x4b;</e></char>
+<char dec="76" desc="LATIN CAPITAL LETTER L"><c>L</c><e>&#x4c;</e></char>
+<char dec="77" desc="LATIN CAPITAL LETTER M"><c>M</c><e>&#x4d;</e></char>
+<char dec="78" desc="LATIN CAPITAL LETTER N"><c>N</c><e>&#x4e;</e></char>
+<char dec="79" desc="LATIN CAPITAL LETTER O"><c>O</c><e>&#x4f;</e></char>
+<char dec="80" desc="LATIN CAPITAL LETTER P"><c>P</c><e>&#x50;</e></char>
+<char dec="81" desc="LATIN CAPITAL LETTER Q"><c>Q</c><e>&#x51;</e></char>
+<char dec="82" desc="LATIN CAPITAL LETTER R"><c>R</c><e>&#x52;</e></char>
+<char dec="83" desc="LATIN CAPITAL LETTER S"><c>S</c><e>&#x53;</e></char>
+<char dec="84" desc="LATIN CAPITAL LETTER T"><c>T</c><e>&#x54;</e></char>
+<char dec="85" desc="LATIN CAPITAL LETTER U"><c>U</c><e>&#x55;</e></char>
+<char dec="86" desc="LATIN CAPITAL LETTER V"><c>V</c><e>&#x56;</e></char>
+<char dec="87" desc="LATIN CAPITAL LETTER W"><c>W</c><e>&#x57;</e></char>
+<char dec="88" desc="LATIN CAPITAL LETTER X"><c>X</c><e>&#x58;</e></char>
+<char dec="89" desc="LATIN CAPITAL LETTER Y"><c>Y</c><e>&#x59;</e></char>
+<char dec="90" desc="LATIN CAPITAL LETTER Z"><c>Z</c><e>&#x5a;</e></char>
+<char dec="91" desc="LEFT SQUARE BRACKET"><c>[</c><e>&#x5b;</e></char>
+<char dec="92" desc="REVERSE SOLIDUS"><c>\</c><e>&#x5c;</e></char>
+<char dec="93" desc="RIGHT SQUARE BRACKET"><c>]</c><e>&#x5d;</e></char>
+<char dec="94" desc="CIRCUMFLEX ACCENT"><c>^</c><e>&#x5e;</e></char>
+<char dec="95" desc="LOW LINE"><c>_</c><e>&#x5f;</e></char>
+<char dec="96" desc="GRAVE ACCENT"><c>`</c><e>&#x60;</e></char>
+<char dec="97" desc="LATIN SMALL LETTER A"><c>a</c><e>&#x61;</e></char>
+<char dec="98" desc="LATIN SMALL LETTER B"><c>b</c><e>&#x62;</e></char>
+<char dec="99" desc="LATIN SMALL LETTER C"><c>c</c><e>&#x63;</e></char>
+<char dec="100" desc="LATIN SMALL LETTER D"><c>d</c><e>&#x64;</e></char>
+<char dec="101" desc="LATIN SMALL LETTER E"><c>e</c><e>&#x65;</e></char>
+<char dec="102" desc="LATIN SMALL LETTER F"><c>f</c><e>&#x66;</e></char>
+<char dec="103" desc="LATIN SMALL LETTER G"><c>g</c><e>&#x67;</e></char>
+<char dec="104" desc="LATIN SMALL LETTER H"><c>h</c><e>&#x68;</e></char>
+<char dec="105" desc="LATIN SMALL LETTER I"><c>i</c><e>&#x69;</e></char>
+<char dec="106" desc="LATIN SMALL LETTER J"><c>j</c><e>&#x6a;</e></char>
+<char dec="107" desc="LATIN SMALL LETTER K"><c>k</c><e>&#x6b;</e></char>
+<char dec="108" desc="LATIN SMALL LETTER L"><c>l</c><e>&#x6c;</e></char>
+<char dec="109" desc="LATIN SMALL LETTER M"><c>m</c><e>&#x6d;</e></char>
+<char dec="110" desc="LATIN SMALL LETTER N"><c>n</c><e>&#x6e;</e></char>
+<char dec="111" desc="LATIN SMALL LETTER O"><c>o</c><e>&#x6f;</e></char>
+<char dec="112" desc="LATIN SMALL LETTER P"><c>p</c><e>&#x70;</e></char>
+<char dec="113" desc="LATIN SMALL LETTER Q"><c>q</c><e>&#x71;</e></char>
+<char dec="114" desc="LATIN SMALL LETTER R"><c>r</c><e>&#x72;</e></char>
+<char dec="115" desc="LATIN SMALL LETTER S"><c>s</c><e>&#x73;</e></char>
+<char dec="116" desc="LATIN SMALL LETTER T"><c>t</c><e>&#x74;</e></char>
+<char dec="117" desc="LATIN SMALL LETTER U"><c>u</c><e>&#x75;</e></char>
+<char dec="118" desc="LATIN SMALL LETTER V"><c>v</c><e>&#x76;</e></char>
+<char dec="119" desc="LATIN SMALL LETTER W"><c>w</c><e>&#x77;</e></char>
+<char dec="120" desc="LATIN SMALL LETTER X"><c>x</c><e>&#x78;</e></char>
+<char dec="121" desc="LATIN SMALL LETTER Y"><c>y</c><e>&#x79;</e></char>
+<char dec="122" desc="LATIN SMALL LETTER Z"><c>z</c><e>&#x7a;</e></char>
+<char dec="123" desc="LEFT CURLY BRACKET"><c>{</c><e>&#x7b;</e></char>
+<char dec="124" desc="VERTICAL LINE"><c>|</c><e>&#x7c;</e></char>
+<char dec="125" desc="RIGHT CURLY BRACKET"><c>}</c><e>&#x7d;</e></char>
+<char dec="126" desc="TILDE"><c>~</c><e>&#x7e;</e></char>
+<char dec="127" desc="not encoded"><e>&#x7f;</e></char>
+<char dec="128" desc="not encoded"><e>&#x80;</e></char>
+<char dec="129" desc="not encoded"><e>&#x81;</e></char>
+<char dec="130" desc="not encoded"><e>&#x82;</e></char>
+<char dec="131" desc="not encoded"><e>&#x83;</e></char>
+<char dec="132" desc="not encoded"><e>&#x84;</e></char>
+<char dec="133" desc="not encoded"><e>&#x85;</e></char>
+<char dec="134" desc="not encoded"><e>&#x86;</e></char>
+<char dec="135" desc="not encoded"><e>&#x87;</e></char>
+<char dec="136" desc="not encoded"><e>&#x88;</e></char>
+<char dec="137" desc="not encoded"><e>&#x89;</e></char>
+<char dec="138" desc="not encoded"><e>&#x8a;</e></char>
+<char dec="139" desc="not encoded"><e>&#x8b;</e></char>
+<char dec="140" desc="not encoded"><e>&#x8c;</e></char>
+<char dec="141" desc="not encoded"><e>&#x8d;</e></char>
+<char dec="142" desc="not encoded"><e>&#x8e;</e></char>
+<char dec="143" desc="not encoded"><e>&#x8f;</e></char>
+<char dec="144" desc="not encoded"><e>&#x90;</e></char>
+<char dec="145" desc="not encoded"><e>&#x91;</e></char>
+<char dec="146" desc="not encoded"><e>&#x92;</e></char>
+<char dec="147" desc="not encoded"><e>&#x93;</e></char>
+<char dec="148" desc="not encoded"><e>&#x94;</e></char>
+<char dec="149" desc="not encoded"><e>&#x95;</e></char>
+<char dec="150" desc="not encoded"><e>&#x96;</e></char>
+<char dec="151" desc="not encoded"><e>&#x97;</e></char>
+<char dec="152" desc="not encoded"><e>&#x98;</e></char>
+<char dec="153" desc="not encoded"><e>&#x99;</e></char>
+<char dec="154" desc="not encoded"><e>&#x9a;</e></char>
+<char dec="155" desc="not encoded"><e>&#x9b;</e></char>
+<char dec="156" desc="not encoded"><e>&#x9c;</e></char>
+<char dec="157" desc="not encoded"><e>&#x9d;</e></char>
+<char dec="158" desc="not encoded"><e>&#x9e;</e></char>
+<char dec="159" desc="not encoded"><e>&#x9f;</e></char>
+<char dec="160" desc="NO-BREAK SPACE"><c> </c><e>&#xa0;</e></char>
+<char dec="161" desc="not encoded"><e>&#xa1;</e></char>
+<char dec="162" desc="not encoded"><e>&#xa2;</e></char>
+<char dec="163" desc="POUND SIGN"><c>£</c><e>&#xa3;</e></char>
+<char dec="164" desc="not encoded"><e>&#xa4;</e></char>
+<char dec="165" desc="not encoded"><e>&#xa5;</e></char>
+<char dec="166" desc="BROKEN BAR"><c>¦</c><e>&#xa6;</e></char>
+<char dec="167" desc="SECTION SIGN"><c>§</c><e>&#xa7;</e></char>
+<char dec="168" desc="DIAERESIS"><c>¨</c><e>&#xa8;</e></char>
+<char dec="169" desc="COPYRIGHT SIGN"><c>©</c><e>&#xa9;</e></char>
+<char dec="170" desc="not encoded"><e>&#xaa;</e></char>
+<char dec="171" desc="LEFT-POINTING DOUBLE ANGLE QUOTATION MARK"><c>«</c><e>&#xab;</e></char>
+<char dec="172" desc="NOT SIGN"><c>¬</c><e>&#xac;</e></char>
+<char dec="173" desc="SOFT HYPHEN"><c>­</c><e>&#xad;</e></char>
+<char dec="174" desc="not encoded"><e>&#xae;</e></char>
+<char dec="175" desc="not encoded"><e>&#xaf;</e></char>
+<char dec="176" desc="DEGREE SIGN"><c>°</c><e>&#xb0;</e></char>
+<char dec="177" desc="PLUS-MINUS SIGN"><c>±</c><e>&#xb1;</e></char>
+<char dec="178" desc="SUPERSCRIPT TWO"><c>²</c><e>&#xb2;</e></char>
+<char dec="179" desc="SUPERSCRIPT THREE"><c>³</c><e>&#xb3;</e></char>
+<char dec="180" desc="not encoded"><e>&#xb4;</e></char>
+<char dec="181" desc="not encoded"><e>&#xb5;</e></char>
+<char dec="182" desc="not encoded"><e>&#xb6;</e></char>
+<char dec="183" desc="MIDDLE DOT"><c>·</c><e>&#xb7;</e></char>
+<char dec="184" desc="not encoded"><e>&#xb8;</e></char>
+<char dec="185" desc="not encoded"><e>&#xb9;</e></char>
+<char dec="186" desc="not encoded"><e>&#xba;</e></char>
+<char dec="187" desc="RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK"><c>»</c><e>&#xbb;</e></char>
+<char dec="188" desc="not encoded"><e>&#xbc;</e></char>
+<char dec="189" desc="VULGAR FRACTION ONE HALF"><c>½</c><e>&#xbd;</e></char>
+<char dec="190" desc="not encoded"><e>&#xbe;</e></char>
+<char dec="191" desc="not encoded"><e>&#xbf;</e></char>
+<char dec="192" desc="not encoded"><e>&#xc0;</e></char>
+<char dec="193" desc="not encoded"><e>&#xc1;</e></char>
+<char dec="194" desc="not encoded"><e>&#xc2;</e></char>
+<char dec="195" desc="not encoded"><e>&#xc3;</e></char>
+<char dec="196" desc="not encoded"><e>&#xc4;</e></char>
+<char dec="197" desc="not encoded"><e>&#xc5;</e></char>
+<char dec="198" desc="not encoded"><e>&#xc6;</e></char>
+<char dec="199" desc="not encoded"><e>&#xc7;</e></char>
+<char dec="200" desc="not encoded"><e>&#xc8;</e></char>
+<char dec="201" desc="not encoded"><e>&#xc9;</e></char>
+<char dec="202" desc="not encoded"><e>&#xca;</e></char>
+<char dec="203" desc="not encoded"><e>&#xcb;</e></char>
+<char dec="204" desc="not encoded"><e>&#xcc;</e></char>
+<char dec="205" desc="not encoded"><e>&#xcd;</e></char>
+<char dec="206" desc="not encoded"><e>&#xce;</e></char>
+<char dec="207" desc="not encoded"><e>&#xcf;</e></char>
+<char dec="208" desc="not encoded"><e>&#xd0;</e></char>
+<char dec="209" desc="not encoded"><e>&#xd1;</e></char>
+<char dec="210" desc="not encoded"><e>&#xd2;</e></char>
+<char dec="211" desc="not encoded"><e>&#xd3;</e></char>
+<char dec="212" desc="not encoded"><e>&#xd4;</e></char>
+<char dec="213" desc="not encoded"><e>&#xd5;</e></char>
+<char dec="214" desc="not encoded"><e>&#xd6;</e></char>
+<char dec="215" desc="not encoded"><e>&#xd7;</e></char>
+<char dec="216" desc="not encoded"><e>&#xd8;</e></char>
+<char dec="217" desc="not encoded"><e>&#xd9;</e></char>
+<char dec="218" desc="not encoded"><e>&#xda;</e></char>
+<char dec="219" desc="not encoded"><e>&#xdb;</e></char>
+<char dec="220" desc="not encoded"><e>&#xdc;</e></char>
+<char dec="221" desc="not encoded"><e>&#xdd;</e></char>
+<char dec="222" desc="not encoded"><e>&#xde;</e></char>
+<char dec="223" desc="not encoded"><e>&#xdf;</e></char>
+<char dec="224" desc="not encoded"><e>&#xe0;</e></char>
+<char dec="225" desc="not encoded"><e>&#xe1;</e></char>
+<char dec="226" desc="not encoded"><e>&#xe2;</e></char>
+<char dec="227" desc="not encoded"><e>&#xe3;</e></char>
+<char dec="228" desc="not encoded"><e>&#xe4;</e></char>
+<char dec="229" desc="not encoded"><e>&#xe5;</e></char>
+<char dec="230" desc="not encoded"><e>&#xe6;</e></char>
+<char dec="231" desc="not encoded"><e>&#xe7;</e></char>
+<char dec="232" desc="not encoded"><e>&#xe8;</e></char>
+<char dec="233" desc="not encoded"><e>&#xe9;</e></char>
+<char dec="234" desc="not encoded"><e>&#xea;</e></char>
+<char dec="235" desc="not encoded"><e>&#xeb;</e></char>
+<char dec="236" desc="not encoded"><e>&#xec;</e></char>
+<char dec="237" desc="not encoded"><e>&#xed;</e></char>
+<char dec="238" desc="not encoded"><e>&#xee;</e></char>
+<char dec="239" desc="not encoded"><e>&#xef;</e></char>
+<char dec="240" desc="not encoded"><e>&#xf0;</e></char>
+<char dec="241" desc="not encoded"><e>&#xf1;</e></char>
+<char dec="242" desc="not encoded"><e>&#xf2;</e></char>
+<char dec="243" desc="not encoded"><e>&#xf3;</e></char>
+<char dec="244" desc="not encoded"><e>&#xf4;</e></char>
+<char dec="245" desc="not encoded"><e>&#xf5;</e></char>
+<char dec="246" desc="not encoded"><e>&#xf6;</e></char>
+<char dec="247" desc="not encoded"><e>&#xf7;</e></char>
+<char dec="248" desc="not encoded"><e>&#xf8;</e></char>
+<char dec="249" desc="not encoded"><e>&#xf9;</e></char>
+<char dec="250" desc="not encoded"><e>&#xfa;</e></char>
+<char dec="251" desc="not encoded"><e>&#xfb;</e></char>
+<char dec="252" desc="not encoded"><e>&#xfc;</e></char>
+<char dec="253" desc="not encoded"><e>&#xfd;</e></char>
+<char dec="254" desc="not encoded"><e>&#xfe;</e></char>
+<char dec="255" desc="not encoded"><e>&#xff;</e></char>
+<char dec="256" desc="not encoded"><e>&#x100;</e></char>
+<char dec="257" desc="not encoded"><e>&#x101;</e></char>
+<char dec="258" desc="not encoded"><e>&#x102;</e></char>
+<char dec="259" desc="not encoded"><e>&#x103;</e></char>
+<char dec="260" desc="not encoded"><e>&#x104;</e></char>
+<char dec="261" desc="not encoded"><e>&#x105;</e></char>
+<char dec="262" desc="not encoded"><e>&#x106;</e></char>
+<char dec="263" desc="not encoded"><e>&#x107;</e></char>
+<char dec="264" desc="not encoded"><e>&#x108;</e></char>
+<char dec="265" desc="not encoded"><e>&#x109;</e></char>
+<char dec="266" desc="not encoded"><e>&#x10a;</e></char>
+<char dec="267" desc="not encoded"><e>&#x10b;</e></char>
+<char dec="268" desc="not encoded"><e>&#x10c;</e></char>
+<char dec="269" desc="not encoded"><e>&#x10d;</e></char>
+<char dec="270" desc="not encoded"><e>&#x10e;</e></char>
+<char dec="271" desc="not encoded"><e>&#x10f;</e></char>
+<char dec="272" desc="not encoded"><e>&#x110;</e></char>
+<char dec="273" desc="not encoded"><e>&#x111;</e></char>
+<char dec="274" desc="not encoded"><e>&#x112;</e></char>
+<char dec="275" desc="not encoded"><e>&#x113;</e></char>
+<char dec="276" desc="not encoded"><e>&#x114;</e></char>
+<char dec="277" desc="not encoded"><e>&#x115;</e></char>
+<char dec="278" desc="not encoded"><e>&#x116;</e></char>
+<char dec="279" desc="not encoded"><e>&#x117;</e></char>
+<char dec="280" desc="not encoded"><e>&#x118;</e></char>
+<char dec="281" desc="not encoded"><e>&#x119;</e></char>
+<char dec="282" desc="not encoded"><e>&#x11a;</e></char>
+<char dec="283" desc="not encoded"><e>&#x11b;</e></char>
+<char dec="284" desc="not encoded"><e>&#x11c;</e></char>
+<char dec="285" desc="not encoded"><e>&#x11d;</e></char>
+<char dec="286" desc="not encoded"><e>&#x11e;</e></char>
+<char dec="287" desc="not encoded"><e>&#x11f;</e></char>
+<char dec="288" desc="not encoded"><e>&#x120;</e></char>
+<char dec="289" desc="not encoded"><e>&#x121;</e></char>
+<char dec="290" desc="not encoded"><e>&#x122;</e></char>
+<char dec="291" desc="not encoded"><e>&#x123;</e></char>
+<char dec="292" desc="not encoded"><e>&#x124;</e></char>
+<char dec="293" desc="not encoded"><e>&#x125;</e></char>
+<char dec="294" desc="not encoded"><e>&#x126;</e></char>
+<char dec="295" desc="not encoded"><e>&#x127;</e></char>
+<char dec="296" desc="not encoded"><e>&#x128;</e></char>
+<char dec="297" desc="not encoded"><e>&#x129;</e></char>
+<char dec="298" desc="not encoded"><e>&#x12a;</e></char>
+<char dec="299" desc="not encoded"><e>&#x12b;</e></char>
+<char dec="300" desc="not encoded"><e>&#x12c;</e></char>
+<char dec="301" desc="not encoded"><e>&#x12d;</e></char>
+<char dec="302" desc="not encoded"><e>&#x12e;</e></char>
+<char dec="303" desc="not encoded"><e>&#x12f;</e></char>
+<char dec="304" desc="not encoded"><e>&#x130;</e></char>
+<char dec="305" desc="not encoded"><e>&#x131;</e></char>
+<char dec="306" desc="not encoded"><e>&#x132;</e></char>
+<char dec="307" desc="not encoded"><e>&#x133;</e></char>
+<char dec="308" desc="not encoded"><e>&#x134;</e></char>
+<char dec="309" desc="not encoded"><e>&#x135;</e></char>
+<char dec="310" desc="not encoded"><e>&#x136;</e></char>
+<char dec="311" desc="not encoded"><e>&#x137;</e></char>
+<char dec="312" desc="not encoded"><e>&#x138;</e></char>
+<char dec="313" desc="not encoded"><e>&#x139;</e></char>
+<char dec="314" desc="not encoded"><e>&#x13a;</e></char>
+<char dec="315" desc="not encoded"><e>&#x13b;</e></char>
+<char dec="316" desc="not encoded"><e>&#x13c;</e></char>
+<char dec="317" desc="not encoded"><e>&#x13d;</e></char>
+<char dec="318" desc="not encoded"><e>&#x13e;</e></char>
+<char dec="319" desc="not encoded"><e>&#x13f;</e></char>
+<char dec="320" desc="not encoded"><e>&#x140;</e></char>
+<char dec="321" desc="not encoded"><e>&#x141;</e></char>
+<char dec="322" desc="not encoded"><e>&#x142;</e></char>
+<char dec="323" desc="not encoded"><e>&#x143;</e></char>
+<char dec="324" desc="not encoded"><e>&#x144;</e></char>
+<char dec="325" desc="not encoded"><e>&#x145;</e></char>
+<char dec="326" desc="not encoded"><e>&#x146;</e></char>
+<char dec="327" desc="not encoded"><e>&#x147;</e></char>
+<char dec="328" desc="not encoded"><e>&#x148;</e></char>
+<char dec="329" desc="not encoded"><e>&#x149;</e></char>
+<char dec="330" desc="not encoded"><e>&#x14a;</e></char>
+<char dec="331" desc="not encoded"><e>&#x14b;</e></char>
+<char dec="332" desc="not encoded"><e>&#x14c;</e></char>
+<char dec="333" desc="not encoded"><e>&#x14d;</e></char>
+<char dec="334" desc="not encoded"><e>&#x14e;</e></char>
+<char dec="335" desc="not encoded"><e>&#x14f;</e></char>
+<char dec="336" desc="not encoded"><e>&#x150;</e></char>
+<char dec="337" desc="not encoded"><e>&#x151;</e></char>
+<char dec="338" desc="not encoded"><e>&#x152;</e></char>
+<char dec="339" desc="not encoded"><e>&#x153;</e></char>
+<char dec="340" desc="not encoded"><e>&#x154;</e></char>
+<char dec="341" desc="not encoded"><e>&#x155;</e></char>
+<char dec="342" desc="not encoded"><e>&#x156;</e></char>
+<char dec="343" desc="not encoded"><e>&#x157;</e></char>
+<char dec="344" desc="not encoded"><e>&#x158;</e></char>
+<char dec="345" desc="not encoded"><e>&#x159;</e></char>
+<char dec="346" desc="not encoded"><e>&#x15a;</e></char>
+<char dec="347" desc="not encoded"><e>&#x15b;</e></char>
+<char dec="348" desc="not encoded"><e>&#x15c;</e></char>
+<char dec="349" desc="not encoded"><e>&#x15d;</e></char>
+<char dec="350" desc="not encoded"><e>&#x15e;</e></char>
+<char dec="351" desc="not encoded"><e>&#x15f;</e></char>
+<char dec="352" desc="not encoded"><e>&#x160;</e></char>
+<char dec="353" desc="not encoded"><e>&#x161;</e></char>
+<char dec="354" desc="not encoded"><e>&#x162;</e></char>
+<char dec="355" desc="not encoded"><e>&#x163;</e></char>
+<char dec="356" desc="not encoded"><e>&#x164;</e></char>
+<char dec="357" desc="not encoded"><e>&#x165;</e></char>
+<char dec="358" desc="not encoded"><e>&#x166;</e></char>
+<char dec="359" desc="not encoded"><e>&#x167;</e></char>
+<char dec="360" desc="not encoded"><e>&#x168;</e></char>
+<char dec="361" desc="not encoded"><e>&#x169;</e></char>
+<char dec="362" desc="not encoded"><e>&#x16a;</e></char>
+<char dec="363" desc="not encoded"><e>&#x16b;</e></char>
+<char dec="364" desc="not encoded"><e>&#x16c;</e></char>
+<char dec="365" desc="not encoded"><e>&#x16d;</e></char>
+<char dec="366" desc="not encoded"><e>&#x16e;</e></char>
+<char dec="367" desc="not encoded"><e>&#x16f;</e></char>
+<char dec="368" desc="not encoded"><e>&#x170;</e></char>
+<char dec="369" desc="not encoded"><e>&#x171;</e></char>
+<char dec="370" desc="not encoded"><e>&#x172;</e></char>
+<char dec="371" desc="not encoded"><e>&#x173;</e></char>
+<char dec="372" desc="not encoded"><e>&#x174;</e></char>
+<char dec="373" desc="not encoded"><e>&#x175;</e></char>
+<char dec="374" desc="not encoded"><e>&#x176;</e></char>
+<char dec="375" desc="not encoded"><e>&#x177;</e></char>
+<char dec="376" desc="not encoded"><e>&#x178;</e></char>
+<char dec="377" desc="not encoded"><e>&#x179;</e></char>
+<char dec="378" desc="not encoded"><e>&#x17a;</e></char>
+<char dec="379" desc="not encoded"><e>&#x17b;</e></char>
+<char dec="380" desc="not encoded"><e>&#x17c;</e></char>
+<char dec="381" desc="not encoded"><e>&#x17d;</e></char>
+<char dec="382" desc="not encoded"><e>&#x17e;</e></char>
+<char dec="383" desc="not encoded"><e>&#x17f;</e></char>
+<char dec="384" desc="not encoded"><e>&#x180;</e></char>
+<char dec="385" desc="not encoded"><e>&#x181;</e></char>
+<char dec="386" desc="not encoded"><e>&#x182;</e></char>
+<char dec="387" desc="not encoded"><e>&#x183;</e></char>
+<char dec="388" desc="not encoded"><e>&#x184;</e></char>
+<char dec="389" desc="not encoded"><e>&#x185;</e></char>
+<char dec="390" desc="not encoded"><e>&#x186;</e></char>
+<char dec="391" desc="not encoded"><e>&#x187;</e></char>
+<char dec="392" desc="not encoded"><e>&#x188;</e></char>
+<char dec="393" desc="not encoded"><e>&#x189;</e></char>
+<char dec="394" desc="not encoded"><e>&#x18a;</e></char>
+<char dec="395" desc="not encoded"><e>&#x18b;</e></char>
+<char dec="396" desc="not encoded"><e>&#x18c;</e></char>
+<char dec="397" desc="not encoded"><e>&#x18d;</e></char>
+<char dec="398" desc="not encoded"><e>&#x18e;</e></char>
+<char dec="399" desc="not encoded"><e>&#x18f;</e></char>
+<char dec="400" desc="not encoded"><e>&#x190;</e></char>
+<char dec="401" desc="not encoded"><e>&#x191;</e></char>
+<char dec="402" desc="not encoded"><e>&#x192;</e></char>
+<char dec="403" desc="not encoded"><e>&#x193;</e></char>
+<char dec="404" desc="not encoded"><e>&#x194;</e></char>
+<char dec="405" desc="not encoded"><e>&#x195;</e></char>
+<char dec="406" desc="not encoded"><e>&#x196;</e></char>
+<char dec="407" desc="not encoded"><e>&#x197;</e></char>
+<char dec="408" desc="not encoded"><e>&#x198;</e></char>
+<char dec="409" desc="not encoded"><e>&#x199;</e></char>
+<char dec="410" desc="not encoded"><e>&#x19a;</e></char>
+<char dec="411" desc="not encoded"><e>&#x19b;</e></char>
+<char dec="412" desc="not encoded"><e>&#x19c;</e></char>
+<char dec="413" desc="not encoded"><e>&#x19d;</e></char>
+<char dec="414" desc="not encoded"><e>&#x19e;</e></char>
+<char dec="415" desc="not encoded"><e>&#x19f;</e></char>
+<char dec="416" desc="not encoded"><e>&#x1a0;</e></char>
+<char dec="417" desc="not encoded"><e>&#x1a1;</e></char>
+<char dec="418" desc="not encoded"><e>&#x1a2;</e></char>
+<char dec="419" desc="not encoded"><e>&#x1a3;</e></char>
+<char dec="420" desc="not encoded"><e>&#x1a4;</e></char>
+<char dec="421" desc="not encoded"><e>&#x1a5;</e></char>
+<char dec="422" desc="not encoded"><e>&#x1a6;</e></char>
+<char dec="423" desc="not encoded"><e>&#x1a7;</e></char>
+<char dec="424" desc="not encoded"><e>&#x1a8;</e></char>
+<char dec="425" desc="not encoded"><e>&#x1a9;</e></char>
+<char dec="426" desc="not encoded"><e>&#x1aa;</e></char>
+<char dec="427" desc="not encoded"><e>&#x1ab;</e></char>
+<char dec="428" desc="not encoded"><e>&#x1ac;</e></char>
+<char dec="429" desc="not encoded"><e>&#x1ad;</e></char>
+<char dec="430" desc="not encoded"><e>&#x1ae;</e></char>
+<char dec="431" desc="not encoded"><e>&#x1af;</e></char>
+<char dec="432" desc="not encoded"><e>&#x1b0;</e></char>
+<char dec="433" desc="not encoded"><e>&#x1b1;</e></char>
+<char dec="434" desc="not encoded"><e>&#x1b2;</e></char>
+<char dec="435" desc="not encoded"><e>&#x1b3;</e></char>
+<char dec="436" desc="not encoded"><e>&#x1b4;</e></char>
+<char dec="437" desc="not encoded"><e>&#x1b5;</e></char>
+<char dec="438" desc="not encoded"><e>&#x1b6;</e></char>
+<char dec="439" desc="not encoded"><e>&#x1b7;</e></char>
+<char dec="440" desc="not encoded"><e>&#x1b8;</e></char>
+<char dec="441" desc="not encoded"><e>&#x1b9;</e></char>
+<char dec="442" desc="not encoded"><e>&#x1ba;</e></char>
+<char dec="443" desc="not encoded"><e>&#x1bb;</e></char>
+<char dec="444" desc="not encoded"><e>&#x1bc;</e></char>
+<char dec="445" desc="not encoded"><e>&#x1bd;</e></char>
+<char dec="446" desc="not encoded"><e>&#x1be;</e></char>
+<char dec="447" desc="not encoded"><e>&#x1bf;</e></char>
+<char dec="448" desc="not encoded"><e>&#x1c0;</e></char>
+<char dec="449" desc="not encoded"><e>&#x1c1;</e></char>
+<char dec="450" desc="not encoded"><e>&#x1c2;</e></char>
+<char dec="451" desc="not encoded"><e>&#x1c3;</e></char>
+<char dec="452" desc="not encoded"><e>&#x1c4;</e></char>
+<char dec="453" desc="not encoded"><e>&#x1c5;</e></char>
+<char dec="454" desc="not encoded"><e>&#x1c6;</e></char>
+<char dec="455" desc="not encoded"><e>&#x1c7;</e></char>
+<char dec="456" desc="not encoded"><e>&#x1c8;</e></char>
+<char dec="457" desc="not encoded"><e>&#x1c9;</e></char>
+<char dec="458" desc="not encoded"><e>&#x1ca;</e></char>
+<char dec="459" desc="not encoded"><e>&#x1cb;</e></char>
+<char dec="460" desc="not encoded"><e>&#x1cc;</e></char>
+<char dec="461" desc="not encoded"><e>&#x1cd;</e></char>
+<char dec="462" desc="not encoded"><e>&#x1ce;</e></char>
+<char dec="463" desc="not encoded"><e>&#x1cf;</e></char>
+<char dec="464" desc="not encoded"><e>&#x1d0;</e></char>
+<char dec="465" desc="not encoded"><e>&#x1d1;</e></char>
+<char dec="466" desc="not encoded"><e>&#x1d2;</e></char>
+<char dec="467" desc="not encoded"><e>&#x1d3;</e></char>
+<char dec="468" desc="not encoded"><e>&#x1d4;</e></char>
+<char dec="469" desc="not encoded"><e>&#x1d5;</e></char>
+<char dec="470" desc="not encoded"><e>&#x1d6;</e></char>
+<char dec="471" desc="not encoded"><e>&#x1d7;</e></char>
+<char dec="472" desc="not encoded"><e>&#x1d8;</e></char>
+<char dec="473" desc="not encoded"><e>&#x1d9;</e></char>
+<char dec="474" desc="not encoded"><e>&#x1da;</e></char>
+<char dec="475" desc="not encoded"><e>&#x1db;</e></char>
+<char dec="476" desc="not encoded"><e>&#x1dc;</e></char>
+<char dec="477" desc="not encoded"><e>&#x1dd;</e></char>
+<char dec="478" desc="not encoded"><e>&#x1de;</e></char>
+<char dec="479" desc="not encoded"><e>&#x1df;</e></char>
+<char dec="480" desc="not encoded"><e>&#x1e0;</e></char>
+<char dec="481" desc="not encoded"><e>&#x1e1;</e></char>
+<char dec="482" desc="not encoded"><e>&#x1e2;</e></char>
+<char dec="483" desc="not encoded"><e>&#x1e3;</e></char>
+<char dec="484" desc="not encoded"><e>&#x1e4;</e></char>
+<char dec="485" desc="not encoded"><e>&#x1e5;</e></char>
+<char dec="486" desc="not encoded"><e>&#x1e6;</e></char>
+<char dec="487" desc="not encoded"><e>&#x1e7;</e></char>
+<char dec="488" desc="not encoded"><e>&#x1e8;</e></char>
+<char dec="489" desc="not encoded"><e>&#x1e9;</e></char>
+<char dec="490" desc="not encoded"><e>&#x1ea;</e></char>
+<char dec="491" desc="not encoded"><e>&#x1eb;</e></char>
+<char dec="492" desc="not encoded"><e>&#x1ec;</e></char>
+<char dec="493" desc="not encoded"><e>&#x1ed;</e></char>
+<char dec="494" desc="not encoded"><e>&#x1ee;</e></char>
+<char dec="495" desc="not encoded"><e>&#x1ef;</e></char>
+<char dec="496" desc="not encoded"><e>&#x1f0;</e></char>
+<char dec="497" desc="not encoded"><e>&#x1f1;</e></char>
+<char dec="498" desc="not encoded"><e>&#x1f2;</e></char>
+<char dec="499" desc="not encoded"><e>&#x1f3;</e></char>
+<char dec="500" desc="not encoded"><e>&#x1f4;</e></char>
+<char dec="501" desc="not encoded"><e>&#x1f5;</e></char>
+<char dec="502" desc="not encoded"><e>&#x1f6;</e></char>
+<char dec="503" desc="not encoded"><e>&#x1f7;</e></char>
+<char dec="504" desc="not encoded"><e>&#x1f8;</e></char>
+<char dec="505" desc="not encoded"><e>&#x1f9;</e></char>
+<char dec="506" desc="not encoded"><e>&#x1fa;</e></char>
+<char dec="507" desc="not encoded"><e>&#x1fb;</e></char>
+<char dec="508" desc="not encoded"><e>&#x1fc;</e></char>
+<char dec="509" desc="not encoded"><e>&#x1fd;</e></char>
+<char dec="510" desc="not encoded"><e>&#x1fe;</e></char>
+<char dec="511" desc="not encoded"><e>&#x1ff;</e></char>
+<char dec="512" desc="not encoded"><e>&#x200;</e></char>
+<char dec="513" desc="not encoded"><e>&#x201;</e></char>
+<char dec="514" desc="not encoded"><e>&#x202;</e></char>
+<char dec="515" desc="not encoded"><e>&#x203;</e></char>
+<char dec="516" desc="not encoded"><e>&#x204;</e></char>
+<char dec="517" desc="not encoded"><e>&#x205;</e></char>
+<char dec="518" desc="not encoded"><e>&#x206;</e></char>
+<char dec="519" desc="not encoded"><e>&#x207;</e></char>
+<char dec="520" desc="not encoded"><e>&#x208;</e></char>
+<char dec="521" desc="not encoded"><e>&#x209;</e></char>
+<char dec="522" desc="not encoded"><e>&#x20a;</e></char>
+<char dec="523" desc="not encoded"><e>&#x20b;</e></char>
+<char dec="524" desc="not encoded"><e>&#x20c;</e></char>
+<char dec="525" desc="not encoded"><e>&#x20d;</e></char>
+<char dec="526" desc="not encoded"><e>&#x20e;</e></char>
+<char dec="527" desc="not encoded"><e>&#x20f;</e></char>
+<char dec="528" desc="not encoded"><e>&#x210;</e></char>
+<char dec="529" desc="not encoded"><e>&#x211;</e></char>
+<char dec="530" desc="not encoded"><e>&#x212;</e></char>
+<char dec="531" desc="not encoded"><e>&#x213;</e></char>
+<char dec="532" desc="not encoded"><e>&#x214;</e></char>
+<char dec="533" desc="not encoded"><e>&#x215;</e></char>
+<char dec="534" desc="not encoded"><e>&#x216;</e></char>
+<char dec="535" desc="not encoded"><e>&#x217;</e></char>
+<char dec="536" desc="not encoded"><e>&#x218;</e></char>
+<char dec="537" desc="not encoded"><e>&#x219;</e></char>
+<char dec="538" desc="not encoded"><e>&#x21a;</e></char>
+<char dec="539" desc="not encoded"><e>&#x21b;</e></char>
+<char dec="540" desc="not encoded"><e>&#x21c;</e></char>
+<char dec="541" desc="not encoded"><e>&#x21d;</e></char>
+<char dec="542" desc="not encoded"><e>&#x21e;</e></char>
+<char dec="543" desc="not encoded"><e>&#x21f;</e></char>
+<char dec="544" desc="not encoded"><e>&#x220;</e></char>
+<char dec="545" desc="not encoded"><e>&#x221;</e></char>
+<char dec="546" desc="not encoded"><e>&#x222;</e></char>
+<char dec="547" desc="not encoded"><e>&#x223;</e></char>
+<char dec="548" desc="not encoded"><e>&#x224;</e></char>
+<char dec="549" desc="not encoded"><e>&#x225;</e></char>
+<char dec="550" desc="not encoded"><e>&#x226;</e></char>
+<char dec="551" desc="not encoded"><e>&#x227;</e></char>
+<char dec="552" desc="not encoded"><e>&#x228;</e></char>
+<char dec="553" desc="not encoded"><e>&#x229;</e></char>
+<char dec="554" desc="not encoded"><e>&#x22a;</e></char>
+<char dec="555" desc="not encoded"><e>&#x22b;</e></char>
+<char dec="556" desc="not encoded"><e>&#x22c;</e></char>
+<char dec="557" desc="not encoded"><e>&#x22d;</e></char>
+<char dec="558" desc="not encoded"><e>&#x22e;</e></char>
+<char dec="559" desc="not encoded"><e>&#x22f;</e></char>
+<char dec="560" desc="not encoded"><e>&#x230;</e></char>
+<char dec="561" desc="not encoded"><e>&#x231;</e></char>
+<char dec="562" desc="not encoded"><e>&#x232;</e></char>
+<char dec="563" desc="not encoded"><e>&#x233;</e></char>
+<char dec="564" desc="not encoded"><e>&#x234;</e></char>
+<char dec="565" desc="not encoded"><e>&#x235;</e></char>
+<char dec="566" desc="not encoded"><e>&#x236;</e></char>
+<char dec="567" desc="not encoded"><e>&#x237;</e></char>
+<char dec="568" desc="not encoded"><e>&#x238;</e></char>
+<char dec="569" desc="not encoded"><e>&#x239;</e></char>
+<char dec="570" desc="not encoded"><e>&#x23a;</e></char>
+<char dec="571" desc="not encoded"><e>&#x23b;</e></char>
+<char dec="572" desc="not encoded"><e>&#x23c;</e></char>
+<char dec="573" desc="not encoded"><e>&#x23d;</e></char>
+<char dec="574" desc="not encoded"><e>&#x23e;</e></char>
+<char dec="575" desc="not encoded"><e>&#x23f;</e></char>
+<char dec="576" desc="not encoded"><e>&#x240;</e></char>
+<char dec="577" desc="not encoded"><e>&#x241;</e></char>
+<char dec="578" desc="not encoded"><e>&#x242;</e></char>
+<char dec="579" desc="not encoded"><e>&#x243;</e></char>
+<char dec="580" desc="not encoded"><e>&#x244;</e></char>
+<char dec="581" desc="not encoded"><e>&#x245;</e></char>
+<char dec="582" desc="not encoded"><e>&#x246;</e></char>
+<char dec="583" desc="not encoded"><e>&#x247;</e></char>
+<char dec="584" desc="not encoded"><e>&#x248;</e></char>
+<char dec="585" desc="not encoded"><e>&#x249;</e></char>
+<char dec="586" desc="not encoded"><e>&#x24a;</e></char>
+<char dec="587" desc="not encoded"><e>&#x24b;</e></char>
+<char dec="588" desc="not encoded"><e>&#x24c;</e></char>
+<char dec="589" desc="not encoded"><e>&#x24d;</e></char>
+<char dec="590" desc="not encoded"><e>&#x24e;</e></char>
+<char dec="591" desc="not encoded"><e>&#x24f;</e></char>
+<char dec="592" desc="not encoded"><e>&#x250;</e></char>
+<char dec="593" desc="not encoded"><e>&#x251;</e></char>
+<char dec="594" desc="not encoded"><e>&#x252;</e></char>
+<char dec="595" desc="not encoded"><e>&#x253;</e></char>
+<char dec="596" desc="not encoded"><e>&#x254;</e></char>
+<char dec="597" desc="not encoded"><e>&#x255;</e></char>
+<char dec="598" desc="not encoded"><e>&#x256;</e></char>
+<char dec="599" desc="not encoded"><e>&#x257;</e></char>
+<char dec="600" desc="not encoded"><e>&#x258;</e></char>
+<char dec="601" desc="not encoded"><e>&#x259;</e></char>
+<char dec="602" desc="not encoded"><e>&#x25a;</e></char>
+<char dec="603" desc="not encoded"><e>&#x25b;</e></char>
+<char dec="604" desc="not encoded"><e>&#x25c;</e></char>
+<char dec="605" desc="not encoded"><e>&#x25d;</e></char>
+<char dec="606" desc="not encoded"><e>&#x25e;</e></char>
+<char dec="607" desc="not encoded"><e>&#x25f;</e></char>
+<char dec="608" desc="not encoded"><e>&#x260;</e></char>
+<char dec="609" desc="not encoded"><e>&#x261;</e></char>
+<char dec="610" desc="not encoded"><e>&#x262;</e></char>
+<char dec="611" desc="not encoded"><e>&#x263;</e></char>
+<char dec="612" desc="not encoded"><e>&#x264;</e></char>
+<char dec="613" desc="not encoded"><e>&#x265;</e></char>
+<char dec="614" desc="not encoded"><e>&#x266;</e></char>
+<char dec="615" desc="not encoded"><e>&#x267;</e></char>
+<char dec="616" desc="not encoded"><e>&#x268;</e></char>
+<char dec="617" desc="not encoded"><e>&#x269;</e></char>
+<char dec="618" desc="not encoded"><e>&#x26a;</e></char>
+<char dec="619" desc="not encoded"><e>&#x26b;</e></char>
+<char dec="620" desc="not encoded"><e>&#x26c;</e></char>
+<char dec="621" desc="not encoded"><e>&#x26d;</e></char>
+<char dec="622" desc="not encoded"><e>&#x26e;</e></char>
+<char dec="623" desc="not encoded"><e>&#x26f;</e></char>
+<char dec="624" desc="not encoded"><e>&#x270;</e></char>
+<char dec="625" desc="not encoded"><e>&#x271;</e></char>
+<char dec="626" desc="not encoded"><e>&#x272;</e></char>
+<char dec="627" desc="not encoded"><e>&#x273;</e></char>
+<char dec="628" desc="not encoded"><e>&#x274;</e></char>
+<char dec="629" desc="not encoded"><e>&#x275;</e></char>
+<char dec="630" desc="not encoded"><e>&#x276;</e></char>
+<char dec="631" desc="not encoded"><e>&#x277;</e></char>
+<char dec="632" desc="not encoded"><e>&#x278;</e></char>
+<char dec="633" desc="not encoded"><e>&#x279;</e></char>
+<char dec="634" desc="not encoded"><e>&#x27a;</e></char>
+<char dec="635" desc="not encoded"><e>&#x27b;</e></char>
+<char dec="636" desc="not encoded"><e>&#x27c;</e></char>
+<char dec="637" desc="not encoded"><e>&#x27d;</e></char>
+<char dec="638" desc="not encoded"><e>&#x27e;</e></char>
+<char dec="639" desc="not encoded"><e>&#x27f;</e></char>
+<char dec="640" desc="not encoded"><e>&#x280;</e></char>
+<char dec="641" desc="not encoded"><e>&#x281;</e></char>
+<char dec="642" desc="not encoded"><e>&#x282;</e></char>
+<char dec="643" desc="not encoded"><e>&#x283;</e></char>
+<char dec="644" desc="not encoded"><e>&#x284;</e></char>
+<char dec="645" desc="not encoded"><e>&#x285;</e></char>
+<char dec="646" desc="not encoded"><e>&#x286;</e></char>
+<char dec="647" desc="not encoded"><e>&#x287;</e></char>
+<char dec="648" desc="not encoded"><e>&#x288;</e></char>
+<char dec="649" desc="not encoded"><e>&#x289;</e></char>
+<char dec="650" desc="not encoded"><e>&#x28a;</e></char>
+<char dec="651" desc="not encoded"><e>&#x28b;</e></char>
+<char dec="652" desc="not encoded"><e>&#x28c;</e></char>
+<char dec="653" desc="not encoded"><e>&#x28d;</e></char>
+<char dec="654" desc="not encoded"><e>&#x28e;</e></char>
+<char dec="655" desc="not encoded"><e>&#x28f;</e></char>
+<char dec="656" desc="not encoded"><e>&#x290;</e></char>
+<char dec="657" desc="not encoded"><e>&#x291;</e></char>
+<char dec="658" desc="not encoded"><e>&#x292;</e></char>
+<char dec="659" desc="not encoded"><e>&#x293;</e></char>
+<char dec="660" desc="not encoded"><e>&#x294;</e></char>
+<char dec="661" desc="not encoded"><e>&#x295;</e></char>
+<char dec="662" desc="not encoded"><e>&#x296;</e></char>
+<char dec="663" desc="not encoded"><e>&#x297;</e></char>
+<char dec="664" desc="not encoded"><e>&#x298;</e></char>
+<char dec="665" desc="not encoded"><e>&#x299;</e></char>
+<char dec="666" desc="not encoded"><e>&#x29a;</e></char>
+<char dec="667" desc="not encoded"><e>&#x29b;</e></char>
+<char dec="668" desc="not encoded"><e>&#x29c;</e></char>
+<char dec="669" desc="not encoded"><e>&#x29d;</e></char>
+<char dec="670" desc="not encoded"><e>&#x29e;</e></char>
+<char dec="671" desc="not encoded"><e>&#x29f;</e></char>
+<char dec="672" desc="not encoded"><e>&#x2a0;</e></char>
+<char dec="673" desc="not encoded"><e>&#x2a1;</e></char>
+<char dec="674" desc="not encoded"><e>&#x2a2;</e></char>
+<char dec="675" desc="not encoded"><e>&#x2a3;</e></char>
+<char dec="676" desc="not encoded"><e>&#x2a4;</e></char>
+<char dec="677" desc="not encoded"><e>&#x2a5;</e></char>
+<char dec="678" desc="not encoded"><e>&#x2a6;</e></char>
+<char dec="679" desc="not encoded"><e>&#x2a7;</e></char>
+<char dec="680" desc="not encoded"><e>&#x2a8;</e></char>
+<char dec="681" desc="not encoded"><e>&#x2a9;</e></char>
+<char dec="682" desc="not encoded"><e>&#x2aa;</e></char>
+<char dec="683" desc="not encoded"><e>&#x2ab;</e></char>
+<char dec="684" desc="not encoded"><e>&#x2ac;</e></char>
+<char dec="685" desc="not encoded"><e>&#x2ad;</e></char>
+<char dec="686" desc="not encoded"><e>&#x2ae;</e></char>
+<char dec="687" desc="not encoded"><e>&#x2af;</e></char>
+<char dec="688" desc="not encoded"><e>&#x2b0;</e></char>
+<char dec="689" desc="not encoded"><e>&#x2b1;</e></char>
+<char dec="690" desc="not encoded"><e>&#x2b2;</e></char>
+<char dec="691" desc="not encoded"><e>&#x2b3;</e></char>
+<char dec="692" desc="not encoded"><e>&#x2b4;</e></char>
+<char dec="693" desc="not encoded"><e>&#x2b5;</e></char>
+<char dec="694" desc="not encoded"><e>&#x2b6;</e></char>
+<char dec="695" desc="not encoded"><e>&#x2b7;</e></char>
+<char dec="696" desc="not encoded"><e>&#x2b8;</e></char>
+<char dec="697" desc="not encoded"><e>&#x2b9;</e></char>
+<char dec="698" desc="not encoded"><e>&#x2ba;</e></char>
+<char dec="699" desc="not encoded"><e>&#x2bb;</e></char>
+<char dec="700" desc="MODIFIER LETTER APOSTROPHE"><c>’</c><e>&#x2bc;</e></char>
+<char dec="701" desc="MODIFIER LETTER REVERSED COMMA"><c>‘</c><e>&#x2bd;</e></char>
+<char dec="702" desc="not encoded"><e>&#x2be;</e></char>
+<char dec="703" desc="not encoded"><e>&#x2bf;</e></char>
+<char dec="704" desc="not encoded"><e>&#x2c0;</e></char>
+<char dec="705" desc="not encoded"><e>&#x2c1;</e></char>
+<char dec="706" desc="not encoded"><e>&#x2c2;</e></char>
+<char dec="707" desc="not encoded"><e>&#x2c3;</e></char>
+<char dec="708" desc="not encoded"><e>&#x2c4;</e></char>
+<char dec="709" desc="not encoded"><e>&#x2c5;</e></char>
+<char dec="710" desc="not encoded"><e>&#x2c6;</e></char>
+<char dec="711" desc="not encoded"><e>&#x2c7;</e></char>
+<char dec="712" desc="not encoded"><e>&#x2c8;</e></char>
+<char dec="713" desc="not encoded"><e>&#x2c9;</e></char>
+<char dec="714" desc="not encoded"><e>&#x2ca;</e></char>
+<char dec="715" desc="not encoded"><e>&#x2cb;</e></char>
+<char dec="716" desc="not encoded"><e>&#x2cc;</e></char>
+<char dec="717" desc="not encoded"><e>&#x2cd;</e></char>
+<char dec="718" desc="not encoded"><e>&#x2ce;</e></char>
+<char dec="719" desc="not encoded"><e>&#x2cf;</e></char>
+<char dec="720" desc="not encoded"><e>&#x2d0;</e></char>
+<char dec="721" desc="not encoded"><e>&#x2d1;</e></char>
+<char dec="722" desc="not encoded"><e>&#x2d2;</e></char>
+<char dec="723" desc="not encoded"><e>&#x2d3;</e></char>
+<char dec="724" desc="not encoded"><e>&#x2d4;</e></char>
+<char dec="725" desc="not encoded"><e>&#x2d5;</e></char>
+<char dec="726" desc="not encoded"><e>&#x2d6;</e></char>
+<char dec="727" desc="not encoded"><e>&#x2d7;</e></char>
+<char dec="728" desc="not encoded"><e>&#x2d8;</e></char>
+<char dec="729" desc="not encoded"><e>&#x2d9;</e></char>
+<char dec="730" desc="not encoded"><e>&#x2da;</e></char>
+<char dec="731" desc="not encoded"><e>&#x2db;</e></char>
+<char dec="732" desc="not encoded"><e>&#x2dc;</e></char>
+<char dec="733" desc="not encoded"><e>&#x2dd;</e></char>
+<char dec="734" desc="not encoded"><e>&#x2de;</e></char>
+<char dec="735" desc="not encoded"><e>&#x2df;</e></char>
+<char dec="736" desc="not encoded"><e>&#x2e0;</e></char>
+<char dec="737" desc="not encoded"><e>&#x2e1;</e></char>
+<char dec="738" desc="not encoded"><e>&#x2e2;</e></char>
+<char dec="739" desc="not encoded"><e>&#x2e3;</e></char>
+<char dec="740" desc="not encoded"><e>&#x2e4;</e></char>
+<char dec="741" desc="not encoded"><e>&#x2e5;</e></char>
+<char dec="742" desc="not encoded"><e>&#x2e6;</e></char>
+<char dec="743" desc="not encoded"><e>&#x2e7;</e></char>
+<char dec="744" desc="not encoded"><e>&#x2e8;</e></char>
+<char dec="745" desc="not encoded"><e>&#x2e9;</e></char>
+<char dec="746" desc="not encoded"><e>&#x2ea;</e></char>
+<char dec="747" desc="not encoded"><e>&#x2eb;</e></char>
+<char dec="748" desc="not encoded"><e>&#x2ec;</e></char>
+<char dec="749" desc="not encoded"><e>&#x2ed;</e></char>
+<char dec="750" desc="not encoded"><e>&#x2ee;</e></char>
+<char dec="751" desc="not encoded"><e>&#x2ef;</e></char>
+<char dec="752" desc="not encoded"><e>&#x2f0;</e></char>
+<char dec="753" desc="not encoded"><e>&#x2f1;</e></char>
+<char dec="754" desc="not encoded"><e>&#x2f2;</e></char>
+<char dec="755" desc="not encoded"><e>&#x2f3;</e></char>
+<char dec="756" desc="not encoded"><e>&#x2f4;</e></char>
+<char dec="757" desc="not encoded"><e>&#x2f5;</e></char>
+<char dec="758" desc="not encoded"><e>&#x2f6;</e></char>
+<char dec="759" desc="not encoded"><e>&#x2f7;</e></char>
+<char dec="760" desc="not encoded"><e>&#x2f8;</e></char>
+<char dec="761" desc="not encoded"><e>&#x2f9;</e></char>
+<char dec="762" desc="not encoded"><e>&#x2fa;</e></char>
+<char dec="763" desc="not encoded"><e>&#x2fb;</e></char>
+<char dec="764" desc="not encoded"><e>&#x2fc;</e></char>
+<char dec="765" desc="not encoded"><e>&#x2fd;</e></char>
+<char dec="766" desc="not encoded"><e>&#x2fe;</e></char>
+<char dec="767" desc="not encoded"><e>&#x2ff;</e></char>
+<char dec="768" desc="not encoded"><e>&#x300;</e></char>
+<char dec="769" desc="not encoded"><e>&#x301;</e></char>
+<char dec="770" desc="not encoded"><e>&#x302;</e></char>
+<char dec="771" desc="not encoded"><e>&#x303;</e></char>
+<char dec="772" desc="not encoded"><e>&#x304;</e></char>
+<char dec="773" desc="not encoded"><e>&#x305;</e></char>
+<char dec="774" desc="not encoded"><e>&#x306;</e></char>
+<char dec="775" desc="not encoded"><e>&#x307;</e></char>
+<char dec="776" desc="not encoded"><e>&#x308;</e></char>
+<char dec="777" desc="not encoded"><e>&#x309;</e></char>
+<char dec="778" desc="not encoded"><e>&#x30a;</e></char>
+<char dec="779" desc="not encoded"><e>&#x30b;</e></char>
+<char dec="780" desc="not encoded"><e>&#x30c;</e></char>
+<char dec="781" desc="not encoded"><e>&#x30d;</e></char>
+<char dec="782" desc="not encoded"><e>&#x30e;</e></char>
+<char dec="783" desc="not encoded"><e>&#x30f;</e></char>
+<char dec="784" desc="not encoded"><e>&#x310;</e></char>
+<char dec="785" desc="not encoded"><e>&#x311;</e></char>
+<char dec="786" desc="not encoded"><e>&#x312;</e></char>
+<char dec="787" desc="not encoded"><e>&#x313;</e></char>
+<char dec="788" desc="not encoded"><e>&#x314;</e></char>
+<char dec="789" desc="not encoded"><e>&#x315;</e></char>
+<char dec="790" desc="not encoded"><e>&#x316;</e></char>
+<char dec="791" desc="not encoded"><e>&#x317;</e></char>
+<char dec="792" desc="not encoded"><e>&#x318;</e></char>
+<char dec="793" desc="not encoded"><e>&#x319;</e></char>
+<char dec="794" desc="not encoded"><e>&#x31a;</e></char>
+<char dec="795" desc="not encoded"><e>&#x31b;</e></char>
+<char dec="796" desc="not encoded"><e>&#x31c;</e></char>
+<char dec="797" desc="not encoded"><e>&#x31d;</e></char>
+<char dec="798" desc="not encoded"><e>&#x31e;</e></char>
+<char dec="799" desc="not encoded"><e>&#x31f;</e></char>
+<char dec="800" desc="not encoded"><e>&#x320;</e></char>
+<char dec="801" desc="not encoded"><e>&#x321;</e></char>
+<char dec="802" desc="not encoded"><e>&#x322;</e></char>
+<char dec="803" desc="not encoded"><e>&#x323;</e></char>
+<char dec="804" desc="not encoded"><e>&#x324;</e></char>
+<char dec="805" desc="not encoded"><e>&#x325;</e></char>
+<char dec="806" desc="not encoded"><e>&#x326;</e></char>
+<char dec="807" desc="not encoded"><e>&#x327;</e></char>
+<char dec="808" desc="not encoded"><e>&#x328;</e></char>
+<char dec="809" desc="not encoded"><e>&#x329;</e></char>
+<char dec="810" desc="not encoded"><e>&#x32a;</e></char>
+<char dec="811" desc="not encoded"><e>&#x32b;</e></char>
+<char dec="812" desc="not encoded"><e>&#x32c;</e></char>
+<char dec="813" desc="not encoded"><e>&#x32d;</e></char>
+<char dec="814" desc="not encoded"><e>&#x32e;</e></char>
+<char dec="815" desc="not encoded"><e>&#x32f;</e></char>
+<char dec="816" desc="not encoded"><e>&#x330;</e></char>
+<char dec="817" desc="not encoded"><e>&#x331;</e></char>
+<char dec="818" desc="not encoded"><e>&#x332;</e></char>
+<char dec="819" desc="not encoded"><e>&#x333;</e></char>
+<char dec="820" desc="not encoded"><e>&#x334;</e></char>
+<char dec="821" desc="not encoded"><e>&#x335;</e></char>
+<char dec="822" desc="not encoded"><e>&#x336;</e></char>
+<char dec="823" desc="not encoded"><e>&#x337;</e></char>
+<char dec="824" desc="not encoded"><e>&#x338;</e></char>
+<char dec="825" desc="not encoded"><e>&#x339;</e></char>
+<char dec="826" desc="not encoded"><e>&#x33a;</e></char>
+<char dec="827" desc="not encoded"><e>&#x33b;</e></char>
+<char dec="828" desc="not encoded"><e>&#x33c;</e></char>
+<char dec="829" desc="not encoded"><e>&#x33d;</e></char>
+<char dec="830" desc="not encoded"><e>&#x33e;</e></char>
+<char dec="831" desc="not encoded"><e>&#x33f;</e></char>
+<char dec="832" desc="not encoded"><e>&#x340;</e></char>
+<char dec="833" desc="not encoded"><e>&#x341;</e></char>
+<char dec="834" desc="not encoded"><e>&#x342;</e></char>
+<char dec="835" desc="not encoded"><e>&#x343;</e></char>
+<char dec="836" desc="not encoded"><e>&#x344;</e></char>
+<char dec="837" desc="not encoded"><e>&#x345;</e></char>
+<char dec="838" desc="not encoded"><e>&#x346;</e></char>
+<char dec="839" desc="not encoded"><e>&#x347;</e></char>
+<char dec="840" desc="not encoded"><e>&#x348;</e></char>
+<char dec="841" desc="not encoded"><e>&#x349;</e></char>
+<char dec="842" desc="not encoded"><e>&#x34a;</e></char>
+<char dec="843" desc="not encoded"><e>&#x34b;</e></char>
+<char dec="844" desc="not encoded"><e>&#x34c;</e></char>
+<char dec="845" desc="not encoded"><e>&#x34d;</e></char>
+<char dec="846" desc="not encoded"><e>&#x34e;</e></char>
+<char dec="847" desc="not encoded"><e>&#x34f;</e></char>
+<char dec="848" desc="not encoded"><e>&#x350;</e></char>
+<char dec="849" desc="not encoded"><e>&#x351;</e></char>
+<char dec="850" desc="not encoded"><e>&#x352;</e></char>
+<char dec="851" desc="not encoded"><e>&#x353;</e></char>
+<char dec="852" desc="not encoded"><e>&#x354;</e></char>
+<char dec="853" desc="not encoded"><e>&#x355;</e></char>
+<char dec="854" desc="not encoded"><e>&#x356;</e></char>
+<char dec="855" desc="not encoded"><e>&#x357;</e></char>
+<char dec="856" desc="not encoded"><e>&#x358;</e></char>
+<char dec="857" desc="not encoded"><e>&#x359;</e></char>
+<char dec="858" desc="not encoded"><e>&#x35a;</e></char>
+<char dec="859" desc="not encoded"><e>&#x35b;</e></char>
+<char dec="860" desc="not encoded"><e>&#x35c;</e></char>
+<char dec="861" desc="not encoded"><e>&#x35d;</e></char>
+<char dec="862" desc="not encoded"><e>&#x35e;</e></char>
+<char dec="863" desc="not encoded"><e>&#x35f;</e></char>
+<char dec="864" desc="not encoded"><e>&#x360;</e></char>
+<char dec="865" desc="not encoded"><e>&#x361;</e></char>
+<char dec="866" desc="not encoded"><e>&#x362;</e></char>
+<char dec="867" desc="not encoded"><e>&#x363;</e></char>
+<char dec="868" desc="not encoded"><e>&#x364;</e></char>
+<char dec="869" desc="not encoded"><e>&#x365;</e></char>
+<char dec="870" desc="not encoded"><e>&#x366;</e></char>
+<char dec="871" desc="not encoded"><e>&#x367;</e></char>
+<char dec="872" desc="not encoded"><e>&#x368;</e></char>
+<char dec="873" desc="not encoded"><e>&#x369;</e></char>
+<char dec="874" desc="not encoded"><e>&#x36a;</e></char>
+<char dec="875" desc="not encoded"><e>&#x36b;</e></char>
+<char dec="876" desc="not encoded"><e>&#x36c;</e></char>
+<char dec="877" desc="not encoded"><e>&#x36d;</e></char>
+<char dec="878" desc="not encoded"><e>&#x36e;</e></char>
+<char dec="879" desc="not encoded"><e>&#x36f;</e></char>
+<char dec="880" desc="not encoded"><e>&#x370;</e></char>
+<char dec="881" desc="not encoded"><e>&#x371;</e></char>
+<char dec="882" desc="not encoded"><e>&#x372;</e></char>
+<char dec="883" desc="not encoded"><e>&#x373;</e></char>
+<char dec="884" desc="not encoded"><e>&#x374;</e></char>
+<char dec="885" desc="not encoded"><e>&#x375;</e></char>
+<char dec="886" desc="not encoded"><e>&#x376;</e></char>
+<char dec="887" desc="not encoded"><e>&#x377;</e></char>
+<char dec="888" desc="not encoded"><e>&#x378;</e></char>
+<char dec="889" desc="not encoded"><e>&#x379;</e></char>
+<char dec="890" desc="not encoded"><e>&#x37a;</e></char>
+<char dec="891" desc="not encoded"><e>&#x37b;</e></char>
+<char dec="892" desc="not encoded"><e>&#x37c;</e></char>
+<char dec="893" desc="not encoded"><e>&#x37d;</e></char>
+<char dec="894" desc="not encoded"><e>&#x37e;</e></char>
+<char dec="895" desc="not encoded"><e>&#x37f;</e></char>
+<char dec="896" desc="not encoded"><e>&#x380;</e></char>
+<char dec="897" desc="not encoded"><e>&#x381;</e></char>
+<char dec="898" desc="not encoded"><e>&#x382;</e></char>
+<char dec="899" desc="not encoded"><e>&#x383;</e></char>
+<char dec="900" desc="GREEK TONOS"><c>΄</c><e>&#x384;</e></char>
+<char dec="901" desc="GREEK DIALYTIKA TONOS"><c>΅</c><e>&#x385;</e></char>
+<char dec="902" desc="GREEK CAPITAL LETTER ALPHA WITH TONOS"><c>Ά</c><e>&#x386;</e></char>
+<char dec="903" desc="not encoded"><e>&#x387;</e></char>
+<char dec="904" desc="GREEK CAPITAL LETTER EPSILON WITH TONOS"><c>Έ</c><e>&#x388;</e></char>
+<char dec="905" desc="GREEK CAPITAL LETTER ETA WITH TONOS"><c>Ή</c><e>&#x389;</e></char>
+<char dec="906" desc="GREEK CAPITAL LETTER IOTA WITH TONOS"><c>Ί</c><e>&#x38a;</e></char>
+<char dec="907" desc="not encoded"><e>&#x38b;</e></char>
+<char dec="908" desc="GREEK CAPITAL LETTER OMICRON WITH TONOS"><c>Ό</c><e>&#x38c;</e></char>
+<char dec="909" desc="not encoded"><e>&#x38d;</e></char>
+<char dec="910" desc="GREEK CAPITAL LETTER UPSILON WITH TONOS"><c>Ύ</c><e>&#x38e;</e></char>
+<char dec="911" desc="GREEK CAPITAL LETTER OMEGA WITH TONOS"><c>Ώ</c><e>&#x38f;</e></char>
+<char dec="912" desc="GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS"><c>ΐ</c><e>&#x390;</e></char>
+<char dec="913" desc="GREEK CAPITAL LETTER ALPHA"><c>Α</c><e>&#x391;</e></char>
+<char dec="914" desc="GREEK CAPITAL LETTER BETA"><c>Β</c><e>&#x392;</e></char>
+<char dec="915" desc="GREEK CAPITAL LETTER GAMMA"><c>Γ</c><e>&#x393;</e></char>
+<char dec="916" desc="GREEK CAPITAL LETTER DELTA"><c>Δ</c><e>&#x394;</e></char>
+<char dec="917" desc="GREEK CAPITAL LETTER EPSILON"><c>Ε</c><e>&#x395;</e></char>
+<char dec="918" desc="GREEK CAPITAL LETTER ZETA"><c>Ζ</c><e>&#x396;</e></char>
+<char dec="919" desc="GREEK CAPITAL LETTER ETA"><c>Η</c><e>&#x397;</e></char>
+<char dec="920" desc="GREEK CAPITAL LETTER THETA"><c>Θ</c><e>&#x398;</e></char>
+<char dec="921" desc="GREEK CAPITAL LETTER IOTA"><c>Ι</c><e>&#x399;</e></char>
+<char dec="922" desc="GREEK CAPITAL LETTER KAPPA"><c>Κ</c><e>&#x39a;</e></char>
+<char dec="923" desc="GREEK CAPITAL LETTER LAMDA"><c>Λ</c><e>&#x39b;</e></char>
+<char dec="924" desc="GREEK CAPITAL LETTER MU"><c>Μ</c><e>&#x39c;</e></char>
+<char dec="925" desc="GREEK CAPITAL LETTER NU"><c>Ν</c><e>&#x39d;</e></char>
+<char dec="926" desc="GREEK CAPITAL LETTER XI"><c>Ξ</c><e>&#x39e;</e></char>
+<char dec="927" desc="GREEK CAPITAL LETTER OMICRON"><c>Ο</c><e>&#x39f;</e></char>
+<char dec="928" desc="GREEK CAPITAL LETTER PI"><c>Π</c><e>&#x3a0;</e></char>
+<char dec="929" desc="GREEK CAPITAL LETTER RHO"><c>Ρ</c><e>&#x3a1;</e></char>
+<char dec="930" desc="not encoded"><e>&#x3a2;</e></char>
+<char dec="931" desc="GREEK CAPITAL LETTER SIGMA"><c>Σ</c><e>&#x3a3;</e></char>
+<char dec="932" desc="GREEK CAPITAL LETTER TAU"><c>Τ</c><e>&#x3a4;</e></char>
+<char dec="933" desc="GREEK CAPITAL LETTER UPSILON"><c>Υ</c><e>&#x3a5;</e></char>
+<char dec="934" desc="GREEK CAPITAL LETTER PHI"><c>Φ</c><e>&#x3a6;</e></char>
+<char dec="935" desc="GREEK CAPITAL LETTER CHI"><c>Χ</c><e>&#x3a7;</e></char>
+<char dec="936" desc="GREEK CAPITAL LETTER PSI"><c>Ψ</c><e>&#x3a8;</e></char>
+<char dec="937" desc="GREEK CAPITAL LETTER OMEGA"><c>Ω</c><e>&#x3a9;</e></char>
+<char dec="938" desc="GREEK CAPITAL LETTER IOTA WITH DIALYTIKA"><c>Ϊ</c><e>&#x3aa;</e></char>
+<char dec="939" desc="GREEK CAPITAL LETTER UPSILON WITH DIALYTIKA"><c>Ϋ</c><e>&#x3ab;</e></char>
+<char dec="940" desc="GREEK SMALL LETTER ALPHA WITH TONOS"><c>ά</c><e>&#x3ac;</e></char>
+<char dec="941" desc="GREEK SMALL LETTER EPSILON WITH TONOS"><c>έ</c><e>&#x3ad;</e></char>
+<char dec="942" desc="GREEK SMALL LETTER ETA WITH TONOS"><c>ή</c><e>&#x3ae;</e></char>
+<char dec="943" desc="GREEK SMALL LETTER IOTA WITH TONOS"><c>ί</c><e>&#x3af;</e></char>
+<char dec="944" desc="GREEK SMALL LETTER UPSILON WITH DIALYTIKA AND TONOS"><c>ΰ</c><e>&#x3b0;</e></char>
+<char dec="945" desc="GREEK SMALL LETTER ALPHA"><c>α</c><e>&#x3b1;</e></char>
+<char dec="946" desc="GREEK SMALL LETTER BETA"><c>β</c><e>&#x3b2;</e></char>
+<char dec="947" desc="GREEK SMALL LETTER GAMMA"><c>γ</c><e>&#x3b3;</e></char>
+<char dec="948" desc="GREEK SMALL LETTER DELTA"><c>δ</c><e>&#x3b4;</e></char>
+<char dec="949" desc="GREEK SMALL LETTER EPSILON"><c>ε</c><e>&#x3b5;</e></char>
+<char dec="950" desc="GREEK SMALL LETTER ZETA"><c>ζ</c><e>&#x3b6;</e></char>
+<char dec="951" desc="GREEK SMALL LETTER ETA"><c>η</c><e>&#x3b7;</e></char>
+<char dec="952" desc="GREEK SMALL LETTER THETA"><c>θ</c><e>&#x3b8;</e></char>
+<char dec="953" desc="GREEK SMALL LETTER IOTA"><c>ι</c><e>&#x3b9;</e></char>
+<char dec="954" desc="GREEK SMALL LETTER KAPPA"><c>κ</c><e>&#x3ba;</e></char>
+<char dec="955" desc="GREEK SMALL LETTER LAMDA"><c>λ</c><e>&#x3bb;</e></char>
+<char dec="956" desc="GREEK SMALL LETTER MU"><c>μ</c><e>&#x3bc;</e></char>
+<char dec="957" desc="GREEK SMALL LETTER NU"><c>ν</c><e>&#x3bd;</e></char>
+<char dec="958" desc="GREEK SMALL LETTER XI"><c>ξ</c><e>&#x3be;</e></char>
+<char dec="959" desc="GREEK SMALL LETTER OMICRON"><c>ο</c><e>&#x3bf;</e></char>
+<char dec="960" desc="GREEK SMALL LETTER PI"><c>π</c><e>&#x3c0;</e></char>
+<char dec="961" desc="GREEK SMALL LETTER RHO"><c>ρ</c><e>&#x3c1;</e></char>
+<char dec="962" desc="GREEK SMALL LETTER FINAL SIGMA"><c>ς</c><e>&#x3c2;</e></char>
+<char dec="963" desc="GREEK SMALL LETTER SIGMA"><c>σ</c><e>&#x3c3;</e></char>
+<char dec="964" desc="GREEK SMALL LETTER TAU"><c>τ</c><e>&#x3c4;</e></char>
+<char dec="965" desc="GREEK SMALL LETTER UPSILON"><c>υ</c><e>&#x3c5;</e></char>
+<char dec="966" desc="GREEK SMALL LETTER PHI"><c>φ</c><e>&#x3c6;</e></char>
+<char dec="967" desc="GREEK SMALL LETTER CHI"><c>χ</c><e>&#x3c7;</e></char>
+<char dec="968" desc="GREEK SMALL LETTER PSI"><c>ψ</c><e>&#x3c8;</e></char>
+<char dec="969" desc="GREEK SMALL LETTER OMEGA"><c>ω</c><e>&#x3c9;</e></char>
+<char dec="970" desc="GREEK SMALL LETTER IOTA WITH DIALYTIKA"><c>ϊ</c><e>&#x3ca;</e></char>
+<char dec="971" desc="GREEK SMALL LETTER UPSILON WITH DIALYTIKA"><c>ϋ</c><e>&#x3cb;</e></char>
+<char dec="972" desc="GREEK SMALL LETTER OMICRON WITH TONOS"><c>ό</c><e>&#x3cc;</e></char>
+<char dec="973" desc="GREEK SMALL LETTER UPSILON WITH TONOS"><c>ύ</c><e>&#x3cd;</e></char>
+<char dec="974" desc="GREEK SMALL LETTER OMEGA WITH TONOS"><c>ώ</c><e>&#x3ce;</e></char>
+<char dec="975" desc="not encoded"><e>&#x3cf;</e></char>
+<char dec="976" desc="not encoded"><e>&#x3d0;</e></char>
+<char dec="977" desc="not encoded"><e>&#x3d1;</e></char>
+<char dec="978" desc="not encoded"><e>&#x3d2;</e></char>
+</chars>
+</chartables>
