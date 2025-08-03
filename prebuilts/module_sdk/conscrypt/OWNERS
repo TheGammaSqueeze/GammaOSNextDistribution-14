@@ -1,0 +1,3 @@
+include platform/packages/modules/common:/OWNERS
+
+include platform/packages/modules/common:/PREBUILTS_MODULE_OWNERS

@@ -1,0 +1,106 @@
+version: "1.7.0-alpha03"
+dependency_list {
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-util-android"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-util-desktop"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.compose.ui"
+group_id: "androidx.compose.ui"
+artifact_id: "ui-util"
+path: "/compose/ui/ui-util"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-compose-ui-11436812.zip"
+project_zip_path: "per-project-zips/androidx.compose.ui-ui-util-all-11436812-1.7.0-alpha03.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-geometry"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-graphics"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-test"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-test-junit4"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-test-manifest"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-text"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-text-google-fonts"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-tooling"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-tooling-data"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-tooling-preview"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-unit"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-viewbinding"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+}

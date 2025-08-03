@@ -1,0 +1,382 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.appsearch",
+    "module": "appsearch",
+    "version": "1.1.0-alpha04",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-1.1.0-alpha04.aar",
+          "url": "appsearch-1.1.0-alpha04.aar",
+          "size": 162299,
+          "sha512": "75b6b10b329c61413e38d4a8c913b293aed297f0ffdf79e9cd0f323a39c78b5f047fd226828416e09ef4e4f6d0538dae3065961a860e48d9d23c8443af6be763",
+          "sha256": "d4bfdf027c65edfd86039484cd5778d48695fde09e2e20000a7cd73ba42f5140",
+          "sha1": "adaab2b3799642fc918bd6a1c2aecd403c833a80",
+          "md5": "a08df1bd50621ffb88b957e9bc7b082a"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.6.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-1.1.0-alpha04.aar",
+          "url": "appsearch-1.1.0-alpha04.aar",
+          "size": 162299,
+          "sha512": "75b6b10b329c61413e38d4a8c913b293aed297f0ffdf79e9cd0f323a39c78b5f047fd226828416e09ef4e4f6d0538dae3065961a860e48d9d23c8443af6be763",
+          "sha256": "d4bfdf027c65edfd86039484cd5778d48695fde09e2e20000a7cd73ba42f5140",
+          "sha1": "adaab2b3799642fc918bd6a1c2aecd403c833a80",
+          "md5": "a08df1bd50621ffb88b957e9bc7b082a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-1.1.0-alpha04-sources.jar",
+          "url": "appsearch-1.1.0-alpha04-sources.jar",
+          "size": 150314,
+          "sha512": "5d3b59ad764d8e37f19e198bb289f16152022e7f20c550bfe3c480343041ccec1055c6a9cc16c73c7999a133c63abb12f77edee6842dbdc6400be92b18101356",
+          "sha256": "2c0dd9dd8daf1e42e62e9053b1566c62cc643d70526fe7384ed52f717efd052e",
+          "sha1": "80b85ad0b882b15db9b386959008edfc6f6bef10",
+          "md5": "eeb5127922b750082192c9881c8ceb25"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-1.1.0-alpha04-versionMetadata.json",
+          "url": "appsearch-1.1.0-alpha04-versionMetadata.json",
+          "size": 46452,
+          "sha512": "d9e96fd2d73f36bef11b8cb0e83691e6b2b3d0291a02c4dbd217fffe49e6b254014c43d6f41ff37a885b8b7ad8348a1e228fa8c3cfd60f028d280ff3eadba314",
+          "sha256": "c6616cbec066a2774172680851255966c805cebf074fe8c87a64e1eff6a330dc",
+          "sha1": "65316b7e7e68c210a62f737e8731716611494d8c",
+          "md5": "24d4160c3805d8b66c59b1c6b95147b1"
+        }
+      ]
+    }
+  ]
+}

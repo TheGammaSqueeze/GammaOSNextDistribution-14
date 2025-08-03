@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="Enforce the file passed to open DexFile to be set as read-only for apps targeting U+. This is to prevent files to be dynamically loaded being unexpectedly overwritten by malicious actors." enableAfterTargetSdk="33" id="218865702" name="ENFORCE_READ_ONLY_JAVA_DCL">
+    <meta-data definedIn="dalvik.system.DexFile" sourcePosition="libcore/dalvik/src/main/java/dalvik/system/DexFile.java:74" />
+  </compat-change>
+  <compat-change description="Remove meta-reflection workaround for hidden api usage for apps targeting R+. This allowed apps to obtain references to blocklist fields and methods through an extra layer of reflection." enableSinceTargetSdk="30" id="142365358" name="PREVENT_META_REFLECTION_BLOCKLIST_ACCESS">
+    <meta-data definedIn="dalvik.system.VMRuntime" sourcePosition="libcore/libart/src/main/java/dalvik/system/VMRuntime.java:73" />
+  </compat-change>
+  <compat-change description="Gating access to greylist-max-p APIs." enableSinceTargetSdk="29" id="149997251" name="HIDE_MAXTARGETSDK_P_HIDDEN_APIS">
+    <meta-data definedIn="dalvik.system.VMRuntime" sourcePosition="libcore/libart/src/main/java/dalvik/system/VMRuntime.java:81" />
+  </compat-change>
+  <compat-change description="Gating access to greylist-max-q APIs." enableSinceTargetSdk="30" id="149994052" name="HIDE_MAXTARGETSDK_Q_HIDDEN_APIS">
+    <meta-data definedIn="dalvik.system.VMRuntime" sourcePosition="libcore/libart/src/main/java/dalvik/system/VMRuntime.java:88" />
+  </compat-change>
+  <compat-change description="Allow apps accessing @TestApi APIs. &lt;p&gt;This will always be disabled by default and should only be used by platform test code." disabled="true" id="166236554" name="ALLOW_TEST_API_ACCESS">
+    <meta-data definedIn="dalvik.system.VMRuntime" sourcePosition="libcore/libart/src/main/java/dalvik/system/VMRuntime.java:97" />
+  </compat-change>
+  <compat-change description="If this change is enabled, {@link #getHardwareAddress()} returns null when the hardware address is &lt;a href=&quot;#access-restrictions&quot;&gt;inaccessible&lt;/a&gt;. If the change is disabled, the default MAC address (02:00:00:00:00:00) is returned instead." enableSinceTargetSdk="30" id="170188668" name="RETURN_NULL_HARDWARE_ADDRESS">
+    <meta-data definedIn="java.net.NetworkInterface" sourcePosition="libcore/ojluni/src/main/java/java/net/NetworkInterface.java:79" />
+  </compat-change>
+  <compat-change description="Since Android 14, {@link PriorityQueue#offer(E)} requires all elements to be comparable if there was no comparator. Previously, the first element being added did not need to be comparable. This flag is enabled for apps targeting Android 14+." enableSinceTargetSdk="34" id="289878283" name="PRIORITY_QUEUE_OFFER_NON_COMPARABLE_ONE_ELEMENT">
+    <meta-data definedIn="java.util.PriorityQueue" sourcePosition="libcore/ojluni/src/main/java/java/util/PriorityQueue.java:1002" />
+  </compat-change>
+  <compat-change description="Since Android 14 {@link #fromString} does more strict input argument validation. This flag is enabled for apps targeting Android 14+." enableSinceTargetSdk="34" id="263076149" name="ENABLE_STRICT_VALIDATION">
+    <meta-data definedIn="java.util.UUID" sourcePosition="libcore/ojluni/src/main/java/java/util/UUID.java:199" />
+  </compat-change>
+  <compat-change description="Since Android 14, {@link Matcher} becomes stricter for the replacement syntax and group references used by its methods, e.g. {@link #appendReplacement(StringBuffer, String)}. This flag is enabled for apps targeting Android 14+." enableSinceTargetSdk="34" id="247079863" name="DISALLOW_INVALID_GROUP_REFERENCE">
+    <meta-data definedIn="java.util.regex.Matcher" sourcePosition="libcore/ojluni/src/main/java/java/util/regex/Matcher.java:881" />
+  </compat-change>
+  <compat-change description="Since Android 14, {@link Pattern#splitAsStream(CharSequence)} return a stream of a single empty String as described in the API documentation. Previously, given an empty string input, the method returns an empty stream. This flag is enabled for apps targeting Android 14+." enableSinceTargetSdk="34" id="288845345" name="SPLIT_AS_STREAM_RETURNS_SINGLE_EMPTY_STRING">
+    <meta-data definedIn="java.util.regex.Pattern" sourcePosition="libcore/ojluni/src/main/java/java/util/regex/Pattern.java:5797" />
+  </compat-change>
+  <compat-change description="Since Android 11, formatter classes, e.g. java.text.SimpleDateFormat, no longer provide English data when Locale.ROOT format is requested. Please use Locale.ENGLISH to format in English. Note that Locale.ROOT is used as language/country neutral locale or fallback locale, and does not guarantee to represent English locale. This flag is only for documentation and can't be overridden by app. Please use {@code targetSdkVersion} to enable the new behavior." enableAfterTargetSdk="29" id="159047832" name="USE_REAL_ROOT_LOCALE">
+    <meta-data definedIn="libcore.icu.LocaleData" sourcePosition="libcore/luni/src/main/java/libcore/icu/LocaleData.java:77" />
+  </compat-change>
+</config>

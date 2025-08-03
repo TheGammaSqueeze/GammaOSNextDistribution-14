@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.android.tools</groupId>
+  <artifactId>sdk-common</artifactId>
+  <versioning>
+    <release>31.2.0-alpha08</release>
+    <versions>
+      <version>31.2.0-alpha08</version>
+    </versions>
+    <lastUpdated>20230623032503</lastUpdated>
+  </versioning>
+</metadata>

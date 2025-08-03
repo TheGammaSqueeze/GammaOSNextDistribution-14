@@ -1,0 +1,15 @@
+drops {
+  android_build_drop {
+    build_id: "11889261"
+    target: "mainline_modules_sdks-user"
+    source_file: "mainline-sdks/for-latest-build/current/com.google.android.btservices/sdk/btservices-module-sdk-current.zip"
+  }
+  dest_file: "current/current.zip"
+  version: ""
+  version_group: ""
+  git_project: "platform/prebuilts/module_sdk/Bluetooth"
+  git_branch: "24Q2-release"
+  transform: TRANSFORM_UNZIP
+  transform_options {
+  }
+}

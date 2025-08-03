@@ -1,0 +1,14 @@
+clang
+clang++
+clang.real
+clang++.real
+clang-tidy
+clang-tidy.real
+../lib/libc++.so
+lld
+ld64.lld
+ld.lld
+../lib/clang/18/share
+../lib/clang/18/lib/linux
+../lib/clang/18/include
+../lib/libxml2.so.2

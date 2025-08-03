@@ -1,0 +1,146 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.tracing",
+    "module": "tracing",
+    "version": "1.3.0-alpha02",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.tracing",
+          "module": "tracing-ktx",
+          "version": {
+            "requires": "1.3.0-alpha02"
+          },
+          "reason": "tracing is in atomic group androidx.tracing"
+        }
+      ],
+      "files": [
+        {
+          "name": "tracing-1.3.0-alpha02.aar",
+          "url": "tracing-1.3.0-alpha02.aar",
+          "size": 5602,
+          "sha512": "8e1aa5372c91020e15c0f26544fa849c0679bf941020c4f7680797b632316e51ab642050b2e81cdc8a2fba125c457cc454d7a1018fd7af54b9e5b13fe630b95a",
+          "sha256": "bc642bc53457ef64944f6ee5cf631b37a3be15e71faecb586aaeeadf08544cfb",
+          "sha1": "9317e528b226f4079d0b9fb7ed7b70a6408aa78b",
+          "md5": "7255191ebcb492759b6816ce4d248fd6"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.tracing",
+          "module": "tracing-ktx",
+          "version": {
+            "requires": "1.3.0-alpha02"
+          },
+          "reason": "tracing is in atomic group androidx.tracing"
+        }
+      ],
+      "files": [
+        {
+          "name": "tracing-1.3.0-alpha02.aar",
+          "url": "tracing-1.3.0-alpha02.aar",
+          "size": 5602,
+          "sha512": "8e1aa5372c91020e15c0f26544fa849c0679bf941020c4f7680797b632316e51ab642050b2e81cdc8a2fba125c457cc454d7a1018fd7af54b9e5b13fe630b95a",
+          "sha256": "bc642bc53457ef64944f6ee5cf631b37a3be15e71faecb586aaeeadf08544cfb",
+          "sha1": "9317e528b226f4079d0b9fb7ed7b70a6408aa78b",
+          "md5": "7255191ebcb492759b6816ce4d248fd6"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.tracing",
+          "module": "tracing-ktx",
+          "version": {
+            "requires": "1.3.0-alpha02"
+          },
+          "reason": "tracing is in atomic group androidx.tracing"
+        }
+      ],
+      "files": [
+        {
+          "name": "tracing-1.3.0-alpha02-sources.jar",
+          "url": "tracing-1.3.0-alpha02-sources.jar",
+          "size": 5338,
+          "sha512": "bb12a089ed379164cce30e76bfd329b7c30428e6f6e566e2d70f2e2c75fadf7e292dce2490bc3daaba8c47f6a95675bed56a91d4a7ecb67e1b0aa0c2cc5d0116",
+          "sha256": "3246e5dd2aaac3a97d02acfaffc61aa35158de92e61b440849a7184e814bf265",
+          "sha1": "004d48509754b8cf9b1d5616c9e30596c2d71b94",
+          "md5": "519771adc6c35c9c5f2438294fa1bf61"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.tracing",
+          "module": "tracing-ktx",
+          "version": {
+            "requires": "1.3.0-alpha02"
+          },
+          "reason": "tracing is in atomic group androidx.tracing"
+        }
+      ],
+      "files": [
+        {
+          "name": "tracing-1.3.0-alpha02-versionMetadata.json",
+          "url": "tracing-1.3.0-alpha02-versionMetadata.json",
+          "size": 486,
+          "sha512": "79982aae27cb4810b2a3ec60ba72d8cf90826fcf05a249a1fdb8d2e4178535335d51ee6c70c8741eb9cc910014f79685caa3ba72e14d34dbbdb69bd4d9e6b871",
+          "sha256": "158b9e371bff484ef0cde9d03e02896a3c31b380024948a45f881ec24407d1da",
+          "sha1": "43c9aca539d72d33534f759e73179b2d8274fbf8",
+          "md5": "e556b0f2b9f36f0bf0066524a73d390e"
+        }
+      ]
+    }
+  ]
+}

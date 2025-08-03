@@ -1,0 +1,22 @@
+diff --git b/tools/bin/lint a/tools/bin/lint
+index ccd3ca3..7186007 100755
+--- b/tools/bin/lint
++++ a/tools/bin/lint
+@@ -64,7 +64,16 @@ case "`uname`" in
+     ;;
+ esac
+ 
+-CLASSPATH=$APP_HOME/lib/lint-classpath.jar
++# CLASSPATH=$APP_HOME/lib/lint-classpath.jar
++
++# BEGIN ANDROID PLATFORM
++# Check ../framework/lint.jar first before falling back to ../lib/lint-classpath.jar.
++CLASSPATH=$APP_HOME/framework/lint.jar
++if [ ! -e $CLASSPATH ]; then
++  CLASSPATH=$APP_HOME/lib//lint-classpath.jar
++fi
++# END ANDROID PLATFORM
++
+ 
+ # Determine the Java command to use to start the JVM.
+ if [ -n "$JAVA_HOME" ] ; then

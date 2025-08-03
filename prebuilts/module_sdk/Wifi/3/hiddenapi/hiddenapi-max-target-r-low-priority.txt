@@ -1,0 +1,2 @@
+Landroid/net/wifi/IWifiManager$Stub;->TRANSACTION_getScanResults:I
+Landroid/net/wifi/p2p/IWifiP2pManager$Stub;->asInterface(Landroid/os/IBinder;)Landroid/net/wifi/p2p/IWifiP2pManager;

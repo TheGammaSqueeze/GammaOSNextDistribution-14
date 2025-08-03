@@ -1,0 +1,1 @@
+[{"class":"androidx.lifecycle.LiveDataKt","addedIn":"2.1.0","methods":[{"method":"observe<T>(androidx.lifecycle.LiveData<T>,androidx.lifecycle.LifecycleOwner,kotlin.jvm.functions.Function1<? super T,kotlin.Unit>)","addedIn":"2.1.0","deprecatedIn":"2.3.0"},{"method":"LiveDataKt()","addedIn":"2.1.0"}],"fields":[]}]

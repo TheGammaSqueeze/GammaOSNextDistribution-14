@@ -1,0 +1,65 @@
+version: "1.5.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.7.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-core-android"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-core-jvm"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.window"
+group_id: "androidx.window"
+artifact_id: "window-core"
+path: "/window/window-core"
+sha: "9ab82157731eff4fdd110d5626464f44cac5d59c"
+require_same_version_group_build: true
+project_zip_path: "per-project-zips/androidx.window-window-core-all-11757502-1.5.0-alpha01.zip"
+kotlin_version: "1.9.23"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-java"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-rxjava2"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-rxjava3"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.window"
+    artifact_id: "window-testing"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+}
+should_publish_docs: true
+is_kmp: true

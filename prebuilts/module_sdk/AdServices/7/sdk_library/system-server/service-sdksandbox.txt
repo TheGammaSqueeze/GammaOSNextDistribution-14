@@ -1,0 +1,20 @@
+// Signature format: 2.0
+package com.android.server.sdksandbox {
+
+  public interface SdkSandboxManagerLocal {
+    method public boolean canAccessContentProviderFromSdkSandbox(@NonNull android.content.pm.ProviderInfo);
+    method public boolean canRegisterBroadcastReceiver(@NonNull android.content.IntentFilter, int, boolean);
+    method public boolean canSendBroadcast(@NonNull android.content.Intent);
+    method public void enforceAllowedToHostSandboxedActivity(@NonNull android.content.Intent, int, @NonNull String);
+    method @Deprecated public void enforceAllowedToSendBroadcast(@NonNull android.content.Intent);
+    method public void enforceAllowedToStartActivity(@NonNull android.content.Intent);
+    method public void enforceAllowedToStartOrBindService(@NonNull android.content.Intent);
+    method @NonNull public String getSdkSandboxProcessNameForInstrumentation(@NonNull android.content.pm.ApplicationInfo);
+    method public void notifyInstrumentationFinished(@NonNull String, int);
+    method public void notifyInstrumentationStarted(@NonNull String, int);
+    field public static final String SERVICE_INTERFACE = "com.android.sdksandbox.SdkSandboxService";
+    field public static final String VERIFIER_RECEIVER = "com.android.server.sdksandbox.SdkSandboxVerifierReceiver";
+  }
+
+}
+

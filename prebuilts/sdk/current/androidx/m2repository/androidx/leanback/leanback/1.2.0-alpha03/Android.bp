@@ -1,0 +1,62 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.leanback_leanback-nodeps",
+    aars: ["leanback-1.2.0-alpha03.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx.core_core",
+        "androidx.fragment_fragment",
+        "androidx.interpolator_interpolator",
+        "androidx.leanback_leanback-grid",
+        "androidx.media_media",
+        "androidx.recyclerview_recyclerview",
+        "androidx.vectordrawable_vectordrawable-animated",
+    ],
+}
+
+android_library {
+    name: "androidx.leanback_leanback",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.leanback_leanback-nodeps",
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx.core_core",
+        "androidx.fragment_fragment",
+        "androidx.interpolator_interpolator",
+        "androidx.leanback_leanback-grid",
+        "androidx.media_media",
+        "androidx.recyclerview_recyclerview",
+        "androidx.vectordrawable_vectordrawable-animated",
+    ],
+    java_version: "1.7",
+}
+

@@ -1,0 +1,106 @@
+// Signature format: 2.0
+package android.app.sdksandbox {
+
+  public final class AppOwnedSdkSandboxInterface implements android.os.Parcelable {
+    ctor public AppOwnedSdkSandboxInterface(@NonNull String, long, @NonNull android.os.IBinder);
+    method public int describeContents();
+    method @NonNull public android.os.IBinder getInterface();
+    method @NonNull public String getName();
+    method public long getVersion();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.app.sdksandbox.AppOwnedSdkSandboxInterface> CREATOR;
+  }
+
+  public final class LoadSdkException extends java.lang.Exception implements android.os.Parcelable {
+    ctor public LoadSdkException(@NonNull Throwable, @NonNull android.os.Bundle);
+    method public int describeContents();
+    method @NonNull public android.os.Bundle getExtraInformation();
+    method public int getLoadSdkErrorCode();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.app.sdksandbox.LoadSdkException> CREATOR;
+  }
+
+  @Deprecated public final class RequestSurfacePackageException extends java.lang.Exception {
+    ctor @Deprecated public RequestSurfacePackageException(int, @Nullable String);
+    ctor @Deprecated public RequestSurfacePackageException(int, @Nullable String, @Nullable Throwable);
+    ctor @Deprecated public RequestSurfacePackageException(int, @Nullable String, @Nullable Throwable, @NonNull android.os.Bundle);
+    method @Deprecated @NonNull public android.os.Bundle getExtraErrorInformation();
+    method @Deprecated public int getRequestSurfacePackageErrorCode();
+  }
+
+  public final class SandboxedSdk implements android.os.Parcelable {
+    ctor public SandboxedSdk(@NonNull android.os.IBinder);
+    method public int describeContents();
+    method @Nullable public android.os.IBinder getInterface();
+    method @NonNull public android.content.pm.SharedLibraryInfo getSharedLibraryInfo();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.app.sdksandbox.SandboxedSdk> CREATOR;
+  }
+
+  public abstract class SandboxedSdkProvider {
+    ctor public SandboxedSdkProvider();
+    method public final void attachContext(@NonNull android.content.Context);
+    method public void beforeUnloadSdk();
+    method @Nullable public final android.content.Context getContext();
+    method @Deprecated @NonNull public abstract android.view.View getView(@NonNull android.content.Context, @NonNull android.os.Bundle, int, int);
+    method @NonNull public abstract android.app.sdksandbox.SandboxedSdk onLoadSdk(@NonNull android.os.Bundle) throws android.app.sdksandbox.LoadSdkException;
+  }
+
+  public final class SdkSandboxManager {
+    method public void addSdkSandboxProcessDeathCallback(@NonNull java.util.concurrent.Executor, @NonNull android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback);
+    method public void addSyncedSharedPreferencesKeys(@NonNull java.util.Set<java.lang.String>);
+    method @NonNull public java.util.List<android.app.sdksandbox.AppOwnedSdkSandboxInterface> getAppOwnedSdkSandboxInterfaces();
+    method @NonNull public java.util.List<android.app.sdksandbox.SandboxedSdk> getSandboxedSdks();
+    method public static int getSdkSandboxState();
+    method @NonNull public java.util.Set<java.lang.String> getSyncedSharedPreferencesKeys();
+    method public void loadSdk(@NonNull String, @NonNull android.os.Bundle, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.app.sdksandbox.SandboxedSdk,android.app.sdksandbox.LoadSdkException>);
+    method public void registerAppOwnedSdkSandboxInterface(@NonNull android.app.sdksandbox.AppOwnedSdkSandboxInterface);
+    method public void removeSdkSandboxProcessDeathCallback(@NonNull android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback);
+    method public void removeSyncedSharedPreferencesKeys(@NonNull java.util.Set<java.lang.String>);
+    method @Deprecated public void requestSurfacePackage(@NonNull String, @NonNull android.os.Bundle, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.os.Bundle,android.app.sdksandbox.RequestSurfacePackageException>);
+    method public void startSdkSandboxActivity(@NonNull android.app.Activity, @NonNull android.os.IBinder);
+    method public void unloadSdk(@NonNull String);
+    method public void unregisterAppOwnedSdkSandboxInterface(@NonNull String);
+    field @Deprecated public static final String EXTRA_DISPLAY_ID = "android.app.sdksandbox.extra.DISPLAY_ID";
+    field @Deprecated public static final String EXTRA_HEIGHT_IN_PIXELS = "android.app.sdksandbox.extra.HEIGHT_IN_PIXELS";
+    field @Deprecated public static final String EXTRA_HOST_TOKEN = "android.app.sdksandbox.extra.HOST_TOKEN";
+    field @Deprecated public static final String EXTRA_SURFACE_PACKAGE = "android.app.sdksandbox.extra.SURFACE_PACKAGE";
+    field @Deprecated public static final String EXTRA_WIDTH_IN_PIXELS = "android.app.sdksandbox.extra.WIDTH_IN_PIXELS";
+    field public static final int LOAD_SDK_ALREADY_LOADED = 101; // 0x65
+    field public static final int LOAD_SDK_INTERNAL_ERROR = 500; // 0x1f4
+    field public static final int LOAD_SDK_NOT_FOUND = 100; // 0x64
+    field public static final int LOAD_SDK_SDK_DEFINED_ERROR = 102; // 0x66
+    field public static final int LOAD_SDK_SDK_SANDBOX_DISABLED = 103; // 0x67
+    field public static final int REQUEST_SURFACE_PACKAGE_INTERNAL_ERROR = 700; // 0x2bc
+    field public static final int REQUEST_SURFACE_PACKAGE_SDK_NOT_LOADED = 701; // 0x2bd
+    field public static final int SDK_SANDBOX_PROCESS_NOT_AVAILABLE = 503; // 0x1f7
+    field public static final String SDK_SANDBOX_SERVICE = "sdk_sandbox";
+    field public static final int SDK_SANDBOX_STATE_DISABLED = 0; // 0x0
+    field public static final int SDK_SANDBOX_STATE_ENABLED_PROCESS_ISOLATION = 2; // 0x2
+  }
+
+  public static interface SdkSandboxManager.SdkSandboxProcessDeathCallback {
+    method public void onSdkSandboxDied();
+  }
+
+}
+
+package android.app.sdksandbox.sdkprovider {
+
+  public interface SdkSandboxActivityHandler {
+    method public void onActivityCreated(@NonNull android.app.Activity);
+  }
+
+  public class SdkSandboxController {
+    method @NonNull public java.util.List<android.app.sdksandbox.AppOwnedSdkSandboxInterface> getAppOwnedSdkSandboxInterfaces();
+    method @NonNull public String getClientPackageName();
+    method @NonNull public android.content.SharedPreferences getClientSharedPreferences();
+    method @NonNull public java.util.List<android.app.sdksandbox.SandboxedSdk> getSandboxedSdks();
+    method public void loadSdk(@NonNull String, @NonNull android.os.Bundle, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.app.sdksandbox.SandboxedSdk,android.app.sdksandbox.LoadSdkException>);
+    method @NonNull public android.os.IBinder registerSdkSandboxActivityHandler(@NonNull android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler);
+    method @NonNull public void unregisterSdkSandboxActivityHandler(@NonNull android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler);
+    field public static final String SDK_SANDBOX_CONTROLLER_SERVICE = "sdk_sandbox_controller_service";
+  }
+
+}
+

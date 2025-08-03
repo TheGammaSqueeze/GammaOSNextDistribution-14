@@ -1,0 +1,2284 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x02afdd90
+  kind: POINTER
+  pointee_type_id: 0x20ff90dd
+}
+pointer_reference {
+  id: 0x0345ae60
+  kind: POINTER
+  pointee_type_id: 0x27565f1d
+}
+pointer_reference {
+  id: 0x03c8f98e
+  kind: POINTER
+  pointee_type_id: 0x256300a6
+}
+pointer_reference {
+  id: 0x04f98d56
+  kind: POINTER
+  pointee_type_id: 0x39a6d3c7
+}
+pointer_reference {
+  id: 0x050d6bc0
+  kind: POINTER
+  pointee_type_id: 0x3e75499e
+}
+pointer_reference {
+  id: 0x051414e1
+  kind: POINTER
+  pointee_type_id: 0x3e10b518
+}
+pointer_reference {
+  id: 0x0585dfed
+  kind: POINTER
+  pointee_type_id: 0x3c57992a
+}
+pointer_reference {
+  id: 0x05dbdeb9
+  kind: POINTER
+  pointee_type_id: 0x3d2f9c7b
+}
+pointer_reference {
+  id: 0x06778e93
+  kind: POINTER
+  pointee_type_id: 0x339edcd2
+}
+pointer_reference {
+  id: 0x068ed349
+  kind: POINTER
+  pointee_type_id: 0x307babb8
+}
+pointer_reference {
+  id: 0x06a57817
+  kind: POINTER
+  pointee_type_id: 0x30d506c1
+}
+pointer_reference {
+  id: 0x07300bdd
+  kind: POINTER
+  pointee_type_id: 0x3680c9eb
+}
+pointer_reference {
+  id: 0x07b2be3f
+  kind: POINTER
+  pointee_type_id: 0x348a1e63
+}
+pointer_reference {
+  id: 0x091d552a
+  kind: POINTER
+  pointee_type_id: 0x0e35b236
+}
+pointer_reference {
+  id: 0x0a41523f
+  kind: POINTER
+  pointee_type_id: 0x0345ae60
+}
+pointer_reference {
+  id: 0x0b5c3b50
+  kind: POINTER
+  pointee_type_id: 0x07300bdd
+}
+pointer_reference {
+  id: 0x0c01de22
+  kind: POINTER
+  pointee_type_id: 0x1a479e15
+}
+pointer_reference {
+  id: 0x0cbf60eb
+  kind: POINTER
+  pointee_type_id: 0x18bd6530
+}
+pointer_reference {
+  id: 0x0e35b236
+  kind: POINTER
+  pointee_type_id: 0x12962e46
+}
+pointer_reference {
+  id: 0x0f000a2e
+  kind: POINTER
+  pointee_type_id: 0x1640ce26
+}
+pointer_reference {
+  id: 0x0f022f4e
+  kind: POINTER
+  pointee_type_id: 0x16485ba4
+}
+pointer_reference {
+  id: 0x0f025a7d
+  kind: POINTER
+  pointee_type_id: 0x16498f6b
+}
+pointer_reference {
+  id: 0x0f03eb25
+  kind: POINTER
+  pointee_type_id: 0x164f4a0b
+}
+pointer_reference {
+  id: 0x0f04117e
+  kind: POINTER
+  pointee_type_id: 0x1650a364
+}
+pointer_reference {
+  id: 0x0f041bc5
+  kind: POINTER
+  pointee_type_id: 0x1650898b
+}
+pointer_reference {
+  id: 0x0f041e38
+  kind: POINTER
+  pointee_type_id: 0x16509e7c
+}
+pointer_reference {
+  id: 0x0f0429f1
+  kind: POINTER
+  pointee_type_id: 0x16504158
+}
+pointer_reference {
+  id: 0x0f042ad8
+  kind: POINTER
+  pointee_type_id: 0x16504dfd
+}
+pointer_reference {
+  id: 0x0f045d43
+  kind: POINTER
+  pointee_type_id: 0x16519390
+}
+pointer_reference {
+  id: 0x0f07c7b4
+  kind: POINTER
+  pointee_type_id: 0x165ff84c
+}
+pointer_reference {
+  id: 0x0f0b5c9b
+  kind: POINTER
+  pointee_type_id: 0x166d94f0
+}
+pointer_reference {
+  id: 0x0f0d2e96
+  kind: POINTER
+  pointee_type_id: 0x16745cc4
+}
+pointer_reference {
+  id: 0x0f2f1a1f
+  kind: POINTER
+  pointee_type_id: 0x16fc8ee0
+}
+pointer_reference {
+  id: 0x0f3dfb90
+  kind: POINTER
+  pointee_type_id: 0x16b708df
+}
+pointer_reference {
+  id: 0x13580d6c
+  kind: POINTER
+  pointee_type_id: 0x6720d32f
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x19fe3a77
+  kind: POINTER
+  pointee_type_id: 0x4db80f41
+}
+pointer_reference {
+  id: 0x1a479e15
+  kind: POINTER
+  pointee_type_id: 0x435e9ecb
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x260e1a40
+  kind: POINTER
+  pointee_type_id: 0xb2788f9d
+}
+pointer_reference {
+  id: 0x2f18aad4
+  kind: POINTER
+  pointee_type_id: 0x96224dcc
+}
+pointer_reference {
+  id: 0x307babb8
+  kind: POINTER
+  pointee_type_id: 0xebae487e
+}
+pointer_reference {
+  id: 0x30d506c1
+  kind: POINTER
+  pointee_type_id: 0xe914fd99
+}
+pointer_reference {
+  id: 0x31881126
+  kind: POINTER
+  pointee_type_id: 0xec60a204
+}
+pointer_reference {
+  id: 0x32cdf7b9
+  kind: POINTER
+  pointee_type_id: 0xe1773878
+}
+pointer_reference {
+  id: 0x33050d16
+  kind: POINTER
+  pointee_type_id: 0xe654d2c4
+}
+pointer_reference {
+  id: 0x339edcd2
+  kind: POINTER
+  pointee_type_id: 0xe43b95d6
+}
+pointer_reference {
+  id: 0x33d7fb92
+  kind: POINTER
+  pointee_type_id: 0xe51f08d7
+}
+pointer_reference {
+  id: 0x352385f8
+  kind: POINTER
+  pointee_type_id: 0xfecef17d
+}
+pointer_reference {
+  id: 0x35867975
+  kind: POINTER
+  pointee_type_id: 0xfc590348
+}
+pointer_reference {
+  id: 0x379d63b0
+  kind: POINTER
+  pointee_type_id: 0xf435685e
+}
+pointer_reference {
+  id: 0x38835fe6
+  kind: POINTER
+  pointee_type_id: 0xc84d9907
+}
+pointer_reference {
+  id: 0x39a1ab23
+  kind: POINTER
+  pointee_type_id: 0xccc64a10
+}
+pointer_reference {
+  id: 0x39a6d3c7
+  kind: POINTER
+  pointee_type_id: 0xccdba982
+}
+pointer_reference {
+  id: 0x39aad3c3
+  kind: POINTER
+  pointee_type_id: 0xcceba991
+}
+pointer_reference {
+  id: 0x3ac77f52
+  kind: POINTER
+  pointee_type_id: 0xc15d1bd6
+}
+pointer_reference {
+  id: 0x3adeca35
+  kind: POINTER
+  pointee_type_id: 0xc13bce4a
+}
+pointer_reference {
+  id: 0x3bf3ff9d
+  kind: POINTER
+  pointee_type_id: 0xc58f18e9
+}
+pointer_reference {
+  id: 0x3c57992a
+  kind: POINTER
+  pointee_type_id: 0xdb1e8234
+}
+pointer_reference {
+  id: 0x3cbd202b
+  kind: POINTER
+  pointee_type_id: 0xd8b46633
+}
+pointer_reference {
+  id: 0x3cc411fe
+  kind: POINTER
+  pointee_type_id: 0xd950a167
+}
+pointer_reference {
+  id: 0x3d2f9c7b
+  kind: POINTER
+  pointee_type_id: 0xdefe9773
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+pointer_reference {
+  id: 0x3e75499e
+  kind: POINTER
+  pointee_type_id: 0xd395c0e4
+}
+pointer_reference {
+  id: 0x3efc4e51
+  kind: POINTER
+  pointee_type_id: 0xd1b1dfd8
+}
+pointer_reference {
+  id: 0x3fe1273e
+  kind: POINTER
+  pointee_type_id: 0xd5c47a65
+}
+typedef {
+  id: 0x348a1e63
+  name: "ACameraCaptureFailure"
+  referred_type_id: 0x514d11c4
+}
+typedef {
+  id: 0xccdba982
+  name: "ACameraCaptureSession"
+  referred_type_id: 0x3a0e1fd2
+}
+typedef {
+  id: 0x9b42c752
+  name: "ACameraCaptureSession_captureCallback_bufferLost"
+  referred_type_id: 0x0f042ad8
+}
+typedef {
+  id: 0x42644e68
+  name: "ACameraCaptureSession_captureCallback_failed"
+  referred_type_id: 0x0f0429f1
+}
+typedef {
+  id: 0xc1675c47
+  name: "ACameraCaptureSession_captureCallback_result"
+  referred_type_id: 0x0f041e38
+}
+typedef {
+  id: 0xb85d41b5
+  name: "ACameraCaptureSession_captureCallback_sequenceAbort"
+  referred_type_id: 0x0f022f4e
+}
+typedef {
+  id: 0x701a2de2
+  name: "ACameraCaptureSession_captureCallback_sequenceEnd"
+  referred_type_id: 0x0f025a7d
+}
+typedef {
+  id: 0xc1cc8653
+  name: "ACameraCaptureSession_captureCallback_start"
+  referred_type_id: 0x0f07c7b4
+}
+typedef {
+  id: 0xb2788f9d
+  name: "ACameraCaptureSession_captureCallbacks"
+  referred_type_id: 0xf6ab445b
+}
+typedef {
+  id: 0xc517b105
+  name: "ACameraCaptureSession_logicalCamera_captureCallback_failed"
+  referred_type_id: 0x0f041bc5
+}
+typedef {
+  id: 0x874494a9
+  name: "ACameraCaptureSession_logicalCamera_captureCallback_result"
+  referred_type_id: 0x0f04117e
+}
+typedef {
+  id: 0x4db80f41
+  name: "ACameraCaptureSession_logicalCamera_captureCallbacks"
+  referred_type_id: 0xefb82112
+}
+typedef {
+  id: 0x8df1cf0d
+  name: "ACameraCaptureSession_stateCallback"
+  referred_type_id: 0x0f045d43
+}
+typedef {
+  id: 0xc1c53e98
+  name: "ACameraCaptureSession_stateCallbacks"
+  referred_type_id: 0xc9bdeecf
+}
+typedef {
+  id: 0xe914fd99
+  name: "ACameraDevice"
+  referred_type_id: 0x203bd804
+}
+typedef {
+  id: 0x2bc8eb4a
+  name: "ACameraDevice_ErrorStateCallback"
+  referred_type_id: 0x0f0b5c9b
+}
+typedef {
+  id: 0xfa60de7e
+  name: "ACameraDevice_StateCallback"
+  referred_type_id: 0x0f0d2e96
+}
+typedef {
+  id: 0x20ff90dd
+  name: "ACameraDevice_StateCallbacks"
+  referred_type_id: 0x9ab84c13
+}
+typedef {
+  id: 0xd1b314ea
+  name: "ACameraDevice_request_template"
+  referred_type_id: 0x74bf76ff
+}
+typedef {
+  id: 0x12962e46
+  name: "ACameraIdList"
+  referred_type_id: 0xffe22364
+}
+typedef {
+  id: 0x16fc8ee0
+  name: "ACameraManager"
+  referred_type_id: 0xfdfcb51a
+}
+typedef {
+  id: 0x6fb56743
+  name: "ACameraManager_AccessPrioritiesChangedCallback"
+  referred_type_id: 0x0f3dfb90
+}
+typedef {
+  id: 0x36af1fd1
+  name: "ACameraManager_AvailabilityCallback"
+  referred_type_id: 0x0f03eb25
+}
+typedef {
+  id: 0xf59b576a
+  name: "ACameraManager_AvailabilityCallbacks"
+  referred_type_id: 0x885dbb70
+}
+typedef {
+  id: 0x667bd52f
+  name: "ACameraManager_ExtendedAvailabilityCallbacks"
+  referred_type_id: 0xdf98cb3c
+}
+typedef {
+  id: 0x79bf44ce
+  name: "ACameraManager_PhysicalCameraAvailabilityCallback"
+  referred_type_id: 0x0f000a2e
+}
+typedef {
+  id: 0xdefe9773
+  name: "ACameraMetadata"
+  referred_type_id: 0xcc947619
+}
+typedef {
+  id: 0x96224dcc
+  name: "ACameraMetadata_const_entry"
+  referred_type_id: 0x178636c4
+}
+typedef {
+  id: 0x74a88fa2
+  name: "ACameraMetadata_rational"
+  referred_type_id: 0x5b857a6a
+}
+typedef {
+  id: 0xe43b95d6
+  name: "ACameraOutputTarget"
+  referred_type_id: 0xf7c3c3c3
+}
+typedef {
+  id: 0x3680c9eb
+  name: "ACaptureRequest"
+  referred_type_id: 0x7e6bc3c1
+}
+typedef {
+  id: 0x435e9ecb
+  name: "ACaptureSessionOutput"
+  referred_type_id: 0x526197a9
+}
+typedef {
+  id: 0x27565f1d
+  name: "ACaptureSessionOutputContainer"
+  referred_type_id: 0x078cb754
+}
+typedef {
+  id: 0xfc590348
+  name: "ALogicalCameraCaptureFailure"
+  referred_type_id: 0xe7151bc7
+}
+typedef {
+  id: 0x256300a6
+  name: "ANativeWindow"
+  referred_type_id: 0x56e357ff
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0xfc0e1dbd
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x2ebf28fa
+  name: "__uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0x08612c0d
+  name: "camera_status_t"
+  referred_type_id: 0x7090466a
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x33756485
+}
+typedef {
+  id: 0x1c3dbe5a
+  name: "uint32_t"
+  referred_type_id: 0x903f4c78
+}
+typedef {
+  id: 0x43e910ce
+  name: "uint8_t"
+  referred_type_id: 0x2ebf28fa
+}
+qualified {
+  id: 0xc13bce4a
+  qualifier: CONST
+  qualified_type_id: 0x74a88fa2
+}
+qualified {
+  id: 0xc15d1bd6
+  qualifier: CONST
+  qualified_type_id: 0x7533d9d0
+}
+qualified {
+  id: 0xc58f18e9
+  qualifier: CONST
+  qualified_type_id: 0x667bd52f
+}
+qualified {
+  id: 0xc84d9907
+  qualifier: CONST
+  qualified_type_id: 0x5171d297
+}
+qualified {
+  id: 0xccc64a10
+  qualifier: CONST
+  qualified_type_id: 0x435e9ecb
+}
+qualified {
+  id: 0xcceba991
+  qualifier: CONST
+  qualified_type_id: 0x43e910ce
+}
+qualified {
+  id: 0xd1b1dfd8
+  qualifier: CONST
+  qualified_type_id: 0x3680c9eb
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xd395c0e4
+  qualifier: CONST
+  qualified_type_id: 0x3e10b518
+}
+qualified {
+  id: 0xd5c47a65
+  qualifier: CONST
+  qualified_type_id: 0x27565f1d
+}
+qualified {
+  id: 0xd8b46633
+  qualifier: CONST
+  qualified_type_id: 0x12962e46
+}
+qualified {
+  id: 0xd950a167
+  qualifier: CONST
+  qualified_type_id: 0x15053314
+}
+qualified {
+  id: 0xdb1e8234
+  qualifier: CONST
+  qualified_type_id: 0x1c3dbe5a
+}
+qualified {
+  id: 0xe1773878
+  qualifier: CONST
+  qualified_type_id: 0xf59b576a
+}
+qualified {
+  id: 0xe51f08d7
+  qualifier: CONST
+  qualified_type_id: 0xe43b95d6
+}
+qualified {
+  id: 0xe654d2c4
+  qualifier: CONST
+  qualified_type_id: 0xe914fd99
+}
+qualified {
+  id: 0xebae487e
+  qualifier: CONST
+  qualified_type_id: 0xdefe9773
+}
+qualified {
+  id: 0xec60a204
+  qualifier: CONST
+  qualified_type_id: 0xc1c53e98
+}
+qualified {
+  id: 0xfecef17d
+  qualifier: CONST
+  qualified_type_id: 0x8b7c737e
+}
+primitive {
+  id: 0x15053314
+  name: "double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x33756485
+  name: "unsigned long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x62aebfd4
+  name: "bool"
+  encoding: BOOLEAN
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+array {
+  id: 0x8a624a56
+  number_of_elements: 4
+  element_type_id: 0x18bd6530
+}
+member {
+  id: 0xa2ce1a90
+  name: "availabilityCallbacks"
+  type_id: 0xf59b576a
+}
+member {
+  id: 0xa27055dc
+  name: "cameraIds"
+  type_id: 0x051414e1
+  offset: 64
+}
+member {
+  id: 0xeb2fcec1
+  name: "captureFailure"
+  type_id: 0x514d11c4
+}
+member {
+  id: 0x41af85ff
+  name: "context"
+  type_id: 0x18bd6530
+}
+member {
+  id: 0x6539669b
+  name: "count"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0xc32607f4
+  name: "d"
+  type_id: 0x3cc411fe
+}
+member {
+  id: 0xffcbb1ae
+  name: "data"
+  type_id: 0x599c00ec
+  offset: 128
+}
+member {
+  id: 0x41aed224
+  name: "f"
+  type_id: 0x352385f8
+}
+member {
+  id: 0xbde12b1c
+  name: "frameNumber"
+  type_id: 0x7533d9d0
+}
+member {
+  id: 0x584371b3
+  name: "i32"
+  type_id: 0x38835fe6
+}
+member {
+  id: 0x382d42c2
+  name: "i64"
+  type_id: 0x3ac77f52
+}
+member {
+  id: 0xb9fd0e97
+  name: "numCameras"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xea7b836e
+  name: "onActive"
+  type_id: 0x8df1cf0d
+  offset: 192
+}
+member {
+  id: 0x43e3f78b
+  name: "onCameraAccessPrioritiesChanged"
+  type_id: 0x6fb56743
+  offset: 192
+}
+member {
+  id: 0xa2396709
+  name: "onCameraAvailable"
+  type_id: 0x36af1fd1
+  offset: 64
+}
+member {
+  id: 0x1244719e
+  name: "onCameraUnavailable"
+  type_id: 0x36af1fd1
+  offset: 128
+}
+member {
+  id: 0x13fe4d3c
+  name: "onCaptureBufferLost"
+  type_id: 0x9b42c752
+  offset: 448
+}
+member {
+  id: 0xd5f35edb
+  name: "onCaptureCompleted"
+  type_id: 0xc1675c47
+  offset: 192
+}
+member {
+  id: 0x0b02e8c4
+  name: "onCaptureFailed"
+  type_id: 0x42644e68
+  offset: 256
+}
+member {
+  id: 0x6dbfebe2
+  name: "onCaptureProgressed"
+  type_id: 0xc1675c47
+  offset: 128
+}
+member {
+  id: 0xee87684a
+  name: "onCaptureSequenceAborted"
+  type_id: 0xb85d41b5
+  offset: 384
+}
+member {
+  id: 0x54f0266a
+  name: "onCaptureSequenceCompleted"
+  type_id: 0x701a2de2
+  offset: 320
+}
+member {
+  id: 0x16a4c014
+  name: "onCaptureStarted"
+  type_id: 0xc1cc8653
+  offset: 64
+}
+member {
+  id: 0x397d459b
+  name: "onClosed"
+  type_id: 0x8df1cf0d
+  offset: 64
+}
+member {
+  id: 0xd441dff4
+  name: "onDisconnected"
+  type_id: 0xfa60de7e
+  offset: 64
+}
+member {
+  id: 0x84ba3348
+  name: "onError"
+  type_id: 0x2bc8eb4a
+  offset: 128
+}
+member {
+  id: 0xcc1fe424
+  name: "onLogicalCameraCaptureCompleted"
+  type_id: 0x874494a9
+  offset: 192
+}
+member {
+  id: 0xed51c75e
+  name: "onLogicalCameraCaptureFailed"
+  type_id: 0xc517b105
+  offset: 256
+}
+member {
+  id: 0xc92a7de7
+  name: "onPhysicalCameraAvailable"
+  type_id: 0x79bf44ce
+  offset: 256
+}
+member {
+  id: 0x14b8e902
+  name: "onPhysicalCameraUnavailable"
+  type_id: 0x79bf44ce
+  offset: 320
+}
+member {
+  id: 0x590d3d7b
+  name: "onReady"
+  type_id: 0x8df1cf0d
+  offset: 128
+}
+member {
+  id: 0x5f143d86
+  name: "physicalCameraId"
+  type_id: 0x3e10b518
+  offset: 192
+}
+member {
+  id: 0x3b0bc9d2
+  name: "r"
+  type_id: 0x3adeca35
+}
+member {
+  id: 0xbb7db1b3
+  name: "reason"
+  type_id: 0x6720d32f
+  offset: 64
+}
+member {
+  id: 0xd4e9cfa2
+  name: "reserved"
+  type_id: 0x8a624a56
+  offset: 384
+}
+member {
+  id: 0x4212f960
+  name: "sequenceId"
+  type_id: 0x6720d32f
+  offset: 96
+}
+member {
+  id: 0xd5b9f003
+  name: "tag"
+  type_id: 0x1c3dbe5a
+}
+member {
+  id: 0x5c153155
+  name: "type"
+  type_id: 0x43e910ce
+  offset: 32
+}
+member {
+  id: 0x3dc37650
+  name: "u8"
+  type_id: 0x39aad3c3
+}
+member {
+  id: 0x0f0b4ebe
+  name: "wasImageCaptured"
+  type_id: 0x62aebfd4
+  offset: 128
+}
+struct_union {
+  id: 0x599c00ec
+  kind: UNION
+  definition {
+    bytesize: 8
+    member_id: 0x3dc37650
+    member_id: 0x584371b3
+    member_id: 0x41aed224
+    member_id: 0x382d42c2
+    member_id: 0xc32607f4
+    member_id: 0x3b0bc9d2
+  }
+}
+struct_union {
+  id: 0x514d11c4
+  kind: STRUCT
+  name: "ACameraCaptureFailure"
+  definition {
+    bytesize: 24
+    member_id: 0xbde12b1c
+    member_id: 0xbb7db1b3
+    member_id: 0x4212f960
+    member_id: 0x0f0b4ebe
+  }
+}
+struct_union {
+  id: 0x3a0e1fd2
+  kind: STRUCT
+  name: "ACameraCaptureSession"
+}
+struct_union {
+  id: 0xf6ab445b
+  kind: STRUCT
+  name: "ACameraCaptureSession_captureCallbacks"
+  definition {
+    bytesize: 64
+    member_id: 0x41af85ff
+    member_id: 0x16a4c014
+    member_id: 0x6dbfebe2
+    member_id: 0xd5f35edb
+    member_id: 0x0b02e8c4
+    member_id: 0x54f0266a
+    member_id: 0xee87684a
+    member_id: 0x13fe4d3c
+  }
+}
+struct_union {
+  id: 0xefb82112
+  kind: STRUCT
+  name: "ACameraCaptureSession_logicalCamera_captureCallbacks"
+  definition {
+    bytesize: 64
+    member_id: 0x41af85ff
+    member_id: 0x16a4c014
+    member_id: 0x6dbfebe2
+    member_id: 0xcc1fe424
+    member_id: 0xed51c75e
+    member_id: 0x54f0266a
+    member_id: 0xee87684a
+    member_id: 0x13fe4d3c
+  }
+}
+struct_union {
+  id: 0xc9bdeecf
+  kind: STRUCT
+  name: "ACameraCaptureSession_stateCallbacks"
+  definition {
+    bytesize: 32
+    member_id: 0x41af85ff
+    member_id: 0x397d459b
+    member_id: 0x590d3d7b
+    member_id: 0xea7b836e
+  }
+}
+struct_union {
+  id: 0x203bd804
+  kind: STRUCT
+  name: "ACameraDevice"
+}
+struct_union {
+  id: 0x9ab84c13
+  kind: STRUCT
+  name: "ACameraDevice_StateCallbacks"
+  definition {
+    bytesize: 24
+    member_id: 0x41af85ff
+    member_id: 0xd441dff4
+    member_id: 0x84ba3348
+  }
+}
+struct_union {
+  id: 0xffe22364
+  kind: STRUCT
+  name: "ACameraIdList"
+  definition {
+    bytesize: 16
+    member_id: 0xb9fd0e97
+    member_id: 0xa27055dc
+  }
+}
+struct_union {
+  id: 0xfdfcb51a
+  kind: STRUCT
+  name: "ACameraManager"
+}
+struct_union {
+  id: 0x885dbb70
+  kind: STRUCT
+  name: "ACameraManager_AvailabilityListener"
+  definition {
+    bytesize: 24
+    member_id: 0x41af85ff
+    member_id: 0xa2396709
+    member_id: 0x1244719e
+  }
+}
+struct_union {
+  id: 0xdf98cb3c
+  kind: STRUCT
+  name: "ACameraManager_ExtendedAvailabilityListener"
+  definition {
+    bytesize: 80
+    member_id: 0xa2ce1a90
+    member_id: 0x43e3f78b
+    member_id: 0xc92a7de7
+    member_id: 0x14b8e902
+    member_id: 0xd4e9cfa2
+  }
+}
+struct_union {
+  id: 0xcc947619
+  kind: STRUCT
+  name: "ACameraMetadata"
+}
+struct_union {
+  id: 0x178636c4
+  kind: STRUCT
+  name: "ACameraMetadata_const_entry"
+  definition {
+    bytesize: 24
+    member_id: 0xd5b9f003
+    member_id: 0x5c153155
+    member_id: 0x6539669b
+    member_id: 0xffcbb1ae
+  }
+}
+struct_union {
+  id: 0x5b857a6a
+  kind: STRUCT
+  name: "ACameraMetadata_rational"
+}
+struct_union {
+  id: 0xf7c3c3c3
+  kind: STRUCT
+  name: "ACameraOutputTarget"
+}
+struct_union {
+  id: 0x7e6bc3c1
+  kind: STRUCT
+  name: "ACaptureRequest"
+}
+struct_union {
+  id: 0x526197a9
+  kind: STRUCT
+  name: "ACaptureSessionOutput"
+}
+struct_union {
+  id: 0x078cb754
+  kind: STRUCT
+  name: "ACaptureSessionOutputContainer"
+}
+struct_union {
+  id: 0xe7151bc7
+  kind: STRUCT
+  name: "ALogicalCameraCaptureFailure"
+  definition {
+    bytesize: 32
+    member_id: 0xeb2fcec1
+    member_id: 0x5f143d86
+  }
+}
+struct_union {
+  id: 0x56e357ff
+  kind: STRUCT
+  name: "ANativeWindow"
+}
+enumeration {
+  id: 0x7090466a
+  definition {
+    underlying_type_id: 0x6720d32f
+    enumerator {
+      name: "ACAMERA_OK"
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_BASE"
+      value: -10000
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_UNKNOWN"
+      value: -10000
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_INVALID_PARAMETER"
+      value: -10001
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_CAMERA_DISCONNECTED"
+      value: -10002
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_NOT_ENOUGH_MEMORY"
+      value: -10003
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_METADATA_NOT_FOUND"
+      value: -10004
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_CAMERA_DEVICE"
+      value: -10005
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_CAMERA_SERVICE"
+      value: -10006
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_SESSION_CLOSED"
+      value: -10007
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_INVALID_OPERATION"
+      value: -10008
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_STREAM_CONFIGURE_FAIL"
+      value: -10009
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_CAMERA_IN_USE"
+      value: -10010
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_MAX_CAMERA_IN_USE"
+      value: -10011
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_CAMERA_DISABLED"
+      value: -10012
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_PERMISSION_DENIED"
+      value: -10013
+    }
+    enumerator {
+      name: "ACAMERA_ERROR_UNSUPPORTED_OPERATION"
+      value: -10014
+    }
+  }
+}
+enumeration {
+  id: 0x74bf76ff
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "TEMPLATE_PREVIEW"
+      value: 1
+    }
+    enumerator {
+      name: "TEMPLATE_STILL_CAPTURE"
+      value: 2
+    }
+    enumerator {
+      name: "TEMPLATE_RECORD"
+      value: 3
+    }
+    enumerator {
+      name: "TEMPLATE_VIDEO_SNAPSHOT"
+      value: 4
+    }
+    enumerator {
+      name: "TEMPLATE_ZERO_SHUTTER_LAG"
+      value: 5
+    }
+    enumerator {
+      name: "TEMPLATE_MANUAL"
+      value: 6
+    }
+  }
+}
+function {
+  id: 0x10493a0b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0345ae60
+}
+function {
+  id: 0x11545364
+  return_type_id: 0x48b5725f
+  parameter_id: 0x07300bdd
+}
+function {
+  id: 0x13153d1e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0e35b236
+}
+function {
+  id: 0x13539714
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0f2f1a1f
+}
+function {
+  id: 0x1609b616
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1a479e15
+}
+function {
+  id: 0x1640ce26
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x16485ba4
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x16498f6b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x6720d32f
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x164f4a0b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x16504158
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x07300bdd
+  parameter_id: 0x07b2be3f
+}
+function {
+  id: 0x16504dfd
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x07300bdd
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x1650898b
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x07300bdd
+  parameter_id: 0x35867975
+}
+function {
+  id: 0x16509e7c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x07300bdd
+  parameter_id: 0x307babb8
+}
+function {
+  id: 0x1650a364
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x07300bdd
+  parameter_id: 0x307babb8
+  parameter_id: 0xf435685e
+  parameter_id: 0x051414e1
+  parameter_id: 0x068ed349
+}
+function {
+  id: 0x16519390
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+}
+function {
+  id: 0x165ff84c
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x166d94f0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x30d506c1
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x16745cc4
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0x30d506c1
+}
+function {
+  id: 0x16b708df
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x1c7fe6a7
+  return_type_id: 0x48b5725f
+  parameter_id: 0x339edcd2
+}
+function {
+  id: 0x1ef1e562
+  return_type_id: 0x48b5725f
+  parameter_id: 0x39a6d3c7
+}
+function {
+  id: 0x1fd3b68d
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d2f9c7b
+}
+function {
+  id: 0x3427b3f8
+  return_type_id: 0x08612c0d
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x2f18aad4
+}
+function {
+  id: 0x34a21262
+  return_type_id: 0x08612c0d
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x0585dfed
+}
+function {
+  id: 0x34a372f2
+  return_type_id: 0x08612c0d
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x2f18aad4
+}
+function {
+  id: 0x34e209ad
+  return_type_id: 0x08612c0d
+  parameter_id: 0x33050d16
+  parameter_id: 0xd1b314ea
+  parameter_id: 0x0b5c3b50
+}
+function {
+  id: 0x34eabfa2
+  return_type_id: 0x08612c0d
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x0cbf60eb
+}
+function {
+  id: 0x34efdc9b
+  return_type_id: 0x08612c0d
+  parameter_id: 0x33050d16
+  parameter_id: 0xd1b314ea
+  parameter_id: 0x3cbd202b
+  parameter_id: 0x0b5c3b50
+}
+function {
+  id: 0x350ee544
+  return_type_id: 0x08612c0d
+  parameter_id: 0x39a6d3c7
+}
+function {
+  id: 0x351470a4
+  return_type_id: 0x08612c0d
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x06a57817
+}
+function {
+  id: 0x3567fb3c
+  return_type_id: 0x08612c0d
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x1a479e15
+}
+function {
+  id: 0x3570fc3f
+  return_type_id: 0x08612c0d
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x19fe3a77
+  parameter_id: 0x6720d32f
+  parameter_id: 0x0b5c3b50
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x358f3cbf
+  return_type_id: 0x08612c0d
+  parameter_id: 0x39a6d3c7
+  parameter_id: 0x260e1a40
+  parameter_id: 0x6720d32f
+  parameter_id: 0x0b5c3b50
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x37028b88
+  return_type_id: 0x08612c0d
+  parameter_id: 0x307babb8
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x2f18aad4
+}
+function {
+  id: 0x3703eb18
+  return_type_id: 0x08612c0d
+  parameter_id: 0x307babb8
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x0585dfed
+}
+function {
+  id: 0x37521005
+  return_type_id: 0x08612c0d
+  parameter_id: 0x30d506c1
+}
+function {
+  id: 0x3759966c
+  return_type_id: 0x08612c0d
+  parameter_id: 0x33050d16
+  parameter_id: 0x3fe1273e
+}
+function {
+  id: 0x37a1e57b
+  return_type_id: 0x08612c0d
+  parameter_id: 0x30d506c1
+  parameter_id: 0x3fe1273e
+  parameter_id: 0x31881126
+  parameter_id: 0x04f98d56
+}
+function {
+  id: 0x37a2ec94
+  return_type_id: 0x08612c0d
+  parameter_id: 0x30d506c1
+  parameter_id: 0x3fe1273e
+  parameter_id: 0x3efc4e51
+  parameter_id: 0x31881126
+  parameter_id: 0x04f98d56
+}
+function {
+  id: 0x384358cc
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0f2f1a1f
+  parameter_id: 0x3bf3ff9d
+}
+function {
+  id: 0x38546484
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0f2f1a1f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x02afdd90
+  parameter_id: 0x06a57817
+}
+function {
+  id: 0x3855a311
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0f2f1a1f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x05dbdeb9
+}
+function {
+  id: 0x3867a0ec
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0f2f1a1f
+  parameter_id: 0x32cdf7b9
+}
+function {
+  id: 0x3888e266
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0f2f1a1f
+  parameter_id: 0x091d552a
+}
+function {
+  id: 0x39f7053a
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0a41523f
+}
+function {
+  id: 0x3a54602f
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x38835fe6
+}
+function {
+  id: 0x3a546065
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x39aad3c3
+}
+function {
+  id: 0x3a5460b8
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3adeca35
+}
+function {
+  id: 0x3a5460be
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3ac77f52
+}
+function {
+  id: 0x3a54613e
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3cc411fe
+}
+function {
+  id: 0x3a546347
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x3e10b518
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x352385f8
+}
+function {
+  id: 0x3a640cac
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x33d7fb92
+}
+function {
+  id: 0x3ac9a6d6
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x3adc41af
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3adeca35
+}
+function {
+  id: 0x3adc41c9
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3ac77f52
+}
+function {
+  id: 0x3adc48d9
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x38835fe6
+}
+function {
+  id: 0x3adc4c7f
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x39aad3c3
+}
+function {
+  id: 0x3adc59c4
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3cc411fe
+}
+function {
+  id: 0x3adc7e5a
+  return_type_id: 0x08612c0d
+  parameter_id: 0x07300bdd
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x352385f8
+}
+function {
+  id: 0x3b50bc81
+  return_type_id: 0x08612c0d
+  parameter_id: 0x0345ae60
+  parameter_id: 0x39a1ab23
+}
+function {
+  id: 0x3b6e2d75
+  return_type_id: 0x08612c0d
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x3e10b518
+  parameter_id: 0x0c01de22
+}
+function {
+  id: 0x3b8cb1ec
+  return_type_id: 0x08612c0d
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x06778e93
+}
+function {
+  id: 0x3ba568ae
+  return_type_id: 0x08612c0d
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x0c01de22
+}
+function {
+  id: 0x3df995d6
+  return_type_id: 0x08612c0d
+  parameter_id: 0x1a479e15
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0x42e743c6
+  return_type_id: 0x3d2f9c7b
+  parameter_id: 0x307babb8
+}
+function {
+  id: 0x9e8554e6
+  return_type_id: 0x3e10b518
+  parameter_id: 0x33050d16
+}
+function {
+  id: 0xb291b784
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x307babb8
+  parameter_id: 0x379d63b0
+  parameter_id: 0x050d6bc0
+}
+function {
+  id: 0xe71a67a3
+  return_type_id: 0x0f2f1a1f
+}
+function {
+  id: 0xeefd31e5
+  return_type_id: 0x07300bdd
+  parameter_id: 0x3efc4e51
+}
+elf_symbol {
+  id: 0x6ed0ac8d
+  name: "ACameraCaptureSession_abortCaptures"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x350ee544
+  full_name: "ACameraCaptureSession_abortCaptures"
+}
+elf_symbol {
+  id: 0xae6db32b
+  name: "ACameraCaptureSession_capture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x358f3cbf
+  full_name: "ACameraCaptureSession_capture"
+}
+elf_symbol {
+  id: 0x528b9388
+  name: "ACameraCaptureSession_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ef1e562
+  full_name: "ACameraCaptureSession_close"
+}
+elf_symbol {
+  id: 0x1e1fbed7
+  name: "ACameraCaptureSession_getDevice"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x351470a4
+  full_name: "ACameraCaptureSession_getDevice"
+}
+elf_symbol {
+  id: 0x21d62fb6
+  name: "ACameraCaptureSession_logicalCamera_capture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3570fc3f
+  full_name: "ACameraCaptureSession_logicalCamera_capture"
+}
+elf_symbol {
+  id: 0xda609ca1
+  name: "ACameraCaptureSession_logicalCamera_setRepeatingRequest"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3570fc3f
+  full_name: "ACameraCaptureSession_logicalCamera_setRepeatingRequest"
+}
+elf_symbol {
+  id: 0x84ed3e32
+  name: "ACameraCaptureSession_setRepeatingRequest"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x358f3cbf
+  full_name: "ACameraCaptureSession_setRepeatingRequest"
+}
+elf_symbol {
+  id: 0x555df16a
+  name: "ACameraCaptureSession_stopRepeating"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x350ee544
+  full_name: "ACameraCaptureSession_stopRepeating"
+}
+elf_symbol {
+  id: 0x05c7580a
+  name: "ACameraCaptureSession_updateSharedOutput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3567fb3c
+  full_name: "ACameraCaptureSession_updateSharedOutput"
+}
+elf_symbol {
+  id: 0x2cdff565
+  name: "ACameraDevice_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x37521005
+  full_name: "ACameraDevice_close"
+}
+elf_symbol {
+  id: 0x72ddd9ba
+  name: "ACameraDevice_createCaptureRequest"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x34e209ad
+  full_name: "ACameraDevice_createCaptureRequest"
+}
+elf_symbol {
+  id: 0xd9915983
+  name: "ACameraDevice_createCaptureRequest_withPhysicalIds"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x34efdc9b
+  full_name: "ACameraDevice_createCaptureRequest_withPhysicalIds"
+}
+elf_symbol {
+  id: 0x74bee844
+  name: "ACameraDevice_createCaptureSession"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x37a1e57b
+  full_name: "ACameraDevice_createCaptureSession"
+}
+elf_symbol {
+  id: 0x98a2b12a
+  name: "ACameraDevice_createCaptureSessionWithSessionParameters"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x37a2ec94
+  full_name: "ACameraDevice_createCaptureSessionWithSessionParameters"
+}
+elf_symbol {
+  id: 0xb8ec3ebf
+  name: "ACameraDevice_getId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e8554e6
+  full_name: "ACameraDevice_getId"
+}
+elf_symbol {
+  id: 0x7ce33415
+  name: "ACameraDevice_isSessionConfigurationSupported"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3759966c
+  full_name: "ACameraDevice_isSessionConfigurationSupported"
+}
+elf_symbol {
+  id: 0x15e27db8
+  name: "ACameraManager_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe71a67a3
+  full_name: "ACameraManager_create"
+}
+elf_symbol {
+  id: 0x07f1ea91
+  name: "ACameraManager_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x13539714
+  full_name: "ACameraManager_delete"
+}
+elf_symbol {
+  id: 0x83fbf618
+  name: "ACameraManager_deleteCameraIdList"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x13153d1e
+  full_name: "ACameraManager_deleteCameraIdList"
+}
+elf_symbol {
+  id: 0x05759625
+  name: "ACameraManager_getCameraCharacteristics"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3855a311
+  full_name: "ACameraManager_getCameraCharacteristics"
+}
+elf_symbol {
+  id: 0x073b36e0
+  name: "ACameraManager_getCameraIdList"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3888e266
+  full_name: "ACameraManager_getCameraIdList"
+}
+elf_symbol {
+  id: 0xc045a7eb
+  name: "ACameraManager_openCamera"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x38546484
+  full_name: "ACameraManager_openCamera"
+}
+elf_symbol {
+  id: 0x1b82d0b1
+  name: "ACameraManager_registerAvailabilityCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3867a0ec
+  full_name: "ACameraManager_registerAvailabilityCallback"
+}
+elf_symbol {
+  id: 0x0a996cb7
+  name: "ACameraManager_registerExtendedAvailabilityCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x384358cc
+  full_name: "ACameraManager_registerExtendedAvailabilityCallback"
+}
+elf_symbol {
+  id: 0x1aa73be4
+  name: "ACameraManager_unregisterAvailabilityCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3867a0ec
+  full_name: "ACameraManager_unregisterAvailabilityCallback"
+}
+elf_symbol {
+  id: 0x87856210
+  name: "ACameraManager_unregisterExtendedAvailabilityCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x384358cc
+  full_name: "ACameraManager_unregisterExtendedAvailabilityCallback"
+}
+elf_symbol {
+  id: 0xefdcbfc4
+  name: "ACameraMetadata_copy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x42e743c6
+  full_name: "ACameraMetadata_copy"
+}
+elf_symbol {
+  id: 0x57bacaff
+  name: "ACameraMetadata_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1fd3b68d
+  full_name: "ACameraMetadata_free"
+}
+elf_symbol {
+  id: 0xa79ed198
+  name: "ACameraMetadata_getAllTags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3703eb18
+  full_name: "ACameraMetadata_getAllTags"
+}
+elf_symbol {
+  id: 0x57bb1100
+  name: "ACameraMetadata_getConstEntry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x37028b88
+  full_name: "ACameraMetadata_getConstEntry"
+}
+elf_symbol {
+  id: 0xdc147ab0
+  name: "ACameraMetadata_isLogicalMultiCamera"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb291b784
+  full_name: "ACameraMetadata_isLogicalMultiCamera"
+}
+elf_symbol {
+  id: 0xcfd33d29
+  name: "ACameraOutputTarget_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3b8cb1ec
+  full_name: "ACameraOutputTarget_create"
+}
+elf_symbol {
+  id: 0x26bee309
+  name: "ACameraOutputTarget_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1c7fe6a7
+  full_name: "ACameraOutputTarget_free"
+}
+elf_symbol {
+  id: 0xfdab2104
+  name: "ACaptureRequest_addTarget"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a640cac
+  full_name: "ACaptureRequest_addTarget"
+}
+elf_symbol {
+  id: 0x5ffa4c31
+  name: "ACaptureRequest_copy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xeefd31e5
+  full_name: "ACaptureRequest_copy"
+}
+elf_symbol {
+  id: 0x1ab2c20e
+  name: "ACaptureRequest_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x11545364
+  full_name: "ACaptureRequest_free"
+}
+elf_symbol {
+  id: 0xf53f95f1
+  name: "ACaptureRequest_getAllTags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x34a21262
+  full_name: "ACaptureRequest_getAllTags"
+}
+elf_symbol {
+  id: 0x35886ac4
+  name: "ACaptureRequest_getConstEntry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x34a372f2
+  full_name: "ACaptureRequest_getConstEntry"
+}
+elf_symbol {
+  id: 0x258084e1
+  name: "ACaptureRequest_getConstEntry_physicalCamera"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3427b3f8
+  full_name: "ACaptureRequest_getConstEntry_physicalCamera"
+}
+elf_symbol {
+  id: 0x7b5977aa
+  name: "ACaptureRequest_getUserContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x34eabfa2
+  full_name: "ACaptureRequest_getUserContext"
+}
+elf_symbol {
+  id: 0x80eab128
+  name: "ACaptureRequest_removeTarget"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a640cac
+  full_name: "ACaptureRequest_removeTarget"
+}
+elf_symbol {
+  id: 0x83ff047a
+  name: "ACaptureRequest_setEntry_double"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc59c4
+  full_name: "ACaptureRequest_setEntry_double"
+}
+elf_symbol {
+  id: 0x9bce2078
+  name: "ACaptureRequest_setEntry_float"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc7e5a
+  full_name: "ACaptureRequest_setEntry_float"
+}
+elf_symbol {
+  id: 0x0cf9d1b4
+  name: "ACaptureRequest_setEntry_i32"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc48d9
+  full_name: "ACaptureRequest_setEntry_i32"
+}
+elf_symbol {
+  id: 0xa4f02b87
+  name: "ACaptureRequest_setEntry_i64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc41c9
+  full_name: "ACaptureRequest_setEntry_i64"
+}
+elf_symbol {
+  id: 0xb5821656
+  name: "ACaptureRequest_setEntry_physicalCamera_double"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a54613e
+  full_name: "ACaptureRequest_setEntry_physicalCamera_double"
+}
+elf_symbol {
+  id: 0x9c580940
+  name: "ACaptureRequest_setEntry_physicalCamera_float"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a546347
+  full_name: "ACaptureRequest_setEntry_physicalCamera_float"
+}
+elf_symbol {
+  id: 0x788dd995
+  name: "ACaptureRequest_setEntry_physicalCamera_i32"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a54602f
+  full_name: "ACaptureRequest_setEntry_physicalCamera_i32"
+}
+elf_symbol {
+  id: 0xb984df03
+  name: "ACaptureRequest_setEntry_physicalCamera_i64"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a5460be
+  full_name: "ACaptureRequest_setEntry_physicalCamera_i64"
+}
+elf_symbol {
+  id: 0x8e8f1564
+  name: "ACaptureRequest_setEntry_physicalCamera_rational"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a5460b8
+  full_name: "ACaptureRequest_setEntry_physicalCamera_rational"
+}
+elf_symbol {
+  id: 0xa0c5c83c
+  name: "ACaptureRequest_setEntry_physicalCamera_u8"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3a546065
+  full_name: "ACaptureRequest_setEntry_physicalCamera_u8"
+}
+elf_symbol {
+  id: 0x50e59f4f
+  name: "ACaptureRequest_setEntry_rational"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc41af
+  full_name: "ACaptureRequest_setEntry_rational"
+}
+elf_symbol {
+  id: 0x15852f1a
+  name: "ACaptureRequest_setEntry_u8"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3adc4c7f
+  full_name: "ACaptureRequest_setEntry_u8"
+}
+elf_symbol {
+  id: 0xb8888b0d
+  name: "ACaptureRequest_setUserContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3ac9a6d6
+  full_name: "ACaptureRequest_setUserContext"
+}
+elf_symbol {
+  id: 0x8b1c9b95
+  name: "ACaptureSessionOutputContainer_add"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3b50bc81
+  full_name: "ACaptureSessionOutputContainer_add"
+}
+elf_symbol {
+  id: 0x485e743d
+  name: "ACaptureSessionOutputContainer_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x39f7053a
+  full_name: "ACaptureSessionOutputContainer_create"
+}
+elf_symbol {
+  id: 0x1bc4356d
+  name: "ACaptureSessionOutputContainer_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10493a0b
+  full_name: "ACaptureSessionOutputContainer_free"
+}
+elf_symbol {
+  id: 0x4487de8a
+  name: "ACaptureSessionOutputContainer_remove"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3b50bc81
+  full_name: "ACaptureSessionOutputContainer_remove"
+}
+elf_symbol {
+  id: 0xe34255aa
+  name: "ACaptureSessionOutput_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3ba568ae
+  full_name: "ACaptureSessionOutput_create"
+}
+elf_symbol {
+  id: 0xc502ffae
+  name: "ACaptureSessionOutput_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1609b616
+  full_name: "ACaptureSessionOutput_free"
+}
+elf_symbol {
+  id: 0x7bd55152
+  name: "ACaptureSessionPhysicalOutput_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3b6e2d75
+  full_name: "ACaptureSessionPhysicalOutput_create"
+}
+elf_symbol {
+  id: 0x13614dbe
+  name: "ACaptureSessionSharedOutput_add"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3df995d6
+  full_name: "ACaptureSessionSharedOutput_add"
+}
+elf_symbol {
+  id: 0xb4c0e3b8
+  name: "ACaptureSessionSharedOutput_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3ba568ae
+  full_name: "ACaptureSessionSharedOutput_create"
+}
+elf_symbol {
+  id: 0xb9c72b95
+  name: "ACaptureSessionSharedOutput_remove"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3df995d6
+  full_name: "ACaptureSessionSharedOutput_remove"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x6ed0ac8d
+  symbol_id: 0xae6db32b
+  symbol_id: 0x528b9388
+  symbol_id: 0x1e1fbed7
+  symbol_id: 0x21d62fb6
+  symbol_id: 0xda609ca1
+  symbol_id: 0x84ed3e32
+  symbol_id: 0x555df16a
+  symbol_id: 0x05c7580a
+  symbol_id: 0x2cdff565
+  symbol_id: 0x72ddd9ba
+  symbol_id: 0xd9915983
+  symbol_id: 0x74bee844
+  symbol_id: 0x98a2b12a
+  symbol_id: 0xb8ec3ebf
+  symbol_id: 0x7ce33415
+  symbol_id: 0x15e27db8
+  symbol_id: 0x07f1ea91
+  symbol_id: 0x83fbf618
+  symbol_id: 0x05759625
+  symbol_id: 0x073b36e0
+  symbol_id: 0xc045a7eb
+  symbol_id: 0x1b82d0b1
+  symbol_id: 0x0a996cb7
+  symbol_id: 0x1aa73be4
+  symbol_id: 0x87856210
+  symbol_id: 0xefdcbfc4
+  symbol_id: 0x57bacaff
+  symbol_id: 0xa79ed198
+  symbol_id: 0x57bb1100
+  symbol_id: 0xdc147ab0
+  symbol_id: 0xcfd33d29
+  symbol_id: 0x26bee309
+  symbol_id: 0xfdab2104
+  symbol_id: 0x5ffa4c31
+  symbol_id: 0x1ab2c20e
+  symbol_id: 0xf53f95f1
+  symbol_id: 0x35886ac4
+  symbol_id: 0x258084e1
+  symbol_id: 0x7b5977aa
+  symbol_id: 0x80eab128
+  symbol_id: 0x83ff047a
+  symbol_id: 0x9bce2078
+  symbol_id: 0x0cf9d1b4
+  symbol_id: 0xa4f02b87
+  symbol_id: 0xb5821656
+  symbol_id: 0x9c580940
+  symbol_id: 0x788dd995
+  symbol_id: 0xb984df03
+  symbol_id: 0x8e8f1564
+  symbol_id: 0xa0c5c83c
+  symbol_id: 0x50e59f4f
+  symbol_id: 0x15852f1a
+  symbol_id: 0xb8888b0d
+  symbol_id: 0x8b1c9b95
+  symbol_id: 0x485e743d
+  symbol_id: 0x1bc4356d
+  symbol_id: 0x4487de8a
+  symbol_id: 0xe34255aa
+  symbol_id: 0xc502ffae
+  symbol_id: 0x7bd55152
+  symbol_id: 0x13614dbe
+  symbol_id: 0xb4c0e3b8
+  symbol_id: 0xb9c72b95
+}

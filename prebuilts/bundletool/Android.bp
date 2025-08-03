@@ -1,0 +1,14 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import_host {
+    name: "bundletool-all-jar",
+    jars: ["*.jar"],
+}
+
+java_binary_host {
+    name: "bundletool",
+    static_libs: ["bundletool-all-jar"],
+}

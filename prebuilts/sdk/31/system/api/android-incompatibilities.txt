@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: android.bluetooth.BluetoothHeadset#setPriority(android.bluetooth.BluetoothDevice, int):
+    Removed deprecated method android.bluetooth.BluetoothHeadset.setPriority(android.bluetooth.BluetoothDevice,int)

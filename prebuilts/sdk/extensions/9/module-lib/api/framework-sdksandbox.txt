@@ -1,0 +1,13 @@
+// Signature format: 2.0
+package android.app.sdksandbox {
+
+  public final class SdkSandboxManager {
+    field public static final String ACTION_START_SANDBOXED_ACTIVITY = "android.app.sdksandbox.action.START_SANDBOXED_ACTIVITY";
+  }
+
+  public class SdkSandboxManagerFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+

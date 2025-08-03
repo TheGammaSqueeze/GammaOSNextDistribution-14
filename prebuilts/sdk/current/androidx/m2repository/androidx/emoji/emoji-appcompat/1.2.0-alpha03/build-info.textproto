@@ -1,0 +1,28 @@
+version: "1.2.0-alpha03"
+dependency_list {
+  dependency {
+    group_id: "androidx.appcompat"
+    artifact_id: "appcompat"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.emoji"
+    artifact_id: "emoji"
+    version: "1.2.0-alpha03"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.emoji"
+group_id: "androidx.emoji"
+artifact_id: "emoji-appcompat"
+path: "/emoji/emoji-appcompat"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-emoji-11472573.zip"
+project_zip_path: "per-project-zips/androidx.emoji-emoji-appcompat-all-11472573-1.2.0-alpha03.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

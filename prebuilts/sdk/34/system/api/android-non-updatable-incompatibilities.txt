@@ -1,0 +1,47 @@
+// Baseline format: 1.0
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createReEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createReEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createUnEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createUnEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#getParameter(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.getParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#getSupportedRecognitionModes():
+    Method android.service.voice.AlwaysOnHotwordDetector.getSupportedRecognitionModes added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#queryParameter(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.queryParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#setParameter(int, int):
+    Method android.service.voice.AlwaysOnHotwordDetector.setParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition():
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition(android.os.ParcelFileDescriptor, android.media.AudioFormat, android.os.PersistableBundle):
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#stopRecognition():
+    Method android.service.voice.AlwaysOnHotwordDetector.stopRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#updateState(android.os.PersistableBundle, android.os.SharedMemory):
+    Method android.service.voice.AlwaysOnHotwordDetector.updateState added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#startRecognition():
+    Method android.service.voice.HotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#startRecognition(android.os.ParcelFileDescriptor, android.media.AudioFormat, android.os.PersistableBundle):
+    Method android.service.voice.HotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#stopRecognition():
+    Method android.service.voice.HotwordDetector.stopRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#updateState(android.os.PersistableBundle, android.os.SharedMemory):
+    Method android.service.voice.HotwordDetector.updateState added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+RemovedClass: android.provider.DeviceConfig:
+    Removed class android.provider.DeviceConfig
+
+
+RemovedMethod: android.nfc.NfcAdapter#disableNdefPush():
+    Removed method android.nfc.NfcAdapter.disableNdefPush()
+RemovedMethod: android.nfc.NfcAdapter#enableNdefPush():
+    Removed method android.nfc.NfcAdapter.enableNdefPush()
+RemovedMethod: android.nfc.NfcAdapter#setNdefPushMessage(android.nfc.NdefMessage, android.app.Activity, int):
+    Removed method android.nfc.NfcAdapter.setNdefPushMessage(android.nfc.NdefMessage,android.app.Activity,int)
+
+
+RemovedField: android.nfc.NfcAdapter#FLAG_NDEF_PUSH_NO_CONFIRM:
+    Removed field android.nfc.NfcAdapter.FLAG_NDEF_PUSH_NO_CONFIRM

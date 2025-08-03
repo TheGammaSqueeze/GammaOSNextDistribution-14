@@ -1,0 +1,10 @@
+drops {
+  dest_file: "0.67.0.d011fd9/rewrapper"
+  version: "0.67.0.d011fd9"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "rewrapper"
+  }
+  git_branch: "master"
+}

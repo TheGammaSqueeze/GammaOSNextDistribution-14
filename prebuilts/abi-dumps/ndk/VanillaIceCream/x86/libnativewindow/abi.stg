@@ -1,0 +1,825 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x03c8f98e
+  kind: POINTER
+  pointee_type_id: 0x256300a6
+}
+pointer_reference {
+  id: 0x0484de69
+  kind: POINTER
+  pointee_type_id: 0x38539f38
+}
+pointer_reference {
+  id: 0x07b8ce6f
+  kind: POINTER
+  pointee_type_id: 0x34a3df20
+}
+pointer_reference {
+  id: 0x095e2d77
+  kind: POINTER
+  pointee_type_id: 0x0f385340
+}
+pointer_reference {
+  id: 0x0a6207c4
+  kind: POINTER
+  pointee_type_id: 0x03c8f98e
+}
+pointer_reference {
+  id: 0x0cbf60eb
+  kind: POINTER
+  pointee_type_id: 0x18bd6530
+}
+pointer_reference {
+  id: 0x0db25a6d
+  kind: POINTER
+  pointee_type_id: 0x1c898f28
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x1f5099bd
+  kind: POINTER
+  pointee_type_id: 0x5702806b
+}
+pointer_reference {
+  id: 0x1f5b8148
+  kind: POINTER
+  pointee_type_id: 0x572ee3bc
+}
+pointer_reference {
+  id: 0x23158137
+  kind: POINTER
+  pointee_type_id: 0xa616e242
+}
+pointer_reference {
+  id: 0x3124ab68
+  kind: POINTER
+  pointee_type_id: 0xeed24b3d
+}
+pointer_reference {
+  id: 0x38539f38
+  kind: POINTER
+  pointee_type_id: 0xcb0e9a7f
+}
+pointer_reference {
+  id: 0x38e46ac9
+  kind: POINTER
+  pointee_type_id: 0xc9d14db8
+}
+pointer_reference {
+  id: 0x3d67c7fb
+  kind: POINTER
+  pointee_type_id: 0xdfdff972
+}
+pointer_reference {
+  id: 0x3ede7f3d
+  kind: POINTER
+  pointee_type_id: 0xd1391a6a
+}
+typedef {
+  id: 0xcb0e9a7f
+  name: "AHardwareBuffer"
+  referred_type_id: 0xda3b284e
+}
+typedef {
+  id: 0x5702806b
+  name: "AHardwareBuffer_Desc"
+  referred_type_id: 0x1181d4aa
+}
+typedef {
+  id: 0x2d4df7eb
+  name: "AHardwareBuffer_Plane"
+  referred_type_id: 0x3b5eb23e
+}
+typedef {
+  id: 0x572ee3bc
+  name: "AHardwareBuffer_Planes"
+  referred_type_id: 0xd36c0c98
+}
+typedef {
+  id: 0x256300a6
+  name: "ANativeWindow"
+  referred_type_id: 0x56e357ff
+}
+typedef {
+  id: 0xa616e242
+  name: "ANativeWindow_Buffer"
+  referred_type_id: 0x26e0860b
+}
+typedef {
+  id: 0x34a3df20
+  name: "AParcel"
+  referred_type_id: 0xa0496784
+}
+typedef {
+  id: 0x0f385340
+  name: "ARect"
+  referred_type_id: 0x146735cc
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x8f1f16be
+  name: "__int8_t"
+  referred_type_id: 0x5ab350f8
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x854daa2a
+  name: "__uint64_t"
+  referred_type_id: 0xd5df6730
+}
+typedef {
+  id: 0x32c05246
+  name: "binder_status_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0xde365fc3
+  name: "int8_t"
+  referred_type_id: 0x8f1f16be
+}
+typedef {
+  id: 0x1c3dbe5a
+  name: "uint32_t"
+  referred_type_id: 0x903f4c78
+}
+typedef {
+  id: 0x1c898f28
+  name: "uint64_t"
+  referred_type_id: 0x854daa2a
+}
+qualified {
+  id: 0xc9d14db8
+  qualifier: CONST
+  qualified_type_id: 0x5702806b
+}
+qualified {
+  id: 0xd1391a6a
+  qualifier: CONST
+  qualified_type_id: 0x34a3df20
+}
+qualified {
+  id: 0xdfdff972
+  qualifier: CONST
+  qualified_type_id: 0x0f385340
+}
+qualified {
+  id: 0xeed24b3d
+  qualifier: CONST
+  qualified_type_id: 0xcb0e9a7f
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5ab350f8
+  name: "signed char"
+  encoding: SIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xd5df6730
+  name: "unsigned long long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+array {
+  id: 0x871e6ee0
+  number_of_elements: 4
+  element_type_id: 0x2d4df7eb
+}
+member {
+  id: 0xfac54e4d
+  name: "bottom"
+  type_id: 0x5171d297
+  offset: 96
+}
+member {
+  id: 0xff8a9909
+  name: "data"
+  type_id: 0x18bd6530
+}
+member {
+  id: 0x084b6793
+  name: "format"
+  type_id: 0x1c3dbe5a
+  offset: 96
+}
+member {
+  id: 0x2b01dca7
+  name: "height"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0x6e6e19ef
+  name: "layers"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0x35a81977
+  name: "left"
+  type_id: 0x5171d297
+}
+member {
+  id: 0x731f40af
+  name: "pixelStride"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0xe8119d2e
+  name: "planeCount"
+  type_id: 0x1c3dbe5a
+}
+member {
+  id: 0x2993bb9b
+  name: "planes"
+  type_id: 0x871e6ee0
+  offset: 32
+}
+member {
+  id: 0xcec14abc
+  name: "rfu0"
+  type_id: 0x1c3dbe5a
+  offset: 224
+}
+member {
+  id: 0x0f0cadf4
+  name: "rfu1"
+  type_id: 0x1c898f28
+  offset: 256
+}
+member {
+  id: 0x0b27cdaf
+  name: "right"
+  type_id: 0x5171d297
+  offset: 64
+}
+member {
+  id: 0x34ce5ee4
+  name: "rowStride"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0x5e4942f4
+  name: "stride"
+  type_id: 0x1c3dbe5a
+  offset: 192
+}
+member {
+  id: 0xb61db703
+  name: "top"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0x07760962
+  name: "usage"
+  type_id: 0x1c898f28
+  offset: 128
+}
+member {
+  id: 0x0a91c7be
+  name: "width"
+  type_id: 0x1c3dbe5a
+}
+struct_union {
+  id: 0xda3b284e
+  kind: STRUCT
+  name: "AHardwareBuffer"
+}
+struct_union {
+  id: 0x1181d4aa
+  kind: STRUCT
+  name: "AHardwareBuffer_Desc"
+  definition {
+    bytesize: 40
+    member_id: 0x0a91c7be
+    member_id: 0x2b01dca7
+    member_id: 0x6e6e19ef
+    member_id: 0x084b6793
+    member_id: 0x07760962
+    member_id: 0x5e4942f4
+    member_id: 0xcec14abc
+    member_id: 0x0f0cadf4
+  }
+}
+struct_union {
+  id: 0x3b5eb23e
+  kind: STRUCT
+  name: "AHardwareBuffer_Plane"
+  definition {
+    bytesize: 12
+    member_id: 0xff8a9909
+    member_id: 0x731f40af
+    member_id: 0x34ce5ee4
+  }
+}
+struct_union {
+  id: 0xd36c0c98
+  kind: STRUCT
+  name: "AHardwareBuffer_Planes"
+  definition {
+    bytesize: 52
+    member_id: 0xe8119d2e
+    member_id: 0x2993bb9b
+  }
+}
+struct_union {
+  id: 0x56e357ff
+  kind: STRUCT
+  name: "ANativeWindow"
+}
+struct_union {
+  id: 0x26e0860b
+  kind: STRUCT
+  name: "ANativeWindow_Buffer"
+}
+struct_union {
+  id: 0xa0496784
+  kind: STRUCT
+  name: "AParcel"
+}
+struct_union {
+  id: 0x146735cc
+  kind: STRUCT
+  name: "ARect"
+  definition {
+    bytesize: 16
+    member_id: 0x35a81977
+    member_id: 0xb61db703
+    member_id: 0x0b27cdaf
+    member_id: 0xfac54e4d
+  }
+}
+function {
+  id: 0x106a6ff0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0x1cac392f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x1f5099bd
+}
+function {
+  id: 0x1e8cb65d
+  return_type_id: 0x48b5725f
+  parameter_id: 0x38539f38
+}
+function {
+  id: 0x845ac49d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0x90554ab9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x91ff009c
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x0db25a6d
+}
+function {
+  id: 0x93abeae4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38e46ac9
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0x93b9f99d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38e46ac9
+}
+function {
+  id: 0x93ef35d5
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x93f28819
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x0cbf60eb
+}
+function {
+  id: 0x93f28865
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x0cbf60eb
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x93f28ce0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x38539f38
+  parameter_id: 0x1c898f28
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d67c7fb
+  parameter_id: 0x1f5b8148
+}
+function {
+  id: 0xd879a4a1
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x23158137
+  parameter_id: 0x095e2d77
+}
+function {
+  id: 0xd8f7a52e
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+}
+function {
+  id: 0xd9a77bd7
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0xd9b26264
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0xdaedd974
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0xde365fc3
+}
+function {
+  id: 0xdaeea1ad
+  return_type_id: 0x5171d297
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x8b7c737e
+  parameter_id: 0xde365fc3
+  parameter_id: 0xde365fc3
+}
+function {
+  id: 0xe74b5a9a
+  return_type_id: 0x32c05246
+  parameter_id: 0x03c8f98e
+  parameter_id: 0x07b8ce6f
+}
+function {
+  id: 0xe8020b76
+  return_type_id: 0x32c05246
+  parameter_id: 0x3ede7f3d
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0xe8399010
+  return_type_id: 0x32c05246
+  parameter_id: 0x3ede7f3d
+  parameter_id: 0x0a6207c4
+}
+function {
+  id: 0xebf04e23
+  return_type_id: 0x32c05246
+  parameter_id: 0x3124ab68
+  parameter_id: 0x07b8ce6f
+}
+elf_symbol {
+  id: 0x83b535a6
+  name: "AHardwareBuffer_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e8cb65d
+  full_name: "AHardwareBuffer_acquire"
+}
+elf_symbol {
+  id: 0xcdb6ed22
+  name: "AHardwareBuffer_allocate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93abeae4
+  full_name: "AHardwareBuffer_allocate"
+}
+elf_symbol {
+  id: 0xba4a7385
+  name: "AHardwareBuffer_describe"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1cac392f
+  full_name: "AHardwareBuffer_describe"
+}
+elf_symbol {
+  id: 0x27224256
+  name: "AHardwareBuffer_getId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91ff009c
+  full_name: "AHardwareBuffer_getId"
+}
+elf_symbol {
+  id: 0xee47bd37
+  name: "AHardwareBuffer_isSupported"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93b9f99d
+  full_name: "AHardwareBuffer_isSupported"
+}
+elf_symbol {
+  id: 0x409a6a1b
+  name: "AHardwareBuffer_lock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28819
+  full_name: "AHardwareBuffer_lock"
+}
+elf_symbol {
+  id: 0xd1a32559
+  name: "AHardwareBuffer_lockAndGetInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28865
+  full_name: "AHardwareBuffer_lockAndGetInfo"
+}
+elf_symbol {
+  id: 0x86571d6a
+  name: "AHardwareBuffer_lockPlanes"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93f28ce0
+  full_name: "AHardwareBuffer_lockPlanes"
+}
+elf_symbol {
+  id: 0x188db597
+  name: "AHardwareBuffer_readFromParcel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8020b76
+  full_name: "AHardwareBuffer_readFromParcel"
+}
+elf_symbol {
+  id: 0xfa67aafd
+  name: "AHardwareBuffer_recvHandleFromUnixSocket"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x845ac49d
+  full_name: "AHardwareBuffer_recvHandleFromUnixSocket"
+}
+elf_symbol {
+  id: 0x196e732c
+  name: "AHardwareBuffer_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e8cb65d
+  full_name: "AHardwareBuffer_release"
+}
+elf_symbol {
+  id: 0xb74ef162
+  name: "AHardwareBuffer_sendHandleToUnixSocket"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90554ab9
+  full_name: "AHardwareBuffer_sendHandleToUnixSocket"
+}
+elf_symbol {
+  id: 0x7815dfb1
+  name: "AHardwareBuffer_unlock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93ef35d5
+  full_name: "AHardwareBuffer_unlock"
+}
+elf_symbol {
+  id: 0x99bbbdfb
+  name: "AHardwareBuffer_writeToParcel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xebf04e23
+  full_name: "AHardwareBuffer_writeToParcel"
+}
+elf_symbol {
+  id: 0x475e13d9
+  name: "ANativeWindow_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x106a6ff0
+  full_name: "ANativeWindow_acquire"
+}
+elf_symbol {
+  id: 0x931d25fb
+  name: "ANativeWindow_getBuffersDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getBuffersDataSpace"
+}
+elf_symbol {
+  id: 0x79015d4f
+  name: "ANativeWindow_getBuffersDefaultDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getBuffersDefaultDataSpace"
+}
+elf_symbol {
+  id: 0xd406255c
+  name: "ANativeWindow_getFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getFormat"
+}
+elf_symbol {
+  id: 0x73bf11ac
+  name: "ANativeWindow_getHeight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getHeight"
+}
+elf_symbol {
+  id: 0x47ef1a0e
+  name: "ANativeWindow_getWidth"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_getWidth"
+}
+elf_symbol {
+  id: 0x50ee8dae
+  name: "ANativeWindow_lock"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd879a4a1
+  full_name: "ANativeWindow_lock"
+}
+elf_symbol {
+  id: 0xf0fa2db0
+  name: "ANativeWindow_readFromParcel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8399010
+  full_name: "ANativeWindow_readFromParcel"
+}
+elf_symbol {
+  id: 0x44c9d0ee
+  name: "ANativeWindow_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x106a6ff0
+  full_name: "ANativeWindow_release"
+}
+elf_symbol {
+  id: 0x1480d8c4
+  name: "ANativeWindow_setBuffersDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd9b26264
+  full_name: "ANativeWindow_setBuffersDataSpace"
+}
+elf_symbol {
+  id: 0x3989e497
+  name: "ANativeWindow_setBuffersGeometry"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd9a77bd7
+  full_name: "ANativeWindow_setBuffersGeometry"
+}
+elf_symbol {
+  id: 0x0fa46ee2
+  name: "ANativeWindow_setBuffersTransform"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd9b26264
+  full_name: "ANativeWindow_setBuffersTransform"
+}
+elf_symbol {
+  id: 0x59e4e5c0
+  name: "ANativeWindow_setFrameRate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdaedd974
+  full_name: "ANativeWindow_setFrameRate"
+}
+elf_symbol {
+  id: 0x6f97b933
+  name: "ANativeWindow_setFrameRateWithChangeStrategy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdaeea1ad
+  full_name: "ANativeWindow_setFrameRateWithChangeStrategy"
+}
+elf_symbol {
+  id: 0x66313631
+  name: "ANativeWindow_tryAllocateBuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x106a6ff0
+  full_name: "ANativeWindow_tryAllocateBuffers"
+}
+elf_symbol {
+  id: 0xf129b964
+  name: "ANativeWindow_unlockAndPost"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8f7a52e
+  full_name: "ANativeWindow_unlockAndPost"
+}
+elf_symbol {
+  id: 0x2c11464b
+  name: "ANativeWindow_writeToParcel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe74b5a9a
+  full_name: "ANativeWindow_writeToParcel"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x83b535a6
+  symbol_id: 0xcdb6ed22
+  symbol_id: 0xba4a7385
+  symbol_id: 0x27224256
+  symbol_id: 0xee47bd37
+  symbol_id: 0x409a6a1b
+  symbol_id: 0xd1a32559
+  symbol_id: 0x86571d6a
+  symbol_id: 0x188db597
+  symbol_id: 0xfa67aafd
+  symbol_id: 0x196e732c
+  symbol_id: 0xb74ef162
+  symbol_id: 0x7815dfb1
+  symbol_id: 0x99bbbdfb
+  symbol_id: 0x475e13d9
+  symbol_id: 0x931d25fb
+  symbol_id: 0x79015d4f
+  symbol_id: 0xd406255c
+  symbol_id: 0x73bf11ac
+  symbol_id: 0x47ef1a0e
+  symbol_id: 0x50ee8dae
+  symbol_id: 0xf0fa2db0
+  symbol_id: 0x44c9d0ee
+  symbol_id: 0x1480d8c4
+  symbol_id: 0x3989e497
+  symbol_id: 0x0fa46ee2
+  symbol_id: 0x59e4e5c0
+  symbol_id: 0x6f97b933
+  symbol_id: 0x66313631
+  symbol_id: 0xf129b964
+  symbol_id: 0x2c11464b
+}

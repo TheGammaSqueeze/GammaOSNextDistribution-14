@@ -1,0 +1,6 @@
+Extracted from ab/9269995, target barbet-userdebug as follows:
+
+/google/data/ro/projects/android/fetch_artifact --bid 9269995 --target barbet-userdebug 'barbet-img-9269995.zip'
+unzip barbet-img-9269995.zip vendor.img
+e2cp vendor.img:lib/libprotobuf-cpp-full-3.9.1.so $ANDROID_BUILD_TOP/prebuilts/misc/protobuf_vendorcompat/arm/
+e2cp vendor.img:lib/libprotobuf-cpp-lite-3.9.1.so $ANDROID_BUILD_TOP/prebuilts/misc/protobuf_vendorcompat/arm/

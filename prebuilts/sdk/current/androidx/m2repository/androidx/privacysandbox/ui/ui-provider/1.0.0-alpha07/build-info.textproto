@@ -1,0 +1,46 @@
+version: "1.0.0-alpha07"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.12.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.privacysandbox.ui"
+    artifact_id: "ui-core"
+    version: "1.0.0-alpha07"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.privacysandbox.ui"
+group_id: "androidx.privacysandbox.ui"
+artifact_id: "ui-provider"
+path: "/privacysandbox/ui/ui-provider"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-privacysandbox-ui-11472573.zip"
+project_zip_path: "per-project-zips/androidx.privacysandbox.ui-ui-provider-all-11472573-1.0.0-alpha07.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.privacysandbox.ui"
+    artifact_id: "ui-client"
+    version: "1.0.0-alpha07"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.privacysandbox.ui"
+    artifact_id: "ui-core"
+    version: "1.0.0-alpha07"
+    is_tip_of_tree: true
+  }
+}

@@ -1,0 +1,659 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIDi",
+   "name" : "char32_t",
+   "referenced_type" : "_ZTIDi",
+   "self_type" : "_ZTIDi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIDn",
+   "name" : "std::nullptr_t",
+   "referenced_type" : "_ZTIDn",
+   "self_type" : "_ZTIDn",
+   "size" : 4
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIDs",
+   "name" : "char16_t",
+   "referenced_type" : "_ZTIDs",
+   "self_type" : "_ZTIDs",
+   "size" : 2
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIa",
+   "name" : "signed char",
+   "referenced_type" : "_ZTIa",
+   "self_type" : "_ZTIa",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIb",
+   "name" : "bool",
+   "referenced_type" : "_ZTIb",
+   "self_type" : "_ZTIb",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTId",
+   "name" : "double",
+   "referenced_type" : "_ZTId",
+   "self_type" : "_ZTId",
+   "size" : 8
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIe",
+   "name" : "long double",
+   "referenced_type" : "_ZTIe",
+   "self_type" : "_ZTIe",
+   "size" : 8
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIf",
+   "name" : "float",
+   "referenced_type" : "_ZTIf",
+   "self_type" : "_ZTIf",
+   "size" : 4
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIh",
+   "name" : "unsigned char",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIh",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIl",
+   "name" : "long",
+   "referenced_type" : "_ZTIl",
+   "self_type" : "_ZTIl",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIm",
+   "name" : "unsigned long",
+   "referenced_type" : "_ZTIm",
+   "self_type" : "_ZTIm",
+   "size" : 4
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIs",
+   "name" : "short",
+   "referenced_type" : "_ZTIs",
+   "self_type" : "_ZTIs",
+   "size" : 2
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIt",
+   "name" : "unsigned short",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIt",
+   "size" : 2
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIw",
+   "name" : "wchar_t",
+   "referenced_type" : "_ZTIw",
+   "self_type" : "_ZTIw",
+   "size" : 4
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIx",
+   "name" : "long long",
+   "referenced_type" : "_ZTIx",
+   "self_type" : "_ZTIx",
+   "size" : 8
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIy",
+   "name" : "unsigned long long",
+   "referenced_type" : "_ZTIy",
+   "self_type" : "_ZTIy",
+   "size" : 8
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "AStatsEventList_addStatsEvent"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_getAdditiveFields"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_getCoolDownMillis"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_getNumAdditiveFields"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_getTimeoutMillis"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_obtain"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_release"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_setAdditiveFields"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_setCoolDownMillis"
+  },
+  {
+   "name" : "AStatsManager_PullAtomMetadata_setTimeoutMillis"
+  },
+  {
+   "name" : "AStatsManager_addSubscription"
+  },
+  {
+   "name" : "AStatsManager_clearPullAtomCallback"
+  },
+  {
+   "name" : "AStatsManager_flushSubscription"
+  },
+  {
+   "name" : "AStatsManager_removeSubscription"
+  },
+  {
+   "name" : "AStatsManager_setPullAtomCallback"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" :
+ [
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 0,
+     "name" : "AStatsManager_PULL_SUCCESS"
+    },
+    {
+     "enum_field_value" : 1,
+     "name" : "AStatsManager_PULL_SKIP"
+    }
+   ],
+   "linker_set_key" : "_ZTI24$AStatsManager_PULL_SKIP",
+   "name" : "(unnamed)",
+   "referenced_type" : "_ZTI24$AStatsManager_PULL_SKIP",
+   "self_type" : "_ZTI24$AStatsManager_PULL_SKIP",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h",
+   "underlying_type" : "_ZTIj"
+  },
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 1,
+     "name" : "ASTATSMANAGER_SUBSCRIPTION_CALLBACK_REASON_STATSD_INITIATED"
+    },
+    {
+     "enum_field_value" : 2,
+     "name" : "ASTATSMANAGER_SUBSCRIPTION_CALLBACK_REASON_FLUSH_REQUESTED"
+    },
+    {
+     "enum_field_value" : 3,
+     "name" : "ASTATSMANAGER_SUBSCRIPTION_CALLBACK_REASON_SUBSCRIPTION_ENDED"
+    }
+   ],
+   "linker_set_key" : "_ZTI40AStatsManager_SubscriptionCallbackReason",
+   "name" : "AStatsManager_SubscriptionCallbackReason",
+   "referenced_type" : "_ZTI40AStatsManager_SubscriptionCallbackReason",
+   "self_type" : "_ZTI40AStatsManager_SubscriptionCallbackReason",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h",
+   "underlying_type" : "_ZTIj"
+  }
+ ],
+ "function_types" :
+ [
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIFiiP15AStatsEventListPvE",
+   "name" : "int (int, AStatsEventList *, void *)",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    },
+    {
+     "referenced_type" : "_ZTIP15AStatsEventList"
+    },
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "referenced_type" : "_ZTIFiiP15AStatsEventListPvE",
+   "return_type" : "_ZTIi",
+   "self_type" : "_ZTIFiiP15AStatsEventListPvE",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "name" : "void (int, AStatsManager_SubscriptionCallbackReason, unsigned char *, unsigned int, void *)",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    },
+    {
+     "referenced_type" : "_ZTI40AStatsManager_SubscriptionCallbackReason"
+    },
+    {
+     "referenced_type" : "_ZTIPh"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "referenced_type" : "_ZTIFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "return_type" : "_ZTIv",
+   "self_type" : "_ZTIFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  }
+ ],
+ "functions" :
+ [
+  {
+   "function_name" : "AStatsEventList_addStatsEvent",
+   "linker_set_key" : "AStatsEventList_addStatsEvent",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP15AStatsEventList"
+    }
+   ],
+   "return_type" : "_ZTIP11AStatsEvent",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_getAdditiveFields",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_getAdditiveFields",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    },
+    {
+     "referenced_type" : "_ZTIPi"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_getCoolDownMillis",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_getCoolDownMillis",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    }
+   ],
+   "return_type" : "_ZTIx",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_getNumAdditiveFields",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_getNumAdditiveFields",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    }
+   ],
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_getTimeoutMillis",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_getTimeoutMillis",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    }
+   ],
+   "return_type" : "_ZTIx",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_obtain",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_obtain",
+   "return_type" : "_ZTIP30AStatsManager_PullAtomMetadata",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_release",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_release",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_setAdditiveFields",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_setAdditiveFields",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    },
+    {
+     "referenced_type" : "_ZTIPi"
+    },
+    {
+     "referenced_type" : "_ZTIi"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_setCoolDownMillis",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_setCoolDownMillis",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    },
+    {
+     "referenced_type" : "_ZTIx"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_PullAtomMetadata_setTimeoutMillis",
+   "linker_set_key" : "AStatsManager_PullAtomMetadata_setTimeoutMillis",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    },
+    {
+     "referenced_type" : "_ZTIx"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_addSubscription",
+   "linker_set_key" : "AStatsManager_addSubscription",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIPKh"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "referenced_type" : "_ZTIKPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE"
+    },
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "function_name" : "AStatsManager_clearPullAtomCallback",
+   "linker_set_key" : "AStatsManager_clearPullAtomCallback",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "function_name" : "AStatsManager_flushSubscription",
+   "linker_set_key" : "AStatsManager_flushSubscription",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "function_name" : "AStatsManager_removeSubscription",
+   "linker_set_key" : "AStatsManager_removeSubscription",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "function_name" : "AStatsManager_setPullAtomCallback",
+   "linker_set_key" : "AStatsManager_setPullAtomCallback",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIi"
+    },
+    {
+     "referenced_type" : "_ZTIP30AStatsManager_PullAtomMetadata"
+    },
+    {
+     "referenced_type" : "_ZTIPFiiP15AStatsEventListPvE"
+    },
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  }
+ ],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" :
+ [
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP11AStatsEvent",
+   "name" : "AStatsEvent *",
+   "referenced_type" : "_ZTI11AStatsEvent",
+   "self_type" : "_ZTIP11AStatsEvent",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP15AStatsEventList",
+   "name" : "AStatsEventList *",
+   "referenced_type" : "_ZTI15AStatsEventList",
+   "self_type" : "_ZTIP15AStatsEventList",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP30AStatsManager_PullAtomMetadata",
+   "name" : "AStatsManager_PullAtomMetadata *",
+   "referenced_type" : "_ZTI30AStatsManager_PullAtomMetadata",
+   "self_type" : "_ZTIP30AStatsManager_PullAtomMetadata",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPFiiP15AStatsEventListPvE",
+   "name" : "int (*)(int, AStatsEventList *, void *)",
+   "referenced_type" : "_ZTIFiiP15AStatsEventListPvE",
+   "self_type" : "_ZTIPFiiP15AStatsEventListPvE",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "name" : "void (*)(int, AStatsManager_SubscriptionCallbackReason, unsigned char *, unsigned int, void *)",
+   "referenced_type" : "_ZTIFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "self_type" : "_ZTIPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPKh",
+   "name" : "const unsigned char *",
+   "referenced_type" : "_ZTIKh",
+   "self_type" : "_ZTIPKh",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPh",
+   "name" : "unsigned char *",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIPh",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPi",
+   "name" : "int *",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIPi",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_pull_atom_callback.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPv",
+   "name" : "void *",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIPv",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  }
+ ],
+ "qualified_types" :
+ [
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "name" : "void (*const)(int, AStatsManager_SubscriptionCallbackReason, unsigned char *, unsigned int, void *)",
+   "referenced_type" : "_ZTIPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "self_type" : "_ZTIKPFvi40AStatsManager_SubscriptionCallbackReasonPhjPvE",
+   "size" : 4,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  },
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKh",
+   "name" : "const unsigned char",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIKh",
+   "size" : 1,
+   "source_file" : "packages/modules/StatsD/lib/libstatspull/include/stats_subscription.h"
+  }
+ ],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

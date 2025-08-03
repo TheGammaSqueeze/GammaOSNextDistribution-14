@@ -1,0 +1,913 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x01057e93
+  kind: POINTER
+  pointee_type_id: 0x2e551cd1
+}
+pointer_reference {
+  id: 0x0484de69
+  kind: POINTER
+  pointee_type_id: 0x38539f38
+}
+pointer_reference {
+  id: 0x0cbf60eb
+  kind: POINTER
+  pointee_type_id: 0x18bd6530
+}
+pointer_reference {
+  id: 0x0e0f9991
+  kind: POINTER
+  pointee_type_id: 0x127e80db
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x20b82584
+  kind: POINTER
+  pointee_type_id: 0xa8a0708f
+}
+pointer_reference {
+  id: 0x21aba7d1
+  kind: POINTER
+  pointee_type_id: 0xacee79d8
+}
+pointer_reference {
+  id: 0x24b9a958
+  kind: POINTER
+  pointee_type_id: 0xb8a643ff
+}
+pointer_reference {
+  id: 0x2e551cd1
+  kind: POINTER
+  pointee_type_id: 0x931495d9
+}
+pointer_reference {
+  id: 0x30c55d0d
+  kind: POINTER
+  pointee_type_id: 0xe95592a9
+}
+pointer_reference {
+  id: 0x32710d89
+  kind: POINTER
+  pointee_type_id: 0xe384d0bb
+}
+pointer_reference {
+  id: 0x34a50b92
+  kind: POINTER
+  pointee_type_id: 0xf8d4c8d4
+}
+pointer_reference {
+  id: 0x371e45c7
+  kind: POINTER
+  pointee_type_id: 0xf639f181
+}
+pointer_reference {
+  id: 0x38539f38
+  kind: POINTER
+  pointee_type_id: 0xcb0e9a7f
+}
+pointer_reference {
+  id: 0x391f15ea
+  kind: POINTER
+  pointee_type_id: 0xce3cb135
+}
+pointer_reference {
+  id: 0x3cb3aac2
+  kind: POINTER
+  pointee_type_id: 0xd88e4d94
+}
+pointer_reference {
+  id: 0x3d0edea8
+  kind: POINTER
+  pointee_type_id: 0xde7b9c3d
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+typedef {
+  id: 0xe95592a9
+  name: "AAsset"
+  referred_type_id: 0x02e8c34d
+}
+typedef {
+  id: 0xcb0e9a7f
+  name: "AHardwareBuffer"
+  referred_type_id: 0xda3b284e
+}
+typedef {
+  id: 0x931495d9
+  name: "AImageDecoder"
+  referred_type_id: 0x78311d07
+}
+typedef {
+  id: 0xa8a0708f
+  name: "AImageDecoderFrameInfo"
+  referred_type_id: 0xe4500a42
+}
+typedef {
+  id: 0x09a9c67e
+  name: "AImageDecoderHeaderInfo"
+  referred_type_id: 0x73cb4c6a
+}
+typedef {
+  id: 0x0f385340
+  name: "ARect"
+  referred_type_id: 0x146735cc
+}
+typedef {
+  id: 0x127e80db
+  name: "AndroidBitmapInfo"
+  referred_type_id: 0x1ac2e2d3
+}
+typedef {
+  id: 0x2b26303f
+  name: "AndroidBitmap_CompressWriteFunc"
+  referred_type_id: 0x24b9a958
+}
+typedef {
+  id: 0xacee79d8
+  name: "JNIEnv"
+  referred_type_id: 0xc4cb203f
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0x39470e64
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0x0e97f05a
+  name: "jobject"
+  referred_type_id: 0x32710d89
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x1c3dbe5a
+  name: "uint32_t"
+  referred_type_id: 0x903f4c78
+}
+qualified {
+  id: 0xce3cb135
+  qualifier: CONST
+  qualified_type_id: 0x48b5725f
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xd88e4d94
+  qualifier: CONST
+  qualified_type_id: 0x127e80db
+}
+qualified {
+  id: 0xde7b9c3d
+  qualifier: CONST
+  qualified_type_id: 0x09a9c67e
+}
+qualified {
+  id: 0xf639f181
+  qualifier: CONST
+  qualified_type_id: 0xa8a0708f
+}
+qualified {
+  id: 0xf8d4c8d4
+  qualifier: CONST
+  qualified_type_id: 0x931495d9
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x39470e64
+  name: "long long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x62aebfd4
+  name: "bool"
+  encoding: BOOLEAN
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0xfac54e4d
+  name: "bottom"
+  type_id: 0x5171d297
+  offset: 96
+}
+member {
+  id: 0x2d74b022
+  name: "flags"
+  type_id: 0x1c3dbe5a
+  offset: 128
+}
+member {
+  id: 0x08062bff
+  name: "format"
+  type_id: 0x5171d297
+  offset: 96
+}
+member {
+  id: 0x2b01dca7
+  name: "height"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0x35a81977
+  name: "left"
+  type_id: 0x5171d297
+}
+member {
+  id: 0x0b27cdaf
+  name: "right"
+  type_id: 0x5171d297
+  offset: 64
+}
+member {
+  id: 0x5e494edc
+  name: "stride"
+  type_id: 0x1c3dbe5a
+  offset: 64
+}
+member {
+  id: 0xb61db703
+  name: "top"
+  type_id: 0x5171d297
+  offset: 32
+}
+member {
+  id: 0x0a91c7be
+  name: "width"
+  type_id: 0x1c3dbe5a
+}
+struct_union {
+  id: 0x1ac2e2d3
+  kind: STRUCT
+  definition {
+    bytesize: 20
+    member_id: 0x0a91c7be
+    member_id: 0x2b01dca7
+    member_id: 0x5e494edc
+    member_id: 0x08062bff
+    member_id: 0x2d74b022
+  }
+}
+struct_union {
+  id: 0x02e8c34d
+  kind: STRUCT
+  name: "AAsset"
+}
+struct_union {
+  id: 0xda3b284e
+  kind: STRUCT
+  name: "AHardwareBuffer"
+}
+struct_union {
+  id: 0x78311d07
+  kind: STRUCT
+  name: "AImageDecoder"
+}
+struct_union {
+  id: 0xe4500a42
+  kind: STRUCT
+  name: "AImageDecoderFrameInfo"
+}
+struct_union {
+  id: 0x73cb4c6a
+  kind: STRUCT
+  name: "AImageDecoderHeaderInfo"
+}
+struct_union {
+  id: 0x146735cc
+  kind: STRUCT
+  name: "ARect"
+  definition {
+    bytesize: 16
+    member_id: 0x35a81977
+    member_id: 0xb61db703
+    member_id: 0x0b27cdaf
+    member_id: 0xfac54e4d
+  }
+}
+struct_union {
+  id: 0xc4cb203f
+  kind: STRUCT
+  name: "_JNIEnv"
+}
+struct_union {
+  id: 0xe384d0bb
+  kind: STRUCT
+  name: "_jobject"
+}
+function {
+  id: 0x18b658f2
+  return_type_id: 0x48b5725f
+  parameter_id: 0x20b82584
+}
+function {
+  id: 0x1a87ac58
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x1b0d16a7
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2e551cd1
+}
+function {
+  id: 0x5bb90d53
+  return_type_id: 0x3d0edea8
+  parameter_id: 0x34a50b92
+}
+function {
+  id: 0x6e62bc52
+  return_type_id: 0x20b82584
+}
+function {
+  id: 0x844cc21e
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x01057e93
+}
+function {
+  id: 0x8b8c2368
+  return_type_id: 0x3e10b518
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9017b2ab
+  return_type_id: 0x6720d32f
+  parameter_id: 0x391f15ea
+  parameter_id: 0xf435685e
+  parameter_id: 0x01057e93
+}
+function {
+  id: 0x9132eaa5
+  return_type_id: 0x6720d32f
+  parameter_id: 0x34a50b92
+  parameter_id: 0x6720d32f
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x91b5a196
+  return_type_id: 0x6720d32f
+  parameter_id: 0x30c55d0d
+  parameter_id: 0x01057e93
+}
+function {
+  id: 0x92c35485
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3d0edea8
+}
+function {
+  id: 0x93e6d8e3
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3cb3aac2
+  parameter_id: 0x5171d297
+  parameter_id: 0x391f15ea
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+  parameter_id: 0x18bd6530
+  parameter_id: 0x2b26303f
+}
+function {
+  id: 0x95d0551a
+  return_type_id: 0x6720d32f
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0x95d1742d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+  parameter_id: 0x0484de69
+}
+function {
+  id: 0x95d37ac2
+  return_type_id: 0x6720d32f
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+  parameter_id: 0x0cbf60eb
+}
+function {
+  id: 0x95d3d6fc
+  return_type_id: 0x6720d32f
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+  parameter_id: 0x0e0f9991
+}
+function {
+  id: 0x9615a41b
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+}
+function {
+  id: 0x96294556
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x0f385340
+}
+function {
+  id: 0x96498c00
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x18bd6530
+  parameter_id: 0xf435685e
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9697448d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x20b82584
+}
+function {
+  id: 0x97443f25
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x5171d297
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x97506351
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x979f1ee4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2e551cd1
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x9caa8e66
+  return_type_id: 0xf435685e
+  parameter_id: 0x2e551cd1
+}
+function {
+  id: 0x9d07a009
+  return_type_id: 0x3e10b518
+  parameter_id: 0x3d0edea8
+}
+function {
+  id: 0xb397facf
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x371e45c7
+}
+function {
+  id: 0xb5c52c8a
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x2e551cd1
+}
+function {
+  id: 0xb8a643ff
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x18bd6530
+  parameter_id: 0x391f15ea
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0xd0552d78
+  return_type_id: 0x5171d297
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+}
+function {
+  id: 0xd390dc79
+  return_type_id: 0x5171d297
+  parameter_id: 0x2e551cd1
+}
+function {
+  id: 0xd5c20a3c
+  return_type_id: 0x5171d297
+  parameter_id: 0x371e45c7
+}
+function {
+  id: 0xd7462ce7
+  return_type_id: 0x5171d297
+  parameter_id: 0x3d0edea8
+}
+function {
+  id: 0xe879d674
+  return_type_id: 0x0f385340
+  parameter_id: 0x371e45c7
+}
+function {
+  id: 0xfa12d148
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x371e45c7
+}
+elf_symbol {
+  id: 0x4e9f8ef1
+  name: "AImageDecoderFrameInfo_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6e62bc52
+  full_name: "AImageDecoderFrameInfo_create"
+}
+elf_symbol {
+  id: 0x408cee7b
+  name: "AImageDecoderFrameInfo_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18b658f2
+  full_name: "AImageDecoderFrameInfo_delete"
+}
+elf_symbol {
+  id: 0x264211d4
+  name: "AImageDecoderFrameInfo_getBlendOp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd5c20a3c
+  full_name: "AImageDecoderFrameInfo_getBlendOp"
+}
+elf_symbol {
+  id: 0xf8b2b5af
+  name: "AImageDecoderFrameInfo_getDisposeOp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd5c20a3c
+  full_name: "AImageDecoderFrameInfo_getDisposeOp"
+}
+elf_symbol {
+  id: 0x28da1052
+  name: "AImageDecoderFrameInfo_getDuration"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfa12d148
+  full_name: "AImageDecoderFrameInfo_getDuration"
+}
+elf_symbol {
+  id: 0x53f80243
+  name: "AImageDecoderFrameInfo_getFrameRect"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe879d674
+  full_name: "AImageDecoderFrameInfo_getFrameRect"
+}
+elf_symbol {
+  id: 0x9fdfbf7a
+  name: "AImageDecoderFrameInfo_hasAlphaWithinBounds"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb397facf
+  full_name: "AImageDecoderFrameInfo_hasAlphaWithinBounds"
+}
+elf_symbol {
+  id: 0xa249b9d7
+  name: "AImageDecoderHeaderInfo_getAlphaFlags"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92c35485
+  full_name: "AImageDecoderHeaderInfo_getAlphaFlags"
+}
+elf_symbol {
+  id: 0xbadaec07
+  name: "AImageDecoderHeaderInfo_getAndroidBitmapFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7462ce7
+  full_name: "AImageDecoderHeaderInfo_getAndroidBitmapFormat"
+}
+elf_symbol {
+  id: 0xce61cd9f
+  name: "AImageDecoderHeaderInfo_getDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7462ce7
+  full_name: "AImageDecoderHeaderInfo_getDataSpace"
+}
+elf_symbol {
+  id: 0x4a59b7cd
+  name: "AImageDecoderHeaderInfo_getHeight"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7462ce7
+  full_name: "AImageDecoderHeaderInfo_getHeight"
+}
+elf_symbol {
+  id: 0x63a86791
+  name: "AImageDecoderHeaderInfo_getMimeType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d07a009
+  full_name: "AImageDecoderHeaderInfo_getMimeType"
+}
+elf_symbol {
+  id: 0x7344098f
+  name: "AImageDecoderHeaderInfo_getWidth"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd7462ce7
+  full_name: "AImageDecoderHeaderInfo_getWidth"
+}
+elf_symbol {
+  id: 0x7bca4984
+  name: "AImageDecoder_advanceFrame"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9615a41b
+  full_name: "AImageDecoder_advanceFrame"
+}
+elf_symbol {
+  id: 0x21a80b20
+  name: "AImageDecoder_computeSampledSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9132eaa5
+  full_name: "AImageDecoder_computeSampledSize"
+}
+elf_symbol {
+  id: 0xb6305054
+  name: "AImageDecoder_createFromAAsset"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91b5a196
+  full_name: "AImageDecoder_createFromAAsset"
+}
+elf_symbol {
+  id: 0xa327ea84
+  name: "AImageDecoder_createFromBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9017b2ab
+  full_name: "AImageDecoder_createFromBuffer"
+}
+elf_symbol {
+  id: 0xdb8e5d5a
+  name: "AImageDecoder_createFromFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x844cc21e
+  full_name: "AImageDecoder_createFromFd"
+}
+elf_symbol {
+  id: 0xca4837a3
+  name: "AImageDecoder_decodeImage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x96498c00
+  full_name: "AImageDecoder_decodeImage"
+}
+elf_symbol {
+  id: 0x94c56108
+  name: "AImageDecoder_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b0d16a7
+  full_name: "AImageDecoder_delete"
+}
+elf_symbol {
+  id: 0x5c643fca
+  name: "AImageDecoder_getFrameInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9697448d
+  full_name: "AImageDecoder_getFrameInfo"
+}
+elf_symbol {
+  id: 0x5d9085fc
+  name: "AImageDecoder_getHeaderInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5bb90d53
+  full_name: "AImageDecoder_getHeaderInfo"
+}
+elf_symbol {
+  id: 0x3138c9ab
+  name: "AImageDecoder_getMinimumStride"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9caa8e66
+  full_name: "AImageDecoder_getMinimumStride"
+}
+elf_symbol {
+  id: 0x277e714b
+  name: "AImageDecoder_getRepeatCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd390dc79
+  full_name: "AImageDecoder_getRepeatCount"
+}
+elf_symbol {
+  id: 0xce1a538e
+  name: "AImageDecoder_isAnimated"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb5c52c8a
+  full_name: "AImageDecoder_isAnimated"
+}
+elf_symbol {
+  id: 0xa053eb3e
+  name: "AImageDecoder_resultToString"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8b8c2368
+  full_name: "AImageDecoder_resultToString"
+}
+elf_symbol {
+  id: 0xefb2f7b6
+  name: "AImageDecoder_rewind"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9615a41b
+  full_name: "AImageDecoder_rewind"
+}
+elf_symbol {
+  id: 0x66c7e977
+  name: "AImageDecoder_setAndroidBitmapFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97506351
+  full_name: "AImageDecoder_setAndroidBitmapFormat"
+}
+elf_symbol {
+  id: 0x65a8a1a6
+  name: "AImageDecoder_setCrop"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x96294556
+  full_name: "AImageDecoder_setCrop"
+}
+elf_symbol {
+  id: 0xc2efbc68
+  name: "AImageDecoder_setDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97506351
+  full_name: "AImageDecoder_setDataSpace"
+}
+elf_symbol {
+  id: 0xc4b3626d
+  name: "AImageDecoder_setInternallyHandleDisposePrevious"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a87ac58
+  full_name: "AImageDecoder_setInternallyHandleDisposePrevious"
+}
+elf_symbol {
+  id: 0x52929273
+  name: "AImageDecoder_setTargetSize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97443f25
+  full_name: "AImageDecoder_setTargetSize"
+}
+elf_symbol {
+  id: 0x7ced99e5
+  name: "AImageDecoder_setUnpremultipliedRequired"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x979f1ee4
+  full_name: "AImageDecoder_setUnpremultipliedRequired"
+}
+elf_symbol {
+  id: 0x287ea1a7
+  name: "AndroidBitmap_compress"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93e6d8e3
+  full_name: "AndroidBitmap_compress"
+}
+elf_symbol {
+  id: 0x84003f80
+  name: "AndroidBitmap_getDataSpace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd0552d78
+  full_name: "AndroidBitmap_getDataSpace"
+}
+elf_symbol {
+  id: 0x1e13ebc3
+  name: "AndroidBitmap_getHardwareBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95d1742d
+  full_name: "AndroidBitmap_getHardwareBuffer"
+}
+elf_symbol {
+  id: 0x713b0254
+  name: "AndroidBitmap_getInfo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95d3d6fc
+  full_name: "AndroidBitmap_getInfo"
+}
+elf_symbol {
+  id: 0xd1f0c908
+  name: "AndroidBitmap_lockPixels"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95d37ac2
+  full_name: "AndroidBitmap_lockPixels"
+}
+elf_symbol {
+  id: 0x71805fae
+  name: "AndroidBitmap_unlockPixels"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95d0551a
+  full_name: "AndroidBitmap_unlockPixels"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x4e9f8ef1
+  symbol_id: 0x408cee7b
+  symbol_id: 0x264211d4
+  symbol_id: 0xf8b2b5af
+  symbol_id: 0x28da1052
+  symbol_id: 0x53f80243
+  symbol_id: 0x9fdfbf7a
+  symbol_id: 0xa249b9d7
+  symbol_id: 0xbadaec07
+  symbol_id: 0xce61cd9f
+  symbol_id: 0x4a59b7cd
+  symbol_id: 0x63a86791
+  symbol_id: 0x7344098f
+  symbol_id: 0x7bca4984
+  symbol_id: 0x21a80b20
+  symbol_id: 0xb6305054
+  symbol_id: 0xa327ea84
+  symbol_id: 0xdb8e5d5a
+  symbol_id: 0xca4837a3
+  symbol_id: 0x94c56108
+  symbol_id: 0x5c643fca
+  symbol_id: 0x5d9085fc
+  symbol_id: 0x3138c9ab
+  symbol_id: 0x277e714b
+  symbol_id: 0xce1a538e
+  symbol_id: 0xa053eb3e
+  symbol_id: 0xefb2f7b6
+  symbol_id: 0x66c7e977
+  symbol_id: 0x65a8a1a6
+  symbol_id: 0xc2efbc68
+  symbol_id: 0xc4b3626d
+  symbol_id: 0x52929273
+  symbol_id: 0x7ced99e5
+  symbol_id: 0x287ea1a7
+  symbol_id: 0x84003f80
+  symbol_id: 0x1e13ebc3
+  symbol_id: 0x713b0254
+  symbol_id: 0xd1f0c908
+  symbol_id: 0x71805fae
+}

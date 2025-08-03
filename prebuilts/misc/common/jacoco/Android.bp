@@ -1,0 +1,39 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_misc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-EPL
+    default_applicable_licenses: ["prebuilts_misc_license"],
+}
+
+java_library_host {
+    name: "jvm-jacoco-reporter",
+
+    srcs: ["src/main/java/**/*.java"],
+
+    static_libs: [
+        "asm-analysis-9.2",
+        "asm-commons-9.2",
+        "asm-9.2",
+        "asm-tree-9.2",
+        "asm-util-9.2",
+        "jvm-jacoco-report",
+        "commons-cli-1.2",
+    ],
+}
+
+java_import_host {
+    name: "jvm-jacoco-agent",
+    jars: ["lib/jacocoagent.jar"],
+}
+
+java_import_host {
+    name: "jvm-jacoco-report",
+    jars: [
+        "lib/org.jacoco.core-0.8.8.202204050719.jar",
+        "lib/org.jacoco.report-0.8.8.202204050719.jar",
+    ],
+}

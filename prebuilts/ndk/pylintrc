@@ -1,0 +1,22 @@
+[MASTER]
+jobs = 0
+
+[MESSAGES CONTROL]
+disable=missing-docstring
+
+ignore=ndk-gdb.py
+
+[BASIC]
+good-names=i,j,k,ex,Run,_
+
+[VARIABLES]
+dummy-variables-rgx=_
+
+[SIMILARITIES]
+ignore-imports=yes
+
+[FORMAT]
+max-line-length=88
+ignore-long-lines=(?x)(
+  ^\s*(\#\ )?<?https?://\S+>?$|
+  ^\s*\#\ \S+$)

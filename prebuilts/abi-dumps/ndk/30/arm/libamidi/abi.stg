@@ -1,0 +1,547 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x03a6b0a7
+  kind: POINTER
+  pointee_type_id: 0x24da2402
+}
+pointer_reference {
+  id: 0x05a043b6
+  kind: POINTER
+  pointee_type_id: 0x3cc1e844
+}
+pointer_reference {
+  id: 0x0e393046
+  kind: POINTER
+  pointee_type_id: 0x12a42784
+}
+pointer_reference {
+  id: 0x12a42784
+  kind: POINTER
+  pointee_type_id: 0x60d0788c
+}
+pointer_reference {
+  id: 0x17dccfd3
+  kind: POINTER
+  pointee_type_id: 0x7533d9d0
+}
+pointer_reference {
+  id: 0x1a6a7d94
+  kind: POINTER
+  pointee_type_id: 0x43e910ce
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x21aba7d1
+  kind: POINTER
+  pointee_type_id: 0xacee79d8
+}
+pointer_reference {
+  id: 0x24da2402
+  kind: POINTER
+  pointee_type_id: 0xb9287695
+}
+pointer_reference {
+  id: 0x300036b7
+  kind: POINTER
+  pointee_type_id: 0xea403c41
+}
+pointer_reference {
+  id: 0x32710d89
+  kind: POINTER
+  pointee_type_id: 0xe384d0bb
+}
+pointer_reference {
+  id: 0x3606c5a6
+  kind: POINTER
+  pointee_type_id: 0xf25bf007
+}
+pointer_reference {
+  id: 0x379d63b0
+  kind: POINTER
+  pointee_type_id: 0xf435685e
+}
+pointer_reference {
+  id: 0x39aad3c3
+  kind: POINTER
+  pointee_type_id: 0xcceba991
+}
+pointer_reference {
+  id: 0x3b994547
+  kind: POINTER
+  pointee_type_id: 0xc425f381
+}
+pointer_reference {
+  id: 0x3cc1e844
+  kind: POINTER
+  pointee_type_id: 0xd947478f
+}
+typedef {
+  id: 0xd947478f
+  name: "AMidiDevice"
+  referred_type_id: 0x9dd20534
+}
+typedef {
+  id: 0xb9287695
+  name: "AMidiInputPort"
+  referred_type_id: 0x011f6aa6
+}
+typedef {
+  id: 0x60d0788c
+  name: "AMidiOutputPort"
+  referred_type_id: 0x1b9e034f
+}
+typedef {
+  id: 0xacee79d8
+  name: "JNIEnv"
+  referred_type_id: 0xc4cb203f
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0x39470e64
+}
+typedef {
+  id: 0x2da051ab
+  name: "__kernel_ssize_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x2ebf28fa
+  name: "__uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0x0e97f05a
+  name: "jobject"
+  referred_type_id: 0x32710d89
+}
+typedef {
+  id: 0x4d19d058
+  name: "media_status_t"
+  referred_type_id: 0x4d520b40
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0xd5cc9c9a
+  name: "ssize_t"
+  referred_type_id: 0x2da051ab
+}
+typedef {
+  id: 0x43e910ce
+  name: "uint8_t"
+  referred_type_id: 0x2ebf28fa
+}
+qualified {
+  id: 0xc425f381
+  qualifier: CONST
+  qualified_type_id: 0x60d0788c
+}
+qualified {
+  id: 0xcceba991
+  qualifier: CONST
+  qualified_type_id: 0x43e910ce
+}
+qualified {
+  id: 0xea403c41
+  qualifier: CONST
+  qualified_type_id: 0xd947478f
+}
+qualified {
+  id: 0xf25bf007
+  qualifier: CONST
+  qualified_type_id: 0xb9287695
+}
+primitive {
+  id: 0x39470e64
+  name: "long long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+struct_union {
+  id: 0x9dd20534
+  kind: STRUCT
+  name: "AMidiDevice"
+}
+struct_union {
+  id: 0x011f6aa6
+  kind: STRUCT
+  name: "AMidiInputPort"
+}
+struct_union {
+  id: 0x1b9e034f
+  kind: STRUCT
+  name: "AMidiOutputPort"
+}
+struct_union {
+  id: 0xc4cb203f
+  kind: STRUCT
+  name: "_JNIEnv"
+}
+struct_union {
+  id: 0xe384d0bb
+  kind: STRUCT
+  name: "_jobject"
+}
+enumeration {
+  id: 0x4d520b40
+  definition {
+    underlying_type_id: 0x6720d32f
+    enumerator {
+      name: "AMEDIA_OK"
+    }
+    enumerator {
+      name: "AMEDIACODEC_ERROR_INSUFFICIENT_RESOURCE"
+      value: 1100
+    }
+    enumerator {
+      name: "AMEDIACODEC_ERROR_RECLAIMED"
+      value: 1101
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_BASE"
+      value: -10000
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_UNKNOWN"
+      value: -10000
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_MALFORMED"
+      value: -10001
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_UNSUPPORTED"
+      value: -10002
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_INVALID_OBJECT"
+      value: -10003
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_INVALID_PARAMETER"
+      value: -10004
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_INVALID_OPERATION"
+      value: -10005
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_END_OF_STREAM"
+      value: -10006
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_IO"
+      value: -10007
+    }
+    enumerator {
+      name: "AMEDIA_ERROR_WOULD_BLOCK"
+      value: -10008
+    }
+    enumerator {
+      name: "AMEDIA_DRM_ERROR_BASE"
+      value: -20000
+    }
+    enumerator {
+      name: "AMEDIA_DRM_NOT_PROVISIONED"
+      value: -20001
+    }
+    enumerator {
+      name: "AMEDIA_DRM_RESOURCE_BUSY"
+      value: -20002
+    }
+    enumerator {
+      name: "AMEDIA_DRM_DEVICE_REVOKED"
+      value: -20003
+    }
+    enumerator {
+      name: "AMEDIA_DRM_SHORT_BUFFER"
+      value: -20004
+    }
+    enumerator {
+      name: "AMEDIA_DRM_SESSION_NOT_OPENED"
+      value: -20005
+    }
+    enumerator {
+      name: "AMEDIA_DRM_TAMPER_DETECTED"
+      value: -20006
+    }
+    enumerator {
+      name: "AMEDIA_DRM_VERIFY_FAILED"
+      value: -20007
+    }
+    enumerator {
+      name: "AMEDIA_DRM_NEED_KEY"
+      value: -20008
+    }
+    enumerator {
+      name: "AMEDIA_DRM_LICENSE_EXPIRED"
+      value: -20009
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_ERROR_BASE"
+      value: -30000
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_NO_BUFFER_AVAILABLE"
+      value: -30001
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_MAX_IMAGES_ACQUIRED"
+      value: -30002
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_CANNOT_LOCK_IMAGE"
+      value: -30003
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_CANNOT_UNLOCK_IMAGE"
+      value: -30004
+    }
+    enumerator {
+      name: "AMEDIA_IMGREADER_IMAGE_NOT_LOCKED"
+      value: -30005
+    }
+  }
+}
+function {
+  id: 0x18f1ec2c
+  return_type_id: 0xd5cc9c9a
+  parameter_id: 0x300036b7
+}
+function {
+  id: 0x19aa2232
+  return_type_id: 0xd5cc9c9a
+  parameter_id: 0x3606c5a6
+  parameter_id: 0x39aad3c3
+  parameter_id: 0xf435685e
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0x19abf6fd
+  return_type_id: 0xd5cc9c9a
+  parameter_id: 0x3606c5a6
+  parameter_id: 0x39aad3c3
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x1a69c616
+  return_type_id: 0xd5cc9c9a
+  parameter_id: 0x3b994547
+  parameter_id: 0x1ecc4d02
+  parameter_id: 0x1a6a7d94
+  parameter_id: 0xf435685e
+  parameter_id: 0x379d63b0
+  parameter_id: 0x17dccfd3
+}
+function {
+  id: 0x1d19e0fa
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3606c5a6
+}
+function {
+  id: 0x1e7e00c2
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3b994547
+}
+function {
+  id: 0x32014a98
+  return_type_id: 0x4d19d058
+  parameter_id: 0x300036b7
+  parameter_id: 0x5171d297
+  parameter_id: 0x03a6b0a7
+}
+function {
+  id: 0x32022d78
+  return_type_id: 0x4d19d058
+  parameter_id: 0x300036b7
+  parameter_id: 0x5171d297
+  parameter_id: 0x0e393046
+}
+function {
+  id: 0x32c5d8ba
+  return_type_id: 0x4d19d058
+  parameter_id: 0x3606c5a6
+}
+function {
+  id: 0x3344647e
+  return_type_id: 0x4d19d058
+  parameter_id: 0x300036b7
+}
+function {
+  id: 0x3715b7f6
+  return_type_id: 0x4d19d058
+  parameter_id: 0x21aba7d1
+  parameter_id: 0x0e97f05a
+  parameter_id: 0x05a043b6
+}
+function {
+  id: 0xd40596e0
+  return_type_id: 0x5171d297
+  parameter_id: 0x300036b7
+}
+elf_symbol {
+  id: 0xee1786b7
+  name: "AMidiDevice_fromJava"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3715b7f6
+  full_name: "AMidiDevice_fromJava"
+}
+elf_symbol {
+  id: 0x5e3d6963
+  name: "AMidiDevice_getNumInputPorts"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18f1ec2c
+  full_name: "AMidiDevice_getNumInputPorts"
+}
+elf_symbol {
+  id: 0x06e22af8
+  name: "AMidiDevice_getNumOutputPorts"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18f1ec2c
+  full_name: "AMidiDevice_getNumOutputPorts"
+}
+elf_symbol {
+  id: 0xeb5b73bc
+  name: "AMidiDevice_getType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd40596e0
+  full_name: "AMidiDevice_getType"
+}
+elf_symbol {
+  id: 0xb0ca3a49
+  name: "AMidiDevice_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3344647e
+  full_name: "AMidiDevice_release"
+}
+elf_symbol {
+  id: 0x099628d2
+  name: "AMidiInputPort_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1d19e0fa
+  full_name: "AMidiInputPort_close"
+}
+elf_symbol {
+  id: 0x2f4ff140
+  name: "AMidiInputPort_open"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x32014a98
+  full_name: "AMidiInputPort_open"
+}
+elf_symbol {
+  id: 0x31b6458d
+  name: "AMidiInputPort_send"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19abf6fd
+  full_name: "AMidiInputPort_send"
+}
+elf_symbol {
+  id: 0x4e47f404
+  name: "AMidiInputPort_sendFlush"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x32c5d8ba
+  full_name: "AMidiInputPort_sendFlush"
+}
+elf_symbol {
+  id: 0x6d901411
+  name: "AMidiInputPort_sendWithTimestamp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19aa2232
+  full_name: "AMidiInputPort_sendWithTimestamp"
+}
+elf_symbol {
+  id: 0xb2f80083
+  name: "AMidiOutputPort_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1e7e00c2
+  full_name: "AMidiOutputPort_close"
+}
+elf_symbol {
+  id: 0x531d7e28
+  name: "AMidiOutputPort_open"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x32022d78
+  full_name: "AMidiOutputPort_open"
+}
+elf_symbol {
+  id: 0x4eb4f788
+  name: "AMidiOutputPort_receive"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1a69c616
+  full_name: "AMidiOutputPort_receive"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xee1786b7
+  symbol_id: 0x5e3d6963
+  symbol_id: 0x06e22af8
+  symbol_id: 0xeb5b73bc
+  symbol_id: 0xb0ca3a49
+  symbol_id: 0x099628d2
+  symbol_id: 0x2f4ff140
+  symbol_id: 0x31b6458d
+  symbol_id: 0x4e47f404
+  symbol_id: 0x6d901411
+  symbol_id: 0xb2f80083
+  symbol_id: 0x531d7e28
+  symbol_id: 0x4eb4f788
+}

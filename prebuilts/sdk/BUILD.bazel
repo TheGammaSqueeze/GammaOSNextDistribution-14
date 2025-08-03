@@ -1,0 +1,208 @@
+load("@rules_android//toolchains/android:toolchain.bzl", "android_toolchain")
+load("//build/bazel/rules/java:import.bzl", "java_import")
+load("//prebuilts/sdk:toolchains.bzl", "prebuilts_toolchain")
+load("//build/bazel/rules/java:bootclasspath.bzl", "bootclasspath")
+load("//build/bazel/rules/java:import.bzl", "java_import")
+load("//prebuilts/sdk:toolchains.bzl", "prebuilts_toolchain")
+
+prebuilts_toolchain(
+    android_sdk_toolchain_name = "android_sdk",
+    java_toolchain_name = "device_java_toolchain",
+)
+
+toolchain(
+    name = "device_java_toolchain_definition",
+    exec_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+    target_compatible_with = [
+        "//build/bazel_common_rules/platforms/os:android",
+    ],
+    target_settings = [],
+    toolchain = ":device_java_toolchain",
+    toolchain_type = "@bazel_tools//tools/jdk:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "android_sdk_toolchain_definition",
+    exec_compatible_with = [
+        "//build/bazel_common_rules/platforms/os:linux",
+    ],
+    target_compatible_with = [
+        # TODO(b/278596841): uncomment when DexArchiveAspect propagation into host/exec config is properly handled
+        # "//build/bazel_common_rules/platforms/os:android",
+    ],
+    toolchain = ":android_sdk",
+    toolchain_type = "@rules_android//toolchains/android_sdk:toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+# The native version of android_binary specifies a different toolchain_type
+# from the Starlark rules, so it needs a separate toolchain to point
+# android_binary to the android_sdk.
+toolchain(
+    name = "android_sdk_native_toolchain_definition",
+    exec_compatible_with = [
+        "//build/bazel_common_rules/platforms/os:linux",
+    ],
+    target_compatible_with = [
+        # TODO(b/278596841): uncomment when DexArchiveAspect propagation into host/exec config is properly handled
+        # "//build/bazel_common_rules/platforms/os:android",
+    ],
+    toolchain = ":android_sdk",
+    toolchain_type = "@bazel_tools//tools/android:sdk_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "dx_jar_import",
+    jars = ["//prebuilts/sdk/tools:lib/dx.jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_binary(
+    name = "apksigner",
+    main_class = "com.android.apksigner.ApkSignerTool",
+    runtime_deps = ["//prebuilts/sdk/tools:linux/lib/apksigner.jar"],
+)
+
+android_toolchain(
+    name = "android_default",
+    aapt2 = select({
+        "//build/bazel/product_config/config_settings:always_use_prebuilt_sdks": "//prebuilts/sdk/tools:aapt2",
+        "//conditions:default": "//frameworks/base/tools/aapt2",
+    }),
+    adb = ":fail",
+    android_archive_jar_optimization_inputs_validator = ":fail",
+    android_archive_packages_validator = ":fail",
+    android_kit = ":fail",
+    apk_to_bundle_tool = ":fail",
+    bundletool = ":fail",
+    bundletool_module_builder = ":gen_fail",
+    centralize_r_class_tool = ":fail",
+    data_binding_annotation_processor = ":compiler_annotation_processor",
+    jacocorunner = ":fail",
+    java_stub = ":fail",
+    jdeps_tool = ":fail",
+    merge_baseline_profiles_tool = ":fail",
+    object_method_rewriter = ":fail",
+    profgen = ":fail",
+    proto_map_generator = ":fail",
+    r8 = "//prebuilts/r8:r8_binary_deploy.jar",
+    resource_shrinker = ":fail",
+    sandboxed_sdk_toolbox = ":gen_fail",
+    testsupport = ":fail",
+)
+
+toolchain(
+    name = "android_default_toolchain",
+    toolchain = ":android_default",
+    toolchain_type = "@rules_android//toolchains/android:toolchain_type",
+)
+
+java_plugin(
+    name = "compiler_annotation_processor",
+    generates_api = True,
+    processor_class = "android.databinding.annotationprocessor.ProcessDataBinding",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@bazel_tools//src/tools/android/java/com/google/devtools/build/android:all_android_tools",
+    ],
+)
+
+java_import(
+    name = "core_lambda_stubs",
+    jars = ["//prebuilts/sdk/tools:core-lambda-stubs.jar"],
+    visibility = ["//visibility:public"],
+)
+
+# Stubs for tools dependencies that are currently unused.
+genrule(
+    name = "gen_fail",
+    outs = ["fail.sh"],
+    cmd = "echo 'exit 1' > $@",
+    executable = 1,
+    tags = ["manual"],
+)
+
+sh_binary(
+    name = "fail",
+    srcs = [":fail.sh"],
+)
+
+genrule(
+    name = "gen_failed_android_jar",
+    outs = ["failed_android.jar"],
+    cmd = "exit 1 > $@",
+    tags = ["manual"],
+)
+
+genrule(
+    name = "gen_failed_framework_aidl",
+    outs = ["failed_framework.aidl"],
+    cmd = "exit 1 > $@",
+    tags = ["manual"],
+)
+
+bootclasspath(
+    name = "failed_bootclasspath",
+)
+
+genquery(
+    name = "java_toolchain_android_jar_deps",
+    expression = 'filter("android\\.jar$", kind("source file", deps(//prebuilts/sdk:device_java_toolchain)))',
+    scope = [
+        "//prebuilts/sdk:device_java_toolchain",
+    ],
+)
+
+genquery(
+    name = "android_sdk_toolchain_android_jar_deps",
+    expression = 'filter("android\\.jar$", kind("source file", deps(//prebuilts/sdk:android_sdk)))',
+    scope = [
+        "//prebuilts/sdk:android_sdk",
+    ],
+)
+
+genquery(
+    name = "java_toolchain_core_jar_deps",
+    expression = 'filter("core-for-system-modules\\.jar$", kind("source file", deps(//prebuilts/sdk:device_java_toolchain)))',
+    scope = [
+        "//prebuilts/sdk:device_java_toolchain",
+    ],
+)
+
+genquery(
+    name = "android_sdk_toolchain_core_jar_deps",
+    expression = 'filter("core-for-system-modules\\.jar$", kind("source file", deps(//prebuilts/sdk:android_sdk)))',
+    scope = [
+        "//prebuilts/sdk:android_sdk",
+    ],
+)
+
+genquery(
+    name = "android_sdk_toolchain_framework_aidl_deps",
+    expression = 'filter("framework\\.aidl$", kind("source file", deps(//prebuilts/sdk:android_sdk)))',
+    scope = [
+        "//prebuilts/sdk:android_sdk",
+    ],
+)
+
+sh_test(
+    name = "toolchains_have_all_prebuilts",
+    size = "small",
+    srcs = ["java_toolchain_has_all_android_jars.sh"],
+    data = [
+        ":android_sdk_toolchain_android_jar_deps",
+        ":android_sdk_toolchain_core_jar_deps",
+        ":android_sdk_toolchain_framework_aidl_deps",
+        ":bp2build_all_srcs",
+        ":java_toolchain_android_jar_deps",
+        ":java_toolchain_core_jar_deps",
+        "//prebuilts/sdk/current:bp2build_all_srcs",
+    ],
+    tags = [
+        "manual",
+        "no_windows",
+    ],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)

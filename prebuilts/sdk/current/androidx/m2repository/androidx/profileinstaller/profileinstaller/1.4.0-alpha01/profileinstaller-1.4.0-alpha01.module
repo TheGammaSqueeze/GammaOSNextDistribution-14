@@ -1,0 +1,124 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.profileinstaller",
+    "module": "profileinstaller",
+    "version": "1.4.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.startup",
+          "module": "startup-runtime",
+          "version": {
+            "requires": "1.1.1"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "profileinstaller-1.4.0-alpha01.aar",
+          "url": "profileinstaller-1.4.0-alpha01.aar",
+          "size": 47625,
+          "sha512": "e93fc468e34cbe8b81cdeba268ea59aee135af31f148500c68062ec063e9787bfe5c43e54d4cf943a7ae717091a4ab62ce78fa355ca1a58aa7308a0ec9604e8e",
+          "sha256": "06c64a5095a9a817faca50436b586c20189d6cd6ea928c7c45e5ad95f373f398",
+          "sha1": "4b56024a11b60c4b448c6d132c2f664fb3d7caf6",
+          "md5": "813569cd21663bd58abadd7144b73f0e"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.startup",
+          "module": "startup-runtime",
+          "version": {
+            "requires": "1.1.1"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "profileinstaller-1.4.0-alpha01.aar",
+          "url": "profileinstaller-1.4.0-alpha01.aar",
+          "size": 47625,
+          "sha512": "e93fc468e34cbe8b81cdeba268ea59aee135af31f148500c68062ec063e9787bfe5c43e54d4cf943a7ae717091a4ab62ce78fa355ca1a58aa7308a0ec9604e8e",
+          "sha256": "06c64a5095a9a817faca50436b586c20189d6cd6ea928c7c45e5ad95f373f398",
+          "sha1": "4b56024a11b60c4b448c6d132c2f664fb3d7caf6",
+          "md5": "813569cd21663bd58abadd7144b73f0e"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "profileinstaller-1.4.0-alpha01-sources.jar",
+          "url": "profileinstaller-1.4.0-alpha01-sources.jar",
+          "size": 38982,
+          "sha512": "da1fb41e662c18d09f89e82726581ce39ec5047cd067e945bdfa8536375bcc5343e62bb81ede6d149cfdeb101b2bc0a0e1910b841993a51f297a73548662abad",
+          "sha256": "b789d33c3ff2b16b2ce243e4ced9590e379720b4ca9c88de06a00d6abe8ecc5a",
+          "sha1": "ed0373ec47084449001ef716f7e1bc362e8236e8",
+          "md5": "2794a551ea1d3e22b573c4514b2f2584"
+        }
+      ]
+    }
+  ]
+}

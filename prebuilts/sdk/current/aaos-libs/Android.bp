@@ -1,0 +1,400 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// AAOS prebuilt targets.
+// These libraries are built from `car-apps-dev` branch.
+// Clients are expected to depend on the plain targets (like `car-apps-common`).
+// `*-source` targets don't export their dependencies and they're just there to make the target
+// build. Hence plain targets are added to export the AAR as well as their dependencies.
+// Clients that depend on the `*-source` targets need to add the AAR dependencies to their build as
+// well. some of the target names have the -source suffix to make it match the source target in
+// `car-apps-dev`. That way the source code will be used when buidling the apps in `car-apps-dev`
+// Note: the targets names don't have the -sdk suffix to make it easier to switch between using
+// bundled and unbundled code.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library {
+    name: "car-apps-common",
+    sdk_version: "31",
+    static_libs: [
+        "car-apps-common-source",
+        "androidx.annotation_annotation",
+        "androidx.cardview_cardview",
+        "androidx.interpolator_interpolator",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "car-ui-lib-source",
+        "junit",
+    ]
+}
+
+android_library_import {
+    name: "car-apps-common-source",
+    aars: ["car-apps-common.aar"],
+    sdk_version: "31",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.cardview_cardview",
+        "androidx.interpolator_interpolator",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "car-ui-lib-source",
+        "junit",
+    ]
+}
+
+android_library {
+    name: "car-assist-lib",
+    sdk_version: "31",
+    static_libs: [
+        "car-assist-lib-source",
+        "car-messaging-models-source",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.annotation_annotation",
+    ]
+}
+
+android_library_import {
+    name: "car-assist-lib-source",
+    aars: ["car-assist-lib.aar"],
+    sdk_version: "31",
+    static_libs:[
+        "car-messaging-models-source",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.annotation_annotation",
+    ]
+}
+
+android_library {
+    name: "car-media-common",
+    sdk_version: "31",
+    static_libs: [
+        "car-media-common-source",
+        "androidx.cardview_cardview",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.recyclerview_recyclerview",
+        "androidx.mediarouter_mediarouter",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-apps-common-source",
+        "car-media-extensions-source",
+    ]
+}
+
+android_library_import {
+    name: "car-media-common-source",
+    aars: ["car-media-common.aar"],
+    sdk_version: "31",
+    static_libs: [
+        "androidx.cardview_cardview",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.recyclerview_recyclerview",
+        "androidx.mediarouter_mediarouter",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-apps-common-source",
+        "car-media-extensions-source",
+    ]
+}
+
+android_library {
+    name: "car-media-extensions",
+    sdk_version: "31",
+    static_libs: [
+      "car-media-extensions-source",
+      "androidx.annotation_annotation",
+      "junit",
+    ]
+}
+
+android_library_import {
+    name: "car-media-extensions-source",
+    aars: ["car-media-extensions.aar"],
+    sdk_version: "31",
+    static_libs: [
+      "androidx.annotation_annotation",
+      "junit",
+    ]
+}
+
+android_library {
+    name: "car-messaging-models",
+    sdk_version: "31",
+    static_libs:[
+        "car-messaging-models-source",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.annotation_annotation",
+    ]
+}
+
+android_library_import {
+    name: "car-messaging-models-source",
+    aars: ["car-messaging-models.aar"],
+    sdk_version: "31",
+    static_libs:[
+        "androidx.legacy_legacy-support-v4",
+        "androidx.annotation_annotation",
+    ]
+}
+
+android_library {
+    name: "car-telephony-common",
+    sdk_version: "31",
+    static_libs:[
+        "car-telephony-common-source",
+        "androidx.exifinterface_exifinterface",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-apps-common-source",
+        "glide-prebuilt",
+        "glide-gifdecoder-prebuilt",
+        "glide-disklrucache-prebuilt",
+        "glide-annotation-and-compiler-prebuilt",
+        "guava",
+        "libphonenumber",
+    ]
+}
+
+android_library_import {
+    name: "car-telephony-common-source",
+    aars: ["car-telephony-common.aar"],
+    sdk_version: "31",
+    static_libs:[
+        "androidx.exifinterface_exifinterface",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-apps-common-source",
+        "glide-prebuilt",
+        "glide-gifdecoder-prebuilt",
+        "glide-disklrucache-prebuilt",
+        "glide-annotation-and-compiler-prebuilt",
+        "guava",
+        "libphonenumber",
+    ]
+}
+
+android_library {
+    name: "car-ui-lib",
+    min_sdk_version: "28",
+    target_sdk_version: "30",
+    sdk_version: "31",
+    static_libs:[
+        "car-ui-lib-source",
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.asynclayoutinflater_asynclayoutinflater",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+}
+
+android_library_import {
+    name: "car-ui-lib-source",
+    aars: ["car-ui-lib.aar"],
+    min_sdk_version: "28",
+    sdk_version: "31",
+    static_libs:[
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.asynclayoutinflater_asynclayoutinflater",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+}
+
+android_library {
+    name: "car-ui-lib-no-overlayable",
+    min_sdk_version: "28",
+    target_sdk_version: "30",
+    sdk_version: "31",
+    static_libs:[
+        "car-ui-lib-source-no-overlayable",
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.asynclayoutinflater_asynclayoutinflater",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+}
+
+android_library_import {
+    name: "car-ui-lib-source-no-overlayable",
+    aars: ["car-ui-lib-no-overlayable.aar"],
+    min_sdk_version: "28",
+    sdk_version: "31",
+    static_libs:[
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx.asynclayoutinflater_asynclayoutinflater",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+}
+
+java_import {
+    name: "car-ui-lib-oem-apis-source",
+    jars: ["car-ui-lib-oem-apis.jar"],
+    sdk_version: "31",
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "28",
+}
+
+java_library {
+    name: "car-ui-lib-oem-apis",
+    sdk_version: "31",
+    apex_available: [
+        "com.android.permission",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "28",
+    static_libs: [
+        "car-ui-lib-oem-apis-source",
+    ],
+}
+
+android_library {
+    name: "car-ui-lib-testing-support",
+    sdk_version: "31",
+    static_libs:[
+        "car-ui-lib-testing-support-source",
+        "car-ui-lib-source",
+        "Robolectric_all-target_upstream",
+    ]
+}
+
+android_library_import {
+    name: "car-ui-lib-testing-support-source",
+    aars: ["car-ui-lib-testing-support.aar"],
+    sdk_version: "31",
+    static_libs:[
+        "car-ui-lib-source",
+        "Robolectric_all-target_upstream",
+    ]
+}
+
+
+android_library {
+    name: "car-uxr-client-lib",
+    sdk_version: "31",
+    static_libs:[
+        "car-uxr-client-lib-source",
+        "androidx.recyclerview_recyclerview",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "car-ui-lib-source-no-overlayable",
+    ]
+}
+
+android_library_import {
+    name: "car-uxr-client-lib-source",
+    aars: ["car-uxr-client-lib.aar"],
+    sdk_version: "31",
+    static_libs:[
+        "androidx.recyclerview_recyclerview",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "car-ui-lib-source-no-overlayable",
+    ]
+}
+
+android_library_import {
+    name: "token-sharedlibrary-base",
+    aars: ["token-sharedlibrary.aar"],
+    min_sdk_version: "28",
+    sdk_version: "31",
+}
+
+android_app {
+    name: "token-shared-lib-prebuilt",
+    manifest: "AndroidManifest-tokenlib.xml",
+    aaptflags: ["--shared-lib"],
+    sdk_version: "current",
+    optimize: {
+        enabled: false,
+    },
+    resource_zips: [
+        "token-sharedlibrary-res.zip"
+    ],
+    static_libs:[
+        "token-sharedlibrary-base",
+    ]
+}
+
+android_library {
+    name: "oem-token-lib",
+    min_sdk_version: "28",
+    sdk_version: "31",
+    libs: ["token-shared-lib-prebuilt"],
+    static_libs:[
+        "oem-token-lib-source",
+    ],
+}
+
+android_library_import {
+    name: "oem-token-lib-source",
+    aars: ["oem-token-lib.aar"],
+    min_sdk_version: "28",
+    sdk_version: "31",
+    libs: ["token-shared-lib-prebuilt"],
+    static_libs:[
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+    ],
+}
+

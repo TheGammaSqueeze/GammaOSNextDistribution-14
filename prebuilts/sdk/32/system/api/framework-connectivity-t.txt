@@ -1,0 +1,32 @@
+// Signature format: 2.0
+package android.net {
+  public class EthernetManager {
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public android.net.EthernetManager.TetheredInterfaceRequest requestTetheredInterface(@NonNull java.util.concurrent.Executor, @NonNull android.net.EthernetManager.TetheredInterfaceCallback);
+  }
+
+  public static interface EthernetManager.TetheredInterfaceCallback {
+    method public void onAvailable(@NonNull String);
+    method public void onUnavailable();
+  }
+
+  public static class EthernetManager.TetheredInterfaceRequest {
+    method public void release();
+  }
+
+  public final class IpSecManager {
+    method @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public void applyTunnelModeTransform(@NonNull android.net.IpSecManager.IpSecTunnelInterface, int, @NonNull android.net.IpSecTransform) throws java.io.IOException;
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public android.net.IpSecManager.IpSecTunnelInterface createIpSecTunnelInterface(@NonNull java.net.InetAddress, @NonNull java.net.InetAddress, @NonNull android.net.Network) throws java.io.IOException, android.net.IpSecManager.ResourceUnavailableException;
+  }
+
+  public static final class IpSecManager.IpSecTunnelInterface implements java.lang.AutoCloseable {
+    method @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public void addAddress(@NonNull java.net.InetAddress, int) throws java.io.IOException;
+    method public void close();
+    method @NonNull public String getInterfaceName();
+    method @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public void removeAddress(@NonNull java.net.InetAddress, int) throws java.io.IOException;
+    method @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public void setUnderlyingNetwork(@NonNull android.net.Network) throws java.io.IOException;
+  }
+
+  public static class IpSecTransform.Builder {
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_IPSEC_TUNNELS) public android.net.IpSecTransform buildTunnelModeTransform(@NonNull java.net.InetAddress, @NonNull android.net.IpSecManager.SecurityParameterIndex) throws java.io.IOException, android.net.IpSecManager.ResourceUnavailableException, android.net.IpSecManager.SpiUnavailableException;
+  }
+}

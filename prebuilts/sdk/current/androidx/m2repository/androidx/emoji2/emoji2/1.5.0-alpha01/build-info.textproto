@@ -1,0 +1,70 @@
+version: "1.5.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.collection"
+    artifact_id: "collection"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.3.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-process"
+    version: "2.4.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.startup"
+    artifact_id: "startup-runtime"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.emoji2"
+group_id: "androidx.emoji2"
+artifact_id: "emoji2"
+path: "/emoji2/emoji2"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-emoji2-11472573.zip"
+project_zip_path: "per-project-zips/androidx.emoji2-emoji2-all-11472573-1.5.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.emoji2"
+    artifact_id: "emoji2-bundled"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.emoji2"
+    artifact_id: "emoji2-emojipicker"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.emoji2"
+    artifact_id: "emoji2-views"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.emoji2"
+    artifact_id: "emoji2-views-helper"
+    version: "1.5.0-alpha01"
+    is_tip_of_tree: true
+  }
+}

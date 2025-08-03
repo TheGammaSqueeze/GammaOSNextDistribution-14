@@ -1,0 +1,10 @@
+// Signature format: 2.0
+package android.os.ext {
+
+  public class SdkExtensions {
+    method @NonNull public static java.util.Map<java.lang.Integer,java.lang.Integer> getAllExtensionVersions();
+    method public static int getExtensionVersion(int);
+  }
+
+}
+

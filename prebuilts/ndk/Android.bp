@@ -1,0 +1,92 @@
+package {
+    default_applicable_licenses: ["prebuilts_ndk_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_ndk_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+libcxx_includes =  [
+    "current/sources/cxx-stl/llvm-libc++/include",
+    "current/sources/cxx-stl/llvm-libc++abi/include",
+]
+
+ndk_prebuilt_static_stl {
+    name: "ndk_libc++abi",
+    min_sdk_version: "16",
+}
+
+ndk_prebuilt_static_stl {
+    name: "ndk_libunwind",
+    min_sdk_version: "16",
+}
+
+ndk_prebuilt_static_stl {
+    name: "ndk_libc++_static",
+    export_include_dirs: libcxx_includes,
+    min_sdk_version: "16",
+}
+
+ndk_prebuilt_shared_stl {
+    name: "ndk_libc++_shared",
+    export_include_dirs: libcxx_includes,
+}
+
+cc_library_static {
+    name: "android_native_app_glue",
+    srcs: ["current/sources/android/native_app_glue/android_native_app_glue.c"],
+    cflags: ["-Wall", "-Werror", "-Wno-unused-parameter"],
+    sdk_version: "minimum",
+    sdk_variant_only: true,
+    export_include_dirs: ["current/sources/android/native_app_glue"],
+}
+
+cc_library_static {
+    name: "cpufeatures",
+    vendor_available: true,
+    native_bridge_supported: true,
+    srcs: ["current/sources/android/cpufeatures/cpu-features.c"],
+    cflags: ["-Wall", "-Werror"],
+    sdk_version: "minimum",
+    export_include_dirs: ["current/sources/android/cpufeatures"],
+}
+
+// A module that encapsulates the header files of NDK System STL
+cc_library_headers {
+    name: "ndk_system",
+    sdk_version: "minimum",
+    sdk_variant_only: true,
+    stl: "none",
+    export_system_include_dirs: ["current/sources/cxx-stl/system/include"],
+    // the headers are available to both the platform and anyapex.
+    // this availability is required to compile jni deps of any android_app in these api domains.
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+}

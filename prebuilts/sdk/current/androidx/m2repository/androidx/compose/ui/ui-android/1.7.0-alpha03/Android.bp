@@ -1,0 +1,88 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.compose.ui_ui-nodeps",
+    aars: ["ui-android-1.7.0-alpha03.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "21",
+    static_libs: [
+        "androidx.activity_activity-ktx",
+        "androidx.annotation_annotation",
+        "androidx.annotation_annotation-experimental",
+        "androidx.autofill_autofill",
+        "androidx.collection_collection",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-saveable",
+        "androidx.compose.ui_ui-geometry",
+        "androidx.compose.ui_ui-graphics",
+        "androidx.compose.ui_ui-text",
+        "androidx.compose.ui_ui-unit",
+        "androidx.compose.ui_ui-util",
+        "androidx.core_core",
+        "androidx.customview_customview-poolingcontainer",
+        "androidx.emoji2_emoji2",
+        "androidx.lifecycle_lifecycle-runtime",
+        "androidx.lifecycle_lifecycle-viewmodel",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "kotlinx_coroutines_android",
+    ],
+}
+
+android_library {
+    name: "androidx.compose.ui_ui",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "21",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.compose.ui_ui-nodeps",
+        "androidx.activity_activity-ktx",
+        "androidx.annotation_annotation",
+        "androidx.annotation_annotation-experimental",
+        "androidx.autofill_autofill",
+        "androidx.collection_collection",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-saveable",
+        "androidx.compose.ui_ui-geometry",
+        "androidx.compose.ui_ui-graphics",
+        "androidx.compose.ui_ui-text",
+        "androidx.compose.ui_ui-unit",
+        "androidx.compose.ui_ui-util",
+        "androidx.core_core",
+        "androidx.customview_customview-poolingcontainer",
+        "androidx.emoji2_emoji2",
+        "androidx.lifecycle_lifecycle-runtime",
+        "androidx.lifecycle_lifecycle-viewmodel",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "kotlinx_coroutines_android",
+    ],
+    java_version: "1.7",
+}
+

@@ -1,0 +1,11 @@
+drops {
+  dest_file: "0.117.1.21520c6/metricsuploader"
+  version: "0.117.1.21520c6"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "metricsuploader"
+  }
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+}

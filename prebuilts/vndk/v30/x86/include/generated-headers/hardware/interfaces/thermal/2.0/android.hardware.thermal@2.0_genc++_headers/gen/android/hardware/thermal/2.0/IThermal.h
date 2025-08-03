@@ -1,0 +1,433 @@
+#ifndef HIDL_GENERATED_ANDROID_HARDWARE_THERMAL_V2_0_ITHERMAL_H
+#define HIDL_GENERATED_ANDROID_HARDWARE_THERMAL_V2_0_ITHERMAL_H
+
+#include <android/hardware/thermal/1.0/IThermal.h>
+#include <android/hardware/thermal/1.0/types.h>
+#include <android/hardware/thermal/2.0/IThermalChangedCallback.h>
+#include <android/hardware/thermal/2.0/types.h>
+
+#include <android/hidl/manager/1.0/IServiceNotification.h>
+
+#include <hidl/HidlSupport.h>
+#include <hidl/MQDescriptor.h>
+#include <hidl/Status.h>
+#include <utils/NativeHandle.h>
+#include <utils/misc.h>
+
+namespace android {
+namespace hardware {
+namespace thermal {
+namespace V2_0 {
+
+struct IThermal : public ::android::hardware::thermal::V1_0::IThermal {
+    /**
+     * Type tag for use in template logic that indicates this is a 'pure' class.
+     */
+    typedef ::android::hardware::details::i_tag _hidl_tag;
+
+    /**
+     * Fully qualified interface name: "android.hardware.thermal@2.0::IThermal"
+     */
+    static const char* descriptor;
+
+    /**
+     * Returns whether this object's implementation is outside of the current process.
+     */
+    virtual bool isRemote() const override { return false; }
+
+    /**
+     * Return callback for getTemperatures
+     */
+    using getTemperatures_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V1_0::Temperature>& temperatures)>;
+    /**
+     * Retrieves temperatures in Celsius.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *         the status.debugMessage must be populated with the human-readable
+     *         error message.
+     * @return temperatures If status code is SUCCESS, it's filled with the
+     *         current temperatures. The order of temperatures of built-in
+     *         devices (such as CPUs, GPUs and etc.) in the list must be kept
+     *         the same regardless the number of calls to this method even if
+     *         they go offline, if these devices exist on boot. The method
+     *         always returns and never removes such temperatures.
+     *
+     */
+    virtual ::android::hardware::Return<void> getTemperatures(getTemperatures_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for getCpuUsages
+     */
+    using getCpuUsages_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V1_0::CpuUsage>& cpuUsages)>;
+    /**
+     * Retrieves CPU usage information of each core: active and total times
+     * in ms since first boot.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *         the status.debugMessage must be populated with the human-readable
+     *         error message.
+     * @return cpuUsages If status code is SUCCESS, it's filled with the current
+     *         CPU usages. The order and number of CPUs in the list must be kept
+     *         the same regardless the number of calls to this method.
+     *
+     */
+    virtual ::android::hardware::Return<void> getCpuUsages(getCpuUsages_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for getCoolingDevices
+     */
+    using getCoolingDevices_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V1_0::CoolingDevice>& devices)>;
+    /**
+     * Retrieves the cooling devices information.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *         the status.debugMessage must be populated with the human-readable
+     *         error message.
+     * @return devices If status code is SUCCESS, it's filled with the current
+     *         cooling device information. The order of built-in cooling
+     *         devices in the list must be kept the same regardless the number
+     *         of calls to this method even if they go offline, if these devices
+     *         exist on boot. The method always returns and never removes from
+     *         the list such cooling devices.
+     *
+     */
+    virtual ::android::hardware::Return<void> getCoolingDevices(getCoolingDevices_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for getCurrentTemperatures
+     */
+    using getCurrentTemperatures_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V2_0::Temperature>& temperatures)>;
+    /**
+     * Retrieves temperatures in Celsius.
+     *
+     * @param filterType whether to filter the result for a given type.
+     * @param type the TemperatureType such as battery or skin.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *    the status.debugMessage must be populated with a human-readable
+     *    error message.
+     *
+     * @return temperatures If status code is SUCCESS, it's filled with the
+     *    current temperatures. The order of temperatures of built-in
+     *    devices (such as CPUs, GPUs and etc.) in the list must be kept
+     *    the same regardless of the number of calls to this method even if
+     *    they go offline, if these devices exist on boot. The method
+     *    always returns and never removes such temperatures.
+     */
+    virtual ::android::hardware::Return<void> getCurrentTemperatures(bool filterType, ::android::hardware::thermal::V2_0::TemperatureType type, getCurrentTemperatures_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for getTemperatureThresholds
+     */
+    using getTemperatureThresholds_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V2_0::TemperatureThreshold>& temperatureThresholds)>;
+    /**
+     * Retrieves static temperature thresholds in Celsius.
+     *
+     * @param filterType whether to filter the result for a given type.
+     * @param type the TemperatureType such as battery or skin.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *    the status.debugMessage must be populated with a human-readable error message.
+     * @return temperatureThresholds If status code is SUCCESS, it's filled with the
+     *    temperatures thresholds. The order of temperatures of built-in
+     *    devices (such as CPUs, GPUs and etc.) in the list must be kept
+     *    the same regardless of the number of calls to this method even if
+     *    they go offline, if these devices exist on boot. The method
+     *    always returns and never removes such temperatures. The thresholds
+     *    are returned as static values and must not change across calls. The actual
+     *    throttling state is determined in device thermal mitigation policy/agorithm
+     *    which might not be simple thresholds so these values Thermal HAL provided
+     *    may not be accurate to detemin the throttling status. To get accurate
+     *    throttling status, use getCurrentTemperatures or registerThermalChangedCallback
+     *    and listen to the callback.
+     */
+    virtual ::android::hardware::Return<void> getTemperatureThresholds(bool filterType, ::android::hardware::thermal::V2_0::TemperatureType type, getTemperatureThresholds_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for registerThermalChangedCallback
+     */
+    using registerThermalChangedCallback_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status)>;
+    /**
+     * Register an IThermalChangedCallback, used by the Thermal HAL
+     * to receive thermal events when thermal mitigation status changed.
+     * Multiple registrations with different IThermalChangedCallback must be allowed.
+     * Multiple registrations with same IThermalChangedCallback is not allowed, client
+     * should unregister the given IThermalChangedCallback first.
+     *
+     * @param callback the IThermalChangedCallback to use for receiving
+     *    thermal events (nullptr callback will lead to failure with status code FAILURE).
+     * @param filterType if filter for given sensor type.
+     * @param type the type to be filtered.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *    the status.debugMessage must be populated with a human-readable error message.
+     */
+    virtual ::android::hardware::Return<void> registerThermalChangedCallback(const ::android::sp<::android::hardware::thermal::V2_0::IThermalChangedCallback>& callback, bool filterType, ::android::hardware::thermal::V2_0::TemperatureType type, registerThermalChangedCallback_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for unregisterThermalChangedCallback
+     */
+    using unregisterThermalChangedCallback_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status)>;
+    /**
+     * Unregister an IThermalChangedCallback, used by the Thermal HAL
+     * to receive thermal events when thermal mitigation status changed.
+     *
+     * @param callback the IThermalChangedCallback used for receiving
+     *    thermal events (nullptr callback will lead to failure with status code FAILURE).
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *    the status.debugMessage must be populated with a human-readable error message.
+     */
+    virtual ::android::hardware::Return<void> unregisterThermalChangedCallback(const ::android::sp<::android::hardware::thermal::V2_0::IThermalChangedCallback>& callback, unregisterThermalChangedCallback_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for getCurrentCoolingDevices
+     */
+    using getCurrentCoolingDevices_cb = std::function<void(const ::android::hardware::thermal::V1_0::ThermalStatus& status, const ::android::hardware::hidl_vec<::android::hardware::thermal::V2_0::CoolingDevice>& devices)>;
+    /**
+     * Retrieves the cooling devices information.
+     *
+     * @param filterType whether to filter the result for a given type.
+     * @param type the CoolingDevice such as CPU/GPU.
+     *
+     * @return status Status of the operation. If status code is FAILURE,
+     *    the status.debugMessage must be populated with the human-readable
+     *    error message.
+     * @return devices If status code is SUCCESS, it's filled with the current
+     *    cooling device information. The order of built-in cooling
+     *    devices in the list must be kept the same regardless of the number
+     *    of calls to this method even if they go offline, if these devices
+     *    exist on boot. The method always returns and never removes from
+     *    the list such cooling devices.
+     */
+    virtual ::android::hardware::Return<void> getCurrentCoolingDevices(bool filterType, ::android::hardware::thermal::V2_0::CoolingType type, getCurrentCoolingDevices_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for interfaceChain
+     */
+    using interfaceChain_cb = std::function<void(const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& descriptors)>;
+    /*
+     * Provides run-time type information for this object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceChain on an IChild object must yield the following:
+     *     ["android.hardware.foo@1.0::IChild",
+     *      "android.hardware.foo@1.0::IParent"
+     *      "android.hidl.base@1.0::IBase"]
+     *
+     * @return descriptors a vector of descriptors of the run-time type of the
+     *         object.
+     */
+    virtual ::android::hardware::Return<void> interfaceChain(interfaceChain_cb _hidl_cb) override;
+
+    /*
+     * Emit diagnostic information to the given file.
+     *
+     * Optionally overriden.
+     *
+     * @param fd      File descriptor to dump data to.
+     *                Must only be used for the duration of this call.
+     * @param options Arguments for debugging.
+     *                Must support empty for default debug information.
+     */
+    virtual ::android::hardware::Return<void> debug(const ::android::hardware::hidl_handle& fd, const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& options) override;
+
+    /**
+     * Return callback for interfaceDescriptor
+     */
+    using interfaceDescriptor_cb = std::function<void(const ::android::hardware::hidl_string& descriptor)>;
+    /*
+     * Provides run-time type information for this object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceDescriptor on an IChild object must yield
+     *     "android.hardware.foo@1.0::IChild"
+     *
+     * @return descriptor a descriptor of the run-time type of the
+     *         object (the first element of the vector returned by
+     *         interfaceChain())
+     */
+    virtual ::android::hardware::Return<void> interfaceDescriptor(interfaceDescriptor_cb _hidl_cb) override;
+
+    /**
+     * Return callback for getHashChain
+     */
+    using getHashChain_cb = std::function<void(const ::android::hardware::hidl_vec<::android::hardware::hidl_array<uint8_t, 32>>& hashchain)>;
+    /*
+     * Returns hashes of the source HAL files that define the interfaces of the
+     * runtime type information on the object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceChain on an IChild object must yield the following:
+     *     [(hash of IChild.hal),
+     *      (hash of IParent.hal)
+     *      (hash of IBase.hal)].
+     *
+     * SHA-256 is used as the hashing algorithm. Each hash has 32 bytes
+     * according to SHA-256 standard.
+     *
+     * @return hashchain a vector of SHA-1 digests
+     */
+    virtual ::android::hardware::Return<void> getHashChain(getHashChain_cb _hidl_cb) override;
+
+    /*
+     * This method trigger the interface to enable/disable instrumentation based
+     * on system property hal.instrumentation.enable.
+     */
+    virtual ::android::hardware::Return<void> setHALInstrumentation() override;
+
+    /*
+     * Registers a death recipient, to be called when the process hosting this
+     * interface dies.
+     *
+     * @param recipient a hidl_death_recipient callback object
+     * @param cookie a cookie that must be returned with the callback
+     * @return success whether the death recipient was registered successfully.
+     */
+    virtual ::android::hardware::Return<bool> linkToDeath(const ::android::sp<::android::hardware::hidl_death_recipient>& recipient, uint64_t cookie) override;
+
+    /*
+     * Provides way to determine if interface is running without requesting
+     * any functionality.
+     */
+    virtual ::android::hardware::Return<void> ping() override;
+
+    /**
+     * Return callback for getDebugInfo
+     */
+    using getDebugInfo_cb = std::function<void(const ::android::hidl::base::V1_0::DebugInfo& info)>;
+    /*
+     * Get debug information on references on this interface.
+     * @return info debugging information. See comments of DebugInfo.
+     */
+    virtual ::android::hardware::Return<void> getDebugInfo(getDebugInfo_cb _hidl_cb) override;
+
+    /*
+     * This method notifies the interface that one or more system properties
+     * have changed. The default implementation calls
+     * (C++)  report_sysprop_change() in libcutils or
+     * (Java) android.os.SystemProperties.reportSyspropChanged,
+     * which in turn calls a set of registered callbacks (eg to update trace
+     * tags).
+     */
+    virtual ::android::hardware::Return<void> notifySyspropsChanged() override;
+
+    /*
+     * Unregisters the registered death recipient. If this service was registered
+     * multiple times with the same exact death recipient, this unlinks the most
+     * recently registered one.
+     *
+     * @param recipient a previously registered hidl_death_recipient callback
+     * @return success whether the death recipient was unregistered successfully.
+     */
+    virtual ::android::hardware::Return<bool> unlinkToDeath(const ::android::sp<::android::hardware::hidl_death_recipient>& recipient) override;
+
+    // cast static functions
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::thermal::V2_0::IThermal>> castFrom(const ::android::sp<::android::hardware::thermal::V2_0::IThermal>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::thermal::V2_0::IThermal>> castFrom(const ::android::sp<::android::hardware::thermal::V1_0::IThermal>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::thermal::V2_0::IThermal>> castFrom(const ::android::sp<::android::hidl::base::V1_0::IBase>& parent, bool emitError = false);
+
+    // helper methods for interactions with the hwservicemanager
+    /**
+     * This gets the service of this type with the specified instance name. If the
+     * service is currently not available or not in the VINTF manifest on a Trebilized
+     * device, this will return nullptr. This is useful when you don't want to block
+     * during device boot. If getStub is true, this will try to return an unwrapped
+     * passthrough implementation in the same process. This is useful when getting an
+     * implementation from the same partition/compilation group.
+     *
+     * In general, prefer getService(std::string,bool)
+     */
+    static ::android::sp<IThermal> tryGetService(const std::string &serviceName="default", bool getStub=false);
+    /**
+     * Deprecated. See tryGetService(std::string, bool)
+     */
+    static ::android::sp<IThermal> tryGetService(const char serviceName[], bool getStub=false)  { std::string str(serviceName ? serviceName : "");      return tryGetService(str, getStub); }
+    /**
+     * Deprecated. See tryGetService(std::string, bool)
+     */
+    static ::android::sp<IThermal> tryGetService(const ::android::hardware::hidl_string& serviceName, bool getStub=false)  { std::string str(serviceName.c_str());      return tryGetService(str, getStub); }
+    /**
+     * Calls tryGetService("default", bool). This is the recommended instance name for singleton services.
+     */
+    static ::android::sp<IThermal> tryGetService(bool getStub) { return tryGetService("default", getStub); }
+    /**
+     * This gets the service of this type with the specified instance name. If the
+     * service is not in the VINTF manifest on a Trebilized device, this will return
+     * nullptr. If the service is not available, this will wait for the service to
+     * become available. If the service is a lazy service, this will start the service
+     * and return when it becomes available. If getStub is true, this will try to
+     * return an unwrapped passthrough implementation in the same process. This is
+     * useful when getting an implementation from the same partition/compilation group.
+     */
+    static ::android::sp<IThermal> getService(const std::string &serviceName="default", bool getStub=false);
+    /**
+     * Deprecated. See getService(std::string, bool)
+     */
+    static ::android::sp<IThermal> getService(const char serviceName[], bool getStub=false)  { std::string str(serviceName ? serviceName : "");      return getService(str, getStub); }
+    /**
+     * Deprecated. See getService(std::string, bool)
+     */
+    static ::android::sp<IThermal> getService(const ::android::hardware::hidl_string& serviceName, bool getStub=false)  { std::string str(serviceName.c_str());      return getService(str, getStub); }
+    /**
+     * Calls getService("default", bool). This is the recommended instance name for singleton services.
+     */
+    static ::android::sp<IThermal> getService(bool getStub) { return getService("default", getStub); }
+    /**
+     * Registers a service with the service manager. For Trebilized devices, the service
+     * must also be in the VINTF manifest.
+     */
+    __attribute__ ((warn_unused_result))::android::status_t registerAsService(const std::string &serviceName="default");
+    /**
+     * Registers for notifications for when a service is registered.
+     */
+    static bool registerForNotifications(
+            const std::string &serviceName,
+            const ::android::sp<::android::hidl::manager::V1_0::IServiceNotification> &notification);
+};
+
+//
+// type declarations for package
+//
+
+static inline std::string toString(const ::android::sp<::android::hardware::thermal::V2_0::IThermal>& o);
+
+//
+// type header definitions for package
+//
+
+static inline std::string toString(const ::android::sp<::android::hardware::thermal::V2_0::IThermal>& o) {
+    std::string os = "[class or subclass of ";
+    os += ::android::hardware::thermal::V2_0::IThermal::descriptor;
+    os += "]";
+    os += o->isRemote() ? "@remote" : "@local";
+    return os;
+}
+
+
+}  // namespace V2_0
+}  // namespace thermal
+}  // namespace hardware
+}  // namespace android
+
+//
+// global type declarations for package
+//
+
+
+#endif  // HIDL_GENERATED_ANDROID_HARDWARE_THERMAL_V2_0_ITHERMAL_H

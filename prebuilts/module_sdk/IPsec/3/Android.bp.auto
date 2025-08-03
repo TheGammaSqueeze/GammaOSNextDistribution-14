@@ -1,0 +1,188 @@
+// This is auto-generated. DO NOT EDIT.
+
+// Soong config variable stanza added by vendor/google/build/mainline_modules_sdks.py.
+soong_config_module_type_import {
+    from: "packages/modules/common/Android.bp",
+    module_types: [
+        "module_java_sdk_library_import",
+        "module_prebuilt_bootclasspath_fragment",
+    ],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "ipsec-module-sdk_com.android.ipsec-bootclasspath-fragment@current",
+    sdk_member_name: "com.android.ipsec-bootclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.ipsec"],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0@current"],
+    contents: ["ipsec-module-sdk_android.net.ipsec.ike@current"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+        {
+            apex: "com.android.tethering",
+            module: "com.android.tethering-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+module_prebuilt_bootclasspath_fragment {
+    name: "com.android.ipsec-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.ipsec"],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0"],
+    contents: ["android.net.ipsec.ike"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+        {
+            apex: "com.android.tethering",
+            module: "com.android.tethering-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "ipsec-module-sdk_android.net.ipsec.ike@current",
+    sdk_member_name: "android.net.ipsec.ike",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0@current"],
+    shared_library: true,
+    compile_dex: true,
+    permitted_packages: [
+        "com.android.internal.net",
+        "android.net.ipsec.ike",
+        "android.net.eap",
+    ],
+    public: {
+        jars: ["sdk_library/public/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/public/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/public/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/public/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/public/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/system/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/system/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/system/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/system/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/module-lib/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/module-lib/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/module-lib/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+module_java_sdk_library_import {
+    name: "android.net.ipsec.ike",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0"],
+    shared_library: true,
+    compile_dex: true,
+    permitted_packages: [
+        "com.android.internal.net",
+        "android.net.ipsec.ike",
+        "android.net.eap",
+    ],
+    public: {
+        jars: ["sdk_library/public/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/public/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/public/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/public/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/public/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/system/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/system/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/system/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/system/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/module-lib/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/module-lib/android.net.ipsec.ike-removed.txt",
+        annotations: "sdk_library/module-lib/android.net.ipsec.ike_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "ipsec-module-sdk_Android-Apache-2.0@current",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "ipsec-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+sdk_snapshot {
+    name: "ipsec-module-sdk@current",
+    visibility: ["//visibility:public"],
+    bootclasspath_fragments: ["ipsec-module-sdk_com.android.ipsec-bootclasspath-fragment@current"],
+    java_sdk_libs: ["ipsec-module-sdk_android.net.ipsec.ike@current"],
+}

@@ -1,0 +1,18 @@
+Placeholder API txt file that is used in the java_sdk_library_import modules
+in the Android.bp file for their current_api and removed_api properties.
+
+This is not a valid API txt file and is not intended to be used as such. Any
+attempt to parse its contents will fail. That is intentional.
+
+Its purpose is simply to allow Soong to pass dependency checking when
+TARGET_BUILD_APPS is set without UNBUNDLED_BUILD_SDKS_FROM_SOURCE being set to
+true. Without this file being referenced from the java_sdk_library_import
+properties any attempt to depend on say ":javax.obex{.public.api.txt}" would
+fail in Soong when building with TARGET_BUILD_APPS set and so prevent the
+building of any module even those that do not depend on that missing API file.
+
+With this file being referenced from the java_sdk_library_import properties
+Soong will pass its dependency checks and produce the ninja file and so allow
+modules that do not depend on this file to be built successfully. Building
+modules that depend on this file will fail when those modules attempt to parse
+this file.

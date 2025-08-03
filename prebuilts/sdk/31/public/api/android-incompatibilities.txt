@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+RemovedClass: android.service.voice.AlwaysOnHotwordDetector:
+
+RemovedMethod: android.service.voice.VoiceInteractionService#createAlwaysOnHotwordDetector(String, java.util.Locale, android.service.voice.AlwaysOnHotwordDetector.Callback):
+
+RemovedDeprecatedField: android.view.WindowManager.LayoutParams#TYPE_STATUS_BAR_PANEL:
+    Removed deprecated field android.view.WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL
+
+RemovedDeprecatedMethod: android.app.ActivityManager#getMaxNumPictureInPictureActions():
+    Removed deprecated method android.app.ActivityManager.getMaxNumPictureInPictureActions()
+RemovedDeprecatedMethod: android.app.usage.StorageStats#getCodeBytes():
+    Removed deprecated method android.app.usage.StorageStats.getCodeBytes()
+
+RemovedDeprecatedField: android.net.Proxy#EXTRA_PROXY_INFO:
+    Removed deprecated field android.net.Proxy.EXTRA_PROXY_INFO

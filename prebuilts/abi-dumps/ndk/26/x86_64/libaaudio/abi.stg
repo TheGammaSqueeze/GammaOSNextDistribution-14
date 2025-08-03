@@ -1,0 +1,794 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x072992a6
+  kind: POINTER
+  pointee_type_id: 0x36e6ac06
+}
+pointer_reference {
+  id: 0x0dfa37c2
+  kind: POINTER
+  pointee_type_id: 0x1da83995
+}
+pointer_reference {
+  id: 0x0e0a4f29
+  kind: POINTER
+  pointee_type_id: 0x1269da38
+}
+pointer_reference {
+  id: 0x0f7dd631
+  kind: POINTER
+  pointee_type_id: 0x17b7be58
+}
+pointer_reference {
+  id: 0x1269da38
+  kind: POINTER
+  pointee_type_id: 0x63e78e7f
+}
+pointer_reference {
+  id: 0x17dccfd3
+  kind: POINTER
+  pointee_type_id: 0x7533d9d0
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x1d4d649f
+  kind: POINTER
+  pointee_type_id: 0x5f7574e1
+}
+pointer_reference {
+  id: 0x1da83995
+  kind: POINTER
+  pointee_type_id: 0x5ce000cb
+}
+pointer_reference {
+  id: 0x391f15ea
+  kind: POINTER
+  pointee_type_id: 0xce3cb135
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+typedef {
+  id: 0x5ce000cb
+  name: "AAudioStream"
+  referred_type_id: 0x0ffb4135
+}
+typedef {
+  id: 0x63e78e7f
+  name: "AAudioStreamBuilder"
+  referred_type_id: 0x948296e3
+}
+typedef {
+  id: 0xf4610a97
+  name: "AAudioStream_dataCallback"
+  referred_type_id: 0x1d4d649f
+}
+typedef {
+  id: 0x3bc142cf
+  name: "AAudioStream_errorCallback"
+  referred_type_id: 0x0f7dd631
+}
+typedef {
+  id: 0x77083415
+  name: "__clockid_t"
+  referred_type_id: 0xa53710f6
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0xfc0e1dbd
+}
+typedef {
+  id: 0xa53710f6
+  name: "__kernel_clockid_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x293948ae
+  name: "aaudio_data_callback_result_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x251da138
+  name: "aaudio_direction_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0xeff6397c
+  name: "aaudio_format_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x7b04d75a
+  name: "aaudio_performance_mode_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x5c6330bb
+  name: "aaudio_policy_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x9c50e9f7
+  name: "aaudio_result_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0xc16bb77d
+  name: "aaudio_sharing_mode_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x36e6ac06
+  name: "aaudio_stream_state_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x4478ba6b
+  name: "clockid_t"
+  referred_type_id: 0x77083415
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+qualified {
+  id: 0xce3cb135
+  qualifier: CONST
+  qualified_type_id: 0x48b5725f
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: SIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x62aebfd4
+  name: "bool"
+  encoding: BOOLEAN
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+struct_union {
+  id: 0x948296e3
+  kind: STRUCT
+  name: "AAudioStreamBuilderStruct"
+}
+struct_union {
+  id: 0x0ffb4135
+  kind: STRUCT
+  name: "AAudioStreamStruct"
+}
+function {
+  id: 0x14965199
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0x251da138
+}
+function {
+  id: 0x14eb0d4f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0x3bc142cf
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x14eb1ad8
+  return_type_id: 0x5c6330bb
+}
+function {
+  id: 0x1547e057
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x15ee3440
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0x7b04d75a
+}
+function {
+  id: 0x170789c0
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0xc16bb77d
+}
+function {
+  id: 0x17b7be58
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1da83995
+  parameter_id: 0x18bd6530
+  parameter_id: 0x9c50e9f7
+}
+function {
+  id: 0x17bdfff8
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0xeff6397c
+}
+function {
+  id: 0x17d58c6e
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1269da38
+  parameter_id: 0xf4610a97
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x4b254a9e
+  return_type_id: 0x251da138
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0x5f7574e1
+  return_type_id: 0x293948ae
+  parameter_id: 0x1da83995
+  parameter_id: 0x18bd6530
+  parameter_id: 0x18bd6530
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x65ea458c
+  return_type_id: 0xc16bb77d
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0x84f4e2f4
+  return_type_id: 0x7b04d75a
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0x9ffdbca2
+  return_type_id: 0x3e10b518
+  parameter_id: 0x36e6ac06
+}
+function {
+  id: 0xb5502dde
+  return_type_id: 0x3e10b518
+  parameter_id: 0x9c50e9f7
+}
+function {
+  id: 0xb93a65db
+  return_type_id: 0x62aebfd4
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0xbab32bcd
+  return_type_id: 0xeff6397c
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0xc810843b
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+  parameter_id: 0x36e6ac06
+  parameter_id: 0x072992a6
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0xc83af4cc
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+  parameter_id: 0x391f15ea
+  parameter_id: 0x5171d297
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0xc8bc7d0f
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+  parameter_id: 0x18bd6530
+  parameter_id: 0x5171d297
+  parameter_id: 0x7533d9d0
+}
+function {
+  id: 0xc8cb0020
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0xc98ec76a
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0xc9df4a89
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1da83995
+  parameter_id: 0x4478ba6b
+  parameter_id: 0x17dccfd3
+  parameter_id: 0x17dccfd3
+}
+function {
+  id: 0xcb0c9014
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1269da38
+  parameter_id: 0x0dfa37c2
+}
+function {
+  id: 0xcb3b78cb
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x1269da38
+}
+function {
+  id: 0xcc239d8f
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x0e0a4f29
+}
+function {
+  id: 0xd18b7995
+  return_type_id: 0x36e6ac06
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0xd8b9c26b
+  return_type_id: 0x9c50e9f7
+  parameter_id: 0x5c6330bb
+}
+function {
+  id: 0xdf6f9528
+  return_type_id: 0x5171d297
+  parameter_id: 0x1da83995
+}
+function {
+  id: 0xf0bf4e5c
+  return_type_id: 0x7533d9d0
+  parameter_id: 0x1da83995
+}
+elf_symbol {
+  id: 0xb9050e08
+  name: "AAudioStreamBuilder_delete"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xcb3b78cb
+  full_name: "AAudioStreamBuilder_delete"
+}
+elf_symbol {
+  id: 0x6e8ef558
+  name: "AAudioStreamBuilder_openStream"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xcb0c9014
+  full_name: "AAudioStreamBuilder_openStream"
+}
+elf_symbol {
+  id: 0x5caa58f8
+  name: "AAudioStreamBuilder_setBufferCapacityInFrames"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setBufferCapacityInFrames"
+}
+elf_symbol {
+  id: 0x69ed4a8b
+  name: "AAudioStreamBuilder_setChannelCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setChannelCount"
+}
+elf_symbol {
+  id: 0xeca2b81e
+  name: "AAudioStreamBuilder_setDataCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x17d58c6e
+  full_name: "AAudioStreamBuilder_setDataCallback"
+}
+elf_symbol {
+  id: 0xbb09d435
+  name: "AAudioStreamBuilder_setDeviceId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setDeviceId"
+}
+elf_symbol {
+  id: 0x67990420
+  name: "AAudioStreamBuilder_setDirection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x14965199
+  full_name: "AAudioStreamBuilder_setDirection"
+}
+elf_symbol {
+  id: 0xd782c52a
+  name: "AAudioStreamBuilder_setErrorCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x14eb0d4f
+  full_name: "AAudioStreamBuilder_setErrorCallback"
+}
+elf_symbol {
+  id: 0x47ac0b43
+  name: "AAudioStreamBuilder_setFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x17bdfff8
+  full_name: "AAudioStreamBuilder_setFormat"
+}
+elf_symbol {
+  id: 0x46b18d60
+  name: "AAudioStreamBuilder_setFramesPerDataCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setFramesPerDataCallback"
+}
+elf_symbol {
+  id: 0x3b0f975c
+  name: "AAudioStreamBuilder_setPerformanceMode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x15ee3440
+  full_name: "AAudioStreamBuilder_setPerformanceMode"
+}
+elf_symbol {
+  id: 0x0aacac2a
+  name: "AAudioStreamBuilder_setSampleRate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setSampleRate"
+}
+elf_symbol {
+  id: 0x70a2fb94
+  name: "AAudioStreamBuilder_setSamplesPerFrame"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1547e057
+  full_name: "AAudioStreamBuilder_setSamplesPerFrame"
+}
+elf_symbol {
+  id: 0xd91225bf
+  name: "AAudioStreamBuilder_setSharingMode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x170789c0
+  full_name: "AAudioStreamBuilder_setSharingMode"
+}
+elf_symbol {
+  id: 0xfebbf30f
+  name: "AAudioStream_close"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8cb0020
+  full_name: "AAudioStream_close"
+}
+elf_symbol {
+  id: 0x8a6e7805
+  name: "AAudioStream_getBufferCapacityInFrames"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getBufferCapacityInFrames"
+}
+elf_symbol {
+  id: 0x33f6283a
+  name: "AAudioStream_getBufferSizeInFrames"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getBufferSizeInFrames"
+}
+elf_symbol {
+  id: 0x410488c3
+  name: "AAudioStream_getChannelCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getChannelCount"
+}
+elf_symbol {
+  id: 0x4c97b7df
+  name: "AAudioStream_getDeviceId"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getDeviceId"
+}
+elf_symbol {
+  id: 0x29e4b71e
+  name: "AAudioStream_getDirection"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4b254a9e
+  full_name: "AAudioStream_getDirection"
+}
+elf_symbol {
+  id: 0xa10c06b4
+  name: "AAudioStream_getFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xbab32bcd
+  full_name: "AAudioStream_getFormat"
+}
+elf_symbol {
+  id: 0xc24bb165
+  name: "AAudioStream_getFramesPerBurst"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getFramesPerBurst"
+}
+elf_symbol {
+  id: 0xb735e85b
+  name: "AAudioStream_getFramesPerDataCallback"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getFramesPerDataCallback"
+}
+elf_symbol {
+  id: 0x23b2f205
+  name: "AAudioStream_getFramesRead"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf0bf4e5c
+  full_name: "AAudioStream_getFramesRead"
+}
+elf_symbol {
+  id: 0xf2df521a
+  name: "AAudioStream_getFramesWritten"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf0bf4e5c
+  full_name: "AAudioStream_getFramesWritten"
+}
+elf_symbol {
+  id: 0x9273cba4
+  name: "AAudioStream_getPerformanceMode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x84f4e2f4
+  full_name: "AAudioStream_getPerformanceMode"
+}
+elf_symbol {
+  id: 0x412eb750
+  name: "AAudioStream_getSampleRate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getSampleRate"
+}
+elf_symbol {
+  id: 0x2bcc30d8
+  name: "AAudioStream_getSamplesPerFrame"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getSamplesPerFrame"
+}
+elf_symbol {
+  id: 0x34009d65
+  name: "AAudioStream_getSharingMode"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x65ea458c
+  full_name: "AAudioStream_getSharingMode"
+}
+elf_symbol {
+  id: 0x81fd52e9
+  name: "AAudioStream_getState"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd18b7995
+  full_name: "AAudioStream_getState"
+}
+elf_symbol {
+  id: 0xe5494751
+  name: "AAudioStream_getTimestamp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc9df4a89
+  full_name: "AAudioStream_getTimestamp"
+}
+elf_symbol {
+  id: 0xf6b6f1ca
+  name: "AAudioStream_getXRunCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdf6f9528
+  full_name: "AAudioStream_getXRunCount"
+}
+elf_symbol {
+  id: 0x21ee1f0e
+  name: "AAudioStream_isMMapUsed"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb93a65db
+  full_name: "AAudioStream_isMMapUsed"
+}
+elf_symbol {
+  id: 0xc068bd7e
+  name: "AAudioStream_read"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8bc7d0f
+  full_name: "AAudioStream_read"
+}
+elf_symbol {
+  id: 0xfd6ae81a
+  name: "AAudioStream_requestFlush"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8cb0020
+  full_name: "AAudioStream_requestFlush"
+}
+elf_symbol {
+  id: 0x754d396f
+  name: "AAudioStream_requestPause"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8cb0020
+  full_name: "AAudioStream_requestPause"
+}
+elf_symbol {
+  id: 0x19455b08
+  name: "AAudioStream_requestStart"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8cb0020
+  full_name: "AAudioStream_requestStart"
+}
+elf_symbol {
+  id: 0xb5662255
+  name: "AAudioStream_requestStop"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc8cb0020
+  full_name: "AAudioStream_requestStop"
+}
+elf_symbol {
+  id: 0xed65e78f
+  name: "AAudioStream_setBufferSizeInFrames"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc98ec76a
+  full_name: "AAudioStream_setBufferSizeInFrames"
+}
+elf_symbol {
+  id: 0x8575e105
+  name: "AAudioStream_waitForStateChange"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc810843b
+  full_name: "AAudioStream_waitForStateChange"
+}
+elf_symbol {
+  id: 0x1c1fdc17
+  name: "AAudioStream_write"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xc83af4cc
+  full_name: "AAudioStream_write"
+}
+elf_symbol {
+  id: 0x68276853
+  name: "AAudio_convertResultToText"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xb5502dde
+  full_name: "AAudio_convertResultToText"
+}
+elf_symbol {
+  id: 0x5d434faa
+  name: "AAudio_convertStreamStateToText"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9ffdbca2
+  full_name: "AAudio_convertStreamStateToText"
+}
+elf_symbol {
+  id: 0x1bf92f40
+  name: "AAudio_createStreamBuilder"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xcc239d8f
+  full_name: "AAudio_createStreamBuilder"
+}
+elf_symbol {
+  id: 0xff22a7b2
+  name: "AAudio_getMMapPolicy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x14eb1ad8
+  full_name: "AAudio_getMMapPolicy"
+}
+elf_symbol {
+  id: 0x9687da23
+  name: "AAudio_setMMapPolicy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xd8b9c26b
+  full_name: "AAudio_setMMapPolicy"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xb9050e08
+  symbol_id: 0x6e8ef558
+  symbol_id: 0x5caa58f8
+  symbol_id: 0x69ed4a8b
+  symbol_id: 0xeca2b81e
+  symbol_id: 0xbb09d435
+  symbol_id: 0x67990420
+  symbol_id: 0xd782c52a
+  symbol_id: 0x47ac0b43
+  symbol_id: 0x46b18d60
+  symbol_id: 0x3b0f975c
+  symbol_id: 0x0aacac2a
+  symbol_id: 0x70a2fb94
+  symbol_id: 0xd91225bf
+  symbol_id: 0xfebbf30f
+  symbol_id: 0x8a6e7805
+  symbol_id: 0x33f6283a
+  symbol_id: 0x410488c3
+  symbol_id: 0x4c97b7df
+  symbol_id: 0x29e4b71e
+  symbol_id: 0xa10c06b4
+  symbol_id: 0xc24bb165
+  symbol_id: 0xb735e85b
+  symbol_id: 0x23b2f205
+  symbol_id: 0xf2df521a
+  symbol_id: 0x9273cba4
+  symbol_id: 0x412eb750
+  symbol_id: 0x2bcc30d8
+  symbol_id: 0x34009d65
+  symbol_id: 0x81fd52e9
+  symbol_id: 0xe5494751
+  symbol_id: 0xf6b6f1ca
+  symbol_id: 0x21ee1f0e
+  symbol_id: 0xc068bd7e
+  symbol_id: 0xfd6ae81a
+  symbol_id: 0x754d396f
+  symbol_id: 0x19455b08
+  symbol_id: 0xb5662255
+  symbol_id: 0xed65e78f
+  symbol_id: 0x8575e105
+  symbol_id: 0x1c1fdc17
+  symbol_id: 0x68276853
+  symbol_id: 0x5d434faa
+  symbol_id: 0x1bf92f40
+  symbol_id: 0xff22a7b2
+  symbol_id: 0x9687da23
+}

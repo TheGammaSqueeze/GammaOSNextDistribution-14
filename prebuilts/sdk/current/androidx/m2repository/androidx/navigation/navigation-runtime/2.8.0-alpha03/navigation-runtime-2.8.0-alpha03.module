@@ -1,0 +1,616 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.navigation",
+    "module": "navigation-runtime",
+    "version": "2.8.0-alpha03",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.activity",
+          "module": "activity-ktx",
+          "version": {
+            "requires": "1.7.1"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.4.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-runtime-ktx",
+          "version": {
+            "requires": "2.6.2"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-viewmodel-ktx",
+          "version": {
+            "requires": "2.6.2"
+          }
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-runtime",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-runtime-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-generator",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-gradle-plugin",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-testing",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        }
+      ],
+      "files": [
+        {
+          "name": "navigation-runtime-2.8.0-alpha03.aar",
+          "url": "navigation-runtime-2.8.0-alpha03.aar",
+          "size": 129191,
+          "sha512": "df4711888d36b033a6667e7abdba6af227d7740b8ab0858e85f626f98ab38425342b3d363e00ba6027be223a932f6901564398ea0458206ac7f9278b67567960",
+          "sha256": "7e9a7cb8b4a30846b28fdcf02a7a60b2e5507bd839b64508077af9792f42bff9",
+          "sha1": "dc283c272c621e3388ef0ab7bf9c579d66043241",
+          "md5": "ec17effd4820d7b2c2f4121c197ef3d0"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.activity",
+          "module": "activity-ktx",
+          "version": {
+            "requires": "1.7.1"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.4.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-runtime-ktx",
+          "version": {
+            "requires": "2.6.2"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-viewmodel-ktx",
+          "version": {
+            "requires": "2.6.2"
+          }
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-runtime",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-runtime-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-generator",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-gradle-plugin",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-testing",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        }
+      ],
+      "files": [
+        {
+          "name": "navigation-runtime-2.8.0-alpha03.aar",
+          "url": "navigation-runtime-2.8.0-alpha03.aar",
+          "size": 129191,
+          "sha512": "df4711888d36b033a6667e7abdba6af227d7740b8ab0858e85f626f98ab38425342b3d363e00ba6027be223a932f6901564398ea0458206ac7f9278b67567960",
+          "sha256": "7e9a7cb8b4a30846b28fdcf02a7a60b2e5507bd839b64508077af9792f42bff9",
+          "sha1": "dc283c272c621e3388ef0ab7bf9c579d66043241",
+          "md5": "ec17effd4820d7b2c2f4121c197ef3d0"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-runtime",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-runtime-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-generator",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-gradle-plugin",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-testing",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        }
+      ],
+      "files": [
+        {
+          "name": "navigation-runtime-2.8.0-alpha03-sources.jar",
+          "url": "navigation-runtime-2.8.0-alpha03-sources.jar",
+          "size": 48450,
+          "sha512": "df2faa64be1054a32f7eb352633c8e728d19269bda3d667320739ab66e25556d5ad98902f08bbe1a9a1f9b8c32f24ea61261a74998b780b1bb2899467bced349",
+          "sha256": "8fd81ea02700d2909a3f01facd77a7e1b1746a1fb16d377483b312f25c7a684d",
+          "sha1": "30430661970c0201097393bc7875bae8c184088f",
+          "md5": "d2633aa4f11c9469557d033231dc108d"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-common-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-dynamic-features-runtime",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-fragment-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-runtime-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-generator",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-safe-args-gradle-plugin",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-testing",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-ui-ktx",
+          "version": {
+            "requires": "2.8.0-alpha03"
+          },
+          "reason": "navigation-runtime is in atomic group androidx.navigation"
+        }
+      ],
+      "files": [
+        {
+          "name": "navigation-runtime-2.8.0-alpha03-versionMetadata.json",
+          "url": "navigation-runtime-2.8.0-alpha03-versionMetadata.json",
+          "size": 13202,
+          "sha512": "4194749417df779b9193a79999f9a1bccf4dbd66caf0cc8230c15524aa8dcbafe101c697d2269d71cdb82a0b146626fbad4d08243fd29595b455d43778380196",
+          "sha256": "0ed902b4db7364a681bd428624889970d62652f233ba92549b2b8777b524840e",
+          "sha1": "866aab21d39f589fb65e8389b309ecdaf522de3c",
+          "md5": "50f75a7f51fdedc8bc21df9ccfb8039e"
+        }
+      ]
+    }
+  ]
+}

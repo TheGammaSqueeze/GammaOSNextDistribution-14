@@ -1,0 +1,10 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "libincfs-prebuilt",
+    jars: ["libincfs-prebuilt.jar"],
+    installable: true,
+    host_supported: true,
+}

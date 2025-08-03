@@ -1,0 +1,735 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x14c1eb4d
+  kind: POINTER
+  pointee_type_id: 0x79474bab
+}
+pointer_reference {
+  id: 0x1630d137
+  kind: POINTER
+  pointee_type_id: 0x7283a241
+}
+pointer_reference {
+  id: 0x335958df
+  kind: POINTER
+  pointee_type_id: 0xe72585e1
+}
+pointer_reference {
+  id: 0x365d029d
+  kind: POINTER
+  pointee_type_id: 0xf334ece8
+}
+pointer_reference {
+  id: 0x3a42073b
+  kind: POINTER
+  pointee_type_id: 0xc348fa70
+}
+pointer_reference {
+  id: 0x3a801ca4
+  kind: POINTER
+  pointee_type_id: 0xc040940e
+}
+pointer_reference {
+  id: 0x3abc78eb
+  kind: POINTER
+  pointee_type_id: 0xc0b10532
+}
+pointer_reference {
+  id: 0x3e3062bc
+  kind: POINTER
+  pointee_type_id: 0xd2816c6c
+}
+pointer_reference {
+  id: 0x3f63594a
+  kind: POINTER
+  pointee_type_id: 0xd7cd83b7
+}
+typedef {
+  id: 0x2f71b857
+  name: "SLEngineOption"
+  referred_type_id: 0xf5c27644
+}
+typedef {
+  id: 0x7283a241
+  name: "SLInterfaceID"
+  referred_type_id: 0x335958df
+}
+typedef {
+  id: 0x79474bab
+  name: "SLObjectItf"
+  referred_type_id: 0x3e3062bc
+}
+typedef {
+  id: 0xbc94052a
+  name: "SLboolean"
+  referred_type_id: 0xc040940e
+}
+typedef {
+  id: 0x6735cefb
+  name: "SLresult"
+  referred_type_id: 0xc040940e
+}
+typedef {
+  id: 0x50ff656f
+  name: "SLuint16"
+  referred_type_id: 0x56ef9174
+}
+typedef {
+  id: 0xc040940e
+  name: "SLuint32"
+  referred_type_id: 0xee2e876f
+}
+typedef {
+  id: 0x7ece651c
+  name: "SLuint8"
+  referred_type_id: 0xedc3f161
+}
+typedef {
+  id: 0x56ef9174
+  name: "sl_uint16_t"
+  referred_type_id: 0xc93e017b
+}
+typedef {
+  id: 0xee2e876f
+  name: "sl_uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0xedc3f161
+  name: "sl_uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+qualified {
+  id: 0xc0b10532
+  qualifier: CONST
+  qualified_type_id: 0x7283a241
+}
+qualified {
+  id: 0xc348fa70
+  qualifier: CONST
+  qualified_type_id: 0x7d645f4b
+}
+qualified {
+  id: 0xd2816c6c
+  qualifier: CONST
+  qualified_type_id: 0x3a42073b
+}
+qualified {
+  id: 0xd7cd83b7
+  qualifier: CONST
+  qualified_type_id: 0x2f71b857
+}
+qualified {
+  id: 0xe72585e1
+  qualifier: CONST
+  qualified_type_id: 0xecd1a10d
+}
+qualified {
+  id: 0xf334ece8
+  qualifier: CONST
+  qualified_type_id: 0xbc94052a
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0xc93e017b
+  name: "unsigned short"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000002
+}
+array {
+  id: 0xbe12caef
+  number_of_elements: 6
+  element_type_id: 0x7ece651c
+}
+member {
+  id: 0xe474332e
+  name: "clock_seq"
+  type_id: 0x50ff656f
+  offset: 64
+}
+member {
+  id: 0x0fcb18f8
+  name: "node"
+  type_id: 0xbe12caef
+  offset: 80
+}
+member {
+  id: 0x1324e389
+  name: "time_hi_and_version"
+  type_id: 0x50ff656f
+  offset: 48
+}
+member {
+  id: 0x52fa9262
+  name: "time_low"
+  type_id: 0xc040940e
+}
+member {
+  id: 0x556b1d73
+  name: "time_mid"
+  type_id: 0x50ff656f
+  offset: 32
+}
+struct_union {
+  id: 0xf5c27644
+  kind: STRUCT
+  name: "SLEngineOption_"
+}
+struct_union {
+  id: 0xecd1a10d
+  kind: STRUCT
+  name: "SLInterfaceID_"
+  definition {
+    bytesize: 16
+    member_id: 0x52fa9262
+    member_id: 0x556b1d73
+    member_id: 0x1324e389
+    member_id: 0xe474332e
+    member_id: 0x0fcb18f8
+  }
+}
+struct_union {
+  id: 0x7d645f4b
+  kind: STRUCT
+  name: "SLObjectItf_"
+}
+function {
+  id: 0x9671a821
+  return_type_id: 0x6735cefb
+  parameter_id: 0x3a801ca4
+}
+function {
+  id: 0x9eec0029
+  return_type_id: 0x6735cefb
+  parameter_id: 0x14c1eb4d
+  parameter_id: 0xc040940e
+  parameter_id: 0x3f63594a
+  parameter_id: 0xc040940e
+  parameter_id: 0x3abc78eb
+  parameter_id: 0x365d029d
+}
+function {
+  id: 0xa899494f
+  return_type_id: 0x6735cefb
+  parameter_id: 0xc040940e
+  parameter_id: 0x1630d137
+}
+elf_symbol {
+  id: 0xb19014bf
+  name: "SL_IID_3DCOMMIT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DCOMMIT"
+}
+elf_symbol {
+  id: 0x783e2e18
+  name: "SL_IID_3DDOPPLER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DDOPPLER"
+}
+elf_symbol {
+  id: 0xf9e62c88
+  name: "SL_IID_3DGROUPING"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DGROUPING"
+}
+elf_symbol {
+  id: 0x90358b46
+  name: "SL_IID_3DLOCATION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DLOCATION"
+}
+elf_symbol {
+  id: 0x39ea6293
+  name: "SL_IID_3DMACROSCOPIC"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DMACROSCOPIC"
+}
+elf_symbol {
+  id: 0xef7ee60c
+  name: "SL_IID_3DSOURCE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_3DSOURCE"
+}
+elf_symbol {
+  id: 0xa6c014db
+  name: "SL_IID_ANDROIDACOUSTICECHOCANCELLATION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDACOUSTICECHOCANCELLATION"
+}
+elf_symbol {
+  id: 0x007d0c9f
+  name: "SL_IID_ANDROIDAUTOMATICGAINCONTROL"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDAUTOMATICGAINCONTROL"
+}
+elf_symbol {
+  id: 0x0da71396
+  name: "SL_IID_ANDROIDBUFFERQUEUESOURCE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDBUFFERQUEUESOURCE"
+}
+elf_symbol {
+  id: 0xa3339d98
+  name: "SL_IID_ANDROIDCONFIGURATION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDCONFIGURATION"
+}
+elf_symbol {
+  id: 0x5c97c6b0
+  name: "SL_IID_ANDROIDEFFECT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDEFFECT"
+}
+elf_symbol {
+  id: 0xb8e3bde9
+  name: "SL_IID_ANDROIDEFFECTCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDEFFECTCAPABILITIES"
+}
+elf_symbol {
+  id: 0xcb3e134e
+  name: "SL_IID_ANDROIDEFFECTSEND"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDEFFECTSEND"
+}
+elf_symbol {
+  id: 0xfcc866da
+  name: "SL_IID_ANDROIDNOISESUPPRESSION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDNOISESUPPRESSION"
+}
+elf_symbol {
+  id: 0x994b4954
+  name: "SL_IID_ANDROIDSIMPLEBUFFERQUEUE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ANDROIDSIMPLEBUFFERQUEUE"
+}
+elf_symbol {
+  id: 0x13498ed3
+  name: "SL_IID_AUDIODECODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_AUDIODECODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0xbaf10101
+  name: "SL_IID_AUDIOENCODER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_AUDIOENCODER"
+}
+elf_symbol {
+  id: 0xe09b59ec
+  name: "SL_IID_AUDIOENCODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_AUDIOENCODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0x2b1c8b18
+  name: "SL_IID_AUDIOIODEVICECAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_AUDIOIODEVICECAPABILITIES"
+}
+elf_symbol {
+  id: 0x4e1fb289
+  name: "SL_IID_BASSBOOST"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_BASSBOOST"
+}
+elf_symbol {
+  id: 0x001032ec
+  name: "SL_IID_BUFFERQUEUE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_BUFFERQUEUE"
+}
+elf_symbol {
+  id: 0x390e1e51
+  name: "SL_IID_DEVICEVOLUME"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_DEVICEVOLUME"
+}
+elf_symbol {
+  id: 0x20690304
+  name: "SL_IID_DYNAMICINTERFACEMANAGEMENT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_DYNAMICINTERFACEMANAGEMENT"
+}
+elf_symbol {
+  id: 0x61e84ec9
+  name: "SL_IID_DYNAMICSOURCE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_DYNAMICSOURCE"
+}
+elf_symbol {
+  id: 0x098b38ad
+  name: "SL_IID_EFFECTSEND"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_EFFECTSEND"
+}
+elf_symbol {
+  id: 0x6c57d640
+  name: "SL_IID_ENGINE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ENGINE"
+}
+elf_symbol {
+  id: 0xa65dae79
+  name: "SL_IID_ENGINECAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ENGINECAPABILITIES"
+}
+elf_symbol {
+  id: 0x59aa94d2
+  name: "SL_IID_ENVIRONMENTALREVERB"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_ENVIRONMENTALREVERB"
+}
+elf_symbol {
+  id: 0xbc7af0a4
+  name: "SL_IID_EQUALIZER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_EQUALIZER"
+}
+elf_symbol {
+  id: 0xdde745ae
+  name: "SL_IID_LED"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_LED"
+}
+elf_symbol {
+  id: 0xc091227e
+  name: "SL_IID_METADATAEXTRACTION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_METADATAEXTRACTION"
+}
+elf_symbol {
+  id: 0x0b38782b
+  name: "SL_IID_METADATATRAVERSAL"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_METADATATRAVERSAL"
+}
+elf_symbol {
+  id: 0x29c1d08e
+  name: "SL_IID_MIDIMESSAGE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_MIDIMESSAGE"
+}
+elf_symbol {
+  id: 0x09635100
+  name: "SL_IID_MIDIMUTESOLO"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_MIDIMUTESOLO"
+}
+elf_symbol {
+  id: 0xd9cad71f
+  name: "SL_IID_MIDITEMPO"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_MIDITEMPO"
+}
+elf_symbol {
+  id: 0x47c51ede
+  name: "SL_IID_MIDITIME"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_MIDITIME"
+}
+elf_symbol {
+  id: 0x7d3f3799
+  name: "SL_IID_MUTESOLO"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_MUTESOLO"
+}
+elf_symbol {
+  id: 0x194145e4
+  name: "SL_IID_NULL"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_NULL"
+}
+elf_symbol {
+  id: 0xe6d0a4bc
+  name: "SL_IID_OBJECT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_OBJECT"
+}
+elf_symbol {
+  id: 0xe7107c09
+  name: "SL_IID_OUTPUTMIX"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_OUTPUTMIX"
+}
+elf_symbol {
+  id: 0xaa2efd0d
+  name: "SL_IID_PITCH"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_PITCH"
+}
+elf_symbol {
+  id: 0x32a2a844
+  name: "SL_IID_PLAY"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_PLAY"
+}
+elf_symbol {
+  id: 0x0fe55fc1
+  name: "SL_IID_PLAYBACKRATE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_PLAYBACKRATE"
+}
+elf_symbol {
+  id: 0xbc3cdbd7
+  name: "SL_IID_PREFETCHSTATUS"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_PREFETCHSTATUS"
+}
+elf_symbol {
+  id: 0xf0ac6892
+  name: "SL_IID_PRESETREVERB"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_PRESETREVERB"
+}
+elf_symbol {
+  id: 0x3c2e1d96
+  name: "SL_IID_RATEPITCH"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_RATEPITCH"
+}
+elf_symbol {
+  id: 0x728ce2e2
+  name: "SL_IID_RECORD"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_RECORD"
+}
+elf_symbol {
+  id: 0x83433430
+  name: "SL_IID_SEEK"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_SEEK"
+}
+elf_symbol {
+  id: 0x669c32db
+  name: "SL_IID_THREADSYNC"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_THREADSYNC"
+}
+elf_symbol {
+  id: 0x6e9bb306
+  name: "SL_IID_VIBRA"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_VIBRA"
+}
+elf_symbol {
+  id: 0x1131d425
+  name: "SL_IID_VIRTUALIZER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_VIRTUALIZER"
+}
+elf_symbol {
+  id: 0x72b38137
+  name: "SL_IID_VISUALIZATION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_VISUALIZATION"
+}
+elf_symbol {
+  id: 0x3b8b2028
+  name: "SL_IID_VOLUME"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xc0b10532
+  full_name: "SL_IID_VOLUME"
+}
+elf_symbol {
+  id: 0x027ee511
+  name: "slCreateEngine"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9eec0029
+  full_name: "slCreateEngine"
+}
+elf_symbol {
+  id: 0xa1901490
+  name: "slQueryNumSupportedEngineInterfaces"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9671a821
+  full_name: "slQueryNumSupportedEngineInterfaces"
+}
+elf_symbol {
+  id: 0x7dbe6f2e
+  name: "slQuerySupportedEngineInterfaces"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa899494f
+  full_name: "slQuerySupportedEngineInterfaces"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xb19014bf
+  symbol_id: 0x783e2e18
+  symbol_id: 0xf9e62c88
+  symbol_id: 0x90358b46
+  symbol_id: 0x39ea6293
+  symbol_id: 0xef7ee60c
+  symbol_id: 0xa6c014db
+  symbol_id: 0x007d0c9f
+  symbol_id: 0x0da71396
+  symbol_id: 0xa3339d98
+  symbol_id: 0x5c97c6b0
+  symbol_id: 0xb8e3bde9
+  symbol_id: 0xcb3e134e
+  symbol_id: 0xfcc866da
+  symbol_id: 0x994b4954
+  symbol_id: 0x13498ed3
+  symbol_id: 0xbaf10101
+  symbol_id: 0xe09b59ec
+  symbol_id: 0x2b1c8b18
+  symbol_id: 0x4e1fb289
+  symbol_id: 0x001032ec
+  symbol_id: 0x390e1e51
+  symbol_id: 0x20690304
+  symbol_id: 0x61e84ec9
+  symbol_id: 0x098b38ad
+  symbol_id: 0x6c57d640
+  symbol_id: 0xa65dae79
+  symbol_id: 0x59aa94d2
+  symbol_id: 0xbc7af0a4
+  symbol_id: 0xdde745ae
+  symbol_id: 0xc091227e
+  symbol_id: 0x0b38782b
+  symbol_id: 0x29c1d08e
+  symbol_id: 0x09635100
+  symbol_id: 0xd9cad71f
+  symbol_id: 0x47c51ede
+  symbol_id: 0x7d3f3799
+  symbol_id: 0x194145e4
+  symbol_id: 0xe6d0a4bc
+  symbol_id: 0xe7107c09
+  symbol_id: 0xaa2efd0d
+  symbol_id: 0x32a2a844
+  symbol_id: 0x0fe55fc1
+  symbol_id: 0xbc3cdbd7
+  symbol_id: 0xf0ac6892
+  symbol_id: 0x3c2e1d96
+  symbol_id: 0x728ce2e2
+  symbol_id: 0x83433430
+  symbol_id: 0x669c32db
+  symbol_id: 0x6e9bb306
+  symbol_id: 0x1131d425
+  symbol_id: 0x72b38137
+  symbol_id: 0x3b8b2028
+  symbol_id: 0x027ee511
+  symbol_id: 0xa1901490
+  symbol_id: 0x7dbe6f2e
+}

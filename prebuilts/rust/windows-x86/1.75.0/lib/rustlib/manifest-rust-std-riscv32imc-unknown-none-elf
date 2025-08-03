@@ -1,0 +1,4 @@
+file:/C/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/riscv32imc-unknown-none-elf/lib/liballoc-a552cb0959f34041.rlib
+file:/C/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/riscv32imc-unknown-none-elf/lib/libcompiler_builtins-d6d82e43af5cbbed.rlib
+file:/C/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/riscv32imc-unknown-none-elf/lib/libcore-f3e931d1cc942e70.rlib
+file:/C/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/riscv32imc-unknown-none-elf/lib/librustc_std_workspace_core-c91a16158cf54491.rlib

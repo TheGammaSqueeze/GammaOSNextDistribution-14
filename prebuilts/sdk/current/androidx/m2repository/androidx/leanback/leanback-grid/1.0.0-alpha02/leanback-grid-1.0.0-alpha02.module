@@ -1,0 +1,140 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.leanback",
+    "module": "leanback-grid",
+    "version": "1.0.0-alpha02",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.recyclerview",
+          "module": "recyclerview",
+          "version": {
+            "requires": "1.2.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "leanback-grid-1.0.0-alpha02.aar",
+          "url": "leanback-grid-1.0.0-alpha02.aar",
+          "size": 94180,
+          "sha512": "33bcf50930a6110007f45e4073328fffbfffd72d555f10740aebc882986b7181eab7b28a69c40507e957c813e5451d6411fef4a943974a773974900572535cf2",
+          "sha256": "2db256bd986aaf28677eef7d4e51554c2f86053f354359395bfb7b43b42854ea",
+          "sha1": "07fb0badf8b5685d25e4229473d6c69aac253f26",
+          "md5": "415852ae00082e69192f5d57cd56c752"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.recyclerview",
+          "module": "recyclerview",
+          "version": {
+            "requires": "1.2.1"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.leanback",
+          "module": "leanback",
+          "version": {
+            "requires": "1.2.0-alpha03"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "leanback-grid-1.0.0-alpha02.aar",
+          "url": "leanback-grid-1.0.0-alpha02.aar",
+          "size": 94180,
+          "sha512": "33bcf50930a6110007f45e4073328fffbfffd72d555f10740aebc882986b7181eab7b28a69c40507e957c813e5451d6411fef4a943974a773974900572535cf2",
+          "sha256": "2db256bd986aaf28677eef7d4e51554c2f86053f354359395bfb7b43b42854ea",
+          "sha1": "07fb0badf8b5685d25e4229473d6c69aac253f26",
+          "md5": "415852ae00082e69192f5d57cd56c752"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "leanback-grid-1.0.0-alpha02-sources.jar",
+          "url": "leanback-grid-1.0.0-alpha02-sources.jar",
+          "size": 77781,
+          "sha512": "58db197ee4fc6f5cb066974b6c0e10ba94d2106ed1062e9d56db56e6ec94f1b635e1dd6c0390b51a3cb817e69a5b4d5f59beda27db5a4e0891c6892384879905",
+          "sha256": "7960ff6ad94d2ff71138e1f9e05537d6d69c2b392577856dde5d75f104b3d726",
+          "sha1": "861b117dedffffe46bf13c27464e31b132d8f98e",
+          "md5": "8c69b54c786716d936fa91e023fd2324"
+        }
+      ]
+    }
+  ]
+}

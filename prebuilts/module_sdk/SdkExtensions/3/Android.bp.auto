@@ -1,0 +1,170 @@
+// This is auto-generated. DO NOT EDIT.
+
+// Soong config variable stanza added by vendor/google/build/mainline_modules_sdks.py.
+soong_config_module_type_import {
+    from: "packages/modules/common/Android.bp",
+    module_types: [
+        "module_java_sdk_library_import",
+        "module_prebuilt_bootclasspath_fragment",
+    ],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "sdkextensions-sdk_com.android.sdkext-bootclasspath-fragment@current",
+    sdk_member_name: "com.android.sdkext-bootclasspath-fragment",
+    visibility: ["//packages/modules/SdkExtensions:__subpackages__"],
+    apex_available: ["com.android.sdkext"],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0@current"],
+    contents: ["sdkextensions-sdk_framework-sdkextensions@current"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+module_prebuilt_bootclasspath_fragment {
+    name: "com.android.sdkext-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//packages/modules/SdkExtensions:__subpackages__"],
+    apex_available: ["com.android.sdkext"],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0"],
+    contents: ["framework-sdkextensions"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "sdkextensions-sdk_framework-sdkextensions@current",
+    sdk_member_name: "framework-sdkextensions",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.sdkext",
+        "test_com.android.sdkext",
+    ],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0@current"],
+    shared_library: false,
+    permitted_packages: ["android.os.ext"],
+    public: {
+        jars: ["sdk_library/public/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/public/framework-sdkextensions.txt",
+        removed_api: "sdk_library/public/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/public/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/system/framework-sdkextensions.txt",
+        removed_api: "sdk_library/system/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/system/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/module-lib/framework-sdkextensions.txt",
+        removed_api: "sdk_library/module-lib/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/module-lib/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+module_java_sdk_library_import {
+    name: "framework-sdkextensions",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.sdkext",
+        "test_com.android.sdkext",
+    ],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: ["android.os.ext"],
+    public: {
+        jars: ["sdk_library/public/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/public/framework-sdkextensions.txt",
+        removed_api: "sdk_library/public/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/public/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/system/framework-sdkextensions.txt",
+        removed_api: "sdk_library/system/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/system/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/module-lib/framework-sdkextensions.txt",
+        removed_api: "sdk_library/module-lib/framework-sdkextensions-removed.txt",
+        annotations: "sdk_library/module-lib/framework-sdkextensions_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "sdkextensions-sdk_Android-Apache-2.0@current",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "sdkextensions-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+sdk_snapshot {
+    name: "sdkextensions-sdk@current",
+    visibility: ["//packages/modules/SdkExtensions:__subpackages__"],
+    bootclasspath_fragments: ["sdkextensions-sdk_com.android.sdkext-bootclasspath-fragment@current"],
+    java_sdk_libs: ["sdkextensions-sdk_framework-sdkextensions@current"],
+}

@@ -1,0 +1,6 @@
+Landroid/net/wifi/IWifiManager$Stub$Proxy;-><init>(Landroid/os/IBinder;)V
+Landroid/net/wifi/IWifiManager$Stub;->asInterface(Landroid/os/IBinder;)Landroid/net/wifi/IWifiManager;
+Landroid/net/wifi/IWifiScanner$Stub$Proxy;-><init>(Landroid/os/IBinder;)V
+Landroid/net/wifi/IWifiScanner$Stub$Proxy;->mRemote:Landroid/os/IBinder;
+Landroid/net/wifi/IWifiScanner$Stub;-><init>()V
+Landroid/net/wifi/IWifiScanner$Stub;->asInterface(Landroid/os/IBinder;)Landroid/net/wifi/IWifiScanner;

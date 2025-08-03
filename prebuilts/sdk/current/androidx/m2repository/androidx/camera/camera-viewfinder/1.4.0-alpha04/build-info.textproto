@@ -1,0 +1,112 @@
+version: "1.4.0-alpha04"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation-experimental"
+    version: "1.4.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.appcompat"
+    artifact_id: "appcompat"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-viewfinder-core"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.concurrent"
+    artifact_id: "concurrent-futures"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.concurrent"
+    artifact_id: "concurrent-futures-ktx"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.7.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.camera"
+group_id: "androidx.camera"
+artifact_id: "camera-viewfinder"
+path: "/camera/camera-viewfinder"
+sha: "d83efa925bdcba757ef446e28fe1963658ea1a4d"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-camera-11392393.zip"
+project_zip_path: "per-project-zips/androidx.camera-camera-viewfinder-all-11392393-1.4.0-alpha04.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-camera2"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-core"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-effects"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-extensions"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-lifecycle"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-mlkit-vision"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-video"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-view"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.camera"
+    artifact_id: "camera-viewfinder-core"
+    version: "1.4.0-alpha04"
+    is_tip_of_tree: true
+  }
+}

@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<manifest>
+  <remote name="aosp" fetch="https://android.googlesource.com/" review="https://android.googlesource.com/" />
+
+  <remote name="goog" fetch="https://googleplex-android.googlesource.com/" review="https://googleplex-android.googlesource.com/" revision="main" />
+
+  <default revision="main" remote="aosp" sync-j="4" />
+
+  <project path="external/jetbrains/JetBrainsRuntime-next" name="platform/external/jetbrains/JetBrainsRuntime" revision="ae91ed22929c360995d01318f81520027ca88ed1" />
+
+  <project path="external/jetbrains/JetBrainsRuntime17" name="platform/external/jetbrains/JetBrainsRuntime" revision="8ae5c24dc891c11f1c381c68c1f11f1b6ae0f9bc" />
+
+  <project path="external/jetbrains/jcef" name="platform/external/jetbrains/jcef" revision="c195d8ff16c28bf55386d52b1caa61829671bd29" />
+
+  <project path="toolchain/jdk/jdk9" name="toolchain/jdk/jdk9" revision="4c1e9bbe664e532f83b258e6c8a214b0241530d8" />
+
+  <project path="toolchain/jdk/jdk9_corba" name="toolchain/jdk/jdk9_corba" revision="b4ed46425f74345716ac4532e50a543226c1a1fe" />
+
+  <project path="toolchain/jdk/jdk9_hotspot" name="toolchain/jdk/jdk9_hotspot" revision="9de8bba639f6dc6b344479aa61e8b9c6337eed82" />
+
+  <project path="toolchain/jdk/jdk9_jaxp" name="toolchain/jdk/jdk9_jaxp" revision="9d0d323a61a1cd4930ebca527673992ece7ab1d3" />
+
+  <project path="toolchain/jdk/jdk9_jaxws" name="toolchain/jdk/jdk9_jaxws" revision="cc2e16b7e6d0b1f6a4dbc28ffaf3a22b19991dd7" />
+
+  <project path="toolchain/jdk/jdk9_jdk" name="toolchain/jdk/jdk9_jdk" revision="ebd21aab4506e301bb305d092ca01994fa211ce1" />
+
+  <project path="toolchain/jdk/jdk9_langtools" name="toolchain/jdk/jdk9_langtools" revision="3b42d11dac232f45e9fb4f2bcc0fdb7322eaaa90" />
+
+  <project path="toolchain/jdk/jdk9_nashorn" name="toolchain/jdk/jdk9_nashorn" revision="fbaa32dd52163c8f4f939001dfd8a9f46a08eff2" />
+
+  <project path="toolchain/jdk/jdk11" name="toolchain/jdk/jdk11" revision="e85c3f88beca5ea95cb36a4f1ea955935be2f5b1" />
+
+  <project path="toolchain/jdk/jdk17" name="toolchain/jdk/jdk17" revision="ad6fee45c34a9c97c23a7137339ed789f216a53d" />
+
+  <project path="toolchain/jdk/jdk21" name="toolchain/jdk/jdk21" revision="327852a7a24cf5295cc7bcd23d93a382c61d0c0a" />
+
+  <project path="prebuilts/build-tools" name="platform/prebuilts/build-tools" clone-depth="1" revision="93e69718fd53f0c3dd7f0087657dfe2e78926830" />
+
+  <project path="prebuilts/clang/host/darwin-x86" name="platform/prebuilts/clang/host/darwin-x86" clone-depth="1" revision="878f9940501f93bc46e0e26ea898c965093245c2" />
+
+  <project path="prebuilts/clang/host/linux-x86" name="platform/prebuilts/clang/host/linux-x86" clone-depth="1" revision="24fcadde50f10ba11d5f1b10204aed5e94e28990" />
+
+  <project path="prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8" name="platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8" clone-depth="1" revision="d9aafaade740ca38612c742f6d87debf362132ea" />
+
+  <project path="prebuilts/jdk/jdk8" name="platform/prebuilts/jdk/jdk8" clone-depth="1" revision="4455a9832efd1351f6e934c80d1f00155be36c58" />
+
+  <project path="prebuilts/jdk/jdk9" name="platform/prebuilts/jdk/jdk9" clone-depth="1" revision="1f0b937930e83b0f7470b9555ad289153072882f" />
+
+  <project path="prebuilts/jdk/jdk11" name="platform/prebuilts/jdk/jdk11" clone-depth="1" revision="8a12fb945c49644cb0fd61b52026fb0d31867fa6" />
+
+  <project path="prebuilts/jdk/jdk17" name="platform/prebuilts/jdk/jdk17" clone-depth="1" revision="7c17ccef006e890c13a76e99801a5a8f63113261" />
+
+  <project path="prebuilts/jdk/jdk21" name="platform/prebuilts/jdk/jdk21" clone-depth="1" revision="3df50e0b8e8f2c1ebc195153ecb80a12854a8700" />
+
+  <project path="prebuilts/jdk/studio" name="platform/prebuilts/studio/jdk" revision="5f82a2e85429b1acc00992a228ff83fd6a8870aa" clone-depth="1" remote="goog" />
+
+  <project path="toolchain/jdk/build" name="toolchain/jdk/build" clone-depth="1" revision="9af1973c11dfaecbb904c7513b825996a4107b93" />
+
+  <project path="toolchain/jdk/deps" name="toolchain/jdk/deps" clone-depth="1" remote="goog" revision="db26408839818ddbbf41cf254a4f35e7620e70ff" />
+</manifest>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.android.tools.external.com-intellij</groupId>
+  <artifactId>intellij-core</artifactId>
+  <versioning>
+    <release>31.4.0-alpha02</release>
+    <versions>
+      <version>31.4.0-alpha02</version>
+    </versions>
+    <lastUpdated>20240105125618</lastUpdated>
+  </versioning>
+</metadata>

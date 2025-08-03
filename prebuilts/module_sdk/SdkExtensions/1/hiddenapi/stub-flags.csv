@@ -1,0 +1,13 @@
+Landroid/os/ext/SdkExtensions;-><clinit>()V
+Landroid/os/ext/SdkExtensions;-><init>()V
+Landroid/os/ext/SdkExtensions;->ALL_EXTENSION_INTS:Ljava/util/Map;
+Landroid/os/ext/SdkExtensions;->R_EXTENSION_INT:I
+Landroid/os/ext/SdkExtensions;->S_EXTENSION_INT:I
+Landroid/os/ext/SdkExtensions;->VERSION_CODE_S:I
+Landroid/os/ext/SdkExtensions;->getAllExtensionVersions()Ljava/util/Map;,system-api,test-api
+Landroid/os/ext/SdkExtensions;->getExtensionVersion(I)I,system-api,test-api
+Landroid/os/ext/util/SdkLevel;-><init>()V
+Landroid/os/ext/util/SdkLevel;->isAtLeastPreReleaseCodename(Ljava/lang/String;)Z
+Landroid/os/ext/util/SdkLevel;->isAtLeastR()Z
+Landroid/os/ext/util/SdkLevel;->isAtLeastS()Z
+Landroid/os/ext/util/SdkLevel;->isAtLeastT()Z

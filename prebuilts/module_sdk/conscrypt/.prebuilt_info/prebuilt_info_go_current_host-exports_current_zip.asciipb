@@ -1,0 +1,15 @@
+drops {
+  android_build_drop {
+    build_id: "T1009472"
+    target: "train_build"
+    source_file: "mainline-sdks/for-UpsideDownCake-build/current/com.google.android.go.conscrypt/host-exports/conscrypt-module-host-exports-current.zip"
+  }
+  dest_file: "go/current/host-exports/current.zip"
+  version: ""
+  version_group: ""
+  git_project: "platform/prebuilts/module_sdk/conscrypt"
+  git_branch: "main"
+  transform: TRANSFORM_UNZIP
+  transform_options {
+  }
+}

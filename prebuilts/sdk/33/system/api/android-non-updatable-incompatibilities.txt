@@ -1,0 +1,42 @@
+// Baseline format: 1.0
+ChangedValue: android.media.tv.tuner.frontend.FrontendSettings#FEC_28_45:
+    Field android.media.tv.tuner.frontend.FrontendSettings.FEC_28_45 has changed value from -2147483648 to 2147483648
+
+ChangedValue: android.media.tv.tuner.frontend.FrontendSettings#FEC_29_45:
+    Field android.media.tv.tuner.frontend.FrontendSettings.FEC_29_45 has changed value from 1 to 4294967296
+
+ChangedValue: android.media.tv.tuner.frontend.FrontendSettings#FEC_31_45:
+    Field android.media.tv.tuner.frontend.FrontendSettings.FEC_31_45 has changed value from 2 to 8589934592
+
+ChangedValue: android.media.tv.tuner.frontend.FrontendSettings#FEC_32_45:
+    Field android.media.tv.tuner.frontend.FrontendSettings.FEC_32_45 has changed value from 4 to 17179869184
+
+ChangedValue: android.media.tv.tuner.frontend.FrontendSettings#FEC_77_90:
+    Field android.media.tv.tuner.frontend.FrontendSettings.FEC_77_90 has changed value from 8 to 34359738368
+
+RemovedClass: android.app.usage.NetworkStatsManager:
+    Removed class android.app.usage.NetworkStatsManager
+RemovedClass: android.net.NetworkStateSnapshot:
+    Removed class android.net.NetworkStateSnapshot
+RemovedClass: android.net.NetworkStats:
+    Removed class android.net.NetworkStats
+RemovedClass: android.net.TrafficStats:
+    Removed class android.net.TrafficStats
+RemovedClass: android.net.UnderlyingNetworkInfo:
+    Removed class android.net.UnderlyingNetworkInfo
+
+RemovedPackage: android.net.netstats.provider:
+    Removed package android.net.netstats.provider
+RemovedPackage: android.uwb:
+    Removed package android.uwb
+
+RemovedPackage: android.bluetooth:
+    Removed package android.bluetooth
+RemovedPackage: android.bluetooth.le:
+    Removed package android.bluetooth.le
+
+RemovedClass: android.net.IpSecManager:
+    Removed class android.net.IpSecManager
+
+RemovedClass: android.net.EthernetManager:
+    Removed class android.net.EthernetManager

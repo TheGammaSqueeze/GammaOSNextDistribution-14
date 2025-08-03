@@ -1,0 +1,52 @@
+version: "1.7.0-alpha03"
+dependency_list {
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-android"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-desktop"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.compose.runtime"
+group_id: "androidx.compose.runtime"
+artifact_id: "runtime"
+path: "/compose/runtime/runtime"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-compose-runtime-11436812.zip"
+project_zip_path: "per-project-zips/androidx.compose.runtime-runtime-all-11436812-1.7.0-alpha03.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-livedata"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-rxjava2"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-rxjava3"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime-saveable"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+}

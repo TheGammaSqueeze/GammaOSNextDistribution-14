@@ -1,0 +1,412 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline_go"],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// TODO(b/293006869): There was a version upgrade of grpc-grpc-java recently and would not be compiled
+// with old version of okhttp-norepackage in prebuilt package. Thus, we will force this target to build
+// from source until the new version of okhttp-norepackage reflects in train build.
+// java_import {
+//     name: "okhttp-norepackage",
+//     // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+//     use_source_config_var: {
+//         config_namespace: "art_module",
+//         var_name: "source_build",
+//     },
+//     visibility: [
+//         "//art/build/sdk",
+//         "//external/grpc-grpc-java/okhttp",
+//         "//external/okhttp",
+//         "//prebuilts:__subpackages__",
+//     ],
+//     apex_available: [
+//         "com.android.adservices",
+//         "com.android.devicelock",
+//         "com.android.extservices",
+//         "com.android.ondevicepersonalization",
+//     ],
+//     licenses: ["art-module-host-exports_external_okhttp_license"],
+//     host_supported: true,
+//     min_sdk_version: "30",
+//     target: {
+//         android: {
+//             jars: ["java/android/okhttp-norepackage.jar"],
+//         },
+//         linux_glibc: {
+//             jars: ["java/linux_glibc/okhttp-norepackage.jar"],
+//         },
+//     },
+// }
+
+java_import {
+    name: "art.module.api.annotations",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art/build/sdk",
+        "//external/icu/android_icu4j",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_libcore_license"],
+    device_supported: false,
+    host_supported: true,
+    jars: ["java/art.module.api.annotations.jar"],
+    min_sdk_version: "31",
+}
+
+license {
+    name: "art-module-host-exports_art_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: ["licenses/art/NOTICE"],
+}
+
+license {
+    name: "art-module-host-exports_external_okhttp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/okhttp/LICENSE.txt"],
+}
+
+license {
+    name: "art-module-host-exports_libcore_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL-2.0-with-classpath-exception",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/libcore/LICENSE",
+        "licenses/libcore/NOTICE",
+        "licenses/libcore/ojluni/src/main/NOTICE",
+    ],
+}
+
+cc_prebuilt_binary {
+    name: "dex2oat",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dex2oat64"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "dex2oatd",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.art.debug"],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dex2oatd64"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "dexdump",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//development/build",
+        "//prebuilts:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "libc++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dexdump"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "hiddenapi",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/hiddenapi"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "oatdump",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/oatdump"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "profman",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "test_broken_com.android.art",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/profman"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "veridex",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "libc++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/veridex"],
+        },
+    },
+}
+
+cc_prebuilt_library {
+    name: "libartpalette",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts/module_sdk/art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.runtime",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    compile_multilib: "64",
+    export_include_dirs: [
+        "include/art/libartpalette/include",
+        "include/libnativehelper/include_jni",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["x86_64/lib/libartpalette.a"],
+            },
+            shared: {
+                srcs: ["x86_64/lib/libartpalette.so"],
+                shared_libs: [
+                    "libbase",
+                    "liblog",
+                ],
+            },
+        },
+    },
+}
+
+cc_prebuilt_library {
+    name: "libartbase",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    use_source_config_var: {
+        config_namespace: "art_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//art:__subpackages__",
+        "//packages/modules/NetworkStack/tests:__subpackages__",
+        "//prebuilts/module_sdk/art/current/host-exports",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license"],
+    device_supported: false,
+    host_supported: true,
+    compile_multilib: "64",
+    shared_libs: [
+        "libziparchive",
+        "libz",
+        "liblog",
+        "libartpalette",
+        "libbase",
+    ],
+    export_include_dirs: [
+        "include/art/libartbase",
+        "include/external/tinyxml2",
+        "include/external/libcap/libcap/include",
+        "include/system/libbase/include",
+        "include/external/fmtlib/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["x86_64/lib/libartbase.a"],
+            },
+            shared: {
+                srcs: ["x86_64/lib/libartbase.so"],
+            },
+        },
+    },
+}

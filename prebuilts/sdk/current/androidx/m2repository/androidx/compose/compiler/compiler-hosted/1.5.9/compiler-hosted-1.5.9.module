@@ -1,0 +1,114 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.compose.compiler",
+    "module": "compiler-hosted",
+    "version": "1.5.9",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.compiler",
+          "module": "compiler",
+          "version": {
+            "requires": "1.5.9"
+          },
+          "reason": "compiler-hosted is in atomic group androidx.compose.compiler"
+        }
+      ],
+      "files": [
+        {
+          "name": "compiler-hosted-1.5.9.jar",
+          "url": "compiler-hosted-1.5.9.jar",
+          "size": 1128321,
+          "sha512": "8c77f84966d3e7f7ab199ab84e55f7fdd5bf21878e7cfc8e3a33909db7e3d8ec4185b263e61ec964aaa0489e0b7153ba7eab5c0c0e52e2bcb468c6e1b504f150",
+          "sha256": "58828d15826809b04216f18392a2f3148d4d5abd6046fbd323ad7d6a12a42ef8",
+          "sha1": "7cabdb6df6ae26f0c8ddcbd26d8b077445dbc595",
+          "md5": "3605627192ad3f6931d4c43cc9bb5c2b"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.compiler",
+          "module": "compiler",
+          "version": {
+            "requires": "1.5.9"
+          },
+          "reason": "compiler-hosted is in atomic group androidx.compose.compiler"
+        }
+      ],
+      "files": [
+        {
+          "name": "compiler-hosted-1.5.9.jar",
+          "url": "compiler-hosted-1.5.9.jar",
+          "size": 1128321,
+          "sha512": "8c77f84966d3e7f7ab199ab84e55f7fdd5bf21878e7cfc8e3a33909db7e3d8ec4185b263e61ec964aaa0489e0b7153ba7eab5c0c0e52e2bcb468c6e1b504f150",
+          "sha256": "58828d15826809b04216f18392a2f3148d4d5abd6046fbd323ad7d6a12a42ef8",
+          "sha1": "7cabdb6df6ae26f0c8ddcbd26d8b077445dbc595",
+          "md5": "3605627192ad3f6931d4c43cc9bb5c2b"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.compiler",
+          "module": "compiler",
+          "version": {
+            "requires": "1.5.9"
+          },
+          "reason": "compiler-hosted is in atomic group androidx.compose.compiler"
+        }
+      ],
+      "files": [
+        {
+          "name": "compiler-hosted-1.5.9-sources.jar",
+          "url": "compiler-hosted-1.5.9-sources.jar",
+          "size": 234596,
+          "sha512": "50aca618c570764889e6d82a48564f6618ee9f55567183328e3b717125dc07fbb75e842ad5319ceefff751d51e2e66c0f3ce4adfd0ed391704d76a01b21a77dc",
+          "sha256": "9780d2b02616e263aa18c17df7c2decc1dda92eca4d5a8bc5f87abbec9e20988",
+          "sha1": "b5499b169fbda2dee47b4af85f685bd890700c1c",
+          "md5": "1913ba9ebd7e0088541c5618153532ea"
+        }
+      ]
+    }
+  ]
+}

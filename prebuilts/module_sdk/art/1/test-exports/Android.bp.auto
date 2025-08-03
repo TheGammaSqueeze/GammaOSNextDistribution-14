@@ -1,0 +1,388 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "art-module-test-exports_core-compat-test-rules@1",
+    sdk_member_name: "core-compat-test-rules",
+    visibility: [
+        "//art/build/sdk",
+        "//frameworks/base/tests/PlatformCompatGating/test-rules",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-compat-test-rules.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_core-test-rules@1",
+    sdk_member_name: "core-test-rules",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/tests/util",
+        "//external/conscrypt",
+        "//external/conscrypt/apex/tests",
+        "//frameworks/base/core/tests/coretests",
+        "//frameworks/base/location/tests/locationtests",
+        "//frameworks/base/wifi/tests",
+        "//libcore",
+        "//packages/modules/Wifi/framework/tests",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-test-rules.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_core-tests-support@1",
+    sdk_member_name: "core-tests-support",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/apps/CtsVerifier",
+        "//cts/tests/tests/keystore",
+        "//cts/tests/tests/net",
+        "//cts/tests/tests/net/api23Test",
+        "//external/apache-harmony",
+        "//frameworks/base/core/tests/coretests",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/apps/KeyChain/tests",
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//prebuilts:__subpackages__",
+        "//system/timezone/distro/core",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-tests-support.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_okhttp-tests-nojarjar@1",
+    sdk_member_name: "okhttp-tests-nojarjar",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/okhttp",
+        "//external/okhttp",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_external_okhttp_license@1"],
+    jars: ["java/okhttp-tests-nojarjar.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_art_cts_jvmti_test_library@1",
+    sdk_member_name: "art_cts_jvmti_test_library",
+    visibility: [
+        "//art:__subpackages__",
+        "//cts/hostsidetests/jvmti:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_art_license@1"],
+    jars: ["java/art_cts_jvmti_test_library.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_expected_cts_outputs@1",
+    sdk_member_name: "expected_cts_outputs",
+    visibility: [
+        "//art/build/sdk",
+        "//art/test",
+        "//cts/hostsidetests/jvmti:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_art_license@1"],
+    jars: ["java/expected_cts_outputs.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_core-libart-for-host@1",
+    sdk_member_name: "core-libart-for-host",
+    visibility: [
+        "//art/build/sdk",
+        "//external/robolectric-shadows",
+        "//frameworks/layoutlib",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-libart-for-host.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_okhttp-for-host@1",
+    sdk_member_name: "okhttp-for-host",
+    visibility: [
+        "//art/build/sdk",
+        "//external/okhttp",
+        "//external/robolectric-shadows",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_external_okhttp_license@1"],
+    jars: ["java/okhttp-for-host.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_libcore-expectations-knownfailures-jar@1",
+    sdk_member_name: "libcore-expectations-knownfailures-jar",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore:__subpackages__",
+        "//libcore/expectations",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/libcore-expectations-knownfailures-jar.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_libcore-expectations-virtualdeviceknownfailures-jar@1",
+    sdk_member_name: "libcore-expectations-virtualdeviceknownfailures-jar",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore:__subpackages__",
+        "//libcore/expectations",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/libcore-expectations-virtualdeviceknownfailures-jar.jar"],
+}
+
+java_import {
+    name: "art-module-test-exports_okhttp-nojarjar@1",
+    sdk_member_name: "okhttp-nojarjar",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/okhttp",
+        "//external/okhttp",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_external_okhttp_license@1"],
+    jars: ["java/okhttp-nojarjar.jar"],
+}
+
+java_test_import {
+    name: "art-module-test-exports_apache-harmony-jdwp-tests@1",
+    sdk_member_name: "apache-harmony-jdwp-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/jdwp",
+        "//external/apache-harmony/jdwp",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_external_apache-harmony_jdwp_license@1"],
+    jars: ["java/apache-harmony-jdwp-tests.jar"],
+    test_config: "java/apache-harmony-jdwp-tests-AndroidTest.xml",
+}
+
+java_test_import {
+    name: "art-module-test-exports_libcore-crypto-tests@1",
+    sdk_member_name: "libcore-crypto-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//external/conscrypt/apex/tests",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/libcore-crypto-tests.jar"],
+    test_config: "java/libcore-crypto-tests-AndroidTest.xml",
+}
+
+java_test_import {
+    name: "art-module-test-exports_core-ojtests-public@1",
+    sdk_member_name: "core-ojtests-public",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/ojluni",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-ojtests-public.jar"],
+    test_config: "java/core-ojtests-public-AndroidTest.xml",
+}
+
+java_test_import {
+    name: "art-module-test-exports_jsr166-tests@1",
+    sdk_member_name: "jsr166-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/jsr166",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/jsr166-tests.jar"],
+    test_config: "java/jsr166-tests-AndroidTest.xml",
+}
+
+java_test_import {
+    name: "art-module-test-exports_apache-harmony-tests@1",
+    sdk_member_name: "apache-harmony-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/luni",
+        "//external/apache-harmony",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_external_apache-harmony_license@1"],
+    jars: ["java/apache-harmony-tests.jar"],
+    test_config: "java/apache-harmony-tests-AndroidTest.xml",
+}
+
+java_test_import {
+    name: "art-module-test-exports_core-tests@1",
+    sdk_member_name: "core-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/luni",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    jars: ["java/core-tests.jar"],
+    test_config: "java/core-tests-AndroidTest.xml",
+}
+
+license {
+    name: "art-module-test-exports_art_license@1",
+    sdk_member_name: "art_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL-2.0",
+    ],
+    license_text: ["licenses/art/NOTICE"],
+}
+
+license {
+    name: "art-module-test-exports_libcore_license@1",
+    sdk_member_name: "libcore_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/libcore/LICENSE",
+        "licenses/libcore/NOTICE",
+    ],
+}
+
+license {
+    name: "art-module-test-exports_external_okhttp_license@1",
+    sdk_member_name: "external_okhttp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/okhttp/LICENSE.txt"],
+}
+
+license {
+    name: "art-module-test-exports_external_apache-harmony_jdwp_license@1",
+    sdk_member_name: "external_apache-harmony_jdwp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: [
+        "licenses/external/apache-harmony/jdwp/COPYRIGHT.txt",
+        "licenses/external/apache-harmony/jdwp/LICENSE.txt",
+        "licenses/external/apache-harmony/jdwp/NOTICE.txt",
+    ],
+}
+
+license {
+    name: "art-module-test-exports_external_apache-harmony_license@1",
+    sdk_member_name: "external_apache-harmony_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/apache-harmony/NOTICE"],
+}
+
+cc_prebuilt_library_shared {
+    name: "art-module-test-exports_libjavacoretests@1",
+    sdk_member_name: "libjavacoretests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/luni",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-test-exports_libcore_license@1"],
+    installable: false,
+    compile_multilib: "both",
+    shared_libs: [
+        "liblog",
+        "libnativehelper",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libjavacoretests.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libjavacoretests.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libjavacoretests.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libjavacoretests.so"],
+        },
+    },
+}
+
+module_exports_snapshot {
+    name: "art-module-test-exports@1",
+    visibility: ["//art:__subpackages__"],
+    java_libs: [
+        "art-module-test-exports_core-compat-test-rules@1",
+        "art-module-test-exports_core-test-rules@1",
+        "art-module-test-exports_core-tests-support@1",
+        "art-module-test-exports_okhttp-tests-nojarjar@1",
+        "art-module-test-exports_art_cts_jvmti_test_library@1",
+        "art-module-test-exports_expected_cts_outputs@1",
+        "art-module-test-exports_core-libart-for-host@1",
+        "art-module-test-exports_okhttp-for-host@1",
+        "art-module-test-exports_libcore-expectations-knownfailures-jar@1",
+        "art-module-test-exports_libcore-expectations-virtualdeviceknownfailures-jar@1",
+        "art-module-test-exports_okhttp-nojarjar@1",
+    ],
+    java_tests: [
+        "art-module-test-exports_apache-harmony-jdwp-tests@1",
+        "art-module-test-exports_libcore-crypto-tests@1",
+        "art-module-test-exports_core-ojtests-public@1",
+        "art-module-test-exports_jsr166-tests@1",
+        "art-module-test-exports_apache-harmony-tests@1",
+        "art-module-test-exports_core-tests@1",
+    ],
+    native_shared_libs: ["art-module-test-exports_libjavacoretests@1"],
+}

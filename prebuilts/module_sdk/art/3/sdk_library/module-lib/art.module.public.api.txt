@@ -1,0 +1,864 @@
+// Signature format: 2.0
+package android.compat {
+
+  public final class Compatibility {
+    method public static void clearBehaviorChangeDelegate();
+    method public static void clearOverrides();
+    method public static boolean isChangeEnabled(long);
+    method public static void reportUnconditionalChange(long);
+    method public static void setBehaviorChangeDelegate(android.compat.Compatibility.BehaviorChangeDelegate);
+    method public static void setOverrides(android.compat.Compatibility.ChangeConfig);
+  }
+
+  public static interface Compatibility.BehaviorChangeDelegate {
+    method public default boolean isChangeEnabled(long);
+    method public default void onChangeReported(long);
+  }
+
+  public static final class Compatibility.ChangeConfig {
+    ctor public Compatibility.ChangeConfig(@NonNull java.util.Set<java.lang.Long>, @NonNull java.util.Set<java.lang.Long>);
+    method @NonNull public long[] getDisabledChangesArray();
+    method @NonNull public java.util.Set<java.lang.Long> getDisabledSet();
+    method @NonNull public long[] getEnabledChangesArray();
+    method @NonNull public java.util.Set<java.lang.Long> getEnabledSet();
+    method public boolean isEmpty();
+    method public boolean isForceDisabled(long);
+    method public boolean isForceEnabled(long);
+  }
+
+}
+
+package android.system {
+
+  public final class NetlinkSocketAddress extends java.net.SocketAddress {
+    ctor public NetlinkSocketAddress(int, int);
+    method public int getGroupsMask();
+    method public int getPortId();
+  }
+
+  public final class Os {
+    method @Nullable public static android.system.StructCapUserData[] capget(@NonNull android.system.StructCapUserHeader) throws android.system.ErrnoException;
+    method public static void capset(@NonNull android.system.StructCapUserHeader, @NonNull android.system.StructCapUserData[]) throws android.system.ErrnoException;
+    method public static int getpgid(int) throws android.system.ErrnoException;
+    method @Nullable public static android.system.StructRlimit getrlimit(int) throws android.system.ErrnoException;
+    method public static int getsockoptInt(@NonNull java.io.FileDescriptor, int, int) throws android.system.ErrnoException;
+    method @Nullable public static android.system.StructLinger getsockoptLinger(@NonNull java.io.FileDescriptor, int, int) throws android.system.ErrnoException;
+    method public static int ioctlInt(@NonNull java.io.FileDescriptor, int) throws android.system.ErrnoException;
+    method @Nullable public static java.io.FileDescriptor[] pipe2(int) throws android.system.ErrnoException;
+    method @Nullable public static String realpath(@Nullable String) throws android.system.ErrnoException;
+    method public static void setpgid(int, int) throws android.system.ErrnoException;
+    method public static void setregid(int, int) throws android.system.ErrnoException;
+    method public static void setreuid(int, int) throws android.system.ErrnoException;
+    method public static void setsockoptIfreq(@NonNull java.io.FileDescriptor, int, int, @Nullable String) throws android.system.ErrnoException;
+    method public static void setsockoptLinger(@NonNull java.io.FileDescriptor, int, int, @NonNull android.system.StructLinger) throws android.system.ErrnoException;
+    method public static long splice(@NonNull java.io.FileDescriptor, @Nullable android.system.Int64Ref, @NonNull java.io.FileDescriptor, @Nullable android.system.Int64Ref, long, int) throws android.system.ErrnoException;
+    method public static void unlink(@Nullable String) throws android.system.ErrnoException;
+  }
+
+  public final class OsConstants {
+    method public static int CAP_TO_INDEX(int);
+    method public static int CAP_TO_MASK(int);
+    field public static final int ARPHRD_LOOPBACK;
+    field public static final int EUSERS;
+    field public static final int MAP_POPULATE;
+    field public static final int O_DIRECT;
+    field public static final int PR_CAP_AMBIENT;
+    field public static final int PR_CAP_AMBIENT_RAISE;
+    field public static final int RLIMIT_NOFILE;
+    field public static final int RTMGRP_IPV4_IFADDR;
+    field public static final int SPLICE_F_MORE;
+    field public static final int SPLICE_F_MOVE;
+    field public static final int TIOCOUTQ;
+    field public static final int UDP_ENCAP;
+    field public static final int UDP_ENCAP_ESPINUDP;
+    field public static final int XATTR_CREATE;
+    field public static final int XATTR_REPLACE;
+    field public static final int _LINUX_CAPABILITY_VERSION_3;
+  }
+
+  public final class PacketSocketAddress extends java.net.SocketAddress {
+    ctor public PacketSocketAddress(int, int, byte[]);
+  }
+
+  public final class StructCapUserData {
+    ctor public StructCapUserData(int, int, int);
+    field public final int effective;
+    field public final int inheritable;
+    field public final int permitted;
+  }
+
+  public final class StructCapUserHeader {
+    ctor public StructCapUserHeader(int, int);
+  }
+
+  public final class StructLinger {
+    ctor public StructLinger(int, int);
+    method public boolean isOn();
+    field public final int l_linger;
+  }
+
+  public final class StructRlimit {
+    field public final long rlim_cur;
+  }
+
+  public final class UnixSocketAddress extends java.net.SocketAddress {
+    method public static android.system.UnixSocketAddress createFileSystem(String);
+  }
+
+}
+
+package com.android.okhttp.internalandroidapi {
+
+  public final class AndroidResponseCacheAdapter {
+    ctor public AndroidResponseCacheAdapter(@NonNull com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder);
+    method public void close() throws java.io.IOException;
+    method public void delete() throws java.io.IOException;
+    method public void flush() throws java.io.IOException;
+    method @Nullable public java.net.CacheResponse get(@NonNull java.net.URI, @NonNull String, @Nullable java.util.Map<java.lang.String,java.util.List<java.lang.String>>) throws java.io.IOException;
+    method @NonNull public com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder getCacheHolder();
+    method public int getHitCount();
+    method public long getMaxSize();
+    method public int getNetworkCount();
+    method public int getRequestCount();
+    method public long getSize() throws java.io.IOException;
+    method @Nullable public java.net.CacheRequest put(@NonNull java.net.URI, @NonNull java.net.URLConnection) throws java.io.IOException;
+  }
+
+  public interface HasCacheHolder {
+    method @NonNull public com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder getCacheHolder();
+  }
+
+  public static final class HasCacheHolder.CacheHolder {
+    method @NonNull public static com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder create(@NonNull java.io.File, long);
+    method public boolean isEquivalent(@NonNull java.io.File, long);
+  }
+
+}
+
+package dalvik.annotation.codegen {
+
+  @java.lang.annotation.Repeatable(CovariantReturnType.CovariantReturnTypes.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface CovariantReturnType {
+    method public abstract int presentAfter();
+    method public abstract Class<?> returnType();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public static @interface CovariantReturnType.CovariantReturnTypes {
+    method public abstract dalvik.annotation.codegen.CovariantReturnType[] value();
+  }
+
+}
+
+package dalvik.annotation.optimization {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface CriticalNative {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface FastNative {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface NeverCompile {
+  }
+
+}
+
+package dalvik.system {
+
+  public final class AnnotatedStackTraceElement {
+    method @Nullable public Object getBlockedOn();
+    method @Nullable public Object[] getHeldLocks();
+    method @NonNull public StackTraceElement getStackTraceElement();
+  }
+
+  public class AppSpecializationHooks {
+    method public static void handleCompatChangesBeforeBindingApplication();
+  }
+
+  public class BaseDexClassLoader extends java.lang.ClassLoader {
+    method public void addDexPath(@Nullable String);
+    method public void addNativePath(@NonNull java.util.Collection<java.lang.String>);
+    method @NonNull public String getLdLibraryPath();
+    method public void reportClassLoaderChain();
+    method public static void setReporter(@Nullable dalvik.system.BaseDexClassLoader.Reporter);
+  }
+
+  public static interface BaseDexClassLoader.Reporter {
+    method public void report(@NonNull java.util.Map<java.lang.String,java.lang.String>);
+  }
+
+  public final class BlockGuard {
+    method @NonNull public static dalvik.system.BlockGuard.Policy getThreadPolicy();
+    method @NonNull public static dalvik.system.BlockGuard.VmPolicy getVmPolicy();
+    method public static void setThreadPolicy(@NonNull dalvik.system.BlockGuard.Policy);
+    method public static void setVmPolicy(@NonNull dalvik.system.BlockGuard.VmPolicy);
+    field public static final dalvik.system.BlockGuard.Policy LAX_POLICY;
+    field public static final dalvik.system.BlockGuard.VmPolicy LAX_VM_POLICY;
+  }
+
+  public static interface BlockGuard.Policy {
+    method public int getPolicyMask();
+    method public void onReadFromDisk();
+    method public void onUnbufferedIO();
+    method public void onWriteToDisk();
+  }
+
+  public static interface BlockGuard.VmPolicy {
+    method public void onPathAccess(@NonNull String);
+  }
+
+  public final class CloseGuard {
+    method public void close();
+    method public static dalvik.system.CloseGuard get();
+    method public static dalvik.system.CloseGuard.Reporter getReporter();
+    method public void open(String);
+    method public void openWithCallSite(String, String);
+    method public static void setEnabled(boolean);
+    method public static void setReporter(dalvik.system.CloseGuard.Reporter);
+    method public void warnIfOpen();
+  }
+
+  public static interface CloseGuard.Reporter {
+    method public void report(String, Throwable);
+    method public default void report(String);
+  }
+
+  public final class DelegateLastClassLoader extends dalvik.system.PathClassLoader {
+    ctor public DelegateLastClassLoader(String, String, ClassLoader, ClassLoader[]);
+    ctor public DelegateLastClassLoader(String, String, ClassLoader, ClassLoader[], ClassLoader[]);
+  }
+
+  @Deprecated public final class DexFile {
+    method @Deprecated @NonNull public static dalvik.system.DexFile.OptimizationInfo getDexFileOptimizationInfo(@NonNull String, @NonNull String) throws java.io.FileNotFoundException;
+    method @Deprecated @Nullable public static String[] getDexFileOutputPaths(@NonNull String, @NonNull String) throws java.io.FileNotFoundException;
+    method @Deprecated public static int getDexOptNeeded(@NonNull String, @NonNull String, @NonNull String, @Nullable String, boolean, boolean) throws java.io.FileNotFoundException, java.io.IOException;
+    method @Deprecated @NonNull public static String getSafeModeCompilerFilter(@NonNull String);
+    method @Deprecated public static boolean isProfileGuidedCompilerFilter(@NonNull String);
+    method @Deprecated public static boolean isValidCompilerFilter(@NonNull String);
+    field @Deprecated public static final int DEX2OAT_FOR_FILTER = 3; // 0x3
+    field @Deprecated public static final int NO_DEXOPT_NEEDED = 0; // 0x0
+  }
+
+  @Deprecated public static final class DexFile.OptimizationInfo {
+    method @Deprecated @NonNull public String getReason();
+    method @Deprecated @NonNull public String getStatus();
+  }
+
+  public class PathClassLoader extends dalvik.system.BaseDexClassLoader {
+    ctor public PathClassLoader(@NonNull String, @Nullable String, @Nullable ClassLoader, @Nullable ClassLoader[]);
+    ctor public PathClassLoader(@NonNull String, @Nullable String, @Nullable ClassLoader, @Nullable ClassLoader[], @Nullable ClassLoader[]);
+  }
+
+  public final class RuntimeHooks {
+    method public static void setTimeZoneIdSupplier(@NonNull java.util.function.Supplier<java.lang.String>);
+    method public static void setUncaughtExceptionPreHandler(@Nullable java.lang.Thread.UncaughtExceptionHandler);
+  }
+
+  public abstract class SocketTagger {
+    ctor public SocketTagger();
+    method public static dalvik.system.SocketTagger get();
+    method public static void set(dalvik.system.SocketTagger);
+    method public abstract void tag(java.io.FileDescriptor) throws java.net.SocketException;
+    method public final void tag(java.net.Socket) throws java.net.SocketException;
+    method public final void tag(java.net.DatagramSocket) throws java.net.SocketException;
+    method public abstract void untag(java.io.FileDescriptor) throws java.net.SocketException;
+    method public final void untag(java.net.Socket) throws java.net.SocketException;
+    method public final void untag(java.net.DatagramSocket) throws java.net.SocketException;
+  }
+
+  public final class VMDebug {
+    method public static void attachAgent(String, ClassLoader) throws java.io.IOException;
+    method public static long countInstancesOfClass(Class, boolean);
+    method public static long[] countInstancesOfClasses(Class[], boolean);
+    method public static void dumpHprofData(String) throws java.io.IOException;
+    method public static void dumpHprofData(String, java.io.FileDescriptor) throws java.io.IOException;
+    method public static void dumpHprofDataDdms();
+    method public static void dumpReferenceTables();
+    method public static int getAllocCount(int);
+    method @dalvik.annotation.optimization.FastNative public static int getLoadedClassCount();
+    method public static int getMethodTracingMode();
+    method public static String getRuntimeStat(String);
+    method public static java.util.Map<java.lang.String,java.lang.String> getRuntimeStats();
+    method public static String[] getVmFeatureList();
+    method @dalvik.annotation.optimization.FastNative public static boolean isDebuggerConnected();
+    method @dalvik.annotation.optimization.FastNative public static boolean isDebuggingEnabled();
+    method @dalvik.annotation.optimization.FastNative public static long lastDebuggerActivity();
+    method @dalvik.annotation.optimization.FastNative public static void printLoadedClasses(int);
+    method public static void resetAllocCount(int);
+    method public static void setAllocTrackerStackDepth(int);
+    method public static void startAllocCounting();
+    method public static void startMethodTracing(String, int, int, boolean, int);
+    method public static void startMethodTracing(String, java.io.FileDescriptor, int, int, boolean, int, boolean);
+    method public static void startMethodTracingDdms(int, int, boolean, int);
+    method public static void stopAllocCounting();
+    method public static void stopMethodTracing();
+    method @dalvik.annotation.optimization.FastNative public static long threadCpuTimeNanos();
+    field public static final int KIND_ALL_COUNTS = -1; // 0xffffffff
+    field public static final int KIND_GLOBAL_ALLOCATED_BYTES = 2; // 0x2
+    field public static final int KIND_GLOBAL_ALLOCATED_OBJECTS = 1; // 0x1
+    field public static final int KIND_GLOBAL_CLASS_INIT_COUNT = 32; // 0x20
+    field public static final int KIND_GLOBAL_CLASS_INIT_TIME = 64; // 0x40
+    field public static final int KIND_GLOBAL_FREED_BYTES = 8; // 0x8
+    field public static final int KIND_GLOBAL_FREED_OBJECTS = 4; // 0x4
+    field public static final int KIND_GLOBAL_GC_INVOCATIONS = 16; // 0x10
+    field public static final int KIND_THREAD_ALLOCATED_BYTES = 131072; // 0x20000
+    field public static final int KIND_THREAD_ALLOCATED_OBJECTS = 65536; // 0x10000
+    field public static final int KIND_THREAD_GC_INVOCATIONS = 1048576; // 0x100000
+    field public static final int TRACE_COUNT_ALLOCS = 1; // 0x1
+  }
+
+  public final class VMRuntime {
+    method @dalvik.annotation.optimization.FastNative public long addressOf(Object);
+    method public static void bootCompleted();
+    method public void clampGrowthLimit();
+    method public void clearGrowthLimit();
+    method public static String getCurrentInstructionSet();
+    method public static String getInstructionSet(String);
+    method public static dalvik.system.VMRuntime getRuntime();
+    method public int getTargetSdkVersion();
+    method @dalvik.annotation.optimization.FastNative public boolean is64Bit();
+    method public static boolean is64BitAbi(String);
+    method public static boolean is64BitInstructionSet(String);
+    method @dalvik.annotation.optimization.FastNative public boolean isCheckJniEnabled();
+    method @dalvik.annotation.optimization.FastNative public boolean isNativeDebuggable();
+    method public static boolean isValidClassLoaderContext(String);
+    method @dalvik.annotation.optimization.FastNative public Object newNonMovableArray(Class<?>, int);
+    method @dalvik.annotation.optimization.FastNative public Object newUnpaddedArray(Class<?>, int);
+    method public void notifyStartupCompleted();
+    method public void preloadDexCaches();
+    method public static void registerAppInfo(String, String, String, String[], int);
+    method public void registerNativeAllocation(long);
+    method @Deprecated public void registerNativeAllocation(int);
+    method public void registerNativeFree(long);
+    method @Deprecated public void registerNativeFree(int);
+    method public static void registerSensitiveThread();
+    method public void requestConcurrentGC();
+    method public static void resetJitCounters();
+    method public static void setDedupeHiddenApiWarnings(boolean);
+    method public void setDisabledCompatChanges(long[]);
+    method public void setHiddenApiAccessLogSamplingRate(int);
+    method public void setHiddenApiExemptions(String[]);
+    method public static void setHiddenApiUsageLogger(dalvik.system.VMRuntime.HiddenApiUsageLogger);
+    method public static void setNonSdkApiUsageConsumer(java.util.function.Consumer<java.lang.String>);
+    method public static void setProcessDataDirectory(String);
+    method public static void setProcessPackageName(String);
+    method public void setTargetSdkVersion(int);
+    method public void updateProcessState(int);
+    method public String vmInstructionSet();
+    method public String vmLibrary();
+    field public static final int CODE_PATH_TYPE_PRIMARY_APK = 1; // 0x1
+    field public static final int CODE_PATH_TYPE_SECONDARY_DEX = 4; // 0x4
+    field public static final int CODE_PATH_TYPE_SPLIT_APK = 2; // 0x2
+    field public static final int SDK_VERSION_CUR_DEVELOPMENT = 10000; // 0x2710
+  }
+
+  public static interface VMRuntime.HiddenApiUsageLogger {
+    method public void hiddenApiUsed(int, String, String, int, boolean);
+    field public static final int ACCESS_METHOD_JNI = 2; // 0x2
+    field public static final int ACCESS_METHOD_LINKING = 3; // 0x3
+    field public static final int ACCESS_METHOD_NONE = 0; // 0x0
+    field public static final int ACCESS_METHOD_REFLECTION = 1; // 0x1
+  }
+
+  public final class VMStack {
+    method @Nullable @dalvik.annotation.optimization.FastNative public static dalvik.system.AnnotatedStackTraceElement[] getAnnotatedThreadStackTrace(Thread);
+  }
+
+  public final class ZygoteHooks {
+    method public static void gcAndFinalize();
+    method public static boolean isIndefiniteThreadSuspensionSafe();
+    method public static void onBeginPreload();
+    method public static void onEndPreload();
+    method public static void postForkChild(int, boolean, boolean, String);
+    method public static void postForkCommon();
+    method public static void postForkSystemServer(int);
+    method public static void preFork();
+    method public static void startZygoteNoThreadCreation();
+    method public static void stopZygoteNoThreadCreation();
+  }
+
+}
+
+package java.io {
+
+  public final class FileDescriptor {
+    method public int getInt$();
+    method public void setInt$(int);
+  }
+
+  public class FileInputStream extends java.io.InputStream {
+    ctor public FileInputStream(java.io.FileDescriptor, boolean);
+  }
+
+}
+
+package java.lang {
+
+  public class Thread implements java.lang.Runnable {
+    method public static java.lang.Thread.UncaughtExceptionHandler getUncaughtExceptionPreHandler();
+    method public static void setUncaughtExceptionPreHandler(java.lang.Thread.UncaughtExceptionHandler);
+  }
+
+}
+
+package java.net {
+
+  public class DatagramSocket implements java.io.Closeable {
+    method public java.io.FileDescriptor getFileDescriptor$();
+  }
+
+  public final class Inet4Address extends java.net.InetAddress {
+    field public static final java.net.InetAddress ALL;
+    field public static final java.net.InetAddress ANY;
+    field public static final java.net.InetAddress LOOPBACK;
+  }
+
+  public final class Inet6Address extends java.net.InetAddress {
+    field public static final java.net.InetAddress ANY;
+    field public static final java.net.InetAddress LOOPBACK;
+  }
+
+  public class InetAddress implements java.io.Serializable {
+    method public static void clearDnsCache();
+    method @NonNull public static java.net.InetAddress[] getAllByNameOnNet(@Nullable String, int) throws java.net.UnknownHostException;
+    method @NonNull public static java.net.InetAddress getByNameOnNet(@Nullable String, int) throws java.net.UnknownHostException;
+    method @Deprecated public static boolean isNumeric(String);
+    method @Deprecated public static java.net.InetAddress parseNumericAddress(String);
+  }
+
+  public class InetSocketAddress extends java.net.SocketAddress {
+    ctor public InetSocketAddress();
+  }
+
+  public class ServerSocket implements java.io.Closeable {
+    method public java.net.SocketImpl getImpl() throws java.net.SocketException;
+  }
+
+  public class Socket implements java.io.Closeable {
+    method public java.io.FileDescriptor getFileDescriptor$();
+  }
+
+  public abstract class SocketImpl implements java.net.SocketOptions {
+    method public java.io.FileDescriptor getFD$();
+  }
+
+}
+
+package java.nio {
+
+  public abstract class ByteBuffer extends java.nio.Buffer implements java.lang.Comparable<java.nio.ByteBuffer> {
+    method public void setAccessible(boolean);
+  }
+
+  public class DirectByteBuffer extends java.nio.MappedByteBuffer {
+    ctor public DirectByteBuffer(int, long, java.io.FileDescriptor, Runnable, boolean);
+    method public final long address();
+    method public final void setAccessible(boolean);
+  }
+
+  public final class NIOAccess {
+    method public static Object getBaseArray(java.nio.Buffer);
+    method public static int getBaseArrayOffset(java.nio.Buffer);
+  }
+
+  public final class NioUtils {
+    method public static void freeDirectBuffer(java.nio.ByteBuffer);
+    method public static byte[] unsafeArray(java.nio.ByteBuffer);
+    method public static int unsafeArrayOffset(java.nio.ByteBuffer);
+  }
+
+}
+
+package java.security {
+
+  public abstract class Provider extends java.util.Properties {
+    method public void warmUpServiceProvision();
+  }
+
+  public abstract class Signature extends java.security.SignatureSpi {
+    method public java.security.SignatureSpi getCurrentSpi();
+  }
+
+}
+
+package java.text {
+
+  public abstract class DateFormat extends java.text.Format {
+    method public static final void set24HourTimePref(Boolean);
+  }
+
+}
+
+package java.util {
+
+  public class LinkedHashMap<K, V> extends java.util.HashMap<K,V> implements java.util.Map<K,V> {
+    method public java.util.Map.Entry<K,V> eldest();
+  }
+
+}
+
+package java.util.zip {
+
+  public class ZipEntry implements java.lang.Cloneable {
+    method public long getDataOffset();
+  }
+
+}
+
+package javax.crypto {
+
+  public class Cipher {
+    method public javax.crypto.CipherSpi getCurrentSpi();
+  }
+
+  public class Mac implements java.lang.Cloneable {
+    method public javax.crypto.MacSpi getCurrentSpi();
+  }
+
+}
+
+package javax.net.ssl {
+
+  public abstract class HttpsURLConnection extends java.net.HttpURLConnection {
+    method public static javax.net.ssl.HostnameVerifier getStrictHostnameVerifier();
+  }
+
+}
+
+package libcore.content.type {
+
+  public final class MimeMap {
+    method @NonNull public libcore.content.type.MimeMap.Builder buildUpon();
+    method @NonNull public static libcore.content.type.MimeMap.Builder builder();
+    method @NonNull public java.util.Set<java.lang.String> extensions();
+    method @NonNull public static libcore.content.type.MimeMap getDefault();
+    method @Nullable public String guessExtensionFromMimeType(@Nullable String);
+    method @Nullable public String guessMimeTypeFromExtension(@Nullable String);
+    method public boolean hasExtension(@Nullable String);
+    method public boolean hasMimeType(@Nullable String);
+    method @NonNull public java.util.Set<java.lang.String> mimeTypes();
+    method public static void setDefaultSupplier(@NonNull java.util.function.Supplier<libcore.content.type.MimeMap>);
+  }
+
+  public static final class MimeMap.Builder {
+    method @NonNull public libcore.content.type.MimeMap.Builder addMimeMapping(@NonNull String, @NonNull java.util.List<java.lang.String>);
+    method @NonNull public libcore.content.type.MimeMap build();
+  }
+
+}
+
+package libcore.io {
+
+  public class ForwardingOs implements libcore.io.Os {
+    ctor protected ForwardingOs(@NonNull libcore.io.Os);
+    method public boolean access(@Nullable String, int) throws android.system.ErrnoException;
+    method public java.io.FileDescriptor open(@Nullable String, int, int) throws android.system.ErrnoException;
+    method public void remove(@Nullable String) throws android.system.ErrnoException;
+    method public void rename(@Nullable String, @Nullable String) throws android.system.ErrnoException;
+    method @Nullable public android.system.StructStat stat(@Nullable String) throws android.system.ErrnoException;
+    method public void unlink(@Nullable String) throws android.system.ErrnoException;
+  }
+
+  public final class IoBridge {
+    method public static void closeAndSignalBlockedThreads(@NonNull java.io.FileDescriptor) throws java.io.IOException;
+    method @NonNull public static java.io.FileDescriptor open(@NonNull String, int) throws java.io.FileNotFoundException;
+    method public static int read(@NonNull java.io.FileDescriptor, @NonNull byte[], int, int) throws java.io.IOException;
+    method public static void write(@NonNull java.io.FileDescriptor, @NonNull byte[], int, int) throws java.io.IOException;
+  }
+
+  public final class IoUtils {
+    method public static int acquireRawFd(@NonNull java.io.FileDescriptor);
+    method public static void close(@Nullable java.io.FileDescriptor) throws java.io.IOException;
+    method public static void closeQuietly(@Nullable AutoCloseable);
+    method public static void closeQuietly(@Nullable java.io.FileDescriptor);
+    method public static void closeQuietly(@Nullable java.net.Socket);
+    method @NonNull public static byte[] readFileAsByteArray(@NonNull String) throws java.io.IOException;
+    method @NonNull public static String readFileAsString(@NonNull String) throws java.io.IOException;
+    method public static void setBlocking(@NonNull java.io.FileDescriptor, boolean) throws java.io.IOException;
+    method public static void setFdOwner(@NonNull java.io.FileDescriptor, @NonNull Object);
+  }
+
+  public final class Memory {
+    method public static void memmove(@NonNull Object, int, @NonNull Object, int, long);
+    method public static int peekInt(@NonNull byte[], int, @NonNull java.nio.ByteOrder);
+    method public static short peekShort(@NonNull byte[], int, @NonNull java.nio.ByteOrder);
+    method public static void pokeInt(@NonNull byte[], int, int, @NonNull java.nio.ByteOrder);
+    method public static void pokeLong(@NonNull byte[], int, long, @NonNull java.nio.ByteOrder);
+    method public static void pokeShort(@NonNull byte[], int, short, @NonNull java.nio.ByteOrder);
+  }
+
+  public interface Os {
+    method public static boolean compareAndSetDefault(libcore.io.Os, libcore.io.Os);
+    method public static libcore.io.Os getDefault();
+  }
+
+  public final class Streams {
+    method public static int copy(@NonNull java.io.InputStream, @NonNull java.io.OutputStream) throws java.io.IOException;
+    method public static void readFully(@NonNull java.io.InputStream, @NonNull byte[]) throws java.io.IOException;
+    method @NonNull public static byte[] readFully(@NonNull java.io.InputStream) throws java.io.IOException;
+    method @NonNull public static String readFully(@NonNull java.io.Reader) throws java.io.IOException;
+    method @NonNull public static byte[] readFullyNoClose(@NonNull java.io.InputStream) throws java.io.IOException;
+    method public static int readSingleByte(@NonNull java.io.InputStream) throws java.io.IOException;
+    method public static long skipByReading(@NonNull java.io.InputStream, long) throws java.io.IOException;
+    method public static void writeSingleByte(@NonNull java.io.OutputStream, int) throws java.io.IOException;
+  }
+
+}
+
+package libcore.net {
+
+  public class InetAddressUtils {
+    method public static boolean isNumericAddress(String);
+    method public static java.net.InetAddress parseNumericAddress(String);
+  }
+
+  public abstract class NetworkSecurityPolicy {
+    ctor public NetworkSecurityPolicy();
+    method public static libcore.net.NetworkSecurityPolicy getInstance();
+    method public abstract boolean isCertificateTransparencyVerificationRequired(String);
+    method public abstract boolean isCleartextTrafficPermitted();
+    method public abstract boolean isCleartextTrafficPermitted(String);
+    method public static void setInstance(libcore.net.NetworkSecurityPolicy);
+  }
+
+}
+
+package libcore.net.event {
+
+  public final class NetworkEventDispatcher {
+    method public void dispatchNetworkConfigurationChange();
+    method public static libcore.net.event.NetworkEventDispatcher getInstance();
+  }
+
+}
+
+package libcore.net.http {
+
+  public interface Dns {
+    method @NonNull public java.util.List<java.net.InetAddress> lookup(@Nullable String) throws java.net.UnknownHostException;
+  }
+
+  public class HttpURLConnectionFactory {
+    method @NonNull public static libcore.net.http.HttpURLConnectionFactory createInstance();
+    method public java.net.URLConnection openConnection(@NonNull java.net.URL, @NonNull javax.net.SocketFactory, @NonNull java.net.Proxy) throws java.io.IOException;
+    method public void setDns(@NonNull libcore.net.http.Dns);
+    method public void setNewConnectionPool(int, long, @NonNull java.util.concurrent.TimeUnit);
+  }
+
+}
+
+package libcore.util {
+
+  public final class EmptyArray {
+    field @NonNull public static final boolean[] BOOLEAN;
+    field @NonNull public static final byte[] BYTE;
+    field @NonNull public static final float[] FLOAT;
+    field @NonNull public static final int[] INT;
+    field @NonNull public static final long[] LONG;
+    field @NonNull public static final Object[] OBJECT;
+    field @NonNull public static final String[] STRING;
+  }
+
+  public final class FP16 {
+    method public static short ceil(short);
+    method public static int compare(short, short);
+    method public static boolean equals(short, short);
+    method public static short floor(short);
+    method public static boolean greater(short, short);
+    method public static boolean greaterEquals(short, short);
+    method public static boolean isInfinite(short);
+    method public static boolean isNaN(short);
+    method public static boolean isNormalized(short);
+    method public static boolean less(short, short);
+    method public static boolean lessEquals(short, short);
+    method public static short max(short, short);
+    method public static short min(short, short);
+    method public static short rint(short);
+    method public static float toFloat(short);
+    method public static short toHalf(float);
+    method public static String toHexString(short);
+    method public static short trunc(short);
+    field public static final short EPSILON = 5120; // 0x1400
+    field public static final int EXPONENT_BIAS = 15; // 0xf
+    field public static final int EXPONENT_SHIFT = 10; // 0xa
+    field public static final int EXPONENT_SIGNIFICAND_MASK = 32767; // 0x7fff
+    field public static final short LOWEST_VALUE = -1025; // 0xfffffbff
+    field public static final int MAX_EXPONENT = 15; // 0xf
+    field public static final short MAX_VALUE = 31743; // 0x7bff
+    field public static final int MIN_EXPONENT = -14; // 0xfffffff2
+    field public static final short MIN_NORMAL = 1024; // 0x400
+    field public static final short MIN_VALUE = 1; // 0x1
+    field public static final short NEGATIVE_INFINITY = -1024; // 0xfffffc00
+    field public static final short NEGATIVE_ZERO = -32768; // 0xffff8000
+    field public static final short NaN = 32256; // 0x7e00
+    field public static final short POSITIVE_INFINITY = 31744; // 0x7c00
+    field public static final short POSITIVE_ZERO = 0; // 0x0
+    field public static final int SHIFTED_EXPONENT_MASK = 31; // 0x1f
+    field public static final int SIGNIFICAND_MASK = 1023; // 0x3ff
+    field public static final int SIGN_MASK = 32768; // 0x8000
+    field public static final int SIGN_SHIFT = 15; // 0xf
+    field public static final int SIZE = 16; // 0x10
+  }
+
+  public class HexEncoding {
+    method public static byte[] decode(String) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(String, boolean) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(char[]) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(char[], boolean) throws java.lang.IllegalArgumentException;
+    method public static char[] encode(byte[]);
+    method public static char[] encode(byte[], boolean);
+    method public static char[] encode(byte[], int, int);
+    method public static String encodeToString(byte, boolean);
+    method public static String encodeToString(byte[]);
+    method public static String encodeToString(byte[], boolean);
+  }
+
+  public class NativeAllocationRegistry {
+    ctor public NativeAllocationRegistry(@NonNull ClassLoader, long, long);
+    method public static void applyFreeFunction(long, long);
+    method public static libcore.util.NativeAllocationRegistry createMalloced(@NonNull ClassLoader, long, long);
+    method public static libcore.util.NativeAllocationRegistry createMalloced(@NonNull ClassLoader, long);
+    method public static libcore.util.NativeAllocationRegistry createNonmalloced(@NonNull ClassLoader, long, long);
+    method @NonNull public Runnable registerNativeAllocation(@NonNull Object, long);
+  }
+
+  public class SneakyThrow {
+    method public static void sneakyThrow(@NonNull Throwable);
+  }
+
+  public class XmlObjectFactory {
+    method @NonNull public static org.xml.sax.XMLReader newXMLReader();
+    method @NonNull public static org.xmlpull.v1.XmlPullParser newXmlPullParser();
+    method @NonNull public static org.xmlpull.v1.XmlSerializer newXmlSerializer();
+  }
+
+}
+
+package org.apache.harmony.dalvik.ddmc {
+
+  public class Chunk {
+    ctor public Chunk(int, byte[], int, int);
+    ctor public Chunk(int, java.nio.ByteBuffer);
+    field public int type;
+  }
+
+  public abstract class ChunkHandler {
+    ctor public ChunkHandler();
+    method public static org.apache.harmony.dalvik.ddmc.Chunk createFailChunk(int, String);
+    method public abstract org.apache.harmony.dalvik.ddmc.Chunk handleChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    method public static String name(int);
+    method public abstract void onConnected();
+    method public abstract void onDisconnected();
+    method public static int type(String);
+    method public static java.nio.ByteBuffer wrapChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    field public static final java.nio.ByteOrder CHUNK_ORDER;
+  }
+
+  public final class DdmServer {
+    method public static void registerHandler(int, org.apache.harmony.dalvik.ddmc.ChunkHandler);
+    method public static void registrationComplete();
+    method public static void sendChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    method public static org.apache.harmony.dalvik.ddmc.ChunkHandler unregisterHandler(int);
+  }
+
+  public final class DdmVmInternal {
+    method public static void setRecentAllocationsTrackingEnabled(boolean);
+    method public static void setThreadNotifyEnabled(boolean);
+  }
+
+}
+
+package org.json {
+
+  public class JSONObject {
+    method @NonNull public java.util.Set<java.lang.String> keySet();
+  }
+
+}
+
+package sun.misc {
+
+  public class Cleaner extends java.lang.ref.PhantomReference<java.lang.Object> {
+    method public void clean();
+    method public static sun.misc.Cleaner create(Object, Runnable);
+  }
+
+  public final class Unsafe {
+    method public int arrayBaseOffset(Class);
+    method public int arrayIndexScale(Class);
+    method @dalvik.annotation.optimization.FastNative public void copyMemory(long, long, long);
+    method @dalvik.annotation.optimization.FastNative public boolean getBoolean(Object, long);
+    method @dalvik.annotation.optimization.FastNative public byte getByte(Object, long);
+    method @dalvik.annotation.optimization.FastNative public byte getByte(long);
+    method @dalvik.annotation.optimization.FastNative public double getDouble(Object, long);
+    method @dalvik.annotation.optimization.FastNative public double getDouble(long);
+    method @dalvik.annotation.optimization.FastNative public float getFloat(Object, long);
+    method @dalvik.annotation.optimization.FastNative public float getFloat(long);
+    method @dalvik.annotation.optimization.FastNative public int getInt(Object, long);
+    method @dalvik.annotation.optimization.FastNative public int getInt(long);
+    method @dalvik.annotation.optimization.FastNative public long getLong(Object, long);
+    method @dalvik.annotation.optimization.FastNative public long getLong(long);
+    method @dalvik.annotation.optimization.FastNative public Object getObject(Object, long);
+    method public static sun.misc.Unsafe getUnsafe();
+    method public long objectFieldOffset(java.lang.reflect.Field);
+    method @dalvik.annotation.optimization.FastNative public void putBoolean(Object, long, boolean);
+    method @dalvik.annotation.optimization.FastNative public void putByte(Object, long, byte);
+    method @dalvik.annotation.optimization.FastNative public void putByte(long, byte);
+    method @dalvik.annotation.optimization.FastNative public void putDouble(Object, long, double);
+    method @dalvik.annotation.optimization.FastNative public void putDouble(long, double);
+    method @dalvik.annotation.optimization.FastNative public void putFloat(Object, long, float);
+    method @dalvik.annotation.optimization.FastNative public void putFloat(long, float);
+    method @dalvik.annotation.optimization.FastNative public void putInt(Object, long, int);
+    method @dalvik.annotation.optimization.FastNative public void putInt(long, int);
+    method @dalvik.annotation.optimization.FastNative public void putLong(Object, long, long);
+    method @dalvik.annotation.optimization.FastNative public void putLong(long, long);
+    method @dalvik.annotation.optimization.FastNative public void putObject(Object, long, Object);
+  }
+
+}
+
+package sun.security.jca {
+
+  public class Providers {
+    method public static Object startJarVerification();
+    method public static void stopJarVerification(Object);
+  }
+
+}
+
+package sun.security.pkcs {
+
+  public class PKCS7 {
+    ctor public PKCS7(java.io.InputStream) throws java.io.IOException, sun.security.pkcs.ParsingException;
+    ctor public PKCS7(byte[]) throws sun.security.pkcs.ParsingException;
+    method public java.security.cert.X509Certificate[] getCertificates();
+    method public sun.security.pkcs.SignerInfo[] getSignerInfos();
+    method public sun.security.pkcs.SignerInfo verify(sun.security.pkcs.SignerInfo, java.io.InputStream) throws java.io.IOException, java.security.NoSuchAlgorithmException, java.security.SignatureException;
+    method public sun.security.pkcs.SignerInfo[] verify(byte[]) throws java.security.NoSuchAlgorithmException, java.security.SignatureException;
+  }
+
+  public class ParsingException extends java.io.IOException {
+  }
+
+  public class SignerInfo {
+    ctor public SignerInfo();
+    method public java.util.ArrayList<java.security.cert.X509Certificate> getCertificateChain(sun.security.pkcs.PKCS7) throws java.io.IOException;
+  }
+
+}
+
+package sun.security.util {
+
+  public final class ObjectIdentifier implements java.io.Serializable {
+    ctor public ObjectIdentifier(String) throws java.io.IOException;
+  }
+
+}
+
+package sun.security.x509 {
+
+  public class AlgorithmId implements java.io.Serializable {
+    ctor public AlgorithmId(sun.security.util.ObjectIdentifier);
+    method public String getName();
+  }
+
+}
+

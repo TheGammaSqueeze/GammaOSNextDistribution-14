@@ -1,0 +1,120 @@
+#include "aidl/android/hardware/radio/sim/SimApdu.h"
+
+#include <android/binder_parcel_utils.h>
+#include <aidl/android/hardware/radio/config/BnRadioConfig.h>
+#include <aidl/android/hardware/radio/config/BnRadioConfigIndication.h>
+#include <aidl/android/hardware/radio/config/BnRadioConfigResponse.h>
+#include <aidl/android/hardware/radio/config/BpRadioConfig.h>
+#include <aidl/android/hardware/radio/config/BpRadioConfigIndication.h>
+#include <aidl/android/hardware/radio/config/BpRadioConfigResponse.h>
+#include <aidl/android/hardware/radio/config/IRadioConfig.h>
+#include <aidl/android/hardware/radio/config/IRadioConfigIndication.h>
+#include <aidl/android/hardware/radio/config/IRadioConfigResponse.h>
+
+namespace aidl {
+namespace android {
+namespace hardware {
+namespace radio {
+namespace sim {
+const char* SimApdu::descriptor = "android.hardware.radio.sim.SimApdu";
+
+binder_status_t SimApdu::readFromParcel(const AParcel* _aidl_parcel) {
+  binder_status_t _aidl_ret_status = STATUS_OK;
+  int32_t _aidl_start_pos = AParcel_getDataPosition(_aidl_parcel);
+  int32_t _aidl_parcelable_size = 0;
+  _aidl_ret_status = AParcel_readInt32(_aidl_parcel, &_aidl_parcelable_size);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (_aidl_parcelable_size < 4) return STATUS_BAD_VALUE;
+  if (_aidl_start_pos > INT32_MAX - _aidl_parcelable_size) return STATUS_BAD_VALUE;
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &sessionId);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &cla);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &instruction);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &p1);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &p2);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &p3);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  if (AParcel_getDataPosition(_aidl_parcel) - _aidl_start_pos >= _aidl_parcelable_size) {
+    AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+    return _aidl_ret_status;
+  }
+  _aidl_ret_status = ::ndk::AParcel_readData(_aidl_parcel, &data);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos + _aidl_parcelable_size);
+  return _aidl_ret_status;
+}
+binder_status_t SimApdu::writeToParcel(AParcel* _aidl_parcel) const {
+  binder_status_t _aidl_ret_status;
+  size_t _aidl_start_pos = AParcel_getDataPosition(_aidl_parcel);
+  _aidl_ret_status = AParcel_writeInt32(_aidl_parcel, 0);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, sessionId);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, cla);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, instruction);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, p1);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, p2);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, p3);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  _aidl_ret_status = ::ndk::AParcel_writeData(_aidl_parcel, data);
+  if (_aidl_ret_status != STATUS_OK) return _aidl_ret_status;
+
+  size_t _aidl_end_pos = AParcel_getDataPosition(_aidl_parcel);
+  AParcel_setDataPosition(_aidl_parcel, _aidl_start_pos);
+  AParcel_writeInt32(_aidl_parcel, _aidl_end_pos - _aidl_start_pos);
+  AParcel_setDataPosition(_aidl_parcel, _aidl_end_pos);
+  return _aidl_ret_status;
+}
+
+}  // namespace sim
+}  // namespace radio
+}  // namespace hardware
+}  // namespace android
+}  // namespace aidl

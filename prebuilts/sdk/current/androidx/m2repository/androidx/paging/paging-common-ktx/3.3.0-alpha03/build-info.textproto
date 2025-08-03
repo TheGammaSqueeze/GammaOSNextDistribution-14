@@ -1,0 +1,76 @@
+version: "3.3.0-alpha03"
+dependency_list {
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-common"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.paging"
+group_id: "androidx.paging"
+artifact_id: "paging-common-ktx"
+path: "/paging/paging-common-ktx"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-paging-11472573.zip"
+project_zip_path: "per-project-zips/androidx.paging-paging-common-ktx-all-11472573-3.3.0-alpha03.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-common"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-compose"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-guava"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-runtime"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-runtime-ktx"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-rxjava2"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-rxjava2-ktx"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-rxjava3"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.paging"
+    artifact_id: "paging-testing"
+    version: "3.3.0-alpha03"
+    is_tip_of_tree: true
+  }
+}

@@ -1,0 +1,1 @@
+[{"class":"androidx.compose.runtime.tracing.ComposeTracingInitializer","addedIn":"1.0.0-beta01","methods":[{"method":"create(android.content.Context)","addedIn":"1.0.0-beta01"},{"method":"ComposeTracingInitializer()","addedIn":"1.0.0-beta01"},{"method":"dependencies()","addedIn":"1.0.0-beta01"}],"fields":[]}]

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="Starting with {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, BLUETOOTH_CONNECT permission is enforced in getProfileConnectionState" enableSinceTargetSdk="34" id="211757425" name="ENFORCE_CONNECT">
+    <meta-data definedIn="com.android.bluetooth.ChangeIds" sourcePosition="packages/modules/Bluetooth/android/app/src/com/android/bluetooth/ChangeIds.java:30" />
+  </compat-change>
+</config>

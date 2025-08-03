@@ -1,0 +1,576 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+license {
+    name: "platform-mainline-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "platform-mainline-sdk_system_logging_liblog_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/system/logging/liblog/NOTICE"],
+}
+
+license {
+    name: "platform-mainline-sdk_external_libcap_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSD-3-Clause",
+    ],
+    license_text: ["licenses/external/libcap/NOTICE"],
+}
+
+license {
+    name: "platform-mainline-sdk_external_perfetto_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC-BY",
+    ],
+    license_text: ["licenses/external/perfetto/LICENSE"],
+}
+
+license {
+    name: "platform-mainline-sdk_frameworks_native_libs_binder_ndk_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/frameworks/native/libs/binder/ndk/NOTICE"],
+}
+
+cc_prebuilt_library {
+    name: "liblog",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.runtime",
+    ],
+    licenses: ["platform-mainline-sdk_system_logging_liblog_license"],
+    host_supported: true,
+    export_include_dirs: ["common_os/include/system/logging/liblog/include"],
+    stubs: {
+        versions: [
+            "29",
+            "30",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+            sanitize: {
+                address: false,
+            },
+        },
+        android_arm64: {
+            shared: {
+                srcs: ["android/arm64/lib/liblog.so"],
+            },
+            static: {
+                enabled: false,
+            },
+        },
+        android_riscv64: {
+            shared: {
+                srcs: ["android/riscv64/lib/liblog.so"],
+            },
+            static: {
+                enabled: false,
+            },
+        },
+        android_x86_64: {
+            shared: {
+                srcs: ["android/x86_64/lib/liblog.so"],
+            },
+            static: {
+                enabled: false,
+            },
+        },
+        android_arm: {
+            shared: {
+                srcs: ["android/arm/lib/liblog.so"],
+            },
+            static: {
+                enabled: false,
+            },
+        },
+        android_x86: {
+            shared: {
+                srcs: ["android/x86/lib/liblog.so"],
+            },
+            static: {
+                enabled: false,
+            },
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["linux_bionic/x86_64/lib/liblog.a"],
+            },
+            shared: {
+                srcs: ["linux_bionic/x86_64/lib/liblog.so"],
+            },
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["linux_glibc/x86_64/lib/liblog.a"],
+            },
+            shared: {
+                srcs: ["linux_glibc/x86_64/lib/liblog.so"],
+            },
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            static: {
+                srcs: ["linux_glibc/x86/lib/liblog.a"],
+            },
+            shared: {
+                srcs: ["linux_glibc/x86/lib/liblog.so"],
+            },
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libartpalette-system",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["platform-mainline-sdk_Android-Apache-2.0"],
+    host_supported: true,
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libartpalette-system.so"],
+        },
+        android_riscv64: {
+            srcs: ["android/riscv64/lib/libartpalette-system.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libartpalette-system.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libartpalette-system.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libartpalette-system.so"],
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/lib/libartpalette-system.so"],
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libartpalette-system.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libartpalette-system.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "heapprofd_client_api",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["platform-mainline-sdk_external_perfetto_license"],
+    compile_multilib: "both",
+    export_include_dirs: ["include/external/perfetto/src/profiling/memory/include"],
+    stubs: {
+        versions: [
+            "31",
+            "current",
+        ],
+    },
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/heapprofd_client_api.so"],
+        },
+        riscv64: {
+            srcs: ["riscv64/lib/heapprofd_client_api.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/heapprofd_client_api.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/heapprofd_client_api.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/heapprofd_client_api.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libbinder_ndk",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["platform-mainline-sdk_frameworks_native_libs_binder_ndk_license"],
+    compile_multilib: "both",
+    export_include_dirs: [
+        "include/frameworks/native/libs/binder/ndk/include_cpp",
+        "include/frameworks/native/libs/binder/ndk/include_ndk",
+        "include/frameworks/native/libs/binder/ndk/include_platform",
+        "include/libnativehelper/include_jni",
+    ],
+    sanitize: {
+        misc_undefined: ["integer"],
+    },
+    stubs: {
+        versions: [
+            "29",
+            "30",
+            "current",
+        ],
+    },
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libbinder_ndk.so"],
+        },
+        riscv64: {
+            srcs: ["riscv64/lib/libbinder_ndk.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libbinder_ndk.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libbinder_ndk.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libbinder_ndk.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "libcap",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adbd",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.compos",
+        "com.android.media.swcodec",
+        "com.android.virt",
+    ],
+    licenses: ["platform-mainline-sdk_external_libcap_license"],
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    export_include_dirs: ["common_os/include/external/libcap/libcap/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libcap.a"],
+        },
+        android_riscv64: {
+            srcs: ["android/riscv64/lib/libcap.a"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libcap.a"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libcap.a"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libcap.a"],
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/lib/libcap.a"],
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libcap.a"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libcap.a"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "libperfetto_client_experimental",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.tethering",
+    ],
+    licenses: ["platform-mainline-sdk_external_perfetto_license"],
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    export_include_dirs: [
+        "include/external/perfetto/include",
+        "include/external/perfetto/include/perfetto/base/build_configs/android_tree",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_ipc_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_ipc_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_wire_protocol_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_ipc_wire_protocol_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_android_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_android_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_chrome_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_chrome_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_filesystem_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_filesystem_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ftrace_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ftrace_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_gpu_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_gpu_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_interned_data_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_interned_data_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_minimal_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_minimal_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_non_minimal_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_non_minimal_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_perfetto_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_perfetto_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_power_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_power_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_profiling_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_profiling_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ps_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ps_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_statsd_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_statsd_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_sys_stats_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_sys_stats_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_system_info_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_system_info_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_cpp_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_cpp_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_translation_zero_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_translation_zero_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_src_base_version_gen_h/gen",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libperfetto_client_experimental.a"],
+        },
+        riscv64: {
+            srcs: ["riscv64/lib/libperfetto_client_experimental.a"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libperfetto_client_experimental.a"],
+        },
+        arm: {
+            srcs: ["arm/lib/libperfetto_client_experimental.a"],
+        },
+        x86: {
+            srcs: ["x86/lib/libperfetto_client_experimental.a"],
+        },
+    },
+}
+
+cc_prebuilt_library_static {
+    name: "perfetto_trace_protos",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["platform-mainline-sdk_external_perfetto_license"],
+    compile_multilib: "both",
+    shared_libs: ["libprotobuf-cpp-lite"],
+    export_include_dirs: [
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_common_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_android_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_ftrace_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_gpu_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_inode_file_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_interceptors_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_power_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_process_stats_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_profiling_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_statsd_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_sys_stats_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_system_info_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_config_track_event_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_android_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_android_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_chrome_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_chrome_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_filesystem_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_filesystem_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ftrace_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ftrace_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_gpu_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_gpu_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_interned_data_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_interned_data_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_minimal_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_minimal_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_non_minimal_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_non_minimal_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_perfetto_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_perfetto_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_power_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_power_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_profiling_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_profiling_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ps_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_ps_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_statsd_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_statsd_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_sys_stats_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_sys_stats_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_system_info_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_system_info_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_track_event_lite_gen_headers/gen/external/perfetto/protos",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_translation_lite_gen_headers/gen/external/perfetto",
+        "include_gen/external/perfetto/perfetto_protos_perfetto_trace_translation_lite_gen_headers/gen/external/perfetto/protos",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/perfetto_trace_protos.a"],
+        },
+        riscv64: {
+            srcs: ["riscv64/lib/perfetto_trace_protos.a"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/perfetto_trace_protos.a"],
+        },
+        arm: {
+            srcs: ["arm/lib/perfetto_trace_protos.a"],
+        },
+        x86: {
+            srcs: ["x86/lib/perfetto_trace_protos.a"],
+        },
+    },
+}

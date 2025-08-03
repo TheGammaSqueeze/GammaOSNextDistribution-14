@@ -1,0 +1,95 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.mediaprovider-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.mediaprovider"],
+    licenses: ["mediaprovider-module-sdk_Android-Apache-2.0"],
+    contents: ["framework-mediaprovider"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+prebuilt_platform_compat_config {
+    name: "media-provider-platform-compat-config",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    licenses: ["mediaprovider-module-sdk_Android-Apache-2.0"],
+    metadata: "compat_configs/media-provider-platform-compat-config/media-provider-platform-compat-config_meta.xml",
+}
+
+java_sdk_library_import {
+    name: "framework-mediaprovider",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.mediaprovider",
+        "test_com.android.mediaprovider",
+    ],
+    licenses: ["mediaprovider-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: ["android.provider"],
+    public: {
+        jars: ["sdk_library/public/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/public/framework-mediaprovider.txt",
+        removed_api: "sdk_library/public/framework-mediaprovider-removed.txt",
+        annotations: "sdk_library/public/framework-mediaprovider_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/system/framework-mediaprovider.txt",
+        removed_api: "sdk_library/system/framework-mediaprovider-removed.txt",
+        annotations: "sdk_library/system/framework-mediaprovider_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/module-lib/framework-mediaprovider.txt",
+        removed_api: "sdk_library/module-lib/framework-mediaprovider-removed.txt",
+        annotations: "sdk_library/module-lib/framework-mediaprovider_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "mediaprovider-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}

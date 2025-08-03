@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<manifest>
+  <remote name="goog" fetch="https://googleplex-android.googlesource.com/" review="https://googleplex-android.googlesource.com/" />
+
+  <default revision="studio-main" remote="goog" sync-c="true" />
+
+  <superproject name="platform/superproject/base" remote="goog" revision="studio-main" />
+
+  <project path="tools/buildSrc" name="platform/tools/buildSrc" revision="eedbc4ca52e73417ecdb9d01de085ef8b3bd462a">
+    <linkfile dest="tools/build.gradle" src="base/build.gradle" />
+
+    <linkfile dest="tools/gradle.properties" src="base/gradle.properties" />
+
+    <copyfile dest="tools/settings.gradle" src="base/settings.gradle" />
+
+    <copyfile dest="tools/gradlew" src="base/gradlew" />
+
+    <copyfile dest="tools/gradlew.bat" src="base/gradlew.bat" />
+</project>
+
+  <project path="external/dexter" name="platform/tools/dexter" revision="861a1b26fc155344d9746afec6f8b6cf4ea3e2d8" />
+
+  <project path="external/doclava" name="platform/external/doclava" revision="28bdf7fe6b6ae55afba7f13aa7b4a3b18e56a24a" />
+
+  <project path="external/dokka" name="platform/external/dokka" groups="pdk" clone-depth="1" revision="310f3eca3b3abcbdeaa9d993dac10333c9ee1510" />
+
+  <project path="external/freetype" name="platform/external/freetype" revision="6755a619c71943131573dd55b964ed114f1d3856" upstream="udc-release" />
+
+  <project path="external/gflags" name="platform/external/gflags" revision="b894dbe85731174ff1b654e858eea3a0978d73b9" />
+
+  <project path="external/googletest" name="platform/external/googletest" revision="5c08f92c881b666998a4f7852c3cf9e393bf33a7" />
+
+  <project path="external/grpc-grpc" name="platform/external/grpc-grpc" revision="2fc3f7b0982158b9da0f11e107803c16d5ad0c92" />
+
+  <project path="external/jarjar" name="platform/external/jarjar" revision="741153e06175fbe4c2da2ad2ab8b704d9ab30259" />
+
+  <project path="external/jetbrains/kotlin" name="platform/external/jetbrains/kotlin" revision="b6d7af5254330703361c620e286f040110536ba1" />
+
+  <project path="external/jetbrains/rust" name="platform/external/jetbrains/intellij-rust" revision="ac89181d1ffce18454c32f76479d5a073fdc4e80" />
+
+  <project path="external/libpng" name="platform/external/libpng" revision="eafc399bc0f7bce56744f7c57e26d93e34a39cd9" upstream="udc-release" />
+
+  <project path="external/android/system/logging" name="platform/system/logging" clone-depth="1" revision="2a8812ee44c811bb0cb7d0f388a355b462c6be81" />
+
+  <project path="external/nanopb-c" name="platform/external/nanopb-c" revision="e90dd6b4b2809aa628e748e134f885683dfa7dba" />
+
+  <project path="external/perfetto" name="platform/external/perfetto" revision="31155364cd4e79d09c92df884510e149ca67df5e" />
+
+  <project path="external/protobuf" name="platform/external/protobuf" revision="31e0674101933b61a540bf3a858ac7797e0f125d" />
+
+  <project path="external/python/absl-py" name="platform/external/python/absl-py" revision="bd7cdd4d3776c9d08bbfea96d711958b24a9fe9c" />
+
+  <project path="external/skia" name="platform/external/skia" revision="0a1502782144e54d9a50ccaa3f5d0d09bc73cadb" clone-depth="1" upstream="udc-release" />
+
+  <project path="external/zlib" name="platform/external/zlib" revision="9760bae4db96d6fad9a6ec397bb804f15d3cb73d" />
+
+  <project path="frameworks/layoutlib" name="platform/frameworks/layoutlib" clone-depth="1" revision="9d4199711a9f2c5d61583baa0ecc428516b5fc31" upstream="udc-layoutlib-native" groups="notdefault,layoutlib" />
+
+  <project path="prebuilts/clang/host/darwin-x86" name="platform/prebuilts/clang/host/darwin-x86" clone-depth="1" groups="notdefault,platform-darwin" revision="4aaead81b6c35a7f10ac51bccf97c3ffc768aabe" />
+
+  <project path="prebuilts/clang/host/linux-x86" name="platform/prebuilts/clang/host/linux-x86" clone-depth="1" groups="notdefault,platform-linux" revision="1abd69f7a7781a7952a0671c25d1595a5ede52a1" />
+
+  <project path="prebuilts/clang/host/windows-x86" name="platform/prebuilts/clang/host/windows-x86" clone-depth="1" groups="notdefault,platform-windows" revision="e808b7ac829651e6477ee9c92cbbfee11e90c7ce" />
+
+  <project path="prebuilts/python/darwin-x86" name="platform/prebuilts/python/darwin-x86" clone-depth="1" revision="aff37df8c94937e8dddb616da67220dcbd268e0b" />
+
+  <project path="prebuilts/python/linux-x86" name="platform/prebuilts/python/linux-x86" clone-depth="1" revision="3ad456509d8cfae79e7f0de614dd8d4ec942b15e" />
+
+  <project path="prebuilts/python/windows-x86" name="platform/prebuilts/python/windows-x86" clone-depth="1" revision="6afb84b14219361d32631cf71a7b8076b4673e03" />
+
+  <project path="prebuilts/r8" name="platform/prebuilts/r8" clone-depth="1" revision="bbd692107da2ed235e60e9ae86c230941a366809" />
+
+  <project path="prebuilts/studio/jdk" name="platform/prebuilts/studio/jdk" clone-depth="1" revision="8ea66c939fcdebf71db116f45d93623f6f3a8d93" />
+
+  <project path="prebuilts/studio/layoutlib" name="platform/prebuilts/studio/layoutlib" clone-depth="1" revision="8e0957209af1d4b14f061c9ddd8face22abf02ba" />
+
+  <project path="prebuilts/tools" name="platform/prebuilts/tools" clone-depth="1" revision="5817ce9f7cd3afca2c60db4153e90e2a8f31152b" />
+
+  <project path="tools/adt/idea" name="platform/tools/adt/idea" revision="d248c177a4a8cee95d1b4a4ad2f03ddbb9c7c439" />
+
+  <project path="tools/analytics-library" name="platform/tools/analytics-library" revision="637169a08e5c8adc3bca257acd2bf9fbd51b5177" />
+
+  <project path="tools/apksig" name="platform/tools/apksig" revision="248cb1ff3fa2ad4c8161d7058ac0c87ed8fdd643" />
+
+  <project path="tools/apkzlib" name="platform/tools/apkzlib" revision="f106d323effdbc8f2dc98967285f21d7c0466bf1" />
+
+  <project path="tools/assets" name="assets/android-studio-ux-assets" clone-depth="1" revision="12cb5d3f886788b74450295f62da9d7517e7ba94" />
+
+  <project path="tools/base" name="platform/tools/base" revision="d45fad2295aeba71c42712bd49312fb598a5bf22">
+    <linkfile dest="tools/BUILD.bazel" src="bazel/tools.BUILD.bazel" />
+
+    <linkfile dest="WORKSPACE" src="bazel/toplevel.WORKSPACE" />
+
+    <linkfile dest=".bazelignore" src="bazel/toplevel.bazelignore" />
+
+    <linkfile dest=".bazelversion" src="bazel/toplevel.bazelversion" />
+
+    <linkfile dest=".bazelrc" src="bazel/toplevel.bazelrc" />
+
+    <linkfile dest="prebuilts/studio/sdk/BUILD" src="bazel/sdk/prebuilts.studio.sdk.BUILD" />
+
+    <linkfile dest="prebuilts/studio/sdk/README.md" src="bazel/sdk/prebuilts.studio.sdk.README.md" />
+
+    <linkfile dest="prebuilts/clang/studio-extra/wrapped_ar.darwin" src="bazel/toolchains/darwin/wrapped_ar" />
+</project>
+
+  <project path="tools/data-binding" name="platform/frameworks/data-binding" revision="46961110826d56823f460c8918843007266342f0" />
+
+  <project path="tools/external/bazelbuild-rules-kotlin" name="platform/tools/external/bazelbuild-rules-kotlin" revision="cab5eaffc2012dfe46260c03d6419c0d2fa10be0" />
+
+  <project path="tools/external/fat32lib" name="platform/tools/external/fat32lib" revision="5d8a9ce6a1801939006a451dfffe4f11d6211cfb" />
+
+  <project path="tools/external/gradle" name="platform/tools/external/gradle" clone-depth="1" revision="2c8c0ad71b4530cb852f2a556222d72f3f5aa14f" />
+
+  <project path="tools/gradle" name="platform/tools/gradle" revision="5c009b06bfb1d51ef649019eda1f09046ae03efd" />
+
+  <project path="tools/gradle-recipes" name="platform/tools/gradle-recipes" revision="897658fec5aaacb76f255777cf2e7014c66974eb" />
+
+  <project path="tools/idea" name="platform/tools/idea" revision="9ed7dc7ee3778101993b6cf7f2a8af433d23b1d6" />
+
+  <project path="tools/repohooks" name="platform/tools/repohooks" revision="f37726d2268fe61ef1697ecb32963657a45b3964" />
+
+  <project path="tools/sherpa" name="platform/frameworks/opt/sherpa" revision="c0de6383b1db33a235451a7b0f806a0b2d1fae6a" />
+
+  <project path="tools/studio/google/cloud/testing" name="platform/tools/studio/google/cloud/testing" revision="f8a153e84bdefc2e47a3120395afcf35c97a80ea" />
+
+  <project path="tools/studio/google/cloud/tools" name="platform/tools/studio/google/cloud/tools" revision="f0f24f2cdb172001c4ec82a1a91373e98b925f0c" />
+
+  <project path="tools/swing-testing" name="platform/tools/swing-testing" revision="02b8679e02caa4b83bc2b06e2925a7e0c7cff7cb" />
+
+  <project path="tools/vendor/google" name="platform/tools/vendor/google" revision="3b9d5553385a374471d1abe0bb7daa03d191f638" />
+
+  <project path="tools/vendor/google3/aswb" name="platform/tools/vendor/google3/aswb" revision="40de353c5126523317dd08e9d33599200d5e8ddf" />
+
+  <project path="tools/vendor/google3/blaze" name="platform/tools/vendor/google3/blaze" revision="b84506578bc4921a244d0228f1ec1c4c1d879342" />
+
+  <project path="tools/vendor/intel" name="platform/tools/vendor/intel" revision="1212619833f94165022ac6ba46a434d88fef37b4" />
+
+  <project path="tools/vendor/intellij/cidr" name="platform/tools/vendor/intellij/cidr" revision="f6696f88b246525e73c2f22a023d0e1dd27b3f3a" />
+
+  <project path="tools/vendor/adt_infra_internal" name="platform/tools/adt_infra_internal" groups="adt-infra" revision="cc1b20c3a8bc893e1addd5834b728ed8f9fde531" />
+
+  <project path="prebuilts/studio/buildbenchmarks" name="platform/tools/vendor/google_prebuilt/buildbenchmarks" clone-depth="1" revision="1797fb39319bc265f3ef9d68f28d4a6534d7da04" />
+
+  <project path="prebuilts/android-emulator" name="platform/prebuilts/android-emulator" clone-depth="1" revision="260b7e55cf3cab6efa5d07afddb971ab677ceee0" />
+
+  <project path="prebuilts/studio/sdk/remote" name="platform/tools/google_prebuilts/studio/sdk/remote" clone-depth="1" revision="ca0d61a5587a77d861a4484484fb4b86ff490aac" />
+
+  <project path="prebuilts/studio/intellij-sdk" name="platform/tools/vendor/google_prebuilts/studio/intellij-sdk" clone-depth="1" revision="26e08e5ee2bf2f2f56476f64aef1bf253a406499" />
+
+  <project path="prebuilts/studio/sdk/darwin" name="platform/tools/vendor/google_prebuilts/studio/sdk/darwin" clone-depth="1" groups="notdefault,platform-darwin" revision="21e0bfb548f2cf39e42b697d5212510c6fb83d26" />
+
+  <project path="prebuilts/studio/sdk/linux" name="platform/tools/vendor/google_prebuilts/studio/sdk/linux" clone-depth="1" groups="notdefault,platform-linux" revision="93ab2194269fe3d3cb6e583fbfeda2b46d9b96c3" />
+
+  <project path="prebuilts/studio/sdk/windows" name="platform/tools/vendor/google_prebuilts/studio/sdk/windows" clone-depth="1" groups="notdefault,platform-windows" revision="c90e290c799c2c9e33918bddf40b9dfe34fb80e2" />
+
+  <project path="prebuilts/remoteexecution-client" name="platform/prebuilts/remoteexecution-client" revision="8767bd412835ae14fda7243ad134a6eb90eb1853" clone-depth="1" />
+
+  <repo-hooks in-project="platform/tools/repohooks" enabled-list="pre-upload" />
+</manifest>

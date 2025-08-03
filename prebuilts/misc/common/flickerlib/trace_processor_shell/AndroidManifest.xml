@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright 2023 Google Inc. All Rights Reserved.
+ -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.tools">
+</manifest>

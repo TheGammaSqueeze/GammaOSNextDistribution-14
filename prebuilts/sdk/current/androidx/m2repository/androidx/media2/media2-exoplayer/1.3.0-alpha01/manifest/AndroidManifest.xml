@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.media2.exoplayer.external" >
+
+    <uses-sdk android:minSdkVersion="19" />
+
+</manifest>

@@ -1,0 +1,230 @@
+// Signature format: 2.0
+package android.uwb {
+
+  public final class AngleMeasurement implements android.os.Parcelable {
+    ctor public AngleMeasurement(@FloatRange(from=-3.141592653589793, to=3.141592653589793) double, @FloatRange(from=0.0, to=3.141592653589793) double, @FloatRange(from=0.0, to=1.0) double);
+    method public int describeContents();
+    method @FloatRange(from=0.0, to=1.0) public double getConfidenceLevel();
+    method @FloatRange(from=0.0, to=3.141592653589793) public double getErrorRadians();
+    method @FloatRange(from=-3.141592653589793, to=3.141592653589793) public double getRadians();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.AngleMeasurement> CREATOR;
+  }
+
+  public final class AngleOfArrivalMeasurement implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.uwb.AngleMeasurement getAltitude();
+    method @NonNull public android.uwb.AngleMeasurement getAzimuth();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.AngleOfArrivalMeasurement> CREATOR;
+  }
+
+  public static final class AngleOfArrivalMeasurement.Builder {
+    ctor public AngleOfArrivalMeasurement.Builder(@NonNull android.uwb.AngleMeasurement);
+    method @NonNull public android.uwb.AngleOfArrivalMeasurement build();
+    method @NonNull public android.uwb.AngleOfArrivalMeasurement.Builder setAltitude(@NonNull android.uwb.AngleMeasurement);
+  }
+
+  public final class DistanceMeasurement implements android.os.Parcelable {
+    method public int describeContents();
+    method @FloatRange(from=0.0, to=1.0) public double getConfidenceLevel();
+    method @FloatRange(from=0.0) public double getErrorMeters();
+    method public double getMeters();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.DistanceMeasurement> CREATOR;
+  }
+
+  public static final class DistanceMeasurement.Builder {
+    ctor public DistanceMeasurement.Builder();
+    method @NonNull public android.uwb.DistanceMeasurement build();
+    method @NonNull public android.uwb.DistanceMeasurement.Builder setConfidenceLevel(@FloatRange(from=0.0, to=1.0) double);
+    method @NonNull public android.uwb.DistanceMeasurement.Builder setErrorMeters(@FloatRange(from=0.0) double);
+    method @NonNull public android.uwb.DistanceMeasurement.Builder setMeters(double);
+  }
+
+  public final class RangingMeasurement implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.uwb.AngleOfArrivalMeasurement getAngleOfArrivalMeasurement();
+    method @Nullable public android.uwb.AngleOfArrivalMeasurement getDestinationAngleOfArrivalMeasurement();
+    method @Nullable public android.uwb.DistanceMeasurement getDistanceMeasurement();
+    method public long getElapsedRealtimeNanos();
+    method public int getLineOfSight();
+    method public int getMeasurementFocus();
+    method @NonNull public android.uwb.UwbAddress getRemoteDeviceAddress();
+    method @IntRange(from=android.uwb.RangingMeasurement.RSSI_UNKNOWN, to=android.uwb.RangingMeasurement.RSSI_MAX) public int getRssiDbm();
+    method public int getStatus();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.RangingMeasurement> CREATOR;
+    field public static final int LOS = 0; // 0x0
+    field public static final int LOS_UNDETERMINED = 255; // 0xff
+    field public static final int MEASUREMENT_FOCUS_ANGLE_OF_ARRIVAL_AZIMUTH = 2; // 0x2
+    field public static final int MEASUREMENT_FOCUS_ANGLE_OF_ARRIVAL_ELEVATION = 3; // 0x3
+    field public static final int MEASUREMENT_FOCUS_NONE = 0; // 0x0
+    field public static final int MEASUREMENT_FOCUS_RANGE = 1; // 0x1
+    field public static final int NLOS = 1; // 0x1
+    field public static final int RANGING_STATUS_FAILURE_OUT_OF_RANGE = 1; // 0x1
+    field public static final int RANGING_STATUS_FAILURE_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RANGING_STATUS_SUCCESS = 0; // 0x0
+    field public static final int RSSI_MAX = -1; // 0xffffffff
+    field public static final int RSSI_MIN = -127; // 0xffffff81
+    field public static final int RSSI_UNKNOWN = -128; // 0xffffff80
+  }
+
+  public static final class RangingMeasurement.Builder {
+    ctor public RangingMeasurement.Builder();
+    method @NonNull public android.uwb.RangingMeasurement build();
+    method @NonNull public android.uwb.RangingMeasurement.Builder setAngleOfArrivalMeasurement(@NonNull android.uwb.AngleOfArrivalMeasurement);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setDestinationAngleOfArrivalMeasurement(@NonNull android.uwb.AngleOfArrivalMeasurement);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setDistanceMeasurement(@NonNull android.uwb.DistanceMeasurement);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setElapsedRealtimeNanos(long);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setLineOfSight(int);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setMeasurementFocus(int);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setRemoteDeviceAddress(@NonNull android.uwb.UwbAddress);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setRssiDbm(@IntRange(from=android.uwb.RangingMeasurement.RSSI_UNKNOWN, to=android.uwb.RangingMeasurement.RSSI_MAX) int);
+    method @NonNull public android.uwb.RangingMeasurement.Builder setStatus(int);
+  }
+
+  public final class RangingReport implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<android.uwb.RangingMeasurement> getMeasurements();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.RangingReport> CREATOR;
+  }
+
+  public static final class RangingReport.Builder {
+    ctor public RangingReport.Builder();
+    method @NonNull public android.uwb.RangingReport.Builder addMeasurement(@NonNull android.uwb.RangingMeasurement);
+    method @NonNull public android.uwb.RangingReport.Builder addMeasurements(@NonNull java.util.List<android.uwb.RangingMeasurement>);
+    method @NonNull public android.uwb.RangingReport build();
+  }
+
+  public final class RangingSession implements java.lang.AutoCloseable {
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void addControlee(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void close();
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void pause(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void reconfigure(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void removeControlee(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void resume(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void sendData(@NonNull android.uwb.UwbAddress, @NonNull android.os.PersistableBundle, @NonNull byte[]);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void start(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void stop();
+  }
+
+  public static interface RangingSession.Callback {
+    method public void onClosed(int, @NonNull android.os.PersistableBundle);
+    method public default void onControleeAddFailed(int, @NonNull android.os.PersistableBundle);
+    method public default void onControleeAdded(@NonNull android.os.PersistableBundle);
+    method public default void onControleeRemoveFailed(int, @NonNull android.os.PersistableBundle);
+    method public default void onControleeRemoved(@NonNull android.os.PersistableBundle);
+    method public default void onDataReceiveFailed(@NonNull android.uwb.UwbAddress, int, @NonNull android.os.PersistableBundle);
+    method public default void onDataReceived(@NonNull android.uwb.UwbAddress, @NonNull android.os.PersistableBundle, @NonNull byte[]);
+    method public default void onDataSendFailed(@NonNull android.uwb.UwbAddress, int, @NonNull android.os.PersistableBundle);
+    method public default void onDataSent(@NonNull android.uwb.UwbAddress, @NonNull android.os.PersistableBundle);
+    method public void onOpenFailed(int, @NonNull android.os.PersistableBundle);
+    method public void onOpened(@NonNull android.uwb.RangingSession);
+    method public default void onPauseFailed(int, @NonNull android.os.PersistableBundle);
+    method public default void onPaused(@NonNull android.os.PersistableBundle);
+    method public void onReconfigureFailed(int, @NonNull android.os.PersistableBundle);
+    method public void onReconfigured(@NonNull android.os.PersistableBundle);
+    method public void onReportReceived(@NonNull android.uwb.RangingReport);
+    method public default void onResumeFailed(int, @NonNull android.os.PersistableBundle);
+    method public default void onResumed(@NonNull android.os.PersistableBundle);
+    method public default void onServiceConnected(@NonNull android.os.PersistableBundle);
+    method public default void onServiceDiscovered(@NonNull android.os.PersistableBundle);
+    method public void onStartFailed(int, @NonNull android.os.PersistableBundle);
+    method public void onStarted(@NonNull android.os.PersistableBundle);
+    method public void onStopFailed(int, @NonNull android.os.PersistableBundle);
+    method public void onStopped(int, @NonNull android.os.PersistableBundle);
+    field public static final int CONTROLEE_FAILURE_REASON_MAX_CONTROLEE_REACHED = 0; // 0x0
+    field public static final int DATA_FAILURE_REASON_DATA_SIZE_TOO_LARGE = 10; // 0xa
+    field public static final int REASON_BAD_PARAMETERS = 3; // 0x3
+    field public static final int REASON_GENERIC_ERROR = 4; // 0x4
+    field public static final int REASON_LOCAL_REQUEST = 1; // 0x1
+    field public static final int REASON_MAX_RR_RETRY_REACHED = 9; // 0x9
+    field public static final int REASON_MAX_SESSIONS_REACHED = 5; // 0x5
+    field public static final int REASON_PROTOCOL_SPECIFIC_ERROR = 7; // 0x7
+    field public static final int REASON_REMOTE_REQUEST = 2; // 0x2
+    field public static final int REASON_SERVICE_CONNECTION_FAILURE = 11; // 0xb
+    field public static final int REASON_SERVICE_DISCOVERY_FAILURE = 10; // 0xa
+    field public static final int REASON_SE_INTERACTION_FAILURE = 13; // 0xd
+    field public static final int REASON_SE_NOT_SUPPORTED = 12; // 0xc
+    field public static final int REASON_SYSTEM_POLICY = 6; // 0x6
+    field public static final int REASON_UNKNOWN = 0; // 0x0
+  }
+
+  public final class UwbAddress implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.uwb.UwbAddress fromBytes(@NonNull byte[]);
+    method public int size();
+    method @NonNull public byte[] toBytes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.uwb.UwbAddress> CREATOR;
+    field public static final int EXTENDED_ADDRESS_BYTE_LENGTH = 8; // 0x8
+    field public static final int SHORT_ADDRESS_BYTE_LENGTH = 2; // 0x2
+  }
+
+  public final class UwbManager {
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle addServiceProfile(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public long elapsedRealtimeResolutionNanos();
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public long elapsedRealtimeResolutionNanos(@NonNull String);
+    method public int getAdapterState();
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle getAdfCertificateInfo(@NonNull android.os.PersistableBundle);
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle getAdfProvisioningAuthorities(@NonNull android.os.PersistableBundle);
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle getAllServiceProfiles();
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public java.util.List<android.os.PersistableBundle> getChipInfos();
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public String getDefaultChipId();
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle getSpecificationInfo();
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public android.os.PersistableBundle getSpecificationInfo(@NonNull String);
+    method public boolean isUwbEnabled();
+    method @NonNull @RequiresPermission(allOf={android.Manifest.permission.UWB_PRIVILEGED, android.Manifest.permission.UWB_RANGING}) public android.os.CancellationSignal openRangingSession(@NonNull android.os.PersistableBundle, @NonNull java.util.concurrent.Executor, @NonNull android.uwb.RangingSession.Callback);
+    method @NonNull @RequiresPermission(allOf={android.Manifest.permission.UWB_PRIVILEGED, android.Manifest.permission.UWB_RANGING}) public android.os.CancellationSignal openRangingSession(@NonNull android.os.PersistableBundle, @NonNull java.util.concurrent.Executor, @NonNull android.uwb.RangingSession.Callback, @NonNull String);
+    method public void provisionProfileAdfByScript(@NonNull android.os.PersistableBundle, @NonNull java.util.concurrent.Executor, @NonNull android.uwb.UwbManager.AdfProvisionStateCallback);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void registerAdapterStateCallback(@NonNull java.util.concurrent.Executor, @NonNull android.uwb.UwbManager.AdapterStateCallback);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void registerUwbVendorUciCallback(@NonNull java.util.concurrent.Executor, @NonNull android.uwb.UwbManager.UwbVendorUciCallback);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public int removeProfileAdf(@NonNull android.os.PersistableBundle);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public int removeServiceProfile(@NonNull android.os.PersistableBundle);
+    method @NonNull @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public int sendVendorUciMessage(@IntRange(from=9, to=15) int, int, @NonNull byte[]);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void setUwbEnabled(boolean);
+    method @RequiresPermission(android.Manifest.permission.UWB_PRIVILEGED) public void unregisterAdapterStateCallback(@NonNull android.uwb.UwbManager.AdapterStateCallback);
+    method public void unregisterUwbVendorUciCallback(@NonNull android.uwb.UwbManager.UwbVendorUciCallback);
+    field public static final int REMOVE_PROFILE_ADF_ERROR_INTERNAL = 2; // 0x2
+    field public static final int REMOVE_PROFILE_ADF_ERROR_UNKNOWN_SERVICE = 1; // 0x1
+    field public static final int REMOVE_PROFILE_ADF_SUCCESS = 0; // 0x0
+    field public static final int REMOVE_SERVICE_PROFILE_ERROR_INTERNAL = 2; // 0x2
+    field public static final int REMOVE_SERVICE_PROFILE_ERROR_UNKNOWN_SERVICE = 1; // 0x1
+    field public static final int REMOVE_SERVICE_PROFILE_SUCCESS = 0; // 0x0
+    field public static final int SEND_VENDOR_UCI_ERROR_HW = 1; // 0x1
+    field public static final int SEND_VENDOR_UCI_ERROR_INVALID_ARGS = 3; // 0x3
+    field public static final int SEND_VENDOR_UCI_ERROR_INVALID_GID = 4; // 0x4
+    field public static final int SEND_VENDOR_UCI_ERROR_OFF = 2; // 0x2
+    field public static final int SEND_VENDOR_UCI_SUCCESS = 0; // 0x0
+  }
+
+  public static interface UwbManager.AdapterStateCallback {
+    method public void onStateChanged(int, int);
+    field public static final int STATE_CHANGED_REASON_ALL_SESSIONS_CLOSED = 1; // 0x1
+    field public static final int STATE_CHANGED_REASON_ERROR_UNKNOWN = 4; // 0x4
+    field public static final int STATE_CHANGED_REASON_SESSION_STARTED = 0; // 0x0
+    field public static final int STATE_CHANGED_REASON_SYSTEM_BOOT = 3; // 0x3
+    field public static final int STATE_CHANGED_REASON_SYSTEM_POLICY = 2; // 0x2
+    field public static final int STATE_DISABLED = 0; // 0x0
+    field public static final int STATE_ENABLED_ACTIVE = 2; // 0x2
+    field public static final int STATE_ENABLED_INACTIVE = 1; // 0x1
+  }
+
+  public abstract static class UwbManager.AdfProvisionStateCallback {
+    ctor public UwbManager.AdfProvisionStateCallback();
+    method public abstract void onProfileAdfsProvisionFailed(int, @NonNull android.os.PersistableBundle);
+    method public abstract void onProfileAdfsProvisioned(@NonNull android.os.PersistableBundle);
+    field public static final int REASON_INVALID_OID = 1; // 0x1
+    field public static final int REASON_SE_FAILURE = 2; // 0x2
+    field public static final int REASON_UNKNOWN = 3; // 0x3
+  }
+
+  public static interface UwbManager.UwbVendorUciCallback {
+    method public void onVendorUciNotification(@IntRange(from=9, to=15) int, int, @NonNull byte[]);
+    method public void onVendorUciResponse(@IntRange(from=9, to=15) int, int, @NonNull byte[]);
+  }
+
+}
+

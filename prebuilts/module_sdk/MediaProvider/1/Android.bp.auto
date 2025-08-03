@@ -1,0 +1,72 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "mediaprovider-module-sdk_com.android.mediaprovider-bootclasspath-fragment@1",
+    sdk_member_name: "com.android.mediaprovider-bootclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.mediaprovider"],
+    licenses: ["mediaprovider-module-sdk_packages_providers_MediaProvider_license@1"],
+    contents: ["mediaprovider-module-sdk_framework-mediaprovider@1"],
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "mediaprovider-module-sdk_framework-mediaprovider@1",
+    sdk_member_name: "framework-mediaprovider",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.mediaprovider",
+        "test_com.android.mediaprovider",
+    ],
+    licenses: ["mediaprovider-module-sdk_packages_providers_MediaProvider_license@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/public/framework-mediaprovider.txt",
+        removed_api: "sdk_library/public/framework-mediaprovider-removed.txt",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/system/framework-mediaprovider.txt",
+        removed_api: "sdk_library/system/framework-mediaprovider-removed.txt",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-mediaprovider-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-mediaprovider.srcjar"],
+        current_api: "sdk_library/module-lib/framework-mediaprovider.txt",
+        removed_api: "sdk_library/module-lib/framework-mediaprovider-removed.txt",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "mediaprovider-module-sdk_packages_providers_MediaProvider_license@1",
+    sdk_member_name: "packages_providers_MediaProvider_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/packages/providers/MediaProvider/NOTICE"],
+}
+
+sdk_snapshot {
+    name: "mediaprovider-module-sdk@1",
+    visibility: ["//visibility:public"],
+    bootclasspath_fragments: ["mediaprovider-module-sdk_com.android.mediaprovider-bootclasspath-fragment@1"],
+    java_sdk_libs: ["mediaprovider-module-sdk_framework-mediaprovider@1"],
+}

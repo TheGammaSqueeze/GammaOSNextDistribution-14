@@ -1,0 +1,5 @@
+third_party {
+  license_note: "would be NOTICE save for:\n"
+  "   common/jacoco/lib/NOTICE.txt\n"
+  license_type: RECIPROCAL
+}

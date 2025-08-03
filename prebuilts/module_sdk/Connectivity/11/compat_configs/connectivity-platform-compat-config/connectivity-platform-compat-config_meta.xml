@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="The {@link android.net.LinkProperties#getRoutes()} now can contain excluded as well as included routes. Use {@link android.net.RouteInfo#getType()} to determine route type." enableAfterTargetSdk="32" id="186082280" name="EXCLUDED_ROUTES">
+    <meta-data definedIn="android.net.connectivity.ConnectivityCompatChanges" sourcePosition="packages/modules/Connectivity/framework/src/android/net/connectivity/ConnectivityCompatChanges.java:39" />
+  </compat-change>
+  <compat-change description="When enabled, apps targeting &lt; Android 12 are considered legacy for the NSD native daemon. The platform will only keep the daemon running as long as there are any legacy apps connected. After Android 12, direct communication with the native daemon might not work since the native daemon won't always stay alive. Using the NSD APIs from NsdManager as the replacement is recommended. Another alternative could be bundling your own mdns solutions instead of depending on the system mdns native daemon. This compatibility change applies to Android 13 and later only. To toggle behavior on Android 12 and Android 12L, use RUN_NATIVE_NSD_ONLY_IF_LEGACY_APPS." enableSinceTargetSdk="31" id="235355681" name="RUN_NATIVE_NSD_ONLY_IF_LEGACY_APPS_T_AND_LATER">
+    <meta-data definedIn="android.net.connectivity.ConnectivityCompatChanges" sourcePosition="packages/modules/Connectivity/framework/src/android/net/connectivity/ConnectivityCompatChanges.java:60" />
+  </compat-change>
+  <compat-change description="The self certified capabilities check should be enabled after android 13. &lt;p&gt; See {@link android.net.NetworkCapabilities} for more details." enableAfterTargetSdk="33" id="266524688" name="ENABLE_SELF_CERTIFIED_CAPABILITIES_DECLARATION">
+    <meta-data definedIn="android.net.connectivity.ConnectivityCompatChanges" sourcePosition="packages/modules/Connectivity/framework/src/android/net/connectivity/ConnectivityCompatChanges.java:72" />
+  </compat-change>
+  <compat-change description="Apps targeting &lt; Android 14 use a legacy NSD backend. The legacy apps use a legacy native daemon as NsdManager backend, but other apps use a platform-integrated mDNS implementation as backend." enableAfterTargetSdk="33" id="270306772" name="ENABLE_PLATFORM_MDNS_BACKEND">
+    <meta-data definedIn="android.net.connectivity.ConnectivityCompatChanges" sourcePosition="packages/modules/Connectivity/framework/src/android/net/connectivity/ConnectivityCompatChanges.java:84" />
+  </compat-change>
+</config>

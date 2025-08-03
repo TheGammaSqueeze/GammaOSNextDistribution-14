@@ -1,0 +1,71 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "sdkextensions-sdk_com.android.sdkext-bootclasspath-fragment@1",
+    sdk_member_name: "com.android.sdkext-bootclasspath-fragment",
+    visibility: ["//packages/modules/SdkExtensions:__subpackages__"],
+    apex_available: ["com.android.sdkext"],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0@1"],
+    contents: ["sdkextensions-sdk_framework-sdkextensions@1"],
+    hidden_api: {
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "sdkextensions-sdk_framework-sdkextensions@1",
+    sdk_member_name: "framework-sdkextensions",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.sdkext",
+        "test_com.android.sdkext",
+    ],
+    licenses: ["sdkextensions-sdk_Android-Apache-2.0@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/public/framework-sdkextensions.txt",
+        removed_api: "sdk_library/public/framework-sdkextensions-removed.txt",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/system/framework-sdkextensions.txt",
+        removed_api: "sdk_library/system/framework-sdkextensions-removed.txt",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-sdkextensions-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-sdkextensions.srcjar"],
+        current_api: "sdk_library/module-lib/framework-sdkextensions.txt",
+        removed_api: "sdk_library/module-lib/framework-sdkextensions-removed.txt",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "sdkextensions-sdk_Android-Apache-2.0@1",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+sdk_snapshot {
+    name: "sdkextensions-sdk@1",
+    visibility: ["//packages/modules/SdkExtensions:__subpackages__"],
+    bootclasspath_fragments: ["sdkextensions-sdk_com.android.sdkext-bootclasspath-fragment@1"],
+    java_sdk_libs: ["sdkextensions-sdk_framework-sdkextensions@1"],
+}

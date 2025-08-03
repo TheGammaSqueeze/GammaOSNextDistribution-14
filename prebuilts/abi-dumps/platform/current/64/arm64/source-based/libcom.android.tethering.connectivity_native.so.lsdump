@@ -1,0 +1,171 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIDn",
+   "name" : "std::nullptr_t",
+   "referenced_type" : "_ZTIDn",
+   "self_type" : "_ZTIDn",
+   "size" : 8
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIb",
+   "name" : "bool",
+   "referenced_type" : "_ZTIb",
+   "self_type" : "_ZTIb",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIm",
+   "name" : "unsigned long",
+   "referenced_type" : "_ZTIm",
+   "self_type" : "_ZTIm",
+   "size" : 8
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIt",
+   "name" : "unsigned short",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIt",
+   "size" : 2
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "AConnectivityNative_blockPortForBind"
+  },
+  {
+   "name" : "AConnectivityNative_getPortsBlockedForBind"
+  },
+  {
+   "name" : "AConnectivityNative_unblockAllPortsForBind"
+  },
+  {
+   "name" : "AConnectivityNative_unblockPortForBind"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" : [],
+ "function_types" : [],
+ "functions" :
+ [
+  {
+   "function_name" : "AConnectivityNative_blockPortForBind",
+   "linker_set_key" : "AConnectivityNative_blockPortForBind",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIt"
+    }
+   ],
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  },
+  {
+   "function_name" : "AConnectivityNative_getPortsBlockedForBind",
+   "linker_set_key" : "AConnectivityNative_getPortsBlockedForBind",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIPt"
+    },
+    {
+     "referenced_type" : "_ZTIPm"
+    }
+   ],
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  },
+  {
+   "function_name" : "AConnectivityNative_unblockAllPortsForBind",
+   "linker_set_key" : "AConnectivityNative_unblockAllPortsForBind",
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  },
+  {
+   "function_name" : "AConnectivityNative_unblockPortForBind",
+   "linker_set_key" : "AConnectivityNative_unblockPortForBind",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIt"
+    }
+   ],
+   "return_type" : "_ZTIi",
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  }
+ ],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" :
+ [
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPm",
+   "name" : "unsigned long *",
+   "referenced_type" : "_ZTIm",
+   "self_type" : "_ZTIPm",
+   "size" : 8,
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPt",
+   "name" : "unsigned short *",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIPt",
+   "size" : 8,
+   "source_file" : "packages/modules/Connectivity/service/libconnectivity/include/connectivity_native.h"
+  }
+ ],
+ "qualified_types" : [],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

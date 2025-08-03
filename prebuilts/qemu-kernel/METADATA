@@ -1,0 +1,13 @@
+third_party {
+  # licensed under GPL per:
+  #   NOTICE
+  #   arm/LINUX_KERNEL_COPYING
+  #   arm64/LINUX_KERNEL_COPYING
+  #   mips/LINUX_KERNEL_COPYING
+  #   mips64/LINUX_KERNEL_COPYING
+  #   x86/LINUX_KERNEL_COPYING
+  #   x86/3.10/LINUX_KERNEL_COPYING
+  #   x86_64/LINUX_KERNEL_COPYING
+  #   x86_64/3.10/LINUX_KERNEL_COPYING
+  license_type: RESTRICTED
+}

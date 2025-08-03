@@ -1,0 +1,130 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.palette",
+    "module": "palette",
+    "version": "1.1.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.palette",
+          "module": "palette-ktx",
+          "version": {
+            "requires": "1.1.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "palette-1.1.0-alpha01.aar",
+          "url": "palette-1.1.0-alpha01.aar",
+          "size": 23066,
+          "sha512": "447472cf7906dab14775777ccc2c7cc7a7129909dca93b94475337bfb2550df096918ae20a41c919774acbbb3a7d5deee78f67e2f42a0f55f1b0c9e6b33563b8",
+          "sha256": "253bb5429cd0b675db29903deb9c9071f3820db03de7babf0a890317725ba766",
+          "sha1": "f2828acbdc3e0738860ca9f2ed610e7b2118dd7e",
+          "md5": "7324b0fde5a099b5e463ea1085281093"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.palette",
+          "module": "palette-ktx",
+          "version": {
+            "requires": "1.1.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "palette-1.1.0-alpha01.aar",
+          "url": "palette-1.1.0-alpha01.aar",
+          "size": 23066,
+          "sha512": "447472cf7906dab14775777ccc2c7cc7a7129909dca93b94475337bfb2550df096918ae20a41c919774acbbb3a7d5deee78f67e2f42a0f55f1b0c9e6b33563b8",
+          "sha256": "253bb5429cd0b675db29903deb9c9071f3820db03de7babf0a890317725ba766",
+          "sha1": "f2828acbdc3e0738860ca9f2ed610e7b2118dd7e",
+          "md5": "7324b0fde5a099b5e463ea1085281093"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.palette",
+          "module": "palette-ktx",
+          "version": {
+            "requires": "1.1.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "palette-1.1.0-alpha01-sources.jar",
+          "url": "palette-1.1.0-alpha01-sources.jar",
+          "size": 16321,
+          "sha512": "bc2116f550e4cda01eb22de9802bcbe99a94b42cc04fa5e1786ec910a38ab7c311fce46331890500169e054db2f0240d3ac4d751b1d5a740b6a2b722ba4fff97",
+          "sha256": "2c1fb938eaecbea5f3b3fb182a19831be7f73c5080db7cbe1fc2a434584b6582",
+          "sha1": "698653df14e43b3b068ff56fd439c15f23c3cbae",
+          "md5": "d40b32cc828dbe19ee34c4190d8c96b9"
+        }
+      ]
+    }
+  ]
+}

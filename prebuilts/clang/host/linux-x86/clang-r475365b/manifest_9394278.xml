@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<manifest>
+  <contactinfo bugurl="go/repo-bug" />
+
+  <remote name="aosp" fetch="https://android.googlesource.com/" review="https://android.googlesource.com/" />
+
+  <default revision="master" remote="aosp" sync-j="4" />
+
+  <superproject name="platform/superproject" remote="aosp" revision="llvm-toolchain" />
+
+  <project path="bionic" name="platform/bionic" revision="972d3cc8923081e8b299916f5ec5758e28ed30b3" />
+
+  <project path="toolchain/binutils" name="toolchain/binutils" revision="c19795e958ed532462948fd14b1bdfd4f6e96e03" />
+
+  <project path="toolchain/llvm-project" name="toolchain/llvm-project" revision="e1a2893d16330144736de1f4f0d06a844a03b9b0" />
+
+  <project path="toolchain/llvm_android" name="toolchain/llvm_android" revision="23af24e1cab46f855c5739a31718ba095b372e56" />
+
+  <project path="toolchain/common" name="toolchain/common" revision="0bce8b062126242872e9f3fc66760d3f76773c49" />
+
+  <project path="external/toolchain-utils" name="platform/external/toolchain-utils" revision="d44430951159ca340cd4c4e699917348f82abad8" />
+
+  <project path="prebuilts/gcc/darwin-x86/host/headers" name="platform/prebuilts/gcc/darwin-x86/host/headers" groups="pdk,darwin" clone-depth="1" revision="4ac4f7cc41cf3c9e36fc3d6cf37fd1cfa9587a68" />
+
+  <project path="prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8" name="platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8" clone-depth="1" revision="90b6910587fceaf39107c8b14690d3d8e925a66b" />
+
+  <project path="prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" name="platform/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" clone-depth="1" revision="ede348ae8102314bc9ca775474ff30f190eec2d1" />
+
+  <project path="prebuilts/cmake/darwin-x86" name="platform/prebuilts/cmake/darwin-x86" clone-depth="1" revision="7aea7e9880110799088cd1de509886871078306f" />
+
+  <project path="prebuilts/cmake/linux-x86" name="platform/prebuilts/cmake/linux-x86" clone-depth="1" revision="001ed46e3703c78cbc3838adfe4c14ba279f9ff7" />
+
+  <project path="prebuilts/build-tools" name="platform/prebuilts/build-tools" clone-depth="1" revision="4f51bfba4b83883f8280b60794cc744d5801a81b" />
+
+  <project path="prebuilts/go/darwin-x86" name="platform/prebuilts/go/darwin-x86" groups="darwin,pdk,tradefed" clone-depth="1" revision="1c9ca9a5c47fc0a763a16f57b43327471c558b32" />
+
+  <project path="prebuilts/go/linux-x86" name="platform/prebuilts/go/linux-x86" groups="linux,pdk,tradefed" clone-depth="1" revision="83e7429b02e77e41a22987975042f0ddaebe99f9" />
+
+  <project path="external/zstd" name="platform/external/zstd" revision="fe4839b865f5cb3d94ff82545f783aad9a1df146" />
+
+  <project path="external/libedit" name="platform/external/libedit" revision="892b8b381ae82ac3184900d989a516854d8b1197" />
+
+  <project path="external/swig" name="platform/external/swig" revision="0ffab894f917fcbbd031eaab870fbabaefe5daaa" />
+
+  <project path="toolchain/xz" name="toolchain/xz" revision="47426872d1366c32538a8e9c8f559b03cb45b648" />
+
+  <project path="external/libxml2" name="platform/external/libxml2" revision="481569df9c9a45fb215052ce79eda0b72d6ffec1" />
+
+  <project path="external/libncurses" name="platform/external/ncurses" revision="34cc24447dc9e5700110580c784d9606f6cff5f0" />
+
+  <project path="prebuilts/python/linux-x86" name="platform/prebuilts/python/linux-x86" clone-depth="1" revision="3665e3a3bd0cd0d93f6247eb596938cea48268be" />
+
+  <project path="prebuilts/python/darwin-x86" name="platform/prebuilts/python/darwin-x86" clone-depth="1" revision="8a7b323c92153acc4390bf71392dec2dbb10f4f5" />
+
+  <project path="prebuilts/python/windows-x86" name="platform/prebuilts/python/windows-x86" clone-depth="1" revision="7119932cd3cea23f16db62e683b69c23e415ff09" />
+
+  <project path="prebuilts/clang/host/darwin-x86" name="platform/prebuilts/clang/host/darwin-x86" clone-depth="1" revision="96ad4269ac750e44ba53555cd43acc26fac07103" />
+
+  <project path="prebuilts/clang/host/darwin-universal" name="platform/prebuilts/clang/host/darwin-universal" clone-depth="1" revision="592f071af1df99cb463ff5b670cd383efd49a6e1" />
+
+  <project path="prebuilts/clang/host/linux-x86" name="platform/prebuilts/clang/host/linux-x86" clone-depth="1" revision="0a17ffc7a7fd109e81a311077004e51016a2ff1c" />
+
+  <project path="prebuilts/clang/host/windows-x86" name="platform/prebuilts/clang/host/windows-x86" clone-depth="1" revision="53f5d646220b8ce9dc8b5105f19012597107801a" />
+
+  <project path="toolchain/prebuilts/ndk/r25" name="toolchain/prebuilts/ndk/r25" revision="4e9417de81d40daf6e50c7b15b864e78e83214e2" />
+
+  <project path="toolchain/prebuilts/sysroot/platform/riscv64-linux-android" name="toolchain/prebuilts/sysroot/platform/riscv64-linux-android" revision="6a81379bb0d20df948e543b60eadd485d37b8fe6" />
+</manifest>

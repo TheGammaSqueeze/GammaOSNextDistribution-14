@@ -1,0 +1,4 @@
+file:/mnt/disks/build-disk/src/android/rust-toolchain/out/package/lib/rustlib/armv7a-none-eabi/lib/liballoc-4f1faed2b544d129.rlib
+file:/mnt/disks/build-disk/src/android/rust-toolchain/out/package/lib/rustlib/armv7a-none-eabi/lib/libcompiler_builtins-85ebcf7aafccf4d5.rlib
+file:/mnt/disks/build-disk/src/android/rust-toolchain/out/package/lib/rustlib/armv7a-none-eabi/lib/libcore-805d724bbed34de7.rlib
+file:/mnt/disks/build-disk/src/android/rust-toolchain/out/package/lib/rustlib/armv7a-none-eabi/lib/librustc_std_workspace_core-64722974c317889f.rlib

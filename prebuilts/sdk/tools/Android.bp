@@ -1,0 +1,169 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-CPL-1.0
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-Unicode-DFS
+    //   SPDX-license-identifier-W3C
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+cc_prebuilt_library_shared {
+    name: "libLLVM_android",
+    vendor_available: true,
+    host_supported: true,
+    // TODO(ccross): this is necessary because the prebuilt module must have
+    // all the variants that are in the source module.  Ideally Soong's
+    // arch mutator should handle this.
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    target: {
+        glibc_x86_64: {
+            srcs: ["linux/lib64/libLLVM_android.so"],
+        },
+        musl_x86_64: {
+            // TODO(ccross): add a musl specific version when a musl SDK build exists
+            srcs: ["linux/lib64/libLLVM_android.so"],
+        },
+        darwin_x86_64: {
+            srcs: ["darwin/lib64/libLLVM_android.dylib"],
+        },
+        // TODO(ccross): this is necessary because the prebuilt module must have
+        // all the variants that are in the source module.  Ideally Soong's
+        // arch mutator should handle this.
+        windows: {
+            enabled: true,
+        }
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libclang_android",
+    host_supported: true,
+    // TODO(ccross): this is necessary because the prebuilt module must have
+    // all the variants that are in the source module.  Ideally Soong's
+    // arch mutator should handle this.
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    target: {
+        glibc_x86_64: {
+            srcs: ["linux/lib64/libclang_android.so"],
+        },
+        musl_x86_64: {
+            // TODO(ccross): add a musl specific version when a musl SDK build exists
+            srcs: ["linux/lib64/libclang_android.so"],
+        },
+        darwin_x86_64: {
+            srcs: ["darwin/lib64/libclang_android.dylib"],
+        },
+        // TODO(ccross): this is necessary because the prebuilt module must have
+        // all the variants that are in the source module.  Ideally Soong's
+        // arch mutator should handle this.
+        windows: {
+            enabled: true,
+        }
+    },
+}
+
+cc_prebuilt_binary {
+    name: "aapt2",
+    host_supported: true,
+
+    compile_multilib: "64",
+    prefer: true,
+    target: {
+        linux: {
+            srcs: ["linux/bin/aapt2"],
+        },
+        darwin: {
+            srcs: ["darwin/bin/aapt2"],
+        },
+        windows: {
+            srcs: ["windows/bin/aapt2.exe"],
+        },
+    },
+    enabled: false,
+    product_variables: {
+        always_use_prebuilt_sdks: {
+            enabled: true,
+        },
+    },
+}
+
+java_import {
+    name: "sdk-core-lambda-stubs",
+    jars: ["core-lambda-stubs.jar"],
+}
+
+genrule {
+    name: "build-tools-lld-linux",
+    visibility: ["//development/build"],
+    tools: ["soong_zip"],
+    cmd: "mkdir -p $(genDir)/out/{lld-bin,lib64} && " +
+        "cp $(location lld) $(genDir)/out/ && " +
+        "cp $(location lld-dummy) $(genDir)/out/arm-linux-androideabi-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/aarch64-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/i686-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/x86_64-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/mipsel-linux-android-ld && " +
+        "cp $(location linux/lld-bin/lld) $(genDir)/out/lld-bin/ && " +
+        "cp $(location linux/lib64/libc++.so.1) $(genDir)/out/lib64/ && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+    srcs: [
+        "lld",
+        "lld-dummy",
+        "linux/lld-bin/lld",
+        "linux/lib64/libc++.so.1",
+    ],
+    out: ["lld.zip"],
+}
+
+genrule {
+    name: "build-tools-lld-windows",
+    visibility: ["//development/build"],
+    tools: ["soong_zip"],
+    cmd: "mkdir -p $(genDir)/out/{lld-bin,lib64} && " +
+        "cp $(location lld-dummy) $(genDir)/out/arm-linux-androideabi-ld.exe && " +
+        "cp $(location lld-dummy) $(genDir)/out/aarch64-linux-android-ld.exe && " +
+        "cp $(location lld-dummy) $(genDir)/out/i686-linux-android-ld.exe && " +
+        "cp $(location lld-dummy) $(genDir)/out/x86_64-linux-android-ld.exe && " +
+        "cp $(location lld-dummy) $(genDir)/out/mipsel-linux-android-ld.exe && " +
+        "cp $(location windows/lld-bin/lld.exe) $(genDir)/out/lld-bin/ && " +
+        "cp $(location windows/lld-bin/libwinpthread-1.dll) $(genDir)/out/lld-bin/ && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+    srcs: [
+        "lld-dummy",
+        "windows/lld-bin/lld.exe",
+        "windows/lld-bin/libwinpthread-1.dll",
+    ],
+    out: ["lld.zip"],
+}
+
+genrule {
+    name: "build-tools-lld-darwin",
+    visibility: ["//development/build"],
+    tools: ["soong_zip"],
+    cmd: "mkdir -p $(genDir)/out/{lld-bin,lib64} && " +
+        "cp $(location lld) $(genDir)/out/ && " +
+        "cp $(location lld-dummy) $(genDir)/out/arm-linux-androideabi-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/aarch64-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/i686-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/x86_64-linux-android-ld && " +
+        "cp $(location lld-dummy) $(genDir)/out/mipsel-linux-android-ld && " +
+        "cp $(location darwin/lld-bin/lld) $(genDir)/out/lld-bin/ && " +
+        "cp $(location darwin/lib64/libc++.1.dylib) $(genDir)/out/lib64/ && " +
+        "cp $(location darwin/lib64/libc++abi.1.dylib) $(genDir)/out/lib64/ && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/out -D $(genDir)/out",
+    srcs: [
+        "lld",
+        "lld-dummy",
+        "darwin/lld-bin/lld",
+        "darwin/lib64/libc++.1.dylib",
+        "darwin/lib64/libc++abi.1.dylib",
+    ],
+    out: ["lld.zip"],
+}

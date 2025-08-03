@@ -1,0 +1,110 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.tvprovider",
+    "module": "tvprovider",
+    "version": "1.1.0-alpha02",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "tvprovider-1.1.0-alpha02.aar",
+          "url": "tvprovider-1.1.0-alpha02.aar",
+          "size": 71597,
+          "sha512": "a1eb2a8ea90e60fa47436ad0f2a94e6bc0e63c95497a309aced381241ee2f913d547ecac6cae1c781d2604ff8dec68a2bd5f0d52e7a7e2c0013fa7da1eeb8806",
+          "sha256": "76666e46a07b6e68a5a67f075247245894b19c0909af7e0938108d611c9824f9",
+          "sha1": "55e73f9c9e13fe1e0a5fd39f3fc8bfca67eda3fa",
+          "md5": "0e603c5825dacfef15dd41f377cf7f25"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "tvprovider-1.1.0-alpha02.aar",
+          "url": "tvprovider-1.1.0-alpha02.aar",
+          "size": 71597,
+          "sha512": "a1eb2a8ea90e60fa47436ad0f2a94e6bc0e63c95497a309aced381241ee2f913d547ecac6cae1c781d2604ff8dec68a2bd5f0d52e7a7e2c0013fa7da1eeb8806",
+          "sha256": "76666e46a07b6e68a5a67f075247245894b19c0909af7e0938108d611c9824f9",
+          "sha1": "55e73f9c9e13fe1e0a5fd39f3fc8bfca67eda3fa",
+          "md5": "0e603c5825dacfef15dd41f377cf7f25"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "tvprovider-1.1.0-alpha02-sources.jar",
+          "url": "tvprovider-1.1.0-alpha02-sources.jar",
+          "size": 61948,
+          "sha512": "c25bcb2bbe75ee30e9ec1aa7d29c80a61fd042ef74b483f78327ee5fe3f97e9af144480dafa1ab57d290b6e3c4c5c60f018544f4d6d3de21c6d72da2a8e90688",
+          "sha256": "644a97f4ee38df16d62b11357a31061f7c3de51d2bb282ddef923f4d044418e5",
+          "sha1": "390694fe693b4e7d45a0a3870eab055219a4f63e",
+          "md5": "2b37401610596d2721247beb2ee5a509"
+        }
+      ]
+    }
+  ]
+}

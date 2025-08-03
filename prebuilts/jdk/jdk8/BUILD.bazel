@@ -1,0 +1,10 @@
+load("//build/bazel/rules/java:import.bzl", "java_import")
+
+java_import(
+    name = "pre_java9_bootclasspath_jars",
+    jars = [
+        "linux-x86/jre/lib/jce.jar",
+        "linux-x86/jre/lib/rt.jar",
+    ],
+    visibility = ["//visibility:public"],
+)

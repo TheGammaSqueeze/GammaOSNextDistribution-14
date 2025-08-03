@@ -1,0 +1,136 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.core",
+    "module": "core-animation-testing",
+    "version": "1.0.0-rc01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "core-animation-testing-1.0.0-rc01.aar",
+          "url": "core-animation-testing-1.0.0-rc01.aar",
+          "size": 4787,
+          "sha512": "fe777096ccdb658fc5b71f602fd9ef0c92085e9d31ed1304c33362b6a0c022eac136119ec45508630aa03f3662d06d4c8c9020a33e044c8c3d1e3f0b6774909d",
+          "sha256": "822e2c0ded0d9e5f97d462d67e5cdf1e46de17a70a01f90416d2fa7caa1f54fc",
+          "sha1": "8928df4e1e3130adc75e957469e24defb9eff1b2",
+          "md5": "dca9cbdbf3057dc1d1e913c612102a00"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.3.1"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core-animation",
+          "version": {
+            "requires": "1.0.0-rc01"
+          }
+        },
+        {
+          "group": "junit",
+          "module": "junit",
+          "version": {
+            "requires": "4.13.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "core-animation-testing-1.0.0-rc01.aar",
+          "url": "core-animation-testing-1.0.0-rc01.aar",
+          "size": 4787,
+          "sha512": "fe777096ccdb658fc5b71f602fd9ef0c92085e9d31ed1304c33362b6a0c022eac136119ec45508630aa03f3662d06d4c8c9020a33e044c8c3d1e3f0b6774909d",
+          "sha256": "822e2c0ded0d9e5f97d462d67e5cdf1e46de17a70a01f90416d2fa7caa1f54fc",
+          "sha1": "8928df4e1e3130adc75e957469e24defb9eff1b2",
+          "md5": "dca9cbdbf3057dc1d1e913c612102a00"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "core-animation-testing-1.0.0-rc01-sources.jar",
+          "url": "core-animation-testing-1.0.0-rc01-sources.jar",
+          "size": 2452,
+          "sha512": "5da7787824c8000988f88ad3c93f75cfa1f018afa48ebfdd3c0c82ebb5ec59aa1ffaf3088371b5f50c23fe6a58df07a93274d53da9b42c510b797417973616ab",
+          "sha256": "9a3657db22ee30fe64f4713cb3d3a295669652e34352bab2d5cfd29ca441fec0",
+          "sha1": "c305a43526c396742fab7fd133ab040cb595de34",
+          "md5": "275ba0fb63620f67b1888bab5a4af5dc"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "files": [
+        {
+          "name": "core-animation-testing-1.0.0-rc01-versionMetadata.json",
+          "url": "core-animation-testing-1.0.0-rc01-versionMetadata.json",
+          "size": 371,
+          "sha512": "604edb6c12e9bc5805dc0f559118a4ff4e2667412eff6e32a95b395ad936ad6a0f7a5428677be59470728b26e8895a21d7afc2b972dd6e5a5888e4d3eb794c17",
+          "sha256": "1ad2a245085b132b9d664a8ecc890110a48ae1fa9f19f2af940fb2ef515a8120",
+          "sha1": "e7e9147049566b5d764b7f6286319bf6be8ad448",
+          "md5": "48eac0c28263967935a7830c492a9083"
+        }
+      ]
+    }
+  ]
+}

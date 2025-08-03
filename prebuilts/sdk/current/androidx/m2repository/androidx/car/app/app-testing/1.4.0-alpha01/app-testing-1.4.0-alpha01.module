@@ -1,0 +1,200 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.car.app",
+    "module": "app-testing",
+    "version": "1.4.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.car.app",
+          "module": "app",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-testing-1.4.0-alpha01.aar",
+          "url": "app-testing-1.4.0-alpha01.aar",
+          "size": 23174,
+          "sha512": "44a225bd13f46527b151ad20b1d33d243d09dbb674717fc312952280ae3f1623b3635f81b26d99c1d9f85970116bc174b7b86686529736ed3e664a08d205ffad",
+          "sha256": "788b20191b61e6a4ebe72c5df1462e0cb979fca643414aecee7010b90e886c0a",
+          "sha1": "416b6bc64830f3fd6c0238ccbd1e2db2e0b6f0d2",
+          "md5": "1acc4ea9a8699e5eb9e18afb10dfa249"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-common-java8",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-runtime",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "org.robolectric",
+          "module": "robolectric",
+          "version": {
+            "requires": "4.9.2"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-testing-1.4.0-alpha01.aar",
+          "url": "app-testing-1.4.0-alpha01.aar",
+          "size": 23174,
+          "sha512": "44a225bd13f46527b151ad20b1d33d243d09dbb674717fc312952280ae3f1623b3635f81b26d99c1d9f85970116bc174b7b86686529736ed3e664a08d205ffad",
+          "sha256": "788b20191b61e6a4ebe72c5df1462e0cb979fca643414aecee7010b90e886c0a",
+          "sha1": "416b6bc64830f3fd6c0238ccbd1e2db2e0b6f0d2",
+          "md5": "1acc4ea9a8699e5eb9e18afb10dfa249"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-testing-1.4.0-alpha01-sources.jar",
+          "url": "app-testing-1.4.0-alpha01-sources.jar",
+          "size": 16565,
+          "sha512": "198333d4b58e562a18989219e59d9ac519483a1053517c90ff3f8e85de4673fbf8ae2ee915b457f24af4eadc334cda8c01f021dcabf09f500136beb458d1a264",
+          "sha256": "eaf836c826576433170a8e1c2e452ec205af3e7c8c59fea3a3a56a6932c83fe0",
+          "sha1": "9c211043b22a6c5bf39f8145c13cf318fafc35e6",
+          "md5": "d9fea206945750ec5ed62defbc67cbc4"
+        }
+      ]
+    }
+  ]
+}

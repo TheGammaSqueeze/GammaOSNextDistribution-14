@@ -1,0 +1,1 @@
+#error TODO(b/111362593) parcelables do not have bp classes

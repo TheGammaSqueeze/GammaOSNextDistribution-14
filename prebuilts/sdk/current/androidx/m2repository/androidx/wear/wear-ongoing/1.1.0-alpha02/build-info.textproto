@@ -1,0 +1,40 @@
+version: "1.1.0-alpha02"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core-ktx"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.versionedparcelable"
+    artifact_id: "versionedparcelable"
+    version: "1.1.1"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.wear"
+group_id: "androidx.wear"
+artifact_id: "wear-ongoing"
+path: "/wear/wear-ongoing"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-wear-11472573.zip"
+project_zip_path: "per-project-zips/androidx.wear-wear-ongoing-all-11472573-1.1.0-alpha02.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

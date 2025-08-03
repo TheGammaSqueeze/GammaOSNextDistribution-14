@@ -1,0 +1,36 @@
+package(default_visibility = ["//visibility:public"])
+
+[filegroup(
+    name = platform,
+    srcs = glob([
+        "%s/bin/*" % platform,
+        "%s/lib/*" % platform,
+        "%s/lib64/*" % platform,
+        "%s/clang-headers/*" % platform,
+    ]),
+) for platform in ("linux-x86", "darwin-x86")]
+
+sh_binary(
+    name = "versioner",
+    srcs = select({
+        "//build/bazel_common_rules/platforms/os:linux": [":linux-x86/bin/versioner"],
+        "//build/bazel_common_rules/platforms/os:darwin": [":darwin-x86/bin/versioner"],
+        "//conditions:default": ["@platform//:incompatible"],
+    }),
+    data = [":clang-tools.runfiles"],
+)
+
+# Runfiles (e.g. shared libraries) required by clang tools like versioner.
+# These files will be copied to sbox alongside the clang tool.
+# This is not stricly necessary in Bazel builds because Bazel uses a symlink based
+# sbox implementation (and the bins have a curated rpath embedded inside it)
+# But this might be relevant in Mixed builds with Soong which uses a cp based
+# sbox implementation.
+filegroup(
+    name = "clang-tools.runfiles",
+    srcs = select({
+        "//build/bazel_common_rules/platforms/os:linux": glob([":linux-x86/lib64/**/*"]),
+        "//build/bazel_common_rules/platforms/os:darwin": glob([":darwin-x86/lib64/**/*"]),
+        "//conditions:default": ["@platform//:incompatible"],
+    }),
+)

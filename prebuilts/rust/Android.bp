@@ -1,0 +1,520 @@
+// Sysroot Libraries
+package {
+    default_applicable_licenses: ["prebuilts_rust_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_rust_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-GPL-3.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+        "SPDX-license-identifier-OpenSSL",
+        "legacy_notice",
+        "legacy_permissive",
+        "legacy_unencumbered",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+rust_stdlib_prebuilt_host {
+    name: "libstd",
+    crate_name: "std",
+    sysroot: true,
+}
+
+// stdlibs source path relative to toolchain root
+stdlibs_src_path = "src/stdlibs"
+
+// The basic crates are only available as static libraries
+// .rust_sysroot is appended to the name to prevent accidental direct usage
+// of these crates by user code.
+// The most likely place for this to occur would be liblibc.
+rust_defaults {
+    name: "rust_sysroot_defaults",
+    no_stdlibs: true,
+    edition: "2021",
+    native_coverage: false,
+    host_supported: true,
+    sysroot: true,
+    native_bridge_supported: true,
+    product_available: true,
+    ramdisk_available: true,
+    recovery_available: true,
+    vendor_available: true,
+    vendor_ramdisk_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    target: {
+        glibc: {
+            enabled: false,
+        },
+        darwin: {
+            enabled: false,
+        },
+        musl: {
+            enabled: false,
+        },
+        musl_arm64: {
+            enabled: true,
+        },
+    },
+    min_sdk_version: "29",
+}
+
+rust_toolchain_library_rlib {
+    name: "libcore.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "core",
+    toolchain_crate_root: stdlibs_src_path + "/library/core/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/core/src/**/*.rs",
+        stdlibs_src_path + "/library/core/src/**/*.md",
+        stdlibs_src_path + "/library/core/primitive_docs/*.md",
+        stdlibs_src_path + "/library/stdarch/crates/core_arch/src/**/*.rs",
+        stdlibs_src_path + "/library/stdarch/crates/core_arch/src/**/*.md",
+        stdlibs_src_path + "/library/portable-simd/crates/core_simd/src/**/*.rs",
+        stdlibs_src_path + "/library/portable-simd/crates/core_simd/src/**/*.md",
+    ],
+    sanitize: {
+        never: true,
+    },
+    edition: "2021",
+}
+
+rust_toolchain_library_rlib {
+    name: "librustc_demangle.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "rustc_demangle",
+    toolchain_crate_root: stdlibs_src_path + "/vendor/rustc-demangle/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/rustc-demangle/src/**/*.rs",
+        stdlibs_src_path + "/vendor/rustc-demangle/src/**/*.md",
+    ],
+    features: [
+        "core",
+        "compiler_builtins",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    edition: "2015",
+}
+
+rust_toolchain_library_rlib {
+    name: "libcompiler_builtins.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "compiler_builtins",
+    features: [
+        "compiler-builtins",
+        "core",
+        "default",
+    ],
+    toolchain_crate_root: stdlibs_src_path + "/vendor/compiler_builtins/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/compiler_builtins/src/**/*.rs",
+        stdlibs_src_path + "/vendor/compiler_builtins/src/**/*.md",
+    ],
+    rlibs: ["libcore.rust_sysroot"],
+    flags: [
+        "-C",
+        "panic=abort",
+        "-C",
+        "overflow-checks=off",
+    ],
+    edition: "2018",
+}
+
+rust_toolchain_library_rlib {
+    name: "liblibc.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "libc",
+    features: ["align"],
+    toolchain_crate_root: stdlibs_src_path + "/vendor/libc/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/libc/src/**/*.rs",
+        stdlibs_src_path + "/vendor/libc/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    // Generated via build.rs autodetect on compiler version. May need to be
+    // regenerated on compiler version bump.
+    cfgs: [
+        "freebsd11",
+        "libc_priv_mod_use",
+        "libc_union",
+        "libc_const_size_of",
+        "libc_align",
+        "libc_core_cvoid",
+        "libc_packedN",
+        "libc_thread_local",
+        "libc_const_extern_fn",
+    ],
+    edition: "2015",
+}
+
+rust_toolchain_library_rlib {
+    name: "liballoc.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "alloc",
+    toolchain_crate_root: stdlibs_src_path + "/library/alloc/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/alloc/src/**/*.rs",
+        stdlibs_src_path + "/library/alloc/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    edition: "2021",
+}
+
+rust_toolchain_library_rlib {
+    name: "libcfg_if.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "cfg_if",
+    features: [
+        "compiler_builtins",
+        "core",
+    ],
+    toolchain_crate_root: stdlibs_src_path + "/vendor/cfg-if/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/cfg-if/src/**/*.rs",
+        stdlibs_src_path + "/vendor/cfg-if/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    edition: "2018",
+}
+
+rust_toolchain_library_rlib {
+    name: "libstd_detect.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "std_detect",
+    features: [
+        "std_detect_file_io",
+        "std_detect_dlsym_getauxval",
+    ],
+    toolchain_crate_root: stdlibs_src_path + "/library/stdarch/crates/std_detect/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/stdarch/crates/std_detect/src/**/*.rs",
+        stdlibs_src_path + "/library/stdarch/crates/std_detect/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+        "liballoc.rust_sysroot",
+        "libcfg_if.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libpanic_abort.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "panic_abort",
+    toolchain_crate_root: stdlibs_src_path + "/library/panic_abort/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/panic_abort/src/**/*.rs",
+        stdlibs_src_path + "/library/panic_abort/src/**/*.md",
+    ],
+    rlibs: [
+        "liballoc.rust_sysroot",
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+        "libcfg_if.rust_sysroot",
+        "liblibc.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libpanic_unwind.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "panic_unwind",
+    toolchain_crate_root: stdlibs_src_path + "/library/panic_unwind/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/panic_unwind/src/**/*.rs",
+        stdlibs_src_path + "/library/panic_unwind/src/**/*.md",
+    ],
+    rlibs: [
+        "liballoc.rust_sysroot",
+        "libcore.rust_sysroot",
+        "liblibc.rust_sysroot",
+        "libunwind.rust_sysroot",
+        "libcompiler_builtins.rust_sysroot",
+        "libcfg_if.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libunwind.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "unwind",
+    toolchain_crate_root: stdlibs_src_path + "/library/unwind/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/unwind/src/**/*.rs",
+        stdlibs_src_path + "/library/unwind/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+        "liblibc.rust_sysroot",
+        "libcfg_if.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libhashbrown.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    edition: "2021",
+    crate_name: "hashbrown",
+    toolchain_crate_root: stdlibs_src_path + "/vendor/hashbrown/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/hashbrown/src/**/*.rs",
+        stdlibs_src_path + "/vendor/hashbrown/src/**/*.md",
+    ],
+    features: [
+        "alloc",
+        "compiler_builtins",
+        "core",
+        "nightly",
+        "rustc-dep-of-std",
+        "rustc-internal-api",
+    ],
+    cfgs: ["has_extern_crate_alloc"],
+    rlibs: [
+        "libcore.rust_sysroot",
+        "libcompiler_builtins.rust_sysroot",
+        "liballoc.rust_sysroot",
+        "libunwind.rust_sysroot",
+    ],
+}
+
+// Top level sysroot libraries are available both as static and dynamic
+rust_toolchain_library {
+    name: "libstd",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "std",
+    target: {
+        linux_bionic: {
+            rlibs: ["libpanic_abort.rust_sysroot"],
+        },
+        linux_musl: {
+            rlibs: ["libpanic_unwind.rust_sysroot"],
+        },
+        android: {
+            rlibs: ["libpanic_abort.rust_sysroot"],
+        },
+    },
+    toolchain_crate_root: stdlibs_src_path + "/library/std/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/std/src/**/*.rs",
+        stdlibs_src_path + "/library/std/src/**/*.md",
+        stdlibs_src_path + "/library/std/primitive_docs/*.md",
+        stdlibs_src_path + "/library/core/src/**/*.md",
+        stdlibs_src_path + "/library/backtrace/src/**/*.rs",
+        stdlibs_src_path + "/library/backtrace/src/**/*.md",
+        stdlibs_src_path + "/library/portable-simd/crates/std_float/src/**/*.rs",
+        stdlibs_src_path + "/library/portable-simd/crates/std_float/src/**/*.md",
+        stdlibs_src_path + "/library/stdarch/crates/core_arch/src/**/*.md",
+        stdlibs_src_path + "/library/stdarch/crates/core_simd/src/**/*.md",
+        stdlibs_src_path + "/library/portable-simd/crates/core_simd/src/**/*.md",
+    ],
+    cfgs: ["backtrace_in_libstd"],
+    features: [
+        "default",
+        "std_detect_dlsym_getauxval",
+        "std_detect_file_io",
+        "profiler",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+        "librustc_demangle.rust_sysroot",
+        "liblibc.rust_sysroot",
+        "libcfg_if.rust_sysroot",
+        "liballoc.rust_sysroot",
+        "libhashbrown.rust_sysroot",
+        "libunwind.rust_sysroot",
+        "libprofiler_builtins.rust_sysroot",
+        "libstd_detect.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libprofiler_builtins.rust_sysroot",
+    defaults: ["rust_sysroot_defaults"],
+    crate_name: "profiler_builtins",
+    toolchain_crate_root: stdlibs_src_path + "/library/profiler_builtins/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/profiler_builtins/src/**/*.rs",
+        stdlibs_src_path + "/library/profiler_builtins/src/**/*.md",
+    ],
+    rlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+}
+
+rust_toolchain_library {
+    name: "libgetopts",
+    host_supported: true,
+    vendor_available: true,
+    crate_name: "getopts",
+    toolchain_crate_root: stdlibs_src_path + "/vendor/getopts/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/getopts/src/**/*.rs",
+        stdlibs_src_path + "/vendor/getopts/src/**/*.md",
+    ],
+    rlibs: ["libunicode_width.rust_toolchain"],
+    edition: "2015",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+rust_toolchain_library {
+    name: "libtest",
+    crate_name: "test",
+    host_supported: true,
+    vendor_available: true,
+    toolchain_crate_root: stdlibs_src_path + "/library/test/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/library/test/src/**/*.rs",
+        stdlibs_src_path + "/library/test/src/**/*.md",
+    ],
+    rlibs: [
+        "liblibc.rust_toolchain",
+        "libcfg_if.rust_toolchain",
+        "libgetopts",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libunicode_width.rust_toolchain",
+    host_supported: true,
+    vendor_available: true,
+    crate_name: "unicode_width",
+    toolchain_crate_root: stdlibs_src_path + "/vendor/unicode-width/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/unicode-width/src/**/*.rs",
+        stdlibs_src_path + "/vendor/unicode-width/src/**/*.md",
+    ],
+    edition: "2015",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "libcfg_if.rust_toolchain",
+    crate_name: "cfg_if",
+    host_supported: true,
+    vendor_available: true,
+    toolchain_crate_root: stdlibs_src_path + "/vendor/cfg-if/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/cfg-if/src/**/*.rs",
+        stdlibs_src_path + "/vendor/cfg-if/src/**/*.md",
+    ],
+}
+
+rust_toolchain_library_rlib {
+    name: "liblibc.rust_toolchain",
+    crate_name: "libc",
+    host_supported: true,
+    vendor_available: true,
+    toolchain_crate_root: stdlibs_src_path + "/vendor/libc/src/lib.rs",
+    toolchain_srcs: [
+        stdlibs_src_path + "/vendor/libc/src/**/*.rs",
+        stdlibs_src_path + "/vendor/libc/src/**/*.md",
+    ],
+    cfgs: [
+        "freebsd11",
+        "libc_priv_mod_use",
+        "libc_union",
+        "libc_const_size_of",
+        "libc_align",
+        "libc_core_cvoid",
+        "libc_packedN",
+        "libc_thread_local",
+    ],
+    features: [
+        "std",
+        "align",
+    ],
+    edition: "2015",
+}
+
+// Rustc and Clang have mismatched LLVM versions, cross language LTO may break when LLVM bitcode
+// format changes. Disallow LTO until we can synchronise the versions. http://b/240643019
+cc_defaults {
+    name: "rust_static_cc_lib_defaults",
+    visibility: ["//visibility:public"],
+    lto: {
+        never: true,
+    },
+}
+
+rust_stdlib_prebuilt_filegroup_host {
+    name: "stdlib_prebuilts",
+    srcs: [
+        "**/*.rlib",
+        "**/*.a",
+        "**/*.so",
+    ],
+    visibility: ["//visibility:private"],
+}
+
+rust_toolchain_rustc_prebuilt {
+    name: "rustc",
+    toolchain_prebuilt_src: "bin/rustc",
+    toolchain_deps: [
+        "lib/*",
+        "lib64/*",
+    ],
+    deps: [
+        ":gcc.lib",
+        ":gcc.lib32",
+        ":gcc.lib64",
+        ":gcc.sysroot",
+        ":stdlib_prebuilts",
+    ],
+}
+
+rust_toolchain_rustc_prebuilt {
+    name: "clippy-driver",
+    toolchain_prebuilt_src: "bin/clippy-driver",
+}
+
+rust_toolchain_rustc_prebuilt {
+    name: "rustdoc",
+    toolchain_prebuilt_src: "bin/rustdoc",
+}

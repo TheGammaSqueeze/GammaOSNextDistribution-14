@@ -1,0 +1,229 @@
+// Baseline format: 1.0
+RemovedClass: android.graphics.ColorMatrix:
+    Removed class android.graphics.ColorMatrix
+RemovedClass: android.service.voice.AlwaysOnHotwordDetector:
+
+
+
+RemovedMethod: android.service.voice.VoiceInteractionService#createAlwaysOnHotwordDetector(String, java.util.Locale, android.service.voice.AlwaysOnHotwordDetector.Callback):
+
+
+RemovedClass: android.net.CaptivePortal:
+    Removed class android.net.CaptivePortal
+RemovedClass: android.net.ConnectivityDiagnosticsManager:
+    Removed class android.net.ConnectivityDiagnosticsManager
+RemovedClass: android.net.ConnectivityManager:
+    Removed class android.net.ConnectivityManager
+RemovedClass: android.net.DhcpInfo:
+    Removed class android.net.DhcpInfo
+RemovedClass: android.net.DnsResolver:
+    Removed class android.net.DnsResolver
+RemovedClass: android.net.InetAddresses:
+    Removed class android.net.InetAddresses
+RemovedClass: android.net.IpPrefix:
+    Removed class android.net.IpPrefix
+RemovedClass: android.net.LinkAddress:
+    Removed class android.net.LinkAddress
+RemovedClass: android.net.LinkProperties:
+    Removed class android.net.LinkProperties
+RemovedClass: android.net.MacAddress:
+    Removed class android.net.MacAddress
+RemovedClass: android.net.Network:
+    Removed class android.net.Network
+RemovedClass: android.net.NetworkCapabilities:
+    Removed class android.net.NetworkCapabilities
+RemovedClass: android.net.NetworkRequest:
+    Removed class android.net.NetworkRequest
+RemovedClass: android.net.ParseException:
+    Removed class android.net.ParseException
+RemovedClass: android.net.ProxyInfo:
+    Removed class android.net.ProxyInfo
+RemovedClass: android.net.RouteInfo:
+    Removed class android.net.RouteInfo
+RemovedClass: android.net.SocketKeepalive:
+    Removed class android.net.SocketKeepalive
+RemovedClass: android.net.VpnManager:
+    Removed class android.net.VpnManager
+RemovedClass: android.net.VpnService:
+    Removed class android.net.VpnService
+
+RemovedDeprecatedClass: android.net.NetworkInfo:
+    Removed deprecated class android.net.NetworkInfo
+
+RemovedInterface: android.net.TransportInfo:
+    Removed class android.net.TransportInfo
+
+RemovedPackage: android.icu.lang:
+    Removed package android.icu.lang
+RemovedPackage: android.icu.math:
+    Removed package android.icu.math
+RemovedPackage: android.icu.number:
+    Removed package android.icu.number
+RemovedPackage: android.icu.text:
+    Removed package android.icu.text
+RemovedPackage: android.icu.util:
+    Removed package android.icu.util
+RemovedPackage: android.system:
+    Removed package android.system
+RemovedPackage: dalvik.annotation:
+    Removed package dalvik.annotation
+RemovedPackage: dalvik.bytecode:
+    Removed package dalvik.bytecode
+RemovedPackage: dalvik.system:
+    Removed package dalvik.system
+RemovedPackage: java.awt.font:
+    Removed package java.awt.font
+RemovedPackage: java.beans:
+    Removed package java.beans
+RemovedPackage: java.io:
+    Removed package java.io
+RemovedPackage: java.lang:
+    Removed package java.lang
+RemovedPackage: java.lang.annotation:
+    Removed package java.lang.annotation
+RemovedPackage: java.lang.invoke:
+    Removed package java.lang.invoke
+RemovedPackage: java.lang.ref:
+    Removed package java.lang.ref
+RemovedPackage: java.lang.reflect:
+    Removed package java.lang.reflect
+RemovedPackage: java.math:
+    Removed package java.math
+RemovedPackage: java.net:
+    Removed package java.net
+RemovedPackage: java.nio:
+    Removed package java.nio
+RemovedPackage: java.nio.channels:
+    Removed package java.nio.channels
+RemovedPackage: java.nio.channels.spi:
+    Removed package java.nio.channels.spi
+RemovedPackage: java.nio.charset:
+    Removed package java.nio.charset
+RemovedPackage: java.nio.charset.spi:
+    Removed package java.nio.charset.spi
+RemovedPackage: java.nio.file:
+    Removed package java.nio.file
+RemovedPackage: java.nio.file.attribute:
+    Removed package java.nio.file.attribute
+RemovedPackage: java.nio.file.spi:
+    Removed package java.nio.file.spi
+RemovedPackage: java.security:
+    Removed package java.security
+RemovedPackage: java.security.acl:
+    Removed package java.security.acl
+RemovedPackage: java.security.cert:
+    Removed package java.security.cert
+RemovedPackage: java.security.interfaces:
+    Removed package java.security.interfaces
+RemovedPackage: java.security.spec:
+    Removed package java.security.spec
+RemovedPackage: java.sql:
+    Removed package java.sql
+RemovedPackage: java.text:
+    Removed package java.text
+RemovedPackage: java.time:
+    Removed package java.time
+RemovedPackage: java.time.chrono:
+    Removed package java.time.chrono
+RemovedPackage: java.time.format:
+    Removed package java.time.format
+RemovedPackage: java.time.temporal:
+    Removed package java.time.temporal
+RemovedPackage: java.time.zone:
+    Removed package java.time.zone
+RemovedPackage: java.util:
+    Removed package java.util
+RemovedPackage: java.util.concurrent:
+    Removed package java.util.concurrent
+RemovedPackage: java.util.concurrent.atomic:
+    Removed package java.util.concurrent.atomic
+RemovedPackage: java.util.concurrent.locks:
+    Removed package java.util.concurrent.locks
+RemovedPackage: java.util.function:
+    Removed package java.util.function
+RemovedPackage: java.util.jar:
+    Removed package java.util.jar
+RemovedPackage: java.util.logging:
+    Removed package java.util.logging
+RemovedPackage: java.util.prefs:
+    Removed package java.util.prefs
+RemovedPackage: java.util.regex:
+    Removed package java.util.regex
+RemovedPackage: java.util.stream:
+    Removed package java.util.stream
+RemovedPackage: java.util.zip:
+    Removed package java.util.zip
+RemovedPackage: javax.crypto:
+    Removed package javax.crypto
+RemovedPackage: javax.crypto.interfaces:
+    Removed package javax.crypto.interfaces
+RemovedPackage: javax.crypto.spec:
+    Removed package javax.crypto.spec
+RemovedPackage: javax.net:
+    Removed package javax.net
+RemovedPackage: javax.net.ssl:
+    Removed package javax.net.ssl
+RemovedPackage: javax.security.auth:
+    Removed package javax.security.auth
+RemovedPackage: javax.security.auth.callback:
+    Removed package javax.security.auth.callback
+RemovedPackage: javax.security.auth.login:
+    Removed package javax.security.auth.login
+RemovedPackage: javax.security.auth.x500:
+    Removed package javax.security.auth.x500
+RemovedPackage: javax.security.cert:
+    Removed package javax.security.cert
+RemovedPackage: javax.sql:
+    Removed package javax.sql
+RemovedPackage: javax.xml:
+    Removed package javax.xml
+RemovedPackage: javax.xml.datatype:
+    Removed package javax.xml.datatype
+RemovedPackage: javax.xml.namespace:
+    Removed package javax.xml.namespace
+RemovedPackage: javax.xml.parsers:
+    Removed package javax.xml.parsers
+RemovedPackage: javax.xml.transform:
+    Removed package javax.xml.transform
+RemovedPackage: javax.xml.transform.dom:
+    Removed package javax.xml.transform.dom
+RemovedPackage: javax.xml.transform.sax:
+    Removed package javax.xml.transform.sax
+RemovedPackage: javax.xml.transform.stream:
+    Removed package javax.xml.transform.stream
+RemovedPackage: javax.xml.validation:
+    Removed package javax.xml.validation
+RemovedPackage: javax.xml.xpath:
+    Removed package javax.xml.xpath
+RemovedPackage: org.json:
+    Removed package org.json
+RemovedPackage: org.w3c.dom:
+    Removed package org.w3c.dom
+RemovedPackage: org.w3c.dom.ls:
+    Removed package org.w3c.dom.ls
+RemovedPackage: org.xml.sax:
+    Removed package org.xml.sax
+RemovedPackage: org.xml.sax.ext:
+    Removed package org.xml.sax.ext
+RemovedPackage: org.xml.sax.helpers:
+    Removed package org.xml.sax.helpers
+RemovedPackage: org.xmlpull.v1:
+    Removed package org.xmlpull.v1
+RemovedPackage: org.xmlpull.v1.sax2:
+    Removed package org.xmlpull.v1.sax2
+
+
+RemovedDeprecatedField: android.view.WindowManager.LayoutParams#TYPE_STATUS_BAR_PANEL:
+    Removed deprecated field android.view.WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL
+
+
+RemovedDeprecatedMethod: android.app.ActivityManager#getMaxNumPictureInPictureActions():
+    Removed deprecated method android.app.ActivityManager.getMaxNumPictureInPictureActions()
+RemovedDeprecatedMethod: android.app.usage.StorageStats#getCodeBytes():
+    Removed deprecated method android.app.usage.StorageStats.getCodeBytes()
+
+RemovedPackage: android.app.role:
+    Removed package android.app.role
+
+RemovedDeprecatedField: android.net.Proxy#EXTRA_PROXY_INFO:
+    Removed deprecated field android.net.Proxy.EXTRA_PROXY_INFO

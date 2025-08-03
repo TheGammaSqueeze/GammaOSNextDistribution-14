@@ -1,0 +1,207 @@
+// Signature format: 2.0
+package android.icu.impl {
+
+  public class TimeZoneAdapter extends java.util.TimeZone {
+    method public static java.util.TimeZone wrap(android.icu.util.TimeZone);
+  }
+
+}
+
+package android.icu.text {
+
+  public class DateFormatSymbols implements java.lang.Cloneable java.io.Serializable {
+    method public String[] getAmpmNarrowStrings();
+  }
+
+  public class DateTimePatternGenerator implements java.lang.Cloneable android.icu.util.Freezable<android.icu.text.DateTimePatternGenerator> {
+    method public String getBestPattern(String, int, boolean);
+  }
+
+  public final class StringPrep {
+    method public static android.icu.text.StringPrep getInstance(int);
+    method public String prepare(String, int) throws android.icu.text.StringPrepParseException;
+    field public static final int DEFAULT = 0; // 0x0
+    field public static final int RFC3920_RESOURCEPREP = 8; // 0x8
+  }
+
+}
+
+package android.icu.util {
+
+  public abstract class BasicTimeZone extends android.icu.util.TimeZone {
+    method public abstract android.icu.util.TimeZoneTransition getNextTransition(long, boolean);
+  }
+
+  public class Region implements java.lang.Comparable<android.icu.util.Region> {
+    method public static java.util.Set<android.icu.util.Region> getAvailable(android.icu.util.Region.RegionType);
+  }
+
+  public enum Region.RegionType {
+    enum_constant public static final android.icu.util.Region.RegionType TERRITORY;
+  }
+
+  public abstract class TimeZoneRule implements java.io.Serializable {
+    method public int getDSTSavings();
+  }
+
+  public class TimeZoneTransition {
+    method public android.icu.util.TimeZoneRule getFrom();
+    method public long getTime();
+    method public android.icu.util.TimeZoneRule getTo();
+  }
+
+}
+
+package com.android.i18n.timezone {
+
+  public final class CountryTimeZones {
+    method public String getCountryIso();
+    method public android.icu.util.TimeZone getDefaultTimeZone();
+    method public String getDefaultTimeZoneId();
+    method public java.util.List<com.android.i18n.timezone.CountryTimeZones.TimeZoneMapping> getEffectiveTimeZoneMappingsAt(long);
+    method public java.util.List<com.android.i18n.timezone.CountryTimeZones.TimeZoneMapping> getTimeZoneMappings();
+    method public boolean hasUtcZone(long);
+    method public boolean isDefaultTimeZoneBoosted();
+    method public com.android.i18n.timezone.CountryTimeZones.OffsetResult lookupByOffsetWithBias(long, android.icu.util.TimeZone, int, boolean);
+    method public com.android.i18n.timezone.CountryTimeZones.OffsetResult lookupByOffsetWithBias(long, android.icu.util.TimeZone, int);
+    method public boolean matchesCountryCode(String);
+  }
+
+  public static final class CountryTimeZones.OffsetResult {
+    method public android.icu.util.TimeZone getTimeZone();
+    method public boolean isOnlyMatch();
+  }
+
+  public static final class CountryTimeZones.TimeZoneMapping {
+    method public static com.android.i18n.timezone.CountryTimeZones.TimeZoneMapping createForTests(String, boolean, Long, java.util.List<java.lang.String>);
+    method public java.util.List<java.lang.String> getAlternativeIds();
+    method public android.icu.util.TimeZone getTimeZone();
+    method public String getTimeZoneId();
+    method public boolean isShownInPickerAt(java.time.Instant);
+  }
+
+  public final class CountryZonesFinder {
+    method public java.util.List<java.lang.String> lookupAllCountryIsoCodes();
+    method public com.android.i18n.timezone.CountryTimeZones lookupCountryTimeZones(String);
+    method public java.util.List<com.android.i18n.timezone.CountryTimeZones> lookupCountryTimeZonesForZoneId(String);
+  }
+
+  public class DebugInfo {
+    ctor public DebugInfo();
+    method public com.android.i18n.timezone.DebugInfo addStringEntry(String, String);
+    method public com.android.i18n.timezone.DebugInfo addStringEntry(String, int);
+    method public java.util.List<com.android.i18n.timezone.DebugInfo.DebugEntry> getDebugEntries();
+  }
+
+  public static class DebugInfo.DebugEntry {
+    ctor public DebugInfo.DebugEntry(String, String);
+    method public String getKey();
+    method public String getStringValue();
+  }
+
+  public class I18nModuleDebug {
+    method public static com.android.i18n.timezone.DebugInfo getDebugInfo();
+  }
+
+  public final class TelephonyLookup {
+    method public static com.android.i18n.timezone.TelephonyLookup createInstance(String) throws java.io.IOException;
+    method public static com.android.i18n.timezone.TelephonyLookup getInstance();
+    method public com.android.i18n.timezone.TelephonyNetworkFinder getTelephonyNetworkFinder();
+    method public void validate() throws java.io.IOException;
+  }
+
+  public final class TelephonyNetwork {
+    method public String getCountryIsoCode();
+    method public String getMcc();
+    method public String getMnc();
+  }
+
+  public final class TelephonyNetworkFinder {
+    method public com.android.i18n.timezone.TelephonyNetwork findNetworkByMccMnc(String, String);
+  }
+
+  public final class TimeZoneDataFiles {
+    method public static String getDataTimeZoneFile(String);
+    method public static String getDataTimeZoneRootDir();
+    method public static String getTimeZoneModuleTzVersionFile();
+    method public static com.android.i18n.timezone.TzDataSetVersion readTimeZoneModuleVersion() throws java.io.IOException, com.android.i18n.timezone.TzDataSetVersion.TzDataSetException;
+  }
+
+  public final class TimeZoneFinder {
+    method public static com.android.i18n.timezone.TimeZoneFinder createInstance(String) throws java.io.IOException;
+    method public com.android.i18n.timezone.CountryZonesFinder getCountryZonesFinder();
+    method public String getIanaVersion();
+    method public static com.android.i18n.timezone.TimeZoneFinder getInstance();
+    method public com.android.i18n.timezone.CountryTimeZones lookupCountryTimeZones(String);
+    method public void validate() throws java.io.IOException;
+  }
+
+  public final class TzDataSetVersion {
+    ctor public TzDataSetVersion(int, int, String, int) throws com.android.i18n.timezone.TzDataSetVersion.TzDataSetException;
+    method public static int currentFormatMajorVersion();
+    method public static int currentFormatMinorVersion();
+    method public int getFormatMajorVersion();
+    method public int getFormatMinorVersion();
+    method public int getRevision();
+    method public String getRulesVersion();
+    method public static boolean isCompatibleWithThisDevice(com.android.i18n.timezone.TzDataSetVersion);
+    method public static com.android.i18n.timezone.TzDataSetVersion readFromFile(java.io.File) throws java.io.IOException, com.android.i18n.timezone.TzDataSetVersion.TzDataSetException;
+    method public byte[] toBytes();
+    field public static final String DEFAULT_FILE_NAME = "tz_version";
+  }
+
+  public static class TzDataSetVersion.TzDataSetException extends java.lang.Exception {
+    ctor public TzDataSetVersion.TzDataSetException(String);
+    ctor public TzDataSetVersion.TzDataSetException(String, Throwable);
+  }
+
+  public class WallTime {
+    ctor public WallTime();
+    method public int getGmtOffset();
+    method public int getHour();
+    method public int getIsDst();
+    method public int getMinute();
+    method public int getMonth();
+    method public int getMonthDay();
+    method public int getSecond();
+    method public int getWeekDay();
+    method public int getYear();
+    method public int getYearDay();
+    method public void localtime(int, com.android.i18n.timezone.ZoneInfoData);
+    method public int mktime(com.android.i18n.timezone.ZoneInfoData);
+    method public void setGmtOffset(int);
+    method public void setHour(int);
+    method public void setIsDst(int);
+    method public void setMinute(int);
+    method public void setMonth(int);
+    method public void setMonthDay(int);
+    method public void setSecond(int);
+    method public void setWeekDay(int);
+    method public void setYear(int);
+    method public void setYearDay(int);
+  }
+
+  public final class ZoneInfoData {
+    method @NonNull public String getID();
+  }
+
+  public final class ZoneInfoDb {
+    method @NonNull public static com.android.i18n.timezone.ZoneInfoDb getInstance();
+    method @NonNull public String getVersion();
+    method public boolean hasTimeZone(@NonNull String);
+    method @Nullable public com.android.i18n.timezone.ZoneInfoData makeZoneInfoData(@NonNull String);
+    method public static void validateTzData(@NonNull String) throws java.io.IOException;
+  }
+
+}
+
+package com.android.icu.text {
+
+  public class DateSorterBridge {
+    method public static com.android.icu.text.DateSorterBridge createInstance(java.util.Locale) throws java.lang.AssertionError;
+    method public String getToday();
+    method public String getYesterday();
+  }
+
+}
+

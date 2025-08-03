@@ -1,0 +1,131 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.slidingpanelayout",
+    "module": "slidingpanelayout",
+    "version": "1.3.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "slidingpanelayout-1.3.0-alpha01.aar",
+          "url": "slidingpanelayout-1.3.0-alpha01.aar",
+          "size": 37853,
+          "sha512": "95a8fee0a2b7e446c99dd25883a18e67842894a7a98124d930e0ae55d88a1afe65890d60cbe7a97762af5ed62400ceb6a52a98b34021c4a077b93e1206c9a39a",
+          "sha256": "c3d0402df12d56608aedebdbb68217400dc9c13e69d630c58e4843af7f642166",
+          "sha1": "38a338a97ad7038bf507b0bff3a3df642dd83918",
+          "md5": "c8786947821e79add27ceb39d3e36baf"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.transition",
+          "module": "transition",
+          "version": {
+            "requires": "1.4.1"
+          }
+        },
+        {
+          "group": "androidx.window",
+          "module": "window",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "slidingpanelayout-1.3.0-alpha01.aar",
+          "url": "slidingpanelayout-1.3.0-alpha01.aar",
+          "size": 37853,
+          "sha512": "95a8fee0a2b7e446c99dd25883a18e67842894a7a98124d930e0ae55d88a1afe65890d60cbe7a97762af5ed62400ceb6a52a98b34021c4a077b93e1206c9a39a",
+          "sha256": "c3d0402df12d56608aedebdbb68217400dc9c13e69d630c58e4843af7f642166",
+          "sha1": "38a338a97ad7038bf507b0bff3a3df642dd83918",
+          "md5": "c8786947821e79add27ceb39d3e36baf"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "slidingpanelayout-1.3.0-alpha01-sources.jar",
+          "url": "slidingpanelayout-1.3.0-alpha01-sources.jar",
+          "size": 17729,
+          "sha512": "7ea5a60ebd370b182437ec42fdbda1b7c9897b770726b11fa9d2413bc0aeffa4e46ec7e44226dea674f45c82a2f44d85a5673b8c37beffcf13770fc230a8a19b",
+          "sha256": "3497d1681d8fb2a42203c5522a1c52da324abe45f4b7095d1d07f32d60af5874",
+          "sha1": "5e7ddeb4da99115498527ca1bcec278469391e81",
+          "md5": "9823c9a810c182677b7740fd2bd6b7a8"
+        }
+      ]
+    }
+  ]
+}

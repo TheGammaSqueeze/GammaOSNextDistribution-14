@@ -1,0 +1,133 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.ondevicepersonalization-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//packages/modules/OnDevicePersonalization:__subpackages__"],
+    apex_available: ["com.android.ondevicepersonalization"],
+    licenses: ["ondevicepersonalization-module-sdk_Android-Apache-2.0"],
+    contents: ["framework-ondevicepersonalization"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "framework-ondevicepersonalization",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.ondevicepersonalization"],
+    licenses: ["ondevicepersonalization-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.app.ondevicepersonalization",
+        "android.ondevicepersonalization",
+        "com.android.ondevicepersonalization.internal",
+        "android.federatedcompute",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-ondevicepersonalization-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-ondevicepersonalization.srcjar"],
+        current_api: "sdk_library/public/framework-ondevicepersonalization.txt",
+        removed_api: "sdk_library/public/framework-ondevicepersonalization-removed.txt",
+        annotations: "sdk_library/public/framework-ondevicepersonalization_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-ondevicepersonalization-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-ondevicepersonalization.srcjar"],
+        current_api: "sdk_library/system/framework-ondevicepersonalization.txt",
+        removed_api: "sdk_library/system/framework-ondevicepersonalization-removed.txt",
+        annotations: "sdk_library/system/framework-ondevicepersonalization_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-ondevicepersonalization-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-ondevicepersonalization.srcjar"],
+        current_api: "sdk_library/module-lib/framework-ondevicepersonalization.txt",
+        removed_api: "sdk_library/module-lib/framework-ondevicepersonalization-removed.txt",
+        annotations: "sdk_library/module-lib/framework-ondevicepersonalization_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "service-ondevicepersonalization",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.ondevicepersonalization"],
+    licenses: ["ondevicepersonalization-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: ["com.android.server.ondevicepersonalization"],
+    public: {
+        jars: ["sdk_library/public/service-ondevicepersonalization-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-ondevicepersonalization.srcjar"],
+        current_api: "sdk_library/public/service-ondevicepersonalization.txt",
+        removed_api: "sdk_library/public/service-ondevicepersonalization-removed.txt",
+        annotations: "sdk_library/public/service-ondevicepersonalization_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-ondevicepersonalization-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-ondevicepersonalization.srcjar"],
+        current_api: "sdk_library/system-server/service-ondevicepersonalization.txt",
+        removed_api: "sdk_library/system-server/service-ondevicepersonalization-removed.txt",
+        annotations: "sdk_library/system-server/service-ondevicepersonalization_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "ondevicepersonalization-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.ondevicepersonalization-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//packages/modules/OnDevicePersonalization:__subpackages__"],
+    apex_available: ["com.android.ondevicepersonalization"],
+    licenses: ["ondevicepersonalization-module-sdk_Android-Apache-2.0"],
+    contents: ["service-ondevicepersonalization"],
+}

@@ -1,0 +1,89 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This trace config is used for collecting necessary information used in multiuser tests.
+
+buffers: {
+    size_kb: 129024
+    fill_policy: RING_BUFFER
+}
+buffers: {
+    size_kb: 2048
+    fill_policy: RING_BUFFER
+}
+data_sources: {
+    config {
+        name: "linux.process_stats"
+        target_buffer: 1
+        process_stats_config {
+            scan_all_processes_on_start: true
+            proc_stats_poll_ms: 1000
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.sys_stats"
+        sys_stats_config {
+            meminfo_period_ms: 1000
+            stat_period_ms: 1000
+            stat_counters: STAT_CPU_TIMES
+            stat_counters: STAT_FORK_COUNT
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.ftrace"
+        ftrace_config {
+           throttle_rss_stat: true
+           ftrace_events: "task/task_newtask"
+           ftrace_events: "task/task_rename"
+           ftrace_events: "sched/sched_process_exit"
+           ftrace_events: "sched/sched_process_free"
+           ftrace_events: "rss_stat"
+           ftrace_events: "ion_heap_shrink"
+           ftrace_events: "ion_heap_grow"
+           ftrace_events: "ion/ion_stat"
+           ftrace_events: "dmabuf_heap/dma_heap_stat"
+           ftrace_events: "oom_score_adj_update"
+           ftrace_events: "gpu_mem/gpu_mem_total"
+           ftrace_events: "lowmemorykiller/lowmemory_kill"
+           atrace_apps: "*"
+           atrace_categories: "am"
+           atrace_categories: "binder_driver"
+           atrace_categories: "bionic"
+           atrace_categories: "dalvik"
+           atrace_categories: "input"
+           atrace_categories: "pm"
+           atrace_categories: "res"
+           atrace_categories: "rro"
+           atrace_categories: "ss"
+           atrace_categories: "view"
+           atrace_categories: "wm"
+           atrace_categories: "freq"
+           atrace_categories: "sched"
+           atrace_categories: "sync"
+           atrace_categories: "workq"
+        }
+    }
+}
+duration_ms: 30000
+write_into_file: true
+file_write_period_ms: 2500
+max_file_size_bytes: 1000000000
+flush_period_ms: 30000
+incremental_state_config {
+    clear_period_ms: 5000
+}

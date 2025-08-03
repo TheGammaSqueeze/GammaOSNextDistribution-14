@@ -1,0 +1,11 @@
+drops {
+  dest_file: "0.80.0.dfc5c13/remotetool"
+  version: "0.80.0.dfc5c13"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "remotetool"
+  }
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+}

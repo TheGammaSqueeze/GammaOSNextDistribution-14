@@ -1,0 +1,57 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+license {
+    name: "platform-mainline-test-exports_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "platform-mainline-test-exports_system_core_debuggerd_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "libtombstoned_client",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["platform-mainline-test-exports_system_core_debuggerd_license"],
+    compile_multilib: "both",
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    export_include_dirs: [
+        "include/system/core/debuggerd/tombstoned/include",
+        "include/system/core/debuggerd/common/include",
+    ],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libtombstoned_client.so"],
+        },
+        riscv64: {
+            srcs: ["riscv64/lib/libtombstoned_client.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libtombstoned_client.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libtombstoned_client.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libtombstoned_client.so"],
+        },
+    },
+}

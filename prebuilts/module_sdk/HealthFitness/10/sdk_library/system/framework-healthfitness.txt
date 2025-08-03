@@ -1,0 +1,334 @@
+// Signature format: 2.0
+package android.health.connect {
+
+  public class ApplicationInfoResponse {
+    method @NonNull public java.util.List<android.health.connect.datatypes.AppInfo> getApplicationInfoList();
+  }
+
+  public final class DeleteUsingFiltersRequest {
+    method @NonNull public java.util.Set<android.health.connect.datatypes.DataOrigin> getDataOrigins();
+    method @NonNull public java.util.Set<java.lang.Class<? extends android.health.connect.datatypes.Record>> getRecordTypes();
+    method @Nullable public android.health.connect.TimeRangeFilter getTimeRangeFilter();
+  }
+
+  public static final class DeleteUsingFiltersRequest.Builder {
+    ctor public DeleteUsingFiltersRequest.Builder();
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest.Builder addDataOrigin(@NonNull android.health.connect.datatypes.DataOrigin);
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest.Builder addRecordType(@NonNull Class<? extends android.health.connect.datatypes.Record>);
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest build();
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest.Builder clearDataOrigins();
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest.Builder clearRecordTypes();
+    method @NonNull public android.health.connect.DeleteUsingFiltersRequest.Builder setTimeRangeFilter(@Nullable android.health.connect.TimeRangeFilter);
+  }
+
+  public final class FetchDataOriginsPriorityOrderResponse {
+    method @NonNull public java.util.List<android.health.connect.datatypes.DataOrigin> getDataOriginsPriorityOrder();
+  }
+
+  public final class HealthConnectDataState implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getDataMigrationState();
+    method public int getDataRestoreError();
+    method public int getDataRestoreState();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.HealthConnectDataState> CREATOR;
+    field public static final int MIGRATION_STATE_ALLOWED = 4; // 0x4
+    field public static final int MIGRATION_STATE_APP_UPGRADE_REQUIRED = 1; // 0x1
+    field public static final int MIGRATION_STATE_COMPLETE = 5; // 0x5
+    field public static final int MIGRATION_STATE_IDLE = 0; // 0x0
+    field public static final int MIGRATION_STATE_IN_PROGRESS = 3; // 0x3
+    field public static final int MIGRATION_STATE_MODULE_UPGRADE_REQUIRED = 2; // 0x2
+    field public static final int RESTORE_ERROR_FETCHING_DATA = 2; // 0x2
+    field public static final int RESTORE_ERROR_NONE = 0; // 0x0
+    field public static final int RESTORE_ERROR_UNKNOWN = 1; // 0x1
+    field public static final int RESTORE_ERROR_VERSION_DIFF = 3; // 0x3
+    field public static final int RESTORE_STATE_IDLE = 0; // 0x0
+    field public static final int RESTORE_STATE_IN_PROGRESS = 2; // 0x2
+    field public static final int RESTORE_STATE_PENDING = 1; // 0x1
+  }
+
+  public class HealthConnectManager {
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_PERMISSIONS) public void deleteRecords(@NonNull android.health.connect.DeleteUsingFiltersRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void fetchDataOriginsPriorityOrder(int, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.health.connect.FetchDataOriginsPriorityOrderResponse,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.Manifest.permission.MIGRATE_HEALTH_CONNECT_DATA) public void finishMigration(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.migration.MigrationException>);
+    method @NonNull @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void getContributorApplicationsInfo(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.health.connect.ApplicationInfoResponse,android.health.connect.HealthConnectException>);
+    method @NonNull @RequiresPermission(anyOf={android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION, android.Manifest.permission.MIGRATE_HEALTH_CONNECT_DATA}) public void getHealthConnectDataState(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.health.connect.HealthConnectDataState,android.health.connect.HealthConnectException>);
+    method @NonNull public static java.util.Set<java.lang.String> getHealthPermissions(@NonNull android.content.Context);
+    method @IntRange(from=0, to=7300) @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public int getRecordRetentionPeriodInDays();
+    method @RequiresPermission(android.Manifest.permission.MIGRATE_HEALTH_CONNECT_DATA) public void insertMinDataMigrationSdkExtensionVersion(int, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.migration.MigrationException>);
+    method public static boolean isHealthPermission(@NonNull android.content.Context, @NonNull String);
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void queryAccessLogs(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.util.List<android.health.connect.accesslog.AccessLog>,android.health.connect.HealthConnectException>);
+    method @NonNull @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void queryActivityDates(@NonNull java.util.List<java.lang.Class<? extends android.health.connect.datatypes.Record>>, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.util.List<java.time.LocalDate>,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void queryAllRecordTypesInfo(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.util.Map<java.lang.Class<? extends android.health.connect.datatypes.Record>,android.health.connect.RecordTypeInfoResponse>,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void setRecordRetentionPeriodInDays(@IntRange(from=0, to=7300) int, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.Manifest.permission.STAGE_HEALTH_CONNECT_REMOTE_DATA) public void stageAllHealthConnectRemoteData(@NonNull java.util.Map<java.lang.String,android.os.ParcelFileDescriptor>, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.restore.StageRemoteDataException>) throws java.lang.NullPointerException;
+    method @RequiresPermission(android.Manifest.permission.MIGRATE_HEALTH_CONNECT_DATA) public void startMigration(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.migration.MigrationException>);
+    method @RequiresPermission(android.Manifest.permission.STAGE_HEALTH_CONNECT_REMOTE_DATA) public void updateDataDownloadState(int);
+    method @RequiresPermission(android.health.connect.HealthPermissions.MANAGE_HEALTH_DATA_PERMISSION) public void updateDataOriginPriorityOrder(@NonNull android.health.connect.UpdateDataOriginPriorityOrderRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.HealthConnectException>);
+    method @RequiresPermission(android.Manifest.permission.MIGRATE_HEALTH_CONNECT_DATA) public void writeMigrationData(@NonNull java.util.List<android.health.connect.migration.MigrationEntity>, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,android.health.connect.migration.MigrationException>);
+    field public static final String ACTION_HEALTH_CONNECT_MIGRATION_READY = "android.health.connect.action.HEALTH_CONNECT_MIGRATION_READY";
+    field public static final String ACTION_HEALTH_HOME_SETTINGS = "android.health.connect.action.HEALTH_HOME_SETTINGS";
+    field public static final String ACTION_MANAGE_HEALTH_DATA = "android.health.connect.action.MANAGE_HEALTH_DATA";
+    field public static final String ACTION_REQUEST_HEALTH_PERMISSIONS = "android.health.connect.action.REQUEST_HEALTH_PERMISSIONS";
+    field public static final String ACTION_SHOW_MIGRATION_INFO = "android.health.connect.action.SHOW_MIGRATION_INFO";
+    field public static final int DATA_DOWNLOAD_COMPLETE = 4; // 0x4
+    field public static final int DATA_DOWNLOAD_FAILED = 3; // 0x3
+    field public static final int DATA_DOWNLOAD_RETRY = 2; // 0x2
+    field public static final int DATA_DOWNLOAD_STARTED = 1; // 0x1
+    field public static final int DATA_DOWNLOAD_STATE_UNKNOWN = 0; // 0x0
+  }
+
+  public class HealthDataCategory {
+    field public static final int ACTIVITY = 1; // 0x1
+    field public static final int BODY_MEASUREMENTS = 2; // 0x2
+    field public static final int CYCLE_TRACKING = 3; // 0x3
+    field public static final int NUTRITION = 4; // 0x4
+    field public static final int SLEEP = 5; // 0x5
+    field public static final int UNKNOWN = 0; // 0x0
+    field public static final int VITALS = 6; // 0x6
+  }
+
+  public class HealthPermissionCategory {
+    field public static final int ACTIVE_CALORIES_BURNED = 1; // 0x1
+    field public static final int BASAL_BODY_TEMPERATURE = 33; // 0x21
+    field public static final int BASAL_METABOLIC_RATE = 9; // 0x9
+    field public static final int BLOOD_GLUCOSE = 26; // 0x1a
+    field public static final int BLOOD_PRESSURE = 27; // 0x1b
+    field public static final int BODY_FAT = 10; // 0xa
+    field public static final int BODY_TEMPERATURE = 28; // 0x1c
+    field public static final int BODY_WATER_MASS = 11; // 0xb
+    field public static final int BONE_MASS = 12; // 0xc
+    field public static final int CERVICAL_MUCUS = 18; // 0x12
+    field public static final int DISTANCE = 2; // 0x2
+    field public static final int ELEVATION_GAINED = 3; // 0x3
+    field public static final int EXERCISE = 4; // 0x4
+    field public static final int FLOORS_CLIMBED = 5; // 0x5
+    field public static final int HEART_RATE = 29; // 0x1d
+    field public static final int HEART_RATE_VARIABILITY = 30; // 0x1e
+    field public static final int HEIGHT = 13; // 0xd
+    field public static final int HYDRATION = 23; // 0x17
+    field public static final int INTERMENSTRUAL_BLEEDING = 38; // 0x26
+    field public static final int LEAN_BODY_MASS = 15; // 0xf
+    field public static final int MENSTRUATION = 20; // 0x14
+    field public static final int NUTRITION = 24; // 0x18
+    field public static final int OVULATION_TEST = 21; // 0x15
+    field public static final int OXYGEN_SATURATION = 31; // 0x1f
+    field public static final int POWER = 36; // 0x24
+    field public static final int RESPIRATORY_RATE = 32; // 0x20
+    field public static final int RESTING_HEART_RATE = 34; // 0x22
+    field public static final int SEXUAL_ACTIVITY = 22; // 0x16
+    field public static final int SLEEP = 25; // 0x19
+    field public static final int SPEED = 37; // 0x25
+    field public static final int STEPS = 6; // 0x6
+    field public static final int TOTAL_CALORIES_BURNED = 35; // 0x23
+    field public static final int UNKNOWN = 0; // 0x0
+    field public static final int VO2_MAX = 7; // 0x7
+    field public static final int WEIGHT = 17; // 0x11
+    field public static final int WHEELCHAIR_PUSHES = 8; // 0x8
+  }
+
+  public final class HealthPermissions {
+    field public static final String HEALTH_PERMISSION_GROUP = "android.permission-group.HEALTH";
+    field public static final String MANAGE_HEALTH_DATA_PERMISSION = "android.permission.MANAGE_HEALTH_DATA";
+    field public static final String MANAGE_HEALTH_PERMISSIONS = "android.permission.MANAGE_HEALTH_PERMISSIONS";
+  }
+
+  public class RecordTypeInfoResponse {
+    method @NonNull public java.util.List<android.health.connect.datatypes.DataOrigin> getContributingPackages();
+    method public int getDataCategory();
+    method public int getPermissionCategory();
+  }
+
+  public final class UpdateDataOriginPriorityOrderRequest {
+    ctor public UpdateDataOriginPriorityOrderRequest(@NonNull java.util.List<android.health.connect.datatypes.DataOrigin>, int);
+    method public int getDataCategory();
+    method @NonNull public java.util.List<android.health.connect.datatypes.DataOrigin> getDataOriginInOrder();
+  }
+
+}
+
+package android.health.connect.accesslog {
+
+  public final class AccessLog implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.time.Instant getAccessTime();
+    method public int getOperationType();
+    method @NonNull public String getPackageName();
+    method @NonNull public java.util.List<java.lang.Class<? extends android.health.connect.datatypes.Record>> getRecordTypes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.accesslog.AccessLog> CREATOR;
+  }
+
+  public static final class AccessLog.OperationType {
+    field public static final int OPERATION_TYPE_DELETE = 1; // 0x1
+    field public static final int OPERATION_TYPE_READ = 2; // 0x2
+    field public static final int OPERATION_TYPE_UPSERT = 0; // 0x0
+  }
+
+}
+
+package android.health.connect.datatypes {
+
+  public abstract class Record {
+    method public int getRecordType();
+  }
+
+  public final class RecordTypeIdentifier {
+    field public static final int RECORD_TYPE_ACTIVE_CALORIES_BURNED = 2; // 0x2
+    field public static final int RECORD_TYPE_BASAL_BODY_TEMPERATURE = 20; // 0x14
+    field public static final int RECORD_TYPE_BASAL_METABOLIC_RATE = 16; // 0x10
+    field public static final int RECORD_TYPE_BLOOD_GLUCOSE = 25; // 0x19
+    field public static final int RECORD_TYPE_BLOOD_PRESSURE = 23; // 0x17
+    field public static final int RECORD_TYPE_BODY_FAT = 17; // 0x11
+    field public static final int RECORD_TYPE_BODY_TEMPERATURE = 29; // 0x1d
+    field public static final int RECORD_TYPE_BODY_WATER_MASS = 34; // 0x22
+    field public static final int RECORD_TYPE_BONE_MASS = 32; // 0x20
+    field public static final int RECORD_TYPE_CERVICAL_MUCUS = 19; // 0x13
+    field public static final int RECORD_TYPE_CYCLING_PEDALING_CADENCE = 12; // 0xc
+    field public static final int RECORD_TYPE_DISTANCE = 7; // 0x7
+    field public static final int RECORD_TYPE_ELEVATION_GAINED = 4; // 0x4
+    field public static final int RECORD_TYPE_EXERCISE_SESSION = 37; // 0x25
+    field public static final int RECORD_TYPE_FLOORS_CLIMBED = 5; // 0x5
+    field public static final int RECORD_TYPE_HEART_RATE = 11; // 0xb
+    field public static final int RECORD_TYPE_HEART_RATE_VARIABILITY_RMSSD = 35; // 0x23
+    field public static final int RECORD_TYPE_HEIGHT = 24; // 0x18
+    field public static final int RECORD_TYPE_HYDRATION = 3; // 0x3
+    field public static final int RECORD_TYPE_INTERMENSTRUAL_BLEEDING = 36; // 0x24
+    field public static final int RECORD_TYPE_LEAN_BODY_MASS = 27; // 0x1b
+    field public static final int RECORD_TYPE_MENSTRUATION_FLOW = 21; // 0x15
+    field public static final int RECORD_TYPE_MENSTRUATION_PERIOD = 10; // 0xa
+    field public static final int RECORD_TYPE_NUTRITION = 8; // 0x8
+    field public static final int RECORD_TYPE_OVULATION_TEST = 30; // 0x1e
+    field public static final int RECORD_TYPE_OXYGEN_SATURATION = 22; // 0x16
+    field public static final int RECORD_TYPE_POWER = 13; // 0xd
+    field public static final int RECORD_TYPE_RESPIRATORY_RATE = 31; // 0x1f
+    field public static final int RECORD_TYPE_RESTING_HEART_RATE = 33; // 0x21
+    field public static final int RECORD_TYPE_SEXUAL_ACTIVITY = 28; // 0x1c
+    field public static final int RECORD_TYPE_SLEEP_SESSION = 38; // 0x26
+    field public static final int RECORD_TYPE_SPEED = 14; // 0xe
+    field public static final int RECORD_TYPE_STEPS = 1; // 0x1
+    field public static final int RECORD_TYPE_STEPS_CADENCE = 15; // 0xf
+    field public static final int RECORD_TYPE_TOTAL_CALORIES_BURNED = 9; // 0x9
+    field public static final int RECORD_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int RECORD_TYPE_VO2_MAX = 18; // 0x12
+    field public static final int RECORD_TYPE_WEIGHT = 26; // 0x1a
+    field public static final int RECORD_TYPE_WHEELCHAIR_PUSHES = 6; // 0x6
+  }
+
+}
+
+package android.health.connect.migration {
+
+  public final class AppInfoMigrationPayload extends android.health.connect.migration.MigrationPayload implements android.os.Parcelable {
+    method @Nullable public byte[] getAppIcon();
+    method @NonNull public String getAppName();
+    method @NonNull public String getPackageName();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.AppInfoMigrationPayload> CREATOR;
+  }
+
+  public static final class AppInfoMigrationPayload.Builder {
+    ctor public AppInfoMigrationPayload.Builder(@NonNull String, @NonNull String);
+    method @NonNull public android.health.connect.migration.AppInfoMigrationPayload build();
+    method @NonNull public android.health.connect.migration.AppInfoMigrationPayload.Builder setAppIcon(@Nullable byte[]);
+    method @NonNull public android.health.connect.migration.AppInfoMigrationPayload.Builder setAppName(@NonNull String);
+    method @NonNull public android.health.connect.migration.AppInfoMigrationPayload.Builder setPackageName(@NonNull String);
+  }
+
+  public final class MetadataMigrationPayload extends android.health.connect.migration.MigrationPayload implements android.os.Parcelable {
+    method public int getRecordRetentionPeriodDays();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.MetadataMigrationPayload> CREATOR;
+  }
+
+  public static final class MetadataMigrationPayload.Builder {
+    ctor public MetadataMigrationPayload.Builder();
+    method @NonNull public android.health.connect.migration.MetadataMigrationPayload build();
+    method @NonNull public android.health.connect.migration.MetadataMigrationPayload.Builder setRecordRetentionPeriodDays(@IntRange(from=0x0, to=0x1c84) int);
+  }
+
+  public final class MigrationEntity implements android.os.Parcelable {
+    ctor public MigrationEntity(@NonNull String, @NonNull android.health.connect.migration.MigrationPayload);
+    method public int describeContents();
+    method @NonNull public String getEntityId();
+    method @NonNull public android.health.connect.migration.MigrationPayload getPayload();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.MigrationEntity> CREATOR;
+  }
+
+  public final class MigrationException extends java.lang.RuntimeException implements android.os.Parcelable {
+    ctor public MigrationException(@Nullable String, int, @Nullable String);
+    method public int describeContents();
+    method public int getErrorCode();
+    method @Nullable public String getFailedEntityId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.MigrationException> CREATOR;
+    field public static final int ERROR_INTERNAL = 1; // 0x1
+    field public static final int ERROR_MIGRATE_ENTITY = 2; // 0x2
+    field public static final int ERROR_MIGRATION_UNAVAILABLE = 3; // 0x3
+  }
+
+  public abstract class MigrationPayload implements android.os.Parcelable {
+    method public int describeContents();
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.MigrationPayload> CREATOR;
+  }
+
+  public final class PermissionMigrationPayload extends android.health.connect.migration.MigrationPayload implements android.os.Parcelable {
+    method @NonNull public java.time.Instant getFirstGrantTime();
+    method @NonNull public String getHoldingPackageName();
+    method @NonNull public java.util.List<java.lang.String> getPermissions();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.PermissionMigrationPayload> CREATOR;
+  }
+
+  public static final class PermissionMigrationPayload.Builder {
+    ctor public PermissionMigrationPayload.Builder(@NonNull String, @NonNull java.time.Instant);
+    method @NonNull public android.health.connect.migration.PermissionMigrationPayload.Builder addPermission(@NonNull String);
+    method @NonNull public android.health.connect.migration.PermissionMigrationPayload build();
+    method @NonNull public android.health.connect.migration.PermissionMigrationPayload.Builder setFirstGrantTime(@NonNull java.time.Instant);
+    method @NonNull public android.health.connect.migration.PermissionMigrationPayload.Builder setHoldingPackageName(@NonNull String);
+  }
+
+  public final class PriorityMigrationPayload extends android.health.connect.migration.MigrationPayload implements android.os.Parcelable {
+    method public int getDataCategory();
+    method @NonNull public java.util.List<android.health.connect.datatypes.DataOrigin> getDataOrigins();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.PriorityMigrationPayload> CREATOR;
+  }
+
+  public static final class PriorityMigrationPayload.Builder {
+    ctor public PriorityMigrationPayload.Builder();
+    method @NonNull public android.health.connect.migration.PriorityMigrationPayload.Builder addDataOrigin(@NonNull android.health.connect.datatypes.DataOrigin);
+    method @NonNull public android.health.connect.migration.PriorityMigrationPayload build();
+    method @NonNull public android.health.connect.migration.PriorityMigrationPayload.Builder setDataCategory(int);
+  }
+
+  public final class RecordMigrationPayload extends android.health.connect.migration.MigrationPayload implements android.os.Parcelable {
+    method @NonNull public String getOriginAppName();
+    method @NonNull public String getOriginPackageName();
+    method @NonNull public android.health.connect.datatypes.Record getRecord();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.migration.RecordMigrationPayload> CREATOR;
+  }
+
+  public static final class RecordMigrationPayload.Builder {
+    ctor public RecordMigrationPayload.Builder(@NonNull String, @NonNull String, @NonNull android.health.connect.datatypes.Record);
+    method @NonNull public android.health.connect.migration.RecordMigrationPayload build();
+    method @NonNull public android.health.connect.migration.RecordMigrationPayload.Builder setOriginAppName(@NonNull String);
+    method @NonNull public android.health.connect.migration.RecordMigrationPayload.Builder setOriginPackageName(@NonNull String);
+    method @NonNull public android.health.connect.migration.RecordMigrationPayload.Builder setRecord(@NonNull android.health.connect.datatypes.Record);
+  }
+
+}
+
+package android.health.connect.restore {
+
+  public final class StageRemoteDataException extends java.lang.RuntimeException implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.Map<java.lang.String,android.health.connect.HealthConnectException> getExceptionsByFileNames();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.health.connect.restore.StageRemoteDataException> CREATOR;
+  }
+
+}
+

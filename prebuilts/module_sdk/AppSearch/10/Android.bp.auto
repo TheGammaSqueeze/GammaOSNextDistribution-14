@@ -1,0 +1,116 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.appsearch-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.appsearch"],
+    licenses: ["appsearch-sdk_packages_modules_appsearch_license"],
+    contents: ["framework-appsearch"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "framework-appsearch",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.appsearch"],
+    licenses: ["appsearch-sdk_packages_modules_appsearch_license"],
+    shared_library: false,
+    permitted_packages: ["android.app.appsearch"],
+    public: {
+        jars: ["sdk_library/public/framework-appsearch-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-appsearch.srcjar"],
+        current_api: "sdk_library/public/framework-appsearch.txt",
+        removed_api: "sdk_library/public/framework-appsearch-removed.txt",
+        annotations: "sdk_library/public/framework-appsearch_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-appsearch-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-appsearch.srcjar"],
+        current_api: "sdk_library/system/framework-appsearch.txt",
+        removed_api: "sdk_library/system/framework-appsearch-removed.txt",
+        annotations: "sdk_library/system/framework-appsearch_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-appsearch-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-appsearch.srcjar"],
+        current_api: "sdk_library/module-lib/framework-appsearch.txt",
+        removed_api: "sdk_library/module-lib/framework-appsearch-removed.txt",
+        annotations: "sdk_library/module-lib/framework-appsearch_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_import {
+    name: "service-appsearch",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.appsearch"],
+    licenses: ["appsearch-sdk_packages_modules_appsearch_license"],
+    jars: ["java_systemserver_libs/snapshot/jars/are/invalid/service-appsearch.jar"],
+    min_sdk_version: "33",
+    permitted_packages: [
+        "com.android.server.appsearch",
+        "com.google.android.icing",
+    ],
+}
+
+license {
+    name: "appsearch-sdk_packages_modules_appsearch_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/packages/modules/AppSearch/NOTICE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.appsearch-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.appsearch"],
+    licenses: ["appsearch-sdk_packages_modules_appsearch_license"],
+    contents: ["service-appsearch"],
+}

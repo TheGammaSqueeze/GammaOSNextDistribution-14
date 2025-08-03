@@ -1,0 +1,58 @@
+package {
+    default_applicable_licenses: ["prebuilts_misc_protobuf_vendorcompat_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_misc_protobuf_vendorcompat_license",
+    license_kinds: ["SPDX-license-identifier-BSD"],
+    license_text: ["LICENSE"],
+}
+
+// Workaround for neural networks HAL on barbet
+cc_prebuilt_library_shared {
+    name: "libprotobuf-cpp-full-3.9.1-vendorcompat",
+    stem: "libprotobuf-cpp-full-3.9.1",
+    vendor: true,
+    target: {
+        android_arm64: {
+            srcs: ["arm64/libprotobuf-cpp-full-3.9.1.so"],
+        },
+        android_arm: {
+            srcs: ["arm/libprotobuf-cpp-full-3.9.1.so"],
+        },
+    },
+
+    shared_libs: [
+        "libc++",
+        "libc",
+        "libdl",
+        "liblog",
+        "libm",
+        "libz",
+    ],
+}
+
+// Workaround for Qualcomm prebuilts used by partners.
+cc_prebuilt_library_shared {
+    name: "libprotobuf-cpp-lite-3.9.1-vendorcompat",
+    stem: "libprotobuf-cpp-lite-3.9.1",
+    vendor: true,
+    target: {
+        android_arm64: {
+            srcs: ["arm64/libprotobuf-cpp-lite-3.9.1.so"],
+        },
+        android_arm: {
+            srcs: ["arm/libprotobuf-cpp-lite-3.9.1.so"],
+        },
+    },
+
+    shared_libs: [
+        "libc++",
+        "libc",
+        "libdl",
+        "liblog",
+        "libm",
+        "libz",
+    ],
+}

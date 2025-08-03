@@ -1,0 +1,1567 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x00745244
+  kind: POINTER
+  pointee_type_id: 0x2b91af8c
+}
+pointer_reference {
+  id: 0x00cd46d7
+  kind: POINTER
+  pointee_type_id: 0x2975fdc0
+}
+pointer_reference {
+  id: 0x03eb3087
+  kind: POINTER
+  pointee_type_id: 0x25ec2482
+}
+pointer_reference {
+  id: 0x051414e1
+  kind: POINTER
+  pointee_type_id: 0x3e10b518
+}
+pointer_reference {
+  id: 0x05c8903e
+  kind: POINTER
+  pointee_type_id: 0x3d62a666
+}
+pointer_reference {
+  id: 0x060de434
+  kind: POINTER
+  pointee_type_id: 0x3277764e
+}
+pointer_reference {
+  id: 0x082fd26c
+  kind: POINTER
+  pointee_type_id: 0x0affaf2f
+}
+pointer_reference {
+  id: 0x0affaf2f
+  kind: POINTER
+  pointee_type_id: 0x01be5a20
+}
+pointer_reference {
+  id: 0x0c914e9d
+  kind: POINTER
+  pointee_type_id: 0x1805dcea
+}
+pointer_reference {
+  id: 0x0d9f5631
+  kind: POINTER
+  pointee_type_id: 0x1c3dbe5a
+}
+pointer_reference {
+  id: 0x0db25a6d
+  kind: POINTER
+  pointee_type_id: 0x1c898f28
+}
+pointer_reference {
+  id: 0x0ff2d8ee
+  kind: POINTER
+  pointee_type_id: 0x158b8526
+}
+pointer_reference {
+  id: 0x123b9652
+  kind: POINTER
+  pointee_type_id: 0x62aebfd4
+}
+pointer_reference {
+  id: 0x13580d6c
+  kind: POINTER
+  pointee_type_id: 0x6720d32f
+}
+pointer_reference {
+  id: 0x158b8526
+  kind: POINTER
+  pointee_type_id: 0x7c6ef204
+}
+pointer_reference {
+  id: 0x17dccfd3
+  kind: POINTER
+  pointee_type_id: 0x7533d9d0
+}
+pointer_reference {
+  id: 0x1805dcea
+  kind: POINTER
+  pointee_type_id: 0x4a579536
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x1ecc4d02
+  kind: POINTER
+  pointee_type_id: 0x5171d297
+}
+pointer_reference {
+  id: 0x25ec2482
+  kind: POINTER
+  pointee_type_id: 0xbdf07494
+}
+pointer_reference {
+  id: 0x2975fdc0
+  kind: POINTER
+  pointee_type_id: 0x8f97119f
+}
+pointer_reference {
+  id: 0x2b91af8c
+  kind: POINTER
+  pointee_type_id: 0x840658af
+}
+pointer_reference {
+  id: 0x3068e53f
+  kind: POINTER
+  pointee_type_id: 0xebe37263
+}
+pointer_reference {
+  id: 0x3124ab68
+  kind: POINTER
+  pointee_type_id: 0xeed24b3d
+}
+pointer_reference {
+  id: 0x3277764e
+  kind: POINTER
+  pointee_type_id: 0xe39d3fa4
+}
+pointer_reference {
+  id: 0x33ad9135
+  kind: POINTER
+  pointee_type_id: 0xe4f6a24b
+}
+pointer_reference {
+  id: 0x352385f8
+  kind: POINTER
+  pointee_type_id: 0xfecef17d
+}
+pointer_reference {
+  id: 0x356d33d6
+  kind: POINTER
+  pointee_type_id: 0xfff429c5
+}
+pointer_reference {
+  id: 0x35d42745
+  kind: POINTER
+  pointee_type_id: 0xfd107b89
+}
+pointer_reference {
+  id: 0x364b4586
+  kind: POINTER
+  pointee_type_id: 0xf36df087
+}
+pointer_reference {
+  id: 0x38cff226
+  kind: POINTER
+  pointee_type_id: 0xc97f2e06
+}
+pointer_reference {
+  id: 0x391f15ea
+  kind: POINTER
+  pointee_type_id: 0xce3cb135
+}
+pointer_reference {
+  id: 0x39313b9c
+  kind: POINTER
+  pointee_type_id: 0xce8408ef
+}
+pointer_reference {
+  id: 0x39aad3c3
+  kind: POINTER
+  pointee_type_id: 0xcceba991
+}
+pointer_reference {
+  id: 0x3a52adef
+  kind: POINTER
+  pointee_type_id: 0xc30a5123
+}
+pointer_reference {
+  id: 0x3c57992a
+  kind: POINTER
+  pointee_type_id: 0xdb1e8234
+}
+pointer_reference {
+  id: 0x3d21bdb3
+  kind: POINTER
+  pointee_type_id: 0xdec61052
+}
+pointer_reference {
+  id: 0x3d62a666
+  kind: POINTER
+  pointee_type_id: 0xdfca7f05
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+pointer_reference {
+  id: 0x3e92cc9c
+  kind: POINTER
+  pointee_type_id: 0xd00bd4ed
+}
+pointer_reference {
+  id: 0x3ec900bb
+  kind: POINTER
+  pointee_type_id: 0xd164e473
+}
+typedef {
+  id: 0xcb0e9a7f
+  name: "AHardwareBuffer"
+  referred_type_id: 0xda3b284e
+}
+typedef {
+  id: 0x01be5a20
+  name: "ANeuralNetworksBurst"
+  referred_type_id: 0x852d0c6a
+}
+typedef {
+  id: 0x4a579536
+  name: "ANeuralNetworksCompilation"
+  referred_type_id: 0x14e40bcb
+}
+typedef {
+  id: 0x840658af
+  name: "ANeuralNetworksDevice"
+  referred_type_id: 0x0c8f8c92
+}
+typedef {
+  id: 0xdfca7f05
+  name: "ANeuralNetworksEvent"
+  referred_type_id: 0x85b7dcba
+}
+typedef {
+  id: 0xbdf07494
+  name: "ANeuralNetworksExecution"
+  referred_type_id: 0x5f823c3b
+}
+typedef {
+  id: 0xe39d3fa4
+  name: "ANeuralNetworksMemory"
+  referred_type_id: 0xb2e7d7c1
+}
+typedef {
+  id: 0x7c6ef204
+  name: "ANeuralNetworksMemoryDesc"
+  referred_type_id: 0x1532cbb7
+}
+typedef {
+  id: 0x8f97119f
+  name: "ANeuralNetworksModel"
+  referred_type_id: 0x253455ac
+}
+typedef {
+  id: 0x0b5ff7c3
+  name: "ANeuralNetworksOperandType"
+  referred_type_id: 0x5810e58d
+}
+typedef {
+  id: 0x88736d42
+  name: "ANeuralNetworksOperationType"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x55bb0e93
+  name: "ANeuralNetworksSymmPerChannelQuantParams"
+  referred_type_id: 0xd2d6c3f1
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0xfc0e1dbd
+}
+typedef {
+  id: 0x903f4c78
+  name: "__uint32_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x854daa2a
+  name: "__uint64_t"
+  referred_type_id: 0x33756485
+}
+typedef {
+  id: 0x2ebf28fa
+  name: "__uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x33756485
+}
+typedef {
+  id: 0x1c3dbe5a
+  name: "uint32_t"
+  referred_type_id: 0x903f4c78
+}
+typedef {
+  id: 0x1c898f28
+  name: "uint64_t"
+  referred_type_id: 0x854daa2a
+}
+typedef {
+  id: 0x43e910ce
+  name: "uint8_t"
+  referred_type_id: 0x2ebf28fa
+}
+qualified {
+  id: 0xc30a5123
+  qualifier: CONST
+  qualified_type_id: 0x7c6ef204
+}
+qualified {
+  id: 0xc97f2e06
+  qualifier: CONST
+  qualified_type_id: 0x55bb0e93
+}
+qualified {
+  id: 0xcceba991
+  qualifier: CONST
+  qualified_type_id: 0x43e910ce
+}
+qualified {
+  id: 0xce3cb135
+  qualifier: CONST
+  qualified_type_id: 0x48b5725f
+}
+qualified {
+  id: 0xce8408ef
+  qualifier: CONST
+  qualified_type_id: 0x4a579536
+}
+qualified {
+  id: 0xd00bd4ed
+  qualifier: CONST
+  qualified_type_id: 0x3068e53f
+}
+qualified {
+  id: 0xd164e473
+  qualifier: CONST
+  qualified_type_id: 0x35d42745
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xdb1e8234
+  qualifier: CONST
+  qualified_type_id: 0x1c3dbe5a
+}
+qualified {
+  id: 0xdec61052
+  qualifier: CONST
+  qualified_type_id: 0x0b5ff7c3
+}
+qualified {
+  id: 0xe4f6a24b
+  qualifier: CONST
+  qualified_type_id: 0xe39d3fa4
+}
+qualified {
+  id: 0xebe37263
+  qualifier: CONST
+  qualified_type_id: 0xdfca7f05
+}
+qualified {
+  id: 0xeed24b3d
+  qualifier: CONST
+  qualified_type_id: 0xcb0e9a7f
+}
+qualified {
+  id: 0xf36df087
+  qualifier: CONST
+  qualified_type_id: 0xbdf07494
+}
+qualified {
+  id: 0xfd107b89
+  qualifier: CONST
+  qualified_type_id: 0x840658af
+}
+qualified {
+  id: 0xfecef17d
+  qualifier: CONST
+  qualified_type_id: 0x8b7c737e
+}
+qualified {
+  id: 0xfff429c5
+  qualifier: CONST
+  qualified_type_id: 0x8f97119f
+}
+primitive {
+  id: 0x33756485
+  name: "unsigned long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x62aebfd4
+  name: "bool"
+  encoding: BOOLEAN
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0x3871c3d8
+  name: "channelDim"
+  type_id: 0x1c3dbe5a
+}
+member {
+  id: 0xbbaac08f
+  name: "dimensionCount"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0x6075a2cd
+  name: "dimensions"
+  type_id: 0x3c57992a
+  offset: 64
+}
+member {
+  id: 0xe6a77dd6
+  name: "scale"
+  type_id: 0x8b7c737e
+  offset: 128
+}
+member {
+  id: 0x45dbabfa
+  name: "scaleCount"
+  type_id: 0x1c3dbe5a
+  offset: 32
+}
+member {
+  id: 0xd40bdb69
+  name: "scales"
+  type_id: 0x352385f8
+  offset: 64
+}
+member {
+  id: 0x5c07a4ac
+  name: "type"
+  type_id: 0x5171d297
+}
+member {
+  id: 0xcc03fe35
+  name: "zeroPoint"
+  type_id: 0x5171d297
+  offset: 160
+}
+struct_union {
+  id: 0xda3b284e
+  kind: STRUCT
+  name: "AHardwareBuffer"
+}
+struct_union {
+  id: 0x852d0c6a
+  kind: STRUCT
+  name: "ANeuralNetworksBurst"
+}
+struct_union {
+  id: 0x14e40bcb
+  kind: STRUCT
+  name: "ANeuralNetworksCompilation"
+}
+struct_union {
+  id: 0x0c8f8c92
+  kind: STRUCT
+  name: "ANeuralNetworksDevice"
+}
+struct_union {
+  id: 0x85b7dcba
+  kind: STRUCT
+  name: "ANeuralNetworksEvent"
+}
+struct_union {
+  id: 0x5f823c3b
+  kind: STRUCT
+  name: "ANeuralNetworksExecution"
+}
+struct_union {
+  id: 0xb2e7d7c1
+  kind: STRUCT
+  name: "ANeuralNetworksMemory"
+}
+struct_union {
+  id: 0x1532cbb7
+  kind: STRUCT
+  name: "ANeuralNetworksMemoryDesc"
+}
+struct_union {
+  id: 0x253455ac
+  kind: STRUCT
+  name: "ANeuralNetworksModel"
+}
+struct_union {
+  id: 0x5810e58d
+  kind: STRUCT
+  name: "ANeuralNetworksOperandType"
+  definition {
+    bytesize: 24
+    member_id: 0x5c07a4ac
+    member_id: 0xbbaac08f
+    member_id: 0x6075a2cd
+    member_id: 0xe6a77dd6
+    member_id: 0xcc03fe35
+  }
+}
+struct_union {
+  id: 0xd2d6c3f1
+  kind: STRUCT
+  name: "ANeuralNetworksSymmPerChannelQuantParams"
+  definition {
+    bytesize: 16
+    member_id: 0x3871c3d8
+    member_id: 0x45dbabfa
+    member_id: 0xd40bdb69
+  }
+}
+function {
+  id: 0x1227ba58
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0affaf2f
+}
+function {
+  id: 0x15fab0da
+  return_type_id: 0x48b5725f
+  parameter_id: 0x158b8526
+}
+function {
+  id: 0x169926a9
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1805dcea
+}
+function {
+  id: 0x19e358b3
+  return_type_id: 0x48b5725f
+  parameter_id: 0x25ec2482
+}
+function {
+  id: 0x1ac52ee3
+  return_type_id: 0x48b5725f
+  parameter_id: 0x2975fdc0
+}
+function {
+  id: 0x1c058c00
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3277764e
+}
+function {
+  id: 0x1fc0f80a
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3d62a666
+}
+function {
+  id: 0x5ea0d217
+  return_type_id: 0x1c898f28
+}
+function {
+  id: 0x845ff5a4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x05c8903e
+}
+function {
+  id: 0x9027cc59
+  return_type_id: 0x6720d32f
+  parameter_id: 0x356d33d6
+  parameter_id: 0x3ec900bb
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x123b9652
+}
+function {
+  id: 0x908edbca
+  return_type_id: 0x6720d32f
+  parameter_id: 0x35d42745
+  parameter_id: 0x1ecc4d02
+}
+function {
+  id: 0x90aa99c1
+  return_type_id: 0x6720d32f
+  parameter_id: 0x35d42745
+  parameter_id: 0x17dccfd3
+}
+function {
+  id: 0x90e1baad
+  return_type_id: 0x6720d32f
+  parameter_id: 0x35d42745
+  parameter_id: 0x051414e1
+}
+function {
+  id: 0x90f5eafe
+  return_type_id: 0x6720d32f
+  parameter_id: 0x35d42745
+}
+function {
+  id: 0x91549992
+  return_type_id: 0x6720d32f
+  parameter_id: 0x364b4586
+  parameter_id: 0x5171d297
+  parameter_id: 0x0db25a6d
+}
+function {
+  id: 0x91a53126
+  return_type_id: 0x6720d32f
+  parameter_id: 0x33ad9135
+  parameter_id: 0x33ad9135
+}
+function {
+  id: 0x91d1fe65
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3124ab68
+  parameter_id: 0x060de434
+}
+function {
+  id: 0x91d7ba55
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3068e53f
+  parameter_id: 0x13580d6c
+}
+function {
+  id: 0x92d84ab6
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3d62a666
+}
+function {
+  id: 0x930c7fc4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x3a52adef
+  parameter_id: 0x060de434
+}
+function {
+  id: 0x93bf3ce4
+  return_type_id: 0x6720d32f
+  parameter_id: 0x39313b9c
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x0d9f5631
+}
+function {
+  id: 0x9406dd06
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x3e92cc9c
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x1c898f28
+  parameter_id: 0x05c8903e
+}
+function {
+  id: 0x9489cc33
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x1c898f28
+}
+function {
+  id: 0x94d014b3
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x0affaf2f
+}
+function {
+  id: 0x94ecc84f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x05c8903e
+}
+function {
+  id: 0x94fbea0f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+}
+function {
+  id: 0x957150f0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x95b13ad2
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d21bdb3
+  parameter_id: 0x18bd6530
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x95b19541
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d21bdb3
+  parameter_id: 0x33ad9135
+  parameter_id: 0xf435685e
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x95b1bc5b
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x5171d297
+  parameter_id: 0x3d21bdb3
+  parameter_id: 0x391f15ea
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x95bd4a90
+  return_type_id: 0x6720d32f
+  parameter_id: 0x25ec2482
+  parameter_id: 0x5171d297
+  parameter_id: 0x0d9f5631
+}
+function {
+  id: 0x95fba825
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x88736d42
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3c57992a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3c57992a
+}
+function {
+  id: 0x965726a0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x62aebfd4
+}
+function {
+  id: 0x96950059
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x5171d297
+  parameter_id: 0x356d33d6
+}
+function {
+  id: 0x9695cc05
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x5171d297
+  parameter_id: 0x391f15ea
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x969668e9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x5171d297
+  parameter_id: 0x38cff226
+}
+function {
+  id: 0x96975da9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x5171d297
+  parameter_id: 0x33ad9135
+  parameter_id: 0xf435685e
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x97218577
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x3ec900bb
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x0c914e9d
+}
+function {
+  id: 0x97291aa9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x3d21bdb3
+}
+function {
+  id: 0x97a200a3
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3c57992a
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3c57992a
+}
+function {
+  id: 0x97dd9c5f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+}
+function {
+  id: 0x97efd965
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2975fdc0
+  parameter_id: 0x0c914e9d
+}
+function {
+  id: 0x9803e416
+  return_type_id: 0x6720d32f
+  parameter_id: 0x158b8526
+  parameter_id: 0x39313b9c
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x8b7c737e
+}
+function {
+  id: 0x989de179
+  return_type_id: 0x6720d32f
+  parameter_id: 0x158b8526
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x3c57992a
+}
+function {
+  id: 0x98e20266
+  return_type_id: 0x6720d32f
+  parameter_id: 0x158b8526
+}
+function {
+  id: 0x9a1d1759
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9a8e5df0
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1c3dbe5a
+  parameter_id: 0x00745244
+}
+function {
+  id: 0x9ac4535f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x5171d297
+}
+function {
+  id: 0x9b77bc75
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x3e10b518
+  parameter_id: 0x39aad3c3
+}
+function {
+  id: 0x9b819415
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+}
+function {
+  id: 0x9b8e38d7
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x03eb3087
+}
+function {
+  id: 0x9ba12b5c
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x082fd26c
+}
+function {
+  id: 0x9bf3b229
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1805dcea
+  parameter_id: 0x1c898f28
+}
+function {
+  id: 0x9db3b29a
+  return_type_id: 0x6720d32f
+  parameter_id: 0x00cd46d7
+}
+function {
+  id: 0x9e7c5514
+  return_type_id: 0x6720d32f
+  parameter_id: 0x0ff2d8ee
+}
+function {
+  id: 0x9ee736a3
+  return_type_id: 0x6720d32f
+  parameter_id: 0x0d9f5631
+}
+function {
+  id: 0xa10b2316
+  return_type_id: 0x6720d32f
+  parameter_id: 0xf435685e
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0xf435685e
+  parameter_id: 0x060de434
+}
+function {
+  id: 0xf7d54039
+  return_type_id: 0x7533d9d0
+}
+elf_symbol {
+  id: 0x17b21678
+  name: "ANeuralNetworksBurst_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9ba12b5c
+  full_name: "ANeuralNetworksBurst_create"
+}
+elf_symbol {
+  id: 0x37d7f8d0
+  name: "ANeuralNetworksBurst_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1227ba58
+  full_name: "ANeuralNetworksBurst_free"
+}
+elf_symbol {
+  id: 0xfc319e09
+  name: "ANeuralNetworksCompilation_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97efd965
+  full_name: "ANeuralNetworksCompilation_create"
+}
+elf_symbol {
+  id: 0xefcba5a3
+  name: "ANeuralNetworksCompilation_createForDevices"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97218577
+  full_name: "ANeuralNetworksCompilation_createForDevices"
+}
+elf_symbol {
+  id: 0x7633e0e8
+  name: "ANeuralNetworksCompilation_finish"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b819415
+  full_name: "ANeuralNetworksCompilation_finish"
+}
+elf_symbol {
+  id: 0xb596b369
+  name: "ANeuralNetworksCompilation_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x169926a9
+  full_name: "ANeuralNetworksCompilation_free"
+}
+elf_symbol {
+  id: 0xfb725c1d
+  name: "ANeuralNetworksCompilation_getPreferredMemoryAlignmentForInput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93bf3ce4
+  full_name: "ANeuralNetworksCompilation_getPreferredMemoryAlignmentForInput"
+}
+elf_symbol {
+  id: 0xe0adeac1
+  name: "ANeuralNetworksCompilation_getPreferredMemoryAlignmentForOutput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93bf3ce4
+  full_name: "ANeuralNetworksCompilation_getPreferredMemoryAlignmentForOutput"
+}
+elf_symbol {
+  id: 0x7c7516f0
+  name: "ANeuralNetworksCompilation_getPreferredMemoryPaddingForInput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93bf3ce4
+  full_name: "ANeuralNetworksCompilation_getPreferredMemoryPaddingForInput"
+}
+elf_symbol {
+  id: 0x3e69b938
+  name: "ANeuralNetworksCompilation_getPreferredMemoryPaddingForOutput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x93bf3ce4
+  full_name: "ANeuralNetworksCompilation_getPreferredMemoryPaddingForOutput"
+}
+elf_symbol {
+  id: 0xadc12d5e
+  name: "ANeuralNetworksCompilation_setCaching"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b77bc75
+  full_name: "ANeuralNetworksCompilation_setCaching"
+}
+elf_symbol {
+  id: 0x53856336
+  name: "ANeuralNetworksCompilation_setPreference"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9ac4535f
+  full_name: "ANeuralNetworksCompilation_setPreference"
+}
+elf_symbol {
+  id: 0xb3324a42
+  name: "ANeuralNetworksCompilation_setPriority"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9a1d1759
+  full_name: "ANeuralNetworksCompilation_setPriority"
+}
+elf_symbol {
+  id: 0x61c9584b
+  name: "ANeuralNetworksCompilation_setTimeout"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9bf3b229
+  full_name: "ANeuralNetworksCompilation_setTimeout"
+}
+elf_symbol {
+  id: 0x28ce0c42
+  name: "ANeuralNetworksDevice_getFeatureLevel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90aa99c1
+  full_name: "ANeuralNetworksDevice_getFeatureLevel"
+}
+elf_symbol {
+  id: 0x6d9f01e1
+  name: "ANeuralNetworksDevice_getName"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90e1baad
+  full_name: "ANeuralNetworksDevice_getName"
+}
+elf_symbol {
+  id: 0x78b65a6c
+  name: "ANeuralNetworksDevice_getType"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x908edbca
+  full_name: "ANeuralNetworksDevice_getType"
+}
+elf_symbol {
+  id: 0x68fc2804
+  name: "ANeuralNetworksDevice_getVersion"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90e1baad
+  full_name: "ANeuralNetworksDevice_getVersion"
+}
+elf_symbol {
+  id: 0x3ed2b6e8
+  name: "ANeuralNetworksDevice_wait"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x90f5eafe
+  full_name: "ANeuralNetworksDevice_wait"
+}
+elf_symbol {
+  id: 0xaf94a918
+  name: "ANeuralNetworksEvent_createFromSyncFenceFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x845ff5a4
+  full_name: "ANeuralNetworksEvent_createFromSyncFenceFd"
+}
+elf_symbol {
+  id: 0xdda3c00a
+  name: "ANeuralNetworksEvent_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1fc0f80a
+  full_name: "ANeuralNetworksEvent_free"
+}
+elf_symbol {
+  id: 0x8d08bb74
+  name: "ANeuralNetworksEvent_getSyncFenceFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91d7ba55
+  full_name: "ANeuralNetworksEvent_getSyncFenceFd"
+}
+elf_symbol {
+  id: 0x01ef14d9
+  name: "ANeuralNetworksEvent_wait"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x92d84ab6
+  full_name: "ANeuralNetworksEvent_wait"
+}
+elf_symbol {
+  id: 0x8586d46b
+  name: "ANeuralNetworksExecution_burstCompute"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x94d014b3
+  full_name: "ANeuralNetworksExecution_burstCompute"
+}
+elf_symbol {
+  id: 0x5b0a1cc0
+  name: "ANeuralNetworksExecution_compute"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x94fbea0f
+  full_name: "ANeuralNetworksExecution_compute"
+}
+elf_symbol {
+  id: 0x490e0514
+  name: "ANeuralNetworksExecution_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9b8e38d7
+  full_name: "ANeuralNetworksExecution_create"
+}
+elf_symbol {
+  id: 0xf22f7a9d
+  name: "ANeuralNetworksExecution_enableInputAndOutputPadding"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x957150f0
+  full_name: "ANeuralNetworksExecution_enableInputAndOutputPadding"
+}
+elf_symbol {
+  id: 0xd8a52124
+  name: "ANeuralNetworksExecution_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e358b3
+  full_name: "ANeuralNetworksExecution_free"
+}
+elf_symbol {
+  id: 0x0caff211
+  name: "ANeuralNetworksExecution_getDuration"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91549992
+  full_name: "ANeuralNetworksExecution_getDuration"
+}
+elf_symbol {
+  id: 0x94d7d5f4
+  name: "ANeuralNetworksExecution_getOutputOperandDimensions"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95bd4a90
+  full_name: "ANeuralNetworksExecution_getOutputOperandDimensions"
+}
+elf_symbol {
+  id: 0x02065a0e
+  name: "ANeuralNetworksExecution_getOutputOperandRank"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95bd4a90
+  full_name: "ANeuralNetworksExecution_getOutputOperandRank"
+}
+elf_symbol {
+  id: 0xe8e946eb
+  name: "ANeuralNetworksExecution_setInput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95b1bc5b
+  full_name: "ANeuralNetworksExecution_setInput"
+}
+elf_symbol {
+  id: 0x6ee3e08e
+  name: "ANeuralNetworksExecution_setInputFromMemory"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95b19541
+  full_name: "ANeuralNetworksExecution_setInputFromMemory"
+}
+elf_symbol {
+  id: 0x5c9c9249
+  name: "ANeuralNetworksExecution_setLoopTimeout"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9489cc33
+  full_name: "ANeuralNetworksExecution_setLoopTimeout"
+}
+elf_symbol {
+  id: 0xbb6ce849
+  name: "ANeuralNetworksExecution_setMeasureTiming"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x957150f0
+  full_name: "ANeuralNetworksExecution_setMeasureTiming"
+}
+elf_symbol {
+  id: 0xc99f290f
+  name: "ANeuralNetworksExecution_setOutput"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95b13ad2
+  full_name: "ANeuralNetworksExecution_setOutput"
+}
+elf_symbol {
+  id: 0xac634e8a
+  name: "ANeuralNetworksExecution_setOutputFromMemory"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95b19541
+  full_name: "ANeuralNetworksExecution_setOutputFromMemory"
+}
+elf_symbol {
+  id: 0x36f69ff5
+  name: "ANeuralNetworksExecution_setReusable"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x957150f0
+  full_name: "ANeuralNetworksExecution_setReusable"
+}
+elf_symbol {
+  id: 0x4e1784bc
+  name: "ANeuralNetworksExecution_setTimeout"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9489cc33
+  full_name: "ANeuralNetworksExecution_setTimeout"
+}
+elf_symbol {
+  id: 0x1f595ebe
+  name: "ANeuralNetworksExecution_startCompute"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x94ecc84f
+  full_name: "ANeuralNetworksExecution_startCompute"
+}
+elf_symbol {
+  id: 0x66b3e749
+  name: "ANeuralNetworksExecution_startComputeWithDependencies"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9406dd06
+  full_name: "ANeuralNetworksExecution_startComputeWithDependencies"
+}
+elf_symbol {
+  id: 0x4338a019
+  name: "ANeuralNetworksMemoryDesc_addInputRole"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9803e416
+  full_name: "ANeuralNetworksMemoryDesc_addInputRole"
+}
+elf_symbol {
+  id: 0x1fe40102
+  name: "ANeuralNetworksMemoryDesc_addOutputRole"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9803e416
+  full_name: "ANeuralNetworksMemoryDesc_addOutputRole"
+}
+elf_symbol {
+  id: 0x93ea0b64
+  name: "ANeuralNetworksMemoryDesc_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9e7c5514
+  full_name: "ANeuralNetworksMemoryDesc_create"
+}
+elf_symbol {
+  id: 0x9885d5f8
+  name: "ANeuralNetworksMemoryDesc_finish"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x98e20266
+  full_name: "ANeuralNetworksMemoryDesc_finish"
+}
+elf_symbol {
+  id: 0x39372714
+  name: "ANeuralNetworksMemoryDesc_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x15fab0da
+  full_name: "ANeuralNetworksMemoryDesc_free"
+}
+elf_symbol {
+  id: 0x8a39f47e
+  name: "ANeuralNetworksMemoryDesc_setDimensions"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x989de179
+  full_name: "ANeuralNetworksMemoryDesc_setDimensions"
+}
+elf_symbol {
+  id: 0xb88f9af8
+  name: "ANeuralNetworksMemory_copy"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91a53126
+  full_name: "ANeuralNetworksMemory_copy"
+}
+elf_symbol {
+  id: 0x56210fb8
+  name: "ANeuralNetworksMemory_createFromAHardwareBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x91d1fe65
+  full_name: "ANeuralNetworksMemory_createFromAHardwareBuffer"
+}
+elf_symbol {
+  id: 0x80ced0ec
+  name: "ANeuralNetworksMemory_createFromDesc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x930c7fc4
+  full_name: "ANeuralNetworksMemory_createFromDesc"
+}
+elf_symbol {
+  id: 0xd2ec5e8f
+  name: "ANeuralNetworksMemory_createFromFd"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa10b2316
+  full_name: "ANeuralNetworksMemory_createFromFd"
+}
+elf_symbol {
+  id: 0x415eaa6f
+  name: "ANeuralNetworksMemory_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1c058c00
+  full_name: "ANeuralNetworksMemory_free"
+}
+elf_symbol {
+  id: 0x5ce1d3e2
+  name: "ANeuralNetworksModel_addOperand"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97291aa9
+  full_name: "ANeuralNetworksModel_addOperand"
+}
+elf_symbol {
+  id: 0x1b1b083a
+  name: "ANeuralNetworksModel_addOperation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x95fba825
+  full_name: "ANeuralNetworksModel_addOperation"
+}
+elf_symbol {
+  id: 0xe565e2e5
+  name: "ANeuralNetworksModel_create"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9db3b29a
+  full_name: "ANeuralNetworksModel_create"
+}
+elf_symbol {
+  id: 0xccee9f54
+  name: "ANeuralNetworksModel_finish"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97dd9c5f
+  full_name: "ANeuralNetworksModel_finish"
+}
+elf_symbol {
+  id: 0x4b0244ec
+  name: "ANeuralNetworksModel_free"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1ac52ee3
+  full_name: "ANeuralNetworksModel_free"
+}
+elf_symbol {
+  id: 0x9b8d6175
+  name: "ANeuralNetworksModel_getSupportedOperationsForDevices"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9027cc59
+  full_name: "ANeuralNetworksModel_getSupportedOperationsForDevices"
+}
+elf_symbol {
+  id: 0x76955439
+  name: "ANeuralNetworksModel_identifyInputsAndOutputs"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x97a200a3
+  full_name: "ANeuralNetworksModel_identifyInputsAndOutputs"
+}
+elf_symbol {
+  id: 0x137a01af
+  name: "ANeuralNetworksModel_relaxComputationFloat32toFloat16"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x965726a0
+  full_name: "ANeuralNetworksModel_relaxComputationFloat32toFloat16"
+}
+elf_symbol {
+  id: 0x3486c8e2
+  name: "ANeuralNetworksModel_setOperandSymmPerChannelQuantParams"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x969668e9
+  full_name: "ANeuralNetworksModel_setOperandSymmPerChannelQuantParams"
+}
+elf_symbol {
+  id: 0x929f555b
+  name: "ANeuralNetworksModel_setOperandValue"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9695cc05
+  full_name: "ANeuralNetworksModel_setOperandValue"
+}
+elf_symbol {
+  id: 0x9f35747e
+  name: "ANeuralNetworksModel_setOperandValueFromMemory"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x96975da9
+  full_name: "ANeuralNetworksModel_setOperandValueFromMemory"
+}
+elf_symbol {
+  id: 0xfd4e4c4d
+  name: "ANeuralNetworksModel_setOperandValueFromModel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x96950059
+  full_name: "ANeuralNetworksModel_setOperandValueFromModel"
+}
+elf_symbol {
+  id: 0xafd1eb7a
+  name: "ANeuralNetworks_getDefaultLoopTimeout"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5ea0d217
+  full_name: "ANeuralNetworks_getDefaultLoopTimeout"
+}
+elf_symbol {
+  id: 0xbf26c003
+  name: "ANeuralNetworks_getDevice"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9a8e5df0
+  full_name: "ANeuralNetworks_getDevice"
+}
+elf_symbol {
+  id: 0xcd71dc58
+  name: "ANeuralNetworks_getDeviceCount"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9ee736a3
+  full_name: "ANeuralNetworks_getDeviceCount"
+}
+elf_symbol {
+  id: 0x366bb6eb
+  name: "ANeuralNetworks_getMaximumLoopTimeout"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5ea0d217
+  full_name: "ANeuralNetworks_getMaximumLoopTimeout"
+}
+elf_symbol {
+  id: 0x2af0bb10
+  name: "ANeuralNetworks_getRuntimeFeatureLevel"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf7d54039
+  full_name: "ANeuralNetworks_getRuntimeFeatureLevel"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x17b21678
+  symbol_id: 0x37d7f8d0
+  symbol_id: 0xfc319e09
+  symbol_id: 0xefcba5a3
+  symbol_id: 0x7633e0e8
+  symbol_id: 0xb596b369
+  symbol_id: 0xfb725c1d
+  symbol_id: 0xe0adeac1
+  symbol_id: 0x7c7516f0
+  symbol_id: 0x3e69b938
+  symbol_id: 0xadc12d5e
+  symbol_id: 0x53856336
+  symbol_id: 0xb3324a42
+  symbol_id: 0x61c9584b
+  symbol_id: 0x28ce0c42
+  symbol_id: 0x6d9f01e1
+  symbol_id: 0x78b65a6c
+  symbol_id: 0x68fc2804
+  symbol_id: 0x3ed2b6e8
+  symbol_id: 0xaf94a918
+  symbol_id: 0xdda3c00a
+  symbol_id: 0x8d08bb74
+  symbol_id: 0x01ef14d9
+  symbol_id: 0x8586d46b
+  symbol_id: 0x5b0a1cc0
+  symbol_id: 0x490e0514
+  symbol_id: 0xf22f7a9d
+  symbol_id: 0xd8a52124
+  symbol_id: 0x0caff211
+  symbol_id: 0x94d7d5f4
+  symbol_id: 0x02065a0e
+  symbol_id: 0xe8e946eb
+  symbol_id: 0x6ee3e08e
+  symbol_id: 0x5c9c9249
+  symbol_id: 0xbb6ce849
+  symbol_id: 0xc99f290f
+  symbol_id: 0xac634e8a
+  symbol_id: 0x36f69ff5
+  symbol_id: 0x4e1784bc
+  symbol_id: 0x1f595ebe
+  symbol_id: 0x66b3e749
+  symbol_id: 0x4338a019
+  symbol_id: 0x1fe40102
+  symbol_id: 0x93ea0b64
+  symbol_id: 0x9885d5f8
+  symbol_id: 0x39372714
+  symbol_id: 0x8a39f47e
+  symbol_id: 0xb88f9af8
+  symbol_id: 0x56210fb8
+  symbol_id: 0x80ced0ec
+  symbol_id: 0xd2ec5e8f
+  symbol_id: 0x415eaa6f
+  symbol_id: 0x5ce1d3e2
+  symbol_id: 0x1b1b083a
+  symbol_id: 0xe565e2e5
+  symbol_id: 0xccee9f54
+  symbol_id: 0x4b0244ec
+  symbol_id: 0x9b8d6175
+  symbol_id: 0x76955439
+  symbol_id: 0x137a01af
+  symbol_id: 0x3486c8e2
+  symbol_id: 0x929f555b
+  symbol_id: 0x9f35747e
+  symbol_id: 0xfd4e4c4d
+  symbol_id: 0xafd1eb7a
+  symbol_id: 0xbf26c003
+  symbol_id: 0xcd71dc58
+  symbol_id: 0x366bb6eb
+  symbol_id: 0x2af0bb10
+}

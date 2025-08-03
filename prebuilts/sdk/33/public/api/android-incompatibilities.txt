@@ -1,0 +1,20 @@
+// Baseline format: 1.0
+ChangedThrows: android.media.MediaMetadataRetriever#close():
+    Method android.media.MediaMetadataRetriever.close added thrown exception java.io.IOException
+ChangedThrows: android.media.MediaMetadataRetriever#release():
+    Method android.media.MediaMetadataRetriever.release added thrown exception java.io.IOException
+
+InvalidNullConversion: android.graphics.Canvas#getClipBounds(android.graphics.Rect) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter bounds in android.graphics.Canvas.getClipBounds(android.graphics.Rect bounds)
+RemovedDeprecatedMethod: android.webkit.WebChromeClient#onReachedMaxAppCacheSize(long, long, android.webkit.WebStorage.QuotaUpdater):
+    Removed deprecated method android.webkit.WebChromeClient.onReachedMaxAppCacheSize(long,long,android.webkit.WebStorage.QuotaUpdater)
+RemovedDeprecatedMethod: android.webkit.WebSettings#setAppCacheEnabled(boolean):
+    Removed deprecated method android.webkit.WebSettings.setAppCacheEnabled(boolean)
+RemovedDeprecatedMethod: android.webkit.WebSettings#setAppCacheMaxSize(long):
+    Removed deprecated method android.webkit.WebSettings.setAppCacheMaxSize(long)
+RemovedDeprecatedMethod: android.webkit.WebSettings#setAppCachePath(String):
+    Removed deprecated method android.webkit.WebSettings.setAppCachePath(String)
+RemovedPackage: android.bluetooth:
+    Removed package android.bluetooth
+RemovedPackage: android.bluetooth.le:
+    Removed package android.bluetooth.le

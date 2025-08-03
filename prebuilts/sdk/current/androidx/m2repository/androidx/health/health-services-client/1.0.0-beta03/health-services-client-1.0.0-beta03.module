@@ -1,0 +1,152 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.health",
+    "module": "health-services-client",
+    "version": "1.0.0-beta03",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "health-services-client-1.0.0-beta03.aar",
+          "url": "health-services-client-1.0.0-beta03.aar",
+          "size": 1020224,
+          "sha512": "e50b0517a17a3c93f9d4f0f17cd72281907a669bf62921669c454abbccd4c859c473bdc711cd2385922b7c63279a5374a6a5a0d142c13cc0ac492186c072e927",
+          "sha256": "214fbe802ac4dce9f2b11fd7d56d6c5d1c2169153ab82752a75fa17b0839a204",
+          "sha1": "6bd4a63e8fa863ab11363e8cc98e4c2824156eee",
+          "md5": "a1030220d7559c80cf0a28c176bfd8c4"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures-ktx",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core-ktx",
+          "version": {
+            "requires": "1.7.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "guava",
+          "version": {
+            "requires": "31.1-android"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        },
+        {
+          "group": "com.google.protobuf",
+          "module": "protobuf-javalite",
+          "version": {
+            "requires": "3.21.8"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.6.4"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "health-services-client-1.0.0-beta03.aar",
+          "url": "health-services-client-1.0.0-beta03.aar",
+          "size": 1020224,
+          "sha512": "e50b0517a17a3c93f9d4f0f17cd72281907a669bf62921669c454abbccd4c859c473bdc711cd2385922b7c63279a5374a6a5a0d142c13cc0ac492186c072e927",
+          "sha256": "214fbe802ac4dce9f2b11fd7d56d6c5d1c2169153ab82752a75fa17b0839a204",
+          "sha1": "6bd4a63e8fa863ab11363e8cc98e4c2824156eee",
+          "md5": "a1030220d7559c80cf0a28c176bfd8c4"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "health-services-client-1.0.0-beta03-sources.jar",
+          "url": "health-services-client-1.0.0-beta03-sources.jar",
+          "size": 162968,
+          "sha512": "6a68feec0586d5852111af409fddc2066bda43d8f1fa9c60b633e3af11bb61a753093c7639f91e808f706d56921c603336550f0e8701dc5703acd2897e27b5b8",
+          "sha256": "087bbabee3586d30abbc68c8598d801dab429b16c9715d2064118b56a8c2b3fd",
+          "sha1": "dd92ea2a6d6d3ce748ebe440d99e20a31bf29cbb",
+          "md5": "073de0b63f781c1e0bb70bef40fc643b"
+        }
+      ]
+    }
+  ]
+}

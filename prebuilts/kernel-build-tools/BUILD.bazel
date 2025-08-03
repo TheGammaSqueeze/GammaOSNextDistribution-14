@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "linux-x86",
+    srcs = glob(["linux-x86/**"]),
+)
+
+filegroup(
+    name = "linux-x86-libs",
+    srcs = glob(["linux-x86/lib64/*.so"]),
+)

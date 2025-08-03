@@ -1,0 +1,147 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "media-module-sdk_com.android.media-bootclasspath-fragment@1",
+    sdk_member_name: "com.android.media-bootclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.media"],
+    licenses: ["media-module-sdk_frameworks_av_license@1"],
+    contents: ["media-module-sdk_updatable-media@1"],
+    api: {
+        stub_libs: ["media-module-sdk_framework-media@1"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_import {
+    name: "media-module-sdk_updatable-media@1",
+    sdk_member_name: "updatable-media",
+    visibility: [
+        "//frameworks/av/apex:__subpackages__",
+        "//frameworks/base",
+        "//frameworks/base/apex/media/framework",
+        "//frameworks/base/apex/media/service",
+    ],
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+    licenses: ["media-module-sdk_frameworks_base_license@1"],
+    jars: ["java/updatable-media.jar"],
+    permitted_packages: ["android.media"],
+}
+
+java_sdk_library_import {
+    name: "media-module-sdk_framework-media@1",
+    sdk_member_name: "framework-media",
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["media-module-sdk_frameworks_base_license@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-media.srcjar"],
+        current_api: "sdk_library/public/framework-media.txt",
+        removed_api: "sdk_library/public/framework-media-removed.txt",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-media.srcjar"],
+        current_api: "sdk_library/system/framework-media.txt",
+        removed_api: "sdk_library/system/framework-media-removed.txt",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-media.srcjar"],
+        current_api: "sdk_library/module-lib/framework-media.txt",
+        removed_api: "sdk_library/module-lib/framework-media-removed.txt",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "media-module-sdk_service-media-s@1",
+    sdk_member_name: "service-media-s",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.media"],
+    licenses: ["media-module-sdk_frameworks_base_license@1"],
+    shared_library: false,
+    permitted_packages: ["com.android.server.media"],
+    public: {
+        jars: ["sdk_library/public/service-media-s-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-media-s.srcjar"],
+        current_api: "sdk_library/public/service-media-s.txt",
+        removed_api: "sdk_library/public/service-media-s-removed.txt",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-media-s-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-media-s.srcjar"],
+        current_api: "sdk_library/system-server/service-media-s.txt",
+        removed_api: "sdk_library/system-server/service-media-s-removed.txt",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "media-module-sdk_frameworks_base_license@1",
+    sdk_member_name: "frameworks_base_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC-BY",
+        "SPDX-license-identifier-CPL-1.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: ["licenses/frameworks/base/NOTICE"],
+}
+
+license {
+    name: "media-module-sdk_frameworks_av_license@1",
+    sdk_member_name: "frameworks_av_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "legacy_by_exception_only",
+    ],
+    license_text: ["licenses/frameworks/av/NOTICE"],
+}
+
+sdk_snapshot {
+    name: "media-module-sdk@1",
+    visibility: [
+        "//frameworks/base/apex/media:__subpackages__",
+        "//frameworks/av/apex",
+        "//frameworks/av/apex/testing",
+    ],
+    bootclasspath_fragments: ["media-module-sdk_com.android.media-bootclasspath-fragment@1"],
+    java_boot_libs: ["media-module-sdk_updatable-media@1"],
+    java_sdk_libs: [
+        "media-module-sdk_framework-media@1",
+        "media-module-sdk_service-media-s@1",
+    ],
+}

@@ -1,0 +1,112 @@
+version: "1.4.0-alpha03"
+dependency_list {
+  dependency {
+    group_id: "androidx.compose.animation"
+    artifact_id: "animation"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.foundation"
+    artifact_id: "foundation"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.material"
+    artifact_id: "material-icons-core"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.material"
+    artifact_id: "material-ripple"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-text"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui-util"
+    version: "1.7.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-common"
+    version: "2.7.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.profileinstaller"
+    artifact_id: "profileinstaller"
+    version: "1.3.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-foundation"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-material-core"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.wear.compose"
+group_id: "androidx.wear.compose"
+artifact_id: "compose-material"
+path: "/wear/compose/compose-material"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-wear-compose-11436812.zip"
+project_zip_path: "per-project-zips/androidx.wear.compose-compose-material-all-11436812-1.4.0-alpha03.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-foundation"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-material-core"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-navigation"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.wear.compose"
+    artifact_id: "compose-ui-tooling"
+    version: "1.4.0-alpha03"
+    is_tip_of_tree: true
+  }
+}

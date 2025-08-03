@@ -1,0 +1,28 @@
+version: "1.3.0-alpha02"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.tracing"
+group_id: "androidx.tracing"
+artifact_id: "tracing"
+path: "/tracing/tracing"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-tracing-11472573.zip"
+project_zip_path: "per-project-zips/androidx.tracing-tracing-all-11472573-1.3.0-alpha02.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.tracing"
+    artifact_id: "tracing-ktx"
+    version: "1.3.0-alpha02"
+    is_tip_of_tree: true
+  }
+}

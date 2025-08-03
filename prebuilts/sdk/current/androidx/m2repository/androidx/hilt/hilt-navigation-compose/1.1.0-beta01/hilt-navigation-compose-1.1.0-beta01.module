@@ -1,0 +1,178 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.hilt",
+    "module": "hilt-navigation-compose",
+    "version": "1.1.0-beta01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.4"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.0.1"
+          }
+        },
+        {
+          "group": "androidx.compose.ui",
+          "module": "ui",
+          "version": {
+            "requires": "1.0.1"
+          }
+        },
+        {
+          "group": "androidx.hilt",
+          "module": "hilt-navigation",
+          "version": {
+            "requires": "1.1.0-beta01"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-viewmodel-compose",
+          "version": {
+            "requires": "2.6.1"
+          }
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.5.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "hilt-navigation-compose-1.1.0-beta01.aar",
+          "url": "hilt-navigation-compose-1.1.0-beta01.aar",
+          "size": 4850,
+          "sha512": "ad8874d53102d37e22968427cd1ee8546581a335199253b018b21fd274d103a425ebb3975ae397833d34f30ced782e26b6747d6b7ce4d805390c98a9674a63c8",
+          "sha256": "6319ab68da562a265c7d9bab7e3d46255d4d4e517357dd4eabc8aeafbd40afa0",
+          "sha1": "40b26c8dc0af0ee93cc844161ff42bdd0db77c9b",
+          "md5": "61d78780dd7cfc4529d4015f10c40f37"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.0.1"
+          }
+        },
+        {
+          "group": "androidx.compose.ui",
+          "module": "ui",
+          "version": {
+            "requires": "1.0.1"
+          }
+        },
+        {
+          "group": "androidx.hilt",
+          "module": "hilt-navigation",
+          "version": {
+            "requires": "1.1.0-beta01"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-viewmodel-compose",
+          "version": {
+            "requires": "2.6.1"
+          }
+        },
+        {
+          "group": "androidx.navigation",
+          "module": "navigation-compose",
+          "version": {
+            "requires": "2.5.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "hilt-navigation-compose-1.1.0-beta01.aar",
+          "url": "hilt-navigation-compose-1.1.0-beta01.aar",
+          "size": 4850,
+          "sha512": "ad8874d53102d37e22968427cd1ee8546581a335199253b018b21fd274d103a425ebb3975ae397833d34f30ced782e26b6747d6b7ce4d805390c98a9674a63c8",
+          "sha256": "6319ab68da562a265c7d9bab7e3d46255d4d4e517357dd4eabc8aeafbd40afa0",
+          "sha1": "40b26c8dc0af0ee93cc844161ff42bdd0db77c9b",
+          "md5": "61d78780dd7cfc4529d4015f10c40f37"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "hilt-navigation-compose-1.1.0-beta01-sources.jar",
+          "url": "hilt-navigation-compose-1.1.0-beta01-sources.jar",
+          "size": 1939,
+          "sha512": "9d953f2dc5dc6f0a85594451d05ed095ede99bb770d0e10c586a6b350ef54ac11c67d8deb135fbe2fd2fae2663ecf704a1aa3bdb28ab67c7272f4f6b23b26496",
+          "sha256": "0880d8f7d6cadbfa9d6515d34a2c7bd4320ef833ed5e59787298e0d59877e057",
+          "sha1": "b540805d6c2c35b8d17f903f888a201ec17b507a",
+          "md5": "39e0bf2b799330f47ff1198a0cd32035"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "files": [
+        {
+          "name": "hilt-navigation-compose-1.1.0-beta01-versionMetadata.json",
+          "url": "hilt-navigation-compose-1.1.0-beta01-versionMetadata.json",
+          "size": 396,
+          "sha512": "11207a4b88d32a772ea55f832a000fda113be10a1985ae2d29d7992c019d731b2da460d69128bae44ccc06d7d17905095b5a44486ec4e1ecb0b34d3b76e31a5d",
+          "sha256": "259eb2d185d7a477c5a811ac8befd8d80262f5b6377a4536c8f622995a43cb52",
+          "sha1": "d34422ef58ba160f6ab2b4601e7aaedad717c134",
+          "md5": "00a128bba48bb600c50ab0b6ccd47c2c"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x021ea7f9
+  kind: POINTER
+  pointee_type_id: 0x223a797a
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0xf6ba36ac
+  kind: LVALUE_REFERENCE
+  pointee_type_id: 0xc4a86773
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x4585663f
+}
+qualified {
+  id: 0xc4a86773
+  qualifier: CONST
+  qualified_type_id: 0x62e62b44
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+struct_union {
+  id: 0x223a797a
+  kind: UNION
+  name: "_guard_t"
+}
+struct_union {
+  id: 0x62e62b44
+  kind: STRUCT
+  name: "std::nothrow_t"
+}
+function {
+  id: 0x101ff86d
+  return_type_id: 0x48b5725f
+  parameter_id: 0x021ea7f9
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x156de005
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+  parameter_id: 0xf6ba36ac
+}
+function {
+  id: 0x16b708df
+  return_type_id: 0x48b5725f
+  parameter_id: 0x18bd6530
+}
+function {
+  id: 0x6841033c
+  return_type_id: 0x18bd6530
+  parameter_id: 0xf435685e
+  parameter_id: 0xf6ba36ac
+}
+function {
+  id: 0x6b9bebe6
+  return_type_id: 0x18bd6530
+  parameter_id: 0xf435685e
+}
+function {
+  id: 0x9d074ad1
+  return_type_id: 0x6720d32f
+  parameter_id: 0x021ea7f9
+}
+elf_symbol {
+  id: 0x8f20d82a
+  name: "_ZSt7nothrow"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+  type_id: 0xc4a86773
+  full_name: "std::nothrow"
+}
+elf_symbol {
+  id: 0x32ba36e6
+  name: "_ZdaPv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x16b708df
+  full_name: "operator delete[]"
+}
+elf_symbol {
+  id: 0x42dc7d29
+  name: "_ZdaPvRKSt9nothrow_t"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x156de005
+  full_name: "operator delete[]"
+}
+elf_symbol {
+  id: 0x3fd5e381
+  name: "_ZdlPv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x16b708df
+  full_name: "operator delete"
+}
+elf_symbol {
+  id: 0x2b6ab240
+  name: "_ZdlPvRKSt9nothrow_t"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x156de005
+  full_name: "operator delete"
+}
+elf_symbol {
+  id: 0x7c75d0f4
+  name: "_Znaj"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6b9bebe6
+  full_name: "operator new[]"
+}
+elf_symbol {
+  id: 0xf9ad7097
+  name: "_ZnajRKSt9nothrow_t"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6841033c
+  full_name: "operator new[]"
+}
+elf_symbol {
+  id: 0x64b6572f
+  name: "_Znwj"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6b9bebe6
+  full_name: "operator new"
+}
+elf_symbol {
+  id: 0x201241ba
+  name: "_ZnwjRKSt9nothrow_t"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6841033c
+  full_name: "operator new"
+}
+elf_symbol {
+  id: 0xb73d17c9
+  name: "__cxa_guard_abort"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x101ff86d
+  full_name: "__cxa_guard_abort"
+}
+elf_symbol {
+  id: 0xca830b82
+  name: "__cxa_guard_acquire"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d074ad1
+  full_name: "__cxa_guard_acquire"
+}
+elf_symbol {
+  id: 0x6be75fbb
+  name: "__cxa_guard_release"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x101ff86d
+  full_name: "__cxa_guard_release"
+}
+elf_symbol {
+  id: 0xa2d2a848
+  name: "__cxa_pure_virtual"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "__cxa_pure_virtual"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x8f20d82a
+  symbol_id: 0x32ba36e6
+  symbol_id: 0x42dc7d29
+  symbol_id: 0x3fd5e381
+  symbol_id: 0x2b6ab240
+  symbol_id: 0x7c75d0f4
+  symbol_id: 0xf9ad7097
+  symbol_id: 0x64b6572f
+  symbol_id: 0x201241ba
+  symbol_id: 0xb73d17c9
+  symbol_id: 0xca830b82
+  symbol_id: 0x6be75fbb
+  symbol_id: 0xa2d2a848
+}

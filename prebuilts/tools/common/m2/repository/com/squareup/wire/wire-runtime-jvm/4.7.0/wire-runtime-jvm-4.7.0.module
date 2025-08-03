@@ -1,0 +1,143 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../wire-runtime/4.7.0/wire-runtime-4.7.0.module",
+    "group": "com.squareup.wire",
+    "module": "wire-runtime",
+    "version": "4.7.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.4"
+    }
+  },
+  "variants": [
+    {
+      "name": "jvmApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.8.20"
+          }
+        },
+        {
+          "group": "com.squareup.okio",
+          "module": "okio"
+        },
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-bom",
+          "version": {
+            "requires": "3.3.0"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "1.8.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "wire-runtime-jvm-4.7.0.jar",
+          "url": "wire-runtime-jvm-4.7.0.jar",
+          "size": 252429,
+          "sha512": "8e86c1580cfc35f98bc786d12bd67334020e68a3f80af03d0fe869055d58b1a64410968b800b6c20252cb8308caf930704022cad02e6b6ffa1876c384f04b601",
+          "sha256": "651e878c9ddb44327badca362e4b5c9424be7feec9203d6ab89566358640b6bf",
+          "sha1": "0d15a30336121471aa7c901223280ff767341780",
+          "md5": "a56074b7ba32f06ce6d56229a2aada72"
+        }
+      ]
+    },
+    {
+      "name": "jvmRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.8.20"
+          }
+        },
+        {
+          "group": "com.squareup.okio",
+          "module": "okio"
+        },
+        {
+          "group": "com.squareup.okio",
+          "module": "okio-bom",
+          "version": {
+            "requires": "3.3.0"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          },
+          "endorseStrictVersions": true
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "1.8.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "wire-runtime-jvm-4.7.0.jar",
+          "url": "wire-runtime-jvm-4.7.0.jar",
+          "size": 252429,
+          "sha512": "8e86c1580cfc35f98bc786d12bd67334020e68a3f80af03d0fe869055d58b1a64410968b800b6c20252cb8308caf930704022cad02e6b6ffa1876c384f04b601",
+          "sha256": "651e878c9ddb44327badca362e4b5c9424be7feec9203d6ab89566358640b6bf",
+          "sha1": "0d15a30336121471aa7c901223280ff767341780",
+          "md5": "a56074b7ba32f06ce6d56229a2aada72"
+        }
+      ]
+    },
+    {
+      "name": "jvmSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "wire-runtime-jvm-4.7.0-sources.jar",
+          "url": "wire-runtime-jvm-4.7.0-sources.jar",
+          "size": 82973,
+          "sha512": "2d1f70eb89604130953ba425273c416a8bb039a8384687539adefa8d105f374c1fb8a2e5f162c9d604b46062a97b71a43572842eb39afd0940c6de6f993b35bc",
+          "sha256": "04dc4f912b1bec2540a782f9598f3eb2db82cabc5d81643af55605c6b28378b9",
+          "sha1": "d669863bdf3537423ae84576ba793bacca32349e",
+          "md5": "ebb42c6b9dd9fc86f86ee72981abbb10"
+        }
+      ]
+    }
+  ]
+}

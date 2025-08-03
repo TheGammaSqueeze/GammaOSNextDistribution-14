@@ -1,0 +1,66 @@
+// Baseline format: 1.0
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createReEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createReEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#createUnEnrollIntent():
+    Method android.service.voice.AlwaysOnHotwordDetector.createUnEnrollIntent added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#getParameter(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.getParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#getSupportedRecognitionModes():
+    Method android.service.voice.AlwaysOnHotwordDetector.getSupportedRecognitionModes added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#queryParameter(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.queryParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#setParameter(int, int):
+    Method android.service.voice.AlwaysOnHotwordDetector.setParameter added thrown exception android.service.voice.HotwordDetector.IllegalDetectorStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition():
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition(android.os.ParcelFileDescriptor, android.media.AudioFormat, android.os.PersistableBundle):
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#startRecognition(int):
+    Method android.service.voice.AlwaysOnHotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#stopRecognition():
+    Method android.service.voice.AlwaysOnHotwordDetector.stopRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.AlwaysOnHotwordDetector#updateState(android.os.PersistableBundle, android.os.SharedMemory):
+    Method android.service.voice.AlwaysOnHotwordDetector.updateState added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#startRecognition():
+    Method android.service.voice.HotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#startRecognition(android.os.ParcelFileDescriptor, android.media.AudioFormat, android.os.PersistableBundle):
+    Method android.service.voice.HotwordDetector.startRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#stopRecognition():
+    Method android.service.voice.HotwordDetector.stopRecognition added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+ChangedThrows: android.service.voice.HotwordDetector#updateState(android.os.PersistableBundle, android.os.SharedMemory):
+    Method android.service.voice.HotwordDetector.updateState added thrown exception android.service.voice.HotwordDetector.HotwordDetectorIllegalStateException
+
+
+InvalidNullConversion: android.media.MediaTranscodingManager.TranscodingSession#setOnProgressUpdateListener(java.util.concurrent.Executor, android.media.MediaTranscodingManager.TranscodingSession.OnProgressUpdateListener) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter arg2 in android.media.MediaTranscodingManager.TranscodingSession.setOnProgressUpdateListener(java.util.concurrent.Executor arg1, android.media.MediaTranscodingManager.TranscodingSession.OnProgressUpdateListener arg2)
+
+
+RemovedMethod: android.nfc.NfcAdapter#disableNdefPush():
+    Removed method android.nfc.NfcAdapter.disableNdefPush()
+RemovedMethod: android.nfc.NfcAdapter#enableNdefPush():
+    Removed method android.nfc.NfcAdapter.enableNdefPush()
+RemovedMethod: android.nfc.NfcAdapter#setNdefPushMessage(android.nfc.NdefMessage, android.app.Activity, int):
+    Removed method android.nfc.NfcAdapter.setNdefPushMessage(android.nfc.NdefMessage,android.app.Activity,int)
+
+
+RemovedField: android.nfc.NfcAdapter#FLAG_NDEF_PUSH_NO_CONFIRM:
+    Removed field android.nfc.NfcAdapter.FLAG_NDEF_PUSH_NO_CONFIRM
+
+
+RemovedFinal: android.net.NetworkAgent#sendLinkProperties(android.net.LinkProperties):
+    Method android.net.NetworkAgent.sendLinkProperties has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkCapabilities(android.net.NetworkCapabilities):
+    Method android.net.NetworkAgent.sendNetworkCapabilities has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkScore(android.net.NetworkScore):
+    Method android.net.NetworkAgent.sendNetworkScore has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkScore(int):
+    Method android.net.NetworkAgent.sendNetworkScore has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#setUnderlyingNetworks(java.util.List<android.net.Network>):
+    Method android.net.NetworkAgent.setUnderlyingNetworks has removed 'final' qualifier
+
+RemovedMethod: android.content.ContextWrapper#sendBroadcast(android.content.Intent, String, android.os.Bundle):
+    Removed method android.content.ContextWrapper.sendBroadcast(android.content.Intent,String,android.os.Bundle)
+RemovedMethod: android.content.ContextWrapper#sendOrderedBroadcast(android.content.Intent, String, android.os.Bundle, android.content.BroadcastReceiver, android.os.Handler, int, String, android.os.Bundle):
+    Removed method android.content.ContextWrapper.sendOrderedBroadcast(android.content.Intent,String,android.os.Bundle,android.content.BroadcastReceiver,android.os.Handler,int,String,android.os.Bundle)

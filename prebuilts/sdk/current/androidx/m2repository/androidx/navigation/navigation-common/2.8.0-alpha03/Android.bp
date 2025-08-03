@@ -1,0 +1,64 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.navigation_navigation-common-nodeps",
+    aars: ["navigation-common-2.8.0-alpha03.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.collection_collection-ktx",
+        "androidx.core_core-ktx",
+        "androidx.lifecycle_lifecycle-common",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-savedstate",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+    ],
+}
+
+android_library {
+    name: "androidx.navigation_navigation-common",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.navigation_navigation-common-nodeps",
+        "androidx.annotation_annotation",
+        "androidx.collection_collection-ktx",
+        "androidx.core_core-ktx",
+        "androidx.lifecycle_lifecycle-common",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-savedstate",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+    ],
+    java_version: "1.7",
+}
+

@@ -1,0 +1,131 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.coordinatorlayout",
+    "module": "coordinatorlayout",
+    "version": "1.3.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.3.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "coordinatorlayout-1.3.0-alpha01.aar",
+          "url": "coordinatorlayout-1.3.0-alpha01.aar",
+          "size": 45980,
+          "sha512": "333caec88ef41a6e77b7821fef41f2732b96db81ca834d9c0efa38b65905f4d9c5b52b1c443bddc119530c6f0e49e645dd9073333169959f235f8c4c1cc39235",
+          "sha256": "15d853cd166f715d64e3d9d5e20a44a3dc8350fd0e1fed456fe054d3ad9076a6",
+          "sha1": "528f62d6fdf571bd8f270b4692d3d319acc8d27a",
+          "md5": "dcb95d1c6296163b0a60668066e2cca5"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.3.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "coordinatorlayout-1.3.0-alpha01.aar",
+          "url": "coordinatorlayout-1.3.0-alpha01.aar",
+          "size": 45980,
+          "sha512": "333caec88ef41a6e77b7821fef41f2732b96db81ca834d9c0efa38b65905f4d9c5b52b1c443bddc119530c6f0e49e645dd9073333169959f235f8c4c1cc39235",
+          "sha256": "15d853cd166f715d64e3d9d5e20a44a3dc8350fd0e1fed456fe054d3ad9076a6",
+          "sha1": "528f62d6fdf571bd8f270b4692d3d319acc8d27a",
+          "md5": "dcb95d1c6296163b0a60668066e2cca5"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "coordinatorlayout-1.3.0-alpha01-sources.jar",
+          "url": "coordinatorlayout-1.3.0-alpha01-sources.jar",
+          "size": 32555,
+          "sha512": "2b1df23cde0b989491c02c75e71a9f2208e8e947177af188549c466fa0d7d2767ac5ab76afffb9d3089a75e3ce4a20d08eb6a422436d7068e80b7812ff91c1fe",
+          "sha256": "dc13549146c33126537447c9f2f17c265e466f4269a120f740264fbc435167fd",
+          "sha1": "f08cee61c02e950344862f433d29f32077658efd",
+          "md5": "c5e9591dbebf690f59ebb305048848f0"
+        }
+      ]
+    }
+  ]
+}

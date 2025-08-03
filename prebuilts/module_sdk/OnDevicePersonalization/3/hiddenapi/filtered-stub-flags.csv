@@ -1,0 +1,11 @@
+Landroid/ondevicepersonalization/OnDevicePersonalizationFrameworkInitializer$$ExternalSyntheticLambda0;->createService(Landroid/content/Context;)Ljava/lang/Object;,system-api,test-api
+Landroid/ondevicepersonalization/OnDevicePersonalizationManager$1;->onServiceConnected(Landroid/content/ComponentName;Landroid/os/IBinder;)V,public-api,system-api,test-api
+Landroid/ondevicepersonalization/OnDevicePersonalizationManager$1;->onServiceDisconnected(Landroid/content/ComponentName;)V,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IInitCodeCallback$Default;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IInitCodeCallback$Stub$Proxy;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IInitCodeCallback$Stub;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IInitCodeCallback$Stub;->onTransact(ILandroid/os/Parcel;Landroid/os/Parcel;I)Z,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IOnDevicePersonalizationManagerService$Default;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IOnDevicePersonalizationManagerService$Stub$Proxy;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IOnDevicePersonalizationManagerService$Stub;->asBinder()Landroid/os/IBinder;,public-api,system-api,test-api
+Landroid/ondevicepersonalization/aidl/IOnDevicePersonalizationManagerService$Stub;->onTransact(ILandroid/os/Parcel;Landroid/os/Parcel;I)Z,public-api,system-api,test-api

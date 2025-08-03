@@ -1,0 +1,212 @@
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib"
+$ echo "3" > "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/rust-installer-version"
+install: creating uninstall script at /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/uninstall.sh
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/install.sh /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/uninstall.sh
+install: installing component 'rustc'
+$ echo "rustc" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/components"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/bin"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdb
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/bin/rust-gdb /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdb
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdb
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/bin/rust-gdb" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/bin"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdbgui
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/bin/rust-gdbgui /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdbgui
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/bin/rust-gdbgui
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/bin/rust-gdbgui" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/bin"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/bin/rust-lldb
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/bin/rust-lldb /buildbot/src/android/rust-toolchain/out/package/bin/rust-lldb
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/bin/rust-lldb
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/bin/rust-lldb" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/bin"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/bin/rustc
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/bin/rustc /buildbot/src/android/rust-toolchain/out/package/bin/rustc
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/bin/rustc
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/bin/rustc" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/bin"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/bin/rustdoc
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/bin/rustdoc /buildbot/src/android/rust-toolchain/out/package/bin/rustdoc
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/bin/rustdoc
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/bin/rustdoc" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libLLVM-17.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libLLVM-17.so /buildbot/src/android/rust-toolchain/out/package/lib/libLLVM-17.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libLLVM-17.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libLLVM-17.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libcstr-6f375e8fe7855e8e.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libcstr-6f375e8fe7855e8e.so /buildbot/src/android/rust-toolchain/out/package/lib/libcstr-6f375e8fe7855e8e.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libcstr-6f375e8fe7855e8e.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libcstr-6f375e8fe7855e8e.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libdarling_macro-85a04781c5bb4706.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libdarling_macro-85a04781c5bb4706.so /buildbot/src/android/rust-toolchain/out/package/lib/libdarling_macro-85a04781c5bb4706.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libdarling_macro-85a04781c5bb4706.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libdarling_macro-85a04781c5bb4706.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libderive_more-4e82247a21c8d3cb.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libderive_more-4e82247a21c8d3cb.so /buildbot/src/android/rust-toolchain/out/package/lib/libderive_more-4e82247a21c8d3cb.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libderive_more-4e82247a21c8d3cb.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libderive_more-4e82247a21c8d3cb.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libderive_setters-76393e33be5e424d.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libderive_setters-76393e33be5e424d.so /buildbot/src/android/rust-toolchain/out/package/lib/libderive_setters-76393e33be5e424d.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libderive_setters-76393e33be5e424d.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libderive_setters-76393e33be5e424d.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libdisplaydoc-e6f129590016761c.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libdisplaydoc-e6f129590016761c.so /buildbot/src/android/rust-toolchain/out/package/lib/libdisplaydoc-e6f129590016761c.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libdisplaydoc-e6f129590016761c.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libdisplaydoc-e6f129590016761c.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libicu_provider_macros-6f51628adced2161.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libicu_provider_macros-6f51628adced2161.so /buildbot/src/android/rust-toolchain/out/package/lib/libicu_provider_macros-6f51628adced2161.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libicu_provider_macros-6f51628adced2161.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libicu_provider_macros-6f51628adced2161.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libproc_macro_hack-d5f56192d019ce1e.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libproc_macro_hack-d5f56192d019ce1e.so /buildbot/src/android/rust-toolchain/out/package/lib/libproc_macro_hack-d5f56192d019ce1e.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libproc_macro_hack-d5f56192d019ce1e.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libproc_macro_hack-d5f56192d019ce1e.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/librustc_driver-b14bc0de45ba18dd.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/librustc_driver-b14bc0de45ba18dd.so /buildbot/src/android/rust-toolchain/out/package/lib/librustc_driver-b14bc0de45ba18dd.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/librustc_driver-b14bc0de45ba18dd.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/librustc_driver-b14bc0de45ba18dd.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/librustc_fluent_macro-9d8bc8b008d2220c.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/librustc_fluent_macro-9d8bc8b008d2220c.so /buildbot/src/android/rust-toolchain/out/package/lib/librustc_fluent_macro-9d8bc8b008d2220c.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/librustc_fluent_macro-9d8bc8b008d2220c.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/librustc_fluent_macro-9d8bc8b008d2220c.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/librustc_macros-604eaaba6527ae20.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/librustc_macros-604eaaba6527ae20.so /buildbot/src/android/rust-toolchain/out/package/lib/librustc_macros-604eaaba6527ae20.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/librustc_macros-604eaaba6527ae20.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/librustc_macros-604eaaba6527ae20.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libserde_derive-1a760db2c70716dc.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libserde_derive-1a760db2c70716dc.so /buildbot/src/android/rust-toolchain/out/package/lib/libserde_derive-1a760db2c70716dc.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libserde_derive-1a760db2c70716dc.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libserde_derive-1a760db2c70716dc.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libstd-74763be2e8d2922b.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libstd-74763be2e8d2922b.so /buildbot/src/android/rust-toolchain/out/package/lib/libstd-74763be2e8d2922b.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libstd-74763be2e8d2922b.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libstd-74763be2e8d2922b.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libtest-5325f93bce9c29c7.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libtest-5325f93bce9c29c7.so /buildbot/src/android/rust-toolchain/out/package/lib/libtest-5325f93bce9c29c7.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libtest-5325f93bce9c29c7.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libtest-5325f93bce9c29c7.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_core_impl-d8d11b6cf18e693b.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libthiserror_core_impl-d8d11b6cf18e693b.so /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_core_impl-d8d11b6cf18e693b.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_core_impl-d8d11b6cf18e693b.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_core_impl-d8d11b6cf18e693b.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_impl-4f31278d57beb9f8.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libthiserror_impl-4f31278d57beb9f8.so /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_impl-4f31278d57beb9f8.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_impl-4f31278d57beb9f8.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libthiserror_impl-4f31278d57beb9f8.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libtracing_attributes-d9c31f1e0e90a4d6.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libtracing_attributes-d9c31f1e0e90a4d6.so /buildbot/src/android/rust-toolchain/out/package/lib/libtracing_attributes-d9c31f1e0e90a4d6.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libtracing_attributes-d9c31f1e0e90a4d6.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libtracing_attributes-d9c31f1e0e90a4d6.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libunic_langid_macros_impl-c3ce596243c6b478.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libunic_langid_macros_impl-c3ce596243c6b478.so /buildbot/src/android/rust-toolchain/out/package/lib/libunic_langid_macros_impl-c3ce596243c6b478.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libunic_langid_macros_impl-c3ce596243c6b478.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libunic_langid_macros_impl-c3ce596243c6b478.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libyoke_derive-287e5ca70d449715.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libyoke_derive-287e5ca70d449715.so /buildbot/src/android/rust-toolchain/out/package/lib/libyoke_derive-287e5ca70d449715.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libyoke_derive-287e5ca70d449715.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libyoke_derive-287e5ca70d449715.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libzerofrom_derive-8e6d791fe97f3102.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libzerofrom_derive-8e6d791fe97f3102.so /buildbot/src/android/rust-toolchain/out/package/lib/libzerofrom_derive-8e6d791fe97f3102.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libzerofrom_derive-8e6d791fe97f3102.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libzerofrom_derive-8e6d791fe97f3102.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/libzerovec_derive-1c6cf97561739bb7.so
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/libzerovec_derive-1c6cf97561739bb7.so /buildbot/src/android/rust-toolchain/out/package/lib/libzerovec_derive-1c6cf97561739bb7.so
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/libzerovec_derive-1c6cf97561739bb7.so
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/libzerovec_derive-1c6cf97561739bb7.so" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_load_rust_pretty_printers.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/gdb_load_rust_pretty_printers.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_load_rust_pretty_printers.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_load_rust_pretty_printers.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_load_rust_pretty_printers.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_lookup.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/gdb_lookup.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_lookup.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_lookup.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_lookup.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_providers.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/gdb_providers.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_providers.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_providers.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/gdb_providers.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_commands
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/lldb_commands /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_commands
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_commands
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_commands" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_lookup.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/lldb_lookup.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_lookup.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_lookup.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_lookup.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_providers.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/lldb_providers.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_providers.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_providers.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/lldb_providers.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/rust_types.py
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/lib/rustlib/etc/rust_types.py /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/rust_types.py
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/rust_types.py
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/etc/rust_types.py" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/libexec"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/libexec/rust-analyzer-proc-macro-srv
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/libexec/rust-analyzer-proc-macro-srv /buildbot/src/android/rust-toolchain/out/package/libexec/rust-analyzer-proc-macro-srv
+$ chmod 755 /buildbot/src/android/rust-toolchain/out/package/libexec/rust-analyzer-proc-macro-srv
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/libexec/rust-analyzer-proc-macro-srv" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/doc/rust"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/COPYRIGHT
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/doc/rust/COPYRIGHT /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/COPYRIGHT
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/COPYRIGHT
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/doc/rust/COPYRIGHT" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/doc/rust"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE
+install: backing up existing file at /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE
+$ mv -f /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE.old
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/doc/rust/LICENSE-APACHE /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-APACHE" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/doc/rust"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT
+install: backing up existing file at /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT
+$ mv -f /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT.old
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/doc/rust/LICENSE-MIT /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/doc/rust/LICENSE-MIT" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/doc/rust"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md
+install: backing up existing file at /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md
+$ mv -f /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md.old
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/doc/rust/README.md /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/doc/rust/README.md" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/man/man1"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustc.1
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/man/man1/rustc.1 /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustc.1
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustc.1
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustc.1" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"
+$ umask 022 && mkdir -p "/buildbot/src/android/rust-toolchain/out/package/share/man/man1"
+install: copying file /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustdoc.1
+$ cp /buildbot/src/android/rust-toolchain/out/rustc/build/tmp/tarball/rustc/x86_64-unknown-linux-musl/rustc-1.73.0-dev-x86_64-unknown-linux-musl/rustc/share/man/man1/rustdoc.1 /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustdoc.1
+$ chmod 644 /buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustdoc.1
+$ echo "file:/buildbot/src/android/rust-toolchain/out/package/share/man/man1/rustdoc.1" >> "/buildbot/src/android/rust-toolchain/out/package/lib/rustlib/manifest-rustc"

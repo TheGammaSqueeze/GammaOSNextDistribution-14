@@ -1,0 +1,8 @@
+android/net/eap/**
+android/net/ipsec/**
+com/android/internal/net/crypto/**
+com/android/internal/net/eap/**
+com/android/internal/net/ipsec/**
+com/android/internal/net/org/**
+com/android/internal/net/utils/**
+com/android/internal/net/vcn/**

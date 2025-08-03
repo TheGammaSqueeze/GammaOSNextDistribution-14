@@ -1,0 +1,64 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.wear.compose_compose-navigation-nodeps",
+    aars: ["compose-navigation-1.4.0-alpha03.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "25",
+    static_libs: [
+        "androidx.activity_activity-compose",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.navigation_navigation-common",
+        "androidx.navigation_navigation-compose",
+        "androidx.navigation_navigation-runtime",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.wear.compose_compose-material",
+        "kotlin-stdlib",
+    ],
+}
+
+android_library {
+    name: "androidx.wear.compose_compose-navigation",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "25",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.wear.compose_compose-navigation-nodeps",
+        "androidx.activity_activity-compose",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.navigation_navigation-common",
+        "androidx.navigation_navigation-compose",
+        "androidx.navigation_navigation-runtime",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.wear.compose_compose-material",
+        "kotlin-stdlib",
+    ],
+    java_version: "1.7",
+}
+

@@ -1,0 +1,121 @@
+package {
+    default_applicable_licenses: ["prebuilts_cmdline-tools_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_cmdline-tools_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CDDL-1.0",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "tools/NOTICE.txt",
+    ],
+}
+
+java_import_host {
+    name: "lint_api",
+    jars: [
+        "tools/lib/lint/tools.lint-api.jar",
+        "tools/lib/lint/tools.lint-checks.jar",
+        "tools/lib/common/tools.common.jar",
+
+        // A subset of the jars listed in MANIFEST.MF in
+        // tools/lib/lint-classpath.jar needed to provide dependencies
+        // of lint-api.jar and lint-checks.jar.
+        "tools/lib/external/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+        "tools/lib/external/com/google/guava/guava/32.0.1-jre/guava-32.0.1-jre.jar",
+        "tools/lib/external/lint-psi/intellij-core/intellij-core-mvn.jar",
+        "tools/lib/external/lint-psi/kotlin-compiler/kotlin-compiler-mvn.jar",
+        "tools/lib/external/lint-psi/uast/uast.jar",
+    ],
+}
+
+// The lint shell script in tools/bin/lint uses tools/lib/lint-classpath.jar as its classpath.
+// That jar contains a list of other jars that java adds to the classpath.  This makes it impossible
+// for the build system to track dependencies.
+// This genrule reads the jars from tools/lib/lint-classpath.jar and then merges them all together into
+// a single jar.  The result is then embedded into a self-contained java_binary.
+java_genrule_host {
+    name: "lint-classpath",
+    srcs: [
+        "tools/lib/lint-classpath.jar",
+        "tools/lib/**/*.jar",
+    ],
+    out: [
+        "lint-classpath.jar",
+    ],
+    tools: [
+        "merge_zips",
+    ],
+    cmd: "unzip -pq $(location tools/lib/lint-classpath.jar) META-INF/MANIFEST.MF > $(genDir)/list && " +
+        "for jar in $$(grep '\\.jar' $(genDir)/list); do " +
+        " echo $$(dirname $(location tools/lib/lint-classpath.jar))/$${jar}; " +
+        "done > $(genDir)/jars && " +
+        "$(location merge_zips) -j -ignore-duplicates -stripFile 'META-INF/*.SF' -stripFile 'META-INF/*.DSA' $(out) $$(cat $(genDir)/jars)",
+}
+
+java_binary_host {
+    name: "lint",
+    static_libs: ["lint-classpath"],
+    wrapper: "tools/bin/lint",
+}
+
+java_genrule_host {
+    name: "resourceshrinker-classpath",
+    srcs: [
+        "tools/lib/resourceshrinker-classpath.jar",
+        "tools/lib/**/*.jar",
+        ":r8lib-prebuilt"
+    ],
+    out: [
+        "resourceshrinker-classpath.jar",
+    ],
+    tools: [
+        "merge_zips",
+    ],
+    // Use r8 from prebuilts/r8 instead of embedded version.
+    cmd: "unzip -pq $(location tools/lib/resourceshrinker-classpath.jar) META-INF/MANIFEST.MF | grep -v r8.jar > $(genDir)/list && " +
+        "for jar in $$(grep '\\.jar' $(genDir)/list); do " +
+        " echo $$(dirname $(location tools/lib/resourceshrinker-classpath.jar))/$${jar}; " +
+        "done > $(genDir)/jars && " +
+        "echo $(location :r8lib-prebuilt) >> $(genDir)/jars && " +
+        "$(location merge_zips) -j -ignore-duplicates -stripFile 'META-INF/*.SF' -stripFile 'META-INF/*.DSA' $(out) $$(cat $(genDir)/jars)",
+}
+
+java_binary_host {
+    name: "resourceshrinker",
+    static_libs: ["resourceshrinker-classpath"],
+    wrapper: "tools/bin/resourceshrinker",
+}
+
+java_import_host {
+    name: "lint_tests",
+    jars: [
+        "lint-tests.jar",
+        "tools/lib/common/tools.common.jar",
+        "tools/lib/external/org/ow2/asm/asm/9.6/asm-9.6.jar",
+        "tools/lib/external/org/ow2/asm/asm-analysis/9.6/asm-analysis-9.6.jar",
+        "tools/lib/external/org/ow2/asm/asm-tree/9.6/asm-tree-9.6.jar",
+        "tools/lib/layoutlib-api/tools.layoutlib-api.jar",
+        "tools/lib/lint/cli/cli.jar",
+        "tools/lib/sdk-common/tools.sdk-common.jar",
+    ]
+}

@@ -1,0 +1,364 @@
+// This is auto-generated. DO NOT EDIT.
+
+// Soong config variable stanza added by vendor/google/build/mainline_modules_sdks.py.
+soong_config_module_type_import {
+    from: "packages/modules/common/Android.bp",
+    module_types: [
+        "module_java_sdk_library_import",
+        "module_prebuilt_bootclasspath_fragment",
+        "module_prebuilt_systemserverclasspath_fragment",
+    ],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "permission-module-sdk_com.android.permission-bootclasspath-fragment@current",
+    sdk_member_name: "com.android.permission-bootclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.permission"],
+    licenses: ["permission-module-sdk_Android-Apache-2.0@current"],
+    contents: [
+        "permission-module-sdk_framework-permission@current",
+        "permission-module-sdk_framework-permission-s@current",
+    ],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+module_prebuilt_bootclasspath_fragment {
+    name: "com.android.permission-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.permission"],
+    licenses: ["permission-module-sdk_Android-Apache-2.0"],
+    contents: [
+        "framework-permission",
+        "framework-permission-s",
+    ],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "permission-module-sdk_framework-permission@current",
+    sdk_member_name: "framework-permission",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0@current"],
+    shared_library: false,
+    permitted_packages: [
+        "android.permission",
+        "android.app.role",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-permission.srcjar"],
+        current_api: "sdk_library/public/framework-permission.txt",
+        removed_api: "sdk_library/public/framework-permission-removed.txt",
+        annotations: "sdk_library/public/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-permission.srcjar"],
+        current_api: "sdk_library/system/framework-permission.txt",
+        removed_api: "sdk_library/system/framework-permission-removed.txt",
+        annotations: "sdk_library/system/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-permission.srcjar"],
+        current_api: "sdk_library/module-lib/framework-permission.txt",
+        removed_api: "sdk_library/module-lib/framework-permission-removed.txt",
+        annotations: "sdk_library/module-lib/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+module_java_sdk_library_import {
+    name: "framework-permission",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.permission",
+        "android.app.role",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-permission.srcjar"],
+        current_api: "sdk_library/public/framework-permission.txt",
+        removed_api: "sdk_library/public/framework-permission-removed.txt",
+        annotations: "sdk_library/public/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-permission.srcjar"],
+        current_api: "sdk_library/system/framework-permission.txt",
+        removed_api: "sdk_library/system/framework-permission-removed.txt",
+        annotations: "sdk_library/system/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-permission.srcjar"],
+        current_api: "sdk_library/module-lib/framework-permission.txt",
+        removed_api: "sdk_library/module-lib/framework-permission-removed.txt",
+        annotations: "sdk_library/module-lib/framework-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "permission-module-sdk_framework-permission-s@current",
+    sdk_member_name: "framework-permission-s",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0@current"],
+    shared_library: false,
+    permitted_packages: [
+        "android.permission",
+        "android.app.role",
+        "android.safetycenter",
+        "com.android.permission",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-permission-s.srcjar"],
+        current_api: "sdk_library/public/framework-permission-s.txt",
+        removed_api: "sdk_library/public/framework-permission-s-removed.txt",
+        annotations: "sdk_library/public/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-permission-s.srcjar"],
+        current_api: "sdk_library/system/framework-permission-s.txt",
+        removed_api: "sdk_library/system/framework-permission-s-removed.txt",
+        annotations: "sdk_library/system/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-permission-s.srcjar"],
+        current_api: "sdk_library/module-lib/framework-permission-s.txt",
+        removed_api: "sdk_library/module-lib/framework-permission-s-removed.txt",
+        annotations: "sdk_library/module-lib/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+module_java_sdk_library_import {
+    name: "framework-permission-s",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.permission",
+        "android.app.role",
+        "android.safetycenter",
+        "com.android.permission",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-permission-s.srcjar"],
+        current_api: "sdk_library/public/framework-permission-s.txt",
+        removed_api: "sdk_library/public/framework-permission-s-removed.txt",
+        annotations: "sdk_library/public/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-permission-s.srcjar"],
+        current_api: "sdk_library/system/framework-permission-s.txt",
+        removed_api: "sdk_library/system/framework-permission-s-removed.txt",
+        annotations: "sdk_library/system/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-permission-s-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-permission-s.srcjar"],
+        current_api: "sdk_library/module-lib/framework-permission-s.txt",
+        removed_api: "sdk_library/module-lib/framework-permission-s-removed.txt",
+        annotations: "sdk_library/module-lib/framework-permission-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "permission-module-sdk_service-permission@current",
+    sdk_member_name: "service-permission",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0@current"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/service-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-permission.srcjar"],
+        current_api: "sdk_library/public/service-permission.txt",
+        removed_api: "sdk_library/public/service-permission-removed.txt",
+        annotations: "sdk_library/public/service-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-permission.srcjar"],
+        current_api: "sdk_library/system-server/service-permission.txt",
+        removed_api: "sdk_library/system-server/service-permission-removed.txt",
+        annotations: "sdk_library/system-server/service-permission_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+module_java_sdk_library_import {
+    name: "service-permission",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    licenses: ["permission-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/service-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-permission.srcjar"],
+        current_api: "sdk_library/public/service-permission.txt",
+        removed_api: "sdk_library/public/service-permission-removed.txt",
+        annotations: "sdk_library/public/service-permission_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-permission-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-permission.srcjar"],
+        current_api: "sdk_library/system-server/service-permission.txt",
+        removed_api: "sdk_library/system-server/service-permission-removed.txt",
+        annotations: "sdk_library/system-server/service-permission_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "permission-module-sdk_Android-Apache-2.0@current",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "permission-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "permission-module-sdk_com.android.permission-systemserverclasspath-fragment@current",
+    sdk_member_name: "com.android.permission-systemserverclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.permission"],
+    licenses: ["permission-module-sdk_Android-Apache-2.0@current"],
+    contents: ["permission-module-sdk_service-permission@current"],
+}
+
+module_prebuilt_systemserverclasspath_fragment {
+    name: "com.android.permission-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    prefer: true,
+    soong_config_variables: {
+        module_build_from_source: {
+            prefer: false,
+        },
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.permission"],
+    licenses: ["permission-module-sdk_Android-Apache-2.0"],
+    contents: ["service-permission"],
+}
+
+sdk_snapshot {
+    name: "permission-module-sdk@current",
+    visibility: ["//visibility:public"],
+    bootclasspath_fragments: ["permission-module-sdk_com.android.permission-bootclasspath-fragment@current"],
+    java_sdk_libs: [
+        "permission-module-sdk_framework-permission@current",
+        "permission-module-sdk_framework-permission-s@current",
+        "permission-module-sdk_service-permission@current",
+    ],
+    systemserverclasspath_fragments: ["permission-module-sdk_com.android.permission-systemserverclasspath-fragment@current"],
+}

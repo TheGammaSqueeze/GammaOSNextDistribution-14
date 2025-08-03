@@ -1,0 +1,265 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.fragment",
+    "module": "fragment-testing-manifest",
+    "version": "1.7.0-beta01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-compose",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-testing",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        }
+      ],
+      "files": [
+        {
+          "name": "fragment-testing-manifest-1.7.0-beta01.aar",
+          "url": "fragment-testing-manifest-1.7.0-beta01.aar",
+          "size": 18243,
+          "sha512": "c21b4e46f7a20f14f404eedc5517f69166380dd7065903391cceb3a48ca62ddb1ad9d04126cd0f6b544172fab7788bcde1a563e093560911bddb794c4633b4e6",
+          "sha256": "ca44a1f55543881d2ad032193481ef3bfcaf28cbaac24362b2b1a901ec65a5c2",
+          "sha1": "fb7e861e3fa61f8c3f25070c03cb69b154067e5c",
+          "md5": "31be8d6bc7a248ba9613f8587b03bf4f"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-compose",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-testing",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        }
+      ],
+      "files": [
+        {
+          "name": "fragment-testing-manifest-1.7.0-beta01.aar",
+          "url": "fragment-testing-manifest-1.7.0-beta01.aar",
+          "size": 18243,
+          "sha512": "c21b4e46f7a20f14f404eedc5517f69166380dd7065903391cceb3a48ca62ddb1ad9d04126cd0f6b544172fab7788bcde1a563e093560911bddb794c4633b4e6",
+          "sha256": "ca44a1f55543881d2ad032193481ef3bfcaf28cbaac24362b2b1a901ec65a5c2",
+          "sha1": "fb7e861e3fa61f8c3f25070c03cb69b154067e5c",
+          "md5": "31be8d6bc7a248ba9613f8587b03bf4f"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-compose",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-testing",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        }
+      ],
+      "files": [
+        {
+          "name": "fragment-testing-manifest-1.7.0-beta01-sources.jar",
+          "url": "fragment-testing-manifest-1.7.0-beta01-sources.jar",
+          "size": 2845,
+          "sha512": "188d4c8e2e422442f96a214d4cb2c9857e93ec36115ce761f38f3eeaa005208b743646eed85ecd29a4ffca2d976fee0d6eb63a297920fe849ce5256e972625ec",
+          "sha256": "4f0caa52e43f249c8bc46b03eaffbf400973a64bffd1c7cfb1baf4dbee18fe21",
+          "sha1": "0b66145adbec24c58a5d7cb68aceda280de01271",
+          "md5": "371e5acd547541998f925a6c3c85f018"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.fragment",
+          "module": "fragment",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-compose",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-ktx",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        },
+        {
+          "group": "androidx.fragment",
+          "module": "fragment-testing",
+          "version": {
+            "requires": "1.7.0-beta01"
+          },
+          "reason": "fragment-testing-manifest is in atomic group androidx.fragment"
+        }
+      ],
+      "files": [
+        {
+          "name": "fragment-testing-manifest-1.7.0-beta01-versionMetadata.json",
+          "url": "fragment-testing-manifest-1.7.0-beta01-versionMetadata.json",
+          "size": 2,
+          "sha512": "b25b294cb4deb69ea00a4c3cf3113904801b6015e5956bd019a8570b1fe1d6040e944ef3cdee16d0a46503ca6e659a25f21cf9ceddc13f352a3c98138c15d6af",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "sha1": "97d170e1550eee4afc0af065b78cda302a97674c",
+          "md5": "d751713988987e9331980363e24189ce"
+        }
+      ]
+    }
+  ]
+}

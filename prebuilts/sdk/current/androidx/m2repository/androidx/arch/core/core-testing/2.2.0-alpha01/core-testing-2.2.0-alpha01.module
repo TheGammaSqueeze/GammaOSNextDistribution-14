@@ -1,0 +1,150 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.arch.core",
+    "module": "core-testing",
+    "version": "2.2.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.arch.core",
+          "module": "core-runtime",
+          "version": {
+            "requires": "2.2.0-alpha01"
+          }
+        },
+        {
+          "group": "junit",
+          "module": "junit",
+          "version": {
+            "requires": "4.13.2"
+          }
+        },
+        {
+          "group": "org.mockito",
+          "module": "mockito-core",
+          "version": {
+            "requires": "2.25.0"
+          },
+          "excludes": [
+            {
+              "group": "net.bytebuddy",
+              "module": "*"
+            }
+          ]
+        }
+      ],
+      "files": [
+        {
+          "name": "core-testing-2.2.0-alpha01.aar",
+          "url": "core-testing-2.2.0-alpha01.aar",
+          "size": 11767,
+          "sha512": "89a4fd315f07185d3cee763e906f771fe98395d775d40735bfe6bc94c5b815d8cc50ff6811fa0f44ec8c48a232596efebf154c7766eefa26374ff78f7bc79d88",
+          "sha256": "8c14be1dbd8dd30e8a4f14fd42e82f4c6a7c1942ca6ff7886c3c6896888d3867",
+          "sha1": "f32d4859c0f9ffa0f0ad1cf51463d8c812eb8f1f",
+          "md5": "e9b4ae37d7171d8de3e9d0c47b55b6f5"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.arch.core",
+          "module": "core-runtime",
+          "version": {
+            "requires": "2.2.0-alpha01"
+          }
+        },
+        {
+          "group": "junit",
+          "module": "junit",
+          "version": {
+            "requires": "4.13.2"
+          }
+        },
+        {
+          "group": "org.mockito",
+          "module": "mockito-core",
+          "version": {
+            "requires": "2.25.0"
+          },
+          "excludes": [
+            {
+              "group": "net.bytebuddy",
+              "module": "*"
+            }
+          ]
+        }
+      ],
+      "files": [
+        {
+          "name": "core-testing-2.2.0-alpha01.aar",
+          "url": "core-testing-2.2.0-alpha01.aar",
+          "size": 11767,
+          "sha512": "89a4fd315f07185d3cee763e906f771fe98395d775d40735bfe6bc94c5b815d8cc50ff6811fa0f44ec8c48a232596efebf154c7766eefa26374ff78f7bc79d88",
+          "sha256": "8c14be1dbd8dd30e8a4f14fd42e82f4c6a7c1942ca6ff7886c3c6896888d3867",
+          "sha1": "f32d4859c0f9ffa0f0ad1cf51463d8c812eb8f1f",
+          "md5": "e9b4ae37d7171d8de3e9d0c47b55b6f5"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "core-testing-2.2.0-alpha01-sources.jar",
+          "url": "core-testing-2.2.0-alpha01-sources.jar",
+          "size": 6898,
+          "sha512": "e5f4322bf30809b027f528833f7fb3846befbcf7391cc1ff1b700f080e5ce4cc2745ef120bc18afb182ca3a0dc41c544955b7e613e8689a17f4faef20aee2779",
+          "sha256": "5c999841c0cca572e183a1edc2f1a5cf6e57bdf115c5c362e9761be55979110f",
+          "sha1": "0661f2a482793b483bc7efb81694889548744dd3",
+          "md5": "d1f81ba81848c0c588290f12db9ae0e5"
+        }
+      ]
+    }
+  ]
+}

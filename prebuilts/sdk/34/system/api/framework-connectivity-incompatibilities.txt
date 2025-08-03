@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFinal: android.net.NetworkAgent#sendLinkProperties(android.net.LinkProperties):
+    Method android.net.NetworkAgent.sendLinkProperties has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkCapabilities(android.net.NetworkCapabilities):
+    Method android.net.NetworkAgent.sendNetworkCapabilities has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkScore(android.net.NetworkScore):
+    Method android.net.NetworkAgent.sendNetworkScore has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#sendNetworkScore(int):
+    Method android.net.NetworkAgent.sendNetworkScore has removed 'final' qualifier
+RemovedFinal: android.net.NetworkAgent#setUnderlyingNetworks(java.util.List<android.net.Network>):
+    Method android.net.NetworkAgent.setUnderlyingNetworks has removed 'final' qualifier

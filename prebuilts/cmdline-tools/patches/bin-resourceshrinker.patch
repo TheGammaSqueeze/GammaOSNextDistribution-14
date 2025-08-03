@@ -1,0 +1,22 @@
+diff --git a/tools/bin/resourceshrinker b/tools/bin/resourceshrinker
+index 09d0643..0220d88 100755
+--- a/tools/bin/resourceshrinker
++++ b/tools/bin/resourceshrinker
+@@ -64,7 +64,16 @@ case "`uname`" in
+     ;;
+ esac
+ 
+-CLASSPATH=$APP_HOME/lib/resourceshrinker-classpath.jar
++#CLASSPATH=$APP_HOME/lib/resourceshrinker-classpath.jar
++
++# BEGIN ANDROID PLATFORM
++# Check ../framework/lint.jar first before falling back to ../lib/lint-classpath.jar.
++CLASSPATH=$APP_HOME/framework/resourceshrinker.jar
++if [ ! -e $CLASSPATH ]; then
++  CLASSPATH=$APP_HOME/lib//resourceshrinker-classpath.jar
++fi
++# END ANDROID PLATFORM
++
+ 
+ # Determine the Java command to use to start the JVM.
+ if [ -n "$JAVA_HOME" ] ; then

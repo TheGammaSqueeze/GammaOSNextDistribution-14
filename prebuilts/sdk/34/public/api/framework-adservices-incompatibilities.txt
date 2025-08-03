@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedClass: android.adservices.AdServicesVersion:
+    Removed class android.adservices.AdServicesVersion

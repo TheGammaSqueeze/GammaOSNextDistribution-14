@@ -1,0 +1,10 @@
+// Baseline format: 1.0
+
+RemovedClass: android.net.EthernetNetworkSpecifier:
+    Removed class android.net.EthernetNetworkSpecifier
+RemovedClass: android.app.usage.NetworkStatsManager:
+    Removed class android.app.usage.NetworkStatsManager
+RemovedClass: android.net.NetworkStateSnapshot:
+    Removed class android.net.NetworkStateSnapshot
+RemovedClass: android.net.UnderlyingNetworkInfo:
+    Removed class android.net.UnderlyingNetworkInfo

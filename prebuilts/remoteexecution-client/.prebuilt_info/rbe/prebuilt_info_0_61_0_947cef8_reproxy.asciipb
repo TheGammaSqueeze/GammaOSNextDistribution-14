@@ -1,0 +1,10 @@
+drops {
+  dest_file: "0.61.0.947cef8/reproxy"
+  version: "0.61.0.947cef8"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "reproxy"
+  }
+  git_branch: "master"
+}

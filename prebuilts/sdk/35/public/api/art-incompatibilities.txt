@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+ChangedAbstract: java.util.AbstractSequentialList#listIterator(int):
+    Method java.util.AbstractSequentialList.listIterator has changed 'abstract' qualifier
+
+
+ChangedType: java.util.Properties#compute(Object, java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>):
+    Method java.util.Properties.compute has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#computeIfAbsent(Object, java.util.function.Function<? super java.lang.Object,?>):
+    Method java.util.Properties.computeIfAbsent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#computeIfPresent(Object, java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>):
+    Method java.util.Properties.computeIfPresent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#elements():
+    Method java.util.Properties.elements has changed return type from java.util.Enumeration<V> to java.util.Enumeration<java.lang.Object>
+ChangedType: java.util.Properties#entrySet():
+    Method java.util.Properties.entrySet has changed return type from java.util.Set<java.util.Map.Entry<K,V>> to java.util.Set<java.util.Map.Entry<java.lang.Object,java.lang.Object>>
+ChangedType: java.util.Properties#get(Object):
+    Method java.util.Properties.get has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#getOrDefault(Object, Object):
+    Method java.util.Properties.getOrDefault has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#keySet():
+    Method java.util.Properties.keySet has changed return type from java.util.Set<K> to java.util.Set<java.lang.Object>
+ChangedType: java.util.Properties#keys():
+    Method java.util.Properties.keys has changed return type from java.util.Enumeration<K> to java.util.Enumeration<java.lang.Object>
+ChangedType: java.util.Properties#merge(Object, Object, java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>):
+    Method java.util.Properties.merge has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#put(Object, Object):
+    Method java.util.Properties.put has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#putIfAbsent(Object, Object):
+    Method java.util.Properties.putIfAbsent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#remove(Object):
+    Method java.util.Properties.remove has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#replace(Object, Object):
+    Method java.util.Properties.replace has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: java.util.Properties#values():
+    Method java.util.Properties.values has changed return type from java.util.Collection<V> to java.util.Collection<java.lang.Object>
+
+
+ChangedVolatile: java.util.Properties#defaults:
+    Field java.util.Properties.defaults has changed 'volatile' qualifier

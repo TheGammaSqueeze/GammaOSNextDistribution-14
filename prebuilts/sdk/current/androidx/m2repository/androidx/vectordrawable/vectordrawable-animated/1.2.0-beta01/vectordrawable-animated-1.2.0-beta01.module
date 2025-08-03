@@ -1,0 +1,131 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.vectordrawable",
+    "module": "vectordrawable-animated",
+    "version": "1.2.0-beta01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.vectordrawable",
+          "module": "vectordrawable",
+          "version": {
+            "requires": "1.2.0-beta02"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "vectordrawable-animated-1.2.0-beta01.aar",
+          "url": "vectordrawable-animated-1.2.0-beta01.aar",
+          "size": 34949,
+          "sha512": "8469963c3246ea628a72f94bf801281a0fa4a61b6ddc6750c814e4549c39563f2777fbe58ba843dca48289d72ca11efafa5e78428024fb6f1f5ac0a39fffbc93",
+          "sha256": "1a673339c5e227030bfd20921bbe9cbefd0df92de43612ffa2f4325829c56f66",
+          "sha1": "c1c72092901ba21fc1f5ae0bec1565b33062f06a",
+          "md5": "547d352ff0c661b94ccd49b9cc4df56a"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.6.0"
+          }
+        },
+        {
+          "group": "androidx.interpolator",
+          "module": "interpolator",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.vectordrawable",
+          "module": "vectordrawable",
+          "version": {
+            "requires": "1.2.0-beta02"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "vectordrawable-animated-1.2.0-beta01.aar",
+          "url": "vectordrawable-animated-1.2.0-beta01.aar",
+          "size": 34949,
+          "sha512": "8469963c3246ea628a72f94bf801281a0fa4a61b6ddc6750c814e4549c39563f2777fbe58ba843dca48289d72ca11efafa5e78428024fb6f1f5ac0a39fffbc93",
+          "sha256": "1a673339c5e227030bfd20921bbe9cbefd0df92de43612ffa2f4325829c56f66",
+          "sha1": "c1c72092901ba21fc1f5ae0bec1565b33062f06a",
+          "md5": "547d352ff0c661b94ccd49b9cc4df56a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "vectordrawable-animated-1.2.0-beta01-sources.jar",
+          "url": "vectordrawable-animated-1.2.0-beta01-sources.jar",
+          "size": 24099,
+          "sha512": "cc9fb9bd5a075355e18775cd9adfe7749f9b3b9037ac641c8b8d71298a905310f682c0c98d4ca27700127898d254ee6219c212c82ddad224a158e4352c1740ac",
+          "sha256": "eef9623c12293024a064b72b3adf902b4331075c58ed8ddcd49fcbdaadf9e97a",
+          "sha1": "efb98eb1b15c643234e322de75464c65b98a84f0",
+          "md5": "ff3982335c43a55c7c42c76fd7c1fa73"
+        }
+      ]
+    }
+  ]
+}

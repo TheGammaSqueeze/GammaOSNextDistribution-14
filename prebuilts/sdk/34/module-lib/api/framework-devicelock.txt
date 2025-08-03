@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package android.devicelock {
+
+  public final class DeviceLockFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+

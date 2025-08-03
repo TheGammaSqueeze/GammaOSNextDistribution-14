@@ -1,0 +1,58 @@
+version: "2.10.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-runtime"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.work"
+group_id: "androidx.work"
+artifact_id: "work-runtime-ktx"
+path: "/work/work-runtime-ktx"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-work-11436812.zip"
+project_zip_path: "per-project-zips/androidx.work-work-runtime-ktx-all-11436812-2.10.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-gcm"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-multiprocess"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-runtime"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-rxjava2"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-rxjava3"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-testing"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+}

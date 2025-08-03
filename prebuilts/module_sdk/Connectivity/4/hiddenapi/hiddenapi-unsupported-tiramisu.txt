@@ -1,0 +1,3 @@
+Landroid/net/INetworkStatsService$Stub$Proxy;-><init>(Landroid/os/IBinder;)V
+Landroid/net/INetworkStatsService$Stub$Proxy;->getMobileIfaces()[Ljava/lang/String;
+Landroid/net/INetworkStatsService$Stub;->asInterface(Landroid/os/IBinder;)Landroid/net/INetworkStatsService;

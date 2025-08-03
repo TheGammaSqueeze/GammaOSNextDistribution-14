@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_misc_license"
+    // to get the below license kinds:
+    //   legacy_restricted
+    default_applicable_licenses: ["prebuilts_misc_license"],
+}
+
+java_library_host {
+    // Robolectric prebuilts of android c++ code targeting mac (amd64/arm64) and linux (amd64)
+    // Sourced from here: https://github.com/robolectric/robolectric/actions/workflows/build_native_runtime.yml
+    // Todo(rexhoffman): build android code for host systems in standard builds (likely with bazel)
+    name: "robolectric_nativeruntime_native_prebuilt",
+    java_resource_dirs: ["resources"],
+}

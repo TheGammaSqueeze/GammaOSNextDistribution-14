@@ -1,0 +1,14 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_misc_license"
+    // to get the below license kinds:
+    //   legacy_restricted
+    default_applicable_licenses: ["prebuilts_misc_license"],
+}
+
+android_robolectric_runtimes {
+    name: "robolectric-android-all-prebuilts",
+    jars: ["android-all/*.jar"],
+    lib: "robolectric-host-android_all",
+}

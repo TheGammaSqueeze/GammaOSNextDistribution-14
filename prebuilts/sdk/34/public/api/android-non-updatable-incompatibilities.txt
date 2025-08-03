@@ -1,0 +1,24 @@
+// Baseline format: 1.0
+InvalidNullConversion: android.os.OutcomeReceiver#onResult(R) parameter #0:
+    Attempted to remove @NonNull annotation from parameter result in android.os.OutcomeReceiver.onResult(R result)
+InvalidNullConversion: android.graphics.Bitmap#getConfig():
+    Attempted to change method return from @NonNull to @Nullable: incompatible change for method android.graphics.Bitmap.getConfig()
+
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#disableForegroundNdefPush(android.app.Activity):
+    Removed deprecated method android.nfc.NfcAdapter.disableForegroundNdefPush(android.app.Activity)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#enableForegroundNdefPush(android.app.Activity, android.nfc.NdefMessage):
+    Removed deprecated method android.nfc.NfcAdapter.enableForegroundNdefPush(android.app.Activity,android.nfc.NdefMessage)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#invokeBeam(android.app.Activity):
+    Removed deprecated method android.nfc.NfcAdapter.invokeBeam(android.app.Activity)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#isNdefPushEnabled():
+    Removed deprecated method android.nfc.NfcAdapter.isNdefPushEnabled()
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#setBeamPushUris(android.net.Uri[], android.app.Activity):
+    Removed deprecated method android.nfc.NfcAdapter.setBeamPushUris(android.net.Uri[],android.app.Activity)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#setBeamPushUrisCallback(android.nfc.NfcAdapter.CreateBeamUrisCallback, android.app.Activity):
+    Removed deprecated method android.nfc.NfcAdapter.setBeamPushUrisCallback(android.nfc.NfcAdapter.CreateBeamUrisCallback,android.app.Activity)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#setNdefPushMessage(android.nfc.NdefMessage, android.app.Activity, android.app.Activity...):
+    Removed deprecated method android.nfc.NfcAdapter.setNdefPushMessage(android.nfc.NdefMessage,android.app.Activity,android.app.Activity...)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#setNdefPushMessageCallback(android.nfc.NfcAdapter.CreateNdefMessageCallback, android.app.Activity, android.app.Activity...):
+    Removed deprecated method android.nfc.NfcAdapter.setNdefPushMessageCallback(android.nfc.NfcAdapter.CreateNdefMessageCallback,android.app.Activity,android.app.Activity...)
+RemovedDeprecatedMethod: android.nfc.NfcAdapter#setOnNdefPushCompleteCallback(android.nfc.NfcAdapter.OnNdefPushCompleteCallback, android.app.Activity, android.app.Activity...):
+    Removed deprecated method android.nfc.NfcAdapter.setOnNdefPushCompleteCallback(android.nfc.NfcAdapter.OnNdefPushCompleteCallback,android.app.Activity,android.app.Activity...)

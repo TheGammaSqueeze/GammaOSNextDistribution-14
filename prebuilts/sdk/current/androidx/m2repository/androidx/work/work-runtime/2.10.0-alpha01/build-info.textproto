@@ -1,0 +1,94 @@
+version: "2.10.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation-experimental"
+    version: "1.4.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.concurrent"
+    artifact_id: "concurrent-futures"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.12.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata"
+    version: "2.6.2"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-service"
+    version: "2.6.2"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.room"
+    artifact_id: "room-ktx"
+    version: "2.6.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.startup"
+    artifact_id: "startup-runtime"
+    version: "1.1.1"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.work"
+group_id: "androidx.work"
+artifact_id: "work-runtime"
+path: "/work/work-runtime"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-work-11436812.zip"
+project_zip_path: "per-project-zips/androidx.work-work-runtime-all-11436812-2.10.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-gcm"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-multiprocess"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-runtime-ktx"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-rxjava2"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-rxjava3"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.work"
+    artifact_id: "work-testing"
+    version: "2.10.0-alpha01"
+    is_tip_of_tree: true
+  }
+}

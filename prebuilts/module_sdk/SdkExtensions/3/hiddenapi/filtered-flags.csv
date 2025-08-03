@@ -1,0 +1,2 @@
+Landroid/os/ext/SdkExtensions;->getAllExtensionVersions()Ljava/util/Map;,public-api,sdk,system-api,test-api
+Landroid/os/ext/SdkExtensions;->getExtensionVersion(I)I,public-api,sdk,system-api,test-api

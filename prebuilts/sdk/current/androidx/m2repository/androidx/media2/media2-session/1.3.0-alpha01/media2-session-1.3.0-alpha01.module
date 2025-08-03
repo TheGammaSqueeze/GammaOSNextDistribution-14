@@ -1,0 +1,214 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.media2",
+    "module": "media2-session",
+    "version": "1.3.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.media2",
+          "module": "media2-common",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.media2",
+          "module": "media2-common",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-exoplayer",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-player",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-widget",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "media2-session-1.3.0-alpha01.aar",
+          "url": "media2-session-1.3.0-alpha01.aar",
+          "size": 555062,
+          "sha512": "455e81320b792dcc7c385217d89a87a7ac35bffaccce84bd8bc92e86bea1e2da9165ad68c436c5c38b290f33685691777a25efe0c1d9aea6919d7e96c280e7bb",
+          "sha256": "46a8668276d0dfa3878af1e300e87ddee8f5c3e3afd23b4ad6b71ecc59311af4",
+          "sha1": "11f1b4c38169b01ce18fe29accdadadf026c6334",
+          "md5": "282e097cc0991770d9398c949f5bb8ce"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-common",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.media2",
+          "module": "media2-common",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-exoplayer",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-player",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-widget",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "media2-session-1.3.0-alpha01.aar",
+          "url": "media2-session-1.3.0-alpha01.aar",
+          "size": 555062,
+          "sha512": "455e81320b792dcc7c385217d89a87a7ac35bffaccce84bd8bc92e86bea1e2da9165ad68c436c5c38b290f33685691777a25efe0c1d9aea6919d7e96c280e7bb",
+          "sha256": "46a8668276d0dfa3878af1e300e87ddee8f5c3e3afd23b4ad6b71ecc59311af4",
+          "sha1": "11f1b4c38169b01ce18fe29accdadadf026c6334",
+          "md5": "282e097cc0991770d9398c949f5bb8ce"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.media2",
+          "module": "media2-common",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-exoplayer",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-player",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.media2",
+          "module": "media2-widget",
+          "version": {
+            "requires": "1.3.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "media2-session-1.3.0-alpha01-sources.jar",
+          "url": "media2-session-1.3.0-alpha01-sources.jar",
+          "size": 160704,
+          "sha512": "310b52212d1cd4acfc180f9cfc21c7c2971c5973b7fdd3c960fa985ead256c3626496a0a81c55c1fd0cd19686eff6b0d325cc8d112f9d58f12816ee848c8c8e7",
+          "sha256": "a7fac4f7a23919e68e6b4307da9d06c0b01790da35a29cb4cfe95abd0ea3a832",
+          "sha1": "326ca280ee04e84dd308679d35420ac66f2097fd",
+          "md5": "7ceccf2e6e2a45f777403d454ff3e040"
+        }
+      ]
+    }
+  ]
+}

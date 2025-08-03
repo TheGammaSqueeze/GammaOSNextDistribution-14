@@ -1,0 +1,505 @@
+// Signature format: 2.0
+package android {
+
+  public static final class Manifest.permission {
+    field public static final String CONTROL_AUTOMOTIVE_GNSS = "android.permission.CONTROL_AUTOMOTIVE_GNSS";
+    field public static final String GET_INTENT_SENDER_INTENT = "android.permission.GET_INTENT_SENDER_INTENT";
+    field public static final String MAKE_UID_VISIBLE = "android.permission.MAKE_UID_VISIBLE";
+  }
+
+}
+
+package android.app {
+
+  @UiContext public class Activity extends android.view.ContextThemeWrapper implements android.content.ComponentCallbacks2 android.view.KeyEvent.Callback android.view.LayoutInflater.Factory2 android.view.View.OnCreateContextMenuListener android.view.Window.Callback {
+    method public final boolean addDumpable(@NonNull android.util.Dumpable);
+  }
+
+  public class ActivityManager {
+    method @RequiresPermission(android.Manifest.permission.SET_ACTIVITY_WATCHER) public void addHomeVisibilityListener(@NonNull java.util.concurrent.Executor, @NonNull android.app.HomeVisibilityListener);
+    method @RequiresPermission(android.Manifest.permission.SET_ACTIVITY_WATCHER) public void removeHomeVisibilityListener(@NonNull android.app.HomeVisibilityListener);
+    method @RequiresPermission(android.Manifest.permission.CHANGE_CONFIGURATION) public boolean updateMccMncConfiguration(@NonNull String, @NonNull String);
+  }
+
+  public class AppOpsManager {
+    field public static final String OPSTR_NO_ISOLATED_STORAGE = "android:no_isolated_storage";
+  }
+
+  public class BroadcastOptions {
+    method @Deprecated public int getMaxManifestReceiverApiLevel();
+    method @Deprecated public void setMaxManifestReceiverApiLevel(int);
+  }
+
+  public abstract class HomeVisibilityListener {
+    ctor public HomeVisibilityListener();
+    method public abstract void onHomeVisibilityChanged(boolean);
+  }
+
+  public class NotificationManager {
+    method public boolean hasEnabledNotificationListener(@NonNull String, @NonNull android.os.UserHandle);
+    field public static final String ACTION_NOTIFICATION_LISTENER_ENABLED_CHANGED = "android.app.action.NOTIFICATION_LISTENER_ENABLED_CHANGED";
+  }
+
+  public final class PendingIntent implements android.os.Parcelable {
+    method public boolean addCancelListener(@NonNull java.util.concurrent.Executor, @NonNull android.app.PendingIntent.CancelListener);
+    method @RequiresPermission(android.Manifest.permission.GET_INTENT_SENDER_INTENT) public boolean intentFilterEquals(@Nullable android.app.PendingIntent);
+    method @NonNull @RequiresPermission(android.Manifest.permission.GET_INTENT_SENDER_INTENT) public java.util.List<android.content.pm.ResolveInfo> queryIntentComponents(int);
+    method public void removeCancelListener(@NonNull android.app.PendingIntent.CancelListener);
+  }
+
+  public static interface PendingIntent.CancelListener {
+    method public void onCanceled(@NonNull android.app.PendingIntent);
+  }
+
+  public class StatusBarManager {
+    method @RequiresPermission(android.Manifest.permission.STATUS_BAR) public void setExpansionDisabledForSimNetworkLock(boolean);
+  }
+
+}
+
+package android.app.admin {
+
+  public class DevicePolicyManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public void acknowledgeNewUserDisclaimer();
+    method @Nullable @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.os.UserHandle getLogoutUser();
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public int logoutUser();
+    field public static final String ACTION_SHOW_NEW_USER_DISCLAIMER = "android.app.action.SHOW_NEW_USER_DISCLAIMER";
+  }
+
+}
+
+package android.content {
+
+  public abstract class ContentProvider implements android.content.ComponentCallbacks2 {
+    method @NonNull public static android.net.Uri createContentUriForUser(@NonNull android.net.Uri, @NonNull android.os.UserHandle);
+  }
+
+  public abstract class ContentResolver {
+    method @RequiresPermission(value=android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, conditional=true) public final void registerContentObserverAsUser(@NonNull android.net.Uri, boolean, @NonNull android.database.ContentObserver, @NonNull android.os.UserHandle);
+  }
+
+  public abstract class Context {
+    method @NonNull public android.os.UserHandle getUser();
+    field public static final String PAC_PROXY_SERVICE = "pac_proxy";
+    field public static final String TEST_NETWORK_SERVICE = "test_network";
+  }
+
+  public class Intent implements java.lang.Cloneable android.os.Parcelable {
+    field public static final String ACTION_SETTING_RESTORED = "android.os.action.SETTING_RESTORED";
+    field public static final String EXTRA_SETTING_NAME = "setting_name";
+    field public static final String EXTRA_SETTING_NEW_VALUE = "new_value";
+    field public static final String EXTRA_SETTING_PREVIOUS_VALUE = "previous_value";
+    field public static final String EXTRA_SETTING_RESTORED_FROM_SDK_INT = "restored_from_sdk_int";
+  }
+
+}
+
+package android.content.pm {
+
+  public class ApplicationInfo extends android.content.pm.PackageItemInfo implements android.os.Parcelable {
+    method @NonNull public java.util.List<android.content.pm.SharedLibraryInfo> getSharedLibraryInfos();
+  }
+
+  public abstract class PackageManager {
+    method @NonNull public String getPermissionControllerPackageName();
+    method @NonNull public String getSdkSandboxPackageName();
+    method @RequiresPermission(android.Manifest.permission.MAKE_UID_VISIBLE) public void makeUidVisible(int, int);
+    field public static final String EXTRA_VERIFICATION_ROOT_HASH = "android.content.pm.extra.VERIFICATION_ROOT_HASH";
+    field public static final int MATCH_STATIC_SHARED_AND_SDK_LIBRARIES = 67108864; // 0x4000000
+  }
+
+}
+
+package android.hardware.usb {
+
+  public class UsbManager {
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getGadgetHalVersion();
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getUsbBandwidthMbps();
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getUsbHalVersion();
+    field public static final int GADGET_HAL_NOT_SUPPORTED = -1; // 0xffffffff
+    field public static final int GADGET_HAL_V1_0 = 10; // 0xa
+    field public static final int GADGET_HAL_V1_1 = 11; // 0xb
+    field public static final int GADGET_HAL_V1_2 = 12; // 0xc
+    field public static final int USB_DATA_TRANSFER_RATE_10G = 10240; // 0x2800
+    field public static final int USB_DATA_TRANSFER_RATE_20G = 20480; // 0x5000
+    field public static final int USB_DATA_TRANSFER_RATE_40G = 40960; // 0xa000
+    field public static final int USB_DATA_TRANSFER_RATE_5G = 5120; // 0x1400
+    field public static final int USB_DATA_TRANSFER_RATE_FULL_SPEED = 12; // 0xc
+    field public static final int USB_DATA_TRANSFER_RATE_HIGH_SPEED = 480; // 0x1e0
+    field public static final int USB_DATA_TRANSFER_RATE_LOW_SPEED = 2; // 0x2
+    field public static final int USB_DATA_TRANSFER_RATE_UNKNOWN = -1; // 0xffffffff
+    field public static final int USB_HAL_NOT_SUPPORTED = -1; // 0xffffffff
+    field public static final int USB_HAL_RETRY = -2; // 0xfffffffe
+    field public static final int USB_HAL_V1_0 = 10; // 0xa
+    field public static final int USB_HAL_V1_1 = 11; // 0xb
+    field public static final int USB_HAL_V1_2 = 12; // 0xc
+    field public static final int USB_HAL_V1_3 = 13; // 0xd
+    field public static final int USB_HAL_V2_0 = 20; // 0x14
+  }
+
+}
+
+package android.location {
+
+  public class LocationManager {
+    method @RequiresPermission(allOf={android.Manifest.permission.LOCATION_HARDWARE, android.Manifest.permission.ACCESS_FINE_LOCATION}) public boolean injectLocation(@NonNull android.location.Location);
+    method @RequiresPermission(android.Manifest.permission.CONTROL_AUTOMOTIVE_GNSS) public boolean isAutomotiveGnssSuspended();
+    method @RequiresPermission(android.Manifest.permission.CONTROL_AUTOMOTIVE_GNSS) public void setAutomotiveGnssSuspended(boolean);
+  }
+
+}
+
+package android.media {
+
+  public class AudioManager {
+    method public void adjustStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    method public void adjustSuggestedStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    method @NonNull public java.util.List<android.bluetooth.BluetoothCodecConfig> getHwOffloadFormatsSupportedForA2dp();
+    method @NonNull public java.util.List<android.bluetooth.BluetoothLeAudioCodecConfig> getHwOffloadFormatsSupportedForLeAudio();
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void handleBluetoothActiveDeviceChanged(@Nullable android.bluetooth.BluetoothDevice, @Nullable android.bluetooth.BluetoothDevice, @NonNull android.media.BluetoothProfileConnectionInfo);
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void setA2dpSuspended(boolean);
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void setBluetoothHeadsetProperties(@NonNull String, boolean, boolean);
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void setHfpEnabled(boolean);
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void setHfpSamplingRate(int);
+    method @RequiresPermission("android.permission.BLUETOOTH_STACK") public void setHfpVolume(int);
+    method public void setStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    field public static final int FLAG_FROM_KEY = 4096; // 0x1000
+  }
+
+  public final class BluetoothProfileConnectionInfo implements android.os.Parcelable {
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createA2dpInfo(boolean, int);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createA2dpSinkInfo(int);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createHearingAidInfo(boolean);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createLeAudioInfo(boolean, boolean);
+    method public int describeContents();
+    method public int getProfile();
+    method public int getVolume();
+    method public boolean isLeOutput();
+    method public boolean isSuppressNoisyIntent();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.media.BluetoothProfileConnectionInfo> CREATOR;
+  }
+
+  public class MediaMetadataRetriever implements java.lang.AutoCloseable {
+    field public static final int METADATA_KEY_VIDEO_CODEC_MIME_TYPE = 40; // 0x28
+  }
+
+  public class MediaServiceManager {
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaCommunicationServiceRegisterer();
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaSessionServiceRegisterer();
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaTranscodingServiceRegisterer();
+  }
+
+  public static final class MediaServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+  }
+
+}
+
+package android.media.session {
+
+  public static final class MediaController.PlaybackInfo implements android.os.Parcelable {
+    ctor public MediaController.PlaybackInfo(int, int, @IntRange(from=0) int, @IntRange(from=0) int, @NonNull android.media.AudioAttributes, @Nullable String);
+  }
+
+  public final class MediaSession {
+    field public static final int FLAG_EXCLUSIVE_GLOBAL_PRIORITY = 65536; // 0x10000
+  }
+
+  public static final class MediaSession.Token implements android.os.Parcelable {
+    method public int getUid();
+  }
+
+  public final class MediaSessionManager {
+    method public void addOnActiveSessionsChangedListener(@Nullable android.content.ComponentName, @NonNull android.os.UserHandle, @NonNull java.util.concurrent.Executor, @NonNull android.media.session.MediaSessionManager.OnActiveSessionsChangedListener);
+    method public void dispatchMediaKeyEvent(@NonNull android.view.KeyEvent, boolean);
+    method public void dispatchMediaKeyEventAsSystemService(@NonNull android.view.KeyEvent);
+    method public boolean dispatchMediaKeyEventToSessionAsSystemService(@NonNull android.view.KeyEvent, @NonNull android.media.session.MediaSession.Token);
+    method public void dispatchVolumeKeyEvent(@NonNull android.view.KeyEvent, int, boolean);
+    method public void dispatchVolumeKeyEventAsSystemService(@NonNull android.view.KeyEvent, int);
+    method public void dispatchVolumeKeyEventToSessionAsSystemService(@NonNull android.view.KeyEvent, @NonNull android.media.session.MediaSession.Token);
+    method @NonNull public java.util.List<android.media.session.MediaController> getActiveSessionsForUser(@Nullable android.content.ComponentName, @NonNull android.os.UserHandle);
+    method public void registerRemoteSessionCallback(@NonNull java.util.concurrent.Executor, @NonNull android.media.session.MediaSessionManager.RemoteSessionCallback);
+    method public void unregisterRemoteSessionCallback(@NonNull android.media.session.MediaSessionManager.RemoteSessionCallback);
+    field public static final int RESULT_MEDIA_KEY_HANDLED = 1; // 0x1
+    field public static final int RESULT_MEDIA_KEY_NOT_HANDLED = 0; // 0x0
+  }
+
+  public static interface MediaSessionManager.RemoteSessionCallback {
+    method public void onDefaultRemoteSessionChanged(@Nullable android.media.session.MediaSession.Token);
+    method public void onVolumeChanged(@NonNull android.media.session.MediaSession.Token, int);
+  }
+
+}
+
+package android.net {
+
+  public class LocalSocket implements java.io.Closeable {
+    ctor public LocalSocket(@NonNull java.io.FileDescriptor);
+  }
+
+  public class NetworkPolicyManager {
+    method @RequiresPermission(android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK) public int getMultipathPreference(@NonNull android.net.Network);
+    method @RequiresPermission(android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK) public int getRestrictBackgroundStatus(int);
+    method @Nullable @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public android.telephony.SubscriptionPlan getSubscriptionPlan(@NonNull android.net.NetworkTemplate);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public boolean isUidNetworkingBlocked(int, boolean);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public boolean isUidRestrictedOnMeteredNetworks(int);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void notifyStatsProviderLimitReached();
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void notifyStatsProviderWarningReached();
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public void registerNetworkPolicyCallback(@Nullable java.util.concurrent.Executor, @NonNull android.net.NetworkPolicyManager.NetworkPolicyCallback);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public void unregisterNetworkPolicyCallback(@NonNull android.net.NetworkPolicyManager.NetworkPolicyCallback);
+  }
+
+  public static interface NetworkPolicyManager.NetworkPolicyCallback {
+    method public default void onUidBlockedReasonChanged(int, int);
+  }
+
+  public class NetworkWatchlistManager {
+    method @Nullable public byte[] getWatchlistConfigHash();
+  }
+
+  public class PacProxyManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void addPacProxyInstalledListener(@NonNull java.util.concurrent.Executor, @NonNull android.net.PacProxyManager.PacProxyInstalledListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void removePacProxyInstalledListener(@NonNull android.net.PacProxyManager.PacProxyInstalledListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setCurrentProxyScriptUrl(@Nullable android.net.ProxyInfo);
+  }
+
+  public static interface PacProxyManager.PacProxyInstalledListener {
+    method public void onPacProxyInstalled(@Nullable android.net.Network, @NonNull android.net.ProxyInfo);
+  }
+
+  public final class Proxy {
+    method public static void setHttpProxyConfiguration(@Nullable android.net.ProxyInfo);
+  }
+
+  public class VpnManager {
+    field public static final int TYPE_VPN_LEGACY = 3; // 0x3
+    field public static final int TYPE_VPN_NONE = -1; // 0xffffffff
+    field public static final int TYPE_VPN_OEM = 4; // 0x4
+    field public static final int TYPE_VPN_PLATFORM = 2; // 0x2
+    field public static final int TYPE_VPN_SERVICE = 1; // 0x1
+  }
+
+}
+
+package android.net.netstats {
+
+  public class NetworkStatsDataMigrationUtils {
+    method @NonNull public static android.net.NetworkStatsCollection readPlatformCollection(@NonNull String, long) throws java.io.IOException;
+    field public static final String PREFIX_UID = "uid";
+    field public static final String PREFIX_UID_TAG = "uid_tag";
+    field public static final String PREFIX_XT = "xt";
+  }
+
+}
+
+package android.os {
+
+  public final class BatteryStatsManager {
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void reportNetworkInterfaceForTransports(@NonNull String, @NonNull int[]) throws java.lang.RuntimeException;
+  }
+
+  public class Binder implements android.os.IBinder {
+    method public final void markVintfStability();
+  }
+
+  public class BluetoothServiceManager {
+    method @NonNull public android.os.BluetoothServiceManager.ServiceRegisterer getBluetoothManagerServiceRegisterer();
+  }
+
+  public static class BluetoothServiceManager.ServiceNotFoundException extends java.lang.Exception {
+    ctor public BluetoothServiceManager.ServiceNotFoundException(@NonNull String);
+  }
+
+  public static final class BluetoothServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @NonNull public android.os.IBinder getOrThrow() throws android.os.BluetoothServiceManager.ServiceNotFoundException;
+    method public void register(@NonNull android.os.IBinder);
+    method @Nullable public android.os.IBinder tryGet();
+  }
+
+  public class Build {
+    method public static boolean isDebuggable();
+  }
+
+  public static class Build.VERSION {
+    field public static final int DEVICE_INITIAL_SDK_INT;
+  }
+
+  public class IpcDataCache<Query, Result> {
+    ctor public IpcDataCache(int, @NonNull String, @NonNull String, @NonNull String, @NonNull android.os.IpcDataCache.QueryHandler<Query,Result>);
+    method public void disableForCurrentProcess();
+    method public static void disableForCurrentProcess(@NonNull String);
+    method public void invalidateCache();
+    method public static void invalidateCache(@NonNull String, @NonNull String);
+    method @Nullable public Result query(@NonNull Query);
+    field public static final String MODULE_BLUETOOTH = "bluetooth";
+  }
+
+  public abstract static class IpcDataCache.QueryHandler<Q, R> {
+    ctor public IpcDataCache.QueryHandler();
+    method @Nullable public abstract R apply(@NonNull Q);
+    method public boolean shouldBypassCache(@NonNull Q);
+  }
+
+  public interface Parcelable {
+    method public default int getStability();
+  }
+
+  public class Process {
+    method public static final int getAppUidForSdkSandboxUid(int);
+    method public static final boolean isSdkSandboxUid(int);
+    method public static final int toSdkSandboxUid(int);
+    field public static final int NFC_UID = 1027; // 0x403
+    field public static final int VPN_UID = 1016; // 0x3f8
+  }
+
+  public final class ServiceManager {
+    method public static boolean isDeclared(@NonNull String);
+    method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
+  }
+
+  public class StatsServiceManager {
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsCompanionServiceRegisterer();
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsManagerServiceRegisterer();
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsdServiceRegisterer();
+  }
+
+  public static class StatsServiceManager.ServiceNotFoundException extends java.lang.Exception {
+    ctor public StatsServiceManager.ServiceNotFoundException(@NonNull String);
+  }
+
+  public static final class StatsServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @Nullable public android.os.IBinder getOrThrow() throws android.os.StatsServiceManager.ServiceNotFoundException;
+  }
+
+  public final class StrictMode {
+    method public static void noteUntaggedSocket();
+  }
+
+  public class SystemConfigManager {
+    method @NonNull public java.util.List<android.content.ComponentName> getEnabledComponentOverrides(@NonNull String);
+  }
+
+  public final class Trace {
+    method public static void asyncTraceBegin(long, @NonNull String, int);
+    method public static void asyncTraceEnd(long, @NonNull String, int);
+    method public static boolean isTagEnabled(long);
+    method public static void traceBegin(long, @NonNull String);
+    method public static void traceCounter(long, @NonNull String, int);
+    method public static void traceEnd(long);
+    field public static final long TRACE_TAG_NETWORK = 2097152L; // 0x200000L
+  }
+
+}
+
+package android.os.storage {
+
+  public class StorageManager {
+    method public long computeStorageCacheBytes(@NonNull java.io.File);
+    method @Nullable public String getCloudMediaProvider();
+    method public void notifyAppIoBlocked(@NonNull java.util.UUID, int, int, int);
+    method public void notifyAppIoResumed(@NonNull java.util.UUID, int, int, int);
+    method public void setCloudMediaProvider(@Nullable String);
+    field public static final int APP_IO_BLOCKED_REASON_TRANSCODING = 1; // 0x1
+    field public static final int APP_IO_BLOCKED_REASON_UNKNOWN = 0; // 0x0
+  }
+
+}
+
+package android.provider {
+
+  public static final class ContactsContract.RawContactsEntity implements android.provider.BaseColumns android.provider.ContactsContract.DataColumns android.provider.ContactsContract.RawContactsColumns {
+    method @NonNull @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public static java.util.Map<java.lang.String,java.util.List<android.content.ContentValues>> queryRawContactEntity(@NonNull android.content.ContentResolver, long);
+  }
+
+  public final class DeviceConfig {
+    field public static final String NAMESPACE_ALARM_MANAGER = "alarm_manager";
+    field public static final String NAMESPACE_APP_STANDBY = "app_standby";
+    field public static final String NAMESPACE_DEVICE_IDLE = "device_idle";
+  }
+
+  public static final class Settings.Global extends android.provider.Settings.NameValueTable {
+    field public static final String BLE_SCAN_ALWAYS_AVAILABLE = "ble_scan_always_enabled";
+    field public static final String BLE_SCAN_BACKGROUND_MODE = "ble_scan_background_mode";
+    field public static final String BLE_SCAN_BALANCED_INTERVAL_MS = "ble_scan_balanced_interval_ms";
+    field public static final String BLE_SCAN_BALANCED_WINDOW_MS = "ble_scan_balanced_window_ms";
+    field public static final String BLE_SCAN_LOW_LATENCY_INTERVAL_MS = "ble_scan_low_latency_interval_ms";
+    field public static final String BLE_SCAN_LOW_LATENCY_WINDOW_MS = "ble_scan_low_latency_window_ms";
+    field public static final String BLE_SCAN_LOW_POWER_INTERVAL_MS = "ble_scan_low_power_interval_ms";
+    field public static final String BLE_SCAN_LOW_POWER_WINDOW_MS = "ble_scan_low_power_window_ms";
+    field public static final String BLUETOOTH_BTSNOOP_DEFAULT_MODE = "bluetooth_btsnoop_default_mode";
+    field public static final String BLUETOOTH_CLASS_OF_DEVICE = "bluetooth_class_of_device";
+    field public static final String BLUETOOTH_DISABLED_PROFILES = "bluetooth_disabled_profiles";
+  }
+
+  public static final class Settings.Secure extends android.provider.Settings.NameValueTable {
+    field public static final String BLUETOOTH_ADDRESS = "bluetooth_address";
+    field public static final String BLUETOOTH_ADDR_VALID = "bluetooth_addr_valid";
+    field public static final String BLUETOOTH_NAME = "bluetooth_name";
+  }
+
+}
+
+package android.telecom {
+
+  public abstract class ConnectionService extends android.app.Service {
+    method @Nullable @RequiresPermission(android.Manifest.permission.MODIFY_PHONE_STATE) public android.telecom.Connection onCreateUnknownConnection(@NonNull android.telecom.PhoneAccountHandle, @NonNull android.telecom.ConnectionRequest);
+  }
+
+}
+
+package android.telephony {
+
+  public abstract class CellSignalStrength {
+    method public static int getNumSignalStrengthLevels();
+  }
+
+  public class SubscriptionManager {
+    method public void addSubscriptionInfoRecord(@NonNull String, @Nullable String, int, int);
+    method public void removeSubscriptionInfoRecord(@NonNull String, int);
+  }
+
+  public class TelephonyManager {
+    method @NonNull public static int[] getAllNetworkTypes();
+  }
+
+}
+
+package android.util {
+
+  public class AtomicFile {
+    ctor public AtomicFile(@NonNull java.io.File, @Nullable android.util.SystemConfigFileCommitEventLogger);
+  }
+
+  public final class Log {
+    method public static int logToRadioBuffer(int, @Nullable String, @Nullable String);
+  }
+
+  public final class Slog {
+    method public static int d(@Nullable String, @NonNull String);
+    method public static int d(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int e(@Nullable String, @NonNull String);
+    method public static int e(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int i(@Nullable String, @NonNull String);
+    method public static int i(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int v(@Nullable String, @NonNull String);
+    method public static int v(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int w(@Nullable String, @NonNull String);
+    method public static int w(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int w(@Nullable String, @Nullable Throwable);
+    method public static int wtf(@Nullable String, @NonNull String);
+    method public static int wtf(@Nullable String, @Nullable Throwable);
+    method public static int wtf(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static void wtfQuiet(@Nullable String, @NonNull String);
+    method public static int wtfStack(@Nullable String, @NonNull String);
+  }
+
+  public class SystemConfigFileCommitEventLogger {
+    ctor public SystemConfigFileCommitEventLogger(@NonNull String);
+    method public void setStartTime(long);
+  }
+
+}
+

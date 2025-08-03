@@ -1,0 +1,70 @@
+version: "1.3.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.7.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation-experimental"
+    version: "1.4.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.tracing"
+    artifact_id: "tracing-ktx"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.tracing"
+    artifact_id: "tracing-perfetto-handshake"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.benchmark"
+group_id: "androidx.benchmark"
+artifact_id: "benchmark-common"
+path: "/benchmark/benchmark-common"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-benchmark-11472573.zip"
+project_zip_path: "per-project-zips/androidx.benchmark-benchmark-common-all-11472573-1.3.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.benchmark"
+    artifact_id: "benchmark-baseline-profile-gradle-plugin"
+    version: "1.3.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.benchmark"
+    artifact_id: "benchmark-gradle-plugin"
+    version: "1.3.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.benchmark"
+    artifact_id: "benchmark-junit4"
+    version: "1.3.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.benchmark"
+    artifact_id: "benchmark-macro"
+    version: "1.3.0-alpha01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.benchmark"
+    artifact_id: "benchmark-macro-junit4"
+    version: "1.3.0-alpha01"
+    is_tip_of_tree: true
+  }
+}

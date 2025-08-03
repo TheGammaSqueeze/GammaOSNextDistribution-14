@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="Allow apps holding {@link android.Manifest.permission#MANAGE_EXTERNAL_STORAGE} permission to request raw external storage access." enableAfterTargetSdk="30" id="178209446" name="ENABLE_RAW_MANAGE_EXTERNAL_STORAGE_ACCESS">
+    <meta-data definedIn="com.android.providers.media.LocalCallingIdentity" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/LocalCallingIdentity.java:406" />
+  </compat-change>
+  <compat-change description="Allow apps holding {@link android.app.role}#SYSTEM_GALLERY role to request raw external storage access." enableSinceTargetSdk="30" id="183372781" name="ENABLE_RAW_SYSTEM_GALLERY_ACCESS">
+    <meta-data definedIn="com.android.providers.media.LocalCallingIdentity" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/LocalCallingIdentity.java:414" />
+  </compat-change>
+  <compat-change description="Enables checks to stop apps from inserting and updating to private files via media provider." enableAfterTargetSdk="30" id="172100307" name="ENABLE_CHECKS_FOR_PRIVATE_FILES">
+    <meta-data definedIn="com.android.providers.media.MediaProvider" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/MediaProvider.java:302" />
+  </compat-change>
+  <compat-change description="Enable option to defer the scan triggered as part of MediaProvider#update()" enableAfterTargetSdk="30" id="180326732" name="ENABLE_DEFERRED_SCAN">
+    <meta-data definedIn="com.android.providers.media.MediaProvider" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/MediaProvider.java:395" />
+  </compat-change>
+  <compat-change description="Enable option to include database rows of files from recently unmounted volume in MediaProvider#query" enableAfterTargetSdk="30" id="182734110" name="ENABLE_INCLUDE_ALL_VOLUMES">
+    <meta-data definedIn="com.android.providers.media.MediaProvider" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/MediaProvider.java:403" />
+  </compat-change>
+  <compat-change description="Force enable an app to support the HEVC media capability Apps should declare their supported media capabilities in their manifest but this flag can be used to force an app into supporting HEVC, hence avoiding transcoding while accessing media encoded in HEVC. Setting this flag will override any OS level defaults for apps. It is disabled by default, meaning that the OS defaults would take precedence. Setting this flag and {@code FORCE_DISABLE_HEVC_SUPPORT} is an undefined state and will result in the OS ignoring both flags." disabled="true" id="174228127" name="FORCE_ENABLE_HEVC_SUPPORT">
+    <meta-data definedIn="com.android.providers.media.TranscodeHelperImpl" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/TranscodeHelperImpl.java:160" />
+  </compat-change>
+  <compat-change description="Force disable an app from supporting the HEVC media capability Apps should declare their supported media capabilities in their manifest but this flag can be used to force an app into not supporting HEVC, hence forcing transcoding while accessing media encoded in HEVC. Setting this flag will override any OS level defaults for apps. It is disabled by default, meaning that the OS defaults would take precedence. Setting this flag and {@code FORCE_ENABLE_HEVC_SUPPORT} is an undefined state and will result in the OS ignoring both flags." disabled="true" id="174227820" name="FORCE_DISABLE_HEVC_SUPPORT">
+    <meta-data definedIn="com.android.providers.media.TranscodeHelperImpl" sourcePosition="packages/providers/MediaProvider/src/com/android/providers/media/TranscodeHelperImpl.java:177" />
+  </compat-change>
+</config>

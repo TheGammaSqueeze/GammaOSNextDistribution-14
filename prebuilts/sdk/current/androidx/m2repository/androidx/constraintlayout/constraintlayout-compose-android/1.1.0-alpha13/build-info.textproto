@@ -1,0 +1,22 @@
+version: "1.1.0-alpha13"
+dependency_list {
+  dependency {
+    group_id: "androidx.constraintlayout"
+    artifact_id: "constraintlayout-compose-android"
+    version: "1.1.0-alpha13"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.constraintlayout"
+group_id: "androidx.constraintlayout"
+artifact_id: "constraintlayout-compose"
+path: "/constraintlayout/constraintlayout-compose"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-constraintlayout-11436812.zip"
+project_zip_path: "per-project-zips/androidx.constraintlayout-constraintlayout-compose-all-11436812-1.1.0-alpha13.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

@@ -1,0 +1,10 @@
+// Signature format: 2.0
+package java.lang {
+
+  public class Runtime {
+    method @Deprecated public java.io.InputStream getLocalizedInputStream(java.io.InputStream);
+    method @Deprecated public java.io.OutputStream getLocalizedOutputStream(java.io.OutputStream);
+  }
+
+}
+

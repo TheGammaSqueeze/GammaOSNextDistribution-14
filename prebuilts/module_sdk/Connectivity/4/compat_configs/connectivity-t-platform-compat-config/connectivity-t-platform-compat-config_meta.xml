@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="When enabled, apps targeting &lt; Android 12 are considered legacy for the NSD native daemon. The platform will only keep the daemon running as long as there are any legacy apps connected. After Android 12, direct communication with the native daemon might not work since the native daemon won't always stay alive. Using the NSD APIs from NsdManager as the replacement is recommended. Another alternative could be bundling your own mdns solutions instead of depending on the system mdns native daemon. This compatibility change applies to Android 13 and later only. To toggle behavior on Android 12 and Android 12L, use RUN_NATIVE_NSD_ONLY_IF_LEGACY_APPS." enableSinceTargetSdk="31" id="235355681" name="RUN_NATIVE_NSD_ONLY_IF_LEGACY_APPS_T_AND_LATER">
+    <meta-data definedIn="android.net.nsd.NsdManager" sourcePosition="packages/modules/Connectivity/framework-t/src/android/net/nsd/NsdManager.java:153" />
+  </compat-change>
+</config>

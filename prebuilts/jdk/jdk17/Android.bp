@@ -1,0 +1,72 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+prebuilt_build_tool {
+    name: "javap",
+    enabled: false,
+    arch: {
+        x86_64: {
+            enabled: true,
+        },
+    },
+    target: {
+        linux: {
+            src: "linux-x86/bin/javap",
+            deps: [
+                "linux-x86/lib/libjli.so",
+                "linux-x86/lib/jrt-fs.jar",
+                "linux-x86/lib/jvm.cfg",
+                "linux-x86/lib/server/libjvm.so",
+                "linux-x86/lib/libverify.so",
+                "linux-x86/lib/libjava.so",
+                "linux-x86/lib/libzip.so",
+                "linux-x86/lib/libjimage.so",
+                "linux-x86/lib/modules",
+                "linux-x86/lib/libnio.so",
+                "linux-x86/lib/libjimage.so",
+                "linux-x86/lib/libnet.so",
+                "linux-x86/lib/tzdb.dat",
+                "linux-x86/lib/libawt.so",
+                "linux-x86/lib/libawt_headless.so",
+                "linux-x86/lib/libjavajpeg.so",
+                "linux-x86/lib/liblcms.so",
+                "linux-x86/lib/libmanagement.so",
+                "linux-x86/lib/libmanagement_ext.so",
+            ],
+        },
+        darwin: {
+            src: "darwin-x86/bin/javap",
+            deps: [
+                "darwin-x86/lib/libjli.dylib",
+                "darwin-x86/lib/jrt-fs.jar",
+                "darwin-x86/lib/jvm.cfg",
+                "darwin-x86/lib/server/libjvm.dylib",
+                "darwin-x86/lib/libverify.dylib",
+                "darwin-x86/lib/libjava.dylib",
+                "darwin-x86/lib/libzip.dylib",
+                "darwin-x86/lib/libjimage.dylib",
+                "darwin-x86/lib/modules",
+                "darwin-x86/lib/libnio.dylib",
+                "darwin-x86/lib/libjimage.dylib",
+                "darwin-x86/lib/libnet.dylib",
+                "darwin-x86/lib/tzdb.dat",
+                "darwin-x86/lib/libawt.dylib",
+                "darwin-x86/lib/libjavajpeg.dylib",
+                "darwin-x86/lib/liblcms.dylib",
+                "darwin-x86/lib/libmanagement.dylib",
+                "darwin-x86/lib/libmanagement_ext.dylib",
+            ],
+        },
+    },
+}

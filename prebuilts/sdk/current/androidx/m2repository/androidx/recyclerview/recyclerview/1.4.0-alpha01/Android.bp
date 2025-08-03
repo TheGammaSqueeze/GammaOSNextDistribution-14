@@ -1,0 +1,56 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.recyclerview_recyclerview-nodeps",
+    aars: ["recyclerview-1.4.0-alpha01.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.collection_collection",
+        "androidx.core_core",
+        "androidx.customview_customview",
+        "androidx.customview_customview-poolingcontainer",
+        "androidx.profileinstaller_profileinstaller",
+    ],
+}
+
+android_library {
+    name: "androidx.recyclerview_recyclerview",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.recyclerview_recyclerview-nodeps",
+        "androidx.annotation_annotation",
+        "androidx.collection_collection",
+        "androidx.core_core",
+        "androidx.customview_customview",
+        "androidx.customview_customview-poolingcontainer",
+        "androidx.profileinstaller_profileinstaller",
+    ],
+    java_version: "1.7",
+}
+

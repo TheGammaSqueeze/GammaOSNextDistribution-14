@@ -1,0 +1,60 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.health_health-services-client-nodeps",
+    aars: ["health-services-client-1.0.0-beta03.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "30",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures-ktx",
+        "androidx.core_core-ktx",
+        "guava",
+        "guava-listenablefuture-prebuilt-jar",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "libprotobuf-java-lite",
+    ],
+}
+
+android_library {
+    name: "androidx.health_health-services-client",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "30",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.health_health-services-client-nodeps",
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures-ktx",
+        "androidx.core_core-ktx",
+        "guava",
+        "guava-listenablefuture-prebuilt-jar",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "libprotobuf-java-lite",
+    ],
+    java_version: "1.7",
+}
+

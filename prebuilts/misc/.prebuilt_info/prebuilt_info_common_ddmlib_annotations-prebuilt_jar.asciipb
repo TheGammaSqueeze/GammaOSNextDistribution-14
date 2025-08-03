@@ -1,0 +1,13 @@
+drops {
+  android_build_drop {
+    build_id: "9659474"
+    target: "studio-linux"
+    source_file: "artifacts/annotations.jar"
+  }
+  dest_file: "common/ddmlib/annotations-prebuilt.jar"
+  version: ""
+  version_group: ""
+  git_project: "platform/prebuilts/misc"
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+}

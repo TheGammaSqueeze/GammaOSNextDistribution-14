@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="Starting from {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, the return value of {@link BluetoothDevice#toString()} has changed to improve privacy." enableSinceTargetSdk="34" id="265103382" name="CHANGE_TO_STRING_REDACTED">
+    <meta-data definedIn="android.bluetooth.BluetoothDevice" sourcePosition="packages/modules/Bluetooth/framework/java/android/bluetooth/BluetoothDevice.java:938" />
+  </compat-change>
+</config>

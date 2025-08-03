@@ -1,0 +1,58 @@
+version: "1.4.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.collection"
+    artifact_id: "collection"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.13.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.customview"
+    artifact_id: "customview"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.customview"
+    artifact_id: "customview-poolingcontainer"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.profileinstaller"
+    artifact_id: "profileinstaller"
+    version: "1.3.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.recyclerview"
+group_id: "androidx.recyclerview"
+artifact_id: "recyclerview"
+path: "/recyclerview/recyclerview"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-recyclerview-11472573.zip"
+project_zip_path: "per-project-zips/androidx.recyclerview-recyclerview-all-11472573-1.4.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.viewpager2"
+    artifact_id: "viewpager2"
+    version: "1.1.0-beta02"
+    is_tip_of_tree: false
+  }
+}

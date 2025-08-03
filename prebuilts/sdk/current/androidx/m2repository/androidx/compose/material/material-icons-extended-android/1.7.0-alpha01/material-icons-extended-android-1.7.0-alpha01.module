@@ -1,0 +1,231 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../material-icons-extended/1.7.0-alpha01/material-icons-extended-1.7.0-alpha01.module",
+    "group": "androidx.compose.material",
+    "module": "material-icons-extended",
+    "version": "1.7.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose.material",
+          "module": "material-icons-core",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.material",
+          "module": "material",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-icons-core",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-ripple",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        }
+      ],
+      "files": [
+        {
+          "name": "material-icons-extended-release.aar",
+          "url": "material-icons-extended-android-1.7.0-alpha01.aar",
+          "size": 35716684,
+          "sha512": "fefb014ccbfb5189c8cdd2985ecca606924bc4a38c0b8333e0411338b9eff38da8789dc9603d653e9a2be8d42c4cfd1a44fafe27fafce0ef4e95927c1608aefe",
+          "sha256": "e6dcdca6fd9f517264c265fa7644bfab38e7b6c77f0f79061c84e747bc604ac6",
+          "sha1": "26f2e759590f2466310fc61f178f732c3ffd4537",
+          "md5": "89be59741ba8a0a2a2a5e45e701b3c64"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.compose.material",
+          "module": "material-icons-core",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "1.8.22"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.material",
+          "module": "material",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-icons-core",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-ripple",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        }
+      ],
+      "files": [
+        {
+          "name": "material-icons-extended-release.aar",
+          "url": "material-icons-extended-android-1.7.0-alpha01.aar",
+          "size": 35716684,
+          "sha512": "fefb014ccbfb5189c8cdd2985ecca606924bc4a38c0b8333e0411338b9eff38da8789dc9603d653e9a2be8d42c4cfd1a44fafe27fafce0ef4e95927c1608aefe",
+          "sha256": "e6dcdca6fd9f517264c265fa7644bfab38e7b6c77f0f79061c84e747bc604ac6",
+          "sha1": "26f2e759590f2466310fc61f178f732c3ffd4537",
+          "md5": "89be59741ba8a0a2a2a5e45e701b3c64"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "fake-sources",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.material",
+          "module": "material",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-icons-core",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        },
+        {
+          "group": "androidx.compose.material",
+          "module": "material-ripple",
+          "version": {
+            "requires": "1.7.0-alpha01"
+          },
+          "reason": "material-icons-extended is in atomic group androidx.compose.material"
+        }
+      ],
+      "files": [
+        {
+          "name": "material-icons-extended-android-1.7.0-alpha01-sources.jar",
+          "url": "material-icons-extended-android-1.7.0-alpha01-sources.jar",
+          "size": 12085941,
+          "sha512": "8052018ed087abb947f6063970211a78b1ca963fc3ba045bd07cd61e5817a5a3ebc61e2214ed1b88257011e5649899dfa3ab49d51b305d2dcf9b1971fc13bab5",
+          "sha256": "9b22840d9d5ec83fca54783df66640c0e2d76bb164687d654c23bcc6c02f3a96",
+          "sha1": "4c74984f208526fde6a4ad0d78d00a8d33cbcce0",
+          "md5": "9eb38b15d560c68fa1c277d4dbd85fe9"
+        }
+      ]
+    }
+  ]
+}

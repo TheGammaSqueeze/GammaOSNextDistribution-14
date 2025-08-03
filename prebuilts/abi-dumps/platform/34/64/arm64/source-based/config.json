@@ -1,0 +1,18 @@
+{
+  "libbinder_rpc_unstable": [
+    {
+      "target_version": "current",
+      "ignore_linker_set_keys": [
+        "ARpcServer_newBoundSocket",
+        "ARpcServer_newInitUnixDomain"
+      ]
+    },
+    {
+      "target_version": "35",
+      "ignore_linker_set_keys": [
+        "ARpcServer_newBoundSocket",
+        "ARpcServer_newInitUnixDomain"
+      ]
+    }
+  ]
+}

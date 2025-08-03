@@ -1,0 +1,70 @@
+version: "1.13.0-beta01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation-experimental"
+    version: "1.4.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.collection"
+    artifact_id: "collection"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.concurrent"
+    artifact_id: "concurrent-futures"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.interpolator"
+    artifact_id: "interpolator"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime"
+    version: "2.6.2"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.versionedparcelable"
+    artifact_id: "versionedparcelable"
+    version: "1.1.1"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.core"
+group_id: "androidx.core"
+artifact_id: "core"
+path: "/core/core"
+sha: "2b2e31535335d12b762d56d14e252c05c6b542e6"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-core-11497185.zip"
+project_zip_path: "per-project-zips/androidx.core-core-all-11497185-1.13.0-beta01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core-ktx"
+    version: "1.13.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core-testing"
+    version: "1.13.0-beta01"
+    is_tip_of_tree: true
+  }
+}

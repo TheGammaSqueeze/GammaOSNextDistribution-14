@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+AddedAbstractMethod: java.nio.Buffer#duplicate():
+    Added method java.nio.Buffer.duplicate()
+AddedAbstractMethod: java.nio.Buffer#slice():
+    Added method java.nio.Buffer.slice()
+AddedAbstractMethod: java.nio.Buffer#slice(int, int):
+    Added method java.nio.Buffer.slice(int,int)
+AddedAbstractMethod: java.nio.ByteBuffer#slice(int, int):
+    Added method java.nio.ByteBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.CharBuffer#slice(int, int):
+    Added method java.nio.CharBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.DoubleBuffer#slice(int, int):
+    Added method java.nio.DoubleBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.FloatBuffer#slice(int, int):
+    Added method java.nio.FloatBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.IntBuffer#slice(int, int):
+    Added method java.nio.IntBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.LongBuffer#slice(int, int):
+    Added method java.nio.LongBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.MappedByteBuffer#slice(int, int):
+    Added method java.nio.MappedByteBuffer.slice(int,int)
+AddedAbstractMethod: java.nio.ShortBuffer#slice(int, int):
+    Added method java.nio.ShortBuffer.slice(int,int)
+
+
+ChangedAbstract: java.util.AbstractSequentialList#listIterator(int):
+    Method java.util.AbstractSequentialList.listIterator has changed 'abstract' qualifier
+
+
+RemovedDeprecatedMethod: java.lang.Runtime#getLocalizedInputStream(java.io.InputStream):
+    Removed deprecated method java.lang.Runtime.getLocalizedInputStream(java.io.InputStream)
+RemovedDeprecatedMethod: java.lang.Runtime#getLocalizedOutputStream(java.io.OutputStream):
+    Removed deprecated method java.lang.Runtime.getLocalizedOutputStream(java.io.OutputStream)

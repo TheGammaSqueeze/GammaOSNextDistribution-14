@@ -1,0 +1,56 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.privacysandbox.sdkruntime_sdkruntime-client-nodeps",
+    aars: ["sdkruntime-client-1.0.0-alpha12.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    static_libs: [
+        "androidx.activity_activity",
+        "androidx.core_core",
+        "androidx.core_core-ktx",
+        "androidx.privacysandbox.sdkruntime_sdkruntime-core",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+    ],
+}
+
+android_library {
+    name: "androidx.privacysandbox.sdkruntime_sdkruntime-client",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "19",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.privacysandbox.sdkruntime_sdkruntime-client-nodeps",
+        "androidx.activity_activity",
+        "androidx.core_core",
+        "androidx.core_core-ktx",
+        "androidx.privacysandbox.sdkruntime_sdkruntime-core",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+    ],
+    java_version: "1.7",
+}
+

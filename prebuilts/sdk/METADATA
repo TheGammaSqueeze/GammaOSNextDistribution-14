@@ -1,0 +1,7 @@
+third_party {
+  license_note: "would be NOTICE save for CPL in:\n"
+  "   tools/windows/bin/NOTICE.txt\n"
+  "   tools/linux/bin/NOTICE.txt\n"
+  "   tools/darwin/bin/NOTICE.txt\n"
+  license_type: RECIPROCAL
+}

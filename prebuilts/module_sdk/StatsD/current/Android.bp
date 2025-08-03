@@ -1,0 +1,200 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.os.statsd-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.os.statsd"],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    contents: ["framework-statsd"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "framework-statsd",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.app",
+        "android.os",
+        "android.util",
+        "com.android.internal.statsd",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-statsd.srcjar"],
+        current_api: "sdk_library/public/framework-statsd.txt",
+        removed_api: "sdk_library/public/framework-statsd-removed.txt",
+        annotations: "sdk_library/public/framework-statsd_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-statsd.srcjar"],
+        current_api: "sdk_library/system/framework-statsd.txt",
+        removed_api: "sdk_library/system/framework-statsd-removed.txt",
+        annotations: "sdk_library/system/framework-statsd_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-statsd.srcjar"],
+        current_api: "sdk_library/module-lib/framework-statsd.txt",
+        removed_api: "sdk_library/module-lib/framework-statsd-removed.txt",
+        annotations: "sdk_library/module-lib/framework-statsd_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_import {
+    name: "service-statsd",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    jars: ["java_systemserver_libs/snapshot/jars/are/invalid/service-statsd.jar"],
+    min_sdk_version: "30",
+}
+
+license {
+    name: "statsd-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+cc_prebuilt_library_shared {
+    name: "libstatspull",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    stl: "libc++_static",
+    compile_multilib: "both",
+    export_include_dirs: ["include/packages/modules/StatsD/lib/libstatspull/include"],
+    stubs: {
+        versions: [
+            "30",
+            "current",
+        ],
+    },
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libstatspull.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libstatspull.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libstatspull.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libstatspull.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libstatssocket",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    stl: "libc++_static",
+    compile_multilib: "both",
+    export_include_dirs: ["include/packages/modules/StatsD/lib/libstatssocket/include"],
+    stubs: {
+        versions: [
+            "30",
+            "current",
+        ],
+    },
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libstatssocket.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libstatssocket.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libstatssocket.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libstatssocket.so"],
+        },
+    },
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.os.statsd-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.os.statsd"],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0"],
+    standalone_contents: ["service-statsd"],
+}

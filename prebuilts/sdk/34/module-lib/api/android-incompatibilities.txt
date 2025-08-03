@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+
+// b/255441492 - the method is moved from module API to system API
+RemovedMethod: android.os.Binder#markVintfStability():
+    Removed method android.os.Binder.markVintfStability()
+RemovedMethod: android.os.Parcelable#getStability():
+    Removed method android.os.Parcelable.getStability()
+
+// b/256775913 - the following methods are moved from module API to system API
+RemovedMethod: android.net.VpnTransportInfo#describeContents():
+    Removed method android.net.VpnTransportInfo.describeContents()
+RemovedMethod: android.net.VpnTransportInfo#getType():
+    Removed method android.net.VpnTransportInfo.getType()
+RemovedMethod: android.net.VpnTransportInfo#writeToParcel(android.os.Parcel, int):
+    Removed method android.net.VpnTransportInfo.writeToParcel(android.os.Parcel, int)
+RemovedField: android.net.VpnTransportInfo#CREATOR:
+    Removed field android.net.VpnTransportInfo.CREATOR

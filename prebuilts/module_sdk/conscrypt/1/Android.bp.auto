@@ -1,0 +1,167 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "conscrypt-module-sdk_com.android.conscrypt-bootclasspath-fragment@1",
+    sdk_member_name: "com.android.conscrypt-bootclasspath-fragment",
+    visibility: ["//external/conscrypt:__subpackages__"],
+    apex_available: ["com.android.conscrypt"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    contents: ["conscrypt-module-sdk_conscrypt@1"],
+    api: {
+        stub_libs: ["conscrypt-module-sdk_conscrypt.module.public.api@1"],
+    },
+    core_platform_api: {
+        stub_libs: ["conscrypt-module-sdk_conscrypt.module.platform.api@1"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_import {
+    name: "conscrypt-module-sdk_conscrypt@1",
+    sdk_member_name: "conscrypt",
+    visibility: [
+        "//device:__subpackages__",
+        "//external/conscrypt:__subpackages__",
+        "//system/apex/tests",
+    ],
+    apex_available: [
+        "com.android.conscrypt",
+        "test_com.android.conscrypt",
+    ],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    jars: ["java/conscrypt.jar"],
+}
+
+java_sdk_library_import {
+    name: "conscrypt-module-sdk_conscrypt.module.public.api@1",
+    sdk_member_name: "conscrypt.module.public.api",
+    visibility: [
+        "//external/conscrypt",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//libcore",
+        "//packages/modules/IPsec",
+        "//packages/modules/common/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt.module.public.api.srcjar"],
+        current_api: "sdk_library/public/conscrypt.module.public.api.txt",
+        removed_api: "sdk_library/public/conscrypt.module.public.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "conscrypt-module-sdk_conscrypt.module.platform.api@1",
+    sdk_member_name: "conscrypt.module.platform.api",
+    visibility: [
+        "//external/conscrypt",
+        "//external/wycheproof",
+        "//libcore:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt.module.platform.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt.module.platform.api.srcjar"],
+        current_api: "sdk_library/public/conscrypt.module.platform.api.txt",
+        removed_api: "sdk_library/public/conscrypt.module.platform.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "conscrypt-module-sdk_conscrypt.module.intra.core.api@1",
+    sdk_member_name: "conscrypt.module.intra.core.api",
+    visibility: [
+        "//external/conscrypt",
+        "//external/okhttp",
+        "//libcore:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt.module.intra.core.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt.module.intra.core.api.srcjar"],
+        current_api: "sdk_library/public/conscrypt.module.intra.core.api.txt",
+        removed_api: "sdk_library/public/conscrypt.module.intra.core.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+license {
+    name: "conscrypt-module-sdk_external_conscrypt_license@1",
+    sdk_member_name: "external_conscrypt_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/external/conscrypt/LICENSE",
+        "licenses/external/conscrypt/NOTICE",
+        "licenses/external/conscrypt/licenses/LICENSE.harmony.txt",
+        "licenses/external/conscrypt/licenses/LICENSE.netty.txt",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "conscrypt-module-sdk_libconscrypt_jni@1",
+    sdk_member_name: "libconscrypt_jni",
+    visibility: ["//external/conscrypt:__subpackages__"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license@1"],
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libconscrypt_jni.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libconscrypt_jni.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libconscrypt_jni.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libconscrypt_jni.so"],
+        },
+    },
+}
+
+sdk_snapshot {
+    name: "conscrypt-module-sdk@1",
+    visibility: ["//external/conscrypt:__subpackages__"],
+    bootclasspath_fragments: ["conscrypt-module-sdk_com.android.conscrypt-bootclasspath-fragment@1"],
+    java_boot_libs: ["conscrypt-module-sdk_conscrypt@1"],
+    java_sdk_libs: [
+        "conscrypt-module-sdk_conscrypt.module.public.api@1",
+        "conscrypt-module-sdk_conscrypt.module.platform.api@1",
+        "conscrypt-module-sdk_conscrypt.module.intra.core.api@1",
+    ],
+    native_shared_libs: ["conscrypt-module-sdk_libconscrypt_jni@1"],
+}

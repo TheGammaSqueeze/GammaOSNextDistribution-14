@@ -1,0 +1,265 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../window-core/1.5.0-alpha01/window-core-1.5.0-alpha01.module",
+    "group": "androidx.window",
+    "module": "window-core",
+    "version": "1.5.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.7.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.window",
+          "module": "window",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-java",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava2",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava3",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-testing",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        }
+      ],
+      "files": [
+        {
+          "name": "window-core-release.aar",
+          "url": "window-core-android-1.5.0-alpha01.aar",
+          "size": 10079,
+          "sha512": "5df137212c7b4c7cd6dc14edc4175cc2f354dc3c724173b147cfd6584e0e28bb1ac60ae071d7e7174da6018549e21fbed21d947daa022b1b7601b4f95ead4bd9",
+          "sha256": "bd98c2e7a0fadd02b100372e58c7831583e3fa0313927af4d32ddbe8d8ff7a2c",
+          "sha1": "04c6330455c2150203006201a4d4582854ab7008",
+          "md5": "8be6d5638ccadfbca821c2ef334d3b69"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.7.0"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.window",
+          "module": "window",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-java",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava2",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava3",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-testing",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        }
+      ],
+      "files": [
+        {
+          "name": "window-core-release.aar",
+          "url": "window-core-android-1.5.0-alpha01.aar",
+          "size": 10079,
+          "sha512": "5df137212c7b4c7cd6dc14edc4175cc2f354dc3c724173b147cfd6584e0e28bb1ac60ae071d7e7174da6018549e21fbed21d947daa022b1b7601b4f95ead4bd9",
+          "sha256": "bd98c2e7a0fadd02b100372e58c7831583e3fa0313927af4d32ddbe8d8ff7a2c",
+          "sha1": "04c6330455c2150203006201a4d4582854ab7008",
+          "md5": "8be6d5638ccadfbca821c2ef334d3b69"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "fake-sources",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.window",
+          "module": "window",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-java",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava2",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-rxjava3",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        },
+        {
+          "group": "androidx.window",
+          "module": "window-testing",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          },
+          "reason": "window-core is in atomic group androidx.window"
+        }
+      ],
+      "files": [
+        {
+          "name": "window-core-android-1.5.0-alpha01-sources.jar",
+          "url": "window-core-android-1.5.0-alpha01-sources.jar",
+          "size": 6622,
+          "sha512": "898195ac76629ed47cff61b4639fddfdfa9d5a3bf87da1c518d32b34ec436cd686d5bc832ef5633310a7f39ee0599f2d9439ec3445258c43879b3146551009ef",
+          "sha256": "e4d610026c5948895c432870c7b5398887c00d8c531810e051248498d47fec14",
+          "sha1": "8d965c472ab77d3235e76a505df297e61f967796",
+          "md5": "c0b654c2ed276d43cb1344d8dcc0af59"
+        }
+      ]
+    }
+  ]
+}

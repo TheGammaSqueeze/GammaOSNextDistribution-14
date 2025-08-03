@@ -1,0 +1,13 @@
+# Default maintainers and code reviewers:
+appujee@google.com
+pirama@google.com
+srhines@google.com
+yabinc@google.com
+yikong@google.com
+zijunzhao@google.com
+
+# mailing list cannot be a reviewer yet
+# android-llvm-dev+owners-review@google.com
+
+# The owners of the build system are allowed to change the pertinent files
+per-file *.bzl,BUILD.bazel = file:platform/build/soong:/OWNERS

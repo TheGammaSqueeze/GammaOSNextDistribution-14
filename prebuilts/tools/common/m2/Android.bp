@@ -1,0 +1,550 @@
+// Copyright (C) 2010 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["prebuilts_tools_common_m2_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_tools_common_m2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_notice",
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC0-1.0",
+        "SPDX-license-identifier-CC-BY",
+        "SPDX-license-identifier-CDDL",
+        "SPDX-license-identifier-CDDL-1.0",
+        "SPDX-license-identifier-CPL-1.0",
+        "SPDX-license-identifier-EPL",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-LGPL-3.0",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-MPL",
+        "SPDX-license-identifier-MPL-1.0",
+        "SPDX-license-identifier-MPL-1.1",
+        "SPDX-license-identifier-MPL-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+license {
+    name: "m2_guava_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/com/google/guava/LICENSE.txt",
+    ]
+}
+
+license {
+    name: "m2_java_diff_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/com/googlecode/java-diff-utils/diffutils/LICENSE.txt",
+    ]
+}
+
+license {
+    name: "m2_javax_annotation_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-CDDL",
+        "SPDX-license-identifier-CDDL-1.0",
+        "SPDX-license-identifier-GPL-2.0-with-classpath-exception",
+    ],
+    license_text: [
+        "repository/javax/annotation/javax.annotation-api/NOTICE",
+    ]
+}
+
+license {
+    name: "m2_api_grpc_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/com/google/api/grpc/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_joda_time_2.9.1_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/joda-time/joda-time/2.9.1/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_google_auth_0.13.0_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-3-Clause",
+    ],
+    license_text: [
+        "repository/com/google/auth/google-auth-library-credentials/0.13.0/LICENSE",
+        "repository/com/google/auth/google-auth-library-oauth2-http/0.13.0/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_grpc_netty_shaded_1.16.1_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/io/grpc/grpc-netty-shaded/1.16.1/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_grpc_netty_shaded_1.56.0_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/io/grpc/grpc-netty-shaded/1.56.0/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_jna_3.4.0_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-LGPL-2.1",
+    ],
+    license_text: [
+        "repository/net/java/dev/jna/jna/3.4.0/LICENSE"
+    ]
+}
+
+license {
+    name: "m2_turbine_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/com/google/turbine/LICENSE"
+    ]
+}
+
+java_import {
+    name: "apache-commons-lang3",
+    jars: ["repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar"],
+}
+
+java_import {
+    name: "byte-buddy-prebuilt-jar",
+    jars: ["repository/net/bytebuddy/byte-buddy/1.12.16/byte-buddy-1.12.16.jar",
+            "repository/net/bytebuddy/byte-buddy-agent/1.12.16/byte-buddy-agent-1.12.16.jar"],
+    sdk_version: "current",
+}
+
+java_import {
+    name: "diffutils-prebuilt-jar",
+    jars: ["repository/com/googlecode/java-diff-utils/diffutils/1.3.0/diffutils-1.3.0.jar"],
+    sdk_version: "current",
+    host_supported: true,
+    licenses: ["m2_java_diff_license"]
+}
+
+java_import_host {
+    name: "google-auth-library-credentials-0.13.0",
+    jars: ["repository/com/google/auth/google-auth-library-credentials/0.13.0/google-auth-library-credentials-0.13.0.jar"],
+    licenses: ["m2_google_auth_0.13.0_license"],
+}
+
+java_import_host {
+    name: "google-auth-library-oauth2-http-0.13.0",
+    jars: ["repository/com/google/auth/google-auth-library-oauth2-http/0.13.0/google-auth-library-oauth2-http-0.13.0.jar"],
+    licenses: ["m2_google_auth_0.13.0_license"],
+}
+
+java_import_host {
+    name: "google-http-client-jackson2-1.28.0",
+    jars: ["repository/com/google/http-client/google-http-client-jackson2/1.28.0/google-http-client-jackson2-1.28.0.jar"],
+}
+
+java_import {
+    name: "guava-listenablefuture-prebuilt-jar",
+    jars: ["repository/com/google/guava/guava/listenablefuture/1.0/listenablefuture-1.0.jar"],
+    sdk_version: "current",
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    licenses: ["m2_guava_license"]
+}
+
+java_import {
+    name: "mockito4-prebuilt-jar",
+    jars: ["repository/org/mockito/mockito-core/4.8.1/mockito-core-4.8.1.jar"],
+    sdk_version: "current",
+}
+
+java_import {
+    name: "inline-mockito4-prebuilt-jar",
+    jars: ["repository/org/mockito/mockito-inline/4.8.1/mockito-inline-4.8.1.jar"],
+    sdk_version: "current",
+}
+
+java_import {
+    name: "rxjava",
+    jars: [
+        "repository/io/reactivex/rxjava2/rxjava/2.2.9/rxjava-2.2.9.jar",
+        "repository/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar"
+    ],
+    sdk_version: "current",
+    host_supported: true,
+}
+
+java_import_host {
+    name: "kotlinpoet",
+    jars: ["repository/com/squareup/kotlinpoet/1.8.0/kotlinpoet-1.8.0.jar"],
+}
+
+java_import {
+    name: "grpc-netty-shaded-1.16.1-jar",
+    host_supported: true,
+    jars: ["repository/io/grpc/grpc-netty-shaded/1.16.1/grpc-netty-shaded-1.16.1.jar"],
+    visibility: ["//external/grpc-grpc-java/netty/shaded"],
+    licenses: ["m2_grpc_netty_shaded_1.16.1_license"]
+}
+
+java_import {
+    name: "grpc-netty-shaded-1.56.0-jar",
+    host_supported: true,
+    jars: ["repository/io/grpc/grpc-netty-shaded/1.56.0/grpc-netty-shaded-1.56.0.jar"],
+    visibility: ["//external/grpc-grpc-java/netty/shaded"],
+    licenses: ["m2_grpc_netty_shaded_1.56.0_license"]
+}
+
+java_import_host {
+    name: "trove-prebuilt",
+    jars: ["repository/net/sf/trove4j/trove4j/1.1/trove4j-1.1.jar"],
+}
+
+java_import_host {
+    name: "jna-prebuilt",
+    jars: ["repository/net/java/dev/jna/jna/3.4.0/jna-3.4.0.jar"],
+    licenses: ["m2_jna_3.4.0_license"]
+}
+
+java_import_host {
+    name: "compile-testing-prebuilt",
+    jars: ["repository/com/google/testing/compile/compile-testing/0.19/compile-testing-0.19.jar"],
+}
+
+// Combined libraries.
+
+java_library_static {
+    name: "mockito-robolectric-prebuilt",
+    static_libs: [
+        "byte-buddy-prebuilt-jar",
+        "mockito4-prebuilt-jar",
+        "objenesis",
+    ],
+    sdk_version: "current",
+}
+
+java_library_static {
+    name: "inline-mockito-robolectric-prebuilt",
+    static_libs: [
+        "byte-buddy-prebuilt-jar",
+        "inline-mockito4-prebuilt-jar",
+        "objenesis",
+    ],
+    sdk_version: "current",
+}
+
+license {
+    name: "m2_clikt_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "repository/com/github/ajalt/clikt/LICENSE.txt",
+    ]
+}
+
+java_import {
+    name: "metalava-tools-common-m2-deps",
+    host_supported: true,
+    jars: [
+	"repository/com/github/ajalt/clikt/clikt-jvm/3.5.3/clikt-jvm-3.5.3.jar",
+        "repository/com/google/guava/guava/32.1.1-jre/guava-32.1.1-jre.jar",
+        "repository/com/google/turbine/0.2.1/turbine-0.2.1.jar",
+        "repository/javax/xml/bind/jaxb-api/2.2.12-b140109.1041/jaxb-api-2.2.12-b140109.1041.jar",
+        "repository/org/jetbrains/trove4j/trove4j/20160824/trove4j-20160824.jar",
+        "repository/org/ow2/asm/asm/6.1.1/asm-6.1.1.jar",
+        "repository/org/ow2/asm/asm-tree/6.1.1/asm-tree-6.1.1.jar",
+    ],
+    licenses: [
+        "m2_clikt_license",
+        "m2_guava_license",
+        "m2_turbine_license"
+    ],
+}
+
+java_import {
+  name: "dokka-tools-common-m2-deps",
+  host_supported: true,
+  jars: [
+    "repository/com/intellij/core-analysis/intellij-core-analysis.jar",
+    "repository/org/jetbrains/kotlin/kotlin-compiler/1.3.61-release-180/kotlin-compiler-1.3.61-release-180.jar",
+    "repository/com/squareup/okhttp4/okhttp/4.0.0/okhttp-4.0.0-RC1.jar",
+    "repository/com/sampullara/cli/1.1.2/cli-parser-1.1.2.jar",
+    "repository/ru/yole/jkid/jkid-8fc7f12e1a.jar",
+    "repository/com/google/inject/guice/3.0/guice-3.0.jar",
+    "repository/org/jetbrains/markdown/0.1.41/markdown-0.1.41.jar",
+    "repository/org/jsoup/jsoup/1.8.3/jsoup-1.8.3.jar",
+    "repository/kotlinx/html/jvm/0.6.8/kotlinx-html-jvm-0.6.8-google.jar",
+    "repository/org/jetbrains/intellij/deps/trove4j/1.0.20181211/trove4j-1.0.20181211.jar",
+    "repository/org/jetbrains/kotlin/kotlin-script-runtime/1.3.61-release-180/kotlin-script-runtime-1.3.61-release-180-sources.jar",
+    "repository/org/jetbrains/kotlin/kotlin-reflect/1.3.61-release-180/kotlin-reflect-1.3.61-release-180.jar",
+    "repository/org/jetbrains/kotlin/kotlin-plugin-ij193/1.3.61-release-180/kotlin-plugin-ij193-1.3.61-release-180.jar",
+  ],
+}
+
+java_import {
+  name: "wire-runtime-prebuilt-jar",
+  jars: [
+    "repository/com/squareup/wire/wire-runtime-jvm/4.7.0/wire-runtime-jvm-4.7.0.jar",
+  ],
+}
+
+java_library_static {
+    name: "wire-runtime",
+    static_libs: [
+        "wire-runtime-prebuilt-jar",
+        "okio-lib",
+    ],
+    sdk_version: "current",
+}
+
+java_import {
+    name: "accessibility-test-framework",
+    jars: [
+        "repository/com/google/android/apps/common/testing/accessibility/framework/accessibility-test-framework/2.0/accessibility-test-framework-2.0.jar",
+    ],
+}
+
+java_import {
+    name: "javawriter",
+    jars: [
+        "repository/com/squareup/javawriter/2.1.1/javawriter-2.1.1.jar",
+    ],
+}
+
+java_import_host {
+    name: "com.google.api.grpc_proto-google-common-protos-prebuilt-jar",
+    jars: ["repository/com/google/api/grpc/proto-google-common-protos/1.14.0/proto-google-common-protos-1.14.0.jar"],
+    licenses: ["m2_api_grpc_license"],
+}
+
+java_import {
+    name: "auto-common-1.1.2",
+    jars: ["repository/com/google/auto/auto-common/1.1.2/auto-common-1.1.2.jar"],
+    host_supported: true,
+}
+
+java_import {
+    name: "auto-value-1.9",
+    jars: ["repository/com/google/auto/value/auto-value/1.9/auto-value-1.9.jar"],
+    host_supported: true,
+}
+
+java_plugin {
+    name: "auto_value_plugin_1.9",
+    static_libs: [
+        "auto-value-1.9",
+        "auto-common-1.1.2",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+    ],
+    processor_class: "com.google.auto.value.processor.AutoValueProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_plugin {
+    name: "auto_value_builder_plugin_1.9",
+    static_libs: [
+        "auto-value-1.9",
+        "auto-common-1.1.2",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+    ],
+    processor_class: "com.google.auto.value.processor.AutoBuilderProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_import {
+    name: "gson-prebuilt-jar-2.9.1",
+    jars: ["repository/com/google/code/gson/gson/2.9.1/gson-2.9.1.jar"],
+    sdk_version: "current",
+    host_supported: true,
+}
+
+java_import {
+    name: "commons-codec",
+    jars: ["repository/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"],
+    host_supported: true,
+}
+
+java_import {
+    name: "xerial-sqlite-jdbc",
+    jars: ["repository/org/xerial/sqlite-jdbc/3.28.0/sqlite-jdbc-3.28.0.jar"],
+    host_supported: true,
+}
+
+java_import {
+    name: "jetbrains-annotations",
+    jars: ["repository/org/jetbrains/annotations/13.0/annotations-13.0.jar"],
+    host_supported: true,
+}
+
+java_import {
+    name: "checker-qual",
+    jars: ["repository/org/checkerframework/checker-qual/2.8.1/checker-qual-2.8.1.jar"],
+    host_supported: true,
+}
+
+java_import_host {
+    name: "javax-annotation-api-prebuilt-host-jar",
+    jars: ["repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar"],
+    licenses: ["m2_javax_annotation_license"],
+}
+
+build = ["robolectric.bp"]
+
+java_import_host {
+    name: "jsoup-1.6.3",
+    jars: ["repository/org/jsoup/jsoup/1.6.3/jsoup-1.6.3.jar"],
+}
+
+java_import {
+    name: "symbol-processing-api",
+    jars: ["repository/com/google/devtools/ksp/symbol-processing-api/1.4.10-dev-experimental-20201110/symbol-processing-api-1.4.10-dev-experimental-20201110.jar"],
+    host_supported: true,
+}
+
+java_import {
+    name: "kotlin-compiler-embeddable",
+    jars: ["repository/org/jetbrains/kotlin/kotlin-compiler-embeddable/1.6.10/kotlin-compiler-embeddable-1.6.10.jar"],
+    sdk_version: "current",
+    host_supported: true,
+}
+
+java_import {
+    name: "location-gnss-joda-time",
+    jars: ["repository/joda-time/joda-time/2.9.1/joda-time-2.9.1.jar"],
+    sdk_version: "core_current",
+    licenses: ["m2_joda_time_2.9.1_license"],
+}
+
+java_import {
+    name: "dialer-common-m2-target-deps",
+    visibility: ["//packages/apps/Dialer"],
+    jars: [
+        "repository/com/google/dagger/dagger/2.7/dagger-2.7.jar",
+        "repository/com/google/guava/guava/23.0/guava-23.0.jar",
+        "repository/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar",
+        "repository/commons-io/commons-io/2.4/commons-io-2.4.jar",
+        "repository/com/squareup/okhttp/okhttp/2.7.4/okhttp-2.7.4.jar",
+        "repository/com/squareup/okio/okio/1.9.0/okio-1.9.0.jar",
+        "repository/io/grpc/grpc-all/1.0.3/grpc-all-1.0.3.jar",
+        "repository/io/grpc/grpc-context/1.0.3/grpc-context-1.0.3.jar",
+        "repository/io/grpc/grpc-core/1.0.3/grpc-core-1.0.3.jar",
+        "repository/io/grpc/grpc-okhttp/1.0.3/grpc-okhttp-1.0.3.jar",
+        "repository/io/grpc/grpc-protobuf-lite/1.0.3/grpc-protobuf-lite-1.0.3.jar",
+        "repository/io/grpc/grpc-stub/1.0.3/grpc-stub-1.0.3.jar",
+        "repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar",
+        "repository/javax/inject/javax.inject/1/javax.inject-1.jar",
+        "repository/me/leolin/ShortcutBadger/1.1.13/ShortcutBadger-1.1.13.jar",
+        "repository/org/apache/james/apache-mime4j-core/0.7.2/apache-mime4j-core-0.7.2.jar",
+        "repository/org/apache/james/apache-mime4j-dom/0.7.2/apache-mime4j-dom-0.7.2.jar",
+        "repository/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar",
+    ],
+    sdk_version: "current",
+}
+
+java_import_host {
+    name: "dialer-common-m2-host-deps",
+    visibility: ["//packages/apps/Dialer"],
+    jars: [
+        "repository/com/google/dagger/dagger/2.7/dagger-2.7.jar",
+        "repository/com/google/guava/guava/23.0/guava-23.0.jar",
+        "repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar",
+        "repository/javax/inject/javax.inject/1/javax.inject-1.jar",
+    ],
+}
+
+java_import_host {
+    name: "dialer-dagger2-compiler-deps",
+    visibility: ["//packages/apps/Dialer"],
+    jars: [
+        "repository/com/google/dagger/dagger-compiler/2.7/dagger-compiler-2.7.jar",
+        "repository/com/google/dagger/dagger-producers/2.7/dagger-producers-2.7.jar",
+    ],
+}
+
+java_import_host {
+    name: "jopt-simple-4.9",
+    jars: ["repository/net/sf/jopt-simple/jopt-simple/4.9/jopt-simple-4.9.jar"],
+}
+
+java_import {
+    name: "javax_annotation-api_1.3.2",
+    host_supported: true,
+    jars: ["repository/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"],
+    sdk_version: "current",
+}

@@ -1,0 +1,15 @@
+drops {
+  android_build_drop {
+    build_id: "9653376"
+    target: "CtsShim"
+    source_file: "aosp_riscv64/com.android.apex.cts.shim.v2_rebootless.apex"
+  }
+  dest_file: "hostsidetests/stagedinstall/testdata/apex//riscv64/com.android.apex.cts.shim.v2_rebootless.apex"
+  version: ""
+  version_group: ""
+  git_project: "platform/cts"
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+  transform_options {
+  }
+}

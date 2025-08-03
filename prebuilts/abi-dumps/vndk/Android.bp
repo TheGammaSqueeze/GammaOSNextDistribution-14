@@ -1,0 +1,38 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// TODO(b/150663999): Change this to a filegroup when the build system is able
+//                    to process a large number of files.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "vndk_abi_dump_zip",
+    tools: ["soong_zip"],
+    // Directories 33 and 34 contain symbolic links to LLNDK dumps.
+    // They do not have to be included in the zip.
+    cmd: "find prebuilts/abi-dumps/vndk -type f -name '*.lsdump' > $(genDir)/paths.txt && " +
+        "$(location soong_zip) -symlinks=false -o $(out) -C prebuilts/abi-dumps/vndk -l $(genDir)/paths.txt",
+    srcs: [
+        "30/**/*.lsdump",
+        "31/**/*.lsdump",
+        "32/**/*.lsdump",
+        "33/**/*.lsdump",
+        "34/**/*.lsdump",
+    ],
+    out: ["vndk_abi_dump.zip"],
+}

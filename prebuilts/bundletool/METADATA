@@ -1,0 +1,17 @@
+name: "bundletool"
+description:
+    "Bundletool is a tool to manipulate Android App Bundles."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://g.co/androidappbundle"
+  }
+  url {
+    type: OTHER
+    value: "https://rapid.corp.google.com/#/project/play-apps-publisher-app-bundle",
+  }
+  version: "1-f0ef26ca_27262de3_75dc513c_9412d464_7fc1f591"
+  last_upgrade_date { year: 2023 month: 8 day: 7 }
+  license_type: NOTICE
+}

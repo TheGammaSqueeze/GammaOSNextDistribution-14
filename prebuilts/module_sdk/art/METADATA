@@ -1,0 +1,8 @@
+third_party {
+  license_note: "would be NOTICE save for GPL in:\n"
+  "   current/sdk/common_os/include/art/openjdkjvmti/include/jvmti.h\n"
+  "   current/sdk/common_os/include/art/openjdkjvmti/include/jvmti.h\n"
+  "   current/sdk/sdk_library/public/art.module.public.api_stub_sources/...\n"
+  "    e.g. current/sdk/sdk_library/public/art.module.public.api_stub_sources/javax/security/auth/AuthPermission.java"
+  license_type: RESTRICTED
+}

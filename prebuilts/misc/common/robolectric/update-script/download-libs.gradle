@@ -1,0 +1,76 @@
+/*
+ * Modified from https://gist.github.com/xian/05c4f27da6d4156b9827842217c2cd5c
+ * Reference: http://robolectric.org/blog/2017/03/01/hermetic-builds/
+ */
+defaultTasks 'copyLibs'
+
+def shadowArtifacts = [
+        "org.robolectric:shadows-framework:${robolectricVersion}",
+        "org.robolectric:shadows-httpclient:${robolectricVersion}",
+        "org.robolectric:shadows-multidex:${robolectricVersion}",
+        "org.robolectric:shadows-playservices:${robolectricVersion}",
+        "org.robolectric:shadows-supportv4:${robolectricVersion}",
+]
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+configurations {
+    sandbox
+    roboSources
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    implementation("org.robolectric:robolectric:${robolectricVersion}") {
+        // we don't need these MavenDependencyResolver in a hermetic build
+        exclude group: 'org.apache.maven', module: ''
+        exclude group: 'org.apache.ant', module: ''
+    }
+
+    shadowArtifacts.forEach { shadowArtifact ->
+        implementation ("${shadowArtifact}")  {
+            // we don't need these MavenDependencyResolver in a hermetic build
+            exclude group: 'org.apache.maven', module: ''
+            exclude group: 'org.apache.ant', module: ''
+        }
+        sandbox ("${shadowArtifact}")  {
+            // we don't need these MavenDependencyResolver in a hermetic build
+            exclude group: 'org.apache.maven', module: ''
+            exclude group: 'org.apache.ant', module: ''
+        }
+    }
+
+    def shadowArtifactsSet = shadowArtifacts.collect {it.toString()}  toSet()
+    configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact ra ->
+        ModuleVersionIdentifier id = ra.moduleVersion.id
+        // download only core sources. relax restriction if required
+        if ("org.robolectric".equals(id.group) && !shadowArtifactsSet.contains(id.toString())) {
+            roboSources("${id.group}:${id.name}:${id.version}:sources") {
+                transitive = false
+            }
+        }
+    }
+}
+
+
+task copyLibs(type: Copy) {
+    from configurations.runtimeClasspath
+    from configurations.roboSources
+    into "$buildDir/lib"
+
+    doLast {
+        def f = new File("$buildDir/classpath_jars.mk")
+        f.delete()
+        def jars = source.getFiles()
+            .collect { it.name }
+            .sort()
+            .findAll { !it.endsWith("sources.jar") }
+            .collect { "    lib/${it} " }
+        f << "my_robolectric_runtime_deps := \\\n" << jars.join("\\\n") << "\n"
+    }
+}

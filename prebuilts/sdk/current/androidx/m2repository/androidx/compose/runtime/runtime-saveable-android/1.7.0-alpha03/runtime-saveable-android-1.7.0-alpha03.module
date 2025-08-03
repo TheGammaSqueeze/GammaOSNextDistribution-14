@@ -1,0 +1,283 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../runtime-saveable/1.7.0-alpha03/runtime-saveable-1.7.0-alpha03.module",
+    "group": "androidx.compose.runtime",
+    "module": "runtime-saveable",
+    "version": "1.7.0-alpha03",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-livedata",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava2",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava3",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        }
+      ],
+      "files": [
+        {
+          "name": "runtime-saveable-release.aar",
+          "url": "runtime-saveable-android-1.7.0-alpha03.aar",
+          "size": 1173989,
+          "sha512": "0939faefa362dc8845c009447985eac321b949d39019384cc23380a57353ff7a568add093b0ee0a1340c3b1f1d8ba004abda99072fb261ebcf06bb15536ec84e",
+          "sha256": "f82d438621b0d258d9eaa797dae4418c8c4bb0a845f4639fb6c9b156c166105c",
+          "sha1": "505f316a494c3a2d46af1058a0ca12ec9552f7cc",
+          "md5": "f681c0440394c21cd76496244de8d5aa"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-common",
+          "version": {
+            "requires": "1.8.22"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-livedata",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava2",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava3",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        }
+      ],
+      "files": [
+        {
+          "name": "runtime-saveable-release.aar",
+          "url": "runtime-saveable-android-1.7.0-alpha03.aar",
+          "size": 1173989,
+          "sha512": "0939faefa362dc8845c009447985eac321b949d39019384cc23380a57353ff7a568add093b0ee0a1340c3b1f1d8ba004abda99072fb261ebcf06bb15536ec84e",
+          "sha256": "f82d438621b0d258d9eaa797dae4418c8c4bb0a845f4639fb6c9b156c166105c",
+          "sha1": "505f316a494c3a2d46af1058a0ca12ec9552f7cc",
+          "md5": "f681c0440394c21cd76496244de8d5aa"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "fake-sources",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-livedata",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava2",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        },
+        {
+          "group": "androidx.compose.runtime",
+          "module": "runtime-rxjava3",
+          "version": {
+            "requires": "1.7.0-alpha03"
+          },
+          "reason": "runtime-saveable is in atomic group androidx.compose.runtime"
+        }
+      ],
+      "files": [
+        {
+          "name": "runtime-saveable-android-1.7.0-alpha03-sources.jar",
+          "url": "runtime-saveable-android-1.7.0-alpha03-sources.jar",
+          "size": 11663,
+          "sha512": "326baea73bb95d4df655daa5b2b8f44613671b930581886d54885fc55955ca5feb72aecdd55922847c444861600de704d9f04e896d1e857bafd328977fd60c35",
+          "sha256": "c1730d3a69eb62ad819b12835591d0a8d7676de0b6d4257a38fa28daebbb8399",
+          "sha1": "f4b8bdb1cd75cb3c61bc1a3996fe6eff4382e836",
+          "md5": "084246caa2aa3053867c6bf8c5b79b6d"
+        }
+      ]
+    }
+  ]
+}

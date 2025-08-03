@@ -1,0 +1,13 @@
+Updated as follows:
+
+croot prebuilts/tools/common/m2
+
+CLIKT_VERSION=3.5.3
+
+mvn org.apache.maven.plugins:maven-dependency-plugin:get \
+    -DrepoUrl=https://repo1.maven.org/maven2/ \
+    -Dartifact=com.github.ajalt.clikt:clikt-jvm:$CLIKT_VERSION
+
+mkdir -p repository/com/github/ajalt/clikt/clikt-jvm/
+
+cp -r ~/.m2/repository/com/github/ajalt/clikt/clikt-jvm/$CLIKT_VERSION/ repository/com/github/ajalt/clikt/clikt-jvm/

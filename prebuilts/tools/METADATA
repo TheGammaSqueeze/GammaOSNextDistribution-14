@@ -1,0 +1,18 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+third_party {
+  license_note: "would be RESTRICTED save for:\n"
+  "   Apple Java Extensions License in:\n"
+  "     common/m2/repository/com/apple/AppleJavaExtensions/NOTICE\n"
+  "     common/m2/repository/com/apple/AppleJavaExtensions/1.4/AppleJavaExtensions-1.4.pom\n"
+  "   Crittercism Integration Code License in:\n"
+  "     common/m2/repository/com/crittercism/crittercism-android-agent/5.6.4/crittercism-android-agent-5.6.4.pom\n"
+  "   Atlassian End User Agreement in:\n"
+  "     common/m2/repository/com/cenqua/clover/clover/3.1.12/clover-3.1.12.pom\n"
+  "   Facebook Platform License in:\n"
+  "     common/m2/repository/com/facebook/android/facebook-android-sdk/4.14.0/facebook-android-sdk-4.14.0.pom\n"
+  "   Proprietary Helpshift License in:\n"
+  "     common/m2/repository/com/helpshift/android-helpshift-aar/4.7.0/android-helpshift-aar-4.7.0.pom\n"
+  license_type: BY_EXCEPTION_ONLY
+}

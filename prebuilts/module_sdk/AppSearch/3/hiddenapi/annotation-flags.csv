@@ -1,0 +1,2 @@
+Landroid/app/appsearch/GlobalSearchSession;->addObserver(Ljava/lang/String;Landroid/app/appsearch/observer/ObserverSpec;Ljava/util/concurrent/Executor;Landroid/app/appsearch/observer/AppSearchObserverCallback;)V,unsupported
+Landroid/app/appsearch/GlobalSearchSession;->removeObserver(Ljava/lang/String;Landroid/app/appsearch/observer/AppSearchObserverCallback;)V,unsupported

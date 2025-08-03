@@ -1,0 +1,14 @@
+package(default_visibility = ["//visibility:public"])
+
+sh_binary(
+    name = "yasm",
+    srcs = select({
+        "//build/bazel_common_rules/platforms/os:darwin": ["darwin-x86/yasm/yasm"],
+        "//build/bazel_common_rules/platforms/os:linux": ["linux-x86/yasm/yasm"],
+    }),
+    target_compatible_with = select({
+        "//build/bazel_common_rules/platforms/os:darwin": [],
+        "//build/bazel_common_rules/platforms/os:linux": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+)

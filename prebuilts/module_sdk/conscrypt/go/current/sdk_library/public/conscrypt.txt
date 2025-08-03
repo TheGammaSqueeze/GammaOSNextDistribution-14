@@ -1,0 +1,17 @@
+// Signature format: 2.0
+package android.net.ssl {
+
+  public class SSLEngines {
+    method @Nullable public static byte[] exportKeyingMaterial(@NonNull javax.net.ssl.SSLEngine, @NonNull String, @Nullable byte[], int) throws javax.net.ssl.SSLException;
+    method public static boolean isSupportedEngine(@NonNull javax.net.ssl.SSLEngine);
+    method public static void setUseSessionTickets(@NonNull javax.net.ssl.SSLEngine, boolean);
+  }
+
+  public class SSLSockets {
+    method @Nullable public static byte[] exportKeyingMaterial(@NonNull javax.net.ssl.SSLSocket, @NonNull String, @Nullable byte[], int) throws javax.net.ssl.SSLException;
+    method public static boolean isSupportedSocket(@NonNull javax.net.ssl.SSLSocket);
+    method public static void setUseSessionTickets(@NonNull javax.net.ssl.SSLSocket, boolean);
+  }
+
+}
+

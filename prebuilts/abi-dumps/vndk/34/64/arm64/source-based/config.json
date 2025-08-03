@@ -1,0 +1,47 @@
+{
+  "global": {
+    "flags": {
+      "advice_only": true
+    }
+  },
+  "libbinder": [
+    {
+      "target_version": "current",
+      "flags": {
+        "allow_adding_removing_weak_symbols": true
+      }
+    }
+  ],
+  "libc++": [
+    {
+      "target_version": "current",
+      "flags": {
+        "allow_adding_removing_weak_symbols": true
+      }
+    }
+  ],
+  "libhidlbase": [
+    {
+      "target_version": "current",
+      "flags": {
+        "allow_adding_removing_weak_symbols": true
+      }
+    }
+  ],
+  "libui": [
+    {
+      "target_version": "current",
+      "flags": {
+        "allow_adding_removing_weak_symbols": true
+      }
+    }
+  ],
+  "libutils": [
+    {
+      "target_version": "current",
+      "flags": {
+        "allow_adding_removing_weak_symbols": true
+      }
+    }
+  ]
+}

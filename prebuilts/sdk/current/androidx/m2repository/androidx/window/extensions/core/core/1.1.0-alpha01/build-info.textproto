@@ -1,0 +1,23 @@
+version: "1.1.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.window.extensions.core"
+group_id: "androidx.window.extensions.core"
+artifact_id: "core"
+path: "/window/extensions/core/core"
+sha: "9ab82157731eff4fdd110d5626464f44cac5d59c"
+require_same_version_group_build: true
+project_zip_path: "per-project-zips/androidx.window.extensions.core-core-all-11757502-1.1.0-alpha01.zip"
+kotlin_version: "1.9.23"
+dependency_constraint_list {
+}
+should_publish_docs: true
+is_kmp: false

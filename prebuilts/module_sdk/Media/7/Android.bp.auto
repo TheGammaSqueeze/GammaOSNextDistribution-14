@@ -1,0 +1,171 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.media-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.media"],
+    licenses: ["media-module-sdk_frameworks_av_license"],
+    contents: ["updatable-media"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    api: {
+        stub_libs: ["framework-media"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_import {
+    name: "updatable-media",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//frameworks/av/apex:__subpackages__",
+        "//frameworks/base",
+        "//frameworks/base/apex/media/service",
+        "//packages/modules/Media/apex/framework",
+    ],
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+    licenses: ["media-module-sdk_Android-Apache-2.0"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/updatable-media.jar"],
+    min_sdk_version: "29",
+    permitted_packages: ["android.media"],
+}
+
+java_sdk_library_import {
+    name: "framework-media",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+    licenses: ["media-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: ["android.media"],
+    public: {
+        jars: ["sdk_library/public/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-media.srcjar"],
+        current_api: "sdk_library/public/framework-media.txt",
+        removed_api: "sdk_library/public/framework-media-removed.txt",
+        annotations: "sdk_library/public/framework-media_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-media.srcjar"],
+        current_api: "sdk_library/system/framework-media.txt",
+        removed_api: "sdk_library/system/framework-media-removed.txt",
+        annotations: "sdk_library/system/framework-media_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-media-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-media.srcjar"],
+        current_api: "sdk_library/module-lib/framework-media.txt",
+        removed_api: "sdk_library/module-lib/framework-media-removed.txt",
+        annotations: "sdk_library/module-lib/framework-media_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "service-media-s",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.media"],
+    licenses: ["media-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: ["com.android.server.media"],
+    public: {
+        jars: ["sdk_library/public/service-media-s-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-media-s.srcjar"],
+        current_api: "sdk_library/public/service-media-s.txt",
+        removed_api: "sdk_library/public/service-media-s-removed.txt",
+        annotations: "sdk_library/public/service-media-s_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-media-s-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-media-s.srcjar"],
+        current_api: "sdk_library/system-server/service-media-s.txt",
+        removed_api: "sdk_library/system-server/service-media-s-removed.txt",
+        annotations: "sdk_library/system-server/service-media-s_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "media-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "media-module-sdk_frameworks_av_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "legacy_by_exception_only",
+    ],
+    license_text: ["licenses/frameworks/av/NOTICE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.media-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.media"],
+    licenses: ["media-module-sdk_frameworks_av_license"],
+    contents: ["service-media-s"],
+}

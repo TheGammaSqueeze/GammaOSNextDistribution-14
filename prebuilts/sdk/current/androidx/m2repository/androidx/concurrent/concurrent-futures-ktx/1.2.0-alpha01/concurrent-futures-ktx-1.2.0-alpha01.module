@@ -1,0 +1,157 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.concurrent",
+    "module": "concurrent-futures-ktx",
+    "version": "1.2.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.21"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.6.4"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-ktx-1.2.0-alpha01.jar",
+          "url": "concurrent-futures-ktx-1.2.0-alpha01.jar",
+          "size": 11104,
+          "sha512": "f3706dbb51661e42f2ac5a8fe5d60aa30f065347efa576273477df02e89a3acace77b9e0952ba7af9bfdeefdbe1955151147a5a46a731049070e5d65365384f0",
+          "sha256": "f48311c91da220b9218316c5cf06b0384dee08c00b74a4a4cad812909d8b4864",
+          "sha1": "df540129ae99a08914c28a24095f3bc70e71a54c",
+          "md5": "d564d2c9efbaaf45cb3f29708383e3da"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.21"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.6.4"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-ktx-1.2.0-alpha01.jar",
+          "url": "concurrent-futures-ktx-1.2.0-alpha01.jar",
+          "size": 11104,
+          "sha512": "f3706dbb51661e42f2ac5a8fe5d60aa30f065347efa576273477df02e89a3acace77b9e0952ba7af9bfdeefdbe1955151147a5a46a731049070e5d65365384f0",
+          "sha256": "f48311c91da220b9218316c5cf06b0384dee08c00b74a4a4cad812909d8b4864",
+          "sha1": "df540129ae99a08914c28a24095f3bc70e71a54c",
+          "md5": "d564d2c9efbaaf45cb3f29708383e3da"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-ktx-1.2.0-alpha01-sources.jar",
+          "url": "concurrent-futures-ktx-1.2.0-alpha01-sources.jar",
+          "size": 4718,
+          "sha512": "12c9cd0e8003e30c3c4333fb3d134e0736f5676784116a1ebb05e2313786e7caeccfcf6024a2f7db6d0487106ff8a5b862b73c2a26fc1702a878ffb3851800b7",
+          "sha256": "25014ae9d8209487b4151124075a35d060154942bfff37ef6bc84643754ea1c0",
+          "sha1": "90cd79f2059f1e66482f90123fcaef5b82e05a18",
+          "md5": "6fb60f3ec45af70247bda8b5a0c328ca"
+        }
+      ]
+    }
+  ]
+}

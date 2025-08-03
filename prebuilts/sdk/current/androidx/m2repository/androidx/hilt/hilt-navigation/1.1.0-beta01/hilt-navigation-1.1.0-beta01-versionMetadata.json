@@ -1,0 +1,1 @@
+[{"class":"androidx.hilt.navigation.HiltViewModelFactory","addedIn":"1.0.0","methods":[{"method":"create(android.content.Context,androidx.lifecycle.ViewModelProvider.Factory)","addedIn":"1.1.0-beta01"},{"method":"create(android.content.Context,androidx.navigation.NavBackStackEntry)","addedIn":"1.0.0"}],"fields":[]}]

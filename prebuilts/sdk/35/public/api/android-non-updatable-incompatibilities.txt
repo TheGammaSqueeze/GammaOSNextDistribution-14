@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+InvalidNullConversion: android.graphics.Bitmap#getConfig():
+    Attempted to change method return from @NonNull to @Nullable: incompatible change for method android.graphics.Bitmap.getConfig()
+
+
+RemovedDeprecatedClass: android.media.MediaDrm.HdcpLevel:
+    Removed deprecated class android.media.MediaDrm.HdcpLevel
+RemovedDeprecatedClass: android.media.MediaDrm.SecurityLevel:
+    Removed deprecated class android.media.MediaDrm.SecurityLevel
+
+
+RemovedDeprecatedMethod: android.app.Notification.WearableExtender#getBackground():
+    Removed deprecated method android.app.Notification.WearableExtender.getBackground()
+RemovedDeprecatedMethod: android.app.Notification.WearableExtender#setBackground(android.graphics.Bitmap):
+    Removed deprecated method android.app.Notification.WearableExtender.setBackground(android.graphics.Bitmap)

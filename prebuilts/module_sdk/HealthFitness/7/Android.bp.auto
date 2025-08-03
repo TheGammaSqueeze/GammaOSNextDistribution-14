@@ -1,0 +1,126 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.healthfitness-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//packages/modules/HealthFitness:__subpackages__"],
+    apex_available: ["com.android.healthfitness"],
+    licenses: ["healthfitness-module-sdk_Android-Apache-2.0"],
+    contents: ["framework-healthfitness"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "framework-healthfitness",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.healthfitness"],
+    licenses: ["healthfitness-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/framework-healthfitness-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-healthfitness.srcjar"],
+        current_api: "sdk_library/public/framework-healthfitness.txt",
+        removed_api: "sdk_library/public/framework-healthfitness-removed.txt",
+        annotations: "sdk_library/public/framework-healthfitness_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-healthfitness-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-healthfitness.srcjar"],
+        current_api: "sdk_library/system/framework-healthfitness.txt",
+        removed_api: "sdk_library/system/framework-healthfitness-removed.txt",
+        annotations: "sdk_library/system/framework-healthfitness_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-healthfitness-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-healthfitness.srcjar"],
+        current_api: "sdk_library/module-lib/framework-healthfitness.txt",
+        removed_api: "sdk_library/module-lib/framework-healthfitness-removed.txt",
+        annotations: "sdk_library/module-lib/framework-healthfitness_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_sdk_library_import {
+    name: "service-healthfitness",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.healthfitness"],
+    licenses: ["healthfitness-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/service-healthfitness-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-healthfitness.srcjar"],
+        current_api: "sdk_library/public/service-healthfitness.txt",
+        removed_api: "sdk_library/public/service-healthfitness-removed.txt",
+        annotations: "sdk_library/public/service-healthfitness_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-healthfitness-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-healthfitness.srcjar"],
+        current_api: "sdk_library/system-server/service-healthfitness.txt",
+        removed_api: "sdk_library/system-server/service-healthfitness-removed.txt",
+        annotations: "sdk_library/system-server/service-healthfitness_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "healthfitness-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.healthfitness-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//packages/modules/HealthFitness:__subpackages__"],
+    apex_available: ["com.android.healthfitness"],
+    licenses: ["healthfitness-module-sdk_Android-Apache-2.0"],
+    contents: ["service-healthfitness"],
+}

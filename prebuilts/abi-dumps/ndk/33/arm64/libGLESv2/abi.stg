@@ -1,0 +1,1986 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x06253136
+  kind: POINTER
+  pointee_type_id: 0x32d42247
+}
+pointer_reference {
+  id: 0x06603026
+  kind: POINTER
+  pointee_type_id: 0x33c02605
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x347131e8
+  kind: POINTER
+  pointee_type_id: 0xfb84213f
+}
+pointer_reference {
+  id: 0x3997312f
+  kind: POINTER
+  pointee_type_id: 0xcc1c2220
+}
+typedef {
+  id: 0x32d42247
+  name: "GLboolean"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0xecb63bc0
+  name: "GLenum"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x33c02605
+  name: "GLfloat"
+  referred_type_id: 0x6e0a24ef
+}
+typedef {
+  id: 0xcc1c2220
+  name: "GLint"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x9e573275
+  name: "GLubyte"
+  referred_type_id: 0xa32e7101
+}
+typedef {
+  id: 0xe1207cd2
+  name: "GLuint"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x6e0a24ef
+  name: "khronos_float_t"
+  referred_type_id: 0x8b7c737e
+}
+typedef {
+  id: 0xa32e7101
+  name: "khronos_uint8_t"
+  referred_type_id: 0x5d8155a5
+}
+qualified {
+  id: 0xfb84213f
+  qualifier: CONST
+  qualified_type_id: 0x9e573275
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x8b7c737e
+  name: "float"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000004
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x2b5383a7
+  return_type_id: 0x48b5725f
+  parameter_id: 0xecb63bc0
+  parameter_id: 0x3997312f
+}
+function {
+  id: 0x2bac5fa3
+  return_type_id: 0x48b5725f
+  parameter_id: 0xecb63bc0
+  parameter_id: 0x06603026
+}
+function {
+  id: 0x2bad4ba7
+  return_type_id: 0x48b5725f
+  parameter_id: 0xecb63bc0
+  parameter_id: 0x06253136
+}
+function {
+  id: 0x4d574af7
+  return_type_id: 0x347131e8
+  parameter_id: 0xecb63bc0
+}
+function {
+  id: 0x5696b1f1
+  return_type_id: 0x18bd6530
+}
+function {
+  id: 0x6de995a5
+  return_type_id: 0xecb63bc0
+}
+function {
+  id: 0x782afffb
+  return_type_id: 0xe1207cd2
+}
+function {
+  id: 0x9eae9ddd
+  return_type_id: 0xcc1c2220
+}
+function {
+  id: 0xe8b4eb81
+  return_type_id: 0x32d42247
+}
+elf_symbol {
+  id: 0xd78929c9
+  name: "glActiveTexture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glActiveTexture"
+}
+elf_symbol {
+  id: 0xca14c9f0
+  name: "glAttachShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glAttachShader"
+}
+elf_symbol {
+  id: 0x2725bce8
+  name: "glBeginPerfMonitorAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBeginPerfMonitorAMD"
+}
+elf_symbol {
+  id: 0x182cfe2e
+  name: "glBindAttribLocation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindAttribLocation"
+}
+elf_symbol {
+  id: 0x2555a961
+  name: "glBindBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindBuffer"
+}
+elf_symbol {
+  id: 0x82d358b0
+  name: "glBindFramebuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindFramebuffer"
+}
+elf_symbol {
+  id: 0xb713f7fb
+  name: "glBindRenderbuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindRenderbuffer"
+}
+elf_symbol {
+  id: 0x6a00f825
+  name: "glBindTexture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindTexture"
+}
+elf_symbol {
+  id: 0x98a23dc2
+  name: "glBindVertexArrayOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBindVertexArrayOES"
+}
+elf_symbol {
+  id: 0x7e08140e
+  name: "glBlendColor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBlendColor"
+}
+elf_symbol {
+  id: 0xdb24906b
+  name: "glBlendEquation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBlendEquation"
+}
+elf_symbol {
+  id: 0xf8d1727b
+  name: "glBlendEquationSeparate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBlendEquationSeparate"
+}
+elf_symbol {
+  id: 0x3e2a3fba
+  name: "glBlendFunc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBlendFunc"
+}
+elf_symbol {
+  id: 0x543fc282
+  name: "glBlendFuncSeparate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBlendFuncSeparate"
+}
+elf_symbol {
+  id: 0x601d5e62
+  name: "glBufferData"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBufferData"
+}
+elf_symbol {
+  id: 0x02345472
+  name: "glBufferSubData"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glBufferSubData"
+}
+elf_symbol {
+  id: 0xb3f64f42
+  name: "glCheckFramebufferStatus"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6de995a5
+  full_name: "glCheckFramebufferStatus"
+}
+elf_symbol {
+  id: 0x1c1c68ae
+  name: "glClear"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glClear"
+}
+elf_symbol {
+  id: 0x9d3f2303
+  name: "glClearColor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glClearColor"
+}
+elf_symbol {
+  id: 0x1cf43d2a
+  name: "glClearDepthf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glClearDepthf"
+}
+elf_symbol {
+  id: 0x22b6c6d2
+  name: "glClearStencil"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glClearStencil"
+}
+elf_symbol {
+  id: 0xab0c70c0
+  name: "glColorMask"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glColorMask"
+}
+elf_symbol {
+  id: 0xf89dcaae
+  name: "glCompileShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCompileShader"
+}
+elf_symbol {
+  id: 0xea1235f4
+  name: "glCompressedTexImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCompressedTexImage2D"
+}
+elf_symbol {
+  id: 0x56bbe51b
+  name: "glCompressedTexImage3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCompressedTexImage3DOES"
+}
+elf_symbol {
+  id: 0xd13c9d08
+  name: "glCompressedTexSubImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCompressedTexSubImage2D"
+}
+elf_symbol {
+  id: 0xb2535004
+  name: "glCompressedTexSubImage3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCompressedTexSubImage3DOES"
+}
+elf_symbol {
+  id: 0x984f7f69
+  name: "glCopyTexImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCopyTexImage2D"
+}
+elf_symbol {
+  id: 0x51859585
+  name: "glCopyTexSubImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCopyTexSubImage2D"
+}
+elf_symbol {
+  id: 0x58a4acd3
+  name: "glCopyTexSubImage3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCopyTexSubImage3DOES"
+}
+elf_symbol {
+  id: 0xf666f488
+  name: "glCoverageMaskNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCoverageMaskNV"
+}
+elf_symbol {
+  id: 0xb3f955f4
+  name: "glCoverageOperationNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCoverageOperationNV"
+}
+elf_symbol {
+  id: 0x160c2a52
+  name: "glCreateProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x782afffb
+  full_name: "glCreateProgram"
+}
+elf_symbol {
+  id: 0x28cbcb49
+  name: "glCreateShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x782afffb
+  full_name: "glCreateShader"
+}
+elf_symbol {
+  id: 0xe4cc6726
+  name: "glCullFace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glCullFace"
+}
+elf_symbol {
+  id: 0x1b72bf33
+  name: "glDeleteBuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteBuffers"
+}
+elf_symbol {
+  id: 0x9843002d
+  name: "glDeleteFencesNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteFencesNV"
+}
+elf_symbol {
+  id: 0x356dda16
+  name: "glDeleteFramebuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteFramebuffers"
+}
+elf_symbol {
+  id: 0x0ffc3fd4
+  name: "glDeletePerfMonitorsAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeletePerfMonitorsAMD"
+}
+elf_symbol {
+  id: 0x0264e99a
+  name: "glDeleteProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteProgram"
+}
+elf_symbol {
+  id: 0xf205ffe1
+  name: "glDeleteRenderbuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteRenderbuffers"
+}
+elf_symbol {
+  id: 0xaf30db75
+  name: "glDeleteShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteShader"
+}
+elf_symbol {
+  id: 0x054f03c3
+  name: "glDeleteTextures"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteTextures"
+}
+elf_symbol {
+  id: 0xc8816ed4
+  name: "glDeleteVertexArraysOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDeleteVertexArraysOES"
+}
+elf_symbol {
+  id: 0x6dc2811a
+  name: "glDepthFunc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDepthFunc"
+}
+elf_symbol {
+  id: 0x03c62479
+  name: "glDepthMask"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDepthMask"
+}
+elf_symbol {
+  id: 0x069c2c53
+  name: "glDepthRangef"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDepthRangef"
+}
+elf_symbol {
+  id: 0xb990131d
+  name: "glDetachShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDetachShader"
+}
+elf_symbol {
+  id: 0x9826593d
+  name: "glDisable"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDisable"
+}
+elf_symbol {
+  id: 0x4b102a61
+  name: "glDisableDriverControlQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDisableDriverControlQCOM"
+}
+elf_symbol {
+  id: 0x8cb1f582
+  name: "glDisableVertexAttribArray"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDisableVertexAttribArray"
+}
+elf_symbol {
+  id: 0x411f5615
+  name: "glDiscardFramebufferEXT"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDiscardFramebufferEXT"
+}
+elf_symbol {
+  id: 0x9103182c
+  name: "glDrawArrays"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDrawArrays"
+}
+elf_symbol {
+  id: 0x84aa9bb5
+  name: "glDrawElements"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glDrawElements"
+}
+elf_symbol {
+  id: 0x1a01235a
+  name: "glEGLImageTargetRenderbufferStorageOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEGLImageTargetRenderbufferStorageOES"
+}
+elf_symbol {
+  id: 0xa2353b0e
+  name: "glEGLImageTargetTexture2DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEGLImageTargetTexture2DOES"
+}
+elf_symbol {
+  id: 0xa70c2b60
+  name: "glEnable"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEnable"
+}
+elf_symbol {
+  id: 0xa5464fbc
+  name: "glEnableDriverControlQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEnableDriverControlQCOM"
+}
+elf_symbol {
+  id: 0xc0bfd1ac
+  name: "glEnableVertexAttribArray"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEnableVertexAttribArray"
+}
+elf_symbol {
+  id: 0xf55548c6
+  name: "glEndPerfMonitorAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEndPerfMonitorAMD"
+}
+elf_symbol {
+  id: 0x43a16718
+  name: "glEndTilingQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glEndTilingQCOM"
+}
+elf_symbol {
+  id: 0x0ebdef17
+  name: "glExtGetBufferPointervQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetBufferPointervQCOM"
+}
+elf_symbol {
+  id: 0x597f702e
+  name: "glExtGetBuffersQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetBuffersQCOM"
+}
+elf_symbol {
+  id: 0x2400292b
+  name: "glExtGetFramebuffersQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetFramebuffersQCOM"
+}
+elf_symbol {
+  id: 0xd704427b
+  name: "glExtGetProgramBinarySourceQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetProgramBinarySourceQCOM"
+}
+elf_symbol {
+  id: 0x4f0b6f87
+  name: "glExtGetProgramsQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetProgramsQCOM"
+}
+elf_symbol {
+  id: 0xc2321855
+  name: "glExtGetRenderbuffersQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetRenderbuffersQCOM"
+}
+elf_symbol {
+  id: 0x7c2a438a
+  name: "glExtGetShadersQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetShadersQCOM"
+}
+elf_symbol {
+  id: 0x6abf1343
+  name: "glExtGetTexLevelParameterivQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetTexLevelParameterivQCOM"
+}
+elf_symbol {
+  id: 0xbe8c8108
+  name: "glExtGetTexSubImageQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetTexSubImageQCOM"
+}
+elf_symbol {
+  id: 0xb2dd49fb
+  name: "glExtGetTexturesQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtGetTexturesQCOM"
+}
+elf_symbol {
+  id: 0x9991cb25
+  name: "glExtIsProgramBinaryQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glExtIsProgramBinaryQCOM"
+}
+elf_symbol {
+  id: 0x6130aeb9
+  name: "glExtTexObjectStateOverrideiQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glExtTexObjectStateOverrideiQCOM"
+}
+elf_symbol {
+  id: 0x07b1c679
+  name: "glFinish"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFinish"
+}
+elf_symbol {
+  id: 0xf1cbfa21
+  name: "glFinishFenceNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFinishFenceNV"
+}
+elf_symbol {
+  id: 0x2018fcd2
+  name: "glFlush"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFlush"
+}
+elf_symbol {
+  id: 0x9d29af75
+  name: "glFramebufferRenderbuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFramebufferRenderbuffer"
+}
+elf_symbol {
+  id: 0xaebbb9bc
+  name: "glFramebufferTexture2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFramebufferTexture2D"
+}
+elf_symbol {
+  id: 0x920212ea
+  name: "glFramebufferTexture2DMultisampleEXT"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFramebufferTexture2DMultisampleEXT"
+}
+elf_symbol {
+  id: 0x34b933a6
+  name: "glFramebufferTexture2DMultisampleIMG"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFramebufferTexture2DMultisampleIMG"
+}
+elf_symbol {
+  id: 0xede6185a
+  name: "glFramebufferTexture3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFramebufferTexture3DOES"
+}
+elf_symbol {
+  id: 0x5679e82a
+  name: "glFrontFace"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glFrontFace"
+}
+elf_symbol {
+  id: 0xfc5b406a
+  name: "glGenBuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenBuffers"
+}
+elf_symbol {
+  id: 0x7ceb7e2f
+  name: "glGenFencesNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenFencesNV"
+}
+elf_symbol {
+  id: 0xb032dac7
+  name: "glGenFramebuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenFramebuffers"
+}
+elf_symbol {
+  id: 0xa491e245
+  name: "glGenPerfMonitorsAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenPerfMonitorsAMD"
+}
+elf_symbol {
+  id: 0xed94fa4e
+  name: "glGenRenderbuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenRenderbuffers"
+}
+elf_symbol {
+  id: 0x05e86dfd
+  name: "glGenTextures"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenTextures"
+}
+elf_symbol {
+  id: 0xac02812d
+  name: "glGenVertexArraysOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenVertexArraysOES"
+}
+elf_symbol {
+  id: 0x96629c33
+  name: "glGenerateMipmap"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGenerateMipmap"
+}
+elf_symbol {
+  id: 0x4320463a
+  name: "glGetActiveAttrib"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetActiveAttrib"
+}
+elf_symbol {
+  id: 0xf67bfb87
+  name: "glGetActiveUniform"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetActiveUniform"
+}
+elf_symbol {
+  id: 0x6ec683dc
+  name: "glGetAttachedShaders"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetAttachedShaders"
+}
+elf_symbol {
+  id: 0x2dac0170
+  name: "glGetAttribLocation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9eae9ddd
+  full_name: "glGetAttribLocation"
+}
+elf_symbol {
+  id: 0x2dd6a71d
+  name: "glGetBooleanv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2bad4ba7
+  full_name: "glGetBooleanv"
+}
+elf_symbol {
+  id: 0x59e3714e
+  name: "glGetBufferParameteriv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetBufferParameteriv"
+}
+elf_symbol {
+  id: 0x8158f146
+  name: "glGetBufferPointervOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetBufferPointervOES"
+}
+elf_symbol {
+  id: 0x114ee37f
+  name: "glGetDriverControlStringQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetDriverControlStringQCOM"
+}
+elf_symbol {
+  id: 0x1271f005
+  name: "glGetDriverControlsQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetDriverControlsQCOM"
+}
+elf_symbol {
+  id: 0x7e204c3d
+  name: "glGetError"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x6de995a5
+  full_name: "glGetError"
+}
+elf_symbol {
+  id: 0x314d64f3
+  name: "glGetFenceivNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetFenceivNV"
+}
+elf_symbol {
+  id: 0x191d20ba
+  name: "glGetFloatv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2bac5fa3
+  full_name: "glGetFloatv"
+}
+elf_symbol {
+  id: 0x05e8a972
+  name: "glGetFramebufferAttachmentParameteriv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetFramebufferAttachmentParameteriv"
+}
+elf_symbol {
+  id: 0xfa856fc9
+  name: "glGetIntegerv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2b5383a7
+  full_name: "glGetIntegerv"
+}
+elf_symbol {
+  id: 0x06576307
+  name: "glGetPerfMonitorCounterDataAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorCounterDataAMD"
+}
+elf_symbol {
+  id: 0x7e142d38
+  name: "glGetPerfMonitorCounterInfoAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorCounterInfoAMD"
+}
+elf_symbol {
+  id: 0xd906ffa6
+  name: "glGetPerfMonitorCounterStringAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorCounterStringAMD"
+}
+elf_symbol {
+  id: 0x6f425dd9
+  name: "glGetPerfMonitorCountersAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorCountersAMD"
+}
+elf_symbol {
+  id: 0xf28a36c1
+  name: "glGetPerfMonitorGroupStringAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorGroupStringAMD"
+}
+elf_symbol {
+  id: 0x9188dd95
+  name: "glGetPerfMonitorGroupsAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetPerfMonitorGroupsAMD"
+}
+elf_symbol {
+  id: 0x305e0be4
+  name: "glGetProgramBinaryOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetProgramBinaryOES"
+}
+elf_symbol {
+  id: 0x060b41a0
+  name: "glGetProgramInfoLog"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetProgramInfoLog"
+}
+elf_symbol {
+  id: 0x313d251c
+  name: "glGetProgramiv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetProgramiv"
+}
+elf_symbol {
+  id: 0xe249114b
+  name: "glGetRenderbufferParameteriv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetRenderbufferParameteriv"
+}
+elf_symbol {
+  id: 0x60990f94
+  name: "glGetShaderInfoLog"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetShaderInfoLog"
+}
+elf_symbol {
+  id: 0x06679818
+  name: "glGetShaderPrecisionFormat"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetShaderPrecisionFormat"
+}
+elf_symbol {
+  id: 0x108e1565
+  name: "glGetShaderSource"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetShaderSource"
+}
+elf_symbol {
+  id: 0x83bf7184
+  name: "glGetShaderiv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetShaderiv"
+}
+elf_symbol {
+  id: 0xe0b1c17d
+  name: "glGetString"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4d574af7
+  full_name: "glGetString"
+}
+elf_symbol {
+  id: 0xde21a3aa
+  name: "glGetTexParameterfv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetTexParameterfv"
+}
+elf_symbol {
+  id: 0x2c35c991
+  name: "glGetTexParameteriv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetTexParameteriv"
+}
+elf_symbol {
+  id: 0x9ffe5f28
+  name: "glGetUniformLocation"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9eae9ddd
+  full_name: "glGetUniformLocation"
+}
+elf_symbol {
+  id: 0x4a5de7a0
+  name: "glGetUniformfv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetUniformfv"
+}
+elf_symbol {
+  id: 0x0a8283ff
+  name: "glGetUniformiv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetUniformiv"
+}
+elf_symbol {
+  id: 0x15ab5a19
+  name: "glGetVertexAttribPointerv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetVertexAttribPointerv"
+}
+elf_symbol {
+  id: 0x370f5140
+  name: "glGetVertexAttribfv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetVertexAttribfv"
+}
+elf_symbol {
+  id: 0xb5aa57ef
+  name: "glGetVertexAttribiv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glGetVertexAttribiv"
+}
+elf_symbol {
+  id: 0x175b2b47
+  name: "glHint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glHint"
+}
+elf_symbol {
+  id: 0x6f5eb8f1
+  name: "glIsBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsBuffer"
+}
+elf_symbol {
+  id: 0xa2a54af2
+  name: "glIsEnabled"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsEnabled"
+}
+elf_symbol {
+  id: 0xd08fd955
+  name: "glIsFenceNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsFenceNV"
+}
+elf_symbol {
+  id: 0xf2d6f7e5
+  name: "glIsFramebuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsFramebuffer"
+}
+elf_symbol {
+  id: 0x45599958
+  name: "glIsProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsProgram"
+}
+elf_symbol {
+  id: 0xdf036276
+  name: "glIsRenderbuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsRenderbuffer"
+}
+elf_symbol {
+  id: 0xb1d3f09f
+  name: "glIsShader"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsShader"
+}
+elf_symbol {
+  id: 0x7f31aa5a
+  name: "glIsTexture"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsTexture"
+}
+elf_symbol {
+  id: 0x39569903
+  name: "glIsVertexArrayOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glIsVertexArrayOES"
+}
+elf_symbol {
+  id: 0xa1bf827a
+  name: "glLineWidth"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glLineWidth"
+}
+elf_symbol {
+  id: 0xcb4a0049
+  name: "glLinkProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glLinkProgram"
+}
+elf_symbol {
+  id: 0x14f9603e
+  name: "glMapBufferOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x5696b1f1
+  full_name: "glMapBufferOES"
+}
+elf_symbol {
+  id: 0xaa83b060
+  name: "glMultiDrawArraysEXT"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glMultiDrawArraysEXT"
+}
+elf_symbol {
+  id: 0x96cd12f8
+  name: "glMultiDrawElementsEXT"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glMultiDrawElementsEXT"
+}
+elf_symbol {
+  id: 0x10b31b89
+  name: "glPixelStorei"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glPixelStorei"
+}
+elf_symbol {
+  id: 0x3a998975
+  name: "glPolygonOffset"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glPolygonOffset"
+}
+elf_symbol {
+  id: 0x0ad54891
+  name: "glProgramBinaryOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glProgramBinaryOES"
+}
+elf_symbol {
+  id: 0x2ea0ce15
+  name: "glReadPixels"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glReadPixels"
+}
+elf_symbol {
+  id: 0xf904b33b
+  name: "glReleaseShaderCompiler"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glReleaseShaderCompiler"
+}
+elf_symbol {
+  id: 0xd2d4b3b6
+  name: "glRenderbufferStorage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glRenderbufferStorage"
+}
+elf_symbol {
+  id: 0x71e3505f
+  name: "glRenderbufferStorageMultisampleEXT"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glRenderbufferStorageMultisampleEXT"
+}
+elf_symbol {
+  id: 0xf1ea23d4
+  name: "glRenderbufferStorageMultisampleIMG"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glRenderbufferStorageMultisampleIMG"
+}
+elf_symbol {
+  id: 0xbe8640a7
+  name: "glSampleCoverage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glSampleCoverage"
+}
+elf_symbol {
+  id: 0xa14b39e3
+  name: "glScissor"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glScissor"
+}
+elf_symbol {
+  id: 0xc5866fc4
+  name: "glSelectPerfMonitorCountersAMD"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glSelectPerfMonitorCountersAMD"
+}
+elf_symbol {
+  id: 0x983bcd16
+  name: "glSetFenceNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glSetFenceNV"
+}
+elf_symbol {
+  id: 0x27da1066
+  name: "glShaderBinary"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glShaderBinary"
+}
+elf_symbol {
+  id: 0x1c15742c
+  name: "glShaderSource"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glShaderSource"
+}
+elf_symbol {
+  id: 0xc33fd7cd
+  name: "glStartTilingQCOM"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStartTilingQCOM"
+}
+elf_symbol {
+  id: 0x50d3de33
+  name: "glStencilFunc"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilFunc"
+}
+elf_symbol {
+  id: 0x2c340cad
+  name: "glStencilFuncSeparate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilFuncSeparate"
+}
+elf_symbol {
+  id: 0x65533eaa
+  name: "glStencilMask"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilMask"
+}
+elf_symbol {
+  id: 0xbd53f696
+  name: "glStencilMaskSeparate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilMaskSeparate"
+}
+elf_symbol {
+  id: 0x7e150722
+  name: "glStencilOp"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilOp"
+}
+elf_symbol {
+  id: 0x4e7f013c
+  name: "glStencilOpSeparate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glStencilOpSeparate"
+}
+elf_symbol {
+  id: 0xc4e1584e
+  name: "glTestFenceNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glTestFenceNV"
+}
+elf_symbol {
+  id: 0xd5bd221d
+  name: "glTexImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexImage2D"
+}
+elf_symbol {
+  id: 0xba31f92d
+  name: "glTexImage3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexImage3DOES"
+}
+elf_symbol {
+  id: 0x2a6ff9e5
+  name: "glTexParameterf"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexParameterf"
+}
+elf_symbol {
+  id: 0x6f9d6867
+  name: "glTexParameterfv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexParameterfv"
+}
+elf_symbol {
+  id: 0x91ac2efb
+  name: "glTexParameteri"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexParameteri"
+}
+elf_symbol {
+  id: 0x9d7b49ca
+  name: "glTexParameteriv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexParameteriv"
+}
+elf_symbol {
+  id: 0xe2c1b824
+  name: "glTexSubImage2D"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexSubImage2D"
+}
+elf_symbol {
+  id: 0x87a237f2
+  name: "glTexSubImage3DOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glTexSubImage3DOES"
+}
+elf_symbol {
+  id: 0x533be10a
+  name: "glUniform1f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform1f"
+}
+elf_symbol {
+  id: 0x31b96079
+  name: "glUniform1fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform1fv"
+}
+elf_symbol {
+  id: 0x907b47ec
+  name: "glUniform1i"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform1i"
+}
+elf_symbol {
+  id: 0xbbcd7772
+  name: "glUniform1iv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform1iv"
+}
+elf_symbol {
+  id: 0xdba3632a
+  name: "glUniform2f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform2f"
+}
+elf_symbol {
+  id: 0x20a5883f
+  name: "glUniform2fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform2fv"
+}
+elf_symbol {
+  id: 0x925e3391
+  name: "glUniform2i"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform2i"
+}
+elf_symbol {
+  id: 0xecf87622
+  name: "glUniform2iv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform2iv"
+}
+elf_symbol {
+  id: 0x2cba7300
+  name: "glUniform3f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform3f"
+}
+elf_symbol {
+  id: 0x11111bdd
+  name: "glUniform3fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform3fv"
+}
+elf_symbol {
+  id: 0xfcfec5c5
+  name: "glUniform3i"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform3i"
+}
+elf_symbol {
+  id: 0x8cbd6a56
+  name: "glUniform3iv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform3iv"
+}
+elf_symbol {
+  id: 0xb065a9af
+  name: "glUniform4f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform4f"
+}
+elf_symbol {
+  id: 0x4160d841
+  name: "glUniform4fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform4fv"
+}
+elf_symbol {
+  id: 0xfb21e999
+  name: "glUniform4i"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform4i"
+}
+elf_symbol {
+  id: 0xd17ea684
+  name: "glUniform4iv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniform4iv"
+}
+elf_symbol {
+  id: 0x445d4708
+  name: "glUniformMatrix2fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniformMatrix2fv"
+}
+elf_symbol {
+  id: 0x786d3668
+  name: "glUniformMatrix3fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniformMatrix3fv"
+}
+elf_symbol {
+  id: 0x23108b9b
+  name: "glUniformMatrix4fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUniformMatrix4fv"
+}
+elf_symbol {
+  id: 0x74475f53
+  name: "glUnmapBufferOES"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe8b4eb81
+  full_name: "glUnmapBufferOES"
+}
+elf_symbol {
+  id: 0x72e52f6e
+  name: "glUseProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glUseProgram"
+}
+elf_symbol {
+  id: 0x9e78649d
+  name: "glValidateProgram"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glValidateProgram"
+}
+elf_symbol {
+  id: 0x44b1ce1e
+  name: "glVertexAttrib1f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib1f"
+}
+elf_symbol {
+  id: 0xec4eb137
+  name: "glVertexAttrib1fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib1fv"
+}
+elf_symbol {
+  id: 0xeab699f6
+  name: "glVertexAttrib2f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib2f"
+}
+elf_symbol {
+  id: 0xefa89fe4
+  name: "glVertexAttrib2fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib2fv"
+}
+elf_symbol {
+  id: 0x33ed11c4
+  name: "glVertexAttrib3f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib3f"
+}
+elf_symbol {
+  id: 0x0fbf1fcf
+  name: "glVertexAttrib3fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib3fv"
+}
+elf_symbol {
+  id: 0xddedae53
+  name: "glVertexAttrib4f"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib4f"
+}
+elf_symbol {
+  id: 0xbdfb35cc
+  name: "glVertexAttrib4fv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttrib4fv"
+}
+elf_symbol {
+  id: 0x8c275e9b
+  name: "glVertexAttribPointer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glVertexAttribPointer"
+}
+elf_symbol {
+  id: 0x2be8a600
+  name: "glViewport"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "glViewport"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xd78929c9
+  symbol_id: 0xca14c9f0
+  symbol_id: 0x2725bce8
+  symbol_id: 0x182cfe2e
+  symbol_id: 0x2555a961
+  symbol_id: 0x82d358b0
+  symbol_id: 0xb713f7fb
+  symbol_id: 0x6a00f825
+  symbol_id: 0x98a23dc2
+  symbol_id: 0x7e08140e
+  symbol_id: 0xdb24906b
+  symbol_id: 0xf8d1727b
+  symbol_id: 0x3e2a3fba
+  symbol_id: 0x543fc282
+  symbol_id: 0x601d5e62
+  symbol_id: 0x02345472
+  symbol_id: 0xb3f64f42
+  symbol_id: 0x1c1c68ae
+  symbol_id: 0x9d3f2303
+  symbol_id: 0x1cf43d2a
+  symbol_id: 0x22b6c6d2
+  symbol_id: 0xab0c70c0
+  symbol_id: 0xf89dcaae
+  symbol_id: 0xea1235f4
+  symbol_id: 0x56bbe51b
+  symbol_id: 0xd13c9d08
+  symbol_id: 0xb2535004
+  symbol_id: 0x984f7f69
+  symbol_id: 0x51859585
+  symbol_id: 0x58a4acd3
+  symbol_id: 0xf666f488
+  symbol_id: 0xb3f955f4
+  symbol_id: 0x160c2a52
+  symbol_id: 0x28cbcb49
+  symbol_id: 0xe4cc6726
+  symbol_id: 0x1b72bf33
+  symbol_id: 0x9843002d
+  symbol_id: 0x356dda16
+  symbol_id: 0x0ffc3fd4
+  symbol_id: 0x0264e99a
+  symbol_id: 0xf205ffe1
+  symbol_id: 0xaf30db75
+  symbol_id: 0x054f03c3
+  symbol_id: 0xc8816ed4
+  symbol_id: 0x6dc2811a
+  symbol_id: 0x03c62479
+  symbol_id: 0x069c2c53
+  symbol_id: 0xb990131d
+  symbol_id: 0x9826593d
+  symbol_id: 0x4b102a61
+  symbol_id: 0x8cb1f582
+  symbol_id: 0x411f5615
+  symbol_id: 0x9103182c
+  symbol_id: 0x84aa9bb5
+  symbol_id: 0x1a01235a
+  symbol_id: 0xa2353b0e
+  symbol_id: 0xa70c2b60
+  symbol_id: 0xa5464fbc
+  symbol_id: 0xc0bfd1ac
+  symbol_id: 0xf55548c6
+  symbol_id: 0x43a16718
+  symbol_id: 0x0ebdef17
+  symbol_id: 0x597f702e
+  symbol_id: 0x2400292b
+  symbol_id: 0xd704427b
+  symbol_id: 0x4f0b6f87
+  symbol_id: 0xc2321855
+  symbol_id: 0x7c2a438a
+  symbol_id: 0x6abf1343
+  symbol_id: 0xbe8c8108
+  symbol_id: 0xb2dd49fb
+  symbol_id: 0x9991cb25
+  symbol_id: 0x6130aeb9
+  symbol_id: 0x07b1c679
+  symbol_id: 0xf1cbfa21
+  symbol_id: 0x2018fcd2
+  symbol_id: 0x9d29af75
+  symbol_id: 0xaebbb9bc
+  symbol_id: 0x920212ea
+  symbol_id: 0x34b933a6
+  symbol_id: 0xede6185a
+  symbol_id: 0x5679e82a
+  symbol_id: 0xfc5b406a
+  symbol_id: 0x7ceb7e2f
+  symbol_id: 0xb032dac7
+  symbol_id: 0xa491e245
+  symbol_id: 0xed94fa4e
+  symbol_id: 0x05e86dfd
+  symbol_id: 0xac02812d
+  symbol_id: 0x96629c33
+  symbol_id: 0x4320463a
+  symbol_id: 0xf67bfb87
+  symbol_id: 0x6ec683dc
+  symbol_id: 0x2dac0170
+  symbol_id: 0x2dd6a71d
+  symbol_id: 0x59e3714e
+  symbol_id: 0x8158f146
+  symbol_id: 0x114ee37f
+  symbol_id: 0x1271f005
+  symbol_id: 0x7e204c3d
+  symbol_id: 0x314d64f3
+  symbol_id: 0x191d20ba
+  symbol_id: 0x05e8a972
+  symbol_id: 0xfa856fc9
+  symbol_id: 0x06576307
+  symbol_id: 0x7e142d38
+  symbol_id: 0xd906ffa6
+  symbol_id: 0x6f425dd9
+  symbol_id: 0xf28a36c1
+  symbol_id: 0x9188dd95
+  symbol_id: 0x305e0be4
+  symbol_id: 0x060b41a0
+  symbol_id: 0x313d251c
+  symbol_id: 0xe249114b
+  symbol_id: 0x60990f94
+  symbol_id: 0x06679818
+  symbol_id: 0x108e1565
+  symbol_id: 0x83bf7184
+  symbol_id: 0xe0b1c17d
+  symbol_id: 0xde21a3aa
+  symbol_id: 0x2c35c991
+  symbol_id: 0x9ffe5f28
+  symbol_id: 0x4a5de7a0
+  symbol_id: 0x0a8283ff
+  symbol_id: 0x15ab5a19
+  symbol_id: 0x370f5140
+  symbol_id: 0xb5aa57ef
+  symbol_id: 0x175b2b47
+  symbol_id: 0x6f5eb8f1
+  symbol_id: 0xa2a54af2
+  symbol_id: 0xd08fd955
+  symbol_id: 0xf2d6f7e5
+  symbol_id: 0x45599958
+  symbol_id: 0xdf036276
+  symbol_id: 0xb1d3f09f
+  symbol_id: 0x7f31aa5a
+  symbol_id: 0x39569903
+  symbol_id: 0xa1bf827a
+  symbol_id: 0xcb4a0049
+  symbol_id: 0x14f9603e
+  symbol_id: 0xaa83b060
+  symbol_id: 0x96cd12f8
+  symbol_id: 0x10b31b89
+  symbol_id: 0x3a998975
+  symbol_id: 0x0ad54891
+  symbol_id: 0x2ea0ce15
+  symbol_id: 0xf904b33b
+  symbol_id: 0xd2d4b3b6
+  symbol_id: 0x71e3505f
+  symbol_id: 0xf1ea23d4
+  symbol_id: 0xbe8640a7
+  symbol_id: 0xa14b39e3
+  symbol_id: 0xc5866fc4
+  symbol_id: 0x983bcd16
+  symbol_id: 0x27da1066
+  symbol_id: 0x1c15742c
+  symbol_id: 0xc33fd7cd
+  symbol_id: 0x50d3de33
+  symbol_id: 0x2c340cad
+  symbol_id: 0x65533eaa
+  symbol_id: 0xbd53f696
+  symbol_id: 0x7e150722
+  symbol_id: 0x4e7f013c
+  symbol_id: 0xc4e1584e
+  symbol_id: 0xd5bd221d
+  symbol_id: 0xba31f92d
+  symbol_id: 0x2a6ff9e5
+  symbol_id: 0x6f9d6867
+  symbol_id: 0x91ac2efb
+  symbol_id: 0x9d7b49ca
+  symbol_id: 0xe2c1b824
+  symbol_id: 0x87a237f2
+  symbol_id: 0x533be10a
+  symbol_id: 0x31b96079
+  symbol_id: 0x907b47ec
+  symbol_id: 0xbbcd7772
+  symbol_id: 0xdba3632a
+  symbol_id: 0x20a5883f
+  symbol_id: 0x925e3391
+  symbol_id: 0xecf87622
+  symbol_id: 0x2cba7300
+  symbol_id: 0x11111bdd
+  symbol_id: 0xfcfec5c5
+  symbol_id: 0x8cbd6a56
+  symbol_id: 0xb065a9af
+  symbol_id: 0x4160d841
+  symbol_id: 0xfb21e999
+  symbol_id: 0xd17ea684
+  symbol_id: 0x445d4708
+  symbol_id: 0x786d3668
+  symbol_id: 0x23108b9b
+  symbol_id: 0x74475f53
+  symbol_id: 0x72e52f6e
+  symbol_id: 0x9e78649d
+  symbol_id: 0x44b1ce1e
+  symbol_id: 0xec4eb137
+  symbol_id: 0xeab699f6
+  symbol_id: 0xefa89fe4
+  symbol_id: 0x33ed11c4
+  symbol_id: 0x0fbf1fcf
+  symbol_id: 0xddedae53
+  symbol_id: 0xbdfb35cc
+  symbol_id: 0x8c275e9b
+  symbol_id: 0x2be8a600
+}

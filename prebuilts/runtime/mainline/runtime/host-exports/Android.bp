@@ -1,0 +1,84 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+license {
+    name: "runtime-module-host-exports_bionic_apex_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/bionic/apex/NOTICE"],
+}
+
+license {
+    name: "runtime-module-host-exports_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "runtime-module-host-exports_bionic_linker_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-BSD"],
+    license_text: ["licenses/bionic/linker/NOTICE"],
+}
+
+cc_prebuilt_binary {
+    name: "linkerconfig",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.runtime"],
+    licenses: ["runtime-module-host-exports_Android-Apache-2.0"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    shared_libs: [
+        "libbase",
+        "libbase",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/bin/linkerconfig"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/bin/linkerconfig"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "linker",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.runtime",
+    ],
+    licenses: ["runtime-module-host-exports_bionic_linker_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "none",
+    compile_multilib: "64",
+    system_shared_libs: [],
+    static_executable: true,
+    nocrt: true,
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/linker64"],
+        },
+    },
+}

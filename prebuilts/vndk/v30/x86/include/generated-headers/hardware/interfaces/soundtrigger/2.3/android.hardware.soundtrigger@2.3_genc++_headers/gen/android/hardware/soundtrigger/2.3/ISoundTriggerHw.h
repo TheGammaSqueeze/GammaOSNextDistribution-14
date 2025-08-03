@@ -1,0 +1,607 @@
+#ifndef HIDL_GENERATED_ANDROID_HARDWARE_SOUNDTRIGGER_V2_3_ISOUNDTRIGGERHW_H
+#define HIDL_GENERATED_ANDROID_HARDWARE_SOUNDTRIGGER_V2_3_ISOUNDTRIGGERHW_H
+
+#include <android/hardware/soundtrigger/2.0/types.h>
+#include <android/hardware/soundtrigger/2.2/ISoundTriggerHw.h>
+#include <android/hardware/soundtrigger/2.3/types.h>
+
+#include <android/hidl/manager/1.0/IServiceNotification.h>
+
+#include <hidl/HidlSupport.h>
+#include <hidl/MQDescriptor.h>
+#include <hidl/Status.h>
+#include <utils/NativeHandle.h>
+#include <utils/misc.h>
+
+namespace android {
+namespace hardware {
+namespace soundtrigger {
+namespace V2_3 {
+
+/**
+ * SoundTrigger HAL interface. Used for hardware recognition of hotwords
+ * and other sounds.
+ */
+struct ISoundTriggerHw : public ::android::hardware::soundtrigger::V2_2::ISoundTriggerHw {
+    /**
+     * Type tag for use in template logic that indicates this is a 'pure' class.
+     */
+    typedef ::android::hardware::details::i_tag _hidl_tag;
+
+    /**
+     * Fully qualified interface name: "android.hardware.soundtrigger@2.3::ISoundTriggerHw"
+     */
+    static const char* descriptor;
+
+    /**
+     * Returns whether this object's implementation is outside of the current process.
+     */
+    virtual bool isRemote() const override { return false; }
+
+    /**
+     * Return callback for getProperties
+     */
+    using getProperties_cb = std::function<void(int32_t retval, const ::android::hardware::soundtrigger::V2_0::ISoundTriggerHw::Properties& properties)>;
+    /**
+     * Retrieve implementation properties.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENODEV in case of initialization error.
+     * @return properties A Properties structure containing implementation
+     *                    description and capabilities.
+     */
+    virtual ::android::hardware::Return<void> getProperties(getProperties_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for loadSoundModel
+     */
+    using loadSoundModel_cb = std::function<void(int32_t retval, int32_t modelHandle)>;
+    /**
+     * Load a sound model. Once loaded, recognition of this model can be
+     * started and stopped. Only one active recognition per model at a time.
+     * The SoundTrigger service must handle concurrent recognition requests by
+     * different users/applications on the same model.
+     * The implementation returns a unique handle used by other functions
+     * (unloadSoundModel(), startRecognition(), etc...
+     * @param soundModel A SoundModel structure describing the sound model to
+     *                   load.
+     * @param callback The callback interface on which the soundmodelCallback()
+     *                 method will be called upon completion.
+     * @param cookie The value of the cookie argument passed to the completion
+     *               callback. This unique context information is assigned and
+     *               used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -EINVAL in case of invalid sound model (e.g 0 data size),
+     *                -ENOSYS in case of invalid operation (e.g max number of
+     *                models exceeded),
+     *                -ENOMEM in case of memory allocation failure,
+     *                -ENODEV in case of initialization error.
+     * @return modelHandle A unique handle assigned by the HAL for use by the
+     *                framework when controlling activity for this sound model.
+     */
+    virtual ::android::hardware::Return<void> loadSoundModel(const ::android::hardware::soundtrigger::V2_0::ISoundTriggerHw::SoundModel& soundModel, const ::android::sp<::android::hardware::soundtrigger::V2_0::ISoundTriggerHwCallback>& callback, int32_t cookie, loadSoundModel_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for loadPhraseSoundModel
+     */
+    using loadPhraseSoundModel_cb = std::function<void(int32_t retval, int32_t modelHandle)>;
+    /**
+     * Load a key phrase sound model. Once loaded, recognition of this model can
+     * be started and stopped. Only one active recognition per model at a time.
+     * The SoundTrigger service must handle concurrent recognition requests by
+     * different users/applications on the same model.
+     * The implementation returns a unique handle used by other functions
+     * (unloadSoundModel(), startRecognition(), etc...
+     * @param soundModel A PhraseSoundModel structure describing the sound model
+     *                   to load.
+     * @param callback The callback interface on which the soundmodelCallback()
+     *                 method will be called upon completion.
+     * @param cookie The value of the cookie argument passed to the completion
+     *               callback. This unique context information is assigned and
+     *               used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -EINVAL in case of invalid sound model (e.g 0 data size),
+     *                -ENOSYS in case of invalid operation (e.g max number of
+     *                models exceeded),
+     *                -ENOMEM in case of memory allocation failure,
+     *                -ENODEV in case of initialization error.
+     * @return modelHandle A unique handle assigned by the HAL for use by the
+     *                framework when controlling activity for this sound model.
+     */
+    virtual ::android::hardware::Return<void> loadPhraseSoundModel(const ::android::hardware::soundtrigger::V2_0::ISoundTriggerHw::PhraseSoundModel& soundModel, const ::android::sp<::android::hardware::soundtrigger::V2_0::ISoundTriggerHwCallback>& callback, int32_t cookie, loadPhraseSoundModel_cb _hidl_cb) = 0;
+
+    /**
+     * Unload a sound model. A sound model may be unloaded to make room for a
+     * new one to overcome implementation limitations.
+     * @param modelHandle the handle of the sound model to unload
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENOSYS if the model is not loaded,
+     *                -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> unloadSoundModel(int32_t modelHandle) = 0;
+
+    /**
+     * Start recognition on a given model. Only one recognition active
+     * at a time per model. Once recognition succeeds of fails, the callback
+     * is called.
+     * @param modelHandle the handle of the sound model to use for recognition
+     * @param config A RecognitionConfig structure containing attributes of the
+     *               recognition to perform
+     * @param callback The callback interface on which the recognitionCallback()
+     *                 method must be called upon recognition.
+     * @param cookie The value of the cookie argument passed to the recognition
+     *               callback. This unique context information is assigned and
+     *               used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -EINVAL in case of invalid recognition attributes,
+     *                -ENOSYS in case of invalid model handle,
+     *                -ENOMEM in case of memory allocation failure,
+     *                -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> startRecognition(int32_t modelHandle, const ::android::hardware::soundtrigger::V2_0::ISoundTriggerHw::RecognitionConfig& config, const ::android::sp<::android::hardware::soundtrigger::V2_0::ISoundTriggerHwCallback>& callback, int32_t cookie) = 0;
+
+    /**
+     * Stop recognition on a given model.
+     * The implementation must not call the recognition callback when stopped
+     * via this method.
+     * @param modelHandle The handle of the sound model to use for recognition
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENOSYS in case of invalid model handle,
+     *                -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> stopRecognition(int32_t modelHandle) = 0;
+
+    /**
+     * Stop recognition on all models.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> stopAllRecognitions() = 0;
+
+    /**
+     * Return callback for loadSoundModel_2_1
+     */
+    using loadSoundModel_2_1_cb = std::function<void(int32_t retval, int32_t modelHandle)>;
+    /**
+     * Load a sound model. Once loaded, recognition of this model can be
+     * started and stopped. Only one active recognition per model at a time.
+     * The SoundTrigger service must handle concurrent recognition requests by
+     * different users/applications on the same model.
+     * The implementation returns a unique handle used by other functions
+     * (unloadSoundModel(), startRecognition*(), etc...
+     *
+     * Must have the exact same semantics as loadSoundModel from
+     * ISoundTriggerHw@2.0 except that the SoundModel uses shared memory
+     * instead of data.
+     *
+     * @param soundModel A SoundModel structure describing the sound model
+     *     to load.
+     * @param callback The callback interface on which the soundmodelCallback*()
+     *     method must be called upon completion.
+     * @param cookie The value of the cookie argument passed to the completion
+     *     callback. This unique context information is assigned and
+     *     used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *     -EINVAL in case of invalid sound model (e.g 0 data size),
+     *     -ENOSYS in case of invalid operation (e.g max number of models
+     *             exceeded),
+     *     -ENOMEM in case of memory allocation failure,
+     *     -ENODEV in case of initialization error.
+     * @return modelHandle A unique handle assigned by the HAL for use by the
+     *     framework when controlling activity for this sound model.
+     */
+    virtual ::android::hardware::Return<void> loadSoundModel_2_1(const ::android::hardware::soundtrigger::V2_1::ISoundTriggerHw::SoundModel& soundModel, const ::android::sp<::android::hardware::soundtrigger::V2_1::ISoundTriggerHwCallback>& callback, int32_t cookie, loadSoundModel_2_1_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for loadPhraseSoundModel_2_1
+     */
+    using loadPhraseSoundModel_2_1_cb = std::function<void(int32_t retval, int32_t modelHandle)>;
+    /**
+     * Load a key phrase sound model. Once loaded, recognition of this model can
+     * be started and stopped. Only one active recognition per model at a time.
+     * The SoundTrigger service must handle concurrent recognition requests by
+     * different users/applications on the same model.
+     * The implementation returns a unique handle used by other functions
+     * (unloadSoundModel(), startRecognition*(), etc...
+     *
+     * Must have the exact same semantics as loadPhraseSoundModel from
+     * ISoundTriggerHw@2.0 except that the PhraseSoundModel uses shared memory
+     * instead of data.
+     *
+     * @param soundModel A PhraseSoundModel structure describing the sound model
+     *     to load.
+     * @param callback The callback interface on which the soundmodelCallback*()
+     *     method must be called upon completion.
+     * @param cookie The value of the cookie argument passed to the completion
+     *     callback. This unique context information is assigned and
+     *     used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *     -EINVAL in case of invalid sound model (e.g 0 data size),
+     *     -ENOSYS in case of invalid operation (e.g max number of models
+     *             exceeded),
+     *     -ENOMEM in case of memory allocation failure,
+     *     -ENODEV in case of initialization error.
+     * @return modelHandle A unique handle assigned by the HAL for use by the
+     *     framework when controlling activity for this sound model.
+     */
+    virtual ::android::hardware::Return<void> loadPhraseSoundModel_2_1(const ::android::hardware::soundtrigger::V2_1::ISoundTriggerHw::PhraseSoundModel& soundModel, const ::android::sp<::android::hardware::soundtrigger::V2_1::ISoundTriggerHwCallback>& callback, int32_t cookie, loadPhraseSoundModel_2_1_cb _hidl_cb) = 0;
+
+    /**
+     * Start recognition on a given model. Only one recognition active
+     * at a time per model. Once recognition succeeds of fails, the callback
+     * is called.
+     *
+     * Must have the exact same semantics as startRecognition from
+     * ISoundTriggerHw@2.0 except that the RecognitionConfig uses shared memory
+     * instead of data.
+     *
+     * @param modelHandle the handle of the sound model to use for recognition
+     * @param config A RecognitionConfig structure containing attributes of the
+     *     recognition to perform
+     * @param callback The callback interface on which the recognitionCallback()
+     *     method must be called upon recognition.
+     * @param cookie The value of the cookie argument passed to the recognition
+     *     callback. This unique context information is assigned and
+     *     used only by the framework.
+     * @return retval Operation completion status: 0 in case of success,
+     *     -EINVAL in case of invalid recognition attributes,
+     *     -ENOSYS in case of invalid model handle,
+     *     -ENOMEM in case of memory allocation failure,
+     *     -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> startRecognition_2_1(int32_t modelHandle, const ::android::hardware::soundtrigger::V2_1::ISoundTriggerHw::RecognitionConfig& config, const ::android::sp<::android::hardware::soundtrigger::V2_1::ISoundTriggerHwCallback>& callback, int32_t cookie) = 0;
+
+    /**
+     * Get the state of a given model.
+     * The model state is returned asynchronously as a RecognitionEvent via
+     * the callback that was registered in StartRecognition().
+     * @param modelHandle The handle of the sound model whose state is being
+     *                    queried.
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENOSYS in case of invalid model handle,
+     *                -ENOMEM in case of memory allocation failure,
+     *                -ENODEV in case of initialization error,
+     *                -EINVAL in case where a recognition event is already
+     *                        being processed.
+     */
+    virtual ::android::hardware::Return<int32_t> getModelState(int32_t modelHandle) = 0;
+
+    /**
+     * Return callback for getProperties_2_3
+     */
+    using getProperties_2_3_cb = std::function<void(int32_t retval, const ::android::hardware::soundtrigger::V2_3::Properties& properties)>;
+    /**
+     * Retrieve extended implementation properties.
+     * The returned properties includes what is returned from the
+     * getProperties along with expanded implementation details.
+     *
+     * @return retval Operation completion status: 0 in case of success,
+     *                -ENODEV in case of initialization error.
+     * @return properties A Properties structure containing implementation
+     *                    description and capabilities.
+     */
+    virtual ::android::hardware::Return<void> getProperties_2_3(getProperties_2_3_cb _hidl_cb) = 0;
+
+    /**
+     * Start recognition on a given model. Only one recognition active
+     * at a time per model. Once recognition succeeds or fails, the callback
+     * associated with the model handle is called.
+     *
+     * Must have the exact same semantics as startRecognition from
+     * ISoundTriggerHw@2.1 except that the RecognitionConfig includes audio
+     * capabilities applied when the recognition is active.
+     *
+     * @param modelHandle the handle of the sound model to use for recognition
+     * @param config A RecognitionConfig structure containing attributes of the
+     *     recognition to perform
+     * @return retval Operation completion status: 0 in case of success,
+     *     -EINVAL in case of invalid recognition attributes,
+     *     -ENOSYS in case of invalid model handle,
+     *     -ENOMEM in case of memory allocation failure,
+     *     -ENODEV in case of initialization error.
+     */
+    virtual ::android::hardware::Return<int32_t> startRecognition_2_3(int32_t modelHandle, const ::android::hardware::soundtrigger::V2_3::RecognitionConfig& config) = 0;
+
+    /**
+     * Set a model specific parameter with the given value. This parameter
+     * will keep its value for the duration the model is loaded regardless of starting and stopping
+     * recognition. Once the model is unloaded, the value will be lost.
+     * It is expected to check if the handle supports the parameter via the queryParameter
+     * API prior to calling this method.
+     *
+     * @param modelHandle The sound model handle indicating which model to modify parameters
+     * @param modelParam Parameter to set which will be validated against the
+     *                   ModelParameter type. Not putting ModelParameter type
+     *                   directly in the definition and validating internally
+     *                   allows for forward compatibility.
+     * @param value The value to set for the given model parameter
+     * @return status Operation completion status: 0 in case of success,
+     *                -ENODEV if the native service cannot be reached
+     *                -EINVAL invalid input parameter
+     */
+    virtual ::android::hardware::Return<int32_t> setParameter(int32_t modelHandle, ::android::hardware::soundtrigger::V2_3::ModelParameter modelParam, int32_t value) = 0;
+
+    /**
+     * Return callback for getParameter
+     */
+    using getParameter_cb = std::function<void(int32_t status, int32_t value)>;
+    /**
+     * Get a model specific parameter. This parameter will keep its value
+     * for the duration the model is loaded regardless of starting and stopping recognition.
+     * Once the model is unloaded, the value will be lost. If the value is not set, a default
+     * value is returned. See ModelParameter for parameter default values.
+     * It is expected to check if the handle supports the parameter via the queryParameter
+     * API prior to calling this method.
+     *
+     * @param modelHandle The sound model associated with given modelParam
+     * @param modelParam Parameter to set which will be validated against the
+     *                   ModelParameter type. Not putting ModelParameter type
+     *                   directly in the definition and validating internally
+     *                   allows for forward compatibility.
+     * @return status Operation completion status: 0 in case of success,
+     *                -ENODEV if the native service cannot be reached
+     *                -EINVAL invalid input parameter
+     * @return value Value set to the requested parameter. Value is only set when status
+     *                indicates success.
+     */
+    virtual ::android::hardware::Return<void> getParameter(int32_t modelHandle, ::android::hardware::soundtrigger::V2_3::ModelParameter modelParam, getParameter_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for queryParameter
+     */
+    using queryParameter_cb = std::function<void(int32_t status, const ::android::hardware::soundtrigger::V2_3::OptionalModelParameterRange& retval)>;
+    /**
+     * Get supported parameter attributes with respect to the provided model
+     * handle. Along with determining the valid range, this API is also used
+     * to determine if a given parameter ID is supported at all by the
+     * modelHandle for use with getParameter and setParameter APIs.
+     *
+     * @param modelHandle The sound model handle indicating which model to query
+     * @param modelParam Parameter to set which will be validated against the
+     *                   ModelParameter type
+     * @return status Operation completion status: 0 in case of success
+     *                -ENODEV if the native service cannot be reached
+     *                -EINVAL invalid input parameter
+     * @return retval OptionalModelParameterRange safe union structure wrapping
+     *                ModelParameterRange. This structure indicates supported attributes
+     *                of the parameter for the given model handle. If the parameter is not
+     *                supported the Monostate of the union is used.
+     */
+    virtual ::android::hardware::Return<void> queryParameter(int32_t modelHandle, ::android::hardware::soundtrigger::V2_3::ModelParameter modelParam, queryParameter_cb _hidl_cb) = 0;
+
+    /**
+     * Return callback for interfaceChain
+     */
+    using interfaceChain_cb = std::function<void(const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& descriptors)>;
+    /*
+     * Provides run-time type information for this object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceChain on an IChild object must yield the following:
+     *     ["android.hardware.foo@1.0::IChild",
+     *      "android.hardware.foo@1.0::IParent"
+     *      "android.hidl.base@1.0::IBase"]
+     *
+     * @return descriptors a vector of descriptors of the run-time type of the
+     *         object.
+     */
+    virtual ::android::hardware::Return<void> interfaceChain(interfaceChain_cb _hidl_cb) override;
+
+    /*
+     * Emit diagnostic information to the given file.
+     *
+     * Optionally overriden.
+     *
+     * @param fd      File descriptor to dump data to.
+     *                Must only be used for the duration of this call.
+     * @param options Arguments for debugging.
+     *                Must support empty for default debug information.
+     */
+    virtual ::android::hardware::Return<void> debug(const ::android::hardware::hidl_handle& fd, const ::android::hardware::hidl_vec<::android::hardware::hidl_string>& options) override;
+
+    /**
+     * Return callback for interfaceDescriptor
+     */
+    using interfaceDescriptor_cb = std::function<void(const ::android::hardware::hidl_string& descriptor)>;
+    /*
+     * Provides run-time type information for this object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceDescriptor on an IChild object must yield
+     *     "android.hardware.foo@1.0::IChild"
+     *
+     * @return descriptor a descriptor of the run-time type of the
+     *         object (the first element of the vector returned by
+     *         interfaceChain())
+     */
+    virtual ::android::hardware::Return<void> interfaceDescriptor(interfaceDescriptor_cb _hidl_cb) override;
+
+    /**
+     * Return callback for getHashChain
+     */
+    using getHashChain_cb = std::function<void(const ::android::hardware::hidl_vec<::android::hardware::hidl_array<uint8_t, 32>>& hashchain)>;
+    /*
+     * Returns hashes of the source HAL files that define the interfaces of the
+     * runtime type information on the object.
+     * For example, for the following interface definition:
+     *     package android.hardware.foo@1.0;
+     *     interface IParent {};
+     *     interface IChild extends IParent {};
+     * Calling interfaceChain on an IChild object must yield the following:
+     *     [(hash of IChild.hal),
+     *      (hash of IParent.hal)
+     *      (hash of IBase.hal)].
+     *
+     * SHA-256 is used as the hashing algorithm. Each hash has 32 bytes
+     * according to SHA-256 standard.
+     *
+     * @return hashchain a vector of SHA-1 digests
+     */
+    virtual ::android::hardware::Return<void> getHashChain(getHashChain_cb _hidl_cb) override;
+
+    /*
+     * This method trigger the interface to enable/disable instrumentation based
+     * on system property hal.instrumentation.enable.
+     */
+    virtual ::android::hardware::Return<void> setHALInstrumentation() override;
+
+    /*
+     * Registers a death recipient, to be called when the process hosting this
+     * interface dies.
+     *
+     * @param recipient a hidl_death_recipient callback object
+     * @param cookie a cookie that must be returned with the callback
+     * @return success whether the death recipient was registered successfully.
+     */
+    virtual ::android::hardware::Return<bool> linkToDeath(const ::android::sp<::android::hardware::hidl_death_recipient>& recipient, uint64_t cookie) override;
+
+    /*
+     * Provides way to determine if interface is running without requesting
+     * any functionality.
+     */
+    virtual ::android::hardware::Return<void> ping() override;
+
+    /**
+     * Return callback for getDebugInfo
+     */
+    using getDebugInfo_cb = std::function<void(const ::android::hidl::base::V1_0::DebugInfo& info)>;
+    /*
+     * Get debug information on references on this interface.
+     * @return info debugging information. See comments of DebugInfo.
+     */
+    virtual ::android::hardware::Return<void> getDebugInfo(getDebugInfo_cb _hidl_cb) override;
+
+    /*
+     * This method notifies the interface that one or more system properties
+     * have changed. The default implementation calls
+     * (C++)  report_sysprop_change() in libcutils or
+     * (Java) android.os.SystemProperties.reportSyspropChanged,
+     * which in turn calls a set of registered callbacks (eg to update trace
+     * tags).
+     */
+    virtual ::android::hardware::Return<void> notifySyspropsChanged() override;
+
+    /*
+     * Unregisters the registered death recipient. If this service was registered
+     * multiple times with the same exact death recipient, this unlinks the most
+     * recently registered one.
+     *
+     * @param recipient a previously registered hidl_death_recipient callback
+     * @return success whether the death recipient was unregistered successfully.
+     */
+    virtual ::android::hardware::Return<bool> unlinkToDeath(const ::android::sp<::android::hardware::hidl_death_recipient>& recipient) override;
+
+    // cast static functions
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>> castFrom(const ::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>> castFrom(const ::android::sp<::android::hardware::soundtrigger::V2_2::ISoundTriggerHw>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>> castFrom(const ::android::sp<::android::hardware::soundtrigger::V2_1::ISoundTriggerHw>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>> castFrom(const ::android::sp<::android::hardware::soundtrigger::V2_0::ISoundTriggerHw>& parent, bool emitError = false);
+    /**
+     * This performs a checked cast based on what the underlying implementation actually is.
+     */
+    static ::android::hardware::Return<::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>> castFrom(const ::android::sp<::android::hidl::base::V1_0::IBase>& parent, bool emitError = false);
+
+    // helper methods for interactions with the hwservicemanager
+    /**
+     * This gets the service of this type with the specified instance name. If the
+     * service is currently not available or not in the VINTF manifest on a Trebilized
+     * device, this will return nullptr. This is useful when you don't want to block
+     * during device boot. If getStub is true, this will try to return an unwrapped
+     * passthrough implementation in the same process. This is useful when getting an
+     * implementation from the same partition/compilation group.
+     *
+     * In general, prefer getService(std::string,bool)
+     */
+    static ::android::sp<ISoundTriggerHw> tryGetService(const std::string &serviceName="default", bool getStub=false);
+    /**
+     * Deprecated. See tryGetService(std::string, bool)
+     */
+    static ::android::sp<ISoundTriggerHw> tryGetService(const char serviceName[], bool getStub=false)  { std::string str(serviceName ? serviceName : "");      return tryGetService(str, getStub); }
+    /**
+     * Deprecated. See tryGetService(std::string, bool)
+     */
+    static ::android::sp<ISoundTriggerHw> tryGetService(const ::android::hardware::hidl_string& serviceName, bool getStub=false)  { std::string str(serviceName.c_str());      return tryGetService(str, getStub); }
+    /**
+     * Calls tryGetService("default", bool). This is the recommended instance name for singleton services.
+     */
+    static ::android::sp<ISoundTriggerHw> tryGetService(bool getStub) { return tryGetService("default", getStub); }
+    /**
+     * This gets the service of this type with the specified instance name. If the
+     * service is not in the VINTF manifest on a Trebilized device, this will return
+     * nullptr. If the service is not available, this will wait for the service to
+     * become available. If the service is a lazy service, this will start the service
+     * and return when it becomes available. If getStub is true, this will try to
+     * return an unwrapped passthrough implementation in the same process. This is
+     * useful when getting an implementation from the same partition/compilation group.
+     */
+    static ::android::sp<ISoundTriggerHw> getService(const std::string &serviceName="default", bool getStub=false);
+    /**
+     * Deprecated. See getService(std::string, bool)
+     */
+    static ::android::sp<ISoundTriggerHw> getService(const char serviceName[], bool getStub=false)  { std::string str(serviceName ? serviceName : "");      return getService(str, getStub); }
+    /**
+     * Deprecated. See getService(std::string, bool)
+     */
+    static ::android::sp<ISoundTriggerHw> getService(const ::android::hardware::hidl_string& serviceName, bool getStub=false)  { std::string str(serviceName.c_str());      return getService(str, getStub); }
+    /**
+     * Calls getService("default", bool). This is the recommended instance name for singleton services.
+     */
+    static ::android::sp<ISoundTriggerHw> getService(bool getStub) { return getService("default", getStub); }
+    /**
+     * Registers a service with the service manager. For Trebilized devices, the service
+     * must also be in the VINTF manifest.
+     */
+    __attribute__ ((warn_unused_result))::android::status_t registerAsService(const std::string &serviceName="default");
+    /**
+     * Registers for notifications for when a service is registered.
+     */
+    static bool registerForNotifications(
+            const std::string &serviceName,
+            const ::android::sp<::android::hidl::manager::V1_0::IServiceNotification> &notification);
+};
+
+//
+// type declarations for package
+//
+
+static inline std::string toString(const ::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>& o);
+
+//
+// type header definitions for package
+//
+
+static inline std::string toString(const ::android::sp<::android::hardware::soundtrigger::V2_3::ISoundTriggerHw>& o) {
+    std::string os = "[class or subclass of ";
+    os += ::android::hardware::soundtrigger::V2_3::ISoundTriggerHw::descriptor;
+    os += "]";
+    os += o->isRemote() ? "@remote" : "@local";
+    return os;
+}
+
+
+}  // namespace V2_3
+}  // namespace soundtrigger
+}  // namespace hardware
+}  // namespace android
+
+//
+// global type declarations for package
+//
+
+
+#endif  // HIDL_GENERATED_ANDROID_HARDWARE_SOUNDTRIGGER_V2_3_ISOUNDTRIGGERHW_H

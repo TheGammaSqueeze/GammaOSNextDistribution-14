@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "metalava-gradle-plugin-deps",
+    host_supported: true,
+    jars: [
+        "com/android/tools/lint/lint-api/31.4.0-alpha02/lint-api-31.4.0-alpha02.jar",
+        "com/android/tools/lint/lint-checks/31.4.0-alpha02/lint-checks-31.4.0-alpha02.jar",
+        "com/android/tools/lint/lint/31.4.0-alpha02/lint-31.4.0-alpha02.jar",
+        "com/android/tools/lint/lint-gradle/31.4.0-alpha02/lint-gradle-31.4.0-alpha02.jar",
+        "com/android/tools/lint/lint-model/31.4.0-alpha02/lint-model-31.4.0-alpha02.jar",
+        "com/android/tools/lint/lint-typedef-remover/31.4.0-alpha02/lint-typedef-remover-31.4.0-alpha02.jar",
+        "com/android/tools/common/31.4.0-alpha02/common-31.4.0-alpha02.jar",
+        "com/android/tools/sdk-common/31.4.0-alpha02/sdk-common-31.4.0-alpha02.jar",
+        "com/android/tools/sdklib/31.4.0-alpha02/sdklib-31.4.0-alpha02.jar",
+        "com/android/tools/external/org-jetbrains/uast/31.4.0-alpha02/uast-31.4.0-alpha02.jar",
+        "com/android/tools/external/com-intellij/intellij-core/31.4.0-alpha02/intellij-core-31.4.0-alpha02.jar",
+        "com/android/tools/external/com-intellij/kotlin-compiler/31.4.0-alpha02/kotlin-compiler-31.4.0-alpha02.jar",
+        "com/android/tools/repository/31.4.0-alpha02/repository-31.4.0-alpha02.jar",
+        "com/android/tools/build/manifest-merger/31.4.0-alpha02/manifest-merger-31.4.0-alpha02.jar",
+    ],
+}

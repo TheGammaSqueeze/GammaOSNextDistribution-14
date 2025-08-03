@@ -1,0 +1,49 @@
+# NOTE: THIS FILE IS EXPERIMENTAL FOR THE BAZEL MIGRATION AND NOT USED FOR
+# YOUR BUILDS CURRENTLY.
+#
+# It is not yet the source of truth for your build. If you're looking to modify
+# the build file, modify the Android.bp file instead. Do *not* modify this file
+# unless you have coordinated with the team managing the Soong to Bazel
+# migration.
+
+filegroup(
+    name = "tools",
+    srcs = glob(["**/**"]),
+    visibility = ["//prebuilts/clang/host/linux-x86:__pkg__"],
+)
+
+# Kleaf stuff
+
+# Value for -B. These are directories!
+filegroup(
+    name = "bin_dirs",
+    srcs = [
+        "lib/gcc/x86_64-linux/4.8.3",
+        "x86_64-linux/lib64",
+    ],
+    visibility = ["@kleaf_clang_toolchain//:__subpackages__"],
+)
+
+# Files for :bin_dirs
+filegroup(
+    name = "bin_files",
+    srcs = glob([
+        "x86_64-linux/lib64/**",
+        "lib/gcc/x86_64-linux/4.8.3/**",
+    ]),
+    visibility = ["@kleaf_clang_toolchain//:__subpackages__"],
+)
+
+# Value for -L. These are directories!
+alias(
+    name = "lib_files",
+    actual = ":bin_files",
+    visibility = ["@kleaf_clang_toolchain//:__subpackages__"],
+)
+
+# Files for :lib_dirs
+alias(
+    name = "lib_dirs",
+    actual = ":bin_dirs",
+    visibility = ["@kleaf_clang_toolchain//:__subpackages__"],
+)

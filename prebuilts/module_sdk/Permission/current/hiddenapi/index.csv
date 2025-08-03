@@ -1,0 +1,8 @@
+signature,file,startline,startcol,endline,endcol,properties
+Lcom/android/internal/util/Preconditions;->checkArgument(Z)V,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,41,5,41,25,
+Lcom/android/internal/util/Preconditions;->checkArgument(ZLjava/lang/Object;)V,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,56,5,56,88,maxTargetSdk=30&trackingBug=170729553L
+Lcom/android/internal/util/Preconditions;->checkNotNull(Ljava/lang/Object;)Ljava/lang/Object;,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,144,5,144,25,
+Lcom/android/internal/util/Preconditions;->checkNotNull(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,164,5,164,25,
+Lcom/android/internal/util/Preconditions;->checkState(Z)V,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,198,5,198,25,
+Lcom/android/internal/util/Preconditions;->checkState(ZLjava/lang/String;)V,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,212,5,212,88,maxTargetSdk=30&trackingBug=170729553L
+Lcom/android/internal/util/Preconditions;->checkArgumentInRange(IIILjava/lang/String;)I,frameworks/libs/modules-utils/java/com/android/internal/util/Preconditions.java,522,5,522,88,maxTargetSdk=30&trackingBug=170729553L

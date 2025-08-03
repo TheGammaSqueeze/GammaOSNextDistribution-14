@@ -1,0 +1,27 @@
+// Signature format: 2.0
+package android.net.ipsec.ike {
+
+  public final class IkeSession implements java.lang.AutoCloseable {
+    method public void setNetwork(@NonNull android.net.Network, int, int, @IntRange(from=0xa, to=0xe10) int);
+    method public void setUnderpinnedNetwork(@NonNull android.net.Network);
+  }
+
+  public final class IkeSessionParams {
+    method public int getEncapType();
+    method public int getIpVersion();
+    field public static final int ESP_ENCAP_TYPE_AUTO = 0; // 0x0
+    field public static final int ESP_ENCAP_TYPE_NONE = -1; // 0xffffffff
+    field public static final int ESP_ENCAP_TYPE_UDP = 17; // 0x11
+    field public static final int ESP_IP_VERSION_AUTO = 0; // 0x0
+    field public static final int ESP_IP_VERSION_IPV4 = 4; // 0x4
+    field public static final int ESP_IP_VERSION_IPV6 = 6; // 0x6
+    field public static final int NATT_KEEPALIVE_INTERVAL_AUTO = -1; // 0xffffffff
+  }
+
+  public static final class IkeSessionParams.Builder {
+    method @NonNull public android.net.ipsec.ike.IkeSessionParams.Builder setEncapType(int);
+    method @NonNull public android.net.ipsec.ike.IkeSessionParams.Builder setIpVersion(int);
+  }
+
+}
+

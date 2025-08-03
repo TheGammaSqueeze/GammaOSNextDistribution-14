@@ -1,0 +1,70 @@
+version: "1.4.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core-ktx"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.dynamicanimation"
+    artifact_id: "dynamicanimation"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment"
+    version: "1.2.4"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime"
+    version: "2.5.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.recyclerview"
+    artifact_id: "recyclerview"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.swiperefreshlayout"
+    artifact_id: "swiperefreshlayout"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.versionedparcelable"
+    artifact_id: "versionedparcelable"
+    version: "1.1.1"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.wear"
+group_id: "androidx.wear"
+artifact_id: "wear"
+path: "/wear/wear"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-wear-11472573.zip"
+project_zip_path: "per-project-zips/androidx.wear-wear-all-11472573-1.4.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

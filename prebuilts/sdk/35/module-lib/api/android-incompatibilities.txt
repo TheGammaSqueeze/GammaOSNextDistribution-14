@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+
+// b/302563864 - the method is moved from module API to system API
+RemovedMethod: android.content.pm.PackageManager#getPermissionControllerPackageName():
+    Removed method android.content.pm.PackageManager.getPermissionControllerPackageName()
+
+// b/324601616 - the method is moved from module API to system API
+RemovedClass: android.net.wifi.WifiKeystore:
+    Removed class android.net.wifi.WifiKeystore

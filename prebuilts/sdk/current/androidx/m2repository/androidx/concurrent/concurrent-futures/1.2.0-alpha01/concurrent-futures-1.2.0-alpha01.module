@@ -1,0 +1,139 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.concurrent",
+    "module": "concurrent-futures",
+    "version": "1.2.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures-ktx",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-1.2.0-alpha01.jar",
+          "url": "concurrent-futures-1.2.0-alpha01.jar",
+          "size": 26255,
+          "sha512": "214ebf7c6e605d80d6fe3dcd0026a3830ae3b5a1299a1dd6e5de4e0cb83bce070eaf71236a792d06e6998c53d65b0473bbdecb979eab437a5937917b0b1e87ae",
+          "sha256": "a518436aca3582b296928df53d8756e7f815c57bff55beaf1a16d397af413b3f",
+          "sha1": "719a071a5b713cddbb81f3b2c94cb8246bd064ad",
+          "md5": "a7a5997e46ed5caee8df166d515cd040"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures-ktx",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-1.2.0-alpha01.jar",
+          "url": "concurrent-futures-1.2.0-alpha01.jar",
+          "size": 26255,
+          "sha512": "214ebf7c6e605d80d6fe3dcd0026a3830ae3b5a1299a1dd6e5de4e0cb83bce070eaf71236a792d06e6998c53d65b0473bbdecb979eab437a5937917b0b1e87ae",
+          "sha256": "a518436aca3582b296928df53d8756e7f815c57bff55beaf1a16d397af413b3f",
+          "sha1": "719a071a5b713cddbb81f3b2c94cb8246bd064ad",
+          "md5": "a7a5997e46ed5caee8df166d515cd040"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures-ktx",
+          "version": {
+            "requires": "1.2.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "concurrent-futures-1.2.0-alpha01-sources.jar",
+          "url": "concurrent-futures-1.2.0-alpha01-sources.jar",
+          "size": 19762,
+          "sha512": "9f67117fcf6a8dc5d89bafafc2e079c3a0d755a53aaaaf71924a349af8bbc23f2d74d70a98044e88d5d8029d98c9c0fe9015652db4351bb0d327e9f2c396e04d",
+          "sha256": "004a399f789d83541ebdd7b7b1cb419794aa4419d27232c5d0502494e3f50c0a",
+          "sha1": "34790aed6b3f5ca24886feffb2e065aa9bd8d928",
+          "md5": "214778db4983defb675cf6bd05064293"
+        }
+      ]
+    }
+  ]
+}

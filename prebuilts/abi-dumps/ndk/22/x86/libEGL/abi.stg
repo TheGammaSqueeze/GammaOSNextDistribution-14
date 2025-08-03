@@ -1,0 +1,944 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x047a8b89
+  kind: POINTER
+  pointee_type_id: 0x3baac8b9
+}
+pointer_reference {
+  id: 0x0eb62dc3
+  kind: POINTER
+  pointee_type_id: 0x10985193
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x1f28ec58
+  kind: POINTER
+  pointee_type_id: 0x56e357ff
+}
+pointer_reference {
+  id: 0x236e9ced
+  kind: POINTER
+  pointee_type_id: 0xa7fa952a
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+pointer_reference {
+  id: 0x3e2eee44
+  kind: POINTER
+  pointee_type_id: 0xd2fb5f8c
+}
+pointer_reference {
+  id: 0x3e853b4f
+  kind: POINTER
+  pointee_type_id: 0xd0540ba3
+}
+typedef {
+  id: 0x9d75e163
+  name: "EGLBoolean"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0xbce417c3
+  name: "EGLClientBuffer"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0xd0540ba3
+  name: "EGLConfig"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x6311aa8a
+  name: "EGLContext"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x63037801
+  name: "EGLDisplay"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x56578bf9
+  name: "EGLImageKHR"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x6d8bde43
+  name: "EGLNativeDisplayType"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x64ff2a58
+  name: "EGLNativePixmapType"
+  referred_type_id: 0x236e9ced
+}
+typedef {
+  id: 0x25ccc54f
+  name: "EGLNativeWindowType"
+  referred_type_id: 0x1f28ec58
+}
+typedef {
+  id: 0x4937596b
+  name: "EGLSurface"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0x3e08f390
+  name: "EGLSyncKHR"
+  referred_type_id: 0x18bd6530
+}
+typedef {
+  id: 0xbc749d69
+  name: "EGLTimeKHR"
+  referred_type_id: 0x594a2afa
+}
+typedef {
+  id: 0xe04812ae
+  name: "EGLenum"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x3baac8b9
+  name: "EGLint"
+  referred_type_id: 0x3dc70620
+}
+typedef {
+  id: 0x661e1e3a
+  name: "EGLnsecsANDROID"
+  referred_type_id: 0xa77eab66
+}
+typedef {
+  id: 0xac3855a9
+  name: "EGLuint64NV"
+  referred_type_id: 0x594a2afa
+}
+typedef {
+  id: 0xb9ad5d14
+  name: "NativePixmapType"
+  referred_type_id: 0x64ff2a58
+}
+typedef {
+  id: 0x7130b8ff
+  name: "NativeWindowType"
+  referred_type_id: 0x25ccc54f
+}
+typedef {
+  id: 0x9865cc50
+  name: "__eglMustCastToProperFunctionPointerType"
+  referred_type_id: 0x0eb62dc3
+}
+typedef {
+  id: 0x16936efb
+  name: "__int32_t"
+  referred_type_id: 0x6720d32f
+}
+typedef {
+  id: 0x0d272264
+  name: "__int64_t"
+  referred_type_id: 0x39470e64
+}
+typedef {
+  id: 0x854daa2a
+  name: "__uint64_t"
+  referred_type_id: 0xd5df6730
+}
+typedef {
+  id: 0x5171d297
+  name: "int32_t"
+  referred_type_id: 0x16936efb
+}
+typedef {
+  id: 0x7533d9d0
+  name: "int64_t"
+  referred_type_id: 0x0d272264
+}
+typedef {
+  id: 0x3dc70620
+  name: "khronos_int32_t"
+  referred_type_id: 0x5171d297
+}
+typedef {
+  id: 0x43e6a2fa
+  name: "khronos_int64_t"
+  referred_type_id: 0x7533d9d0
+}
+typedef {
+  id: 0xa77eab66
+  name: "khronos_stime_nanoseconds_t"
+  referred_type_id: 0x43e6a2fa
+}
+typedef {
+  id: 0x5906ece9
+  name: "khronos_uint64_t"
+  referred_type_id: 0x1c898f28
+}
+typedef {
+  id: 0x594a2afa
+  name: "khronos_utime_nanoseconds_t"
+  referred_type_id: 0x5906ece9
+}
+typedef {
+  id: 0x1c898f28
+  name: "uint64_t"
+  referred_type_id: 0x854daa2a
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+qualified {
+  id: 0xd2fb5f8c
+  qualifier: CONST
+  qualified_type_id: 0x3baac8b9
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: SIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x39470e64
+  name: "long long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xd5df6730
+  name: "unsigned long long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+struct_union {
+  id: 0x56e357ff
+  kind: STRUCT
+  name: "ANativeWindow"
+}
+struct_union {
+  id: 0xa7fa952a
+  kind: STRUCT
+  name: "egl_native_pixmap_t"
+}
+function {
+  id: 0x000ce1ee
+  return_type_id: 0x9d75e163
+}
+function {
+  id: 0x0ee653c0
+  return_type_id: 0x9d75e163
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x180c0e24
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3e08f390
+  parameter_id: 0xe04812ae
+}
+function {
+  id: 0x182294cc
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x18341c20
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3e08f390
+}
+function {
+  id: 0x1838d05b
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3e853b4f
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x183ae778
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3e08f390
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x183bcaac
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x3e2eee44
+  parameter_id: 0x3e853b4f
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x18cc3fee
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+}
+function {
+  id: 0x18dccb62
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x047a8b89
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x19407944
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x6311aa8a
+}
+function {
+  id: 0x194e821c
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x6311aa8a
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x199561c1
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x56578bf9
+}
+function {
+  id: 0x19c689dc
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0xb9ad5d14
+}
+function {
+  id: 0x19e60839
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x19e619d3
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x19e6e692
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x19e76930
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x19e8e28b
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+}
+function {
+  id: 0x19f1650c
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x661e1e3a
+}
+function {
+  id: 0x19fb231b
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0x4937596b
+  parameter_id: 0x4937596b
+  parameter_id: 0x6311aa8a
+}
+function {
+  id: 0x1b839498
+  return_type_id: 0x9d75e163
+  parameter_id: 0x63037801
+  parameter_id: 0xd0540ba3
+  parameter_id: 0x3baac8b9
+  parameter_id: 0x047a8b89
+}
+function {
+  id: 0x29eac75a
+  return_type_id: 0x3baac8b9
+}
+function {
+  id: 0x2a5f2426
+  return_type_id: 0x4937596b
+  parameter_id: 0x63037801
+  parameter_id: 0xd0540ba3
+  parameter_id: 0xb9ad5d14
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x2a6d035f
+  return_type_id: 0x4937596b
+  parameter_id: 0x63037801
+  parameter_id: 0xd0540ba3
+  parameter_id: 0x7130b8ff
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x2a7e3c71
+  return_type_id: 0x4937596b
+  parameter_id: 0x63037801
+  parameter_id: 0xd0540ba3
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x2a9db070
+  return_type_id: 0x4937596b
+  parameter_id: 0x63037801
+  parameter_id: 0xe04812ae
+  parameter_id: 0xbce417c3
+  parameter_id: 0xd0540ba3
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x31dcd026
+  return_type_id: 0x3baac8b9
+  parameter_id: 0x63037801
+  parameter_id: 0x3e08f390
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x31de21f4
+  return_type_id: 0x3baac8b9
+  parameter_id: 0x63037801
+  parameter_id: 0x3e08f390
+  parameter_id: 0x3baac8b9
+  parameter_id: 0xbc749d69
+}
+function {
+  id: 0x381ee545
+  return_type_id: 0x9d75e163
+  parameter_id: 0xe04812ae
+}
+function {
+  id: 0x3f1a8bca
+  return_type_id: 0x4937596b
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x82f1cd0e
+  return_type_id: 0xe04812ae
+}
+function {
+  id: 0x8a238224
+  return_type_id: 0x63037801
+  parameter_id: 0x6d8bde43
+}
+function {
+  id: 0x8a6a6281
+  return_type_id: 0x3e10b518
+  parameter_id: 0x63037801
+  parameter_id: 0x3baac8b9
+}
+function {
+  id: 0x8b3dedff
+  return_type_id: 0x56578bf9
+  parameter_id: 0x63037801
+  parameter_id: 0x6311aa8a
+  parameter_id: 0xe04812ae
+  parameter_id: 0xbce417c3
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x8d5a24e2
+  return_type_id: 0x6311aa8a
+  parameter_id: 0x63037801
+  parameter_id: 0xd0540ba3
+  parameter_id: 0x6311aa8a
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x8f24d638
+  return_type_id: 0x3e08f390
+  parameter_id: 0x63037801
+  parameter_id: 0xe04812ae
+  parameter_id: 0x3e2eee44
+}
+function {
+  id: 0x914175b4
+  return_type_id: 0x63037801
+}
+function {
+  id: 0x96c3961d
+  return_type_id: 0x6311aa8a
+}
+function {
+  id: 0xcfce579f
+  return_type_id: 0x9865cc50
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0xfdfefab6
+  return_type_id: 0xac3855a9
+}
+elf_symbol {
+  id: 0xc613733d
+  name: "eglBindAPI"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x381ee545
+  full_name: "eglBindAPI"
+}
+elf_symbol {
+  id: 0xf30c1ace
+  name: "eglBindTexImage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e60839
+  full_name: "eglBindTexImage"
+}
+elf_symbol {
+  id: 0x8144b7d8
+  name: "eglChooseConfig"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x183bcaac
+  full_name: "eglChooseConfig"
+}
+elf_symbol {
+  id: 0xd25ed813
+  name: "eglClientWaitSyncKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x31de21f4
+  full_name: "eglClientWaitSyncKHR"
+}
+elf_symbol {
+  id: 0xbc1c0288
+  name: "eglCopyBuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19c689dc
+  full_name: "eglCopyBuffers"
+}
+elf_symbol {
+  id: 0x9642b1c4
+  name: "eglCreateContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8d5a24e2
+  full_name: "eglCreateContext"
+}
+elf_symbol {
+  id: 0x4c67ebd3
+  name: "eglCreateImageKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8b3dedff
+  full_name: "eglCreateImageKHR"
+}
+elf_symbol {
+  id: 0x232ef97d
+  name: "eglCreatePbufferFromClientBuffer"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2a9db070
+  full_name: "eglCreatePbufferFromClientBuffer"
+}
+elf_symbol {
+  id: 0x335838a0
+  name: "eglCreatePbufferSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2a7e3c71
+  full_name: "eglCreatePbufferSurface"
+}
+elf_symbol {
+  id: 0xd46afdca
+  name: "eglCreatePixmapSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2a5f2426
+  full_name: "eglCreatePixmapSurface"
+}
+elf_symbol {
+  id: 0xc9ad3852
+  name: "eglCreateSyncKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8f24d638
+  full_name: "eglCreateSyncKHR"
+}
+elf_symbol {
+  id: 0x803fb89f
+  name: "eglCreateWindowSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x2a6d035f
+  full_name: "eglCreateWindowSurface"
+}
+elf_symbol {
+  id: 0x59ab744e
+  name: "eglDestroyContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19407944
+  full_name: "eglDestroyContext"
+}
+elf_symbol {
+  id: 0xe64f0175
+  name: "eglDestroyImageKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x199561c1
+  full_name: "eglDestroyImageKHR"
+}
+elf_symbol {
+  id: 0xc3c440bb
+  name: "eglDestroySurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e8e28b
+  full_name: "eglDestroySurface"
+}
+elf_symbol {
+  id: 0x4192e150
+  name: "eglDestroySyncKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18341c20
+  full_name: "eglDestroySyncKHR"
+}
+elf_symbol {
+  id: 0x8b097b13
+  name: "eglGetConfigAttrib"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1b839498
+  full_name: "eglGetConfigAttrib"
+}
+elf_symbol {
+  id: 0x52699931
+  name: "eglGetConfigs"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1838d05b
+  full_name: "eglGetConfigs"
+}
+elf_symbol {
+  id: 0x53194a2a
+  name: "eglGetCurrentContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x96c3961d
+  full_name: "eglGetCurrentContext"
+}
+elf_symbol {
+  id: 0x8827bc76
+  name: "eglGetCurrentDisplay"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x914175b4
+  full_name: "eglGetCurrentDisplay"
+}
+elf_symbol {
+  id: 0x801bbf0d
+  name: "eglGetCurrentSurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3f1a8bca
+  full_name: "eglGetCurrentSurface"
+}
+elf_symbol {
+  id: 0x069eea4e
+  name: "eglGetDisplay"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a238224
+  full_name: "eglGetDisplay"
+}
+elf_symbol {
+  id: 0xffc979bb
+  name: "eglGetError"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x29eac75a
+  full_name: "eglGetError"
+}
+elf_symbol {
+  id: 0x2af6b0a2
+  name: "eglGetProcAddress"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xcfce579f
+  full_name: "eglGetProcAddress"
+}
+elf_symbol {
+  id: 0x6898e0a4
+  name: "eglGetSyncAttribKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x183ae778
+  full_name: "eglGetSyncAttribKHR"
+}
+elf_symbol {
+  id: 0x9d82ada1
+  name: "eglGetSystemTimeFrequencyNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfdfefab6
+  full_name: "eglGetSystemTimeFrequencyNV"
+}
+elf_symbol {
+  id: 0x2b9c5f64
+  name: "eglGetSystemTimeNV"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xfdfefab6
+  full_name: "eglGetSystemTimeNV"
+}
+elf_symbol {
+  id: 0x66efa1c7
+  name: "eglInitialize"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18dccb62
+  full_name: "eglInitialize"
+}
+elf_symbol {
+  id: 0x5b5274d2
+  name: "eglLockSurfaceKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e76930
+  full_name: "eglLockSurfaceKHR"
+}
+elf_symbol {
+  id: 0xc984585d
+  name: "eglMakeCurrent"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19fb231b
+  full_name: "eglMakeCurrent"
+}
+elf_symbol {
+  id: 0x8cf80ce5
+  name: "eglPresentationTimeANDROID"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19f1650c
+  full_name: "eglPresentationTimeANDROID"
+}
+elf_symbol {
+  id: 0xdf683991
+  name: "eglQueryAPI"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x82f1cd0e
+  full_name: "eglQueryAPI"
+}
+elf_symbol {
+  id: 0x7aa6bade
+  name: "eglQueryContext"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x194e821c
+  full_name: "eglQueryContext"
+}
+elf_symbol {
+  id: 0x65506c0f
+  name: "eglQueryString"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a6a6281
+  full_name: "eglQueryString"
+}
+elf_symbol {
+  id: 0xfbe6a576
+  name: "eglQuerySurface"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e619d3
+  full_name: "eglQuerySurface"
+}
+elf_symbol {
+  id: 0xb03b8b31
+  name: "eglReleaseTexImage"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e60839
+  full_name: "eglReleaseTexImage"
+}
+elf_symbol {
+  id: 0x54325e64
+  name: "eglReleaseThread"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x000ce1ee
+  full_name: "eglReleaseThread"
+}
+elf_symbol {
+  id: 0x640c8a72
+  name: "eglSignalSyncKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x180c0e24
+  full_name: "eglSignalSyncKHR"
+}
+elf_symbol {
+  id: 0x7f4f3b30
+  name: "eglSurfaceAttrib"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e6e692
+  full_name: "eglSurfaceAttrib"
+}
+elf_symbol {
+  id: 0x6f358572
+  name: "eglSwapBuffers"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e8e28b
+  full_name: "eglSwapBuffers"
+}
+elf_symbol {
+  id: 0x6bd81984
+  name: "eglSwapInterval"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x182294cc
+  full_name: "eglSwapInterval"
+}
+elf_symbol {
+  id: 0x97bea47f
+  name: "eglTerminate"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x18cc3fee
+  full_name: "eglTerminate"
+}
+elf_symbol {
+  id: 0xc7f590f6
+  name: "eglUnlockSurfaceKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19e8e28b
+  full_name: "eglUnlockSurfaceKHR"
+}
+elf_symbol {
+  id: 0x04df6e6f
+  name: "eglWaitClient"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x000ce1ee
+  full_name: "eglWaitClient"
+}
+elf_symbol {
+  id: 0x10052265
+  name: "eglWaitGL"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x000ce1ee
+  full_name: "eglWaitGL"
+}
+elf_symbol {
+  id: 0x31345960
+  name: "eglWaitNative"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x0ee653c0
+  full_name: "eglWaitNative"
+}
+elf_symbol {
+  id: 0xe4b0d720
+  name: "eglWaitSyncKHR"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x31dcd026
+  full_name: "eglWaitSyncKHR"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xc613733d
+  symbol_id: 0xf30c1ace
+  symbol_id: 0x8144b7d8
+  symbol_id: 0xd25ed813
+  symbol_id: 0xbc1c0288
+  symbol_id: 0x9642b1c4
+  symbol_id: 0x4c67ebd3
+  symbol_id: 0x232ef97d
+  symbol_id: 0x335838a0
+  symbol_id: 0xd46afdca
+  symbol_id: 0xc9ad3852
+  symbol_id: 0x803fb89f
+  symbol_id: 0x59ab744e
+  symbol_id: 0xe64f0175
+  symbol_id: 0xc3c440bb
+  symbol_id: 0x4192e150
+  symbol_id: 0x8b097b13
+  symbol_id: 0x52699931
+  symbol_id: 0x53194a2a
+  symbol_id: 0x8827bc76
+  symbol_id: 0x801bbf0d
+  symbol_id: 0x069eea4e
+  symbol_id: 0xffc979bb
+  symbol_id: 0x2af6b0a2
+  symbol_id: 0x6898e0a4
+  symbol_id: 0x9d82ada1
+  symbol_id: 0x2b9c5f64
+  symbol_id: 0x66efa1c7
+  symbol_id: 0x5b5274d2
+  symbol_id: 0xc984585d
+  symbol_id: 0x8cf80ce5
+  symbol_id: 0xdf683991
+  symbol_id: 0x7aa6bade
+  symbol_id: 0x65506c0f
+  symbol_id: 0xfbe6a576
+  symbol_id: 0xb03b8b31
+  symbol_id: 0x54325e64
+  symbol_id: 0x640c8a72
+  symbol_id: 0x7f4f3b30
+  symbol_id: 0x6f358572
+  symbol_id: 0x6bd81984
+  symbol_id: 0x97bea47f
+  symbol_id: 0xc7f590f6
+  symbol_id: 0x04df6e6f
+  symbol_id: 0x10052265
+  symbol_id: 0x31345960
+  symbol_id: 0xe4b0d720
+}

@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package android.health.connect {
+
+  public class HealthServicesInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+

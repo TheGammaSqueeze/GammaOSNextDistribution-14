@@ -1,0 +1,21 @@
+// Signature format: 2.0
+package android.devicelock {
+
+  public final class DeviceId {
+    method @NonNull public String getId();
+    method public int getType();
+    field public static final int DEVICE_ID_TYPE_IMEI = 0; // 0x0
+    field public static final int DEVICE_ID_TYPE_MEID = 1; // 0x1
+  }
+
+  public final class DeviceLockManager {
+    method @RequiresPermission(android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE) public void getDeviceId(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.devicelock.DeviceId,java.lang.Exception>);
+    method public void getKioskApps(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.util.Map<java.lang.Integer,java.lang.String>,java.lang.Exception>);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE) public void isDeviceLocked(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Boolean,java.lang.Exception>);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE) public void lockDevice(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,java.lang.Exception>);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_DEVICE_LOCK_STATE) public void unlockDevice(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,java.lang.Exception>);
+    field public static final int DEVICE_LOCK_ROLE_FINANCING = 0; // 0x0
+  }
+
+}
+

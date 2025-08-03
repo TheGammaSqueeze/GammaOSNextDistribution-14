@@ -1,0 +1,28 @@
+version: "2.4.0-alpha01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.4.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.tracing"
+    artifact_id: "tracing"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.test.uiautomator"
+group_id: "androidx.test.uiautomator"
+artifact_id: "uiautomator"
+path: "/test/uiautomator/uiautomator"
+sha: "e38b911410259b4f1b4314c2866142dfba512107"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-test-uiautomator-11413457.zip"
+project_zip_path: "per-project-zips/androidx.test.uiautomator-uiautomator-all-11413457-2.4.0-alpha01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

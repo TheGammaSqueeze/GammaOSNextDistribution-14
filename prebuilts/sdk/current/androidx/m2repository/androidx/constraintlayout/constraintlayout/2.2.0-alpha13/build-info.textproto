@@ -1,0 +1,40 @@
+version: "2.2.0-alpha13"
+dependency_list {
+  dependency {
+    group_id: "androidx.appcompat"
+    artifact_id: "appcompat"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.constraintlayout"
+    artifact_id: "constraintlayout-core"
+    version: "1.1.0-alpha13"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.3.2"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.profileinstaller"
+    artifact_id: "profileinstaller"
+    version: "1.3.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.constraintlayout"
+group_id: "androidx.constraintlayout"
+artifact_id: "constraintlayout"
+path: "/constraintlayout/constraintlayout"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-constraintlayout-11436812.zip"
+project_zip_path: "per-project-zips/androidx.constraintlayout-constraintlayout-all-11436812-2.2.0-alpha13.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

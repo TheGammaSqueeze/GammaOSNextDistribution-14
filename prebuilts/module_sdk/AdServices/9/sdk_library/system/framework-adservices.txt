@@ -1,0 +1,71 @@
+// Signature format: 2.0
+package android.adservices.adid {
+
+  public abstract class AdIdProviderService extends android.app.Service {
+    ctor public AdIdProviderService();
+    method @Nullable public final android.os.IBinder onBind(@Nullable android.content.Intent);
+    method @NonNull public abstract android.adservices.adid.AdId onGetAdId(int, @NonNull String) throws java.io.IOException;
+    field public static final String SERVICE_INTERFACE = "android.adservices.adid.AdIdProviderService";
+  }
+
+}
+
+package android.adservices.appsetid {
+
+  public abstract class AppSetIdProviderService extends android.app.Service {
+    ctor public AppSetIdProviderService();
+    method @Nullable public final android.os.IBinder onBind(@Nullable android.content.Intent);
+    method @NonNull public abstract android.adservices.appsetid.AppSetId onGetAppSetId(int, @NonNull String) throws java.io.IOException;
+    field public static final String SERVICE_INTERFACE = "android.adservices.appsetid.AppSetIdProviderService";
+  }
+
+}
+
+package android.adservices.common {
+
+  public class AdServicesCommonManager {
+    method @RequiresPermission(anyOf={android.adservices.common.AdServicesPermissions.MODIFY_ADSERVICES_STATE, android.adservices.common.AdServicesPermissions.MODIFY_ADSERVICES_STATE_COMPAT}) public void enableAdServices(@NonNull android.adservices.common.AdServicesStates, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Boolean,java.lang.Exception>);
+    method @NonNull public static android.adservices.common.AdServicesCommonManager get(@NonNull android.content.Context);
+    method @RequiresPermission(anyOf={android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_STATE, android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_STATE_COMPAT}) public void isAdServicesEnabled(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Boolean,java.lang.Exception>);
+    method @RequiresPermission(anyOf={android.adservices.common.AdServicesPermissions.MODIFY_ADSERVICES_STATE, android.adservices.common.AdServicesPermissions.MODIFY_ADSERVICES_STATE_COMPAT}) public void setAdServicesEnabled(boolean, boolean);
+  }
+
+  public class AdServicesPermissions {
+    field public static final String ACCESS_ADSERVICES_STATE = "android.permission.ACCESS_ADSERVICES_STATE";
+    field public static final String ACCESS_ADSERVICES_STATE_COMPAT = "android.permission.ACCESS_ADSERVICES_STATE_COMPAT";
+    field public static final String ACCESS_PRIVILEGED_AD_ID = "android.permission.ACCESS_PRIVILEGED_AD_ID";
+    field public static final String ACCESS_PRIVILEGED_APP_SET_ID = "android.permission.ACCESS_PRIVILEGED_APP_SET_ID";
+    field public static final String MODIFY_ADSERVICES_STATE = "android.permission.MODIFY_ADSERVICES_STATE";
+    field public static final String MODIFY_ADSERVICES_STATE_COMPAT = "android.permission.MODIFY_ADSERVICES_STATE_COMPAT";
+  }
+
+  public final class AdServicesStates implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public boolean isAdIdEnabled();
+    method @NonNull public boolean isAdultAccount();
+    method @NonNull public boolean isPrivacySandboxUiEnabled();
+    method @NonNull public boolean isPrivacySandboxUiRequest();
+    method @NonNull public boolean isU18Account();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.AdServicesStates> CREATOR;
+  }
+
+  public static final class AdServicesStates.Builder {
+    ctor public AdServicesStates.Builder();
+    method @NonNull public android.adservices.common.AdServicesStates build();
+    method @NonNull public android.adservices.common.AdServicesStates.Builder setAdIdEnabled(boolean);
+    method @NonNull public android.adservices.common.AdServicesStates.Builder setAdultAccount(boolean);
+    method @NonNull public android.adservices.common.AdServicesStates.Builder setPrivacySandboxUiEnabled(boolean);
+    method @NonNull public android.adservices.common.AdServicesStates.Builder setPrivacySandboxUiRequest(boolean);
+    method @NonNull public android.adservices.common.AdServicesStates.Builder setU18Account(boolean);
+  }
+
+  public final class EnableAdServicesResponse implements android.os.Parcelable {
+    method public int describeContents();
+    method public boolean isApiEnabled();
+    method public boolean isSuccess();
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.EnableAdServicesResponse> CREATOR;
+  }
+
+}
+

@@ -1,0 +1,22 @@
+version: "1.0.0-rc01"
+dependency_list {
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.12.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.graphics"
+group_id: "androidx.graphics"
+artifact_id: "graphics-path"
+path: "/graphics/graphics-path"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-graphics-11436812.zip"
+project_zip_path: "per-project-zips/androidx.graphics-graphics-path-all-11436812-1.0.0-rc01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

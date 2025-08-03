@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="Requires to configure MAC randomization setting to None when configuring BSSID." enableAfterTargetSdk="31" id="215656264" name="FORCE_MUTUAL_EXCLUSIVE_BSSID_MAC_RAMDONIZATION_SETTING">
+    <meta-data definedIn="android.net.wifi.SoftApConfiguration" sourcePosition="packages/modules/Wifi/framework/java/android/net/wifi/SoftApConfiguration.java:164" />
+  </compat-change>
+  <compat-change description="Removes zero support on {@link android.net.wifi.SoftApConfiguration.Builder#setShutdownTimeoutMillis(long)}." enableAfterTargetSdk="31" id="213289672" name="REMOVE_ZERO_FOR_TIMEOUT_SETTING">
+    <meta-data definedIn="android.net.wifi.SoftApConfiguration" sourcePosition="packages/modules/Wifi/framework/java/android/net/wifi/SoftApConfiguration.java:174" />
+  </compat-change>
+  <compat-change description="Local networks should not be modified by B&amp;R since the user may have updated it with the latest configurations." enableAfterTargetSdk="32" id="234793325" name="NOT_OVERRIDE_EXISTING_NETWORKS_ON_RESTORE">
+    <meta-data definedIn="android.net.wifi.WifiManager" sourcePosition="packages/modules/Wifi/framework/java/android/net/wifi/WifiManager.java:147" />
+  </compat-change>
+</config>

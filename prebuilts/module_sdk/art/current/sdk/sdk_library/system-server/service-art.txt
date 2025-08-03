@@ -1,0 +1,185 @@
+// Signature format: 2.0
+package com.android.server.art {
+
+  public final class ArtManagerLocal {
+    ctor @Deprecated public ArtManagerLocal();
+    ctor public ArtManagerLocal(@NonNull android.content.Context);
+    method public void addDexoptDoneCallback(boolean, @NonNull java.util.concurrent.Executor, @NonNull com.android.server.art.ArtManagerLocal.DexoptDoneCallback);
+    method public void cancelBackgroundDexoptJob();
+    method @NonNull public void clearAppProfiles(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String);
+    method public void clearBatchDexoptStartCallback();
+    method public void clearScheduleBackgroundDexoptJobCallback();
+    method @NonNull public com.android.server.art.model.DeleteResult deleteDexoptArtifacts(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String);
+    method @NonNull public com.android.server.art.model.DexoptResult dexoptPackage(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, @NonNull com.android.server.art.model.DexoptParams);
+    method @NonNull public com.android.server.art.model.DexoptResult dexoptPackage(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, @NonNull com.android.server.art.model.DexoptParams, @NonNull android.os.CancellationSignal);
+    method public void dump(@NonNull java.io.PrintWriter, @NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot);
+    method public void dumpPackage(@NonNull java.io.PrintWriter, @NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String);
+    method @NonNull public com.android.server.art.model.DexoptStatus getDexoptStatus(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String);
+    method @NonNull public com.android.server.art.model.DexoptStatus getDexoptStatus(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, int);
+    method public int handleShellCommand(@NonNull android.os.Binder, @NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull String[]);
+    method public void onBoot(@NonNull String, @Nullable java.util.concurrent.Executor, @Nullable java.util.function.Consumer<com.android.server.art.model.OperationProgress>);
+    method public void printShellCommandHelp(@NonNull java.io.PrintWriter);
+    method public void removeDexoptDoneCallback(@NonNull com.android.server.art.ArtManagerLocal.DexoptDoneCallback);
+    method public int scheduleBackgroundDexoptJob();
+    method public void setBatchDexoptStartCallback(@NonNull java.util.concurrent.Executor, @NonNull com.android.server.art.ArtManagerLocal.BatchDexoptStartCallback);
+    method public void setScheduleBackgroundDexoptJobCallback(@NonNull java.util.concurrent.Executor, @NonNull com.android.server.art.ArtManagerLocal.ScheduleBackgroundDexoptJobCallback);
+    method @NonNull public android.os.ParcelFileDescriptor snapshotAppProfile(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, @Nullable String) throws com.android.server.art.ArtManagerLocal.SnapshotProfileException;
+    method @NonNull public android.os.ParcelFileDescriptor snapshotBootImageProfile(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot) throws com.android.server.art.ArtManagerLocal.SnapshotProfileException;
+    method public void startBackgroundDexoptJob();
+    method public void unscheduleBackgroundDexoptJob();
+  }
+
+  public static interface ArtManagerLocal.BatchDexoptStartCallback {
+    method public void onBatchDexoptStart(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, @NonNull java.util.List<java.lang.String>, @NonNull com.android.server.art.model.BatchDexoptParams.Builder, @NonNull android.os.CancellationSignal);
+  }
+
+  public static interface ArtManagerLocal.DexoptDoneCallback {
+    method public void onDexoptDone(@NonNull com.android.server.art.model.DexoptResult);
+  }
+
+  public static interface ArtManagerLocal.ScheduleBackgroundDexoptJobCallback {
+    method public void onOverrideJobInfo(@NonNull android.app.job.JobInfo.Builder);
+  }
+
+  public static class ArtManagerLocal.SnapshotProfileException extends java.lang.Exception {
+  }
+
+  public class ArtModuleServiceInitializer {
+    method public static void setArtModuleServiceManager(@NonNull android.os.ArtModuleServiceManager);
+  }
+
+  public class DexUseManagerLocal {
+    method @NonNull public static com.android.server.art.DexUseManagerLocal createInstance(@NonNull android.content.Context);
+    method @NonNull public java.util.List<com.android.server.art.model.DexContainerFileUseInfo> getSecondaryDexContainerFileUseInfo(@NonNull String);
+    method public void notifyDexContainersLoaded(@NonNull com.android.server.pm.PackageManagerLocal.FilteredSnapshot, @NonNull String, @NonNull java.util.Map<java.lang.String,java.lang.String>);
+    method public void systemReady();
+  }
+
+  public class ReasonMapping {
+    field public static final String REASON_BG_DEXOPT = "bg-dexopt";
+    field public static final String REASON_BOOT_AFTER_MAINLINE_UPDATE = "boot-after-mainline-update";
+    field public static final String REASON_BOOT_AFTER_OTA = "boot-after-ota";
+    field public static final String REASON_CMDLINE = "cmdline";
+    field public static final String REASON_FIRST_BOOT = "first-boot";
+    field public static final String REASON_INACTIVE = "inactive";
+    field public static final String REASON_INSTALL = "install";
+    field public static final String REASON_INSTALL_BULK = "install-bulk";
+    field public static final String REASON_INSTALL_BULK_DOWNGRADED = "install-bulk-downgraded";
+    field public static final String REASON_INSTALL_BULK_SECONDARY = "install-bulk-secondary";
+    field public static final String REASON_INSTALL_BULK_SECONDARY_DOWNGRADED = "install-bulk-secondary-downgraded";
+    field public static final String REASON_INSTALL_FAST = "install-fast";
+  }
+
+}
+
+package com.android.server.art.model {
+
+  public class ArtFlags {
+    method public static int defaultGetStatusFlags();
+    field public static final int FLAG_FORCE = 16; // 0x10
+    field public static final int FLAG_FOR_PRIMARY_DEX = 1; // 0x1
+    field public static final int FLAG_FOR_SECONDARY_DEX = 2; // 0x2
+    field public static final int FLAG_FOR_SINGLE_SPLIT = 32; // 0x20
+    field public static final int FLAG_SHOULD_DOWNGRADE = 8; // 0x8
+    field public static final int FLAG_SHOULD_INCLUDE_DEPENDENCIES = 4; // 0x4
+    field public static final int FLAG_SKIP_IF_STORAGE_LOW = 64; // 0x40
+    field public static final int PRIORITY_BACKGROUND = 40; // 0x28
+    field public static final int PRIORITY_BOOT = 100; // 0x64
+    field public static final int PRIORITY_INTERACTIVE = 60; // 0x3c
+    field public static final int PRIORITY_INTERACTIVE_FAST = 80; // 0x50
+    field public static final int SCHEDULE_DISABLED_BY_SYSPROP = 2; // 0x2
+    field public static final int SCHEDULE_JOB_SCHEDULER_FAILURE = 1; // 0x1
+    field public static final int SCHEDULE_SUCCESS = 0; // 0x0
+  }
+
+  public abstract class BatchDexoptParams {
+    method @NonNull public abstract com.android.server.art.model.DexoptParams getDexoptParams();
+    method @NonNull public abstract java.util.List<java.lang.String> getPackages();
+  }
+
+  public static final class BatchDexoptParams.Builder {
+    method @NonNull public com.android.server.art.model.BatchDexoptParams build();
+    method @NonNull public com.android.server.art.model.BatchDexoptParams.Builder setDexoptParams(@NonNull com.android.server.art.model.DexoptParams);
+    method @NonNull public com.android.server.art.model.BatchDexoptParams.Builder setPackages(@NonNull java.util.List<java.lang.String>);
+  }
+
+  public abstract class DeleteResult {
+    method public abstract long getFreedBytes();
+  }
+
+  public abstract class DexContainerFileUseInfo {
+    method @NonNull public abstract String getDexContainerFile();
+    method @NonNull public abstract java.util.Set<java.lang.String> getLoadingPackages();
+    method @NonNull public abstract android.os.UserHandle getUserHandle();
+  }
+
+  public class DexoptParams {
+    method @NonNull public String getCompilerFilter();
+    method public int getFlags();
+    method public int getPriorityClass();
+    method @NonNull public String getReason();
+    method @Nullable public String getSplitName();
+    field public static final String COMPILER_FILTER_NOOP = "skip";
+  }
+
+  public static final class DexoptParams.Builder {
+    ctor public DexoptParams.Builder(@NonNull String);
+    ctor public DexoptParams.Builder(@NonNull String, int);
+    method @NonNull public com.android.server.art.model.DexoptParams build();
+    method @NonNull public com.android.server.art.model.DexoptParams.Builder setCompilerFilter(@NonNull String);
+    method @NonNull public com.android.server.art.model.DexoptParams.Builder setFlags(int);
+    method @NonNull public com.android.server.art.model.DexoptParams.Builder setFlags(int, int);
+    method @NonNull public com.android.server.art.model.DexoptParams.Builder setPriorityClass(int);
+    method @NonNull public com.android.server.art.model.DexoptParams.Builder setSplitName(@Nullable String);
+  }
+
+  public abstract class DexoptResult {
+    method public int getFinalStatus();
+    method @NonNull public abstract java.util.List<com.android.server.art.model.DexoptResult.PackageDexoptResult> getPackageDexoptResults();
+    method @NonNull public abstract String getReason();
+    method @NonNull public abstract String getRequestedCompilerFilter();
+    field public static final int DEXOPT_CANCELLED = 40; // 0x28
+    field public static final int DEXOPT_FAILED = 30; // 0x1e
+    field public static final int DEXOPT_PERFORMED = 20; // 0x14
+    field public static final int DEXOPT_SKIPPED = 10; // 0xa
+  }
+
+  public abstract static class DexoptResult.DexContainerFileDexoptResult {
+    method @NonNull public abstract String getAbi();
+    method @NonNull public abstract String getActualCompilerFilter();
+    method public abstract long getDex2oatCpuTimeMillis();
+    method public abstract long getDex2oatWallTimeMillis();
+    method @NonNull public abstract String getDexContainerFile();
+    method public abstract long getSizeBeforeBytes();
+    method public abstract long getSizeBytes();
+    method public abstract int getStatus();
+    method public abstract boolean isPrimaryAbi();
+  }
+
+  public abstract static class DexoptResult.PackageDexoptResult {
+    method @NonNull public abstract java.util.List<com.android.server.art.model.DexoptResult.DexContainerFileDexoptResult> getDexContainerFileDexoptResults();
+    method @NonNull public abstract String getPackageName();
+    method public int getStatus();
+    method public boolean hasUpdatedArtifacts();
+  }
+
+  public abstract class DexoptStatus {
+    method @NonNull public abstract java.util.List<com.android.server.art.model.DexoptStatus.DexContainerFileDexoptStatus> getDexContainerFileDexoptStatuses();
+  }
+
+  public abstract static class DexoptStatus.DexContainerFileDexoptStatus {
+    method @NonNull public abstract String getAbi();
+    method @NonNull public abstract String getCompilationReason();
+    method @NonNull public abstract String getCompilerFilter();
+    method @NonNull public abstract String getDexContainerFile();
+    method @NonNull public abstract String getLocationDebugString();
+    method public abstract boolean isPrimaryAbi();
+    method public abstract boolean isPrimaryDex();
+  }
+
+  public abstract class OperationProgress {
+    method public int getPercentage();
+  }
+
+}
+

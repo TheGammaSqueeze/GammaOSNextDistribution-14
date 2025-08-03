@@ -1,0 +1,136 @@
+version: "2.8.0-alpha02"
+dependency_list {
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata-core-ktx"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.lifecycle"
+group_id: "androidx.lifecycle"
+artifact_id: "lifecycle-livedata-ktx"
+path: "/lifecycle/lifecycle-livedata-ktx"
+sha: "a0ec9dc0763af4507de3604aed283a57843bb85f"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-lifecycle-11472573.zip"
+project_zip_path: "per-project-zips/androidx.lifecycle-lifecycle-livedata-ktx-all-11472573-2.8.0-alpha02.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-common"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-common-java8"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-compiler"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata-core"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-livedata-core-ktx"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-process"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-reactivestreams"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-reactivestreams-ktx"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime-compose"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime-ktx"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-runtime-testing"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-service"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-viewmodel"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-viewmodel-compose"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-viewmodel-ktx"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-viewmodel-savedstate"
+    version: "2.8.0-alpha02"
+    is_tip_of_tree: true
+  }
+}

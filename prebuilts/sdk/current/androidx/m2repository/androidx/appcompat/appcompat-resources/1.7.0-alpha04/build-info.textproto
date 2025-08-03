@@ -1,0 +1,52 @@
+version: "1.7.0-alpha04"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.2.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.collection"
+    artifact_id: "collection"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.core"
+    artifact_id: "core"
+    version: "1.6.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.vectordrawable"
+    artifact_id: "vectordrawable"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.vectordrawable"
+    artifact_id: "vectordrawable-animated"
+    version: "1.1.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.appcompat"
+group_id: "androidx.appcompat"
+artifact_id: "appcompat-resources"
+path: "/appcompat/appcompat-resources"
+sha: "2b2e31535335d12b762d56d14e252c05c6b542e6"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-appcompat-11497185.zip"
+project_zip_path: "per-project-zips/androidx.appcompat-appcompat-resources-all-11497185-1.7.0-alpha04.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.appcompat"
+    artifact_id: "appcompat"
+    version: "1.7.0-alpha04"
+    is_tip_of_tree: true
+  }
+}

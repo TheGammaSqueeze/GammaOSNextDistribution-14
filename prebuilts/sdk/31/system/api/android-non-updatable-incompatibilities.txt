@@ -1,0 +1,56 @@
+// Baseline format: 1.0
+ChangedThrows: android.service.euicc.EuiccService#encodeSmdxSubjectAndReasonCode(String, String):
+    Method android.service.euicc.EuiccService.encodeSmdxSubjectAndReasonCode no longer throws exception java.lang.IllegalArgumentException
+
+RemovedPackage: android.app.role:
+    Removed package android.app.role
+
+ChangedAbstract: android.hardware.lights.LightsManager:
+    Class android.hardware.lights.LightsManager changed 'abstract' qualifier
+
+RemovedClass: android.net.CaptivePortal:
+    Removed class android.net.CaptivePortal
+RemovedClass: android.net.CaptivePortalData:
+    Removed class android.net.CaptivePortalData
+RemovedClass: android.net.ConnectivityManager:
+    Removed class android.net.ConnectivityManager
+RemovedClass: android.net.LinkAddress:
+    Removed class android.net.LinkAddress
+RemovedClass: android.net.LinkProperties:
+    Removed class android.net.LinkProperties
+RemovedClass: android.net.IpConfiguration:
+    Removed class android.net.IpConfiguration
+RemovedClass: android.net.IpPrefix:
+    Removed class android.net.IpPrefix
+RemovedClass: android.net.InvalidPacketException:
+    Removed class android.net.InvalidPacketException
+RemovedClass: android.net.KeepalivePacketData:
+    Removed class android.net.KeepalivePacketData
+RemovedClass: android.net.NattKeepalivePacketData:
+    Removed class android.net.NattKeepalivePacketData
+RemovedClass: android.net.Network:
+    Removed class android.net.Network
+RemovedClass: android.net.NetworkAgent:
+    Removed class android.net.NetworkAgent
+RemovedClass: android.net.NetworkAgentConfig:
+    Removed class android.net.NetworkAgentConfig
+RemovedClass: android.net.NetworkCapabilities:
+    Removed class android.net.NetworkCapabilities
+RemovedClass: android.net.NetworkProvider:
+    Removed class android.net.NetworkProvider
+RemovedClass: android.net.NetworkRequest:
+    Removed class android.net.NetworkRequest
+RemovedClass: android.net.RouteInfo:
+    Removed class android.net.RouteInfo
+RemovedClass: android.net.SocketKeepalive:
+    Removed class android.net.SocketKeepalive
+RemovedClass: android.net.StaticIpConfiguration:
+    Removed class android.net.StaticIpConfiguration
+RemovedClass: android.net.VpnService:
+    Removed class android.net.VpnService
+
+RemovedPackage: android.net.apf:
+    Removed package android.net.apf
+
+RemovedDeprecatedMethod: android.bluetooth.BluetoothHeadset#setPriority(android.bluetooth.BluetoothDevice, int):
+    Removed deprecated method android.bluetooth.BluetoothHeadset.setPriority(android.bluetooth.BluetoothDevice,int)

@@ -1,0 +1,553 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x10fe87e0
+  kind: POINTER
+  pointee_type_id: 0x69baf91c
+}
+pointer_reference {
+  id: 0x17034071
+  kind: POINTER
+  pointee_type_id: 0x764de759
+}
+pointer_reference {
+  id: 0x277da537
+  kind: POINTER
+  pointee_type_id: 0xb7b67243
+}
+pointer_reference {
+  id: 0x31afe64e
+  kind: POINTER
+  pointee_type_id: 0xecff7fa5
+}
+pointer_reference {
+  id: 0x3503636a
+  kind: POINTER
+  pointee_type_id: 0xfe4d6b37
+}
+pointer_reference {
+  id: 0x36ef25eb
+  kind: POINTER
+  pointee_type_id: 0xf1fc7132
+}
+pointer_reference {
+  id: 0x3b4ad9bf
+  kind: POINTER
+  pointee_type_id: 0xc76b8061
+}
+pointer_reference {
+  id: 0x3c938f86
+  kind: POINTER
+  pointee_type_id: 0xd80ed887
+}
+pointer_reference {
+  id: 0x3e20ef54
+  kind: POINTER
+  pointee_type_id: 0xd2c35bcd
+}
+typedef {
+  id: 0x89721a55
+  name: "XAEngineOption"
+  referred_type_id: 0x39fff0f0
+}
+typedef {
+  id: 0xb7b67243
+  name: "XAInterfaceID"
+  referred_type_id: 0x31afe64e
+}
+typedef {
+  id: 0x764de759
+  name: "XAObjectItf"
+  referred_type_id: 0x3e20ef54
+}
+typedef {
+  id: 0x107cd494
+  name: "XAboolean"
+  referred_type_id: 0x69baf91c
+}
+typedef {
+  id: 0x9b569785
+  name: "XAresult"
+  referred_type_id: 0x69baf91c
+}
+typedef {
+  id: 0x69baf91c
+  name: "XAuint32"
+  referred_type_id: 0xeb8f46dd
+}
+typedef {
+  id: 0xeb8f46dd
+  name: "xa_uint32_t"
+  referred_type_id: 0x4585663f
+}
+qualified {
+  id: 0xc76b8061
+  qualifier: CONST
+  qualified_type_id: 0x6de9b70e
+}
+qualified {
+  id: 0xd2c35bcd
+  qualifier: CONST
+  qualified_type_id: 0x3b4ad9bf
+}
+qualified {
+  id: 0xd80ed887
+  qualifier: CONST
+  qualified_type_id: 0x107cd494
+}
+qualified {
+  id: 0xecff7fa5
+  qualifier: CONST
+  qualified_type_id: 0xc3ba481c
+}
+qualified {
+  id: 0xf1fc7132
+  qualifier: CONST
+  qualified_type_id: 0xb7b67243
+}
+qualified {
+  id: 0xfe4d6b37
+  qualifier: CONST
+  qualified_type_id: 0x89721a55
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+struct_union {
+  id: 0x39fff0f0
+  kind: STRUCT
+  name: "XAEngineOption_"
+}
+struct_union {
+  id: 0xc3ba481c
+  kind: STRUCT
+  name: "XAInterfaceID_"
+}
+struct_union {
+  id: 0x6de9b70e
+  kind: STRUCT
+  name: "XAObjectItf_"
+}
+function {
+  id: 0x8a22f191
+  return_type_id: 0x9b569785
+  parameter_id: 0x17034071
+  parameter_id: 0x69baf91c
+  parameter_id: 0x3503636a
+  parameter_id: 0x69baf91c
+  parameter_id: 0x36ef25eb
+  parameter_id: 0x3c938f86
+}
+function {
+  id: 0x8a7780eb
+  return_type_id: 0x9b569785
+  parameter_id: 0x10fe87e0
+}
+function {
+  id: 0x94bb69c0
+  return_type_id: 0x9b569785
+  parameter_id: 0x69baf91c
+  parameter_id: 0x277da537
+}
+elf_symbol {
+  id: 0xb9b234d4
+  name: "XA_IID_ANDROIDBUFFERQUEUESOURCE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_ANDROIDBUFFERQUEUESOURCE"
+}
+elf_symbol {
+  id: 0x4e7f9d45
+  name: "XA_IID_AUDIODECODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_AUDIODECODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0xcbe6977b
+  name: "XA_IID_AUDIOENCODER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_AUDIOENCODER"
+}
+elf_symbol {
+  id: 0xb7a29012
+  name: "XA_IID_AUDIOENCODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_AUDIOENCODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0xca0e598a
+  name: "XA_IID_AUDIOIODEVICECAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_AUDIOIODEVICECAPABILITIES"
+}
+elf_symbol {
+  id: 0xfa96c2bc
+  name: "XA_IID_CAMERA"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_CAMERA"
+}
+elf_symbol {
+  id: 0x2621c518
+  name: "XA_IID_CAMERACAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_CAMERACAPABILITIES"
+}
+elf_symbol {
+  id: 0x8854962a
+  name: "XA_IID_CONFIGEXTENSION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_CONFIGEXTENSION"
+}
+elf_symbol {
+  id: 0xbb9bd7d7
+  name: "XA_IID_DEVICEVOLUME"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_DEVICEVOLUME"
+}
+elf_symbol {
+  id: 0x4bb0d1ae
+  name: "XA_IID_DYNAMICINTERFACEMANAGEMENT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_DYNAMICINTERFACEMANAGEMENT"
+}
+elf_symbol {
+  id: 0x350f8ccf
+  name: "XA_IID_DYNAMICSOURCE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_DYNAMICSOURCE"
+}
+elf_symbol {
+  id: 0xffeb55fe
+  name: "XA_IID_ENGINE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_ENGINE"
+}
+elf_symbol {
+  id: 0x5f63fc32
+  name: "XA_IID_EQUALIZER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_EQUALIZER"
+}
+elf_symbol {
+  id: 0x11b6ac44
+  name: "XA_IID_IMAGECONTROLS"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_IMAGECONTROLS"
+}
+elf_symbol {
+  id: 0x841d61f4
+  name: "XA_IID_IMAGEDECODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_IMAGEDECODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0x3875d38a
+  name: "XA_IID_IMAGEEFFECTS"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_IMAGEEFFECTS"
+}
+elf_symbol {
+  id: 0xecc33aee
+  name: "XA_IID_IMAGEENCODER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_IMAGEENCODER"
+}
+elf_symbol {
+  id: 0xf97099ee
+  name: "XA_IID_IMAGEENCODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_IMAGEENCODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0x6be82d5c
+  name: "XA_IID_LED"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_LED"
+}
+elf_symbol {
+  id: 0x844d9288
+  name: "XA_IID_METADATAEXTRACTION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_METADATAEXTRACTION"
+}
+elf_symbol {
+  id: 0x89a64e0d
+  name: "XA_IID_METADATAINSERTION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_METADATAINSERTION"
+}
+elf_symbol {
+  id: 0xe2f6b5bd
+  name: "XA_IID_METADATATRAVERSAL"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_METADATATRAVERSAL"
+}
+elf_symbol {
+  id: 0xc99c9936
+  name: "XA_IID_NULL"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_NULL"
+}
+elf_symbol {
+  id: 0xe3506b96
+  name: "XA_IID_OBJECT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_OBJECT"
+}
+elf_symbol {
+  id: 0x90964f1b
+  name: "XA_IID_OUTPUTMIX"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_OUTPUTMIX"
+}
+elf_symbol {
+  id: 0x5239af1e
+  name: "XA_IID_PLAY"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_PLAY"
+}
+elf_symbol {
+  id: 0xf4152397
+  name: "XA_IID_PLAYBACKRATE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_PLAYBACKRATE"
+}
+elf_symbol {
+  id: 0xa2c2d101
+  name: "XA_IID_PREFETCHSTATUS"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_PREFETCHSTATUS"
+}
+elf_symbol {
+  id: 0x7245dbf3
+  name: "XA_IID_RADIO"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_RADIO"
+}
+elf_symbol {
+  id: 0x4a2299e8
+  name: "XA_IID_RDS"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_RDS"
+}
+elf_symbol {
+  id: 0x1090fdcc
+  name: "XA_IID_RECORD"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_RECORD"
+}
+elf_symbol {
+  id: 0xc098ee5a
+  name: "XA_IID_SEEK"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_SEEK"
+}
+elf_symbol {
+  id: 0xfd47f4f9
+  name: "XA_IID_SNAPSHOT"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_SNAPSHOT"
+}
+elf_symbol {
+  id: 0xc6ca5fa5
+  name: "XA_IID_STREAMINFORMATION"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_STREAMINFORMATION"
+}
+elf_symbol {
+  id: 0xcc613029
+  name: "XA_IID_THREADSYNC"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_THREADSYNC"
+}
+elf_symbol {
+  id: 0x29188a84
+  name: "XA_IID_VIBRA"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VIBRA"
+}
+elf_symbol {
+  id: 0x56a11c18
+  name: "XA_IID_VIDEODECODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VIDEODECODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0x0973edff
+  name: "XA_IID_VIDEOENCODER"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VIDEOENCODER"
+}
+elf_symbol {
+  id: 0x260981a9
+  name: "XA_IID_VIDEOENCODERCAPABILITIES"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VIDEOENCODERCAPABILITIES"
+}
+elf_symbol {
+  id: 0x6c1b778f
+  name: "XA_IID_VIDEOPOSTPROCESSING"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VIDEOPOSTPROCESSING"
+}
+elf_symbol {
+  id: 0x289c0026
+  name: "XA_IID_VOLUME"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf1fc7132
+  full_name: "XA_IID_VOLUME"
+}
+elf_symbol {
+  id: 0x9a7f0477
+  name: "xaCreateEngine"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a22f191
+  full_name: "xaCreateEngine"
+}
+elf_symbol {
+  id: 0xa7c35076
+  name: "xaQueryNumSupportedEngineInterfaces"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x8a7780eb
+  full_name: "xaQueryNumSupportedEngineInterfaces"
+}
+elf_symbol {
+  id: 0x3da9a210
+  name: "xaQuerySupportedEngineInterfaces"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x94bb69c0
+  full_name: "xaQuerySupportedEngineInterfaces"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xb9b234d4
+  symbol_id: 0x4e7f9d45
+  symbol_id: 0xcbe6977b
+  symbol_id: 0xb7a29012
+  symbol_id: 0xca0e598a
+  symbol_id: 0xfa96c2bc
+  symbol_id: 0x2621c518
+  symbol_id: 0x8854962a
+  symbol_id: 0xbb9bd7d7
+  symbol_id: 0x4bb0d1ae
+  symbol_id: 0x350f8ccf
+  symbol_id: 0xffeb55fe
+  symbol_id: 0x5f63fc32
+  symbol_id: 0x11b6ac44
+  symbol_id: 0x841d61f4
+  symbol_id: 0x3875d38a
+  symbol_id: 0xecc33aee
+  symbol_id: 0xf97099ee
+  symbol_id: 0x6be82d5c
+  symbol_id: 0x844d9288
+  symbol_id: 0x89a64e0d
+  symbol_id: 0xe2f6b5bd
+  symbol_id: 0xc99c9936
+  symbol_id: 0xe3506b96
+  symbol_id: 0x90964f1b
+  symbol_id: 0x5239af1e
+  symbol_id: 0xf4152397
+  symbol_id: 0xa2c2d101
+  symbol_id: 0x7245dbf3
+  symbol_id: 0x4a2299e8
+  symbol_id: 0x1090fdcc
+  symbol_id: 0xc098ee5a
+  symbol_id: 0xfd47f4f9
+  symbol_id: 0xc6ca5fa5
+  symbol_id: 0xcc613029
+  symbol_id: 0x29188a84
+  symbol_id: 0x56a11c18
+  symbol_id: 0x0973edff
+  symbol_id: 0x260981a9
+  symbol_id: 0x6c1b778f
+  symbol_id: 0x289c0026
+  symbol_id: 0x9a7f0477
+  symbol_id: 0xa7c35076
+  symbol_id: 0x3da9a210
+}

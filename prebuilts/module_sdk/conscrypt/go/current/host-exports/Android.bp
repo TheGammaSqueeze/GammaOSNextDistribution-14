@@ -1,0 +1,102 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline_go"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "conscrypt-unbundled",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//build/make/tools/signapk",
+        "//external/conscrypt",
+        "//external/robolectric:__subpackages__",
+        "//tools/apksig",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-host-exports_external_conscrypt_license"],
+    device_supported: false,
+    host_supported: true,
+    min_sdk_version: "31",
+    target: {
+        linux_bionic: {
+            jars: ["java/linux_bionic/conscrypt-unbundled.jar"],
+        },
+        linux_glibc: {
+            jars: ["java/linux_glibc/conscrypt-unbundled.jar"],
+        },
+    },
+}
+
+license {
+    name: "conscrypt-module-host-exports_external_conscrypt_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/external/conscrypt/LICENSE",
+        "licenses/external/conscrypt/NOTICE",
+        "licenses/external/conscrypt/licenses/LICENSE.harmony.txt",
+        "licenses/external/conscrypt/licenses/LICENSE.netty.txt",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "libconscrypt_openjdk_jni",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//build/make/tools/signapk",
+        "//external/conscrypt",
+        "//tools/apksig",
+        "//vendor:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-host-exports_external_conscrypt_license"],
+    device_supported: false,
+    host_supported: true,
+    stl: "libc++_static",
+    sanitize: {
+        never: true,
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/lib/libconscrypt_openjdk_jni.so"],
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libconscrypt_openjdk_jni.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libconscrypt_openjdk_jni.so"],
+        },
+    },
+}

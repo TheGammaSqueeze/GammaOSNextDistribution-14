@@ -1,0 +1,29 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_prebuilt_binary {
+    name: "stats-log-api-gen",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["//apex_available:platform"],
+    device_supported: false,
+    host_supported: true,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/bin/stats-log-api-gen"],
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/bin/stats-log-api-gen"],
+        },
+    },
+}

@@ -1,0 +1,132 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.remotecallback",
+    "module": "remotecallback-processor",
+    "version": "1.0.0-alpha02",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.remotecallback",
+          "module": "remotecallback",
+          "version": {
+            "requires": "1.0.0-alpha02"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "remotecallback-processor-1.0.0-alpha02.jar",
+          "url": "remotecallback-processor-1.0.0-alpha02.jar",
+          "size": 13839,
+          "sha512": "514f6f740302d417f83c81e2ed238b930f04a555d75b872d00627c8e92862bfddcf870b1d94d7bf716e9b0b11a27ca86c67da1ec1a60934120541f3452be1f18",
+          "sha256": "dd520a2a757fe64e8322f62d8504b7f6eabfb7e0d37ec2c2373c98aa734ed15b",
+          "sha1": "5cb0193e767c2a5bd88d3faf2aec64c3c10ae1b6",
+          "md5": "23171c5234d85288f9825b0737b577d1"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "com.squareup",
+          "module": "javapoet",
+          "version": {
+            "requires": "1.13.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.remotecallback",
+          "module": "remotecallback",
+          "version": {
+            "requires": "1.0.0-alpha02"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "remotecallback-processor-1.0.0-alpha02.jar",
+          "url": "remotecallback-processor-1.0.0-alpha02.jar",
+          "size": 13839,
+          "sha512": "514f6f740302d417f83c81e2ed238b930f04a555d75b872d00627c8e92862bfddcf870b1d94d7bf716e9b0b11a27ca86c67da1ec1a60934120541f3452be1f18",
+          "sha256": "dd520a2a757fe64e8322f62d8504b7f6eabfb7e0d37ec2c2373c98aa734ed15b",
+          "sha1": "5cb0193e767c2a5bd88d3faf2aec64c3c10ae1b6",
+          "md5": "23171c5234d85288f9825b0737b577d1"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.remotecallback",
+          "module": "remotecallback",
+          "version": {
+            "requires": "1.0.0-alpha02"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "remotecallback-processor-1.0.0-alpha02-sources.jar",
+          "url": "remotecallback-processor-1.0.0-alpha02-sources.jar",
+          "size": 8006,
+          "sha512": "b0697cf9549d1b03dc638b96a7f41e458ffccfa49bb612875dcc18c013d87544395a58cbd88dcc858407e84aca9bb38901a9dea416a0e04e1484c2ea3828b263",
+          "sha256": "232b02c6780dc279b7b3e10935796b9f003f74a722cfd3842ee0c3523ff38716",
+          "sha1": "679b9a4cb88d4c325ae3cf1babf1a62a4095b56c",
+          "md5": "475e334b278327a99ab4cefb3aff2c5d"
+        }
+      ]
+    }
+  ]
+}

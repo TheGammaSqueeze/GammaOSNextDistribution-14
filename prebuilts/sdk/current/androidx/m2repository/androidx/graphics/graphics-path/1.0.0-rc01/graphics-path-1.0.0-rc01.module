@@ -1,0 +1,122 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.graphics",
+    "module": "graphics-path",
+    "version": "1.0.0-rc01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "graphics-path-1.0.0-rc01.aar",
+          "url": "graphics-path-1.0.0-rc01.aar",
+          "size": 38734,
+          "sha512": "5ead73477cd1e8f22b25dd71e607cd8a12a1a094d2ffca36e774bede9fe57428c1e4494056c9fd6b1868c0592a1309d144a529ca6e70e65d108d84006776b13e",
+          "sha256": "18e4d9ae0f592f920ebed6edef5b62a4d17c1aeaf86b3113874731b58c14ac94",
+          "sha1": "f8d49afc02659f465edd97f2a5e2fc2e66cdc43a",
+          "md5": "9c696730872a4ad45a1725ace4df7b84"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.12.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "graphics-path-1.0.0-rc01.aar",
+          "url": "graphics-path-1.0.0-rc01.aar",
+          "size": 38734,
+          "sha512": "5ead73477cd1e8f22b25dd71e607cd8a12a1a094d2ffca36e774bede9fe57428c1e4494056c9fd6b1868c0592a1309d144a529ca6e70e65d108d84006776b13e",
+          "sha256": "18e4d9ae0f592f920ebed6edef5b62a4d17c1aeaf86b3113874731b58c14ac94",
+          "sha1": "f8d49afc02659f465edd97f2a5e2fc2e66cdc43a",
+          "md5": "9c696730872a4ad45a1725ace4df7b84"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "graphics-path-1.0.0-rc01-sources.jar",
+          "url": "graphics-path-1.0.0-rc01-sources.jar",
+          "size": 9908,
+          "sha512": "ec4d488440a04fa468399dfaa45e30b231b056f68822c4f5e4949ad9feda64217a64c7f011e634ce65c5ef265cc5c7253a00cbf777cc92a2d3553a163e70d48c",
+          "sha256": "9f1b5995b9577a8876525c3411ebb2a49f9ef0e875f6aec3059e807596dc6ca6",
+          "sha1": "575be7388d6165b01341d2da738a1bb5edde1358",
+          "md5": "2c50f43cbe60496541870bf5e513a1b7"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "files": [
+        {
+          "name": "graphics-path-1.0.0-rc01-versionMetadata.json",
+          "url": "graphics-path-1.0.0-rc01-versionMetadata.json",
+          "size": 2212,
+          "sha512": "4a44b74f73f05bb9c6fb5d280ddd12ce3969c3154c01549401f9ac0510a60599cd6811736ce38575c3638889ff792d4ab2f7a07fbfb9bea436653bd6210df4d5",
+          "sha256": "779fad06eed4b0f6e5599d2c10ddb7f4f9e108efe7bdbda188f3cc57af51c652",
+          "sha1": "fa3b9994d08c26c853c4eaece1e90aae5e64c423",
+          "md5": "18a9e34c156e110d08c1b63ae1079878"
+        }
+      ]
+    }
+  ]
+}

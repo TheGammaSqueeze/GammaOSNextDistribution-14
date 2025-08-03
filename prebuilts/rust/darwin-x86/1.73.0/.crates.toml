@@ -1,0 +1,3 @@
+[v1]
+"cargo-deny 0.14.2 (path+file:///Volumes/Android/buildbot/src/android/rust-toolchain/toolchain/cargo-deny)" = ["cargo-deny"]
+"cargo-vet 0.8.0 (path+file:///Volumes/Android/buildbot/src/android/rust-toolchain/toolchain/cargo-vet)" = ["cargo-vet"]

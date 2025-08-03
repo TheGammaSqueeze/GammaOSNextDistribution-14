@@ -1,0 +1,27 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_tools_license"
+    // to get the below license kinds:
+    //   legacy_by_exception_only (by exception only)
+    default_applicable_licenses: ["prebuilts_tools_license"],
+}
+
+cc_prebuilt_binary {
+  name: "perfetto_trace_processor_shell_prebuilt",
+  srcs: ["trace_processor_shell"],
+  host_supported: true,
+  device_supported: false,
+}
+
+filegroup {
+    name: "perfetto_artifacts",
+    srcs: ["trace_processor_shell",
+           "configs/trace_config_detailed.textproto",
+           "configs/trace_config_detailed_heapdump.textproto",
+           "configs/long_trace_config.textproto",
+           "configs/long_trace_binder_config.textproto"],
+}

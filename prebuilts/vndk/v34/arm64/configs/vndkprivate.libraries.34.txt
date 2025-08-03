@@ -1,0 +1,4 @@
+libblas.so
+libcompiler_rt.so
+libft2.so
+libgui.so

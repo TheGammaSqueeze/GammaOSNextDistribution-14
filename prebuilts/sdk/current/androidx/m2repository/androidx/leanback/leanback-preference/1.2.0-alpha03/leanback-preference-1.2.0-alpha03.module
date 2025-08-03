@@ -1,0 +1,159 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.leanback",
+    "module": "leanback-preference",
+    "version": "1.2.0-alpha03",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.leanback",
+          "module": "leanback",
+          "version": {
+            "requires": "1.2.0-alpha03"
+          }
+        },
+        {
+          "group": "androidx.preference",
+          "module": "preference",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.recyclerview",
+          "module": "recyclerview",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "leanback-preference-1.2.0-alpha03.aar",
+          "url": "leanback-preference-1.2.0-alpha03.aar",
+          "size": 59472,
+          "sha512": "576be1678af10a4dd86369d1adca39cf69179bcbd3f9666397bcc945bba4d5b6cdc78876b3f78a87b1a04357ea6cd0dbf8234c0bb3b165fb7c735b0231f8b252",
+          "sha256": "b1d12c9dc6be24a8acda659c1bd513e0973ba14d87bd0b35a812df54a375bb61",
+          "sha1": "03ca98b07df43a090b20b0e0812de0c39159c90d",
+          "md5": "745660e5127e34e56bb94fd3c138676a"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.leanback",
+          "module": "leanback",
+          "version": {
+            "requires": "1.2.0-alpha03"
+          }
+        },
+        {
+          "group": "androidx.preference",
+          "module": "preference",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.recyclerview",
+          "module": "recyclerview",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "leanback-preference-1.2.0-alpha03.aar",
+          "url": "leanback-preference-1.2.0-alpha03.aar",
+          "size": 59472,
+          "sha512": "576be1678af10a4dd86369d1adca39cf69179bcbd3f9666397bcc945bba4d5b6cdc78876b3f78a87b1a04357ea6cd0dbf8234c0bb3b165fb7c735b0231f8b252",
+          "sha256": "b1d12c9dc6be24a8acda659c1bd513e0973ba14d87bd0b35a812df54a375bb61",
+          "sha1": "03ca98b07df43a090b20b0e0812de0c39159c90d",
+          "md5": "745660e5127e34e56bb94fd3c138676a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "leanback-preference-1.2.0-alpha03-sources.jar",
+          "url": "leanback-preference-1.2.0-alpha03-sources.jar",
+          "size": 25807,
+          "sha512": "407d2b09bf7249a690445bf8c93566f1c47335f24e334900be53a32119d808c7894bfcae75c93f7977dc58844f11444346fa32c3d32a0408854cf48901b50cee",
+          "sha256": "7eb4d601bad6a3756c3a6749caf4977bb6b1bfab87253c8e34e265a207042617",
+          "sha1": "9b9e8e9531af5d10deb739d3e8b520d3985cddb9",
+          "md5": "0f57b3e6590348b4af68ca90dd107a98"
+        }
+      ]
+    }
+  ]
+}

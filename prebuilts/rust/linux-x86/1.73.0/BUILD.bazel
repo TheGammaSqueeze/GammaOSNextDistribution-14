@@ -1,0 +1,340 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_stdlib_filegroup")
+
+package(default_visibility = [
+    "//build/bazel/toolchains/rust:__subpackages__",
+    "//build/kernel:__subpackages__",
+])
+
+exports_files(["bin/*"])
+
+filegroup(
+    name = "binaries",
+    srcs = glob([
+        "bin/*",
+        "lib/*",
+        "lib64/*",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+rust_stdlib_filegroup(
+    name = "prebuilt_stdlibs",
+    srcs = glob(["lib/rustlib/x86_64_unknown-linux-gnu/*"]),
+)
+
+filegroup(
+    name = "stdlib_sources",
+    srcs = [
+        ":liballoc.rust_sysroot",
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":libhashbrown.rust_sysroot",
+        ":liblibc.rust_sysroot",
+        ":libprofiler_builtins.rust_sysroot",
+        ":librustc_demangle.rust_sysroot",
+        ":libstd",
+        ":libstd_detect.rust_sysroot",
+        ":libunwind.rust_sysroot",
+    ] + select({
+        "//build/bazel_common_rules/platforms/os:linux_musl": [
+            ":libpanic_unwind.rust_sysroot",
+        ],
+        "//build/bazel_common_rules/platforms/os:linux_bionic": [
+            ":libpanic_abort.rust_sysroot",
+        ],
+        "//build/bazel_common_rules/platforms/os:android": [
+            ":libpanic_abort.rust_sysroot",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+rust_library(
+    name = "libstd",
+    srcs = glob([
+        "src/stdlibs/library/std/src/**/*.rs",
+        "src/stdlibs/library/backtrace/src/**/*.rs",
+        "src/stdlibs/library/portable-simd/crates/std_float/src/**/*.rs",
+    ]),
+    compile_data = glob([
+        "src/stdlibs/library/std/src/**/*.md",
+        "src/stdlibs/library/std/primitive_docs/*.md",
+        "src/stdlibs/library/core/src/**/*.md",
+        "src/stdlibs/library/backtrace/src/**/*.md",
+        "src/stdlibs/library/portable-simd/crates/std_float/src/**/*.md",
+        "src/stdlibs/library/stdarch/crates/core_arch/src/**/*.md",
+        "src/stdlibs/library/stdarch/crates/core_simd/src/**/*.md",
+        "src/stdlibs/library/portable-simd/crates/core_simd/src/**/*.md",
+        "src/stdlibs/library/portable-simd/crates/core_simd/src/**/*.md",
+    ]),
+    crate_features = [
+        "default",
+        "std_detect_dlsym_getauxval",
+        "std_detect_file_io",
+        "profiler",
+        "no_std",
+    ],
+    crate_name = "std",
+    rustc_env = {
+        "STD_ENV_ARCH": "aarch64",
+    },
+    rustc_flags = [
+        "--cfg=backtrace_in_libstd",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":liballoc.rust_sysroot",
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":libhashbrown.rust_sysroot",
+        ":liblibc.rust_sysroot",
+        ":libprofiler_builtins.rust_sysroot",
+        ":librustc_demangle.rust_sysroot",
+        ":libstd_detect.rust_sysroot",
+        ":libunwind.rust_sysroot",
+    ] + select({
+        "//build/bazel_common_rules/platforms/os:linux_musl": [
+            ":libpanic_unwind.rust_sysroot",
+        ],
+        "//build/bazel_common_rules/platforms/os:linux_bionic": [
+            ":libpanic_abort.rust_sysroot",
+        ],
+        "//build/bazel_common_rules/platforms/os:android": [
+            ":libpanic_abort.rust_sysroot",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+rust_library(
+    name = "libhashbrown.rust_sysroot",
+    srcs = glob([
+        "src/stdlibs/vendor/hashbrown/src/**/*.rs",
+    ]),
+    compile_data = glob(["src/stdlibs/vendor/hashbrown/src/**/*.md"]),
+    crate_features = [
+        "alloc",
+        "compiler_builtins",
+        "core",
+        "nightly",
+        "rustc-dep-of-std",
+        "rustc-internal-api",
+        "no_std",
+    ],
+    crate_name = "hashbrown",
+    rustc_flags = [
+        "--cfg=has_extern_crate_alloc",
+    ],
+    deps = [
+        ":liballoc.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":libunwind.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "liballoc.rust_sysroot",
+    srcs = glob(["src/stdlibs/library/alloc/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/library/alloc/src/**/*.md"]),
+    crate_features = ["no_std"],
+    crate_name = "alloc",
+    edition = "2021",
+    deps = [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libcompiler_builtins.rust_sysroot",
+    srcs = glob([
+        "src/stdlibs/vendor/compiler_builtins/src/**/*.rs",
+    ]),
+    compile_data = glob(["src/stdlibs/vendor/compiler_builtins/src/**/*.md"]),
+    crate_features = [
+        "compiler-builtins",
+        "core",
+        "default",
+        "no_std",
+    ],
+    crate_name = "compiler_builtins",
+    edition = "2015",
+    deps = [
+        "libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libcore.rust_sysroot",
+    srcs = glob([
+        "src/stdlibs/library/core/src/**/*.rs",
+        "src/stdlibs/library/stdarch/crates/core_arch/src/**/*.rs",
+        "src/stdlibs/library/portable-simd/crates/core_simd/src/**/*.rs",
+    ]),
+    compile_data = glob([
+        "src/stdlibs/library/core/src/**/*.md",
+        "src/stdlibs/library/core/primitive_docs/*.md",
+        "src/stdlibs/library/stdarch/crates/core_arch/src/**/*.md",
+        "src/stdlibs/library/portable-simd/crates/core_simd/src/**/*.md",
+    ]),
+    crate_features = [
+        "stdsimd",
+        "no_std",
+    ],
+    crate_name = "core",
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+)
+
+rust_library(
+    name = "libstd_detect.rust_sysroot",
+    srcs = glob(["src/stdlibs/library/stdarch/crates/std_detect/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/library/stdarch/crates/std_detect/src/**/*.md"]),
+    crate_features = [
+        "std_detect_file_io",
+        "std_detect_dlsym_getauxval",
+        "no_std",
+    ],
+    crate_name = "std_detect",
+    rustc_flags = [
+        "-Cmetadata=rustc_internal_rlibs",
+    ],
+    deps = [
+        ":liballoc.rust_sysroot",
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libcfg_if.rust_sysroot",
+    srcs = glob(["src/stdlibs/vendor/cfg-if/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/vendor/cfg_if/src/**/*.md"]),
+    crate_features = [
+        "compiler_builtins",
+        "core",
+        "no_std",
+    ],
+    crate_name = "cfg_if",
+    deps = [
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libpanic_abort.rust_sysroot",
+    srcs = glob(["src/stdlibs/library/panic_abort/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/library/panic_abort/src/**/*.md"]),
+    crate_features = [
+        "no_std",
+    ],
+    crate_name = "panic_abort",
+    deps = [
+        ":liballoc.rust_sysroot",
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":liblibc.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "liblibc.rust_sysroot",
+    srcs = glob(["src/stdlibs/vendor/libc/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/vendor/libc/src/**/*.md"]),
+    crate_features = [
+        "align",
+        "cfg_if",
+    ],
+    crate_name = "libc",
+    edition = "2015",
+    rustc_flags = [
+        "--cfg=freebsd11",
+        "--cfg=libc_priv_mod_use",
+        "--cfg=libc_union",
+        "--cfg=libc_const_size_of",
+        "--cfg=libc_align",
+        "--cfg=libc_core_cvoid",
+        "--cfg=libc_packedN",
+        "--cfg=libc_thread_local",
+    ],
+    deps = [
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libunwind.rust_sysroot",
+    srcs = glob(["src/stdlibs/library/unwind/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/library/unwind/src/**/*.md"]),
+    crate_features = [
+        "no_std",
+    ],
+    crate_name = "unwind",
+    deps = [
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":liblibc.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libprofiler_builtins.rust_sysroot",
+    srcs = ["src/stdlibs/library/profiler_builtins/src/lib.rs"],
+    crate_features = [
+        "no_std",
+    ],
+    crate_name = "profiler_builtins",
+    deps = [
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "librustc_demangle.rust_sysroot",
+    srcs = glob(["src/stdlibs/vendor/rustc-demangle/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/vendor/rustc-demangle/src/**/*.md"]),
+    crate_features = [
+        "core",
+        "compiler_builtins",
+        "no_std",
+    ],
+    crate_name = "rustc_demangle",
+    crate_root = "src/stdlibs/vendor/rustc-demangle/src/lib.rs",
+    deps = [
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+    ],
+)
+
+rust_library(
+    name = "libpanic_unwind.rust_sysroot",
+    srcs = glob(["src/stdlibs/library/panic_unwind/src/**/*.rs"]),
+    compile_data = glob(["src/stdlibs/library/panic_unwind/src/**/*.md"]),
+    crate_features = [
+        "no_std",
+    ],
+    crate_name = "panic_unwind",
+    rustc_flags = [
+        "-Zforce-unstable-if-unmarked",
+    ],
+    deps = [
+        ":liballoc.rust_sysroot",
+        ":libcfg_if.rust_sysroot",
+        ":libcompiler_builtins.rust_sysroot",
+        ":libcore.rust_sysroot",
+        ":liblibc.rust_sysroot",
+        ":libunwind.rust_sysroot",
+    ],
+)

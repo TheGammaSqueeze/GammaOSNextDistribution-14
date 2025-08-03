@@ -1,0 +1,172 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.transition",
+    "module": "transition",
+    "version": "1.5.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.12.0-alpha05"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.transition",
+          "module": "transition-ktx",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "transition-1.5.0-alpha01.aar",
+          "url": "transition-1.5.0-alpha01.aar",
+          "size": 193096,
+          "sha512": "7e22ea7fe71c6f7b4b7399dd9f43107ee3b4a20866b322712ce1e39887e58341b2634f3888a7b7581df7afd9b3127c05944ff88c0ba9605352bda48987950cef",
+          "sha256": "817c390c2a9e5c951b59e6743ff9417731dddca64359d55e6dc256ee2d00e18c",
+          "sha1": "e05d2b15dbeefdc7087174cbc6054e89572df63d",
+          "md5": "33dffd738b05953b29887d6321987c82"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.12.0-alpha05"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.transition",
+          "module": "transition-ktx",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "transition-1.5.0-alpha01.aar",
+          "url": "transition-1.5.0-alpha01.aar",
+          "size": 193096,
+          "sha512": "7e22ea7fe71c6f7b4b7399dd9f43107ee3b4a20866b322712ce1e39887e58341b2634f3888a7b7581df7afd9b3127c05944ff88c0ba9605352bda48987950cef",
+          "sha256": "817c390c2a9e5c951b59e6743ff9417731dddca64359d55e6dc256ee2d00e18c",
+          "sha1": "e05d2b15dbeefdc7087174cbc6054e89572df63d",
+          "md5": "33dffd738b05953b29887d6321987c82"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.transition",
+          "module": "transition-ktx",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "transition-1.5.0-alpha01-sources.jar",
+          "url": "transition-1.5.0-alpha01-sources.jar",
+          "size": 143008,
+          "sha512": "9c4baf9b889172fabdb59e0ed2fb49d6717dbc4f0057857954aa7e73ac33915fbb0223109eb890255db97a1d0cbfbd206a8703a843c7396e29cde4ca2dbc39c8",
+          "sha256": "60a358b1fadb20abc613a43fc06cbf8212947318115f10524e3e0e077cd194b3",
+          "sha1": "d724cf3422a7b449a24e8404d07f991b15ff73a8",
+          "md5": "de11834179f0c097a4f41ea4a0ed9b8a"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.transition",
+          "module": "transition-ktx",
+          "version": {
+            "requires": "1.5.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "transition-1.5.0-alpha01-versionMetadata.json",
+          "url": "transition-1.5.0-alpha01-versionMetadata.json",
+          "size": 22205,
+          "sha512": "5e505648d43a85fdf6062d6da2f10fa891af4fe9d2be613d111a67a3048b8168d94801128ff545c40a81719c81909af919e6257d220cd685fbb3030b606196b7",
+          "sha256": "c3c62c25d7c7947caa6153ed961a1f4b8ad9b3a6336d37b247eb268b6d7985ba",
+          "sha1": "c3c32afd021351e11ffea326f5906bb60680dbe4",
+          "md5": "75d8efd4cb20c6f6a4380fc93af1b8ee"
+        }
+      ]
+    }
+  ]
+}

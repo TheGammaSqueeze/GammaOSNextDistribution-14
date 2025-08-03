@@ -1,0 +1,24 @@
+filegroup {
+    name: "gcc.lib",
+    srcs: [
+      "lib/**/*",
+      "x86_64-linux/lib/**/*",
+    ],
+}
+filegroup {
+    name: "gcc.lib32",
+    srcs: [
+      "x86_64-linux/lib32/**/*",
+    ],
+}
+filegroup {
+    name: "gcc.lib64",
+    srcs: [
+      "lib64/**/*",
+      "x86_64-linux/lib64/**/*",
+    ],
+}
+filegroup {
+    name: "gcc.sysroot",
+    srcs: ["sysroot/**/*"],
+}

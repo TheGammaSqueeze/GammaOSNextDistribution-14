@@ -1,0 +1,15 @@
+The objects in this prebuilt directory can be built from
+	platform/frameworks/base
+
+Both are built using the aosp_arm64 variant.
+
+platformprotos-prebuilt.jar:
+Built from commit ef2cbcd7c39298c6d4cb8cf43d995932d82531b2.
+
+platformtestprotos-prebuilt.jar:
+Built from commit ef2cbcd7c39298c6d4cb8cf43d995932d82531b2.
+
+Note: Before dropping the jars, please run the following command to strip the
+jar manifest file, which causes hidden dependency on jars in the Class-Path.
+(Similar for platformtestprotos)
+$ zip -d platformprotos-prebuilt.jar META-INF/MANIFEST.MF

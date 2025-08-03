@@ -1,0 +1,210 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+special {
+  id: 0xa52a0930
+  kind: VARIADIC
+}
+pointer_reference {
+  id: 0x18bd6530
+  kind: POINTER
+  pointee_type_id: 0x48b5725f
+}
+pointer_reference {
+  id: 0x3e10b518
+  kind: POINTER
+  pointee_type_id: 0xd20232fd
+}
+typedef {
+  id: 0xbf891a41
+  name: "__builtin_va_list"
+  referred_type_id: 0x08797019
+}
+typedef {
+  id: 0xf435685e
+  name: "size_t"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0xe5e56f65
+  name: "va_list"
+  referred_type_id: 0xbf891a41
+}
+qualified {
+  id: 0xd20232fd
+  qualifier: CONST
+  qualified_type_id: 0x384f7d7c
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0x76c22bef
+  name: "__ap"
+  type_id: 0x18bd6530
+}
+struct_union {
+  id: 0x08797019
+  kind: STRUCT
+  name: "std::__va_list"
+  definition {
+    bytesize: 4
+    member_id: 0x76c22bef
+  }
+}
+function {
+  id: 0x1fe92e84
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0xa52a0930
+}
+function {
+  id: 0x848c04e9
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0xf435685e
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x84a95d04
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x84bc8688
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0xe5e56f65
+}
+function {
+  id: 0x84bd85b5
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0xa52a0930
+}
+function {
+  id: 0x84bf111d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+}
+function {
+  id: 0x85db018d
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+  parameter_id: 0xa52a0930
+}
+function {
+  id: 0x85db28c7
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x3e10b518
+  parameter_id: 0x3e10b518
+}
+elf_symbol {
+  id: 0x8a162f44
+  name: "__android_log_assert"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1fe92e84
+  full_name: "__android_log_assert"
+}
+elf_symbol {
+  id: 0x19b217df
+  name: "__android_log_buf_print"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85db018d
+  full_name: "__android_log_buf_print"
+}
+elf_symbol {
+  id: 0x6997e00f
+  name: "__android_log_buf_write"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85db28c7
+  full_name: "__android_log_buf_write"
+}
+elf_symbol {
+  id: 0x0d4b1099
+  name: "__android_log_is_loggable"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x84a95d04
+  full_name: "__android_log_is_loggable"
+}
+elf_symbol {
+  id: 0x1710b51e
+  name: "__android_log_is_loggable_len"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x848c04e9
+  full_name: "__android_log_is_loggable_len"
+}
+elf_symbol {
+  id: 0xe5c53fe8
+  name: "__android_log_print"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x84bd85b5
+  full_name: "__android_log_print"
+}
+elf_symbol {
+  id: 0x53feba6e
+  name: "__android_log_vprint"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x84bc8688
+  full_name: "__android_log_vprint"
+}
+elf_symbol {
+  id: 0x56315f66
+  name: "__android_log_write"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x84bf111d
+  full_name: "__android_log_write"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x8a162f44
+  symbol_id: 0x19b217df
+  symbol_id: 0x6997e00f
+  symbol_id: 0x0d4b1099
+  symbol_id: 0x1710b51e
+  symbol_id: 0xe5c53fe8
+  symbol_id: 0x53feba6e
+  symbol_id: 0x56315f66
+}

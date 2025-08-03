@@ -1,0 +1,376 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "i18n-bootclasspath-fragment",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.i18n"],
+    licenses: ["i18n-module-sdk_Android-Apache-2.0"],
+    contents: ["core-icu4j"],
+    api: {
+        stub_libs: ["i18n.module.public.api"],
+    },
+    core_platform_api: {
+        stub_libs: ["legacy.i18n.module.platform.api"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_import {
+    name: "core-icu4j",
+    prefer: false,
+    visibility: [
+        "//external/icu/android_icu4j",
+        "//packages/modules/RuntimeI18n/apex",
+    ],
+    apex_available: ["com.android.i18n"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    jars: ["java/core-icu4j.jar"],
+}
+
+java_sdk_library_import {
+    name: "i18n.module.public.api",
+    prefer: false,
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//external/icu/android_icu4j",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//packages/modules/RuntimeI18n/apex",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/i18n.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/i18n.module.public.api_stub_sources"],
+        current_api: "sdk_library/public/i18n.module.public.api.txt",
+        removed_api: "sdk_library/public/i18n.module.public.api-removed.txt",
+        annotations: "sdk_library/public/i18n.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    system: {
+        jars: ["sdk_library/system/i18n.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/system/i18n.module.public.api_stub_sources"],
+        current_api: "sdk_library/system/i18n.module.public.api.txt",
+        removed_api: "sdk_library/system/i18n.module.public.api-removed.txt",
+        annotations: "sdk_library/system/i18n.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/i18n.module.public.api-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/i18n.module.public.api_stub_sources"],
+        current_api: "sdk_library/module-lib/i18n.module.public.api.txt",
+        removed_api: "sdk_library/module-lib/i18n.module.public.api-removed.txt",
+        annotations: "sdk_library/module-lib/i18n.module.public.api_annotations.zip",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "legacy.i18n.module.platform.api",
+    prefer: false,
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//external/icu/android_icu4j",
+        "//packages/modules/RuntimeI18n/apex",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/legacy.i18n.module.platform.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/legacy.i18n.module.platform.api_stub_sources"],
+        current_api: "sdk_library/public/legacy.i18n.module.platform.api.txt",
+        removed_api: "sdk_library/public/legacy.i18n.module.platform.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "i18n.module.intra.core.api",
+    prefer: false,
+    visibility: [
+        "//external/icu/android_icu4j",
+        "//libcore:__subpackages__",
+        "//packages/modules/RuntimeI18n/apex",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/i18n.module.intra.core.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/i18n.module.intra.core.api_stub_sources"],
+        current_api: "sdk_library/public/i18n.module.intra.core.api.txt",
+        removed_api: "sdk_library/public/i18n.module.intra.core.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "stable.i18n.module.platform.api",
+    prefer: false,
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//external/icu/android_icu4j",
+        "//packages/modules/RuntimeI18n/apex",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/stable.i18n.module.platform.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/stable.i18n.module.platform.api_stub_sources"],
+        current_api: "sdk_library/public/stable.i18n.module.platform.api.txt",
+        removed_api: "sdk_library/public/stable.i18n.module.platform.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+license {
+    name: "i18n-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+license {
+    name: "i18n-module-sdk_external_icu_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-EPL",
+        "SPDX-license-identifier-ICU",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "legacy_unencumbered",
+    ],
+    license_text: ["licenses/external/icu/NOTICE"],
+}
+
+license {
+    name: "i18n-module-sdk_external_icu_icu4c_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ICU",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/external/icu/icu4c/LICENSE",
+        "licenses/external/icu/icu4c/license.html",
+    ],
+}
+
+cc_prebuilt_library_headers {
+    name: "libandroidicu_headers",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.i18n",
+    ],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    host_supported: true,
+    export_include_dirs: ["common_os/include/external/icu/libandroidicu/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_headers {
+    name: "libicuuc_headers",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.i18n"],
+    licenses: ["i18n-module-sdk_external_icu_icu4c_license"],
+    host_supported: true,
+    export_include_dirs: [
+        "common_os/include/external/icu/icu4c/source/common",
+        "common_os/include/external/icu/android_icu4c/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_glibc_x86: {
+            enabled: true,
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libandroidicu",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.i18n",
+    ],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    host_supported: true,
+    unique_host_soname: true,
+    export_include_dirs: ["common_os/include/external/icu/libandroidicu/include"],
+    stubs: {
+        versions: [
+            "1",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libandroidicu.so"],
+        },
+        android_riscv64: {
+            srcs: ["android/riscv64/lib/libandroidicu.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libandroidicu.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libandroidicu.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libandroidicu.so"],
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/lib/libandroidicu-host.so"],
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libandroidicu-host.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libandroidicu-host.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libicu",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.i18n"],
+    licenses: ["i18n-module-sdk_external_icu_license"],
+    host_supported: true,
+    export_include_dirs: ["common_os/include/external/icu/libicu/ndk_headers"],
+    stubs: {
+        versions: [
+            "31",
+            "current",
+        ],
+    },
+    target: {
+        host: {
+            enabled: false,
+        },
+        android: {
+            compile_multilib: "both",
+        },
+        android_arm64: {
+            srcs: ["android/arm64/lib/libicu.so"],
+        },
+        android_riscv64: {
+            srcs: ["android/riscv64/lib/libicu.so"],
+        },
+        android_x86_64: {
+            srcs: ["android/x86_64/lib/libicu.so"],
+        },
+        android_arm: {
+            srcs: ["android/arm/lib/libicu.so"],
+        },
+        android_x86: {
+            srcs: ["android/x86/lib/libicu.so"],
+        },
+        linux_bionic: {
+            compile_multilib: "64",
+        },
+        linux_bionic_x86_64: {
+            enabled: true,
+            srcs: ["linux_bionic/x86_64/lib/libicu.so"],
+        },
+        linux_glibc: {
+            compile_multilib: "both",
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["linux_glibc/x86_64/lib/libicu.so"],
+        },
+        linux_glibc_x86: {
+            enabled: true,
+            srcs: ["linux_glibc/x86/lib/libicu.so"],
+        },
+    },
+}

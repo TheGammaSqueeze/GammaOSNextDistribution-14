@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config>
+  <compat-change description="The {@link #getRoutes()} now can contain excluded as well as included routes. Use {@link RouteInfo#getType()} to determine route type." enableAfterTargetSdk="32" id="186082280" name="EXCLUDED_ROUTES">
+    <meta-data definedIn="android.net.LinkProperties" sourcePosition="packages/modules/Connectivity/framework/src/android/net/LinkProperties.java:67" />
+  </compat-change>
+</config>

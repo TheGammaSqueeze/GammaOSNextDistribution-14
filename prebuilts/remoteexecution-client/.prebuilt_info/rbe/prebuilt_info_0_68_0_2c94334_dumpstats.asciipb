@@ -1,0 +1,10 @@
+drops {
+  dest_file: "0.68.0.2c94334/dumpstats"
+  version: "0.68.0.2c94334"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "dumpstats"
+  }
+  git_branch: "master"
+}

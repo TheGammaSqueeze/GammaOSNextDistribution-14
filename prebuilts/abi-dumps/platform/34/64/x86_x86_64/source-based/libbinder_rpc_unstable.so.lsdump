@@ -1,0 +1,316 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIb",
+   "name" : "bool",
+   "referenced_type" : "_ZTIb",
+   "self_type" : "_ZTIb",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "ARpcServer_free"
+  },
+  {
+   "name" : "ARpcServer_join"
+  },
+  {
+   "name" : "ARpcServer_newInet"
+  },
+  {
+   "name" : "ARpcServer_newInitUnixDomain"
+  },
+  {
+   "name" : "ARpcServer_newVsock"
+  },
+  {
+   "name" : "ARpcServer_shutdown"
+  },
+  {
+   "name" : "ARpcServer_start"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" :
+ [
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 0,
+     "name" : "ARpcSession_FileDescriptorTransportMode::None"
+    },
+    {
+     "enum_field_value" : 1,
+     "name" : "ARpcSession_FileDescriptorTransportMode::Unix"
+    },
+    {
+     "enum_field_value" : 2,
+     "name" : "ARpcSession_FileDescriptorTransportMode::Trusty"
+    }
+   ],
+   "linker_set_key" : "_ZTI39ARpcSession_FileDescriptorTransportMode",
+   "name" : "ARpcSession_FileDescriptorTransportMode",
+   "referenced_type" : "_ZTI39ARpcSession_FileDescriptorTransportMode",
+   "self_type" : "_ZTI39ARpcSession_FileDescriptorTransportMode",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp",
+   "underlying_type" : "_ZTIi"
+  }
+ ],
+ "function_types" :
+ [
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIFiPvE",
+   "name" : "int (void *)",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "referenced_type" : "_ZTIFiPvE",
+   "return_type" : "_ZTIi",
+   "self_type" : "_ZTIFiPvE",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  }
+ ],
+ "functions" :
+ [
+  {
+   "function_name" : "ARpcServer_free",
+   "linker_set_key" : "ARpcServer_free",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP10ARpcServer"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_join",
+   "linker_set_key" : "ARpcServer_join",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP10ARpcServer"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_newInet",
+   "linker_set_key" : "ARpcServer_newInet",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP8AIBinder"
+    },
+    {
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "return_type" : "_ZTIP10ARpcServer",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_newInitUnixDomain",
+   "linker_set_key" : "ARpcServer_newInitUnixDomain",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP8AIBinder"
+    },
+    {
+     "referenced_type" : "_ZTIPKc"
+    }
+   ],
+   "return_type" : "_ZTIP10ARpcServer",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_newVsock",
+   "linker_set_key" : "ARpcServer_newVsock",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP8AIBinder"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "return_type" : "_ZTIP10ARpcServer",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_shutdown",
+   "linker_set_key" : "ARpcServer_shutdown",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP10ARpcServer"
+    }
+   ],
+   "return_type" : "_ZTIb",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "function_name" : "ARpcServer_start",
+   "linker_set_key" : "ARpcServer_start",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIP10ARpcServer"
+    }
+   ],
+   "return_type" : "_ZTIv",
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  }
+ ],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" :
+ [
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP10ARpcServer",
+   "name" : "ARpcServer *",
+   "referenced_type" : "_ZTI10ARpcServer",
+   "self_type" : "_ZTIP10ARpcServer",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP11ARpcSession",
+   "name" : "ARpcSession *",
+   "referenced_type" : "_ZTI11ARpcSession",
+   "self_type" : "_ZTIP11ARpcSession",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIP8AIBinder",
+   "name" : "AIBinder *",
+   "referenced_type" : "_ZTI8AIBinder",
+   "self_type" : "_ZTIP8AIBinder",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPFiPvE",
+   "name" : "int (*)(void *)",
+   "referenced_type" : "_ZTIFiPvE",
+   "self_type" : "_ZTIPFiPvE",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPK39ARpcSession_FileDescriptorTransportMode",
+   "name" : "const ARpcSession_FileDescriptorTransportMode *",
+   "referenced_type" : "_ZTIK39ARpcSession_FileDescriptorTransportMode",
+   "self_type" : "_ZTIPK39ARpcSession_FileDescriptorTransportMode",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPKc",
+   "name" : "const char *",
+   "referenced_type" : "_ZTIKc",
+   "self_type" : "_ZTIPKc",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIPv",
+   "name" : "void *",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIPv",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  }
+ ],
+ "qualified_types" :
+ [
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIK39ARpcSession_FileDescriptorTransportMode",
+   "name" : "const ARpcSession_FileDescriptorTransportMode",
+   "referenced_type" : "_ZTI39ARpcSession_FileDescriptorTransportMode",
+   "self_type" : "_ZTIK39ARpcSession_FileDescriptorTransportMode",
+   "size" : 4,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  },
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKc",
+   "name" : "const char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIKc",
+   "size" : 1,
+   "source_file" : "frameworks/native/libs/binder/include_rpc_unstable/binder_rpc_unstable.hpp"
+  }
+ ],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

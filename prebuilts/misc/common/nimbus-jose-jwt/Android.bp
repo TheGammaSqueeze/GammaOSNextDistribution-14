@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: [
+        "prebuilts_misc_common_nimbus-jose-jwt_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_misc_common_nimbus-jose-jwt_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "COPYRIGHT.txt",
+        "LICENSE.txt",
+    ],
+}
+
+java_import_host {
+    name: "nimbus_jose_jwt",
+    jars: ["nimbus-jose-jwt-4.33.jar"],
+}

@@ -1,0 +1,12 @@
+// Signature format: 2.0
+package com.android.server.deviceconfig {
+
+  public class DeviceConfigInit {
+  }
+
+  public static class DeviceConfigInit.Lifecycle extends com.android.server.SystemService {
+    ctor public DeviceConfigInit.Lifecycle(@NonNull android.content.Context);
+  }
+
+}
+

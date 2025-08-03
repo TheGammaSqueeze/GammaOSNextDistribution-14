@@ -1,0 +1,70 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.benchmark_benchmark-macro-nodeps",
+    aars: ["benchmark-macro-1.3.0-alpha01.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "23",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.benchmark_benchmark-common",
+        "androidx.core_core",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.test.core",
+        "androidx.test.uiautomator_uiautomator",
+        "androidx.tracing_tracing-ktx",
+        "androidx.tracing_tracing-perfetto",
+        "androidx.tracing_tracing-perfetto-binary",
+        "androidx.tracing_tracing-perfetto-handshake",
+        "junit",
+        "kotlin-stdlib",
+        "wire-runtime",
+    ],
+}
+
+android_library {
+    name: "androidx.benchmark_benchmark-macro",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "23",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.benchmark_benchmark-macro-nodeps",
+        "androidx.annotation_annotation",
+        "androidx.benchmark_benchmark-common",
+        "androidx.core_core",
+        "androidx.profileinstaller_profileinstaller",
+        "androidx.test.core",
+        "androidx.test.uiautomator_uiautomator",
+        "androidx.tracing_tracing-ktx",
+        "androidx.tracing_tracing-perfetto",
+        "androidx.tracing_tracing-perfetto-binary",
+        "androidx.tracing_tracing-perfetto-handshake",
+        "junit",
+        "kotlin-stdlib",
+        "wire-runtime",
+    ],
+    java_version: "1.7",
+}
+

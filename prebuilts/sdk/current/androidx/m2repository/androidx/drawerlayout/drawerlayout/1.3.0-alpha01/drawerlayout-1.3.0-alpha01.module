@@ -1,0 +1,124 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.drawerlayout",
+    "module": "drawerlayout",
+    "version": "1.3.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "drawerlayout-1.3.0-alpha01.aar",
+          "url": "drawerlayout-1.3.0-alpha01.aar",
+          "size": 34875,
+          "sha512": "01da001e07805c8040faa9f45c83702a3bf3f096029ff895d9fd92ae5a4432fed74afab78a4f2e0354f54caa6beb1f50c2eaddab0aacc21666c9fd10fae5bfc1",
+          "sha256": "96c78c03d63ac1f5af86bdf5e399aefba6f6ea826bdb4d62eb0177d82b0f2cf6",
+          "sha1": "dcaa410fdd9ddd3f7cede314d5e1a7be80cfd707",
+          "md5": "571ec15de0607dd105d95b0ea0b0cfde"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.customview",
+          "module": "customview",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "drawerlayout-1.3.0-alpha01.aar",
+          "url": "drawerlayout-1.3.0-alpha01.aar",
+          "size": 34875,
+          "sha512": "01da001e07805c8040faa9f45c83702a3bf3f096029ff895d9fd92ae5a4432fed74afab78a4f2e0354f54caa6beb1f50c2eaddab0aacc21666c9fd10fae5bfc1",
+          "sha256": "96c78c03d63ac1f5af86bdf5e399aefba6f6ea826bdb4d62eb0177d82b0f2cf6",
+          "sha1": "dcaa410fdd9ddd3f7cede314d5e1a7be80cfd707",
+          "md5": "571ec15de0607dd105d95b0ea0b0cfde"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "drawerlayout-1.3.0-alpha01-sources.jar",
+          "url": "drawerlayout-1.3.0-alpha01-sources.jar",
+          "size": 21385,
+          "sha512": "ac771a3a7c97b2167f4c8547cce87829052e96396f9c8fde78df0f6b26db9cbff1c99140bda588e412781ad149fe051b2093e33736f7b16f8d4e89c268614412",
+          "sha256": "63f4b8cb8bee78b2029e4639933e9b29bd22ef4ac61a7319d2d253800ffb90ae",
+          "sha1": "4717cdcff1a4ca1cebc8ad35f64b58c29199f79e",
+          "md5": "d8bf9b3543ad45d0e8186d0f2d1735ad"
+        }
+      ]
+    }
+  ]
+}

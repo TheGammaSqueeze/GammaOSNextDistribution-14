@@ -1,0 +1,6 @@
+This directory contains prebuilt models for MLGO, trained for arm64.
+
+inlining-Oz-chromium came from the Chromium browser for Android:
+https://commondatastorage.googleapis.com/chromium-browser-clang/tools/mlgo_model2.tgz
+
+regalloc-evict-aosp was trained locally with AOSP.

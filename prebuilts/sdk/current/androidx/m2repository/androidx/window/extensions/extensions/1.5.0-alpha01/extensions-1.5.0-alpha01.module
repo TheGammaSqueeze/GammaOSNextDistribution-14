@@ -1,0 +1,120 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.window.extensions",
+    "module": "extensions",
+    "version": "1.5.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "extensions-1.5.0-alpha01.aar",
+          "url": "extensions-1.5.0-alpha01.aar",
+          "size": 65144,
+          "sha512": "8e1ef35eaed0abc0944afff95a50e8569037daa25e2a51628d20776d1b4d3d79f93c616808e65638e40523ff513415ae63e41c5dd162fed586bdbf0e511cdac3",
+          "sha256": "5875c75493447a6cb1ef59b6fb9b6b1a012c4a7c7b5e5100218750b9418bd820",
+          "sha1": "321f01a293b2a1d862ed0d5c639f08c04b5c6760",
+          "md5": "b51ce3d8702af7e66a71cd42eec0d9ba"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.6.0"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.4.0"
+          }
+        },
+        {
+          "group": "androidx.window.extensions.core",
+          "module": "core",
+          "version": {
+            "requires": "1.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "extensions-1.5.0-alpha01.aar",
+          "url": "extensions-1.5.0-alpha01.aar",
+          "size": 65144,
+          "sha512": "8e1ef35eaed0abc0944afff95a50e8569037daa25e2a51628d20776d1b4d3d79f93c616808e65638e40523ff513415ae63e41c5dd162fed586bdbf0e511cdac3",
+          "sha256": "5875c75493447a6cb1ef59b6fb9b6b1a012c4a7c7b5e5100218750b9418bd820",
+          "sha1": "321f01a293b2a1d862ed0d5c639f08c04b5c6760",
+          "md5": "b51ce3d8702af7e66a71cd42eec0d9ba"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "files": [
+        {
+          "name": "extensions-1.5.0-alpha01-versionMetadata.json",
+          "url": "extensions-1.5.0-alpha01-versionMetadata.json",
+          "size": 24085,
+          "sha512": "9881966e75a0e4cc83fc59d9acf81b8be86028ea1a25754ba437bc8b024014502616d926d258eeebb1b3c8b347daae1cac43d39651af0b367cb3efb9af02b6e3",
+          "sha256": "7b768a2425cf308498ceb24d119fbe39814a74a7b9e537d4e1082af96711b8df",
+          "sha1": "bdf0860bb5e52093fef8f509b843d67f6f23ba6b",
+          "md5": "fd9a03ff2b4d5f094dd65d678bb18b86"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "extensions-1.5.0-alpha01-sources.jar",
+          "url": "extensions-1.5.0-alpha01-sources.jar",
+          "size": 64620,
+          "sha512": "b30066821058fd48cf2eef4ee7d49821912bd8a7b0ac86e881c1c735687bcdb9ec6a28eeaa04f4ce41ba5b89d7643173fee3d764cc7a35515d7935bce50c7ba5",
+          "sha256": "871678e369a7e492322e51067e5044c671ec27fe475eaf3e080ec769e7c0a894",
+          "sha1": "f560f12799df7dbb73210efc176a35172e3bf29c",
+          "md5": "4833c0d9e5c6aaf6586e764cbdd7c4d9"
+        }
+      ]
+    }
+  ]
+}

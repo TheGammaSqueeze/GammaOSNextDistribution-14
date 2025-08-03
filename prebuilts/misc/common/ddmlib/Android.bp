@@ -1,0 +1,9 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import_host {
+    name: "ddmlib-prebuilt",
+    jars: ["ddmlib-prebuilt.jar", "annotations-prebuilt.jar"],
+    installable: true,
+}

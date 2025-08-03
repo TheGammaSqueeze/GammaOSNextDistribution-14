@@ -1,0 +1,46 @@
+version: "1.1.0-beta01"
+dependency_list {
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime"
+    version: "1.0.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.compose.ui"
+    artifact_id: "ui"
+    version: "1.0.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.hilt"
+    artifact_id: "hilt-navigation"
+    version: "1.1.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.lifecycle"
+    artifact_id: "lifecycle-viewmodel-compose"
+    version: "2.6.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.navigation"
+    artifact_id: "navigation-compose"
+    version: "2.5.1"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.hilt"
+group_id: "androidx.hilt"
+artifact_id: "hilt-navigation-compose"
+path: "/hilt/hilt-navigation-compose"
+sha: "465f5655706f58911cf75e9b2e0eb13b9363a36a"
+require_same_version_group_build: false
+group_zip_path: "per-group-zips/gmaven-androidx-hilt-11013992.zip"
+project_zip_path: "per-project-zips/androidx.hilt-hilt-navigation-compose-all-11013992-1.1.0-beta01.zip"
+kotlin_version: "1.9.10"
+dependency_constraint_list {
+}

@@ -1,0 +1,218 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.privacysandbox.ads",
+    "module": "ads-adservices-java",
+    "version": "1.1.0-beta04",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.7.3"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.privacysandbox.ads",
+          "module": "ads-adservices",
+          "version": {
+            "requires": "1.1.0-beta04"
+          },
+          "reason": "ads-adservices-java is in atomic group androidx.privacysandbox.ads"
+        }
+      ],
+      "files": [
+        {
+          "name": "ads-adservices-java-1.1.0-beta04.aar",
+          "url": "ads-adservices-java-1.1.0-beta04.aar",
+          "size": 63814,
+          "sha512": "f621e28073582f61238a0ea5d396b56ad72cf98a5c7e875fde19de77de3aceb0664a232660b670b8771a6bae78b333db6476753659646c76f673ee43512aa75b",
+          "sha256": "419c926e8528b7fc1044ee0269e7851c2c9054fe4c834e2d0cecd47cb67a10b7",
+          "sha1": "b590d999152091964fae33b261a343a7ac7652fd",
+          "md5": "b76004e7599d74ddf2cefd545e3c5291"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core-ktx",
+          "version": {
+            "requires": "1.8.0"
+          }
+        },
+        {
+          "group": "androidx.privacysandbox.ads",
+          "module": "ads-adservices",
+          "version": {
+            "requires": "1.1.0-beta04"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "listenablefuture",
+          "version": {
+            "requires": "1.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.22"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.7.3"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.privacysandbox.ads",
+          "module": "ads-adservices",
+          "version": {
+            "requires": "1.1.0-beta04"
+          },
+          "reason": "ads-adservices-java is in atomic group androidx.privacysandbox.ads"
+        }
+      ],
+      "files": [
+        {
+          "name": "ads-adservices-java-1.1.0-beta04.aar",
+          "url": "ads-adservices-java-1.1.0-beta04.aar",
+          "size": 63814,
+          "sha512": "f621e28073582f61238a0ea5d396b56ad72cf98a5c7e875fde19de77de3aceb0664a232660b670b8771a6bae78b333db6476753659646c76f673ee43512aa75b",
+          "sha256": "419c926e8528b7fc1044ee0269e7851c2c9054fe4c834e2d0cecd47cb67a10b7",
+          "sha1": "b590d999152091964fae33b261a343a7ac7652fd",
+          "md5": "b76004e7599d74ddf2cefd545e3c5291"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.privacysandbox.ads",
+          "module": "ads-adservices",
+          "version": {
+            "requires": "1.1.0-beta04"
+          },
+          "reason": "ads-adservices-java is in atomic group androidx.privacysandbox.ads"
+        }
+      ],
+      "files": [
+        {
+          "name": "ads-adservices-java-1.1.0-beta04-sources.jar",
+          "url": "ads-adservices-java-1.1.0-beta04-sources.jar",
+          "size": 15904,
+          "sha512": "f669a781dfd00313414e7aa800c20358997cd7404d1fc2b881f46e818f7a893fd7f8dcff8089c3a0fb14afe99565d718fa15a8afecf87d7a4449525936f51f88",
+          "sha256": "1223c79d10878b7ba12db3570d4064363df281e469e5127222c5b9e9c5cf5698",
+          "sha1": "a095bc3b5acb889549adb4461240df025a6099ad",
+          "md5": "fd6cbaed39a231b952e9aa7cbb0520eb"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.privacysandbox.ads",
+          "module": "ads-adservices",
+          "version": {
+            "requires": "1.1.0-beta04"
+          },
+          "reason": "ads-adservices-java is in atomic group androidx.privacysandbox.ads"
+        }
+      ],
+      "files": [
+        {
+          "name": "ads-adservices-java-1.1.0-beta04-versionMetadata.json",
+          "url": "ads-adservices-java-1.1.0-beta04-versionMetadata.json",
+          "size": 4955,
+          "sha512": "977fe02a2189201563fad4330b379bd5c39b5df1def3e9e7043e0a26f5bf1d48ce633799914d30a393ecd6e973fe8c69fe484cdd32a66c1bd85677ccabc7befb",
+          "sha256": "8650b3983f2c241fa2c890dbf66b58728905c0b7972fd4800c9c987b0277d89a",
+          "sha1": "0f0870f77f54fbab7557ac5f1584c697446c917b",
+          "md5": "2a1bf7b8d6af3d9adf1f00e38aa06206"
+        }
+      ]
+    }
+  ]
+}

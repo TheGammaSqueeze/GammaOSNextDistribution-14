@@ -1,0 +1,11 @@
+include /OWNERS_ADTE_TEAM
+
+albaltai@google.com
+dshi@google.com
+herbertxue@google.com
+kellyhung@google.com
+kevcheng@google.com
+morrislin@google.com
+samchiu@google.com
+yangbill@google.com
+per-file acloud/* = file:device/google/cuttlefish:/OWNERS

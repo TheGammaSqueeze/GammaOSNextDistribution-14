@@ -1,0 +1,301 @@
+# Configuration for updateprebuilts.
+#
+# Specified on the command line using:
+# ./updateprebuilts -c <path-to-toml>
+# Artifacts that may be included in a prebuilt drop.
+#
+# Optional properties include:
+# - name: Soong build target
+# - host: Whether the artifact runs only on the host, such as a compiler or
+#         annotation processor.
+# - host_and_device: Whether the artifact can run both on the host and a device,
+#         such as a Java library or KMP library targeted to JVM or native.
+# - extra-static-libs: Array of Soong build targets that must be present on the
+#         runtime classpath but are not specified in the POM.
+# - optional-uses-libs: Array of Soong build targets that must be present on the
+#         compile-time classpath but are not specified in the POM.
+[artifacts]
+"androidx.activity:activity-compose" = {}
+"androidx.activity:activity-ktx" = {}
+"androidx.activity:activity" = {}
+"androidx.annotation:annotation" = { host-and-device = true }
+"androidx.annotation:annotation-experimental" = {}
+"androidx.appcompat:appcompat-resources" = {}
+"androidx.appcompat:appcompat" = {}
+"androidx.appsearch:appsearch-builtin-types" = {}
+"androidx.appsearch:appsearch-compiler" = { name = "androidx.appsearch_appsearch-compiler", host = true }
+"androidx.appsearch:appsearch-local-storage" = { name = "androidx.appsearch_appsearch_local_storage" }
+"androidx.appsearch:appsearch-platform-storage" = {}
+"androidx.appsearch:appsearch" = {}
+"androidx.arch.core:core-common" = {}
+"androidx.arch.core:core-runtime" = {}
+"androidx.arch.core:core-testing" = {}
+"androidx.asynclayoutinflater:asynclayoutinflater" = {}
+"androidx.autofill:autofill" = {}
+"androidx.benchmark:benchmark-common" = {}
+"androidx.benchmark:benchmark-junit4" = {}
+"androidx.benchmark:benchmark-macro-junit4" = {}
+"androidx.benchmark:benchmark-macro" = {}
+"androidx.biometric:biometric" = {}
+"androidx.browser:browser" = {}
+"androidx.camera:camera-camera2" = {}
+"androidx.camera:camera-core" = {}
+"androidx.camera:camera-extensions" = {}
+"androidx.camera:camera-lifecycle" = {}
+"androidx.camera:camera-viewfinder" = {}
+"androidx.car.app:app-automotive" = {}
+"androidx.car.app:app-testing" = {}
+"androidx.car.app:app" = {}
+"androidx.cardview:cardview" = {}
+"androidx.collection:collection" = {}
+"androidx.collection:collection-ktx" = {}
+"androidx.compose.animation:animation" = {}
+"androidx.compose.animation:animation-core" = {}
+"androidx.compose.animation:animation-graphics" = {}
+"androidx.compose.compiler:compiler-hosted" = { host = true }
+"androidx.compose.foundation:foundation" = {}
+"androidx.compose.foundation:foundation-layout" = {}
+"androidx.compose.foundation:foundation-text" = {}
+"androidx.compose.material:material" = {}
+"androidx.compose.material:material-icons-core" = {}
+"androidx.compose.material:material-icons-extended" = {}
+"androidx.compose.material:material-ripple" = {}
+"androidx.compose.material3:material3" = {}
+"androidx.compose.material3:material3-window-size-class" = {}
+"androidx.compose.runtime:runtime" = {}
+"androidx.compose.runtime:runtime-livedata" = {}
+"androidx.compose.runtime:runtime-saveable" = {}
+"androidx.compose.runtime:runtime-tracing" = {}
+"androidx.compose.ui:ui" = {}
+"androidx.compose.ui:ui-geometry" = {}
+"androidx.compose.ui:ui-graphics" = {}
+"androidx.compose.ui:ui-test" = {}
+"androidx.compose.ui:ui-test-junit4" = {}
+"androidx.compose.ui:ui-test-manifest" = {}
+"androidx.compose.ui:ui-text" = {}
+"androidx.compose.ui:ui-tooling" = {}
+"androidx.compose.ui:ui-tooling-data" = {}
+"androidx.compose.ui:ui-tooling-preview" = {}
+"androidx.compose.ui:ui-unit" = {}
+"androidx.compose.ui:ui-util" = {}
+"androidx.concurrent:concurrent-futures-ktx" = {}
+"androidx.concurrent:concurrent-futures" = {}
+"androidx.concurrent:concurrent-listenablefuture-callback" = {}
+"androidx.concurrent:concurrent-listenablefuture" = {}
+"androidx.constraintlayout:constraintlayout-compose" = {}
+"androidx.constraintlayout:constraintlayout-core" = {}
+"androidx.constraintlayout:constraintlayout-solver" = { name = "androidx-constraintlayout_constraintlayout-solver" }
+"androidx.constraintlayout:constraintlayout" = { name = "androidx-constraintlayout_constraintlayout" }
+"androidx.contentpaging:contentpaging" = {}
+"androidx.coordinatorlayout:coordinatorlayout" = {}
+"androidx.core:core-animation-testing" = {}
+"androidx.core:core-animation" = {}
+"androidx.core:core-ktx" = {}
+"androidx.core:core" = {}
+"androidx.core.uwb:uwb-rxjava3" = {}
+"androidx.core.uwb:uwb" = {}
+"androidx.credentials:credentials" = {}
+"androidx.cursoradapter:cursoradapter" = {}
+"androidx.customview:customview-poolingcontainer" = {}
+"androidx.customview:customview" = {}
+"androidx.datastore:datastore-core-okio" = {}
+"androidx.datastore:datastore-core" = {}
+"androidx.datastore:datastore-preferences-core" = {}
+"androidx.datastore:datastore-preferences-rxjava2" = {}
+"androidx.datastore:datastore-preferences" = {}
+"androidx.datastore:datastore-rxjava2" = {}
+"androidx.datastore:datastore" = {}
+"androidx.documentfile:documentfile" = {}
+"androidx.drawerlayout:drawerlayout" = {}
+"androidx.dynamicanimation:dynamicanimation" = {}
+"androidx.emoji:emoji-appcompat" = {}
+"androidx.emoji:emoji-bundled" = {}
+"androidx.emoji:emoji" = {}
+"androidx.emoji2:emoji2-views-helper" = {}
+"androidx.emoji2:emoji2" = {}
+"androidx.exifinterface:exifinterface" = {}
+"androidx.fragment:fragment-ktx" = {}
+"androidx.fragment:fragment-testing-manifest" = {}
+"androidx.fragment:fragment-testing" = {}
+"androidx.fragment:fragment" = {}
+"androidx.gridlayout:gridlayout" = {}
+"androidx.health:health-services-client" = {}
+"androidx.heifwriter:heifwriter" = {}
+"androidx.interpolator:interpolator" = {}
+"androidx.javascriptengine:javascriptengine" = {}
+"androidx.leanback:leanback-grid" = {}
+"androidx.leanback:leanback-preference" = {}
+"androidx.leanback:leanback" = {}
+"androidx.legacy:legacy-preference-v14" = {}
+"androidx.legacy:legacy-support-core-ui" = {}
+"androidx.legacy:legacy-support-core-utils" = {}
+"androidx.legacy:legacy-support-v13" = {}
+"androidx.legacy:legacy-support-v4" = {}
+"androidx.lifecycle:lifecycle-common-java8" = {}
+"androidx.lifecycle:lifecycle-common" = {}
+"androidx.lifecycle:lifecycle-extensions" = {}
+"androidx.lifecycle:lifecycle-livedata-core-ktx" = {}
+"androidx.lifecycle:lifecycle-livedata-core" = {}
+"androidx.lifecycle:lifecycle-livedata-ktx" = {}
+"androidx.lifecycle:lifecycle-livedata" = {}
+"androidx.lifecycle:lifecycle-process" = {}
+"androidx.lifecycle:lifecycle-runtime-compose" = {}
+"androidx.lifecycle:lifecycle-runtime-ktx" = {}
+"androidx.lifecycle:lifecycle-runtime-testing" = {}
+"androidx.lifecycle:lifecycle-runtime" = {}
+"androidx.lifecycle:lifecycle-service" = {}
+"androidx.lifecycle:lifecycle-viewmodel-compose" = { }
+"androidx.lifecycle:lifecycle-viewmodel-ktx" = {}
+"androidx.lifecycle:lifecycle-viewmodel-savedstate" = {}
+"androidx.lifecycle:lifecycle-viewmodel" = {}
+"androidx.loader:loader" = {}
+"androidx.media:media" = {}
+"androidx.media2:media2-common" = {}
+"androidx.media2:media2-exoplayer" = {}
+"androidx.media2:media2-player" = {}
+"androidx.media2:media2-session" = {}
+"androidx.media2:media2-widget" = {}
+"androidx.mediarouter:mediarouter" = {}
+"androidx.multidex:multidex-instrumentation" = {}
+"androidx.multidex:multidex" = {}
+"androidx.navigation:navigation-common-ktx" = {}
+"androidx.navigation:navigation-common" = {}
+"androidx.navigation:navigation-compose" = { }
+"androidx.navigation:navigation-fragment-ktx" = {}
+"androidx.navigation:navigation-fragment" = {}
+"androidx.navigation:navigation-runtime-ktx" = {}
+"androidx.navigation:navigation-runtime" = {}
+"androidx.navigation:navigation-ui-ktx" = {}
+"androidx.navigation:navigation-ui" = {}
+"androidx.paging:paging-common-ktx" = {}
+"androidx.paging:paging-common" = {}
+"androidx.paging:paging-guava" = {}
+"androidx.paging:paging-runtime" = {}
+"androidx.palette:palette" = {}
+"androidx.percentlayout:percentlayout" = {}
+"androidx.preference:preference" = {}
+"androidx.print:print" = {}
+"androidx.privacysandbox.ads:ads-adservices-java" = {}
+"androidx.privacysandbox.ads:ads-adservices" = {}
+"androidx.privacysandbox.sdkruntime:sdkruntime-client" = {}
+"androidx.privacysandbox.sdkruntime:sdkruntime-core" = {}
+"androidx.privacysandbox.ui:ui-client" = {}
+"androidx.privacysandbox.ui:ui-core" = {}
+"androidx.privacysandbox.ui:ui-provider" = {}
+"androidx.privacysandbox.ui:ui-tests" = {}
+"androidx.profileinstaller:profileinstaller" = {}
+"androidx.recommendation:recommendation" = {}
+"androidx.recyclerview:recyclerview-selection" = {}
+"androidx.recyclerview:recyclerview" = {}
+"androidx.remotecallback:remotecallback-processor" =  { host = true }
+"androidx.remotecallback:remotecallback" = {}
+"androidx.resourceinspection:resourceinspection-annotation" = {}
+"androidx.room:room-common" = { host-and-device = true }
+"androidx.room:room-compiler-processing" = { host = true }
+"androidx.room:room-compiler" = { host = true, extra-static-libs = [ "guava" ] }
+"androidx.room:room-guava" = {}
+"androidx.room:room-ktx" = {}
+"androidx.room:room-migration" = { host-and-device = true }
+"androidx.room:room-paging-guava" = {}
+"androidx.room:room-paging" = {}
+"androidx.room:room-runtime" = {}
+"androidx.room:room-testing" = {}
+"androidx.savedstate:savedstate-ktx" = {}
+"androidx.savedstate:savedstate" = {}
+"androidx.slice:slice-builders" = {}
+"androidx.slice:slice-core" = {}
+"androidx.slice:slice-view" = {}
+"androidx.slidingpanelayout:slidingpanelayout" = {}
+"androidx.sqlite:sqlite-framework" = {}
+"androidx.sqlite:sqlite" = {}
+"androidx.startup:startup-runtime" = {}
+"androidx.swiperefreshlayout:swiperefreshlayout" = {}
+"androidx.test.uiautomator:uiautomator" = {}
+"androidx.textclassifier:textclassifier" = {}
+"androidx.tracing:tracing-ktx" = {}
+"androidx.tracing:tracing-perfetto-binary" = {}
+"androidx.tracing:tracing-perfetto-common" = {}
+"androidx.tracing:tracing-perfetto-handshake" = {}
+"androidx.tracing:tracing-perfetto" = {}
+"androidx.tracing:tracing" = {}
+"androidx.transition:transition-ktx" = {}
+"androidx.transition:transition" = {}
+"androidx.tvprovider:tvprovider" = {}
+"androidx.vectordrawable:vectordrawable-animated" = {}
+"androidx.vectordrawable:vectordrawable" = {}
+"androidx.versionedparcelable:versionedparcelable" = {}
+"androidx.viewpager:viewpager" = {}
+"androidx.viewpager2:viewpager2" = {}
+"androidx.wear:wear-ongoing" = {}
+"androidx.wear:wear" = {}
+"androidx.wear.compose:compose-foundation" = {}
+"androidx.wear.compose:compose-material-core" = {}
+"androidx.wear.compose:compose-material" = {}
+"androidx.wear.compose:compose-navigation" = {}
+"androidx.webkit:webkit" = {}
+"androidx.window:window-core" = {}
+"androidx.window:window-java" = {}
+"androidx.window:window" = { optional-uses-libs = [ "androidx.window.extensions", "androidx.window.sidecar" ] }
+"androidx.window.extensions:extensions" = {}
+"androidx.window.extensions.core:core" = {}
+"androidx.work:work-runtime-ktx" = {}
+"androidx.work:work-runtime" = {}
+"androidx.work:work-testing" = {}
+
+# Mapping of POM dependencies to Soong build targets.
+[dependencies]
+"androidx.test:core" = "androidx.test.core"
+"androidx.test:monitor" = "androidx.test.monitor"
+"androidx.test:rules" = "androidx.test.rules"
+"androidx.test:runner" = "androidx.test.runner"
+"androidx.test.espresso:espresso-core" = "androidx.test.espresso.core"
+"androidx.test.espresso:espresso-idling-resource" = "androidx.test.espresso.idling-resource"
+# Temporarily set to the wrong value for parity with the old script.
+"androidx.test.ext:junit" = "junit" # "androidx.test.ext.junit"
+"com.google.android:flexbox" = "flexbox"
+"com.google.auto:auto-common" = "auto_common"
+"com.google.auto.value:auto-value-annotations" = "auto_value_annotations"
+"com.google.auto.value:auto-value" = "libauto_value_plugin"
+"com.google.code.gson:gson" = "gson"
+"com.google.devtools.ksp:symbol-processing-api" = "symbol-processing-api"
+"com.google.guava:guava" = "guava"
+"com.google.guava:listenablefuture" = "guava-listenablefuture-prebuilt-jar"
+"com.google.android.material:material" = "com.google.android.material_material"
+"com.google.protobuf:protobuf-javalite" = "libprotobuf-java-lite"
+"com.intellij:annotations" = "jetbrains-annotations"
+"com.squareup:javapoet" = "javapoet"
+"com.squareup:kotlinpoet" = "kotlinpoet"
+"com.squareup:kotlinpoet-javapoet" = "kotlinpoet-javapoet"
+"com.squareup.okio:okio" = "okio-lib"
+"com.squareup.wire:wire-runtime" = "wire-runtime"
+"commons-codec:commons-codec" = "commons-codec"
+"io.reactivex.rxjava2:rxjava" = "rxjava"
+"javax.annotation:javax.annotation-api" = "javax-annotation-api-prebuilt-host-jar"
+"junit:junit" = "junit"
+"org.jetbrains.kotlin:kotlin-stdlib" = "kotlin-stdlib"
+"org.jetbrains.kotlin:kotlin-stdlib-common" = "kotlin-stdlib"
+"org.jetbrains.kotlin:kotlin-stdlib-jdk8" = "kotlin-stdlib-jdk8"
+"org.jetbrains.kotlin:kotlin-stdlib-jvm" = "kotlin-stdlib-jvm"
+"org.jetbrains.kotlinx:kotlinx-coroutines-android" = "kotlinx_coroutines_android"
+"org.jetbrains.kotlinx:kotlinx-coroutines-core" = "kotlinx_coroutines"
+# Temporarily set to the wrong value for parity with the old script.
+"org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm" = "kotlinx-coroutines-core-jvm" # "kotlinx_coroutines"
+"org.jetbrains.kotlinx:kotlinx-coroutines-guava" = "kotlinx_coroutines_guava"
+"org.jetbrains.kotlinx:kotlinx-coroutines-rx2" = "kotlinx_coroutines_rx2"
+"org.jetbrains.kotlinx:kotlinx-coroutines-test" = "kotlinx_coroutines_test"
+"org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm" = "kotlinx_coroutines_test"
+"org.jetbrains.kotlinx:kotlinx-metadata-jvm" = "kotlinx_metadata_jvm"
+"org.mockito:mockito-core" = "mockito-core"
+"org.robolectric:robolectric" = "Robolectric_all-target"
+"org.xerial:sqlite-jdbc" = "xerial-sqlite-jdbc"
+
+# Command-line options passed to pom2bp.
+[options]
+monolithic = true
+static-deps = true
+# Temporarily set to false for parity with the old script.
+sort-deps = false
+sdk-version = "31"
+default-min-sdk-version = "24"
+prepend = "../../update_prebuilts/prepend_androidx_license"
+append-text = "build = [\"JavaPlugins.bp\"]"

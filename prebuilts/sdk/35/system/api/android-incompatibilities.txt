@@ -1,0 +1,35 @@
+// Baseline format: 1.0
+RemovedClass: android.content.pm.PackageManager.PermissionFlags:
+    Removed class android.content.pm.PackageManager.PermissionFlags
+RemovedClass: android.hardware.hdmi.HdmiControlManager.ControlCallbackResult:
+    Removed class android.hardware.hdmi.HdmiControlManager.ControlCallbackResult
+RemovedClass: android.hardware.radio.ProgramSelector.IdentifierType:
+    Removed class android.hardware.radio.ProgramSelector.IdentifierType
+RemovedClass: android.hardware.radio.RadioManager.Band:
+    Removed class android.hardware.radio.RadioManager.Band
+RemovedClass: android.os.UserManager.UserRestrictionSource:
+    Removed class android.os.UserManager.UserRestrictionSource
+RemovedClass: android.service.euicc.EuiccProfileInfo.PolicyRule:
+    Removed class android.service.euicc.EuiccProfileInfo.PolicyRule
+RemovedClass: android.service.euicc.EuiccProfileInfo.ProfileClass:
+    Removed class android.service.euicc.EuiccProfileInfo.ProfileClass
+RemovedClass: android.service.euicc.EuiccProfileInfo.ProfileState:
+    Removed class android.service.euicc.EuiccProfileInfo.ProfileState
+RemovedClass: android.service.persistentdata.PersistentDataBlockManager.FlashLockState:
+    Removed class android.service.persistentdata.PersistentDataBlockManager.FlashLockState
+RemovedClass: android.telephony.euicc.EuiccCardManager.CancelReason:
+    Removed class android.telephony.euicc.EuiccCardManager.CancelReason
+RemovedClass: android.telephony.euicc.EuiccCardManager.ResetOption:
+    Removed class android.telephony.euicc.EuiccCardManager.ResetOption
+RemovedClass: android.telephony.euicc.EuiccManager.OtaStatus:
+    Removed class android.telephony.euicc.EuiccManager.OtaStatus
+RemovedClass: android.telephony.euicc.EuiccNotification.Event:
+    Removed class android.telephony.euicc.EuiccNotification.Event
+RemovedClass: android.telephony.euicc.EuiccRulesAuthTable.PolicyRuleFlag:
+    Removed class android.telephony.euicc.EuiccRulesAuthTable.PolicyRuleFlag
+RemovedClass: android.view.WindowManager.LayoutParams.SystemFlags:
+    Removed class android.view.WindowManager.LayoutParams.SystemFlags
+
+
+RemovedDeprecatedClass: android.hardware.radio.ProgramSelector.ProgramType:
+    Removed deprecated class android.hardware.radio.ProgramSelector.ProgramType

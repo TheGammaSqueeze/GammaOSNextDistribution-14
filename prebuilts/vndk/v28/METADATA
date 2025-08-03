@@ -1,0 +1,7 @@
+third_party {
+  license_note: "would be NOTICE save for GPL and LGPL in:\n"
+  "   common/NOTICE_FILES/libcap.so.txt\n"
+  "   common/NOTICE_FILES/libnl.so.txt\n"
+  "   common/NOTICE_FILES/libexif.so.txt"
+  license_type: RESTRICTED
+}

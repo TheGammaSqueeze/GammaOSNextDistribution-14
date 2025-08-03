@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedAbstract: java.util.AbstractSequentialList#listIterator(int):
+    Method java.util.AbstractSequentialList.listIterator has changed 'abstract' qualifier

@@ -1,0 +1,103 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.cardview",
+    "module": "cardview",
+    "version": "1.1.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "cardview-1.1.0-alpha01.aar",
+          "url": "cardview-1.1.0-alpha01.aar",
+          "size": 23308,
+          "sha512": "66bd45fa0190706cb0e526569961c2e5cf31a8d49327ed68ceb1dbfe8f6c2d518adbe3bfbf67ea0641296d56cf997149c686dc5c8f711519cbc5996095155a64",
+          "sha256": "783f9dd120c53cde7fd9697bbe9e62aef8518e3b89f0c29a6203fee71d85baba",
+          "sha1": "cd739507655150c5fec3d0796d01e9d58372d20e",
+          "md5": "19cacef3f6c552549ac080e78fb8144b"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.3.0-beta01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "cardview-1.1.0-alpha01.aar",
+          "url": "cardview-1.1.0-alpha01.aar",
+          "size": 23308,
+          "sha512": "66bd45fa0190706cb0e526569961c2e5cf31a8d49327ed68ceb1dbfe8f6c2d518adbe3bfbf67ea0641296d56cf997149c686dc5c8f711519cbc5996095155a64",
+          "sha256": "783f9dd120c53cde7fd9697bbe9e62aef8518e3b89f0c29a6203fee71d85baba",
+          "sha1": "cd739507655150c5fec3d0796d01e9d58372d20e",
+          "md5": "19cacef3f6c552549ac080e78fb8144b"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "cardview-1.1.0-alpha01-sources.jar",
+          "url": "cardview-1.1.0-alpha01-sources.jar",
+          "size": 16558,
+          "sha512": "7b0ebfa036f17b3e14263683192d071464946fe35911580d69b314d8723518fc8a5d308d6ecd0f41b5a0aba48eb5562a9ace8e68f5e590032401dfc5d7c45fed",
+          "sha256": "e5c62175b1456e1a6d5791c6882dc105f127fbb5a5286c1493beda36d84d5977",
+          "sha1": "ae554a600e06b47d5d0814f244e40c5ed90d54b7",
+          "md5": "7d547275ad1ded0feb73af42a054d778"
+        }
+      ]
+    }
+  ]
+}

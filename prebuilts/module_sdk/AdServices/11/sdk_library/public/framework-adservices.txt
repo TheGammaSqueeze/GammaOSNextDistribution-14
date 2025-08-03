@@ -1,0 +1,636 @@
+// Signature format: 2.0
+package android.adservices {
+
+  public class AdServicesState {
+    method public static boolean isAdServicesStateEnabled();
+  }
+
+}
+
+package android.adservices.adid {
+
+  public class AdId {
+    ctor public AdId(@NonNull String, boolean);
+    method @NonNull public String getAdId();
+    method public boolean isLimitAdTrackingEnabled();
+    field public static final String ZERO_OUT = "00000000-0000-0000-0000-000000000000";
+  }
+
+  public class AdIdManager {
+    method @NonNull public static android.adservices.adid.AdIdManager get(@NonNull android.content.Context);
+    method @NonNull @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public void getAdId(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.adid.AdId,java.lang.Exception>);
+    method @NonNull @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_AD_ID) public void getAdId(@NonNull java.util.concurrent.Executor, @NonNull android.adservices.common.AdServicesOutcomeReceiver<android.adservices.adid.AdId,java.lang.Exception>);
+  }
+
+}
+
+package android.adservices.adselection {
+
+  public final class AdSelectionConfig implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.adservices.common.AdSelectionSignals getAdSelectionSignals();
+    method @NonNull public java.util.List<android.adservices.common.AdTechIdentifier> getCustomAudienceBuyers();
+    method @NonNull public android.net.Uri getDecisionLogicUri();
+    method @NonNull public java.util.Map<android.adservices.common.AdTechIdentifier,android.adservices.common.AdSelectionSignals> getPerBuyerSignals();
+    method @NonNull public android.adservices.common.AdTechIdentifier getSeller();
+    method @NonNull public android.adservices.common.AdSelectionSignals getSellerSignals();
+    method @NonNull public android.net.Uri getTrustedScoringSignalsUri();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.adselection.AdSelectionConfig> CREATOR;
+  }
+
+  public static final class AdSelectionConfig.Builder {
+    ctor public AdSelectionConfig.Builder();
+    method @NonNull public android.adservices.adselection.AdSelectionConfig build();
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setAdSelectionSignals(@NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setCustomAudienceBuyers(@NonNull java.util.List<android.adservices.common.AdTechIdentifier>);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setDecisionLogicUri(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setPerBuyerSignals(@NonNull java.util.Map<android.adservices.common.AdTechIdentifier,android.adservices.common.AdSelectionSignals>);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setSeller(@NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setSellerSignals(@NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig.Builder setTrustedScoringSignalsUri(@NonNull android.net.Uri);
+  }
+
+  public final class AdSelectionFromOutcomesConfig implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<java.lang.Long> getAdSelectionIds();
+    method @NonNull public android.net.Uri getSelectionLogicUri();
+    method @NonNull public android.adservices.common.AdSelectionSignals getSelectionSignals();
+    method @NonNull public android.adservices.common.AdTechIdentifier getSeller();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.adselection.AdSelectionFromOutcomesConfig> CREATOR;
+  }
+
+  public static final class AdSelectionFromOutcomesConfig.Builder {
+    ctor public AdSelectionFromOutcomesConfig.Builder();
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig build();
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig.Builder setAdSelectionIds(@NonNull java.util.List<java.lang.Long>);
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig.Builder setSelectionLogicUri(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig.Builder setSelectionSignals(@NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig.Builder setSeller(@NonNull android.adservices.common.AdTechIdentifier);
+  }
+
+  public class AdSelectionManager {
+    method @NonNull public static android.adservices.adselection.AdSelectionManager get(@NonNull android.content.Context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void getAdSelectionData(@NonNull android.adservices.adselection.GetAdSelectionDataRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.adselection.GetAdSelectionDataOutcome,java.lang.Exception>);
+    method @NonNull public android.adservices.adselection.TestAdSelectionManager getTestAdSelectionManager();
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void persistAdSelectionResult(@NonNull android.adservices.adselection.PersistAdSelectionResultRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.adselection.AdSelectionOutcome,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void reportEvent(@NonNull android.adservices.adselection.ReportEventRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void reportImpression(@NonNull android.adservices.adselection.ReportImpressionRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void selectAds(@NonNull android.adservices.adselection.AdSelectionConfig, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.adselection.AdSelectionOutcome,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void selectAds(@NonNull android.adservices.adselection.AdSelectionFromOutcomesConfig, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.adselection.AdSelectionOutcome,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void updateAdCounterHistogram(@NonNull android.adservices.adselection.UpdateAdCounterHistogramRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+  }
+
+  public class AdSelectionOutcome {
+    method @NonNull public long getAdSelectionId();
+    method @NonNull public android.net.Uri getRenderUri();
+    method public boolean hasOutcome();
+    field @NonNull public static final android.adservices.adselection.AdSelectionOutcome NO_OUTCOME;
+  }
+
+  public static final class AdSelectionOutcome.Builder {
+    ctor public AdSelectionOutcome.Builder();
+    method @NonNull public android.adservices.adselection.AdSelectionOutcome build();
+    method @NonNull public android.adservices.adselection.AdSelectionOutcome.Builder setAdSelectionId(long);
+    method @NonNull public android.adservices.adselection.AdSelectionOutcome.Builder setRenderUri(@NonNull android.net.Uri);
+  }
+
+  public class AddAdSelectionFromOutcomesOverrideRequest {
+    ctor public AddAdSelectionFromOutcomesOverrideRequest(@NonNull android.adservices.adselection.AdSelectionFromOutcomesConfig, @NonNull String, @NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig getAdSelectionFromOutcomesConfig();
+    method @NonNull public String getOutcomeSelectionLogicJs();
+    method @NonNull public android.adservices.common.AdSelectionSignals getOutcomeSelectionTrustedSignals();
+  }
+
+  public class AddAdSelectionOverrideRequest {
+    ctor public AddAdSelectionOverrideRequest(@NonNull android.adservices.adselection.AdSelectionConfig, @NonNull String, @NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig getAdSelectionConfig();
+    method @NonNull public String getDecisionLogicJs();
+    method @NonNull public android.adservices.common.AdSelectionSignals getTrustedScoringSignals();
+  }
+
+  public final class GetAdSelectionDataOutcome {
+    method @Nullable public byte[] getAdSelectionData();
+    method public long getAdSelectionId();
+  }
+
+  public final class GetAdSelectionDataRequest {
+    method @Nullable public android.adservices.common.AdTechIdentifier getSeller();
+  }
+
+  public static final class GetAdSelectionDataRequest.Builder {
+    ctor public GetAdSelectionDataRequest.Builder();
+    method @NonNull public android.adservices.adselection.GetAdSelectionDataRequest build();
+    method @NonNull public android.adservices.adselection.GetAdSelectionDataRequest.Builder setSeller(@Nullable android.adservices.common.AdTechIdentifier);
+  }
+
+  public final class PersistAdSelectionResultRequest {
+    method public long getAdSelectionId();
+    method @Nullable public byte[] getAdSelectionResult();
+    method @Nullable public android.adservices.common.AdTechIdentifier getSeller();
+  }
+
+  public static final class PersistAdSelectionResultRequest.Builder {
+    ctor public PersistAdSelectionResultRequest.Builder();
+    method @NonNull public android.adservices.adselection.PersistAdSelectionResultRequest build();
+    method @NonNull public android.adservices.adselection.PersistAdSelectionResultRequest.Builder setAdSelectionId(long);
+    method @NonNull public android.adservices.adselection.PersistAdSelectionResultRequest.Builder setAdSelectionResult(@Nullable byte[]);
+    method @NonNull public android.adservices.adselection.PersistAdSelectionResultRequest.Builder setSeller(@Nullable android.adservices.common.AdTechIdentifier);
+  }
+
+  public class RemoveAdSelectionFromOutcomesOverrideRequest {
+    ctor public RemoveAdSelectionFromOutcomesOverrideRequest(@NonNull android.adservices.adselection.AdSelectionFromOutcomesConfig);
+    method @NonNull public android.adservices.adselection.AdSelectionFromOutcomesConfig getAdSelectionFromOutcomesConfig();
+  }
+
+  public class RemoveAdSelectionOverrideRequest {
+    ctor public RemoveAdSelectionOverrideRequest(@NonNull android.adservices.adselection.AdSelectionConfig);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig getAdSelectionConfig();
+  }
+
+  public class ReportEventRequest {
+    method public long getAdSelectionId();
+    method @NonNull public String getData();
+    method @Nullable public android.view.InputEvent getInputEvent();
+    method @NonNull public String getKey();
+    method public int getReportingDestinations();
+    field public static final int FLAG_REPORTING_DESTINATION_BUYER = 2; // 0x2
+    field public static final int FLAG_REPORTING_DESTINATION_SELLER = 1; // 0x1
+  }
+
+  public static final class ReportEventRequest.Builder {
+    ctor public ReportEventRequest.Builder(long, @NonNull String, @NonNull String, int);
+    method @NonNull public android.adservices.adselection.ReportEventRequest build();
+    method @NonNull public android.adservices.adselection.ReportEventRequest.Builder setAdSelectionId(long);
+    method @NonNull public android.adservices.adselection.ReportEventRequest.Builder setData(@NonNull String);
+    method @NonNull public android.adservices.adselection.ReportEventRequest.Builder setInputEvent(@Nullable android.view.InputEvent);
+    method @NonNull public android.adservices.adselection.ReportEventRequest.Builder setKey(@NonNull String);
+    method @NonNull public android.adservices.adselection.ReportEventRequest.Builder setReportingDestinations(int);
+  }
+
+  public class ReportImpressionRequest {
+    ctor public ReportImpressionRequest(long, @NonNull android.adservices.adselection.AdSelectionConfig);
+    ctor public ReportImpressionRequest(long);
+    method @NonNull public android.adservices.adselection.AdSelectionConfig getAdSelectionConfig();
+    method public long getAdSelectionId();
+  }
+
+  public class TestAdSelectionManager {
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void overrideAdSelectionConfigRemoteInfo(@NonNull android.adservices.adselection.AddAdSelectionOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void overrideAdSelectionFromOutcomesConfigRemoteInfo(@NonNull android.adservices.adselection.AddAdSelectionFromOutcomesOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void removeAdSelectionConfigRemoteInfoOverride(@NonNull android.adservices.adselection.RemoveAdSelectionOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void removeAdSelectionFromOutcomesConfigRemoteInfoOverride(@NonNull android.adservices.adselection.RemoveAdSelectionFromOutcomesOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void resetAllAdSelectionConfigRemoteOverrides(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void resetAllAdSelectionFromOutcomesConfigRemoteOverrides(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+  }
+
+  public class UpdateAdCounterHistogramRequest {
+    method public int getAdEventType();
+    method public long getAdSelectionId();
+    method @NonNull public android.adservices.common.AdTechIdentifier getCallerAdTech();
+  }
+
+  public static final class UpdateAdCounterHistogramRequest.Builder {
+    ctor public UpdateAdCounterHistogramRequest.Builder(long, int, @NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.adselection.UpdateAdCounterHistogramRequest build();
+    method @NonNull public android.adservices.adselection.UpdateAdCounterHistogramRequest.Builder setAdEventType(int);
+    method @NonNull public android.adservices.adselection.UpdateAdCounterHistogramRequest.Builder setAdSelectionId(long);
+    method @NonNull public android.adservices.adselection.UpdateAdCounterHistogramRequest.Builder setCallerAdTech(@NonNull android.adservices.common.AdTechIdentifier);
+  }
+
+}
+
+package android.adservices.appsetid {
+
+  public class AppSetId {
+    ctor public AppSetId(@NonNull String, int);
+    method @NonNull public String getId();
+    method public int getScope();
+    field public static final int SCOPE_APP = 1; // 0x1
+    field public static final int SCOPE_DEVELOPER = 2; // 0x2
+  }
+
+  public class AppSetIdManager {
+    method @NonNull public static android.adservices.appsetid.AppSetIdManager get(@NonNull android.content.Context);
+    method @NonNull public void getAppSetId(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.appsetid.AppSetId,java.lang.Exception>);
+  }
+
+}
+
+package android.adservices.common {
+
+  public final class AdData implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.Set<java.lang.Integer> getAdCounterKeys();
+    method @Nullable public android.adservices.common.AdFilters getAdFilters();
+    method @Nullable public String getAdRenderId();
+    method @NonNull public String getMetadata();
+    method @NonNull public android.net.Uri getRenderUri();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.AdData> CREATOR;
+  }
+
+  public static final class AdData.Builder {
+    ctor public AdData.Builder();
+    method @NonNull public android.adservices.common.AdData build();
+    method @NonNull public android.adservices.common.AdData.Builder setAdCounterKeys(@NonNull java.util.Set<java.lang.Integer>);
+    method @NonNull public android.adservices.common.AdData.Builder setAdFilters(@Nullable android.adservices.common.AdFilters);
+    method @NonNull public android.adservices.common.AdData.Builder setAdRenderId(@Nullable String);
+    method @NonNull public android.adservices.common.AdData.Builder setMetadata(@NonNull String);
+    method @NonNull public android.adservices.common.AdData.Builder setRenderUri(@NonNull android.net.Uri);
+  }
+
+  public final class AdFilters implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.adservices.common.FrequencyCapFilters getFrequencyCapFilters();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.AdFilters> CREATOR;
+  }
+
+  public static final class AdFilters.Builder {
+    ctor public AdFilters.Builder();
+    method @NonNull public android.adservices.common.AdFilters build();
+    method @NonNull public android.adservices.common.AdFilters.Builder setFrequencyCapFilters(@Nullable android.adservices.common.FrequencyCapFilters);
+  }
+
+  public final class AdSelectionSignals implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.adservices.common.AdSelectionSignals fromString(@NonNull String);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.AdSelectionSignals> CREATOR;
+    field public static final android.adservices.common.AdSelectionSignals EMPTY;
+  }
+
+  public interface AdServicesOutcomeReceiver<R, E extends java.lang.Throwable> {
+    method public default void onError(@NonNull E);
+    method public void onResult(R);
+  }
+
+  public class AdServicesPermissions {
+    field public static final String ACCESS_ADSERVICES_AD_ID = "android.permission.ACCESS_ADSERVICES_AD_ID";
+    field public static final String ACCESS_ADSERVICES_ATTRIBUTION = "android.permission.ACCESS_ADSERVICES_ATTRIBUTION";
+    field public static final String ACCESS_ADSERVICES_CUSTOM_AUDIENCE = "android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE";
+    field public static final String ACCESS_ADSERVICES_TOPICS = "android.permission.ACCESS_ADSERVICES_TOPICS";
+  }
+
+  public final class AdTechIdentifier implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.adservices.common.AdTechIdentifier fromString(@NonNull String);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.AdTechIdentifier> CREATOR;
+  }
+
+  public final class FrequencyCapFilters implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<android.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForClickEvents();
+    method @NonNull public java.util.List<android.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForImpressionEvents();
+    method @NonNull public java.util.List<android.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForViewEvents();
+    method @NonNull public java.util.List<android.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForWinEvents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field public static final int AD_EVENT_TYPE_CLICK = 3; // 0x3
+    field public static final int AD_EVENT_TYPE_IMPRESSION = 1; // 0x1
+    field public static final int AD_EVENT_TYPE_VIEW = 2; // 0x2
+    field public static final int AD_EVENT_TYPE_WIN = 0; // 0x0
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.FrequencyCapFilters> CREATOR;
+  }
+
+  public static final class FrequencyCapFilters.Builder {
+    ctor public FrequencyCapFilters.Builder();
+    method @NonNull public android.adservices.common.FrequencyCapFilters build();
+    method @NonNull public android.adservices.common.FrequencyCapFilters.Builder setKeyedFrequencyCapsForClickEvents(@NonNull java.util.List<android.adservices.common.KeyedFrequencyCap>);
+    method @NonNull public android.adservices.common.FrequencyCapFilters.Builder setKeyedFrequencyCapsForImpressionEvents(@NonNull java.util.List<android.adservices.common.KeyedFrequencyCap>);
+    method @NonNull public android.adservices.common.FrequencyCapFilters.Builder setKeyedFrequencyCapsForViewEvents(@NonNull java.util.List<android.adservices.common.KeyedFrequencyCap>);
+    method @NonNull public android.adservices.common.FrequencyCapFilters.Builder setKeyedFrequencyCapsForWinEvents(@NonNull java.util.List<android.adservices.common.KeyedFrequencyCap>);
+  }
+
+  public final class KeyedFrequencyCap implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public int getAdCounterKey();
+    method @NonNull public java.time.Duration getInterval();
+    method public int getMaxCount();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.common.KeyedFrequencyCap> CREATOR;
+  }
+
+  public static final class KeyedFrequencyCap.Builder {
+    ctor public KeyedFrequencyCap.Builder(int, int, @NonNull java.time.Duration);
+    method @NonNull public android.adservices.common.KeyedFrequencyCap build();
+    method @NonNull public android.adservices.common.KeyedFrequencyCap.Builder setAdCounterKey(int);
+    method @NonNull public android.adservices.common.KeyedFrequencyCap.Builder setInterval(@NonNull java.time.Duration);
+    method @NonNull public android.adservices.common.KeyedFrequencyCap.Builder setMaxCount(int);
+  }
+
+}
+
+package android.adservices.customaudience {
+
+  public class AddCustomAudienceOverrideRequest {
+    ctor public AddCustomAudienceOverrideRequest(@NonNull android.adservices.common.AdTechIdentifier, @NonNull String, @NonNull String, @NonNull android.adservices.common.AdSelectionSignals);
+    method @NonNull public String getBiddingLogicJs();
+    method @NonNull public android.adservices.common.AdTechIdentifier getBuyer();
+    method @NonNull public String getName();
+    method @NonNull public android.adservices.common.AdSelectionSignals getTrustedBiddingSignals();
+  }
+
+  public static final class AddCustomAudienceOverrideRequest.Builder {
+    ctor public AddCustomAudienceOverrideRequest.Builder();
+    method @NonNull public android.adservices.customaudience.AddCustomAudienceOverrideRequest build();
+    method @NonNull public android.adservices.customaudience.AddCustomAudienceOverrideRequest.Builder setBiddingLogicJs(@NonNull String);
+    method @NonNull public android.adservices.customaudience.AddCustomAudienceOverrideRequest.Builder setBuyer(@NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.customaudience.AddCustomAudienceOverrideRequest.Builder setName(@NonNull String);
+    method @NonNull public android.adservices.customaudience.AddCustomAudienceOverrideRequest.Builder setTrustedBiddingSignals(@NonNull android.adservices.common.AdSelectionSignals);
+  }
+
+  public final class CustomAudience implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public java.time.Instant getActivationTime();
+    method @NonNull public java.util.List<android.adservices.common.AdData> getAds();
+    method @NonNull public android.net.Uri getBiddingLogicUri();
+    method @NonNull public android.adservices.common.AdTechIdentifier getBuyer();
+    method @NonNull public android.net.Uri getDailyUpdateUri();
+    method @Nullable public java.time.Instant getExpirationTime();
+    method @NonNull public String getName();
+    method @Nullable public android.adservices.customaudience.TrustedBiddingData getTrustedBiddingData();
+    method @Nullable public android.adservices.common.AdSelectionSignals getUserBiddingSignals();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.customaudience.CustomAudience> CREATOR;
+  }
+
+  public static final class CustomAudience.Builder {
+    ctor public CustomAudience.Builder();
+    method @NonNull public android.adservices.customaudience.CustomAudience build();
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setActivationTime(@Nullable java.time.Instant);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setAds(@Nullable java.util.List<android.adservices.common.AdData>);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setBiddingLogicUri(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setBuyer(@NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setDailyUpdateUri(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setExpirationTime(@Nullable java.time.Instant);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setName(@NonNull String);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setTrustedBiddingData(@Nullable android.adservices.customaudience.TrustedBiddingData);
+    method @NonNull public android.adservices.customaudience.CustomAudience.Builder setUserBiddingSignals(@Nullable android.adservices.common.AdSelectionSignals);
+  }
+
+  public class CustomAudienceManager {
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void fetchAndJoinCustomAudience(@NonNull android.adservices.customaudience.FetchAndJoinCustomAudienceRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @NonNull public static android.adservices.customaudience.CustomAudienceManager get(@NonNull android.content.Context);
+    method @NonNull public android.adservices.customaudience.TestCustomAudienceManager getTestCustomAudienceManager();
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void joinCustomAudience(@NonNull android.adservices.customaudience.JoinCustomAudienceRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void leaveCustomAudience(@NonNull android.adservices.customaudience.LeaveCustomAudienceRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+  }
+
+  public final class FetchAndJoinCustomAudienceRequest {
+    method @Nullable public java.time.Instant getActivationTime();
+    method @Nullable public java.time.Instant getExpirationTime();
+    method @NonNull public android.net.Uri getFetchUri();
+    method @Nullable public String getName();
+    method @Nullable public android.adservices.common.AdSelectionSignals getUserBiddingSignals();
+  }
+
+  public static final class FetchAndJoinCustomAudienceRequest.Builder {
+    ctor public FetchAndJoinCustomAudienceRequest.Builder(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest build();
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder setActivationTime(@Nullable java.time.Instant);
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder setExpirationTime(@Nullable java.time.Instant);
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder setFetchUri(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder setName(@Nullable String);
+    method @NonNull public android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder setUserBiddingSignals(@Nullable android.adservices.common.AdSelectionSignals);
+  }
+
+  public class JoinCustomAudienceRequest {
+    method @NonNull public android.adservices.customaudience.CustomAudience getCustomAudience();
+  }
+
+  public static final class JoinCustomAudienceRequest.Builder {
+    ctor public JoinCustomAudienceRequest.Builder();
+    method @NonNull public android.adservices.customaudience.JoinCustomAudienceRequest build();
+    method @NonNull public android.adservices.customaudience.JoinCustomAudienceRequest.Builder setCustomAudience(@NonNull android.adservices.customaudience.CustomAudience);
+  }
+
+  public final class LeaveCustomAudienceRequest {
+    method @NonNull public android.adservices.common.AdTechIdentifier getBuyer();
+    method @NonNull public String getName();
+  }
+
+  public static final class LeaveCustomAudienceRequest.Builder {
+    ctor public LeaveCustomAudienceRequest.Builder();
+    method @NonNull public android.adservices.customaudience.LeaveCustomAudienceRequest build();
+    method @NonNull public android.adservices.customaudience.LeaveCustomAudienceRequest.Builder setBuyer(@NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.customaudience.LeaveCustomAudienceRequest.Builder setName(@NonNull String);
+  }
+
+  public class RemoveCustomAudienceOverrideRequest {
+    ctor public RemoveCustomAudienceOverrideRequest(@NonNull android.adservices.common.AdTechIdentifier, @NonNull String);
+    method @NonNull public android.adservices.common.AdTechIdentifier getBuyer();
+    method @NonNull public String getName();
+  }
+
+  public static final class RemoveCustomAudienceOverrideRequest.Builder {
+    ctor public RemoveCustomAudienceOverrideRequest.Builder();
+    method @NonNull public android.adservices.customaudience.RemoveCustomAudienceOverrideRequest build();
+    method @NonNull public android.adservices.customaudience.RemoveCustomAudienceOverrideRequest.Builder setBuyer(@NonNull android.adservices.common.AdTechIdentifier);
+    method @NonNull public android.adservices.customaudience.RemoveCustomAudienceOverrideRequest.Builder setName(@NonNull String);
+  }
+
+  public class TestCustomAudienceManager {
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void overrideCustomAudienceRemoteInfo(@NonNull android.adservices.customaudience.AddCustomAudienceOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void removeCustomAudienceRemoteInfoOverride(@NonNull android.adservices.customaudience.RemoveCustomAudienceOverrideRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public void resetAllCustomAudienceOverrides(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+  }
+
+  public final class TrustedBiddingData implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<java.lang.String> getTrustedBiddingKeys();
+    method @NonNull public android.net.Uri getTrustedBiddingUri();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.customaudience.TrustedBiddingData> CREATOR;
+  }
+
+  public static final class TrustedBiddingData.Builder {
+    ctor public TrustedBiddingData.Builder();
+    method @NonNull public android.adservices.customaudience.TrustedBiddingData build();
+    method @NonNull public android.adservices.customaudience.TrustedBiddingData.Builder setTrustedBiddingKeys(@NonNull java.util.List<java.lang.String>);
+    method @NonNull public android.adservices.customaudience.TrustedBiddingData.Builder setTrustedBiddingUri(@NonNull android.net.Uri);
+  }
+
+}
+
+package android.adservices.exceptions {
+
+  public class AdServicesException extends java.lang.Exception {
+    ctor public AdServicesException(@Nullable String, @Nullable Throwable);
+    ctor public AdServicesException(@Nullable String);
+  }
+
+}
+
+package android.adservices.measurement {
+
+  public class DeletionRequest {
+    method public int getDeletionMode();
+    method @NonNull public java.util.List<android.net.Uri> getDomainUris();
+    method @NonNull public java.time.Instant getEnd();
+    method public int getMatchBehavior();
+    method @NonNull public java.util.List<android.net.Uri> getOriginUris();
+    method @NonNull public java.time.Instant getStart();
+    field public static final int DELETION_MODE_ALL = 0; // 0x0
+    field public static final int DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1; // 0x1
+    field public static final int MATCH_BEHAVIOR_DELETE = 0; // 0x0
+    field public static final int MATCH_BEHAVIOR_PRESERVE = 1; // 0x1
+  }
+
+  public static final class DeletionRequest.Builder {
+    ctor public DeletionRequest.Builder();
+    method @NonNull public android.adservices.measurement.DeletionRequest build();
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setDeletionMode(int);
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setDomainUris(@Nullable java.util.List<android.net.Uri>);
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setEnd(@NonNull java.time.Instant);
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setMatchBehavior(int);
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setOriginUris(@Nullable java.util.List<android.net.Uri>);
+    method @NonNull public android.adservices.measurement.DeletionRequest.Builder setStart(@NonNull java.time.Instant);
+  }
+
+  public class MeasurementManager {
+    method public void deleteRegistrations(@NonNull android.adservices.measurement.DeletionRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method public void deleteRegistrations(@NonNull android.adservices.measurement.DeletionRequest, @NonNull java.util.concurrent.Executor, @NonNull android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @NonNull public static android.adservices.measurement.MeasurementManager get(@NonNull android.content.Context);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void getMeasurementApiStatus(@NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Integer,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void getMeasurementApiStatus(@NonNull java.util.concurrent.Executor, @NonNull android.adservices.common.AdServicesOutcomeReceiver<java.lang.Integer,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerSource(@NonNull android.net.Uri, @Nullable android.view.InputEvent, @Nullable java.util.concurrent.Executor, @Nullable android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerSource(@NonNull android.net.Uri, @Nullable android.view.InputEvent, @Nullable java.util.concurrent.Executor, @Nullable android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerSource(@NonNull android.adservices.measurement.SourceRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerSource(@NonNull android.adservices.measurement.SourceRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerTrigger(@NonNull android.net.Uri, @Nullable java.util.concurrent.Executor, @Nullable android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerTrigger(@NonNull android.net.Uri, @Nullable java.util.concurrent.Executor, @Nullable android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerWebSource(@NonNull android.adservices.measurement.WebSourceRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerWebSource(@NonNull android.adservices.measurement.WebSourceRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerWebTrigger(@NonNull android.adservices.measurement.WebTriggerRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.os.OutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION) public void registerWebTrigger(@NonNull android.adservices.measurement.WebTriggerRegistrationRequest, @Nullable java.util.concurrent.Executor, @Nullable android.adservices.common.AdServicesOutcomeReceiver<java.lang.Object,java.lang.Exception>);
+    field public static final int MEASUREMENT_API_STATE_DISABLED = 0; // 0x0
+    field public static final int MEASUREMENT_API_STATE_ENABLED = 1; // 0x1
+  }
+
+  public final class SourceRegistrationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.view.InputEvent getInputEvent();
+    method @NonNull public java.util.List<android.net.Uri> getRegistrationUris();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.measurement.SourceRegistrationRequest> CREATOR;
+  }
+
+  public static final class SourceRegistrationRequest.Builder {
+    ctor public SourceRegistrationRequest.Builder(@NonNull java.util.List<android.net.Uri>);
+    method @NonNull public android.adservices.measurement.SourceRegistrationRequest build();
+    method @NonNull public android.adservices.measurement.SourceRegistrationRequest.Builder setInputEvent(@Nullable android.view.InputEvent);
+  }
+
+  public final class WebSourceParams implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.net.Uri getRegistrationUri();
+    method public boolean isDebugKeyAllowed();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.measurement.WebSourceParams> CREATOR;
+  }
+
+  public static final class WebSourceParams.Builder {
+    ctor public WebSourceParams.Builder(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebSourceParams build();
+    method @NonNull public android.adservices.measurement.WebSourceParams.Builder setDebugKeyAllowed(boolean);
+  }
+
+  public final class WebSourceRegistrationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.net.Uri getAppDestination();
+    method @Nullable public android.view.InputEvent getInputEvent();
+    method @NonNull public java.util.List<android.adservices.measurement.WebSourceParams> getSourceParams();
+    method @NonNull public android.net.Uri getTopOriginUri();
+    method @Nullable public android.net.Uri getVerifiedDestination();
+    method @Nullable public android.net.Uri getWebDestination();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.measurement.WebSourceRegistrationRequest> CREATOR;
+  }
+
+  public static final class WebSourceRegistrationRequest.Builder {
+    ctor public WebSourceRegistrationRequest.Builder(@NonNull java.util.List<android.adservices.measurement.WebSourceParams>, @NonNull android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebSourceRegistrationRequest build();
+    method @NonNull public android.adservices.measurement.WebSourceRegistrationRequest.Builder setAppDestination(@Nullable android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebSourceRegistrationRequest.Builder setInputEvent(@Nullable android.view.InputEvent);
+    method @NonNull public android.adservices.measurement.WebSourceRegistrationRequest.Builder setVerifiedDestination(@Nullable android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebSourceRegistrationRequest.Builder setWebDestination(@Nullable android.net.Uri);
+  }
+
+  public final class WebTriggerParams implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.net.Uri getRegistrationUri();
+    method public boolean isDebugKeyAllowed();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.measurement.WebTriggerParams> CREATOR;
+  }
+
+  public static final class WebTriggerParams.Builder {
+    ctor public WebTriggerParams.Builder(@NonNull android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebTriggerParams build();
+    method @NonNull public android.adservices.measurement.WebTriggerParams.Builder setDebugKeyAllowed(boolean);
+  }
+
+  public final class WebTriggerRegistrationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.net.Uri getDestination();
+    method @NonNull public java.util.List<android.adservices.measurement.WebTriggerParams> getTriggerParams();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.adservices.measurement.WebTriggerRegistrationRequest> CREATOR;
+  }
+
+  public static final class WebTriggerRegistrationRequest.Builder {
+    ctor public WebTriggerRegistrationRequest.Builder(@NonNull java.util.List<android.adservices.measurement.WebTriggerParams>, @NonNull android.net.Uri);
+    method @NonNull public android.adservices.measurement.WebTriggerRegistrationRequest build();
+  }
+
+}
+
+package android.adservices.topics {
+
+  public final class EncryptedTopic {
+    ctor public EncryptedTopic(@NonNull byte[], @NonNull String, @NonNull byte[]);
+    method @NonNull public byte[] getEncapsulatedKey();
+    method @NonNull public byte[] getEncryptedTopic();
+    method @NonNull public String getKeyIdentifier();
+  }
+
+  public final class GetTopicsRequest {
+    method @NonNull public String getAdsSdkName();
+    method public boolean shouldRecordObservation();
+  }
+
+  public static final class GetTopicsRequest.Builder {
+    ctor public GetTopicsRequest.Builder();
+    method @NonNull public android.adservices.topics.GetTopicsRequest build();
+    method @NonNull public android.adservices.topics.GetTopicsRequest.Builder setAdsSdkName(@NonNull String);
+    method @NonNull public android.adservices.topics.GetTopicsRequest.Builder setShouldRecordObservation(boolean);
+  }
+
+  public final class GetTopicsResponse {
+    method @NonNull public java.util.List<android.adservices.topics.EncryptedTopic> getEncryptedTopics();
+    method @NonNull public java.util.List<android.adservices.topics.Topic> getTopics();
+  }
+
+  public static final class GetTopicsResponse.Builder {
+    ctor @Deprecated public GetTopicsResponse.Builder(@NonNull java.util.List<android.adservices.topics.Topic>);
+    ctor public GetTopicsResponse.Builder(@NonNull java.util.List<android.adservices.topics.Topic>, @NonNull java.util.List<android.adservices.topics.EncryptedTopic>);
+    method @NonNull public android.adservices.topics.GetTopicsResponse build();
+  }
+
+  public final class Topic {
+    ctor public Topic(long, long, int);
+    method public long getModelVersion();
+    method public long getTaxonomyVersion();
+    method public int getTopicId();
+  }
+
+  public final class TopicsManager {
+    method @NonNull public static android.adservices.topics.TopicsManager get(@NonNull android.content.Context);
+    method @NonNull @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_TOPICS) public void getTopics(@NonNull android.adservices.topics.GetTopicsRequest, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.adservices.topics.GetTopicsResponse,java.lang.Exception>);
+  }
+
+}
+

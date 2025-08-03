@@ -1,0 +1,44 @@
+{
+ "array_types" : [],
+ "builtin_types" : [],
+ "elf_functions" :
+ [
+  {
+   "name" : "audio_route_apply_and_update_path"
+  },
+  {
+   "name" : "audio_route_apply_path"
+  },
+  {
+   "name" : "audio_route_force_reset_and_update_path"
+  },
+  {
+   "name" : "audio_route_free"
+  },
+  {
+   "name" : "audio_route_init"
+  },
+  {
+   "name" : "audio_route_reset"
+  },
+  {
+   "name" : "audio_route_reset_and_update_path"
+  },
+  {
+   "name" : "audio_route_reset_path"
+  },
+  {
+   "name" : "audio_route_update_mixer"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" : [],
+ "function_types" : [],
+ "functions" : [],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" : [],
+ "qualified_types" : [],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

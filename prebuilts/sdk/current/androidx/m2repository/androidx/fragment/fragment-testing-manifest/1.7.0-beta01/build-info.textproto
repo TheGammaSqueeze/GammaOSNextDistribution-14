@@ -1,0 +1,46 @@
+version: "1.7.0-beta01"
+dependency_list {
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment-ktx"
+    version: "1.7.0-beta01"
+    is_tip_of_tree: true
+  }
+}
+release_checklist {
+}
+build_id: "androidx.fragment"
+group_id: "androidx.fragment"
+artifact_id: "fragment-testing-manifest"
+path: "/fragment/fragment-testing-manifest"
+sha: "2b2e31535335d12b762d56d14e252c05c6b542e6"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-fragment-11497185.zip"
+project_zip_path: "per-project-zips/androidx.fragment-fragment-testing-manifest-all-11497185-1.7.0-beta01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment"
+    version: "1.7.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment-compose"
+    version: "1.7.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment-ktx"
+    version: "1.7.0-beta01"
+    is_tip_of_tree: true
+  }
+  dependency {
+    group_id: "androidx.fragment"
+    artifact_id: "fragment-testing"
+    version: "1.7.0-beta01"
+    is_tip_of_tree: true
+  }
+}

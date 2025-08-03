@@ -1,0 +1,212 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline_go"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.conscrypt-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//external/conscrypt:__subpackages__"],
+    apex_available: ["com.android.conscrypt"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    contents: ["conscrypt"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    api: {
+        stub_libs: ["conscrypt.module.public.api"],
+    },
+    core_platform_api: {
+        stub_libs: ["conscrypt.module.platform.api"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_import {
+    name: "conscrypt",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//device:__subpackages__",
+        "//external/conscrypt:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.conscrypt",
+        "test_com.android.conscrypt",
+    ],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    jars: ["java_boot_libs/snapshot/jars/are/invalid/conscrypt.jar"],
+    min_sdk_version: "29",
+    permitted_packages: [
+        "android.net.ssl",
+        "com.android.org.conscrypt",
+    ],
+}
+
+java_sdk_library_import {
+    name: "conscrypt.module.public.api",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//external/conscrypt",
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//libcore",
+        "//packages/modules/IPsec",
+        "//packages/modules/common/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt.srcjar"],
+        current_api: "sdk_library/public/conscrypt.txt",
+        removed_api: "sdk_library/public/conscrypt-removed.txt",
+        annotations: "sdk_library/public/conscrypt_annotations.zip",
+        sdk_version: "none",
+    },
+    system: {
+        jars: ["sdk_library/system/conscrypt-stubs.jar"],
+        stub_srcs: ["sdk_library/system/conscrypt.srcjar"],
+        current_api: "sdk_library/system/conscrypt.txt",
+        removed_api: "sdk_library/system/conscrypt-removed.txt",
+        annotations: "sdk_library/system/conscrypt_annotations.zip",
+        sdk_version: "none",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/conscrypt-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/conscrypt.srcjar"],
+        current_api: "sdk_library/module-lib/conscrypt.txt",
+        removed_api: "sdk_library/module-lib/conscrypt-removed.txt",
+        annotations: "sdk_library/module-lib/conscrypt_annotations.zip",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "conscrypt.module.platform.api",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//external/conscrypt",
+        "//external/wycheproof",
+        "//libcore/mmodules/core_platform_api",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt-coreplatform-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt-coreplatform.srcjar"],
+        current_api: "sdk_library/public/conscrypt-coreplatform.txt",
+        removed_api: "sdk_library/public/conscrypt-coreplatform-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+java_sdk_library_import {
+    name: "conscrypt.module.intra.core.api",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: [
+        "//external/conscrypt",
+        "//external/okhttp",
+        "//libcore:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/conscrypt.module.intra.core.api-stubs.jar"],
+        stub_srcs: ["sdk_library/public/conscrypt.module.intra.core.api.srcjar"],
+        current_api: "sdk_library/public/conscrypt.module.intra.core.api.txt",
+        removed_api: "sdk_library/public/conscrypt.module.intra.core.api-removed.txt",
+        sdk_version: "none",
+    },
+}
+
+license {
+    name: "conscrypt-module-sdk_external_conscrypt_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/external/conscrypt/LICENSE",
+        "licenses/external/conscrypt/NOTICE",
+        "licenses/external/conscrypt/licenses/LICENSE.harmony.txt",
+        "licenses/external/conscrypt/licenses/LICENSE.netty.txt",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "libconscrypt_jni",
+    // Do not prefer prebuilt if the Soong config variable "module_build_from_source" in namespace "ANDROID" is true.
+    use_source_config_var: {
+        config_namespace: "ANDROID",
+        var_name: "module_build_from_source",
+    },
+    visibility: ["//external/conscrypt:__subpackages__"],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["conscrypt-module-sdk_external_conscrypt_license"],
+    stl: "c++_static",
+    compile_multilib: "both",
+    shared_libs: ["liblog"],
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libconscrypt_jni.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libconscrypt_jni.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libconscrypt_jni.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libconscrypt_jni.so"],
+        },
+    },
+}

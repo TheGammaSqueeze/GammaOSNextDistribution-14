@@ -1,0 +1,109 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "statsd-module-sdk_com.android.os.statsd-bootclasspath-fragment@1",
+    sdk_member_name: "com.android.os.statsd-bootclasspath-fragment",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.os.statsd"],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0@1"],
+    contents: ["statsd-module-sdk_framework-statsd@1"],
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "statsd-module-sdk_framework-statsd@1",
+    sdk_member_name: "framework-statsd",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0@1"],
+    shared_library: false,
+    public: {
+        jars: ["sdk_library/public/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-statsd.srcjar"],
+        current_api: "sdk_library/public/framework-statsd.txt",
+        removed_api: "sdk_library/public/framework-statsd-removed.txt",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-statsd.srcjar"],
+        current_api: "sdk_library/system/framework-statsd.txt",
+        removed_api: "sdk_library/system/framework-statsd-removed.txt",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-statsd-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-statsd.srcjar"],
+        current_api: "sdk_library/module-lib/framework-statsd.txt",
+        removed_api: "sdk_library/module-lib/framework-statsd-removed.txt",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "statsd-module-sdk_Android-Apache-2.0@1",
+    sdk_member_name: "Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+cc_prebuilt_library_shared {
+    name: "statsd-module-sdk_libstatssocket@1",
+    sdk_member_name: "libstatssocket",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.bluetooth.updatable",
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    licenses: ["statsd-module-sdk_Android-Apache-2.0@1"],
+    installable: false,
+    stl: "libc++_static",
+    compile_multilib: "both",
+    export_include_dirs: ["include/packages/modules/StatsD/lib/libstatssocket/include"],
+    stubs: {
+        versions: [
+            "30",
+            "current",
+        ],
+    },
+    arch: {
+        arm64: {
+            srcs: ["arm64/lib/libstatssocket.so"],
+        },
+        x86_64: {
+            srcs: ["x86_64/lib/libstatssocket.so"],
+        },
+        arm: {
+            srcs: ["arm/lib/libstatssocket.so"],
+        },
+        x86: {
+            srcs: ["x86/lib/libstatssocket.so"],
+        },
+    },
+}
+
+sdk_snapshot {
+    name: "statsd-module-sdk@1",
+    visibility: ["//visibility:public"],
+    bootclasspath_fragments: ["statsd-module-sdk_com.android.os.statsd-bootclasspath-fragment@1"],
+    java_sdk_libs: ["statsd-module-sdk_framework-statsd@1"],
+    native_shared_libs: ["statsd-module-sdk_libstatssocket@1"],
+}

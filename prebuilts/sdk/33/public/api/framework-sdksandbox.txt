@@ -1,0 +1,11 @@
+// Signature format: 2.0
+package android.app.sdksandbox {
+
+  public final class SdkSandboxManager {
+    method public static int getSdkSandboxState();
+    field public static final int SDK_SANDBOX_STATE_DISABLED = 0; // 0x0
+    field public static final int SDK_SANDBOX_STATE_ENABLED_PROCESS_ISOLATION = 2; // 0x2
+  }
+
+}
+

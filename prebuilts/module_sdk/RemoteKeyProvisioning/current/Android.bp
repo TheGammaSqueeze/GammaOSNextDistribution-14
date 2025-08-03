@@ -1,0 +1,67 @@
+// This is auto-generated. DO NOT EDIT.
+
+// blueprint rules added by vendor/google/build/mainline_modules_sdks.py
+// to support coexistence.
+blueprint_package_includes {
+    match_all: ["com.android.mainline"]
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library_import {
+    name: "service-rkp",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "rkpd_module" is true.
+    use_source_config_var: {
+        config_namespace: "rkpd_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.rkpd"],
+    licenses: ["rkpd-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.security.rkp",
+        "android.security.rkp.service",
+        "com.android.rkpdapp",
+    ],
+    public: {
+        jars: ["sdk_library/public/service-rkp-stubs.jar"],
+        stub_srcs: ["sdk_library/public/service-rkp.srcjar"],
+        current_api: "sdk_library/public/service-rkp.txt",
+        removed_api: "sdk_library/public/service-rkp-removed.txt",
+        annotations: "sdk_library/public/service-rkp_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system_server: {
+        jars: ["sdk_library/system-server/service-rkp-stubs.jar"],
+        stub_srcs: ["sdk_library/system-server/service-rkp.srcjar"],
+        current_api: "sdk_library/system-server/service-rkp.txt",
+        removed_api: "sdk_library/system-server/service-rkp-removed.txt",
+        annotations: "sdk_library/system-server/service-rkp_annotations.zip",
+        sdk_version: "system_server_current",
+    },
+}
+
+license {
+    name: "rkpd-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.rkpd-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "rkpd_module" is true.
+    use_source_config_var: {
+        config_namespace: "rkpd_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.rkpd"],
+    licenses: ["rkpd-sdk_Android-Apache-2.0"],
+    contents: ["service-rkp"],
+}

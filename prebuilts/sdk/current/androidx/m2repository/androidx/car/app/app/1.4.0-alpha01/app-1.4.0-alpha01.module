@@ -1,0 +1,235 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.car.app",
+    "module": "app",
+    "version": "1.4.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.activity",
+          "module": "activity",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-common-java8",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.21"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-testing",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-1.4.0-alpha01.aar",
+          "url": "app-1.4.0-alpha01.aar",
+          "size": 529307,
+          "sha512": "21df1b1b6cbd0559d328adba23cc3ddec9ae397535f5185aab14dcca415913a363bcfe2743ff4ccc2c286707305c82eb2041bebdc9050981b24d1aa0066b24b8",
+          "sha256": "5140f9736dd82e104dfa2d2e7de711554aa04222c5bb2801247d8bc51bb043b6",
+          "sha1": "c6a841056864ee0d3aa43ee5d234febb08bd62f3",
+          "md5": "4d3ced3d3cbffdb5c3294df04272e8f1"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.activity",
+          "module": "activity",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation-experimental",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.7.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-common-java8",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-viewmodel",
+          "version": {
+            "requires": "2.2.0"
+          }
+        },
+        {
+          "group": "com.google.guava",
+          "module": "guava",
+          "version": {
+            "requires": "31.1-android"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "1.8.21"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-testing",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-1.4.0-alpha01.aar",
+          "url": "app-1.4.0-alpha01.aar",
+          "size": 529307,
+          "sha512": "21df1b1b6cbd0559d328adba23cc3ddec9ae397535f5185aab14dcca415913a363bcfe2743ff4ccc2c286707305c82eb2041bebdc9050981b24d1aa0066b24b8",
+          "sha256": "5140f9736dd82e104dfa2d2e7de711554aa04222c5bb2801247d8bc51bb043b6",
+          "sha1": "c6a841056864ee0d3aa43ee5d234febb08bd62f3",
+          "md5": "4d3ced3d3cbffdb5c3294df04272e8f1"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.car.app",
+          "module": "app-automotive",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-projected",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        },
+        {
+          "group": "androidx.car.app",
+          "module": "app-testing",
+          "version": {
+            "requires": "1.4.0-alpha01"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "app-1.4.0-alpha01-sources.jar",
+          "url": "app-1.4.0-alpha01-sources.jar",
+          "size": 414579,
+          "sha512": "a0e09142ab30fe7dc4f18705e2d0db4435f2d8dbc2f420da9dbb612167ed16c0fc234295d54a2543cbab7e5d0fb6a4489fb8cd8ae9c353e416ac6903458e2b87",
+          "sha256": "a2bc71a8ab777077f6ca6115e5ca1e109f79bb3561da5fadf0de893cb436f103",
+          "sha1": "3d33b72e8825905479ff645aa95da04c3c7cdfa4",
+          "md5": "286c9bc889f63c7e65573906319167cb"
+        }
+      ]
+    }
+  ]
+}

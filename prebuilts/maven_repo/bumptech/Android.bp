@@ -1,0 +1,157 @@
+package {
+    default_applicable_licenses: ["prebuilts_maven_repo_bumptech_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_maven_repo_bumptech_license",
+    package_name: "glide",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+android_library_import {
+    name: "glide-prebuilt",
+    aars: [
+        "com/github/bumptech/glide/glide/4.16.0/glide-4.16.0.aar",
+    ],
+    jetifier: true,
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "14",
+}
+
+android_library_import {
+    name: "glide-compose-prebuilt",
+    aars: [
+        "com/github/bumptech/glide/compose/1.0.0-beta-01/compose-1.0.0-beta01.aar",
+    ],
+    jetifier: true,
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "14",
+}
+
+android_library_import {
+    name: "glide-disklrucache-prebuilt",
+    aars: [
+        "com/github/bumptech/glide/disklrucache/4.16.0/disklrucache-4.16.0.aar",
+    ],
+    jetifier: true,
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "14",
+}
+
+android_library_import {
+    name: "glide-gifdecoder-prebuilt",
+    aars: [
+        "com/github/bumptech/glide/gifdecoder/4.16.0/gifdecoder-4.16.0.aar",
+    ],
+    jetifier: true,
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "14",
+}
+
+java_import {
+  name: "glide-integration-recyclerview-prebuilt",
+  jars: [
+    "com/github/bumptech/glide/integration/recyclerview/SNAPSHOT/recyclerview-SNAPSHOT.jar",
+  ],
+  jetifier: true,
+  apex_available: [
+      "com.android.mediaprovider",
+      "//apex_available:platform",
+  ],
+  sdk_version: "current",
+  min_sdk_version: "14",
+}
+
+java_import {
+  name: "glide-integration-webpdecoder-prebuilt",
+  jars: [
+    "com/github/bumptech/glide/integration/webpdecoder/webpdecoder-2.6.4.16.0-sources.jar",
+  ],
+  jetifier: true,
+  apex_available: [
+      "com.android.mediaprovider",
+      "//apex_available:platform",
+  ],
+  sdk_version: "current",
+  min_sdk_version: "14",
+}
+
+java_import {
+    name: "glide-annotation-and-compiler-prebuilt",
+    jars: [
+        "com/github/bumptech/glide/compiler/4.16.0/compiler-4.16.0.jar",
+        "com/github/bumptech/glide/annotation/4.16.0/annotations-4.16.0.jar",
+    ],
+    jetifier: true,
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "14",
+}
+
+java_import_host {
+    name: "glide-annotation-and-compiler-prebuilt-host",
+    jars: [
+        "com/github/bumptech/glide/compiler/4.16.0/compiler-4.16.0.jar",
+        "com/github/bumptech/glide/annotation/4.16.0/annotations-4.16.0.jar",
+    ],
+}
+
+java_plugin {
+    name: "glide-annotation-processor",
+    static_libs: ["glide-annotation-and-compiler-prebuilt-host"],
+    processor_class: "com.bumptech.glide.annotation.compiler.GlideAnnotationProcessor",
+    use_tools_jar: true,
+}
+
+// Pin Glide version for //packages/apps/Dialer as it still relies on android.support
+// rather than androidx versions. (Rather than preventing upgrades to all of prebuilt.)
+java_import {
+    name: "dialer-glide-target-deps",
+    visibility: ["//packages/apps/Dialer"],
+    jars: [
+        "com/github/bumptech/glide/disklrucache/4.5.0/disklrucache-4.5.0.jar",
+        "com/github/bumptech/glide/gifdecoder/4.5.0/gifdecoder-4.5.0.jar",
+        "com/github/bumptech/glide/glide/4.5.0/glide-4.5.0.jar",
+        "com/github/bumptech/glide/annotation/4.5.0/annotation-4.5.0.jar",
+    ],
+    sdk_version: "current",
+}
+
+// Pin Glide version for //packages/apps/Dialer as it still relies on android.support
+// rather than androidx versions. (Rather than preventing upgrades to all of prebuilt.)
+java_import_host {
+    name: "dialer-glide-host-deps",
+    visibility: ["//packages/apps/Dialer"],
+    jars: [
+        "com/github/bumptech/glide/annotation/4.5.0/annotation-4.5.0.jar",
+        "com/github/bumptech/glide/compiler/4.5.0/compiler-4.5.0.jar",
+    ],
+}

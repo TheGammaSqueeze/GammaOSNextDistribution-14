@@ -1,0 +1,32 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+java_import_host {
+    name: "androidx.privacysandbox.tools_tools-nodeps",
+    jars: ["tools-1.0.0-alpha07.jar"],
+    sdk_version: "31",
+}
+
+java_library_host {
+    name: "androidx.privacysandbox.tools_tools",
+    static_libs: [
+        "androidx.privacysandbox.tools_tools-nodeps",
+        "androidx.annotation_annotation",
+        "kotlin-stdlib",
+    ],
+    java_version: "1.7",
+}
+

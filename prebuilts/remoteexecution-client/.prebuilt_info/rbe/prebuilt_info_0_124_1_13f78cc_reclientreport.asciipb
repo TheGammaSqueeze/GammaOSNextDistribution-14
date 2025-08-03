@@ -1,0 +1,11 @@
+drops {
+  dest_file: "0.124.1.13f78cc/reclientreport"
+  version: "0.124.1.13f78cc"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "reclientreport"
+  }
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+}

@@ -1,0 +1,26 @@
+// Signature format: 2.0
+package android.scheduling {
+
+  public final class RebootReadinessManager {
+    method @RequiresPermission(android.Manifest.permission.SIGNAL_REBOOT_READINESS) public void addRequestRebootReadinessStatusListener(@NonNull java.util.concurrent.Executor, @NonNull android.scheduling.RebootReadinessManager.RequestRebootReadinessStatusListener);
+    method @RequiresPermission(android.Manifest.permission.REBOOT) public void cancelPendingReboot();
+    method @RequiresPermission(android.Manifest.permission.REBOOT) public boolean isReadyToReboot();
+    method @RequiresPermission(android.Manifest.permission.REBOOT) public void markRebootPending();
+    method @RequiresPermission(android.Manifest.permission.SIGNAL_REBOOT_READINESS) public void removeRequestRebootReadinessStatusListener(@NonNull android.scheduling.RebootReadinessManager.RequestRebootReadinessStatusListener);
+    field public static final String ACTION_REBOOT_READY = "android.scheduling.action.REBOOT_READY";
+    field public static final String EXTRA_IS_READY_TO_REBOOT = "android.scheduling.extra.IS_READY_TO_REBOOT";
+  }
+
+  public static final class RebootReadinessManager.RebootReadinessStatus {
+    ctor public RebootReadinessManager.RebootReadinessStatus(boolean, long, @NonNull String);
+    method public long getEstimatedFinishTime();
+    method @NonNull public String getLogSubsystemName();
+    method public boolean isReadyToReboot();
+  }
+
+  public static interface RebootReadinessManager.RequestRebootReadinessStatusListener {
+    method @NonNull public android.scheduling.RebootReadinessManager.RebootReadinessStatus onRequestRebootReadinessStatus();
+  }
+
+}
+

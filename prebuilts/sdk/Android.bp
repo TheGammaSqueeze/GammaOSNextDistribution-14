@@ -1,0 +1,158 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "prebuilts_sdk_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC0-1.0",
+        "SPDX-license-identifier-CPL-1.0",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+        "SPDX-license-identifier-OFL", // by exception only
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+subdirs = ["tools"]
+
+filegroup {
+    name: "current-support-api",
+    srcs: [
+        "current/support-api.txt",
+    ],
+}
+
+genrule {
+    name: "current-androidx-api",
+    srcs: ["current/androidx-api.txt"],
+    out: ["androidx-api.xml"],
+    tools: ["metalava"],
+    cmd: "$(location metalava) signature-to-jdiff $(in) $(out)"
+}
+
+filegroup {
+    name: "metalava-sdk-android-jars",
+    srcs: [
+        "**/android.jar",
+    ],
+}
+
+droiddoc_exported_dir {
+    name: "sdk-dir",
+    path: ".",
+}
+
+genrule {
+    name: "last-released-public-api-for-metalava-annotations",
+    srcs: [
+        "*/public/api/android.txt",
+    ],
+    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -t/ -k3 -n | tail -2 | head -1) $(genDir)/last-released-api-for-metalava-annotations.txt",
+    out: [
+        "last-released-api-for-metalava-annotations.txt",
+    ],
+}
+
+// This filegroup is to package android.jar into CtsUsesNativeLibraryTestCase
+filegroup {
+    name: "sdk_public_30_android",
+    srcs: [
+        "30/public/android.jar",
+    ],
+    visibility: [
+        "//cts/hostsidetests/library",
+    ],
+}
+
+prebuilt_apis {
+    name: "sdk",
+    api_dirs: [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "current",
+    ],
+    extensions_dir: "extensions",
+    next_api_dir: "35",
+    imports_sdk_version: "none",
+    imports_compile_dex: true,
+}
+
+filegroup {
+    name: "prebuilt_sdk_system_public_api_txt",
+    srcs: [
+        "*/system/api/*.txt",
+        "*/public/api/*.txt",
+    ],
+}
+
+filegroup {
+    name: "prebuilt_sdk_system_api_android_txt",
+    srcs: [
+        "*/system/api/android.txt",
+    ],
+}
+
+filegroup {
+    name: "android27.txt",
+    srcs: [
+        "27/public/api/android.txt",
+    ],
+}

@@ -1,0 +1,277 @@
+ ******************************************************************************
+Copyright (C) 2003, International Business Machines Corporation and   *
+others. All Rights Reserved.                                               *
+ ******************************************************************************
+
+Created on May 2, 2003
+
+To change the template for this generated file go to
+Window>Preferences>Java>Code Generation>Code and Comments
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+(C) Copyright IBM Corp. 1996-2005 - All Rights Reserved                     *
+                                                                            *
+The original version of this source code and documentation is copyrighted   *
+and owned by IBM, These materials are provided under terms of a License     *
+Agreement between IBM and Sun. This technology is protected by multiple     *
+US and International patents. This notice and attribution to IBM may not    *
+to removed.                                                                 *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+(C) Copyright IBM Corp. and others, 1996-2009 - All Rights Reserved         *
+                                                                            *
+The original version of this source code and documentation is copyrighted   *
+and owned by IBM, These materials are provided under terms of a License     *
+Agreement between IBM and Sun. This technology is protected by multiple     *
+US and International patents. This notice and attribution to IBM may not    *
+to removed.                                                                 *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+(C) Copyright IBM Corp. and others, 1996-2009 - All Rights Reserved         *
+                                                                            *
+The original version of this source code and documentation is copyrighted   *
+and owned by IBM, These materials are provided under terms of a License     *
+Agreement between IBM and Sun. This technology is protected by multiple     *
+US and International patents. This notice and attribution to IBM may not    *
+to removed.                                                                 *
+ *******************************************************************************
+*   file name:  UBiDiProps.java
+*   encoding:   US-ASCII
+*   tab size:   8 (not used)
+*   indentation:4
+*
+*   created on: 2005jan16
+*   created by: Markus W. Scherer
+*
+*   Low-level Unicode bidi/shaping properties access.
+*   Java port of ubidi_props.h/.c.
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2003-2004, International Business Machines Corporation and         *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2003-2004, International Business Machines Corporation and    *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2004, International Business Machines Corporation and         *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2009, International Business Machines Corporation and         *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2009-2010, International Business Machines Corporation and    *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+ *******************************************************************************
+Copyright (C) 2010, International Business Machines Corporation and         *
+others. All Rights Reserved.                                                *
+ *******************************************************************************
+
+-------------------------------------------------------------------
+
+(C) Copyright IBM Corp. 1996-2003 - All Rights Reserved                     *
+                                                                            *
+The original version of this source code and documentation is copyrighted   *
+and owned by IBM, These materials are provided under terms of a License     *
+Agreement between IBM and Sun. This technology is protected by multiple     *
+US and International patents. This notice and attribution to IBM may not    *
+to removed.                                                                 *
+#******************************************************************************
+
+This locale data is based on the ICU's Vietnamese locale data (rev. 1.38)
+found at:
+
+http://oss.software.ibm.com/cvs/icu/icu/source/data/locales/vi.txt?rev=1.38
+
+-------------------------------------------------------------------
+
+(C) Copyright IBM Corp. 1999-2003 - All Rights Reserved
+
+The original version of this source code and documentation is
+copyrighted and owned by IBM. These materials are provided
+under terms of a License Agreement between IBM and Sun.
+This technology is protected by multiple US and International
+patents. This notice and attribution to IBM may not be removed.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996 - 1997, All Rights Reserved
+(C) Copyright IBM Corp. 1996 - 1998, All Rights Reserved
+
+The original version of this source code and documentation is
+copyrighted and owned by Taligent, Inc., a wholly-owned subsidiary
+of IBM. These materials are provided under terms of a License
+Agreement between Taligent and Sun. This technology is protected
+by multiple US and International patents.
+
+This notice and attribution to Taligent may not be removed.
+Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996 - All Rights Reserved
+(C) Copyright IBM Corp. 1996 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996 - All Rights Reserved
+(C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996 - 1998 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996 - 1998 - All Rights Reserved
+
+The original version of this source code and documentation
+is copyrighted and owned by Taligent, Inc., a wholly-owned
+subsidiary of IBM. These materials are provided under terms
+of a License Agreement between Taligent and Sun. This technology
+is protected by multiple US and International patents.
+
+This notice and attribution to Taligent may not be removed.
+Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996 - 1999 - All Rights Reserved
+
+The original version of this source code and documentation
+is copyrighted and owned by Taligent, Inc., a wholly-owned
+subsidiary of IBM. These materials are provided under terms
+of a License Agreement between Taligent and Sun. This technology
+is protected by multiple US and International patents.
+
+This notice and attribution to Taligent may not be removed.
+Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996 - 2002 - All Rights Reserved
+
+The original version of this source code and documentation
+is copyrighted and owned by Taligent, Inc., a wholly-owned
+subsidiary of IBM. These materials are provided under terms
+of a License Agreement between Taligent and Sun. This technology
+is protected by multiple US and International patents.
+
+This notice and attribution to Taligent may not be removed.
+Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996, 1997 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996,1997 - All Rights Reserved
+(C) Copyright IBM Corp. 1996, 1997 - All Rights Reserved
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996-1998 -  All Rights Reserved
+(C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+(C) Copyright Taligent, Inc. 1996-1998 - All Rights Reserved
+(C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
+
+  The original version of this source code and documentation is copyrighted
+and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
+materials are provided under terms of a License Agreement between Taligent
+and Sun. This technology is protected by multiple US and International
+patents. This notice and attribution to Taligent may not be removed.
+  Taligent is a registered trademark of Taligent, Inc.
+
+-------------------------------------------------------------------
+
+*******************************************************************************
+* Copyright (C) 1996-2004, International Business Machines Corporation and    *
+* others. All Rights Reserved.                                                *
+*******************************************************************************
+
+-------------------------------------------------------------------

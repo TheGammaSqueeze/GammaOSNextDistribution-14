@@ -1,0 +1,80 @@
+// This is a generated file. Do not modify directly.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "prebuilts_sdk_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-OFL (by exception only)
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["prebuilts_sdk_license"],
+}
+
+android_library_import {
+    name: "androidx.compose.material3_material3-nodeps",
+    aars: ["material3-android-1.3.0-alpha01.aar"],
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "21",
+    static_libs: [
+        "androidx.activity_activity-compose",
+        "androidx.annotation_annotation",
+        "androidx.annotation_annotation-experimental",
+        "androidx.collection_collection",
+        "androidx.compose.animation_animation-core",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.foundation_foundation-layout",
+        "androidx.compose.material_material-icons-core",
+        "androidx.compose.material_material-ripple",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.compose.ui_ui-text",
+        "androidx.compose.ui_ui-util",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-runtime",
+        "androidx.lifecycle_lifecycle-viewmodel",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+    ],
+}
+
+android_library {
+    name: "androidx.compose.material3_material3",
+    sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "21",
+    manifest: "manifest/AndroidManifest.xml",
+    static_libs: [
+        "androidx.compose.material3_material3-nodeps",
+        "androidx.activity_activity-compose",
+        "androidx.annotation_annotation",
+        "androidx.annotation_annotation-experimental",
+        "androidx.collection_collection",
+        "androidx.compose.animation_animation-core",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.foundation_foundation-layout",
+        "androidx.compose.material_material-icons-core",
+        "androidx.compose.material_material-ripple",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.compose.ui_ui-text",
+        "androidx.compose.ui_ui-util",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-runtime",
+        "androidx.lifecycle_lifecycle-viewmodel",
+        "androidx.savedstate_savedstate-ktx",
+        "kotlin-stdlib",
+    ],
+    java_version: "1.7",
+}
+

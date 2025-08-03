@@ -1,0 +1,11 @@
+drops {
+  dest_file: "0.125.0.f3883c2/scandeps_server"
+  version: "0.125.0.f3883c2"
+  version_group: "rbe"
+  git_project: "platform/prebuilts/remoteexecution-client"
+  local_drop {
+    source_file: "scandeps_server"
+  }
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+}

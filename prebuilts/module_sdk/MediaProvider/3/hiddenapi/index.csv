@@ -1,0 +1,6 @@
+signature,file,startline,startcol,endline,endcol,properties
+Landroid/provider/MediaStore$Files$FileColumns;->STORAGE_ID:Ljava/lang/String;,packages/providers/MediaProvider/apex/framework/java/android/provider/MediaStore.java,1953,13,1953,96,maxTargetSdk=30&trackingBug=170729553L
+Landroid/provider/MediaStore$Files$FileColumns;->FORMAT:Ljava/lang/String;,packages/providers/MediaProvider/apex/framework/java/android/provider/MediaStore.java,1962,13,1962,33,
+Landroid/provider/MediaStore$Files;->getMtpObjectsUri(Ljava/lang/String;)Landroid/net/Uri;,packages/providers/MediaProvider/apex/framework/java/android/provider/MediaStore.java,1915,9,1915,29,
+Landroid/provider/MediaStore$Files;->getMtpObjectsUri(Ljava/lang/String;J)Landroid/net/Uri;,packages/providers/MediaProvider/apex/framework/java/android/provider/MediaStore.java,1921,9,1921,29,
+Landroid/provider/MediaStore$Files;->getMtpReferencesUri(Ljava/lang/String;J)Landroid/net/Uri;,packages/providers/MediaProvider/apex/framework/java/android/provider/MediaStore.java,1927,9,1927,29,

@@ -1,0 +1,40 @@
+version: "1.0.0-beta01"
+dependency_list {
+  dependency {
+    group_id: "androidx.annotation"
+    artifact_id: "annotation"
+    version: "1.3.0"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.compose.runtime"
+    artifact_id: "runtime"
+    version: "1.3.3"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.startup"
+    artifact_id: "startup-runtime"
+    version: "1.1.1"
+    is_tip_of_tree: false
+  }
+  dependency {
+    group_id: "androidx.tracing"
+    artifact_id: "tracing-perfetto"
+    version: "1.0.0"
+    is_tip_of_tree: false
+  }
+}
+release_checklist {
+}
+build_id: "androidx.compose.runtime"
+group_id: "androidx.compose.runtime"
+artifact_id: "runtime-tracing"
+path: "/compose/runtime/runtime-tracing"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-compose-runtime-11436812.zip"
+project_zip_path: "per-project-zips/androidx.compose.runtime-runtime-tracing-all-11436812-1.0.0-beta01.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+}

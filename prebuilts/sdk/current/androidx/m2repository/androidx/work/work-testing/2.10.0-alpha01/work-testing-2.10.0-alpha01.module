@@ -1,0 +1,329 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.work",
+    "module": "work-testing",
+    "version": "2.10.0-alpha01",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.work",
+          "module": "work-gcm",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-multiprocess",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime-ktx",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava2",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava3",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        }
+      ],
+      "files": [
+        {
+          "name": "work-testing-2.10.0-alpha01.aar",
+          "url": "work-testing-2.10.0-alpha01.aar",
+          "size": 34652,
+          "sha512": "c085533cd429c8dbffd415b7c07e7782634e7aa1d157764520f0f59d94fb1e0f1038d6d165cbfecbea6c925d5cc236b4b38a9f9f1d4e56c8b13009af4b7eb5fb",
+          "sha256": "45275527504831c9cf8a37c0b8da396cb873948ac516420de3d004515ab2347a",
+          "sha1": "f8a6b77e675823856d1b82a892644301e5370fd8",
+          "md5": "62e2f11eedd06497af193e5da955d324"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.lifecycle",
+          "module": "lifecycle-livedata-core",
+          "version": {
+            "requires": "2.6.2"
+          }
+        },
+        {
+          "group": "androidx.room",
+          "module": "room-runtime",
+          "version": {
+            "requires": "2.6.1"
+          }
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.work",
+          "module": "work-gcm",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-multiprocess",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime-ktx",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava2",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava3",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        }
+      ],
+      "files": [
+        {
+          "name": "work-testing-2.10.0-alpha01.aar",
+          "url": "work-testing-2.10.0-alpha01.aar",
+          "size": 34652,
+          "sha512": "c085533cd429c8dbffd415b7c07e7782634e7aa1d157764520f0f59d94fb1e0f1038d6d165cbfecbea6c925d5cc236b4b38a9f9f1d4e56c8b13009af4b7eb5fb",
+          "sha256": "45275527504831c9cf8a37c0b8da396cb873948ac516420de3d004515ab2347a",
+          "sha1": "f8a6b77e675823856d1b82a892644301e5370fd8",
+          "md5": "62e2f11eedd06497af193e5da955d324"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.work",
+          "module": "work-gcm",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-multiprocess",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime-ktx",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava2",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava3",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        }
+      ],
+      "files": [
+        {
+          "name": "work-testing-2.10.0-alpha01-sources.jar",
+          "url": "work-testing-2.10.0-alpha01-sources.jar",
+          "size": 20771,
+          "sha512": "98753034f0164eb83ebe58ae14f6b0381543aa3a9b1d2f89531d67baa67d8bceedb4a019feffbabd2a4afccd88e1ced20e7779fe0ef4e084062afa15d5c1fffa",
+          "sha256": "083eda683a2ec9eb54658c4dc55cd45ac57b48c7703457ee8c643ec9d2e98500",
+          "sha1": "4b0c15e3e06bdea2e48bd507fa3fa43c6466d1de",
+          "md5": "c20e0f55389fe7844486e273b6642c08"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.work",
+          "module": "work-gcm",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-multiprocess",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-runtime-ktx",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava2",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        },
+        {
+          "group": "androidx.work",
+          "module": "work-rxjava3",
+          "version": {
+            "requires": "2.10.0-alpha01"
+          },
+          "reason": "work-testing is in atomic group androidx.work"
+        }
+      ],
+      "files": [
+        {
+          "name": "work-testing-2.10.0-alpha01-versionMetadata.json",
+          "url": "work-testing-2.10.0-alpha01-versionMetadata.json",
+          "size": 4448,
+          "sha512": "18dbaedff5c62182e01a40acb98db736e2d28718f2ca56d6bac3004c8cfe8927bc99983e22806e7697416ec10d7d74810fce2bde1610b60fe4ec1777b910fa2f",
+          "sha256": "7837b8f1f4ec58b417bcc50952e6275b510d66f8d8b52ab249cc9097504ee3d8",
+          "sha1": "54654616320ac71fa36ab0e51fa2be48ca960221",
+          "md5": "5a63bbd97548a31eb06356c5e9e82a12"
+        }
+      ]
+    }
+  ]
+}

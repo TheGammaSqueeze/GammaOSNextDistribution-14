@@ -1,0 +1,22 @@
+version: "1.5.9"
+dependency_list {
+}
+release_checklist {
+}
+build_id: "androidx.compose.compiler"
+group_id: "androidx.compose.compiler"
+artifact_id: "compiler-hosted"
+path: "/compose/compiler/compiler-hosted"
+sha: "6051cad23e2ba97fd1fdeea218cec5119d8213de"
+require_same_version_group_build: true
+group_zip_path: "per-group-zips/gmaven-androidx-compose-compiler-11436812.zip"
+project_zip_path: "per-project-zips/androidx.compose.compiler-compiler-hosted-all-11436812-1.5.9.zip"
+kotlin_version: "1.9.22"
+dependency_constraint_list {
+  dependency {
+    group_id: "androidx.compose.compiler"
+    artifact_id: "compiler"
+    version: "1.5.9"
+    is_tip_of_tree: true
+  }
+}

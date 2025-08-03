@@ -1,0 +1,1035 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIDs",
+   "name" : "char16_t",
+   "referenced_type" : "_ZTIDs",
+   "self_type" : "_ZTIDs",
+   "size" : 2
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIa",
+   "name" : "signed char",
+   "referenced_type" : "_ZTIa",
+   "self_type" : "_ZTIa",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTId",
+   "name" : "double",
+   "referenced_type" : "_ZTId",
+   "self_type" : "_ZTId",
+   "size" : 8
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIe",
+   "name" : "long double",
+   "referenced_type" : "_ZTIe",
+   "self_type" : "_ZTIe",
+   "size" : 8
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIh",
+   "name" : "unsigned char",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIh",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIt",
+   "name" : "unsigned short",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIt",
+   "size" : 2
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIx",
+   "name" : "long long",
+   "referenced_type" : "_ZTIx",
+   "self_type" : "_ZTIx",
+   "size" : 8
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "u_charAge"
+  },
+  {
+   "name" : "u_charDigitValue"
+  },
+  {
+   "name" : "u_charDirection"
+  },
+  {
+   "name" : "u_charFromName"
+  },
+  {
+   "name" : "u_charMirror"
+  },
+  {
+   "name" : "u_charName"
+  },
+  {
+   "name" : "u_charType"
+  },
+  {
+   "name" : "u_countChar32"
+  },
+  {
+   "name" : "u_digit"
+  },
+  {
+   "name" : "u_enumCharNames"
+  },
+  {
+   "name" : "u_enumCharTypes"
+  },
+  {
+   "name" : "u_errorName"
+  },
+  {
+   "name" : "u_foldCase"
+  },
+  {
+   "name" : "u_forDigit"
+  },
+  {
+   "name" : "u_getBidiPairedBracket"
+  },
+  {
+   "name" : "u_getCombiningClass"
+  },
+  {
+   "name" : "u_getIntPropertyMaxValue"
+  },
+  {
+   "name" : "u_getIntPropertyMinValue"
+  },
+  {
+   "name" : "u_getIntPropertyValue"
+  },
+  {
+   "name" : "u_getNumericValue"
+  },
+  {
+   "name" : "u_getPropertyEnum"
+  },
+  {
+   "name" : "u_getPropertyName"
+  },
+  {
+   "name" : "u_getPropertyValueEnum"
+  },
+  {
+   "name" : "u_getPropertyValueName"
+  },
+  {
+   "name" : "u_getUnicodeVersion"
+  },
+  {
+   "name" : "u_getVersion"
+  },
+  {
+   "name" : "u_hasBinaryProperty"
+  },
+  {
+   "name" : "u_isIDIgnorable"
+  },
+  {
+   "name" : "u_isIDPart"
+  },
+  {
+   "name" : "u_isIDStart"
+  },
+  {
+   "name" : "u_isISOControl"
+  },
+  {
+   "name" : "u_isJavaIDPart"
+  },
+  {
+   "name" : "u_isJavaIDStart"
+  },
+  {
+   "name" : "u_isJavaSpaceChar"
+  },
+  {
+   "name" : "u_isMirrored"
+  },
+  {
+   "name" : "u_isUAlphabetic"
+  },
+  {
+   "name" : "u_isULowercase"
+  },
+  {
+   "name" : "u_isUUppercase"
+  },
+  {
+   "name" : "u_isUWhiteSpace"
+  },
+  {
+   "name" : "u_isWhitespace"
+  },
+  {
+   "name" : "u_isalnum"
+  },
+  {
+   "name" : "u_isalpha"
+  },
+  {
+   "name" : "u_isbase"
+  },
+  {
+   "name" : "u_isblank"
+  },
+  {
+   "name" : "u_iscntrl"
+  },
+  {
+   "name" : "u_isdefined"
+  },
+  {
+   "name" : "u_isdigit"
+  },
+  {
+   "name" : "u_isgraph"
+  },
+  {
+   "name" : "u_islower"
+  },
+  {
+   "name" : "u_isprint"
+  },
+  {
+   "name" : "u_ispunct"
+  },
+  {
+   "name" : "u_isspace"
+  },
+  {
+   "name" : "u_istitle"
+  },
+  {
+   "name" : "u_isupper"
+  },
+  {
+   "name" : "u_isxdigit"
+  },
+  {
+   "name" : "u_memcasecmp"
+  },
+  {
+   "name" : "u_memchr"
+  },
+  {
+   "name" : "u_memchr32"
+  },
+  {
+   "name" : "u_memcmp"
+  },
+  {
+   "name" : "u_memcmpCodePointOrder"
+  },
+  {
+   "name" : "u_memcpy"
+  },
+  {
+   "name" : "u_memmove"
+  },
+  {
+   "name" : "u_memrchr"
+  },
+  {
+   "name" : "u_memrchr32"
+  },
+  {
+   "name" : "u_memset"
+  },
+  {
+   "name" : "u_strCaseCompare"
+  },
+  {
+   "name" : "u_strCompare"
+  },
+  {
+   "name" : "u_strFindFirst"
+  },
+  {
+   "name" : "u_strFindLast"
+  },
+  {
+   "name" : "u_strFoldCase"
+  },
+  {
+   "name" : "u_strFromUTF32"
+  },
+  {
+   "name" : "u_strFromUTF32WithSub"
+  },
+  {
+   "name" : "u_strFromUTF8"
+  },
+  {
+   "name" : "u_strFromUTF8Lenient"
+  },
+  {
+   "name" : "u_strFromUTF8WithSub"
+  },
+  {
+   "name" : "u_strHasMoreChar32Than"
+  },
+  {
+   "name" : "u_strToLower"
+  },
+  {
+   "name" : "u_strToTitle"
+  },
+  {
+   "name" : "u_strToUTF32"
+  },
+  {
+   "name" : "u_strToUTF32WithSub"
+  },
+  {
+   "name" : "u_strToUTF8"
+  },
+  {
+   "name" : "u_strToUTF8WithSub"
+  },
+  {
+   "name" : "u_strToUpper"
+  },
+  {
+   "name" : "u_strcasecmp"
+  },
+  {
+   "name" : "u_strcat"
+  },
+  {
+   "name" : "u_strchr"
+  },
+  {
+   "name" : "u_strchr32"
+  },
+  {
+   "name" : "u_strcmp"
+  },
+  {
+   "name" : "u_strcmpCodePointOrder"
+  },
+  {
+   "name" : "u_strcpy"
+  },
+  {
+   "name" : "u_strcspn"
+  },
+  {
+   "name" : "u_strlen"
+  },
+  {
+   "name" : "u_strncasecmp"
+  },
+  {
+   "name" : "u_strncat"
+  },
+  {
+   "name" : "u_strncmp"
+  },
+  {
+   "name" : "u_strncmpCodePointOrder"
+  },
+  {
+   "name" : "u_strncpy"
+  },
+  {
+   "name" : "u_strpbrk"
+  },
+  {
+   "name" : "u_strrchr"
+  },
+  {
+   "name" : "u_strrchr32"
+  },
+  {
+   "name" : "u_strrstr"
+  },
+  {
+   "name" : "u_strspn"
+  },
+  {
+   "name" : "u_strstr"
+  },
+  {
+   "name" : "u_strtok_r"
+  },
+  {
+   "name" : "u_tolower"
+  },
+  {
+   "name" : "u_totitle"
+  },
+  {
+   "name" : "u_toupper"
+  },
+  {
+   "name" : "u_versionToString"
+  },
+  {
+   "name" : "ubidi_close"
+  },
+  {
+   "name" : "ubidi_countParagraphs"
+  },
+  {
+   "name" : "ubidi_countRuns"
+  },
+  {
+   "name" : "ubidi_getBaseDirection"
+  },
+  {
+   "name" : "ubidi_getClassCallback"
+  },
+  {
+   "name" : "ubidi_getCustomizedClass"
+  },
+  {
+   "name" : "ubidi_getDirection"
+  },
+  {
+   "name" : "ubidi_getLength"
+  },
+  {
+   "name" : "ubidi_getLevelAt"
+  },
+  {
+   "name" : "ubidi_getLevels"
+  },
+  {
+   "name" : "ubidi_getLogicalIndex"
+  },
+  {
+   "name" : "ubidi_getLogicalMap"
+  },
+  {
+   "name" : "ubidi_getLogicalRun"
+  },
+  {
+   "name" : "ubidi_getParaLevel"
+  },
+  {
+   "name" : "ubidi_getParagraph"
+  },
+  {
+   "name" : "ubidi_getParagraphByIndex"
+  },
+  {
+   "name" : "ubidi_getProcessedLength"
+  },
+  {
+   "name" : "ubidi_getReorderingMode"
+  },
+  {
+   "name" : "ubidi_getReorderingOptions"
+  },
+  {
+   "name" : "ubidi_getResultLength"
+  },
+  {
+   "name" : "ubidi_getText"
+  },
+  {
+   "name" : "ubidi_getVisualIndex"
+  },
+  {
+   "name" : "ubidi_getVisualMap"
+  },
+  {
+   "name" : "ubidi_getVisualRun"
+  },
+  {
+   "name" : "ubidi_invertMap"
+  },
+  {
+   "name" : "ubidi_isInverse"
+  },
+  {
+   "name" : "ubidi_isOrderParagraphsLTR"
+  },
+  {
+   "name" : "ubidi_open"
+  },
+  {
+   "name" : "ubidi_openSized"
+  },
+  {
+   "name" : "ubidi_orderParagraphsLTR"
+  },
+  {
+   "name" : "ubidi_reorderLogical"
+  },
+  {
+   "name" : "ubidi_reorderVisual"
+  },
+  {
+   "name" : "ubidi_setClassCallback"
+  },
+  {
+   "name" : "ubidi_setContext"
+  },
+  {
+   "name" : "ubidi_setInverse"
+  },
+  {
+   "name" : "ubidi_setLine"
+  },
+  {
+   "name" : "ubidi_setPara"
+  },
+  {
+   "name" : "ubidi_setReorderingMode"
+  },
+  {
+   "name" : "ubidi_setReorderingOptions"
+  },
+  {
+   "name" : "ubidi_writeReordered"
+  },
+  {
+   "name" : "ubidi_writeReverse"
+  },
+  {
+   "name" : "ubrk_clone"
+  },
+  {
+   "name" : "ubrk_close"
+  },
+  {
+   "name" : "ubrk_countAvailable"
+  },
+  {
+   "name" : "ubrk_current"
+  },
+  {
+   "name" : "ubrk_first"
+  },
+  {
+   "name" : "ubrk_following"
+  },
+  {
+   "name" : "ubrk_getAvailable"
+  },
+  {
+   "name" : "ubrk_getRuleStatus"
+  },
+  {
+   "name" : "ubrk_getRuleStatusVec"
+  },
+  {
+   "name" : "ubrk_isBoundary"
+  },
+  {
+   "name" : "ubrk_last"
+  },
+  {
+   "name" : "ubrk_next"
+  },
+  {
+   "name" : "ubrk_open"
+  },
+  {
+   "name" : "ubrk_preceding"
+  },
+  {
+   "name" : "ubrk_previous"
+  },
+  {
+   "name" : "ubrk_setText"
+  },
+  {
+   "name" : "ubrk_setUText"
+  },
+  {
+   "name" : "ucol_clone"
+  },
+  {
+   "name" : "ucol_close"
+  },
+  {
+   "name" : "ucol_countAvailable"
+  },
+  {
+   "name" : "ucol_getAttribute"
+  },
+  {
+   "name" : "ucol_getAvailable"
+  },
+  {
+   "name" : "ucol_getDisplayName"
+  },
+  {
+   "name" : "ucol_getEquivalentReorderCodes"
+  },
+  {
+   "name" : "ucol_getFunctionalEquivalent"
+  },
+  {
+   "name" : "ucol_getKeywordValues"
+  },
+  {
+   "name" : "ucol_getKeywordValuesForLocale"
+  },
+  {
+   "name" : "ucol_getKeywords"
+  },
+  {
+   "name" : "ucol_getMaxVariable"
+  },
+  {
+   "name" : "ucol_getReorderCodes"
+  },
+  {
+   "name" : "ucol_getSortKey"
+  },
+  {
+   "name" : "ucol_getStrength"
+  },
+  {
+   "name" : "ucol_mergeSortkeys"
+  },
+  {
+   "name" : "ucol_open"
+  },
+  {
+   "name" : "ucol_openAvailableLocales"
+  },
+  {
+   "name" : "ucol_openRules"
+  },
+  {
+   "name" : "ucol_setAttribute"
+  },
+  {
+   "name" : "ucol_setMaxVariable"
+  },
+  {
+   "name" : "ucol_setReorderCodes"
+  },
+  {
+   "name" : "ucol_setStrength"
+  },
+  {
+   "name" : "ucol_strcoll"
+  },
+  {
+   "name" : "ucol_strcollUTF8"
+  },
+  {
+   "name" : "uenum_close"
+  },
+  {
+   "name" : "uenum_count"
+  },
+  {
+   "name" : "uenum_next"
+  },
+  {
+   "name" : "uenum_openCharStringsEnumeration"
+  },
+  {
+   "name" : "uenum_openUCharStringsEnumeration"
+  },
+  {
+   "name" : "uenum_reset"
+  },
+  {
+   "name" : "uenum_unext"
+  },
+  {
+   "name" : "uldn_close"
+  },
+  {
+   "name" : "uldn_getContext"
+  },
+  {
+   "name" : "uldn_getDialectHandling"
+  },
+  {
+   "name" : "uldn_getLocale"
+  },
+  {
+   "name" : "uldn_keyDisplayName"
+  },
+  {
+   "name" : "uldn_keyValueDisplayName"
+  },
+  {
+   "name" : "uldn_languageDisplayName"
+  },
+  {
+   "name" : "uldn_localeDisplayName"
+  },
+  {
+   "name" : "uldn_open"
+  },
+  {
+   "name" : "uldn_openForContext"
+  },
+  {
+   "name" : "uldn_regionDisplayName"
+  },
+  {
+   "name" : "uldn_scriptCodeDisplayName"
+  },
+  {
+   "name" : "uldn_scriptDisplayName"
+  },
+  {
+   "name" : "uldn_variantDisplayName"
+  },
+  {
+   "name" : "uloc_acceptLanguage"
+  },
+  {
+   "name" : "uloc_addLikelySubtags"
+  },
+  {
+   "name" : "uloc_canonicalize"
+  },
+  {
+   "name" : "uloc_countAvailable"
+  },
+  {
+   "name" : "uloc_forLanguageTag"
+  },
+  {
+   "name" : "uloc_getAvailable"
+  },
+  {
+   "name" : "uloc_getBaseName"
+  },
+  {
+   "name" : "uloc_getCharacterOrientation"
+  },
+  {
+   "name" : "uloc_getCountry"
+  },
+  {
+   "name" : "uloc_getDefault"
+  },
+  {
+   "name" : "uloc_getDisplayCountry"
+  },
+  {
+   "name" : "uloc_getDisplayKeyword"
+  },
+  {
+   "name" : "uloc_getDisplayKeywordValue"
+  },
+  {
+   "name" : "uloc_getDisplayLanguage"
+  },
+  {
+   "name" : "uloc_getDisplayName"
+  },
+  {
+   "name" : "uloc_getDisplayScript"
+  },
+  {
+   "name" : "uloc_getDisplayVariant"
+  },
+  {
+   "name" : "uloc_getISO3Country"
+  },
+  {
+   "name" : "uloc_getISO3Language"
+  },
+  {
+   "name" : "uloc_getISOCountries"
+  },
+  {
+   "name" : "uloc_getISOLanguages"
+  },
+  {
+   "name" : "uloc_getKeywordValue"
+  },
+  {
+   "name" : "uloc_getLanguage"
+  },
+  {
+   "name" : "uloc_getLineOrientation"
+  },
+  {
+   "name" : "uloc_getName"
+  },
+  {
+   "name" : "uloc_getScript"
+  },
+  {
+   "name" : "uloc_getVariant"
+  },
+  {
+   "name" : "uloc_isRightToLeft"
+  },
+  {
+   "name" : "uloc_minimizeSubtags"
+  },
+  {
+   "name" : "uloc_openKeywords"
+  },
+  {
+   "name" : "uloc_setKeywordValue"
+  },
+  {
+   "name" : "uloc_toLanguageTag"
+  },
+  {
+   "name" : "uloc_toLegacyKey"
+  },
+  {
+   "name" : "uloc_toLegacyType"
+  },
+  {
+   "name" : "uloc_toUnicodeLocaleKey"
+  },
+  {
+   "name" : "uloc_toUnicodeLocaleType"
+  },
+  {
+   "name" : "ulocdata_getCLDRVersion"
+  },
+  {
+   "name" : "unorm2_append"
+  },
+  {
+   "name" : "unorm2_close"
+  },
+  {
+   "name" : "unorm2_composePair"
+  },
+  {
+   "name" : "unorm2_getCombiningClass"
+  },
+  {
+   "name" : "unorm2_getDecomposition"
+  },
+  {
+   "name" : "unorm2_getNFCInstance"
+  },
+  {
+   "name" : "unorm2_getNFDInstance"
+  },
+  {
+   "name" : "unorm2_getNFKCCasefoldInstance"
+  },
+  {
+   "name" : "unorm2_getNFKCInstance"
+  },
+  {
+   "name" : "unorm2_getNFKDInstance"
+  },
+  {
+   "name" : "unorm2_getRawDecomposition"
+  },
+  {
+   "name" : "unorm2_hasBoundaryAfter"
+  },
+  {
+   "name" : "unorm2_hasBoundaryBefore"
+  },
+  {
+   "name" : "unorm2_isInert"
+  },
+  {
+   "name" : "unorm2_isNormalized"
+  },
+  {
+   "name" : "unorm2_normalize"
+  },
+  {
+   "name" : "unorm2_normalizeSecondAndAppend"
+  },
+  {
+   "name" : "unorm2_quickCheck"
+  },
+  {
+   "name" : "unorm2_spanQuickCheckYes"
+  },
+  {
+   "name" : "uscript_breaksBetweenLetters"
+  },
+  {
+   "name" : "uscript_getCode"
+  },
+  {
+   "name" : "uscript_getName"
+  },
+  {
+   "name" : "uscript_getSampleString"
+  },
+  {
+   "name" : "uscript_getScript"
+  },
+  {
+   "name" : "uscript_getScriptExtensions"
+  },
+  {
+   "name" : "uscript_getShortName"
+  },
+  {
+   "name" : "uscript_getUsage"
+  },
+  {
+   "name" : "uscript_hasScript"
+  },
+  {
+   "name" : "uscript_isCased"
+  },
+  {
+   "name" : "uscript_isRightToLeft"
+  },
+  {
+   "name" : "utext_char32At"
+  },
+  {
+   "name" : "utext_clone"
+  },
+  {
+   "name" : "utext_close"
+  },
+  {
+   "name" : "utext_current32"
+  },
+  {
+   "name" : "utext_equals"
+  },
+  {
+   "name" : "utext_extract"
+  },
+  {
+   "name" : "utext_getNativeIndex"
+  },
+  {
+   "name" : "utext_moveIndex32"
+  },
+  {
+   "name" : "utext_nativeLength"
+  },
+  {
+   "name" : "utext_next32"
+  },
+  {
+   "name" : "utext_next32From"
+  },
+  {
+   "name" : "utext_openUChars"
+  },
+  {
+   "name" : "utext_openUTF8"
+  },
+  {
+   "name" : "utext_previous32"
+  },
+  {
+   "name" : "utext_previous32From"
+  },
+  {
+   "name" : "utext_setNativeIndex"
+  },
+  {
+   "name" : "utrans_clone"
+  },
+  {
+   "name" : "utrans_close"
+  },
+  {
+   "name" : "utrans_openIDs"
+  },
+  {
+   "name" : "utrans_openInverse"
+  },
+  {
+   "name" : "utrans_openU"
+  },
+  {
+   "name" : "utrans_setFilter"
+  },
+  {
+   "name" : "utrans_toRules"
+  },
+  {
+   "name" : "utrans_trans"
+  },
+  {
+   "name" : "utrans_transIncremental"
+  },
+  {
+   "name" : "utrans_transIncrementalUChars"
+  },
+  {
+   "name" : "utrans_transUChars"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" : [],
+ "function_types" : [],
+ "functions" : [],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" : [],
+ "qualified_types" : [],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

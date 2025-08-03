@@ -1,0 +1,314 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.appsearch",
+    "module": "appsearch-compiler",
+    "version": "1.1.0-alpha04",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "javax.annotation",
+          "module": "javax.annotation-api",
+          "version": {
+            "requires": "1.2"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-compiler-1.1.0-alpha04.jar",
+          "url": "appsearch-compiler-1.1.0-alpha04.jar",
+          "size": 93281,
+          "sha512": "0c412f73ea095495565fab0542974514117003998b209ce371eceab0697429f9c21d6208d814a2ca2f5fd9a074c4fb4a2d7abe862386760509b20bd96874cac4",
+          "sha256": "9deb8f810783ed358db33337133a00f2bb84ff3c1a326fee470e8341dcc71e54",
+          "sha1": "bdec3bd40b319996aec890fee4d56cae48c4c992",
+          "md5": "a52f81034f64a9cc1369f8e7a23d8f5a"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "com.google.auto",
+          "module": "auto-common",
+          "version": {
+            "requires": "0.11"
+          }
+        },
+        {
+          "group": "com.google.auto.value",
+          "module": "auto-value",
+          "version": {
+            "requires": "1.6.3"
+          }
+        },
+        {
+          "group": "com.google.auto.value",
+          "module": "auto-value-annotations",
+          "version": {
+            "requires": "1.6.3"
+          }
+        },
+        {
+          "group": "com.squareup",
+          "module": "javapoet",
+          "version": {
+            "requires": "1.13.0"
+          }
+        },
+        {
+          "group": "javax.annotation",
+          "module": "javax.annotation-api",
+          "version": {
+            "requires": "1.2"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-compiler-1.1.0-alpha04.jar",
+          "url": "appsearch-compiler-1.1.0-alpha04.jar",
+          "size": 93281,
+          "sha512": "0c412f73ea095495565fab0542974514117003998b209ce371eceab0697429f9c21d6208d814a2ca2f5fd9a074c4fb4a2d7abe862386760509b20bd96874cac4",
+          "sha256": "9deb8f810783ed358db33337133a00f2bb84ff3c1a326fee470e8341dcc71e54",
+          "sha1": "bdec3bd40b319996aec890fee4d56cae48c4c992",
+          "md5": "a52f81034f64a9cc1369f8e7a23d8f5a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-platform-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-compiler is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-compiler-1.1.0-alpha04-sources.jar",
+          "url": "appsearch-compiler-1.1.0-alpha04-sources.jar",
+          "size": 52500,
+          "sha512": "2e5741355d251deaf627415cc4062a79acf78a6e23159a0c8694568bc8e91e372aff691db2007aee98fee9f6d886ab7808bd053ef43e8307225ef53113b1b5f8",
+          "sha256": "c54d454723abd466c226b387bed879f1cfcef3931bac9587f7e78af1d7fd5a9e",
+          "sha1": "c8d52a7d2c0f348316930aea2e36f21a6b94e852",
+          "md5": "d2b587ad069165f9e2fc655ba488198b"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "postsubmit": [
+    {
+      "name": "asuite_metrics_lib_tests",
+      "host": true
+    },
+    {
+      "name": "asuite_cc_lib_tests",
+      "host": true
+    },
+    {
+      "name": "HelloWorldATest"
+    }
+  ]
+}

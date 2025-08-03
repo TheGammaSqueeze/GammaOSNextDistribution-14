@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: android.media.MediaTranscodingManager.TranscodingSession#setOnProgressUpdateListener(java.util.concurrent.Executor, android.media.MediaTranscodingManager.TranscodingSession.OnProgressUpdateListener) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter arg2 in android.media.MediaTranscodingManager.TranscodingSession.setOnProgressUpdateListener(java.util.concurrent.Executor arg1, android.media.MediaTranscodingManager.TranscodingSession.OnProgressUpdateListener arg2)

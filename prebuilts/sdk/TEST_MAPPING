@@ -1,0 +1,22 @@
+{
+  "carpermission-presubmit" : [
+    {
+      "name" : "CtsPermissionUiTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "carpermission-postsubmit" : [
+    {
+      "name" : "CtsPermissionUiTestCases",
+      "options": [
+        {
+          "include-annotation": "android.platform.test.annotations.FlakyTest"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "atest_will_pass_tests"
+    },
+    {
+      "name": "HelloWorldATest"
+    }
+  ]
+}

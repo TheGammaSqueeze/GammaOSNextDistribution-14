@@ -1,0 +1,5 @@
+alanv@google.com
+hansson@google.com
+
+# To approve adding new libraries
+per-file update_prebuilts.py = nickanthony@google.com

@@ -1,0 +1,6 @@
+signature,maxTargetSdk,trackingBug
+|Landroid/provider/MediaStore$Files$FileColumns;->FORMAT:Ljava/lang/String;|,||,||
+|Landroid/provider/MediaStore$Files$FileColumns;->STORAGE_ID:Ljava/lang/String;|,|30|,|170729553|
+|Landroid/provider/MediaStore$Files;->getMtpObjectsUri(Ljava/lang/String;)Landroid/net/Uri;|,||,||
+|Landroid/provider/MediaStore$Files;->getMtpObjectsUri(Ljava/lang/String;J)Landroid/net/Uri;|,||,||
+|Landroid/provider/MediaStore$Files;->getMtpReferencesUri(Ljava/lang/String;J)Landroid/net/Uri;|,||,||

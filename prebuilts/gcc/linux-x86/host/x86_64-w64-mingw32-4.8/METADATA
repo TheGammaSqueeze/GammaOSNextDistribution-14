@@ -1,0 +1,11 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+third_party {
+  license_note: "would be RESTRICTED save for GFDL in:\n"
+  "   share/man/\n"
+  "   share/info/\n"
+  " and save for 'no derivatives' restriction in:\n"
+  "   share/man/man7/fsf-funding.7"
+  license_type: BY_EXCEPTION_ONLY
+}

@@ -1,0 +1,15 @@
+drops {
+  android_build_drop {
+    build_id: "10093150"
+    target: "CtsShim"
+    source_file: "aosp_arm64/com.android.apex.cts.shim.v2_install_constraints_invalid_fingerprint.apex"
+  }
+  dest_file: "hostsidetests/stagedinstall/testdata/apex//arm/com.android.apex.cts.shim.v2_install_constraints_invalid_fingerprint.apex"
+  version: ""
+  version_group: ""
+  git_project: "platform/cts"
+  git_branch: "udc-dev"
+  transform: TRANSFORM_NONE
+  transform_options {
+  }
+}

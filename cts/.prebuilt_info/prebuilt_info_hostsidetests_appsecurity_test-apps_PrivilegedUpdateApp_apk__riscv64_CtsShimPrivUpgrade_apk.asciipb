@@ -1,0 +1,15 @@
+drops {
+  android_build_drop {
+    build_id: "9653376"
+    target: "CtsShim"
+    source_file: "aosp_riscv64/CtsShimPrivUpgrade.apk"
+  }
+  dest_file: "hostsidetests/appsecurity/test-apps/PrivilegedUpdateApp/apk//riscv64/CtsShimPrivUpgrade.apk"
+  version: ""
+  version_group: ""
+  git_project: "platform/cts"
+  git_branch: "master"
+  transform: TRANSFORM_NONE
+  transform_options {
+  }
+}

@@ -1,0 +1,26 @@
+// Signature format: 2.0
+package android.security.rkp.service {
+
+  public class RegistrationProxy {
+    method public static void createAsync(@NonNull android.content.Context, int, @NonNull String, @NonNull java.time.Duration, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.security.rkp.service.RegistrationProxy,java.lang.Exception>);
+    method public void getKeyAsync(int, @NonNull android.os.CancellationSignal, @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<android.security.rkp.service.RemotelyProvisionedKey,java.lang.Exception>);
+    method public void storeUpgradedKeyAsync(@NonNull byte[], @NonNull byte[], @NonNull java.util.concurrent.Executor, @NonNull android.os.OutcomeReceiver<java.lang.Void,java.lang.Exception>);
+  }
+
+  public class RemotelyProvisionedKey {
+    method @NonNull public byte[] getEncodedCertChain();
+    method @NonNull public byte[] getKeyBlob();
+  }
+
+  public final class RkpProxyException extends java.lang.Exception {
+    ctor public RkpProxyException(int, @NonNull String);
+    ctor public RkpProxyException(int, @NonNull String, @NonNull Throwable);
+    method public int getError();
+    field public static final int ERROR_PENDING_INTERNET_CONNECTIVITY = 2; // 0x2
+    field public static final int ERROR_PERMANENT = 3; // 0x3
+    field public static final int ERROR_REQUIRES_SECURITY_PATCH = 1; // 0x1
+    field public static final int ERROR_UNKNOWN = 0; // 0x0
+  }
+
+}
+

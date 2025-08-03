@@ -1,0 +1,489 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIDs",
+   "name" : "char16_t",
+   "referenced_type" : "_ZTIDs",
+   "self_type" : "_ZTIDs",
+   "size" : 2
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIa",
+   "name" : "signed char",
+   "referenced_type" : "_ZTIa",
+   "self_type" : "_ZTIa",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTId",
+   "name" : "double",
+   "referenced_type" : "_ZTId",
+   "self_type" : "_ZTId",
+   "size" : 8
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIe",
+   "name" : "long double",
+   "referenced_type" : "_ZTIe",
+   "self_type" : "_ZTIe",
+   "size" : 8
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIh",
+   "name" : "unsigned char",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIh",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIs",
+   "name" : "short",
+   "referenced_type" : "_ZTIs",
+   "self_type" : "_ZTIs",
+   "size" : 2
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIt",
+   "name" : "unsigned short",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIt",
+   "size" : 2
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIx",
+   "name" : "long long",
+   "referenced_type" : "_ZTIx",
+   "self_type" : "_ZTIx",
+   "size" : 8
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "UCNV_FROM_U_CALLBACK_STOP_android"
+  },
+  {
+   "name" : "UCNV_TO_U_CALLBACK_STOP_android"
+  },
+  {
+   "name" : "u_charDirection_android"
+  },
+  {
+   "name" : "u_charMirror_android"
+  },
+  {
+   "name" : "u_charName_android"
+  },
+  {
+   "name" : "u_charType_android"
+  },
+  {
+   "name" : "u_countChar32_android"
+  },
+  {
+   "name" : "u_digit_android"
+  },
+  {
+   "name" : "u_errorName_android"
+  },
+  {
+   "name" : "u_foldCase_android"
+  },
+  {
+   "name" : "u_getCombiningClass_android"
+  },
+  {
+   "name" : "u_getIntPropertyMaxValue_android"
+  },
+  {
+   "name" : "u_getIntPropertyValue_android"
+  },
+  {
+   "name" : "u_getNumericValue_android"
+  },
+  {
+   "name" : "u_hasBinaryProperty_android"
+  },
+  {
+   "name" : "u_isIDIgnorable_android"
+  },
+  {
+   "name" : "u_isIDPart_android"
+  },
+  {
+   "name" : "u_isIDStart_android"
+  },
+  {
+   "name" : "u_isJavaSpaceChar_android"
+  },
+  {
+   "name" : "u_isMirrored_android"
+  },
+  {
+   "name" : "u_isUAlphabetic_android"
+  },
+  {
+   "name" : "u_isUWhiteSpace_android"
+  },
+  {
+   "name" : "u_isWhitespace_android"
+  },
+  {
+   "name" : "u_isalnum_android"
+  },
+  {
+   "name" : "u_isalpha_android"
+  },
+  {
+   "name" : "u_iscntrl_android"
+  },
+  {
+   "name" : "u_isdefined_android"
+  },
+  {
+   "name" : "u_isdigit_android"
+  },
+  {
+   "name" : "u_islower_android"
+  },
+  {
+   "name" : "u_ispunct_android"
+  },
+  {
+   "name" : "u_isspace_android"
+  },
+  {
+   "name" : "u_istitle_android"
+  },
+  {
+   "name" : "u_isupper_android"
+  },
+  {
+   "name" : "u_strFromUTF8WithSub_android"
+  },
+  {
+   "name" : "u_strFromUTF8_android"
+  },
+  {
+   "name" : "u_strToLower_android"
+  },
+  {
+   "name" : "u_strToUTF8_android"
+  },
+  {
+   "name" : "u_strToUpper_android"
+  },
+  {
+   "name" : "u_tolower_android"
+  },
+  {
+   "name" : "u_totitle_android"
+  },
+  {
+   "name" : "u_toupper_android"
+  },
+  {
+   "name" : "ubidi_close_android"
+  },
+  {
+   "name" : "ubidi_countRuns_android"
+  },
+  {
+   "name" : "ubidi_getLength_android"
+  },
+  {
+   "name" : "ubidi_getLevelAt_android"
+  },
+  {
+   "name" : "ubidi_getParaLevel_android"
+  },
+  {
+   "name" : "ubidi_getVisualRun_android"
+  },
+  {
+   "name" : "ubidi_openSized_android"
+  },
+  {
+   "name" : "ubidi_open_android"
+  },
+  {
+   "name" : "ubidi_reorderVisual_android"
+  },
+  {
+   "name" : "ubidi_setClassCallback_android"
+  },
+  {
+   "name" : "ubidi_setPara_android"
+  },
+  {
+   "name" : "ubrk_close_android"
+  },
+  {
+   "name" : "ubrk_current_android"
+  },
+  {
+   "name" : "ubrk_first_android"
+  },
+  {
+   "name" : "ubrk_following_android"
+  },
+  {
+   "name" : "ubrk_getRuleStatus_android"
+  },
+  {
+   "name" : "ubrk_isBoundary_android"
+  },
+  {
+   "name" : "ubrk_next_android"
+  },
+  {
+   "name" : "ubrk_open_android"
+  },
+  {
+   "name" : "ubrk_preceding_android"
+  },
+  {
+   "name" : "ubrk_setUText_android"
+  },
+  {
+   "name" : "ucnv_close_android"
+  },
+  {
+   "name" : "ucnv_convertEx_android"
+  },
+  {
+   "name" : "ucnv_convert_android"
+  },
+  {
+   "name" : "ucnv_getNextUChar_android"
+  },
+  {
+   "name" : "ucnv_open_android"
+  },
+  {
+   "name" : "ucnv_setFromUCallBack_android"
+  },
+  {
+   "name" : "ucnv_setToUCallBack_android"
+  },
+  {
+   "name" : "ucol_close_android"
+  },
+  {
+   "name" : "ucol_open_android"
+  },
+  {
+   "name" : "ucol_setAttribute_android"
+  },
+  {
+   "name" : "ucol_strcollIter_android"
+  },
+  {
+   "name" : "ucol_strcoll_android"
+  },
+  {
+   "name" : "ucsdet_close_android"
+  },
+  {
+   "name" : "ucsdet_detectAll_android"
+  },
+  {
+   "name" : "ucsdet_detect_android"
+  },
+  {
+   "name" : "ucsdet_getConfidence_android"
+  },
+  {
+   "name" : "ucsdet_getName_android"
+  },
+  {
+   "name" : "ucsdet_open_android"
+  },
+  {
+   "name" : "ucsdet_setText_android"
+  },
+  {
+   "name" : "udatpg_close_android"
+  },
+  {
+   "name" : "udatpg_getBestPattern_android"
+  },
+  {
+   "name" : "udatpg_open_android"
+  },
+  {
+   "name" : "uiter_setUTF8_android"
+  },
+  {
+   "name" : "uloc_addLikelySubtags_android"
+  },
+  {
+   "name" : "uloc_canonicalize_android"
+  },
+  {
+   "name" : "uloc_countAvailable_android"
+  },
+  {
+   "name" : "uloc_forLanguageTag_android"
+  },
+  {
+   "name" : "uloc_getAvailable_android"
+  },
+  {
+   "name" : "uloc_getDefault_android"
+  },
+  {
+   "name" : "uloc_getISO3Country_android"
+  },
+  {
+   "name" : "uloc_getISO3Language_android"
+  },
+  {
+   "name" : "uloc_getISOCountries_android"
+  },
+  {
+   "name" : "uloc_getISOLanguages_android"
+  },
+  {
+   "name" : "uloc_getName_android"
+  },
+  {
+   "name" : "uloc_getScript_android"
+  },
+  {
+   "name" : "uloc_setDefault_android"
+  },
+  {
+   "name" : "uloc_toLanguageTag_android"
+  },
+  {
+   "name" : "unorm2_composePair_android"
+  },
+  {
+   "name" : "unorm2_getDecomposition_android"
+  },
+  {
+   "name" : "unorm2_getNFCInstance_android"
+  },
+  {
+   "name" : "unorm2_getNFDInstance_android"
+  },
+  {
+   "name" : "unorm2_getRawDecomposition_android"
+  },
+  {
+   "name" : "uregex_close_android"
+  },
+  {
+   "name" : "uregex_matches_android"
+  },
+  {
+   "name" : "uregex_open_android"
+  },
+  {
+   "name" : "uregex_setText_android"
+  },
+  {
+   "name" : "ures_close_android"
+  },
+  {
+   "name" : "ures_getByIndex_android"
+  },
+  {
+   "name" : "ures_getByKey_android"
+  },
+  {
+   "name" : "ures_getString_android"
+  },
+  {
+   "name" : "ures_openDirect_android"
+  },
+  {
+   "name" : "uscript_getScript_android"
+  },
+  {
+   "name" : "uscript_getShortName_android"
+  },
+  {
+   "name" : "utext_close_android"
+  },
+  {
+   "name" : "utext_openUChars_android"
+  },
+  {
+   "name" : "utext_openUTF8_android"
+  },
+  {
+   "name" : "utrans_close_android"
+  },
+  {
+   "name" : "utrans_openU_android"
+  },
+  {
+   "name" : "utrans_transUChars_android"
+  }
+ ],
+ "elf_objects" : [],
+ "enum_types" : [],
+ "function_types" : [],
+ "functions" : [],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" : [],
+ "qualified_types" : [],
+ "record_types" : [],
+ "rvalue_reference_types" : []
+}

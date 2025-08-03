@@ -1,0 +1,382 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "art-module-host-exports_art.module.api.annotations@1",
+    sdk_member_name: "art.module.api.annotations",
+    visibility: [
+        "//art/build/sdk",
+        "//external/icu/android_icu4j",
+        "//frameworks/base",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_libcore_license@1"],
+    device_supported: false,
+    host_supported: true,
+    jars: ["java/art.module.api.annotations.jar"],
+}
+
+java_import {
+    name: "art-module-host-exports_okhttp-norepackage@1",
+    sdk_member_name: "okhttp-norepackage",
+    visibility: [
+        "//art/build/sdk",
+        "//external/grpc-grpc-java/okhttp",
+        "//external/okhttp",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_external_okhttp_license@1"],
+    device_supported: false,
+    host_supported: true,
+    jars: ["java/okhttp-norepackage.jar"],
+}
+
+license {
+    name: "art-module-host-exports_art_license@1",
+    sdk_member_name: "art_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL-2.0",
+    ],
+    license_text: ["licenses/art/NOTICE"],
+}
+
+license {
+    name: "art-module-host-exports_libcore_license@1",
+    sdk_member_name: "libcore_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-W3C",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/libcore/LICENSE",
+        "licenses/libcore/NOTICE",
+    ],
+}
+
+license {
+    name: "art-module-host-exports_external_okhttp_license@1",
+    sdk_member_name: "external_okhttp_license",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/external/okhttp/LICENSE.txt"],
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_dex2oat@1",
+    sdk_member_name: "dex2oat",
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dex2oat64"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_dex2oatd@1",
+    sdk_member_name: "dex2oatd",
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.art.debug"],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dex2oatd64"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_dexdump@1",
+    sdk_member_name: "dexdump",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "libc++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/dexdump"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_hiddenapi@1",
+    sdk_member_name: "hiddenapi",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/hiddenapi"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_oatdump@1",
+    sdk_member_name: "oatdump",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/oatdump"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_profman@1",
+    sdk_member_name: "profman",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "c++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/profman"],
+        },
+    },
+}
+
+cc_prebuilt_binary {
+    name: "art-module-host-exports_veridex@1",
+    sdk_member_name: "veridex",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: ["//apex_available:platform"],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    stl: "libc++_static",
+    compile_multilib: "64",
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            srcs: ["x86_64/bin/veridex"],
+        },
+    },
+}
+
+cc_prebuilt_library {
+    name: "art-module-host-exports_libartpalette@1",
+    sdk_member_name: "libartpalette",
+    visibility: [
+        "//art:__subpackages__",
+        "//prebuilts/module_sdk/art/current/host-exports",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.runtime",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    compile_multilib: "64",
+    export_include_dirs: ["include/art/libartpalette/include"],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["x86_64/lib/libartpalette.a"],
+            },
+            shared: {
+                srcs: ["x86_64/lib/libartpalette.so"],
+                shared_libs: [
+                    "libbase",
+                    "liblog",
+                ],
+            },
+        },
+    },
+}
+
+cc_prebuilt_library {
+    name: "art-module-host-exports_libartbase@1",
+    sdk_member_name: "libartbase",
+    visibility: [
+        "//art:__subpackages__",
+        "//packages/modules/NetworkStack/tests:__subpackages__",
+        "//prebuilts/module_sdk/art/current/host-exports",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-host-exports_art_license@1"],
+    device_supported: false,
+    host_supported: true,
+    installable: false,
+    compile_multilib: "64",
+    shared_libs: [
+        "libbase",
+        "libziparchive",
+        "libz",
+        "liblog",
+        "art-module-host-exports_libartpalette@1",
+    ],
+    export_include_dirs: [
+        "include/art/libartbase",
+        "include/system/libbase/include",
+        "include/external/fmtlib/include",
+    ],
+    target: {
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+            static: {
+                srcs: ["x86_64/lib/libartbase.a"],
+            },
+            shared: {
+                srcs: ["x86_64/lib/libartbase.so"],
+            },
+        },
+    },
+}
+
+module_exports_snapshot {
+    name: "art-module-host-exports@1",
+    visibility: ["//art:__subpackages__"],
+    host_supported: true,
+    target: {
+        linux_glibc: {
+            compile_multilib: "64",
+            java_libs: [
+                "art-module-host-exports_art.module.api.annotations@1",
+                "art-module-host-exports_okhttp-norepackage@1",
+            ],
+            native_binaries: [
+                "art-module-host-exports_dex2oat@1",
+                "art-module-host-exports_dex2oatd@1",
+                "art-module-host-exports_dexdump@1",
+                "art-module-host-exports_hiddenapi@1",
+                "art-module-host-exports_oatdump@1",
+                "art-module-host-exports_profman@1",
+                "art-module-host-exports_veridex@1",
+            ],
+            native_libs: [
+                "art-module-host-exports_libartpalette@1",
+                "art-module-host-exports_libartbase@1",
+            ],
+        },
+        host: {
+            enabled: false,
+        },
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+    },
+}

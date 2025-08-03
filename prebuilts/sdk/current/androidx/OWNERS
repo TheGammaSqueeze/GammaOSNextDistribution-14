@@ -1,0 +1,13 @@
+# All androidx updates should start in AOSP master
+# and merge downstream.
+
+# If you need to update androidx, please file a bug
+# against the androidx team.  Or get explicit approval
+# from someone on this list.
+
+nickanthony@google.com
+alanv@google.com
+aurimas@google.com
+natnaelbelay@google.com
+nickanthony@google.com
+yboyar@google.com

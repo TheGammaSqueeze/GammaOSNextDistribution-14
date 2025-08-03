@@ -1,0 +1,375 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "androidx.appsearch",
+    "module": "appsearch-platform-storage",
+    "version": "1.1.0-alpha04",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-platform-storage-1.1.0-alpha04.aar",
+          "url": "appsearch-platform-storage-1.1.0-alpha04.aar",
+          "size": 55915,
+          "sha512": "c5a674c6b8dfb9ca0106d5588363a28f5f7206a457d7fc5d5f8a63ee5f67a4bf67f440ecc0c893fe1e2fd715ca592251619ba94ac9b6d73c6588eb01d635244a",
+          "sha256": "fda11fdaee02198b056935805b6196f7e74d50f6d176ec5949512cfd8c1830c4",
+          "sha1": "4796c69b14b4c52bfe8b04a21f1faa98bc7e2716",
+          "md5": "d5c6912d751abe2c90107387d2423e3e"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.1.0"
+          }
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          }
+        },
+        {
+          "group": "androidx.collection",
+          "module": "collection",
+          "version": {
+            "requires": "1.2.0"
+          }
+        },
+        {
+          "group": "androidx.concurrent",
+          "module": "concurrent-futures",
+          "version": {
+            "requires": "1.0.0"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core",
+          "version": {
+            "requires": "1.0.2"
+          }
+        }
+      ],
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-platform-storage-1.1.0-alpha04.aar",
+          "url": "appsearch-platform-storage-1.1.0-alpha04.aar",
+          "size": 55915,
+          "sha512": "c5a674c6b8dfb9ca0106d5588363a28f5f7206a457d7fc5d5f8a63ee5f67a4bf67f440ecc0c893fe1e2fd715ca592251619ba94ac9b6d73c6588eb01d635244a",
+          "sha256": "fda11fdaee02198b056935805b6196f7e74d50f6d176ec5949512cfd8c1830c4",
+          "sha1": "4796c69b14b4c52bfe8b04a21f1faa98bc7e2716",
+          "md5": "d5c6912d751abe2c90107387d2423e3e"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-platform-storage-1.1.0-alpha04-sources.jar",
+          "url": "appsearch-platform-storage-1.1.0-alpha04-sources.jar",
+          "size": 36870,
+          "sha512": "b3b1ea3418fb0decd460a7a9814be60293e0d0617fc8f8f62f1cf721667669666a30ef9a3bffe3d6931f5be09826133b1727cc75dabf6dc9eb0458a786219cff",
+          "sha256": "fad051be78ccdb710853db3c9a495e48c722266764519718dc3203c67687ba8b",
+          "sha1": "5265a5f41502fe5eccfec4f937cc3a737cf385ef",
+          "md5": "8e651c5e1cbc064f50709aca1cbef782"
+        }
+      ]
+    },
+    {
+      "name": "libraryVersionMetadata",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.usage": "library-version-metadata"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-builtin-types",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-compiler",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-debug-view",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-ktx",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-local-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        },
+        {
+          "group": "androidx.appsearch",
+          "module": "appsearch-play-services-storage",
+          "version": {
+            "requires": "1.1.0-alpha04"
+          },
+          "reason": "appsearch-platform-storage is in atomic group androidx.appsearch"
+        }
+      ],
+      "files": [
+        {
+          "name": "appsearch-platform-storage-1.1.0-alpha04-versionMetadata.json",
+          "url": "appsearch-platform-storage-1.1.0-alpha04-versionMetadata.json",
+          "size": 1528,
+          "sha512": "a61ce32cf61bd4187e4cc72af53dc673a756d8d5c7d3e1df5b65c8419032458fc45765d937f00db82cfebf4c83a5b4ebee195344f1a4db4be466962c391a1ac1",
+          "sha256": "c6c21906b573f823384e559dd7281b13f7af5a953fd244771eadbdead7e06af7",
+          "sha1": "42afe0bec2e70aca1d139f482bdb189812d3d355",
+          "md5": "29d0989c04883a020e486e0e89f9f70d"
+        }
+      ]
+    }
+  ]
+}
