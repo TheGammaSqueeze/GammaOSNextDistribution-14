@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"AdServices Topics API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"AdServices Attribution API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"AdServices Custom Audience API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"AdId API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"AdServices Consent API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ad ID API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API වෙත ප්‍රවේශය"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"AdServices Cobalt Upload API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"App Set ID API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Consent Service API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService හි සක්‍රිය කිරීමේ තත්ත්වය වෙනස් කිරීමේ API වෙත ප්‍රවේශය"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"AdService හි සක්‍රිය කිරීමේ තත්ත්වය වෙනස් කිරීමේ API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService හි සක්‍රිය කිරීමේ තත්ත්ව API වෙත ප්‍රවේශය"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"AdService හි සක්‍රිය කිරීමේ තත්ත්ව API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager හි API වෙත ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"යෙදුමට AdServicesManager හි API වෙත ප්‍රවේශ වීමට ඉඩ දෙයි."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService හි යාවත්කාලීන AdId API වෙත ප්‍රවේශය."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"AdService හි යාවත්කාලීන AdId API වෙත ප්‍රවේශ වීමට යෙදුමකට ඉඩ දෙයි."</string>
+    <string name="app_label" msgid="2639006978056689153">"දැන්වීම් පෞද්ගලිකත්වය"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android හි දැන්වීම් පෞද්ගලිකත්ව බීටා හා එක් වන්න"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android යෙදුම්වලට ඔබට දැන්වීම් පෙන්වීමට වඩා පෞද්ගලික ක්‍රම ගවේෂණ කරයි"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"තව දැන ගන්න"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android හි දැන්වීම් පෞද්ගලිකත්ව බීටා"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"අලුත් මොනවාද"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"පෞද්ගලිකත්ව වැලිපෙට්ටිය තුළ ඇති නව පෞද්ගලිකත්ව විශේෂාංග යෙදුම්වලට ඔබට අදාළ දැන්වීම් පෙන්වීමට ඉඩ දෙන නමුත් එම යෙදුම්වලට වෙනත් සංවර්ධකයින්ගේ වෙබ් අඩවි හා යෙදුම් මත ඔබේ ක්‍රියාකාරකම් පිළිබඳ දැන ගත හැකි දේ සීමා කරයි."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"එය ක්‍රියා කරන ආකාරය"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"සහභාගී වන ආකාරය"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"බීටා ක්‍රියාත්මක කිරීම යෙදුම්වලට ඔබට වෙළඳ දැන්වීම් පෙන්විය හැකි මෙම නව වඩා පෞද්ගලික ක්‍රම පරීක්ෂා කිරීමට ඉඩ සලසයි. ඔබට ඕනෑම මොහොතක ඔබේ පෞද්ගලිකත්ව සැකසීම් වෙතින් බීටා ක්‍රියා විරහිත කළ හැක."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"එපා ස්තුතියි"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"ක්‍රියාත්මක කරන්න"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"තව"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"සහභාගී වීම වෙනුවෙන් ඔබට ස්තුතියි"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"ඔබ Android වෙළෙඳ දැන්වීම් පෞද්ගලිකත්ව බීටාවල කොටසකි. ඔබේ උපාංගය සඳහා පෞද්ගලිකත්ව වැලිපෙට්ටිය සක්‍රීයයි.\n\nඔබට ඕනෑම මොහොතක ඔබේ පෞද්ගලිකත්ව සැකසීම් වෙතින් වැඩි විස්තර දැන ගැනීමට හෝ බීටා අක්‍රිය කළ හැක."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"ඔබ සහභාගී නොවීමට තෝරා ගෙන ඇත"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"ඔබේ ප්‍රතිචාරය සඳහා ස්තුතියි. පෞද්ගලිකත්ව වැලිපෙට්ටිය ඔබේ උපාංගය සඳහා අක්‍රියයි.\n\nඔබ ඔබේ අදහස වෙනස් කරගතහොත් හෝ වැඩි විස්තර දැන ගැනීමට වුවමනා නම්, ඔබේ පෞද්ගලිකත්ව සැකසීම් වෙත යන්න."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"පෞද්ගලිකත්ව සැකසීම්"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"තේරුණා"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"ඔබ බීටාවේ කොටසකි"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"ඔබේ උපාංගය සඳහා පෞද්ගලිකත්ව වැලිපෙට්ටිය ක්‍රියාත්මක අතර, යෙදුම් ඔබට වෙළඳ දැන්වීම් පෙන්වීමට, මෙම නව වඩා පෞද්ගලික ක්‍රම පරීක්ෂා කළ හැක. ඔබට ඕනෑම මොහොතක ඔබේ පෞද්ගලිකත්ව සැකසීම් වෙතින් බීටා ක්‍රියා විරහිත කළ හැක."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"තේරුණා"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android හි පෞද්ගලිකත්ව වැලිපෙට්ටිය යෙදුම් ඔබට ඔබ කැමති වීමට ඉඩ ඇති දැන්වීම් පෙන්වීමට භාවිත කළ හැකි නව විශේෂාංග සපයයි. මෙම තාක්ෂණ උපාංග හැඳුනුම්කාරක භාවිත කරන්නේ නැත.\n\n Android සහ ඔබේ උපාංගවලට ඔබ උනන්දුව දැක්වීමට ඉඩ ඇති වෙළෙඳ දැන්වීම් වර්ග අනුමාන කළ හැකි අතර එම ලැදිකම් ඔබේ උපාංගය මත තාවකාලිකව සුරැකිය හැක. මෙය වෙනත් සංවර්ධකයින්ගේ වෙබ් අඩවි හා යෙදුම් හරහා ඔබේ ක්‍රියාකාරකම් නිරීක්ෂණ කිරීමෙන් තොරව යෙදුම්වලට ඔබට ඔබ කැමති වීමට ඉඩ ඇති දැන්වීම් පෙන්වීමට ඉඩ ලබා දෙයි."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"පෞද්ගලිකත්ව වැලිපෙට්ටිය මගින් දැන්වීම් පුද්ගලායනය"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android මගින් අනුමාන කරන ලද ලැදිකම්"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android ඔබ භාවිත කරන යෙදුම්වලට අනුව ඔබගේ ප්‍රමුඛත ම ලැදිකම් අනුමාන කරයි, උදාහරණ වශයෙන් \"ක්‍රීඩා\" හෝ \"සංචාර\".\n\nපසුව, යෙදුමක් එම ලැදිකම් ඔබට ඉතා අදාළ දැන්වීම් පෙන්වීමට යොදා ගන්නා ලෙස Android වෙතින් ඉල්ලිය හැක.\n\nඔබට ඔබේ පෞද්ගලිකත්ව සැකසීම් තුළ වත්මන් ලැදිකම්වල ලැයිස්තුවක් බැලීමට හා ඔබ අකමැති යමක් නම් ඉවත් කිරීමට පුළුවනි."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  යෙදුම් මගින් අනුමාන කරන ලද ලැදිකම්"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"යෙදුම් ඔබේ ලැදිකම් අනුමාන කර ඒවා තාවකාලිකව Android සමග සුරැකිය හැක. උදාහරණ ලෙස, ඔබ දිවීමේ දී පළඳින සපත්තු මිල දී ගැනීමට භාවිතා කරන යෙදුමක් ඔබේ ලැදිකම \"මැරතන් දිවීම\" ලෙස අනුමාන කළ හැක.\n\nපසුව, මෙම ලැදිකම්වලට අනුව වෙනත් යෙදුමක් මැරතන්වලට අදාළ දැන්වීමක් පෙන්විය හැක.\n\nඔබේ පෞද්ගලිකත්ව සැකසීම් තුළ ඔබට සුරැකි ලැදිකම් ඇති යෙදුම් ලැයිස්තුව කළමනා කළ හැක."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"දැන්වීම් මාතෘකා සහ නව පාලනයන් ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා දෙයි"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android ඔබ මෑතක දී භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි. එසේම, ඔබ භාවිතා කරන යෙදුම්වලට ඔබ කැමති දේ තීරණය කළ හැක. පසුව, ඔබට පෞද්ගලීකරණය කළ දැන්වීම් පෙන්වීමට යෙදුම්වලට මෙම තොරතුරු විමසා සිටිය හැක. ඔබට දැන්වීම් පෙන්වීමට භාවිතා කරන මාතෘකා සහ යෙදුම් තෝරා ගත හැක."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"වෙළඳ දැන්වීමක කාර්ය සාධනය මැනීම සඳහා, යෙදුම් අතර සීමිත දත්ත වර්ග බෙදා ගනී."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android හි දැන්වීම් පිළිබඳව වැඩිදුර"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"වඩාත් ප්‍රයෝජනවත් දැන්වීම්"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"ඔබ දකින දැන්වීම් පෞද්ගලීකරණය කිරීමට උදවු කිරීමට යෙදුම්වලට Android තොරතුරු විමසා සිටිය හැක."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android ඔබ මෑතක දී භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  ඔබ භාවිතා කරන යෙදුම්වලට ඔබ ඒවා භාවිතා කරන ආකාරය මත පදනම්ව ඔබ කැමති දේ තීරණය කළ හැක. උදාහරණයක් ලෙස, ඔබ දිගු දුර දුවන සපත්තු අලෙවි කරන යෙදුමක් භාවිතා කරන්නේ නම්, ඔබ මැරතන් දිවීමට කැමති බව යෙදුම තීරණය කරයි."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"පසුව, ඔබ භාවිත කරන යෙදුමකට මෙම තොරතුරු විමසා සිටිය හැක — ඔබේ දැන්වීම් මාතෘකා හෝ ඔබ භාවිතා කළ යෙදුම් මගින් යෝජනා කළ දැන්වීම්."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android ස්වයංව මාතෘකා සහ යෙදුම්-යෝජිත දත්ත නිතිපතා මකා දමයි. ඔබට යෝජනා කිරීමට අවශ්‍ය නොවන විශේෂිත මාතෘකා සහ යෙදුම් අවහිර කිරීමට ද හැක."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"දැන්වීමක් කෙතරම් හොඳින් ක්‍රියාත්මක වේ ද යන්න මැන බැලීම"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"ඔබ භාවිතා කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්ය සාධනය මැනීමට උදවු කිරීමට Android වෙතින් තොරතුරු විමසා සිටිය හැක. ඔබට දැන්වීමක් පෙන්වූ දවසේ වේලාව වැනි සීමිත දත්ත වර්ග එකතු කිරීමට Android යෙදුම්වලට ඉඩ දෙයි."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"නව දැන්වීම් රහස්‍යතා විශේෂාංග උත්සාහ කරන්න"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"දැන්වීම් මාතෘකා ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා දෙයි"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"විස්තර බලන්න"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග උත්සාහ කරන්න"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා දෙන නව පෞද්ගලිකත්ව විශේෂාංග දියත් කරයි."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"දැන්වීම් මාතෘකා ඔබේ අනන්‍යතාවය සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කරන අතරම ඔබට අදාළ දැන්වීම් පෙන්වීමට යෙදුම්වලට උදවු කරයි. Android හට ඔබ මෑතක දී භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කළ හැක. පසුව, ඔබ භාවිතා කරන යෙදුමකට ඔබ දකින දැන්වීම් පෞද්ගලීකරණය කිරීමට අදාළ මාතෘකා සඳහා Android විමසා සිටිය හැක."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"ඔබට ඔබේ උපාංග සැකසීම් තුළ දැන්වීම් මාතෘකා දැකීමට සහ ඔබට යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නොවන ඒවා අවහිර කිරීමට හැක. Android දැන්වීම් මාතෘකා නිතිපතා ස්වයංව ද මකා දමයි."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"ඔබට ඕනෑම වේලාවක පෞද්ගලිකත්ව සැකසීම් තුළ ඔබේ අදහස වෙනස් කළ හැක."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"දැන්වීම් මාතෘකා පිළිබඳව වැඩිදුර"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Android ඔබේ දත්ත ආරක්ෂා කරන ආකාරය ගැන අප "<a href="https://policies.google.com/privacy">"පෞද්ගලිකත්ව ප්‍රතිපත්තිය"</a>" තුළින් තව දැන ගන්න."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"එය අත්හදා බලන්න"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  භාවිතා කරන දත්ත"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"ඔබේ දැන්වීම් මාතෘකා ඔබ මෙම උපාංගයේ මෑතක දී භාවිතා කළ යෙදුම් සහ ඔබ ඒවා කොපමණ නිතර භාවිත කරන ආකාරය මත පදනම් වේ."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  අප මෙම දත්ත භාවිතා කරන ආකාරය"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"ඔබ ඔබේ යෙදුම් භාවිතා කරන විට Android උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි. මාතෘකා ලේබල පූර්ව නිර්වචනය කර ඇති අතර කලා සහ විනෝදාස්වාදය, සාප්පු සවාරි, සහ ක්‍රීඩා වැනි දේ ඇතුළත් වේ. පසුව, ඔබ භාවිතා කරන යෙදුමකට ඔබ දකින දැන්වීම් පෞද්ගලීකරණය කිරීමට ඔබගේ මාතෘකා කිහිපයක් (නමුත් ඔබේ යෙදුම් භාවිතය හෝ අනන්‍යතාවය පිළිබඳ දත්ත නොවේ) Android වෙතින් විමසා සිටිය හැක."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  ඔබට ඔබේ දත්ත කළමනාකරණය කළ හැකි ආකාරය"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android ස්වයංව මාතෘකා නිතිපතා මකා දමයි. ඔබ යෙදුම් දිගටම භාවිතා කරන විට, මාතෘකාවක් ලැයිස්තුවේ නැවත දිස් විය හැක. ඔබට Android යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නැති මාතෘකා අවහිර කිරීමටත්, පෞද්ගලිකත්ව සැකසීම් තුළ ඕනෑම වේලාවක දැන්වීම් මාතෘකා ක්‍රියා විරහිත කිරීමටත් හැක."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"ඔබට රහස්‍යතා සැකසීම් තුළ වෙනස්කම් සිදු කළ හැක."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"වෙනත් දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android ඔබට පෞද්ගලීකරණය කළ දැන්වීම් පෙන්වන විට යෙදුම්වලට ඔබ පිළිබඳව ඉගෙන ගත හැකි දේ සීමා කිරීමට නව ක්‍රම ද පිරිනමයි."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  යෙදුම්-යෝජිත දැන්වීම් ඔබට අදාළ දැන්වීම් පෙන්වීමට යෙදුම් සබල කරන අතරේ ඔබේ අනන්‍යතාවය සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කිරීමට උදවු කරයි. ඔබේ ක්‍රියාකාරකම් මත පදනම්ව, ඔබ භාවිතා කරන යෙදුමකට වෙනත් යෙදුම්වල අදාළ දැන්වීම් යෝජනා කළ හැක. ඔබට යෙදුම් ලැයිස්තුවක් දැකීමට සහ පෞද්ගලිකත්ව සැකසීම් තුළ ඒවා යෝජනා කිරීමෙන් අවහිර කළ හැක."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  දැන්වීම් මිනුම සමගින්, ඔබට දැන්වීමක් පෙන්වූ දවසේ වේලාව වැනි, ඔවුන්ගේ දැන්වීම්වල කාර්ය සාධනය මැනීමට යෙදුම් අතර සීමිත දත්ත වර්ග බෙදා ගනී."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"යෙදුම්-යෝජිත දැන්වීම් සහ දැන්වීම් මැනීම පිළිබඳ වැඩිදුර"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"යෙදුම්-යෝජිත දැන්වීම්"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  භාවිතා කරන දත්ත"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"ඔබ මෙම උපාංගයෙහි භවිතා කරන යෙදුමක ඔබේ ක්‍රියාකාරකම්."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  යෙදුම් මෙම දත්ත භාවිතා කරන ආකාරය"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"යෙදුම්වලට ඔබ කැමති දේවල් ගැන Android සමග තොරතුරු ගබඩා කළ හැක. උදාහරණයක් ලෙස, ඔබ මැරතන් පුහුණුව පිළිබඳ යෙදුමක් භාවිතා කරන්නේ නම්, ඔබ දුවන සපත්තුවලට කැමති බව යෙදුම තීරණය කරයි. පසුව, ඔබ වෙනත් යෙදුමක් භාවිතා කරන්නේ නම්, එම යෙදුමට පළමු යෙදුම මගින් යෝජනා කරන ලද දුවන සපත්තු සඳහා දැන්වීමක් පෙන්විය හැක."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  ඔබට ඔබේ දත්ත කළමනාකරණය කළ හැකි ආකාරය"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android යෙදුම්-යෝජිත දත්ත නිතිපතා ස්වයංව මකා දමයි. ඔබ නැවත භාවිතා කරන යෙදුමක් ලැයිස්තුවෙහි නැවත දිස් විය හැක."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"ඔබට ඔබ වෙනුවෙන් දැන්වීම් යෝජනා කිරීමෙන් යෙදුමක් අවහිර කිරීමට, සියලු දැන්වීම්-යෝජනා දත්ත යළි සැකසීමට, හෝ පෞද්ගලිකත්ව සැකසීම් තුළ ඕනෑම වේලාවක යෙදුම්-යෝජිත දැන්වීම් ක්‍රියා විරහිත කිරීමට ද හැක."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"ඔබ භාවිතා කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්ය සාධනය මැනීමට උදවු වන තොරතුරු සඳහා Android වෙතින් විමසා සිටිය හැක. Android යෙදුම්වලට එකිනෙකා සමග බෙදා ගත හැකි තොරතුරු සීමා කිරීමෙන් ඔබේ පෞද්ගලිකත්වය ආරක්ෂා කරයි."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"ඔබේ අනන්‍යතාවය ආරක්ෂා කරන අතරේ ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා ගන්න"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"ඒවා ඔබට පෞද්ගලීකරණය කළ දැන්වීම් පෙන්වන විට යෙදුම්වලට ඔබ ගැන ඉගෙන ගත හැකි දේ සීමා කිරීමට Android නව ක්‍රම දියත් කරයි."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  යෙදුම්-යෝජිත දැන්වීම් සමග, නව පෞද්ගලිකත්ව විශේෂාංග ඔබට අදාළ දැන්වීම් පෙන්වීමට යෙදුම් සබල කරන අතරම ඔබේ අනන්‍යතාව සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කිරීමට උදවු කරයි. ඔබේ ක්‍රියාකාරකම් මත පදනම්ව, ඔබ භාවිතා කරන යෙදුමකට වෙනත් යෙදුම්වල අදාළ දැන්වීම් යෝජනා කළ හැක. ඔබට යෙදුම් ලැයිස්තුවක් දැකීමට සහ පෞද්ගලිකත්ව සැකසීම් තුළ ඒවා යෝජනා කිරීමෙන් අවහිර කළ හැක."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  දැන්වීම් මිනුම සමගින්, ඔබට දැන්වීමක් පෙන්වූ දවසේ වේලාව වැනි, ඔවුන්ගේ දැන්වීම්වල කාර්ය සාධනය වටහා ගැනීමට යෙදුම් අතර සීමිත දත්ත වර්ග බෙදා ගනී."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"මෙම උපාංගයෙහි යෙදුමක ඇති ඔබේ ක්‍රියාකාරකම් දැන්වීම් යෝජනා කිරීමට භාවිතා කළ හැක."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"වෙනත් දැන්වීම් පෞද්ගලිකත්ව විශේෂාංගය ක්‍රියාත්මක කරන්න"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා දෙන නව පෞද්ගලිකත්ව විශේෂාංගයක් ද Android විසින් පිරිනමයි."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"දැන්වීම් මාතෘකා ඔබේ අනන්‍යතාවය සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කරන අතරම ඔබට අදාළ දැන්වීම් පෙන්වීමට යෙදුම්වලට උදවු කරයි. Android හට ඔබ මෑතක දී භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කළ හැක. පසුව, ඔබ භාවිතා කරන යෙදුමකට ඔබට වඩාත් අදාළ දැන්වීම් පෙන්වීමට අදාළ මාතෘකා සඳහා Android වෙතින් විමසිය හැක."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"ඔබට ඔබේ පෞද්ගලිකත්ව සැකසීම් තුළ දැන්වීම් මාතෘකා දැකීමට සහ ඔබට යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නොවන ඒවා අවහිර කිරීමට හැක. Android දැන්වීම් මාතෘකා නිතිපතා ස්වයංව ද මකා දමයි."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"එය ක්‍රියාත්මක කරන්න"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"දැන්, ඔබේ අනන්‍යතාවය ආරක්ෂා කරන අතරේ ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් තිබේ"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග දැන් තිබේ"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android දැන් ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා දෙන නව පෞද්ගලිකත්ව විශේෂාංග පිරිනමයි."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"මීළඟ"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"පෞද්ගලිකත්ව වැලිපෙට්ටිය"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android හි දැන්වීම් පෞද්ගලිකත්ව බීටාවට සහභාගී වන්න"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"පෞද්ගලිකත්ව වැලිපෙට්ටිය"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android මගින් අනුමාන කරන ලද ලැදිකම්"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"ලැදිකම් අනුමාන කරන යෙදුම්"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"දැන්වීම් මිනුම"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"යෙදුම්වලට ඒවායේ දැන්වීම්වල ඵලදායීත්වය මැනීමට පෞද්ගලිකත්ව වැලිපෙට්ටිය භාවිත කළ හැක. මෙය කිරීමට, දැන්වීම්කරුවන්ට තම දැන්වීම් සහ යෙදුම් අතර ඔබේ අන්තර්ක්‍රියා පිළිබඳව Android වෙත තාවකාලිකව දත්ත සුරැකිය හැක. ඔවුන්ට සුරැකිය හැකි දත්ත ප්‍රමාණයට සීමා පනවා ඇති අතර ක්‍රමවත් ලෙස මකා දැමේ.\n\nඔබට පෞද්ගලිකත්ව වැලිපෙට්ටිය අක්‍රිය කිරීමෙන් ඕනෑම මොහොතක මෙම දත්ත මැකිය හැක."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android ඔබ භාවිත කරන යෙදුම්වලට අනුව ඔබේ ප්‍රමුඛත ම ලැදිකම් වරින් වර අනුමාන කරයි. යෙදුම් ඔබට ඉතා අදාළ දැන්වීම් පෙන්වීම සඳහා එකී ලැදිකම් භාවිත කරන ලෙස Android වෙත පැවසිය හැක.\n\nඔබ විසින් ලැදිකමක් අවහිර කළහොත්, ඔබ එය අනවහිර කරන තෙක් නැවතත් ලැයිස්තුවට එක් කරනු නොලැබේ. ඔබ තවමත් යම් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"අවහිර කරන්න"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"අවහිර නොකරන්න"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"ඔබ අවහිර කර ඇති ලැදිකම්"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"ලැදිකම් සියල්ල යළි සකසන්න."</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"මේ මොහොතේ පෙන්වීමට ලැදිකම් කිසිවක් නැත."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"මේ මොහොතේ පෙන්වීමට මාතෘකා නැත.\n"<a href="https://support.google.com/android?p=ad_privacy">"දැන්වීම් මාතෘකා"</a>" පිළිබඳව තව දැන ගන්න"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"පෞද්ගලිකත්ව වැලිපෙට්ටිය"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android හි දැන්වීම් පෞද්ගලිකත්ව බීටා යෙදුම් ඔබට ඔබ කැමති වීමට ඉඩ ඇති දැන්වීම් පෙන්වීමට භාවිත කළ හැකි නව විශේෂාංග සපයයි. මෙම තාක්ෂණයන් මගින් උපාංග හැඳුනුම්කාරක භාවිතා නොකරයි.\n\nAndroid හට ඔබ උනන්දුවක් දැක්වීමට ඉඩ ඇති ආකාරයේ වෙළෙඳ දැන්වීම් අනුමාන කර ඒවා තාවකාලිකව ඔබේ උපාංගය මත සුරැකිය හැක. මින් වෙනත් සංවර්ධකයන්ගේ වෙබ් අඩවි හරහා ඔබේ ක්‍රියාකාරකම් නිරීක්ෂණය නොකර ඔබට අදාළ වෙළෙඳ දැන්වීම් පෙන්වීමට යෙදුම්වලට ඉඩ ලබා දේ."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"ඔබට අවහිර කළ ලැදිකම් කිසිවක් නැත"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"අවහිර කළ මාතෘකා නැත"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"අවහිර කළ මාතෘකා බලන්න"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"රුචිකත්වයන් යළි සකසයි"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"මාතෘකා යළි සකසන ලදි"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"යෙදුම් ඔබේ ලැදිකම් අනුමාන කර ඒවා තාවකාලිකව Android සමග සුරැකිය හැක. පසුව වෙනත් යෙදුමක් මෙම ලැදිකම්වලට අනුව ඔබට දැන්වීමක් පෙන්විය හැක.\n\nඔබ යෙදුමක් අවහිර කළහොත්, එය තවදුරටත් ලැදිකම් අනුමාන නොකරයි. ඔබ එය අනවහිර කරන තුරු එය මෙම යෙදුම් ලැයිස්තුවට එක් නොකෙරේ. දැනටමත් යෙදුම මගින් අනුමාන කර ඇති ලැදිකම් මකා දැමෙන නමුත් ඔබ තවදුරටත් යම් අදාළ දැන්වීම් දැකීමට ඉඩ ඇත."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"ඔබ අවහිර කළ යෙදුම්"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"අවහිර කළ යෙදුම් බලන්න"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"යෙදුම් මගින් අනුමාන කරන ලද ලැදිකම් යළි සකසන්න"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"මේ මොහොතේ කිසිදු යෙදුමක් ඔබ වෙනුවෙන් ලැදිකම් ජනනය නොකරයි"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"මේ මොහොතේ පෙන්වීමට යෙදුම් නැත. \n"<a href="https://support.google.com/android?p=ad_privacy">"යෙදුම්-යෝජිත දැන්වීම්"</a>" පිළිබඳව තව දැන ගන්න"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"පෞද්ගලිකත්ව වැලිපෙට්ටිය"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android හි දැන්වීම් පෞද්ගලිකත්ව බීටා යෙදුම් ඔබට ඔබ කැමති වීමට ඉඩ ඇති දැන්වීම් පෙන්වීමට භාවිත කළ හැකි නව විශේෂාංග සපයයි. මෙම තාක්ෂණයන් මගින් උපාංග හැඳුනුම්කාරක භාවිතා නොකරයි.\n\nයෙදුම්වලට ඔබ උනන්දුවක් දැක්විය හැකි වෙළෙඳ දැන්වීම් වර්ග අනුමාන කර, ඒවා තාවකාලිකව ඔබේ උපාංගයේ සුරැකිය හැක. මින් වෙනත් සංවර්ධකයන්ගේ වෙබ් අඩවි හරහා ඔබේ ක්‍රියාකාරකම් නිරීක්ෂණය නොකර ඔබට අදාළ වෙළෙඳ දැන්වීම් පෙන්වීමට යෙදුම්වලට ඉඩ ලබා දේ."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"ඔබට අවහිර කළ යෙදුම් නැත"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"අවහිර කළ යෙදුම් නැත"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"දැන්වීම් මැනීමට ඉඩ දෙන්න"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"යෙදුම් සහ වෙළඳ ප්‍රචාරකයන්ට ඔවුන්ගේ දැන්වීම්වල ක්‍රියාකාරීත්වය මැනීමට උදවු වන Android වෙතින් තොරතුරු ඉල්ලා සිටිය හැක.\n\nදැන්වීම් මිනුම් දත්ත ඔබේ උපාංගයෙන් නිතිපතා මකනු ලැබේ."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"මිනුම් දත්ත යළි සකසන්න"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"යෙදුම්වලට එකිනෙක සමග බෙදා ගත හැකි තොරතුරු සීමා කිරීමෙන් Android ඔබේ පෞද්ගලිකත්වය ආරක්ෂා කරයි. ඔබේ අනන්‍යතාව ආරක්ෂා කිරීමට ප්‍රමාදයකින් වාර්තා යවනු ලැබේ.\n\nඔබේ බ්‍රවුසරයට සමාන සැකසීමක් තිබේවි. Android සහ ඔබේ බ්‍රවුසරය යන දෙක ම සඳහා දැන්වීම් මැනීම සක්‍රීය නම්, සමාගමකට ඔබ භාවිත කරන යෙදුම් සහ ඔබ පිවිසෙන අඩවි අතර දැන්වීමක සඵලතාව මැනිය හැකි වේවි. ඔබේ බ්‍රවුස් කිරීමේ ඉතිහාසය ඔබේ උපාංගය මත පෞද්ගලිකව තබනු ලැබේ.\n\nඅප "<a href="https://policies.google.com/privacy">"පෞද්ගලිකත්ව ප්‍රතිපත්තිය"</a>" තුළින් Android ඔබේ දත්ත ආරක්ෂා කරන ආකාරය ගැන තව දැන ගන්න."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"දැන්වීම් මිනුම් දත්ත යළි සකසන ලදි"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"අවලංගු කරන්න"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"රහස්‍යතා සෑන්ඩ්බොක්ස් ක්‍රියාවිරහිත කරන්න ද?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"ඔබ ඔබේ අදහස වෙනස් කරන්නේ නම් හෝ Android හි දැන්වීම් රහස්‍යතා බීටා ගැන තව දැන ගැනීමට අවශ්‍ය නම්, ඔබේ රහස්‍යතා සැකසීම් වෙත යන්න"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"ක්‍රියාවිරහිත කරන්න"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> අවහිර කරන්න ද?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"මෙම මාතෘකාව අවහිර කරනු ලබන අතර ඔබ එය නැවත එක් කරන්නේ නම් මිස නැවත ඔබේ ලැයිස්තුවට එක් නොකරනු ඇත. ඔබ තවමත් යම් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"අවහිර කරන්න"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> අවහිර කිරීම ඉවත් කර ඇත"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android මෙම මාතෘකාව නැවත ඔබේ ලැයිස්තුවට එක් කළ හැකි නමුත්, එය ක්ෂණිකව නොපෙන්වයි"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"හරි"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"සියලු දැන්වීම් මාතෘකා යළි සකසන්න ද?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"ඔබේ ලැයිස්තුව හිස් කරනු ලබන අතර ඉදිරියට නව මාතෘකා එක් කරනු ඇත. ඔබ යළි සැකසූ මාතෘකාවලට අදාළ සමහර දැන්වීම් ඔබට තවමත් දැකිය හැක."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"යළි සකසන්න"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> අවහිර කරන්න ද?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"මෙම යෙදුම ඔබ එය අවහිර නොකරන්නේ නම්, දැන්වීම් යෝජනා නොකරන අතර නැවත ඔබේ ලැයිස්තුවට එක් නොකරනු ඇත. ඔබ තවමත් යම් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> අවහිර කිරීම ඉවත් කර ඇත"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"මෙම යෙදුමට ඔබ වෙනුවෙන් නැවත දැන්වීම් යෝජනා කළ හැකි නමුත්, එය වහාම ඔබේ ලැයිස්තුවෙහි දිස් නොවනු ඇත. ඔබට අදාළ දැන්වීම් බැලීමට යම් කාලයක් ගත විය හැක."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"යෙදුම් මගින් යෝජිත දැන්වීම් යළි සකසන්න ද?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"ඔබේ ලැයිස්තුවේ ඇති යෙදුම් වලින් දැන්වීම්-යෝජනා දත්ත මකා දමනු ඇති අතර යෙදුම් ඉදිරියට යාමට නව දැන්වීම් යෝජනා කරයි. ඔබ තවමත් යම් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"යෙදුම් දත්ත යළි සකසන ලදි"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"දැන්වීම් මාතෘකා ක්‍රියාත්මකයි"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android උනන්දුවක් දක්වන මාතෘකා සටහන් කිරීම ආරම්භ කරනු ඇති නමුත්, ඔබේ පළමු මාතෘකා දිස් වීමට යම් කාලයක් ගත විය හැක."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"දැන්වීම් මාතෘකා ක්‍රියාවිරහිත කරන්න ද?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"මෙම මාතෘකා ලැයිස්තුව මකා දැමෙනු ඇත. Android තවදුරටත් උනන්දුවක් දක්වන මාතෘකා සටහන් නොකරනු ඇති නමුත්, ඔබ තවමත් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"යෙදුම්-යෝජිත දැන්වීම් ක්‍රියාත්මකයි"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"යෙදුම් දැන්වීම් යෝජනා කිරීම ආරම්භ කළ හැක. ඔවුන් දැන්වීම් යෝජනා කිරීම ආරම්භ කළ පසු ඔබට යෙදුම් ලැයිස්තුවක් පෙනෙනු ඇත."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"යෙදුම්-යෝජිත දැන්වීම් ක්‍රියාවිරහිත කරන්න ද?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"සියලු දැන්වීම් යෝජනා දත්ත මකා දැමෙනු ඇත. යෙදුම්වලට තවදුරටත් දැන්වීම් යෝජනා කිරීමට නොහැකි වනු ඇති නමුත්, ඔබ තවමත් අදාළ දැන්වීම් දැකිය හැක."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"දැන්වීම් මැනීම ක්‍රියාත්මකයි"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android හට යෙදුම්වලට ඔවුන්ගේ දැන්වීම්වල ක්‍රියාකාරීත්වය මැනීමට උදවු කිරීමට යෙදුම් සමග බෙදා ගත හැක්කේ ඉතා සීමිත තොරතුරු පමණි."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"දැන්වීම් මැනීම ක්‍රියා විරහිත කරන්න ද?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"සියලු පොරොත්තු දැන්වීම් මිනුම් වාර්තා මකා දමනු ඇති අතර නව වාර්තා උත්පාදනය කිරීම හෝ බෙදා ගැනීම සිදු කරනු නොලැබේ."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"දැන්වීම් පෞද්ගලිකත්වය"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"දැන්වීම් මාතෘකා"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"යෙදුම්-යෝජිත දැන්වීම්"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android ඔබ මෑතක දී භාවිතා කළ යෙදුම් සහ ඔබ ඒවා කොපමණ නිතර භාවිතා කරන ආකාරය මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"ඔබ භාවිතා කරන යෙදුම්වලට ඔබ ඒවා භාවිතා කරන ආකාරය මත පදනම්ව ඔබ කැමති දේ තීරණය කළ හැක."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"ඔබ භාවිතා කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්ය සාධනය මැනීමට උදවු කිරීමට Android වෙතින් තොරතුරු විමසා සිටිය හැක. සීමිත දත්ත වර්ග එකතු කිරීමට Android යෙදුම්වලට ඉඩ දෙයි."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"Android මත දැන්වීම් පෞද්ගලිකත්වය"</a>" පිළිබඳව තව දැන ගන්න"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"ක්‍රියාත්මකයි / මාතෘකා <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{ක්‍රියාත්මකයි /# මාතෘකාවක්}one{ක්‍රියාත්මකයි / මාතෘකා #ක්}other{ක්‍රියාත්මකයි / මාතෘකා #ක්}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"ක්‍රියාත්මකයි / යෙදුම් <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{ක්‍රියාත්මකයි /# යෙදුමක්}one{ක්‍රියාත්මකයි / යෙදුම් #ක්}other{ක්‍රියාත්මකයි / යෙදුම් #ක්}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"ක්‍රියාත්මකයි"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"ක්‍රියාවිරහිතයි"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"උනන්දුවක් දක්වන මාතෘකා ඔබ මෑතක දී භාවිතා කළ යෙදුම් මත පදනම් වන අතර, ඔබට පෞද්ගලීකරණය කළ දැන්වීම් පෙන්වීමට යෙදුම් විසින් භාවිතා කරනු ලැබේ.\n\nඔබට යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නැති මාතෘකා අවහිර කළ හැක. Android මාතෘකා නිතිපතා ස්වයංව ද මකා දමයි.\n\nමෙම විශේෂාංගය ක්‍රියාත්මක කළ හැකි අතරේ, මෙම විශේෂාංගය සම්පූර්ණයෙන්ම ලබා ගත හැකි වන තෙක් සහ යෙදුම් එය භාවිතා කිරීම ආරම්භ කරන තෙක් ඔබට මාතෘකා ලැයිස්තුවක් නොපෙනේ."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"දැන්වීම් මාතෘකාවලට ඉඩ දෙන්න"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"ඔබ අවහිර කළ දැන්වීම් මාතෘකා"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"සියලු දැන්වීම් මාතෘකා යළි සකසන්න"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android ඔබ පසුගිය සති කිහිපය තුළ භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි.\n\nපසුව, ඔබ භාවිතා කරන යෙදුමකට ඔබ දකින දැන්වීම් පෞද්ගලීකරණය කිරීමට ඔබේ මාතෘකා සඳහා Android විමසා සිටිය හැක. ඔබේ අනන්‍යතාවය සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කරමින් Android මාතෘකා 3ක් දක්වා බෙදා ගනී.\n\nAndroid ස්වයංව මාතෘකා නිතිපතා මකා දමයි. ඔබ යෙදුම් දිගටම භාවිතා කරන විට, මාතෘකාවක් ලැයිස්තුවේ නැවත දිස් විය හැක. නැතහොත් ඔබට Android යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නොවන මාතෘකා අවහිර කළ හැක.\n\nඔබේ යෙදුම්වල, ඔබ දකින දැන්වීමක් මෙම සැකසීම, යෙදුම්-යෝජිත දැන්වීම් සැකසීම, ඔබේ වෙළඳ ප්‍රචාරණ ID සැකසීම්, සහ ඔබ භාවිතා කරන යෙදුම දැන්වීම් පෞද්ගලීකරණය කරන ආකාරය මත පදනම්ව, පෞද්ගලීකරණය කළ හැක."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"යෙදුම්-යෝජිත දැන්වීම්වලට ඉඩ දෙන්න"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"ඔබ භාවිතා කරන යෙදුම්වලට ඔබ කැමති දේ තීරණය කළ හැකි අතර පසුව වෙනත් යෙදුම්වල දැන්වීම් යෝජනා කළ හැක.\n\nඔබට යෝජනා කිරීමෙන් යෙදුම් අවහිර කළ හැක. Android යෙදුම්-යෝජිත දත්ත නිතිපතා ස්වයංව ද මකා දමයි.\n\nමෙම විශේෂාංගය ක්‍රියාත්මක කළ හැකි අතරේ, මෙම විශේෂාංගය සම්පූර්ණයෙන්ම ලබා ගත හැකි වන තෙක් සහ යෙදුම් එය භාවිතා කිරීම ආරම්භ කරන තෙක් ඔබට යෙදුම් ලැයිස්තුවක් නොපෙනේ."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"ඔබ අවහිර කළ යෙදුම්"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"යෙදුම්-යෝජිත දත්ත යළි සකසන්න"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"ඔබ භාවිතා කරන යෙදුම් ඔබේ අත්දැකීම පෞද්ගලීකරණය කිරීමට ඔබ කැමති දේවල් මතක තබා ගැනීම සාමාන්‍ය දෙයකි. යෙදුම්වලට ඔබේ මාතෘකා පිළිබඳ තොරතුරු Android සමග ගබඩා කිරීම ද කළ හැක.\n\nඋදාහරණයක් ලෙස, ඔබ මැරතන් පුහුණුව පිළිබඳ යෙදුමක් භාවිතා කරන්නේ නම්, ඔබ ධාවන සපත්තුවලට කැමති බව යෙදුම තීරණය කරයි. පසුව, ඔබ වෙනත් යෙදුමක් භාවිතා කරන්නේ නම්, එම යෙදුමට පළමු යෙදුම මගින් යෝජනා කරන ලද ධාවන සපත්තු සඳහා දැන්වීමක් පෙන්විය හැක.\n\nAndroid ස්වයංව යෙදුම්-යෝජිත දත්ත නිතිපතා මකා දමයි. ඔබ නැවත භාවිතා කරන යෙදුමක් ලැයිස්තුවෙහි නැවත දිස් විය හැක. නැතහොත් ඔබට ඔබ වෙනුවෙන් දැන්වීම් යෝජනා කිරීමෙන් යෙදුමක් අවහිර කළ හැක.\n\nඔබේ යෙදුම් තුළ, ඔබ දකින දැන්වීමක් මෙම සැකසීම, දැන්වීම් මාතෘකා සැකසීම, ඔබේ වෙළඳ ප්‍රචාරණ ID සැකසීම්, සහ යෙදුම ඔබ පෞද්ගලීකරණය කළ දැන්වීම් භාවිතා කරන ආකාරය මත පදනම්ව පෞද්ගලීකරණ කළ හැක."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංගය දැන් තිබේ"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"දැන්වීම් කාර්ය සාධනය මැනීමට උදවු කිරීමට යෙදුම් අතර බෙදා ගනු ලබන්නේ ඉතා සීමිත තතු පමණි"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"අපි දැන්වීම් මැනීම නමින් නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංගයක් දියත් කරන්නෙමු. Android යෙදුම්වලට දැන්වීම්වල ක්‍රියාකාරිත්වය මැනීමට උදවු කරමින්, ඔබට දැන්වීමක් පෙන්වූ විට වැනි ඉතා සීමිත තොරතුරු පමණක් යෙදුම් අතර බෙදා ගනී."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"ඔබට දැන්වීම් පෞද්ගලිකත්ව සැකසීම් තුළ වෙනස්කම් සිදු කළ හැක."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"ඔබ භාවිතා කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්ය සාධනය මැනීමට උදවු කිරීමට Android වෙතින් තොරතුරු විමසා සිටිය හැක. සීමිත දත්ත වර්ග එකතු කිරීමට පමණක් Android යෙදුම්වලට ඉඩ දෙයි."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"නව දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"ඔබේ අනන්‍යතාවය ආරක්ෂා කර ගැනීමට උදවු කරන අතරේ ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා ගන්න"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"ඔබේ දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග වෙත යාවත්කාලීන"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"ඔබේ අනන්‍යතාවය ආරක්ෂා කර ගැනීමට උදවු කරන අතරේ ඔබ දකින දැන්වීම්වලට වඩා වැඩි තේරීමක් ලබා ගන්න"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android ඔබට පෞද්ගලීකරණය කළ දැන්වීම් පෙන්වන විට යෙදුම්වලට ඔබ ගැන ඉගෙන ගත හැකි දේ සීමා කිරීමට දැන්වීම් පෞද්ගලිකත්ව විශේෂාංග පුළුල් කරයි."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"යෙදුම් සහ ඒවායේ දැන්වීම්කරණ හවුල්කරුවන්ට ඔබේ අනන්‍යතාව පුද්ගලිකව සහ සුරක්ෂිතව තැබීමට උදවු කරන අතරම දැන්වීම් පුද්ගලායනය කිරීමට මෙම උපාංගය මත වෙනත් යෙදුම් තුළ ඔබේ ක්‍රියාකාරකම් භාවිත කළ හැක."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"යෙදුම්-යෝජිත දැන්වීම් ගැන වැඩිදුර"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"ඔබට දැන්වීමක් පෙන්වූ දවසේ වේලාව වැනි, ඔවුන්ගේ දැන්වීම්වල කාර්ය සාධනය වටහා ගැනීමට යෙදුම් අතර සීමිත දත්ත වර්ග බෙදා ගනී."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"දැන්වීම් මැනීම ගැන වැඩිදුර"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android ඔබ මෑත භාවිත කළ යෙදුම් මත පදනම්ව උනන්දු දක්වන මාතෘකා සටහන් කරයි. එමෙන්ම, යෙදුම් සහ ඒවායේ දැන්වීම්කරණ හවුල්කරුවන්ට ඔබේ අනන්‍යතාව පුද්ගලිකව සහ ආරක්‍ෂිතව තැබීමට උදවු කරන අතරම දැන්වීම් පුද්ගලායන කිරීමට මෙම උපාංගය මත වෙනත් යෙදුම් තුළ ඔබේ ක්‍රියාකාරකම් භාවිත කළ හැක."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  ඔබ භාවිත කරන යෙදුම්වලට, ඔබේ යෙදුම් ක්‍රියාකාරකම මත පදනම්ව ඔබ කැමති වන්නේ කුමකටදැයි තීරණ කළ හැක. උදාහරණය ලෙස ඔබ නිරන්තරව ඉවුම් පිහුම් යෙදුම් භාවිත කරන්නේ නම් ඔබ වෙනත් යෙදුම්වල භාණ්ඩ බෙදා හැරීමේ සේවා පිළිබඳ දැන්වීම් දකීවි.\n\nයෙදුම්වලට මෙම තොරතුරු ආරක්‍ෂිතව ගබඩා කළ හැකි අතර එමගින් අනෙක් යෙදුම් මත දැන්වීම් පුද්ගලායන කිරීමට ඔවුන්ගේ දැන්වීම්කරණ හවුල්කරුවන්ට පමණක් එය භාවිත කළ හැක."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"පසුව, ඔබ භාවිත කරන යෙදුමකට මෙම තොරතුරු විමසා සිටිය හැක — ඔබේ දැන්වීම් මාතෘකා හෝ ඔබ භාවිත කළ යෙදුම් මගින් යෝජනා කළ දැන්වීම්."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"ඔබ භාවිත කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්යසාධනය මැනීමට උදවු කිරීමට Android වෙතින් තොරතුරු විමසා සිටිය හැක. යෙදුම්වලට එකිනෙකා සමග බෙදා ගත හැකි තොරතුරු සීමා කිරීමෙන් Android ඔබේ පෞද්ගලිකත්වය ආරක්‍ෂා කිරීමට උදවු කරයි."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"භාවිත කරන්නේ කුමන දත්ත ද?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"ඔබ භාවිතා කරන යෙදුම්වලට ඒවායේ දැන්වීම්වල කාර්ය සාධනය මැනීමට උදවු වන තොරතුරු සඳහා Android වෙතින් විමසා සිටිය හැක. Android යෙදුම්වලට එකිනෙකා සමග බෙදා ගත හැකි තොරතුරු සීමා කිරීමෙන් ඔබේ පෞද්ගලිකත්වය ආරක්ෂා කිරීමට උදවු කරයි."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"මගේ අනන්‍යතාවය ආරක්ෂා වන්නේ කෙසේ ද?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android යෙදුම්වලට එකිනෙකා සමඟ බෙදා ගත හැකි තොරතුරු සීමා කිරීමට සහ ඔබේ අනන්‍යතාවය ආරක්ෂා කිරීමට උදවු කිරීමට එකතු කිරීම සහ ඝෝෂාකාරී දත්ත වැනි බහු පෞද්ගලිකත්ව පියවර භාවිත කරයි.\n\nදැන්වීම් මිනුම් දත්ත ද ඔබේ උපාංගයෙන් නිතිපතා මකනු ලැබේ."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"ඔබේ යෙදුම් ක්‍රියාකාරකම් දැන්වීම් යෝජනා කිරීමට භාවිත කළ හැක."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"යෙදුම් මෙම දත්ත භාවිතා කරන්නේ කෙසේ ද?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"යෙදුම්වලට මෙම තොරතුරු සුරක්ෂිතව ගබඩා කළ හැකි අතර එමගින් අනෙක් යෙදුම් මත දැන්වීම් පුද්ගලායනය කිරීමට ඔවුන්ගේ දැන්වීම්කරණ හවුල්කරුවන්ට පමණක් එය භාවිත කළ හැක. උදාහරණය ලෙස ඔබ නිරන්තරව ඉවුම් පිහුම් යෙදුම් භාවිත කරන්නේ නම් ඔබ වෙනත් යෙදුම්වල භාණ්ඩ බෙදා හැරීමේ සේවා පිළිබඳ දැන්වීම් දකීවි."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"මම මෙම දත්ත කළමනාකරණය කරන්නේ කෙසේ ද?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"වෙළඳ ප්‍රචාරණ හවුල්කරුවන් සමඟ ඔබේ ක්‍රියාකාරකම් බෙදා ගැනීමෙන් ඔබට විශේෂිත යෙදුම් අවහිර කළ හැක. ඔබට ඔබේ පෞද්ගලිකත්ව සැකසීම් තුළ ඕනෑම වේලාවක යෙදුම්-යෝජිත දැන්වීම් යළි පිහිටුවීමට හෝ ක්‍රියාවිරහිත කිරීමට හැක. Android මෙම දත්ත නිතිපතා ස්වයංව ද මකා දමයි."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"ඔබේ පෞද්ගලිකත්වය ආරක්ෂා කිරීමට Android උදවු කරන ආකාරය ගැන තව දැන ගන්න"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"යෙදුම් සහ ඒවායේ වෙළඳ ප්‍රචාරණ හවුල්කරුවන්ට ඔබ පිළිබඳ තොරතුරු රහසිගතව සහ සුරක්ෂිතව තබා ගනිමින් දැන්වීම් පුද්ගලායනය කිරීමට මෙම උපාංගයේ වෙනත් යෙදුම් හරහා ඔබේ ක්‍රියාකාරකම් භාවිත කළ හැක.\n\nඋදාහරණයක් ලෙස, ඔබ නිතිපතා ඉවුම් පිහුම් යෙදුම් භාවිතා කරන්නේ නම්, ඔබට සිල්ලර බඩු බෙදා හැරීමේ සේවා සඳහා දැන්වීම් හෝ වෙනත් යෙදුම්වල අදාළ අන්තර්ගතයන් දැකිය හැක.\n\nAndroid ඔබේ ක්‍රියාකාරකම් නිතිපතා ස්වයංව මකා දමන නමුත්, ඔබට මෙම තොරතුරු ඔවුන්ගේ වෙළඳ ප්‍රචාරණ හවුල්කරුවන් සමඟ බෙදා ගැනීමෙන් යෙදුම් අවහිර කළ හැක."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"යෙදුම් සහ ඒවායේ ප්‍රචාරණ හවුල්කරුවන් ඔබේ අත්දැකීම පුද්ගලායනය කිරීමට ඔබ කැමති දේවල් මතක තබා ගැනීම සාමාන්‍ය දෙයකි. යෙදුම්වලට මෙම තොරතුරු ආරක්ෂිතව ගබඩා කළ හැකි අතර එමඟින් වෙනත් යෙදුම්වල දැන්වීම් පෙන්වීමට ඔවුන්ගේ වෙළඳ ප්‍රචාරණ හවුල්කරුවන්ට පමණක් භාවිත කළ හැක.\n\nඔබට ඔබේ ක්‍රියාකාරකම් දත්ත වෙළඳ ප්‍රචාරණ හවුල්කරුවන් සමඟ බෙදා ගැනීමෙන් යෙදුමක් අවහිර කළ හැක. Android ද බෙදා ගත් ක්‍රියාකාරකම් දත්ත නිතිපතා ස්වයංව මකා දමයි, එබැවින් ඔබ නැවත භාවිතා කරන යෙදුමක් මෙම ලැයිස්තුවේ නැවත දිස් විය හැක.\n\nඔබ දකින දැන්වීමක් පෞද්ගලීකරණය කර තිබේ ද යන්න මෙම සැකසීම, දැන්වීම් මාතෘකා සැකසීම, ඔබේ වෙළඳ ප්‍රචාරණ ID සැකසීම්, සහ ඔබ පෞද්ගලීකරණය කළ දැන්වීම් භාවිතා කරන යෙදුම වැනි බොහෝ සාධක මත රඳා පවතී.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"යෙදුම්-යෝජිත දැන්වීම් ගැන තව දැන ගන්න"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android යෙදුම්වලට එකිනෙකා සමඟ බෙදා ගත හැකි තොරතුරු සීමා කිරීමට සහ ඔබේ අනන්‍යතාවය ආරක්ෂා කිරීමට උදවු කිරීමට එකතු කිරීම සහ ඝෝෂාකාරී දත්ත වැනි බහු පෞද්ගලිකත්ව පියවර භාවිත කරයි.\n\nඔබේ බ්‍රව්සරයට සමාන සැකසීමක් තිබිය හැක. Android සහ ඔබේ බ්‍රව්සරය යන දෙකෙහිම දැන්වීම් මැනීම ක්‍රියාත්මක නම්, ඔබ භාවිතා කරන යෙදුම් සහ ඔබ පිවිසෙන අඩවි අතර වෙළඳ දැන්වීමක සඵලතාවය මැනීමට සමාගමකට හැකි විය හැක. ඔබේ බ්‍රවුස් කිරීමේ ඉතිහාසය ඔබේ උපාංගයෙහි පෞද්ගලිකව තබා ඇත.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"දැන්වීම් මැනීම ගැන තව දැන ගන්න"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android ඔබ පසුගිය සති කිහිපය තුළ භාවිතා කළ යෙදුම් මත පදනම්ව උනන්දුවක් දක්වන මාතෘකා සටහන් කරයි.\n\nපසුව, ඔබ භාවිතා කරන යෙදුමකට ඔබ දකින දැන්වීම් පුද්ගලායනය කිරීමට ඔබේ මාතෘකා සඳහා Android විමසා සිටිය හැක. ඔබේ අනන්‍යතාවය සහ ඔබේ යෙදුම් භාවිතය පිළිබඳ තොරතුරු ආරක්ෂා කරමින් Android මාතෘකා 3ක් දක්වා බෙදා ගනී.\n\nAndroid ස්වයංව මාතෘකා නිතිපතා මකා දමයි. ඔබ යෙදුම් දිගටම භාවිතා කරන විට, මාතෘකාවක් ලැයිස්තුවේ නැවත දිස් විය හැක. නැතහොත් ඔබට Android යෙදුම් සමග බෙදා ගැනීමට අවශ්‍ය නොවන මාතෘකා අවහිර කළ හැක.\n\nඔබ දකින දැන්වීමක් පෞද්ගලීකරණය කර තිබේ ද යන්න මෙම සැකසීම, යෙදුම්-යෝජිත දැන්වීම් සැකසීම, ඔබේ වෙළඳ ප්‍රචාරණ ID සැකසීම්, සහ ඔබ පෞද්ගලීකරණය කළ දැන්වීම් භාවිතා කරන යෙදුම වැනි බොහෝ සාධක මත රඳා පවතී.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"දැන්වීම් මාතෘකා ගැන තව දැන ගන්න"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"සංගීතය, පුවත්, සහ ක්‍රීඩා වැනි උනන්දුවක් දක්වන මාතෘකා නියෝජනය කරන සංකේතවල වර්ණවත් රූප සටහන"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"රවුමක ඇතුළත අගුලක වර්ණවත් රූප සටහන"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"සමචතුරස්‍රයක් සාදන තිත් නවයක කුඩා කළු සහ සුදු රූප සටහන"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"හදවතක්, ත්‍රිකෝණයක්, සහ සමචතුරස්‍රයක් වැනි සරල හැඩතලවල කුඩා කළු සහ සුදු රූප සටහන"</string>
+    <string name="topic10001" msgid="1270825507916795717">"කලා සහ විනෝදාස්වාදය"</string>
+    <string name="topic10002" msgid="8657696153158750159">"රංගනය සහ රංග ශාලාව"</string>
+    <string name="topic10003" msgid="8107343709605778937">"සජීවන සහ මංගා"</string>
+    <string name="topic10004" msgid="8860839733494442614">"කාටූන්"</string>
+    <string name="topic10005" msgid="2366794377271477958">"විකට"</string>
+    <string name="topic10006" msgid="3856192433168050494">"ප්‍රසංග සහ සංගීත උත්සව"</string>
+    <string name="topic10007" msgid="7701054618107492020">"නර්තනය"</string>
+    <string name="topic10008" msgid="5566660187422751041">"විනෝදාත්මක කර්මාන්තය"</string>
+    <string name="topic10009" msgid="9048499060637442408">"විනෝදය සහ සුළු දේවල්"</string>
+    <string name="topic10010" msgid="2312303716461948144">"විනෝද පරීක්ෂණ සහ මෝඩ සමීක්ෂණ"</string>
+    <string name="topic10011" msgid="175945911179628507">"හාස්‍යය"</string>
+    <string name="topic10012" msgid="7308795546139033442">"විහිළු පින්තූර සහ වීඩියෝ"</string>
+    <string name="topic10013" msgid="1525199586552473496">"සජීවී ප්‍රහසන"</string>
+    <string name="topic10014" msgid="4310243571925250159">"සජීවී ක්‍රීඩා සිදුවීම්"</string>
+    <string name="topic10015" msgid="726046067079821146">"මැජික්"</string>
+    <string name="topic10016" msgid="2349985783026324836">"චිත්‍රපට ලැයිස්තුගත කිරීම් සහ රඟහල දර්ශන වේලාවන්"</string>
+    <string name="topic10017" msgid="5137452934538259985">"චිත්‍රපට"</string>
+    <string name="topic10018" msgid="2701694124396534094">"ක්‍රියාව සහ වික්‍රමාන්විත චිත්‍රපට"</string>
+    <string name="topic10019" msgid="4229784972880729321">"සජීවනය කළ චිත්‍රපට"</string>
+    <string name="topic10020" msgid="7406506079009096133">"ප්‍රහසන චිත්‍රපට"</string>
+    <string name="topic10021" msgid="8455397230215712525">"වෘත සහ ඉන්ඩි චිත්‍රපට"</string>
+    <string name="topic10022" msgid="4121646102859453428">"වාර්තාමය චිත්‍රපට"</string>
+    <string name="topic10023" msgid="254151319845267278">"නාට්‍යමය චිත්‍රපට"</string>
+    <string name="topic10024" msgid="9166490951622139148">"පවුලේ චිත්‍රපට"</string>
+    <string name="topic10025" msgid="4556814606759167730">"බිහිසුණු චිත්‍රපට"</string>
+    <string name="topic10026" msgid="210222384439682793">"ප්‍රේමනීය චිත්‍රපට"</string>
+    <string name="topic10027" msgid="6865151893887179263">"ත‍්‍රාසජනක"</string>
+    <string name="topic10028" msgid="7591747452141916447">"සංගීතය සහ ශ්‍රව්‍ය"</string>
+    <string name="topic10029" msgid="2603521148910221418">"බ්ලූස්"</string>
+    <string name="topic10030" msgid="1882645896051165373">"සම්භාව්‍ය සංගීත"</string>
+    <string name="topic10031" msgid="3075843490601826275">"ජන සංගීත"</string>
+    <string name="topic10032" msgid="5492959212920168739">"නැටුම් සහ විද්‍යුත් සංගීතය"</string>
+    <string name="topic10033" msgid="895853536740398847">"ජන සහ සාම්ප්‍රදායික සංගීතය"</string>
+    <string name="topic10034" msgid="4234814709585731313">"ජෑස්"</string>
+    <string name="topic10035" msgid="4357756001621317728">"සංගීත ප්‍රවාහ සහ බාගැනීම්"</string>
+    <string name="topic10036" msgid="449833307315797283">"සංගීත වීඩියෝ"</string>
+    <string name="topic10037" msgid="51698216720637667">"සංගීත උපකරණ"</string>
+    <string name="topic10038" msgid="8450729953573104572">"පියානෝ සහ යතුරු පුවරු"</string>
+    <string name="topic10039" msgid="9069435933476958784">"පොප් සංගීතය"</string>
+    <string name="topic10040" msgid="2307340564445486423">"රේඩියෝ"</string>
+    <string name="topic10041" msgid="7067032299296103616">"කතා රේඩියෝව"</string>
+    <string name="topic10042" msgid="7915590336813971860">"රැප් සහ හිප්-හොප්"</string>
+    <string name="topic10043" msgid="8147403254760123570">"රොක් සංගීතය"</string>
+    <string name="topic10044" msgid="6201404431104417585">"ක්ලැසික් රොක් සහ ඕල්ඩීස්"</string>
+    <string name="topic10045" msgid="3723162035372109422">"හාඩ් රොක් සහ ප්‍රගතිශීලී"</string>
+    <string name="topic10046" msgid="4700537150965749092">"ඉන්ඩි සහ විකල්ප සංගීතය"</string>
+    <string name="topic10047" msgid="6868724754947095800">"නියැදි සහ ශබ්ද පුස්තකාල"</string>
+    <string name="topic10048" msgid="1968071881240362644">"ආත්මීය සහ R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"හඬපටි"</string>
+    <string name="topic10050" msgid="1374275552775889532">"ලෝක සංගීතය"</string>
+    <string name="topic10051" msgid="5719726125732251258">"රෙගේ සහ කැරිබියන් සංගීතය"</string>
+    <string name="topic10052" msgid="1284902821545612733">"සබැඳි රූප ගැලරි"</string>
+    <string name="topic10053" msgid="5420622301656482567">"සබැඳි වීඩියෝ"</string>
+    <string name="topic10054" msgid="4562235511593399260">"සජීවී වීඩියෝ ප්‍රවාහය"</string>
+    <string name="topic10055" msgid="3752987507076288470">"චිත්‍රපට සහ රූපවාහිනී විකාශනය"</string>
+    <string name="topic10056" msgid="1316228709578133569">"ඔපෙරා"</string>
+    <string name="topic10057" msgid="3265794667031664331">"රූපවාහිනී මාර්ගෝපදේශ සහ යොමුව"</string>
+    <string name="topic10058" msgid="8409884272709263707">"රූපවාහිනී ජාල සහ ස්ථාන"</string>
+    <string name="topic10059" msgid="6770193120260554722">"රූපවාහිනී සංදර්ශන සහ වැඩසටහන්"</string>
+    <string name="topic10060" msgid="2410694865246432781">"රූපවාහිනී විකට කතා"</string>
+    <string name="topic10061" msgid="7733515887806604226">"රූපවාහිනී වාර්තාමය සහ ප්‍රබන්ධ නොවන"</string>
+    <string name="topic10062" msgid="2539857914076699714">"රූපවාහිනී නාට්‍යය"</string>
+    <string name="topic10063" msgid="7645361077069015698">"රූපවාහිනී සෝප් ඔපරා"</string>
+    <string name="topic10064" msgid="3322306867038013554">"TV පවුල් පාදක කරගත් වැඩසටහන්"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV රියලිටි වැඩසටහන්"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV විද්‍යා ප්‍රබන්ධ සහ මනහ්කල්පිත සංදර්ශන"</string>
+    <string name="topic10067" msgid="6479768451596254929">"දෘශ්‍ය කලාව සහ නිර්මාණය"</string>
+    <string name="topic10068" msgid="7999222744500155387">"සැලසුම"</string>
+    <string name="topic10069" msgid="3345227631449580699">"පින්තාරුව"</string>
+    <string name="topic10070" msgid="8921241315781663883">"ඡායාරූපකරණ සහ ඩිජිටල් කලා"</string>
+    <string name="topic10071" msgid="5802889978655775195">"මෝටර් රථ සහ වාහන"</string>
+    <string name="topic10072" msgid="7699714565299422080">"භාණ්ඩ ට්‍රක් රථ සහ ට්‍රේලර"</string>
+    <string name="topic10073" msgid="8309536003187424408">"සම්භාව්‍ය වාහන"</string>
+    <string name="topic10074" msgid="7682849385993670574">"අභිරුචි සහ කාර්ය සාධන වාහන"</string>
+    <string name="topic10075" msgid="6556611554556269074">"ගෑස් මිල සහ වාහන ඉන්ධන"</string>
+    <string name="topic10076" msgid="4919696820372108489">"මෝටර් වාහන (වර්ගය අනුව)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"ස්වයංක්‍රීය වාහන"</string>
+    <string name="topic10078" msgid="4334233882549881927">"හැකිළිය හැකි"</string>
+    <string name="topic10079" msgid="3172046203487780210">"කූප්ස්"</string>
+    <string name="topic10080" msgid="8163934214927408125">"හැච්බැක්"</string>
+    <string name="topic10081" msgid="577995777553561437">"දෙමුහුන් සහ විකල්ප වාහන"</string>
+    <string name="topic10082" msgid="9109129029552185357">"සුඛෝපභෝගී වාහන"</string>
+    <string name="topic10083" msgid="2403537768530923605">"මයික්‍රොකාර් සහ උප සංයුක්ත"</string>
+    <string name="topic10084" msgid="8422281545992763598">"යතුරුපැදි"</string>
+    <string name="topic10085" msgid="8083861494180925476">"පාරෙන් පිට ධාවනය වන වාහන"</string>
+    <string name="topic10086" msgid="7643969175312645412">"පිකප් ට්‍රක් රථ"</string>
+    <string name="topic10087" msgid="2731154517409527341">"ස්කූටර් සහ මොපෙඩ්"</string>
+    <string name="topic10088" msgid="3252737061574829966">"සේඩාන්"</string>
+    <string name="topic10089" msgid="5296300331452192377">"ස්ටේෂන් වැගන්"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUVs සහ ක්‍රොස්ඕවර්ස්"</string>
+    <string name="topic10091" msgid="1855954783407839458">"ක්‍රොස්ඕවර්ස්"</string>
+    <string name="topic10092" msgid="3748598147176261608">"වෑන් සහ කුඩාවෑන්"</string>
+    <string name="topic10093" msgid="4427294934418177183">"ඇදගෙන යාම සහ මඟ අසල සහාය"</string>
+    <string name="topic10094" msgid="2377839138225502290">"වාහන සහ රථවාහන ආරක්ෂාව"</string>
+    <string name="topic10095" msgid="84682415803421329">"වාහන කොටස් සහ ආයිත්තම්"</string>
+    <string name="topic10096" msgid="8920802377602814882">"වාහන අලුත්වැඩියාව සහ නඩත්තුව"</string>
+    <string name="topic10097" msgid="1171171183482751335">"වාහන සාප්පුකරණය"</string>
+    <string name="topic10098" msgid="2079957196489295765">"පාවිච්චි කළ වාහන"</string>
+    <string name="topic10099" msgid="8979943848539150620">"වාහන සංදර්ශන"</string>
+    <string name="topic10100" msgid="4197262693717174623">"රූපලාවන්‍ය සහ යෝග්‍යතාවය"</string>
+    <string name="topic10101" msgid="7348658588841917441">"ශරීර කලාව"</string>
+    <string name="topic10102" msgid="3638722720071045006">"මුහුණ සහ ශරීර රැකවරණය"</string>
+    <string name="topic10103" msgid="7505482487921433611">"දහඩිය නාශක"</string>
+    <string name="topic10104" msgid="6370054283334591202">"නාන සහ ශරීර නිෂ්පාදන"</string>
+    <string name="topic10105" msgid="1191169056931411220">"පිරිසිදු අලංකාරය"</string>
+    <string name="topic10106" msgid="3928455104996075953">"වේශ නිරූපණය සහ විලවුන්"</string>
+    <string name="topic10107" msgid="3798923390765338227">"නිය සත්කාර නිෂ්පාදන"</string>
+    <string name="topic10108" msgid="577259588028933025">"සුවඳ විලවුන් සහ සුවඳ ධූප"</string>
+    <string name="topic10109" msgid="2191558742276310934">"දැළිපිහි සහ රැවුල කපනයන්"</string>
+    <string name="topic10110" msgid="4668859731019222824">"විලාසිතා සහ විලාසය"</string>
+    <string name="topic10111" msgid="8382751996496129758">"යෝග්‍යතාවය"</string>
+    <string name="topic10112" msgid="2904455776326272301">"කායවර්ධනය"</string>
+    <string name="topic10113" msgid="8931680908070341060">"යෝග්‍යතා උපදෙස් සහ පුද්ගලික පුහුණුව"</string>
+    <string name="topic10114" msgid="1666144425445242905">"යෝග්‍යතා තාක්ෂණ නිෂ්පාදන"</string>
+    <string name="topic10115" msgid="3024886857586781525">"හිසකෙස් රැකවරණය"</string>
+    <string name="topic10116" msgid="763642849903586689">"පොත් සහ සාහිත්‍යය"</string>
+    <string name="topic10117" msgid="2897295398887355445">"ළමා සාහිත්‍යය"</string>
+    <string name="topic10118" msgid="8261966919146004082">"ඉ-පොත්"</string>
+    <string name="topic10119" msgid="894448782525835364">"සඟරා"</string>
+    <string name="topic10120" msgid="6413553316742475453">"කවි"</string>
+    <string name="topic10121" msgid="5743038898774111015">"ව්‍යාපාර සහ කාර්මික"</string>
+    <string name="topic10122" msgid="9008408720895399838">"ප්‍රචාරණය සහ අලෙවිකරණය"</string>
+    <string name="topic10123" msgid="2259134467663515137">"විකුණුම්"</string>
+    <string name="topic10124" msgid="6342988250432534253">"කෘෂිකර්මය සහ වන විද්‍යාව"</string>
+    <string name="topic10125" msgid="4258543381071903891">"ආහාර නිෂ්පාදනය"</string>
+    <string name="topic10126" msgid="7175643869342613083">"රථවාහන කර්මාන්තය"</string>
+    <string name="topic10127" msgid="6431712570995680971">"ගුවන් සේවා කර්මාන්තය"</string>
+    <string name="topic10128" msgid="4235280795901477432">"ව්‍යාපාර මෙහෙයුම්"</string>
+    <string name="topic10129" msgid="7076722669374577677">"නම්‍යශීලී වැඩ සැලසුම්"</string>
+    <string name="topic10130" msgid="3611582433482627069">"මානව සම්පත්"</string>
+    <string name="topic10131" msgid="1372513307847962621">"වාණිජමය ණය දීම"</string>
+    <string name="topic10132" msgid="4784716346965522438">"ඉදිකිරීම් සහ නඩත්තු"</string>
+    <string name="topic10133" msgid="7421272318291450977">"සිවිල් ඉංජිනේරු"</string>
+    <string name="topic10134" msgid="6960637850006318075">"ආරක්ෂක කර්මාන්තය"</string>
+    <string name="topic10135" msgid="3682767135401089609">"බලශක්ති සහ උපයෝගිතා"</string>
+    <string name="topic10136" msgid="455894912948558854">"ජල සැපයුම සහ ප්‍රතිකාර"</string>
+    <string name="topic10137" msgid="8298610586001250767">"ආගන්තුක සත්කාර කර්මාන්තය"</string>
+    <string name="topic10138" msgid="1297997683887620829">"නිෂ්පාදන"</string>
+    <string name="topic10139" msgid="2881410777083033235">"ලෝහ සහ පතල් කැණීම"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM සහ ව්‍යාපාරික අවස්ථා"</string>
+    <string name="topic10141" msgid="2209863158714894227">"ඖෂධ සහ ජෛව තාක්ෂණය"</string>
+    <string name="topic10142" msgid="5503134498670972397">"මුද්‍රණය සහ ප්‍රකාශනය"</string>
+    <string name="topic10143" msgid="7443122495469194311">"සිල්ලර විකුණුම"</string>
+    <string name="topic10144" msgid="4491152042745513902">"ව්‍යාපාර ප්‍රාග්ධන සපයන්නන්"</string>
+    <string name="topic10145" msgid="7181389660165515306">"පරිගණක සහ ඉලෙක්ට්‍රොනික"</string>
+    <string name="topic10146" msgid="5319328674320188177">"පරිගණක පර්යන්ත"</string>
+    <string name="topic10147" msgid="3115360970477190823">"මුද්‍රක"</string>
+    <string name="topic10148" msgid="388392714835039199">"පරිගණක ආරක්ෂාව"</string>
+    <string name="topic10149" msgid="8669494095915530311">"ප්‍රතිවෛරස සහ අනිෂ්ට මෘදුකාංග"</string>
+    <string name="topic10150" msgid="7287887356428407082">"ජාල ආරක්ෂාව"</string>
+    <string name="topic10151" msgid="1896865948857670589">"පාරිභෝගික ඉලෙක්ට්‍රොනික උපාංග"</string>
+    <string name="topic10152" msgid="2229775287055715130">"කැමරා සහ වීඩියෝ කැමරා"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS සහ සංචාලනය"</string>
+    <string name="topic10154" msgid="6865619906648095342">"නිවස ස්වයංකරණය"</string>
+    <string name="topic10155" msgid="6083736045761149547">"නිවාස නෘත්‍ය ශාලා පද්ධති"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 සහ අතේ ගෙන යා හැකි මාධ්‍ය වාදක"</string>
+    <string name="topic10157" msgid="5681638457846277732">"පළඳිය හැකි තාක්ෂණය"</string>
+    <string name="topic10158" msgid="3203453971647354680">"දත්ත උපස්ථ සහ ප්‍රතිසාධනය"</string>
+    <string name="topic10159" msgid="5630430439595766824">"ඩෙස්ක්ටොප් පරිගණක"</string>
+    <string name="topic10160" msgid="4829448963240629016">"ලැප්ටොප් සහ නෝට්බුක්"</string>
+    <string name="topic10161" msgid="172004201167511870">"ජාලකරණය"</string>
+    <string name="topic10162" msgid="6091195506695436179">"බෙදාහරින ලද සහ ක්ලවුඩ් පරිගණකකරණය"</string>
+    <string name="topic10163" msgid="1151401754761855146">"ක්‍රමලේඛනය"</string>
+    <string name="topic10164" msgid="9084381711034794904">"මෘදුකාංගය"</string>
+    <string name="topic10165" msgid="7794619191364239903">"ශ්‍රව්‍ය සහ සංගීත මෘදුකාංග"</string>
+    <string name="topic10166" msgid="8763250476037582784">"ව්‍යාපාර සහ ඵලදායිතා මෘදුකාංග"</string>
+    <string name="topic10167" msgid="2049380875864013534">"දින දර්ශනය සහ උපලේඛනගත මෘදුකාංග"</string>
+    <string name="topic10168" msgid="8902187628490964169">"සහයෝගීතාවය සහ සම්මන්ත්‍රණ මෘදුකාංග"</string>
+    <string name="topic10169" msgid="827557334245484202">"ඉදිරිපත් කිරීමේ මෘදුකාංග"</string>
+    <string name="topic10170" msgid="9004257492478793528">"පැතිරුම්පත් මෘදුකාංගය"</string>
+    <string name="topic10171" msgid="7993474143932045967">"වදන් සැකසුම් මෘදුකාංගය"</string>
+    <string name="topic10172" msgid="7796145013604839047">"ඩෙස්ක්ටොප් ප්‍රකාශනය"</string>
+    <string name="topic10173" msgid="2914187257631238849">"අකුරු වර්ග"</string>
+    <string name="topic10174" msgid="2115617300581130014">"බාගැනීමේ කළමනාකරුවන්"</string>
+    <string name="topic10175" msgid="5871766754983733443">"නිදහස් මෘදුකාංග සහ බෙදාහැරීමේ මෘදුකාංග"</string>
+    <string name="topic10176" msgid="4556902534984350353">"ග්‍රැෆික් සහ සජීවිකරණ මෘදුකාංග"</string>
+    <string name="topic10177" msgid="5020885617411375213">"බුද්ධිමත් පුද්ගලික සහායකයින්"</string>
+    <string name="topic10178" msgid="6156514295355993755">"මාධ්‍ය වාදක"</string>
+    <string name="topic10179" msgid="4166560755175055525">"අධීක්ෂණ මෘදුකාංග"</string>
+    <string name="topic10180" msgid="1616408866159152420">"මෙහෙයුම් පද්ධති"</string>
+    <string name="topic10181" msgid="1104637623376778918">"ඡායාරූප සහ වීඩියෝ මෘදුකාංග"</string>
+    <string name="topic10182" msgid="4433309778429721885">"ඡායාරූප මෘදුකාංගය"</string>
+    <string name="topic10183" msgid="7726225846283601216">"වීඩියෝ මෘදුකාංග"</string>
+    <string name="topic10184" msgid="7666718573841178521">"මෘදුකාංග උපයුක්තතා"</string>
+    <string name="topic10185" msgid="7090504131394943791">"වෙබ් බ්‍රවුසර"</string>
+    <string name="topic10186" msgid="2894398454040127175">"මූල්‍යය"</string>
+    <string name="topic10187" msgid="3321209590831212269">"ගිණුම්කරණය සහ විගණනය"</string>
+    <string name="topic10188" msgid="6091864564976149142">"බදු සකස් කිරීම සහ සැලසුම් කිරීම"</string>
+    <string name="topic10189" msgid="5722909809680931661">"බැංකුකරණය"</string>
+    <string name="topic10190" msgid="4954502185848303449">"මුදල් හුවමාරු සහ මාරු කිරීමේ සේවා"</string>
+    <string name="topic10191" msgid="374364159635356705">"ණය සහ ණය දීම"</string>
+    <string name="topic10192" msgid="4780985034026130257">"ණය කාඩ්පත්"</string>
+    <string name="topic10193" msgid="5010972379907168829">"නිවාස මූල්‍යය"</string>
+    <string name="topic10194" msgid="1311944420068992723">"පුද්ගලික ණය"</string>
+    <string name="topic10195" msgid="7554681395283728871">"ශිෂ්‍ය ණය සහ විද්‍යාල මූල්‍යකරණය"</string>
+    <string name="topic10196" msgid="1390058955048742733">"මූල්‍ය සැලසුම්කරණය සහ කළමනාකරණය"</string>
+    <string name="topic10197" msgid="6999203003544574270">"විශ්‍රාම ගැනීම සහ විශ්‍රාම වැටුප්"</string>
+    <string name="topic10198" msgid="1172025416206301419">"ප්‍රතිපාදන"</string>
+    <string name="topic10199" msgid="2817599683028682473">"ප්‍රතිපාදන"</string>
+    <string name="topic10200" msgid="4560138974690686847">"රක්ෂණය"</string>
+    <string name="topic10201" msgid="447240478385298875">"වාහන රක්ෂණය"</string>
+    <string name="topic10202" msgid="8047136869242553756">"සෞඛ්‍ය රක්ෂණය"</string>
+    <string name="topic10203" msgid="6593194921457271151">"නිවාස රක්ෂණය"</string>
+    <string name="topic10204" msgid="4634976092969827804">"ජීවිත රක්ෂණය"</string>
+    <string name="topic10205" msgid="262581473890356377">"සංචාරක රක්ෂණය"</string>
+    <string name="topic10206" msgid="5534905376642807172">"ආයෝජනය"</string>
+    <string name="topic10207" msgid="2202788132330201137">"භාණ්ඩ සහ ඉදිරි ගනුදෙනු වෙළඳාම"</string>
+    <string name="topic10208" msgid="1250532081213960304">"මුදල් වර්ග සහ විදේශ විනිමය"</string>
+    <string name="topic10209" msgid="7384658616986998949">"හෙජ් අරමුදල්"</string>
+    <string name="topic10210" msgid="5646412565978393234">"අන්‍යොන්‍ය අරමුදල්"</string>
+    <string name="topic10211" msgid="2001835133812379482">"කොටස් සහ බැඳුම්කර"</string>
+    <string name="topic10212" msgid="2364530251853656532">"ආහාර සහ පාන"</string>
+    <string name="topic10213" msgid="805716705436663130">"ඉවුම් පිහුම් සහ වට්ටෝරු"</string>
+    <string name="topic10214" msgid="726298155737413779">"බාබකියු සහ ග්‍රිල් කිරීම"</string>
+    <string name="topic10215" msgid="1502589059550612499">"කෑම පිසීමේ ක්‍රම"</string>
+    <string name="topic10216" msgid="7699499757302291329">"නිර්මාංශ මුළුතැන්ගෙය"</string>
+    <string name="topic10217" msgid="2160292055279553771">"නිර්මාංශ ආාහාර"</string>
+    <string name="topic10218" msgid="4090671581843003332">"සෞඛ්‍යයමත ආහාර ගැනීම්"</string>
+    <string name="topic10219" msgid="7663946426520362378">"ආහාර සහ සිල්ලර වෙළෙන්දන්"</string>
+    <string name="topic10220" msgid="4812477283307222367">"ක්‍රීඩා"</string>
+    <string name="topic10221" msgid="2320959705105050635">"ආකේඩ් සහ කාසිවලින්-මෙහෙයවන ක්‍රීඩා"</string>
+    <string name="topic10222" msgid="1659423113675232767">"බිලියර්ඩ්"</string>
+    <string name="topic10223" msgid="3526662148224862522">"පුවරු ක්‍රීඩා"</string>
+    <string name="topic10224" msgid="8806949357679505576">"චෙස් සහ වියුක්ත උපාය මාර්ග ක්‍රීඩා"</string>
+    <string name="topic10225" msgid="564207834821286301">"කාඩ් ක්‍රීඩා"</string>
+    <string name="topic10226" msgid="6918788605930334066">"එකතු කළ හැකි කාඩ් ක්‍රීඩා"</string>
+    <string name="topic10227" msgid="7011042093822468388">"පරිගණක සහ වීඩියෝ ක්‍රීඩා"</string>
+    <string name="topic10228" msgid="6883716111007300369">"ක්‍රියාදාම සහ කරළි ක්‍රීඩා"</string>
+    <string name="topic10229" msgid="1448569034984381121">"වික්‍රමාන්විත ක්‍රීඩා"</string>
+    <string name="topic10230" msgid="3350872631578952799">"සාමාන්‍ය ක්‍රීඩා"</string>
+    <string name="topic10231" msgid="405082026972839048">"තරඟකාරී වීඩියෝ ක්‍රීඩා"</string>
+    <string name="topic10232" msgid="1839026948327779776">"රිය පැදවීමේ සහ ධාවන ක්‍රීඩා"</string>
+    <string name="topic10233" msgid="1188186151495453281">"සටන් ක්‍රීඩා"</string>
+    <string name="topic10234" msgid="693433817142162565">"ක්‍රීඩා යොමු සහ සමාලෝචන"</string>
+    <string name="topic10235" msgid="8703923040923920090">"වීඩියෝ ක්‍රීඩා වංචා සහ ඉඟි"</string>
+    <string name="topic10236" msgid="320145832033080647">"දැවැන්ත බහු ක්‍රීඩක ක්‍රීඩා"</string>
+    <string name="topic10237" msgid="5441671482070243974">"සංගීත සහ නර්තන ක්‍රීඩා"</string>
+    <string name="topic10238" msgid="124952008622371505">"සෑන්ඩ්බොක්ස් ක්‍රීඩා"</string>
+    <string name="topic10239" msgid="8116373838332949879">"වෙඩි තැබීමේ ක්‍රීඩා"</string>
+    <string name="topic10240" msgid="429738690314619395">"සමාකරණ ක්‍රීඩා"</string>
+    <string name="topic10241" msgid="6759586807395308444">"ව්‍යාපාරික සහ ධනපති ව්‍යාපාරික ක්‍රීඩා"</string>
+    <string name="topic10242" msgid="6446465880310926504">"නගර ගොඩනැඟීමේ ක්‍රීඩා"</string>
+    <string name="topic10243" msgid="1900180483768183189">"ජීවිත සමාකරණ ක්‍රීඩා"</string>
+    <string name="topic10244" msgid="7177785844550764762">"වාහන සිමියුෙල්ටර"</string>
+    <string name="topic10245" msgid="3479291573578622081">"තරඟ ක්‍රීඩා"</string>
+    <string name="topic10246" msgid="1362878793775338590">"තරඟ කළමනාකරණය ක්‍රීඩා"</string>
+    <string name="topic10247" msgid="7167743512938031275">"උපායාත්මක ක්‍රීඩා"</string>
+    <string name="topic10248" msgid="279151815457227293">"වීඩියෝ ක්‍රීඩා ප්‍රකාර සහ ඈඳුම්"</string>
+    <string name="topic10249" msgid="631580828608894782">"අධ්‍යාපනික ක්‍රීඩා"</string>
+    <string name="topic10250" msgid="8788829601095126859">"පවුල ඉලක්ක කරගත් ක්‍රීඩා සහ ක්‍රියාකාරකම්"</string>
+    <string name="topic10251" msgid="4289374662760140512">"ඇඳීම සහ වර්ණ ගැන්වීම"</string>
+    <string name="topic10252" msgid="3704663832286223948">"ඇඳුම් පැළඳුම් සහ විලාසිතා ක්‍රීඩා"</string>
+    <string name="topic10253" msgid="385499297969826942">"ප්‍රහේලිකා සහ උග්‍ර ප්‍රශ්න"</string>
+    <string name="topic10254" msgid="3407688580587226586">"භූමිකා නිරූපණ ක්‍රීඩා"</string>
+    <string name="topic10255" msgid="5123382868307815261">"මේස පන්දු"</string>
+    <string name="topic10256" msgid="3732657908002298514">"උළු ක්‍රීඩා"</string>
+    <string name="topic10257" msgid="1563737702727245186">"වචන ක්‍රීඩා"</string>
+    <string name="topic10258" msgid="3098024313656910144">"විනෝදාංශ සහ විවේකය"</string>
+    <string name="topic10259" msgid="4943419230459875946">"සංවත්සර"</string>
+    <string name="topic10260" msgid="8082531986100775125">"උපන් දින සහ නම් දින"</string>
+    <string name="topic10261" msgid="5848226607755547256">"කිමිදුම් සහ දිය යට ක්‍රියාකාරකම්"</string>
+    <string name="topic10262" msgid="7200864040450019529">"තන්තු සහ රෙදිපිළි කලාව"</string>
+    <string name="topic10263" msgid="361345691023794788">"එළිමහන්"</string>
+    <string name="topic10264" msgid="1786205972094583167">"මාළු බෑම"</string>
+    <string name="topic10265" msgid="2823178926106728570">"දඩයම් කිරීම සහ වෙඩි තැබීම"</string>
+    <string name="topic10266" msgid="8850275614185862002">"පෙයින්ට්බෝල්"</string>
+    <string name="topic10267" msgid="3722262029580639019">"රේඩියෝ පාලනය සහ ආදෘශ්‍යනය"</string>
+    <string name="topic10268" msgid="3854589101176380228">"මංගල උත්සව"</string>
+    <string name="topic10269" msgid="6274589872519767859">"නිවස සහ ගෙවත්ත"</string>
+    <string name="topic10270" msgid="6333380157855869252">"ගෙවතු අලංකරණය"</string>
+    <string name="topic10271" msgid="7654177637864012480">"නිවස සහ අභ්‍යන්තර අලංකරණය"</string>
+    <string name="topic10272" msgid="3679206633003573176">"නිවාස උවාරණ"</string>
+    <string name="topic10273" msgid="7964372799408781017">"නිවාස වැඩි දියුණු කිරීම"</string>
+    <string name="topic10274" msgid="7438404923297950713">"නිවසේ සුරක්ෂිතභාවය සහ ආරක්ෂාව"</string>
+    <string name="topic10275" msgid="682064062059687444">"ගෘහස්ථ සැපයුම්"</string>
+    <string name="topic10276" msgid="6967461678618700017">"භූදර්ශන සැලසුම"</string>
+    <string name="topic10277" msgid="5888643119731566320">"අන්තර්ජාලය සහ ටෙලිකොම්"</string>
+    <string name="topic10278" msgid="1736187026108921963">"ඉ-තැපෑල සහ පණිවිඩ යැවීම"</string>
+    <string name="topic10279" msgid="9034205050642228743">"ඉ-තැපෑල"</string>
+    <string name="topic10280" msgid="3168053876492638177">"පෙළ සහ ක්ෂණික පණිවිඩ යැවීම"</string>
+    <string name="topic10281" msgid="582764575763317221">"හඬ සහ වීඩියෝ කතාබස්"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISPs"</string>
+    <string name="topic10283" msgid="4990902662337451282">"දුරකථන සේවා සපයන්නන්"</string>
+    <string name="topic10284" msgid="8298837964949288587">"නාද රටා සහ ජංගම තේමා"</string>
+    <string name="topic10285" msgid="5409600379647005862">"සෙවුම් යන්ත්‍ර"</string>
+    <string name="topic10286" msgid="5120434472606081895">"ස්මාර්ට්ෆෝන්"</string>
+    <string name="topic10287" msgid="3350459436622898201">"ටෙලිසම්මන්ත්‍රණ"</string>
+    <string name="topic10288" msgid="4197272921112835157">"වෙබ් යෙදුම් සහ සබැඳි මෙවලම්"</string>
+    <string name="topic10289" msgid="5361961713593805925">"වෙබ් සේවා"</string>
+    <string name="topic10290" msgid="1030690821237195132">"ක්ලවුඩ් ආචයනය"</string>
+    <string name="topic10291" msgid="4049265350889304495">"වෙබ් නිර්මාණය සහ සංවර්ධනය"</string>
+    <string name="topic10292" msgid="3386329227033265361">"වෙබ් හොස්ටින්"</string>
+    <string name="topic10293" msgid="5737650187548034975">"රැකියා සහ අධ්‍යාපනය"</string>
+    <string name="topic10294" msgid="4134169605040294646">"අධ්‍යාපනය"</string>
+    <string name="topic10295" msgid="331240908257602211">"ශාස්ත්‍රීය සම්මන්ත්‍රණ සහ ප්‍රකාශන"</string>
+    <string name="topic10296" msgid="8588303480683748067">"විද්‍යාල සහ විශ්ව විද්‍යාල"</string>
+    <string name="topic10297" msgid="6374270931732387420">"දුරස්ථ ඉගෙනුම"</string>
+    <string name="topic10298" msgid="1588575102152049123">"පූර්ව ළමාවිය අධ්‍යාපනය"</string>
+    <string name="topic10299" msgid="2437152839161363820">"පෙර පාසල"</string>
+    <string name="topic10300" msgid="1716635660730089544">"නිවෙස් අධ්‍යාපනය ලැබීම"</string>
+    <string name="topic10301" msgid="7986927377838820550">"ප්‍රමාණීකෘත සහ ඇතුළත් වීමේ පරීක්ෂණ"</string>
+    <string name="topic10302" msgid="5998774512114172286">"ඉගැන්වීම සහ පන්ති කාමර සම්පත්"</string>
+    <string name="topic10303" msgid="4585533807035591476">"වෘත්තීය සහ සන්තන අධ්‍යාපනය"</string>
+    <string name="topic10304" msgid="7882895278855442691">"රැකියා"</string>
+    <string name="topic10305" msgid="5595618454946980801">"වෘත්තීය සම්පත් සහ සැලසුම්"</string>
+    <string name="topic10306" msgid="2721676636117931598">"රැකියා ලැයිස්තුගත කිරීම්"</string>
+    <string name="topic10307" msgid="1718396745825058084">"නීතිය සහ රජය"</string>
+    <string name="topic10308" msgid="5324738087341048710">"අපරාධ සහ යුක්තිය"</string>
+    <string name="topic10309" msgid="6295029954614836413">"නෛතික"</string>
+    <string name="topic10310" msgid="8422735354338745855">"නෛතික සේවා"</string>
+    <string name="topic10311" msgid="1230675855406761762">"පුවත්"</string>
+    <string name="topic10312" msgid="6827799049548932141">"ආර්ථික පුවත්"</string>
+    <string name="topic10313" msgid="2329065661493302739">"දේශීය පුවත්"</string>
+    <string name="topic10314" msgid="8901835561696055036">"ඒකාබද්ධ කිරීම් සහ අත්පත් කර ගැනීම්"</string>
+    <string name="topic10315" msgid="5854338074460033131">"පුවත්පත්"</string>
+    <string name="topic10316" msgid="5102748655058857401">"දේශපාලනය"</string>
+    <string name="topic10317" msgid="888696185673599406">"ක්‍රීඩා පුවත්"</string>
+    <string name="topic10318" msgid="8287583657423629224">"කාලගුණය"</string>
+    <string name="topic10319" msgid="8709805241522664825">"ලෝක පුවත්"</string>
+    <string name="topic10320" msgid="2512907250610386132">"සබැඳි ප්‍රජාවන්"</string>
+    <string name="topic10321" msgid="7457693963027299711">"ක්ලිප් ආර්ට් සහ සජීවනය කළ GIFs"</string>
+    <string name="topic10322" msgid="3527120229469957977">"ආලය සහ පුද්ගලික"</string>
+    <string name="topic10323" msgid="6172125921314846923">"ආහාර එකතු කිරීම සහ සමාජ පිටු සලකුණු කිරීම"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ගොනු බෙදා ගැනීම සහ සත්කාරකත්වය"</string>
+    <string name="topic10325" msgid="916412844647169263">"සංසදය සහ කතාබස් සපයන්නන්"</string>
+    <string name="topic10326" msgid="9167525727089128814">"මයික්‍රො බ්ලොග්කරණය"</string>
+    <string name="topic10327" msgid="3594488251348215868">"ඡායාරූප සහ වීඩියෝ බෙදා ගැනීම"</string>
+    <string name="topic10328" msgid="5431605505487660527">"ඡායාරූප සහ රූප බෙදා ගැනීම"</string>
+    <string name="topic10329" msgid="2949598007790820705">"වීඩියෝ බෙදා ගැනීම"</string>
+    <string name="topic10330" msgid="4210169032750748349">"සම්"</string>
+    <string name="topic10331" msgid="9148081156366912077">"සමාජ ජාල යෙදුම් සහ ඈඳුම්"</string>
+    <string name="topic10332" msgid="1812925257476776861">"සමාජ ජාලා"</string>
+    <string name="topic10333" msgid="5793613565022694596">"පුද්ගලයින් සහ සමාජය"</string>
+    <string name="topic10334" msgid="2146426680680125392">"පවුල සහ සබඳතා"</string>
+    <string name="topic10335" msgid="8268284709343326034">"පරම්පරාව සහ පෙළපත්"</string>
+    <string name="topic10336" msgid="360328903013424569">"විවාහය"</string>
+    <string name="topic10337" msgid="6450553850860149046">"මාපිය කටයුතු"</string>
+    <string name="topic10338" msgid="3722340462966505867">"ප්‍රතිග්‍රහණය"</string>
+    <string name="topic10339" msgid="8126807339140404862">"ළදරුවන් සහ කුඩා දරුවන්"</string>
+    <string name="topic10340" msgid="259457452971577855">"ළමා අන්තර්ජාල ආරක්ෂාව"</string>
+    <string name="topic10341" msgid="9138253009638520984">"ප්‍රේමය"</string>
+    <string name="topic10342" msgid="3272595442607863965">"විද්‍යා ප්‍රබන්ධ සහ මනහ්කල්පිත"</string>
+    <string name="topic10343" msgid="7170264926050881882">"සුරතලුන් සහ සතුන්"</string>
+    <string name="topic10344" msgid="6956876217624431965">"සුරතල් සතුන් සඳහා ආහාර සහ සුරතල් සත්කාර සැපයුම්"</string>
+    <string name="topic10345" msgid="8114717708270133007">"සුරතලුන්"</string>
+    <string name="topic10346" msgid="3632598362312784148">"පක්ෂීන්"</string>
+    <string name="topic10347" msgid="1650823938622414225">"පූසන්"</string>
+    <string name="topic10348" msgid="570783769757187957">"බල්ලන්"</string>
+    <string name="topic10349" msgid="6069145390145874420">"මාළු සහ මින්මැදුර"</string>
+    <string name="topic10350" msgid="7438757598978766290">"උරගයින් සහ උභයජීවීන්"</string>
+    <string name="topic10351" msgid="2065353497413573236">"පශු වෛද්‍යවරු"</string>
+    <string name="topic10352" msgid="2787610393079898221">"ඉඩකඩම්"</string>
+    <string name="topic10353" msgid="230887584509968233">"ඉඩම් කැබලි සහ ඉඩම"</string>
+    <string name="topic10354" msgid="2552020152740480445">"කාල බෙදා ගැනීම් සහ නිවාඩු දේපළ"</string>
+    <string name="topic10355" msgid="3803439663410756731">"නිර්දේශ"</string>
+    <string name="topic10356" msgid="1282534977124646845">"ව්‍යාපාර සහ පුද්ගලික ලැයිස්තුගත කිරීම්"</string>
+    <string name="topic10357" msgid="1506615046588912749">"පොදු පරිශීලනය"</string>
+    <string name="topic10358" msgid="4670198218200218886">"ගණක සහ විමර්ශන මෙවලම්"</string>
+    <string name="topic10359" msgid="4422164571631604534">"ශබ්දකෝෂ සහ විශ්වකෝෂ"</string>
+    <string name="topic10360" msgid="4777419229443131291">"අධ්‍යාපනික සම්පත්"</string>
+    <string name="topic10361" msgid="2911719878674200735">"ආකාර"</string>
+    <string name="topic10362" msgid="8045493635242789203">"කාලය සහ දින දර්ශන"</string>
+    <string name="topic10363" msgid="3433488479827868110">"භාෂා සම්පත්"</string>
+    <string name="topic10364" msgid="7272051128606899896">"විදෙස් භාෂා ඉගෙනීම"</string>
+    <string name="topic10365" msgid="1638685557205583094">"පරිවර්තන මෙවලම් සහ සම්පත්"</string>
+    <string name="topic10366" msgid="5972643213789684860">"සිතියම්"</string>
+    <string name="topic10367" msgid="4693720215957988260">"විද්‍යාව"</string>
+    <string name="topic10368" msgid="7342229547845270303">"වැඩි දියුණු කළ සහ අතථ්‍ය යථාර්ථය"</string>
+    <string name="topic10369" msgid="7623948477078242419">"ජෛව විද්‍යා"</string>
+    <string name="topic10370" msgid="1849957115993781053">"ජාන විද්‍යාව"</string>
+    <string name="topic10371" msgid="5801324530787262649">"රසායන විද්‍යාව"</string>
+    <string name="topic10372" msgid="7043359432633182804">"පරිසර විද්‍යාව සහ පරිසරය"</string>
+    <string name="topic10373" msgid="1506052968197311461">"භූ විද්‍යාව"</string>
+    <string name="topic10374" msgid="5081919530597944716">"යාන්ත්‍රික ඉගෙනුම සහ කෘතිම බුද්ධිය"</string>
+    <string name="topic10375" msgid="7880740430968664319">"ගණිතය"</string>
+    <string name="topic10376" msgid="8685831276841267222">"භෞතික විද්‍යාව"</string>
+    <string name="topic10377" msgid="8162056465305020784">"රොබෝ තාක්ෂණය"</string>
+    <string name="topic10378" msgid="6048245367747141920">"සාප්පු සවාරි"</string>
+    <string name="topic10379" msgid="3561154473861357708">"පුරාවස්තු සහ එකතු කිරීම්"</string>
+    <string name="topic10380" msgid="3001377458860648561">"ඇඟලුම්"</string>
+    <string name="topic10381" msgid="1050316146323573972">"ළමා ඇඳුම්"</string>
+    <string name="topic10382" msgid="1131102032733237256">"ඇඳුම් පැලඳුම්"</string>
+    <string name="topic10383" msgid="2953255538603038999">"පිරිමි ඇඳුම්"</string>
+    <string name="topic10384" msgid="5208244211687593882">"කාන්තා ඇඳුම්"</string>
+    <string name="topic10385" msgid="3335546606796359244">"වර්ගීකෘත"</string>
+    <string name="topic10386" msgid="6517746237788385147">"පාරිභෝගික සම්පත්"</string>
+    <string name="topic10387" msgid="8607123472737800846">"කූපන් සහ වට්ටම් දීමනා"</string>
+    <string name="topic10388" msgid="1641030315133068943">"ලැදියා කාඩ්පත් සහ වැඩසටහන්"</string>
+    <string name="topic10389" msgid="8196319126164726646">"තාක්ෂණික සහාය සහ අලුත්වැඩියාව"</string>
+    <string name="topic10390" msgid="1361120031667629697">"මල්"</string>
+    <string name="topic10391" msgid="9119667040520612849">"ආචාර කිරීමේ කාඩ්පත්"</string>
+    <string name="topic10392" msgid="6877484311325584713">"සාද සහ නිවාඩු සැපයුම්"</string>
+    <string name="topic10393" msgid="7537523054091079737">"සාප්පු ද්වාර"</string>
+    <string name="topic10394" msgid="5321887056912883029">"ක්‍රීඩා"</string>
+    <string name="topic10395" msgid="8799420706106672054">"ඇමරිකානු පාපන්දු"</string>
+    <string name="topic10396" msgid="2048632371307841946">"ඕස්ට්‍රේලියානු පාපන්දු"</string>
+    <string name="topic10397" msgid="653991203228840785">"මෝටර් රථ ධාවන තරඟය"</string>
+    <string name="topic10398" msgid="5412613151176189985">"බේස්බෝල්"</string>
+    <string name="topic10399" msgid="2009283546036614639">"පැසිපන්දු"</string>
+    <string name="topic10400" msgid="5034305624605462351">"පන්දු යැවීම"</string>
+    <string name="topic10401" msgid="26807857115228330">"බොක්සිං"</string>
+    <string name="topic10402" msgid="6218088033939518718">"ඔල්වරසන් නැඟීම"</string>
+    <string name="topic10403" msgid="3030076002966858939">"පාසල් ක්‍රීඩා"</string>
+    <string name="topic10404" msgid="4018137098149287073">"ක්‍රිකට්"</string>
+    <string name="topic10405" msgid="9036991434485987285">"බයිසිකල් පැදීම"</string>
+    <string name="topic10406" msgid="7185471418082005024">"අශ්වාරෝහක"</string>
+    <string name="topic10407" msgid="316266982792700993">"දරුණු ක්‍රීඩා"</string>
+    <string name="topic10408" msgid="2571246233605408148">"ඉහළ යෑම සහ කඳු නැගීම"</string>
+    <string name="topic10409" msgid="1182462921341224299">"කාල්පනික ක්‍රීඩා"</string>
+    <string name="topic10410" msgid="7501849152641094734">"ගොල්ෆ්"</string>
+    <string name="topic10411" msgid="6678464213609789748">"ජිම්නාස්ටික්"</string>
+    <string name="topic10412" msgid="335770351079973128">"හොකී"</string>
+    <string name="topic10413" msgid="416366556259783701">"හිම මත ලිස්සා යාම"</string>
+    <string name="topic10414" msgid="6909439381556710013">"සටන් කලා"</string>
+    <string name="topic10415" msgid="4535534983750709163">"යතුරු පැදි ධාවන තරඟ"</string>
+    <string name="topic10416" msgid="1687911875093638923">"ඔලිම්පික්"</string>
+    <string name="topic10417" msgid="2735521554483279111">"රග්බි"</string>
+    <string name="topic10418" msgid="8763139538107186007">"දිවීම සහ ඇවිදීම"</string>
+    <string name="topic10419" msgid="979581105119036716">"ස්කීං සහ හිම පුවරුවේ යාම"</string>
+    <string name="topic10420" msgid="5256622299392338856">"සොකර්"</string>
+    <string name="topic10421" msgid="2654561933626679644">"රළ ක්‍රීඩා"</string>
+    <string name="topic10422" msgid="978920114358054206">"පිහිනීම"</string>
+    <string name="topic10423" msgid="4476847046369253369">"ටෙනිස්"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ධාවන පථය සහ පිටිය"</string>
+    <string name="topic10425" msgid="3357509018485364691">"වොලිබෝල්"</string>
+    <string name="topic10426" msgid="3761026182327229458">"මල්ලව පොර"</string>
+    <string name="topic10427" msgid="3748043578314103947">"සංචාර සහ ප්‍රවාහන"</string>
+    <string name="topic10428" msgid="7483002505617756861">"වික්‍රමාන්විත සංචාරය"</string>
+    <string name="topic10429" msgid="8091163959414149724">"ගුවන් ගමන්"</string>
+    <string name="topic10430" msgid="1917556952821193760">"ව්‍යාපාර ගමන්"</string>
+    <string name="topic10431" msgid="7980462767288577734">"මෝටර් රථ කුලිය"</string>
+    <string name="topic10432" msgid="4266685292456713522">"යාත්‍රා සහ සන්නස"</string>
+    <string name="topic10433" msgid="5001290528529256942">"පවුලේ සංචාර"</string>
+    <string name="topic10434" msgid="6310190021663379686">"මධුසමය සහ ආදර නිවාඩු"</string>
+    <string name="topic10435" msgid="8897799078890998992">"හෝටල් සහ නවාතැන්"</string>
+    <string name="topic10436" msgid="6778700611322666596">"දිගු දුර බස් සහ දුම්රිය"</string>
+    <string name="topic10437" msgid="4764816005841382091">"අඩු වියදම් සහ අවසාන මිනිත්තුවේ සංචාරය"</string>
+    <string name="topic10438" msgid="1305380730693546021">"ගමන් මලු සහ සංචාරක ආයිත්තම්"</string>
+    <string name="topic10439" msgid="7731122187851230543">"සංචාරක ගමනාන්ත"</string>
+    <string name="topic10440" msgid="8071652555461175118">"වෙරළ සහ දූපත්"</string>
+    <string name="topic10441" msgid="7182533767302670894">"ප්‍රාදේශීය උද්‍යාන සහ උද්‍යාන"</string>
+    <string name="topic10442" msgid="6462141176894347324">"තේමා උද්‍යාන"</string>
+    <string name="topic10443" msgid="7234914754801803285">"සත්වෝද්‍යාන"</string>
+    <string name="topic10444" msgid="4322315510441782805">"රථවාහන සහ මාර්ග සැලසුම්කරුවන්"</string>
+    <string name="topic10445" msgid="1182221450749409373">"සංචාරක නියෝජිතායතන සහ සේවා"</string>
+    <string name="topic10446" msgid="3104259094878772333">"සංචාරක මාර්ගෝපදේශ සහ සංචාරක සටහන්"</string>
+</resources>

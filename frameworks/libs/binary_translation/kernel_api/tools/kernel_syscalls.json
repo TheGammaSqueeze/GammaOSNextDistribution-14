@@ -1,0 +1,8313 @@
+{
+  "__NR__llseek": {
+    "arm": {
+      "entry": "sys_llseek",
+      "id": "140"
+    },
+    "x86": {
+      "entry": "sys_llseek",
+      "id": "140"
+    }
+  },
+  "__NR__newselect": {
+    "arm": {
+      "entry": "sys_select",
+      "id": "142"
+    },
+    "x86": {
+      "entry": "sys_select",
+      "id": "142"
+    }
+  },
+  "__NR__sysctl": {
+    "arm": {
+      "entry": "sys_ni_syscall",
+      "id": "149",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "149",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "156",
+      "params": []
+    }
+  },
+  "__NR_accept": {
+    "arm": {
+      "entry": "sys_accept",
+      "id": "285"
+    },
+    "arm64": {
+      "entry": "sys_accept",
+      "id": "202"
+    },
+    "riscv64": {
+      "entry": "sys_accept",
+      "id": "202"
+    },
+    "x86_64": {
+      "entry": "sys_accept",
+      "id": "43"
+    }
+  },
+  "__NR_accept4": {
+    "arm": {
+      "entry": "sys_accept4",
+      "id": "366"
+    },
+    "arm64": {
+      "entry": "sys_accept4",
+      "id": "242"
+    },
+    "riscv64": {
+      "entry": "sys_accept4",
+      "id": "242"
+    },
+    "x86": {
+      "entry": "sys_accept4",
+      "id": "364"
+    },
+    "x86_64": {
+      "entry": "sys_accept4",
+      "id": "288"
+    }
+  },
+  "__NR_access": {
+    "arm": {
+      "entry": "sys_access",
+      "id": "33"
+    },
+    "x86": {
+      "entry": "sys_access",
+      "id": "33"
+    },
+    "x86_64": {
+      "entry": "sys_access",
+      "id": "21"
+    }
+  },
+  "__NR_acct": {
+    "arm": {
+      "entry": "sys_acct",
+      "id": "51"
+    },
+    "arm64": {
+      "entry": "sys_acct",
+      "id": "89"
+    },
+    "riscv64": {
+      "entry": "sys_acct",
+      "id": "89"
+    },
+    "x86": {
+      "entry": "sys_acct",
+      "id": "51"
+    },
+    "x86_64": {
+      "entry": "sys_acct",
+      "id": "163"
+    }
+  },
+  "__NR_add_key": {
+    "arm": {
+      "entry": "sys_add_key",
+      "id": "309"
+    },
+    "arm64": {
+      "entry": "sys_add_key",
+      "id": "217"
+    },
+    "riscv64": {
+      "entry": "sys_add_key",
+      "id": "217"
+    },
+    "x86": {
+      "entry": "sys_add_key",
+      "id": "286"
+    },
+    "x86_64": {
+      "entry": "sys_add_key",
+      "id": "248"
+    }
+  },
+  "__NR_adjtimex": {
+    "arm": {
+      "entry": "sys_adjtimex_time32",
+      "id": "124"
+    },
+    "arm64": {
+      "entry": "sys_adjtimex",
+      "id": "171"
+    },
+    "riscv64": {
+      "entry": "sys_adjtimex",
+      "id": "171"
+    },
+    "x86": {
+      "entry": "sys_adjtimex_time32",
+      "id": "124"
+    },
+    "x86_64": {
+      "entry": "sys_adjtimex",
+      "id": "159"
+    }
+  },
+  "__NR_afs_syscall": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "137",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "183",
+      "params": []
+    }
+  },
+  "__NR_alarm": {
+    "x86": {
+      "entry": "sys_alarm",
+      "id": "27"
+    },
+    "x86_64": {
+      "entry": "sys_alarm",
+      "id": "37"
+    }
+  },
+  "__NR_arch_prctl": {
+    "x86": {
+      "entry": "sys_arch_prctl",
+      "id": "384"
+    },
+    "x86_64": {
+      "entry": "sys_arch_prctl",
+      "id": "158"
+    }
+  },
+  "__NR_arm_fadvise64_64": {
+    "arm": {
+      "entry": "sys_arm_fadvise64_64",
+      "id": "270"
+    }
+  },
+  "__NR_arm_sync_file_range": {
+    "arm": {
+      "entry": "sys_sync_file_range2",
+      "id": "341"
+    }
+  },
+  "__NR_bdflush": {
+    "arm": {
+      "entry": "sys_ni_syscall",
+      "id": "134",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "134",
+      "params": []
+    }
+  },
+  "__NR_bind": {
+    "arm": {
+      "entry": "sys_bind",
+      "id": "282"
+    },
+    "arm64": {
+      "entry": "sys_bind",
+      "id": "200"
+    },
+    "riscv64": {
+      "entry": "sys_bind",
+      "id": "200"
+    },
+    "x86": {
+      "entry": "sys_bind",
+      "id": "361"
+    },
+    "x86_64": {
+      "entry": "sys_bind",
+      "id": "49"
+    }
+  },
+  "__NR_bpf": {
+    "arm": {
+      "entry": "sys_bpf",
+      "id": "386"
+    },
+    "arm64": {
+      "entry": "sys_bpf",
+      "id": "280"
+    },
+    "riscv64": {
+      "entry": "sys_bpf",
+      "id": "280"
+    },
+    "x86": {
+      "entry": "sys_bpf",
+      "id": "357"
+    },
+    "x86_64": {
+      "entry": "sys_bpf",
+      "id": "321"
+    }
+  },
+  "__NR_break": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "17",
+      "params": []
+    }
+  },
+  "__NR_brk": {
+    "arm": {
+      "entry": "sys_brk",
+      "id": "45"
+    },
+    "arm64": {
+      "entry": "sys_brk",
+      "id": "214"
+    },
+    "riscv64": {
+      "entry": "sys_brk",
+      "id": "214"
+    },
+    "x86": {
+      "entry": "sys_brk",
+      "id": "45"
+    },
+    "x86_64": {
+      "entry": "sys_brk",
+      "id": "12"
+    }
+  },
+  "__NR_capget": {
+    "arm": {
+      "entry": "sys_capget",
+      "id": "184"
+    },
+    "arm64": {
+      "entry": "sys_capget",
+      "id": "90"
+    },
+    "riscv64": {
+      "entry": "sys_capget",
+      "id": "90"
+    },
+    "x86": {
+      "entry": "sys_capget",
+      "id": "184"
+    },
+    "x86_64": {
+      "entry": "sys_capget",
+      "id": "125"
+    }
+  },
+  "__NR_capset": {
+    "arm": {
+      "entry": "sys_capset",
+      "id": "185"
+    },
+    "arm64": {
+      "entry": "sys_capset",
+      "id": "91"
+    },
+    "riscv64": {
+      "entry": "sys_capset",
+      "id": "91"
+    },
+    "x86": {
+      "entry": "sys_capset",
+      "id": "185"
+    },
+    "x86_64": {
+      "entry": "sys_capset",
+      "id": "126"
+    }
+  },
+  "__NR_chdir": {
+    "arm": {
+      "entry": "sys_chdir",
+      "id": "12"
+    },
+    "arm64": {
+      "entry": "sys_chdir",
+      "id": "49"
+    },
+    "riscv64": {
+      "entry": "sys_chdir",
+      "id": "49"
+    },
+    "x86": {
+      "entry": "sys_chdir",
+      "id": "12"
+    },
+    "x86_64": {
+      "entry": "sys_chdir",
+      "id": "80"
+    }
+  },
+  "__NR_chmod": {
+    "arm": {
+      "entry": "sys_chmod",
+      "id": "15"
+    },
+    "x86": {
+      "entry": "sys_chmod",
+      "id": "15"
+    },
+    "x86_64": {
+      "entry": "sys_chmod",
+      "id": "90"
+    }
+  },
+  "__NR_chown": {
+    "arm": {
+      "entry": "sys_chown16",
+      "id": "182"
+    },
+    "x86": {
+      "entry": "sys_chown16",
+      "id": "182"
+    },
+    "x86_64": {
+      "entry": "sys_chown",
+      "id": "92"
+    }
+  },
+  "__NR_chown32": {
+    "arm": {
+      "entry": "sys_chown",
+      "id": "212"
+    },
+    "x86": {
+      "entry": "sys_chown",
+      "id": "212"
+    }
+  },
+  "__NR_chroot": {
+    "arm": {
+      "entry": "sys_chroot",
+      "id": "61"
+    },
+    "arm64": {
+      "entry": "sys_chroot",
+      "id": "51"
+    },
+    "riscv64": {
+      "entry": "sys_chroot",
+      "id": "51"
+    },
+    "x86": {
+      "entry": "sys_chroot",
+      "id": "61"
+    },
+    "x86_64": {
+      "entry": "sys_chroot",
+      "id": "161"
+    }
+  },
+  "__NR_clock_adjtime": {
+    "arm": {
+      "entry": "sys_clock_adjtime32",
+      "id": "372"
+    },
+    "arm64": {
+      "entry": "sys_clock_adjtime",
+      "id": "266"
+    },
+    "riscv64": {
+      "entry": "sys_clock_adjtime",
+      "id": "266"
+    },
+    "x86": {
+      "entry": "sys_clock_adjtime32",
+      "id": "343"
+    },
+    "x86_64": {
+      "entry": "sys_clock_adjtime",
+      "id": "305"
+    }
+  },
+  "__NR_clock_adjtime64": {
+    "arm": {
+      "entry": "sys_clock_adjtime",
+      "id": "405"
+    },
+    "x86": {
+      "entry": "sys_clock_adjtime",
+      "id": "405"
+    }
+  },
+  "__NR_clock_getres": {
+    "arm": {
+      "entry": "sys_clock_getres_time32",
+      "id": "264"
+    },
+    "arm64": {
+      "entry": "sys_clock_getres",
+      "id": "114"
+    },
+    "riscv64": {
+      "entry": "sys_clock_getres",
+      "id": "114"
+    },
+    "x86": {
+      "entry": "sys_clock_getres_time32",
+      "id": "266"
+    },
+    "x86_64": {
+      "entry": "sys_clock_getres",
+      "id": "229"
+    }
+  },
+  "__NR_clock_getres_time64": {
+    "arm": {
+      "entry": "sys_clock_getres",
+      "id": "406"
+    },
+    "x86": {
+      "entry": "sys_clock_getres",
+      "id": "406"
+    }
+  },
+  "__NR_clock_gettime": {
+    "arm": {
+      "entry": "sys_clock_gettime32",
+      "id": "263"
+    },
+    "arm64": {
+      "entry": "sys_clock_gettime",
+      "id": "113"
+    },
+    "riscv64": {
+      "entry": "sys_clock_gettime",
+      "id": "113"
+    },
+    "x86": {
+      "entry": "sys_clock_gettime32",
+      "id": "265"
+    },
+    "x86_64": {
+      "entry": "sys_clock_gettime",
+      "id": "228"
+    }
+  },
+  "__NR_clock_gettime64": {
+    "arm": {
+      "entry": "sys_clock_gettime",
+      "id": "403"
+    },
+    "x86": {
+      "entry": "sys_clock_gettime",
+      "id": "403"
+    }
+  },
+  "__NR_clock_nanosleep": {
+    "arm": {
+      "entry": "sys_clock_nanosleep_time32",
+      "id": "265"
+    },
+    "arm64": {
+      "entry": "sys_clock_nanosleep",
+      "id": "115"
+    },
+    "riscv64": {
+      "entry": "sys_clock_nanosleep",
+      "id": "115"
+    },
+    "x86": {
+      "entry": "sys_clock_nanosleep_time32",
+      "id": "267"
+    },
+    "x86_64": {
+      "entry": "sys_clock_nanosleep",
+      "id": "230"
+    }
+  },
+  "__NR_clock_nanosleep_time64": {
+    "arm": {
+      "entry": "sys_clock_nanosleep",
+      "id": "407"
+    },
+    "x86": {
+      "entry": "sys_clock_nanosleep",
+      "id": "407"
+    }
+  },
+  "__NR_clock_settime": {
+    "arm": {
+      "entry": "sys_clock_settime32",
+      "id": "262"
+    },
+    "arm64": {
+      "entry": "sys_clock_settime",
+      "id": "112"
+    },
+    "riscv64": {
+      "entry": "sys_clock_settime",
+      "id": "112"
+    },
+    "x86": {
+      "entry": "sys_clock_settime32",
+      "id": "264"
+    },
+    "x86_64": {
+      "entry": "sys_clock_settime",
+      "id": "227"
+    }
+  },
+  "__NR_clock_settime64": {
+    "arm": {
+      "entry": "sys_clock_settime",
+      "id": "404"
+    },
+    "x86": {
+      "entry": "sys_clock_settime",
+      "id": "404"
+    }
+  },
+  "__NR_clone": {
+    "arm": {
+      "entry": "sys_clone",
+      "id": "120"
+    },
+    "arm64": {
+      "entry": "sys_clone",
+      "id": "220"
+    },
+    "riscv64": {
+      "entry": "sys_clone",
+      "id": "220"
+    },
+    "x86": {
+      "entry": "sys_clone",
+      "id": "120"
+    },
+    "x86_64": {
+      "entry": "sys_clone",
+      "id": "56"
+    }
+  },
+  "__NR_clone3": {
+    "arm": {
+      "entry": "sys_clone3",
+      "id": "435"
+    },
+    "arm64": {
+      "entry": "sys_clone3",
+      "id": "435"
+    },
+    "riscv64": {
+      "entry": "sys_clone3",
+      "id": "435"
+    },
+    "x86": {
+      "entry": "sys_clone3",
+      "id": "435"
+    },
+    "x86_64": {
+      "entry": "sys_clone3",
+      "id": "435"
+    }
+  },
+  "__NR_close": {
+    "arm": {
+      "entry": "sys_close",
+      "id": "6"
+    },
+    "arm64": {
+      "entry": "sys_close",
+      "id": "57"
+    },
+    "riscv64": {
+      "entry": "sys_close",
+      "id": "57"
+    },
+    "x86": {
+      "entry": "sys_close",
+      "id": "6"
+    },
+    "x86_64": {
+      "entry": "sys_close",
+      "id": "3"
+    }
+  },
+  "__NR_close_range": {
+    "arm": {
+      "entry": "sys_close_range",
+      "id": "436"
+    },
+    "arm64": {
+      "entry": "sys_close_range",
+      "id": "436"
+    },
+    "riscv64": {
+      "entry": "sys_close_range",
+      "id": "436"
+    },
+    "x86": {
+      "entry": "sys_close_range",
+      "id": "436"
+    },
+    "x86_64": {
+      "entry": "sys_close_range",
+      "id": "436"
+    }
+  },
+  "__NR_connect": {
+    "arm": {
+      "entry": "sys_connect",
+      "id": "283"
+    },
+    "arm64": {
+      "entry": "sys_connect",
+      "id": "203"
+    },
+    "riscv64": {
+      "entry": "sys_connect",
+      "id": "203"
+    },
+    "x86": {
+      "entry": "sys_connect",
+      "id": "362"
+    },
+    "x86_64": {
+      "entry": "sys_connect",
+      "id": "42"
+    }
+  },
+  "__NR_copy_file_range": {
+    "arm": {
+      "entry": "sys_copy_file_range",
+      "id": "391"
+    },
+    "arm64": {
+      "entry": "sys_copy_file_range",
+      "id": "285"
+    },
+    "riscv64": {
+      "entry": "sys_copy_file_range",
+      "id": "285"
+    },
+    "x86": {
+      "entry": "sys_copy_file_range",
+      "id": "377"
+    },
+    "x86_64": {
+      "entry": "sys_copy_file_range",
+      "id": "326"
+    }
+  },
+  "__NR_creat": {
+    "arm": {
+      "entry": "sys_creat",
+      "id": "8"
+    },
+    "x86": {
+      "entry": "sys_creat",
+      "id": "8"
+    },
+    "x86_64": {
+      "entry": "sys_creat",
+      "id": "85"
+    }
+  },
+  "__NR_create_module": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "127",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "174",
+      "params": []
+    }
+  },
+  "__NR_delete_module": {
+    "arm": {
+      "entry": "sys_delete_module",
+      "id": "129"
+    },
+    "arm64": {
+      "entry": "sys_delete_module",
+      "id": "106"
+    },
+    "riscv64": {
+      "entry": "sys_delete_module",
+      "id": "106"
+    },
+    "x86": {
+      "entry": "sys_delete_module",
+      "id": "129"
+    },
+    "x86_64": {
+      "entry": "sys_delete_module",
+      "id": "176"
+    }
+  },
+  "__NR_dup": {
+    "arm": {
+      "entry": "sys_dup",
+      "id": "41"
+    },
+    "arm64": {
+      "entry": "sys_dup",
+      "id": "23"
+    },
+    "riscv64": {
+      "entry": "sys_dup",
+      "id": "23"
+    },
+    "x86": {
+      "entry": "sys_dup",
+      "id": "41"
+    },
+    "x86_64": {
+      "entry": "sys_dup",
+      "id": "32"
+    }
+  },
+  "__NR_dup2": {
+    "arm": {
+      "entry": "sys_dup2",
+      "id": "63"
+    },
+    "x86": {
+      "entry": "sys_dup2",
+      "id": "63"
+    },
+    "x86_64": {
+      "entry": "sys_dup2",
+      "id": "33"
+    }
+  },
+  "__NR_dup3": {
+    "arm": {
+      "entry": "sys_dup3",
+      "id": "358"
+    },
+    "arm64": {
+      "entry": "sys_dup3",
+      "id": "24"
+    },
+    "riscv64": {
+      "entry": "sys_dup3",
+      "id": "24"
+    },
+    "x86": {
+      "entry": "sys_dup3",
+      "id": "330"
+    },
+    "x86_64": {
+      "entry": "sys_dup3",
+      "id": "292"
+    }
+  },
+  "__NR_epoll_create": {
+    "arm": {
+      "entry": "sys_epoll_create",
+      "id": "250"
+    },
+    "x86": {
+      "entry": "sys_epoll_create",
+      "id": "254"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_create",
+      "id": "213"
+    }
+  },
+  "__NR_epoll_create1": {
+    "arm": {
+      "entry": "sys_epoll_create1",
+      "id": "357"
+    },
+    "arm64": {
+      "entry": "sys_epoll_create1",
+      "id": "20"
+    },
+    "riscv64": {
+      "entry": "sys_epoll_create1",
+      "id": "20"
+    },
+    "x86": {
+      "entry": "sys_epoll_create1",
+      "id": "329"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_create1",
+      "id": "291"
+    }
+  },
+  "__NR_epoll_ctl": {
+    "arm": {
+      "entry": "sys_epoll_ctl",
+      "id": "251"
+    },
+    "arm64": {
+      "entry": "sys_epoll_ctl",
+      "id": "21"
+    },
+    "riscv64": {
+      "entry": "sys_epoll_ctl",
+      "id": "21"
+    },
+    "x86": {
+      "entry": "sys_epoll_ctl",
+      "id": "255"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_ctl",
+      "id": "233"
+    }
+  },
+  "__NR_epoll_ctl_old": {
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "214",
+      "params": []
+    }
+  },
+  "__NR_epoll_pwait": {
+    "arm": {
+      "entry": "sys_epoll_pwait",
+      "id": "346"
+    },
+    "arm64": {
+      "entry": "sys_epoll_pwait",
+      "id": "22"
+    },
+    "riscv64": {
+      "entry": "sys_epoll_pwait",
+      "id": "22"
+    },
+    "x86": {
+      "entry": "sys_epoll_pwait",
+      "id": "319"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_pwait",
+      "id": "281"
+    }
+  },
+  "__NR_epoll_pwait2": {
+    "arm": {
+      "entry": "sys_epoll_pwait2",
+      "id": "441"
+    },
+    "arm64": {
+      "entry": "sys_epoll_pwait2",
+      "id": "441"
+    },
+    "riscv64": {
+      "entry": "sys_epoll_pwait2",
+      "id": "441"
+    },
+    "x86": {
+      "entry": "sys_epoll_pwait2",
+      "id": "441"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_pwait2",
+      "id": "441"
+    }
+  },
+  "__NR_epoll_wait": {
+    "arm": {
+      "entry": "sys_epoll_wait",
+      "id": "252"
+    },
+    "x86": {
+      "entry": "sys_epoll_wait",
+      "id": "256"
+    },
+    "x86_64": {
+      "entry": "sys_epoll_wait",
+      "id": "232"
+    }
+  },
+  "__NR_epoll_wait_old": {
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "215",
+      "params": []
+    }
+  },
+  "__NR_eventfd": {
+    "arm": {
+      "entry": "sys_eventfd",
+      "id": "351"
+    },
+    "x86": {
+      "entry": "sys_eventfd",
+      "id": "323"
+    },
+    "x86_64": {
+      "entry": "sys_eventfd",
+      "id": "284"
+    }
+  },
+  "__NR_eventfd2": {
+    "arm": {
+      "entry": "sys_eventfd2",
+      "id": "356"
+    },
+    "arm64": {
+      "entry": "sys_eventfd2",
+      "id": "19"
+    },
+    "riscv64": {
+      "entry": "sys_eventfd2",
+      "id": "19"
+    },
+    "x86": {
+      "entry": "sys_eventfd2",
+      "id": "328"
+    },
+    "x86_64": {
+      "entry": "sys_eventfd2",
+      "id": "290"
+    }
+  },
+  "__NR_execve": {
+    "arm": {
+      "entry": "sys_execve",
+      "id": "11"
+    },
+    "arm64": {
+      "entry": "sys_execve",
+      "id": "221"
+    },
+    "riscv64": {
+      "entry": "sys_execve",
+      "id": "221"
+    },
+    "x86": {
+      "entry": "sys_execve",
+      "id": "11"
+    },
+    "x86_64": {
+      "entry": "sys_execve",
+      "id": "59"
+    }
+  },
+  "__NR_execveat": {
+    "arm": {
+      "entry": "sys_execveat",
+      "id": "387"
+    },
+    "arm64": {
+      "entry": "sys_execveat",
+      "id": "281"
+    },
+    "riscv64": {
+      "entry": "sys_execveat",
+      "id": "281"
+    },
+    "x86": {
+      "entry": "sys_execveat",
+      "id": "358"
+    },
+    "x86_64": {
+      "entry": "sys_execveat",
+      "id": "322"
+    }
+  },
+  "__NR_exit": {
+    "arm": {
+      "entry": "sys_exit",
+      "id": "1"
+    },
+    "arm64": {
+      "entry": "sys_exit",
+      "id": "93"
+    },
+    "riscv64": {
+      "entry": "sys_exit",
+      "id": "93"
+    },
+    "x86": {
+      "entry": "sys_exit",
+      "id": "1"
+    },
+    "x86_64": {
+      "entry": "sys_exit",
+      "id": "60"
+    }
+  },
+  "__NR_exit_group": {
+    "arm": {
+      "entry": "sys_exit_group",
+      "id": "248"
+    },
+    "arm64": {
+      "entry": "sys_exit_group",
+      "id": "94"
+    },
+    "riscv64": {
+      "entry": "sys_exit_group",
+      "id": "94"
+    },
+    "x86": {
+      "entry": "sys_exit_group",
+      "id": "252"
+    },
+    "x86_64": {
+      "entry": "sys_exit_group",
+      "id": "231"
+    }
+  },
+  "__NR_faccessat": {
+    "arm": {
+      "entry": "sys_faccessat",
+      "id": "334"
+    },
+    "arm64": {
+      "entry": "sys_faccessat",
+      "id": "48"
+    },
+    "riscv64": {
+      "entry": "sys_faccessat",
+      "id": "48"
+    },
+    "x86": {
+      "entry": "sys_faccessat",
+      "id": "307"
+    },
+    "x86_64": {
+      "entry": "sys_faccessat",
+      "id": "269"
+    }
+  },
+  "__NR_faccessat2": {
+    "arm": {
+      "entry": "sys_faccessat2",
+      "id": "439"
+    },
+    "arm64": {
+      "entry": "sys_faccessat2",
+      "id": "439"
+    },
+    "riscv64": {
+      "entry": "sys_faccessat2",
+      "id": "439"
+    },
+    "x86": {
+      "entry": "sys_faccessat2",
+      "id": "439"
+    },
+    "x86_64": {
+      "entry": "sys_faccessat2",
+      "id": "439"
+    }
+  },
+  "__NR_fadvise64": {
+    "arm64": {
+      "entry": "sys_fadvise64_64",
+      "id": "223"
+    },
+    "riscv64": {
+      "entry": "sys_fadvise64_64",
+      "id": "223"
+    },
+    "x86": {
+      "entry": "sys_ia32_fadvise64",
+      "id": "250"
+    },
+    "x86_64": {
+      "entry": "sys_fadvise64",
+      "id": "221"
+    }
+  },
+  "__NR_fadvise64_64": {
+    "x86": {
+      "entry": "sys_ia32_fadvise64_64",
+      "id": "272"
+    }
+  },
+  "__NR_fallocate": {
+    "arm": {
+      "entry": "sys_fallocate",
+      "id": "352"
+    },
+    "arm64": {
+      "entry": "sys_fallocate",
+      "id": "47"
+    },
+    "riscv64": {
+      "entry": "sys_fallocate",
+      "id": "47"
+    },
+    "x86": {
+      "entry": "sys_ia32_fallocate",
+      "id": "324"
+    },
+    "x86_64": {
+      "entry": "sys_fallocate",
+      "id": "285"
+    }
+  },
+  "__NR_fanotify_init": {
+    "arm": {
+      "entry": "sys_fanotify_init",
+      "id": "367"
+    },
+    "arm64": {
+      "entry": "sys_fanotify_init",
+      "id": "262"
+    },
+    "riscv64": {
+      "entry": "sys_fanotify_init",
+      "id": "262"
+    },
+    "x86": {
+      "entry": "sys_fanotify_init",
+      "id": "338"
+    },
+    "x86_64": {
+      "entry": "sys_fanotify_init",
+      "id": "300"
+    }
+  },
+  "__NR_fanotify_mark": {
+    "arm": {
+      "entry": "sys_fanotify_mark",
+      "id": "368"
+    },
+    "arm64": {
+      "entry": "sys_fanotify_mark",
+      "id": "263"
+    },
+    "riscv64": {
+      "entry": "sys_fanotify_mark",
+      "id": "263"
+    },
+    "x86": {
+      "entry": "sys_fanotify_mark",
+      "id": "339"
+    },
+    "x86_64": {
+      "entry": "sys_fanotify_mark",
+      "id": "301"
+    }
+  },
+  "__NR_fchdir": {
+    "arm": {
+      "entry": "sys_fchdir",
+      "id": "133"
+    },
+    "arm64": {
+      "entry": "sys_fchdir",
+      "id": "50"
+    },
+    "riscv64": {
+      "entry": "sys_fchdir",
+      "id": "50"
+    },
+    "x86": {
+      "entry": "sys_fchdir",
+      "id": "133"
+    },
+    "x86_64": {
+      "entry": "sys_fchdir",
+      "id": "81"
+    }
+  },
+  "__NR_fchmod": {
+    "arm": {
+      "entry": "sys_fchmod",
+      "id": "94"
+    },
+    "arm64": {
+      "entry": "sys_fchmod",
+      "id": "52"
+    },
+    "riscv64": {
+      "entry": "sys_fchmod",
+      "id": "52"
+    },
+    "x86": {
+      "entry": "sys_fchmod",
+      "id": "94"
+    },
+    "x86_64": {
+      "entry": "sys_fchmod",
+      "id": "91"
+    }
+  },
+  "__NR_fchmodat": {
+    "arm": {
+      "entry": "sys_fchmodat",
+      "id": "333"
+    },
+    "arm64": {
+      "entry": "sys_fchmodat",
+      "id": "53"
+    },
+    "riscv64": {
+      "entry": "sys_fchmodat",
+      "id": "53"
+    },
+    "x86": {
+      "entry": "sys_fchmodat",
+      "id": "306"
+    },
+    "x86_64": {
+      "entry": "sys_fchmodat",
+      "id": "268"
+    }
+  },
+  "__NR_fchown": {
+    "arm": {
+      "entry": "sys_fchown16",
+      "id": "95"
+    },
+    "arm64": {
+      "entry": "sys_fchown",
+      "id": "55"
+    },
+    "riscv64": {
+      "entry": "sys_fchown",
+      "id": "55"
+    },
+    "x86": {
+      "entry": "sys_fchown16",
+      "id": "95"
+    },
+    "x86_64": {
+      "entry": "sys_fchown",
+      "id": "93"
+    }
+  },
+  "__NR_fchown32": {
+    "arm": {
+      "entry": "sys_fchown",
+      "id": "207"
+    },
+    "x86": {
+      "entry": "sys_fchown",
+      "id": "207"
+    }
+  },
+  "__NR_fchownat": {
+    "arm": {
+      "entry": "sys_fchownat",
+      "id": "325"
+    },
+    "arm64": {
+      "entry": "sys_fchownat",
+      "id": "54"
+    },
+    "riscv64": {
+      "entry": "sys_fchownat",
+      "id": "54"
+    },
+    "x86": {
+      "entry": "sys_fchownat",
+      "id": "298"
+    },
+    "x86_64": {
+      "entry": "sys_fchownat",
+      "id": "260"
+    }
+  },
+  "__NR_fcntl": {
+    "arm": {
+      "entry": "sys_fcntl",
+      "id": "55"
+    },
+    "arm64": {
+      "entry": "sys_fcntl",
+      "id": "25"
+    },
+    "riscv64": {
+      "entry": "sys_fcntl",
+      "id": "25"
+    },
+    "x86": {
+      "entry": "sys_fcntl",
+      "id": "55"
+    },
+    "x86_64": {
+      "entry": "sys_fcntl",
+      "id": "72"
+    }
+  },
+  "__NR_fcntl64": {
+    "arm": {
+      "entry": "sys_fcntl64",
+      "id": "221"
+    },
+    "x86": {
+      "entry": "sys_fcntl64",
+      "id": "221"
+    }
+  },
+  "__NR_fdatasync": {
+    "arm": {
+      "entry": "sys_fdatasync",
+      "id": "148"
+    },
+    "arm64": {
+      "entry": "sys_fdatasync",
+      "id": "83"
+    },
+    "riscv64": {
+      "entry": "sys_fdatasync",
+      "id": "83"
+    },
+    "x86": {
+      "entry": "sys_fdatasync",
+      "id": "148"
+    },
+    "x86_64": {
+      "entry": "sys_fdatasync",
+      "id": "75"
+    }
+  },
+  "__NR_fgetxattr": {
+    "arm": {
+      "entry": "sys_fgetxattr",
+      "id": "231"
+    },
+    "arm64": {
+      "entry": "sys_fgetxattr",
+      "id": "10"
+    },
+    "riscv64": {
+      "entry": "sys_fgetxattr",
+      "id": "10"
+    },
+    "x86": {
+      "entry": "sys_fgetxattr",
+      "id": "231"
+    },
+    "x86_64": {
+      "entry": "sys_fgetxattr",
+      "id": "193"
+    }
+  },
+  "__NR_finit_module": {
+    "arm": {
+      "entry": "sys_finit_module",
+      "id": "379"
+    },
+    "arm64": {
+      "entry": "sys_finit_module",
+      "id": "273"
+    },
+    "riscv64": {
+      "entry": "sys_finit_module",
+      "id": "273"
+    },
+    "x86": {
+      "entry": "sys_finit_module",
+      "id": "350"
+    },
+    "x86_64": {
+      "entry": "sys_finit_module",
+      "id": "313"
+    }
+  },
+  "__NR_flistxattr": {
+    "arm": {
+      "entry": "sys_flistxattr",
+      "id": "234"
+    },
+    "arm64": {
+      "entry": "sys_flistxattr",
+      "id": "13"
+    },
+    "riscv64": {
+      "entry": "sys_flistxattr",
+      "id": "13"
+    },
+    "x86": {
+      "entry": "sys_flistxattr",
+      "id": "234"
+    },
+    "x86_64": {
+      "entry": "sys_flistxattr",
+      "id": "196"
+    }
+  },
+  "__NR_flock": {
+    "arm": {
+      "entry": "sys_flock",
+      "id": "143"
+    },
+    "arm64": {
+      "entry": "sys_flock",
+      "id": "32"
+    },
+    "riscv64": {
+      "entry": "sys_flock",
+      "id": "32"
+    },
+    "x86": {
+      "entry": "sys_flock",
+      "id": "143"
+    },
+    "x86_64": {
+      "entry": "sys_flock",
+      "id": "73"
+    }
+  },
+  "__NR_fork": {
+    "arm": {
+      "entry": "sys_fork",
+      "id": "2",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_fork",
+      "id": "2",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_fork",
+      "id": "57",
+      "params": []
+    }
+  },
+  "__NR_fremovexattr": {
+    "arm": {
+      "entry": "sys_fremovexattr",
+      "id": "237"
+    },
+    "arm64": {
+      "entry": "sys_fremovexattr",
+      "id": "16"
+    },
+    "riscv64": {
+      "entry": "sys_fremovexattr",
+      "id": "16"
+    },
+    "x86": {
+      "entry": "sys_fremovexattr",
+      "id": "237"
+    },
+    "x86_64": {
+      "entry": "sys_fremovexattr",
+      "id": "199"
+    }
+  },
+  "__NR_fsconfig": {
+    "arm": {
+      "entry": "sys_fsconfig",
+      "id": "431"
+    },
+    "arm64": {
+      "entry": "sys_fsconfig",
+      "id": "431"
+    },
+    "riscv64": {
+      "entry": "sys_fsconfig",
+      "id": "431"
+    },
+    "x86": {
+      "entry": "sys_fsconfig",
+      "id": "431"
+    },
+    "x86_64": {
+      "entry": "sys_fsconfig",
+      "id": "431"
+    }
+  },
+  "__NR_fsetxattr": {
+    "arm": {
+      "entry": "sys_fsetxattr",
+      "id": "228"
+    },
+    "arm64": {
+      "entry": "sys_fsetxattr",
+      "id": "7"
+    },
+    "riscv64": {
+      "entry": "sys_fsetxattr",
+      "id": "7"
+    },
+    "x86": {
+      "entry": "sys_fsetxattr",
+      "id": "228"
+    },
+    "x86_64": {
+      "entry": "sys_fsetxattr",
+      "id": "190"
+    }
+  },
+  "__NR_fsmount": {
+    "arm": {
+      "entry": "sys_fsmount",
+      "id": "432"
+    },
+    "arm64": {
+      "entry": "sys_fsmount",
+      "id": "432"
+    },
+    "riscv64": {
+      "entry": "sys_fsmount",
+      "id": "432"
+    },
+    "x86": {
+      "entry": "sys_fsmount",
+      "id": "432"
+    },
+    "x86_64": {
+      "entry": "sys_fsmount",
+      "id": "432"
+    }
+  },
+  "__NR_fsopen": {
+    "arm": {
+      "entry": "sys_fsopen",
+      "id": "430"
+    },
+    "arm64": {
+      "entry": "sys_fsopen",
+      "id": "430"
+    },
+    "riscv64": {
+      "entry": "sys_fsopen",
+      "id": "430"
+    },
+    "x86": {
+      "entry": "sys_fsopen",
+      "id": "430"
+    },
+    "x86_64": {
+      "entry": "sys_fsopen",
+      "id": "430"
+    }
+  },
+  "__NR_fspick": {
+    "arm": {
+      "entry": "sys_fspick",
+      "id": "433"
+    },
+    "arm64": {
+      "entry": "sys_fspick",
+      "id": "433"
+    },
+    "riscv64": {
+      "entry": "sys_fspick",
+      "id": "433"
+    },
+    "x86": {
+      "entry": "sys_fspick",
+      "id": "433"
+    },
+    "x86_64": {
+      "entry": "sys_fspick",
+      "id": "433"
+    }
+  },
+  "__NR_fstat": {
+    "arm": {
+      "entry": "sys_newfstat",
+      "id": "108"
+    },
+    "arm64": {
+      "entry": "sys_newfstat",
+      "id": "80"
+    },
+    "riscv64": {
+      "entry": "sys_newfstat",
+      "id": "80"
+    },
+    "x86": {
+      "entry": "sys_newfstat",
+      "id": "108"
+    },
+    "x86_64": {
+      "entry": "sys_newfstat",
+      "id": "5"
+    }
+  },
+  "__NR_fstat64": {
+    "arm": {
+      "entry": "sys_fstat64",
+      "id": "197"
+    },
+    "x86": {
+      "entry": "sys_fstat64",
+      "id": "197"
+    }
+  },
+  "__NR_fstatat64": {
+    "arm": {
+      "entry": "sys_fstatat64",
+      "id": "327"
+    },
+    "x86": {
+      "entry": "sys_fstatat64",
+      "id": "300"
+    }
+  },
+  "__NR_fstatfs": {
+    "arm": {
+      "entry": "sys_fstatfs",
+      "id": "100"
+    },
+    "arm64": {
+      "entry": "sys_fstatfs",
+      "id": "44"
+    },
+    "riscv64": {
+      "entry": "sys_fstatfs",
+      "id": "44"
+    },
+    "x86": {
+      "entry": "sys_fstatfs",
+      "id": "100"
+    },
+    "x86_64": {
+      "entry": "sys_fstatfs",
+      "id": "138"
+    }
+  },
+  "__NR_fstatfs64": {
+    "arm": {
+      "entry": "sys_fstatfs64",
+      "id": "267"
+    },
+    "x86": {
+      "entry": "sys_fstatfs64",
+      "id": "269"
+    }
+  },
+  "__NR_fsync": {
+    "arm": {
+      "entry": "sys_fsync",
+      "id": "118"
+    },
+    "arm64": {
+      "entry": "sys_fsync",
+      "id": "82"
+    },
+    "riscv64": {
+      "entry": "sys_fsync",
+      "id": "82"
+    },
+    "x86": {
+      "entry": "sys_fsync",
+      "id": "118"
+    },
+    "x86_64": {
+      "entry": "sys_fsync",
+      "id": "74"
+    }
+  },
+  "__NR_ftime": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "35",
+      "params": []
+    }
+  },
+  "__NR_ftruncate": {
+    "arm": {
+      "entry": "sys_ftruncate",
+      "id": "93"
+    },
+    "arm64": {
+      "entry": "sys_ftruncate",
+      "id": "46"
+    },
+    "riscv64": {
+      "entry": "sys_ftruncate",
+      "id": "46"
+    },
+    "x86": {
+      "entry": "sys_ftruncate",
+      "id": "93"
+    },
+    "x86_64": {
+      "entry": "sys_ftruncate",
+      "id": "77"
+    }
+  },
+  "__NR_ftruncate64": {
+    "arm": {
+      "entry": "sys_ftruncate64",
+      "id": "194"
+    },
+    "x86": {
+      "entry": "sys_ia32_ftruncate64",
+      "id": "194"
+    }
+  },
+  "__NR_futex": {
+    "arm": {
+      "entry": "sys_futex_time32",
+      "id": "240"
+    },
+    "arm64": {
+      "entry": "sys_futex",
+      "id": "98"
+    },
+    "riscv64": {
+      "entry": "sys_futex",
+      "id": "98"
+    },
+    "x86": {
+      "entry": "sys_futex_time32",
+      "id": "240"
+    },
+    "x86_64": {
+      "entry": "sys_futex",
+      "id": "202"
+    }
+  },
+  "__NR_futex_time64": {
+    "arm": {
+      "entry": "sys_futex",
+      "id": "422"
+    },
+    "x86": {
+      "entry": "sys_futex",
+      "id": "422"
+    }
+  },
+  "__NR_futex_waitv": {
+    "arm": {
+      "entry": "sys_futex_waitv",
+      "id": "449"
+    },
+    "arm64": {
+      "entry": "sys_futex_waitv",
+      "id": "449"
+    },
+    "riscv64": {
+      "entry": "sys_futex_waitv",
+      "id": "449"
+    },
+    "x86": {
+      "entry": "sys_futex_waitv",
+      "id": "449"
+    },
+    "x86_64": {
+      "entry": "sys_futex_waitv",
+      "id": "449"
+    }
+  },
+  "__NR_futimesat": {
+    "arm": {
+      "entry": "sys_futimesat_time32",
+      "id": "326"
+    },
+    "x86": {
+      "entry": "sys_futimesat_time32",
+      "id": "299"
+    },
+    "x86_64": {
+      "entry": "sys_futimesat",
+      "id": "261"
+    }
+  },
+  "__NR_get_kernel_syms": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "130",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "177",
+      "params": []
+    }
+  },
+  "__NR_get_mempolicy": {
+    "arm": {
+      "entry": "sys_get_mempolicy",
+      "id": "320"
+    },
+    "arm64": {
+      "entry": "sys_get_mempolicy",
+      "id": "236"
+    },
+    "riscv64": {
+      "entry": "sys_get_mempolicy",
+      "id": "236"
+    },
+    "x86": {
+      "entry": "sys_get_mempolicy",
+      "id": "275"
+    },
+    "x86_64": {
+      "entry": "sys_get_mempolicy",
+      "id": "239"
+    }
+  },
+  "__NR_get_robust_list": {
+    "arm": {
+      "entry": "sys_get_robust_list",
+      "id": "339"
+    },
+    "arm64": {
+      "entry": "sys_get_robust_list",
+      "id": "100"
+    },
+    "riscv64": {
+      "entry": "sys_get_robust_list",
+      "id": "100"
+    },
+    "x86": {
+      "entry": "sys_get_robust_list",
+      "id": "312"
+    },
+    "x86_64": {
+      "entry": "sys_get_robust_list",
+      "id": "274"
+    }
+  },
+  "__NR_get_thread_area": {
+    "x86": {
+      "entry": "sys_get_thread_area",
+      "id": "244"
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "211",
+      "params": []
+    }
+  },
+  "__NR_getcpu": {
+    "arm": {
+      "entry": "sys_getcpu",
+      "id": "345"
+    },
+    "arm64": {
+      "entry": "sys_getcpu",
+      "id": "168"
+    },
+    "riscv64": {
+      "entry": "sys_getcpu",
+      "id": "168"
+    },
+    "x86": {
+      "entry": "sys_getcpu",
+      "id": "318"
+    },
+    "x86_64": {
+      "entry": "sys_getcpu",
+      "id": "309"
+    }
+  },
+  "__NR_getcwd": {
+    "arm": {
+      "entry": "sys_getcwd",
+      "id": "183"
+    },
+    "arm64": {
+      "entry": "sys_getcwd",
+      "id": "17"
+    },
+    "riscv64": {
+      "entry": "sys_getcwd",
+      "id": "17"
+    },
+    "x86": {
+      "entry": "sys_getcwd",
+      "id": "183"
+    },
+    "x86_64": {
+      "entry": "sys_getcwd",
+      "id": "79"
+    }
+  },
+  "__NR_getdents": {
+    "arm": {
+      "entry": "sys_getdents",
+      "id": "141"
+    },
+    "x86": {
+      "entry": "sys_getdents",
+      "id": "141"
+    },
+    "x86_64": {
+      "entry": "sys_getdents",
+      "id": "78"
+    }
+  },
+  "__NR_getdents64": {
+    "arm": {
+      "entry": "sys_getdents64",
+      "id": "217"
+    },
+    "arm64": {
+      "entry": "sys_getdents64",
+      "id": "61"
+    },
+    "riscv64": {
+      "entry": "sys_getdents64",
+      "id": "61"
+    },
+    "x86": {
+      "entry": "sys_getdents64",
+      "id": "220"
+    },
+    "x86_64": {
+      "entry": "sys_getdents64",
+      "id": "217"
+    }
+  },
+  "__NR_getegid": {
+    "arm": {
+      "entry": "sys_getegid16",
+      "id": "50",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_getegid",
+      "id": "177",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_getegid",
+      "id": "177",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getegid16",
+      "id": "50",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getegid",
+      "id": "108",
+      "params": []
+    }
+  },
+  "__NR_getegid32": {
+    "arm": {
+      "entry": "sys_getegid",
+      "id": "202",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getegid",
+      "id": "202",
+      "params": []
+    }
+  },
+  "__NR_geteuid": {
+    "arm": {
+      "entry": "sys_geteuid16",
+      "id": "49",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_geteuid",
+      "id": "175",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_geteuid",
+      "id": "175",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_geteuid16",
+      "id": "49",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_geteuid",
+      "id": "107",
+      "params": []
+    }
+  },
+  "__NR_geteuid32": {
+    "arm": {
+      "entry": "sys_geteuid",
+      "id": "201",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_geteuid",
+      "id": "201",
+      "params": []
+    }
+  },
+  "__NR_getgid": {
+    "arm": {
+      "entry": "sys_getgid16",
+      "id": "47",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_getgid",
+      "id": "176",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_getgid",
+      "id": "176",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getgid16",
+      "id": "47",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getgid",
+      "id": "104",
+      "params": []
+    }
+  },
+  "__NR_getgid32": {
+    "arm": {
+      "entry": "sys_getgid",
+      "id": "200",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getgid",
+      "id": "200",
+      "params": []
+    }
+  },
+  "__NR_getgroups": {
+    "arm": {
+      "entry": "sys_getgroups16",
+      "id": "80"
+    },
+    "arm64": {
+      "entry": "sys_getgroups",
+      "id": "158"
+    },
+    "riscv64": {
+      "entry": "sys_getgroups",
+      "id": "158"
+    },
+    "x86": {
+      "entry": "sys_getgroups16",
+      "id": "80"
+    },
+    "x86_64": {
+      "entry": "sys_getgroups",
+      "id": "115"
+    }
+  },
+  "__NR_getgroups32": {
+    "arm": {
+      "entry": "sys_getgroups",
+      "id": "205"
+    },
+    "x86": {
+      "entry": "sys_getgroups",
+      "id": "205"
+    }
+  },
+  "__NR_getitimer": {
+    "arm": {
+      "entry": "sys_getitimer",
+      "id": "105"
+    },
+    "arm64": {
+      "entry": "sys_getitimer",
+      "id": "102"
+    },
+    "riscv64": {
+      "entry": "sys_getitimer",
+      "id": "102"
+    },
+    "x86": {
+      "entry": "sys_getitimer",
+      "id": "105"
+    },
+    "x86_64": {
+      "entry": "sys_getitimer",
+      "id": "36"
+    }
+  },
+  "__NR_getpeername": {
+    "arm": {
+      "entry": "sys_getpeername",
+      "id": "287"
+    },
+    "arm64": {
+      "entry": "sys_getpeername",
+      "id": "205"
+    },
+    "riscv64": {
+      "entry": "sys_getpeername",
+      "id": "205"
+    },
+    "x86": {
+      "entry": "sys_getpeername",
+      "id": "368"
+    },
+    "x86_64": {
+      "entry": "sys_getpeername",
+      "id": "52"
+    }
+  },
+  "__NR_getpgid": {
+    "arm": {
+      "entry": "sys_getpgid",
+      "id": "132"
+    },
+    "arm64": {
+      "entry": "sys_getpgid",
+      "id": "155"
+    },
+    "riscv64": {
+      "entry": "sys_getpgid",
+      "id": "155"
+    },
+    "x86": {
+      "entry": "sys_getpgid",
+      "id": "132"
+    },
+    "x86_64": {
+      "entry": "sys_getpgid",
+      "id": "121"
+    }
+  },
+  "__NR_getpgrp": {
+    "arm": {
+      "entry": "sys_getpgrp",
+      "id": "65",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getpgrp",
+      "id": "65",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getpgrp",
+      "id": "111",
+      "params": []
+    }
+  },
+  "__NR_getpid": {
+    "arm": {
+      "entry": "sys_getpid",
+      "id": "20",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_getpid",
+      "id": "172",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_getpid",
+      "id": "172",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getpid",
+      "id": "20",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getpid",
+      "id": "39",
+      "params": []
+    }
+  },
+  "__NR_getpmsg": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "188",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "181",
+      "params": []
+    }
+  },
+  "__NR_getppid": {
+    "arm": {
+      "entry": "sys_getppid",
+      "id": "64",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_getppid",
+      "id": "173",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_getppid",
+      "id": "173",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getppid",
+      "id": "64",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getppid",
+      "id": "110",
+      "params": []
+    }
+  },
+  "__NR_getpriority": {
+    "arm": {
+      "entry": "sys_getpriority",
+      "id": "96"
+    },
+    "arm64": {
+      "entry": "sys_getpriority",
+      "id": "141"
+    },
+    "riscv64": {
+      "entry": "sys_getpriority",
+      "id": "141"
+    },
+    "x86": {
+      "entry": "sys_getpriority",
+      "id": "96"
+    },
+    "x86_64": {
+      "entry": "sys_getpriority",
+      "id": "140"
+    }
+  },
+  "__NR_getrandom": {
+    "arm": {
+      "entry": "sys_getrandom",
+      "id": "384"
+    },
+    "arm64": {
+      "entry": "sys_getrandom",
+      "id": "278"
+    },
+    "riscv64": {
+      "entry": "sys_getrandom",
+      "id": "278"
+    },
+    "x86": {
+      "entry": "sys_getrandom",
+      "id": "355"
+    },
+    "x86_64": {
+      "entry": "sys_getrandom",
+      "id": "318"
+    }
+  },
+  "__NR_getresgid": {
+    "arm": {
+      "entry": "sys_getresgid16",
+      "id": "171"
+    },
+    "arm64": {
+      "entry": "sys_getresgid",
+      "id": "150"
+    },
+    "riscv64": {
+      "entry": "sys_getresgid",
+      "id": "150"
+    },
+    "x86": {
+      "entry": "sys_getresgid16",
+      "id": "171"
+    },
+    "x86_64": {
+      "entry": "sys_getresgid",
+      "id": "120"
+    }
+  },
+  "__NR_getresgid32": {
+    "arm": {
+      "entry": "sys_getresgid",
+      "id": "211"
+    },
+    "x86": {
+      "entry": "sys_getresgid",
+      "id": "211"
+    }
+  },
+  "__NR_getresuid": {
+    "arm": {
+      "entry": "sys_getresuid16",
+      "id": "165"
+    },
+    "arm64": {
+      "entry": "sys_getresuid",
+      "id": "148"
+    },
+    "riscv64": {
+      "entry": "sys_getresuid",
+      "id": "148"
+    },
+    "x86": {
+      "entry": "sys_getresuid16",
+      "id": "165"
+    },
+    "x86_64": {
+      "entry": "sys_getresuid",
+      "id": "118"
+    }
+  },
+  "__NR_getresuid32": {
+    "arm": {
+      "entry": "sys_getresuid",
+      "id": "209"
+    },
+    "x86": {
+      "entry": "sys_getresuid",
+      "id": "209"
+    }
+  },
+  "__NR_getrlimit": {
+    "arm64": {
+      "entry": "sys_getrlimit",
+      "id": "163"
+    },
+    "riscv64": {
+      "entry": "sys_getrlimit",
+      "id": "163"
+    },
+    "x86": {
+      "entry": "sys_old_getrlimit",
+      "id": "76"
+    },
+    "x86_64": {
+      "entry": "sys_getrlimit",
+      "id": "97"
+    }
+  },
+  "__NR_getrusage": {
+    "arm": {
+      "entry": "sys_getrusage",
+      "id": "77"
+    },
+    "arm64": {
+      "entry": "sys_getrusage",
+      "id": "165"
+    },
+    "riscv64": {
+      "entry": "sys_getrusage",
+      "id": "165"
+    },
+    "x86": {
+      "entry": "sys_getrusage",
+      "id": "77"
+    },
+    "x86_64": {
+      "entry": "sys_getrusage",
+      "id": "98"
+    }
+  },
+  "__NR_getsid": {
+    "arm": {
+      "entry": "sys_getsid",
+      "id": "147"
+    },
+    "arm64": {
+      "entry": "sys_getsid",
+      "id": "156"
+    },
+    "riscv64": {
+      "entry": "sys_getsid",
+      "id": "156"
+    },
+    "x86": {
+      "entry": "sys_getsid",
+      "id": "147"
+    },
+    "x86_64": {
+      "entry": "sys_getsid",
+      "id": "124"
+    }
+  },
+  "__NR_getsockname": {
+    "arm": {
+      "entry": "sys_getsockname",
+      "id": "286"
+    },
+    "arm64": {
+      "entry": "sys_getsockname",
+      "id": "204"
+    },
+    "riscv64": {
+      "entry": "sys_getsockname",
+      "id": "204"
+    },
+    "x86": {
+      "entry": "sys_getsockname",
+      "id": "367"
+    },
+    "x86_64": {
+      "entry": "sys_getsockname",
+      "id": "51"
+    }
+  },
+  "__NR_getsockopt": {
+    "arm": {
+      "entry": "sys_getsockopt",
+      "id": "295"
+    },
+    "arm64": {
+      "entry": "sys_getsockopt",
+      "id": "209"
+    },
+    "riscv64": {
+      "entry": "sys_getsockopt",
+      "id": "209"
+    },
+    "x86": {
+      "entry": "sys_getsockopt",
+      "id": "365"
+    },
+    "x86_64": {
+      "entry": "sys_getsockopt",
+      "id": "55"
+    }
+  },
+  "__NR_gettid": {
+    "arm": {
+      "entry": "sys_gettid",
+      "id": "224",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_gettid",
+      "id": "178",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_gettid",
+      "id": "178",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_gettid",
+      "id": "224",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_gettid",
+      "id": "186",
+      "params": []
+    }
+  },
+  "__NR_gettimeofday": {
+    "arm": {
+      "entry": "sys_gettimeofday",
+      "id": "78"
+    },
+    "arm64": {
+      "entry": "sys_gettimeofday",
+      "id": "169"
+    },
+    "riscv64": {
+      "entry": "sys_gettimeofday",
+      "id": "169"
+    },
+    "x86": {
+      "entry": "sys_gettimeofday",
+      "id": "78"
+    },
+    "x86_64": {
+      "entry": "sys_gettimeofday",
+      "id": "96"
+    }
+  },
+  "__NR_getuid": {
+    "arm": {
+      "entry": "sys_getuid16",
+      "id": "24",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_getuid",
+      "id": "174",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_getuid",
+      "id": "174",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getuid16",
+      "id": "24",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_getuid",
+      "id": "102",
+      "params": []
+    }
+  },
+  "__NR_getuid32": {
+    "arm": {
+      "entry": "sys_getuid",
+      "id": "199",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_getuid",
+      "id": "199",
+      "params": []
+    }
+  },
+  "__NR_getxattr": {
+    "arm": {
+      "entry": "sys_getxattr",
+      "id": "229"
+    },
+    "arm64": {
+      "entry": "sys_getxattr",
+      "id": "8"
+    },
+    "riscv64": {
+      "entry": "sys_getxattr",
+      "id": "8"
+    },
+    "x86": {
+      "entry": "sys_getxattr",
+      "id": "229"
+    },
+    "x86_64": {
+      "entry": "sys_getxattr",
+      "id": "191"
+    }
+  },
+  "__NR_gtty": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "32",
+      "params": []
+    }
+  },
+  "__NR_idle": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "112",
+      "params": []
+    }
+  },
+  "__NR_init_module": {
+    "arm": {
+      "entry": "sys_init_module",
+      "id": "128"
+    },
+    "arm64": {
+      "entry": "sys_init_module",
+      "id": "105"
+    },
+    "riscv64": {
+      "entry": "sys_init_module",
+      "id": "105"
+    },
+    "x86": {
+      "entry": "sys_init_module",
+      "id": "128"
+    },
+    "x86_64": {
+      "entry": "sys_init_module",
+      "id": "175"
+    }
+  },
+  "__NR_inotify_add_watch": {
+    "arm": {
+      "entry": "sys_inotify_add_watch",
+      "id": "317"
+    },
+    "arm64": {
+      "entry": "sys_inotify_add_watch",
+      "id": "27"
+    },
+    "riscv64": {
+      "entry": "sys_inotify_add_watch",
+      "id": "27"
+    },
+    "x86": {
+      "entry": "sys_inotify_add_watch",
+      "id": "292"
+    },
+    "x86_64": {
+      "entry": "sys_inotify_add_watch",
+      "id": "254"
+    }
+  },
+  "__NR_inotify_init": {
+    "arm": {
+      "entry": "sys_inotify_init",
+      "id": "316",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_inotify_init",
+      "id": "291",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_inotify_init",
+      "id": "253",
+      "params": []
+    }
+  },
+  "__NR_inotify_init1": {
+    "arm": {
+      "entry": "sys_inotify_init1",
+      "id": "360"
+    },
+    "arm64": {
+      "entry": "sys_inotify_init1",
+      "id": "26"
+    },
+    "riscv64": {
+      "entry": "sys_inotify_init1",
+      "id": "26"
+    },
+    "x86": {
+      "entry": "sys_inotify_init1",
+      "id": "332"
+    },
+    "x86_64": {
+      "entry": "sys_inotify_init1",
+      "id": "294"
+    }
+  },
+  "__NR_inotify_rm_watch": {
+    "arm": {
+      "entry": "sys_inotify_rm_watch",
+      "id": "318"
+    },
+    "arm64": {
+      "entry": "sys_inotify_rm_watch",
+      "id": "28"
+    },
+    "riscv64": {
+      "entry": "sys_inotify_rm_watch",
+      "id": "28"
+    },
+    "x86": {
+      "entry": "sys_inotify_rm_watch",
+      "id": "293"
+    },
+    "x86_64": {
+      "entry": "sys_inotify_rm_watch",
+      "id": "255"
+    }
+  },
+  "__NR_io_cancel": {
+    "arm": {
+      "entry": "sys_io_cancel",
+      "id": "247"
+    },
+    "arm64": {
+      "entry": "sys_io_cancel",
+      "id": "3"
+    },
+    "riscv64": {
+      "entry": "sys_io_cancel",
+      "id": "3"
+    },
+    "x86": {
+      "entry": "sys_io_cancel",
+      "id": "249"
+    },
+    "x86_64": {
+      "entry": "sys_io_cancel",
+      "id": "210"
+    }
+  },
+  "__NR_io_destroy": {
+    "arm": {
+      "entry": "sys_io_destroy",
+      "id": "244"
+    },
+    "arm64": {
+      "entry": "sys_io_destroy",
+      "id": "1"
+    },
+    "riscv64": {
+      "entry": "sys_io_destroy",
+      "id": "1"
+    },
+    "x86": {
+      "entry": "sys_io_destroy",
+      "id": "246"
+    },
+    "x86_64": {
+      "entry": "sys_io_destroy",
+      "id": "207"
+    }
+  },
+  "__NR_io_getevents": {
+    "arm": {
+      "entry": "sys_io_getevents_time32",
+      "id": "245"
+    },
+    "arm64": {
+      "entry": "sys_io_getevents",
+      "id": "4"
+    },
+    "riscv64": {
+      "entry": "sys_io_getevents",
+      "id": "4"
+    },
+    "x86": {
+      "entry": "sys_io_getevents_time32",
+      "id": "247"
+    },
+    "x86_64": {
+      "entry": "sys_io_getevents",
+      "id": "208"
+    }
+  },
+  "__NR_io_pgetevents": {
+    "arm": {
+      "entry": "sys_io_pgetevents_time32",
+      "id": "399"
+    },
+    "arm64": {
+      "entry": "sys_io_pgetevents",
+      "id": "292"
+    },
+    "riscv64": {
+      "entry": "sys_io_pgetevents",
+      "id": "292"
+    },
+    "x86": {
+      "entry": "sys_io_pgetevents_time32",
+      "id": "385"
+    },
+    "x86_64": {
+      "entry": "sys_io_pgetevents",
+      "id": "333"
+    }
+  },
+  "__NR_io_pgetevents_time64": {
+    "arm": {
+      "entry": "sys_io_pgetevents",
+      "id": "416"
+    },
+    "x86": {
+      "entry": "sys_io_pgetevents",
+      "id": "416"
+    }
+  },
+  "__NR_io_setup": {
+    "arm": {
+      "entry": "sys_io_setup",
+      "id": "243"
+    },
+    "arm64": {
+      "entry": "sys_io_setup",
+      "id": "0"
+    },
+    "riscv64": {
+      "entry": "sys_io_setup",
+      "id": "0"
+    },
+    "x86": {
+      "entry": "sys_io_setup",
+      "id": "245"
+    },
+    "x86_64": {
+      "entry": "sys_io_setup",
+      "id": "206"
+    }
+  },
+  "__NR_io_submit": {
+    "arm": {
+      "entry": "sys_io_submit",
+      "id": "246"
+    },
+    "arm64": {
+      "entry": "sys_io_submit",
+      "id": "2"
+    },
+    "riscv64": {
+      "entry": "sys_io_submit",
+      "id": "2"
+    },
+    "x86": {
+      "entry": "sys_io_submit",
+      "id": "248"
+    },
+    "x86_64": {
+      "entry": "sys_io_submit",
+      "id": "209"
+    }
+  },
+  "__NR_io_uring_enter": {
+    "arm": {
+      "entry": "sys_io_uring_enter",
+      "id": "426"
+    },
+    "arm64": {
+      "entry": "sys_io_uring_enter",
+      "id": "426"
+    },
+    "riscv64": {
+      "entry": "sys_io_uring_enter",
+      "id": "426"
+    },
+    "x86": {
+      "entry": "sys_io_uring_enter",
+      "id": "426"
+    },
+    "x86_64": {
+      "entry": "sys_io_uring_enter",
+      "id": "426"
+    }
+  },
+  "__NR_io_uring_register": {
+    "arm": {
+      "entry": "sys_io_uring_register",
+      "id": "427"
+    },
+    "arm64": {
+      "entry": "sys_io_uring_register",
+      "id": "427"
+    },
+    "riscv64": {
+      "entry": "sys_io_uring_register",
+      "id": "427"
+    },
+    "x86": {
+      "entry": "sys_io_uring_register",
+      "id": "427"
+    },
+    "x86_64": {
+      "entry": "sys_io_uring_register",
+      "id": "427"
+    }
+  },
+  "__NR_io_uring_setup": {
+    "arm": {
+      "entry": "sys_io_uring_setup",
+      "id": "425"
+    },
+    "arm64": {
+      "entry": "sys_io_uring_setup",
+      "id": "425"
+    },
+    "riscv64": {
+      "entry": "sys_io_uring_setup",
+      "id": "425"
+    },
+    "x86": {
+      "entry": "sys_io_uring_setup",
+      "id": "425"
+    },
+    "x86_64": {
+      "entry": "sys_io_uring_setup",
+      "id": "425"
+    }
+  },
+  "__NR_ioctl": {
+    "arm": {
+      "entry": "sys_ioctl",
+      "id": "54"
+    },
+    "arm64": {
+      "entry": "sys_ioctl",
+      "id": "29"
+    },
+    "riscv64": {
+      "entry": "sys_ioctl",
+      "id": "29"
+    },
+    "x86": {
+      "entry": "sys_ioctl",
+      "id": "54"
+    },
+    "x86_64": {
+      "entry": "sys_ioctl",
+      "id": "16"
+    }
+  },
+  "__NR_ioperm": {
+    "x86": {
+      "entry": "sys_ioperm",
+      "id": "101"
+    },
+    "x86_64": {
+      "entry": "sys_ioperm",
+      "id": "173"
+    }
+  },
+  "__NR_iopl": {
+    "x86": {
+      "entry": "sys_iopl",
+      "id": "110"
+    },
+    "x86_64": {
+      "entry": "sys_iopl",
+      "id": "172"
+    }
+  },
+  "__NR_ioprio_get": {
+    "arm": {
+      "entry": "sys_ioprio_get",
+      "id": "315"
+    },
+    "arm64": {
+      "entry": "sys_ioprio_get",
+      "id": "31"
+    },
+    "riscv64": {
+      "entry": "sys_ioprio_get",
+      "id": "31"
+    },
+    "x86": {
+      "entry": "sys_ioprio_get",
+      "id": "290"
+    },
+    "x86_64": {
+      "entry": "sys_ioprio_get",
+      "id": "252"
+    }
+  },
+  "__NR_ioprio_set": {
+    "arm": {
+      "entry": "sys_ioprio_set",
+      "id": "314"
+    },
+    "arm64": {
+      "entry": "sys_ioprio_set",
+      "id": "30"
+    },
+    "riscv64": {
+      "entry": "sys_ioprio_set",
+      "id": "30"
+    },
+    "x86": {
+      "entry": "sys_ioprio_set",
+      "id": "289"
+    },
+    "x86_64": {
+      "entry": "sys_ioprio_set",
+      "id": "251"
+    }
+  },
+  "__NR_ipc": {
+    "x86": {
+      "entry": "sys_ipc",
+      "id": "117"
+    }
+  },
+  "__NR_kcmp": {
+    "arm": {
+      "entry": "sys_kcmp",
+      "id": "378"
+    },
+    "arm64": {
+      "entry": "sys_kcmp",
+      "id": "272"
+    },
+    "riscv64": {
+      "entry": "sys_kcmp",
+      "id": "272"
+    },
+    "x86": {
+      "entry": "sys_kcmp",
+      "id": "349"
+    },
+    "x86_64": {
+      "entry": "sys_kcmp",
+      "id": "312"
+    }
+  },
+  "__NR_kexec_file_load": {
+    "arm": {
+      "entry": "sys_kexec_file_load",
+      "id": "401"
+    },
+    "arm64": {
+      "entry": "sys_kexec_file_load",
+      "id": "294"
+    },
+    "riscv64": {
+      "entry": "sys_kexec_file_load",
+      "id": "294"
+    },
+    "x86_64": {
+      "entry": "sys_kexec_file_load",
+      "id": "320"
+    }
+  },
+  "__NR_kexec_load": {
+    "arm": {
+      "entry": "sys_kexec_load",
+      "id": "347"
+    },
+    "arm64": {
+      "entry": "sys_kexec_load",
+      "id": "104"
+    },
+    "riscv64": {
+      "entry": "sys_kexec_load",
+      "id": "104"
+    },
+    "x86": {
+      "entry": "sys_kexec_load",
+      "id": "283"
+    },
+    "x86_64": {
+      "entry": "sys_kexec_load",
+      "id": "246"
+    }
+  },
+  "__NR_keyctl": {
+    "arm": {
+      "entry": "sys_keyctl",
+      "id": "311"
+    },
+    "arm64": {
+      "entry": "sys_keyctl",
+      "id": "219"
+    },
+    "riscv64": {
+      "entry": "sys_keyctl",
+      "id": "219"
+    },
+    "x86": {
+      "entry": "sys_keyctl",
+      "id": "288"
+    },
+    "x86_64": {
+      "entry": "sys_keyctl",
+      "id": "250"
+    }
+  },
+  "__NR_kill": {
+    "arm": {
+      "entry": "sys_kill",
+      "id": "37"
+    },
+    "arm64": {
+      "entry": "sys_kill",
+      "id": "129"
+    },
+    "riscv64": {
+      "entry": "sys_kill",
+      "id": "129"
+    },
+    "x86": {
+      "entry": "sys_kill",
+      "id": "37"
+    },
+    "x86_64": {
+      "entry": "sys_kill",
+      "id": "62"
+    }
+  },
+  "__NR_landlock_add_rule": {
+    "arm": {
+      "entry": "sys_landlock_add_rule",
+      "id": "445"
+    },
+    "arm64": {
+      "entry": "sys_landlock_add_rule",
+      "id": "445"
+    },
+    "riscv64": {
+      "entry": "sys_landlock_add_rule",
+      "id": "445"
+    },
+    "x86": {
+      "entry": "sys_landlock_add_rule",
+      "id": "445"
+    },
+    "x86_64": {
+      "entry": "sys_landlock_add_rule",
+      "id": "445"
+    }
+  },
+  "__NR_landlock_create_ruleset": {
+    "arm": {
+      "entry": "sys_landlock_create_ruleset",
+      "id": "444"
+    },
+    "arm64": {
+      "entry": "sys_landlock_create_ruleset",
+      "id": "444"
+    },
+    "riscv64": {
+      "entry": "sys_landlock_create_ruleset",
+      "id": "444"
+    },
+    "x86": {
+      "entry": "sys_landlock_create_ruleset",
+      "id": "444"
+    },
+    "x86_64": {
+      "entry": "sys_landlock_create_ruleset",
+      "id": "444"
+    }
+  },
+  "__NR_landlock_restrict_self": {
+    "arm": {
+      "entry": "sys_landlock_restrict_self",
+      "id": "446"
+    },
+    "arm64": {
+      "entry": "sys_landlock_restrict_self",
+      "id": "446"
+    },
+    "riscv64": {
+      "entry": "sys_landlock_restrict_self",
+      "id": "446"
+    },
+    "x86": {
+      "entry": "sys_landlock_restrict_self",
+      "id": "446"
+    },
+    "x86_64": {
+      "entry": "sys_landlock_restrict_self",
+      "id": "446"
+    }
+  },
+  "__NR_lchown": {
+    "arm": {
+      "entry": "sys_lchown16",
+      "id": "16"
+    },
+    "x86": {
+      "entry": "sys_lchown16",
+      "id": "16"
+    },
+    "x86_64": {
+      "entry": "sys_lchown",
+      "id": "94"
+    }
+  },
+  "__NR_lchown32": {
+    "arm": {
+      "entry": "sys_lchown",
+      "id": "198"
+    },
+    "x86": {
+      "entry": "sys_lchown",
+      "id": "198"
+    }
+  },
+  "__NR_lgetxattr": {
+    "arm": {
+      "entry": "sys_lgetxattr",
+      "id": "230"
+    },
+    "arm64": {
+      "entry": "sys_lgetxattr",
+      "id": "9"
+    },
+    "riscv64": {
+      "entry": "sys_lgetxattr",
+      "id": "9"
+    },
+    "x86": {
+      "entry": "sys_lgetxattr",
+      "id": "230"
+    },
+    "x86_64": {
+      "entry": "sys_lgetxattr",
+      "id": "192"
+    }
+  },
+  "__NR_link": {
+    "arm": {
+      "entry": "sys_link",
+      "id": "9"
+    },
+    "x86": {
+      "entry": "sys_link",
+      "id": "9"
+    },
+    "x86_64": {
+      "entry": "sys_link",
+      "id": "86"
+    }
+  },
+  "__NR_linkat": {
+    "arm": {
+      "entry": "sys_linkat",
+      "id": "330"
+    },
+    "arm64": {
+      "entry": "sys_linkat",
+      "id": "37"
+    },
+    "riscv64": {
+      "entry": "sys_linkat",
+      "id": "37"
+    },
+    "x86": {
+      "entry": "sys_linkat",
+      "id": "303"
+    },
+    "x86_64": {
+      "entry": "sys_linkat",
+      "id": "265"
+    }
+  },
+  "__NR_listen": {
+    "arm": {
+      "entry": "sys_listen",
+      "id": "284"
+    },
+    "arm64": {
+      "entry": "sys_listen",
+      "id": "201"
+    },
+    "riscv64": {
+      "entry": "sys_listen",
+      "id": "201"
+    },
+    "x86": {
+      "entry": "sys_listen",
+      "id": "363"
+    },
+    "x86_64": {
+      "entry": "sys_listen",
+      "id": "50"
+    }
+  },
+  "__NR_listxattr": {
+    "arm": {
+      "entry": "sys_listxattr",
+      "id": "232"
+    },
+    "arm64": {
+      "entry": "sys_listxattr",
+      "id": "11"
+    },
+    "riscv64": {
+      "entry": "sys_listxattr",
+      "id": "11"
+    },
+    "x86": {
+      "entry": "sys_listxattr",
+      "id": "232"
+    },
+    "x86_64": {
+      "entry": "sys_listxattr",
+      "id": "194"
+    }
+  },
+  "__NR_llistxattr": {
+    "arm": {
+      "entry": "sys_llistxattr",
+      "id": "233"
+    },
+    "arm64": {
+      "entry": "sys_llistxattr",
+      "id": "12"
+    },
+    "riscv64": {
+      "entry": "sys_llistxattr",
+      "id": "12"
+    },
+    "x86": {
+      "entry": "sys_llistxattr",
+      "id": "233"
+    },
+    "x86_64": {
+      "entry": "sys_llistxattr",
+      "id": "195"
+    }
+  },
+  "__NR_lock": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "53",
+      "params": []
+    }
+  },
+  "__NR_lookup_dcookie": {
+    "arm": {
+      "entry": "sys_lookup_dcookie",
+      "id": "249"
+    },
+    "arm64": {
+      "entry": "sys_lookup_dcookie",
+      "id": "18"
+    },
+    "riscv64": {
+      "entry": "sys_lookup_dcookie",
+      "id": "18"
+    },
+    "x86": {
+      "entry": "sys_lookup_dcookie",
+      "id": "253"
+    },
+    "x86_64": {
+      "entry": "sys_lookup_dcookie",
+      "id": "212"
+    }
+  },
+  "__NR_lremovexattr": {
+    "arm": {
+      "entry": "sys_lremovexattr",
+      "id": "236"
+    },
+    "arm64": {
+      "entry": "sys_lremovexattr",
+      "id": "15"
+    },
+    "riscv64": {
+      "entry": "sys_lremovexattr",
+      "id": "15"
+    },
+    "x86": {
+      "entry": "sys_lremovexattr",
+      "id": "236"
+    },
+    "x86_64": {
+      "entry": "sys_lremovexattr",
+      "id": "198"
+    }
+  },
+  "__NR_lseek": {
+    "arm": {
+      "entry": "sys_lseek",
+      "id": "19"
+    },
+    "arm64": {
+      "entry": "sys_lseek",
+      "id": "62"
+    },
+    "riscv64": {
+      "entry": "sys_lseek",
+      "id": "62"
+    },
+    "x86": {
+      "entry": "sys_lseek",
+      "id": "19"
+    },
+    "x86_64": {
+      "entry": "sys_lseek",
+      "id": "8"
+    }
+  },
+  "__NR_lsetxattr": {
+    "arm": {
+      "entry": "sys_lsetxattr",
+      "id": "227"
+    },
+    "arm64": {
+      "entry": "sys_lsetxattr",
+      "id": "6"
+    },
+    "riscv64": {
+      "entry": "sys_lsetxattr",
+      "id": "6"
+    },
+    "x86": {
+      "entry": "sys_lsetxattr",
+      "id": "227"
+    },
+    "x86_64": {
+      "entry": "sys_lsetxattr",
+      "id": "189"
+    }
+  },
+  "__NR_lstat": {
+    "arm": {
+      "entry": "sys_newlstat",
+      "id": "107"
+    },
+    "x86": {
+      "entry": "sys_newlstat",
+      "id": "107"
+    },
+    "x86_64": {
+      "entry": "sys_newlstat",
+      "id": "6"
+    }
+  },
+  "__NR_lstat64": {
+    "arm": {
+      "entry": "sys_lstat64",
+      "id": "196"
+    },
+    "x86": {
+      "entry": "sys_lstat64",
+      "id": "196"
+    }
+  },
+  "__NR_madvise": {
+    "arm": {
+      "entry": "sys_madvise",
+      "id": "220"
+    },
+    "arm64": {
+      "entry": "sys_madvise",
+      "id": "233"
+    },
+    "riscv64": {
+      "entry": "sys_madvise",
+      "id": "233"
+    },
+    "x86": {
+      "entry": "sys_madvise",
+      "id": "219"
+    },
+    "x86_64": {
+      "entry": "sys_madvise",
+      "id": "28"
+    }
+  },
+  "__NR_mbind": {
+    "arm": {
+      "entry": "sys_mbind",
+      "id": "319"
+    },
+    "arm64": {
+      "entry": "sys_mbind",
+      "id": "235"
+    },
+    "riscv64": {
+      "entry": "sys_mbind",
+      "id": "235"
+    },
+    "x86": {
+      "entry": "sys_mbind",
+      "id": "274"
+    },
+    "x86_64": {
+      "entry": "sys_mbind",
+      "id": "237"
+    }
+  },
+  "__NR_membarrier": {
+    "arm": {
+      "entry": "sys_membarrier",
+      "id": "389"
+    },
+    "arm64": {
+      "entry": "sys_membarrier",
+      "id": "283"
+    },
+    "riscv64": {
+      "entry": "sys_membarrier",
+      "id": "283"
+    },
+    "x86": {
+      "entry": "sys_membarrier",
+      "id": "375"
+    },
+    "x86_64": {
+      "entry": "sys_membarrier",
+      "id": "324"
+    }
+  },
+  "__NR_memfd_create": {
+    "arm": {
+      "entry": "sys_memfd_create",
+      "id": "385"
+    },
+    "arm64": {
+      "entry": "sys_memfd_create",
+      "id": "279"
+    },
+    "riscv64": {
+      "entry": "sys_memfd_create",
+      "id": "279"
+    },
+    "x86": {
+      "entry": "sys_memfd_create",
+      "id": "356"
+    },
+    "x86_64": {
+      "entry": "sys_memfd_create",
+      "id": "319"
+    }
+  },
+  "__NR_memfd_secret": {
+    "arm64": {
+      "entry": "sys_memfd_secret",
+      "id": "447"
+    },
+    "riscv64": {
+      "entry": "sys_memfd_secret",
+      "id": "447"
+    },
+    "x86": {
+      "entry": "sys_memfd_secret",
+      "id": "447"
+    },
+    "x86_64": {
+      "entry": "sys_memfd_secret",
+      "id": "447"
+    }
+  },
+  "__NR_migrate_pages": {
+    "arm": {
+      "entry": "sys_migrate_pages",
+      "id": "400"
+    },
+    "arm64": {
+      "entry": "sys_migrate_pages",
+      "id": "238"
+    },
+    "riscv64": {
+      "entry": "sys_migrate_pages",
+      "id": "238"
+    },
+    "x86": {
+      "entry": "sys_migrate_pages",
+      "id": "294"
+    },
+    "x86_64": {
+      "entry": "sys_migrate_pages",
+      "id": "256"
+    }
+  },
+  "__NR_mincore": {
+    "arm": {
+      "entry": "sys_mincore",
+      "id": "219"
+    },
+    "arm64": {
+      "entry": "sys_mincore",
+      "id": "232"
+    },
+    "riscv64": {
+      "entry": "sys_mincore",
+      "id": "232"
+    },
+    "x86": {
+      "entry": "sys_mincore",
+      "id": "218"
+    },
+    "x86_64": {
+      "entry": "sys_mincore",
+      "id": "27"
+    }
+  },
+  "__NR_mkdir": {
+    "arm": {
+      "entry": "sys_mkdir",
+      "id": "39"
+    },
+    "x86": {
+      "entry": "sys_mkdir",
+      "id": "39"
+    },
+    "x86_64": {
+      "entry": "sys_mkdir",
+      "id": "83"
+    }
+  },
+  "__NR_mkdirat": {
+    "arm": {
+      "entry": "sys_mkdirat",
+      "id": "323"
+    },
+    "arm64": {
+      "entry": "sys_mkdirat",
+      "id": "34"
+    },
+    "riscv64": {
+      "entry": "sys_mkdirat",
+      "id": "34"
+    },
+    "x86": {
+      "entry": "sys_mkdirat",
+      "id": "296"
+    },
+    "x86_64": {
+      "entry": "sys_mkdirat",
+      "id": "258"
+    }
+  },
+  "__NR_mknod": {
+    "arm": {
+      "entry": "sys_mknod",
+      "id": "14"
+    },
+    "x86": {
+      "entry": "sys_mknod",
+      "id": "14"
+    },
+    "x86_64": {
+      "entry": "sys_mknod",
+      "id": "133"
+    }
+  },
+  "__NR_mknodat": {
+    "arm": {
+      "entry": "sys_mknodat",
+      "id": "324"
+    },
+    "arm64": {
+      "entry": "sys_mknodat",
+      "id": "33"
+    },
+    "riscv64": {
+      "entry": "sys_mknodat",
+      "id": "33"
+    },
+    "x86": {
+      "entry": "sys_mknodat",
+      "id": "297"
+    },
+    "x86_64": {
+      "entry": "sys_mknodat",
+      "id": "259"
+    }
+  },
+  "__NR_mlock": {
+    "arm": {
+      "entry": "sys_mlock",
+      "id": "150"
+    },
+    "arm64": {
+      "entry": "sys_mlock",
+      "id": "228"
+    },
+    "riscv64": {
+      "entry": "sys_mlock",
+      "id": "228"
+    },
+    "x86": {
+      "entry": "sys_mlock",
+      "id": "150"
+    },
+    "x86_64": {
+      "entry": "sys_mlock",
+      "id": "149"
+    }
+  },
+  "__NR_mlock2": {
+    "arm": {
+      "entry": "sys_mlock2",
+      "id": "390"
+    },
+    "arm64": {
+      "entry": "sys_mlock2",
+      "id": "284"
+    },
+    "riscv64": {
+      "entry": "sys_mlock2",
+      "id": "284"
+    },
+    "x86": {
+      "entry": "sys_mlock2",
+      "id": "376"
+    },
+    "x86_64": {
+      "entry": "sys_mlock2",
+      "id": "325"
+    }
+  },
+  "__NR_mlockall": {
+    "arm": {
+      "entry": "sys_mlockall",
+      "id": "152"
+    },
+    "arm64": {
+      "entry": "sys_mlockall",
+      "id": "230"
+    },
+    "riscv64": {
+      "entry": "sys_mlockall",
+      "id": "230"
+    },
+    "x86": {
+      "entry": "sys_mlockall",
+      "id": "152"
+    },
+    "x86_64": {
+      "entry": "sys_mlockall",
+      "id": "151"
+    }
+  },
+  "__NR_mmap": {
+    "arm64": {
+      "entry": "sys_mmap",
+      "id": "222"
+    },
+    "riscv64": {
+      "entry": "sys_mmap",
+      "id": "222"
+    },
+    "x86": {
+      "entry": "sys_old_mmap",
+      "id": "90"
+    },
+    "x86_64": {
+      "entry": "sys_mmap",
+      "id": "9"
+    }
+  },
+  "__NR_mmap2": {
+    "arm": {
+      "entry": "sys_mmap2",
+      "id": "192"
+    },
+    "x86": {
+      "entry": "sys_mmap_pgoff",
+      "id": "192"
+    }
+  },
+  "__NR_modify_ldt": {
+    "x86": {
+      "entry": "sys_modify_ldt",
+      "id": "123"
+    },
+    "x86_64": {
+      "entry": "sys_modify_ldt",
+      "id": "154"
+    }
+  },
+  "__NR_mount": {
+    "arm": {
+      "entry": "sys_mount",
+      "id": "21"
+    },
+    "arm64": {
+      "entry": "sys_mount",
+      "id": "40"
+    },
+    "riscv64": {
+      "entry": "sys_mount",
+      "id": "40"
+    },
+    "x86": {
+      "entry": "sys_mount",
+      "id": "21"
+    },
+    "x86_64": {
+      "entry": "sys_mount",
+      "id": "165"
+    }
+  },
+  "__NR_mount_setattr": {
+    "arm": {
+      "entry": "sys_mount_setattr",
+      "id": "442"
+    },
+    "arm64": {
+      "entry": "sys_mount_setattr",
+      "id": "442"
+    },
+    "riscv64": {
+      "entry": "sys_mount_setattr",
+      "id": "442"
+    },
+    "x86": {
+      "entry": "sys_mount_setattr",
+      "id": "442"
+    },
+    "x86_64": {
+      "entry": "sys_mount_setattr",
+      "id": "442"
+    }
+  },
+  "__NR_move_mount": {
+    "arm": {
+      "entry": "sys_move_mount",
+      "id": "429"
+    },
+    "arm64": {
+      "entry": "sys_move_mount",
+      "id": "429"
+    },
+    "riscv64": {
+      "entry": "sys_move_mount",
+      "id": "429"
+    },
+    "x86": {
+      "entry": "sys_move_mount",
+      "id": "429"
+    },
+    "x86_64": {
+      "entry": "sys_move_mount",
+      "id": "429"
+    }
+  },
+  "__NR_move_pages": {
+    "arm": {
+      "entry": "sys_move_pages",
+      "id": "344"
+    },
+    "arm64": {
+      "entry": "sys_move_pages",
+      "id": "239"
+    },
+    "riscv64": {
+      "entry": "sys_move_pages",
+      "id": "239"
+    },
+    "x86": {
+      "entry": "sys_move_pages",
+      "id": "317"
+    },
+    "x86_64": {
+      "entry": "sys_move_pages",
+      "id": "279"
+    }
+  },
+  "__NR_mprotect": {
+    "arm": {
+      "entry": "sys_mprotect",
+      "id": "125"
+    },
+    "arm64": {
+      "entry": "sys_mprotect",
+      "id": "226"
+    },
+    "riscv64": {
+      "entry": "sys_mprotect",
+      "id": "226"
+    },
+    "x86": {
+      "entry": "sys_mprotect",
+      "id": "125"
+    },
+    "x86_64": {
+      "entry": "sys_mprotect",
+      "id": "10"
+    }
+  },
+  "__NR_mpx": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "56",
+      "params": []
+    }
+  },
+  "__NR_mq_getsetattr": {
+    "arm": {
+      "entry": "sys_mq_getsetattr",
+      "id": "279"
+    },
+    "arm64": {
+      "entry": "sys_mq_getsetattr",
+      "id": "185"
+    },
+    "riscv64": {
+      "entry": "sys_mq_getsetattr",
+      "id": "185"
+    },
+    "x86": {
+      "entry": "sys_mq_getsetattr",
+      "id": "282"
+    },
+    "x86_64": {
+      "entry": "sys_mq_getsetattr",
+      "id": "245"
+    }
+  },
+  "__NR_mq_notify": {
+    "arm": {
+      "entry": "sys_mq_notify",
+      "id": "278"
+    },
+    "arm64": {
+      "entry": "sys_mq_notify",
+      "id": "184"
+    },
+    "riscv64": {
+      "entry": "sys_mq_notify",
+      "id": "184"
+    },
+    "x86": {
+      "entry": "sys_mq_notify",
+      "id": "281"
+    },
+    "x86_64": {
+      "entry": "sys_mq_notify",
+      "id": "244"
+    }
+  },
+  "__NR_mq_open": {
+    "arm": {
+      "entry": "sys_mq_open",
+      "id": "274"
+    },
+    "arm64": {
+      "entry": "sys_mq_open",
+      "id": "180"
+    },
+    "riscv64": {
+      "entry": "sys_mq_open",
+      "id": "180"
+    },
+    "x86": {
+      "entry": "sys_mq_open",
+      "id": "277"
+    },
+    "x86_64": {
+      "entry": "sys_mq_open",
+      "id": "240"
+    }
+  },
+  "__NR_mq_timedreceive": {
+    "arm": {
+      "entry": "sys_mq_timedreceive_time32",
+      "id": "277"
+    },
+    "arm64": {
+      "entry": "sys_mq_timedreceive",
+      "id": "183"
+    },
+    "riscv64": {
+      "entry": "sys_mq_timedreceive",
+      "id": "183"
+    },
+    "x86": {
+      "entry": "sys_mq_timedreceive_time32",
+      "id": "280"
+    },
+    "x86_64": {
+      "entry": "sys_mq_timedreceive",
+      "id": "243"
+    }
+  },
+  "__NR_mq_timedreceive_time64": {
+    "arm": {
+      "entry": "sys_mq_timedreceive",
+      "id": "419"
+    },
+    "x86": {
+      "entry": "sys_mq_timedreceive",
+      "id": "419"
+    }
+  },
+  "__NR_mq_timedsend": {
+    "arm": {
+      "entry": "sys_mq_timedsend_time32",
+      "id": "276"
+    },
+    "arm64": {
+      "entry": "sys_mq_timedsend",
+      "id": "182"
+    },
+    "riscv64": {
+      "entry": "sys_mq_timedsend",
+      "id": "182"
+    },
+    "x86": {
+      "entry": "sys_mq_timedsend_time32",
+      "id": "279"
+    },
+    "x86_64": {
+      "entry": "sys_mq_timedsend",
+      "id": "242"
+    }
+  },
+  "__NR_mq_timedsend_time64": {
+    "arm": {
+      "entry": "sys_mq_timedsend",
+      "id": "418"
+    },
+    "x86": {
+      "entry": "sys_mq_timedsend",
+      "id": "418"
+    }
+  },
+  "__NR_mq_unlink": {
+    "arm": {
+      "entry": "sys_mq_unlink",
+      "id": "275"
+    },
+    "arm64": {
+      "entry": "sys_mq_unlink",
+      "id": "181"
+    },
+    "riscv64": {
+      "entry": "sys_mq_unlink",
+      "id": "181"
+    },
+    "x86": {
+      "entry": "sys_mq_unlink",
+      "id": "278"
+    },
+    "x86_64": {
+      "entry": "sys_mq_unlink",
+      "id": "241"
+    }
+  },
+  "__NR_mremap": {
+    "arm": {
+      "entry": "sys_mremap",
+      "id": "163"
+    },
+    "arm64": {
+      "entry": "sys_mremap",
+      "id": "216"
+    },
+    "riscv64": {
+      "entry": "sys_mremap",
+      "id": "216"
+    },
+    "x86": {
+      "entry": "sys_mremap",
+      "id": "163"
+    },
+    "x86_64": {
+      "entry": "sys_mremap",
+      "id": "25"
+    }
+  },
+  "__NR_msgctl": {
+    "arm": {
+      "entry": "sys_old_msgctl",
+      "id": "304"
+    },
+    "arm64": {
+      "entry": "sys_msgctl",
+      "id": "187"
+    },
+    "riscv64": {
+      "entry": "sys_msgctl",
+      "id": "187"
+    },
+    "x86": {
+      "entry": "sys_msgctl",
+      "id": "402"
+    },
+    "x86_64": {
+      "entry": "sys_msgctl",
+      "id": "71"
+    }
+  },
+  "__NR_msgget": {
+    "arm": {
+      "entry": "sys_msgget",
+      "id": "303"
+    },
+    "arm64": {
+      "entry": "sys_msgget",
+      "id": "186"
+    },
+    "riscv64": {
+      "entry": "sys_msgget",
+      "id": "186"
+    },
+    "x86": {
+      "entry": "sys_msgget",
+      "id": "399"
+    },
+    "x86_64": {
+      "entry": "sys_msgget",
+      "id": "68"
+    }
+  },
+  "__NR_msgrcv": {
+    "arm": {
+      "entry": "sys_msgrcv",
+      "id": "302"
+    },
+    "arm64": {
+      "entry": "sys_msgrcv",
+      "id": "188"
+    },
+    "riscv64": {
+      "entry": "sys_msgrcv",
+      "id": "188"
+    },
+    "x86": {
+      "entry": "sys_msgrcv",
+      "id": "401"
+    },
+    "x86_64": {
+      "entry": "sys_msgrcv",
+      "id": "70"
+    }
+  },
+  "__NR_msgsnd": {
+    "arm": {
+      "entry": "sys_msgsnd",
+      "id": "301"
+    },
+    "arm64": {
+      "entry": "sys_msgsnd",
+      "id": "189"
+    },
+    "riscv64": {
+      "entry": "sys_msgsnd",
+      "id": "189"
+    },
+    "x86": {
+      "entry": "sys_msgsnd",
+      "id": "400"
+    },
+    "x86_64": {
+      "entry": "sys_msgsnd",
+      "id": "69"
+    }
+  },
+  "__NR_msync": {
+    "arm": {
+      "entry": "sys_msync",
+      "id": "144"
+    },
+    "arm64": {
+      "entry": "sys_msync",
+      "id": "227"
+    },
+    "riscv64": {
+      "entry": "sys_msync",
+      "id": "227"
+    },
+    "x86": {
+      "entry": "sys_msync",
+      "id": "144"
+    },
+    "x86_64": {
+      "entry": "sys_msync",
+      "id": "26"
+    }
+  },
+  "__NR_munlock": {
+    "arm": {
+      "entry": "sys_munlock",
+      "id": "151"
+    },
+    "arm64": {
+      "entry": "sys_munlock",
+      "id": "229"
+    },
+    "riscv64": {
+      "entry": "sys_munlock",
+      "id": "229"
+    },
+    "x86": {
+      "entry": "sys_munlock",
+      "id": "151"
+    },
+    "x86_64": {
+      "entry": "sys_munlock",
+      "id": "150"
+    }
+  },
+  "__NR_munlockall": {
+    "arm": {
+      "entry": "sys_munlockall",
+      "id": "153",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_munlockall",
+      "id": "231",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_munlockall",
+      "id": "231",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_munlockall",
+      "id": "153",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_munlockall",
+      "id": "152",
+      "params": []
+    }
+  },
+  "__NR_munmap": {
+    "arm": {
+      "entry": "sys_munmap",
+      "id": "91"
+    },
+    "arm64": {
+      "entry": "sys_munmap",
+      "id": "215"
+    },
+    "riscv64": {
+      "entry": "sys_munmap",
+      "id": "215"
+    },
+    "x86": {
+      "entry": "sys_munmap",
+      "id": "91"
+    },
+    "x86_64": {
+      "entry": "sys_munmap",
+      "id": "11"
+    }
+  },
+  "__NR_name_to_handle_at": {
+    "arm": {
+      "entry": "sys_name_to_handle_at",
+      "id": "370"
+    },
+    "arm64": {
+      "entry": "sys_name_to_handle_at",
+      "id": "264"
+    },
+    "riscv64": {
+      "entry": "sys_name_to_handle_at",
+      "id": "264"
+    },
+    "x86": {
+      "entry": "sys_name_to_handle_at",
+      "id": "341"
+    },
+    "x86_64": {
+      "entry": "sys_name_to_handle_at",
+      "id": "303"
+    }
+  },
+  "__NR_nanosleep": {
+    "arm": {
+      "entry": "sys_nanosleep_time32",
+      "id": "162"
+    },
+    "arm64": {
+      "entry": "sys_nanosleep",
+      "id": "101"
+    },
+    "riscv64": {
+      "entry": "sys_nanosleep",
+      "id": "101"
+    },
+    "x86": {
+      "entry": "sys_nanosleep_time32",
+      "id": "162"
+    },
+    "x86_64": {
+      "entry": "sys_nanosleep",
+      "id": "35"
+    }
+  },
+  "__NR_newfstatat": {
+    "arm64": {
+      "entry": "sys_newfstatat",
+      "id": "79"
+    },
+    "riscv64": {
+      "entry": "sys_newfstatat",
+      "id": "79"
+    },
+    "x86_64": {
+      "entry": "sys_newfstatat",
+      "id": "262"
+    }
+  },
+  "__NR_nfsservctl": {
+    "arm": {
+      "entry": "sys_ni_syscall",
+      "id": "169",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_ni_syscall",
+      "id": "42",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_ni_syscall",
+      "id": "42",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "169",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "180",
+      "params": []
+    }
+  },
+  "__NR_nice": {
+    "arm": {
+      "entry": "sys_nice",
+      "id": "34"
+    },
+    "x86": {
+      "entry": "sys_nice",
+      "id": "34"
+    }
+  },
+  "__NR_oldfstat": {
+    "x86": {
+      "entry": "sys_fstat",
+      "id": "28"
+    }
+  },
+  "__NR_oldlstat": {
+    "x86": {
+      "entry": "sys_lstat",
+      "id": "84"
+    }
+  },
+  "__NR_oldolduname": {
+    "x86": {
+      "entry": "sys_olduname",
+      "id": "59"
+    }
+  },
+  "__NR_oldstat": {
+    "x86": {
+      "entry": "sys_stat",
+      "id": "18"
+    }
+  },
+  "__NR_olduname": {
+    "x86": {
+      "entry": "sys_uname",
+      "id": "109"
+    }
+  },
+  "__NR_open": {
+    "arm": {
+      "entry": "sys_open",
+      "id": "5"
+    },
+    "x86": {
+      "entry": "sys_open",
+      "id": "5"
+    },
+    "x86_64": {
+      "entry": "sys_open",
+      "id": "2"
+    }
+  },
+  "__NR_open_by_handle_at": {
+    "arm": {
+      "entry": "sys_open_by_handle_at",
+      "id": "371"
+    },
+    "arm64": {
+      "entry": "sys_open_by_handle_at",
+      "id": "265"
+    },
+    "riscv64": {
+      "entry": "sys_open_by_handle_at",
+      "id": "265"
+    },
+    "x86": {
+      "entry": "sys_open_by_handle_at",
+      "id": "342"
+    },
+    "x86_64": {
+      "entry": "sys_open_by_handle_at",
+      "id": "304"
+    }
+  },
+  "__NR_open_tree": {
+    "arm": {
+      "entry": "sys_open_tree",
+      "id": "428"
+    },
+    "arm64": {
+      "entry": "sys_open_tree",
+      "id": "428"
+    },
+    "riscv64": {
+      "entry": "sys_open_tree",
+      "id": "428"
+    },
+    "x86": {
+      "entry": "sys_open_tree",
+      "id": "428"
+    },
+    "x86_64": {
+      "entry": "sys_open_tree",
+      "id": "428"
+    }
+  },
+  "__NR_openat": {
+    "arm": {
+      "entry": "sys_openat",
+      "id": "322"
+    },
+    "arm64": {
+      "entry": "sys_openat",
+      "id": "56"
+    },
+    "riscv64": {
+      "entry": "sys_openat",
+      "id": "56"
+    },
+    "x86": {
+      "entry": "sys_openat",
+      "id": "295"
+    },
+    "x86_64": {
+      "entry": "sys_openat",
+      "id": "257"
+    }
+  },
+  "__NR_openat2": {
+    "arm": {
+      "entry": "sys_openat2",
+      "id": "437"
+    },
+    "arm64": {
+      "entry": "sys_openat2",
+      "id": "437"
+    },
+    "riscv64": {
+      "entry": "sys_openat2",
+      "id": "437"
+    },
+    "x86": {
+      "entry": "sys_openat2",
+      "id": "437"
+    },
+    "x86_64": {
+      "entry": "sys_openat2",
+      "id": "437"
+    }
+  },
+  "__NR_pause": {
+    "arm": {
+      "entry": "sys_pause",
+      "id": "29",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_pause",
+      "id": "29",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_pause",
+      "id": "34",
+      "params": []
+    }
+  },
+  "__NR_pciconfig_iobase": {
+    "arm": {
+      "entry": "sys_pciconfig_iobase",
+      "id": "271"
+    }
+  },
+  "__NR_pciconfig_read": {
+    "arm": {
+      "entry": "sys_pciconfig_read",
+      "id": "272"
+    }
+  },
+  "__NR_pciconfig_write": {
+    "arm": {
+      "entry": "sys_pciconfig_write",
+      "id": "273"
+    }
+  },
+  "__NR_perf_event_open": {
+    "arm": {
+      "entry": "sys_perf_event_open",
+      "id": "364"
+    },
+    "arm64": {
+      "entry": "sys_perf_event_open",
+      "id": "241"
+    },
+    "riscv64": {
+      "entry": "sys_perf_event_open",
+      "id": "241"
+    },
+    "x86": {
+      "entry": "sys_perf_event_open",
+      "id": "336"
+    },
+    "x86_64": {
+      "entry": "sys_perf_event_open",
+      "id": "298"
+    }
+  },
+  "__NR_personality": {
+    "arm": {
+      "entry": "sys_personality",
+      "id": "136"
+    },
+    "arm64": {
+      "entry": "sys_personality",
+      "id": "92"
+    },
+    "riscv64": {
+      "entry": "sys_personality",
+      "id": "92"
+    },
+    "x86": {
+      "entry": "sys_personality",
+      "id": "136"
+    },
+    "x86_64": {
+      "entry": "sys_personality",
+      "id": "135"
+    }
+  },
+  "__NR_pidfd_getfd": {
+    "arm": {
+      "entry": "sys_pidfd_getfd",
+      "id": "438"
+    },
+    "arm64": {
+      "entry": "sys_pidfd_getfd",
+      "id": "438"
+    },
+    "riscv64": {
+      "entry": "sys_pidfd_getfd",
+      "id": "438"
+    },
+    "x86": {
+      "entry": "sys_pidfd_getfd",
+      "id": "438"
+    },
+    "x86_64": {
+      "entry": "sys_pidfd_getfd",
+      "id": "438"
+    }
+  },
+  "__NR_pidfd_open": {
+    "arm": {
+      "entry": "sys_pidfd_open",
+      "id": "434"
+    },
+    "arm64": {
+      "entry": "sys_pidfd_open",
+      "id": "434"
+    },
+    "riscv64": {
+      "entry": "sys_pidfd_open",
+      "id": "434"
+    },
+    "x86": {
+      "entry": "sys_pidfd_open",
+      "id": "434"
+    },
+    "x86_64": {
+      "entry": "sys_pidfd_open",
+      "id": "434"
+    }
+  },
+  "__NR_pidfd_send_signal": {
+    "arm": {
+      "entry": "sys_pidfd_send_signal",
+      "id": "424"
+    },
+    "arm64": {
+      "entry": "sys_pidfd_send_signal",
+      "id": "424"
+    },
+    "riscv64": {
+      "entry": "sys_pidfd_send_signal",
+      "id": "424"
+    },
+    "x86": {
+      "entry": "sys_pidfd_send_signal",
+      "id": "424"
+    },
+    "x86_64": {
+      "entry": "sys_pidfd_send_signal",
+      "id": "424"
+    }
+  },
+  "__NR_pipe": {
+    "arm": {
+      "entry": "sys_pipe",
+      "id": "42"
+    },
+    "x86": {
+      "entry": "sys_pipe",
+      "id": "42"
+    },
+    "x86_64": {
+      "entry": "sys_pipe",
+      "id": "22"
+    }
+  },
+  "__NR_pipe2": {
+    "arm": {
+      "entry": "sys_pipe2",
+      "id": "359"
+    },
+    "arm64": {
+      "entry": "sys_pipe2",
+      "id": "59"
+    },
+    "riscv64": {
+      "entry": "sys_pipe2",
+      "id": "59"
+    },
+    "x86": {
+      "entry": "sys_pipe2",
+      "id": "331"
+    },
+    "x86_64": {
+      "entry": "sys_pipe2",
+      "id": "293"
+    }
+  },
+  "__NR_pivot_root": {
+    "arm": {
+      "entry": "sys_pivot_root",
+      "id": "218"
+    },
+    "arm64": {
+      "entry": "sys_pivot_root",
+      "id": "41"
+    },
+    "riscv64": {
+      "entry": "sys_pivot_root",
+      "id": "41"
+    },
+    "x86": {
+      "entry": "sys_pivot_root",
+      "id": "217"
+    },
+    "x86_64": {
+      "entry": "sys_pivot_root",
+      "id": "155"
+    }
+  },
+  "__NR_pkey_alloc": {
+    "arm": {
+      "entry": "sys_pkey_alloc",
+      "id": "395"
+    },
+    "arm64": {
+      "entry": "sys_pkey_alloc",
+      "id": "289"
+    },
+    "riscv64": {
+      "entry": "sys_pkey_alloc",
+      "id": "289"
+    },
+    "x86": {
+      "entry": "sys_pkey_alloc",
+      "id": "381"
+    },
+    "x86_64": {
+      "entry": "sys_pkey_alloc",
+      "id": "330"
+    }
+  },
+  "__NR_pkey_free": {
+    "arm": {
+      "entry": "sys_pkey_free",
+      "id": "396"
+    },
+    "arm64": {
+      "entry": "sys_pkey_free",
+      "id": "290"
+    },
+    "riscv64": {
+      "entry": "sys_pkey_free",
+      "id": "290"
+    },
+    "x86": {
+      "entry": "sys_pkey_free",
+      "id": "382"
+    },
+    "x86_64": {
+      "entry": "sys_pkey_free",
+      "id": "331"
+    }
+  },
+  "__NR_pkey_mprotect": {
+    "arm": {
+      "entry": "sys_pkey_mprotect",
+      "id": "394"
+    },
+    "arm64": {
+      "entry": "sys_pkey_mprotect",
+      "id": "288"
+    },
+    "riscv64": {
+      "entry": "sys_pkey_mprotect",
+      "id": "288"
+    },
+    "x86": {
+      "entry": "sys_pkey_mprotect",
+      "id": "380"
+    },
+    "x86_64": {
+      "entry": "sys_pkey_mprotect",
+      "id": "329"
+    }
+  },
+  "__NR_poll": {
+    "arm": {
+      "entry": "sys_poll",
+      "id": "168"
+    },
+    "x86": {
+      "entry": "sys_poll",
+      "id": "168"
+    },
+    "x86_64": {
+      "entry": "sys_poll",
+      "id": "7"
+    }
+  },
+  "__NR_ppoll": {
+    "arm": {
+      "entry": "sys_ppoll_time32",
+      "id": "336"
+    },
+    "arm64": {
+      "entry": "sys_ppoll",
+      "id": "73"
+    },
+    "riscv64": {
+      "entry": "sys_ppoll",
+      "id": "73"
+    },
+    "x86": {
+      "entry": "sys_ppoll_time32",
+      "id": "309"
+    },
+    "x86_64": {
+      "entry": "sys_ppoll",
+      "id": "271"
+    }
+  },
+  "__NR_ppoll_time64": {
+    "arm": {
+      "entry": "sys_ppoll",
+      "id": "414"
+    },
+    "x86": {
+      "entry": "sys_ppoll",
+      "id": "414"
+    }
+  },
+  "__NR_prctl": {
+    "arm": {
+      "entry": "sys_prctl",
+      "id": "172"
+    },
+    "arm64": {
+      "entry": "sys_prctl",
+      "id": "167"
+    },
+    "riscv64": {
+      "entry": "sys_prctl",
+      "id": "167"
+    },
+    "x86": {
+      "entry": "sys_prctl",
+      "id": "172"
+    },
+    "x86_64": {
+      "entry": "sys_prctl",
+      "id": "157"
+    }
+  },
+  "__NR_pread64": {
+    "arm": {
+      "entry": "sys_pread64",
+      "id": "180"
+    },
+    "arm64": {
+      "entry": "sys_pread64",
+      "id": "67"
+    },
+    "riscv64": {
+      "entry": "sys_pread64",
+      "id": "67"
+    },
+    "x86": {
+      "entry": "sys_ia32_pread64",
+      "id": "180"
+    },
+    "x86_64": {
+      "entry": "sys_pread64",
+      "id": "17"
+    }
+  },
+  "__NR_preadv": {
+    "arm": {
+      "entry": "sys_preadv",
+      "id": "361"
+    },
+    "arm64": {
+      "entry": "sys_preadv",
+      "id": "69"
+    },
+    "riscv64": {
+      "entry": "sys_preadv",
+      "id": "69"
+    },
+    "x86": {
+      "entry": "sys_preadv",
+      "id": "333"
+    },
+    "x86_64": {
+      "entry": "sys_preadv",
+      "id": "295"
+    }
+  },
+  "__NR_preadv2": {
+    "arm": {
+      "entry": "sys_preadv2",
+      "id": "392"
+    },
+    "arm64": {
+      "entry": "sys_preadv2",
+      "id": "286"
+    },
+    "riscv64": {
+      "entry": "sys_preadv2",
+      "id": "286"
+    },
+    "x86": {
+      "entry": "sys_preadv2",
+      "id": "378"
+    },
+    "x86_64": {
+      "entry": "sys_preadv2",
+      "id": "327"
+    }
+  },
+  "__NR_prlimit64": {
+    "arm": {
+      "entry": "sys_prlimit64",
+      "id": "369"
+    },
+    "arm64": {
+      "entry": "sys_prlimit64",
+      "id": "261"
+    },
+    "riscv64": {
+      "entry": "sys_prlimit64",
+      "id": "261"
+    },
+    "x86": {
+      "entry": "sys_prlimit64",
+      "id": "340"
+    },
+    "x86_64": {
+      "entry": "sys_prlimit64",
+      "id": "302"
+    }
+  },
+  "__NR_process_madvise": {
+    "arm": {
+      "entry": "sys_process_madvise",
+      "id": "440"
+    },
+    "arm64": {
+      "entry": "sys_process_madvise",
+      "id": "440"
+    },
+    "riscv64": {
+      "entry": "sys_process_madvise",
+      "id": "440"
+    },
+    "x86": {
+      "entry": "sys_process_madvise",
+      "id": "440"
+    },
+    "x86_64": {
+      "entry": "sys_process_madvise",
+      "id": "440"
+    }
+  },
+  "__NR_process_mrelease": {
+    "arm": {
+      "entry": "sys_process_mrelease",
+      "id": "448"
+    },
+    "arm64": {
+      "entry": "sys_process_mrelease",
+      "id": "448"
+    },
+    "riscv64": {
+      "entry": "sys_process_mrelease",
+      "id": "448"
+    },
+    "x86": {
+      "entry": "sys_process_mrelease",
+      "id": "448"
+    },
+    "x86_64": {
+      "entry": "sys_process_mrelease",
+      "id": "448"
+    }
+  },
+  "__NR_process_vm_readv": {
+    "arm": {
+      "entry": "sys_process_vm_readv",
+      "id": "376"
+    },
+    "arm64": {
+      "entry": "sys_process_vm_readv",
+      "id": "270"
+    },
+    "riscv64": {
+      "entry": "sys_process_vm_readv",
+      "id": "270"
+    },
+    "x86": {
+      "entry": "sys_process_vm_readv",
+      "id": "347"
+    },
+    "x86_64": {
+      "entry": "sys_process_vm_readv",
+      "id": "310"
+    }
+  },
+  "__NR_process_vm_writev": {
+    "arm": {
+      "entry": "sys_process_vm_writev",
+      "id": "377"
+    },
+    "arm64": {
+      "entry": "sys_process_vm_writev",
+      "id": "271"
+    },
+    "riscv64": {
+      "entry": "sys_process_vm_writev",
+      "id": "271"
+    },
+    "x86": {
+      "entry": "sys_process_vm_writev",
+      "id": "348"
+    },
+    "x86_64": {
+      "entry": "sys_process_vm_writev",
+      "id": "311"
+    }
+  },
+  "__NR_prof": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "44",
+      "params": []
+    }
+  },
+  "__NR_profil": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "98",
+      "params": []
+    }
+  },
+  "__NR_pselect6": {
+    "arm": {
+      "entry": "sys_pselect6_time32",
+      "id": "335"
+    },
+    "arm64": {
+      "entry": "sys_pselect6",
+      "id": "72"
+    },
+    "riscv64": {
+      "entry": "sys_pselect6",
+      "id": "72"
+    },
+    "x86": {
+      "entry": "sys_pselect6_time32",
+      "id": "308"
+    },
+    "x86_64": {
+      "entry": "sys_pselect6",
+      "id": "270"
+    }
+  },
+  "__NR_pselect6_time64": {
+    "arm": {
+      "entry": "sys_pselect6",
+      "id": "413"
+    },
+    "x86": {
+      "entry": "sys_pselect6",
+      "id": "413"
+    }
+  },
+  "__NR_ptrace": {
+    "arm": {
+      "entry": "sys_ptrace",
+      "id": "26"
+    },
+    "arm64": {
+      "entry": "sys_ptrace",
+      "id": "117"
+    },
+    "riscv64": {
+      "entry": "sys_ptrace",
+      "id": "117"
+    },
+    "x86": {
+      "entry": "sys_ptrace",
+      "id": "26"
+    },
+    "x86_64": {
+      "entry": "sys_ptrace",
+      "id": "101"
+    }
+  },
+  "__NR_putpmsg": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "189",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "182",
+      "params": []
+    }
+  },
+  "__NR_pwrite64": {
+    "arm": {
+      "entry": "sys_pwrite64",
+      "id": "181"
+    },
+    "arm64": {
+      "entry": "sys_pwrite64",
+      "id": "68"
+    },
+    "riscv64": {
+      "entry": "sys_pwrite64",
+      "id": "68"
+    },
+    "x86": {
+      "entry": "sys_ia32_pwrite64",
+      "id": "181"
+    },
+    "x86_64": {
+      "entry": "sys_pwrite64",
+      "id": "18"
+    }
+  },
+  "__NR_pwritev": {
+    "arm": {
+      "entry": "sys_pwritev",
+      "id": "362"
+    },
+    "arm64": {
+      "entry": "sys_pwritev",
+      "id": "70"
+    },
+    "riscv64": {
+      "entry": "sys_pwritev",
+      "id": "70"
+    },
+    "x86": {
+      "entry": "sys_pwritev",
+      "id": "334"
+    },
+    "x86_64": {
+      "entry": "sys_pwritev",
+      "id": "296"
+    }
+  },
+  "__NR_pwritev2": {
+    "arm": {
+      "entry": "sys_pwritev2",
+      "id": "393"
+    },
+    "arm64": {
+      "entry": "sys_pwritev2",
+      "id": "287"
+    },
+    "riscv64": {
+      "entry": "sys_pwritev2",
+      "id": "287"
+    },
+    "x86": {
+      "entry": "sys_pwritev2",
+      "id": "379"
+    },
+    "x86_64": {
+      "entry": "sys_pwritev2",
+      "id": "328"
+    }
+  },
+  "__NR_query_module": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "167",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "178",
+      "params": []
+    }
+  },
+  "__NR_quotactl": {
+    "arm": {
+      "entry": "sys_quotactl",
+      "id": "131"
+    },
+    "arm64": {
+      "entry": "sys_quotactl",
+      "id": "60"
+    },
+    "riscv64": {
+      "entry": "sys_quotactl",
+      "id": "60"
+    },
+    "x86": {
+      "entry": "sys_quotactl",
+      "id": "131"
+    },
+    "x86_64": {
+      "entry": "sys_quotactl",
+      "id": "179"
+    }
+  },
+  "__NR_quotactl_fd": {
+    "arm": {
+      "entry": "sys_quotactl_fd",
+      "id": "443"
+    },
+    "arm64": {
+      "entry": "sys_quotactl_fd",
+      "id": "443"
+    },
+    "riscv64": {
+      "entry": "sys_quotactl_fd",
+      "id": "443"
+    },
+    "x86": {
+      "entry": "sys_quotactl_fd",
+      "id": "443"
+    },
+    "x86_64": {
+      "entry": "sys_quotactl_fd",
+      "id": "443"
+    }
+  },
+  "__NR_read": {
+    "arm": {
+      "entry": "sys_read",
+      "id": "3"
+    },
+    "arm64": {
+      "entry": "sys_read",
+      "id": "63"
+    },
+    "riscv64": {
+      "entry": "sys_read",
+      "id": "63"
+    },
+    "x86": {
+      "entry": "sys_read",
+      "id": "3"
+    },
+    "x86_64": {
+      "entry": "sys_read",
+      "id": "0"
+    }
+  },
+  "__NR_readahead": {
+    "arm": {
+      "entry": "sys_readahead",
+      "id": "225"
+    },
+    "arm64": {
+      "entry": "sys_readahead",
+      "id": "213"
+    },
+    "riscv64": {
+      "entry": "sys_readahead",
+      "id": "213"
+    },
+    "x86": {
+      "entry": "sys_ia32_readahead",
+      "id": "225"
+    },
+    "x86_64": {
+      "entry": "sys_readahead",
+      "id": "187"
+    }
+  },
+  "__NR_readdir": {
+    "x86": {
+      "entry": "sys_old_readdir",
+      "id": "89"
+    }
+  },
+  "__NR_readlink": {
+    "arm": {
+      "entry": "sys_readlink",
+      "id": "85"
+    },
+    "x86": {
+      "entry": "sys_readlink",
+      "id": "85"
+    },
+    "x86_64": {
+      "entry": "sys_readlink",
+      "id": "89"
+    }
+  },
+  "__NR_readlinkat": {
+    "arm": {
+      "entry": "sys_readlinkat",
+      "id": "332"
+    },
+    "arm64": {
+      "entry": "sys_readlinkat",
+      "id": "78"
+    },
+    "riscv64": {
+      "entry": "sys_readlinkat",
+      "id": "78"
+    },
+    "x86": {
+      "entry": "sys_readlinkat",
+      "id": "305"
+    },
+    "x86_64": {
+      "entry": "sys_readlinkat",
+      "id": "267"
+    }
+  },
+  "__NR_readv": {
+    "arm": {
+      "entry": "sys_readv",
+      "id": "145"
+    },
+    "arm64": {
+      "entry": "sys_readv",
+      "id": "65"
+    },
+    "riscv64": {
+      "entry": "sys_readv",
+      "id": "65"
+    },
+    "x86": {
+      "entry": "sys_readv",
+      "id": "145"
+    },
+    "x86_64": {
+      "entry": "sys_readv",
+      "id": "19"
+    }
+  },
+  "__NR_reboot": {
+    "arm": {
+      "entry": "sys_reboot",
+      "id": "88"
+    },
+    "arm64": {
+      "entry": "sys_reboot",
+      "id": "142"
+    },
+    "riscv64": {
+      "entry": "sys_reboot",
+      "id": "142"
+    },
+    "x86": {
+      "entry": "sys_reboot",
+      "id": "88"
+    },
+    "x86_64": {
+      "entry": "sys_reboot",
+      "id": "169"
+    }
+  },
+  "__NR_recv": {
+    "arm": {
+      "entry": "sys_recv",
+      "id": "291"
+    }
+  },
+  "__NR_recvfrom": {
+    "arm": {
+      "entry": "sys_recvfrom",
+      "id": "292"
+    },
+    "arm64": {
+      "entry": "sys_recvfrom",
+      "id": "207"
+    },
+    "riscv64": {
+      "entry": "sys_recvfrom",
+      "id": "207"
+    },
+    "x86": {
+      "entry": "sys_recvfrom",
+      "id": "371"
+    },
+    "x86_64": {
+      "entry": "sys_recvfrom",
+      "id": "45"
+    }
+  },
+  "__NR_recvmmsg": {
+    "arm": {
+      "entry": "sys_recvmmsg_time32",
+      "id": "365"
+    },
+    "arm64": {
+      "entry": "sys_recvmmsg",
+      "id": "243"
+    },
+    "riscv64": {
+      "entry": "sys_recvmmsg",
+      "id": "243"
+    },
+    "x86": {
+      "entry": "sys_recvmmsg_time32",
+      "id": "337"
+    },
+    "x86_64": {
+      "entry": "sys_recvmmsg",
+      "id": "299"
+    }
+  },
+  "__NR_recvmmsg_time64": {
+    "arm": {
+      "entry": "sys_recvmmsg",
+      "id": "417"
+    },
+    "x86": {
+      "entry": "sys_recvmmsg",
+      "id": "417"
+    }
+  },
+  "__NR_recvmsg": {
+    "arm": {
+      "entry": "sys_recvmsg",
+      "id": "297"
+    },
+    "arm64": {
+      "entry": "sys_recvmsg",
+      "id": "212"
+    },
+    "riscv64": {
+      "entry": "sys_recvmsg",
+      "id": "212"
+    },
+    "x86": {
+      "entry": "sys_recvmsg",
+      "id": "372"
+    },
+    "x86_64": {
+      "entry": "sys_recvmsg",
+      "id": "47"
+    }
+  },
+  "__NR_remap_file_pages": {
+    "arm": {
+      "entry": "sys_remap_file_pages",
+      "id": "253"
+    },
+    "arm64": {
+      "entry": "sys_remap_file_pages",
+      "id": "234"
+    },
+    "riscv64": {
+      "entry": "sys_remap_file_pages",
+      "id": "234"
+    },
+    "x86": {
+      "entry": "sys_remap_file_pages",
+      "id": "257"
+    },
+    "x86_64": {
+      "entry": "sys_remap_file_pages",
+      "id": "216"
+    }
+  },
+  "__NR_removexattr": {
+    "arm": {
+      "entry": "sys_removexattr",
+      "id": "235"
+    },
+    "arm64": {
+      "entry": "sys_removexattr",
+      "id": "14"
+    },
+    "riscv64": {
+      "entry": "sys_removexattr",
+      "id": "14"
+    },
+    "x86": {
+      "entry": "sys_removexattr",
+      "id": "235"
+    },
+    "x86_64": {
+      "entry": "sys_removexattr",
+      "id": "197"
+    }
+  },
+  "__NR_rename": {
+    "arm": {
+      "entry": "sys_rename",
+      "id": "38"
+    },
+    "x86": {
+      "entry": "sys_rename",
+      "id": "38"
+    },
+    "x86_64": {
+      "entry": "sys_rename",
+      "id": "82"
+    }
+  },
+  "__NR_renameat": {
+    "arm": {
+      "entry": "sys_renameat",
+      "id": "329"
+    },
+    "arm64": {
+      "entry": "sys_renameat",
+      "id": "38"
+    },
+    "riscv64": {
+      "entry": "sys_renameat",
+      "id": "38"
+    },
+    "x86": {
+      "entry": "sys_renameat",
+      "id": "302"
+    },
+    "x86_64": {
+      "entry": "sys_renameat",
+      "id": "264"
+    }
+  },
+  "__NR_renameat2": {
+    "arm": {
+      "entry": "sys_renameat2",
+      "id": "382"
+    },
+    "arm64": {
+      "entry": "sys_renameat2",
+      "id": "276"
+    },
+    "riscv64": {
+      "entry": "sys_renameat2",
+      "id": "276"
+    },
+    "x86": {
+      "entry": "sys_renameat2",
+      "id": "353"
+    },
+    "x86_64": {
+      "entry": "sys_renameat2",
+      "id": "316"
+    }
+  },
+  "__NR_request_key": {
+    "arm": {
+      "entry": "sys_request_key",
+      "id": "310"
+    },
+    "arm64": {
+      "entry": "sys_request_key",
+      "id": "218"
+    },
+    "riscv64": {
+      "entry": "sys_request_key",
+      "id": "218"
+    },
+    "x86": {
+      "entry": "sys_request_key",
+      "id": "287"
+    },
+    "x86_64": {
+      "entry": "sys_request_key",
+      "id": "249"
+    }
+  },
+  "__NR_restart_syscall": {
+    "arm": {
+      "entry": "sys_restart_syscall",
+      "id": "0",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_restart_syscall",
+      "id": "128",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_restart_syscall",
+      "id": "128",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_restart_syscall",
+      "id": "0",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_restart_syscall",
+      "id": "219",
+      "params": []
+    }
+  },
+  "__NR_rmdir": {
+    "arm": {
+      "entry": "sys_rmdir",
+      "id": "40"
+    },
+    "x86": {
+      "entry": "sys_rmdir",
+      "id": "40"
+    },
+    "x86_64": {
+      "entry": "sys_rmdir",
+      "id": "84"
+    }
+  },
+  "__NR_rseq": {
+    "arm": {
+      "entry": "sys_rseq",
+      "id": "398"
+    },
+    "arm64": {
+      "entry": "sys_rseq",
+      "id": "293"
+    },
+    "riscv64": {
+      "entry": "sys_rseq",
+      "id": "293"
+    },
+    "x86": {
+      "entry": "sys_rseq",
+      "id": "386"
+    },
+    "x86_64": {
+      "entry": "sys_rseq",
+      "id": "334"
+    }
+  },
+  "__NR_rt_sigaction": {
+    "arm": {
+      "entry": "sys_rt_sigaction",
+      "id": "174"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigaction",
+      "id": "134"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigaction",
+      "id": "134"
+    },
+    "x86": {
+      "entry": "sys_rt_sigaction",
+      "id": "174"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigaction",
+      "id": "13"
+    }
+  },
+  "__NR_rt_sigpending": {
+    "arm": {
+      "entry": "sys_rt_sigpending",
+      "id": "176"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigpending",
+      "id": "136"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigpending",
+      "id": "136"
+    },
+    "x86": {
+      "entry": "sys_rt_sigpending",
+      "id": "176"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigpending",
+      "id": "127"
+    }
+  },
+  "__NR_rt_sigprocmask": {
+    "arm": {
+      "entry": "sys_rt_sigprocmask",
+      "id": "175"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigprocmask",
+      "id": "135"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigprocmask",
+      "id": "135"
+    },
+    "x86": {
+      "entry": "sys_rt_sigprocmask",
+      "id": "175"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigprocmask",
+      "id": "14"
+    }
+  },
+  "__NR_rt_sigqueueinfo": {
+    "arm": {
+      "entry": "sys_rt_sigqueueinfo",
+      "id": "178"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigqueueinfo",
+      "id": "138"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigqueueinfo",
+      "id": "138"
+    },
+    "x86": {
+      "entry": "sys_rt_sigqueueinfo",
+      "id": "178"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigqueueinfo",
+      "id": "129"
+    }
+  },
+  "__NR_rt_sigreturn": {
+    "arm": {
+      "entry": "sys_rt_sigreturn",
+      "id": "173"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigreturn",
+      "id": "139"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigreturn",
+      "id": "139"
+    },
+    "x86": {
+      "entry": "sys_rt_sigreturn",
+      "id": "173"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigreturn",
+      "id": "15"
+    }
+  },
+  "__NR_rt_sigsuspend": {
+    "arm": {
+      "entry": "sys_rt_sigsuspend",
+      "id": "179"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigsuspend",
+      "id": "133"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigsuspend",
+      "id": "133"
+    },
+    "x86": {
+      "entry": "sys_rt_sigsuspend",
+      "id": "179"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigsuspend",
+      "id": "130"
+    }
+  },
+  "__NR_rt_sigtimedwait": {
+    "arm": {
+      "entry": "sys_rt_sigtimedwait_time32",
+      "id": "177"
+    },
+    "arm64": {
+      "entry": "sys_rt_sigtimedwait",
+      "id": "137"
+    },
+    "riscv64": {
+      "entry": "sys_rt_sigtimedwait",
+      "id": "137"
+    },
+    "x86": {
+      "entry": "sys_rt_sigtimedwait_time32",
+      "id": "177"
+    },
+    "x86_64": {
+      "entry": "sys_rt_sigtimedwait",
+      "id": "128"
+    }
+  },
+  "__NR_rt_sigtimedwait_time64": {
+    "arm": {
+      "entry": "sys_rt_sigtimedwait",
+      "id": "421"
+    },
+    "x86": {
+      "entry": "sys_rt_sigtimedwait",
+      "id": "421"
+    }
+  },
+  "__NR_rt_tgsigqueueinfo": {
+    "arm": {
+      "entry": "sys_rt_tgsigqueueinfo",
+      "id": "363"
+    },
+    "arm64": {
+      "entry": "sys_rt_tgsigqueueinfo",
+      "id": "240"
+    },
+    "riscv64": {
+      "entry": "sys_rt_tgsigqueueinfo",
+      "id": "240"
+    },
+    "x86": {
+      "entry": "sys_rt_tgsigqueueinfo",
+      "id": "335"
+    },
+    "x86_64": {
+      "entry": "sys_rt_tgsigqueueinfo",
+      "id": "297"
+    }
+  },
+  "__NR_sched_get_priority_max": {
+    "arm": {
+      "entry": "sys_sched_get_priority_max",
+      "id": "159"
+    },
+    "arm64": {
+      "entry": "sys_sched_get_priority_max",
+      "id": "125"
+    },
+    "riscv64": {
+      "entry": "sys_sched_get_priority_max",
+      "id": "125"
+    },
+    "x86": {
+      "entry": "sys_sched_get_priority_max",
+      "id": "159"
+    },
+    "x86_64": {
+      "entry": "sys_sched_get_priority_max",
+      "id": "146"
+    }
+  },
+  "__NR_sched_get_priority_min": {
+    "arm": {
+      "entry": "sys_sched_get_priority_min",
+      "id": "160"
+    },
+    "arm64": {
+      "entry": "sys_sched_get_priority_min",
+      "id": "126"
+    },
+    "riscv64": {
+      "entry": "sys_sched_get_priority_min",
+      "id": "126"
+    },
+    "x86": {
+      "entry": "sys_sched_get_priority_min",
+      "id": "160"
+    },
+    "x86_64": {
+      "entry": "sys_sched_get_priority_min",
+      "id": "147"
+    }
+  },
+  "__NR_sched_getaffinity": {
+    "arm": {
+      "entry": "sys_sched_getaffinity",
+      "id": "242"
+    },
+    "arm64": {
+      "entry": "sys_sched_getaffinity",
+      "id": "123"
+    },
+    "riscv64": {
+      "entry": "sys_sched_getaffinity",
+      "id": "123"
+    },
+    "x86": {
+      "entry": "sys_sched_getaffinity",
+      "id": "242"
+    },
+    "x86_64": {
+      "entry": "sys_sched_getaffinity",
+      "id": "204"
+    }
+  },
+  "__NR_sched_getattr": {
+    "arm": {
+      "entry": "sys_sched_getattr",
+      "id": "381"
+    },
+    "arm64": {
+      "entry": "sys_sched_getattr",
+      "id": "275"
+    },
+    "riscv64": {
+      "entry": "sys_sched_getattr",
+      "id": "275"
+    },
+    "x86": {
+      "entry": "sys_sched_getattr",
+      "id": "352"
+    },
+    "x86_64": {
+      "entry": "sys_sched_getattr",
+      "id": "315"
+    }
+  },
+  "__NR_sched_getparam": {
+    "arm": {
+      "entry": "sys_sched_getparam",
+      "id": "155"
+    },
+    "arm64": {
+      "entry": "sys_sched_getparam",
+      "id": "121"
+    },
+    "riscv64": {
+      "entry": "sys_sched_getparam",
+      "id": "121"
+    },
+    "x86": {
+      "entry": "sys_sched_getparam",
+      "id": "155"
+    },
+    "x86_64": {
+      "entry": "sys_sched_getparam",
+      "id": "143"
+    }
+  },
+  "__NR_sched_getscheduler": {
+    "arm": {
+      "entry": "sys_sched_getscheduler",
+      "id": "157"
+    },
+    "arm64": {
+      "entry": "sys_sched_getscheduler",
+      "id": "120"
+    },
+    "riscv64": {
+      "entry": "sys_sched_getscheduler",
+      "id": "120"
+    },
+    "x86": {
+      "entry": "sys_sched_getscheduler",
+      "id": "157"
+    },
+    "x86_64": {
+      "entry": "sys_sched_getscheduler",
+      "id": "145"
+    }
+  },
+  "__NR_sched_rr_get_interval": {
+    "arm": {
+      "entry": "sys_sched_rr_get_interval_time32",
+      "id": "161"
+    },
+    "arm64": {
+      "entry": "sys_sched_rr_get_interval",
+      "id": "127"
+    },
+    "riscv64": {
+      "entry": "sys_sched_rr_get_interval",
+      "id": "127"
+    },
+    "x86": {
+      "entry": "sys_sched_rr_get_interval_time32",
+      "id": "161"
+    },
+    "x86_64": {
+      "entry": "sys_sched_rr_get_interval",
+      "id": "148"
+    }
+  },
+  "__NR_sched_rr_get_interval_time64": {
+    "arm": {
+      "entry": "sys_sched_rr_get_interval",
+      "id": "423"
+    },
+    "x86": {
+      "entry": "sys_sched_rr_get_interval",
+      "id": "423"
+    }
+  },
+  "__NR_sched_setaffinity": {
+    "arm": {
+      "entry": "sys_sched_setaffinity",
+      "id": "241"
+    },
+    "arm64": {
+      "entry": "sys_sched_setaffinity",
+      "id": "122"
+    },
+    "riscv64": {
+      "entry": "sys_sched_setaffinity",
+      "id": "122"
+    },
+    "x86": {
+      "entry": "sys_sched_setaffinity",
+      "id": "241"
+    },
+    "x86_64": {
+      "entry": "sys_sched_setaffinity",
+      "id": "203"
+    }
+  },
+  "__NR_sched_setattr": {
+    "arm": {
+      "entry": "sys_sched_setattr",
+      "id": "380"
+    },
+    "arm64": {
+      "entry": "sys_sched_setattr",
+      "id": "274"
+    },
+    "riscv64": {
+      "entry": "sys_sched_setattr",
+      "id": "274"
+    },
+    "x86": {
+      "entry": "sys_sched_setattr",
+      "id": "351"
+    },
+    "x86_64": {
+      "entry": "sys_sched_setattr",
+      "id": "314"
+    }
+  },
+  "__NR_sched_setparam": {
+    "arm": {
+      "entry": "sys_sched_setparam",
+      "id": "154"
+    },
+    "arm64": {
+      "entry": "sys_sched_setparam",
+      "id": "118"
+    },
+    "riscv64": {
+      "entry": "sys_sched_setparam",
+      "id": "118"
+    },
+    "x86": {
+      "entry": "sys_sched_setparam",
+      "id": "154"
+    },
+    "x86_64": {
+      "entry": "sys_sched_setparam",
+      "id": "142"
+    }
+  },
+  "__NR_sched_setscheduler": {
+    "arm": {
+      "entry": "sys_sched_setscheduler",
+      "id": "156"
+    },
+    "arm64": {
+      "entry": "sys_sched_setscheduler",
+      "id": "119"
+    },
+    "riscv64": {
+      "entry": "sys_sched_setscheduler",
+      "id": "119"
+    },
+    "x86": {
+      "entry": "sys_sched_setscheduler",
+      "id": "156"
+    },
+    "x86_64": {
+      "entry": "sys_sched_setscheduler",
+      "id": "144"
+    }
+  },
+  "__NR_sched_yield": {
+    "arm": {
+      "entry": "sys_sched_yield",
+      "id": "158",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_sched_yield",
+      "id": "124",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_sched_yield",
+      "id": "124",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_sched_yield",
+      "id": "158",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_sched_yield",
+      "id": "24",
+      "params": []
+    }
+  },
+  "__NR_seccomp": {
+    "arm": {
+      "entry": "sys_seccomp",
+      "id": "383"
+    },
+    "arm64": {
+      "entry": "sys_seccomp",
+      "id": "277"
+    },
+    "riscv64": {
+      "entry": "sys_seccomp",
+      "id": "277"
+    },
+    "x86": {
+      "entry": "sys_seccomp",
+      "id": "354"
+    },
+    "x86_64": {
+      "entry": "sys_seccomp",
+      "id": "317"
+    }
+  },
+  "__NR_security": {
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "185",
+      "params": []
+    }
+  },
+  "__NR_select": {
+    "x86": {
+      "entry": "sys_old_select",
+      "id": "82"
+    },
+    "x86_64": {
+      "entry": "sys_select",
+      "id": "23"
+    }
+  },
+  "__NR_semctl": {
+    "arm": {
+      "entry": "sys_old_semctl",
+      "id": "300"
+    },
+    "arm64": {
+      "entry": "sys_semctl",
+      "id": "191"
+    },
+    "riscv64": {
+      "entry": "sys_semctl",
+      "id": "191"
+    },
+    "x86": {
+      "entry": "sys_semctl",
+      "id": "394"
+    },
+    "x86_64": {
+      "entry": "sys_semctl",
+      "id": "66"
+    }
+  },
+  "__NR_semget": {
+    "arm": {
+      "entry": "sys_semget",
+      "id": "299"
+    },
+    "arm64": {
+      "entry": "sys_semget",
+      "id": "190"
+    },
+    "riscv64": {
+      "entry": "sys_semget",
+      "id": "190"
+    },
+    "x86": {
+      "entry": "sys_semget",
+      "id": "393"
+    },
+    "x86_64": {
+      "entry": "sys_semget",
+      "id": "64"
+    }
+  },
+  "__NR_semop": {
+    "arm": {
+      "entry": "sys_semop",
+      "id": "298"
+    },
+    "arm64": {
+      "entry": "sys_semop",
+      "id": "193"
+    },
+    "riscv64": {
+      "entry": "sys_semop",
+      "id": "193"
+    },
+    "x86_64": {
+      "entry": "sys_semop",
+      "id": "65"
+    }
+  },
+  "__NR_semtimedop": {
+    "arm": {
+      "entry": "sys_semtimedop_time32",
+      "id": "312"
+    },
+    "arm64": {
+      "entry": "sys_semtimedop",
+      "id": "192"
+    },
+    "riscv64": {
+      "entry": "sys_semtimedop",
+      "id": "192"
+    },
+    "x86_64": {
+      "entry": "sys_semtimedop",
+      "id": "220"
+    }
+  },
+  "__NR_semtimedop_time64": {
+    "arm": {
+      "entry": "sys_semtimedop",
+      "id": "420"
+    },
+    "x86": {
+      "entry": "sys_semtimedop",
+      "id": "420"
+    }
+  },
+  "__NR_send": {
+    "arm": {
+      "entry": "sys_send",
+      "id": "289"
+    }
+  },
+  "__NR_sendfile": {
+    "arm": {
+      "entry": "sys_sendfile",
+      "id": "187"
+    },
+    "arm64": {
+      "entry": "sys_sendfile64",
+      "id": "71"
+    },
+    "riscv64": {
+      "entry": "sys_sendfile64",
+      "id": "71"
+    },
+    "x86": {
+      "entry": "sys_sendfile",
+      "id": "187"
+    },
+    "x86_64": {
+      "entry": "sys_sendfile64",
+      "id": "40"
+    }
+  },
+  "__NR_sendfile64": {
+    "arm": {
+      "entry": "sys_sendfile64",
+      "id": "239"
+    },
+    "x86": {
+      "entry": "sys_sendfile64",
+      "id": "239"
+    }
+  },
+  "__NR_sendmmsg": {
+    "arm": {
+      "entry": "sys_sendmmsg",
+      "id": "374"
+    },
+    "arm64": {
+      "entry": "sys_sendmmsg",
+      "id": "269"
+    },
+    "riscv64": {
+      "entry": "sys_sendmmsg",
+      "id": "269"
+    },
+    "x86": {
+      "entry": "sys_sendmmsg",
+      "id": "345"
+    },
+    "x86_64": {
+      "entry": "sys_sendmmsg",
+      "id": "307"
+    }
+  },
+  "__NR_sendmsg": {
+    "arm": {
+      "entry": "sys_sendmsg",
+      "id": "296"
+    },
+    "arm64": {
+      "entry": "sys_sendmsg",
+      "id": "211"
+    },
+    "riscv64": {
+      "entry": "sys_sendmsg",
+      "id": "211"
+    },
+    "x86": {
+      "entry": "sys_sendmsg",
+      "id": "370"
+    },
+    "x86_64": {
+      "entry": "sys_sendmsg",
+      "id": "46"
+    }
+  },
+  "__NR_sendto": {
+    "arm": {
+      "entry": "sys_sendto",
+      "id": "290"
+    },
+    "arm64": {
+      "entry": "sys_sendto",
+      "id": "206"
+    },
+    "riscv64": {
+      "entry": "sys_sendto",
+      "id": "206"
+    },
+    "x86": {
+      "entry": "sys_sendto",
+      "id": "369"
+    },
+    "x86_64": {
+      "entry": "sys_sendto",
+      "id": "44"
+    }
+  },
+  "__NR_set_mempolicy": {
+    "arm": {
+      "entry": "sys_set_mempolicy",
+      "id": "321"
+    },
+    "arm64": {
+      "entry": "sys_set_mempolicy",
+      "id": "237"
+    },
+    "riscv64": {
+      "entry": "sys_set_mempolicy",
+      "id": "237"
+    },
+    "x86": {
+      "entry": "sys_set_mempolicy",
+      "id": "276"
+    },
+    "x86_64": {
+      "entry": "sys_set_mempolicy",
+      "id": "238"
+    }
+  },
+  "__NR_set_mempolicy_home_node": {
+    "arm": {
+      "entry": "sys_set_mempolicy_home_node",
+      "id": "450"
+    },
+    "arm64": {
+      "entry": "sys_set_mempolicy_home_node",
+      "id": "450"
+    },
+    "riscv64": {
+      "entry": "sys_set_mempolicy_home_node",
+      "id": "450"
+    },
+    "x86": {
+      "entry": "sys_set_mempolicy_home_node",
+      "id": "450"
+    },
+    "x86_64": {
+      "entry": "sys_set_mempolicy_home_node",
+      "id": "450"
+    }
+  },
+  "__NR_set_robust_list": {
+    "arm": {
+      "entry": "sys_set_robust_list",
+      "id": "338"
+    },
+    "arm64": {
+      "entry": "sys_set_robust_list",
+      "id": "99"
+    },
+    "riscv64": {
+      "entry": "sys_set_robust_list",
+      "id": "99"
+    },
+    "x86": {
+      "entry": "sys_set_robust_list",
+      "id": "311"
+    },
+    "x86_64": {
+      "entry": "sys_set_robust_list",
+      "id": "273"
+    }
+  },
+  "__NR_set_thread_area": {
+    "x86": {
+      "entry": "sys_set_thread_area",
+      "id": "243"
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "205",
+      "params": []
+    }
+  },
+  "__NR_set_tid_address": {
+    "arm": {
+      "entry": "sys_set_tid_address",
+      "id": "256"
+    },
+    "arm64": {
+      "entry": "sys_set_tid_address",
+      "id": "96"
+    },
+    "riscv64": {
+      "entry": "sys_set_tid_address",
+      "id": "96"
+    },
+    "x86": {
+      "entry": "sys_set_tid_address",
+      "id": "258"
+    },
+    "x86_64": {
+      "entry": "sys_set_tid_address",
+      "id": "218"
+    }
+  },
+  "__NR_setdomainname": {
+    "arm": {
+      "entry": "sys_setdomainname",
+      "id": "121"
+    },
+    "arm64": {
+      "entry": "sys_setdomainname",
+      "id": "162"
+    },
+    "riscv64": {
+      "entry": "sys_setdomainname",
+      "id": "162"
+    },
+    "x86": {
+      "entry": "sys_setdomainname",
+      "id": "121"
+    },
+    "x86_64": {
+      "entry": "sys_setdomainname",
+      "id": "171"
+    }
+  },
+  "__NR_setfsgid": {
+    "arm": {
+      "entry": "sys_setfsgid16",
+      "id": "139"
+    },
+    "arm64": {
+      "entry": "sys_setfsgid",
+      "id": "152"
+    },
+    "riscv64": {
+      "entry": "sys_setfsgid",
+      "id": "152"
+    },
+    "x86": {
+      "entry": "sys_setfsgid16",
+      "id": "139"
+    },
+    "x86_64": {
+      "entry": "sys_setfsgid",
+      "id": "123"
+    }
+  },
+  "__NR_setfsgid32": {
+    "arm": {
+      "entry": "sys_setfsgid",
+      "id": "216"
+    },
+    "x86": {
+      "entry": "sys_setfsgid",
+      "id": "216"
+    }
+  },
+  "__NR_setfsuid": {
+    "arm": {
+      "entry": "sys_setfsuid16",
+      "id": "138"
+    },
+    "arm64": {
+      "entry": "sys_setfsuid",
+      "id": "151"
+    },
+    "riscv64": {
+      "entry": "sys_setfsuid",
+      "id": "151"
+    },
+    "x86": {
+      "entry": "sys_setfsuid16",
+      "id": "138"
+    },
+    "x86_64": {
+      "entry": "sys_setfsuid",
+      "id": "122"
+    }
+  },
+  "__NR_setfsuid32": {
+    "arm": {
+      "entry": "sys_setfsuid",
+      "id": "215"
+    },
+    "x86": {
+      "entry": "sys_setfsuid",
+      "id": "215"
+    }
+  },
+  "__NR_setgid": {
+    "arm": {
+      "entry": "sys_setgid16",
+      "id": "46"
+    },
+    "arm64": {
+      "entry": "sys_setgid",
+      "id": "144"
+    },
+    "riscv64": {
+      "entry": "sys_setgid",
+      "id": "144"
+    },
+    "x86": {
+      "entry": "sys_setgid16",
+      "id": "46"
+    },
+    "x86_64": {
+      "entry": "sys_setgid",
+      "id": "106"
+    }
+  },
+  "__NR_setgid32": {
+    "arm": {
+      "entry": "sys_setgid",
+      "id": "214"
+    },
+    "x86": {
+      "entry": "sys_setgid",
+      "id": "214"
+    }
+  },
+  "__NR_setgroups": {
+    "arm": {
+      "entry": "sys_setgroups16",
+      "id": "81"
+    },
+    "arm64": {
+      "entry": "sys_setgroups",
+      "id": "159"
+    },
+    "riscv64": {
+      "entry": "sys_setgroups",
+      "id": "159"
+    },
+    "x86": {
+      "entry": "sys_setgroups16",
+      "id": "81"
+    },
+    "x86_64": {
+      "entry": "sys_setgroups",
+      "id": "116"
+    }
+  },
+  "__NR_setgroups32": {
+    "arm": {
+      "entry": "sys_setgroups",
+      "id": "206"
+    },
+    "x86": {
+      "entry": "sys_setgroups",
+      "id": "206"
+    }
+  },
+  "__NR_sethostname": {
+    "arm": {
+      "entry": "sys_sethostname",
+      "id": "74"
+    },
+    "arm64": {
+      "entry": "sys_sethostname",
+      "id": "161"
+    },
+    "riscv64": {
+      "entry": "sys_sethostname",
+      "id": "161"
+    },
+    "x86": {
+      "entry": "sys_sethostname",
+      "id": "74"
+    },
+    "x86_64": {
+      "entry": "sys_sethostname",
+      "id": "170"
+    }
+  },
+  "__NR_setitimer": {
+    "arm": {
+      "entry": "sys_setitimer",
+      "id": "104"
+    },
+    "arm64": {
+      "entry": "sys_setitimer",
+      "id": "103"
+    },
+    "riscv64": {
+      "entry": "sys_setitimer",
+      "id": "103"
+    },
+    "x86": {
+      "entry": "sys_setitimer",
+      "id": "104"
+    },
+    "x86_64": {
+      "entry": "sys_setitimer",
+      "id": "38"
+    }
+  },
+  "__NR_setns": {
+    "arm": {
+      "entry": "sys_setns",
+      "id": "375"
+    },
+    "arm64": {
+      "entry": "sys_setns",
+      "id": "268"
+    },
+    "riscv64": {
+      "entry": "sys_setns",
+      "id": "268"
+    },
+    "x86": {
+      "entry": "sys_setns",
+      "id": "346"
+    },
+    "x86_64": {
+      "entry": "sys_setns",
+      "id": "308"
+    }
+  },
+  "__NR_setpgid": {
+    "arm": {
+      "entry": "sys_setpgid",
+      "id": "57"
+    },
+    "arm64": {
+      "entry": "sys_setpgid",
+      "id": "154"
+    },
+    "riscv64": {
+      "entry": "sys_setpgid",
+      "id": "154"
+    },
+    "x86": {
+      "entry": "sys_setpgid",
+      "id": "57"
+    },
+    "x86_64": {
+      "entry": "sys_setpgid",
+      "id": "109"
+    }
+  },
+  "__NR_setpriority": {
+    "arm": {
+      "entry": "sys_setpriority",
+      "id": "97"
+    },
+    "arm64": {
+      "entry": "sys_setpriority",
+      "id": "140"
+    },
+    "riscv64": {
+      "entry": "sys_setpriority",
+      "id": "140"
+    },
+    "x86": {
+      "entry": "sys_setpriority",
+      "id": "97"
+    },
+    "x86_64": {
+      "entry": "sys_setpriority",
+      "id": "141"
+    }
+  },
+  "__NR_setregid": {
+    "arm": {
+      "entry": "sys_setregid16",
+      "id": "71"
+    },
+    "arm64": {
+      "entry": "sys_setregid",
+      "id": "143"
+    },
+    "riscv64": {
+      "entry": "sys_setregid",
+      "id": "143"
+    },
+    "x86": {
+      "entry": "sys_setregid16",
+      "id": "71"
+    },
+    "x86_64": {
+      "entry": "sys_setregid",
+      "id": "114"
+    }
+  },
+  "__NR_setregid32": {
+    "arm": {
+      "entry": "sys_setregid",
+      "id": "204"
+    },
+    "x86": {
+      "entry": "sys_setregid",
+      "id": "204"
+    }
+  },
+  "__NR_setresgid": {
+    "arm": {
+      "entry": "sys_setresgid16",
+      "id": "170"
+    },
+    "arm64": {
+      "entry": "sys_setresgid",
+      "id": "149"
+    },
+    "riscv64": {
+      "entry": "sys_setresgid",
+      "id": "149"
+    },
+    "x86": {
+      "entry": "sys_setresgid16",
+      "id": "170"
+    },
+    "x86_64": {
+      "entry": "sys_setresgid",
+      "id": "119"
+    }
+  },
+  "__NR_setresgid32": {
+    "arm": {
+      "entry": "sys_setresgid",
+      "id": "210"
+    },
+    "x86": {
+      "entry": "sys_setresgid",
+      "id": "210"
+    }
+  },
+  "__NR_setresuid": {
+    "arm": {
+      "entry": "sys_setresuid16",
+      "id": "164"
+    },
+    "arm64": {
+      "entry": "sys_setresuid",
+      "id": "147"
+    },
+    "riscv64": {
+      "entry": "sys_setresuid",
+      "id": "147"
+    },
+    "x86": {
+      "entry": "sys_setresuid16",
+      "id": "164"
+    },
+    "x86_64": {
+      "entry": "sys_setresuid",
+      "id": "117"
+    }
+  },
+  "__NR_setresuid32": {
+    "arm": {
+      "entry": "sys_setresuid",
+      "id": "208"
+    },
+    "x86": {
+      "entry": "sys_setresuid",
+      "id": "208"
+    }
+  },
+  "__NR_setreuid": {
+    "arm": {
+      "entry": "sys_setreuid16",
+      "id": "70"
+    },
+    "arm64": {
+      "entry": "sys_setreuid",
+      "id": "145"
+    },
+    "riscv64": {
+      "entry": "sys_setreuid",
+      "id": "145"
+    },
+    "x86": {
+      "entry": "sys_setreuid16",
+      "id": "70"
+    },
+    "x86_64": {
+      "entry": "sys_setreuid",
+      "id": "113"
+    }
+  },
+  "__NR_setreuid32": {
+    "arm": {
+      "entry": "sys_setreuid",
+      "id": "203"
+    },
+    "x86": {
+      "entry": "sys_setreuid",
+      "id": "203"
+    }
+  },
+  "__NR_setrlimit": {
+    "arm": {
+      "entry": "sys_setrlimit",
+      "id": "75"
+    },
+    "arm64": {
+      "entry": "sys_setrlimit",
+      "id": "164"
+    },
+    "riscv64": {
+      "entry": "sys_setrlimit",
+      "id": "164"
+    },
+    "x86": {
+      "entry": "sys_setrlimit",
+      "id": "75"
+    },
+    "x86_64": {
+      "entry": "sys_setrlimit",
+      "id": "160"
+    }
+  },
+  "__NR_setsid": {
+    "arm": {
+      "entry": "sys_setsid",
+      "id": "66",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_setsid",
+      "id": "157",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_setsid",
+      "id": "157",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_setsid",
+      "id": "66",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_setsid",
+      "id": "112",
+      "params": []
+    }
+  },
+  "__NR_setsockopt": {
+    "arm": {
+      "entry": "sys_setsockopt",
+      "id": "294"
+    },
+    "arm64": {
+      "entry": "sys_setsockopt",
+      "id": "208"
+    },
+    "riscv64": {
+      "entry": "sys_setsockopt",
+      "id": "208"
+    },
+    "x86": {
+      "entry": "sys_setsockopt",
+      "id": "366"
+    },
+    "x86_64": {
+      "entry": "sys_setsockopt",
+      "id": "54"
+    }
+  },
+  "__NR_settimeofday": {
+    "arm": {
+      "entry": "sys_settimeofday",
+      "id": "79"
+    },
+    "arm64": {
+      "entry": "sys_settimeofday",
+      "id": "170"
+    },
+    "riscv64": {
+      "entry": "sys_settimeofday",
+      "id": "170"
+    },
+    "x86": {
+      "entry": "sys_settimeofday",
+      "id": "79"
+    },
+    "x86_64": {
+      "entry": "sys_settimeofday",
+      "id": "164"
+    }
+  },
+  "__NR_setuid": {
+    "arm": {
+      "entry": "sys_setuid16",
+      "id": "23"
+    },
+    "arm64": {
+      "entry": "sys_setuid",
+      "id": "146"
+    },
+    "riscv64": {
+      "entry": "sys_setuid",
+      "id": "146"
+    },
+    "x86": {
+      "entry": "sys_setuid16",
+      "id": "23"
+    },
+    "x86_64": {
+      "entry": "sys_setuid",
+      "id": "105"
+    }
+  },
+  "__NR_setuid32": {
+    "arm": {
+      "entry": "sys_setuid",
+      "id": "213"
+    },
+    "x86": {
+      "entry": "sys_setuid",
+      "id": "213"
+    }
+  },
+  "__NR_setxattr": {
+    "arm": {
+      "entry": "sys_setxattr",
+      "id": "226"
+    },
+    "arm64": {
+      "entry": "sys_setxattr",
+      "id": "5"
+    },
+    "riscv64": {
+      "entry": "sys_setxattr",
+      "id": "5"
+    },
+    "x86": {
+      "entry": "sys_setxattr",
+      "id": "226"
+    },
+    "x86_64": {
+      "entry": "sys_setxattr",
+      "id": "188"
+    }
+  },
+  "__NR_sgetmask": {
+    "x86": {
+      "entry": "sys_sgetmask",
+      "id": "68",
+      "params": []
+    }
+  },
+  "__NR_shmat": {
+    "arm": {
+      "entry": "sys_shmat",
+      "id": "305"
+    },
+    "arm64": {
+      "entry": "sys_shmat",
+      "id": "196"
+    },
+    "riscv64": {
+      "entry": "sys_shmat",
+      "id": "196"
+    },
+    "x86": {
+      "entry": "sys_shmat",
+      "id": "397"
+    },
+    "x86_64": {
+      "entry": "sys_shmat",
+      "id": "30"
+    }
+  },
+  "__NR_shmctl": {
+    "arm": {
+      "entry": "sys_old_shmctl",
+      "id": "308"
+    },
+    "arm64": {
+      "entry": "sys_shmctl",
+      "id": "195"
+    },
+    "riscv64": {
+      "entry": "sys_shmctl",
+      "id": "195"
+    },
+    "x86": {
+      "entry": "sys_shmctl",
+      "id": "396"
+    },
+    "x86_64": {
+      "entry": "sys_shmctl",
+      "id": "31"
+    }
+  },
+  "__NR_shmdt": {
+    "arm": {
+      "entry": "sys_shmdt",
+      "id": "306"
+    },
+    "arm64": {
+      "entry": "sys_shmdt",
+      "id": "197"
+    },
+    "riscv64": {
+      "entry": "sys_shmdt",
+      "id": "197"
+    },
+    "x86": {
+      "entry": "sys_shmdt",
+      "id": "398"
+    },
+    "x86_64": {
+      "entry": "sys_shmdt",
+      "id": "67"
+    }
+  },
+  "__NR_shmget": {
+    "arm": {
+      "entry": "sys_shmget",
+      "id": "307"
+    },
+    "arm64": {
+      "entry": "sys_shmget",
+      "id": "194"
+    },
+    "riscv64": {
+      "entry": "sys_shmget",
+      "id": "194"
+    },
+    "x86": {
+      "entry": "sys_shmget",
+      "id": "395"
+    },
+    "x86_64": {
+      "entry": "sys_shmget",
+      "id": "29"
+    }
+  },
+  "__NR_shutdown": {
+    "arm": {
+      "entry": "sys_shutdown",
+      "id": "293"
+    },
+    "arm64": {
+      "entry": "sys_shutdown",
+      "id": "210"
+    },
+    "riscv64": {
+      "entry": "sys_shutdown",
+      "id": "210"
+    },
+    "x86": {
+      "entry": "sys_shutdown",
+      "id": "373"
+    },
+    "x86_64": {
+      "entry": "sys_shutdown",
+      "id": "48"
+    }
+  },
+  "__NR_sigaction": {
+    "arm": {
+      "entry": "sys_sigaction",
+      "id": "67"
+    },
+    "x86": {
+      "entry": "sys_sigaction",
+      "id": "67"
+    }
+  },
+  "__NR_sigaltstack": {
+    "arm": {
+      "entry": "sys_sigaltstack",
+      "id": "186"
+    },
+    "arm64": {
+      "entry": "sys_sigaltstack",
+      "id": "132"
+    },
+    "riscv64": {
+      "entry": "sys_sigaltstack",
+      "id": "132"
+    },
+    "x86": {
+      "entry": "sys_sigaltstack",
+      "id": "186"
+    },
+    "x86_64": {
+      "entry": "sys_sigaltstack",
+      "id": "131"
+    }
+  },
+  "__NR_signal": {
+    "x86": {
+      "entry": "sys_signal",
+      "id": "48"
+    }
+  },
+  "__NR_signalfd": {
+    "arm": {
+      "entry": "sys_signalfd",
+      "id": "349"
+    },
+    "x86": {
+      "entry": "sys_signalfd",
+      "id": "321"
+    },
+    "x86_64": {
+      "entry": "sys_signalfd",
+      "id": "282"
+    }
+  },
+  "__NR_signalfd4": {
+    "arm": {
+      "entry": "sys_signalfd4",
+      "id": "355"
+    },
+    "arm64": {
+      "entry": "sys_signalfd4",
+      "id": "74"
+    },
+    "riscv64": {
+      "entry": "sys_signalfd4",
+      "id": "74"
+    },
+    "x86": {
+      "entry": "sys_signalfd4",
+      "id": "327"
+    },
+    "x86_64": {
+      "entry": "sys_signalfd4",
+      "id": "289"
+    }
+  },
+  "__NR_sigpending": {
+    "arm": {
+      "entry": "sys_sigpending",
+      "id": "73"
+    },
+    "x86": {
+      "entry": "sys_sigpending",
+      "id": "73"
+    }
+  },
+  "__NR_sigprocmask": {
+    "arm": {
+      "entry": "sys_sigprocmask",
+      "id": "126"
+    },
+    "x86": {
+      "entry": "sys_sigprocmask",
+      "id": "126"
+    }
+  },
+  "__NR_sigreturn": {
+    "arm": {
+      "entry": "sys_sigreturn",
+      "id": "119"
+    },
+    "x86": {
+      "entry": "sys_sigreturn",
+      "id": "119"
+    }
+  },
+  "__NR_sigsuspend": {
+    "arm": {
+      "entry": "sys_sigsuspend",
+      "id": "72"
+    },
+    "x86": {
+      "entry": "sys_sigsuspend",
+      "id": "72"
+    }
+  },
+  "__NR_socket": {
+    "arm": {
+      "entry": "sys_socket",
+      "id": "281"
+    },
+    "arm64": {
+      "entry": "sys_socket",
+      "id": "198"
+    },
+    "riscv64": {
+      "entry": "sys_socket",
+      "id": "198"
+    },
+    "x86": {
+      "entry": "sys_socket",
+      "id": "359"
+    },
+    "x86_64": {
+      "entry": "sys_socket",
+      "id": "41"
+    }
+  },
+  "__NR_socketcall": {
+    "x86": {
+      "entry": "sys_socketcall",
+      "id": "102"
+    }
+  },
+  "__NR_socketpair": {
+    "arm": {
+      "entry": "sys_socketpair",
+      "id": "288"
+    },
+    "arm64": {
+      "entry": "sys_socketpair",
+      "id": "199"
+    },
+    "riscv64": {
+      "entry": "sys_socketpair",
+      "id": "199"
+    },
+    "x86": {
+      "entry": "sys_socketpair",
+      "id": "360"
+    },
+    "x86_64": {
+      "entry": "sys_socketpair",
+      "id": "53"
+    }
+  },
+  "__NR_splice": {
+    "arm": {
+      "entry": "sys_splice",
+      "id": "340"
+    },
+    "arm64": {
+      "entry": "sys_splice",
+      "id": "76"
+    },
+    "riscv64": {
+      "entry": "sys_splice",
+      "id": "76"
+    },
+    "x86": {
+      "entry": "sys_splice",
+      "id": "313"
+    },
+    "x86_64": {
+      "entry": "sys_splice",
+      "id": "275"
+    }
+  },
+  "__NR_ssetmask": {
+    "x86": {
+      "entry": "sys_ssetmask",
+      "id": "69"
+    }
+  },
+  "__NR_stat": {
+    "arm": {
+      "entry": "sys_newstat",
+      "id": "106"
+    },
+    "x86": {
+      "entry": "sys_newstat",
+      "id": "106"
+    },
+    "x86_64": {
+      "entry": "sys_newstat",
+      "id": "4"
+    }
+  },
+  "__NR_stat64": {
+    "arm": {
+      "entry": "sys_stat64",
+      "id": "195"
+    },
+    "x86": {
+      "entry": "sys_stat64",
+      "id": "195"
+    }
+  },
+  "__NR_statfs": {
+    "arm": {
+      "entry": "sys_statfs",
+      "id": "99"
+    },
+    "arm64": {
+      "entry": "sys_statfs",
+      "id": "43"
+    },
+    "riscv64": {
+      "entry": "sys_statfs",
+      "id": "43"
+    },
+    "x86": {
+      "entry": "sys_statfs",
+      "id": "99"
+    },
+    "x86_64": {
+      "entry": "sys_statfs",
+      "id": "137"
+    }
+  },
+  "__NR_statfs64": {
+    "arm": {
+      "entry": "sys_statfs64",
+      "id": "266"
+    },
+    "x86": {
+      "entry": "sys_statfs64",
+      "id": "268"
+    }
+  },
+  "__NR_statx": {
+    "arm": {
+      "entry": "sys_statx",
+      "id": "397"
+    },
+    "arm64": {
+      "entry": "sys_statx",
+      "id": "291"
+    },
+    "riscv64": {
+      "entry": "sys_statx",
+      "id": "291"
+    },
+    "x86": {
+      "entry": "sys_statx",
+      "id": "383"
+    },
+    "x86_64": {
+      "entry": "sys_statx",
+      "id": "332"
+    }
+  },
+  "__NR_stime": {
+    "x86": {
+      "entry": "sys_stime32",
+      "id": "25"
+    }
+  },
+  "__NR_stty": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "31",
+      "params": []
+    }
+  },
+  "__NR_swapoff": {
+    "arm": {
+      "entry": "sys_swapoff",
+      "id": "115"
+    },
+    "arm64": {
+      "entry": "sys_swapoff",
+      "id": "225"
+    },
+    "riscv64": {
+      "entry": "sys_swapoff",
+      "id": "225"
+    },
+    "x86": {
+      "entry": "sys_swapoff",
+      "id": "115"
+    },
+    "x86_64": {
+      "entry": "sys_swapoff",
+      "id": "168"
+    }
+  },
+  "__NR_swapon": {
+    "arm": {
+      "entry": "sys_swapon",
+      "id": "87"
+    },
+    "arm64": {
+      "entry": "sys_swapon",
+      "id": "224"
+    },
+    "riscv64": {
+      "entry": "sys_swapon",
+      "id": "224"
+    },
+    "x86": {
+      "entry": "sys_swapon",
+      "id": "87"
+    },
+    "x86_64": {
+      "entry": "sys_swapon",
+      "id": "167"
+    }
+  },
+  "__NR_symlink": {
+    "arm": {
+      "entry": "sys_symlink",
+      "id": "83"
+    },
+    "x86": {
+      "entry": "sys_symlink",
+      "id": "83"
+    },
+    "x86_64": {
+      "entry": "sys_symlink",
+      "id": "88"
+    }
+  },
+  "__NR_symlinkat": {
+    "arm": {
+      "entry": "sys_symlinkat",
+      "id": "331"
+    },
+    "arm64": {
+      "entry": "sys_symlinkat",
+      "id": "36"
+    },
+    "riscv64": {
+      "entry": "sys_symlinkat",
+      "id": "36"
+    },
+    "x86": {
+      "entry": "sys_symlinkat",
+      "id": "304"
+    },
+    "x86_64": {
+      "entry": "sys_symlinkat",
+      "id": "266"
+    }
+  },
+  "__NR_sync": {
+    "arm": {
+      "entry": "sys_sync",
+      "id": "36",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_sync",
+      "id": "81",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_sync",
+      "id": "81",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_sync",
+      "id": "36",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_sync",
+      "id": "162",
+      "params": []
+    }
+  },
+  "__NR_sync_file_range": {
+    "arm64": {
+      "entry": "sys_sync_file_range",
+      "id": "84"
+    },
+    "riscv64": {
+      "entry": "sys_sync_file_range",
+      "id": "84"
+    },
+    "x86": {
+      "entry": "sys_ia32_sync_file_range",
+      "id": "314"
+    },
+    "x86_64": {
+      "entry": "sys_sync_file_range",
+      "id": "277"
+    }
+  },
+  "__NR_syncfs": {
+    "arm": {
+      "entry": "sys_syncfs",
+      "id": "373"
+    },
+    "arm64": {
+      "entry": "sys_syncfs",
+      "id": "267"
+    },
+    "riscv64": {
+      "entry": "sys_syncfs",
+      "id": "267"
+    },
+    "x86": {
+      "entry": "sys_syncfs",
+      "id": "344"
+    },
+    "x86_64": {
+      "entry": "sys_syncfs",
+      "id": "306"
+    }
+  },
+  "__NR_sysfs": {
+    "arm": {
+      "entry": "sys_sysfs",
+      "id": "135"
+    },
+    "x86": {
+      "entry": "sys_sysfs",
+      "id": "135"
+    },
+    "x86_64": {
+      "entry": "sys_sysfs",
+      "id": "139"
+    }
+  },
+  "__NR_sysinfo": {
+    "arm": {
+      "entry": "sys_sysinfo",
+      "id": "116"
+    },
+    "arm64": {
+      "entry": "sys_sysinfo",
+      "id": "179"
+    },
+    "riscv64": {
+      "entry": "sys_sysinfo",
+      "id": "179"
+    },
+    "x86": {
+      "entry": "sys_sysinfo",
+      "id": "116"
+    },
+    "x86_64": {
+      "entry": "sys_sysinfo",
+      "id": "99"
+    }
+  },
+  "__NR_syslog": {
+    "arm": {
+      "entry": "sys_syslog",
+      "id": "103"
+    },
+    "arm64": {
+      "entry": "sys_syslog",
+      "id": "116"
+    },
+    "riscv64": {
+      "entry": "sys_syslog",
+      "id": "116"
+    },
+    "x86": {
+      "entry": "sys_syslog",
+      "id": "103"
+    },
+    "x86_64": {
+      "entry": "sys_syslog",
+      "id": "103"
+    }
+  },
+  "__NR_tee": {
+    "arm": {
+      "entry": "sys_tee",
+      "id": "342"
+    },
+    "arm64": {
+      "entry": "sys_tee",
+      "id": "77"
+    },
+    "riscv64": {
+      "entry": "sys_tee",
+      "id": "77"
+    },
+    "x86": {
+      "entry": "sys_tee",
+      "id": "315"
+    },
+    "x86_64": {
+      "entry": "sys_tee",
+      "id": "276"
+    }
+  },
+  "__NR_tgkill": {
+    "arm": {
+      "entry": "sys_tgkill",
+      "id": "268"
+    },
+    "arm64": {
+      "entry": "sys_tgkill",
+      "id": "131"
+    },
+    "riscv64": {
+      "entry": "sys_tgkill",
+      "id": "131"
+    },
+    "x86": {
+      "entry": "sys_tgkill",
+      "id": "270"
+    },
+    "x86_64": {
+      "entry": "sys_tgkill",
+      "id": "234"
+    }
+  },
+  "__NR_time": {
+    "x86": {
+      "entry": "sys_time32",
+      "id": "13"
+    },
+    "x86_64": {
+      "entry": "sys_time",
+      "id": "201"
+    }
+  },
+  "__NR_timer_create": {
+    "arm": {
+      "entry": "sys_timer_create",
+      "id": "257"
+    },
+    "arm64": {
+      "entry": "sys_timer_create",
+      "id": "107"
+    },
+    "riscv64": {
+      "entry": "sys_timer_create",
+      "id": "107"
+    },
+    "x86": {
+      "entry": "sys_timer_create",
+      "id": "259"
+    },
+    "x86_64": {
+      "entry": "sys_timer_create",
+      "id": "222"
+    }
+  },
+  "__NR_timer_delete": {
+    "arm": {
+      "entry": "sys_timer_delete",
+      "id": "261"
+    },
+    "arm64": {
+      "entry": "sys_timer_delete",
+      "id": "111"
+    },
+    "riscv64": {
+      "entry": "sys_timer_delete",
+      "id": "111"
+    },
+    "x86": {
+      "entry": "sys_timer_delete",
+      "id": "263"
+    },
+    "x86_64": {
+      "entry": "sys_timer_delete",
+      "id": "226"
+    }
+  },
+  "__NR_timer_getoverrun": {
+    "arm": {
+      "entry": "sys_timer_getoverrun",
+      "id": "260"
+    },
+    "arm64": {
+      "entry": "sys_timer_getoverrun",
+      "id": "109"
+    },
+    "riscv64": {
+      "entry": "sys_timer_getoverrun",
+      "id": "109"
+    },
+    "x86": {
+      "entry": "sys_timer_getoverrun",
+      "id": "262"
+    },
+    "x86_64": {
+      "entry": "sys_timer_getoverrun",
+      "id": "225"
+    }
+  },
+  "__NR_timer_gettime": {
+    "arm": {
+      "entry": "sys_timer_gettime32",
+      "id": "259"
+    },
+    "arm64": {
+      "entry": "sys_timer_gettime",
+      "id": "108"
+    },
+    "riscv64": {
+      "entry": "sys_timer_gettime",
+      "id": "108"
+    },
+    "x86": {
+      "entry": "sys_timer_gettime32",
+      "id": "261"
+    },
+    "x86_64": {
+      "entry": "sys_timer_gettime",
+      "id": "224"
+    }
+  },
+  "__NR_timer_gettime64": {
+    "arm": {
+      "entry": "sys_timer_gettime",
+      "id": "408"
+    },
+    "x86": {
+      "entry": "sys_timer_gettime",
+      "id": "408"
+    }
+  },
+  "__NR_timer_settime": {
+    "arm": {
+      "entry": "sys_timer_settime32",
+      "id": "258"
+    },
+    "arm64": {
+      "entry": "sys_timer_settime",
+      "id": "110"
+    },
+    "riscv64": {
+      "entry": "sys_timer_settime",
+      "id": "110"
+    },
+    "x86": {
+      "entry": "sys_timer_settime32",
+      "id": "260"
+    },
+    "x86_64": {
+      "entry": "sys_timer_settime",
+      "id": "223"
+    }
+  },
+  "__NR_timer_settime64": {
+    "arm": {
+      "entry": "sys_timer_settime",
+      "id": "409"
+    },
+    "x86": {
+      "entry": "sys_timer_settime",
+      "id": "409"
+    }
+  },
+  "__NR_timerfd_create": {
+    "arm": {
+      "entry": "sys_timerfd_create",
+      "id": "350"
+    },
+    "arm64": {
+      "entry": "sys_timerfd_create",
+      "id": "85"
+    },
+    "riscv64": {
+      "entry": "sys_timerfd_create",
+      "id": "85"
+    },
+    "x86": {
+      "entry": "sys_timerfd_create",
+      "id": "322"
+    },
+    "x86_64": {
+      "entry": "sys_timerfd_create",
+      "id": "283"
+    }
+  },
+  "__NR_timerfd_gettime": {
+    "arm": {
+      "entry": "sys_timerfd_gettime32",
+      "id": "354"
+    },
+    "arm64": {
+      "entry": "sys_timerfd_gettime",
+      "id": "87"
+    },
+    "riscv64": {
+      "entry": "sys_timerfd_gettime",
+      "id": "87"
+    },
+    "x86": {
+      "entry": "sys_timerfd_gettime32",
+      "id": "326"
+    },
+    "x86_64": {
+      "entry": "sys_timerfd_gettime",
+      "id": "287"
+    }
+  },
+  "__NR_timerfd_gettime64": {
+    "arm": {
+      "entry": "sys_timerfd_gettime",
+      "id": "410"
+    },
+    "x86": {
+      "entry": "sys_timerfd_gettime",
+      "id": "410"
+    }
+  },
+  "__NR_timerfd_settime": {
+    "arm": {
+      "entry": "sys_timerfd_settime32",
+      "id": "353"
+    },
+    "arm64": {
+      "entry": "sys_timerfd_settime",
+      "id": "86"
+    },
+    "riscv64": {
+      "entry": "sys_timerfd_settime",
+      "id": "86"
+    },
+    "x86": {
+      "entry": "sys_timerfd_settime32",
+      "id": "325"
+    },
+    "x86_64": {
+      "entry": "sys_timerfd_settime",
+      "id": "286"
+    }
+  },
+  "__NR_timerfd_settime64": {
+    "arm": {
+      "entry": "sys_timerfd_settime",
+      "id": "411"
+    },
+    "x86": {
+      "entry": "sys_timerfd_settime",
+      "id": "411"
+    }
+  },
+  "__NR_times": {
+    "arm": {
+      "entry": "sys_times",
+      "id": "43"
+    },
+    "arm64": {
+      "entry": "sys_times",
+      "id": "153"
+    },
+    "riscv64": {
+      "entry": "sys_times",
+      "id": "153"
+    },
+    "x86": {
+      "entry": "sys_times",
+      "id": "43"
+    },
+    "x86_64": {
+      "entry": "sys_times",
+      "id": "100"
+    }
+  },
+  "__NR_tkill": {
+    "arm": {
+      "entry": "sys_tkill",
+      "id": "238"
+    },
+    "arm64": {
+      "entry": "sys_tkill",
+      "id": "130"
+    },
+    "riscv64": {
+      "entry": "sys_tkill",
+      "id": "130"
+    },
+    "x86": {
+      "entry": "sys_tkill",
+      "id": "238"
+    },
+    "x86_64": {
+      "entry": "sys_tkill",
+      "id": "200"
+    }
+  },
+  "__NR_truncate": {
+    "arm": {
+      "entry": "sys_truncate",
+      "id": "92"
+    },
+    "arm64": {
+      "entry": "sys_truncate",
+      "id": "45"
+    },
+    "riscv64": {
+      "entry": "sys_truncate",
+      "id": "45"
+    },
+    "x86": {
+      "entry": "sys_truncate",
+      "id": "92"
+    },
+    "x86_64": {
+      "entry": "sys_truncate",
+      "id": "76"
+    }
+  },
+  "__NR_truncate64": {
+    "arm": {
+      "entry": "sys_truncate64",
+      "id": "193"
+    },
+    "x86": {
+      "entry": "sys_ia32_truncate64",
+      "id": "193"
+    }
+  },
+  "__NR_tuxcall": {
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "184",
+      "params": []
+    }
+  },
+  "__NR_ugetrlimit": {
+    "arm": {
+      "entry": "sys_getrlimit",
+      "id": "191"
+    },
+    "x86": {
+      "entry": "sys_getrlimit",
+      "id": "191"
+    }
+  },
+  "__NR_ulimit": {
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "58",
+      "params": []
+    }
+  },
+  "__NR_umask": {
+    "arm": {
+      "entry": "sys_umask",
+      "id": "60"
+    },
+    "arm64": {
+      "entry": "sys_umask",
+      "id": "166"
+    },
+    "riscv64": {
+      "entry": "sys_umask",
+      "id": "166"
+    },
+    "x86": {
+      "entry": "sys_umask",
+      "id": "60"
+    },
+    "x86_64": {
+      "entry": "sys_umask",
+      "id": "95"
+    }
+  },
+  "__NR_umount": {
+    "x86": {
+      "entry": "sys_oldumount",
+      "id": "22"
+    }
+  },
+  "__NR_umount2": {
+    "arm": {
+      "entry": "sys_umount",
+      "id": "52"
+    },
+    "arm64": {
+      "entry": "sys_umount",
+      "id": "39"
+    },
+    "riscv64": {
+      "entry": "sys_umount",
+      "id": "39"
+    },
+    "x86": {
+      "entry": "sys_umount",
+      "id": "52"
+    },
+    "x86_64": {
+      "entry": "sys_umount",
+      "id": "166"
+    }
+  },
+  "__NR_uname": {
+    "arm": {
+      "entry": "sys_newuname",
+      "id": "122"
+    },
+    "arm64": {
+      "entry": "sys_newuname",
+      "id": "160"
+    },
+    "riscv64": {
+      "entry": "sys_newuname",
+      "id": "160"
+    },
+    "x86": {
+      "entry": "sys_newuname",
+      "id": "122"
+    },
+    "x86_64": {
+      "entry": "sys_newuname",
+      "id": "63"
+    }
+  },
+  "__NR_unlink": {
+    "arm": {
+      "entry": "sys_unlink",
+      "id": "10"
+    },
+    "x86": {
+      "entry": "sys_unlink",
+      "id": "10"
+    },
+    "x86_64": {
+      "entry": "sys_unlink",
+      "id": "87"
+    }
+  },
+  "__NR_unlinkat": {
+    "arm": {
+      "entry": "sys_unlinkat",
+      "id": "328"
+    },
+    "arm64": {
+      "entry": "sys_unlinkat",
+      "id": "35"
+    },
+    "riscv64": {
+      "entry": "sys_unlinkat",
+      "id": "35"
+    },
+    "x86": {
+      "entry": "sys_unlinkat",
+      "id": "301"
+    },
+    "x86_64": {
+      "entry": "sys_unlinkat",
+      "id": "263"
+    }
+  },
+  "__NR_unshare": {
+    "arm": {
+      "entry": "sys_unshare",
+      "id": "337"
+    },
+    "arm64": {
+      "entry": "sys_unshare",
+      "id": "97"
+    },
+    "riscv64": {
+      "entry": "sys_unshare",
+      "id": "97"
+    },
+    "x86": {
+      "entry": "sys_unshare",
+      "id": "310"
+    },
+    "x86_64": {
+      "entry": "sys_unshare",
+      "id": "272"
+    }
+  },
+  "__NR_uselib": {
+    "arm": {
+      "entry": "sys_uselib",
+      "id": "86"
+    },
+    "x86": {
+      "entry": "sys_uselib",
+      "id": "86"
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "134",
+      "params": []
+    }
+  },
+  "__NR_userfaultfd": {
+    "arm": {
+      "entry": "sys_userfaultfd",
+      "id": "388"
+    },
+    "arm64": {
+      "entry": "sys_userfaultfd",
+      "id": "282"
+    },
+    "riscv64": {
+      "entry": "sys_userfaultfd",
+      "id": "282"
+    },
+    "x86": {
+      "entry": "sys_userfaultfd",
+      "id": "374"
+    },
+    "x86_64": {
+      "entry": "sys_userfaultfd",
+      "id": "323"
+    }
+  },
+  "__NR_ustat": {
+    "arm": {
+      "entry": "sys_ustat",
+      "id": "62"
+    },
+    "x86": {
+      "entry": "sys_ustat",
+      "id": "62"
+    },
+    "x86_64": {
+      "entry": "sys_ustat",
+      "id": "136"
+    }
+  },
+  "__NR_utime": {
+    "x86": {
+      "entry": "sys_utime32",
+      "id": "30"
+    },
+    "x86_64": {
+      "entry": "sys_utime",
+      "id": "132"
+    }
+  },
+  "__NR_utimensat": {
+    "arm": {
+      "entry": "sys_utimensat_time32",
+      "id": "348"
+    },
+    "arm64": {
+      "entry": "sys_utimensat",
+      "id": "88"
+    },
+    "riscv64": {
+      "entry": "sys_utimensat",
+      "id": "88"
+    },
+    "x86": {
+      "entry": "sys_utimensat_time32",
+      "id": "320"
+    },
+    "x86_64": {
+      "entry": "sys_utimensat",
+      "id": "280"
+    }
+  },
+  "__NR_utimensat_time64": {
+    "arm": {
+      "entry": "sys_utimensat",
+      "id": "412"
+    },
+    "x86": {
+      "entry": "sys_utimensat",
+      "id": "412"
+    }
+  },
+  "__NR_utimes": {
+    "arm": {
+      "entry": "sys_utimes_time32",
+      "id": "269"
+    },
+    "x86": {
+      "entry": "sys_utimes_time32",
+      "id": "271"
+    },
+    "x86_64": {
+      "entry": "sys_utimes",
+      "id": "235"
+    }
+  },
+  "__NR_vfork": {
+    "arm": {
+      "entry": "sys_vfork",
+      "id": "190",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_vfork",
+      "id": "190",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_vfork",
+      "id": "58",
+      "params": []
+    }
+  },
+  "__NR_vhangup": {
+    "arm": {
+      "entry": "sys_vhangup",
+      "id": "111",
+      "params": []
+    },
+    "arm64": {
+      "entry": "sys_vhangup",
+      "id": "58",
+      "params": []
+    },
+    "riscv64": {
+      "entry": "sys_vhangup",
+      "id": "58",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_vhangup",
+      "id": "111",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_vhangup",
+      "id": "153",
+      "params": []
+    }
+  },
+  "__NR_vm86": {
+    "x86": {
+      "entry": "sys_vm86",
+      "id": "166"
+    }
+  },
+  "__NR_vm86old": {
+    "x86": {
+      "entry": "sys_vm86old",
+      "id": "113"
+    }
+  },
+  "__NR_vmsplice": {
+    "arm": {
+      "entry": "sys_vmsplice",
+      "id": "343"
+    },
+    "arm64": {
+      "entry": "sys_vmsplice",
+      "id": "75"
+    },
+    "riscv64": {
+      "entry": "sys_vmsplice",
+      "id": "75"
+    },
+    "x86": {
+      "entry": "sys_vmsplice",
+      "id": "316"
+    },
+    "x86_64": {
+      "entry": "sys_vmsplice",
+      "id": "278"
+    }
+  },
+  "__NR_vserver": {
+    "arm": {
+      "entry": "sys_ni_syscall",
+      "id": "313",
+      "params": []
+    },
+    "x86": {
+      "entry": "sys_ni_syscall",
+      "id": "273",
+      "params": []
+    },
+    "x86_64": {
+      "entry": "sys_ni_syscall",
+      "id": "236",
+      "params": []
+    }
+  },
+  "__NR_wait4": {
+    "arm": {
+      "entry": "sys_wait4",
+      "id": "114"
+    },
+    "arm64": {
+      "entry": "sys_wait4",
+      "id": "260"
+    },
+    "riscv64": {
+      "entry": "sys_wait4",
+      "id": "260"
+    },
+    "x86": {
+      "entry": "sys_wait4",
+      "id": "114"
+    },
+    "x86_64": {
+      "entry": "sys_wait4",
+      "id": "61"
+    }
+  },
+  "__NR_waitid": {
+    "arm": {
+      "entry": "sys_waitid",
+      "id": "280"
+    },
+    "arm64": {
+      "entry": "sys_waitid",
+      "id": "95"
+    },
+    "riscv64": {
+      "entry": "sys_waitid",
+      "id": "95"
+    },
+    "x86": {
+      "entry": "sys_waitid",
+      "id": "284"
+    },
+    "x86_64": {
+      "entry": "sys_waitid",
+      "id": "247"
+    }
+  },
+  "__NR_waitpid": {
+    "x86": {
+      "entry": "sys_waitpid",
+      "id": "7"
+    }
+  },
+  "__NR_write": {
+    "arm": {
+      "entry": "sys_write",
+      "id": "4"
+    },
+    "arm64": {
+      "entry": "sys_write",
+      "id": "64"
+    },
+    "riscv64": {
+      "entry": "sys_write",
+      "id": "64"
+    },
+    "x86": {
+      "entry": "sys_write",
+      "id": "4"
+    },
+    "x86_64": {
+      "entry": "sys_write",
+      "id": "1"
+    }
+  },
+  "__NR_writev": {
+    "arm": {
+      "entry": "sys_writev",
+      "id": "146"
+    },
+    "arm64": {
+      "entry": "sys_writev",
+      "id": "66"
+    },
+    "riscv64": {
+      "entry": "sys_writev",
+      "id": "66"
+    },
+    "x86": {
+      "entry": "sys_writev",
+      "id": "146"
+    },
+    "x86_64": {
+      "entry": "sys_writev",
+      "id": "20"
+    }
+  }
+}

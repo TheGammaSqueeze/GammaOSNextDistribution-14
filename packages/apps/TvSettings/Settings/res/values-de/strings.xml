@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_app_name" msgid="7931201304065140909">"Einstellungen"</string>
+    <string name="launcher_settings_app_name" msgid="1459269619779675736">"Einstellungen"</string>
+    <string name="launcher_network_app_name" msgid="8311763462169735002">"Netzwerk"</string>
+    <string name="launcher_restricted_profile_app_name" msgid="3324091425480935205">"Eingeschränktes Profil"</string>
+    <string name="general_action_yes" msgid="1303080504548165355">"Ja"</string>
+    <string name="general_action_no" msgid="674735073031386948">"Nein"</string>
+    <string name="action_on_title" msgid="1074972820237738324">"An"</string>
+    <string name="action_off_title" msgid="3598665702863436597">"Aus"</string>
+    <string name="action_on_description" msgid="9146557891514835767">"An"</string>
+    <string name="action_off_description" msgid="1368039592272701910">"Aus"</string>
+    <string name="agree" msgid="8155497436593889753">"Zustimmen"</string>
+    <string name="disagree" msgid="7402998517682194430">"Ablehnen"</string>
+    <string name="enabled" msgid="5127188665060746381">"Aktiviert"</string>
+    <string name="disabled" msgid="4589065923272201387">"Deaktiviert"</string>
+    <string name="unavailable" msgid="1610732303812180196">"Nicht verfügbar"</string>
+    <string name="allow" msgid="6982558814345894019">"Zulassen"</string>
+    <string name="deny" msgid="8291577308813053917">"Ablehnen"</string>
+    <string name="header_category_suggestions" msgid="106077820663753645">"Vorschläge"</string>
+    <string name="header_category_quick_settings" msgid="3785334008768367890">"Schnelleinstellungen"</string>
+    <string name="header_category_general_settings" msgid="3897615781153506434">"Allgemeine Einstellungen"</string>
+    <string name="dismiss_suggestion" msgid="6200814545590126814">"Vorschlag ablehnen"</string>
+    <string name="hotwording_title" msgid="2606899304616599026">"\"Ok Google\"-Erkennung"</string>
+    <string name="hotwording_summary" msgid="2170375928302175449">"Jederzeit mit Google Assistant sprechen"</string>
+    <string name="header_category_device" msgid="3023893663454705969">"Gerät"</string>
+    <string name="header_category_preferences" msgid="3738388885555798797">"Einstellungen"</string>
+    <string name="header_category_accessories" msgid="6479803330480847199">"Fernbedienung &amp; Zubehör"</string>
+    <string name="header_category_personal" msgid="7880053929985150368">"Nutzer"</string>
+    <string name="connect_to_network" msgid="4133686359319492392">"Mit Netzwerk verbinden"</string>
+    <string name="add_an_account" msgid="2601275122685226096">"Konto hinzufügen"</string>
+    <string name="accounts_category_title" msgid="7286858931427579845">"Konten &amp; Anmeldung"</string>
+    <string name="accounts_category_summary_no_account" msgid="3053606166993074648">"Keine Konten"</string>
+    <string name="accounts_category_summary" msgid="7617932110389860822">"{count,plural, =1{# Konto}other{# Konten}}"</string>
+    <string name="accounts_slice_summary" msgid="1571012157154521119">"Mediendienste, Assistant, Zahlungen"</string>
+    <string name="connectivity_network_category_title" msgid="8226264889892008114">"Netzwerk &amp; Internet"</string>
+    <string name="sound_category_title" msgid="7899816751041939518">"Ton"</string>
+    <string name="applications_category_title" msgid="7112019490898586223">"Apps"</string>
+    <string name="device_pref_category_title" msgid="8292572846154873762">"Geräteeinstellungen"</string>
+    <string name="accessibility_category_title" msgid="1552664829936369592">"Bedienungshilfen"</string>
+    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">"Fernbedienungen &amp; Zubehör"</string>
+    <string name="display_and_sound_category_title" msgid="9203309625380755860">"Display &amp; Ton"</string>
+    <string name="help_and_feedback_category_title" msgid="7036505833991003031">"Hilfe und Feedback"</string>
+    <string name="privacy_category_title" msgid="8552430590908463601">"Datenschutz"</string>
+    <string name="privacy_device_settings_category" msgid="5018334603278648524">"Geräteeinstellungen"</string>
+    <string name="privacy_account_settings_category" msgid="5786591549945777400">"Kontoeinstellungen"</string>
+    <string name="privacy_assistant_settings_title" msgid="4524957824712623680">"Google Assistant"</string>
+    <string name="privacy_purchases_settings_title" msgid="6490965297061569673">"Zahlung &amp; Käufe"</string>
+    <string name="privacy_app_settings_category" msgid="858250971978879266">"App-Einstellungen"</string>
+    <string name="privacy_category_summary" msgid="3534434883380511043">"Standort, Nutzung &amp; Diagnose, Werbung"</string>
+    <string name="add_account" msgid="7386223854837017129">"Konto hinzufügen"</string>
+    <string name="unknown_account" msgid="5159580666787047518">"Unbekanntes Konto"</string>
+    <string name="account_header_remove_account" msgid="8573697553061331373">"Konto entfernen"</string>
+    <string name="account_sync" msgid="4315295293211313989">"Synchronisierte Apps auswählen"</string>
+    <string name="sync_now" msgid="4335217984374620551">"Jetzt synchronisieren"</string>
+    <string name="sync_in_progress" msgid="8081367667406185785">"Synchronisierung läuft…"</string>
+    <string name="last_synced" msgid="8371967816955123864">"Zuletzt synchronisiert: <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="sync_disabled" msgid="6652778349371079140">"Deaktiviert"</string>
+    <string name="account_remove" msgid="8456848988853890155">"Konto entfernen"</string>
+    <string name="account_remove_failed" msgid="5654411101098531690">"Konto konnte nicht entfernt werden."</string>
+    <!-- no translation found for sync_item_title (5884138264243772176) -->
+    <skip />
+    <string name="sync_one_time_sync" msgid="1665961083810584134">"Jetzt synchronisieren <xliff:g id="LAST_SYNC_TIME">
+%1$s</xliff:g>"</string>
+    <string name="sync_failed" msgid="2998289556481804047">"Fehler bei der Synchronisierung"</string>
+    <string name="sync_active" msgid="1621239982176888680">"Synchronisierung aktiv"</string>
+    <string name="connectivity_wifi" msgid="1138689464484009184">"WLAN"</string>
+    <string name="connectivity_ethernet" msgid="4270588618633681766">"Ethernet"</string>
+    <string name="connectivity_summary_ethernet_connected" msgid="2612843587731520061">"Ethernet verbunden"</string>
+    <string name="connectivity_summary_no_network_connected" msgid="6111160695454212460">"Kein Netzwerk verbunden"</string>
+    <string name="connectivity_summary_wifi_disabled" msgid="7819225159680467324">"WLAN ist deaktiviert"</string>
+    <string name="wifi_setting_always_scan" msgid="431846292711998602">"Erkennungsfunktion immer verfügbar"</string>
+    <string name="wifi_setting_always_scan_context" msgid="1092998659666221222">"Der Standortdienst von Google und andere Apps sollen auch bei deaktiviertem WLAN nach Netzwerken suchen"</string>
+    <string name="wifi_setting_always_scan_content_description" msgid="484630053450137332">"Erkennungsfunktion immer verfügbar – Der Standortdienst von Google und andere Apps sollen auch bei deaktiviertem WLAN nach Netzwerken suchen"</string>
+    <string name="wifi_setting_enable_wifi" msgid="5276730445393952969">"WLAN"</string>
+    <string name="connectivity_hint_message" msgid="5638304246522516583">"Mit Netzwerk verbinden"</string>
+    <string name="connectivity_network_diagnostics" msgid="4396132865849151854">"Netzwerkdiagnose"</string>
+    <string name="apps_recently_used_category_title" msgid="7877660412428813933">"Kürzlich geöffnete Apps"</string>
+    <string name="apps_see_all_apps" msgid="2002886135933443688">"Alle Apps ansehen"</string>
+    <string name="apps_permissions_category_title" msgid="8099660060701465267">"Berechtigungen"</string>
+    <string name="overlay_security_slice_title" msgid="4895032817538300187"></string>
+    <string name="update_slice_title" msgid="6553763903108611747"></string>
+    <string name="all_apps_title" msgid="3717294436135280133">"Alle Apps"</string>
+    <string name="all_apps_show_system_apps" msgid="1260688031005374302">"System-Apps anzeigen"</string>
+    <string name="all_apps_installed" msgid="8217778476185598971">"Installierte Apps"</string>
+    <string name="all_apps_other" msgid="4420174882983813158">"System-Apps"</string>
+    <string name="all_apps_disabled" msgid="2776041242863791053">"Deaktivierte Apps"</string>
+    <string name="device_daydream" msgid="2631191946958113220">"Bildschirmschoner"</string>
+    <string name="device_display" msgid="244634591698925025">"Display"</string>
+    <string name="device_display_sound" msgid="7399153506435649193">"Display &amp; Ton"</string>
+    <string name="device_sound" msgid="8616320533559404963">"Ton"</string>
+    <string name="device_surround_sound" msgid="1889436002598316470">"Surround-Sound"</string>
+    <string name="device_sound_effects" msgid="2000295001122684957">"Systemtöne"</string>
+    <string name="device_apps" msgid="2134756632245008919">"Anwendungen"</string>
+    <string name="device_storage" msgid="8540243547121791073">"Speicher"</string>
+    <string name="device_reset" msgid="6115282675800077867">"Auf Werkseinstellungen zurücksetzen"</string>
+    <string name="device_backup_restore" msgid="3634531946308269398">"Sicherung &amp; Wiederherstellung"</string>
+    <string name="device_factory_reset" msgid="1110189450013225971">"Zurücksetzen auf Werkseinstellungen"</string>
+    <string name="device_calibration" msgid="2907914144048739705">"Kalibrierung"</string>
+    <string name="device_energy_saver" msgid="6611757996220443028">"Timer zum Ausschalten"</string>
+    <string name="device_energy_saver_summary" msgid="5306058475316008429">"Timer einrichten, um den Fernseher auszuschalten und Energie zu sparen"</string>
+    <string name="overlay_internal_slice_title" msgid="6427352417573831625"></string>
+    <string name="device_fastpair" msgid="1235240814051277047">"Geräte"</string>
+    <string name="surround_sound_select_formats" msgid="6070283650131226239">"Formate auswählen"</string>
+    <string name="surround_sound_category_title" msgid="5688539514178173911">"Surround-Sound"</string>
+    <string name="surround_sound_format_ac3" msgid="4759143098751306492">"Dolby Digital"</string>
+    <string name="surround_sound_format_e_ac3" msgid="6923129088903887242">"Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dts" msgid="8331816247117135587">"DTS"</string>
+    <string name="surround_sound_format_dts_hd" msgid="4268947520371740146">"DTS-HD"</string>
+    <string name="surround_sound_format_dts_uhd" msgid="4340749818133578788">"DTS:X"</string>
+    <string name="surround_sound_format_dolby_mat" msgid="3029804841912462928">"Dolby Atmos mit Dolby TrueHD"</string>
+    <string name="surround_sound_format_dolby_truehd" msgid="5113046743572967088">"Dolby TrueHD"</string>
+    <string name="surround_sound_format_e_ac3_joc" msgid="3360344066462262996">"Dolby Atmos mit Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dra" msgid="6102878163986662443">"DRA"</string>
+    <string name="surround_sound_auto_info" msgid="4829346839183591680">"„Automatisch“ funktioniert ggf. nicht, wenn das Gerät die unterstützten Formate nicht korrekt meldet."</string>
+    <string name="surround_sound_auto_title" msgid="4892922385727913277">"Automatisch: Nur Formate aktivieren, die von deinem Audio-Ausgabegerät unterstützt werden "</string>
+    <string name="surround_sound_auto_summary" msgid="7073023654150720285">"Bei dieser Option können Apps jedes Tonformat wählen, das von deiner Gerätekette unterstützt wird. Möglicherweise wählen Apps ein Format, das nicht der höchsten Qualität entspricht."</string>
+    <string name="surround_sound_none_title" msgid="1600095173519889326">"Keinen Surround-Sound verwenden"</string>
+    <string name="surround_sound_manual_title" msgid="4935447605070985537">"Manuell: Jedes Format, das von diesem Gerät unterstützt wird, selektiv aktivieren oder deaktivieren, unabhängig davon, ob es von deinem Audio-Ausgabegerät unterstützt wird."</string>
+    <string name="surround_sound_manual_summary" msgid="5155535847461070572">"Du kannst von deiner Gerätekette unterstützte Tonformate, die Probleme bei der Wiedergabe verursachen, manuell deaktivieren. Es können auch Tonformate aktiviert werden, die nicht von deiner Gerätekette unterstützt werden. Manchmal wählen Apps ein Format, das nicht der höchsten Qualität entspricht."</string>
+    <string name="surround_sound_enable_unsupported_dialog_title" msgid="9155579373370356463">"Nicht unterstütztes Tonformat aktivieren?"</string>
+    <string name="surround_sound_enable_unsupported_dialog_desc" msgid="1901648758103522741">"Verbundenes Audiogerät meldet nicht, dass es das Format unterstützt. Das kann zu unerwartetem Verhalten (laute Geräusche/Knacken des Geräts) führen."</string>
+    <string name="surround_sound_enable_unsupported_dialog_cancel" msgid="3499147437078761105">"Abbrechen"</string>
+    <string name="surround_sound_enable_unsupported_dialog_ok" msgid="7466983147896640444">"Trotzdem ändern"</string>
+    <string name="surround_sound_supported_title" msgid="4873195851187547020">"UNTERSTÜTZTE FORMATE"</string>
+    <string name="surround_sound_unsupported_title" msgid="2302820271700954900">"NICHT UNTERSTÜTZTE FORMATE"</string>
+    <string name="surround_sound_format_info" msgid="5671866505653542934">"FORMATINFORMATIONEN"</string>
+    <string name="surround_sound_show_formats" msgid="1929849219042916469">"Formate anzeigen"</string>
+    <string name="surround_sound_hide_formats" msgid="7770931097236868238">"Formate ausblenden"</string>
+    <string name="surround_sound_enabled_formats" msgid="5159269040069877148">"AKTIVIERTE FORMATE"</string>
+    <string name="surround_sound_disabled_formats" msgid="2250466936859455802">"DEAKTIVIERTE FORMATE"</string>
+    <string name="surround_sound_disabled_format_info_clicked" msgid="463393349034930031">"Ändere zum Aktivieren die Formatauswahl in „Manuell“."</string>
+    <string name="surround_sound_enabled_format_info_clicked" msgid="4003154853054756792">"Zum Deaktivieren muss der Formatauswahlmodus „Manuell“ aktiviert sein."</string>
+    <string name="display_category_title" msgid="247804007525046312">"Display"</string>
+    <string name="advanced_display_settings_title" msgid="6293280819870140631">"Erweiterte Displayeinstellungen"</string>
+    <string name="hdmi_cec_settings_title" msgid="7120729705063868627">"HDMI-CEC"</string>
+    <string name="advanced_sound_settings_title" msgid="319921303039469139">"Erweiterte Toneinstellungen"</string>
+    <string name="game_mode_title" msgid="7280816243531315755">"Spielmodus zulassen"</string>
+    <string name="match_content_dynamic_range_title" msgid="2794980556561655838">"Inhalte an dynamischen Bereich anpassen"</string>
+    <string name="match_content_dynamic_range_summary" msgid="2255683926227355398">"Wenn du diese Option aktivierst, passt das System das Format des dynamischen Bereichs an die wiedergegebenen Inhalte an. Beim Wechsel des Formats kann der Bildschirm kurz schwarz werden.\n\nKlicke auf „Erweiterte Displayeinstellungen“, um weitere Optionen zum dynamischen Bereich zu sehen."</string>
+    <string name="preferred_dynamic_range_title" msgid="5064883672337010588">"Bevorzugter dynamischer Bereich"</string>
+    <string name="preferred_dynamic_range_selection_system_title" msgid="4505030483876080996">"Vom System bevorzugte Umwandlung"</string>
+    <string name="preferred_dynamic_range_selection_system_desc" msgid="5712920601553613576">"Die Umwandlung von Formaten wird vom System verwaltet"</string>
+    <string name="preferred_dynamic_range_selection_system_summary" msgid="4509062596428781094">"Wenn diese Option ausgewählt wird, ermittelt das System einen geeigneten dynamischen Bereich, der an dein Display gesendet wird, und wandelt Inhalte nach Bedarf in diesen dynamischen Bereich um."</string>
+    <string name="preferred_dynamic_range_selection_passthrough_desc" msgid="4831260397179583737">"Das Format des Inhalts wird nicht verändert"</string>
+    <string name="preferred_dynamic_range_selection_force_title" msgid="4448836594133973103">"Umwandlung erzwingen"</string>
+    <string name="preferred_dynamic_range_selection_force_desc" msgid="1418542349290684513">"Erzwingt die Umwandlung in ein bevorzugtes Format"</string>
+    <string name="preferred_dynamic_range_selection_force_summary" msgid="8381058061765216239">"Umwandlung in ein bevorzugtes Format erzwingen. Das Erzwingen einer Umwandlung beeinträchtigt möglicherweise andere Einstellungen im Anzeigemodus oder HDR-Format."</string>
+    <string name="preferred_dynamic_range_selection_force_sdr_title" msgid="3135104063034317252">"Immer in SDR"</string>
+    <string name="preferred_dynamic_range_selection_force_hdr_title" msgid="1032587815433139859">"Immer in <xliff:g id="HDR_TYPE">%s</xliff:g>"</string>
+    <string name="preferred_dynamic_range_force_dialog_title" msgid="6865110024863661702">"Möchtest du die HDR-Ausgabe erzwingen?"</string>
+    <string name="preferred_dynamic_range_force_dialog_desc" msgid="7758323258282201656">"Standardmäßig wird für die Umwandlung <xliff:g id="HDR_TYPE">%s</xliff:g> erzwungen."</string>
+    <string name="preferred_dynamic_range_force_dialog_desc_4k30_issue" msgid="4938418395391206131">"Inhalte werden auf deiner Anzeige mit einer Auflösung von 1080p und einer Bildwiederholrate von 60 Hz wiedergegeben. Diese Option ist nicht mit deiner Anzeige kompatibel, wenn Inhalte mit einer Auflösung von 4K und einer Bildwiederholrate von 60 Hz wiedergegeben werden."</string>
+    <string name="selection_dolby_vision_not_supported_sidebar" msgid="8994591316574824115">"Dolby Vision wird für die aktuelle Auflösung nicht unterstützt. Wenn du Dolby Vision manuell aktivierst, wird die Auflösung deines Bildschirms in 1080p/60Hz geändert"</string>
+    <string name="manual_dolby_vision_format_on_4k60_title" msgid="4172263676512376500">"Auflösung in 1080p/60Hz ändern?"</string>
+    <string name="dynamic_range_selection_force_dv_title" msgid="8070148109262327094">"Umwandlung in Dolby Vision immer erzwingen"</string>
+    <string name="dynamic_range_selection_force_dv_summary" msgid="1052851029985095562">"Wenn Dolby Vision in „Erweiterte Displayeinstellungen“ bei den HDR-Formaten deaktiviert ist, wird diese Technologie bei Erzwingen der Umwandlung in Dolby Vision wieder aktiviert."</string>
+    <string name="dynamic_range_selection_force_hdr10_title" msgid="1221688206945051384">"Umwandlung in HDR10 immer erzwingen"</string>
+    <string name="dynamic_range_selection_force_hdr10_summary" msgid="7784573527636502784">"Wenn HDR10 in „Erweiterte Displayeinstellungen“ bei den HDR-Formaten deaktiviert ist, wird diese Technologie bei Erzwingen der Umwandlung in HDR10 wieder aktiviert."</string>
+    <string name="dynamic_range_selection_force_hlg_title" msgid="3976190987768712696">"Umwandlung in HLG immer erzwingen"</string>
+    <string name="dynamic_range_selection_force_hlg_summary" msgid="5371949016689544001">"Wenn HLG in „Erweiterte Displayeinstellungen“ bei den HDR-Formaten deaktiviert ist, wird diese Technologie bei Erzwingen der Umwandlung in HLG wieder aktiviert."</string>
+    <string name="dynamic_range_selection_force_hdr10plus_title" msgid="1305556000063625735">"Umwandlung in HDR10+ immer erzwingen"</string>
+    <string name="dynamic_range_selection_force_hdr10plus_summary" msgid="918038386222537401">"Wenn HDR10+ in „Erweiterte Displayeinstellungen“ bei den HDR-Formaten deaktiviert ist, wird diese Technologie bei Erzwingen der Umwandlung in HDR10+ wieder aktiviert."</string>
+    <string name="dynamic_range_selection_force_sdr_title" msgid="1063579223517652945">"Umwandlung in SDR immer erzwingen"</string>
+    <string name="dynamic_range_selection_force_sdr_summary" msgid="2874771365465898941">"Durch das Erzwingen von SDR in „Erweiterte Displayeinstellungen“ bei den HDR-Formaten werden alle Formate deaktiviert."</string>
+    <string name="match_content_frame_rate_title" msgid="153291168560947689">"An Framerate des Inhalts anpassen"</string>
+    <string name="match_content_frame_rate_seamless" msgid="5577846750811067585">"Nur nahtlos"</string>
+    <string name="match_content_frame_rate_seamless_summary" msgid="2737466163964133210">"Wenn die App es anfordert, wird die Ausgabe deines Geräts an die Original-Framerate des aktuellen Inhalts angepasst. Das gilt allerdings NUR, wenn dein Fernseher einen nahtlosen Wechsel unterstützt."</string>
+    <string name="match_content_frame_rate_seamless_not_supported_summary" msgid="98559950465123792">"Der verbundene Bildschirm unterstützt keine nahtlose Umstellung der Aktualisierungsrate. Diese Option greift erst, wenn du einen Bildschirm verwendest, der sie unterstützt."</string>
+    <string name="match_content_frame_rate_non_seamless" msgid="2702658727234710031">"Immer"</string>
+    <string name="match_content_frame_rate_non_seamless_summary" msgid="6831699459487130055">"Wenn die App es anfordert, wird die Ausgabe deines Geräts an die Original-Framerate des aktuellen Inhalts angepasst. Das kann dazu führen, dass der Bildschirm beim Beenden oder Starten einer Videowiedergabe vorübergehend schwarz wird."</string>
+    <string name="match_content_frame_rate_never" msgid="1678354793095148423">"Nie"</string>
+    <string name="match_content_frame_rate_never_summary" msgid="742977618080396095">"Selbst wenn die App es anfordert, wird die Ausgabe deines Geräts nie an die Original-Framerate des aktuellen Inhalts angepasst."</string>
+    <string name="font_scale_settings_title" msgid="4114019544800225980">"Textskalierung"</string>
+    <string name="font_scale_item_detail" msgid="1558315053348778805">"Auf <xliff:g id="SCALE">%1$d</xliff:g> %% skalieren"</string>
+    <string name="font_scale_sample_text_title" msgid="5239266611413037261">"Beispieltext"</string>
+    <string name="font_scale_preview_text_title" msgid="8056182208511371119">"Der Zauberer von Oz"</string>
+    <string name="font_scale_preview_text_subtitle" msgid="677394182922188048">"Kapitel 11: Die wundervolle Smaragdstadt von Oz"</string>
+    <string name="font_scale_preview_text_body" msgid="7890679265084738383">"Obwohl ihre Augen durch die grünen Gläser der Brillen geschützt waren, wurden Dorothy und ihren Freunden vom Glanz und vom Schimmer der wundervollen Stadt beinahe schwindelig. Prächtige Häuser aus grünem Marmor, die mit Smaragden besetzt waren, säumten die Straßen. Auch das Straßenpflaster bestand aus feinstem grünem Marmor und die Fugen waren mit glitzernden Smaragden bestückt. Sie funkelten und leuchteten in der Sonne. Die Fensterscheiben der Häuser bestanden aus grünem Glas, der Himmel über der Stadt schimmerte hellgrün, und sogar die Strahlen der Sonne wirkten leicht grünlich.\n\nIn der Stadt gab es viel Leben. Männer, Frauen und Kinder liefen geschäftig durch die Straßen. Alle waren grün gekleidet und trugen eine grüne Brille. Ihre Haut schien leicht grün zu sein und sie sahen Dorothy und ihre Freunde mit großen verwunderten Augen an. Als die Kinder den Löwen sahen, rannten sie davon, um sich hinter ihren Müttern zu verstecken. Niemand richtete das Wort an die Wanderer. Es gab auch viele Geschäfte in der Smaragdstadt und sogar die Auslagen der Läden waren grün. Da gab es grüne Bonbons, grünes Popcorn, grüne Schuhe, grüne Hüte und viele grüne Kleider. Ein Mann verkaufte grüne Limonade und Dorothy sah die Kinder mit grünem Geld dafür bezahlen.\n\nPferde oder andere Tiere konnte Dorothy nirgendwo entdecken. Dafür begegneten ihnen immer wieder Männer, die auf ihren kleinen grünen Karren Lasten durch die Stadt schoben. Alle schienen glücklich und zufrieden zu sein."</string>
+    <string name="hdr_format_selection_title" msgid="4042679694363850581">"Formatauswahl"</string>
+    <string name="hdr_format_selection_auto_title" msgid="2370148695440344232">"Automatisch"</string>
+    <string name="hdr_format_selection_manual_title" msgid="2077604650196987438">"Manuell"</string>
+    <string name="hdr_format_selection_auto_desc" msgid="1542210944552409996">"Vom Gerät gemeldete Formate verwenden"</string>
+    <string name="hdr_format_selection_manual_desc" msgid="8865649615882146772">"Manuell aus den verfügbaren Formaten auswählen"</string>
+    <string name="hdr_format_supported_title" msgid="1458594819224612431">"UNTERSTÜTZTE FORMATE"</string>
+    <string name="hdr_format_unsupported_title" msgid="715318408107924941">"NICHT UNTERSTÜTZTE FORMATE"</string>
+    <string name="hdr_format_sdr" msgid="7211377112392255102">"SDR"</string>
+    <string name="hdr_format_hdr10" msgid="8063543267227491062">"HDR10"</string>
+    <string name="hdr_format_hlg" msgid="454510079939620321">"HLG"</string>
+    <string name="hdr_format_hdr10plus" msgid="4371652089162162876">"HDR10+"</string>
+    <string name="hdr_format_dolby_vision" msgid="7367264615042999587">"Dolby Vision"</string>
+    <string name="hdr_format_selection_auto_summary" msgid="7384637194191436727">"Bei dieser Option können Apps jedes HDR-Format wählen, das von deiner Gerätekette unterstützt wird. Möglicherweise wählen Apps ein Format, das nicht der höchsten Qualität entspricht."</string>
+    <string name="hdr_format_selection_manual_summary" msgid="7886959642083639353">"Du kannst von deiner Gerätekette unterstützte HDR-Formate, die Probleme bei der Wiedergabe verursachen, manuell deaktivieren. Das Aktivieren von nicht unterstützten HDR-Formaten kann nicht erzwungen werden. Möglicherweise wählen Apps ein Format, das nicht der höchsten Qualität entspricht."</string>
+    <string name="hdr_format_info" msgid="5652559220799426076">"FORMATINFORMATIONEN"</string>
+    <string name="hdr_show_formats" msgid="171065892975445851">"Formate anzeigen"</string>
+    <string name="hdr_hide_formats" msgid="8561568998525727230">"Formate ausblenden"</string>
+    <string name="hdr_enabled_formats" msgid="8527870623949982774">"AKTIVIERTE FORMATE"</string>
+    <string name="hdr_disabled_formats" msgid="4758522849421497896">"DEAKTIVIERTE FORMATE"</string>
+    <string name="hdr_enabled_format_info_clicked" msgid="1466675962665861040">"Zum Deaktivieren muss der Formatauswahlmodus „Manuell“ aktiviert sein."</string>
+    <string name="resolution_selection_title" msgid="2873993320284587853">"Auflösung"</string>
+    <string name="resolution_selection_auto_title" msgid="4738671207331027385">"Automatisch"</string>
+    <string name="resolution_selection_dialog_title" msgid="4029798035133645272">"Auflösung wurde geändert"</string>
+    <string name="resolution_selection_with_mode_dialog_title" msgid="5011192408613100514">"Auflösung in %1$s ändern?"</string>
+    <string name="resolution_selection_dialog_desc" msgid="3667357611495669701">"Wähle „OK“ aus, um die neue Auflösung %1$s von jetzt an zu verwenden"</string>
+    <string name="resolution_selection_disabled_dolby_vision_dialog_desc" msgid="7952404018654828187">"Dolby Vision wird für %1$s nicht unterstützt und in den erweiterten Displayeinstellungen deaktiviert."</string>
+    <string name="resolution_hdr_description_info" msgid="2408761621976850238">"Dieser Modus unterstützt: %1$s\nUm weitere HDR-Formate nutzen zu können, musst du auf einigen Fernsehern möglicherweise erweitertes HDMI aktivieren. Sieh in den Einstellungen deines Fernsehers nach, ob dies unterstützt wird."</string>
+    <string name="resolution_selection_dialog_cancel" msgid="3683616572317946129">"Abbrechen"</string>
+    <string name="resolution_selection_dialog_ok" msgid="3123351228545013492">"OK"</string>
+    <string name="resolution_selection_hz" msgid="4425902505388495637">"Hz"</string>
+    <string name="resolution_display_mode" msgid="6633857172598855480">"<xliff:g id="RESOLUTION">%1$s</xliff:g> (<xliff:g id="REFRESH_RATE">%2$s</xliff:g> Hz)"</string>
+    <string name="device_storage_clear_cache_title" msgid="14370154552302965">"Daten im Cache löschen?"</string>
+    <string name="device_storage_clear_cache_message" msgid="4352802738505831032">"Daten im Cache werden für alle Apps gelöscht."</string>
+    <string name="default_audio_output_settings_title" msgid="5441937324539531999"></string>
+    <string name="accessories_add" msgid="413764175035531452">"Zubehör hinzufügen"</string>
+    <string name="accessory_state_pairing" msgid="15908899628218319">"Kopplung…"</string>
+    <string name="accessory_state_connecting" msgid="6560241025917621212">"Verbinden…"</string>
+    <string name="accessory_state_error" msgid="8353621828816824428">"Koppeln nicht möglich"</string>
+    <string name="accessory_state_canceled" msgid="4794837663402063770">"Abgebrochen"</string>
+    <string name="accessory_state_paired" msgid="3296695242499532000">"Kopplung abgeschlossen"</string>
+    <string name="accessory_options" msgid="774592782382321681">"Zubehör"</string>
+    <string name="accessory_unpair" msgid="2473411128146068804">"Entkoppeln"</string>
+    <string name="accessory_battery" msgid="2283700366184703548">"Akku: <xliff:g id="PERCENTAGE">%1$d</xliff:g> %%"</string>
+    <string name="accessory_unpairing" msgid="2529195578082286563">"Gerät wird entkoppelt..."</string>
+    <string name="accessory_connected" msgid="5229574480869175180">"Verbunden"</string>
+    <string name="accessory_change_name" msgid="6493717176878500683">"Namen ändern"</string>
+    <string name="accessory_change_name_title" msgid="451188562035392238">"Neuen Namen eingeben"</string>
+    <string name="accessories_add_accessibility_title" msgid="1300294413423909579">"Bluetooth-Kopplung."</string>
+    <string name="accessories_add_title" msgid="7704824893011194433">"Suche nach Zubehör…"</string>
+    <string name="accessories_add_bluetooth_inst" msgid="2508151218328384366">"Deine Bluetooth-Geräte müssen sich im Kopplungsmodus befinden, damit du die Kopplung durchführen kannst."</string>
+    <string name="accessories_autopair_msg" msgid="2501824457418285019">"Ein Gerät wurde gefunden. Die Kopplung wird in <xliff:g id="COUNTDOWN">%1$s</xliff:g> Sekunden automatisch durchgeführt."</string>
+    <string name="error_action_not_supported" msgid="5377532621386080296">"Diese Aktion wird nicht unterstützt."</string>
+    <string name="bluetooth_pairing_request" msgid="6120176967230348092">"Bluetooth-Kopplungsanfrage"</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7397401633869153520">"Zur Kopplung muss &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt; den Schlüssel &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt; anzeigen."</string>
+    <string name="bluetooth_incoming_pairing_msg" msgid="8587851808387685613">"Von: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Mit diesem Gerät koppeln?"</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="6934651048757228432">"Zum Koppeln mit: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Tippe Folgendes ein: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;. Drücke anschließend die Eingabetaste."</string>
+    <string name="bluetooth_enter_pin_msg" msgid="8905524093007140634">"Zum Koppeln mit: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt; &lt;br&gt;Gib die PIN des Geräts ein:"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="889584097447402492">"Zum Koppeln mit: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt; &lt;br&gt;Gib den erforderlichen Schlüssel des Geräts ein:"</string>
+    <string name="bluetooth_pin_values_hint" msgid="6237371515577342950">"In der Regel 0000 oder 1234"</string>
+    <string name="bluetooth_pair" msgid="2410285813728786067">"Koppeln"</string>
+    <string name="bluetooth_cancel" msgid="4415185529332987034">"Abbrechen"</string>
+    <string name="bluetooth_device_connected_toast" msgid="1896195197089204806">"%1$s verbunden"</string>
+    <string name="bluetooth_device_disconnected_toast" msgid="7459239447363156499">"Verbindung mit %1$s getrennt"</string>
+    <string name="connected_devices_slice_pref_title" msgid="6761921505544005991">"Fernbedienungen &amp; Zubehör"</string>
+    <string name="bluetooth_toggle_title" msgid="3808904783456336104">"Bluetooth"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_title" msgid="3906746631391295717">"Bluetooth deaktivieren"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_summary" msgid="9017044450625172698">"Solange Bluetooth ausgeschaltet ist, kannst du nicht über die Fernbedienung auf Google Assistant zugreifen."</string>
+    <string name="bluetooth_pair_accessory" msgid="5508750142754420984">"Zubehör koppeln"</string>
+    <string name="bluetooth_known_devices_category" msgid="6895470515631452961">"Zubehör"</string>
+    <string name="bluetooth_official_remote_category" msgid="5817814488268307170">"Fernbedienung"</string>
+    <string name="bluetooth_official_remote_entry_title" msgid="6699700335229570038">"Einstellungen für die Fernbedienung"</string>
+    <string name="bluetooth_ir_entry_title" msgid="6927284710576530479">"Tasten der Fernbedienung einrichten"</string>
+    <string name="bluetooth_ir_entry_subtitle" msgid="4606207128353416151">"Lautstärke, Ein/Aus und Eingang auf Fernsehern, Receivern und Soundbars steuern"</string>
+    <string name="bluetooth_connect_action_title" msgid="7715342395313781643">"Kontakt"</string>
+    <string name="bluetooth_connect_confirm" msgid="4769958536295137386">"Mit %1$s verbinden"</string>
+    <string name="bluetooth_disconnect_action_title" msgid="1135513009197728480">"Verbindung trennen"</string>
+    <string name="bluetooth_disconnect_confirm" msgid="1445977623973613581">"Verbindung mit %1$s trennen"</string>
+    <string name="bluetooth_rename_action_title" msgid="4200419902722729907">"Umbenennen"</string>
+    <string name="bluetooth_rename" msgid="7791922876280337194">"Verbundenes Gerät umbenennen"</string>
+    <string name="bluetooth_forget_action_title" msgid="2351140076684719196">"Entfernen"</string>
+    <string name="bluetooth_forget_confirm" msgid="5175414848391021666">"%1$s entfernen"</string>
+    <string name="bluetooth_serial_number_label" msgid="6639294603220209971">"Bluetooth-Adresse"</string>
+    <string name="bluetooth_connected_status" msgid="8629393539370085418">"Verbunden"</string>
+    <string name="bluetooth_disconnected_status" msgid="7617866963193224775">"Nicht verbunden"</string>
+    <string name="bluetooth_empty_list_user_restricted" msgid="1610743588460010736">"Du bist nicht zur Änderung der Bluetooth-Einstellungen berechtigt."</string>
+    <string name="bluetooth_toggle_active_audio_output_title" msgid="3715722506642793944">"Für TV-Audio verwenden"</string>
+    <string name="send_feedback" msgid="936698637869795473">"Feedback geben"</string>
+    <string name="launch_help" msgid="2607478763131952469">"Hilfe"</string>
+    <string name="system_cast" msgid="6081391679828510058">"Google Cast"</string>
+    <string name="system_date_time" msgid="5922833592234018667">"Datum &amp; Uhrzeit"</string>
+    <string name="system_language" msgid="5516099388471974346">"Sprache"</string>
+    <string name="language_empty_list_user_restricted" msgid="5430199913998605436">"Du bist nicht berechtigt, die Sprache des Geräts zu ändern."</string>
+    <string name="system_keyboard" msgid="1514460705385401872">"Tastatur"</string>
+    <string name="system_keyboard_autofill" msgid="8530944165814838255">"Tastatur &amp; Autofill"</string>
+    <string name="system_autofill" msgid="6983989261108020046">"Autofill"</string>
+    <string name="system_home" msgid="2149349845791104094">"Startbildschirm"</string>
+    <string name="system_search" msgid="3170169128257586925">"Suche"</string>
+    <string name="system_google" msgid="945985164023885276">"Google"</string>
+    <string name="system_security" msgid="1012999639810957132">"Sicherheit &amp; Einschränkungen"</string>
+    <string name="system_speech" msgid="8779582280374089518">"Spracherkennung"</string>
+    <string name="system_inputs" msgid="5552840337357572096">"Eingänge"</string>
+    <string name="system_inputs_devices" msgid="2158421111699829399">"Eingänge &amp; Geräte"</string>
+    <string name="system_home_theater_control" msgid="6228949628173590310">"Heimkinosteuerung"</string>
+    <string name="system_developer_options" msgid="8480844257066475479">"Entwickleroptionen"</string>
+    <string name="accessibility_none" msgid="6355646833528306702">"Keine"</string>
+    <string name="system_diagnostic" msgid="1654842813331919958">"Nutzung &amp; Diagnose"</string>
+    <string name="no_device_admins" msgid="4628974717150185625">"Keine App zur Geräteverwaltung verfügbar"</string>
+    <string name="security_enable_widgets_disabled_summary" msgid="7678529948487939871">"Vom Administrator deaktiviert"</string>
+    <string name="disabled_by_administrator_summary" msgid="3420979957115426764">"Nicht verfügbar"</string>
+    <string name="manage_device_admin" msgid="5714217234035017983">"Apps zur Geräteverwaltung"</string>
+    <string name="number_of_device_admins_none" msgid="2734299122299837459">"Keine aktiven Apps"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="108190334043671416">"Durch Administrator, Richtlinie oder Anmeldedatenspeicher deaktiviert"</string>
+    <string name="enterprise_privacy_settings" msgid="8226765895133003202">"Info zu verwalteten Geräten"</string>
+    <string name="enterprise_privacy_settings_summary_generic" msgid="5719549523275019419">"Änderungen und Einstellungen, die von deiner Organisation verwaltet werden"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="2866704039759872293">"Änderungen und Einstellungen, die von <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> verwaltet werden"</string>
+    <string name="enterprise_privacy_header" msgid="9221881402582661521">"Um dir Zugriff auf deine Arbeitsdaten zu geben, kann deine Organisation Einstellungen ändern und Software auf deinem Gerät installieren.\n\nWeitere Informationen erhältst du vom Administrator deiner Organisation."</string>
+    <string name="enterprise_privacy_exposure_category" msgid="1555735251238636669">"Art von Informationen, die deine Organisation sehen kann"</string>
+    <string name="enterprise_privacy_exposure_changes_category" msgid="7750498604032318318">"Änderungen des Administrators deiner Organisation"</string>
+    <string name="enterprise_privacy_device_access_category" msgid="7397106369136259850">"Mein Zugriff auf dieses Gerät"</string>
+    <string name="enterprise_privacy_enterprise_data" msgid="8135491104894522008">"Daten zum Arbeitskonto, etwa die E-Mail-Adresse und Kalender"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="5012554762299490994">"Liste der Apps auf dem Gerät"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="7062422823174345793">"Nutzungsdauer und genutzte Datenmenge für jede App"</string>
+    <string name="enterprise_privacy_network_logs" msgid="305782312671493780">"Neuestes Protokoll zum Netzwerkverkehr"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="2393617117911211486">"Neuester Fehlerbericht"</string>
+    <string name="enterprise_privacy_security_logs" msgid="2573545327989145361">"Neuestes Sicherheitsprotokoll"</string>
+    <string name="enterprise_privacy_none" msgid="6660670916934417519">"Keine"</string>
+    <string name="enterprise_privacy_enterprise_installed_packages" msgid="7244796629052581085">"Installierte Apps"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="3875568975752197381">"Die Anzahl der Apps ist eine Schätzung. Installierte Apps, die nicht aus dem Play Store stammen, werden möglicherweise nicht berücksichtigt."</string>
+    <string name="enterprise_privacy_number_packages_lower_bound" msgid="4518330667109848939">"{count,plural, =1{Mindestens # App}other{Mindestens # Apps}}"</string>
+    <string name="enterprise_privacy_location_access" msgid="8978502415647245748">"Standortberechtigungen"</string>
+    <string name="enterprise_privacy_microphone_access" msgid="3746238027890585248">"Mikrofonberechtigungen"</string>
+    <string name="enterprise_privacy_camera_access" msgid="6258493631976121930">"Kameraberechtigungen"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="5538330175901952288">"Standard-Apps"</string>
+    <string name="enterprise_privacy_number_packages" msgid="6256222390430349008">"{count,plural, =1{# App}other{# Apps}}"</string>
+    <string name="enterprise_privacy_input_method" msgid="5814752394251833058">"Standardtastatur"</string>
+    <string name="enterprise_privacy_input_method_name" msgid="1088874503312671318">"Auf <xliff:g id="APP_LABEL">%s</xliff:g> eingestellt"</string>
+    <string name="enterprise_privacy_always_on_vpn_device" msgid="8845550514448914237">"Durchgehend aktives VPN wurde aktiviert"</string>
+    <string name="enterprise_privacy_always_on_vpn_personal" msgid="6996782365866442280">"Durchgehend aktives VPN wurde für dein persönliches Profil aktiviert"</string>
+    <string name="enterprise_privacy_always_on_vpn_work" msgid="3674119583050531071">"Durchgehend aktives VPN wurde für dein Arbeitsprofil aktiviert"</string>
+    <string name="enterprise_privacy_global_http_proxy" msgid="2818848848337527780">"Globaler HTTP-Proxy wurde eingerichtet"</string>
+    <string name="enterprise_privacy_ca_certs_device" msgid="975646846291012452">"Vertrauenswürdige Anmeldedaten"</string>
+    <string name="enterprise_privacy_ca_certs_personal" msgid="7641368559306519707">"Vertrauenswürdige Anmeldedaten in deinem privaten Profil"</string>
+    <string name="enterprise_privacy_ca_certs_work" msgid="2905939250974399645">"Vertrauenswürdige Anmeldedaten in deinem Arbeitsprofil"</string>
+    <string name="enterprise_privacy_number_ca_certs" msgid="5918439861975410142">"{count,plural, =1{# CA-Zertifikat}other{# CA-Zertifikate}}"</string>
+    <string name="enterprise_privacy_lock_device" msgid="3140624232334033641">"Der Administrator kann das Gerät sperren und das Passwort zurücksetzen"</string>
+    <string name="enterprise_privacy_wipe_device" msgid="1714271125636510031">"Der Administrator kann alle Gerätedaten löschen"</string>
+    <string name="enterprise_privacy_failed_password_wipe_device" msgid="8272298134556250600">"Anzahl falscher Passworteingaben, bevor alle Gerätedaten gelöscht werden"</string>
+    <string name="enterprise_privacy_failed_password_wipe_work" msgid="1184137458404844014">"Anzahl falscher Passworteingaben, bevor die Arbeitsprofildaten gelöscht werden"</string>
+    <string name="enterprise_privacy_number_failed_password_wipe" msgid="277415009661470768">"{count,plural, =1{# Versuch}other{# Versuche}}"</string>
+    <string name="do_disclosure_generic" msgid="8390478119591845948">"Dieses Gerät wird von deiner Organisation verwaltet."</string>
+    <string name="do_disclosure_with_name" msgid="4755509039938948975">"Dieses Gerät wird von <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> verwaltet."</string>
+    <string name="do_disclosure_learn_more_separator" msgid="4226390963162716446">" "</string>
+    <string name="hdr_capability" msgid="3331021013422460270">"– %1$s"</string>
+    <string name="learn_more" msgid="820336467414665686">"Weitere Informationen"</string>
+    <string name="default_camera_app_title" msgid="4573905807226306484">"{count,plural, =1{Kamera-App}other{Kamera-Apps}}"</string>
+    <string name="default_calendar_app_title" msgid="1533912443930743532">"Kalender-App"</string>
+    <string name="default_contacts_app_title" msgid="7792041146751261191">"Kontakte App"</string>
+    <string name="default_email_app_title" msgid="3712283056326496555">"{count,plural, =1{E-Mail-Client-App}other{E-Mail-Client-Apps}}"</string>
+    <string name="default_map_app_title" msgid="9051013257374474801">"Karten-App"</string>
+    <string name="default_phone_app_title" msgid="4833449131501871644">"{count,plural, =1{Telefon-App}other{Telefon-Apps}}"</string>
+    <string name="default_browser_title" msgid="3612813200586492159">"Browser-App"</string>
+    <string name="app_names_concatenation_template_2" msgid="5297284354915830297">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g> und <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
+    <string name="app_names_concatenation_template_3" msgid="4932774380339466733">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g> und <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
+    <string name="tutorials" msgid="7880770425872110455">"Anleitungen"</string>
+    <string name="about_system_update" msgid="7421264399111367755">"System aktualisieren"</string>
+    <string name="system_update_description" msgid="998883510488461766">"Hiermit wird deine Systemsoftware auf die neueste Version aktualisiert. Dein Gerät wird neu gestartet."</string>
+    <string name="system_update_content_description" msgid="5702888187682876466">"Systemupdate – Hiermit wird deine Systemsoftware auf die neueste Version aktualisiert. Dein Gerät wird neu gestartet."</string>
+    <string name="about_preference" msgid="9112690446998150670">"Info"</string>
+    <string name="device_name" msgid="566626587332817733">"Gerätename"</string>
+    <string name="restart_button_label" msgid="911750765086382990">"Neu starten"</string>
+    <string name="about_legal_info" msgid="2148797328415559733">"Rechtliche Hinweise"</string>
+    <string name="about_legal_license" msgid="4056934178111674054">"Drittanbieter"</string>
+    <string name="about_terms_of_service" msgid="8514826341101557623">"Rechtliche Hinweise"</string>
+    <string name="about_license_activity_unavailable" msgid="4559187037375581674">"Lizenzdaten sind nicht verfügbar."</string>
+    <string name="about_model" msgid="9164284529291439296">"Modell"</string>
+    <string name="device_mode" msgid="7258350575590118152">"Gerätemodus"</string>
+    <string name="store_demo_mode" msgid="4382231515659362796">"Demomodus"</string>
+    <string name="about_version" msgid="6223547403835399861">"Android TV-Betriebssystemversion"</string>
+    <string name="about_serial" msgid="3432319328808745459">"Seriennummer"</string>
+    <string name="about_build" msgid="8467840394761634575">"Android TV-Betriebssystem-Build"</string>
+    <string name="show_dev_countdown" msgid="4064986225625409361">"{count,plural, =1{Nur noch # Schritt und du bist Entwickler}other{Nur noch # Schritte und du bist Entwickler}}"</string>
+    <string name="about_ads" msgid="7662896442040086522">"Anzeigen"</string>
+    <string name="ads_description" msgid="8081069475265061074">"Hier kannst du deine Einstellungen für Werbung verwalten, z. B. deine Werbe-ID zurücksetzen."</string>
+    <string name="ads_content_description" msgid="1006489792324920289">"Ads – Hier kannst du deine Einstellungen für Werbung verwalten, z. B. deine Werbe-ID zurücksetzen."</string>
+    <string name="show_dev_on" msgid="612741433124106067">"Du bist jetzt ein Entwickler!"</string>
+    <string name="show_dev_already" msgid="1522591284776449818">"Okay, du bist bereits ein Entwickler."</string>
+    <string name="device_info_default" msgid="2374506935205518448">"Unbekannt"</string>
+    <string name="selinux_status" msgid="1146662734953021410">"SELinux-Status"</string>
+    <string name="selinux_status_disabled" msgid="4027105362332795142">"Deaktiviert"</string>
+    <string name="selinux_status_permissive" msgid="8694617578567517527">"Moderat"</string>
+    <string name="selinux_status_enforcing" msgid="4140979635669643342">"Strikt"</string>
+    <string name="additional_system_update_settings_list_item_title" msgid="1839534735929143986">"Zusätzliche Systemupdates"</string>
+    <string name="ssl_ca_cert_warning" msgid="7836390021162211069">"Das Netzwerk wird eventuell überwacht."</string>
+    <string name="done_button" msgid="616159688526431451">"Fertig"</string>
+    <string name="sl_ca_cert_dialog_title" msgid="5104377991202801698">"{count,plural, =1{Zertifikat vertrauen oder es entfernen}other{Zertifikaten vertrauen oder sie entfernen}}"</string>
+    <string name="device_status" msgid="8266002761193692207">"Status"</string>
+    <string name="device_status_summary" msgid="3270932829412434985">"Netzwerk, Seriennummern und weitere Informationen"</string>
+    <string name="manual" msgid="5683935624321864999">"Handbuch"</string>
+    <string name="regulatory_information" msgid="9107675969694713391">"Rechtliche Hinweise"</string>
+    <string name="device_feedback" msgid="4871903271442960465">"Feedback zu diesem Gerät senden"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="4641790432171693921">"Bootloader ist bereits entsperrt"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="2979556699380115576">"Zuerst mit dem Internet verbinden"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="1946089732305102622">"Internetverbindung herstellen oder Mobilfunkanbieter kontaktieren"</string>
+    <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5634005787486307657">"Auf vom Mobilfunkanbieter gesperrten Geräten nicht verfügbar"</string>
+    <string name="oem_lock_info_message" msgid="2165887409937351689">"Starte das Gerät neu, um die Geräteschutzfunktion zu aktivieren."</string>
+    <string name="automatic_storage_manager_freed_bytes" msgid="1654574152815129396">"Insgesamt <xliff:g id="SIZE">%1$s</xliff:g> freigegeben\n\nZuletzt ausgeführt am <xliff:g id="DATE">%2$s</xliff:g>"</string>
+    <string name="fcc_equipment_id" msgid="6731077083927000108">"Geräte-ID"</string>
+    <string name="baseband_version" msgid="5618116741093274294">"Baseband-Version"</string>
+    <string name="kernel_version" msgid="7265509054070001542">"Kernel-Version"</string>
+    <string name="status_unavailable" msgid="2033933928980193334">"Nicht verfügbar"</string>
+    <string name="device_status_title" msgid="9051569510258883673">"Status"</string>
+    <string name="battery_status_title" msgid="8850166742025222210">"Akkustatus"</string>
+    <string name="battery_level_title" msgid="2672804570916248736">"Akkustand"</string>
+    <string name="status_bt_address" msgid="7190052214963950844">"Bluetooth-Adresse"</string>
+    <string name="status_up_time" msgid="1758102680983108313">"Betriebszeit"</string>
+    <string name="legal_information" msgid="1087445528481370874">"Rechtliche Hinweise"</string>
+    <string name="copyright_title" msgid="5879660711078649518">"Urheberrecht"</string>
+    <string name="license_title" msgid="4032466200355435641">"Lizenz"</string>
+    <string name="terms_title" msgid="192888187310800678">"Nutzungsbedingungen"</string>
+    <string name="webview_license_title" msgid="5370270485188947540">"System-WebView-Lizenz"</string>
+    <string name="consumer_information_title" msgid="7729729568416672733">"Informationen für Nutzer"</string>
+    <string name="consumer_information_message" msgid="205236637689468764">"Inhalte bei Android TV stammen von Drittanbietern, wie App-Entwicklern und Filmstudios, sowie von Google selbst. Weitere Informationen findest du unter "<a href="g.co/tv/androidtvinfo">"g.co/tv/androidtvinfo"</a>"."</string>
+    <string name="consumer_information_button_ok" msgid="6979480064600038080">"OK"</string>
+  <string-array name="wifi_signal_strength">
+    <item msgid="4475363344103354364">"Schwach"</item>
+    <item msgid="2098818614362343532">"Ausreichend"</item>
+    <item msgid="2713050260700175954">"Gut"</item>
+    <item msgid="6005053494500517261">"Ausgezeichnet"</item>
+  </string-array>
+    <string name="title_mac_address" msgid="7511588678922209883">"MAC-Adresse des Geräts"</string>
+    <string name="title_randomized_mac_address" msgid="3359532498635833471">"Zufällige MAC-Adresse"</string>
+    <string name="title_signal_strength" msgid="5047116893338315998">"Signalstärke"</string>
+    <string name="title_random_mac_settings" msgid="6685812569356353378">"Datenschutz"</string>
+  <string-array name="random_mac_settings_entries">
+    <item msgid="3457228452595715533">"Zufällig festgelegte MAC-Adresse verwenden (Standard)"</item>
+    <item msgid="2490415280467390067">"MAC-Adresse des Geräts verwenden"</item>
+  </string-array>
+    <string name="mac_address_not_available" msgid="2992935344891853369">"Nicht verfügbar"</string>
+    <string name="mac_address_ephemeral_summary" msgid="3284374877361772531">"Zufällig festgelegte MAC"</string>
+    <string name="title_ip_address" msgid="705842159484772807">"IP-Adresse"</string>
+    <string name="title_ssid" msgid="255328048344188682">"Name des WLAN-Netzwerks"</string>
+    <string name="title_internet_connection" msgid="7502414094881828069">"Internetverbindung"</string>
+    <string name="connected" msgid="4981532275162345997">"Verbunden"</string>
+    <string name="not_connected" msgid="475810896484271663">"Nicht verbunden"</string>
+    <string name="wifi_no_internet" msgid="27421689535934864">"Kein Internet"</string>
+    <string name="wifi_saved" msgid="4354792774811431829">"Gespeichert"</string>
+    <string name="wifi_bad_password" msgid="8686375382346768922">"Falsches Passwort"</string>
+    <string name="wifi_short_password" msgid="7658809378390032385">"WLAN-Passwort ist zu kurz"</string>
+    <string name="wifi_captive_portal" msgid="8262150024660339529">"Anmeldung erforderlich"</string>
+    <string name="wifi_setting_header_other_options" msgid="217382325707026836">"Weitere Optionen"</string>
+    <string name="wifi_setting_see_all" msgid="5048103047976316675">"Alle anzeigen"</string>
+    <string name="wifi_setting_see_fewer" msgid="8585364493300703467">"Weniger anzeigen"</string>
+    <string name="wifi_setting_available_networks" msgid="2096957819727319750">"Verfügbare Netzwerke"</string>
+    <string name="wifi_setting_other_options_add_network" msgid="6490215784178866978">"Neues Netzwerk hinzufügen"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect" msgid="2869989555950644533">"Sofort-Verbindung"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect_info_summary" msgid="4564538591168691865">"Mit der Sofort-Verbindung kannst du schnell eine Verbindung zu deinem WLAN herstellen. Du musst nur den QR-Code mit deinem Smartphone scannen."</string>
+    <string name="security_type" msgid="2297615092250075696">"Sicherheitstyp"</string>
+    <string name="other_network" msgid="5299289104661858596">"Anderes Netzwerk…"</string>
+    <string name="skip_network" msgid="3095529090560000692">"Überspringen"</string>
+    <string name="wifi_security_type_none" msgid="7001835819813531253">"Kein Sicherheitstyp"</string>
+    <string name="wifi_security_type_wep" msgid="6407712450924151962">"WEP"</string>
+    <string name="wifi_security_type_wpa" msgid="9205358644485448199">"WPA/WPA2-PSK"</string>
+    <string name="wifi_security_type_eap" msgid="3948280751219829163">"802.1x EAP"</string>
+    <string name="title_wifi_no_networks_available" msgid="3696700321170616981">"Scannen..."</string>
+    <string name="title_wifi_could_not_save" msgid="7549912968719395764">"Konfiguration für <xliff:g id="SSID">%1$s</xliff:g> konnte nicht gespeichert werden"</string>
+    <string name="title_wifi_could_not_connect" msgid="6654031057635481872">"Kein Verbindungsaufbau mit <xliff:g id="SSID">%1$s</xliff:g> möglich"</string>
+    <string name="title_wifi_could_not_connect_timeout" msgid="7825788623604214601">"<xliff:g id="SSID">%1$s</xliff:g> nicht gefunden"</string>
+    <string name="title_wifi_could_not_connect_authentication_failure" msgid="6626386897327862432">"WLAN-Passwort ungültig"</string>
+    <string name="title_wifi_could_not_connect_ap_reject" msgid="5182833781690447828">"WLAN hat Verbindung nicht angenommen"</string>
+    <string name="title_wifi_advanced_options" msgid="371185991282743258">"Proxy und IP-Einstellungen für <xliff:g id="SSID">%1$s</xliff:g> konfigurieren?"</string>
+    <string name="title_wifi_proxy_settings" msgid="1933444342984660569">"Proxy-Einstellungen"</string>
+    <string name="title_wifi_proxy_hostname" msgid="1242297002220870385">"Proxy-Hostname:"</string>
+    <string name="title_wifi_proxy_port" msgid="566244407030390328">"Proxy-Port:"</string>
+    <string name="title_wifi_proxy_bypass" msgid="8752756240663231435">"Umgehung des Proxys für:"</string>
+    <string name="title_wifi_ip_settings" msgid="296029383749112888">"IP-Einstellungen"</string>
+    <string name="title_wifi_ip_address" msgid="5505806431042689276">"IP-Adresse:"</string>
+    <string name="title_wifi_gateway" msgid="4496416267930824360">"Gateway:"</string>
+    <string name="title_wifi_network_prefix_length" msgid="3200370297772096824">"Länge des Netzwerkpräfixes:"</string>
+    <string name="title_wifi_dns1" msgid="1585965227665007553">"DNS 1:"</string>
+    <string name="title_wifi_dns2" msgid="4563319371301555072">"DNS 2:"</string>
+    <string name="title_wifi_proxy_settings_invalid" msgid="7698883245005941665">"Proxyeinstellungen ungültig"</string>
+    <string name="title_wifi_ip_settings_invalid" msgid="7283801973512992014">"IP-Einstellungen ungültig"</string>
+    <string name="title_wifi_known_network" msgid="6162483884727898697">"<xliff:g id="SSID">%1$s</xliff:g> ist ein gespeichertes Netzwerk."</string>
+    <string name="title_wifi_scan_qr_code" msgid="7485605625055717874">"QR-Code scannen, um Verbindung herzustellen"</string>
+    <string name="wifi_action_try_again" msgid="8920677153891141148">"Erneut versuchen"</string>
+    <string name="wifi_action_view_available_networks" msgid="609561604257828342">"Verfügbare Netzwerke anzeigen"</string>
+    <string name="wifi_connecting" msgid="4234341255109283018">"Verbindung zu <xliff:g id="SSID">%1$s</xliff:g> wird hergestellt"</string>
+    <string name="wifi_saving" msgid="320653339670641708">"Konfiguration für <xliff:g id="SSID">%1$s</xliff:g> wird gespeichert..."</string>
+    <string name="wifi_connect" msgid="2206086690065242121">"Verbinden"</string>
+    <string name="wifi_forget_network" msgid="4634016112624305571">"Netzwerk entfernen"</string>
+    <string name="wifi_forget_network_description" msgid="4146715475962713899">"Löscht die Informationen für die Verbindung mit diesem Netzwerk, auch das gespeicherte Passwort"</string>
+    <string name="wifi_scan_qr_code_description" msgid="6620444691131671132">" Du kannst dich mit einem WLAN verbinden, indem du den QR-Code von einem Smartphone scannst und der Anleitung folgst.\n\nGeh auf einem "<b>"Android-Smartphone"</b>" zu den Einstellungen -&gt; „Netzwerk &amp; Internet“ -&gt; „WLAN“ -&gt; WLAN auswählen -&gt; „Erweitert“ -&gt; „Gerät hinzufügen“ und scann den QR-Code."</string>
+    <string name="wifi_scan_qr_code_back_description" msgid="8830716278283379280">"Schaltfläche „Zurück“ drücken, um abzubrechen"</string>
+    <string name="wifi_action_ok" msgid="6257483288047397880">"Ok"</string>
+    <string name="wifi_setup_action_dont_change_network" msgid="2999582059217623090">"Weiter"</string>
+    <string name="wifi_setup_action_change_network" msgid="1603908238711710943">"Netzwerk ändern"</string>
+    <string name="wifi_action_change_network" msgid="3943123581726966199">"Ändern"</string>
+    <string name="wifi_action_dont_change_network" msgid="2685585142299769847">"Nicht ändern"</string>
+    <string name="wifi_action_advanced_yes" msgid="6192652088198093438">"Ok"</string>
+    <string name="wifi_action_advanced_no" msgid="6152107256122343959">"Nein (empfohlen)"</string>
+    <string name="wifi_action_proxy_none" msgid="4009573120495700922">"Keine"</string>
+    <string name="wifi_action_proxy_manual" msgid="7667686394955896293">"Manuell"</string>
+    <string name="wifi_action_dhcp" msgid="6172127495589802964">"DHCP"</string>
+    <string name="wifi_action_static" msgid="8139559358727790887">"Statisch"</string>
+    <string name="wifi_action_status_info" msgid="3947061894001350963">"Statusinformationen"</string>
+    <string name="wifi_action_advanced_options_title" msgid="2863126553877147921">"Erweiterte Optionen"</string>
+    <string name="wifi_ip_settings_invalid_ip_address" msgid="4051342269154914595">"Gib eine gültige IP-Adresse ein."</string>
+    <string name="wifi_ip_settings_invalid_gateway" msgid="4511579679784872130">"Gib eine gültige Gateway-Adresse ein."</string>
+    <string name="wifi_ip_settings_invalid_dns" msgid="5111100342560120360">"Gib eine gültige DNS-Adresse ein."</string>
+    <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="2726889303835927777">"Netzwerkpräfixlänge muss zwischen 0 und 32 liegen."</string>
+    <string name="wifi_ip_address_description" msgid="7109677764979198618">"Gib eine gültige IP-Adresse ein.\nBeispiel: <xliff:g id="ID_1">192.168.1.128</xliff:g>"</string>
+    <string name="wifi_dns1_description" msgid="2287252520192279195">"Gib eine gültige IP-Adresse ein oder lasse das Feld leer.\nBeispiel: <xliff:g id="ID_1">8.8.8.8</xliff:g>"</string>
+    <string name="wifi_dns2_description" msgid="6495565714252833784">"Gib eine gültige IP-Adresse ein oder lasse das Feld leer.\nBeispiel: <xliff:g id="ID_1">8.8.4.4</xliff:g>"</string>
+    <string name="wifi_gateway_description" msgid="8902481147103929271">"Gib eine gültige IP-Adresse ein oder lasse das Feld leer.\nBeispiel: <xliff:g id="ID_1">192.168.1.1</xliff:g>"</string>
+    <string name="wifi_network_prefix_length_description" msgid="2670994968279018896">"Gib eine gültige Länge des Netzwerkpräfixes ein.\nBeispiel: <xliff:g id="ID_1">24</xliff:g>"</string>
+    <string name="proxy_error_invalid_host" msgid="5629893736174170157">"Der Hostname ist ungültig."</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="1762079966901078116">"Die Ausschlussliste ist ungültig. Gib eine durch Kommas getrennte Liste mit auszuschließenden Domains ein."</string>
+    <string name="proxy_error_empty_port" msgid="692020249267351015">"Das Feld für den Port darf nicht leer sein."</string>
+    <string name="proxy_error_empty_host_set_port" msgid="5347712018244852847">"Wenn das Feld für den Host leer ist, lasse das Feld für den Port ebenfalls leer."</string>
+    <string name="proxy_error_invalid_port" msgid="5307010810664745294">"Der Port ist ungültig."</string>
+    <string name="proxy_warning_limited_support" msgid="4220553563487968684">"Der HTTP-Proxy wird vom Browser genutzt, darf aber nicht von anderen Apps genutzt werden."</string>
+    <string name="proxy_port_description" msgid="6486205863098427787">"Gib einen gültigen Port ein.\nBeispiel: <xliff:g id="ID_1">8080</xliff:g>"</string>
+    <string name="proxy_exclusionlist_description" msgid="5105504899364188296">"Gib eine durch Kommas getrennte Liste ausgeschlossener Domains ein oder lasse das Feld leer.\nBeispiel: <xliff:g id="ID_1">example.com,mycomp.test.com,localhost</xliff:g>"</string>
+    <string name="proxy_hostname_description" msgid="5520200112290557199">"Gib einen gültigen Hostnamen ein.\nBeispiel: <xliff:g id="ID_1">proxy.example.com</xliff:g>"</string>
+    <string name="title_wifi_eap_method" msgid="4351752615786996226">"EAP-Methode für <xliff:g id="SSID">%1$s</xliff:g> auswählen"</string>
+    <string name="title_wifi_phase2_authentication" msgid="1167205033305931574">"Phase2-Authentifizierung für <xliff:g id="SSID">%1$s</xliff:g> auswählen"</string>
+    <string name="title_wifi_identity" msgid="6273917200971028259">"ID für <xliff:g id="SSID">%1$s</xliff:g> eingeben"</string>
+    <string name="title_wifi_anonymous_identity" msgid="5965175781722004334">"Anonyme ID für <xliff:g id="SSID">%1$s</xliff:g> eingeben"</string>
+    <string name="wifi_setup_summary_title_connected" msgid="2725439590655448489">"Du bist mit <xliff:g id="SSID">%1$s</xliff:g> verbunden"</string>
+    <string name="wifi_summary_title_connected" msgid="201105022065577659">"Netzwerk verbunden"</string>
+    <string name="wifi_summary_title_not_connected" msgid="7991004795297065201">"Keine Netzwerkverbindung vorhanden"</string>
+    <string name="wifi_summary_description_connected_to_wifi_network" msgid="8796747274977762311">"Bereits mit <xliff:g id="SSID">%1$s</xliff:g> verbunden. Mit anderem Netzwerk verbinden?"</string>
+    <string name="wifi_summary_unknown_network" msgid="8044143986439139664">"unbekanntes Netzwerk"</string>
+    <string name="wifi_empty_list_user_restricted" msgid="7326314737931342236">"Du verfügst nicht über die Berechtigung zum Ändern des WLAN-Netzwerks."</string>
+    <string name="title_ok" msgid="6500452958848127145">"Ok"</string>
+    <string name="title_cancel" msgid="2337143367016419016">"Abbrechen"</string>
+    <string name="storage_title" msgid="6637715914885228193">"Speicher"</string>
+    <string name="storage_available" msgid="8860901789290434209">"Verfügbar"</string>
+    <string name="storage_size" msgid="5517261387579171381">"Gesamtspeicher: <xliff:g id="TOTAL_SPACE">%1$s</xliff:g>"</string>
+    <string name="storage_calculating_size" msgid="5716281278843281044">"Wird berechnet..."</string>
+    <string name="storage_apps_usage" msgid="8659915575274468924">"Apps"</string>
+    <string name="storage_downloads_usage" msgid="8429196848359517158">"Downloads"</string>
+    <string name="storage_dcim_usage" msgid="1890098882753254745">"Fotos &amp; Videos"</string>
+    <string name="storage_music_usage" msgid="5362871290115089474">"Audio"</string>
+    <string name="storage_media_misc_usage" msgid="3404230292054880339">"Sonstiges"</string>
+    <string name="storage_media_cache_usage" msgid="6397941751551207630">"Daten im Cache"</string>
+    <string name="storage_eject" msgid="3268870873944951902">"Auswerfen"</string>
+    <string name="storage_format" msgid="5360900929128087085">"Löschen &amp; formatieren"</string>
+    <string name="storage_format_as_private" msgid="77945551149326052">"Als Gerätespeicher löschen &amp; formatieren"</string>
+    <string name="storage_format_as_public" msgid="6745112917895223463">"Als Wechselmedium löschen &amp; formatieren"</string>
+    <string name="storage_format_for_private" msgid="5380138334184923252">"Als Gerätespeicher formatieren"</string>
+    <string name="storage_not_connected" msgid="4327902652748552794">"Nicht verbunden"</string>
+    <string name="storage_migrate" msgid="9137556600192167701">"Daten auf diesen Speicher übertragen"</string>
+    <string name="storage_migrate_away" msgid="7880100961434638430">"Daten auf anderen Speicher übertragen"</string>
+    <string name="storage_no_apps" msgid="95566375753627272">"Keine Apps zum Sichern vorhanden"</string>
+    <string name="storage_forget" msgid="4671975563260507003">"Dieses Speichergerät entfernen"</string>
+    <string name="storage_forget_wall_of_text" msgid="230454348256179142">"Schließe das Speichergerät erneut an, um die darauf gespeicherten Apps oder Daten zu verwenden. Falls das Speichergerät nicht verfügbar ist, kannst du es auch entfernen.\n\nWenn du \"Entfernen\" wählst, gehen alle darauf befindlichen Daten endgültig verloren.\n\nDu kannst die Apps später erneut installieren, die Daten auf diesem Speichergerät gehen jedoch verloren."</string>
+    <string name="storage_device_storage_section" msgid="22958375769694027">"Gerätespeicher"</string>
+    <string name="storage_removable_storage_section" msgid="280332107650735088">"Wechselmedien"</string>
+    <string name="storage_reset_section" msgid="3896575204828589494">"Zurücksetzen"</string>
+    <string name="storage_free_up" msgid="5719667150891467122">"Speicherplatz freigeben"</string>
+    <string name="storage_free_up_clear_cached_data" msgid="858596875459698634">"Daten im Cache löschen"</string>
+    <string name="storage_free_up_clear_cached_data_summary" msgid="3111860361699185304">"<xliff:g id="SPACE">%1$s</xliff:g> freigeben"</string>
+    <string name="storage_free_up_clear_cached_data_info" msgid="719348815620748812">"Temporäre Dateien, die Speicherplatz belegen, werden gelöscht. Das betrifft keine gespeicherten Daten wie App-Einstellungen oder Offline-Videos. Du musst dich auch nicht noch einmal in Apps anmelden."</string>
+    <string name="storage_free_up_clear_cached_data_confirm_title" msgid="5047418718048910850">"Daten im Cache löschen?"</string>
+    <string name="storage_free_up_clear_cached_data_confirm_description" msgid="4840728913914074729">"Daten im Cache werden für alle Apps gelöscht."</string>
+    <string name="storage_free_up_uninstall_apps" msgid="7755671754934975908">"Apps deinstallieren"</string>
+    <string name="storage_mount_success" msgid="4459298609971461753">"<xliff:g id="NAME">%1$s</xliff:g> wurde bereitgestellt."</string>
+    <string name="storage_mount_failure" msgid="8521666906216755903">"<xliff:g id="NAME">%1$s</xliff:g> konnte nicht bereitgestellt werden."</string>
+    <string name="storage_mount_adopted" msgid="8880688040694403520">"USB-Speicher wieder angeschlossen"</string>
+    <string name="storage_unmount_success" msgid="8024867595129715661">"<xliff:g id="NAME">%1$s</xliff:g> wurde sicher ausgeworfen."</string>
+    <string name="storage_unmount_failure" msgid="2228448194484319930">"<xliff:g id="NAME">%1$s</xliff:g> konnte nicht sicher ausgeworfen werden."</string>
+    <string name="storage_unmount_failure_cant_find" msgid="2890335341404932068">"Es wurde kein Speichergerät zum Auswerfen gefunden."</string>
+    <string name="storage_format_success" msgid="5599914756144012286">"<xliff:g id="NAME">%1$s</xliff:g> wurde formatiert."</string>
+    <string name="storage_format_failure" msgid="5619442934314277332">"<xliff:g id="NAME">%1$s</xliff:g> konnte nicht formatiert werden."</string>
+    <string name="storage_wizard_format_as_private_title" msgid="7985715762649933211">"Als Speichergerät formatieren"</string>
+    <string name="storage_wizard_format_as_private_description" msgid="6143406934742456154">"Um die Sicherheit zu gewährleisten, muss das USB-Speichergerät zunächst formatiert werden. Danach ist dieses Speichergerät ausschließlich für dieses Gerät sicher formatiert und funktioniert nicht mit anderen Geräten. Durch die Formatierung werden alle derzeit auf dem Speichergerät gespeicherten Daten gelöscht. Um den Verlust von Daten zu verhindern, sichere sie vor der Formatierung."</string>
+    <string name="storage_wizard_format_as_public_title" msgid="3546915348149438389">"Löschen &amp; formatieren"</string>
+    <string name="storage_wizard_format_as_public_description" msgid="5849129772499352597">"Nach der Formatierung kannst du dieses USB-Speichergerät in anderen Geräten verwenden. Alle Daten werden gelöscht. Du solltest zunächst eine Sicherung vornehmen, indem du Apps auf ein anderes Speichergerät verschiebst."</string>
+    <string name="storage_wizard_format_progress_title" msgid="3875906251546380271">"USB-Speichergerät wird formatiert…"</string>
+    <string name="storage_wizard_format_progress_description" msgid="292229747129805538">"Dies kann einen Moment dauern. Bitte entferne das Speichergerät nicht."</string>
+    <string name="storage_wizard_migrate_choose_title" msgid="8743036821605231654">"Speicher auswählen, auf den Daten übertragen werden"</string>
+    <string name="storage_wizard_migrate_confirm_title" msgid="5086390005970210697">"Daten auf <xliff:g id="NAME">%1$s</xliff:g> verschieben"</string>
+    <string name="storage_wizard_migrate_confirm_description" msgid="918834441157741482">"Verschiebe deine Fotos, Dateien und App-Daten auf die <xliff:g id="NAME">%1$s</xliff:g>. Dies kann einige Minuten dauern. Einige Apps funktionieren während des Vorgangs nicht ordnungsgemäß."</string>
+    <string name="storage_wizard_migrate_confirm_action_move_now" msgid="7512917600174814567">"Jetzt verschieben"</string>
+    <string name="storage_wizard_migrate_confirm_action_move_later" msgid="6379986754827551474">"Später verschieben"</string>
+    <string name="storage_wizard_migrate_toast_success" msgid="6153579567666607584">"Daten zu <xliff:g id="NAME">%1$s</xliff:g> migriert"</string>
+    <string name="storage_wizard_migrate_toast_failure" msgid="8580347235983040966">"Die Daten konnten nicht zur <xliff:g id="NAME">%1$s</xliff:g> migriert werden."</string>
+    <string name="storage_wizard_migrate_progress_title" msgid="2623480667090826800">"Daten werden auf <xliff:g id="NAME">%1$s</xliff:g> verschoben…"</string>
+    <string name="storage_wizard_migrate_progress_description" msgid="4023358325977284145">"Dies kann einen Moment dauern. Bitte entferne das Speichergerät nicht.\nEinige Apps funktionieren während des Vorgangs nicht ordnungsgemäß."</string>
+    <string name="storage_wizard_format_slow_title" msgid="7640229918512394316">"Dieses Speichergerät scheint langsam zu sein."</string>
+    <string name="storage_wizard_format_slow_summary" msgid="3674023258060474037">"Du kannst fortfahren, aber hierher verschobene Apps bleiben eventuell hängen und Datenübertragungen können lange dauern. Für eine bessere Leistung solltest du ein schnelleres Speichergerät nutzen."</string>
+    <string name="storage_wizard_format_action" msgid="3275676687226857170">"Formatieren"</string>
+    <string name="storage_wizard_backup_apps_action" msgid="1402199004931596519">"Apps sichern"</string>
+    <string name="storage_wizard_back_up_apps_title" msgid="6225663573896846937">"Apps auf <xliff:g id="NAME">%1$s</xliff:g> gespeichert"</string>
+    <string name="storage_wizard_back_up_apps_and_data_title" msgid="7763611380573099978">"Apps und Daten auf <xliff:g id="NAME">%1$s</xliff:g> gespeichert"</string>
+    <string name="storage_wizard_back_up_apps_space_available" msgid="5741521038349239359">"<xliff:g id="SIZE">%1$s</xliff:g> verfügbar"</string>
+    <string name="storage_wizard_eject_private_title" msgid="1336088625197134497">"Speichergerät auswerfen"</string>
+    <string name="storage_wizard_eject_private_description" msgid="4341905730016007385">"Apps auf diesem Speichergerät funktionieren nach dem Auswerfen nicht mehr. Dieses USB-Speichergerät ist nur für dieses Gerät formatiert und kann nicht mit anderen Geräten verwendet werden."</string>
+    <string name="storage_wizard_eject_progress_title" msgid="6025569356827683446">"<xliff:g id="NAME">%1$s</xliff:g> wird ausgeworfen…"</string>
+    <string name="storage_wizard_move_app_title" msgid="6504922588346440942">"Genutzter Speicherplatz"</string>
+    <string name="storage_wizard_move_app_progress_title" msgid="7058465372227392453">"<xliff:g id="NAME">%1$s</xliff:g> wird verschoben…"</string>
+    <string name="storage_wizard_move_app_progress_description" msgid="7673347796805764888">"Das Speichergerät darf während des Vorgangs nicht entfernt werden.\nDie App <xliff:g id="APPNAME">%1$s</xliff:g> auf diesem Gerät ist erst wieder verfügbar, nachdem sie vollständig verschoben wurde."</string>
+    <string name="storage_wizard_forget_confirm_title" msgid="3709482471888830896">"Speichergerät entfernen?"</string>
+    <string name="storage_wizard_forget_confirm_description" msgid="5896860042525566767">"Durch Auswählen von \"Entfernen\" gehen alle auf diesem Speichergerät gespeicherten Daten endgültig verloren. Möchtest du fortfahren?"</string>
+    <string name="storage_wizard_forget_action" msgid="5609631662522950596">"Entfernen"</string>
+    <string name="storage_new_title" msgid="4768955281180255038">"USB-Laufwerk verbunden"</string>
+    <string name="storage_new_action_browse" msgid="3355241742574072658">"Suchen"</string>
+    <string name="storage_new_action_adopt" msgid="6809707961170895964">"Als Speichergerät einrichten"</string>
+    <string name="storage_new_action_format_public" msgid="1964662216574764811">"Als Wechselmedium festlegen"</string>
+    <string name="storage_new_action_eject" msgid="919249291814300000">"Auswerfen"</string>
+    <string name="storage_missing_title" msgid="9068915586235805818">"<xliff:g id="NAME">%1$s</xliff:g> entfernt"</string>
+    <string name="storage_missing_description" msgid="6835620703133204249">"Einige Apps stehen möglicherweise erst wieder zur Verfügung oder funktionieren erst wieder ordnungsgemäß, wenn das Speichergerät wieder angeschlossen wird."</string>
+    <string name="insufficient_storage" msgid="4175940286022466535">"Nicht genügend Speicherplatz"</string>
+    <string name="does_not_exist" msgid="4071082040759146781">"App ist nicht vorhanden."</string>
+    <string name="invalid_location" msgid="5571789982293787489">"Installationspfad ist nicht gültig."</string>
+    <string name="system_package" msgid="8276098460517049146">"Systemupdates können nicht auf externen Datenträgern installiert werden."</string>
+    <string name="move_error_device_admin" msgid="4144472536756635173">"Der Geräteadministrator kann nicht auf externen Medien installiert werden."</string>
+    <string name="learn_more_action" msgid="7972102006620925604">"Weitere Informationen"</string>
+    <string name="system_date" msgid="2503462662633178207">"Datum"</string>
+    <string name="system_time" msgid="8434726081412227535">"Uhrzeit"</string>
+    <string name="system_set_date" msgid="5815123588301469720">"Datum festlegen"</string>
+    <string name="system_set_time" msgid="7179243042276057341">"Uhrzeit festlegen"</string>
+    <string name="system_set_time_zone" msgid="6471564469883225195">"Zeitzone festlegen"</string>
+    <string name="desc_set_time_zone" msgid="4926392006501180047">"<xliff:g id="OFFSET">%1$s</xliff:g>, <xliff:g id="NAME">%2$s</xliff:g>"</string>
+    <string name="system_set_time_format" msgid="902518158066450918">"24-Stunden-Format"</string>
+    <string name="desc_set_time_format" msgid="8688587526768572230">"<xliff:g id="STATE">%1$s</xliff:g> (<xliff:g id="SAMPLE">%2$s</xliff:g>)"</string>
+    <string name="system_auto_date_time" msgid="8458199433555868708">"Autom. Datum/Uhrzeit"</string>
+  <string-array name="auto_date_time_entries">
+    <item msgid="8119837829162871025">"Zeit aus Netzwerk beziehen"</item>
+    <item msgid="369146066143710034">"Aus"</item>
+  </string-array>
+  <string-array name="auto_date_time_ts_entries">
+    <item msgid="1010003447137304123">"Zeit aus Netzwerk beziehen"</item>
+    <item msgid="5645263357181875427">"Zeit aus Transport Stream beziehen"</item>
+    <item msgid="5501503537181350884">"Aus"</item>
+  </string-array>
+    <string name="sensor_toggle_description" msgid="7415801459994303159">"Für alle Apps und Dienste"</string>
+    <string name="recently_accessed_by_category" msgid="6841705864715653428">"Zugriffe in letzter Zeit durch"</string>
+    <string name="no_recent_sensor_accesses" msgid="3498112970658050800">"Keine Zugriffe in letzter Zeit"</string>
+    <string name="recently_accessed_show_all" msgid="5234849189704717855">"Alle ansehen"</string>
+    <string name="microphone" msgid="7893752847683941214">"Mikrofon"</string>
+    <string name="mic_toggle_title" msgid="7193417007060235665">"Mikrofonzugriff"</string>
+    <string name="mic_remote_toggle_title" msgid="7153283895012570080">"Mikrofonzugriff über die Fernbedienung"</string>
+    <string name="open_mic_permissions" msgid="8121871594807641073">"App-Zugriff auf das Mikrofon"</string>
+    <string name="microphone_physical_privacy_enabled_title" msgid="6135130916399886772">"Mikrofonzugriff blockiert"</string>
+    <string name="microphone_physical_privacy_enabled_text" msgid="401238365312924088">"Um die Blockierung aufzuheben und den Zugriff zu erlauben, musst du den Schalter für den Datenschutz an deinem Gerät auf die Position zum Aktivieren des Mikrofons bringen."</string>
+    <string name="camera" msgid="1226671478936288283">"Kamera"</string>
+    <string name="camera_toggle_title" msgid="5566469574224956142">"Kamerazugriff"</string>
+    <string name="open_camera_permissions" msgid="301360297337141591">"App-Zugriff auf die Kamera"</string>
+    <string name="camera_physical_privacy_enabled_title" msgid="1944155695921165511">"Kamerazugriff blockiert"</string>
+    <string name="camera_physical_privacy_enabled_text" msgid="6692088634676282779">"Um die Blockierung aufzuheben und den Zugriff zu erlauben, musst du den Schalter für den Datenschutz an deinem Gerät auf die Position zum Aktivieren der Kamera bringen."</string>
+    <string name="mic_toggle_info_title" msgid="1086545614315873599">"Mikrofonzugriff: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="mic_toggle_info_content" msgid="3187791167208947239">"Wenn diese Option aktiviert ist, können alle Apps und Dienste, die das Mikrofon verwenden dürfen, auf dieses zugreifen.\n\nWenn diese Option deaktiviert ist, können keine Apps oder Dienste auf das Mikrofon zugreifen. Wenn du die Google Assistant-Taste auf deiner Fernbedienung drückst, kannst du möglicherweise trotzdem mit Assistant sprechen.\n\nAudiogeräte, die benutzerdefinierte Protokolle zur Kommunikation mit dem Fernseher verwenden, sind von dieser Einstellung möglicherweise nicht betroffen."</string>
+    <string name="mic_remote_toggle_on_info_title" msgid="8503441878870972046">"Mikrofon auf der Fernbedienung aktiviert"</string>
+    <string name="mic_remote_toggle_on_info_content" msgid="2715872916376493679">"Google Assistant kann auf das Mikrofon deiner Fernbedienung zugreifen. Wenn du die Google Assistant-Taste auf deiner Fernbedienung drückst, kannst du mit Assistant sprechen."</string>
+    <string name="mic_remote_toggle_off_info_title" msgid="4902909833546393713">"Mikrofon auf der Fernbedienung deaktiviert"</string>
+    <string name="mic_remote_toggle_off_info_content" msgid="8062526350553191004">"Du kannst nicht über deine Fernbedienung mit Google Assistant sprechen. Wenn du die Google Assistant-Taste verwenden möchtest, aktiviere den Mikrofonzugriff."</string>
+    <string name="camera_toggle_info_title" msgid="3871317082313736088">"Kamerazugriff: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="camera_toggle_info_content" msgid="2999965953853204003">"Wenn diese Funktion aktiviert ist, können alle Apps und Dienste mit entsprechender Berechtigung auf alle Kameras dieses Geräts zugreifen.\n\nAuf Peripheriegeräte der Kamera mit benutzerdefiniertem Protokoll hat diese Einstellung keine Auswirkung."</string>
+    <string name="sensor_toggle_info_on" msgid="4568111889147132257">"An"</string>
+    <string name="sensor_toggle_info_off" msgid="7546772458177469821">"Aus"</string>
+    <string name="system_location" msgid="4057295363709016511">"Standort"</string>
+    <string name="system_desc_location" msgid="1680134126100535031">"Meine Standortdaten dürfen von Apps verwendet werden, die ich dazu berechtigt habe."</string>
+    <string name="system_network_location_confirm" msgid="7128162421781085332">"Standortfreigabe"</string>
+    <string name="location_mode_title" msgid="728244518174115443">"Modus"</string>
+    <string name="location_category_recent_location_requests" msgid="4541924383164183490">"Letzte Standortanfragen"</string>
+    <string name="location_no_recent_apps" msgid="7033474075806435793">"Keine App hat kürzlich den Standort abgefragt."</string>
+    <string name="location_high_battery_use" msgid="5325556609027887602">"Hoher Akkuverbrauch"</string>
+    <string name="location_low_battery_use" msgid="728585923412018253">"Geringer Akkuverbrauch"</string>
+    <string name="location_mode_wifi_description" msgid="84697248707903061">"WLAN für ungefähren Standort nutzen"</string>
+    <string name="location_status" msgid="3037321737386011224">"Standortstatus"</string>
+    <string name="location_services" msgid="551503779736382878">"Standortdienste"</string>
+    <string name="on" msgid="4899322147062342542">"An"</string>
+    <string name="off" msgid="3127416478888499352">"Aus"</string>
+    <string name="google_location_services_title" msgid="6304196603522909239">"Standortdienste von Google"</string>
+    <string name="third_party_location_services_title" msgid="2826218400381676508">"Standortdienste von Drittanbietern"</string>
+    <string name="location_reporting" msgid="3552501333650895634">"Standortbericht"</string>
+    <string name="location_history" msgid="4055660203090513120">"Standortverlauf"</string>
+    <string name="location_reporting_desc" msgid="1580018652781674608">"Google nutzt diese Funktion in Produkten wie Google Now und Google Maps. Bei aktiviertem Standortbericht können Google-Produkte die aktuellen Standortdaten deines Geräts in Verbindung mit deinem Google-Konto speichern und nutzen."</string>
+    <string name="location_history_desc" msgid="926674012916014270">"Wenn der Standortverlauf für das Konto aktiviert ist, speichert Google die Standortdaten deines Geräts, sodass diese von deinen Apps verwendet werden können.\n\nZum Beispiel kann Google Maps dir Routen anzeigen und Google Now kann dich über die aktuelle Verkehrslage auf deinem Weg zur Arbeit informieren.\n\nDu kannst den Standortverlauf jederzeit deaktivieren; er wird dadurch jedoch nicht gelöscht. Du kannst deinen Standortverlauf unter maps.google.com/locationhistory ansehen und verwalten."</string>
+    <string name="delete_location_history_title" msgid="707559064715633152">"Standortverlauf löschen"</string>
+    <string name="delete_location_history_desc" msgid="4035229731487113147">"Dadurch wird der gesamte Standortverlauf für dieses Google-Konto von diesem Gerät gelöscht. Du kannst den Löschvorgang nicht rückgängig machen. Einige Apps wie Google Now werden nicht mehr funktionieren."</string>
+    <string name="accessibility_screen_readers_category_title" msgid="7742526514873922018">"Screenreader"</string>
+    <string name="accessibility_display_category_title" msgid="593444602101558017">"Display"</string>
+    <string name="accessibility_interaction_controls_category_title" msgid="5290687835178852745">"Interaktionssteuerung"</string>
+    <string name="accessibility_audio_and_onscreen_text_category_title" msgid="113841605896486212">"Audiodienste und Text auf dem Bildschirm"</string>
+    <string name="accessibility_experimental_category_title" msgid="3401773834179170206">"Experimentell"</string>
+    <string name="accessibility_services_category_title" msgid="8813843874978910442">"Dienste"</string>
+    <string name="accessibility_service_settings" msgid="3251334786870932423">"Diensteinstellungen"</string>
+    <string name="accessibility_screen_reader_flattened_component_name" msgid="6834614827111101213">"com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="9200419191468995574">"Text mit hohem Kontrast"</string>
+    <string name="accessibility_toggle_bold_text_preference_title" msgid="3328992531170432669">"Fettdruck"</string>
+    <string name="accessibility_color_correction" msgid="6765093204922184119">"Farbkorrektur"</string>
+    <string name="color_correction_usage" msgid="4160611639548748657">"Farbkorrektur aktivieren"</string>
+    <string name="color_correction_color_mode" msgid="5081377780734779169">"Farbmodus"</string>
+    <string name="color_correction_mode_deuteranomaly" msgid="1513793544554228224">"Deuteranomalie"</string>
+    <string name="color_correction_mode_deuteranomaly_summary" msgid="5991561481464520986">"Rot-Grün-Sehschwäche"</string>
+    <string name="color_correction_mode_protanomaly" msgid="8105793166015115037">"Protanomalie"</string>
+    <string name="color_correction_mode_protanomaly_summary" msgid="3247619910784115563">"Rot-Grün-Sehschwäche"</string>
+    <string name="color_correction_mode_tritanomaly" msgid="757769418392736089">"Tritanomalie"</string>
+    <string name="color_correction_mode_tritanomaly_summary" msgid="137712354510881252">"Blau-Gelb-Sehschwäche"</string>
+    <string name="color_correction_mode_grayscale" msgid="2592973844160514484">"Graustufen"</string>
+    <string name="palette_color_red" msgid="507196433434979086">"Rot"</string>
+    <string name="palette_color_orange" msgid="6209196069366109835">"Orange"</string>
+    <string name="palette_color_yellow" msgid="298466132578870590">"Gelb"</string>
+    <string name="palette_color_green" msgid="4904783063036825668">"Grün"</string>
+    <string name="palette_color_cyan" msgid="3212217287628948203">"Cyan"</string>
+    <string name="palette_color_blue" msgid="8836682634988540630">"Blau"</string>
+    <string name="palette_color_purple" msgid="2123828754639683555">"Lila"</string>
+    <string name="palette_color_gray" msgid="4014534773994261194">"Grau"</string>
+    <string name="accessibility_shortcut" msgid="5856158637840030531">"Bedienungshilfe-\\nKurzbefehl"</string>
+    <string name="accessibility_shortcut_enable" msgid="6603542432267329986">"Kurzbefehl für Bedienungshilfen aktivieren"</string>
+    <string name="accessibility_shortcut_service" msgid="2053250146891420311">"Verknüpfter Dienst"</string>
+    <string name="accessibility_shortcut_description" msgid="2050424178481510046">"Wenn die Tastenkombination aktiviert ist, kannst du die Bedienungshilfe starten, indem du die Zurück-Taste und die Nach-Unten-Taste drei Sekunden lang gedrückt hältst."</string>
+    <string name="accessibility_captions" msgid="3411554568812306549">"Untertitel"</string>
+    <string name="accessibility_captions_description" msgid="3827820027578548160">"Einstellungen für Untertitel-Overlays in einem Video"</string>
+    <string name="captions_display" msgid="2598662495450633375">"Anzeigen"</string>
+    <string name="captions_display_on" msgid="480438033345455728">"An"</string>
+    <string name="captions_display_off" msgid="87881163874948539">"Aus"</string>
+    <string name="display_options" msgid="2645282080948371603">"Anzeigeoptionen"</string>
+    <string name="captions_configure" msgid="711991018642931958">"Konfigurieren"</string>
+    <string name="captions_language" msgid="5905918439449912646">"Sprache"</string>
+    <string name="captions_language_default" msgid="3894192926725192528">"Standard"</string>
+    <string name="captions_textsize" msgid="7161136610669343510">"Textgröße"</string>
+    <string name="captions_captionstyle" msgid="6650139717545516071">"Untertitelstil"</string>
+    <string name="captions_customoptions" msgid="7691004663572161126">"Benutzerdefinierte Optionen"</string>
+    <string name="captions_fontfamily" msgid="1026632786438880997">"Schriftfamilie"</string>
+    <string name="captions_textcolor" msgid="1566679779609140317">"Schriftfarbe"</string>
+    <string name="captions_edgetype" msgid="4875636291904824401">"Rahmentyp"</string>
+    <string name="captions_edgecolor" msgid="2779925179084237336">"Rahmenfarbe"</string>
+    <string name="captions_backgroundshow" msgid="1080183686470477645">"Hintergrund anzeigen"</string>
+    <string name="captions_backgroundcolor" msgid="2056944109914399253">"Hintergrundfarbe"</string>
+    <string name="captions_backgroundopacity" msgid="1850126438162000027">"Hintergrund­deck­kraft"</string>
+    <string name="captioning_preview_text" msgid="3034147586392743237">"Untertitel sehen so aus."</string>
+    <string name="captions_textopacity" msgid="6055602491649526307">"Textdeckkraft"</string>
+    <string name="captions_windowshow" msgid="6002072054703167886">"Fenster anzeigen"</string>
+    <string name="captions_windowcolor" msgid="7460430328878876648">"Fensterfarbe"</string>
+    <string name="captions_windowopacity" msgid="8645082670322789314">"Fensterdeckkraft"</string>
+    <string name="captions_style_0" msgid="169414884289770256">"Weiß auf schwarz"</string>
+    <string name="captions_style_1" msgid="8236052739817535538">"Schwarz auf weiß"</string>
+    <string name="captions_style_2" msgid="456353889540431910">"Gelb auf schwarz"</string>
+    <string name="captions_style_3" msgid="3860050153620761166">"Gelb auf blau"</string>
+    <string name="captions_style_custom" msgid="9062905566459387931">"Benutzerdefiniert"</string>
+    <string name="color_white" msgid="4188877187457167678">"Weiß"</string>
+    <string name="color_black" msgid="2631818627391955149">"Schwarz"</string>
+    <string name="color_red" msgid="1899020130465926495">"Rot"</string>
+    <string name="color_green" msgid="7546929005626106667">"Grün"</string>
+    <string name="color_blue" msgid="7681690245150985958">"Blau"</string>
+    <string name="color_cyan" msgid="3172130225116530998">"Cyan"</string>
+    <string name="color_yellow" msgid="3519470952904560404">"Gelb"</string>
+    <string name="color_magenta" msgid="2377854703399624607">"Magenta"</string>
+    <string name="accessibility_toggle_audio_description_preference_title" msgid="933923296129403548">"Audiobeschreibung"</string>
+    <string name="accessibility_audio_description_summary" msgid="2027813223650517036">"Höre dir in unterstützten Filmen und Serien eine Beschreibung der Ereignisse auf dem Bildschirm an"</string>
+    <string name="system_accessibility_status" msgid="8504842254080682515">"Aktivieren"</string>
+    <string name="system_accessibility_config" msgid="4820879735377962851">"Konfiguration"</string>
+    <string name="system_accessibility_service_on_confirm_title" msgid="4547924421106540376">"<xliff:g id="SERVICE">%1$s</xliff:g> verwenden?"</string>
+    <string name="system_accessibility_service_on_confirm_desc" msgid="5426217096813804569">"<xliff:g id="SERVICE">%1$s</xliff:g> darf deinen Bildschirm lesen, andere Apps mit Inhalten überdecken, deine Interaktionen mit Apps oder Hardwaresensoren verfolgen und in deinem Namen mit Apps interagieren."</string>
+    <string name="system_accessibility_service_off_confirm_title" msgid="1110904358228641834">"<xliff:g id="SERVICE">%1$s</xliff:g> beenden?"</string>
+    <string name="system_accessibility_service_off_confirm_desc" msgid="3486513644923267157">"Durch Auswählen von „OK“ wird <xliff:g id="SERVICE">%1$s</xliff:g> beendet."</string>
+    <string name="system_accessibility_tts_output" msgid="3186078508203212288">"Sprachausgabe"</string>
+    <string name="system_accessibility_tts_engine_config" msgid="4757760652785865532">"Modulkonfiguration"</string>
+    <string name="system_speak_passwords" msgid="8556036524146404052">"Passwörter aussprechen"</string>
+    <string name="system_preferred_engine" msgid="3545505072652708443">"Bevorzugtes Modul"</string>
+    <string name="system_speech_rate" msgid="6553204071403872669">"Sprechgeschwindig­keit"</string>
+    <string name="system_play_sample" msgid="3934369914309865584">"Beispiel abspielen"</string>
+    <string name="system_install_voice_data" msgid="8016395777968958673">"Sprachdaten installieren"</string>
+    <string name="system_general" msgid="687760148454147771">"Allgemein"</string>
+    <string name="system_debugging" msgid="1576324426385458481">"Debugging"</string>
+    <string name="system_input" msgid="4457152980514604873">"Eingabe"</string>
+    <string name="system_drawing" msgid="5802739024643871942">"Zeichnen"</string>
+    <string name="system_monitoring" msgid="7997260748312620855">"Überwachen"</string>
+    <string name="system_apps" msgid="8481888654606868074">"Apps"</string>
+    <string name="system_stay_awake" msgid="5935117574414511413">"Bildschirm aktiv lassen"</string>
+    <string name="keep_screen_on_summary" msgid="4680661166009970792">"Display geht nie in Ruhemodus"</string>
+    <string name="system_hdcp_checking" msgid="3757586362130048838">"HDCP-Prüfung"</string>
+    <string name="system_hdmi_optimization" msgid="4122753440620724144">"HDMI-Optimierung"</string>
+    <string name="system_reboot_confirm" msgid="7035370306447878560">"Jetzt neu starten?"</string>
+    <string name="system_desc_reboot_confirm" msgid="1567738857421128179">"Zur Aktualisierung dieser Einstellung muss das Gerät neu gestartet werden."</string>
+    <string name="system_never_check" msgid="2860070727606369055">"Nie prüfen"</string>
+    <string name="system_check_for_drm_content_only" msgid="6667617772587997533">"Nur auf DRM-Inhalte prüfen"</string>
+    <string name="system_always_check" msgid="384870282800221580">"Immer prüfen"</string>
+    <string name="system_bt_hci_log" msgid="1891838112637932603">"Bluetooth HCI-Protokollierung"</string>
+    <string name="system_email_address" msgid="3725494874473757217">"E-Mail-Adresse"</string>
+    <string name="system_usb_debugging" msgid="2158285492172755923">"USB-Debugging"</string>
+    <string name="system_allow_mock_locations" msgid="2483106887711851466">"Simulierte Standorte zulassen"</string>
+    <string name="system_select_debug_app" msgid="6200987902307533721">"Debugging-App auswählen"</string>
+    <string name="system_wait_for_debugger" msgid="5715878008542589060">"Auf Debugger warten"</string>
+    <string name="system_verify_apps_over_usb" msgid="7289212844195483932">"Apps über USB überprüfen"</string>
+    <string name="system_desc_verify_apps_over_usb" msgid="7737988681480237094">"Über ADB/ADT installierte Apps werden auf schädliches Verhalten geprüft"</string>
+    <string name="system_wifi_verbose_logging" msgid="3097788974146704831">"Ausführliche WLAN-Protokollierung"</string>
+    <string name="system_desc_wifi_verbose_logging" msgid="3537578245428327314">"Ausführliche WLAN-Protokollierung aktivieren"</string>
+    <string name="system_show_touches" msgid="8244331695139748286">"Berührungen anzeigen"</string>
+    <string name="system_pointer_location" msgid="8724050865245555084">"Zeigerposition"</string>
+    <string name="system_show_layout_bounds" msgid="8803080672553699649">"Layoutgrenzen anzeigen"</string>
+    <string name="system_show_gpu_view_updates" msgid="1625918928089365222">"Updates der GPU-Ansicht anzeigen"</string>
+    <string name="system_show_hardware_layer" msgid="5833664339844452290">"Hardwareebene anzeigen"</string>
+    <string name="system_show_gpu_overdraw" msgid="5073007513540516704">"GPU-Überzeichnung anzeigen"</string>
+    <string name="system_show_surface_updates" msgid="7680759813613585278">"Oberflächenaktualisierungen anzeigen"</string>
+    <string name="system_window_animation_scale" msgid="685477540250939659">"Fensteranimationsfaktor"</string>
+    <string name="system_transition_animation_scale" msgid="7266380208347453619">"Übergangsanimationsfaktor"</string>
+    <string name="system_animator_duration_scale" msgid="3829445237130423625">"Animationsdauerfaktor"</string>
+    <string name="system_strict_mode_enabled" msgid="7392183793064579588">"Strikter Modus aktiviert"</string>
+    <string name="system_profile_gpu_rendering" msgid="1113416260742329348">"GPU-Rendering für Profil"</string>
+    <string name="system_enable_traces" msgid="108745519968154528">"Tracing aktivieren"</string>
+    <string name="system_dont_keep_activities" msgid="4641165963339846161">"Aktivitäten nicht speichern"</string>
+    <string name="system_background_process_limit" msgid="1985373407150771045">"Limit für Hintergrundprozesse"</string>
+    <string name="system_show_all_anrs" msgid="5353216640638263217">"Alle ANRs anzeigen"</string>
+    <string name="system_desc_stay_awake" msgid="8485868071929937500">"Ruhemodus deaktivieren"</string>
+    <string name="system_desc_hdcp_checking" msgid="1664068008848077241">"Nur für DRM-Inhalte"</string>
+    <string name="system_desc_hdmi_optimization" msgid="5695603795556335912">"Optimiert die Anzeige für maximale Auflösung oder maximale Framerate. Gilt nur für Ultra HD-Bildschirme. Nach einer Änderung dieser Einstellung wird das Gerät neu gestartet."</string>
+    <string name="system_desc_bt_hci_log" msgid="2592649923221658103">"Bluetooth HCI-Snoop-Protokollierung aktivieren"</string>
+    <string name="system_desc_usb_debugging" msgid="5672275208185222785">"Debugging-Modus bei Anschluss über USB"</string>
+    <string name="system_desc_wait_for_debugger" msgid="7213496668606417691">"App wartet vor Ausführung auf Start des Debuggers"</string>
+    <string name="system_desc_show_layout_bounds" msgid="5275008598296135852">"Zuschnittbegrenzungen, Ränder usw. anzeigen"</string>
+    <string name="system_desc_show_gpu_view_updates" msgid="9088343415389734854">"Ansichten in Fenstern blinken beim Rendern mit GPU"</string>
+    <string name="system_desc_show_hardware_layer" msgid="3483713991865249527">"Hardwareschichten blinken beim Aktualisieren grün"</string>
+    <string name="system_desc_show_gpu_overdraw" msgid="74019834911598588">"Niedrig nach hoch: blau, grün, hellrot, rot"</string>
+    <string name="system_desc_show_surface_updates" msgid="4018685547515133353">"Ganze Fensteroberfläche blinkt bei Aktualisierung."</string>
+    <string name="system_desc_strict_mode_enabled" msgid="1974896408481676324">"Bei langen App-Operationen im Hauptthread blinkt der Bildschirm"</string>
+    <string name="system_desc_profile_gpu_rendering" msgid="1594070211030991">"Rendering-Zeit in adb shell dumpsys gfxinfo messen"</string>
+    <string name="security_unknown_sources_title" msgid="2012801664240314305">"Unbekannte Herkunft"</string>
+    <string name="security_unknown_sources_desc" msgid="7196715598352173267">"Installation von Apps aus anderen Quellen als dem Play Store zulassen"</string>
+    <string name="security_unknown_sources_confirm_title" msgid="4600896691987804985">"Apps mit unbekannter Herkunft zulassen"</string>
+    <string name="security_unknown_sources_confirm_desc" msgid="7883820068140189584">"Apps mit unbekannter Herkunft können gefährlich für dein Gerät und deine personenbezogenen Daten sein. Du stimmst zu, dass du die Verantwortung für alle Schäden an deinem Gerät und jegliche Datenverluste trägst, die aus der Verwendung dieser Apps entstehen können."</string>
+    <string name="system_hdcp_checking_never" msgid="3251512398865365135">"Nie"</string>
+    <string name="system_hdcp_checking_drm" msgid="2159124883496899278">"Bei DRM-Inhalten"</string>
+    <string name="system_hdcp_checking_always" msgid="5868177105455148262">"Immer"</string>
+    <string name="system_hdmi_optimization_best_resolution" msgid="4916028940107998097">"Beste Auflösung"</string>
+    <string name="system_hdmi_optimization_best_framerate" msgid="3778579148517609370">"Beste Framerate"</string>
+    <string name="system_hw_overdraw_off" msgid="6637679040053936280">"Aus"</string>
+    <string name="system_hw_overdraw_areas" msgid="6442009722913530348">"Überschneidungsbereiche anzeigen"</string>
+    <string name="system_hw_overdraw_counter" msgid="9132113146364838852">"Überschneidungszähler anzeigen"</string>
+    <string name="no_application" msgid="1904437693440706534">"Keine"</string>
+    <string name="enable_opengl_traces_none" msgid="4718084947494592040">"Keine"</string>
+  <string-array name="animation_scale_entries">
+    <item msgid="5408992662476056082">"Animation aus"</item>
+    <item msgid="6818290063799857019">"Animationsfaktor: 0,5x"</item>
+    <item msgid="8257959452691080724">"Animationsfaktor: 1x"</item>
+    <item msgid="4781052272686018414">"Animationsfaktor: 1,5x"</item>
+    <item msgid="2272016945160227610">"Animationsfaktor: 2x"</item>
+    <item msgid="5015441793276576312">"Animationsfaktor: 5x"</item>
+    <item msgid="1290233583371556415">"Animationsfaktor: 10x"</item>
+  </string-array>
+    <string name="track_frame_time_off" msgid="8845064783618702239">"Aus"</string>
+    <string name="track_frame_time_bars" msgid="5841531515222229632">"Auf Bildschirm als Balken"</string>
+    <string name="app_process_limit_standard" msgid="6069948528843313888">"Standardlimit"</string>
+    <string name="app_process_limit_zero" msgid="4094665021909774994">"Keine Hintergrundprozesse"</string>
+    <string name="app_process_limit_one" msgid="4509089015775863726">"Höchstens 1 Prozess"</string>
+    <string name="app_process_limit_two" msgid="368216781690488529">"Höchstens 2 Prozesse"</string>
+    <string name="app_process_limit_three" msgid="2191860654645796987">"Höchstens 3 Prozesse"</string>
+    <string name="app_process_limit_four" msgid="9186705437061005461">"Höchstens 4 Prozesse"</string>
+    <string name="tts_rate_very_slow" msgid="1927454053669655117">"Sehr langsam"</string>
+    <string name="tts_rate_slow" msgid="7668484707347561166">"Langsam"</string>
+    <string name="tts_rate_normal" msgid="3631458247079252628">"Normal"</string>
+    <string name="tts_rate_fast" msgid="5723868816257531421">"Rasch"</string>
+    <string name="tts_rate_very_fast" msgid="7756663146626103952">"Sehr rasch"</string>
+    <string name="title_settings" msgid="780933693363320088">"Einstellungen für <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="title_current_keyboard" msgid="891238509164879851">"Aktuelle Tastatur"</string>
+    <string name="title_configure" msgid="846802387014612210">"Konfigurieren"</string>
+    <string name="desc_configure_keyboard" msgid="3474279140150468141">"Tastaturoptionen"</string>
+    <string name="title_current_autofill_service" msgid="9029001041887283153">"Aktueller Autofill-Service"</string>
+    <string name="title_select_autofill_service" msgid="696559582725756848">"Autofill-Service auswählen"</string>
+    <string name="autofill_none" msgid="1615056985649424207">"Keinen Dienst für automatisches Ausfüllen"</string>
+    <string name="autofill_confirmation_message" msgid="3840267789160192558">"&lt;b&gt;Nur für vertrauenswürdige Apps&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Passwortdienst&gt;%1$s&lt;/xliff:g&gt; greift auf die Displayanzeige zu, um zu bestimmen, welche Felder automatisch ausgefüllt werden können. Automatisches Ausfüllen sollte daher nur für vertrauenswürdige Apps zugelassen werden."</string>
+    <string name="computing_size" msgid="8623916230485437579">"Berechnung..."</string>
+    <string name="title_select_wifi_network" msgid="935820896444071617">"WLAN auswählen"</string>
+    <string name="accessories_wifi_display_rename_device" msgid="8803397194143132061">"Umbenennen"</string>
+    <string name="accessories_wifi_display_enable" msgid="2385467074170316302">"WLAN-Display"</string>
+    <string name="accessories_wifi_display_pin_required" msgid="5434960694140426664">"PIN erforderlich"</string>
+    <string name="whichApplication" msgid="4510042089342879264">"Aktion durchführen mit"</string>
+    <string name="alwaysUseQuestion" msgid="2643084054296937138">"Für diese Aktion immer diese Option verwenden?"</string>
+    <string name="alwaysUseOption" msgid="8799609235198714441">"Immer verwenden"</string>
+    <string name="justOnceOption" msgid="6714005843102804865">"Nur diesmal"</string>
+    <string name="noApplications" msgid="7511175717026318399">"Aktion kann von keiner App ausgeführt werden."</string>
+    <string name="noAppsGoBack" msgid="2538480554615467065">"Zurück"</string>
+    <string name="inputs_inputs" msgid="8639408473661259307">"Eingänge"</string>
+    <string name="inputs_header_cec" msgid="4139015942980115323">"CEC (Consumer Electronic Control)"</string>
+    <string name="inputs_cec_settings" msgid="5948357769198260080">"Einstellungen Gerätesteuerung"</string>
+    <string name="inputs_blu_ray" msgid="6561004081102615775">"Blu-ray"</string>
+    <string name="inputs_cable" msgid="8274665772422377063">"Kabel"</string>
+    <string name="inputs_dvd" msgid="1452146927899250552">"DVD"</string>
+    <string name="inputs_game" msgid="4762255172943107070">"Spielekonsole"</string>
+    <string name="inputs_aux" msgid="5331442342029867329">"AUX-Eingang"</string>
+    <string name="inputs_custom_name" msgid="2649826613531559538">"Benutzerdefinierter Name"</string>
+    <string name="inputs_custom_name_description_fmt" msgid="2879134265596928298">"Gib einen Namen für den <xliff:g id="INPUT">%1$s</xliff:g>-Eingang ein."</string>
+    <string name="inputs_hide" msgid="9223355763198742416">"Verborgen"</string>
+    <string name="inputs_show" msgid="2937435050499142756">"Diesen Eingang anzeigen"</string>
+    <string name="input_header_names" msgid="5903234218909970550">"Name"</string>
+    <string name="inputs_hdmi_control" msgid="650355636965841054">"HDMI-Steuerung"</string>
+    <string name="inputs_hdmi_control_desc" msgid="306769914209526682">"Ermöglicht Steuerung von HDMI-Geräten über TV"</string>
+    <string name="inputs_device_auto_off" msgid="2659766884754402352">"Gerät automatisch ausschalten"</string>
+    <string name="inputs_device_auto_off_desc" msgid="1164897242719608201">"HDMI-Geräte zusammen mit dem Fernseher ausschalten"</string>
+    <string name="inputs_tv_auto_on" msgid="544848340484583318">"TV automatisch einschalten"</string>
+    <string name="inputs_tv_auto_on_desc" msgid="3640723210479925817">"Fernseher zusammen mit HDMI-Gerät einschalten"</string>
+    <string name="inputs_header_connected_input" msgid="4323324944548164849">"{count,plural, =1{Verbundener Eingang}other{Verbundene Eingänge}}"</string>
+    <string name="inputs_header_standby_input" msgid="600117963181008144">"{count,plural, =1{Eingang auf Stand-by}other{Eingänge auf Stand-by}}"</string>
+    <string name="inputs_header_disconnected_input" msgid="3852361100151289264">"{count,plural, =1{Nicht verbundener Eingang}other{Nicht verbundene Eingänge}}"</string>
+    <string name="user_add_profile_item_summary" msgid="3211866291940617804">"Zugriff auf Apps und sonstige Inhalte in deinem Konto einschränken"</string>
+    <string name="user_new_profile_name" msgid="6637593067318708353">"Eingeschränktes Profil"</string>
+    <string name="user_restrictions_controlled_by" msgid="8124926446168030445">"Von <xliff:g id="APP">%1$s</xliff:g> festgelegt"</string>
+    <string name="app_not_supported_in_limited" msgid="4046604594925826955">"Diese App wird in eingeschränkten Profilen nicht unterstützt."</string>
+    <string name="app_sees_restricted_accounts" msgid="174038126799649152">"Diese App darf auf deine Konten zugreifen."</string>
+    <string name="restriction_location_enable_title" msgid="2552780806199464266">"Standort"</string>
+    <string name="restriction_location_enable_summary" msgid="3719330231217994482">"Apps dürfen deine Standortinformationen nutzen."</string>
+    <string name="restricted_profile_switch_to" msgid="6193201935877168764">"Eingeschränktes Profil öffnen"</string>
+    <string name="restricted_profile_switch_out" msgid="3589381233390753413">"Eingeschränktes Profil verlassen"</string>
+    <string name="restricted_profile_delete_title" msgid="7153982195273379506">"Eingeschränktes Profil löschen"</string>
+    <string name="restricted_profile_create_title" msgid="700322590579894058">"Eingeschränktes Profil erstellen"</string>
+    <string name="restricted_profile_configure_title" msgid="3327502517511010296">"Einstellungen"</string>
+    <string name="restricted_profile_configure_apps_title" msgid="2244201859522056827">"Zugelassene Apps"</string>
+    <string name="restricted_profile_allowed" msgid="970921490464867884">"Zugelassen"</string>
+    <string name="restricted_profile_not_allowed" msgid="8184983064118036268">"Nicht zugelassen"</string>
+    <string name="restricted_profile_customize_restrictions" msgid="4723577877385636704">"Einschränkungen anpassen"</string>
+    <string name="restricted_profile_configure_apps_description_loading" msgid="3293508876131962699">"Einen Moment bitte…"</string>
+    <string name="restricted_profile_change_password_title" msgid="6961384850606763601">"PIN ändern"</string>
+    <string name="restricted_profile_create_preference_screen" msgid="3263536648469645089">"Eingeschränktes Profil erstellen?"</string>
+    <string name="restricted_profile_already_created_placeholder" msgid="8619544048199836920">"Bereits erstellt"</string>
+    <string name="restricted_profile_skip_action" msgid="4674562040162193593">"Überspringen"</string>
+    <string name="restricted_profile_create_pin_action" msgid="1883036507880250231">"PIN erstellen"</string>
+    <string name="restricted_profile_enter_preference_screen" msgid="676246260867597333">"Eingeschränktes Profil aufrufen?"</string>
+    <string name="restricted_profile_enter_not_found_placeholder" msgid="2270969471829375976">"Kein eingeschränktes Profil"</string>
+    <string name="restricted_profile_enter_already_entered_placeholder" msgid="6178278708529027598">"Bereits aufgerufen"</string>
+    <string name="restriction_description" msgid="2053112392083722259">"<xliff:g id="DESCRIPTION">%1$s</xliff:g>\n<xliff:g id="VALUE">%2$s</xliff:g>"</string>
+    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="1261056180558324892">"Diese App darf auf deine Konten zugreifen. Von <xliff:g id="APP">%1$s</xliff:g> festgelegt"</string>
+    <string name="pin_enter_unlock_channel" msgid="243855138978654080">"Zum Ansehen dieses Kanals PIN eingeben"</string>
+    <string name="pin_enter_unlock_program" msgid="275489015420025531">"Zum Ansehen dieses Programms PIN eingeben"</string>
+    <string name="pin_enter_pin" msgid="5020029261153234751">"PIN eingeben"</string>
+    <string name="pin_enter_new_pin" msgid="1930944619313642621">"Neue PIN festlegen"</string>
+    <string name="pin_enter_again" msgid="7615050143778858658">"Neue PIN erneut eingeben"</string>
+    <string name="pin_enter_old_pin" msgid="5665265735227617942">"Alte PIN eingeben"</string>
+    <string name="pin_enter_wrong_seconds" msgid="3014013615537066237">"Du hast fünfmal die falsche PIN eingegeben.\nVersuche es in <xliff:g id="RELATIVE_TIME_SPAN">%1$d</xliff:g> Sekunden erneut."</string>
+    <string name="pin_toast_wrong" msgid="4297542365877164402">"Falsche PIN. Bitte versuche es noch einmal."</string>
+    <string name="pin_toast_not_match" msgid="2439298696342975155">"Die PIN stimmt nicht. Bitte versuche es noch einmal."</string>
+    <string name="wifi_setup_input_password" msgid="8510003548463241234">"Passwort für <xliff:g id="SSID">%1$s</xliff:g> eingeben"</string>
+    <string name="wifi_setup_description" msgid="6843574399437584520">"Wähle <xliff:g id="WIFI_SUBMIT_ICON">%1$s</xliff:g> aus, um fortzufahren."</string>
+    <string name="label_done_key" msgid="8576286462300373440">"Fertig"</string>
+    <string name="wifi_setup_connection_success" msgid="3301901673876973474">"Die Verbindung wurde hergestellt"</string>
+    <string name="wifi_setup_save_success" msgid="6862510218032734919">"Die Konfiguration wurde gespeichert"</string>
+    <string name="device_apps_app_management_version" msgid="2119174719194899740">"Version <xliff:g id="APP_VERSION">%1$s</xliff:g>"</string>
+    <string name="device_apps_app_management_open" msgid="4249743535677261897">"Öffnen"</string>
+    <string name="device_apps_app_management_force_stop" msgid="4454221309989640309">"Beenden erzwingen"</string>
+    <string name="device_apps_app_management_force_stop_desc" msgid="1980972142863114899">"Das Beenden der App zu erzwingen, kann zu unerwünschtem Verhalten führen."</string>
+    <string name="device_apps_app_management_uninstall" msgid="4171103696233332967">"Deinstallieren"</string>
+    <string name="device_apps_app_management_uninstall_updates" msgid="5647988075828648951">"Updates deinstallieren"</string>
+    <string name="device_apps_app_management_uninstall_updates_desc" msgid="4508586498292236706">"Alle Updates für diese Android-System-App werden deinstalliert."</string>
+    <string name="device_apps_app_management_disable" msgid="819003297535493633">"Deaktivieren"</string>
+    <string name="device_apps_app_management_disable_desc" msgid="9143166267511427607">"Möchtest du diese App deaktivieren?"</string>
+    <string name="device_apps_app_management_enable" msgid="9173340340253029114">"Aktivieren"</string>
+    <string name="device_apps_app_management_enable_desc" msgid="8686291003061136476">"Möchtest du diese App aktivieren?"</string>
+    <string name="device_apps_app_management_storage_used" msgid="6725789557993296433">"Genutzter Speicherplatz"</string>
+    <string name="device_apps_app_management_storage_used_desc" msgid="8928632612101487179">"<xliff:g id="VOLUME">%2$s</xliff:g>: <xliff:g id="SIZE">%1$s</xliff:g> belegt"</string>
+    <string name="device_apps_app_management_clear_data" msgid="7305471678286735600">"Daten löschen"</string>
+    <string name="device_apps_app_management_clear_data_desc" msgid="170972356946852847">"Alle Daten dieser App werden endgültig gelöscht.\nDazu zählen alle Dateien, Einstellungen, Konten, Datenbanken."</string>
+    <string name="device_apps_app_management_clear_default" msgid="4566187319647111484">"Standardeinstellungen löschen"</string>
+    <string name="device_apps_app_management_clear_default_set" msgid="1649974109123107390">"Bei einigen Aktionen startet diese App."</string>
+    <string name="device_apps_app_management_clear_default_none" msgid="5935252537185381597">"Keine Standardeinstellungen festgelegt"</string>
+    <string name="device_apps_app_management_clear_cache" msgid="2678301483598915479">"Cache leeren"</string>
+    <string name="device_apps_app_management_notifications" msgid="1687529279264810317">"Benachrichtigungen"</string>
+    <string name="device_apps_app_management_licenses" msgid="4809737266551899869">"Drittanbieter"</string>
+    <string name="device_apps_app_management_permissions" msgid="4951820230491375037">"Berechtigungen"</string>
+    <string name="device_apps_app_management_not_available" msgid="4198634078194500518">"App nicht verfügbar"</string>
+    <string name="unused_apps" msgid="5539166745483454543">"Nicht verwendete Apps"</string>
+    <string name="settings_ok" msgid="5950888975075541964">"Ok"</string>
+    <string name="settings_confirm" msgid="4489126458677153411">"Bestätigen"</string>
+    <string name="settings_cancel" msgid="576094334743686152">"Abbrechen"</string>
+    <string name="settings_on" msgid="7734010120323404333">"An"</string>
+    <string name="settings_off" msgid="4060451657850476369">"Aus"</string>
+    <string name="device_daydreams_none" msgid="3405655350757277348">"Bildschirm deaktivieren"</string>
+    <string name="device_daydreams_select" msgid="7203264446482623438">"Bildschirmschoner"</string>
+    <string name="device_daydreams_test" msgid="7828275397550076567">"Jetzt starten"</string>
+    <string name="device_daydreams_sleep" msgid="6847770718407377357">"Zeitpunkt festlegen"</string>
+    <string name="device_daydreams_sleep_description" msgid="6237610484915504587">"Nach dieser Dauer der Inaktivität wird der Bildschirmschoner eingeschaltet. Ist kein Bildschirmschoner ausgewählt, wird das Display ausgeschaltet."</string>
+    <string name="device_daydreams_sleep_summary" msgid="3081688734381995693">"Nach <xliff:g id="SLEEP_DESCRIPTION">%1$s</xliff:g> ohne Aktivität"</string>
+    <string name="device_energy_saver_screen_off" msgid="6908468996426629480">"Display deaktivieren"</string>
+    <!-- no translation found for device_energy_saver_timeout_description (3206609135199137514) -->
+    <skip />
+    <string name="device_energy_saver_confirmation_title" msgid="7614859812773584773">"Einstellung für Stromversorgung &amp; Energie bestätigen"</string>
+    <string name="device_energy_saver_confirmation_message" msgid="7789453187001013951">"Wenn du deinen Fernseher lange Zeit eingeschaltet lässt, steigt dein Energieverbrauch"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_title" msgid="1468097048101593731">"Energiesparmodus deaktivieren"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_text" msgid="6334963903866002164">"Bitte bestätige, dass der Bildschirm während der Medienwiedergabe nicht ausgeschaltet werden soll. Diese Einstellung führt möglicherweise zu erhöhtem Energieverbrauch."</string>
+    <string name="device_energy_saver_sleep_timeout" msgid="1841900768718452039">"Bei Inaktivität"</string>
+    <string name="device_energy_saver_attentive_timeout" msgid="3649486668821348087">"Beim Anschauen"</string>
+    <string name="device_energy_saver_category_title" msgid="170076161677525986">"Automatisch ausschalten"</string>
+    <string name="device_energy_saver_sleep_timeout_dialog_title" msgid="6588352532253294558">"Bei Inaktivität automatisch ausschalten"</string>
+    <string name="device_energy_saver_attentive_timeout_dialog_title" msgid="3273988875711109352">"Beim Zuschauen automatisch ausschalten"</string>
+    <string name="device_energy_saver_validation_sleep" msgid="7490897287741107840">"Der Timer „Bei Inaktivität“ muss kürzer sein als der Timer „Beim Anschauen“"</string>
+    <string name="device_energy_saver_validation_attentive" msgid="1461105528087097435">"Der Timer „Beim Anschauen“ muss länger sein als der Timer „Bei Inaktivität“"</string>
+    <string name="limit_network_in_standby_toggle_title" msgid="6587185599397355336">"Netzwerkzugriff im Stand-by beschränken"</string>
+    <string name="limit_network_in_standby_toggle_summary" msgid="9127792748675581174">"Weniger Stromverbrauch im Stand-by-Modus"</string>
+    <string name="limit_network_in_standby_toggle_info" msgid="566947772381093991">"Dein Fernseher wird im Stand-by-Modus vom Netzwerk getrennt und verbindet sich nur noch für automatische Updates. Das kann den Stromverbrauch des Fernsehers senken, bedeutet aber auch, dass du Funktionen wie Cast und Google Assistant im Stand-by-Modus möglicherweise nicht nutzen kannst."</string>
+    <string name="limit_network_in_standby_confirm_title" msgid="789232987058850322">"Netzwerkzugriff im Stand-by erlauben"</string>
+    <string name="limit_network_in_standby_confirm_message" msgid="7176699480768019689">"Jeder Zugriff auf das Netzwerk im Stand-by erhöht den Stand-by-Stromverbrauch."</string>
+    <string name="backup_configure_account_default_summary" msgid="2170733614341544296">"Momentan werden in keinem Konto gesicherte Daten gespeichert."</string>
+    <string name="backup_erase_dialog_title" msgid="6008454053276987100"></string>
+    <string name="backup_erase_dialog_message" msgid="222169533402624861">"Sicherung deiner WLAN-Passwörter, Lesezeichen, anderer Einstellungen und App-Daten beenden und alle Kopien auf Google-Servern löschen?"</string>
+    <string name="privacy_backup_data" msgid="3604057980102997914">"Meine Daten sichern"</string>
+    <string name="privacy_backup_account" msgid="4527813051841860610">"Zu sicherndes Konto"</string>
+    <string name="privacy_automatic_restore" msgid="7117805818589418118">"Automatische Wiederherstellung"</string>
+    <string name="factory_reset_device" msgid="6509900821515094361">"Gerät zurücksetzen"</string>
+    <string name="factory_reset_description" msgid="6697396335158766785">"Das Gerät wird damit auf die Werkseinstellungen zurückgesetzt und alle Daten, Konten, Dateien und heruntergeladenen Apps werden gelöscht."</string>
+    <string name="factory_reset_info_description" msgid="5098454670833183487">"Das Gerät wird damit auf die Werkseinstellungen zurückgesetzt und alle Daten, Konten, Dateien und heruntergeladenen Apps werden gelöscht."</string>
+    <string name="factory_reset_content_description" msgid="1677022688420116803">"Auf Werkseinstellungen zurücksetzen – Das Gerät wird damit auf die Werkseinstellungen zurückgesetzt und alle Daten, Konten, Dateien und heruntergeladenen Apps werden gelöscht."</string>
+    <string name="confirm_factory_reset_description" msgid="1337483463207721713">"Alle personenbezogenen Daten und heruntergeladenen Apps auf diesem Gerät löschen? Dieser Vorgang kann nicht rückgängig gemacht werden."</string>
+    <string name="confirm_factory_reset_device" msgid="4308646529880718465">"Alles löschen"</string>
+    <string name="select_device_name_title" msgid="3045019448327493634">"Name für <xliff:g id="DEVICEMODEL">%1$s</xliff:g> auswählen"</string>
+    <string name="select_device_name_description" msgid="8528185095614986580">"Gib deinem Gerät einen Namen, damit du es identifizieren kannst, wenn du von anderen Geräten darauf streamen oder eine Verbindung damit herstellen möchtest."</string>
+  <string-array name="rooms">
+    <item msgid="6590829789532602097">"Android TV"</item>
+    <item msgid="1140506340411482365">"Fernseher im Wohnzimmer"</item>
+    <item msgid="6448060889026244632">"Fernseher im Gemeinschaftsraum"</item>
+    <item msgid="3336274213215419228">"Fernseher im Schlafzimmer"</item>
+  </string-array>
+    <string name="custom_room" msgid="6798144004583173563">"Namen eingeben…"</string>
+    <string name="device_rename_title" msgid="9070021379000499270">"<xliff:g id="DEVICEMODEL">%1$s</xliff:g> umbenennen"</string>
+    <string name="device_rename_description" msgid="1973894029492915135">"<xliff:g id="DEVICEMODEL">%1$s</xliff:g> heißt momentan „<xliff:g id="DEVICENAME">%2$s</xliff:g>“."</string>
+    <string name="device_name_suggestion_title" msgid="3986220212759193742">"Gerätename festlegen"</string>
+    <string name="device_name_suggestion_summary" msgid="4582691399302362938">"Diesen Namen beim Streamen von Fotos, Videos und anderen Medien vom Smartphone verwenden"</string>
+    <string name="change_setting" msgid="7211706374208138343">"Ändern"</string>
+    <string name="keep_settings" msgid="703474489210093961">"Nicht ändern"</string>
+    <string name="apps_permissions" msgid="7876407267050498394">"Berechtigungen"</string>
+    <string name="device_apps_permissions" msgid="8421323706003063878">"App-Berechtigungen"</string>
+    <string name="app_permissions_group_summary" msgid="6818210080117761117">"<xliff:g id="COUNT_0">%1$d</xliff:g> von <xliff:g id="COUNT_1">%2$d</xliff:g> Apps sind berechtigt."</string>
+    <string name="bluetooth_permission_request" msgid="7788089036741496993">"Bluetooth-Berechtigungsanfrage"</string>
+    <string name="security_patch" msgid="8924741264829495392">"Stand der Sicherheitsupdates des Android TV-Betriebssystems"</string>
+    <string name="choose_application" msgid="2375936782103669988">"App wählen"</string>
+    <string name="experimental_preference" msgid="3982593252210557436">"(Experimentell)"</string>
+    <string name="reboot_safemode_action" msgid="2862127510492131128">"Im abgesicherten Modus starten"</string>
+    <string name="reboot_safemode_confirm" msgid="5745977150299953603">"Möchtest du im abgesicherten Modus starten?"</string>
+    <string name="reboot_safemode_desc" msgid="2919933461408942799">"Dadurch werden alle installierten Apps von Drittanbietern deaktiviert. Diese werden jedoch nach einem weiteren Neustart wiederhergestellt."</string>
+    <string name="capturing_bugreport" msgid="832512801903486821">"Fehlerbericht wird aufgenommen"</string>
+    <string name="available_virtual_keyboard_category" msgid="7445262027711560629">"Verfügbare Bildschirmtastaturen"</string>
+    <string name="manage_keyboards" msgid="7983890675377321912">"Tastaturen verwalten"</string>
+    <string name="app_permission_summary_allowed" msgid="5359622119044147500">"Zugelassen"</string>
+    <string name="app_permission_summary_not_allowed" msgid="5131611341738385303">"Nicht zugelassen"</string>
+    <string name="usage_access" msgid="8402350645248312782">"Zugriff auf Nutzungsdaten"</string>
+    <string name="usage_access_description" msgid="3276026988575551587">"Der Zugriff auf die Nutzungsdaten ermöglicht es einer App, verschiedene Informationen zu erfassen – welche anderen Apps du wie oft verwendest, welchen Mobilfunkanbieter du nutzt, welche Spracheinstellungen du festgelegt hast usw."</string>
+    <string name="high_power_apps" msgid="5841073958519976562">"Optimierter Energieverbrauch"</string>
+    <string name="high_power_apps_description" msgid="8651692364795060525">"Energieverbrauch von Apps optimieren"</string>
+    <string name="high_power_apps_empty" msgid="3084512758421482051">"Es müssen keine Apps optimiert werden"</string>
+    <string name="high_power_on" msgid="3120162683093360951">"Energieverbrauch wird nicht optimiert"</string>
+    <string name="high_power_off" msgid="3588854600942236231">"Energieverbrauch wird optimiert"</string>
+    <string name="high_power_system" msgid="6263052626979462255">"\"Optimierter Energieverbrauch\" nicht verfügbar"</string>
+    <string name="manage_notification_access_title" msgid="8659254371564990084">"Benachrichtigungs­zugriff"</string>
+    <string name="no_notification_listeners" msgid="5119406452675724448">"Keine installierte App hat Benachrichtigungszugriff angefordert."</string>
+    <string name="notification_listener_security_warning_summary" msgid="8602907284276088658">"Bei Aktivierung können diese Apps alle Benachrichtigungen lesen, also auch persönliche Informationen wie Kontaktnamen und eingehende Nachrichten, sowie Benachrichtigungen schließen oder in ihnen enthaltene Aktionen auslösen."</string>
+    <string name="default_notification_access_package_summary" msgid="1354775994781420222">"Vom System angefordert"</string>
+    <string name="directory_access" msgid="7338555825237012006">"Verzeichniszugriff"</string>
+    <string name="directory_access_description" msgid="3630855858552422012">"Diese Apps haben Zugriffberechtigung auf bestimmte Verzeichnisse."</string>
+    <string name="directory_on_volume" msgid="5628089584970521703">"<xliff:g id="VOLUME">%1$s</xliff:g> (<xliff:g id="DIRECTORY">%2$s</xliff:g>)"</string>
+    <string name="system_alert_window_settings" msgid="5790572489650085051">"Über anderen Apps einblenden"</string>
+    <string name="permit_draw_overlay" msgid="5312730681030266735">"Einblendung über anderen Apps zulassen"</string>
+    <string name="allow_overlay_description" msgid="5152329837278240259">"Hiermit kann eine App über anderen Apps eingeblendet werden. Dies beeinträchtigt möglicherweise deine Nutzung dieser Apps oder ändert deren Darstellung bzw. Verhalten."</string>
+    <string name="write_system_settings" msgid="4284654265954461890">"Systemeinstellungen ändern"</string>
+    <string name="write_settings_title" msgid="2361816483383105754">"Darf Systemeinstellungen ändern"</string>
+    <string name="write_settings_description" msgid="7382397926674265937">"Durch diese Berechtigung darf die App Systemeinstellungen ändern."</string>
+    <string name="write_settings_on" msgid="71675710746513956">"Ja"</string>
+    <string name="write_settings_off" msgid="6730113471695092167">"Nein"</string>
+    <string name="manage_external_storage_title" msgid="8139593207533811077">"Zugriff auf alle Dateien"</string>
+    <string name="permit_manage_external_storage" msgid="1776899171934627417">"Zugriff zum Verwalten aller Dateien zulassen"</string>
+    <string name="allow_manage_external_storage_description" msgid="4288250228151617611">"Du kannst dieser App erlauben, alle Dateien auf diesem Gerät und auf allen verbundenen Laufwerken zu lesen, zu ändern und zu löschen. Sie kann dann ohne deine explizite Zustimmung auf Dateien zugreifen."</string>
+    <string name="picture_in_picture_title" msgid="2636935591386702348">"Bild im Bild"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="3688997906817583854">"Bild im Bild zulassen"</string>
+    <string name="picture_in_picture_empty_text" msgid="4370198922852736600">"Keine der installierten Apps unterstützt den Bild-im-Bild-Modus"</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="3296649114939705896">"Während eine App geöffnet ist oder nachdem du sie schließt (z. B. um ein Video weiter anzusehen), öffnet sie ein Bild-im-Bild-Fenster. Dieses wird über anderen Apps eingeblendet, die du gerade verwendest."</string>
+    <string name="alarms_and_reminders_description" msgid="4063972350154624500">"Apps erlauben, Wecker zu stellen und zeitbasierte Aktionen zu planen. Dadurch laufen Apps im Hintergrund. Dies kann den Stromverbrauch erhöhen.\n\nWenn diese Berechtigung deaktiviert ist, funktionieren bereits gestellte Wecker und zeitbasierte Ereignisse, die von der entsprechenden App geplant sind, nicht wie erwartet."</string>
+    <string name="turn_screen_on_title" msgid="5293798529284629011">"Bildschirm einschalten"</string>
+    <string name="allow_turn_screen_on" msgid="4903401106871656521">"Einschalten des Bildschirms erlauben"</string>
+    <string name="allow_turn_screen_on_description" msgid="7521761625343889415">"Einer App erlauben, den Bildschirm einzuschalten. Wenn du diese Erlaubnis erteilst, kann die App jederzeit den Bildschirm einschalten – auch ohne dass du dies wirklich beabsichtigst."</string>
+    <string name="special_access" msgid="21806055758289916">"Spezieller App-Zugriff"</string>
+    <string name="string_concat" msgid="5213870180216051497">"<xliff:g id="PART1">%1$s</xliff:g> und <xliff:g id="PART2">%2$s</xliff:g>"</string>
+    <string name="audio_category" msgid="6143623109624947993">"Audio"</string>
+    <string name="record_audio" msgid="5035689290259575229">"Audio aufnehmen"</string>
+    <string name="record_audio_summary_on" msgid="8724494646461335090">"Deaktivieren, um Audioaufnahme zu beenden"</string>
+    <string name="record_audio_summary_off" msgid="1392440365091422816">"Aktivieren, um Audioaufnahme sofort zu starten"</string>
+    <string name="play_recorded_audio_title" msgid="4627717067151602729">"Audioaufnahme wiedergeben"</string>
+    <string name="save_recorded_audio_title" msgid="378003351782124651">"Audioaufnahme speichern"</string>
+    <string name="time_to_start_read_title" msgid="6565449163802837806">"Zeit bis zum Beginn der Wiedergabe"</string>
+    <string name="time_to_valid_audio_title" msgid="7246101824813414348">"Zeit bis zu den gültigen Audiodaten"</string>
+    <string name="empty_audio_duration_title" msgid="9024377320171450683">"Dauer der leeren Audiodatei"</string>
+    <string name="record_audio_source_title" msgid="9087784503276397929">"Audioquelle"</string>
+    <string name="record_audio_source_dialog_title" msgid="6556408220589197097">"Audioquelle für die nächste Aufnahme auswählen"</string>
+    <string name="recorded_microphones_title" msgid="5466988146086215426">"Für Aufnahme verwendete(s) Mikrofon(e)"</string>
+    <string name="show_audio_recording_start_failed" msgid="9131762831381326605">"Audioaufnahme konnte nicht gestartet werden."</string>
+    <string name="show_audio_recording_failed" msgid="8128216664039868681">"Audioaufnahme fehlgeschlagen."</string>
+    <string name="bluetooth_ask_discovery_title" msgid="4955540555242269694">"Für andere Bluetooth-Geräte sichtbar machen?"</string>
+    <string name="bluetooth_ask_discovery_message" msgid="8609666862877703398">"Eine App fordert die Berechtigung, deinen Fernseher <xliff:g id="TIMEOUT">%1$d</xliff:g> Sekunden lang für andere Bluetooth-Geräte sichtbar zu machen."</string>
+    <string name="help_center_title" msgid="6109822142761302433"></string>
+    <string name="disabled_by_policy_title" msgid="2220484346213756472">"Aktion nicht zulässig"</string>
+    <string name="disabled_by_policy_title_adjust_volume" msgid="4229779946666263271">"Lautstärke nicht änderbar"</string>
+    <string name="disabled_by_policy_title_outgoing_calls" msgid="8642280178608881544">"Anrufe nicht zulässig"</string>
+    <string name="disabled_by_policy_title_sms" msgid="5721045390560951358">"SMS nicht zulässig"</string>
+    <string name="disabled_by_policy_title_camera" msgid="6576557964422257426">"Kameranutzung nicht zulässig"</string>
+    <string name="disabled_by_policy_title_screen_capture" msgid="5774035841010091253">"Screenshots nicht zulässig"</string>
+    <string name="disabled_by_policy_title_suspend_packages" msgid="6500185610058872758">"App kann nicht geöffnet werden"</string>
+    <string name="default_admin_support_msg" msgid="7913455019068370350">"Wende dich bei Fragen an deinen IT-Administrator"</string>
+    <string name="admin_support_more_info" msgid="9053232166115098434">"Weitere Details"</string>
+    <string name="admin_profile_owner_message" msgid="5729169873349157622">"Dein Administrator kann die mit deinem Arbeitsprofil verbundenen Apps und Daten überwachen und verwalten, einschließlich der Einstellungen, Berechtigungen, Zugriffe auf Unternehmensinhalte, Netzwerkaktivitäten und Standortdaten des Geräts."</string>
+    <string name="admin_profile_owner_user_message" msgid="6431405126322617268">"Dein Administrator kann die mit diesem Nutzer verbundenen Apps und Daten überwachen und verwalten, einschließlich der Einstellungen, Berechtigungen, Zugriffe auf Unternehmensinhalte, Netzwerkaktivitäten und Standortdaten des Geräts."</string>
+    <string name="admin_device_owner_message" msgid="1935507216776040907">"Dein Administrator kann die mit diesem Gerät verbundenen Apps und Daten überwachen und verwalten, einschließlich der Einstellungen, Berechtigungen, Zugriffe auf Unternehmensinhalte, Netzwerkaktivitäten und Standortdaten des Geräts."</string>
+    <string name="remove_managed_profile_label" msgid="8950011141359605612">"Arbeitsprofil entfernen"</string>
+    <string name="active_device_admin_msg" msgid="185537304726228624">"App zur Geräteverwaltung"</string>
+    <string name="remove_device_admin" msgid="2623866073546295104">"Diese App zur Geräteverwaltung deaktivieren"</string>
+    <string name="uninstall_device_admin" msgid="6301368408620948266">"App deinstallieren"</string>
+    <string name="remove_and_uninstall_device_admin" msgid="1504351551194915633">"Deaktivieren &amp; deinstallieren"</string>
+    <string name="select_device_admin_msg" msgid="8475934459999710332">"Apps zur Geräteverwaltung"</string>
+    <string name="add_device_admin_msg" msgid="5390773166682603421">"App zur Geräteverwaltung aktivieren?"</string>
+    <string name="add_device_admin" msgid="5078281377915844544">"Diese App zur Geräteverwaltung aktivieren"</string>
+    <string name="device_admin_warning" msgid="7399916080685200660">"Wenn diese App zur Geräteverwaltung aktiviert ist, kann die App „<xliff:g id="APP_NAME">%1$s</xliff:g>“ Folgendes tun:"</string>
+    <string name="device_admin_warning_simplified" msgid="3310965971422346950">"Dieses Gerät wird von <xliff:g id="APP_NAME">%1$s</xliff:g> verwaltet und überwacht."</string>
+    <string name="device_admin_status" msgid="5467001937240455367">"Diese App zur Geräteverwaltung ist aktiv, sodass die App „<xliff:g id="APP_NAME">%1$s</xliff:g>“ Folgendes tun kann:"</string>
+    <string name="adding_profile_owner_warning" msgid="3888867082224127564">"Der Nutzer wird vom gewählten Administrator verwaltet, wenn fortgefahren wird. Dieser kann dann möglicherweise zusätzlich zu den personenbezogenen Daten auch damit verbundene Daten speichern.\n\nDer Administrator kann die mit diesem Nutzer verbundenen Einstellungen, Zugriffsrechte, Apps und Daten überwachen und verwalten, einschließlich der Netzwerkaktivitäten und der Standortinformationen des Geräts."</string>
+    <string name="share_remote_bugreport_dialog_title" msgid="2080017987692459555">"Fehlerbericht teilen?"</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="8515056665416643253">"Dein IT-Administrator hat einen Fehlerbericht zur Fehlerbehebung für dieses Gerät angefordert. Apps und Daten werden unter Umständen geteilt."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="4637489112422692638">"Dein IT-Administrator hat einen Fehlerbericht zur Fehlerbehebung für dieses Gerät angefordert. Apps und Daten werden unter Umständen geteilt und dein Gerät wird möglicherweise vorübergehend langsamer."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="8096239263583331293">"Dieser Fehlerbericht wird mit deinem IT-Administrator geteilt. Bei Bedarf kannst du ihn um weitere Informationen bitten."</string>
+    <string name="share_remote_bugreport_action" msgid="6760197666368262892">"Teilen"</string>
+    <string name="decline_remote_bugreport_action" msgid="2130779396296090961">"Ablehnen"</string>
+    <string name="network_connection_request_dialog_title" msgid="4103963119407212989">"Gerät zur Nutzung mit <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="network_connection_timeout_dialog_message" msgid="8408857135950230472">"Keine Geräte gefunden. Achte darauf, dass die Geräte eingeschaltet und zur Verbindung bereit sind."</string>
+    <string name="network_connection_timeout_dialog_ok" msgid="5374522862360880609">"Wiederholen"</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="3346121178275518630">"Ein Fehler ist aufgetreten. Die Anwendung hat die Anfrage zur Auswahl eines Geräts abgebrochen."</string>
+    <string name="network_connection_connect_successful" msgid="2981223044343511313">"Verbindung hergestellt"</string>
+    <string name="network_connection_request_dialog_showall" msgid="2653775399674126208">"Alle anzeigen"</string>
+    <string name="progress_scanning" msgid="3323638586482686516">"Wird gesucht"</string>
+    <string name="add_account_intent_not_available_dialog_message" msgid="8326403834567215053">"Intent zum Hinzufügen des Kontos konnte nicht vom Authenticator abgerufen werden."</string>
+    <string name="add_account_failed_dialog_message" msgid="3704858007957373186">"Das Konto konnte nicht hinzugefügt werden oder der Kontotyp ist nicht verfügbar."</string>
+    <string name="channels_and_inputs_title" msgid="7484506121290830217">"Kanäle &amp; Eingänge"</string>
+    <string name="channels_and_inputs_summary" msgid="3168386051698084007">"Kanäle, externe Eingänge"</string>
+    <string name="channels_settings_title" msgid="8048956665383762510">"Kanäle"</string>
+    <string name="external_inputs_settings_title" msgid="8937038060355986380">"Externe Eingänge"</string>
+    <string name="display_and_sound_vendor_summary" msgid="7661072343315403110">"Bild, Display, Ton"</string>
+    <string name="picture_settings_title" msgid="7643193630924322697">"Bild"</string>
+    <string name="screen_settings_title" msgid="7806908869190824434">"Display"</string>
+    <string name="sound_settings_title" msgid="9149367966117889465">"Ton"</string>
+    <string name="power_and_energy" msgid="4638182439670702556">"Stromversorgung &amp; Energie"</string>
+    <string name="power_on_behavior" msgid="927607372303160716">"Nach dem Einschalten"</string>
+    <string name="reset_options_title" msgid="7632580482285108955">"Zurücksetzen"</string>
+    <string name="adb_pairing_device_dialog_ethernet_pairing_code_label" msgid="7551782499828944838">"Ethernet-Kopplungscode"</string>
+    <string name="energy_modes" msgid="1331693860386361744">"Energiemodi"</string>
+    <string name="energy_modes_summary" msgid="2324906343309484649">"Einstellungen für ausgeschaltetes Gerät"</string>
+    <string name="energy_mode_enables" msgid="357960364751477627">"Aktiviert:"</string>
+    <string name="energy_mode_eco_hint" msgid="5280058011809503514">"Der Stromverbrauch kann steigen, je mehr Funktionen des Fernsehers du aktivierst."</string>
+    <string name="energy_modes_confirmation_title" msgid="4520280098781914825">"„<xliff:g id="ENERGYMODENAME">%s</xliff:g>“ aktivieren?"</string>
+    <string name="settings_find_my_remote_title" msgid="4586368268611622848">"Fernbedienung finden"</string>
+    <string name="settings_find_my_remote_description" msgid="6606011378441585154">"Du kannst auf deiner Google TV-Fernbedienung einen Ton wiedergeben lassen, wenn du sie verlegt hast"</string>
+    <string name="find_my_remote_slice_description" msgid="313598681990933215">"Du kannst eine Taste an deinem Google TV drücken, um 30 Sekunden lang einen Ton auf deiner Fernbedienung wiedergeben zu lassen. Dafür ist eine Fernbedienung erforderlich, die Google TV unterstützt.\n\nDrücke zum Beenden der Wiedergabe eine beliebige Taste auf deiner Fernbedienung."</string>
+    <string name="find_my_remote_integration_hint" msgid="7560895390042161430">"Wenn die Funktion „Fernbedienung finden“ aktiviert ist, kannst du einen Ton abspielen, um deine Google TV-Fernbedienung wiederzufinden, wenn du sie verlegt hast."</string>
+    <string name="find_my_remote_play_sound" msgid="3364983972397728084">"Ton wiedergeben lassen"</string>
+</resources>

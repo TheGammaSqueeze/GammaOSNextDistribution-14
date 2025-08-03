@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_label" msgid="5147911978211079839">"Ρυθμίσεις"</string>
+    <string name="more_settings_label" msgid="3867559443480110616">"Περισσότερα"</string>
+    <string name="display_settings" msgid="5325515247739279185">"Οθόνη"</string>
+    <string name="brightness" msgid="2919605130898772866">"Επίπεδο φωτεινότητας"</string>
+    <string name="auto_brightness_title" msgid="9124647862844666581">"Προσαρμοστική φωτεινότητα"</string>
+    <string name="auto_brightness_summary" msgid="2002570577219479702">"Προσαρμογή φωτεινότητας οθόνης στο περιβάλλον"</string>
+    <string name="condition_night_display_title" msgid="3777509730126972675">"Νυχτερινός φωτισμός ενεργός"</string>
+    <string name="network_and_internet" msgid="4229023630498537530">"Δίκτυο και διαδίκτυο"</string>
+    <string name="mobile_network_settings" msgid="1708621113321368597">"Δίκτυο κινητής τηλεφωνίας"</string>
+    <string name="mobile_network_summary_count" msgid="760865625847664029">"{count,plural, =1{# SIM}other{# SIM}}"</string>
+    <string name="mobile_network_active_sim" msgid="1901674954229832811">"Ενεργή/SIM"</string>
+    <string name="mobile_network_inactive_sim" msgid="3644984830926224318">"Ανενεργή/SIM"</string>
+    <string name="mobile_network_active_esim" msgid="5175362818078597096">"Ενεργή / eSIM"</string>
+    <string name="mobile_network_inactive_esim" msgid="7273712403773327964">"Ανενεργή / eSIM"</string>
+    <string name="mobile_network_list_add_more" msgid="6174294462747070655">"Προσθήκη περισσότερων"</string>
+    <string name="mobile_network_toggle_title" msgid="3515647310810280063">"Δεδομένα κινητής τηλεφωνίας"</string>
+    <string name="mobile_network_toggle_summary" msgid="8698267487987697148">"Πρόσβαση σε δεδομένα μέσω δικτύου κινητής τηλεφ."</string>
+    <string name="mobile_network_mobile_network_toggle_title" msgid="3087288149339116597">"Δίκτυο κινητής τηλεφωνίας"</string>
+    <string name="mobile_network_mobile_network_toggle_summary" msgid="1679917666306941420">"Να χρησιμοποιούνται δεδομένα κινητής τηλεφωνίας"</string>
+    <string name="mobile_network_state_off" msgid="471795861420831748">"Ανενεργό"</string>
+    <string name="confirm_mobile_data_disable" msgid="826493998804496639">"Απενεργοποίηση δεδομένων κινητής τηλεφωνίας;"</string>
+    <string name="sim_selection_required_pref" msgid="6599562910262785784">"Απαιτείται επιλογή"</string>
+    <string name="sim_change_data_title" msgid="6677115745127365131">"Χρήση <xliff:g id="CARRIER">%1$s</xliff:g> για δεδoμένα κιν. τηλ.;"</string>
+    <string name="sim_change_data_message" msgid="4669775284395549069">"Χρησιμοποιείτε <xliff:g id="CARRIER2_0">%2$s</xliff:g> για δεδομένα κινητής τηλεφωνίας. Εάν κάνετε εναλλαγή στην υπηρεσία <xliff:g id="CARRIER1">%1$s</xliff:g>, η υπηρεσία <xliff:g id="CARRIER2_1">%2$s</xliff:g> δεν θα χρησιμοποιείται πλέον για δεδομένα κινητής τηλεφωνίας."</string>
+    <string name="sim_change_data_ok" msgid="2348804996223271081">"Χρήση <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
+    <string name="roaming_title" msgid="6218635014519017734">"Περιαγωγή"</string>
+    <string name="roaming_summary" msgid="7476127740259728901">"Σύνδεση στις υπηρεσίες δεδομένων κατά την περιαγωγή"</string>
+    <string name="roaming_alert_title" msgid="4433901635766775763">"Να επιτρέπεται η περιαγωγή δεδομένων;"</string>
+    <string name="roaming_warning" msgid="4908184914868720704">"Ενδέχεται να ισχύουν χρεώσεις περιαγωγής."</string>
+    <string name="data_usage_settings" msgid="7877132994777987848">"Χρήση δεδομένων"</string>
+    <string name="data_usage_title" msgid="2923515974389203812">"Κύρια δεδομένα"</string>
+    <string name="data_used_formatted" msgid="6684557577780068339">"Έχουν χρησιμοποιηθεί <xliff:g id="ID_1">^1</xliff:g> <xliff:g id="ID_2">^2</xliff:g>"</string>
+    <string name="cell_data_warning" msgid="8997739664336571149">"Προειδοποίηση <xliff:g id="ID_1">^1</xliff:g> δεδομένων"</string>
+    <string name="cell_data_limit" msgid="6862164869877993009">"Όριο <xliff:g id="ID_1">^1</xliff:g> δεδομένων"</string>
+    <string name="cell_data_warning_and_limit" msgid="5003954080814312475">"Προειδοποίηση <xliff:g id="ID_1">^1</xliff:g> δεδομένων / Όριο <xliff:g id="ID_2">^2</xliff:g> δεδομένων"</string>
+    <string name="billing_cycle_days_left" msgid="1810100330204239102">"{count,plural, =1{Απομένει # ημέρα.}other{Απομένουν # ημέρες.}}"</string>
+    <string name="billing_cycle_none_left" msgid="3499893148398931302">"Δεν απομένει χρόνος"</string>
+    <string name="billing_cycle_less_than_one_day_left" msgid="8121013296375203759">"Απομένει λιγότερο από 1 ημέρα"</string>
+    <string name="carrier_and_update_text" msgid="4351043160977741244">"Ενημερώθηκε από <xliff:g id="ID_1">^1</xliff:g> πριν από <xliff:g id="ID_2">^2</xliff:g>"</string>
+    <string name="no_carrier_update_text" msgid="4396108017586427442">"Ενημερώθηκε πριν από <xliff:g id="ID_1">^2</xliff:g>"</string>
+    <string name="carrier_and_update_now_text" msgid="9058821833613481573">"Ενημερώθηκε από <xliff:g id="ID_1">^1</xliff:g> μόλις τώρα"</string>
+    <string name="no_carrier_update_now_text" msgid="5953142546373783189">"Ενημερώθηκε μόλις τώρα"</string>
+    <string name="launch_manage_plan_text" msgid="906657488611815787">"Προβολή πακέτου"</string>
+    <string name="app_data_usage" msgid="3878609885080232877">"Χρήση δεδομένων εφαρμογών"</string>
+    <string name="data_usage_app_restricted" msgid="4570970078120010951">"περιορισμένη"</string>
+    <string name="cycle_reset_day_of_month_picker_title" msgid="1374568502823735361">"Ημερομηνία επαναφοράς κύκλου χρήσης"</string>
+    <string name="cycle_reset_day_of_month_picker_subtitle" msgid="5361061448258189846">"Ημερομηνία κάθε μήνα:"</string>
+    <string name="cycle_reset_day_of_month_picker_positive_button" msgid="6919858010423269305">"Ορισμός"</string>
+    <string name="data_warning_limit_title" msgid="4950868241810828601">"Προειδοποίηση και όριο δεδομένων"</string>
+    <string name="app_usage_cycle" msgid="8445927080245880296">"Κύκλος χρήσης δεδομένων εφαρμογής"</string>
+    <string name="mobile_data_usage" msgid="8171519864391091861">"Χρήση δεδομένων κινητής τηλεφωνίας"</string>
+    <string name="set_data_warning" msgid="6628236612886588097">"Ορισμός προειδοπ. δεδομένων"</string>
+    <string name="data_warning" msgid="116776633806885370">"Προειδοποίηση δεδομένων"</string>
+    <string name="set_data_limit" msgid="7136539812414500084">"Ορισμός ορίου δεδομένων"</string>
+    <string name="data_limit" msgid="227338836292511425">"Όριο δεδομένων"</string>
+    <string name="data_usage_limit_dialog_title" msgid="1864716658371721883">"Περιορισμός χρήσης δεδομένων"</string>
+    <string name="data_usage_limit_dialog_mobile" msgid="3633960011913085089">"Η κεντρική μονάδα του οχήματός σας θα απενεργοποιήσει τα δεδομένα κινητής τηλεφωνίας μόλις συμπληρωθεί το καθορισμένο όριο.\n\nΕπειδή η χρήση δεδομένων μετράται από την κεντρική μονάδα σας και ενδέχεται η εταιρεία κινητής τηλεφωνίας να την υπολογίζει με διαφορετικό τρόπο, σκεφτείτε το ενδεχόμενο να ορίσετε ένα συντηρητικό όριο."</string>
+    <string name="data_usage_warning_editor_title" msgid="2041517150169038813">"Ορισμός προειδοποίησης χρήσης δεδομένων"</string>
+    <string name="data_usage_limit_editor_title" msgid="133468242379286689">"Ορισμός ορίου χρήσης δεδομένων"</string>
+    <string name="data_usage_settings_footer" msgid="681881387909678237">"Η χρήση δεδομένων καταμετράται από τη συσκευή σας. Ενδέχεται να διαφέρει από τα δεδομένα της εταιρείας κινητής τηλεφωνίας σας."</string>
+    <string name="usage_bytes_threshold_picker_positive_button" msgid="4625479840977965519">"Ορισμός"</string>
+    <string name="data_usage_warning_save_title" msgid="2900544287239037695">"Αποθήκευση"</string>
+    <string name="network_and_internet_oem_network_title" msgid="6436902713696212250">"Δίκτυο OEM"</string>
+    <string name="network_and_internet_vehicle_internet_title" msgid="2518848595673002736">"Σύνδεση οχήματος στο διαδίκτυο"</string>
+    <string name="network_and_internet_oem_network_dialog_description" msgid="4469178879867702066">"Η απενεργ. της σύνδεσης διαδικτ. του οχήματος μπορεί να αποτρέψει τη λειτουργία κάποιων δυνατοτήτων ή εφαρμ. του.\n\nΣημαντικά δεδομένα που απαιτούνται για τη λειτουργία του οχήματος θα συνεχίσουν να κοινοποιούνται στον κατασκευαστή του."</string>
+    <string name="network_and_internet_oem_network_dialog_confirm_label" msgid="2630033932472996255">"Να απενεργοποιηθεί ούτως ή άλλως"</string>
+    <string name="network_and_internet_oem_network_disabled_footer" msgid="3529208167627034245">"Η σύνδεση διαδικτύου του οχήματος είναι απενεργοποιημένη. Αυτό μπορεί να αποτρέψει τη λειτουργία ορισμένων δυνατοτήτων ή εφαρμογών. Σημαντικά δεδομένα που απαιτούνται για τη λειτουργία του οχήματος θα συνεχίσουν να κοινοποιούνται στον κατασκευαστή του."</string>
+    <string name="network_and_internet_data_usage_time_range_summary" msgid="1792995626433410056">"%1$s χρησιμοποιήθηκαν %2$s - %3$s"</string>
+    <string name="network_and_internet_join_other_network_title" msgid="7126831320010062712">"Σύνδεση σε άλλο δίκτυο"</string>
+    <string name="network_and_internet_network_preferences_title" msgid="2983548049081168876">"Προτιμήσεις δικτύου"</string>
+    <string name="wifi_settings" msgid="7701477685273103841">"Wi‑Fi"</string>
+    <string name="wifi_starting" msgid="473253087503153167">"Ενεργοποίηση Wi-Fi…"</string>
+    <string name="wifi_stopping" msgid="3534173972547890148">"Απενεργοποίηση Wi-Fi…"</string>
+    <string name="loading_wifi_list" msgid="8584901433195876465">"Γίνεται φόρτωση της λίστας Wi‑Fi"</string>
+    <string name="wifi_disabled" msgid="5013262438128749950">"Το Wi‑Fi είναι απενεργοποιημένο"</string>
+    <string name="wifi_failed_forget_message" msgid="121732682699377206">"Αποτυχία κατάργησης δικτύου από τη μνήμη"</string>
+    <string name="wifi_failed_connect_message" msgid="4447498225022147324">"Αποτυχία σύνδεσης στο δίκτυο"</string>
+    <string name="wifi_setup_add_network" msgid="3660498520389954620">"Προσθήκη δικτύου"</string>
+    <string name="wifi_setup_connect" msgid="3512399573397979101">"Σύνδεση"</string>
+    <string name="wifi_connecting" msgid="1930665730621677960">"Σύνδεση…"</string>
+    <string name="wifi_disconnected" msgid="4485699234859368137">"Δεν συνδέθηκε"</string>
+    <string name="wifi_not_in_range_message" msgid="2617126307140203787">"Το δίκτυο δεν βρίσκεται εντός εμβέλειας"</string>
+    <string name="wifi_password" msgid="5565632142720292397">"Κωδικός πρόσβασης"</string>
+    <string name="wifi_show_password" msgid="8423293211933521097">"Εμφάνιση κωδικού πρόσβασης"</string>
+    <string name="wifi_no_network_name" msgid="6819604337231313594">"Εισαγάγετε ένα όνομα δικτύου"</string>
+    <string name="wifi_ssid" msgid="488604828159458741">"Όνομα δικτύου"</string>
+    <string name="wifi_ssid_hint" msgid="3170608752313710099">"Εισαγάγετε το SSID"</string>
+    <string name="wifi_security" msgid="158358046038876532">"Ασφάλεια"</string>
+    <string name="wifi_signal_strength" msgid="8507318230553042817">"Ισχύς σήματος"</string>
+    <string name="wifi_status" msgid="5688013206066543952">"Κατάσταση"</string>
+    <string name="wifi_speed" msgid="1650692446731850781">"Ταχύτητα σύνδεσης"</string>
+    <string name="wifi_frequency" msgid="8951455949682864922">"Συχνότητα"</string>
+    <string name="wifi_ip_address" msgid="3128140627890954061">"Διεύθυνση IP"</string>
+    <string name="show_password" msgid="2074628020371139240">"Εμφάνιση κωδικού πρόσβασης"</string>
+    <string name="default_network_name_summary" msgid="8148402439232464276">"Εισαγωγή ονόματος δικτύου"</string>
+    <string name="default_password_summary" msgid="8789594645836902982">"Εισαγωγή κωδικού πρόσβασης"</string>
+    <string name="access_point_tag_key" msgid="1517143378973053337">"access_point_tag_key"</string>
+  <string-array name="wifi_signals">
+    <item msgid="4897376984576812606">"Κακό"</item>
+    <item msgid="7683058295076342057">"Κακό"</item>
+    <item msgid="1639222824821660744">"Επαρκές"</item>
+    <item msgid="1838705897358163300">"Καλό"</item>
+    <item msgid="6067166649320533751">"Εξαιρετικό"</item>
+  </string-array>
+    <string name="link_speed" msgid="7868861844075624445">"%1$d Mbps"</string>
+    <string name="wifi_band_24ghz" msgid="8972492390639295220">"2,4 GHz"</string>
+    <string name="wifi_band_5ghz" msgid="2023762623523105080">"5 GHz"</string>
+    <string name="wifi_network_detail" msgid="9070182553555487360">"Λεπτομέρειες δικτύου"</string>
+    <string name="wifi_mac_address" msgid="1466178247802349180">"Διεύθυνση MAC"</string>
+    <string name="wifi_ip_address_title" msgid="300539799594024884">"Διεύθυνση IP"</string>
+    <string name="wifi_subnet_mask" msgid="6238171812379380608">"Μάσκα υποδικτύου"</string>
+    <string name="wifi_dns" msgid="1841448353154932801">"DNS"</string>
+    <string name="wifi_details_ipv6_address_header" msgid="4707181386646531890">"Διευθύνσεις IPv6"</string>
+    <string name="wifi_gateway" msgid="4975799192860431013">"Πύλη"</string>
+    <string name="wifi_preferences_title" msgid="772788844257225510">"Προτιμήσεις Wi‑Fi"</string>
+    <string name="wifi_wakeup" msgid="7451825226044542000">"Αυτόματη ενεργοποίηση Wi‑Fi"</string>
+    <string name="wifi_wakeup_summary" msgid="7237521683331291414">"Το Wi‑Fi θα ενεργ. ξανά κοντά σε αποθ. δίκτυα υψηλής ποιότ. όπως το οικιακό δίκτυο"</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="2821576525488435259">"Μη διαθέσ. επειδή η τοποθ. είναι απεν. Ενεργ. την "<annotation id="link">"τοποθεσία"</annotation>"."</string>
+    <string name="wifi_settings_scanning_required_title" msgid="2726782203331704928">"Ενεργοποίηση σάρωσης Wi‑Fi;"</string>
+    <string name="wifi_settings_scanning_required_turn_on" msgid="4464931023377210050">"Ενεργοποίηση"</string>
+    <string name="wifi_settings_scanning_required_enabled" msgid="5457372118991438313">"Ενεργοποιήθηκε η σάρωση Wi‑Fi"</string>
+    <string name="wifi_cellular_fallback_title" msgid="8322675436784870862">"Αυτόματη εναλλαγή σε δεδομένα κινητής τηλεφωνίας"</string>
+    <string name="wifi_cellular_fallback_summary" msgid="2433848528924203758">"Χρησιμοποιήστε δεδομένα κινητής τηλεφωνίας όταν το Wi‑Fi δεν έχει πρόσβαση στο διαδίκτυο. Μπορεί να ισχύουν χρεώσεις χρήσης δεδομένων."</string>
+    <string name="wifi_network_state_switch_subtitle" msgid="7462322882046013762">"Εύρεση και σύνδεση σε δίκτυα Wi‑Fi"</string>
+    <string name="learn_more" msgid="8214605928933358604">"Μάθετε περισσότερα"</string>
+    <string name="wifi_hotspot_name_title" msgid="8844779338692535356">"Όνομα ΣΠ Wi-Fi"</string>
+    <string name="wifi_hotspot_name_summary_connecting" msgid="5262510450498600038">"Ενεργοποίηση <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
+    <string name="wifi_hotspot_name_summary_connected" msgid="7421325340822195506">"Είναι δυνατή η σύνδεση άλλων συσκευών στο <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
+    <string name="wifi_hotspot_password_title" msgid="4103948315849351988">"Κωδικός ΣΠ Wi-Fi"</string>
+    <string name="wifi_hotspot_security_title" msgid="2299925790743587725">"Ασφάλεια"</string>
+    <string name="wifi_hotspot_wpa3_sae" msgid="4752416911592950174">"WPA3-Personal"</string>
+    <string name="wifi_security_psk_sae" msgid="8738371461215752280">"WPA2/WPA3-Personal"</string>
+    <string name="wifi_hotspot_wpa2_personal" msgid="7135181212837798318">"WPA2-Personal"</string>
+    <string name="wifi_hotspot_security_none" msgid="2514844105085054386">"Κανένα"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="7685279281668988593">"Ζώνη ΣΠ"</string>
+    <string name="wifi_ap_band_config" msgid="6143905484067008736">"Επιλογή εύρους ΣΠ"</string>
+    <string name="wifi_ap_choose_auto" msgid="3779526909841604566">"Αυτόματα"</string>
+    <string name="wifi_ap_choose_2G" msgid="6356913773766753502">"Εύρος 2,4 GHz"</string>
+    <string name="wifi_ap_choose_5G" msgid="8561440488455528673">"Εύρος 5,0 GHz"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8252845223773871750">"Προτιμάται εύρος 5,0 GHz"</string>
+    <string name="wifi_ap_2G" msgid="5364135697314262014">"2,4 GHz"</string>
+    <string name="wifi_ap_5G" msgid="4945574428537860279">"5,0 GHz"</string>
+    <string name="wifi_ap_band_select_one" msgid="615578175244067396">"Επιλέξτε τουλ. ένα εύρος για το ΣΠ Wi‑Fi:"</string>
+    <string name="tether_settings_title_all" msgid="6076625733772210734">"Σημείο πρόσβασης Wi-Fi"</string>
+    <string name="hotspot_settings_title" msgid="8220814387592756713">"Σημείο πρόσβασης Wi-Fi"</string>
+    <string name="wifi_hotspot_switch_title" msgid="5011183846278097937">"Χρήση σημείου πρόσβασης Wi-Fi"</string>
+    <string name="wifi_hotspot_state_off" msgid="6096709579204322798">"Ανενεργό"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7871858619924599922">"Αυτόματη απενεργοποίηση σημείου πρόσβασης Wi-Fi"</string>
+    <string name="wifi_hotspot_auto_off_summary" msgid="4830341947541735136">"Το σημείο πρόσβασης Wi‑Fi θα απενεργοποιηθεί εάν δεν υπάρχουν συνδεδεμένες συσκευές"</string>
+    <string name="wifi_hotspot_qr_code_text" msgid="6074599244483100567">"Σαρώστε αυτόν τον κωδικό QR για σύνδεση στο \"%s\""</string>
+    <string name="wifi_hotspot_qr_code_password_text" msgid="400288180113940870">"Κωδικός πρόσβασης του σημείου πρόσβασης Wi-Fi: %s"</string>
+    <string name="wifi_ask_enable" msgid="4452418245680754578">"Η εφαρμογή <xliff:g id="REQUESTER">%s</xliff:g> θέλει να ενεργοποιήσει το Wi-Fi"</string>
+    <string name="wifi_ask_disable" msgid="2949290055916181553">"Η εφαρμογή <xliff:g id="REQUESTER">%s</xliff:g> θέλει να απενεργοποιήσει το Wi-Fi"</string>
+    <string name="wifi_error" msgid="3105105447117289410">"Σφάλμα"</string>
+    <string name="network_connection_request_dialog_title" msgid="8449606155059098762">"Συσκευή για χρήση με την εφαρμογή <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="network_connection_timeout_dialog_message" msgid="2536299451668687586">"Δεν βρέθηκαν συσκευές. Βεβαιωθείτε ότι οι συσκευές είναι ενεργοποιημένες και διαθέσιμες για σύνδεση."</string>
+    <string name="network_connection_timeout_dialog_ok" msgid="2228662561126434792">"Δοκιμάστε ξανά"</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="4268321315241218483">"Παρουσιάστηκε κάποιο πρόβλημα. Η εφαρμογή ακύρωσε το αίτημα για επιλογή συσκευής."</string>
+    <string name="network_connection_connect_successful" msgid="7893957133113302365">"Η σύνδεση είναι επιτυχής"</string>
+    <string name="network_connection_request_dialog_showall" msgid="776613149566461487">"Εμφάνιση όλων"</string>
+    <string name="progress_scanning" msgid="7191583064717479795">"Αναζήτηση"</string>
+    <string name="connected_settings_title" msgid="8868738903280658151">"Συνδεδεμένες συσκευές"</string>
+    <string name="bluetooth_settings_title" msgid="3794688574569688649">"Bluetooth"</string>
+    <string name="bluetooth_toggle_title" msgid="1431803611346881088">"Χρήση Bluetooth"</string>
+    <string name="bluetooth_device" msgid="3178478829314083240">"Ανώνυμη συσκευή"</string>
+    <string name="bluetooth_paired_devices" msgid="6463199569164652410">"Συσκευές σε σύζευξη"</string>
+    <string name="bluetooth_pair_new_device" msgid="6948753485443263095">"Σύζευξη νέας συσκευής"</string>
+    <string name="bluetooth_pair_new_device_summary" msgid="2497221247690369031">"Το Bluetooth θα ενεργοποιηθεί για σύζευξη"</string>
+    <string name="bluetooth_disconnect_title" msgid="7675271355910637528">"Αποσύνδεση συσκευής;"</string>
+    <string name="bluetooth_disconnect_all_profiles" msgid="2017519733701757244">"Το όχημά σας θα αποσυνδεθεί από τη συσκευή <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_vehicle_mac_address" msgid="7069234636525805937">"Διεύθυνση Bluetooth οχήματος: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_device_mac_address" msgid="3949829271575045069">"Διεύθυνση Bluetooth συσκευής: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_name" msgid="2609869978821094114">"\'Όνομα οχήματος"</string>
+    <string name="bluetooth_rename_vehicle" msgid="5769424875066563154">"Μετονομασία αυτού του οχήματος"</string>
+    <string name="bluetooth_rename_device" msgid="8406868875363878712">"Μετονομασία συσκευής"</string>
+    <string name="bluetooth_rename_button" msgid="2397892174725986383">"Μετονομασία"</string>
+    <string name="bluetooth_available_devices" msgid="1854446368146061448">"Διαθέσιμες συσκευές"</string>
+    <string name="bluetooth_profiles" msgid="5580372290862835951">"Προφίλ"</string>
+    <string name="bluetooth_error_title" msgid="2341600997536511742"></string>
+    <string name="bluetooth_turning_on" msgid="7046983059601710414">"Ενεργοποίηση του Bluetooth…"</string>
+    <string name="bluetooth_turning_off" msgid="1753975097241024061">"Απενεργοποίηση Bluetooth…"</string>
+    <string name="bluetooth_ask_enablement" msgid="8565428400407368667">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> θέλει να ενεργοποιήσει το Bluetooth"</string>
+    <string name="bluetooth_ask_disablement" msgid="6056441896274912839">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> θέλει να απενεργοποιήσει το Bluetooth"</string>
+    <string name="bluetooth_ask_enablement_no_name" msgid="3191739265037605547">"Μια εφαρμογή θέλει να ενεργοποιήσει το Bluetooth"</string>
+    <string name="bluetooth_ask_disablement_no_name" msgid="5694464250599567283">"Μια εφαρμογή θέλει να απενεργοποιήσει το Bluetooth"</string>
+    <string name="bluetooth_ask_discovery" msgid="8774333095928068465">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> θέλει να κάνει τη μονάδα κεφαλής σας ορατή σε άλλες συσκευές για <xliff:g id="TIMEOUT">%2$d</xliff:g> δευτερόλεπτα."</string>
+    <string name="bluetooth_ask_discovery_no_name" msgid="164397600370102369">"Μια εφαρμογή θέλει να κάνει τη μονάδα κεφαλής σας ορατή σε άλλες συσκευές Bluetooth για <xliff:g id="TIMEOUT">%1$d</xliff:g> δευτερόλεπτα."</string>
+    <string name="bluetooth_ask_enablement_and_discovery" msgid="5487502083015708674">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> θέλει να ενεργοποιήσει το Bluetooth και να κάνει τη μονάδα κεφαλής σας ορατή σε άλλες συσκευές για <xliff:g id="TIMEOUT">%2$d</xliff:g> δευτερόλεπτα."</string>
+    <string name="bluetooth_ask_enablement_and_discovery_no_name" msgid="907153034209916282">"Μια εφαρμογή θέλει να ενεργοποιήσει το Bluetooth και να κάνει τη μονάδα κεφαλής σας ορατή σε άλλες συσκευές για <xliff:g id="TIMEOUT">%1$d</xliff:g> δευτερόλεπτα."</string>
+    <string name="bluetooth_state_switch_summary" msgid="171929910916432266">"Η συσκευή εμφανίζεται ως %1$s στις άλλες συσκευές"</string>
+    <string name="bluetooth_my_devices" msgid="6352010339607939612">"Οι συσκευές μου"</string>
+    <string name="bluetooth_previously_connected" msgid="5206229557831180323">"Συνδέθηκαν στο παρελθόν"</string>
+    <string name="bluetooth_device_connected_toast" msgid="4614765282582494488">"Η συσκευή %1$s συνδέθηκε"</string>
+    <string name="bluetooth_device_disconnected_toast" msgid="8889122688851623920">"Η συσκευή %1$s αποσυνδέθηκε"</string>
+    <string name="bluetooth_notif_ticker" msgid="7192577740198156792">"Αίτημα σύζευξης Bluetooth"</string>
+    <string name="bluetooth_device_context_pair_connect" msgid="3138105800372470422">"Σύζευξη και σύνδεση"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="5066825929751599037">"Κωδικός σύζευξης Bluetooth"</string>
+    <string name="bluetooth_enable_alphanumeric_pin" msgid="1636575922217263060">"Το PIN περιέχει γράμματα ή σύμβολα"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="5955236916732265593">"Πληκτρολογήστε τον κωδικό σύζευξης και, στη συνέχεια, πατήστε Επιστροφή ή Enter"</string>
+    <string name="bluetooth_pairing_request" msgid="4769675459526556801">"Σύζευξη με τη συσκευή <xliff:g id="DEVICE_NAME">%1$s</xliff:g>;"</string>
+    <string name="bluetooth_pairing_shares_phonebook" msgid="2015966932886300630">"Να επιτρέπεται στη συσκευή <xliff:g id="DEVICE_NAME">%1$s</xliff:g> να έχει πρόσβαση στις επαφές και το ιστορικό κλήσεων"</string>
+    <string name="bluetooth_enter_pin_other_device" msgid="7825091249522704764">"Επίσης, ενδέχεται να χρειαστεί να πληκτρολογήσετε αυτόν τον αριθμό PIN στην άλλη συσκευή."</string>
+    <string name="bluetooth_enter_passkey_other_device" msgid="7147248221018865922">"Επίσης, ενδέχεται να χρειαστεί να πληκτρολογήσετε το κλειδί πρόσβασης στην άλλη συσκευή."</string>
+    <string name="bluetooth_pin_values_hint_16_digits" msgid="418776900816984778">"Πρέπει να περιέχει 16 ψηφία"</string>
+    <string name="bluetooth_pin_values_hint" msgid="1561325817559141687">"Συνήθως 0000 ή 1234"</string>
+    <string name="bluetooth_notif_title" msgid="8374602799367803335">"Αίτημα σύζευξης"</string>
+    <string name="bluetooth_notif_message" msgid="1060821000510108726">"Πατήστε για σύζευξη με τη συσκευή <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_device_picker" msgid="673238198452345475">"Επιλέξτε συσκευή Bluetooth"</string>
+    <string name="bluetooth_bonded_bluetooth_toggle_content_description" msgid="6800772154405846597">"Bluetooth"</string>
+    <string name="bluetooth_bonded_phone_toggle_content_description" msgid="8152794643249938377">"Τηλέφωνο"</string>
+    <string name="bluetooth_bonded_media_toggle_content_description" msgid="7803420585378155404">"Μέσα"</string>
+    <string name="language_settings" msgid="2079258598337245546">"Γλώσσες"</string>
+    <string name="languages_and_input_settings" msgid="3672322610529408248">"Γλώσσες και είσοδος"</string>
+    <string name="language_picker_list_suggested_header" msgid="7593893806003415948">"Προτεινόμενες"</string>
+    <string name="language_picker_list_all_header" msgid="1577387973934368428">"Όλες οι γλώσσες"</string>
+    <string name="keyboard_settings" msgid="1959697870618278081">"Πληκτρολόγιο"</string>
+    <string name="manage_keyboard" msgid="4045394766282200132">"Διαχείριση πληκτρολογίων"</string>
+    <string name="text_to_speech_settings" msgid="811985746199507343">"Έξοδος κειμένου σε ομιλία"</string>
+    <string name="text_to_speech_preferred_engine_settings" msgid="2766782925699132256">"Προτιμώμενη μηχανή"</string>
+    <string name="text_to_speech_current_engine" msgid="8133107484909612597">"Τρέχουσα μηχανή"</string>
+    <string name="tts_speech_rate" msgid="4512944877291943133">"Ταχύτητα ομιλίας"</string>
+    <string name="tts_pitch" msgid="2389171233852604923">"Τόνος"</string>
+    <string name="tts_reset" msgid="6289481549801844709">"Επαναφορά"</string>
+    <string name="sound_settings" msgid="3072423952331872246">"Ήχος"</string>
+    <string name="ring_volume_title" msgid="3135241004980719442">"Ένταση ήχου κουδουνίσματος"</string>
+    <string name="navi_volume_title" msgid="946292066759195165">"Ένταση ήχου πλοήγησης"</string>
+    <string name="incoming_call_volume_title" msgid="6972117872424656876">"Ήχος κλήσης"</string>
+    <string name="notification_volume_title" msgid="6749411263197157876">"Ειδοποίηση"</string>
+    <string name="media_volume_title" msgid="6697416686272606865">"Πολυμέσα"</string>
+    <string name="media_volume_summary" msgid="2961762827637127239">"Ορισμός έντασης ήχου για μουσική και βίντεο"</string>
+    <string name="alarm_volume_title" msgid="840384014895796587">"Ξυπνητήρι"</string>
+    <string name="ringtone_title" msgid="8370531086214517972">"Ήχος κλήσης τηλεφώνου"</string>
+    <string name="notification_ringtone_title" msgid="8661716239594010288">"Προεπιλεγμ. ήχος ειδοποίησης"</string>
+    <string name="alarm_ringtone_title" msgid="3257364170646440908">"Προεπιλεγμ. ήχος ξυπνητηριού"</string>
+    <string name="ringtone_picker_save_title" msgid="4388137432517227001">"Αποθήκευση"</string>
+    <string name="sound_alert_sounds" msgid="6838044721739163867">"Ήχοι ειδοποιήσεων"</string>
+    <string name="sound_alert_sounds_summary" msgid="816501423095651281">"Ήχος κλήσης, ειδοποιήσεις, ξυπνητήρια"</string>
+    <string name="audio_route_selector_title" msgid="9137648859313120159">"Αναπαραγωγή μέσων σε"</string>
+    <string name="display_brightness" msgid="5718970880488110840">"Φωτεινότητα"</string>
+    <string name="display_night_mode_summary" msgid="4939425286027546230">"Προσαρμογή οθόνης για χαμηλό φωτισμό"</string>
+    <string name="units_settings" msgid="402325305096925886">"Μονάδες"</string>
+    <string name="units_speed_title" msgid="7115143916747108160">"Ταχύτητα"</string>
+    <string name="units_distance_title" msgid="6257691565990474635">"Απόσταση"</string>
+    <string name="units_fuel_consumption_title" msgid="6415108114453652570">"Κατανάλωση καυσίμων"</string>
+    <string name="units_energy_consumption_title" msgid="2775408854562057609">"Κατανάλωση καυσίμου"</string>
+    <string name="units_temperature_title" msgid="22994498606206991">"Θερμοκρασία"</string>
+    <string name="units_volume_title" msgid="1912873077839446914">"Ένταση"</string>
+    <string name="units_pressure_title" msgid="7477179239294531518">"Πίεση"</string>
+    <string name="units_list_entry" msgid="7277796571051055840">"<xliff:g id="UNIT_ABBREVIATION">%1$s</xliff:g> - <xliff:g id="UNIT_PRONUNCIATION">%2$s</xliff:g>"</string>
+    <string name="units_ratio" msgid="1085608614216280006">"<xliff:g id="UNIT_NUMERATOR">%1$s</xliff:g>/<xliff:g id="UNIT_DENOMINATOR">%2$s</xliff:g>"</string>
+    <string name="units_ratio_numerator" msgid="3462102280813794384">"<xliff:g id="UNIT_NUMERATOR_QUANTITY">%1$d</xliff:g><xliff:g id="UNIT_NUMERATOR_UNIT">%2$s</xliff:g>"</string>
+    <string name="units_ratio_denominator" msgid="6737154450651499228">"<xliff:g id="UNIT_DENOMINATOR_QUANTITY">%1$d</xliff:g><xliff:g id="UNIT_DENOMINATOR_UNIT">%2$s</xliff:g>"</string>
+    <string name="units_unit_name_meter_per_sec" msgid="9151123661434898991">"Μέτρα ανά δευτερόλεπτο."</string>
+    <string name="units_unit_name_rpm" msgid="4084216808160262380">"Στροφές ανά λεπτό"</string>
+    <string name="units_unit_name_hertz" msgid="5373975672472735625">"Χερτζ"</string>
+    <string name="units_unit_name_percentile" msgid="1630667431830186060">"Ποσοστιαία"</string>
+    <string name="units_unit_name_millimeter" msgid="318832924604375755">"Χιλιοστό"</string>
+    <string name="units_unit_name_meter" msgid="4778344873095502130">"Μέτρο"</string>
+    <string name="units_unit_name_kilometer" msgid="4351417123421381297">"Χιλιόμετρο"</string>
+    <string name="units_unit_name_mile" msgid="8337486880403419613">"Μίλι"</string>
+    <string name="units_unit_name_celsius" msgid="1642787068882598698">"Κελσίου"</string>
+    <string name="units_unit_name_fahrenheit" msgid="7617395181535026095">"Φαρενάιτ"</string>
+    <string name="units_unit_name_kelvin" msgid="4043908998904418360">"Κέλβιν"</string>
+    <string name="units_unit_name_milliliter" msgid="2735564290593738653">"Xιλιοστόλιτρο"</string>
+    <string name="units_unit_name_liter" msgid="2682609997247920434">"Λίτρο"</string>
+    <string name="units_unit_name_us_gallon" msgid="2991675590060288099">"Γαλόνι"</string>
+    <string name="units_unit_name_imperial_gallon" msgid="7827144733136304182">"Αυτοκρατορικό γαλόνι"</string>
+    <string name="units_unit_name_nano_secs" msgid="7258767560309570567">"Νανοδευτερόλεπτο"</string>
+    <string name="units_unit_name_secs" msgid="2282853373442592245">"Δευτερόλεπτο"</string>
+    <string name="units_unit_name_year" msgid="8237348390239986270">"Έτος"</string>
+    <string name="units_unit_name_kilopascal" msgid="371397110720444118">"Χιλιοπασκάλ"</string>
+    <string name="units_unit_name_watt_hour" msgid="1581554497071668301">"Βατώρα"</string>
+    <string name="units_unit_name_milliampere" msgid="4477388320207031153">"Μιλιαμπέρ"</string>
+    <string name="units_unit_name_millivolt" msgid="4730384331465782188">"Χιλιοβόλτ"</string>
+    <string name="units_unit_name_milliwatts" msgid="6689028603486588098">"Μιλιβάτ"</string>
+    <string name="units_unit_name_ampere_hour" msgid="6139925422033142476">"Αμπερώρα"</string>
+    <string name="units_unit_name_kilowatt_hour" msgid="4282251431283475831">"Κιλοβατώρα"</string>
+    <string name="units_unit_name_psi" msgid="9199487304284041266">"Λίβρες ανά τετραγωνική ίντσα"</string>
+    <string name="units_unit_name_miles_per_hour" msgid="3988395919988136895">"Μίλια ανά ώρα"</string>
+    <string name="units_unit_name_kilometers_per_hour" msgid="8243061370606677881">"Χιλιόμετρα ανά ώρα"</string>
+    <string name="units_unit_name_bar" msgid="4051903414466411804">"Μπαρ"</string>
+    <string name="units_unit_name_degrees" msgid="47944625323398947">"Μοίρα"</string>
+    <string name="units_unit_name_kilowatt_per_hundred_miles" msgid="715836273168653604">"Κιλοβάτ ανά εκατό μίλια"</string>
+    <string name="units_unit_name_kilowatt_per_hundred_kilometers" msgid="2761254652642587883">"Κιλοβάτ ανά εκατό χιλιόμετρα"</string>
+    <string name="units_unit_name_miles_per_gallon_us" msgid="3911349970584135950">"Μίλια ανά γαλόνι (ΗΠΑ)"</string>
+    <string name="units_unit_name_miles_per_gallon_uk" msgid="7700318800709988481">"Μίλια ανά γαλόνι (ΗΒ)"</string>
+    <string name="units_unit_name_kilometers_per_liter" msgid="8769902235588571155">"Χιλιόμετρα ανά λίτρο"</string>
+    <string name="units_unit_name_liter_per_hundred_kilometers" msgid="4867647387452453552">"Λίτρα ανά εκατό χιλιόμετρα"</string>
+    <string name="apps_and_notifications_settings" msgid="8704585874333781975">"Εφαρμογές και ειδοποιήσεις"</string>
+    <string name="all_applications" msgid="7798210477486822168">"Εμφάνιση όλων των εφαρμογών"</string>
+    <string name="default_applications" msgid="1558183275638697087">"Προεπιλεγμένες εφαρμογές"</string>
+    <string name="performance_impacting_apps" msgid="3439260699394720569">"Εφαρμογές που επηρεάζουν την απόδοση"</string>
+    <string name="app_permissions" msgid="32799922508313948">"Άδειες εφαρμογών"</string>
+    <string name="app_permissions_summary" msgid="5402214755935368418">"Ελέγξτε την πρόσβαση των εφαρμογών στα δεδομένα σας"</string>
+    <string name="applications_settings" msgid="794261395191035632">"Πληροφορίες εφαρμογής"</string>
+    <string name="force_stop" msgid="1616958676171167028">"Διακοπή εφαρμογής"</string>
+    <string name="force_stop_dialog_title" msgid="4481858344628934971">"Διακοπή εφαρμογής;"</string>
+    <string name="force_stop_dialog_text" msgid="4354954014318432599">"Εάν επιβάλετε τη διακοπή μιας εφαρμογής, ενδέχεται να μην λειτουργήσει σωστά."</string>
+    <string name="force_stop_success_toast_text" msgid="2986272849275894254">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> διακόπηκε."</string>
+    <string name="prioritize_app_performance_dialog_title" msgid="3205297520523665568">"Προτεραιότητα στην απόδοση εφαρμογών;"</string>
+    <string name="prioritize_app_performance_dialog_text" msgid="4321564728229192878">"Αυτό μπορεί να προκαλέσει πιθανή αστάθεια συστήματος ή να έχει μακροπρόθεσμο αντίκτυπο στον εξοπλισμό. Θέλετε να συνεχίσετε;"</string>
+    <string name="prioritize_app_performance_dialog_action_on" msgid="3556735049873419163">"Ναι"</string>
+    <string name="prioritize_app_performance_dialog_action_off" msgid="2813324718753199319">"Όχι, ευχαριστώ"</string>
+    <string name="disable_text" msgid="4358165448648990820">"Απενεργοποίηση"</string>
+    <string name="enable_text" msgid="1794971777861881238">"Ενεργοποίηση"</string>
+    <string name="uninstall_text" msgid="277907956072833012">"Απεγκατάσταση"</string>
+    <string name="app_disable_dialog_text" msgid="7731155411006654025">"Εάν απενεργοποιήσετε αυτή την εφαρμογή, η λειτουργία του Android και άλλων εφαρμογών ενδέχεται να μην είναι η αναμενόμενη."</string>
+    <string name="app_disable_dialog_positive" msgid="4448684722791563349">"Απενεργοποίηση εφαρμογής"</string>
+    <string name="not_installed" msgid="4163454337822508007">"Δεν εγκαταστάθηκε για αυτό το προφίλ"</string>
+    <string name="permissions_label" msgid="2701446753515612685">"Δικαιώματα"</string>
+    <string name="app_info_all_services_label" msgid="6495363975322723452">"Όλες οι υπηρεσίες"</string>
+    <string name="notifications_label" msgid="6586089149665170731">"Ειδοποιήσεις"</string>
+    <string name="storage_application_label" msgid="5911779903670978586">"Αποθηκευτικός χώρος και κρυφή μνήμη"</string>
+    <string name="prioritize_app_performance_label" msgid="7264505023347026606">"Προτεραιότητα απόδοσης εφαρμογών"</string>
+    <string name="application_version_label" msgid="8556889839783311649">"Έκδοση: %1$s"</string>
+    <string name="runtime_permissions_summary_no_permissions_granted" msgid="6001439205270250021">"Δεν έχουν εκχωρηθεί δικαιώματα"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="4074220596273432442">"Δεν ζητήθηκαν δικαιώματα"</string>
+    <string name="unused_apps" msgid="648471933781010395">"Εφαρμογές που δεν χρησιμοποιούνται"</string>
+    <string name="unused_apps_summary" msgid="8257304516038923072">"{count,plural, =1{# εφαρμογή που δεν χρησιμοποιείται}other{# εφαρμογές που δεν χρησιμοποιούνται}}"</string>
+    <string name="unused_apps_switch" msgid="4433958286200341563">"Κατάργηση αδειών και αποδέσμευση χώρου"</string>
+    <string name="storage_type_internal" msgid="8918688427078709570">"%s εσωτερικού αποθηκευτικού χώρου"</string>
+    <string name="prioritize_app_performance_summary" msgid="1081874788185691418">"Χρησιμοποιεί τους πόρους του συστήματος δίνοντας προτεραιότητα στην απόδοση των εφαρμογών."</string>
+    <string name="data_usage_summary_title" msgid="4368024763485916986">"Χρήση δεδομένων"</string>
+    <string name="data_usage_app_summary_title" msgid="5012851696585421420">"Χρήση δεδομένων εφαρμογών"</string>
+    <string name="data_usage_usage_history_title" msgid="2386346082501471648">"Ιστορικό χρήσης"</string>
+    <string name="data_usage_all_apps_title" msgid="5956991037518761599">"Όλες οι εφαρμογές"</string>
+    <string name="app_data_usage_title" msgid="6991057296054761322">"Χρήση δεδομένων και Wi-Fi"</string>
+    <string name="app_data_usage_usage_history_title" msgid="5861801915345874959">"Ιστορικό χρήσης"</string>
+    <string name="app_data_usage_total_usage" msgid="6166480544992906281">"Συνολική χρήση"</string>
+    <string name="app_data_usage_foreground" msgid="76513424438149709">"Προσκήνιο"</string>
+    <string name="app_data_usage_background" msgid="6972054078770685280">"Παρασκήνιο"</string>
+    <string name="app_data_usage_allow_data_title" msgid="2713343973040466293">"Να επιτρέπονται τα δεδομ."</string>
+    <string name="app_data_usage_allow_data_summary" msgid="7431118326573403774">"Να επιτρέπεται στην εφαρμ. η χρήση δεδ. κιν. τηλ."</string>
+    <string name="app_data_usage_restrict_data_title" msgid="7080736007645963633">"Περιορισμός δεδομένων"</string>
+    <string name="app_data_usage_background_data_summary" msgid="4445472217737386826">"Δεδ. κιν. τηλ. μόνο με την εφαρμ. στο προσκήνιο"</string>
+    <string name="computing_size" msgid="5791407621793083965">"Υπολογισμός…"</string>
+    <string name="runtime_permissions_additional_count" msgid="3920383880473283764">"{count,plural, =1{# επιπλέον άδεια}other{# επιπλέον άδειες}}"</string>
+    <string name="direct_boot_unaware_dialog_message_car" msgid="2857599310518724080">"Σημείωση: Μετά από μια επανεκκίνηση, δεν είναι δυνατή η έναρξη αυτής της εφαρμογής προτού ξεκλειδώσετε το όχημά σας"</string>
+    <string name="assist_and_voice_input_settings" msgid="8813195157136637132">"Βοήθεια και φωνητικές εντολές"</string>
+    <string name="assist_app_settings" msgid="9085261410166776497">"Εφαρμογή υποβοήθειας"</string>
+    <string name="assist_access_context_title" msgid="8034851731390785301">"Χρήση κειμένου από την οθόνη"</string>
+    <string name="assist_access_context_summary" msgid="2374281280599443774">"Να επιτρέπεται στην εφαρμογή υποβοήθειας να έχει πρόσβαση στο περιεχόμενο της οθόνης όπως το κείμενο."</string>
+    <string name="assist_access_screenshot_title" msgid="2855956879971465044">"Χρήση στιγμιότυπου οθόνης"</string>
+    <string name="assist_access_screenshot_summary" msgid="6246496926635145782">"Να επιτρέπεται στην εφαρμογή υποβοήθειας να έχει πρόσβαση σε μια εικόνα στην οθόνη"</string>
+    <string name="voice_input_settings_title" msgid="3238707827815647526">"Φωνητική εντολή"</string>
+    <string name="autofill_settings_title" msgid="1188754272680049972">"Υπηρεσία αυτόματης συμπλήρωσης"</string>
+    <string name="app_list_preference_none" msgid="7753357799926715901">"Καμία"</string>
+    <string name="default_app_selected_app" msgid="5289396663745484773">"Επιλέχτηκε"</string>
+    <string name="assistant_security_warning" msgid="1844807956967428012">"Ο Βοηθός θα μπορεί να διαβάσει πληροφορίες σχετικά με τις εφαρμογές που χρησιμοποιούνται στο σύστημά σας, συμπεριλαμβανομένων πληροφοριών που είναι ορατές στην οθόνη σας ή διαθέσιμες εντός των εφαρμογών."</string>
+    <string name="autofill_confirmation_message" msgid="1832984461556991378">"&lt;b&gt;Βεβαιωθείτε ότι εμπιστεύεστε αυτή την εφαρμογή&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; χρησιμοποιεί το περιεχόμενο της οθόνης σας για να διαπιστώσει τι μπορεί να συμπληρωθεί αυτόματα."</string>
+    <string name="autofill_add_service" msgid="6413893366443609951">"Προσθήκη υπηρεσίας"</string>
+    <string name="app_launch_domain_links_title" msgid="774480184927726651">"Άνοιγμα συνδέσμων"</string>
+    <string name="domain_url_section_title" msgid="9070403140947787214">"Εγκατεστημένες εφαρμογές"</string>
+    <string name="domain_urls_summary_none" msgid="3077803215088293183">"Να μην ανοίγουν οι υποστηριζόμενοι σύνδεσμοι"</string>
+    <string name="domain_urls_summary_one" msgid="5072257421806034237">"Άνοιγμα <xliff:g id="DOMAIN">%s</xliff:g>"</string>
+    <string name="domain_urls_summary_some" msgid="5523153458016701725">"Άνοιγμα <xliff:g id="DOMAIN">%s</xliff:g> και άλλων URL"</string>
+    <string name="app_launch_title" msgid="3442601467010363057">"Άνοιγμα από προεπιλογή"</string>
+    <string name="app_launch_other_defaults_title" msgid="5734827759507953180">"Άλλες προεπιλογές"</string>
+    <string name="auto_launch_disable_text" msgid="3595315315092716391">"Δεν έχουν οριστεί προεπιλογές."</string>
+    <string name="auto_launch_enable_text" msgid="7230832269574106901">"Επιλέξατε να εκκινείται η εφαρμογή από προεπιλογή για ορισμένες ενέργειες."</string>
+    <string name="auto_launch_reset_text" msgid="590439611312092392">"Διαγραφή προεπιλογών"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="4705344946367759393">"Άνοιγμα υποστηριζόμενων συνδέσμων"</string>
+    <string name="app_link_open_always" msgid="5783167184335545230">"Να ανοίγει σε αυτή την εφαρμογή"</string>
+    <string name="app_link_open_ask" msgid="7242075065136237456">"Ερώτηση κάθε φορά"</string>
+    <string name="app_link_open_never" msgid="2173174327831792316">"Να μην ανοίγει σε αυτή την εφαρμογή"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="7345116365785981158">"Υποστηριζόμενοι σύνδεσμοι"</string>
+    <string name="apps_settings_title" msgid="3982535942394315336">"Εφαρμογές"</string>
+    <string name="apps_recently_opened" msgid="5320377037971195984">"Άνοιξε πρόσφατα"</string>
+    <string name="apps_view_all_apps_title" msgid="2322120325505230530">"Προβολή όλων των εφαρμογών %1$d"</string>
+    <string name="apps_permission_manager_title" msgid="8776335943862484131">"Διαχείριση αδειών"</string>
+    <string name="apps_permission_manager_summary" msgid="4180424218228141274">"Ελέγξτε την πρόσβαση των εφαρμογών στα δεδομένα σας"</string>
+    <string name="apps_default_apps_summary" msgid="2017792579839972926">"Για τον Βοηθό κ.ά."</string>
+    <string name="performance_impacting_apps_summary" msgid="7762122057244111162">"{count,plural, =1{# εφαρμογή επηρεάζει την απόδοση}other{# εφαρμογές επηρεάζουν την απόδοση}}"</string>
+    <string name="apps_special_app_access_summary" msgid="6464767436309742163">"Για το σύστημα και άλλες ρυθμίσεις"</string>
+    <string name="special_access" msgid="5730278220917123811">"Ειδική πρόσβαση στην εφαρμογή"</string>
+    <string name="show_system" msgid="4401355756969485287">"Εμφάνιση συστήματος"</string>
+    <string name="hide_system" msgid="8845453295584638040">"Απόκρυψη συστήματος"</string>
+    <string name="hide_system_apps" msgid="6583947381056154020">"Απόκρυψη εφαρμογών συστήματος"</string>
+    <string name="modify_system_settings_title" msgid="4596320571562433972">"Τροποποίηση ρυθμ. συστήματος"</string>
+    <string name="modify_system_settings_description" msgid="5295023124419592452">"Αυτή η άδεια επιτρέπει σε μια εφαρμογή την τροποποίηση των ρυθμίσεων συστήματος."</string>
+    <string name="notification_access_title" msgid="1467340098885813473">"Πρόσβαση ειδοποιήσεων"</string>
+    <string name="notification_listener_security_warning_title" msgid="2893273335175140895">"Να επιτρέπεται η πρόσβαση των ειδοποιήσεων για την υπηρεσία <xliff:g id="SERVICE">%1$s</xliff:g>;"</string>
+    <string name="notification_listener_security_warning_summary" msgid="7280197998063498125">"Το <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> θα μπορεί να διαβάζει όλες τις ειδοποιήσεις, συμπεριλαμβανομένων των προσωπικών πληροφοριών όπως είναι τα ονόματα των επαφών και το κείμενο των μηνυμάτων που λαμβάνετε. Επίσης, θα μπορεί να παραβλέπει ειδοποιήσεις ή να ενεργοποιεί τα κουμπιά ενεργειών που περιέχονται σε αυτές.\n\nΜε αυτόν τον τρόπο, η εφαρμογή θα μπορεί να ενεργοποιεί ή να απενεργοποιεί τη λειτουργία \"Μην ενοχλείτε\" και να αλλάζει σχετικές ρυθμίσεις."</string>
+    <string name="notification_listener_revoke_warning_summary" msgid="4904973394539125407">"Εάν απενεργοποιήσετε την πρόσβαση των ειδοποιήσεων για το <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, μπορεί να απενεργοποιηθεί επίσης η πρόσβαση της λειτουργίας Μην ενοχλείτε."</string>
+    <string name="notification_listener_revoke_warning_confirm" msgid="2759583507454984812">"Απενεργοποίηση"</string>
+    <string name="notification_listener_revoke_warning_cancel" msgid="4399941651358241154">"Ακύρωση"</string>
+    <string name="performance_impacting_apps_description" msgid="7361464904617808444">"Αυτές οι εφαρμογές επηρεάζουν αρνητικά την απόδοση του συστήματος και η εκτέλεσή τους στο παρασκήνιο έχει αποτραπεί.\nΔώστε προτεραιότητα στην εφαρμογή για να επιτρέψετε τη χρήση στο παρασκήνιο και καταργήστε την από τη λίστα."</string>
+    <string name="performance_impacting_apps_button_label" msgid="8277507326717608783">"Προτερ. εφαρμογής"</string>
+    <string name="premium_sms_access_title" msgid="1409118461646148686">"Πρόσβαση σε SMS επιπλέον χρέωσης"</string>
+    <string name="premium_sms_access_description" msgid="7119026067677052169">"Τα SMS επιπλέον χρέωσης ενδέχεται να κοστίζουν χρήματα και θα αυξήσουν το συνολικό ποσό των λογαριασμών της εταιρείας κινητής τηλεφωνίας. Εάν ενεργοποιήσετε την πρόσβαση για μια εφαρμογή, θα μπορείτε να στέλνετε SMS επιπλέον χρέωσης χρησιμοποιώντας τη συγκεκριμένη εφαρμογή."</string>
+    <string name="usage_access_title" msgid="7153427122072303254">"Πρόσβαση χρήσης"</string>
+    <string name="usage_access_description" msgid="2413168719257435422">"Η πρόσβαση χρήσης επιτρέπει σε μια εφαρμογή να παρακολουθεί τις άλλες εφαρμογές που χρησιμοποιείτε, τη συχνότητα χρήσης τους, καθώς και την εταιρεία κινητής τηλεφωνίας σας, τις ρυθμίσεις γλώσσας και άλλες λεπτομέρειες."</string>
+    <string name="wifi_control_title" msgid="5660436566907731929">"Έλεγχος Wi-Fi"</string>
+    <string name="wifi_control_description" msgid="6021926850423169261">"Ο έλεγχος Wi-Fi επιτρέπει σε μια εφαρμογή να ενεργοποιεί ή να απενεργοποιεί το Wi-Fi, να κάνει σάρωση για δίκτυα Wi-Fi και να συνδέεται σε αυτά, να προσθέτει ή να καταργεί δίκτυα ή να ξεκινά τοπικά σημεία πρόσβασης Wi-Fi."</string>
+    <string name="more_special_access_title" msgid="166115485446645971">"Περισσότερα"</string>
+    <string name="location_settings_title" msgid="901334356682423679">"Τοποθεσία"</string>
+    <string name="location_toggle_title" msgid="836779750812064601">"Χρήση τοποθεσίας"</string>
+    <string name="location_toggle_summary" msgid="5651728747635881194">"Χρησιμοποιήστε την τοποθεσία του αυτοκινήτου σας με οποιαδήποτε εφαρμογή έχετε καθορίσει."</string>
+    <string name="location_toggle_off_warning" msgid="5959449346865136081">"Αν απενεργοποιήσετε αυτήν τη επιλογή, θα καταργηθεί η πρόσβαση στην τοποθεσία για όλες τις εφαρμογές, εκτός από αυτές που απαιτούνται για υποβοήθηση οδηγού"</string>
+    <string name="adas_location_toggle_off_warning" msgid="2269555998731648820">"Αν απενεργοποιήσετε αυτήν τη επιλογή, οι εφαρμογές υποβοήθησης οδηγού που βασίζονται στις πληροφορίες τοποθεσίας θα απενεργοποιηθούν"</string>
+    <string name="adas_location_toggle_confirm_label" msgid="7500504328355834995">"Απενεργοποίηση ούτως ή άλλως"</string>
+    <string name="adas_location_toggle_popup_summary" msgid="4918613528063160563">"Δεν είναι δυνατή η αλλαγή αυτής της ρύθμισης και ο κατασκευαστής του αυτοκινήτου σας την έχει απενεργοποιήσει."</string>
+    <string name="adas_location_toggle_title" msgid="6131739109988811006">"Λειτουργίες που βοηθούν στην οδήγηση"</string>
+    <string name="adas_location_toggle_summary" msgid="7055141074159770928">"Επιτρέψτε σε ενσωματωμένες λειτουργίες που έχουν εγκριθεί από τον κατασκευαστή του αυτοκινήτου σας να έχουν πρόσβαση στην τοποθεσία του."</string>
+    <string name="location_recently_accessed" msgid="522888989582110975">"Πρόσφατη πρόσβαση"</string>
+    <string name="location_settings_recently_accessed_title" msgid="6016264778609426382">"Πρόσφατη πρόσβαση"</string>
+    <string name="location_settings_recently_accessed_view_all_title" msgid="6344830628885781448">"Προβολή όλων"</string>
+    <string name="location_no_recent_access" msgid="2859914321242257931">"Καμία πρόσφατη εφαρμογή"</string>
+    <string name="driver_assistance_label" msgid="5330316311913399041">"<xliff:g id="TIME">%1$s</xliff:g> • Υποβοήθηση οδηγού • Απαιτεί πρόσβαση"</string>
+    <string name="location_adas_apps_list_title" msgid="482882078448695177">"Λειτουργίες που βοηθούν στην οδήγηση"</string>
+    <string name="location_driver_assistance_privacy_policy_button_text" msgid="1092702462617222722">"Πολιτική"</string>
+    <string name="location_settings_app_permissions_title" msgid="6446735313354321564">"Άδειες επιπέδου εφαρμογής"</string>
+    <string name="location_settings_app_permissions_summary" msgid="87851720569447224">"Διαχειριστείτε άδειες μεμονωμένων εφαρμογών"</string>
+    <string name="location_settings_services_title" msgid="1186133632690970468">"Υπηρεσίες τοποθεσίας"</string>
+    <string name="location_use_location_title" msgid="117735895374606680">"Χρήση τοποθεσίας"</string>
+    <string name="location_access_settings_title" msgid="2378398106582207440">"Πρόσβαση στην τοποθεσία"</string>
+    <string name="location_access_settings_summary" msgid="7676354917209152932">"Επιλέξτε αν οι εφαρμογές θα έχουν πρόσβαση στην τοποθεσία του αυτοκινήτου σας"</string>
+    <string name="location_access_disclaimer_summary" msgid="914984622682562036">"Ο κατασκευαστής του αυτοκινήτου ενδέχεται να εξακολουθεί να έχει πρόσβαση στην τοποθεσία του αυτοκινήτου σας. Ελέγξτε τις πολιτικές του κατασκευαστή για περισσότερες πληροφορίες."</string>
+    <string name="location_adas_app_info_summary" msgid="7806057735910556609">"Αυτές οι ενσωματωμένες λειτουργίες χρειάζονται πρόσβαση στην τοποθεσία του αυτοκινήτου σας για να σας βοηθήσουν στην οδήγηση.\n\nΕλέγξτε την πολιτική απορρήτου κάθε εφαρμογής για να μάθετε περισσότερα σχετικά με το πώς χρησιμοποιεί τα δεδομένα τοποθεσίας σας."</string>
+    <string name="microphone_settings_title" msgid="7125554350537136922">"Μικρόφωνο"</string>
+    <string name="microphone_toggle_title" msgid="911586035332827275">"Χρήση μικροφώνου"</string>
+    <string name="microphone_toggle_summary" msgid="2682653449849128626">"Επιτρέψτε σε όλες τις εφαρμογές να έχουν πρόσβαση στο μικρόφωνο"</string>
+    <string name="microphone_manage_permissions" msgid="7280905792151988183">"Διαχείριση αδειών μικροφώνου"</string>
+    <string name="microphone_recently_accessed" msgid="2084292372486026607">"Πρόσφατη πρόσβαση"</string>
+    <string name="microphone_no_recent_access" msgid="6412908936060990649">"Καμία πρόσφατη εφαρμογή"</string>
+    <string name="microphone_app_permission_summary_microphone_off" msgid="6139321726246115550">"Πρόσβαση έχουν 0 εφαρμογές"</string>
+    <string name="microphone_app_permission_summary_microphone_on" msgid="7870834777359783838">"{count,plural, =1{Πρόσβαση έχει # από {total_count} εφαρμογές.}other{Πρόσβαση έχουν # από {total_count} εφαρμογές.}}"</string>
+    <string name="microphone_settings_recent_requests_title" msgid="8154796551134761329">"Πρόσφατη πρόσβαση"</string>
+    <string name="microphone_settings_recent_requests_view_all_title" msgid="4339820818072842872">"Προβολή όλων"</string>
+    <string name="microphone_settings_loading_app_permission_stats" msgid="4357161201098081615">"Φόρτωση…"</string>
+    <string name="system_setting_title" msgid="6864599341809463440">"Σύστημα"</string>
+    <string name="system_update_settings_title" msgid="8448588267784138855">"Ενημερώσεις συστήματος"</string>
+    <string name="system_advanced_title" msgid="6303355131691523362">"Σύνθετες"</string>
+    <string name="system_advanced_summary" msgid="5833643795981791953">"Πληροφορίες, νομικές πληροφορίες, επαναφορά και άλλα"</string>
+    <string name="restart_infotainment_system_title" msgid="5174129167446756511">"Επανεκκίνηση συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="restart_infotainment_system_dialog_text" msgid="6395281407323116808">"Η επανεκκίνηση του συστήματος ενημέρωσης και ψυχαγωγίας του αυτοκινήτου μπορεί να διαρκέσει λίγα λεπτά. Θέλετε να συνεχίσετε;"</string>
+    <string name="continue_confirmation" msgid="1598892163951467191">"Συνέχεια"</string>
+    <string name="firmware_version" msgid="8491753744549309333">"Έκδοση Android"</string>
+    <string name="security_patch" msgid="4794276590178386903">"Επίπεδο ενημέρωσης κώδικα ασφαλείας Android"</string>
+    <string name="hardware_info" msgid="3973165746261507658">"Μοντέλο και εξοπλισμός"</string>
+    <string name="hardware_info_summary" msgid="8262576443254075921">"Μοντέλο: <xliff:g id="MODEL">%1$s</xliff:g>"</string>
+    <string name="baseband_version" msgid="2370088062235041897">"Έκδοση βασικού φάσματος"</string>
+    <string name="kernel_version" msgid="7327212934187011508">"Έκδοση Kernel"</string>
+    <string name="build_number" msgid="3997326631001009102">"Αριθμός έκδοσης"</string>
+    <string name="bluetooth_mac_address" msgid="7641425947941688072">"Διεύθυνση Bluetooth"</string>
+    <string name="device_info_not_available" msgid="2095601973977376655">"Μη διαθέσιμο"</string>
+    <string name="device_status_activity_title" msgid="4083567497305368200">"Κατάσταση"</string>
+    <string name="device_status" msgid="267298179806290920">"Κατάσταση"</string>
+    <string name="device_status_summary" product="tablet" msgid="600543254608862075">"Κατάσταση μπαταρίας, δικτύου και άλλες πληροφορίες"</string>
+    <string name="device_status_summary" product="default" msgid="9130360324418117815">"Αριθμός τηλεφώνου, σήμα κ.λπ."</string>
+    <string name="about_settings" msgid="4329457966672592345">"Πληροφορίες"</string>
+    <string name="about_summary" msgid="5374623866267691206">"Android <xliff:g id="VERSION">%1$s</xliff:g>"</string>
+    <string name="about_settings_summary" msgid="7975072809083281401">"Προβολή νομικών πληροφοριών, κατάστασης, έκδοσης λογισμικού"</string>
+    <string name="legal_information" msgid="1838443759229784762">"Νομικές πληροφορίες"</string>
+    <string name="contributors_title" msgid="7698463793409916113">"Συνεργάτες"</string>
+    <string name="manual" msgid="4819839169843240804">"Χειροκίνητα"</string>
+    <string name="regulatory_labels" msgid="3165587388499646779">"Ετικέτες κανονισμών"</string>
+    <string name="safety_and_regulatory_info" msgid="1204127697132067734">"Εγχειρίδιο ασφάλειας και κανονισμών"</string>
+    <string name="copyright_title" msgid="4220237202917417876">"Πνευματικά δικαιώματα"</string>
+    <string name="license_title" msgid="936705938435249965">"Άδεια"</string>
+    <string name="terms_title" msgid="5201471373602628765">"Όροι και προϋποθέσεις"</string>
+    <string name="webview_license_title" msgid="6442372337052056463">"Άδειες συστήμ. Προβολής στον ιστό"</string>
+    <string name="wallpaper_attributions" msgid="9201272150014500697">"Ταπετσαρίες"</string>
+    <string name="wallpaper_attributions_values" msgid="4292446851583307603">"Πηγές δορυφορικών εικόνων:\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="model_info" msgid="4966408071657934452">"Μοντέλο"</string>
+    <string name="status_serial_number" msgid="9158889113131907656">"Σειριακός αριθμός"</string>
+    <string name="hardware_revision" msgid="5713759927934872874">"Έκδοση εξοπλισμού"</string>
+    <string name="regulatory_info_text" msgid="8890339124198005428"></string>
+    <string name="settings_license_activity_title" msgid="8499293744313077709">"Άδειες τρίτου μέρους"</string>
+    <string name="settings_license_activity_unavailable" msgid="6104592821991010350">"Παρουσιάστηκε κάποιο πρόβλημα κατά τη φόρτωση των αδειών."</string>
+    <string name="settings_license_activity_loading" msgid="6163263123009681841">"Φόρτωση…"</string>
+    <string name="show_dev_countdown" msgid="7416958516942072383">"{count,plural, =1{Απομένει # βήμα για να γίνετε προγραμματιστής.}other{Απομένουν # βήματα για να γίνετε προγραμματιστής.}}"</string>
+    <string name="show_dev_on" msgid="5339077400040834808">"Είστε πλέον προγραμματιστής!"</string>
+    <string name="show_dev_already" msgid="1678087328973865736">"Δεν χρειάζεται, είστε ήδη προγραμματιστής."</string>
+    <string name="developer_options_settings" msgid="1530739225109118480">"Επιλογές για προγραμματιστές"</string>
+    <string name="reset_options_title" msgid="4388902952861833420">"Επαναφορά επιλογών"</string>
+    <string name="reset_options_summary" msgid="5508201367420359293">"Επαναφορά δικτύου, εφαρμογών ή συσκευής"</string>
+    <string name="reset_network_title" msgid="3077846909739832734">"Επαναφορά Wi‑Fi και Bluetooth"</string>
+    <string name="reset_network_desc" msgid="3332203703135823033">"Αυτή η ενέργεια θα επαναφέρει τις ρυθμίσεις Wi‑Fi και Bluetooth και θα καταργήσει το ιστορικό των συνδεδεμένων:"</string>
+    <string name="reset_network_item_wifi" msgid="2876370861806060314"><li>"Δικτύων Wi‑Fi και κωδικών πρόσβασης"</li></string>
+    <string name="reset_network_item_mobile" msgid="5747282716664480997"><li>"Δεδομένα κινητής τηλεφωνίας"</li></string>
+    <string name="reset_network_item_bluetooth" msgid="7475279871421815601"><li>"Τηλεφώνων και άλλων συσκευών Bluetooth"</li></string>
+    <string name="reset_esim_title" msgid="8132107637911831211">"Διαγραφή όλων των eSIM του οχήματος"</string>
+    <string name="reset_esim_desc" msgid="1437276625485586740">"Με αυτή την ενέργεια, δεν θα ακυρωθεί το πρόγραμμα υπηρεσίας σας."</string>
+    <string name="reset_esim_error_title" msgid="7245109418130525492">"Δεν είναι δυνατή η επαναφορά eSIM"</string>
+    <string name="reset_network_select" msgid="2433825874868038739">"Επιλογή δικτύου"</string>
+    <string name="reset_network_button_text" msgid="8374174455632765033">"Επαναφορά ρυθμίσεων"</string>
+    <string name="reset_network_confirm_title" msgid="5255502723840197663">"Να γίνει επαναφορά;"</string>
+    <string name="reset_network_confirm_desc" msgid="7721698076856330212">"Να γίνει επαναφορά όλων των ρυθμίσεων δικτύου; Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας!"</string>
+    <string name="reset_network_confirm_button_text" msgid="5246859685069024851">"Επαναφορά ρυθμίσεων"</string>
+    <string name="reset_network_complete_toast" msgid="3804108209431416865">"Έγινε επαναφορά των ρυθμίσεων δικτύου"</string>
+    <string name="reset_app_pref_title" msgid="5855420038951743992">"Επαναφορά προτιμήσεων εφαρμογών"</string>
+    <string name="reset_app_pref_desc" msgid="579392665146962149">"Με αυτή την ενέργεια, θα γίνει επαναφορά όλων των προτιμήσεων για:\n\n"<li>"απενεργοποιημένες εφαρμογές"</li>\n<li>"απενεργοποιημένες ειδοποιήσεις εφαρμογών"</li>\n<li>"προεπιλεγμένες εφαρμογές για ενέργειες"</li>\n<li>"περιορισμούς δεδομένων παρασκηνίου για εφαρμογές"</li>\n<li>"τυχόν περιορισμούς αδειών"</li>\n\n"Δεν θα χάσετε τυχόν δεδομένα εφαρμογών."</string>
+    <string name="reset_app_pref_button_text" msgid="6270820447321231609">"Επαναφορά εφαρμογών"</string>
+    <string name="reset_app_pref_complete_toast" msgid="8709072932243594166">"Έγινε επαναφορά των προτιμήσεων των εφαρμογών"</string>
+    <string name="factory_reset_title" msgid="4019066569214122052">"Διαγραφή δεδομένων (επαναφ. εργ. ρυθ.)"</string>
+    <string name="factory_reset_summary" msgid="854815182943504327">"Διαγραφή όλων των δεδομένων και προφίλ του συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="factory_reset_desc" msgid="2774024747279286354">"Αυτή η ενέργεια θα διαγράψει όλα τα δεδομένα από το σύστημα ενημέρωσης και ψυχαγωγίας του οχήματος, συμπεριλαμβανομένων των εξής:\n\n"<li>"Του λογαριασμού και των προφίλ σας"</li>\n<li>"Των δεδομένων και των ρυθμίσεων του συστήματος και των εφαρμογών"</li>\n<li>"Των εφαρμογών που έχετε κατεβάσει"</li></string>
+    <string name="factory_reset_accounts" msgid="5523956654938834209">"Αυτήν τη στιγμή είστε συνδεδεμένοι στους παρακάτω λογαριασμούς:"</string>
+    <string name="factory_reset_other_users_present" msgid="3852324375352090570">"Έχουν ρυθμιστεί άλλα προφίλ για αυτό το όχημα."</string>
+    <string name="factory_reset_button_text" msgid="2626666247051368256">"Διαγραφή όλων των δεδομένων"</string>
+    <string name="factory_reset_confirm_title" msgid="3354542161765761879">"Διαγραφή όλων των δεδομένων;"</string>
+    <string name="factory_reset_confirm_desc" msgid="2037199381372030510">"Αυτή η ενέργεια θα διαγράψει όλα τα προσωπικά δεδομένα προφίλ, τους λογαριασμούς και τις ληφθείσες εφαρμογές σας σε αυτό το σύστημα ενημέρωσης και ψυχαγωγίας.\n\nΗ αναίρεσή της δεν είναι δυνατή."</string>
+    <string name="factory_reset_confirm_button_text" msgid="1797490544756481809">"Διαγραφή όλων"</string>
+    <string name="factory_reset_progress_title" msgid="4580937077054738173">"Διαγραφή"</string>
+    <string name="factory_reset_progress_text" msgid="7704636573522634757">"Περιμένετε…"</string>
+    <string name="date_and_time_settings_title" msgid="4058492663544475485">"Ημερομηνία και ώρα"</string>
+    <string name="date_and_time_settings_summary" msgid="7669856855390804666">"Ορισμός ημερομηνίας, ώρας, ζώνης ώρας και μορφές"</string>
+    <string name="date_time_auto" msgid="6018635902717385962">"Αυτόματος ορισμός ώρας"</string>
+    <string name="zone_auto" msgid="4174874778459184605">"Αυτόματος ορισμός ζώνης ώρας"</string>
+    <string name="date_time_24hour_title" msgid="3025576547136168692">"24ωρη μορφή"</string>
+    <string name="date_time_24hour" msgid="1137618702556486913">"Χρήση 24ωρης μορφής"</string>
+    <string name="date_time_set_time_title" msgid="5884883050656937853">"Ώρα"</string>
+    <string name="date_time_set_time" msgid="6449555153906058248">"Ορισμός ώρας"</string>
+    <string name="date_time_set_timezone_title" msgid="3001779256157093425">"Ζώνη ώρας"</string>
+    <string name="date_time_set_timezone" msgid="4759353576185916944">"Επιλογή ζώνης ώρας"</string>
+    <string name="date_time_set_date_title" msgid="6834785820357051138">"Ημερομηνία"</string>
+    <string name="date_time_set_date" msgid="2537494485643283230">"Ορισμός ημερομηνίας"</string>
+    <string name="zone_list_menu_sort_alphabetically" msgid="7041628618528523514">"Ταξινόμηση αλφαβητικά"</string>
+    <string name="zone_list_menu_sort_by_timezone" msgid="4944880536057914136">"Ταξινόμηση ανά ζώνη ώρας"</string>
+    <string name="date_picker_title" msgid="1533614225273770178">"Ημερομηνία"</string>
+    <string name="time_picker_title" msgid="7436045944320504639">"Ώρα"</string>
+    <string name="user_admin" msgid="1535484812908584809">"Διαχειριστής"</string>
+    <string name="signed_in_admin_user" msgid="1267225622818673274">"Συνδεδεμένος ως διαχειριστής"</string>
+    <string name="grant_admin_permissions_title" msgid="4496239754512028468">"Εκχώρηση δικαιωμάτων διαχειριστή;"</string>
+    <string name="grant_admin_permissions_button_text" msgid="988239414372882401">"Να γίνει διαχειριστής"</string>
+    <string name="grant_admin_permissions_message" msgid="5205433947453539566">"Ο διαχειριστής θα μπορεί να διαγράψει άλλα προφίλ, συμπεριλαμβανομένων των προφίλ άλλων διαχειριστών και θα μπορεί να κάνει επαναφορά εργοστασιακών ρυθμίσεων του συστήματος ενημέρωσης και ψυχαγωγίας."</string>
+    <string name="action_not_reversible_message" msgid="740401337875726973">"Αυτή η ενέργεια δεν είναι αναστρέψιμη."</string>
+    <string name="confirm_grant_admin" msgid="7852596890218647682">"Ναι, να γίνει διαχειριστής"</string>
+    <string name="create_user_permission_title" msgid="2402003632264628632">"Δημιουργία νέων προφίλ"</string>
+    <string name="outgoing_calls_permission_title" msgid="1230180443712099293">"Τηλεφωνικές κλήσεις"</string>
+    <string name="sms_messaging_permission_title" msgid="6099328509729071243">"Αντ. μηνυμάτων μέσω δεδ. κιν. τηλ. αυτοκ."</string>
+    <string name="install_apps_permission_title" msgid="3099705360827925296">"Εγκατάσταση νέων εφαρμογών"</string>
+    <string name="uninstall_apps_permission_title" msgid="8448422340567430659">"Απεγκαταστήστε εφαρμογές"</string>
+    <string name="user_add_user_menu" msgid="4125869008006021799">"Προσθήκη προφίλ"</string>
+    <string name="user_new_user_name" msgid="906698527658609819">"Νέο προφίλ"</string>
+    <string name="user_add_user_title" msgid="6296827596015729982">"Προσθήκη νέου προφίλ;"</string>
+    <string name="user_add_user_message_setup" msgid="812616230454605159">"Μετά τη δημιουργία νέου προφίλ, ο κάτοχος του προφίλ πρέπει να το προσαρμόσει βάσει των αναγκών του."</string>
+    <string name="user_add_user_message_update" msgid="3836353291078729240">"Οι εφαρμογές μπορούν να ενημερωθούν από οποιοδήποτε προφίλ, για χρήση από όλα τα άλλα προφίλ."</string>
+    <string name="user_limit_reached_title" msgid="5677729355746623293">"Συμπληρώθηκε το όριο προφίλ"</string>
+    <string name="user_limit_reached_message" msgid="2773441357248819721">"{count,plural, =1{Είναι δυνατή η δημιουργία μόνο ενός προφίλ.}other{Μπορείτε να δημιουργήσετε έως # προφίλ.}}"</string>
+    <string name="add_user_error_title" msgid="7589792057846396341">"Δεν ήταν δυνατή η δημιουργία νέου προφίλ"</string>
+    <string name="delete_user_dialog_title" msgid="575517556232943687">"Διαγραφή αυτού του προφίλ;"</string>
+    <string name="delete_user_dialog_message" msgid="3916865958419051299">"Θα διαγραφούν όλες οι εφαρμογές και τα δεδομένα αυτού του προφίλ"</string>
+    <string name="delete_user_error_title" msgid="287249031795906102">"Το προφίλ δεν διαγράφηκε. Επανεκκινήστε τη συσκευή και δοκιμάστε ξανά."</string>
+    <string name="delete_user_error_set_ephemeral_title" msgid="9062453678745644817">"Αυτό το προφίλ θα διαγραφεί μόλις αλλάξετε προφίλ ή όταν βάλετε ξανά σε λειτουργία το όχημα."</string>
+    <string name="delete_user_error_dismiss" msgid="429156446763738273">"Παράβλεψη"</string>
+    <string name="delete_user_error_retry" msgid="5116434895572670563">"Επανάληψη"</string>
+    <string name="delete_last_user_dialog_title" msgid="3454454005909291260">"Διαγραφή τελευτ. εναπομείναντος προφίλ;"</string>
+    <string name="delete_last_user_delete_warning" msgid="7189499586859833988">"Εάν διαγράψετε το μοναδικό εναπομείναν προφίλ για αυτό το όχημα, όλα τα δεδομένα, οι ρυθμίσεις και οι εφαρμογές που έχουν συσχετιστεί με αυτό το προφίλ θα διαγραφούν."</string>
+    <string name="delete_last_user_system_setup_required_message" msgid="726196874941282088">"Μπορείτε να ρυθμίσετε ένα νέο προφίλ μετά την επαναφορά."</string>
+    <string name="choose_new_admin_title" msgid="1915428454917699587">"Επιλογή νέου διαχειριστή"</string>
+    <string name="choose_new_admin_message" msgid="7468286545352043354">"Θα πρέπει να υπάρχει τουλάχιστον ένας διαχειριστής. Για να διαγράψετε αυτόν τον διαχειριστή, πρώτα επιλέξτε έναν αντικαταστάτη."</string>
+    <string name="choose_new_admin_label" msgid="5987653639387437939">"Επιλογή διαχειριστή"</string>
+    <string name="user_switch" msgid="6544839750534690781">"Εναλλαγή"</string>
+    <string name="current_user_name" msgid="3813671533249316823">"Εσείς (%1$s)"</string>
+    <string name="user_name_label" msgid="3210832645046206845">"Όνομα"</string>
+    <string name="user_summary_not_set_up" msgid="1473688119241224145">"Δεν έχει ρυθμιστεί"</string>
+    <string name="edit_user_name_title" msgid="1118500707473139995">"Επεξεργασία ονόματος προφίλ"</string>
+    <string name="name_input_blank_error" msgid="2088850865880984123">"Το πεδίο δεν μπορεί να παραμείνει κενό."</string>
+    <string name="name_input_invalid_error" msgid="4355625213535164704">"Το όνομα προφίλ που καταχωρίσατε δεν είναι έγκυρο."</string>
+    <string name="users_list_title" msgid="770764290290240909">"Χρήστες"</string>
+    <string name="profiles_list_title" msgid="1443396686780460221">"Προφίλ"</string>
+    <string name="user_details_admin_title" msgid="3530292857178371891">"Δικαιώματα που δόθηκαν σε %1$s"</string>
+    <string name="storage_settings_title" msgid="8957054192781341797">"Αποθηκευτικός χώρος"</string>
+    <string name="storage_music_audio" msgid="7827147379976134040">"Μουσική και ήχος"</string>
+    <string name="storage_other_apps" msgid="945509804756782640">"Άλλες εφαρμογές"</string>
+    <string name="storage_files" msgid="6382081694781340364">"Αρχεία"</string>
+    <string name="storage_system" msgid="1271345630248014010">"Σύστημα"</string>
+    <string name="storage_detail_dialog_system" msgid="796365720531622361">"Το σύστημα περιλαμβάνει αρχεία που χρησιμοποιούνται για την εκτέλεση του Android <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="storage_audio_files_title" msgid="5183170457027181700">"Αρχεία ήχου"</string>
+    <string name="memory_calculating_size" msgid="1672238502950390033">"Υπολογισμός…"</string>
+    <string name="storage_application_size_label" msgid="1146156683170661354">"Μέγεθος εφαρμογής"</string>
+    <string name="storage_data_size_label" msgid="7986110464268960652">"Δεδομένα προφίλ"</string>
+    <string name="storage_cache_size_label" msgid="6361308766707419555">"Κρυφή μνήμη"</string>
+    <string name="storage_total_size_label" msgid="3892138268243791912">"Σύνολο"</string>
+    <string name="storage_clear_user_data_text" msgid="8787615136779130680">"Εκκαθάριση αποθηκευτικού χώρου"</string>
+    <string name="storage_clear_cache_btn_text" msgid="8449547925966775612">"Διαγραφή κρυφής μνήμης"</string>
+    <string name="storage_clear_data_dlg_title" msgid="5863775997588969879">"Διαγραφή δεδομένων εφαρμογής;"</string>
+    <string name="storage_clear_data_dlg_text" msgid="3255314337644212283">"Τα δεδομένα αυτής της εφαρμογής θα διαγραφούν οριστικά. Σε αυτά περιλαμβάνονται αρχεία, ρυθμίσεις, βάσεις δεδομένων και άλλα δεδομένα εφαρμογών."</string>
+    <string name="storage_clear_failed_dlg_text" msgid="6710485971686866306">"Αδυναμία διαγραφής αποθηκ. χώρου για την εφαρμογή."</string>
+    <string name="storage_unmount_success" msgid="1553591517580407021">"Έγινε κατάργηση της συσκευής <xliff:g id="NAME">%1$s</xliff:g> με ασφάλεια"</string>
+    <string name="storage_unmount_failure" msgid="4591934911541762883">"Δεν ήταν δυνατή η κατάργηση της συσκευής <xliff:g id="NAME">%1$s</xliff:g> με ασφάλεια"</string>
+    <string name="accounts_settings_title" msgid="436190037084293471">"Λογαριασμοί"</string>
+    <string name="user_add_account_menu" msgid="6625351983590713721">"Προσθήκη λογαριασμού"</string>
+    <string name="no_accounts_added" msgid="5148163140691096055">"Δεν έχουν προστεθεί λογαριασμοί"</string>
+    <string name="account_list_title" msgid="7631588514613843065">"Λογαριασμοί για <xliff:g id="CURRENT_USER_NAME">%1$s</xliff:g>"</string>
+    <string name="account_auto_sync_title" msgid="3238816995364191432">"Αυτόματος συγχρονισμός δεδομένων"</string>
+    <string name="account_auto_sync_summary" msgid="6963837893148304128">"Επιτρέπει στις εφαρμογές να ανανεώνουν δεδομένα αυτόματα"</string>
+    <string name="data_usage_auto_sync_on_dialog_title" msgid="8068513213445588532">"Αποδοχή αυτόματου συγχρονισμού δεδομένων;"</string>
+    <string name="data_usage_auto_sync_on_dialog" msgid="8683935973719807821">"Θα γίνεται αυτόματη αντιγραφή τυχόν αλλαγών που πραγματοποιείτε στους λογαριασμούς σας στον ιστό στο όχημά σας.\n\nΣε ορισμένους λογαριασμούς ενδέχεται να γίνεται επίσης αυτόματη αντιγραφή τυχόν αλλαγών που πραγματοποιείτε στο όχημά σας στον ιστό."</string>
+    <string name="data_usage_auto_sync_off_dialog_title" msgid="6683011954002351091">"Απαγόρευση αυτόματου συγχρονισμού δεδομένων;"</string>
+    <string name="data_usage_auto_sync_off_dialog" msgid="5040873073016183315">"Με αυτόν τον τρόπο θα εξοικονομήσετε δεδομένα, αλλά θα πρέπει να συγχρονίσετε κάθε λογαριασμό με μη αυτόματο τρόπο για να συλλέξετε πρόσφατες πληροφορίες. Δεν θα λαμβάνετε ειδοποιήσεις κατά τη διάρκεια των ενημερώσεων."</string>
+    <string name="account_details_title" msgid="7529571432258448573">"Πληροφορίες λογαριασμού"</string>
+    <string name="add_account_title" msgid="5988746086885210040">"Προσθήκη λογαριασμού"</string>
+    <string name="add_an_account" msgid="1072285034300995091">"Προσθέστε έναν λογαριασμό"</string>
+    <string name="user_cannot_add_accounts_message" msgid="6775605884544906797">"Δεν είναι δυνατή η προσθήκη λογαριασμών από περιορισμένα προφίλ"</string>
+    <string name="remove_account_title" msgid="8840386525787836381">"Κατάργηση λογαριασμού"</string>
+    <string name="really_remove_account_title" msgid="3555164432587924900">"Κατάργηση λογαριασμού;"</string>
+    <string name="really_remove_account_message" msgid="4296769280849579900">"Η κατάργηση αυτού του λογαριασμού θα έχει σαν αποτέλεσμα τη διαγραφή όλων των μηνυμάτων, των επαφών και άλλων δεδομένων του από τη συσκευή!"</string>
+    <string name="remove_account_error_title" msgid="8368044943174826635">"Η κατάργηση του λογαριασμού απέτυχε."</string>
+    <string name="account_sync_title" msgid="6541844336300236915">"Συγχρονισμός λογαριασμού"</string>
+    <string name="account_sync_summary_some_on" msgid="4525960296068027182">"Ο συγχρονισμός είναι ενεργοποιημένος για <xliff:g id="ID_1">%1$d</xliff:g> από <xliff:g id="ID_2">%2$d</xliff:g> στοιχεία"</string>
+    <string name="account_sync_summary_all_on" msgid="3652264471870312725">"Ο συγχρονισμός είναι ενεργοποιημένος για όλα τα στοιχεία"</string>
+    <string name="account_sync_summary_all_off" msgid="6550959714035312414">"Ο συγχρονισμός είναι απενεργοποιημένος για όλα τα στοιχεία"</string>
+    <string name="sync_disabled" msgid="393531064334628258">"Συγχρονισμός ανενεργός"</string>
+    <string name="sync_error" msgid="6698021343089247914">"Σφάλμα συγχρονισμού"</string>
+    <string name="last_synced" msgid="4745124489150101529">"Τελευταίος συγχρονισμός <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="sync_in_progress" msgid="1237573373537382416">"Συγχρονισμός τώρα…"</string>
+    <string name="sync_one_time_sync" msgid="491707183321353107">"Πατήστε για να κάνετε συγχρονισμό τώρα<xliff:g id="LAST_SYNC_TIME">
+%1$s</xliff:g>"</string>
+    <string name="sync_button_sync_now" msgid="5767643057970371315">"Συγχρονισμός τώρα"</string>
+    <string name="sync_button_sync_cancel" msgid="7739510554513641393">"Ακύρωση συγχρονισμού"</string>
+    <string name="sync_is_failing" msgid="5766255460901806206">"Ο συγχρονισμός αντιμετωπίζει προβλήματα αυτή τη στιγμή. Θα είναι διαθέσιμος ξανά σε λίγο."</string>
+    <string name="privacy_settings_title" msgid="3150145262029229572">"Απόρρητο"</string>
+    <string name="privacy_vehicle_data_title" msgid="6385777370742595651">"δεδομ. συστήμ. ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="privacy_location_summary" msgid="7019817848470566242">"Ελέγξτε την πρόσβαση εφαρμογών στην τοποθεσία σας"</string>
+    <string name="mute_camera_title" msgid="215494079895460172">"Κάμερα"</string>
+    <string name="mute_camera_summary" msgid="1237452064757403042">"Έλεγχος της πρόσβασης εφαρμογών στις κάμερές σας"</string>
+    <string name="mute_mic_title" msgid="2813215197799569553">"Μικρόφωνο"</string>
+    <string name="mute_mic_summary" msgid="5426953935775303904">"Ελέγξτε την πρόσβαση των εφαρμογών στο μικρόφωνο"</string>
+    <string name="vehicle_data_title" msgid="935933215161763721">"δεδομ. σύστ. ενημ. και ψυχαγ."</string>
+    <string name="vehicle_data_summary" msgid="9204836361819386115">"Διαχείριση δραστηριοτήτων και πληροφοριών που έχουν αποθηκευτεί σε αυτό το όχημα"</string>
+    <string name="vehicle_data_delete_user_title" msgid="9132472153739085346">"Διαγραφή του προφίλ σας"</string>
+    <string name="vehicle_data_delete_user_summary" msgid="5900205773710111394">"Διαγράψτε το προφίλ και τους λογαριασμούς σας από το σύστημα ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="action_unavailable" msgid="7087119418684417249">"Αυτή η ενέργεια δεν είναι δυνατή για το προφίλ σας"</string>
+    <string name="camera_access_settings_title" msgid="1841809323727456945">"Πρόσβαση κάμερας"</string>
+    <string name="camera_access_settings_summary" msgid="8820488359585532496">"Επιλέξτε αν οι εφαρμογές θα έχουν πρόσβαση στις κάμερες του αυτοκινήτου σας"</string>
+    <string name="camera_access_radio_group_title" msgid="4208620766356391501">"Χρησιμοποιήστε τις κάμερες του αυτοκινήτου:"</string>
+    <string name="camera_access_radio_any_app_title" msgid="8324331670738824005">"Με οποιαδήποτε εφαρμογή"</string>
+    <string name="camera_access_radio_any_app_summary" msgid="8542924833172200812">"Οποιαδήποτε εφαρμογή στην οποία έχετε επιτρέψει να έχει πρόσβαση στην κάμερα"</string>
+    <string name="camera_access_radio_no_apps_title" msgid="3619351327217493913">"Με καμία εφαρμογή"</string>
+    <string name="camera_access_radio_no_apps_summary" msgid="6249258388767284908">"Καμία από τις εφαρμογές σας"</string>
+    <string name="camera_access_radio_helpful_apps_title" msgid="2798745588985580019">"Με εφαρμογές που βοηθούν στην οδήγηση"</string>
+    <string name="camera_access_radio_helpful_apps_summary" msgid="2152605965038188293">"Εφαρμογές που σας βοηθούν με διάφορα πράγματα, όπως αυτές που δείχνουν τον περιβάλλοντα χώρο όταν παρκάρετε"</string>
+    <string name="camera_access_radio_required_apps_title" msgid="6742441427451523208">"Με απαιτούμενες εφαρμογές μόνο"</string>
+    <string name="camera_access_radio_required_apps_summary" msgid="6514325511542932602">"Εφαρμογές που απαιτεί ο κατασκευαστής του αυτοκινήτου και μόνο με αυτές"</string>
+    <string name="camera_access_radio_helpful_required_apps_title" msgid="631591123648468495">"Με εφαρμογές που βοηθούν στην οδήγηση"</string>
+    <string name="camera_access_radio_helpful_required_apps_summary" msgid="1388997613007479738">"Εφαρμογές που σας βοηθούν με διάφορα πράγματα, όπως αυτές που δείχνουν τον περιβάλλοντα χώρο όταν παρκάρετε, και με απαιτούμενες εφαρμογές"</string>
+    <string name="camera_helpful_apps_list_title" msgid="3384154135315115240">"Με εφαρμογές που βοηθούν στην οδήγηση"</string>
+    <string name="camera_helpful_apps_list_summary" msgid="4070939811052295258">"Αυτές οι εφαρμογές μπορούν να έχουν πρόσβαση στην κάμερά σας για να σας βοηθούν στην οδήγηση"</string>
+    <string name="camera_required_apps_list_title" msgid="4751978669779838763">"Απαιτούμενες εφαρμογές"</string>
+    <string name="camera_required_apps_list_summary" msgid="7445661688832040704">"Αυτές οι εφαρμογές είναι απαραίτητες καθώς συμβάλλουν στην ασφαλή λειτουργία του αυτοκινήτου"</string>
+    <string name="camera_privacy_policy_button_text" msgid="6845099817069101132">"Πολιτική"</string>
+    <string name="camera_access_disclaimer_summary" msgid="6648007542393315155">"Ο κατασκευαστής του αυτοκινήτου ενδέχεται να εξακολουθεί να έχει πρόσβαση στην κάμερα του αυτοκινήτου σας. Ελέγξτε τις πολιτικές του κατασκευαστή για περισσότερες πληροφορίες."</string>
+    <string name="camera_privacy_policy_info_summary" msgid="5036268531646886906">"Ανατρέξτε στην Πολιτική απορρήτου κάθε εφαρμογής, για να μάθετε περισσότερα σχετικά με το πώς χρησιμοποιεί την κάμερα."</string>
+    <string name="security_settings_title" msgid="6955331714774709746">"Ασφάλεια"</string>
+    <string name="security_settings_subtitle" msgid="2244635550239273229">"Κλείδωμα οθόνης"</string>
+    <string name="security_lock_none" msgid="1054645093754839638">"Κανένα"</string>
+    <string name="security_lock_pattern" msgid="1174352995619563104">"Μοτίβο"</string>
+    <string name="security_lock_pin" msgid="4891899974369503200">"Αριθμός PIN"</string>
+    <string name="security_lock_password" msgid="4420203740048322494">"Κωδικός πρόσβασης"</string>
+    <string name="lock_settings_picker_title" msgid="6590330165050361632">"Επιλογή τύπου κλειδώμ."</string>
+    <string name="screen_lock_options" msgid="8531177937577168185">"Επιλογές κλειδώματος"</string>
+    <string name="lock_settings_enter_pattern" msgid="4826034565853171624">"Εισαγάγετε το μοτίβο σας"</string>
+    <string name="lockpattern_confirm_button_text" msgid="7784925958324484965">"Επιβεβαίωση"</string>
+    <string name="lockpattern_restart_button_text" msgid="9355771277617537">"Επανάληψη σχεδίασης"</string>
+    <string name="continue_button_text" msgid="5129979170426836641">"Συνέχεια"</string>
+    <string name="lockscreen_retry_button_text" msgid="5314212350698701242">"Επανάληψη"</string>
+    <string name="lockscreen_skip_button_text" msgid="3755748786396198091">"Παράβλεψη"</string>
+    <string name="set_screen_lock" msgid="5239317292691332780">"Ορισμός κλειδώματος οθόνης"</string>
+    <string name="lockscreen_choose_your_pin" msgid="1645229555410061526">"Επιλέξτε αριθμό PIN"</string>
+    <string name="lockscreen_choose_your_password" msgid="4487577710136014069">"Επιλέξτε τον κωδικό πρόσβασής σας"</string>
+    <string name="current_screen_lock" msgid="637651611145979587">"Τρέχουσα οθόνη κλειδώματος"</string>
+    <string name="choose_lock_pattern_message" msgid="6242765203541309524">"Για λόγους ασφαλείας, ορίστε ένα μοτίβο"</string>
+    <string name="lockpattern_retry_button_text" msgid="4655398824001857843">"Διαγραφή"</string>
+    <string name="lockpattern_cancel_button_text" msgid="4068764595622381766">"Ακύρωση"</string>
+    <string name="lockpattern_pattern_confirmed" msgid="5984306638250515385">"Το νέο σας μοτίβο ξεκλειδώματος"</string>
+    <string name="lockpattern_recording_intro_header" msgid="7864149726033694408">"Σχεδιάστε το μοτίβο ξεκλειδώματος"</string>
+    <string name="lockpattern_recording_inprogress" msgid="1575019990484725964">"Μετά την ολοκλήρωση σηκώστε το δάχτυλο"</string>
+    <string name="lockpattern_pattern_entered" msgid="6103071005285320575">"Το μοτίβο καταγράφηκε"</string>
+    <string name="lockpattern_need_to_confirm" msgid="4648070076022940382">"Σχεδιάστε ξανά το μοτίβο για επιβεβαίωση"</string>
+    <string name="lockpattern_recording_incorrect_too_short" msgid="2417932185815083082">"Συνδέστε τουλάχ. 4 κουκκίδες. Δοκιμάστε ξανά."</string>
+    <string name="lockpattern_pattern_wrong" msgid="929223969555399363">"Λανθασμένο μοτίβο"</string>
+    <string name="lockpattern_settings_help_how_to_record" msgid="4436556875843192284">"Τρόπος σχεδίασης μοτίβου ξεκλειδώματος"</string>
+    <string name="error_saving_lockpattern" msgid="2933512812768570130">"Σφάλμα κατά την αποθήκευση του μοτίβου"</string>
+    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="4636307830951251013">"Πάρα πολλές αποτυχημένες προσπάθειες. Δοκιμάστε ξανά σε <xliff:g id="NUMBER">%d</xliff:g> δευτερόλεπτα."</string>
+    <string name="lockpattern_does_not_support_rotary" msgid="7356367113555659428">"Το μοτίβο δεν υποστ. περιστρ. Χρησ. αφή"</string>
+    <string name="okay" msgid="4589873324439764349">"OK"</string>
+    <string name="remove_screen_lock_title" msgid="1234382338764193387">"Κατάργηση κλειδώματος οθόνης;"</string>
+    <string name="remove_screen_lock_message" msgid="6675850371585564965">"Έτσι όλοι οι χρήστες θα έχουν πρόσβαση στον λογαριασμό σας"</string>
+    <string name="security_profile_lock_title" msgid="3082523481292617350">"Κλείδωμα προφίλ"</string>
+    <string name="security_unlock_profile_summary" msgid="6742592419759865631">"Ρύθμιση αυτόματου ξεκλειδώματος"</string>
+    <string name="lock_settings_enter_pin" msgid="1669172111244633904">"Εισαγάγετε τον αριθμό σας PIN"</string>
+    <string name="lock_settings_enter_password" msgid="2636669926649496367">"Εισαγάγετε κωδικό πρόσβασης"</string>
+    <string name="choose_lock_pin_message" msgid="2963792070267774417">"Για λόγους ασφαλείας, ορίστε ένα PIN"</string>
+    <string name="confirm_your_pin_header" msgid="9096581288537156102">"Εισαγάγετε ξανά τον αριθμό PIN"</string>
+    <string name="choose_lock_pin_hints" msgid="7362906249992020844">"Το PIN πρέπει να είναι τουλάχ. 4 ψηφία."</string>
+    <string name="lockpin_invalid_pin" msgid="2149191577096327424">"Ο αριθμός PIN δεν είναι έγκυρος. Πρέπει να αποτελείται από τουλάχιστον 4 ψηφία."</string>
+    <string name="confirm_pins_dont_match" msgid="4607110139373520720">"Τα PIN δεν ταιριάζουν"</string>
+    <string name="error_saving_lockpin" msgid="9011960139736000393">"Σφάλμα κατά την αποθήκευση του PIN"</string>
+    <string name="lockscreen_wrong_pin" msgid="4922465731473805306">"Λανθασμένος αριθμός PIN"</string>
+    <string name="lockscreen_wrong_password" msgid="5757087577162231825">"Λανθασμένος κωδικός πρόσβασης"</string>
+    <string name="choose_lock_password_message" msgid="6124341145027370784">"Για ασφάλεια, ορίστε κωδικό πρόσβασης"</string>
+    <string name="confirm_your_password_header" msgid="7052891840366724938">"Εισαγάγετε ξανά τον κωδικό πρόσβασης"</string>
+    <string name="confirm_passwords_dont_match" msgid="7300229965206501753">"Ανόμοιοι κωδικοί πρόσβασης"</string>
+    <string name="lockpassword_clear_label" msgid="6363680971025188064">"Διαγραφή"</string>
+    <string name="lockpassword_cancel_label" msgid="5791237697404166450">"Ακύρωση"</string>
+    <string name="lockpassword_confirm_label" msgid="5918463281546146953">"Επιβεβαίωση"</string>
+    <string name="choose_lock_password_hints" msgid="3903696950202491593">"Πρέπει να αποτελείται τουλάχιστον από 4 χαρακτήρες"</string>
+    <string name="locktype_unavailable" msgid="2678317466336249126">"Αυτός ο τύπος κλειδώματος δεν είναι διαθέσιμος."</string>
+    <string name="lockpassword_pin_contains_non_digits" msgid="3044526271686839923">"Πρέπει να περιέχει μόνο ψηφία από το 0 έως το 9."</string>
+    <string name="lockpassword_pin_recently_used" msgid="7901918311213276207">"Ο διαχειριστής της συσκευής δεν επιτρέπει τη χρήση πρόσφατου PIN"</string>
+    <string name="lockpassword_pin_denylisted_by_admin" msgid="3752574009492336468">"Τα συνηθισμένα PIN αποκλείονται από τον διαχειριστή IT. Δοκιμάστε να χρησιμοποιήσετε διαφορετικό PIN."</string>
+    <string name="lockpassword_illegal_character" msgid="1984970060523635618">"Δεν μπορεί να περιλαμβάνει μη έγκυρο χαρακτήρα."</string>
+    <string name="lockpassword_invalid_password" msgid="1690956113717418430">"Μη έγκυρος κωδικός πρόσβασης. Πρέπει να αποτελείται από τουλάχιστον 4 χαρακτήρες."</string>
+    <string name="lockpassword_password_recently_used" msgid="8255729487108602924">"Ο διαχειριστής της συσκευής δεν επιτρέπει τη χρήση πρόσφατου κωδικού πρόσβασης"</string>
+    <string name="error_saving_password" msgid="8334882262622500658">"Σφάλμα κατά την αποθ. του κωδ. πρόσβασης"</string>
+    <string name="lockpassword_password_denylisted_by_admin" msgid="8611831198794524730">"Οι συνηθισμένοι κωδικοί πρόσβασης αποκλείονται από τον διαχειριστή IT. Δοκιμάστε να χρησιμοποιήσετε διαφορετικό κωδικό πρόσβασης."</string>
+    <string name="lockpassword_password_requires_alpha" msgid="713641878535268163">"Πρέπει να περιέχει τουλάχιστον ένα γράμμα."</string>
+    <string name="lockpassword_password_requires_digit" msgid="8120467503175627546">"Πρέπει να περιέχει τουλάχιστον ένα ψηφίο."</string>
+    <string name="lockpassword_password_requires_symbol" msgid="6294855131052831204">"Πρέπει να περιέχει τουλάχιστον ένα σύμβολο."</string>
+    <string name="lockpassword_password_requires_letters" msgid="324864645474528299">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # γράμμα.}other{Πρέπει να περιέχει τουλάχιστον # γράμματα.}}"</string>
+    <string name="lockpassword_password_requires_lowercase" msgid="5373735547134824114">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # πεζό γράμμα.}other{Πρέπει να περιέχει τουλάχιστον # πεζά γράμματα.}}"</string>
+    <string name="lockpassword_password_requires_uppercase" msgid="2002482631049525313">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # κεφαλαίο γράμμα.}other{Πρέπει να περιέχει τουλάχιστον # κεφαλαία γράμματα.}}"</string>
+    <string name="lockpassword_password_requires_numeric" msgid="5694949801691947801">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # αριθμητικό ψηφίο.}other{Πρέπει να περιέχει τουλάχιστον # αριθμητικά ψηφία.}}"</string>
+    <string name="lockpassword_password_requires_symbols" msgid="1789501049908004075">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # ειδικό σύμβολο.}other{Πρέπει να περιέχει τουλάχιστον # ειδικά σύμβολα.}}"</string>
+    <string name="lockpassword_password_requires_nonletter" msgid="3089186186422638926">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # χαρακτήρα που δεν είναι γράμμα.}other{Πρέπει να περιέχει τουλάχιστον # χαρακτήρες που δεν είναι γράμματα.}}"</string>
+    <string name="lockpassword_password_requires_nonnumerical" msgid="1677123573552379526">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # μη αριθμητικό χαρακτήρα.}other{Πρέπει να περιέχει τουλάχιστον # μη αριθμητικούς χαρακτήρες.}}"</string>
+    <string name="lockpassword_password_too_short" msgid="3898753131694105832">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # χαρακτήρα.}other{Πρέπει να περιέχει τουλάχιστον # χαρακτήρες.}}"</string>
+    <string name="lockpassword_pin_too_short" msgid="3671037384464545169">"{count,plural, =1{Πρέπει να περιέχει τουλάχιστον # ψηφίο.}other{Πρέπει να περιέχει τουλάχιστον # ψηφία.}}"</string>
+    <string name="lockpassword_password_too_long" msgid="1709616257350671045">"{count,plural, =1{Πρέπει να περιέχει λιγότερους από # χαρακτήρα.}other{Πρέπει να περιέχει λιγότερους από # χαρακτήρες.}}"</string>
+    <string name="lockpassword_pin_too_long" msgid="8315542764465856288">"{count,plural, =1{Πρέπει να περιέχει λιγότερα από # ψηφίο.}other{Πρέπει να περιέχει λιγότερα από # ψηφία.}}"</string>
+    <string name="lockpassword_pin_no_sequential_digits" msgid="6511579896796310956">"Δεν επιτρέπεται η αύξουσα, φθίνουσα ή επαναλαμβανόμενη ακολουθία ψηφίων"</string>
+    <string name="setup_lock_settings_options_button_label" msgid="3337845811029780896">"Επιλογές κλειδώματος οθόνης"</string>
+    <string name="credentials_reset" msgid="873900550885788639">"Διαγραφή διαπιστευτηρίων"</string>
+    <string name="credentials_reset_summary" msgid="6067911547500459637">"Κατάργηση όλων των πιστοποιητικών"</string>
+    <string name="credentials_reset_hint" msgid="3459271621754137661">"Να καταργηθεί όλο το περιεχόμενο;"</string>
+    <string name="credentials_erased" msgid="2515915439705550379">"Ο αποθηκευτικός χώρος διαπιστευτηρίων διαγράφηκε."</string>
+    <string name="credentials_not_erased" msgid="6118567459076742720">"Αδύνατη η διαγραφή του αποθηκευτικού χώρου διαπιστευτηρίων."</string>
+    <string name="forget" msgid="3971143908183848527">"Διαγραφή από μνήμη"</string>
+    <string name="connect" msgid="5861699594602380150">"Σύνδεση"</string>
+    <string name="disconnect" msgid="6140789953324820336">"Αποσύνδεση"</string>
+    <string name="delete_button" msgid="5840500432614610850">"Διαγραφή"</string>
+    <string name="remove_button" msgid="6664656962868194178">"Κατάργηση"</string>
+    <string name="cancel" msgid="750286395700355455">"Ακύρωση"</string>
+    <string name="allow" msgid="7519431342750394402">"Να επιτρέπεται"</string>
+    <string name="do_not_allow" msgid="3157082400084747525">"Να μην επιτρέπεται"</string>
+    <string name="deny" msgid="340512788979930804">"Να μην επιτρέπεται"</string>
+    <string name="backspace_key" msgid="1545590866688979099">"Πλήκτρο Backspace"</string>
+    <string name="enter_key" msgid="2121394305541579468">"Πλήκτρο Enter"</string>
+    <string name="exit_retail_button_text" msgid="6093240315583384473">"Έξοδος από επίδειξη"</string>
+    <string name="exit_retail_mode_dialog_title" msgid="7970631760237469168">"Έξοδος από λειτ. επίδειξης"</string>
+    <string name="exit_retail_mode_dialog_body" msgid="6513854703627380365">"Αυτή η ενέργεια θα διαγράψει τον λογαριασμό επίδειξης και θα επαναφέρει τις εργοστασιακές ρυθμίσεις του συστήματος. Όλα τα δεδομένα προφίλ θα χαθούν."</string>
+    <string name="exit_retail_mode_dialog_confirmation_button_text" msgid="3147249675355968649">"Έξοδος από επίδειξη"</string>
+    <string name="suggestion_dismiss_button" msgid="4539412646977050641">"ΠΑΡΑΒΛΕΨΗ"</string>
+    <string name="restricted_while_driving" msgid="6587569249519274524">"Η λειτουργία δεν διατίθεται κατά τη διάρκεια της οδήγησης."</string>
+    <string name="restricted_for_passenger" msgid="7240117443887727753">"Ζητήστε από τον οδηγό να αλλάξει τη ρύθμιση"</string>
+    <string name="restricted_for_driver" msgid="3364388937671526800">"Δεν μπορείτε να πραγματοποιήσετε αυτή την ενέργεια"</string>
+    <string name="add_user_restricted_while_driving" msgid="1037301074725362944">"Δεν είναι δυνατή η προσθήκη προφίλ κατά την οδήγηση."</string>
+    <string name="default_search_query" msgid="3137420627428857068">"Αναζήτηση"</string>
+    <string name="assistant_and_voice_setting_title" msgid="737733881661819853">"Βοηθός και φωνή"</string>
+    <string name="assistant_and_voice_assistant_app_title" msgid="5981647244625171285">"Εφαρμογή ψηφιακού βοηθού"</string>
+    <string name="assistant_and_voice_use_text_from_screen_title" msgid="5851460943413795599">"Χρήση κειμένου από την οθόνη"</string>
+    <string name="assistant_and_voice_use_text_from_screen_summary" msgid="4161751708121301541">"Να επιτρέπεται στον Βοηθό να έχει πρόσβαση στο περιεχόμενο της οθόνης"</string>
+    <string name="assistant_and_voice_use_screenshot_title" msgid="1930735578425470046">"Χρήση στιγμιότυπου οθόνης"</string>
+    <string name="assistant_and_voice_use_screenshot_summary" msgid="3738474919393817950">"Να επιτρέπεται στον Βοηθό να έχει πρόσβαση στην εικόνα της οθόνης"</string>
+    <string name="notifications_recently_sent" msgid="9051696542615302799">"Στάλθηκαν πρόσφατα"</string>
+    <string name="notifications_all_apps" msgid="3557079551048958846">"Όλες οι εφαρμογές"</string>
+    <string name="profiles_and_accounts_settings_title" msgid="2672643892127659812">"Προφίλ και λογαριασμοί"</string>
+    <string name="manage_other_profiles_button_text" msgid="2262188413455510828">"Διαχείριση άλλων προφίλ"</string>
+    <string name="add_a_profile_button_text" msgid="8027395095117925114">"Προσθέστε ένα προφίλ"</string>
+    <string name="delete_this_profile_text" msgid="6035404714526922665">"Διαγραφή αυτού του προφίλ"</string>
+    <string name="add_profile_text" msgid="9118410102199116969">"Προσθήκη προφίλ"</string>
+    <string name="cannot_remove_driver_profile" msgid="4109363161608717969">"Ο οδηγός είναι συνδεδεμένος στο προφίλ. Δοκιμάστε ξανά όταν το προφίλ δεν χρησιμοποιείται από τον οδηγό."</string>
+    <string name="qc_display_brightness" msgid="2939655289816201170">"Φωτεινότητα οθόνης"</string>
+    <string name="qc_bluetooth_off_devices_info" msgid="8420985279976892700">"Για εμφάνιση των συσκευών σας, ενεργοποιήστε το Bluetooth"</string>
+    <string name="qc_bluetooth_on_no_devices_info" msgid="7573736950041887300">"Για σύζευξη μιας συσκευής, ανοίξτε τις ρυθμίσεις του Bluetooth"</string>
+    <string name="qc_ui_mode_title" msgid="2425571805732530923">"Θέμα"</string>
+    <string name="device_admin_add_title" msgid="1294399588284546811">"Διαχειριστής συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="device_admin_activated_apps" msgid="568075063362271751">"Ενεργοποιημένες εφαρμογές"</string>
+    <string name="device_admin_deactivated_apps" msgid="3797263682500122872">"Απενεργοποιημένες εφαρμογές"</string>
+    <string name="device_admin_apps_description" msgid="1371935499168453457">"Οι εφαρμογές με αυτή την άδεια έχουν πρόσβαση στα δεδομένα αυτού του οχήματος"</string>
+    <string name="device_admin_apps_list_empty" msgid="7634804595645191123">"Δεν υπάρχουν εφαρμογές διαχείρισης οχημάτων"</string>
+    <string name="device_admin_status" msgid="4041772636856135168">"Αυτή η εφαρμογή διαχείρισης συστήματος ενημέρωσης και ψυχαγωγίας είναι ενεργοποιημένη και επιτρέπει στην εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> να εκτελεί τις παρακάτω ενέργειες:"</string>
+    <string name="device_admin_warning" msgid="8997805999333600901">"Η ενεργοποίηση της εφαρμογής συστήματος ενημέρωσης και ψυχαγωγίας θα επιτρέψει στην εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> να εκτελεί τις παρακάτω λειτουργίες:"</string>
+    <string name="add_device_admin_msg" msgid="8188888666879499482">"Ενεργ. εφαρμ. συστ. ενημέρ. και ψυχαγ.;"</string>
+    <string name="add_device_admin" msgid="7674707256074840333">"Ενεργοποίηση αυτής της εφαρμογής συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="deactivate_and_uninstall_device_admin" msgid="596399938769951696">"Απενεργοποίηση και απεγκατάσταση"</string>
+    <string name="remove_device_admin" msgid="3595343390502030723">"Απενεργοποιήστε αυτή την εφαρμογή συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="admin_profile_owner_message" msgid="8361351256802954556">"Ο διαχειριστής οργανισμού μπορεί να παρακολουθεί και να διαχειρίζεται εφαρμογές και δεδομένα που σχετίζονται με αυτό το προφίλ, συμπεριλαμβανομένων των ρυθμίσεων, των αδειών, της εταιρικής πρόσβασης, της δραστηριότητας δικτύου και των πληροφοριών τοποθεσίας του οχήματος."</string>
+    <string name="admin_profile_owner_user_message" msgid="366072696508275753">"Ο διαχειριστής οργανισμού μπορεί να παρακολουθεί και να διαχειρίζεται εφαρμογές και δεδομένα που συσχετίζονται με αυτό το προφίλ, συμπεριλαμβανομένων των ρυθμίσεων, των αδειών, της εταιρικής πρόσβασης, της δραστηριότητας δικτύου και των πληροφοριών τοποθεσίας της συσκευής."</string>
+    <string name="admin_device_owner_message" msgid="896530502350904835">"Ο διαχειριστής οργανισμού μπορεί να παρακολουθεί και να διαχειρίζεται εφαρμογές και δεδομένα που σχετίζονται με αυτό το σύστημα ενημέρωσης και ψυχαγωγίας, συμπεριλαμβανομένων των ρυθμίσεων, των αδειών, της εταιρικής πρόσβασης, της δραστηριότητας δικτύου και των πληροφοριών τοποθεσίας του οχήματος."</string>
+    <string name="admin_financed_message" msgid="7357397436233684082">"Ο διαχειριστής οργανισμού μπορεί να έχει πρόσβαση σε δεδομένα που σχετίζονται με αυτό το σύστημα ενημέρωσης και ψυχαγωγίας, να διαχειρίζεται εφαρμογές και να αλλάζει τις ρυθμίσεις αυτού του οχήματος."</string>
+    <string name="disabled_by_policy_title" msgid="1121694702115232518">"Μη διαθέσιμη"</string>
+    <string name="disabled_by_policy_title_adjust_volume" msgid="7002865820552702232">"Δεν είναι δυνατή η αλλαγή της έντασης του ήχου σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_outgoing_calls" msgid="158752542663419500">"Δεν είναι δυνατή η πραγματοποίηση κλήσεων σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_sms" msgid="3044491214572494290">"Δεν επιτρέπονται τα SMS σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_camera" msgid="8929782627587059121">"Η κάμερα δεν είναι διαθέσιμη σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_screen_capture" msgid="4059715943558852466">"Δεν είναι δυνατή η λήψη στιγμιότυπων οθόνης σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_suspend_packages" msgid="7505332012990359725">"Δεν είναι δυνατό το άνοιγμα της εφαρμογής σε αυτό το διαχειριζόμενο όχημα"</string>
+    <string name="disabled_by_policy_title_financed_device" msgid="6005343494788285981">"Αποκλείστηκε από τον πωλητή συσκευών με πίστωση"</string>
+    <string name="default_admin_support_msg" msgid="2986598061733013282">"Η πρόσβαση σε ορισμένες λειτουργίες περιορίζεται από τον οργανισμό.\n\nΕάν έχετε ερωτήσεις, επικοινωνήστε με τον διαχειριστή του οργανισμού."</string>
+    <string name="help_url_action_disabled_by_it_admin" msgid="1479392394986580260"></string>
+    <string name="manage_device_admin" msgid="7087659697154317316">"Εφαρμογές διαχείρισης οχημάτων"</string>
+    <string name="number_of_device_admins" msgid="7508826094096451485">"{count,plural, =1{# ενεργοποιημένη εφαρμογή}other{# ενεργοποιημένες εφαρμογές}}"</string>
+    <string name="number_of_device_admins_none" msgid="5547493703413973954">"Δεν υπάρχουν ενεργοποιημένες εφαρμογές."</string>
+    <string name="work_policy_privacy_settings" msgid="5263835989260149968">"Πολιτική οχημάτων του οργανισμού <xliff:g id="ORGANIZATION_NAME">%1$s</xliff:g>"</string>
+    <string name="work_policy_privacy_settings_no_org_name" msgid="8011687012493940230">"Πολιτική οχημάτων"</string>
+    <string name="work_policy_privacy_settings_summary" msgid="5321618399949880194">"Η διαχείριση των ρυθμίσεων πραγματοποιείται από τον διαχειριστή οργανισμού"</string>
+    <string name="footer_learn_more_content_description" msgid="7749452309729272078">"Μάθετε περισσότερα για την υπηρεσία <xliff:g id="SERVICE">%1$s</xliff:g>"</string>
+    <string name="enterprise_privacy_settings" msgid="6496900796150572727">"Πληροφορίες διαχειριζόμενου οχήματος"</string>
+    <string name="enterprise_privacy_settings_summary_generic" msgid="5850991363779957797">"Ρυθμίσεις που διαχειρίζεται ο διαχειριστής στόλου σας"</string>
+    <string name="enterprise_privacy_header" msgid="4652489109303330306">"Για να παρέχει πρόσβαση σε δεδομένα σε αυτό το διαχειριζόμενο όχημα, ο διαχειριστής στόλου μπορεί να αλλάξει τις ρυθμίσεις και να εγκαταστήσει λογισμικό στο σύστημα ενημέρωσης και ψυχαγωγίας.\n\nΓια λεπτομέρειες, επικοινωνήστε με τον διαχειριστή στόλου."</string>
+    <string name="enterprise_privacy_exposure_category" msgid="4870494030035008520">"Πληροφορίες που μπορεί να δει ο διαχειριστής στόλου"</string>
+    <string name="enterprise_privacy_exposure_changes_category" msgid="8837106430193547177">"Αλλαγές που πραγματοποιήθηκαν από τον διαχειριστή στόλου"</string>
+    <string name="enterprise_privacy_exposure_desc" msgid="7962571201715956427">" "<li>"Δεδομένα που συσχετίζονται με τον λογαριασμό διαχειριζόμενου οχήματός σας"</li>\n" "<li>"Λίστα των εφαρμογών στο διαχειριζόμενο όχημα"</li>\n" "<li>"Ο όγκος των δεδομένων και ο χρόνος που αφιερώθηκε σε κάθε εφαρμογή"</li></string>
+    <string name="enterprise_privacy_device_access_category" msgid="5820180227429886857">"Η πρόσβασή σας στο σύστημα ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="1069862734971848156">"Λίστα εφαρμογών στο όχημά σας"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="2684195229249659340">"Γίνεται εκτίμηση του αριθμού των εφαρμογών. Μπορεί να μην περιλαμβάνει εφαρμογές που έχουν εγκατασταθεί εκτός του Play Store."</string>
+    <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="1628398874478431488">
+      <item quantity="other">Τουλάχιστον σε <xliff:g id="COUNT_1">%d</xliff:g> εφαρμογές</item>
+      <item quantity="one">Τουλάχιστον σε <xliff:g id="COUNT_0">%d</xliff:g> εφαρμογή</item>
+    </plurals>
+    <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1765193032869129370">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> εφαρμογές</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> εφαρμογή</item>
+    </plurals>
+    <string name="enterprise_privacy_network_logs" msgid="5093305105565608542">"Το πιο πρόσφατο αρχείο καταγραφής επισκεψιμότητας δικτύου"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="9197432120122370521">"Η πιο πρόσφατη αναφορά σφάλματος"</string>
+    <string name="enterprise_privacy_security_logs" msgid="7375479062062113231">"Το πιο πρόσφατο αρχείο καταγραφής ασφαλείας"</string>
+    <string name="enterprise_privacy_none" msgid="2566653655908700748">"Καμία"</string>
+    <string name="enterprise_privacy_enterprise_installed_packages" msgid="7798942534994638670">"Εγκατεστημένες εφαρμογές"</string>
+    <string name="enterprise_privacy_location_access" msgid="3132799413005627076">"Άδειες τοποθεσίας"</string>
+    <string name="enterprise_privacy_microphone_access" msgid="4094467062253345379">"Άδειες μικροφώνου"</string>
+    <string name="enterprise_privacy_camera_access" msgid="8895281017339143744">"Άδειες κάμερας"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="3386806357685549519">"Προεπιλεγμένες εφαρμογές"</string>
+    <string name="enterprise_privacy_input_method" msgid="5062395693747004531">"Προεπιλεγμένο πληκτρολόγιο"</string>
+    <string name="enterprise_privacy_input_method_name" msgid="2027313786295077607">"Ορισμός σε <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_global_http_proxy" msgid="1366593928008294049">"Ο γενικός διακομιστής μεσολάβησης HTTP ορίστηκε"</string>
+    <string name="enterprise_privacy_ca_certs_personal" msgid="5677098981429650665">"Αξιόπιστα διαπιστευτήρια στο προσωπικό προφίλ σας"</string>
+    <string name="enterprise_privacy_device_access_desc" msgid="3442555102576036038">" "<li>"Ο διαχειριστής μπορεί να κλειδώσει το σύστημα ενημέρωσης και ψυχαγωγίας και να επαναφέρει τον κωδικό πρόσβασης"</li>\n" "<li>"Ο διαχειριστής μπορεί να διαγράψει δεδομένα στο σύστημα ενημέρωσης και ψυχαγωγίας"</li></string>
+    <string name="enterprise_privacy_failed_password_wipe_device" msgid="4768743631260876559">"Αποτυχημένες προσπάθειες εισαγωγής κωδικού πρόσβασης πριν από τη διαγραφή όλων των δεδομένων του συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="enterprise_privacy_failed_password_wipe_current_user" msgid="786246192213446835">"Αποτυχημένες προσπάθειες εισαγωγής κωδικού πρόσβασης πριν από τη διαγραφή των δεδομένων του προφίλ"</string>
+    <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="445847844239023816">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> προσπάθειες</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> προσπάθεια</item>
+    </plurals>
+    <plurals name="default_camera_app_title" formatted="false" msgid="2650102837354606942">
+      <item quantity="other">Εφαρμογές κάμερας</item>
+      <item quantity="one">Εφαρμογή κάμερας</item>
+    </plurals>
+    <plurals name="default_email_app_title" formatted="false" msgid="7786093487229942743">
+      <item quantity="other">Εφαρμογές πελάτες ηλεκτρονικού ταχυδρομείου</item>
+      <item quantity="one">Εφαρμογή πελάτης ηλεκτρονικού ταχυδρομείου</item>
+    </plurals>
+    <plurals name="default_phone_app_title" formatted="false" msgid="72790081146542182">
+      <item quantity="other">Εφαρμογές τηλεφώνου</item>
+      <item quantity="one">Εφαρμογή τηλεφώνου</item>
+    </plurals>
+    <string name="share_remote_bugreport_dialog_title" msgid="7268540014481283490">"Να κοινοποιηθεί η αναφορά σφάλματος;"</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="2976131666427197841">"Ο διαχειριστής οργανισμού του οχήματος ζήτησε μια αναφορά σφάλματος για να συμβάλει στην αντιμετώπιση του προβλήματος αυτής της συσκευής. Ενδέχεται να κοινοποιηθούν οι εφαρμογές και τα δεδομένα."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="7884771062689597395">"Ο διαχειριστής οργανισμού του οχήματος ζήτησε μια αναφορά σφάλματος για να συμβάλει στην αντιμετώπιση του προβλήματος αυτής της συσκευής. Ενδέχεται να κοινοποιηθούν οι εφαρμογές και τα δεδομένα και να επιβραδυνθεί προσωρινά η λειτουργία της συσκευής σας."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="7018120538510110940">"Αυτή η αναφορά σφάλματος κοινοποιήθηκε στον διαχειριστή οργανισμού αυτού του οχήματος. Επικοινωνήστε μαζί του για περισσότερες λεπτομέρειες."</string>
+    <string name="share_remote_bugreport_action" msgid="5364819432179581532">"Κοινοποίηση"</string>
+    <string name="decline_remote_bugreport_action" msgid="7287544934032744334">"Απόρριψη"</string>
+    <string name="factory_reset_parked_title" msgid="4004694559766549441">"Επαναφορά του συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="factory_reset_parked_text" msgid="1446768795193651311">"Το σύστημά σας έλαβε ένα αίτημα για επαναφορά εργοστασιακών ρυθμίσεων και διαγραφή όλων των δεδομένων. Μπορείτε να κάνετε την επαναφορά τώρα, ειδάλλως θα εκτελεστεί κατά την επόμενη εκκίνηση του αυτοκινήτου. Στη συνέχεια, θα μπορείτε να ρυθμίσετε ένα νέο προφίλ."</string>
+    <string name="factory_reset_now_button" msgid="4461863686086129437">"Επαναφορά τώρα"</string>
+    <string name="factory_reset_later_button" msgid="2653125445148367016">"Επαναφορά αργότερα"</string>
+    <string name="factory_reset_later_text" msgid="6371031843489938419">"Επαναφ. συστήμ. ενημέρ. και ψυχαγ. στην επόμενη εκκίνηση αυτοκ."</string>
+    <string name="factory_reset_driving_text" msgid="6833832382688900191">"Σταθμεύστε το αυτοκίνητο για έναρξη επαναφοράς."</string>
+    <string name="power_component_disabled" msgid="7084144472096800457">"Δεν είναι δυνατή η αλλαγή της ρύθμισης αυτήν τη στιγμή"</string>
+    <string name="accessibility_settings_title" msgid="2615042088419230347">"Προσβασιμότητα"</string>
+    <string name="accessibility_settings_captions_title" msgid="4635141293524800795">"Υπότιτλοι"</string>
+    <string name="captions_settings_title" msgid="5738067618097295831">"Προτιμήσεις υποτίτλων"</string>
+    <string name="captions_settings_off" msgid="7568096968016015626">"Ανενεργό"</string>
+    <string name="captions_settings_on" msgid="5374984113566914978">"Ενεργό"</string>
+    <string name="screen_reader_settings_title" msgid="4012734340987826872">"Αναγνώστης οθόνης"</string>
+    <string name="show_captions_toggle_title" msgid="710582308974826311">"Εμφάνιση υποτίτλων"</string>
+    <string name="captions_text_size_title" msgid="1960814652560877963">"Μέγεθος κειμένου"</string>
+    <string name="captions_settings_style_header" msgid="944591388386054372">"Μέγεθος και στιλ υποτίτλων"</string>
+    <string name="captions_settings_text_size_very_small" msgid="7476485317028306502">"Πολύ μικρό"</string>
+    <string name="captions_settings_text_size_small" msgid="1481895299805450566">"Μικρό"</string>
+    <string name="captions_settings_text_size_default" msgid="2227802573224038267">"Προεπιλογή"</string>
+    <string name="captions_settings_text_size_large" msgid="5198207220911360512">"Μεγάλο"</string>
+    <string name="captions_settings_text_size_very_large" msgid="949511539689307969">"Πολύ μεγάλο"</string>
+    <string name="captions_text_style_title" msgid="8547777957403577760">"Στιλ υποτίτλων"</string>
+    <string name="captions_settings_text_style_by_app" msgid="7014882290456996444">"Ορισμός κατά εφαρμογή"</string>
+    <string name="captions_settings_text_style_white_on_black" msgid="5758084000323596070">"Λευκό σε μαύρο"</string>
+    <string name="captions_settings_text_style_black_on_white" msgid="3906140601916221220">"Μαύρο σε λευκό"</string>
+    <string name="captions_settings_text_style_yellow_on_black" msgid="4681565950104511943">"Κίτρινο σε μαύρο"</string>
+    <string name="captions_settings_text_style_yellow_on_blue" msgid="5072521958156112239">"Κίτρινο σε μπλε"</string>
+    <string name="accessibility_settings_screen_reader_title" msgid="5113265553157624836">"Αναγνώστης οθόνης"</string>
+    <string name="screen_reader_settings_off" msgid="6081562047935689764">"Ανενεργό"</string>
+    <string name="screen_reader_settings_on" msgid="2168217218643349459">"Εκφώνηση στοιχείων της οθόνης"</string>
+    <string name="enable_screen_reader_toggle_title" msgid="7641307781194619254">"Χρήση <xliff:g id="ACCESSIBILITY_APP_NAME">%1$s</xliff:g>"</string>
+    <string name="screen_reader_options_title" msgid="1073640098442831819">"Επιλογές"</string>
+    <string name="screen_reader_description_title" msgid="8766666406552388012">"Ρυθμίσεις"</string>
+    <string name="camera_settings_title" msgid="2837785830355288903">"Κάμερα"</string>
+    <string name="camera_toggle_title" msgid="1990732328673068456">"Χρήση κάμερας"</string>
+    <string name="camera_toggle_summary" msgid="5751159996822627567">"Επιτρέψτε σε όλες τις εφαρμογές να έχουν πρόσβαση στην κάμερα"</string>
+    <string name="camera_manage_permissions" msgid="9005596413781984368">"Άδειες διαχείρισης κάμερας"</string>
+    <string name="camera_recently_accessed" msgid="8084100710444691977">"Πρόσφατη πρόσβαση"</string>
+    <string name="camera_no_recent_access" msgid="965105023454777859">"Καμία πρόσφατη εφαρμογή"</string>
+    <string name="camera_app_permission_summary_camera_off" msgid="1437200903113016549">"0 εφαρμογές έχουν πρόσβαση"</string>
+    <string name="camera_app_permission_summary_camera_on" msgid="7260565911222013361">"{count,plural, =1{Έχει πρόσβαση # από {total_count} εφαρμογές}other{Έχουν πρόσβαση # από {total_count} εφαρμογές}}"</string>
+    <string name="camera_settings_recent_requests_title" msgid="2433698239374365206">"Πρόσφατη πρόσβαση"</string>
+    <string name="camera_settings_recent_requests_view_all_title" msgid="8590811106414244795">"Προβολή όλων"</string>
+    <string name="camera_settings_loading_app_permission_stats" msgid="1402676190705491418">"Φόρτωση…"</string>
+</resources>
