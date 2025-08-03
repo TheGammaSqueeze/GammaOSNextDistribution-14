@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_app_name" msgid="7931201304065140909">"Поставки"</string>
+    <string name="launcher_settings_app_name" msgid="1459269619779675736">"Поставки"</string>
+    <string name="launcher_network_app_name" msgid="8311763462169735002">"Мрежа"</string>
+    <string name="launcher_restricted_profile_app_name" msgid="3324091425480935205">"Ограничен профил"</string>
+    <string name="general_action_yes" msgid="1303080504548165355">"Да"</string>
+    <string name="general_action_no" msgid="674735073031386948">"Не"</string>
+    <string name="action_on_title" msgid="1074972820237738324">"Вклучи"</string>
+    <string name="action_off_title" msgid="3598665702863436597">"Исклучи"</string>
+    <string name="action_on_description" msgid="9146557891514835767">"Вклучено"</string>
+    <string name="action_off_description" msgid="1368039592272701910">"Исклучена"</string>
+    <string name="agree" msgid="8155497436593889753">"Се согласувам"</string>
+    <string name="disagree" msgid="7402998517682194430">"Не се согласувам"</string>
+    <string name="enabled" msgid="5127188665060746381">"Овозможено"</string>
+    <string name="disabled" msgid="4589065923272201387">"Оневозможено"</string>
+    <string name="unavailable" msgid="1610732303812180196">"Недостапно"</string>
+    <string name="allow" msgid="6982558814345894019">"Дозволи"</string>
+    <string name="deny" msgid="8291577308813053917">"Одбиј"</string>
+    <string name="header_category_suggestions" msgid="106077820663753645">"Предлози"</string>
+    <string name="header_category_quick_settings" msgid="3785334008768367890">"Брзи поставки"</string>
+    <string name="header_category_general_settings" msgid="3897615781153506434">"Општи поставки"</string>
+    <string name="dismiss_suggestion" msgid="6200814545590126814">"Отфрли го предлогот"</string>
+    <string name="hotwording_title" msgid="2606899304616599026">"Откривање на „OK Google“"</string>
+    <string name="hotwording_summary" msgid="2170375928302175449">"Разговарајте со „Помошникот на Google“ кога било"</string>
+    <string name="header_category_device" msgid="3023893663454705969">"Уред"</string>
+    <string name="header_category_preferences" msgid="3738388885555798797">"Претпочитани вредности"</string>
+    <string name="header_category_accessories" msgid="6479803330480847199">"Далечински управувач и додатоци"</string>
+    <string name="header_category_personal" msgid="7880053929985150368">"Лични"</string>
+    <string name="connect_to_network" msgid="4133686359319492392">"Поврзете се на мрежа"</string>
+    <string name="add_an_account" msgid="2601275122685226096">"Додајте сметка"</string>
+    <string name="accounts_category_title" msgid="7286858931427579845">"Сметки и најавување"</string>
+    <string name="accounts_category_summary_no_account" msgid="3053606166993074648">"Нема сметки"</string>
+    <string name="accounts_category_summary" msgid="7617932110389860822">"{count,plural, =1{# сметка}one{# сметка}other{# сметки}}"</string>
+    <string name="accounts_slice_summary" msgid="1571012157154521119">"Аудиовизуелни услуги, „Помошник“, плаќања"</string>
+    <string name="connectivity_network_category_title" msgid="8226264889892008114">"Мрежа и интернет"</string>
+    <string name="sound_category_title" msgid="7899816751041939518">"Звук"</string>
+    <string name="applications_category_title" msgid="7112019490898586223">"Апликации"</string>
+    <string name="device_pref_category_title" msgid="8292572846154873762">"Поставки за уредот"</string>
+    <string name="accessibility_category_title" msgid="1552664829936369592">"Пристапност"</string>
+    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">"Далечински управувач и додатоци"</string>
+    <string name="display_and_sound_category_title" msgid="9203309625380755860">"Приказ и звук"</string>
+    <string name="help_and_feedback_category_title" msgid="7036505833991003031">"Помош и повратни информации"</string>
+    <string name="privacy_category_title" msgid="8552430590908463601">"Приватност"</string>
+    <string name="privacy_device_settings_category" msgid="5018334603278648524">"Поставки за уредот"</string>
+    <string name="privacy_account_settings_category" msgid="5786591549945777400">"Поставки за сметката"</string>
+    <string name="privacy_assistant_settings_title" msgid="4524957824712623680">"Помошник на Google"</string>
+    <string name="privacy_purchases_settings_title" msgid="6490965297061569673">"Плаќања и купувања"</string>
+    <string name="privacy_app_settings_category" msgid="858250971978879266">"Поставки за апликацијата"</string>
+    <string name="privacy_category_summary" msgid="3534434883380511043">"Локација, користење и дијагностика, реклами"</string>
+    <string name="add_account" msgid="7386223854837017129">"Додајте сметка"</string>
+    <string name="unknown_account" msgid="5159580666787047518">"Непозната сметка"</string>
+    <string name="account_header_remove_account" msgid="8573697553061331373">"Отстрани сметка"</string>
+    <string name="account_sync" msgid="4315295293211313989">"Изберете синхронизирани апликации"</string>
+    <string name="sync_now" msgid="4335217984374620551">"Синхронизирај сега"</string>
+    <string name="sync_in_progress" msgid="8081367667406185785">"Се синхронизира…"</string>
+    <string name="last_synced" msgid="8371967816955123864">"Последно синхронизирање <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="sync_disabled" msgid="6652778349371079140">"Оневозможено"</string>
+    <string name="account_remove" msgid="8456848988853890155">"Отстрани сметка"</string>
+    <string name="account_remove_failed" msgid="5654411101098531690">"Не може да се отстрани сметка"</string>
+    <!-- no translation found for sync_item_title (5884138264243772176) -->
+    <skip />
+    <string name="sync_one_time_sync" msgid="1665961083810584134">"Синхронизирај сега<xliff:g id="LAST_SYNC_TIME">
+%1$s</xliff:g>"</string>
+    <string name="sync_failed" msgid="2998289556481804047">"Синхронизацијата не успеа"</string>
+    <string name="sync_active" msgid="1621239982176888680">"Синхронизирањето е активно"</string>
+    <string name="connectivity_wifi" msgid="1138689464484009184">"Wi-Fi"</string>
+    <string name="connectivity_ethernet" msgid="4270588618633681766">"Етернет"</string>
+    <string name="connectivity_summary_ethernet_connected" msgid="2612843587731520061">"Етернетот е поврзан"</string>
+    <string name="connectivity_summary_no_network_connected" msgid="6111160695454212460">"Нема поврзана мрежа"</string>
+    <string name="connectivity_summary_wifi_disabled" msgid="7819225159680467324">"Wi-Fi е исклучено"</string>
+    <string name="wifi_setting_always_scan" msgid="431846292711998602">"Скенирањето е секогаш достапно"</string>
+    <string name="wifi_setting_always_scan_context" msgid="1092998659666221222">"Дозволи услугата за локација на Google и други апликации да скенираат за мрежи, дури и кога Wi-Fi е исклучена"</string>
+    <string name="wifi_setting_always_scan_content_description" msgid="484630053450137332">"Скенирањето е секогаш достапно, дозволете услугата според локација на Google и други апликации да скенираат мрежи, дури и кога Wi-Fi е исклучено"</string>
+    <string name="wifi_setting_enable_wifi" msgid="5276730445393952969">"Wi-Fi"</string>
+    <string name="connectivity_hint_message" msgid="5638304246522516583">"Поврзете се на мрежа"</string>
+    <string name="connectivity_network_diagnostics" msgid="4396132865849151854">"Дијагностика на мрежа"</string>
+    <string name="apps_recently_used_category_title" msgid="7877660412428813933">"Неодамна отворени апликации"</string>
+    <string name="apps_see_all_apps" msgid="2002886135933443688">"Приказ на сите апликации"</string>
+    <string name="apps_permissions_category_title" msgid="8099660060701465267">"Дозволи"</string>
+    <string name="overlay_security_slice_title" msgid="4895032817538300187"></string>
+    <string name="update_slice_title" msgid="6553763903108611747"></string>
+    <string name="all_apps_title" msgid="3717294436135280133">"Сите апликации"</string>
+    <string name="all_apps_show_system_apps" msgid="1260688031005374302">"Прикажи ги системските апликации"</string>
+    <string name="all_apps_installed" msgid="8217778476185598971">"Инсталирани апликации"</string>
+    <string name="all_apps_other" msgid="4420174882983813158">"Системски апликации"</string>
+    <string name="all_apps_disabled" msgid="2776041242863791053">"Оневозможени апликации"</string>
+    <string name="device_daydream" msgid="2631191946958113220">"Штедач на екран"</string>
+    <string name="device_display" msgid="244634591698925025">"Приказ"</string>
+    <string name="device_display_sound" msgid="7399153506435649193">"Приказ и звук"</string>
+    <string name="device_sound" msgid="8616320533559404963">"Звук"</string>
+    <string name="device_surround_sound" msgid="1889436002598316470">"Опкружувачки звук"</string>
+    <string name="device_sound_effects" msgid="2000295001122684957">"Системски звуци"</string>
+    <string name="device_apps" msgid="2134756632245008919">"Апликации"</string>
+    <string name="device_storage" msgid="8540243547121791073">"Капацитет"</string>
+    <string name="device_reset" msgid="6115282675800077867">"Ресетирање на фабричките поставки"</string>
+    <string name="device_backup_restore" msgid="3634531946308269398">"Бекап и враќање"</string>
+    <string name="device_factory_reset" msgid="1110189450013225971">"Ресетирање фабрички податоци"</string>
+    <string name="device_calibration" msgid="2907914144048739705">"Калибрација"</string>
+    <string name="device_energy_saver" msgid="6611757996220443028">"Тајмер за исклучување"</string>
+    <string name="device_energy_saver_summary" msgid="5306058475316008429">"Поставете тајмери за исклучување на телевизорот и заштеда на енергија"</string>
+    <string name="overlay_internal_slice_title" msgid="6427352417573831625"></string>
+    <string name="device_fastpair" msgid="1235240814051277047">"Уреди"</string>
+    <string name="surround_sound_select_formats" msgid="6070283650131226239">"Избор на формати"</string>
+    <string name="surround_sound_category_title" msgid="5688539514178173911">"Опкружувачки звук"</string>
+    <string name="surround_sound_format_ac3" msgid="4759143098751306492">"Dolby Digital"</string>
+    <string name="surround_sound_format_e_ac3" msgid="6923129088903887242">"Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dts" msgid="8331816247117135587">"DTS"</string>
+    <string name="surround_sound_format_dts_hd" msgid="4268947520371740146">"DTS-HD"</string>
+    <string name="surround_sound_format_dts_uhd" msgid="4340749818133578788">"DTS:X"</string>
+    <string name="surround_sound_format_dolby_mat" msgid="3029804841912462928">"Dolby Atmos со Dolby TrueHD"</string>
+    <string name="surround_sound_format_dolby_truehd" msgid="5113046743572967088">"Dolby TrueHD"</string>
+    <string name="surround_sound_format_e_ac3_joc" msgid="3360344066462262996">"Dolby Atmos со Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dra" msgid="6102878163986662443">"DRA"</string>
+    <string name="surround_sound_auto_info" msgid="4829346839183591680">"Забелешка: „Автоматски“ може нема да работи ако уредот не ги пријавува правилно поддржаните формати."</string>
+    <string name="surround_sound_auto_title" msgid="4892922385727913277">"Автоматски: овозможете само формати што вашите излезни уреди за аудио ги поддржуваат "</string>
+    <string name="surround_sound_auto_summary" msgid="7073023654150720285">"Кога е избрано, системот ќе им овозможи на апликациите да го изберат кој било формат за звук што вашиот ланец на уреди го поддржува. Апликациите може да изберат формат што не е со највисок квалитет."</string>
+    <string name="surround_sound_none_title" msgid="1600095173519889326">"Нема: никогаш не користи опкружувачки звук"</string>
+    <string name="surround_sound_manual_title" msgid="4935447605070985537">"Рачно: селективно овозможете или оневозможете го секој формат што уредов го поддржува, без разлика што поддржува вашиот излезен уред за аудио."</string>
+    <string name="surround_sound_manual_summary" msgid="5155535847461070572">"Кога е избрано, рачно може да ги оневозможите форматите за звук што вашиот ланец на уреди ги поддржува, а предизвикуваат проблеми со репродукцијата. Може да се овозможат форматите за звук што вашиот ланец на уреди не ги поддржува. Апликациите може да изберат формат што не е со највисок квалитет."</string>
+    <string name="surround_sound_enable_unsupported_dialog_title" msgid="9155579373370356463">"Да се овозможи неподдржан формат за звук?"</string>
+    <string name="surround_sound_enable_unsupported_dialog_desc" msgid="1901648758103522741">"Поврзаниот аудиоуред не пријавува поддршка за форматов. Ова може да предизвика неочекувано однесување, како гласни звуци или потпукнувања од уредот."</string>
+    <string name="surround_sound_enable_unsupported_dialog_cancel" msgid="3499147437078761105">"Откажи"</string>
+    <string name="surround_sound_enable_unsupported_dialog_ok" msgid="7466983147896640444">"Сепак промени"</string>
+    <string name="surround_sound_supported_title" msgid="4873195851187547020">"ПОДДРЖАНИ ФОРМАТИ"</string>
+    <string name="surround_sound_unsupported_title" msgid="2302820271700954900">"НЕПОДДРЖАНИ ФОРМАТИ"</string>
+    <string name="surround_sound_format_info" msgid="5671866505653542934">"ИНФОРМАЦИИ ЗА ФОРМАТОТ"</string>
+    <string name="surround_sound_show_formats" msgid="1929849219042916469">"Прикажи ги форматите"</string>
+    <string name="surround_sound_hide_formats" msgid="7770931097236868238">"Скриј ги форматите"</string>
+    <string name="surround_sound_enabled_formats" msgid="5159269040069877148">"ОВОЗМОЖЕНИ ФОРМАТИ"</string>
+    <string name="surround_sound_disabled_formats" msgid="2250466936859455802">"ОНЕВОЗМОЖЕНИ ФОРМАТИ"</string>
+    <string name="surround_sound_disabled_format_info_clicked" msgid="463393349034930031">"За да овозможите, променете го изборот на форматот на „Рачно“."</string>
+    <string name="surround_sound_enabled_format_info_clicked" msgid="4003154853054756792">"За да оневозможите, променете го изборот на форматот на „Рачно“."</string>
+    <string name="display_category_title" msgid="247804007525046312">"Екран"</string>
+    <string name="advanced_display_settings_title" msgid="6293280819870140631">"Напредни поставки за екран"</string>
+    <string name="hdmi_cec_settings_title" msgid="7120729705063868627">"HDMI-CEC"</string>
+    <string name="advanced_sound_settings_title" msgid="319921303039469139">"Напредни поставки за звук"</string>
+    <string name="game_mode_title" msgid="7280816243531315755">"Дозволете режим на игри"</string>
+    <string name="match_content_dynamic_range_title" msgid="2794980556561655838">"Усогласување со динамичкиот опсег на содржините"</string>
+    <string name="match_content_dynamic_range_summary" msgid="2255683926227355398">"Кога ќе ја овозможите оваа опција, системот ќе се префрлува помеѓу различни формати на динамичкиот опсег за да се усогласи со содржините. При промената на форматот може да се прикаже црн екран.\n\nКликнете на „Напредни поставки за екран“ за повеќе опции за динамичкиот опсег."</string>
+    <string name="preferred_dynamic_range_title" msgid="5064883672337010588">"Претпочитан динамички опсег"</string>
+    <string name="preferred_dynamic_range_selection_system_title" msgid="4505030483876080996">"Конверзија претпочитана од системот"</string>
+    <string name="preferred_dynamic_range_selection_system_desc" msgid="5712920601553613576">"Дозволува системот да управува со конверзијата на форматот"</string>
+    <string name="preferred_dynamic_range_selection_system_summary" msgid="4509062596428781094">"Кога е избрана оваа опција, системот ќе одреди соодветен динамички опсег што треба да се испрати до вашиот екран и ќе ги конвертира содржините во овој динамички опсег по потреба."</string>
+    <string name="preferred_dynamic_range_selection_passthrough_desc" msgid="4831260397179583737">"Секогаш се совпаѓа со форматот на содржините"</string>
+    <string name="preferred_dynamic_range_selection_force_title" msgid="4448836594133973103">"Наметни конверзија"</string>
+    <string name="preferred_dynamic_range_selection_force_desc" msgid="1418542349290684513">"Наметнува конверзија во претпочитаниот формат"</string>
+    <string name="preferred_dynamic_range_selection_force_summary" msgid="8381058061765216239">"Наметни конверзија во претпочитаниот формат. Наметнувањето конверзија може да влијае на другите поставки во режимот на прикажување или форматот HDR."</string>
+    <string name="preferred_dynamic_range_selection_force_sdr_title" msgid="3135104063034317252">"Секогаш во SDR"</string>
+    <string name="preferred_dynamic_range_selection_force_hdr_title" msgid="1032587815433139859">"Секогаш во <xliff:g id="HDR_TYPE">%s</xliff:g>"</string>
+    <string name="preferred_dynamic_range_force_dialog_title" msgid="6865110024863661702">"Дали сакате да го наметнете HDR-излезот?"</string>
+    <string name="preferred_dynamic_range_force_dialog_desc" msgid="7758323258282201656">"Стандардно, ќе се наметне конверзија во <xliff:g id="HDR_TYPE">%s</xliff:g>."</string>
+    <string name="preferred_dynamic_range_force_dialog_desc_4k30_issue" msgid="4938418395391206131">"Екранот ќе работи со резолуција од 1080p 60Hz. Оваа опција не е компатибилна со вашиот екран кога работи со резолуција од 4k 60Hz."</string>
+    <string name="selection_dolby_vision_not_supported_sidebar" msgid="8994591316574824115">"Тековната резолуција не го поддржува Dolby Vision. Ако го вклучите Dolby Vision рачно, резолуцијата на екранот ќе се промени на 1080p 60 Hz"</string>
+    <string name="manual_dolby_vision_format_on_4k60_title" msgid="4172263676512376500">"Дали да се промени резолуцијата на 1080p 60 Hz?"</string>
+    <string name="dynamic_range_selection_force_dv_title" msgid="8070148109262327094">"Секогаш наметнувај конверзија во Dolby Vision"</string>
+    <string name="dynamic_range_selection_force_dv_summary" msgid="1052851029985095562">"Ако Dolby Vision е оневозможен во HDR формати во Напредни поставки за екранот, наметнувањето конверзија во Dolby Vision повторно ќе го овозможи."</string>
+    <string name="dynamic_range_selection_force_hdr10_title" msgid="1221688206945051384">"Секогаш наметнувај конверзија во HDR10"</string>
+    <string name="dynamic_range_selection_force_hdr10_summary" msgid="7784573527636502784">"Ако HDR10 е оневозможен во HDR формати во Напредни поставки за екранот, наметнувањето конверзија во HDR10 повторно ќе го овозможи."</string>
+    <string name="dynamic_range_selection_force_hlg_title" msgid="3976190987768712696">"Секогаш наметнувај конверзија во HLG"</string>
+    <string name="dynamic_range_selection_force_hlg_summary" msgid="5371949016689544001">"Ако HLG е оневозможен во HDR формати во Напредни поставки за екран, наметнувањето конверзија во HLG повторно ќе го овозможи."</string>
+    <string name="dynamic_range_selection_force_hdr10plus_title" msgid="1305556000063625735">"Секогаш наметнувај конверзија во HDR10+"</string>
+    <string name="dynamic_range_selection_force_hdr10plus_summary" msgid="918038386222537401">"Ако HDR10+ е оневозможен во HDR формати во Напредни поставки за екранот, наметнувањето конверзија во HDR10+ повторно ќе го овозможи."</string>
+    <string name="dynamic_range_selection_force_sdr_title" msgid="1063579223517652945">"Секогаш наметнувај конверзија во SDR"</string>
+    <string name="dynamic_range_selection_force_sdr_summary" msgid="2874771365465898941">"Наметнувањето конверзија во SDR ќе ги оневозможи сите формати во HDR формати во Напредни поставки за екран."</string>
+    <string name="match_content_frame_rate_title" msgid="153291168560947689">"Усогласи со стапка на слики на содржини"</string>
+    <string name="match_content_frame_rate_seamless" msgid="5577846750811067585">"Само беспрекорно"</string>
+    <string name="match_content_frame_rate_seamless_summary" msgid="2737466163964133210">"Ако апликацијата го побара тоа, вашиот уред ќе го усогласи својот излез со оригиналната стапка на слики на содржините што ги гледате, САМО ако вашиот ТВ може да изврши беспрекорен премин."</string>
+    <string name="match_content_frame_rate_seamless_not_supported_summary" msgid="98559950465123792">"Поврзаните екрани не поддржуваат непречени промени на стапки на освежување. Опцијава нема да има ефект освен ако промените на екран што ја поддржува."</string>
+    <string name="match_content_frame_rate_non_seamless" msgid="2702658727234710031">"Секогаш"</string>
+    <string name="match_content_frame_rate_non_seamless_summary" msgid="6831699459487130055">"Ако апликацијата го побара тоа, вашиот уред ќе го усогласи својот излез со оригиналната стапка на слики на содржините што ги гледате. Ова може да предизвика затемнување на екранот за миг при излегувањето или влегувањето во видеорепродукцијата."</string>
+    <string name="match_content_frame_rate_never" msgid="1678354793095148423">"Никогаш"</string>
+    <string name="match_content_frame_rate_never_summary" msgid="742977618080396095">"Дури и ако апликацијата го побара тоа, вашиот уред никогаш нема да се обиде да го усогласи својот излез со оригиналната стапка на слики на содржините што ги гледате."</string>
+    <string name="font_scale_settings_title" msgid="4114019544800225980">"Скалирање текст"</string>
+    <string name="font_scale_item_detail" msgid="1558315053348778805">"Скалирај на <xliff:g id="SCALE">%1$d</xliff:g> %%"</string>
+    <string name="font_scale_sample_text_title" msgid="5239266611413037261">"Пример за текст"</string>
+    <string name="font_scale_preview_text_title" msgid="8056182208511371119">"Чудесниот волшебник од Оз"</string>
+    <string name="font_scale_preview_text_subtitle" msgid="677394182922188048">"Поглавје 11: Чудесниот смарагден град Оз"</string>
+    <string name="font_scale_preview_text_body" msgid="7890679265084738383">"Иако очите им беа заштитени со зелените очила, Дороти и другарите на почеток беа заслепени од сјајот на прекрасниот град. На улиците беа наредени прекрасни куќи, сите од зелен мермер и начичкани со блескави смарагди. Чекореа по патека направена од истиот зелен мермер, а на местата каде што се спојуваа плочите имаше смарагди, наредени еден до друг и блескаа на сончевата светлина. Прозорците беа од зелено стакло; дури и небото над градот имаше зелена нијанса, а и зраците на сонцето беа зелени. \n\nИмаше многу луѓе, мажи, жени и деца кои одеа наоколу и сите беа облечени во зелени алишта и имаа зеленикави кожи. Гледаа во Дороти и нејзината необична свита со чудење, а децата се разбегаа и се сокрија зад мајките кога го видоа Лавот; но никој не им прозборе. Имаше многу продавници на улицата, а Дороти виде дека сѐ во нив е зелено. Се продаваа зелени бонбони и зелени пуканки, како и зелени чевли, зелени капи и секакви зелени алишта. На едно место, еден човек продаваше зелена лимонада, а кога децата ја купуваа, Дороти виде дека ја плаќаат со зелени парички. \n\nИзгледа дека немаше коњи ниту друг вид на животни; мажите ги носеа работите наоколу во мали зелени колички, што ги туркаа пред себе. Сите изгледаа среќни, задоволни и богати."</string>
+    <string name="hdr_format_selection_title" msgid="4042679694363850581">"Избор на формат"</string>
+    <string name="hdr_format_selection_auto_title" msgid="2370148695440344232">"Автоматски"</string>
+    <string name="hdr_format_selection_manual_title" msgid="2077604650196987438">"Рачно"</string>
+    <string name="hdr_format_selection_auto_desc" msgid="1542210944552409996">"Користи формати пријавени од уредот"</string>
+    <string name="hdr_format_selection_manual_desc" msgid="8865649615882146772">"Рачно изберете формати од достапните формати"</string>
+    <string name="hdr_format_supported_title" msgid="1458594819224612431">"ПОДДРЖАНИ ФОРМАТИ"</string>
+    <string name="hdr_format_unsupported_title" msgid="715318408107924941">"НЕПОДДРЖАНИ ФОРМАТИ"</string>
+    <string name="hdr_format_sdr" msgid="7211377112392255102">"SDR"</string>
+    <string name="hdr_format_hdr10" msgid="8063543267227491062">"HDR10"</string>
+    <string name="hdr_format_hlg" msgid="454510079939620321">"HLG"</string>
+    <string name="hdr_format_hdr10plus" msgid="4371652089162162876">"HDR10+"</string>
+    <string name="hdr_format_dolby_vision" msgid="7367264615042999587">"Dolby Vision"</string>
+    <string name="hdr_format_selection_auto_summary" msgid="7384637194191436727">"Кога е избрано, системот ќе им овозможи на апликациите да го изберат кој било HDR-формат што вашиот синџир на уреди го поддржува. Апликациите може да изберат формат што не е со највисок квалитет."</string>
+    <string name="hdr_format_selection_manual_summary" msgid="7886959642083639353">"Кога е избрано, рачно може да ги оневозможите HDR-форматите што синџирот на уреди ги поддржува, а предизвикуваат проблеми со репродукцијата. Не може присилно да се овозможат HDR-форматите што вашиот синџир на уреди не ги поддржува. Апликациите може да изберат формат што не е со највисок квалитет."</string>
+    <string name="hdr_format_info" msgid="5652559220799426076">"ИНФОРМАЦИИ ЗА ФОРМАТОТ"</string>
+    <string name="hdr_show_formats" msgid="171065892975445851">"Прикажи ги форматите"</string>
+    <string name="hdr_hide_formats" msgid="8561568998525727230">"Скриј ги форматите"</string>
+    <string name="hdr_enabled_formats" msgid="8527870623949982774">"ОВОЗМОЖЕНИ ФОРМАТИ"</string>
+    <string name="hdr_disabled_formats" msgid="4758522849421497896">"ОНЕВОЗМОЖЕНИ ФОРМАТИ"</string>
+    <string name="hdr_enabled_format_info_clicked" msgid="1466675962665861040">"За да оневозможите, променете го изборот на форматот на „Рачно“."</string>
+    <string name="resolution_selection_title" msgid="2873993320284587853">"Резолуција"</string>
+    <string name="resolution_selection_auto_title" msgid="4738671207331027385">"Автоматски"</string>
+    <string name="resolution_selection_dialog_title" msgid="4029798035133645272">"Резолуцијата е променета"</string>
+    <string name="resolution_selection_with_mode_dialog_title" msgid="5011192408613100514">"Да се промени резолуцијата на %1$s?"</string>
+    <string name="resolution_selection_dialog_desc" msgid="3667357611495669701">"Изберете „Во ред“ за да користите %1$s отсега, па натаму."</string>
+    <string name="resolution_selection_disabled_dolby_vision_dialog_desc" msgid="7952404018654828187">"Dolby Vision не е поддржан кај %1$s и ќе биде оневозможен во „Напредни поставки за екран“"</string>
+    <string name="resolution_hdr_description_info" msgid="2408761621976850238">"Режимов поддржува: %1$s\nна некои телевизори, можеби ќе треба да вклучите „Подобрен HDMI“ за да се овозможат повеќе HDR-формати. Проверете ги поставките на телевизорот за да видите дали е поддржано ова."</string>
+    <string name="resolution_selection_dialog_cancel" msgid="3683616572317946129">"Откажи"</string>
+    <string name="resolution_selection_dialog_ok" msgid="3123351228545013492">"Во ред"</string>
+    <string name="resolution_selection_hz" msgid="4425902505388495637">"Hz"</string>
+    <string name="resolution_display_mode" msgid="6633857172598855480">"<xliff:g id="RESOLUTION">%1$s</xliff:g> (<xliff:g id="REFRESH_RATE">%2$s</xliff:g> Hz)"</string>
+    <string name="device_storage_clear_cache_title" msgid="14370154552302965">"Исчисти кеширани податоци?"</string>
+    <string name="device_storage_clear_cache_message" msgid="4352802738505831032">"Ова ќе исчисти кеширани податоци за сите аплик."</string>
+    <string name="default_audio_output_settings_title" msgid="5441937324539531999"></string>
+    <string name="accessories_add" msgid="413764175035531452">"Додај додаток"</string>
+    <string name="accessory_state_pairing" msgid="15908899628218319">"Спарување..."</string>
+    <string name="accessory_state_connecting" msgid="6560241025917621212">"Се поврзува…"</string>
+    <string name="accessory_state_error" msgid="8353621828816824428">"Не може да се спари"</string>
+    <string name="accessory_state_canceled" msgid="4794837663402063770">"Откажано"</string>
+    <string name="accessory_state_paired" msgid="3296695242499532000">"Спарено"</string>
+    <string name="accessory_options" msgid="774592782382321681">"Додаток"</string>
+    <string name="accessory_unpair" msgid="2473411128146068804">"Распари"</string>
+    <string name="accessory_battery" msgid="2283700366184703548">"Батерија <xliff:g id="PERCENTAGE">%1$d</xliff:g>%%"</string>
+    <string name="accessory_unpairing" msgid="2529195578082286563">"Распарување на уред…"</string>
+    <string name="accessory_connected" msgid="5229574480869175180">"Поврзано"</string>
+    <string name="accessory_change_name" msgid="6493717176878500683">"Сменете го името"</string>
+    <string name="accessory_change_name_title" msgid="451188562035392238">"Внесете ново име за овој додаток"</string>
+    <string name="accessories_add_accessibility_title" msgid="1300294413423909579">"Спарување преку Bluetooth."</string>
+    <string name="accessories_add_title" msgid="7704824893011194433">"Се бараат додатоци…"</string>
+    <string name="accessories_add_bluetooth_inst" msgid="2508151218328384366">"Пред спарувањето на уредите со Bluetooth, осигурете се дека тие се во режим на спарување."</string>
+    <string name="accessories_autopair_msg" msgid="2501824457418285019">"Пронајден е уред и автоматски ќе се спари за <xliff:g id="COUNTDOWN">%1$s</xliff:g> секунди"</string>
+    <string name="error_action_not_supported" msgid="5377532621386080296">"Оваа активност не е поддржана"</string>
+    <string name="bluetooth_pairing_request" msgid="6120176967230348092">"Барање за спарување со Bluetooth"</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7397401633869153520">"За да се спари со: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, проверете дали ја прикажува оваа лозинка: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
+    <string name="bluetooth_incoming_pairing_msg" msgid="8587851808387685613">"Од: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Спари се со овој уред?"</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="6934651048757228432">"За да се спари со: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Внесете: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;, а потоа притиснете Return или Enter."</string>
+    <string name="bluetooth_enter_pin_msg" msgid="8905524093007140634">"За да се спари со: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, &lt;br&gt;Внесете го бараниот PIN на уредот:"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="889584097447402492">"За да се спари со: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, &lt;br&gt;Внесете ја бараната лозинка за уредот:"</string>
+    <string name="bluetooth_pin_values_hint" msgid="6237371515577342950">"Обично 0000 или 1234"</string>
+    <string name="bluetooth_pair" msgid="2410285813728786067">"Спари"</string>
+    <string name="bluetooth_cancel" msgid="4415185529332987034">"Откажи"</string>
+    <string name="bluetooth_device_connected_toast" msgid="1896195197089204806">"Уредот %1$s е поврзан"</string>
+    <string name="bluetooth_device_disconnected_toast" msgid="7459239447363156499">"Уредот %1$s не е поврзан"</string>
+    <string name="connected_devices_slice_pref_title" msgid="6761921505544005991">"Далечински управувач и додатоци"</string>
+    <string name="bluetooth_toggle_title" msgid="3808904783456336104">"Bluetooth"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_title" msgid="3906746631391295717">"Исклучете го Bluetooth"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_summary" msgid="9017044450625172698">"Нема да може да пристапите до „Помошникот на Google“ од вашиот далечински управувач додека е исклучен Bluetooth."</string>
+    <string name="bluetooth_pair_accessory" msgid="5508750142754420984">"Спарете го додатокот"</string>
+    <string name="bluetooth_known_devices_category" msgid="6895470515631452961">"Додатоци"</string>
+    <string name="bluetooth_official_remote_category" msgid="5817814488268307170">"Далечински управувач"</string>
+    <string name="bluetooth_official_remote_entry_title" msgid="6699700335229570038">"Поставки за далечински управувач"</string>
+    <string name="bluetooth_ir_entry_title" msgid="6927284710576530479">"Поставете копчиња на далечинскиот управувач"</string>
+    <string name="bluetooth_ir_entry_subtitle" msgid="4606207128353416151">"Контролирајте ги јачината на звукот, вклучувањето, влезот на телевизорите, приемниците и звучниците"</string>
+    <string name="bluetooth_connect_action_title" msgid="7715342395313781643">"Поврзи"</string>
+    <string name="bluetooth_connect_confirm" msgid="4769958536295137386">"Да се поврзе со уредот %1$s?"</string>
+    <string name="bluetooth_disconnect_action_title" msgid="1135513009197728480">"Прекини врска"</string>
+    <string name="bluetooth_disconnect_confirm" msgid="1445977623973613581">"Да се прекине врската со уредот %1$s?"</string>
+    <string name="bluetooth_rename_action_title" msgid="4200419902722729907">"Преименувајте"</string>
+    <string name="bluetooth_rename" msgid="7791922876280337194">"Преименувајте го поврзаниот уред"</string>
+    <string name="bluetooth_forget_action_title" msgid="2351140076684719196">"Заборави"</string>
+    <string name="bluetooth_forget_confirm" msgid="5175414848391021666">"Да се заборави уредот %1$s?"</string>
+    <string name="bluetooth_serial_number_label" msgid="6639294603220209971">"Bluetooth-адреса"</string>
+    <string name="bluetooth_connected_status" msgid="8629393539370085418">"Поврзано"</string>
+    <string name="bluetooth_disconnected_status" msgid="7617866963193224775">"Не е поврзано"</string>
+    <string name="bluetooth_empty_list_user_restricted" msgid="1610743588460010736">"Немате дозвола за промена на поставките на Bluetooth."</string>
+    <string name="bluetooth_toggle_active_audio_output_title" msgid="3715722506642793944">"Користи за аудио на ТВ"</string>
+    <string name="send_feedback" msgid="936698637869795473">"Испратете повратни информации"</string>
+    <string name="launch_help" msgid="2607478763131952469">"Центар за помош"</string>
+    <string name="system_cast" msgid="6081391679828510058">"Google Cast"</string>
+    <string name="system_date_time" msgid="5922833592234018667">"Датум и време"</string>
+    <string name="system_language" msgid="5516099388471974346">"Јазик"</string>
+    <string name="language_empty_list_user_restricted" msgid="5430199913998605436">"Немате дозвола за промена на јазикот на уредот."</string>
+    <string name="system_keyboard" msgid="1514460705385401872">"Тастатура"</string>
+    <string name="system_keyboard_autofill" msgid="8530944165814838255">"Тастатура и автоматско пополнување"</string>
+    <string name="system_autofill" msgid="6983989261108020046">"Пополни автоматски"</string>
+    <string name="system_home" msgid="2149349845791104094">"Почетен екран"</string>
+    <string name="system_search" msgid="3170169128257586925">"Пребарување"</string>
+    <string name="system_google" msgid="945985164023885276">"Google"</string>
+    <string name="system_security" msgid="1012999639810957132">"Безбедност и ограничувања"</string>
+    <string name="system_speech" msgid="8779582280374089518">"Говор"</string>
+    <string name="system_inputs" msgid="5552840337357572096">"Влезови"</string>
+    <string name="system_inputs_devices" msgid="2158421111699829399">"Влезови и уреди"</string>
+    <string name="system_home_theater_control" msgid="6228949628173590310">"Контрола на домашно кино"</string>
+    <string name="system_developer_options" msgid="8480844257066475479">"Опции на програмер"</string>
+    <string name="accessibility_none" msgid="6355646833528306702">"Ништо"</string>
+    <string name="system_diagnostic" msgid="1654842813331919958">"Користење и дијагностика"</string>
+    <string name="no_device_admins" msgid="4628974717150185625">"Не се достапни апликации за администраторот на уредот"</string>
+    <string name="security_enable_widgets_disabled_summary" msgid="7678529948487939871">"Оневозможено од администраторот"</string>
+    <string name="disabled_by_administrator_summary" msgid="3420979957115426764">"Не е достапно"</string>
+    <string name="manage_device_admin" msgid="5714217234035017983">"Администраторски апликации"</string>
+    <string name="number_of_device_admins_none" msgid="2734299122299837459">"Нема активни апликации"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="108190334043671416">"Оневозм. од админ., шифрир. или складир. акредит."</string>
+    <string name="enterprise_privacy_settings" msgid="8226765895133003202">"Информации за управуваниот уред"</string>
+    <string name="enterprise_privacy_settings_summary_generic" msgid="5719549523275019419">"Измени и поставки со кои управува организацијата"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="2866704039759872293">"Измени и поставки со кои управува <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_header" msgid="9221881402582661521">"За да овозможи пристап до деловните податоци, вашата организација може да му ги промени поставките и да инсталира софтвер на уредот.\n\nЗа повеќе детали, контактирајте со администраторот на организацијата."</string>
+    <string name="enterprise_privacy_exposure_category" msgid="1555735251238636669">"Видови информации што може да ги види вашата организација"</string>
+    <string name="enterprise_privacy_exposure_changes_category" msgid="7750498604032318318">"Промени што ги извршил администраторот на организацијата"</string>
+    <string name="enterprise_privacy_device_access_category" msgid="7397106369136259850">"Вашиот пристап до уредов"</string>
+    <string name="enterprise_privacy_enterprise_data" msgid="8135491104894522008">"Податоци поврзани со вашата работна сметка, како е-пошта и календар"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="5012554762299490994">"Список со апликации на уредот"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="7062422823174345793">"Искористено време и интернет во секоја апликација"</string>
+    <string name="enterprise_privacy_network_logs" msgid="305782312671493780">"Најнова евиденција за мрежен сообраќај"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="2393617117911211486">"Најнов извештај за грешки"</string>
+    <string name="enterprise_privacy_security_logs" msgid="2573545327989145361">"Најнов безбедносен дневник"</string>
+    <string name="enterprise_privacy_none" msgid="6660670916934417519">"Нема"</string>
+    <string name="enterprise_privacy_enterprise_installed_packages" msgid="7244796629052581085">"Инсталирани се апликации"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="3875568975752197381">"Бројот на апликации е приближен. Можеби не опфаќа апликации што не се инсталирани од Play Store."</string>
+    <string name="enterprise_privacy_number_packages_lower_bound" msgid="4518330667109848939">"{count,plural, =1{Минимум # апликација}one{Минимум # апликација}other{Минимум # апликации}}"</string>
+    <string name="enterprise_privacy_location_access" msgid="8978502415647245748">"Дозволи за локацијата"</string>
+    <string name="enterprise_privacy_microphone_access" msgid="3746238027890585248">"Дозволи за микрофонот"</string>
+    <string name="enterprise_privacy_camera_access" msgid="6258493631976121930">"Дозволи за камерата"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="5538330175901952288">"Стандардни апликации"</string>
+    <string name="enterprise_privacy_number_packages" msgid="6256222390430349008">"{count,plural, =1{# апликација}one{# апликација}other{# апликации}}"</string>
+    <string name="enterprise_privacy_input_method" msgid="5814752394251833058">"Стандардна тастатура"</string>
+    <string name="enterprise_privacy_input_method_name" msgid="1088874503312671318">"Поставено на <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_always_on_vpn_device" msgid="8845550514448914237">"VPN е поставена да биде секогаш вклучена"</string>
+    <string name="enterprise_privacy_always_on_vpn_personal" msgid="6996782365866442280">"VPN е поставена да биде секогаш вклучена во личниот профил"</string>
+    <string name="enterprise_privacy_always_on_vpn_work" msgid="3674119583050531071">"VPN е поставена да биде секогаш вклучена во работниот профил"</string>
+    <string name="enterprise_privacy_global_http_proxy" msgid="2818848848337527780">"Поставен е глобален HTTP прокси"</string>
+    <string name="enterprise_privacy_ca_certs_device" msgid="975646846291012452">"Доверливи акредитиви"</string>
+    <string name="enterprise_privacy_ca_certs_personal" msgid="7641368559306519707">"Доверливи акредитиви на вашиот личен профил"</string>
+    <string name="enterprise_privacy_ca_certs_work" msgid="2905939250974399645">"Доверливи акредитиви на вашиот работен профил"</string>
+    <string name="enterprise_privacy_number_ca_certs" msgid="5918439861975410142">"{count,plural, =1{# CA-сертификат}one{# CA-сертификат}other{# CA-сертификати}}"</string>
+    <string name="enterprise_privacy_lock_device" msgid="3140624232334033641">"Администраторот може да го заклучи уредот и да ја ресетира лозинката"</string>
+    <string name="enterprise_privacy_wipe_device" msgid="1714271125636510031">"Администраторот може да ги избрише сите податоци на уредот"</string>
+    <string name="enterprise_privacy_failed_password_wipe_device" msgid="8272298134556250600">"Неуспешни обиди за внесување лозинка пред да се избришат сите податоци на уредот"</string>
+    <string name="enterprise_privacy_failed_password_wipe_work" msgid="1184137458404844014">"Неуспешни обиди за внесување лозинка пред да се избришат податоците на работниот профил"</string>
+    <string name="enterprise_privacy_number_failed_password_wipe" msgid="277415009661470768">"{count,plural, =1{# обид}one{# обид}other{# обиди}}"</string>
+    <string name="do_disclosure_generic" msgid="8390478119591845948">"Вашата организација управува со уредов."</string>
+    <string name="do_disclosure_with_name" msgid="4755509039938948975">"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> управува со уредов."</string>
+    <string name="do_disclosure_learn_more_separator" msgid="4226390963162716446">" "</string>
+    <string name="hdr_capability" msgid="3331021013422460270">"- %1$s"</string>
+    <string name="learn_more" msgid="820336467414665686">"Дознајте повеќе"</string>
+    <string name="default_camera_app_title" msgid="4573905807226306484">"{count,plural, =1{Апликација за камера}one{Апликации за камера}other{Апликации за камера}}"</string>
+    <string name="default_calendar_app_title" msgid="1533912443930743532">"Апликацијата „Календар“"</string>
+    <string name="default_contacts_app_title" msgid="7792041146751261191">"Апликацијата „Контакти“"</string>
+    <string name="default_email_app_title" msgid="3712283056326496555">"{count,plural, =1{Апликација за клиент на е-пошта}one{Апликации за клиент на е-пошта}other{Апликации за клиент на е-пошта}}"</string>
+    <string name="default_map_app_title" msgid="9051013257374474801">"Апликацијата „Карти“"</string>
+    <string name="default_phone_app_title" msgid="4833449131501871644">"{count,plural, =1{Апликација за телефон}one{Апликации за телефон}other{Апликации за телефон}}"</string>
+    <string name="default_browser_title" msgid="3612813200586492159">"Апликација за прелистување"</string>
+    <string name="app_names_concatenation_template_2" msgid="5297284354915830297">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
+    <string name="app_names_concatenation_template_3" msgid="4932774380339466733">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
+    <string name="tutorials" msgid="7880770425872110455">"Упатства"</string>
+    <string name="about_system_update" msgid="7421264399111367755">"Системско ажурирање"</string>
+    <string name="system_update_description" msgid="998883510488461766">"Ова ќе го ажурира софтверот на системот на најновата верзија. Уредот ќе се рестартира."</string>
+    <string name="system_update_content_description" msgid="5702888187682876466">"Ажурирање на системот, ова ќе го ажурира софтверот на системот на најновата верзија. Уредот ќе се рестартира."</string>
+    <string name="about_preference" msgid="9112690446998150670">"За"</string>
+    <string name="device_name" msgid="566626587332817733">"Име на уредот"</string>
+    <string name="restart_button_label" msgid="911750765086382990">"Рестартирај"</string>
+    <string name="about_legal_info" msgid="2148797328415559733">"Правни информации"</string>
+    <string name="about_legal_license" msgid="4056934178111674054">"Извор од трета страна"</string>
+    <string name="about_terms_of_service" msgid="8514826341101557623">"Правни информации на Google"</string>
+    <string name="about_license_activity_unavailable" msgid="4559187037375581674">"Податоците за лиценцата се недостапни"</string>
+    <string name="about_model" msgid="9164284529291439296">"Модел"</string>
+    <string name="device_mode" msgid="7258350575590118152">"Режим на уред"</string>
+    <string name="store_demo_mode" msgid="4382231515659362796">"Демо-режим"</string>
+    <string name="about_version" msgid="6223547403835399861">"Верзија на OS на Android TV"</string>
+    <string name="about_serial" msgid="3432319328808745459">"Сериски број"</string>
+    <string name="about_build" msgid="8467840394761634575">"Верзија на OS на Android TV"</string>
+    <string name="show_dev_countdown" msgid="4064986225625409361">"{count,plural, =1{Сега сте на # чекор поблиску да станете програмер}one{Сега сте на # чекор поблиску да станете програмер}other{Сега сте на # чекори поблиску да станете програмер}}"</string>
+    <string name="about_ads" msgid="7662896442040086522">"Реклами"</string>
+    <string name="ads_description" msgid="8081069475265061074">"Управувајте со поставките, како ресетирање ID за рекламирање."</string>
+    <string name="ads_content_description" msgid="1006489792324920289">"Ads, управувајте со поставките за реклами, како што е ресетирање ID за рекламирање."</string>
+    <string name="show_dev_on" msgid="612741433124106067">"Сега сте програмер!"</string>
+    <string name="show_dev_already" msgid="1522591284776449818">"Нема потреба, веќе сте програмер"</string>
+    <string name="device_info_default" msgid="2374506935205518448">"Непознато"</string>
+    <string name="selinux_status" msgid="1146662734953021410">"Статус на SELinux"</string>
+    <string name="selinux_status_disabled" msgid="4027105362332795142">"Оневозможено"</string>
+    <string name="selinux_status_permissive" msgid="8694617578567517527">"Дозволиво"</string>
+    <string name="selinux_status_enforcing" msgid="4140979635669643342">"Се спроведува"</string>
+    <string name="additional_system_update_settings_list_item_title" msgid="1839534735929143986">"Дополн. ажур. на системот"</string>
+    <string name="ssl_ca_cert_warning" msgid="7836390021162211069">"Мрежата може да се следи"</string>
+    <string name="done_button" msgid="616159688526431451">"Готово"</string>
+    <string name="sl_ca_cert_dialog_title" msgid="5104377991202801698">"{count,plural, =1{Или имајте доверба или отстранете го сертификатот}one{Или имајте доверба или отстранете ги сертификатите}other{Или имајте доверба или отстранете ги сертификатите}}"</string>
+    <string name="device_status" msgid="8266002761193692207">"Статус"</string>
+    <string name="device_status_summary" msgid="3270932829412434985">"Мрежа, сериски броеви и други информации"</string>
+    <string name="manual" msgid="5683935624321864999">"Рачно"</string>
+    <string name="regulatory_information" msgid="9107675969694713391">"Регулаторни информации"</string>
+    <string name="device_feedback" msgid="4871903271442960465">"Повратни информации за уредов"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="4641790432171693921">"Подигнувачот веќе е отклучен"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="2979556699380115576">"Прво поврзете се на интернет"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="1946089732305102622">"Поврзете се на интернет или контактирајте со операторот"</string>
+    <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5634005787486307657">"Недостапно на уредите заклучени од операторот"</string>
+    <string name="oem_lock_info_message" msgid="2165887409937351689">"Рестартирајте го уредот за да се овозможи функцијата за заштита на уредот."</string>
+    <string name="automatic_storage_manager_freed_bytes" msgid="1654574152815129396">"<xliff:g id="SIZE">%1$s</xliff:g> вкупно на располагање\n\nПоследен пат извршено на <xliff:g id="DATE">%2$s</xliff:g>"</string>
+    <string name="fcc_equipment_id" msgid="6731077083927000108">"ID на опрема"</string>
+    <string name="baseband_version" msgid="5618116741093274294">"Верзија на радиомодул"</string>
+    <string name="kernel_version" msgid="7265509054070001542">"Верзија на кернел"</string>
+    <string name="status_unavailable" msgid="2033933928980193334">"Недостапно"</string>
+    <string name="device_status_title" msgid="9051569510258883673">"Статус"</string>
+    <string name="battery_status_title" msgid="8850166742025222210">"Статус на батеријата"</string>
+    <string name="battery_level_title" msgid="2672804570916248736">"Ниво на батерија"</string>
+    <string name="status_bt_address" msgid="7190052214963950844">"Адреса на Bluetooth"</string>
+    <string name="status_up_time" msgid="1758102680983108313">"Време од последно рестартирање"</string>
+    <string name="legal_information" msgid="1087445528481370874">"Правни информации"</string>
+    <string name="copyright_title" msgid="5879660711078649518">"Авторски права"</string>
+    <string name="license_title" msgid="4032466200355435641">"Лиценца"</string>
+    <string name="terms_title" msgid="192888187310800678">"Одредби и услови"</string>
+    <string name="webview_license_title" msgid="5370270485188947540">"Системска лиценца за WebView"</string>
+    <string name="consumer_information_title" msgid="7729729568416672733">"Информации за потрошувачите"</string>
+    <string name="consumer_information_message" msgid="205236637689468764">"Содржините што ќе ги најдете на Android TV доаѓаат од партнери на трети страни како што се програмери на апликации и филмски студија, како и од самиот Google. За повеќе информации, одете на "<a href="g.co/tv/androidtvinfo">"g.co/tv/androidtvinfo"</a></string>
+    <string name="consumer_information_button_ok" msgid="6979480064600038080">"Во ред"</string>
+  <string-array name="wifi_signal_strength">
+    <item msgid="4475363344103354364">"Слаба"</item>
+    <item msgid="2098818614362343532">"Задоволителна"</item>
+    <item msgid="2713050260700175954">"Добар"</item>
+    <item msgid="6005053494500517261">"Одлична"</item>
+  </string-array>
+    <string name="title_mac_address" msgid="7511588678922209883">"MAC-адреса на уредот"</string>
+    <string name="title_randomized_mac_address" msgid="3359532498635833471">"Рандомизирана MAC-адреса"</string>
+    <string name="title_signal_strength" msgid="5047116893338315998">"Јачина на сигнал"</string>
+    <string name="title_random_mac_settings" msgid="6685812569356353378">"Приватност"</string>
+  <string-array name="random_mac_settings_entries">
+    <item msgid="3457228452595715533">"Користи рандомизирана MAC-адреса (стандардно)"</item>
+    <item msgid="2490415280467390067">"Користи ја MAC-адресата на уредот"</item>
+  </string-array>
+    <string name="mac_address_not_available" msgid="2992935344891853369">"Не е достапна"</string>
+    <string name="mac_address_ephemeral_summary" msgid="3284374877361772531">"Рандомизирана MAC-адреса"</string>
+    <string name="title_ip_address" msgid="705842159484772807">"IP-адреса"</string>
+    <string name="title_ssid" msgid="255328048344188682">"Внесете име на Wi-Fi мрежа"</string>
+    <string name="title_internet_connection" msgid="7502414094881828069">"Интернет врска"</string>
+    <string name="connected" msgid="4981532275162345997">"Поврзано"</string>
+    <string name="not_connected" msgid="475810896484271663">"Не е поврзано"</string>
+    <string name="wifi_no_internet" msgid="27421689535934864">"Нема интернет"</string>
+    <string name="wifi_saved" msgid="4354792774811431829">"Зачувано"</string>
+    <string name="wifi_bad_password" msgid="8686375382346768922">"Погрешна лозинка"</string>
+    <string name="wifi_short_password" msgid="7658809378390032385">"Лозинката за Wi-Fi е премногу кратка"</string>
+    <string name="wifi_captive_portal" msgid="8262150024660339529">"Потребно е да се најавите"</string>
+    <string name="wifi_setting_header_other_options" msgid="217382325707026836">"Други опции"</string>
+    <string name="wifi_setting_see_all" msgid="5048103047976316675">"Погледни ги сите"</string>
+    <string name="wifi_setting_see_fewer" msgid="8585364493300703467">"Види помалку"</string>
+    <string name="wifi_setting_available_networks" msgid="2096957819727319750">"Достапни мрежи"</string>
+    <string name="wifi_setting_other_options_add_network" msgid="6490215784178866978">"Додајте нова мрежа"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect" msgid="2869989555950644533">"Брзо поврзување"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect_info_summary" msgid="4564538591168691865">"Брзото поврзување ви помага брзо да се поврзете со Wi-Fi со скенирање QR-код на телефонот."</string>
+    <string name="security_type" msgid="2297615092250075696">"Тип на безбедност"</string>
+    <string name="other_network" msgid="5299289104661858596">"Друга мрежа…"</string>
+    <string name="skip_network" msgid="3095529090560000692">"Прескокни"</string>
+    <string name="wifi_security_type_none" msgid="7001835819813531253">"Ништо"</string>
+    <string name="wifi_security_type_wep" msgid="6407712450924151962">"WEP"</string>
+    <string name="wifi_security_type_wpa" msgid="9205358644485448199">"WPA/WPA2 PSK"</string>
+    <string name="wifi_security_type_eap" msgid="3948280751219829163">"802.1x EAP"</string>
+    <string name="title_wifi_no_networks_available" msgid="3696700321170616981">"Се скенира..."</string>
+    <string name="title_wifi_could_not_save" msgid="7549912968719395764">"Не може да се зачува конфигурацијата за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_could_not_connect" msgid="6654031057635481872">"Не може да се поврзе со <xliff:g id="SSID">%1$s</xliff:g>."</string>
+    <string name="title_wifi_could_not_connect_timeout" msgid="7825788623604214601">"Не може да се најде <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_could_not_connect_authentication_failure" msgid="6626386897327862432">"Неважечка лозинка за Wi-Fi"</string>
+    <string name="title_wifi_could_not_connect_ap_reject" msgid="5182833781690447828">"Wi-Fi мрежата не прифати поврзување"</string>
+    <string name="title_wifi_advanced_options" msgid="371185991282743258">"Конфигурирај <xliff:g id="SSID">%1$s</xliff:g> прокси и Поставки за ИП?"</string>
+    <string name="title_wifi_proxy_settings" msgid="1933444342984660569">"Поставки за прокси"</string>
+    <string name="title_wifi_proxy_hostname" msgid="1242297002220870385">"Име на хост за прокси:"</string>
+    <string name="title_wifi_proxy_port" msgid="566244407030390328">"Порта на прокси:"</string>
+    <string name="title_wifi_proxy_bypass" msgid="8752756240663231435">"Заобиколи прокси за:"</string>
+    <string name="title_wifi_ip_settings" msgid="296029383749112888">"Поставки за IP"</string>
+    <string name="title_wifi_ip_address" msgid="5505806431042689276">"IP-адреса:"</string>
+    <string name="title_wifi_gateway" msgid="4496416267930824360">"Капија:"</string>
+    <string name="title_wifi_network_prefix_length" msgid="3200370297772096824">"Должина на мрежен префикс:"</string>
+    <string name="title_wifi_dns1" msgid="1585965227665007553">"DNS 1:"</string>
+    <string name="title_wifi_dns2" msgid="4563319371301555072">"DNS 2:"</string>
+    <string name="title_wifi_proxy_settings_invalid" msgid="7698883245005941665">"Поставките за прокси не се важечки"</string>
+    <string name="title_wifi_ip_settings_invalid" msgid="7283801973512992014">"Поставките за ИП не се важечки"</string>
+    <string name="title_wifi_known_network" msgid="6162483884727898697">"<xliff:g id="SSID">%1$s</xliff:g> е зачувана мрежа"</string>
+    <string name="title_wifi_scan_qr_code" msgid="7485605625055717874">"Скенирајте го QR-кодот за да се придружите"</string>
+    <string name="wifi_action_try_again" msgid="8920677153891141148">"Обидете се повторно"</string>
+    <string name="wifi_action_view_available_networks" msgid="609561604257828342">"Прикажи достапни мрежи"</string>
+    <string name="wifi_connecting" msgid="4234341255109283018">"Се поврзува со <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_saving" msgid="320653339670641708">"Се зачувува конфигурација за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_connect" msgid="2206086690065242121">"Поврзи се"</string>
+    <string name="wifi_forget_network" msgid="4634016112624305571">"Заборави мрежа"</string>
+    <string name="wifi_forget_network_description" msgid="4146715475962713899">"Ова ги чисти информациите користени за поврзување со оваа мрежа, вклучувајќи ги зачуваните лозинки."</string>
+    <string name="wifi_scan_qr_code_description" msgid="6620444691131671132">" Придружете се на Wi-Fi со скенирање на QR-кодот од мобилниот телефон и со следење на упатствата.\n \n Од "<b>"телефон со Android"</b>", одете во „Поставки -&gt; Мрежа и интернет -&gt; Wi-Fi -&gt; Изберете Wi-Fi -&gt; Напредни -&gt; Додајте уред“, а потоа скенирајте го QR-кодот."</string>
+    <string name="wifi_scan_qr_code_back_description" msgid="8830716278283379280">"Притиснете го копчето за назад за да откажете"</string>
+    <string name="wifi_action_ok" msgid="6257483288047397880">"Во ред"</string>
+    <string name="wifi_setup_action_dont_change_network" msgid="2999582059217623090">"Продолжете"</string>
+    <string name="wifi_setup_action_change_network" msgid="1603908238711710943">"Променете ја мрежата"</string>
+    <string name="wifi_action_change_network" msgid="3943123581726966199">"Промени"</string>
+    <string name="wifi_action_dont_change_network" msgid="2685585142299769847">"Не менувај"</string>
+    <string name="wifi_action_advanced_yes" msgid="6192652088198093438">"Во ред"</string>
+    <string name="wifi_action_advanced_no" msgid="6152107256122343959">"Не (се препорачува)"</string>
+    <string name="wifi_action_proxy_none" msgid="4009573120495700922">"Ништо"</string>
+    <string name="wifi_action_proxy_manual" msgid="7667686394955896293">"Рачно"</string>
+    <string name="wifi_action_dhcp" msgid="6172127495589802964">"DHCP"</string>
+    <string name="wifi_action_static" msgid="8139559358727790887">"Статична"</string>
+    <string name="wifi_action_status_info" msgid="3947061894001350963">"Информации за статусот"</string>
+    <string name="wifi_action_advanced_options_title" msgid="2863126553877147921">"Напредни опции"</string>
+    <string name="wifi_ip_settings_invalid_ip_address" msgid="4051342269154914595">"Внесете важечка ИП-адреса"</string>
+    <string name="wifi_ip_settings_invalid_gateway" msgid="4511579679784872130">"Внесете важечка адреса на капија"</string>
+    <string name="wifi_ip_settings_invalid_dns" msgid="5111100342560120360">"Внесете важечка адреса на DNS"</string>
+    <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="2726889303835927777">"Внесете должина на мрежниот префикс меѓу 0 и 32"</string>
+    <string name="wifi_ip_address_description" msgid="7109677764979198618">"Внесете важечка IP адреса.\nПример: <xliff:g id="ID_1">192.168.1.128</xliff:g>"</string>
+    <string name="wifi_dns1_description" msgid="2287252520192279195">"Внесете важечка IP адреса или оставете празно.\nПример: <xliff:g id="ID_1">8.8.8.8</xliff:g>"</string>
+    <string name="wifi_dns2_description" msgid="6495565714252833784">"Внесете важечка IP адреса или оставете празно.\nПример: <xliff:g id="ID_1">8.8.4.4</xliff:g>"</string>
+    <string name="wifi_gateway_description" msgid="8902481147103929271">"Внесете важечка IP адреса или оставете празно.\nПример: <xliff:g id="ID_1">192.168.1.1</xliff:g>"</string>
+    <string name="wifi_network_prefix_length_description" msgid="2670994968279018896">"Внесете важечка должина за мрежен префикс.\nПример: <xliff:g id="ID_1">24</xliff:g>"</string>
+    <string name="proxy_error_invalid_host" msgid="5629893736174170157">"Името на домаќинот не е важечко"</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="1762079966901078116">"Оваа листа со исклучоци не е важечка. Внесете листа на исклучени домени, одвоени со запирки."</string>
+    <string name="proxy_error_empty_port" msgid="692020249267351015">"Полето за порта не може да биде празно"</string>
+    <string name="proxy_error_empty_host_set_port" msgid="5347712018244852847">"Доколку полето за домаќинот е празно, оставете го празно полето за порта"</string>
+    <string name="proxy_error_invalid_port" msgid="5307010810664745294">"Портата не е важечка"</string>
+    <string name="proxy_warning_limited_support" msgid="4220553563487968684">"Прелистувачот користи прокси за HTTP, но другите апликации не смеат да го користат"</string>
+    <string name="proxy_port_description" msgid="6486205863098427787">"Внесете важечка порта.\nПример: <xliff:g id="ID_1">8080</xliff:g>"</string>
+    <string name="proxy_exclusionlist_description" msgid="5105504899364188296">"Внесете список на исклучени домени, разделени со запирки или оставете празно.\nПример: <xliff:g id="ID_1">example.com,mycomp.test.com,localhost</xliff:g>"</string>
+    <string name="proxy_hostname_description" msgid="5520200112290557199">"Внесете важечко име на домаќин.\nПример: <xliff:g id="ID_1">proxy.example.com</xliff:g>"</string>
+    <string name="title_wifi_eap_method" msgid="4351752615786996226">"Избор на EAP-метод за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_phase2_authentication" msgid="1167205033305931574">"Избор на Фаза 2 од проверката за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_identity" msgid="6273917200971028259">"Внесување идентитет за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_anonymous_identity" msgid="5965175781722004334">"Внесување анонимен идентитет за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_setup_summary_title_connected" msgid="2725439590655448489">"Поврзани сте на <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_summary_title_connected" msgid="201105022065577659">"Мрежата е поврзана"</string>
+    <string name="wifi_summary_title_not_connected" msgid="7991004795297065201">"Мрежата не е поврзана"</string>
+    <string name="wifi_summary_description_connected_to_wifi_network" msgid="8796747274977762311">"Веќе е поврзан на <xliff:g id="SSID">%1$s</xliff:g>. Поврзи на друга мрежа?"</string>
+    <string name="wifi_summary_unknown_network" msgid="8044143986439139664">"непозната мрежа"</string>
+    <string name="wifi_empty_list_user_restricted" msgid="7326314737931342236">"Немате дозвола за промена на Wi-Fi мрежата."</string>
+    <string name="title_ok" msgid="6500452958848127145">"Во ред"</string>
+    <string name="title_cancel" msgid="2337143367016419016">"Откажи"</string>
+    <string name="storage_title" msgid="6637715914885228193">"Капацитет"</string>
+    <string name="storage_available" msgid="8860901789290434209">"Достапна"</string>
+    <string name="storage_size" msgid="5517261387579171381">"Вкупно простор: <xliff:g id="TOTAL_SPACE">%1$s</xliff:g>"</string>
+    <string name="storage_calculating_size" msgid="5716281278843281044">"Пресметување..."</string>
+    <string name="storage_apps_usage" msgid="8659915575274468924">"Апликации"</string>
+    <string name="storage_downloads_usage" msgid="8429196848359517158">"Преземања"</string>
+    <string name="storage_dcim_usage" msgid="1890098882753254745">"Фотографии и видеа"</string>
+    <string name="storage_music_usage" msgid="5362871290115089474">"Аудио"</string>
+    <string name="storage_media_misc_usage" msgid="3404230292054880339">"Разно"</string>
+    <string name="storage_media_cache_usage" msgid="6397941751551207630">"Кеширани податоци"</string>
+    <string name="storage_eject" msgid="3268870873944951902">"Извади"</string>
+    <string name="storage_format" msgid="5360900929128087085">"Избриши и форматирај"</string>
+    <string name="storage_format_as_private" msgid="77945551149326052">"Избриши и форматирај како меморија на уред"</string>
+    <string name="storage_format_as_public" msgid="6745112917895223463">"Избриши и форматирај како пренослива меморија"</string>
+    <string name="storage_format_for_private" msgid="5380138334184923252">"Форматирај како меморија на уред"</string>
+    <string name="storage_not_connected" msgid="4327902652748552794">"Не е поврзано"</string>
+    <string name="storage_migrate" msgid="9137556600192167701">"Преместете ги податоците во оваа меморија"</string>
+    <string name="storage_migrate_away" msgid="7880100961434638430">"Мигрирај во друга меморија"</string>
+    <string name="storage_no_apps" msgid="95566375753627272">"Нема апликации за бекап"</string>
+    <string name="storage_forget" msgid="4671975563260507003">"Заборави ја меморијата на уредов"</string>
+    <string name="storage_forget_wall_of_text" msgid="230454348256179142">"За да ги користите апликациите или податоците што ги содржи дисков, повторно приклучете го. Покрај тоа, може да изберете да се заборави меморијава ако дискот не е достапен.\n\nАко изберете Заборави, засекогаш ќе ги изгубите податоците што ги содржи дискот.\n\nПодоцна може повторно да ги инсталирате апликациите, но податоците складирани на дискот ќе се изгубат."</string>
+    <string name="storage_device_storage_section" msgid="22958375769694027">"Капацитет на уредот"</string>
+    <string name="storage_removable_storage_section" msgid="280332107650735088">"Пренослива меморија"</string>
+    <string name="storage_reset_section" msgid="3896575204828589494">"Ресетирај"</string>
+    <string name="storage_free_up" msgid="5719667150891467122">"Ослободете капацитет"</string>
+    <string name="storage_free_up_clear_cached_data" msgid="858596875459698634">"Избришете ги кешираните податоци"</string>
+    <string name="storage_free_up_clear_cached_data_summary" msgid="3111860361699185304">"Ослободете <xliff:g id="SPACE">%1$s</xliff:g>"</string>
+    <string name="storage_free_up_clear_cached_data_info" msgid="719348815620748812">"Ги брише привремените датотеки што зафаќаат простор. Нема да влијае врз зачуваните податоци како што се поставките за апликации или офлајн-видеата и нема да мора повторно да се најавувате на апликациите."</string>
+    <string name="storage_free_up_clear_cached_data_confirm_title" msgid="5047418718048910850">"Да се избришат кешираните податоци?"</string>
+    <string name="storage_free_up_clear_cached_data_confirm_description" msgid="4840728913914074729">"Ова ќе ги избрише сите кеширани податоци."</string>
+    <string name="storage_free_up_uninstall_apps" msgid="7755671754934975908">"Деинсталирајте апликации"</string>
+    <string name="storage_mount_success" msgid="4459298609971461753">"<xliff:g id="NAME">%1$s</xliff:g> е монтирано"</string>
+    <string name="storage_mount_failure" msgid="8521666906216755903">"Не може да се монтира <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_mount_adopted" msgid="8880688040694403520">"USB меморијата е повторно поврзана"</string>
+    <string name="storage_unmount_success" msgid="8024867595129715661">"<xliff:g id="NAME">%1$s</xliff:g> е безбедно извадено"</string>
+    <string name="storage_unmount_failure" msgid="2228448194484319930">"Не може безбедно да се извади <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_unmount_failure_cant_find" msgid="2890335341404932068">"Не може да се пронајде дискот за исфрлање"</string>
+    <string name="storage_format_success" msgid="5599914756144012286">"<xliff:g id="NAME">%1$s</xliff:g> е форматирано"</string>
+    <string name="storage_format_failure" msgid="5619442934314277332">"Не може да се форматира <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_format_as_private_title" msgid="7985715762649933211">"Форматирај како меморија на уред"</string>
+    <string name="storage_wizard_format_as_private_description" msgid="6143406934742456154">"USB-дискот треба да се форматира за да биде безбеден. По безбедното форматирање, дискот ќе работи само на овој уред. Форматирањето ги брише сите податоци тековно складирани на дискот. За да избегнете губење на податоците, размислете дали да создадете резервна копија."</string>
+    <string name="storage_wizard_format_as_public_title" msgid="3546915348149438389">"Бришење и форматирање"</string>
+    <string name="storage_wizard_format_as_public_description" msgid="5849129772499352597">"По форматирање, USB-дискот може да го користите на други уреди. Сите податоци ќе се избришат. Размислете прво да направите резервна копија со префрлање на апликациите на друга меморија на уред."</string>
+    <string name="storage_wizard_format_progress_title" msgid="3875906251546380271">"USB-дискот се форматира..."</string>
+    <string name="storage_wizard_format_progress_description" msgid="292229747129805538">"Ова може да потрае. Не го отстранувајте дискот."</string>
+    <string name="storage_wizard_migrate_choose_title" msgid="8743036821605231654">"Изберете во која меморија да мигрираат податоците"</string>
+    <string name="storage_wizard_migrate_confirm_title" msgid="5086390005970210697">"Премести податоци во <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_confirm_description" msgid="918834441157741482">"преместете ги фотографиите, датотеките и податоците за апликацијата во <xliff:g id="NAME">%1$s</xliff:g>. Тоа може да трае неколку минути. Некои апликации нема да работат правилно во текот на преместувањето."</string>
+    <string name="storage_wizard_migrate_confirm_action_move_now" msgid="7512917600174814567">"Премести сега"</string>
+    <string name="storage_wizard_migrate_confirm_action_move_later" msgid="6379986754827551474">"Премести подоцна"</string>
+    <string name="storage_wizard_migrate_toast_success" msgid="6153579567666607584">"Податоците се преместени во <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_toast_failure" msgid="8580347235983040966">"Податоците не може да се преместат во <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_progress_title" msgid="2623480667090826800">"Податоците се преместуваат во <xliff:g id="NAME">%1$s</xliff:g>…"</string>
+    <string name="storage_wizard_migrate_progress_description" msgid="4023358325977284145">"Ова може да потрае. Не го отстранувајте дискот.\nНекои апликации нема да работат правилно во текот на преместувањето."</string>
+    <string name="storage_wizard_format_slow_title" msgid="7640229918512394316">"Се чини дека дискот е бавен."</string>
+    <string name="storage_wizard_format_slow_summary" msgid="3674023258060474037">"Може да продолжите, но апликациите кои се преместени на оваа локација може да треперат и префрлањето податоци може да одзема многу време. Размислете за користење побрз диск за подобра изведба."</string>
+    <string name="storage_wizard_format_action" msgid="3275676687226857170">"Форматирај"</string>
+    <string name="storage_wizard_backup_apps_action" msgid="1402199004931596519">"Направи резервна копија на апликациите"</string>
+    <string name="storage_wizard_back_up_apps_title" msgid="6225663573896846937">"Апликациите се складирани во <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_back_up_apps_and_data_title" msgid="7763611380573099978">"Апликациите и податоците се складирани во <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_back_up_apps_space_available" msgid="5741521038349239359">"<xliff:g id="SIZE">%1$s</xliff:g> достапно"</string>
+    <string name="storage_wizard_eject_private_title" msgid="1336088625197134497">"Извадете ја меморијата на уредот"</string>
+    <string name="storage_wizard_eject_private_description" msgid="4341905730016007385">"Апликациите од меморијата на овој уред ќе престанат да работат штом таа се извади. USB-дискот е форматиран да работи само на овој уред. Нема да работи на ниеден друг."</string>
+    <string name="storage_wizard_eject_progress_title" msgid="6025569356827683446">"Се вади <xliff:g id="NAME">%1$s</xliff:g>…"</string>
+    <string name="storage_wizard_move_app_title" msgid="6504922588346440942">"Искористен простор"</string>
+    <string name="storage_wizard_move_app_progress_title" msgid="7058465372227392453">"Се преместува <xliff:g id="NAME">%1$s</xliff:g>…"</string>
+    <string name="storage_wizard_move_app_progress_description" msgid="7673347796805764888">"Не отстранувајте го дискот за време на преместувањето.\nАпликацијата <xliff:g id="APPNAME">%1$s</xliff:g> на уредов нема да биде достапна додека преместувањето не заврши."</string>
+    <string name="storage_wizard_forget_confirm_title" msgid="3709482471888830896">"Заборави ја меморијата на уредот?"</string>
+    <string name="storage_wizard_forget_confirm_description" msgid="5896860042525566767">"Со „Заборави“, засекогаш ќе ги изгубите сите податоци складирани на дисков. Дали би сакале да продолжите?"</string>
+    <string name="storage_wizard_forget_action" msgid="5609631662522950596">"Заборави"</string>
+    <string name="storage_new_title" msgid="4768955281180255038">"USB-меморијата е поврзана"</string>
+    <string name="storage_new_action_browse" msgid="3355241742574072658">"Прелистувајте"</string>
+    <string name="storage_new_action_adopt" msgid="6809707961170895964">"Поставете како меморија на уредот"</string>
+    <string name="storage_new_action_format_public" msgid="1964662216574764811">"Постави како пренослива меморија"</string>
+    <string name="storage_new_action_eject" msgid="919249291814300000">"Извади"</string>
+    <string name="storage_missing_title" msgid="9068915586235805818">"<xliff:g id="NAME">%1$s</xliff:g> е отстранета"</string>
+    <string name="storage_missing_description" msgid="6835620703133204249">"Некои апликации ќе бидат недостапни или нема да функционираат правилно сѐ додека повторно не се поврзе податочната единица."</string>
+    <string name="insufficient_storage" msgid="4175940286022466535">"Нема доволно меморија."</string>
+    <string name="does_not_exist" msgid="4071082040759146781">"Апликацијата не постои."</string>
+    <string name="invalid_location" msgid="5571789982293787489">"Локацијата за инсталација не е важечка."</string>
+    <string name="system_package" msgid="8276098460517049146">"Ажурирањата на системот не може да се инсталираат на надворешни медиуми."</string>
+    <string name="move_error_device_admin" msgid="4144472536756635173">"Администраторот на уредот не може да се инсталира на надворешни уреди."</string>
+    <string name="learn_more_action" msgid="7972102006620925604">"Дознајте повеќе"</string>
+    <string name="system_date" msgid="2503462662633178207">"Датум"</string>
+    <string name="system_time" msgid="8434726081412227535">"Време"</string>
+    <string name="system_set_date" msgid="5815123588301469720">"Постави датум"</string>
+    <string name="system_set_time" msgid="7179243042276057341">"Постави време"</string>
+    <string name="system_set_time_zone" msgid="6471564469883225195">"Постави временска зона"</string>
+    <string name="desc_set_time_zone" msgid="4926392006501180047">"<xliff:g id="OFFSET">%1$s</xliff:g>, <xliff:g id="NAME">%2$s</xliff:g>"</string>
+    <string name="system_set_time_format" msgid="902518158066450918">"Користи 24-часовен формат"</string>
+    <string name="desc_set_time_format" msgid="8688587526768572230">"<xliff:g id="STATE">%1$s</xliff:g> (<xliff:g id="SAMPLE">%2$s</xliff:g>)"</string>
+    <string name="system_auto_date_time" msgid="8458199433555868708">"Автоматски датум и време"</string>
+  <string-array name="auto_date_time_entries">
+    <item msgid="8119837829162871025">"Користи време обезбедено од мрежа"</item>
+    <item msgid="369146066143710034">"Исклучено"</item>
+  </string-array>
+  <string-array name="auto_date_time_ts_entries">
+    <item msgid="1010003447137304123">"Користи време обезбедено од мрежа"</item>
+    <item msgid="5645263357181875427">"Користи време обезбедено од TS"</item>
+    <item msgid="5501503537181350884">"Исклучено"</item>
+  </string-array>
+    <string name="sensor_toggle_description" msgid="7415801459994303159">"За сите апликации и услуги"</string>
+    <string name="recently_accessed_by_category" msgid="6841705864715653428">"Неодамнешен пристап од"</string>
+    <string name="no_recent_sensor_accesses" msgid="3498112970658050800">"Нема неодамнешни пристапи"</string>
+    <string name="recently_accessed_show_all" msgid="5234849189704717855">"Прикажи ги сите"</string>
+    <string name="microphone" msgid="7893752847683941214">"Микрофон"</string>
+    <string name="mic_toggle_title" msgid="7193417007060235665">"Пристап до микрофонот"</string>
+    <string name="mic_remote_toggle_title" msgid="7153283895012570080">"Пристап до микрофонот на далечинскиот управувач"</string>
+    <string name="open_mic_permissions" msgid="8121871594807641073">"Пристап на апликации до микрофонот"</string>
+    <string name="microphone_physical_privacy_enabled_title" msgid="6135130916399886772">"Пристапот до микрофонот е блокиран"</string>
+    <string name="microphone_physical_privacy_enabled_text" msgid="401238365312924088">"За да одблокирате, поместете го прекинувачот за приватност на уредот во положбата „Микрофонот е вклучен“ што ќе дозволи пристап до него."</string>
+    <string name="camera" msgid="1226671478936288283">"Камера"</string>
+    <string name="camera_toggle_title" msgid="5566469574224956142">"Пристап до камерата"</string>
+    <string name="open_camera_permissions" msgid="301360297337141591">"Пристап на апликации до камерата"</string>
+    <string name="camera_physical_privacy_enabled_title" msgid="1944155695921165511">"Пристапот до камерата е блокиран"</string>
+    <string name="camera_physical_privacy_enabled_text" msgid="6692088634676282779">"За да одблокирате, поместете го прекинувачот за приватност на уредот во положбата „Камерата е вклучена“ што ќе дозволи пристап до неа."</string>
+    <string name="mic_toggle_info_title" msgid="1086545614315873599">"Пристап до микрофонот: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="mic_toggle_info_content" msgid="3187791167208947239">"Кога е вклучен, сите апликации и услуги на кои им е дозволено да го користат микрофонот ќе може да пристапуваат до него.\n\nКога е исклучен, ниту една апликација или услуга нема да може да пристапува до микрофонот. Но, можеби сѐ уште ќе може да разговарате со вашиот „Помошник на Google“ така што ќе го притиснете копчето за „Помошникот“ на далечинскиот управувач.\n\nАудиоуредите што користат приспособени протоколи за комуникација со телевизорот може нема да бидат засегнати од оваа поставка."</string>
+    <string name="mic_remote_toggle_on_info_title" msgid="8503441878870972046">"Микрофонот е овозможен на далечинскиот управувач"</string>
+    <string name="mic_remote_toggle_on_info_content" msgid="2715872916376493679">"„Помошникот на Google“ може да пристапува до микрофонот на далечинскиот управувач. Ќе може да разговарате со вашиот „Помошник“ така што ќе го притиснете копчето за „Помошникот на Google“ на далечинскиот управувач."</string>
+    <string name="mic_remote_toggle_off_info_title" msgid="4902909833546393713">"Микрофонот е оневозможен на далечинскиот управувач"</string>
+    <string name="mic_remote_toggle_off_info_content" msgid="8062526350553191004">"Нема да може да разговарате со вашиот „Помошник на Google“ преку далечинскиот управувач. За да може да го користите копчето за „Помошникот на Google“, овозможете пристап до микрофонот."</string>
+    <string name="camera_toggle_info_title" msgid="3871317082313736088">"Пристап до камерата: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="camera_toggle_info_content" msgid="2999965953853204003">"Кога е вклучено, сите апликации и услуги со дозвола може да пристапуваат до сите камери на уредов.\n\nПериферните камери со приспособен протокол нема да бидат засегнати од поставкава."</string>
+    <string name="sensor_toggle_info_on" msgid="4568111889147132257">"Вклучено"</string>
+    <string name="sensor_toggle_info_off" msgid="7546772458177469821">"Исклучено"</string>
+    <string name="system_location" msgid="4057295363709016511">"Локација"</string>
+    <string name="system_desc_location" msgid="1680134126100535031">"Дозволете апликациите кои побарале дозвола да ги користат вашите информации за локација"</string>
+    <string name="system_network_location_confirm" msgid="7128162421781085332">"Согласност за локација"</string>
+    <string name="location_mode_title" msgid="728244518174115443">"Режим"</string>
+    <string name="location_category_recent_location_requests" msgid="4541924383164183490">"Последни барања за локација"</string>
+    <string name="location_no_recent_apps" msgid="7033474075806435793">"Нема апликации што неодамна побарале утврдување на локацијата"</string>
+    <string name="location_high_battery_use" msgid="5325556609027887602">"Голема искористеност на бат."</string>
+    <string name="location_low_battery_use" msgid="728585923412018253">"Мала искористеност на бат."</string>
+    <string name="location_mode_wifi_description" msgid="84697248707903061">"Користи мрежи на Wi‑Fi за да утврдиш локација"</string>
+    <string name="location_status" msgid="3037321737386011224">"Статус на локација"</string>
+    <string name="location_services" msgid="551503779736382878">"Услуги за локација"</string>
+    <string name="on" msgid="4899322147062342542">"Вклучено"</string>
+    <string name="off" msgid="3127416478888499352">"Исклучено"</string>
+    <string name="google_location_services_title" msgid="6304196603522909239">"Услуги за локација на Google"</string>
+    <string name="third_party_location_services_title" msgid="2826218400381676508">"Услуги за локација на трета страна"</string>
+    <string name="location_reporting" msgid="3552501333650895634">"Известување за локација"</string>
+    <string name="location_history" msgid="4055660203090513120">"Историја за локација"</string>
+    <string name="location_reporting_desc" msgid="1580018652781674608">"Google ја користи функцијава во производи како Google Now и Карти на Google. Со вклучувањето на Известување за локација му се овозможува на кој било производ на Google што ја користи оваа функција да ги складира и користи најновите податоци за локација на уредот во врска со вашата сметка на Google."</string>
+    <string name="location_history_desc" msgid="926674012916014270">"Кога е вклучена Историја за локација за оваа сметка, Google може да ги складира податоците за локацијата на вашиот уред за да ги користат апликациите.\n\nНа пример, Карти на Google ви дава насоки, а Google Now ве информира за сообраќај кога одите на работа.\n\nМоже да ја исклучите Историја за локација во кое било време, но со тоа не ја бришете. За прикажување и управување со вашата Историја за локација, посетете ја maps.google.com/locationhistory."</string>
+    <string name="delete_location_history_title" msgid="707559064715633152">"Избриши историја за локација"</string>
+    <string name="delete_location_history_desc" msgid="4035229731487113147">"Ова ќе ја избрише целата Историја за локација која е складирана од овој уред за оваа сметка на Google. Не може да го вратите ова бришење. Некои апликации, вклучувајќи ја Google Now, ќе престанат да работат."</string>
+    <string name="accessibility_screen_readers_category_title" msgid="7742526514873922018">"Читачи на екран"</string>
+    <string name="accessibility_display_category_title" msgid="593444602101558017">"Приказ"</string>
+    <string name="accessibility_interaction_controls_category_title" msgid="5290687835178852745">"Контроли за интеракција"</string>
+    <string name="accessibility_audio_and_onscreen_text_category_title" msgid="113841605896486212">"Аудио и текст на екранот"</string>
+    <string name="accessibility_experimental_category_title" msgid="3401773834179170206">"Експериментални"</string>
+    <string name="accessibility_services_category_title" msgid="8813843874978910442">"Услуги"</string>
+    <string name="accessibility_service_settings" msgid="3251334786870932423">"Поставки на услуга"</string>
+    <string name="accessibility_screen_reader_flattened_component_name" msgid="6834614827111101213">"com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="9200419191468995574">"Текст со висок контраст"</string>
+    <string name="accessibility_toggle_bold_text_preference_title" msgid="3328992531170432669">"Текст во болд"</string>
+    <string name="accessibility_color_correction" msgid="6765093204922184119">"Корекција на боите"</string>
+    <string name="color_correction_usage" msgid="4160611639548748657">"Користи „Корекција на боите“"</string>
+    <string name="color_correction_color_mode" msgid="5081377780734779169">"Режим во боја"</string>
+    <string name="color_correction_mode_deuteranomaly" msgid="1513793544554228224">"Девтераномалија"</string>
+    <string name="color_correction_mode_deuteranomaly_summary" msgid="5991561481464520986">"Црвена и зелена"</string>
+    <string name="color_correction_mode_protanomaly" msgid="8105793166015115037">"Протаномалија"</string>
+    <string name="color_correction_mode_protanomaly_summary" msgid="3247619910784115563">"Црвена и зелена"</string>
+    <string name="color_correction_mode_tritanomaly" msgid="757769418392736089">"Тританомалија"</string>
+    <string name="color_correction_mode_tritanomaly_summary" msgid="137712354510881252">"Сина и жолта"</string>
+    <string name="color_correction_mode_grayscale" msgid="2592973844160514484">"Сиви тонови"</string>
+    <string name="palette_color_red" msgid="507196433434979086">"Црвена"</string>
+    <string name="palette_color_orange" msgid="6209196069366109835">"Портокалова"</string>
+    <string name="palette_color_yellow" msgid="298466132578870590">"Жолта"</string>
+    <string name="palette_color_green" msgid="4904783063036825668">"Зелена"</string>
+    <string name="palette_color_cyan" msgid="3212217287628948203">"Тиркизна"</string>
+    <string name="palette_color_blue" msgid="8836682634988540630">"Сина"</string>
+    <string name="palette_color_purple" msgid="2123828754639683555">"Виолетова"</string>
+    <string name="palette_color_gray" msgid="4014534773994261194">"Сива"</string>
+    <string name="accessibility_shortcut" msgid="5856158637840030531">"Кратенка за пристапност"</string>
+    <string name="accessibility_shortcut_enable" msgid="6603542432267329986">"Овозможи кратенка за пристапност"</string>
+    <string name="accessibility_shortcut_service" msgid="2053250146891420311">"Услуга со кратенка"</string>
+    <string name="accessibility_shortcut_description" msgid="2050424178481510046">"Кога кратенката е вклучена, може да ги притиснете копчето за назад и за надолу во времетраење од 3 секунди за да стартувате функција за пристапност."</string>
+    <string name="accessibility_captions" msgid="3411554568812306549">"Затворени титлови"</string>
+    <string name="accessibility_captions_description" msgid="3827820027578548160">"Поставки за затворени слоеви од титлови на видео"</string>
+    <string name="captions_display" msgid="2598662495450633375">"Приказ"</string>
+    <string name="captions_display_on" msgid="480438033345455728">"Вклучено"</string>
+    <string name="captions_display_off" msgid="87881163874948539">"Исклучено"</string>
+    <string name="display_options" msgid="2645282080948371603">"Опции за приказ"</string>
+    <string name="captions_configure" msgid="711991018642931958">"Конфигурирај"</string>
+    <string name="captions_language" msgid="5905918439449912646">"Јазик"</string>
+    <string name="captions_language_default" msgid="3894192926725192528">"Стандардно"</string>
+    <string name="captions_textsize" msgid="7161136610669343510">"Големина на текстот"</string>
+    <string name="captions_captionstyle" msgid="6650139717545516071">"Стил на затворени титлови"</string>
+    <string name="captions_customoptions" msgid="7691004663572161126">"Приспособени опции"</string>
+    <string name="captions_fontfamily" msgid="1026632786438880997">"Семејство фонтови"</string>
+    <string name="captions_textcolor" msgid="1566679779609140317">"Боја на текст"</string>
+    <string name="captions_edgetype" msgid="4875636291904824401">"Тип раб"</string>
+    <string name="captions_edgecolor" msgid="2779925179084237336">"Боја на раб"</string>
+    <string name="captions_backgroundshow" msgid="1080183686470477645">"Прикажи ја заднината"</string>
+    <string name="captions_backgroundcolor" msgid="2056944109914399253">"Боја на заднина"</string>
+    <string name="captions_backgroundopacity" msgid="1850126438162000027">"Непроѕирност на заднина"</string>
+    <string name="captioning_preview_text" msgid="3034147586392743237">"Титловите ќе изгледаат вака"</string>
+    <string name="captions_textopacity" msgid="6055602491649526307">"Непроѕирност на текст"</string>
+    <string name="captions_windowshow" msgid="6002072054703167886">"Прикажи го прозорецот"</string>
+    <string name="captions_windowcolor" msgid="7460430328878876648">"Боја на прозорец"</string>
+    <string name="captions_windowopacity" msgid="8645082670322789314">"Непроѕирност на прозорец"</string>
+    <string name="captions_style_0" msgid="169414884289770256">"Бело на црно"</string>
+    <string name="captions_style_1" msgid="8236052739817535538">"Црно на бело"</string>
+    <string name="captions_style_2" msgid="456353889540431910">"Жолто на црно"</string>
+    <string name="captions_style_3" msgid="3860050153620761166">"Жолто на сино"</string>
+    <string name="captions_style_custom" msgid="9062905566459387931">"Приспособено"</string>
+    <string name="color_white" msgid="4188877187457167678">"Бела"</string>
+    <string name="color_black" msgid="2631818627391955149">"Црна"</string>
+    <string name="color_red" msgid="1899020130465926495">"Црвена"</string>
+    <string name="color_green" msgid="7546929005626106667">"Зелена"</string>
+    <string name="color_blue" msgid="7681690245150985958">"Сина"</string>
+    <string name="color_cyan" msgid="3172130225116530998">"Зелено-сина"</string>
+    <string name="color_yellow" msgid="3519470952904560404">"Жолта"</string>
+    <string name="color_magenta" msgid="2377854703399624607">"Виолетова"</string>
+    <string name="accessibility_toggle_audio_description_preference_title" msgid="933923296129403548">"Звучен опис"</string>
+    <string name="accessibility_audio_description_summary" msgid="2027813223650517036">"Слушајте опис на она што се случува на екранот во поддржаните филмови и серии"</string>
+    <string name="system_accessibility_status" msgid="8504842254080682515">"Овозможи"</string>
+    <string name="system_accessibility_config" msgid="4820879735377962851">"Конфигурација"</string>
+    <string name="system_accessibility_service_on_confirm_title" msgid="4547924421106540376">"Употреби <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="system_accessibility_service_on_confirm_desc" msgid="5426217096813804569">"<xliff:g id="SERVICE">%1$s</xliff:g> ќе може да го чита вашиот екран, да прикажува содржини врз другите апликации, да ја следи вашата интеракција со апликациите или со хардверските сензори, како и да комуницира со апликациите наместо вас."</string>
+    <string name="system_accessibility_service_off_confirm_title" msgid="1110904358228641834">"Сопри <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="system_accessibility_service_off_confirm_desc" msgid="3486513644923267157">"Ако изберете „Во ред“, услугата „<xliff:g id="SERVICE">%1$s</xliff:g>“ ќе запре."</string>
+    <string name="system_accessibility_tts_output" msgid="3186078508203212288">"Од текст во говор"</string>
+    <string name="system_accessibility_tts_engine_config" msgid="4757760652785865532">"Конфигурација на двигателот за говор"</string>
+    <string name="system_speak_passwords" msgid="8556036524146404052">"Изговарај лозинки"</string>
+    <string name="system_preferred_engine" msgid="3545505072652708443">"Претпочитан софтвер"</string>
+    <string name="system_speech_rate" msgid="6553204071403872669">"Брзина на говорот"</string>
+    <string name="system_play_sample" msgid="3934369914309865584">"Пушти примерок"</string>
+    <string name="system_install_voice_data" msgid="8016395777968958673">"Инсталирај гласовни податоци"</string>
+    <string name="system_general" msgid="687760148454147771">"Општа"</string>
+    <string name="system_debugging" msgid="1576324426385458481">"Отстранување грешки"</string>
+    <string name="system_input" msgid="4457152980514604873">"Внесување"</string>
+    <string name="system_drawing" msgid="5802739024643871942">"Цртање"</string>
+    <string name="system_monitoring" msgid="7997260748312620855">"Следење"</string>
+    <string name="system_apps" msgid="8481888654606868074">"Апликации"</string>
+    <string name="system_stay_awake" msgid="5935117574414511413">"Остани во активен режим"</string>
+    <string name="keep_screen_on_summary" msgid="4680661166009970792">"Екранот никогаш нема да биде во режим во мирување"</string>
+    <string name="system_hdcp_checking" msgid="3757586362130048838">"Проверка со HDCP"</string>
+    <string name="system_hdmi_optimization" msgid="4122753440620724144">"HDMI оптимизација"</string>
+    <string name="system_reboot_confirm" msgid="7035370306447878560">"Рестартирај сега?"</string>
+    <string name="system_desc_reboot_confirm" msgid="1567738857421128179">"За да ја ажурирате оваа поставка, потребно е рестартирање на вашиот уред"</string>
+    <string name="system_never_check" msgid="2860070727606369055">"Никогаш не проверувај"</string>
+    <string name="system_check_for_drm_content_only" msgid="6667617772587997533">"Провери само DRM содржина"</string>
+    <string name="system_always_check" msgid="384870282800221580">"Секогаш проверувај"</string>
+    <string name="system_bt_hci_log" msgid="1891838112637932603">"Евиденција за Bluetooth HCI"</string>
+    <string name="system_email_address" msgid="3725494874473757217">"Адреса за е-пошта"</string>
+    <string name="system_usb_debugging" msgid="2158285492172755923">"Отстранување грешки преку USB"</string>
+    <string name="system_allow_mock_locations" msgid="2483106887711851466">"Овозможи лажни локации"</string>
+    <string name="system_select_debug_app" msgid="6200987902307533721">"Изберете апликација за отстранување грешки"</string>
+    <string name="system_wait_for_debugger" msgid="5715878008542589060">"Почекај ја програмата за отстранување грешки"</string>
+    <string name="system_verify_apps_over_usb" msgid="7289212844195483932">"Потврди апликации преку USB"</string>
+    <string name="system_desc_verify_apps_over_usb" msgid="7737988681480237094">"Провери апликации инсталирани преку ADB/ADT за штетно однесување"</string>
+    <string name="system_wifi_verbose_logging" msgid="3097788974146704831">"Вербално пријавување на Wi‑Fi"</string>
+    <string name="system_desc_wifi_verbose_logging" msgid="3537578245428327314">"Овозможи детално евидентирање за Wi-Fi"</string>
+    <string name="system_show_touches" msgid="8244331695139748286">"Прикажи допири"</string>
+    <string name="system_pointer_location" msgid="8724050865245555084">"Локација на покажувач"</string>
+    <string name="system_show_layout_bounds" msgid="8803080672553699649">"Прикажи граници на распоред"</string>
+    <string name="system_show_gpu_view_updates" msgid="1625918928089365222">"Прикажи ажурирање со GPU"</string>
+    <string name="system_show_hardware_layer" msgid="5833664339844452290">"Прикажи слој на хардвер"</string>
+    <string name="system_show_gpu_overdraw" msgid="5073007513540516704">"Прикажи GPU пречекорување"</string>
+    <string name="system_show_surface_updates" msgid="7680759813613585278">"Прикажи ажуририрања на површина"</string>
+    <string name="system_window_animation_scale" msgid="685477540250939659">"Брзина на анимации за прозорци"</string>
+    <string name="system_transition_animation_scale" msgid="7266380208347453619">"Брзина на преодни анимации"</string>
+    <string name="system_animator_duration_scale" msgid="3829445237130423625">"Брзина на општи анимации"</string>
+    <string name="system_strict_mode_enabled" msgid="7392183793064579588">"Овозможен е строг режим"</string>
+    <string name="system_profile_gpu_rendering" msgid="1113416260742329348">"Прикажување профил на GPU"</string>
+    <string name="system_enable_traces" msgid="108745519968154528">"Овозможи траги"</string>
+    <string name="system_dont_keep_activities" msgid="4641165963339846161">"Не чувај активности"</string>
+    <string name="system_background_process_limit" msgid="1985373407150771045">"Граница на процес во заднина"</string>
+    <string name="system_show_all_anrs" msgid="5353216640638263217">"Прикажи ги сите ANR"</string>
+    <string name="system_desc_stay_awake" msgid="8485868071929937500">"Оневозможи режим на штедење"</string>
+    <string name="system_desc_hdcp_checking" msgid="1664068008848077241">"Користи само за DRM содржина"</string>
+    <string name="system_desc_hdmi_optimization" msgid="5695603795556335912">"Оптимизирај го екранот за максимална резолуција или максимална брзина на приказ на кадри. Ова влијае само врз Ултра HD-екрани. Менувањето на оваа поставка ќе предизвика рестартирање на вашиот уред."</string>
+    <string name="system_desc_bt_hci_log" msgid="2592649923221658103">"Овозможи евиденција за Bluetooth HCI"</string>
+    <string name="system_desc_usb_debugging" msgid="5672275208185222785">"Режим за отстранување грешки кога е поврзано USB"</string>
+    <string name="system_desc_wait_for_debugger" msgid="7213496668606417691">"Пред да се изврши, апликацијата во која се отстрануваат грешки чека да се закачи програмата за отстранување грешки"</string>
+    <string name="system_desc_show_layout_bounds" msgid="5275008598296135852">"Прикажувај граници на исечок, маргини итн."</string>
+    <string name="system_desc_show_gpu_view_updates" msgid="9088343415389734854">"Осветли прегледи во прозорците при цртање со GPU"</string>
+    <string name="system_desc_show_hardware_layer" msgid="3483713991865249527">"Осветлувај ги хардверските слоеви со зелено кога се ажурираат"</string>
+    <string name="system_desc_show_gpu_overdraw" msgid="74019834911598588">"Од најдобро кон најлошо: сино, зелено, светло црвено, црвено"</string>
+    <string name="system_desc_show_surface_updates" msgid="4018685547515133353">"Осветли површини на прозорци при нивно ажурирање"</string>
+    <string name="system_desc_strict_mode_enabled" msgid="1974896408481676324">"Осветли екран при долги операции на главна нишка"</string>
+    <string name="system_desc_profile_gpu_rendering" msgid="1594070211030991">"Мерка прикажување на време во adb shell dumpsys gfxinfo"</string>
+    <string name="security_unknown_sources_title" msgid="2012801664240314305">"Непознати извори"</string>
+    <string name="security_unknown_sources_desc" msgid="7196715598352173267">"Дозволи инсталација на апликации од други извори освен Play Store"</string>
+    <string name="security_unknown_sources_confirm_title" msgid="4600896691987804985">"Дозволете непознати извори"</string>
+    <string name="security_unknown_sources_confirm_desc" msgid="7883820068140189584">"Вашиот уред и лични податоци се поизложени на напади од апликации од непознати извори. Се согласувате дека единствено вие сте одговорни за каква било штета на уредот или загуба на податоци поради користењето на овие апликации."</string>
+    <string name="system_hdcp_checking_never" msgid="3251512398865365135">"Никогаш"</string>
+    <string name="system_hdcp_checking_drm" msgid="2159124883496899278">"За DRM-содржина"</string>
+    <string name="system_hdcp_checking_always" msgid="5868177105455148262">"Секогаш"</string>
+    <string name="system_hdmi_optimization_best_resolution" msgid="4916028940107998097">"Најдобра резолуција"</string>
+    <string name="system_hdmi_optimization_best_framerate" msgid="3778579148517609370">"Најдобра брзина на приказ на кадри"</string>
+    <string name="system_hw_overdraw_off" msgid="6637679040053936280">"Исклучено"</string>
+    <string name="system_hw_overdraw_areas" msgid="6442009722913530348">"Прикажи пречекорени делови"</string>
+    <string name="system_hw_overdraw_counter" msgid="9132113146364838852">"Прикажи бројач за пречекорување"</string>
+    <string name="no_application" msgid="1904437693440706534">"Ништо"</string>
+    <string name="enable_opengl_traces_none" msgid="4718084947494592040">"Нема"</string>
+  <string-array name="animation_scale_entries">
+    <item msgid="5408992662476056082">"Анимацијата е исклучена"</item>
+    <item msgid="6818290063799857019">"Брзина на анимации 0,5x"</item>
+    <item msgid="8257959452691080724">"Брзина на анимации 1x"</item>
+    <item msgid="4781052272686018414">"Брзина на анимации 1,5x"</item>
+    <item msgid="2272016945160227610">"Брзина на анимации 2x"</item>
+    <item msgid="5015441793276576312">"Брзина на анимации 5x"</item>
+    <item msgid="1290233583371556415">"Брзина на анимации 10x"</item>
+  </string-array>
+    <string name="track_frame_time_off" msgid="8845064783618702239">"Исклучено"</string>
+    <string name="track_frame_time_bars" msgid="5841531515222229632">"На екранот како цртички"</string>
+    <string name="app_process_limit_standard" msgid="6069948528843313888">"Стандардна граница"</string>
+    <string name="app_process_limit_zero" msgid="4094665021909774994">"Нема процеси во заднина"</string>
+    <string name="app_process_limit_one" msgid="4509089015775863726">"Најмногу 1 процес"</string>
+    <string name="app_process_limit_two" msgid="368216781690488529">"Најмногу 2 процеса"</string>
+    <string name="app_process_limit_three" msgid="2191860654645796987">"Најмногу 3 процеси"</string>
+    <string name="app_process_limit_four" msgid="9186705437061005461">"Најмногу 4 процеси"</string>
+    <string name="tts_rate_very_slow" msgid="1927454053669655117">"Многу бавно"</string>
+    <string name="tts_rate_slow" msgid="7668484707347561166">"Бавно"</string>
+    <string name="tts_rate_normal" msgid="3631458247079252628">"Нормално"</string>
+    <string name="tts_rate_fast" msgid="5723868816257531421">"Брзо"</string>
+    <string name="tts_rate_very_fast" msgid="7756663146626103952">"Многу брзо"</string>
+    <string name="title_settings" msgid="780933693363320088">"Поставки за <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="title_current_keyboard" msgid="891238509164879851">"Тековна тастатура"</string>
+    <string name="title_configure" msgid="846802387014612210">"Конфигурирај"</string>
+    <string name="desc_configure_keyboard" msgid="3474279140150468141">"Опции за тастатура"</string>
+    <string name="title_current_autofill_service" msgid="9029001041887283153">"Моментална услуга за автоматско пополнување"</string>
+    <string name="title_select_autofill_service" msgid="696559582725756848">"Изберете услуга за автоматско пополнување"</string>
+    <string name="autofill_none" msgid="1615056985649424207">"Нема"</string>
+    <string name="autofill_confirmation_message" msgid="3840267789160192558">"&lt;b&gt;Проверете дали е ова апликација на која ѝ верувате&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=„Услуга за лозинка“&gt;%1$s&lt;/xliff:g&gt; го користи она што е на екранот за да утврди што може автоматски да се пополни."</string>
+    <string name="computing_size" msgid="8623916230485437579">"Пресметување…"</string>
+    <string name="title_select_wifi_network" msgid="935820896444071617">"Изберете ја вашата Wi-Fi мрежа"</string>
+    <string name="accessories_wifi_display_rename_device" msgid="8803397194143132061">"Преименувај"</string>
+    <string name="accessories_wifi_display_enable" msgid="2385467074170316302">"Прикажи Wi-Fi"</string>
+    <string name="accessories_wifi_display_pin_required" msgid="5434960694140426664">"Потребен е PIN"</string>
+    <string name="whichApplication" msgid="4510042089342879264">"Активирај со"</string>
+    <string name="alwaysUseQuestion" msgid="2643084054296937138">"Секогаш да се користи оваа опција за ова дејство?"</string>
+    <string name="alwaysUseOption" msgid="8799609235198714441">"Секогаш користи"</string>
+    <string name="justOnceOption" msgid="6714005843102804865">"Само еднаш"</string>
+    <string name="noApplications" msgid="7511175717026318399">"Нема апликации што можат да го извршат дејството."</string>
+    <string name="noAppsGoBack" msgid="2538480554615467065">"Назад"</string>
+    <string name="inputs_inputs" msgid="8639408473661259307">"Влезови"</string>
+    <string name="inputs_header_cec" msgid="4139015942980115323">"Контрола на електроника (CEC)"</string>
+    <string name="inputs_cec_settings" msgid="5948357769198260080">"Поставки за контрола на уред"</string>
+    <string name="inputs_blu_ray" msgid="6561004081102615775">"Blu-ray"</string>
+    <string name="inputs_cable" msgid="8274665772422377063">"Кабел"</string>
+    <string name="inputs_dvd" msgid="1452146927899250552">"ДВД"</string>
+    <string name="inputs_game" msgid="4762255172943107070">"Играчка конзола"</string>
+    <string name="inputs_aux" msgid="5331442342029867329">"Aux"</string>
+    <string name="inputs_custom_name" msgid="2649826613531559538">"Приспособено име"</string>
+    <string name="inputs_custom_name_description_fmt" msgid="2879134265596928298">"Внесете име за влезот <xliff:g id="INPUT">%1$s</xliff:g>."</string>
+    <string name="inputs_hide" msgid="9223355763198742416">"Скриј"</string>
+    <string name="inputs_show" msgid="2937435050499142756">"Прикажи го овој влез"</string>
+    <string name="input_header_names" msgid="5903234218909970550">"Име"</string>
+    <string name="inputs_hdmi_control" msgid="650355636965841054">"Контрола на HDMI"</string>
+    <string name="inputs_hdmi_control_desc" msgid="306769914209526682">"Дозволете телевизорот да контролира уреди за HDMI"</string>
+    <string name="inputs_device_auto_off" msgid="2659766884754402352">"Автоматско исклучување уред"</string>
+    <string name="inputs_device_auto_off_desc" msgid="1164897242719608201">"Исклучете ги уредите за HDMI со телевизорот"</string>
+    <string name="inputs_tv_auto_on" msgid="544848340484583318">"Автоматско вклучување ТВ"</string>
+    <string name="inputs_tv_auto_on_desc" msgid="3640723210479925817">"Вклучете го телевизорот со уредот за HDMI"</string>
+    <string name="inputs_header_connected_input" msgid="4323324944548164849">"{count,plural, =1{Поврзан влез}one{Поврзани влезови}other{Поврзани влезови}}"</string>
+    <string name="inputs_header_standby_input" msgid="600117963181008144">"{count,plural, =1{Влез за режим на подготвеност}one{Влезови за режим на подготвеност}other{Влезови за режим на подготвеност}}"</string>
+    <string name="inputs_header_disconnected_input" msgid="3852361100151289264">"{count,plural, =1{Неповрзан влез}one{Неповрзани влезови}other{Неповрзани влезови}}"</string>
+    <string name="user_add_profile_item_summary" msgid="3211866291940617804">"Ограничете го пристапот до апликациите и другата содржина во вашата сметка"</string>
+    <string name="user_new_profile_name" msgid="6637593067318708353">"Ограничен профил"</string>
+    <string name="user_restrictions_controlled_by" msgid="8124926446168030445">"Контролирани од <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="app_not_supported_in_limited" msgid="4046604594925826955">"Оваа апликација не е поддржана во ограничени профили"</string>
+    <string name="app_sees_restricted_accounts" msgid="174038126799649152">"Оваа апликација може да пристапи кон вашите сметки"</string>
+    <string name="restriction_location_enable_title" msgid="2552780806199464266">"Локација"</string>
+    <string name="restriction_location_enable_summary" msgid="3719330231217994482">"Дозволете апликациите да ги користат информациите за вашата локација"</string>
+    <string name="restricted_profile_switch_to" msgid="6193201935877168764">"Влези во ограничениот профил"</string>
+    <string name="restricted_profile_switch_out" msgid="3589381233390753413">"Излези од ограничениот профил"</string>
+    <string name="restricted_profile_delete_title" msgid="7153982195273379506">"Избриши го ограничениот профил"</string>
+    <string name="restricted_profile_create_title" msgid="700322590579894058">"Создадете ограничен профил"</string>
+    <string name="restricted_profile_configure_title" msgid="3327502517511010296">"Поставки"</string>
+    <string name="restricted_profile_configure_apps_title" msgid="2244201859522056827">"Дозволени апликации"</string>
+    <string name="restricted_profile_allowed" msgid="970921490464867884">"Дозволено"</string>
+    <string name="restricted_profile_not_allowed" msgid="8184983064118036268">"Не е дозволено"</string>
+    <string name="restricted_profile_customize_restrictions" msgid="4723577877385636704">"Приспособи ограничувања"</string>
+    <string name="restricted_profile_configure_apps_description_loading" msgid="3293508876131962699">"Само момент…"</string>
+    <string name="restricted_profile_change_password_title" msgid="6961384850606763601">"Промени PIN"</string>
+    <string name="restricted_profile_create_preference_screen" msgid="3263536648469645089">"Да создадеме ограничен профил?"</string>
+    <string name="restricted_profile_already_created_placeholder" msgid="8619544048199836920">"Веќе создадено"</string>
+    <string name="restricted_profile_skip_action" msgid="4674562040162193593">"Прескокнете"</string>
+    <string name="restricted_profile_create_pin_action" msgid="1883036507880250231">"Создајте PIN"</string>
+    <string name="restricted_profile_enter_preference_screen" msgid="676246260867597333">"Да се влезе во огран. профил?"</string>
+    <string name="restricted_profile_enter_not_found_placeholder" msgid="2270969471829375976">"Нема ограничен профил"</string>
+    <string name="restricted_profile_enter_already_entered_placeholder" msgid="6178278708529027598">"Веќе внесено"</string>
+    <string name="restriction_description" msgid="2053112392083722259">"<xliff:g id="DESCRIPTION">%1$s</xliff:g>\n<xliff:g id="VALUE">%2$s</xliff:g>"</string>
+    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="1261056180558324892">"Оваа апликација може да пристапува до вашите сметки. Контролирано од <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="pin_enter_unlock_channel" msgid="243855138978654080">"Внесете PIN за да го гледате овој канал"</string>
+    <string name="pin_enter_unlock_program" msgid="275489015420025531">"Внесете PIN за да ја гледате оваа програма"</string>
+    <string name="pin_enter_pin" msgid="5020029261153234751">"Внесете PIN"</string>
+    <string name="pin_enter_new_pin" msgid="1930944619313642621">"Поставете нов PIN"</string>
+    <string name="pin_enter_again" msgid="7615050143778858658">"Повторно внесете го новиот PIN"</string>
+    <string name="pin_enter_old_pin" msgid="5665265735227617942">"Внесете го стариот PIN"</string>
+    <string name="pin_enter_wrong_seconds" msgid="3014013615537066237">"Внесовте погрешен PIN 5 пати.\nОбидете се повторно по <xliff:g id="RELATIVE_TIME_SPAN">%1$d</xliff:g> секунди."</string>
+    <string name="pin_toast_wrong" msgid="4297542365877164402">"Погрешен PIN, обидете се повторно"</string>
+    <string name="pin_toast_not_match" msgid="2439298696342975155">"Обидете се повторно, PIN-кодот не се совпаѓа"</string>
+    <string name="wifi_setup_input_password" msgid="8510003548463241234">"Внесете лозинка за <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_setup_description" msgid="6843574399437584520">"Изберете <xliff:g id="WIFI_SUBMIT_ICON">%1$s</xliff:g> за да продолжите."</string>
+    <string name="label_done_key" msgid="8576286462300373440">"Готово"</string>
+    <string name="wifi_setup_connection_success" msgid="3301901673876973474">"Успешно поврзано"</string>
+    <string name="wifi_setup_save_success" msgid="6862510218032734919">"Успешно зачувано"</string>
+    <string name="device_apps_app_management_version" msgid="2119174719194899740">"Верзија <xliff:g id="APP_VERSION">%1$s</xliff:g>"</string>
+    <string name="device_apps_app_management_open" msgid="4249743535677261897">"Отвори"</string>
+    <string name="device_apps_app_management_force_stop" msgid="4454221309989640309">"Исклучи присилно"</string>
+    <string name="device_apps_app_management_force_stop_desc" msgid="1980972142863114899">"Ако присилно запрете апликација, може да не се однесува правилно."</string>
+    <string name="device_apps_app_management_uninstall" msgid="4171103696233332967">"Деинсталирај"</string>
+    <string name="device_apps_app_management_uninstall_updates" msgid="5647988075828648951">"Деинсталирај ажурирања"</string>
+    <string name="device_apps_app_management_uninstall_updates_desc" msgid="4508586498292236706">"Сите ажурирања на оваа системска апликација на Android ќе се деинсталираат."</string>
+    <string name="device_apps_app_management_disable" msgid="819003297535493633">"Оневозможи"</string>
+    <string name="device_apps_app_management_disable_desc" msgid="9143166267511427607">"Дали сакате да ја оневозможите апликацијата?"</string>
+    <string name="device_apps_app_management_enable" msgid="9173340340253029114">"Овозможи"</string>
+    <string name="device_apps_app_management_enable_desc" msgid="8686291003061136476">"Дали сакате да ја овозможите апликацијата?"</string>
+    <string name="device_apps_app_management_storage_used" msgid="6725789557993296433">"Искористен простор"</string>
+    <string name="device_apps_app_management_storage_used_desc" msgid="8928632612101487179">"<xliff:g id="SIZE">%1$s</xliff:g> искористено на <xliff:g id="VOLUME">%2$s</xliff:g>"</string>
+    <string name="device_apps_app_management_clear_data" msgid="7305471678286735600">"Избриши податоци"</string>
+    <string name="device_apps_app_management_clear_data_desc" msgid="170972356946852847">"Сите податоци на оваа апликација ќе бидат трајно избришани.\nОва ги опфаќа сите датотеки, поставки, сметки, бази на податоци итн."</string>
+    <string name="device_apps_app_management_clear_default" msgid="4566187319647111484">"Избриши стандардни вредности"</string>
+    <string name="device_apps_app_management_clear_default_set" msgid="1649974109123107390">"Поставете апликацијата да се стартува за некои дејства."</string>
+    <string name="device_apps_app_management_clear_default_none" msgid="5935252537185381597">"Нема поставено стандардни вредности"</string>
+    <string name="device_apps_app_management_clear_cache" msgid="2678301483598915479">"Избриши кеш"</string>
+    <string name="device_apps_app_management_notifications" msgid="1687529279264810317">"Известувања"</string>
+    <string name="device_apps_app_management_licenses" msgid="4809737266551899869">"Извор од трета страна"</string>
+    <string name="device_apps_app_management_permissions" msgid="4951820230491375037">"Дозволи"</string>
+    <string name="device_apps_app_management_not_available" msgid="4198634078194500518">"Апликацијата е недостапна"</string>
+    <string name="unused_apps" msgid="5539166745483454543">"Некористени апликации"</string>
+    <string name="settings_ok" msgid="5950888975075541964">"Во ред"</string>
+    <string name="settings_confirm" msgid="4489126458677153411">"Потврди"</string>
+    <string name="settings_cancel" msgid="576094334743686152">"Откажи"</string>
+    <string name="settings_on" msgid="7734010120323404333">"Вклучено"</string>
+    <string name="settings_off" msgid="4060451657850476369">"Исклучено"</string>
+    <string name="device_daydreams_none" msgid="3405655350757277348">"Исклучи го екранот"</string>
+    <string name="device_daydreams_select" msgid="7203264446482623438">"Штедач на екран"</string>
+    <string name="device_daydreams_test" msgid="7828275397550076567">"Започни сега"</string>
+    <string name="device_daydreams_sleep" msgid="6847770718407377357">"Кога да започне"</string>
+    <string name="device_daydreams_sleep_description" msgid="6237610484915504587">"Штедачот на екран започнува по овој период на неактивност. Ако не е избран штедач на екран, екранот се исклучува."</string>
+    <string name="device_daydreams_sleep_summary" msgid="3081688734381995693">"По <xliff:g id="SLEEP_DESCRIPTION">%1$s</xliff:g> неактивност"</string>
+    <string name="device_energy_saver_screen_off" msgid="6908468996426629480">"Исклучи го екранот"</string>
+    <!-- no translation found for device_energy_saver_timeout_description (3206609135199137514) -->
+    <skip />
+    <string name="device_energy_saver_confirmation_title" msgid="7614859812773584773">"Потврдете ја поставката за напојување и енергија"</string>
+    <string name="device_energy_saver_confirmation_message" msgid="7789453187001013951">"Ако го оставите телевизорот вклучен долг временски перио, може да се зголеми користењето енергија"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_title" msgid="1468097048101593731">"Оневозможете ја поставката за заштеда на енергија"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_text" msgid="6334963903866002164">"Потврдете за да не се исклучува екранот додека гледате, но така се зголемува потрошувачката на енергија."</string>
+    <string name="device_energy_saver_sleep_timeout" msgid="1841900768718452039">"Кога е неактивно"</string>
+    <string name="device_energy_saver_attentive_timeout" msgid="3649486668821348087">"Кога се гледа"</string>
+    <string name="device_energy_saver_category_title" msgid="170076161677525986">"Автоматско исклучување"</string>
+    <string name="device_energy_saver_sleep_timeout_dialog_title" msgid="6588352532253294558">"Автоматско исклучување кога уредот е неактивен"</string>
+    <string name="device_energy_saver_attentive_timeout_dialog_title" msgid="3273988875711109352">"Автоматско исклучување при гледањето"</string>
+    <string name="device_energy_saver_validation_sleep" msgid="7490897287741107840">"Тајмерот „Кога е неактивно“ мора да биде подолг од тајмерот „Кога се гледа“"</string>
+    <string name="device_energy_saver_validation_attentive" msgid="1461105528087097435">"Тајмерот „Кога се гледа“ мора да биде подолг од тајмерот „Кога е неактивно“"</string>
+    <string name="limit_network_in_standby_toggle_title" msgid="6587185599397355336">"Ограничена мрежна врска во режим на подготвеност"</string>
+    <string name="limit_network_in_standby_toggle_summary" msgid="9127792748675581174">"Користи помалку струја во режим на подготвеност."</string>
+    <string name="limit_network_in_standby_toggle_info" msgid="566947772381093991">"Телевизорот ќе биде исклучен од мрежата додека е во режим на подготвеност, освен за да прима автоматски ажурирања. Ова може да ја намали потрошувачката на струја на телевизорот, но значи и дека нема да може да ги користите функциите, како Cast и „Помошник на Google“ во режимот на подготвеност."</string>
+    <string name="limit_network_in_standby_confirm_title" msgid="789232987058850322">"Дозволете мрежна врска во режим на подготвеност"</string>
+    <string name="limit_network_in_standby_confirm_message" msgid="7176699480768019689">"Ако дозволите мрежна врска во режим на подготвеност, ќе се зголеми потрошувачката на струја во режимот на подготвеност."</string>
+    <string name="backup_configure_account_default_summary" msgid="2170733614341544296">"Во моментов нема сметка за складирање резервни копии на податоци"</string>
+    <string name="backup_erase_dialog_title" msgid="6008454053276987100"></string>
+    <string name="backup_erase_dialog_message" msgid="222169533402624861">"Да се престане со создавање резервни копии на вашите лозинки на Wi-Fi, обележувачи, други поставки и податоци за апликацијата и да се избришат сите копии на серверите на Google?"</string>
+    <string name="privacy_backup_data" msgid="3604057980102997914">"Создај резервна копија на моите податоци"</string>
+    <string name="privacy_backup_account" msgid="4527813051841860610">"Сметка за бекап"</string>
+    <string name="privacy_automatic_restore" msgid="7117805818589418118">"Обнови автоматски"</string>
+    <string name="factory_reset_device" msgid="6509900821515094361">"Ресетирај уред"</string>
+    <string name="factory_reset_description" msgid="6697396335158766785">"Ова ќе го врати уредот на стандардните поставки и ќе ги избрише сите податоци, сметки, датотеки и преземени апликации."</string>
+    <string name="factory_reset_info_description" msgid="5098454670833183487">"Ова ќе го врати уредот на стандардните поставки и ќе ги избрише сите податоци, сметки, датотеки и преземени апликации."</string>
+    <string name="factory_reset_content_description" msgid="1677022688420116803">"Ресетирање на фабричките поставки, ова ќе го врати уредот на стандардните поставки и ќе ги избрише сите податоци, сметки, датотеки и преземени апликации."</string>
+    <string name="confirm_factory_reset_description" msgid="1337483463207721713">"Да се избришат сите лични податоци и преземени апликации на уредов? Не може да се врати ова дејство!"</string>
+    <string name="confirm_factory_reset_device" msgid="4308646529880718465">"Избриши сè"</string>
+    <string name="select_device_name_title" msgid="3045019448327493634">"Изберете име за вашиот <xliff:g id="DEVICEMODEL">%1$s</xliff:g>"</string>
+    <string name="select_device_name_description" msgid="8528185095614986580">"Дајте му име на уредот за полесна идентификација при емитување или поврзување со него од други уреди."</string>
+  <string-array name="rooms">
+    <item msgid="6590829789532602097">"Android TV"</item>
+    <item msgid="1140506340411482365">"ТВ во дневна соба"</item>
+    <item msgid="6448060889026244632">"ТВ во семејна соба"</item>
+    <item msgid="3336274213215419228">"ТВ во спална соба"</item>
+  </string-array>
+    <string name="custom_room" msgid="6798144004583173563">"Внесете приспособено име…"</string>
+    <string name="device_rename_title" msgid="9070021379000499270">"Преименувај го овој <xliff:g id="DEVICEMODEL">%1$s</xliff:g>"</string>
+    <string name="device_rename_description" msgid="1973894029492915135">"Овој <xliff:g id="DEVICEMODEL">%1$s</xliff:g> моментално се вика „<xliff:g id="DEVICENAME">%2$s</xliff:g>“"</string>
+    <string name="device_name_suggestion_title" msgid="3986220212759193742">"Поставете го името на вашиот уред"</string>
+    <string name="device_name_suggestion_summary" msgid="4582691399302362938">"Користете го имево кога емитувате фотографии, видеа и друго од телефонот"</string>
+    <string name="change_setting" msgid="7211706374208138343">"Промени"</string>
+    <string name="keep_settings" msgid="703474489210093961">"Не променувај"</string>
+    <string name="apps_permissions" msgid="7876407267050498394">"Дозволи"</string>
+    <string name="device_apps_permissions" msgid="8421323706003063878">"Дозволи за апликации"</string>
+    <string name="app_permissions_group_summary" msgid="6818210080117761117">"Апликации со дозвола: <xliff:g id="COUNT_0">%1$d</xliff:g> од <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
+    <string name="bluetooth_permission_request" msgid="7788089036741496993">"Барање за дозвола на Bluetooth"</string>
+    <string name="security_patch" msgid="8924741264829495392">"Ниво на безбедносна лепенка на OS на Android TV"</string>
+    <string name="choose_application" msgid="2375936782103669988">"Изберете ја апликацијата"</string>
+    <string name="experimental_preference" msgid="3982593252210557436">"(Експериментално)"</string>
+    <string name="reboot_safemode_action" msgid="2862127510492131128">"Рестартирај во безбеден режим"</string>
+    <string name="reboot_safemode_confirm" msgid="5745977150299953603">"Дали сакате да рестартирате во безбеден режим?"</string>
+    <string name="reboot_safemode_desc" msgid="2919933461408942799">"Ова ќе ги оневозможи сите апликации од трета страна што сте ги инсталирале. Тие ќе се вратат кога повторно ќе рестартирате."</string>
+    <string name="capturing_bugreport" msgid="832512801903486821">"Се снима извештај за грешка"</string>
+    <string name="available_virtual_keyboard_category" msgid="7445262027711560629">"Достапни виртуелни тастатури"</string>
+    <string name="manage_keyboards" msgid="7983890675377321912">"Управување со тастатури"</string>
+    <string name="app_permission_summary_allowed" msgid="5359622119044147500">"Со дозвола"</string>
+    <string name="app_permission_summary_not_allowed" msgid="5131611341738385303">"Без дозвола"</string>
+    <string name="usage_access" msgid="8402350645248312782">"Пристап до подат. за користење"</string>
+    <string name="usage_access_description" msgid="3276026988575551587">"Пристапот до податоци за користењето овозможува апликацијата да следи кои други апликации ги користите и колку често, како и операторот, поставките за јазик и други детали."</string>
+    <string name="high_power_apps" msgid="5841073958519976562">"Оптимизација на енергијата"</string>
+    <string name="high_power_apps_description" msgid="8651692364795060525">"Оптимизирајте ја употребата на енергија на апликациите"</string>
+    <string name="high_power_apps_empty" msgid="3084512758421482051">"Нема апликации што треба да се оптимизираат"</string>
+    <string name="high_power_on" msgid="3120162683093360951">"Не е оптимизирано"</string>
+    <string name="high_power_off" msgid="3588854600942236231">"Оптимизирање на употребата на енергија"</string>
+    <string name="high_power_system" msgid="6263052626979462255">"Оптимизацијата на енергија не е достапна"</string>
+    <string name="manage_notification_access_title" msgid="8659254371564990084">"Пристап до известувањата"</string>
+    <string name="no_notification_listeners" msgid="5119406452675724448">"Ниедна од инсталираните апликации не побара пристап до известувањата."</string>
+    <string name="notification_listener_security_warning_summary" msgid="8602907284276088658">"Апликацииве ќе може да ги читаат сите известувања, заедно со личните податоци како што се имиња на контакти и текстот од пораките што ги добивате. Ќе може и да отфрлаат известувања или да активираат копчиња за дејство во нив."</string>
+    <string name="default_notification_access_package_summary" msgid="1354775994781420222">"Потребно за системот"</string>
+    <string name="directory_access" msgid="7338555825237012006">"Пристап до адресарот"</string>
+    <string name="directory_access_description" msgid="3630855858552422012">"Овие апликации имаат дозвола за пристап до одредени адресари."</string>
+    <string name="directory_on_volume" msgid="5628089584970521703">"<xliff:g id="VOLUME">%1$s</xliff:g> (<xliff:g id="DIRECTORY">%2$s</xliff:g>)"</string>
+    <string name="system_alert_window_settings" msgid="5790572489650085051">"Прикажување врз други апликации"</string>
+    <string name="permit_draw_overlay" msgid="5312730681030266735">"Дозволи приказ врз други апликации"</string>
+    <string name="allow_overlay_description" msgid="5152329837278240259">"Дозволете ѝ на апликација да се прикажува врз другите апликации што ги користите. Тоа може да го попречи користењето на другите апликации или да го промени начинот на кој се појавуваат или однесуваат."</string>
+    <string name="write_system_settings" msgid="4284654265954461890">"Менување системски поставки"</string>
+    <string name="write_settings_title" msgid="2361816483383105754">"Може да ги менува поставките на системот"</string>
+    <string name="write_settings_description" msgid="7382397926674265937">"Оваа дозвола овозможува апликацијата да ги менува поставките на системот."</string>
+    <string name="write_settings_on" msgid="71675710746513956">"Да"</string>
+    <string name="write_settings_off" msgid="6730113471695092167">"Не"</string>
+    <string name="manage_external_storage_title" msgid="8139593207533811077">"Пристап до сите датотеки"</string>
+    <string name="permit_manage_external_storage" msgid="1776899171934627417">"Дозволи пристап за управување со датотеки"</string>
+    <string name="allow_manage_external_storage_description" msgid="4288250228151617611">"Дозволете апликацијава да ги чита, менува и брише сите датотеки на уредов или на поврзаните мемориски уреди. Ако се дозволи, апликацијата може да пристапува до датотеките без ваше изречно знаење."</string>
+    <string name="picture_in_picture_title" msgid="2636935591386702348">"Слика во слика"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="3688997906817583854">"Дозволи слика во слика"</string>
+    <string name="picture_in_picture_empty_text" msgid="4370198922852736600">"Ниту една од инсталираните апликации не поддржува слика во слика"</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="3296649114939705896">"Дозволете апликациите да создаваат прозорец за слика во слика додека апликацијата е отворена или пак, откако ќе ја напуштите (на пр., за да продолжите со гледање видео). Прозорецов се прикажува врз другите апликации што ги користите."</string>
+    <string name="alarms_and_reminders_description" msgid="4063972350154624500">"Дозволете им на апликаците да поставуваат аларми и да закажуваат дејства со временски рокови. Ова овозможува апликациите да работат во заднина и така може повеќе да ја трошат батеријата.\n\nАко дозволава е исклучена, нема да функционираат постојните аларми и настаните според време закажани од апликацијата."</string>
+    <string name="turn_screen_on_title" msgid="5293798529284629011">"Вклучи го екранот"</string>
+    <string name="allow_turn_screen_on" msgid="4903401106871656521">"Дозволи вклучување на екранот"</string>
+    <string name="allow_turn_screen_on_description" msgid="7521761625343889415">"Дозволете апликација да го вклучи екранот. Ако дозволите, апликацијата може да го вклучи екранот во секое време без ваша намера."</string>
+    <string name="special_access" msgid="21806055758289916">"Посебен пристап за апликации"</string>
+    <string name="string_concat" msgid="5213870180216051497">"<xliff:g id="PART1">%1$s</xliff:g>, <xliff:g id="PART2">%2$s</xliff:g>"</string>
+    <string name="audio_category" msgid="6143623109624947993">"Аудио"</string>
+    <string name="record_audio" msgid="5035689290259575229">"Снимајте аудио"</string>
+    <string name="record_audio_summary_on" msgid="8724494646461335090">"Оневозможи да се сопре снимањето аудио"</string>
+    <string name="record_audio_summary_off" msgid="1392440365091422816">"Овозможи веднаш да започне снимањето аудио"</string>
+    <string name="play_recorded_audio_title" msgid="4627717067151602729">"Пуштете го снименото аудио"</string>
+    <string name="save_recorded_audio_title" msgid="378003351782124651">"Зачувајте го снименото аудио"</string>
+    <string name="time_to_start_read_title" msgid="6565449163802837806">"Време за започнување со читање"</string>
+    <string name="time_to_valid_audio_title" msgid="7246101824813414348">"Време за проверка на аудиоподатоците"</string>
+    <string name="empty_audio_duration_title" msgid="9024377320171450683">"Времетраење на празно аудио"</string>
+    <string name="record_audio_source_title" msgid="9087784503276397929">"Снимен аудиоизвор"</string>
+    <string name="record_audio_source_dialog_title" msgid="6556408220589197097">"Изберете го снимениот аудиоизвор за следната снимка"</string>
+    <string name="recorded_microphones_title" msgid="5466988146086215426">"Снимени микрофони"</string>
+    <string name="show_audio_recording_start_failed" msgid="9131762831381326605">"Аудиоснимањето не успеа да се стартува."</string>
+    <string name="show_audio_recording_failed" msgid="8128216664039868681">"Аудиоснимањето не успеа."</string>
+    <string name="bluetooth_ask_discovery_title" msgid="4955540555242269694">"Да се направи видлив за другите уреди со Bluetooth?"</string>
+    <string name="bluetooth_ask_discovery_message" msgid="8609666862877703398">"Апликација сака да го направи телевизорот видлив за другите уреди со Bluetooth во траење од <xliff:g id="TIMEOUT">%1$d</xliff:g> секунди."</string>
+    <string name="help_center_title" msgid="6109822142761302433"></string>
+    <string name="disabled_by_policy_title" msgid="2220484346213756472">"Дејството не е дозволено"</string>
+    <string name="disabled_by_policy_title_adjust_volume" msgid="4229779946666263271">"Јачината на звукот не може да се смени"</string>
+    <string name="disabled_by_policy_title_outgoing_calls" msgid="8642280178608881544">"Повикувањето не е дозволено"</string>
+    <string name="disabled_by_policy_title_sms" msgid="5721045390560951358">"SMS-порака не е дозволена"</string>
+    <string name="disabled_by_policy_title_camera" msgid="6576557964422257426">"Камерата не е дозволена"</string>
+    <string name="disabled_by_policy_title_screen_capture" msgid="5774035841010091253">"Слика од екранот не е дозволена"</string>
+    <string name="disabled_by_policy_title_suspend_packages" msgid="6500185610058872758">"Апликацијава не може да се отвори"</string>
+    <string name="default_admin_support_msg" msgid="7913455019068370350">"Ако имате прашања, контактирајте со вашиот администратор"</string>
+    <string name="admin_support_more_info" msgid="9053232166115098434">"Повеќе детали"</string>
+    <string name="admin_profile_owner_message" msgid="5729169873349157622">"Администраторот може да ги следи и да управува со апликациите и податоците поврзани со вашиот работен профил, заедно со поставките, дозволите, корпоративниот пристап, мрежната активност и информациите за локацијата на уредот."</string>
+    <string name="admin_profile_owner_user_message" msgid="6431405126322617268">"Администраторот може да ги следи и да управува со апликациите и податоците поврзани со корисников, заедно со поставките, дозволите, корпоративниот пристап, мрежната активност и информациите за локацијата на уредот."</string>
+    <string name="admin_device_owner_message" msgid="1935507216776040907">"Администраторот може да ги следи и да управува со апликациите и податоците поврзани со уредов, заедно со поставките, дозволите, корпоративниот пристап, мрежната активност и информациите за локацијата на уредот."</string>
+    <string name="remove_managed_profile_label" msgid="8950011141359605612">"Отстрани го работниот профил"</string>
+    <string name="active_device_admin_msg" msgid="185537304726228624">"Апликација за администраторот на уредот"</string>
+    <string name="remove_device_admin" msgid="2623866073546295104">"Деактивирај ја апликацијата за администраторот на уредот"</string>
+    <string name="uninstall_device_admin" msgid="6301368408620948266">"Деинсталирај ја апликацијата"</string>
+    <string name="remove_and_uninstall_device_admin" msgid="1504351551194915633">"Деактивирај и деинсталирај"</string>
+    <string name="select_device_admin_msg" msgid="8475934459999710332">"Администраторски апликации"</string>
+    <string name="add_device_admin_msg" msgid="5390773166682603421">"Да се активира аплик. за администратор?"</string>
+    <string name="add_device_admin" msgid="5078281377915844544">"Активирај ја апликацијата за администраторот на уредот"</string>
+    <string name="device_admin_warning" msgid="7399916080685200660">"Со активирање на апликацијата за администраторот ќе се дозволи апликацијата <xliff:g id="APP_NAME">%1$s</xliff:g> да ги извршува следниве операции:"</string>
+    <string name="device_admin_warning_simplified" msgid="3310965971422346950">"<xliff:g id="APP_NAME">%1$s</xliff:g> ќе управува со уредов и ќе го надгледува."</string>
+    <string name="device_admin_status" msgid="5467001937240455367">"Апликацијата за администраторот е активна и дозволува апликацијата <xliff:g id="APP_NAME">%1$s</xliff:g> да ги извршува следниве операции:"</string>
+    <string name="adding_profile_owner_warning" msgid="3888867082224127564">"Ако продолжите, администраторот ќе управува со вашиот корисник, а ќе може и да складира поврзани податоци, заедно со вашите лични податоци.\n\nАдминистраторот може да ги следи поставките, пристапот, апликациите и податоците поврзани со овој корисник и да управува со нив, како и со мрежната активност и информациите за локацијата на уредот."</string>
+    <string name="share_remote_bugreport_dialog_title" msgid="2080017987692459555">"Да се сподели извештајот за грешки?"</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="8515056665416643253">"Вашиот администратор за информатичка технологија побара извештај за грешки за да ви помогне во отстранувањето на грешките на овој уред. Апликациите и податоците може да бидат споделени."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="4637489112422692638">"Вашиот администратор за информатичка технологија побара извештај за грешки за да ви помогне во отстранувањето на грешките на овој уред. Апликациите и податоците може да бидат споделени, а уредот може да биде привремено побавен."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="8096239263583331293">"Извештајот за грешки е споделен со вашиот администратор за информатичка технологија. За повеќе детали, контактирајте со него."</string>
+    <string name="share_remote_bugreport_action" msgid="6760197666368262892">"Сподели"</string>
+    <string name="decline_remote_bugreport_action" msgid="2130779396296090961">"Одбиј"</string>
+    <string name="network_connection_request_dialog_title" msgid="4103963119407212989">"Уред за користење со <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="network_connection_timeout_dialog_message" msgid="8408857135950230472">"Не се најдени уреди. Уверете се дека уредите се вклучени и достапни за поврзување."</string>
+    <string name="network_connection_timeout_dialog_ok" msgid="5374522862360880609">"Обиди се пак"</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="3346121178275518630">"Нешто се случи. Апликацијата го откажа барањето за избор на уред."</string>
+    <string name="network_connection_connect_successful" msgid="2981223044343511313">"Поврзувањето е успешно"</string>
+    <string name="network_connection_request_dialog_showall" msgid="2653775399674126208">"Прикажи ги сите"</string>
+    <string name="progress_scanning" msgid="3323638586482686516">"Се пребарува"</string>
+    <string name="add_account_intent_not_available_dialog_message" msgid="8326403834567215053">"Не можеше да се вчита намерата за додавање сметка од Authenticator."</string>
+    <string name="add_account_failed_dialog_message" msgid="3704858007957373186">"Не можеше да се додаде сметка или типот сметка не е достапен."</string>
+    <string name="channels_and_inputs_title" msgid="7484506121290830217">"Канали и влезови"</string>
+    <string name="channels_and_inputs_summary" msgid="3168386051698084007">"Канали, надворешни влезови"</string>
+    <string name="channels_settings_title" msgid="8048956665383762510">"Канали"</string>
+    <string name="external_inputs_settings_title" msgid="8937038060355986380">"Надворешни влезови"</string>
+    <string name="display_and_sound_vendor_summary" msgid="7661072343315403110">"Слика, екран, звук"</string>
+    <string name="picture_settings_title" msgid="7643193630924322697">"Слика"</string>
+    <string name="screen_settings_title" msgid="7806908869190824434">"Екран"</string>
+    <string name="sound_settings_title" msgid="9149367966117889465">"Звук"</string>
+    <string name="power_and_energy" msgid="4638182439670702556">"Напојување и енергија"</string>
+    <string name="power_on_behavior" msgid="927607372303160716">"Однесување при вклучувањето"</string>
+    <string name="reset_options_title" msgid="7632580482285108955">"Ресетирај"</string>
+    <string name="adb_pairing_device_dialog_ethernet_pairing_code_label" msgid="7551782499828944838">"Код за спарување преку Ethernet"</string>
+    <string name="energy_modes" msgid="1331693860386361744">"Енергетски режим"</string>
+    <string name="energy_modes_summary" msgid="2324906343309484649">"Поставкиве влијаат на уредот кога не се користи"</string>
+    <string name="energy_mode_enables" msgid="357960364751477627">"Овозможува:"</string>
+    <string name="energy_mode_eco_hint" msgid="5280058011809503514">"Потрошувачката на енергија може да се зголеми со бројот на функции на телевизорот што ќе ги овозможите."</string>
+    <string name="energy_modes_confirmation_title" msgid="4520280098781914825">"Да се овозможи „<xliff:g id="ENERGYMODENAME">%s</xliff:g>“?"</string>
+    <string name="settings_find_my_remote_title" msgid="4586368268611622848">"Најди го мојот далечински управувач"</string>
+    <string name="settings_find_my_remote_description" msgid="6606011378441585154">"Репродуцирајте звук за да го лоцирате далечинскиот управувач на Google TV ако е изгубен"</string>
+    <string name="find_my_remote_slice_description" msgid="313598681990933215">"На вашата Google TV има копче што може да го притиснете за да се пушти звук на далечинскиот управувач 30 секунди. Ова функционира само со поддржани далечински управувачи на Google TV.\n\nЗа да го сопрете звукот, притиснете некое копче на далечинскиот управувач."</string>
+    <string name="find_my_remote_integration_hint" msgid="7560895390042161430">"Кога е овозможена „Најди го мојот далечински управувач“, може да репродуцирате звук за да го лоцирате далечинскиот управувач на Google TV ако е изгубен."</string>
+    <string name="find_my_remote_play_sound" msgid="3364983972397728084">"Репродуцирај звук"</string>
+</resources>

@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"AdServices Topics API ကို အပလီကေးရှင်းတစ်ခုအား သုံးခွင့်ပေးနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API များ သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"AdServices Attribution API များကို အပလီကေးရှင်းတစ်ခုအား သုံးခွင့်ပေးနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"AdServices Custom Audience API ကို အပလီကေးရှင်းတစ်ခုအား သုံးခွင့်ပေးနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"အပလီကေးရှင်းကို ကြော်ငြာ AdId API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"အပလီကေးရှင်းတစ်ခုကို AdServices Consent API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API သုံးခွင့်"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"အပလီကေးရှင်းကို ကြော်ငြာ ID API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API သုံးရန်"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"AdServices Cobalt Upload API သုံးရန် အပလီကေးရှင်းကို ခွင့်ပြုသည်။"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API သုံးခွင့်"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"အပလီကေးရှင်းကို အက်ပ်အတွဲ ID API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API သုံးခွင့်"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"အပလီကေးရှင်းတစ်ခုကို Consent Service API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService ၏ enablement state modification API သုံးခွင့်"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"အပလီကေးရှင်းအား AdService ၏ enablement modification state API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService ၏ enablement state API သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"အပလီကေးရှင်းအား AdService ၏ enablement state API သုံးခွင့်ပြုနိုင်သည်။"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager ၏ API များ သုံးခွင့်"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"AdServicesManager’s API များ သုံးရန် အပလီကေးရှင်းကို ခွင့်ပြုသည်။"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService ၏ အပ်ဒိတ် AdID API သုံးခြင်း။"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"AdService ၏ အပ်ဒိတ် AdID API သုံးရန် အပလီကေးရှင်းကို ခွင့်ပြုသည်။"</string>
+    <string name="app_label" msgid="2639006978056689153">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်တွင် ပါဝင်ပါ"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"သင့်အားကြော်ငြာပြရန် အချက်အလက် ပိုမိုလုံခြုံသောနည်းလမ်းများကို Android က ရှာဖွေလျက်ရှိသည်"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"ပိုမိုလေ့လာရန်"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"ထူးခြားမှုအသစ်များ"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privacy Sandbox ရှိ ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဝန်ဆောင်မှုသစ်များသည် သင်နှင့်သက်ဆိုင်သည့် ကြော်ငြာများပြခွင့်အား အက်ပ်များကို ပေးသော်လည်း ဝဘ်ဆိုက်နှင့် အခြားဆော့ဖ်ဝဲရေးသူများ၏ အက်ပ်များမှ သင့်လုပ်ဆောင်ချက်များအကြောင်း သိရှိနိုင်မှုကို တားမြစ်ပေးသည်။"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"အလုပ်လုပ်ပုံ"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"ပါဝင်ပုံ"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"စမ်းသပ်အစီအစဉ် ဖွင့်ခြင်းဖြင့် ကြော်ငြာပြရန်အတွက် ကိုယ်ရေးအချက်အလက် ပိုမိုလုံခြုံသောနည်းလမ်းသစ်များအား စမ်းသပ်ရန် အက်ပ်များကို ခွင့်ပြုရာရောက်သည်။ စမ်းသပ်အစီအစဉ်ကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အချိန်မရွေး ပိတ်နိုင်သည်။"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"မလိုပါ"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"ဖွင့်ရန်"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"ပိုပြပါ"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"ပါဝင်ပေး၍ ကျေးဇူးတင်ပါသည်"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်တွင် သင်ပါဝင်သည်။ Privacy Sandbox ကို သင့်စက်အတွက် ဖွင့်ထားသည်။\n\nကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် စမ်းသပ်အစီအစဉ်အကြောင်း ပိုမိုလေ့လာနိုင်သည် (သို့) ၎င်းကို အချိန်မရွေး ပိတ်နိုင်သည်။"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"မပါဝင်ရန် သင်ရွေးချယ်ထားပါသည်"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"ဖြေကြားမှုအတွက် ကျေးဇူးတင်ပါသည်။ Privacy Sandbox ကို သင့်စက်အတွက် ပိတ်လိုက်သည်။\n\nသင်စိတ်ပြောင်းသွားပါက (သို့) ပိုမိုလေ့လာလိုပါက ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များသို့ သွားပါ။"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များ"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"နားလည်ပြီ"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"စမ်းသပ်အစီအစဉ်တွင် သင်ပါဝင်သည်"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox ကို သင့်စက်အတွက်ဖွင့်ထားပြီး ကြော်ငြာပြရန် ကိုယ်ရေးအချက်အလက် ပိုမိုလုံခြုံသောနည်းလမ်းသစ်များကို အက်ပ်များက စမ်းသပ်နိုင်သည်။ စမ်းသပ်အစီအစဉ်ကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အချိန်မရွေး ပိတ်နိုင်သည်။"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"နားလည်ပြီ"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android ၏ Privacy Sandbox သည် သင်နှစ်သက်နိုင်မည့် ကြော်ငြာများပြရန် အက်ပ်များအသုံးပြုနိုင်သော ဝန်ဆောင်မှုသစ်များကို ပံ့ပိုးသည်။ ဤနည်းပညာများသည် စက်ပစ္စည်း သတ်မှတ်မှုစနစ်များကို အသုံးမပြုပါ။\n\nAndroid နှင့် သင့်အက်ပ်များက သင်နှစ်သက်နိုင်မည့် ကြော်ငြာအမျိုးအစားများကို ခန့်မှန်းနိုင်ပြီး သင့်စက်တွင် စိတ်ဝင်စားမှုများကို ယာယီသိမ်းနိုင်သည်။ ၎င်းက သင့်လုပ်ဆောင်ချက်များအား ဝဘ်ဆိုက်နှင့် အခြားဆော့ဖ်ဝဲရေးသူများ၏ အက်ပ်များတွင် ခြေရာခံစရာမလိုဘဲ သင်နှစ်သက်နိုင်မည့် ကြော်ငြာများအား အက်ပ်များကို ပြခွင့်ပေးသည်။"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Privacy Sandbox ဖြင့် ကြော်ငြာများ စိတ်ကြိုက်သတ်မှတ်ခြင်း"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android က ခန့်မှန်းထားသည့် စိတ်ဝင်စားမှုများ"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android က သင်အသုံးပြုသည့် အက်ပ်များပေါ်မူတည်၍ သင်စိတ်ဝင်စားမှု အရှိဆုံးအရာများကို အခါအားလျော်စွာ ခန့်မှန်းသည်။ ဥပမာ \"အားကစား\" (သို့) \"ခရီးသွားခြင်း\"။\n\nနောက်ပိုင်းတွင် အက်ပ်များက သင်နှင့်ပိုမိုသက်ဆိုင်သည့် ကြော်ငြာများပြရန်အတွက် ၎င်းစိတ်ဝင်စားမှုများကို အသုံးပြုရန် Android အား တောင်းဆိုနိုင်သည်။\n\nလက်ရှိစိတ်ဝင်စားမှုစာရင်းကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် ကြည့်ပြီး သင်မကြိုက်သည့်အရာများကို ပိတ်ထားနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  အက်ပ်က ခန့်မှန်းထားသည့် စိတ်ဝင်စားမှုများ"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"အက်ပ်များက သင့်စိတ်ဝင်စားမှုများကို ခန့်မှန်းပြီး ၎င်းတို့ကို Android ဖြင့် ယာယီသိမ်းနိုင်သည်။ ဥပမာ အပြေးဖိနစ်ဝယ်ယူရန် သင်အသုံးပြုသည့်အက်ပ်က သင်၏စိတ်ဝင်စားမှုကို \"မာရသွန်ပြေးခြင်း\" ဟု ခန့်မှန်းနိုင်သည်။\n\nနောက်ပိုင်းတွင် ဤစိတ်ဝင်စားမှုပေါ်မူတည်၍ အခြားအက်ပ်တစ်ခုက မာရသွန်နှင့်သက်ဆိုင်သည့် ကြော်ငြာကို ပြနိုင်သည်။\n\nသင့်ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် စိတ်ဝင်စားမှုများသိမ်းထားသည့် အက်ပ်စာရင်းကို စီမံနိုင်သည်။"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"ကြော်ငြာအကြောင်းအရာများနှင့် သတ်မှတ်ချက်အသစ်များက သင်တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်ခွင့်ပေးသည်"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android သည် သင်၏ မကြာသေးမီက သင်သုံးခဲ့သည့် အက်ပ်များပေါ် အခြေခံ၍ သင်စိတ်ဝင်စားသော အကြောင်းအရာများကို မှတ်သားသည်။ သင်သုံးသော အက်ပ်များကလည်း သင်နှစ်သက်သည့်အရာကို ဆုံးဖြတ်နိုင်သည်။ ပုဂ္ဂိုလ်ရေးသီးသန့် ကြော်ငြာများပြရန် အက်ပ်များက ဤအချက်အလက်ကို နောက်ပိုင်းတွင် တောင်းဆိုနိုင်သည်။ ကြော်ငြာများပြရန် သုံးသည့် အကြောင်းအရာနှင့် အက်ပ်များကို သင်က ရွေးချယ်နိုင်သည်။"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"ကြော်ငြာတစ်ခု၏စွမ်းဆောင်ရည်ကို တိုင်းတာအကဲဖြတ်ရန်အတွက် အချို့ဒေတာမျိုးကိုသာ အက်ပ်များအကြား မျှဝေသည်။"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android ရှိ ကြော်ငြာများအကြောင်း ပိုမိုသိရှိရန်"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"ပိုမိုအသုံးဝင်သည့် ကြော်ငြာများ"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"သင်မြင်ရသော ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန်အတွက် အက်ပ်များသည် Android ထံမှ အချက်အလက်များ တောင်းဆိုနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android သည် မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ သင်စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  သင်သုံးသောအက်ပ်များက ၎င်းတို့အား အသုံးပြုပုံပေါ် အခြေခံပြီး သင်နှစ်သက်သည့်အရာကိုလည်း ဆုံးဖြတ်နိုင်သည်။ ဥပမာ တာဝေးပြေးဖိနပ်များရောင်းသည့် အက်ပ်ကို သုံးပါက မာရသွန်ပြေးရာတွင် သင်စိတ်ဝင်စားသည်ဟု ယင်းအက်ပ်က ဆုံးဖြတ်နိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"သင်သုံးသည့်အက်ပ်သည် ဤအချက်အလက်ကို နောက်ပိုင်းတွင် တောင်းဆိုနိုင်သည် — သင်၏ ကြော်ငြာအကြောင်းအရာ (သို့) သင်သုံးသည့် အက်ပ်များက အကြံပြု ထားသည့်ကြော်ငြာများ။"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android သည် အကြောင်းအရာများနှင့် အက်ပ်အကြံပြု ဒေတာကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ အကြံမပြုစေလိုသည့် အချို့သော အကြောင်းအရာနှင့် အက်ပ်များကိုလည်း သင်က ပိတ်ထားနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"ကြော်ငြာစွမ်းဆောင်ရည် မည်မျှကောင်းကြောင်း တိုင်းတာခြင်း"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"သင်သုံးသော အက်ပ်များသည် ၎င်းတို့ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို တိုင်းတာအကဲဖြတ်နိုင်ရန် Android ထံမှ အချက်အလက်များ တောင်းဆိုနိုင်သည်။ သင့်အား ကြော်ငြာပြသသည့် အချိန်ကဲ့သို့သော အချို့ဒေတာမျိုးကို Android က အက်ပ်များအား စုဆောင်းခွင့်ပေးသည်။"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်များ စမ်းကြည့်ပါ"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"ကြော်ငြာအကြောင်းအရာများက သင်တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်ခွင့်ပေးသည်"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"အသေးစိတ်ကြည့်ရန်"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်များကို စမ်းကြည့်ခြင်း"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android သည် သင်တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်ခွင့်ပေးသည့် ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ အင်္ဂါရပ်သစ်များကို စတင်နေပါသည်။"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"ကြော်ငြာအကြောင်းအရာများသည် သင်၏အထောက်အထားနှင့် သင်၏အက်ပ်အသုံးပြုမှုဆိုင်ရာ အချက်အလက်များကို ကာကွယ်ပေးနေချိန်တွင် သင့်အား သက်ဆိုင်မှုရှိသောကြော်ငြာများ ပြရန် အက်ပ်များကို ကူညီသည်။ Android သည် မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားနိုင်သည်။ နောက်ပိုင်းတွင် သင်သုံးသောအက်ပ်သည် သင်တွေ့ရသော ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန် သက်ဆိုင်မှုရှိသော အကြောင်းအရာများကို Android ထံမှ တောင်းဆိုနိုင်သည်။"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"သင်၏ စက်ပစ္စည်းဆက်တင်များတွင် ကြော်ငြာအကြောင်းအရာများကို ကြည့်၍ အက်ပ်များနှင့် မမျှဝေလိုသောအရာများကို ပိတ်ထားနိုင်သည်။ Android ကလည်း ကြော်ငြာအကြောင်းအရာများကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် သင့်သဘောထားကို အချိန်မရွေးပြောင်းနိုင်သည်။"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"ကြော်ငြာ အကြောင်းအရာများအကြောင်း ပိုမိုလေ့လာရန်"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"ကျွန်ုပ်တို့၏ "<a href="https://policies.google.com/privacy">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ မူဝါဒ"</a>" တွင် သင့်ဒေတာအား Android က ကာကွယ်ပုံအကြောင်း ပိုမိုလေ့လာနိုင်သည်။"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"စမ်းကြည့်ရန်"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  အသုံးပြုသောဒေတာ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"သင်၏ကြော်ငြာ အကြောင်းအရာများကို ဤစက်ပေါ်တွင် မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များနှင့် ၎င်းတို့အား မည်မျှလျှင်တစ်ကြိမ်သုံးသည်အပေါ် အခြေခံထားသည်။"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  ဤဒေတာကို ကျွန်ုပ်တို့အသုံးပြုပုံ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android က သင်အက်ပ်အသုံးပြုနေချိန်တွင် သင်စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။ အကြောင်းအရာအညွှန်းများကို ကြိုတင်သတ်မှတ်ထားပြီး အနုပညာနှင့် ဖျော်ဖြေရေး၊ ဈေးဝယ်ထွက်ခြင်းနှင့် အားကစားတို့ စသည်ကဲ့သို့အရာများ ပါဝင်သည်။ သင်အသုံးပြုသည့် အက်ပ်က သင်တွေ့ရသော ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့် ပြုလုပ်ရန် သင့်အကြောင်းအရာအချို့ (သင်၏ အက်ပ်အသုံးပြုမှု ဒေတာ သို့မဟုတ် သင်၏ အထောက်အထား မပါဝင်ပါ) ကို Android ထံမှ နောက်ပိုင်းတွင် တောင်းဆိုနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  သင်က ဒေတာစီမံနိုင်ပုံ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android သည် အကြောင်းအရာများကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ အက်ပ်များကို ဆက်လက်အသုံးပြုသည်နှင့်အမျှ အကြောင်းအရာသည် စာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။ Android အား အက်ပ်များနှင့် မမျှဝေစေလိုသော အကြောင်းအရာများကိုလည်း သင်က ပိတ်ထားနိုင်သည့်အပြင် ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် ကြော်ငြာအကြောင်းအရာများကို အချိန်မရွေး ပိတ်နိုင်သည်။"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အပြောင်းအလဲများ ပြုလုပ်နိုင်သည်။"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး အခြားဝန်ဆောင်မှုများကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"အက်ပ်များက သင့်အား ပုဂ္ဂိုလ်ရေးသီးသန့်ကြော်ငြာများ ပြသည့်အခါ သင့်အကြောင်း ၎င်းတို့လေ့လာနိုင်သည်များကို ကန့်သတ်နိုင်သော နည်းလမ်းအသစ်များကိုလည်း Android က မိတ်ဆက်ထားသည်။"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  အက်ပ်အကြံပြု ကြော်ငြာများသည် အက်ပ်များက သင့်အား သက်ဆိုင်သော ကြော်ငြာများပြခွင့်ပြုနေချိန်တွင် သင့်အထောက်အထားနှင့် အက်ပ်အသုံးပြုမှုအကြောင်း အချက်အလက်များကို ကူညီကာကွယ်ပေးသည်။ အက်ပ်တစ်ခုသည် သင်၏လုပ်ဆောင်ချက်ပေါ် အခြေခံ၍ ဆက်စပ်ကြော်ငြာများကို အခြားအက်ပ်များပေါ်တွင် အကြံပြုနိုင်သည်။ သင်သည် အက်ပ်များစာရင်းကို ကြည့်နိုင်ပြီး ၎င်းတို့ အကြံပြုခြင်းကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် ပိတ်ထားနိုင်သည်။"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  ကြော်ငြာ တိုင်းတာအကဲဖြတ်ခြင်းဖြင့် အက်ပ်များ၏ ကြော်ငြာစွမ်းဆောင်ရည် တိုင်းတာရန် ကြော်ငြာပြသချိန်ကဲ့သို့သော အချို့ဒေတာမျိုးကို ၎င်းအက်ပ်များကြားတွင် မျှဝေသည်။"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"အက်ပ်အကြံပြု ကြော်ငြာများနှင့် ကြော်ငြာ တိုင်းတာအကဲဖြတ်ခြင်းအကြောင်း ပိုမိုသိရှိရန်"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"အက်ပ်အကြံပြု ကြော်ငြာများ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  အသုံးပြုသည့်ဒေတာ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"ဤစက်တွင် သင်သုံးသော အက်ပ်အတွင်း သင်၏လုပ်ဆောင်ချက်။"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  အက်ပ်များက ဤဒေတာကို အသုံးပြုပုံ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"အက်ပ်များသည် သင်နှစ်သက်သည့် အရာများအကြောင်း အချက်အလက်များကို Android တွင် သိမ်းထားနိုင်သည်။ ဥပမာ မာရသွန်အပြေးလေ့ကျင့်ခြင်းဆိုင်ရာ အက်ပ်ကို သုံးပါက သင်သည် အပြေးဖိနပ်များကို စိတ်ဝင်စားသည်ဟု အက်ပ်က ဆုံးဖြတ်နိုင်သည်။ နောင်တွင် သင်သည် အခြားအက်ပ်သုံးသောအခါ ယင်းအက်ပ်သည် ပထမအက်ပ်က အကြံပြုထားသည့် အပြေးဖိနပ်ကြော်ငြာကို ပြနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  သင့်ဒေတာကို စီမံနိုင်ပုံ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android သည် အက်ပ်အကြံပြုဒေတာကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ သင်ပြန်သုံးသော အက်ပ်သည် စာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"အက်ပ်ကို သင့်အတွက် ကြော်ငြာများအကြံပြုခြင်းမှလည်း ပိတ်ထားနိုင်ပြီး ကြော်ငြာအကြံပြုချက် ဒေတာအားလုံးကို ပြင်ဆင်သတ်မှတ်နိုင်သည် (သို့) ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အက်ပ်အကြံပြု ကြော်ငြာများကို အချိန်မရွေး ပိတ်နိုင်သည်။"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"သင်သုံးသော အက်ပ်များက ၎င်းတို့ကြော်ငြာများ၏ စွမ်းဆောင်ရည် တိုင်းတာအကဲဖြတ်ရာတွင် အထောက်အကူဖြစ်စေသည့် အချက်အလက်များကို Android ထံမှ တောင်းဆိုနိုင်သည်။ Android သည် အက်ပ် အချင်းချင်းမျှဝေနိုင်သည့် အချက်အလက်များကို ကန့်သတ်ခြင်းဖြင့် သင်၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုကို ကာကွယ်ပေးသည်။"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"သင်၏အထောက်အထားကို ကာကွယ်ပေးနေစဉ် တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်လိုက်ပါ"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"အက်ပ်များက သင့်အား ပုဂ္ဂိုလ်ရေးသီးသန့် ကြော်ငြာများပြသည့်အခါ သင့်အကြောင်း ၎င်းတို့လေ့လာနိုင်သည်များကို ကန့်သတ်နိုင်သော နည်းလမ်းအသစ်များကို Android က စတင်နေသည်။"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  အက်ပ်အကြံပြုကြော်ငြာများသုံးပါက သင့်အား သက်ဆိုင်မှုရှိသော ကြော်ငြာများပြရန် အက်ပ်များကို ဖွင့်ထားစဉ် ကိုယ်ရေးအချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များသည် သင်၏အထောက်အထားနှင့် အက်ပ်အသုံးပြုမှုဆိုင်ရာ အချက်အလက်များကို ကူညီကာကွယ်ပေးသည်။ သင်၏လုပ်ဆောင်ချက်ပေါ် အခြေခံပြီး အက်ပ်တစ်ခုသည် ဆက်စပ်သည့်ကြော်ငြာများကို အခြားအက်ပ်များအတွက် အကြံပြုနိုင်သည်။ အက်ပ်များစာရင်းကို ကြည့်နိုင်ပြီး ၎င်းတို့ အကြံပြုခြင်းကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် ပိတ်ထားနိုင်သည်။"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  ကြော်ငြာ တိုင်းတာအကဲဖြတ်မှုသုံးပါက အက်ပ်များ၏ကြော်ငြာ စွမ်းဆောင်ရည်ကို သိရှိနားလည်ရန် တစ်နေ့တာတွင် သင့်အား ကြော်ငြာပြချိန်ကဲ့သို့ ကန့်သတ်ဒေတာအမျိုးအစားများကို ၎င်းတို့အကြား မျှဝေသည်။"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"ဤစက်တွင် အက်ပ်အတွင်း သင်၏လုပ်ဆောင်ချက်ကို ကြော်ငြာများအကြံပြုရန် သုံးနိုင်သည်။"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး အခြားဝန်ဆောင်မှုကို ဖွင့်ပါ"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android သည် သင်တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်ခွင့်ပေးသည့် ကိုယ်ရေးအချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်ကိုလည်း မိတ်ဆက်ထားသည်။"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"ကြော်ငြာအကြောင်းအရာများသည် သင်၏အထောက်အထားနှင့် အက်ပ်အသုံးပြုမှုဆိုင်ရာ အချက်အလက်များကို ကာကွယ်ပေးနေစဉ် သင့်အား သက်ဆိုင်မှုရှိသော ကြော်ငြာများပြရန် အက်ပ်များကို ကူညီသည်။ Android သည် လတ်တလော သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားနိုင်သည်။ နောက်ပိုင်းတွင် သင်သုံးသောအက်ပ်သည် သင့်အား ပိုမိုသက်ဆိုင်မှုရှိသည့် ကြော်ငြာများပြရန် သက်ဆိုင်မှုရှိသော အကြောင်းအရာများကို Android ထံမှ တောင်းဆိုနိုင်သည်။"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"သင်၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် ကြော်ငြာအကြောင်းအရာများကို ကြည့်၍ အက်ပ်များနှင့် မမျှဝေလိုသောအရာများကို ပိတ်ထားနိုင်သည်။ Android သည် ကြော်ငြာအကြောင်းအရာများကိုလည်း အလိုအလျောက် ပုံမှန်ဖျက်သည်။"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"ဖွင့်ရန်"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"ယခုအခါ သင်၏အထောက်အထားကို ကာကွယ်ပေးနေစဉ် တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်နိုင်ပါပြီ"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android သည် သင်တွေ့ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်ခွင့်ပေးသည့် ကိုယ်ရေးအချက်အလက်လုံခြုံရေး ဝန်ဆောင်မှုအသစ်များကို ယခုမိတ်ဆက်ထားပါသည်။"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"ရှေ့သို့"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်တွင် ပါဝင်ပါ"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android က ခန့်မှန်းထားသည့် စိတ်ဝင်စားမှုများ"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"စိတ်ဝင်စားမှုများခန့်မှန်းသည့် အက်ပ်များ"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"ကြော်ငြာတိုင်းတာခြင်း"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"အက်ပ်များက ၎င်းတို့၏ ထိရောက်မှုအား တိုင်းတာအကဲဖြတ်ရန် Privacy Sandbox ကို သုံးနိုင်သည်။ ဤသို့ပြုလုပ်ရန် ကြော်ငြာရှင်များက ကြော်ငြာနှင့် အက်ပ်များကြား သင်၏ ကြည့်ရှုမှုဆိုင်ရာ ဒေတာကို Android ဖြင့် ယာယီသိမ်းနိုင်သည်။ သိမ်းနိုင်သည့် ဒေတာပမာဏကို ကန့်သတ်ထားပြီး ပုံမှန်ဖျက်ပါမည်။\n\nPrivacy Sandbox အားပိတ်ခြင်းဖြင့် ၎င်းဒေတာကို အချိန်မရွေးဖျက်နိုင်သည်။"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android က သင်အသုံးပြုသည့် အက်ပ်များပေါ်မူတည်၍ သင်စိတ်ဝင်စားမှု အရှိဆုံးအရာများကို အခါအားလျော်စွာ ခန့်မှန်းသည်။ အက်ပ်များက သင်နှင့်ပိုမိုသက်ဆိုင်သည့် ကြော်ငြာများပြရန်အတွက် ၎င်းစိတ်ဝင်စားမှုများအား အသုံးပြုရန် Android ကို တောင်းဆိုနိုင်သည်။\n\nစိတ်ဝင်စားမှုတစ်ခုကို ပိတ်ထားပါက ၎င်းကို ပြန်မဖွင့်မချင်း အက်ပ်စာရင်းတွင် ထည့်မည်မဟုတ်ပါ။ သက်ဆိုင်ရာကြော်ငြာအချို့ကို မြင်နိုင်ပါသေးသည်။"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"ပိတ်ရန်"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"ပြန်ဖွင့်ရန်"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"သင်ပိတ်ထားသော စိတ်ဝင်စားမှုများ"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"စိတ်ဝင်စားမှုအားလုံးကို အသစ်ပြန်စရန်"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"လောလောဆယ် ပြရန် စိတ်ဝင်စားမှုများ မရှိပါ။"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"လောလောဆယ် ပြရန် အကြောင်းအရာမရှိပါ။\n"<a href="https://support.google.com/android?p=ad_privacy">"ကြော်ငြာအကြောင်းအရာများ"</a>" အကြောင်း ပိုမိုလေ့လာနိုင်သည်"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်သည် သင်နှစ်သက်နိုင်မည့် ကြော်ငြာများပြရန် အက်ပ်များအသုံးပြုနိုင်သော ဝန်ဆောင်မှုသစ်များကို ပံ့ပိုးသည်။ ဤနည်းပညာများသည် စက်ပစ္စည်း သတ်မှတ်မှုစနစ်များကို အသုံးမပြုပါ။\n\nAndroid က သင်နှစ်သက်နိုင်မည့် ကြော်ငြာအမျိုးအစားများကို ခန့်မှန်းနိုင်ပြီး သင့်စက်တွင် စိတ်ဝင်စားမှုများကို ယာယီသိမ်းနိုင်သည်။ ၎င်းက သင့်လုပ်ဆောင်ချက်များကို ဝဘ်ဆိုက်နှင့် အခြားဆော့ဖ်ဝဲရေးသူများ၏ အက်ပ်များတွင် ခြေရာခံစရာမလိုဘဲ သင်နှင့်သက်ဆိုင်သည့် ကြော်ငြာများအား အက်ပ်များကို ပြခွင့်ပေးသည်။"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"ပိတ်ထားသည့် စိတ်ဝင်စားမှုများ မရှိပါ"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"ပိတ်ထားသော အကြောင်းအရာများ မရှိပါ"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"ပိတ်ထားသော အကြောင်းအရာများ ကြည့်ရန်"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"စိတ်ဝင်စားမှုများ ပြင်ဆင်သတ်မှတ်လိုက်သည်"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"အကြောင်းအရာများကို ပြင်ဆင်သတ်မှတ်ထားသည်"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"အက်ပ်များက သင့်စိတ်ဝင်စားမှုများကို ခန့်မှန်းပြီး ၎င်းတို့ကို Android ဖြင့် ယာယီသိမ်းနိုင်သည်။ နောက်ပိုင်းတွင် အခြားအက်ပ်တစ်ခုက ဤစိတ်ဝင်စားမှုများပေါ်မူတည်၍ ကြော်ငြာပြနိုင်သည်။\n\nအက်ပ်တစ်ခုအား ပိတ်ထားပါက ၎င်းသည် စိတ်ဝင်စားမှုများကို ခန့်မှန်းတော့မည်မဟုတ်ပါ။ ၎င်းကို ပြန်မဖွင့်မချင်း ဤအက်ပ်စာရင်းတွင် ထည့်မည်မဟုတ်ပါ။ အက်ပ်က ခန့်မှန်းထားသည့် စိတ်ဝင်စားမှုများကို ဖျက်မည်ဖြစ်သော်လည်း သက်ဆိုင်ရာကြော်ငြာအချို့ကို မြင်နိုင်သေးသည်။"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"သင်ပိတ်ထားသော အက်ပ်များ"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"ပိတ်ထားသောအက်ပ်များ ကြည့်ရန်"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"အက်ပ်များက ခန့်မှန်းထားသည့် စိတ်ဝင်စားမှုများ ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"သင့်အတွက် စိတ်ဝင်စားမှုများကို မည်သည့်အက်ပ်ကမျှ မထုတ်သေးပါ"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"လောလောဆယ် ပြရန် အက်ပ်များ မရှိပါ။ \n"<a href="https://support.google.com/android?p=ad_privacy">"အက်ပ်အကြံပြုကြော်ငြာများ"</a>" အကြောင်း ပိုမိုလေ့လာနိုင်သည်"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်သည် သင်နှစ်သက်နိုင်မည့် ကြော်ငြာများပြရန် အက်ပ်များအသုံးပြုနိုင်သော ဝန်ဆောင်မှုသစ်များကို ပံ့ပိုးသည်။ ဤနည်းပညာများသည် စက်ပစ္စည်း သတ်မှတ်မှုစနစ်များကို အသုံးမပြုပါ။\n\nအက်ပ်များက သင်နှစ်သက်နိုင်မည့် ကြော်ငြာအမျိုးအစားများကို ခန့်မှန်းနိုင်ပြီး သင့်စက်တွင် စိတ်ဝင်စားမှုများကို ယာယီသိမ်းနိုင်သည်။ ၎င်းက သင့်လုပ်ဆောင်ချက်များကို ဝဘ်ဆိုက်နှင့် အခြားဆော့ဖ်ဝဲရေးသူများ၏ အက်ပ်များတွင် ခြေရာခံစရာမလိုဘဲ သင်နှင့်သက်ဆိုင်သည့် ကြော်ငြာများအား အက်ပ်များကို ပြခွင့်ပေးသည်။"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"ပိတ်ထားသည့်အက်ပ်များ မရှိပါ"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"ပိတ်ထားသောအက်ပ်များ မရှိပါ"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"ကြော်ငြာတိုင်းတာအကဲဖြတ်မှု ခွင့်ပြုရန်"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"အက်ပ်များနှင့် ကြော်ငြာရှင်များက သူတို့ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို တိုင်းတာနိုင်ရန် Android ထံမှ အချက်အလက်များ တောင်းဆိုနိုင်သည်။\n\nကြော်ငြာတိုင်းတာခြင်း ဒေတာကို သင့်စက်မှ ပုံမှန်ဖျက်သည်။"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"တိုင်းတာမှု ဒေတာကို ပြန်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android သည် အက်ပ်များ တစ်ခုနှင့်တစ်ခုမျှဝေနိုင်သည့် အချက်အလက်များကို ကန့်သတ်ခြင်းဖြင့် သင်၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုကို ကာကွယ်သည်။ သင့်အထောက်အထားကို ကာကွယ်ရန် အစီရင်ခံစာများကို နောက်ကျပြီးပို့သည်။\n\nသင့်ဘရောင်ဇာတွင် အလားတူဆက်တင် ရှိနိုင်သည်။ Android နှင့် သင့်ဘရောင်ဇာနှစ်ခုစလုံးအတွက် ကြော်ငြာတိုင်းတာခြင်း ဖွင့်ထားပါက သင်အသုံးပြုသောအက်ပ်များနှင့် သင်ဝင်ကြည့်သော ဝဘ်ဆိုက်များအကြား ကြော်ငြာ၏ထိရောက်မှုကို ကုမ္ပဏီက တိုင်းတာနိုင်သည်။ သင့်ကြည့်ရှုမှုမှတ်တမ်းကို သင်၏စက်ပစ္စည်းတွင် သီးသန့်ထားရှိသည်။\n\nကျွန်ုပ်တို့၏ "<a href="https://policies.google.com/privacy">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ မူဝါဒ"</a>" တွင် သင့်ဒေတာအား Android က ကာကွယ်ပုံအကြောင်း ပိုမိုလေ့လာနိုင်သည်။"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"ကြော်ငြာတိုင်းတာခြင်း ဒေတာကို ပြင်ဆင်သတ်မှတ်ထားသည်"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"မလုပ်တော့"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Privacy Sandbox ပိတ်မလား။"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"စိတ်ပြောင်းသွားပါက (သို့) Android ၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု စမ်းသပ်အစီအစဉ်အကြောင်း ပိုမိုလေ့လာလိုပါက သင်၏ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ ဆက်တင်များသို့ သွားနိုင်သည်"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"ပိတ်ရန်"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> ကို ပိတ်ထားမလား။"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"ဤအကြောင်းအရာကို ပိတ်ထားမည်ဖြစ်ပြီး သင်ပြန်မထည့်ပါက သင်၏စာရင်းတွင် ၎င်းကို ထပ်ထည့်မည်မဟုတ်ပါ။ ဆက်စပ်သော ကြော်ငြာအချို့ကို မြင်ရနိုင်သေးသည်။"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"ပိတ်ထားရန်"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> ကို ပြန်ဖွင့်လိုက်သည်"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android သည် ဤအကြောင်းအရာကို သင်၏စာရင်းတွင် ထပ်ထည့်နိုင်သော်လည်း ၎င်းက ချက်ချင်းပေါ်မလာနိုင်ပါ"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"ကြော်ငြာအကြောင်းအရာအားလုံးကို ပြင်ဆင်သတ်မှတ်မလား။"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"သင့်စာရင်းကို ရှင်းလင်းပြီး ယခုမှစ၍ အကြောင်းအရာအသစ်များကို ထည့်မည်။ သင်ပြင်ဆင်သတ်မှတ်ထားသော အကြောင်းအရာများနှင့် ဆက်စပ်သော ကြော်ငြာအချို့ကို မြင်နိုင်သေးသည်။"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> ကို ပိတ်ထားမလား။"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"ဤအက်ပ်ကို သင်ပြန်မဖွင့်ပါက ၎င်းသည် ကြော်ငြာများကို အကြံပြုမည်မဟုတ်ဘဲ သင်၏စာရင်းတွင်လည်း ၎င်းကို ပြန်ထည့်မည်မဟုတ်ပါ။ ဆက်စပ်သော ကြော်ငြာအချို့ကို မြင်ရနိုင်သေးသည်။"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> ကို ပြန်ဖွင့်လိုက်သည်"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"ဤအက်ပ်သည် သင့်အတွက်ကြော်ငြာများကို ထပ်မံအကြံပြုနိုင်သော်လည်း ၎င်းက သင်၏စာရင်းတွင် ချက်ချင်းပေါ်မလာနိုင်ပါ။ ဆက်စပ်သော ကြော်ငြာများ မြင်ရရန် အချိန်အနည်းငယ်ကြာနိုင်သည်။"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"အက်ပ်အကြံပြု ကြော်ငြာများကို ပြင်ဆင်သတ်မှတ်မလား။"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"သင့်စာရင်းရှိ အက်ပ်များမှ ကြော်ငြာအကြံပြုချက်ဒေတာကို ဖျက်မည်ဖြစ်ပြီး အက်ပ်များက ယခုမှစ၍ ကြော်ငြာအသစ်များကို အကြံပြုမည်။ ဆက်စပ်သော ကြော်ငြာအချို့ကို မြင်ရနိုင်သေးသည်။"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"အက်ပ်ဒေတာကို ပြင်ဆင်သတ်မှတ်ထားသည်"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"ကြော်ငြာအကြောင်းအရာ ဖွင့်ထားသည်"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android သည် စိတ်ဝင်စားသည့်အကြောင်းအရာများကို စတင်မှတ်သားမည်ဖြစ်သော်လည်း သင်၏ ပထမဆုံးအကြောင်းအရာကို တွေ့မြင်ရန် အချိန်အနည်းငယ်ကြာနိုင်သည်။"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"ကြော်ငြာအကြောင်းအရာများကို ပိတ်မလား။"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"ဤအကြောင်းအရာများစာရင်းကို ဖျက်ပါမည်။ Android သည် စိတ်ဝင်စားသည့်အကြောင်းအရာများကို မှတ်သားတော့မည်မဟုတ်သော်လည်း သက်ဆိုင်ရာ ကြော်ငြာများကို မြင်နိုင်သေးသည်။"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"အက်ပ်အကြံပြုကြော်ငြာများ ဖွင့်ထားသည်"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"အက်ပ်များသည် ကြော်ငြာ စတင်အကြံပြုနိုင်သည်။ ကြော်ငြာစတင်အကြံပြုသည့်အခါ အက်ပ်များစာရင်းကို မြင်ရပါမည်။"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"အက်ပ်အကြံပြုကြော်ငြာများကို ပိတ်မလား။"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"ကြော်ငြာအကြံပြုချက် ဒေတာအားလုံးကို ဖျက်လိုက်ပါမည်။ အက်ပ်များသည် ကြော်ငြာများကို အကြံပြုနိုင်တော့မည် မဟုတ်သော်လည်း သက်ဆိုင်ရာ ကြော်ငြာများကို မြင်ရနိုင်သေးသည်။"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"ကြော်ငြာတိုင်းတာခြင်းကို ဖွင့်ထားသည်"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"အက်ပ်များက ကြော်ငြာစွမ်းဆောင်ရည်ကို တိုင်းတာရာတွင် ကူညီရန်အတွက် Android သည် အချက်အလက် အနည်းငယ်ကိုသာ ၎င်းတို့နှင့် မျှဝေနိုင်သည်။"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"ကြော်ငြာတိုင်းတာခြင်းကို ပိတ်မလား။"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"ဆောင်ရွက်နေဆဲ ကြော်ငြာတိုင်းတာခြင်း အစီရင်ခံချက်အားလုံးကို ဖျက်မည်ဖြစ်ပြီး အစီရင်ခံချက်အသစ် ထုတ်ပေးခြင်း (သို့) မျှဝေခြင်း မပြုပါ။"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"ကြော်ငြာအကြောင်းအရာများ"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"အက်ပ်အကြံပြု ကြော်ငြာများ"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android သည် မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များနှင့် ၎င်းတို့အား မည်မျှလျှင်တစ်ကြိမ် သုံးသည်အပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"သင်သုံးသောအက်ပ်များက ၎င်းတို့အား အသုံးပြုပုံပေါ် အခြေခံပြီး သင့်နှစ်သက်မှုကိုလည်း ဆုံးဖြတ်နိုင်သည်။"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"သင်သုံးသော အက်ပ်များသည် ၎င်းတို့ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို တိုင်းတာရန်အတွက် Android ထံမှ အချက်အလက်များ တောင်းနိုင်သည်။ Android သည် အက်ပ်များအား ဒေတာအမျိုးအစားများကို အကန့်အသတ်ဖြင့် စုဆောင်းခွင့်ပြုသည်။"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"Android တွင် ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု"</a>" အကြောင်း ပိုမိုလေ့လာနိုင်သည်"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"ဖွင့် / အကြောင်းအရာ <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> ခု"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{ဖွင့် / အကြောင်းအရာ # ခု}other{ဖွင့် / အကြောင်းအရာ # ခု}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"ဖွင့် / အက်ပ် <xliff:g id="APPS_COUNT">%1$d</xliff:g> ခု"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{ဖွင့် / အက်ပ် # ခု}other{ဖွင့် / အက်ပ် # ခု}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"ဖွင့်"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"ပိတ်"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံထားပြီး သင့်အား ပုဂ္ဂိုလ်ရေးသီးသန့် ကြော်ငြာများပြရန် အက်ပ်များက သုံးသည်။\n\nအက်ပ်များနှင့် မမျှဝေလိုသော အကြောင်းအရာများကို ပိတ်ထားနိုင်သည်။ Android သည် အကြောင်းအရာများကိုလည်း အလိုအလျောက် ပုံမှန်ဖျက်သည်။\n\nဤအင်္ဂါရပ်ကို ဖွင့်ထားနိုင်သော်လည်း အဆိုပါအင်္ဂါရပ်ကို အပြည့်အဝရနိုင်ပြီး အက်ပ်များက ၎င်းကို စသုံးသည်အထိ အကြောင်းအရာများစာရင်းကို မြင်ရမည်မဟုတ်ပါ။"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"ကြော်ငြာအကြောင်းအရာများ ခွင့်ပြုရန်"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"သင်ပိတ်ထားသော ကြော်ငြာအကြောင်းအရာများ"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"ကြော်ငြာအကြောင်းအရာအားလုံးကို ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android သည် ပြီးခဲ့သည့်သီတင်းပတ်အနည်းငယ်က သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။\n\nနောင်တွင် သင်သုံးသောအက်ပ်သည် သင်မြင်ရသည့် ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန် သင်၏အကြောင်းအရာများကို Android ထံမှ တောင်းဆိုနိုင်သည်။ Android သည် သင့်အထောက်အထားနှင့် သင်၏ အက်ပ်အသုံးပြုမှုဆိုင်ရာ အချက်အလက်များကို ကာကွယ်ပြီး အကြောင်းအရာ ၃ ခုအထိ မျှဝေသည်။\n\nAndroid သည် အကြောင်းအရာများကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ အက်ပ်များကို ဆက်လက်အသုံးပြုသည်နှင့်အမျှ အကြောင်းအရာသည် စာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။ သို့မဟုတ် Android အား အက်ပ်များနှင့် မမျှဝေစေလိုသော အကြောင်းအရာများကို သင်က ပိတ်ထားနိုင်သည်။\n\nသင်၏အက်ပ်များတွင် ဤဆက်တင်၊ အက်ပ်အကြံပြု ကြော်ငြာဆက်တင်၊ သင်၏ကြော်ငြာ ID ဆက်တင်နှင့် သင်သုံးနေသည့်အက်ပ်က ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့် ပြုလုပ်ထားခြင်း ရှိ၊ မရှိပေါ် မူတည်၍ သင်မြင်ရသောကြော်ငြာကို ပုဂ္ဂိုလ်ရေးသီးသန့် ပြုလုပ်ထားနိုင်သည်။"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"အက်ပ်အကြံပြု ကြော်ငြာများ ခွင့်ပြုရန်"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"သင်သုံးသော အက်ပ်များက သင်နှစ်သက်သည့်အရာကို ဆုံးဖြတ်ပြီး အခြားအက်ပ်များတွင် ကြော်ငြာများ အကြံပြုနိုင်သည်။\n\nအကြံပြုချက်များ မပြုလုပ်ရန် အက်ပ်များကို ပိတ်ထားနိုင်သည်။ Android သည်လည်း အက်ပ်ကအကြံပြုထားသည့် ဒေတာကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။\n\nဤအင်္ဂါရပ်ကို ဖွင့်ထားနိုင်သော်လည်း အဆိုပါအင်္ဂါရပ်ကို အပြည့်အဝရနိုင်ပြီး အက်ပ်များက ၎င်းကို စသုံးသည်အထိ အက်ပ်များစာရင်းကို မြင်ရမည်မဟုတ်ပါ။"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"သင်ပိတ်ထားသော အက်ပ်များ"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"အက်ပ်အကြံပြုဒေတာကို ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"ပုဂ္ဂိုလ်ရေးသီးသန့် အသုံးပြုနိုင်ရန် သင်စိတ်ဝင်စားသောအရာများကို သင်သုံးသော အက်ပ်များက မှတ်သားလေ့ရှိသည်။ အက်ပ်များသည် Android တွင် သင်၏အကြောင်းအရာနှင့် ပတ်သက်သော အချက်အလက်များကိုလည်း သိမ်းနိုင်သည်။\n\nဥပမာ သင်က မာရသွန်အပြေးလေ့ကျင့်ခြင်းဆိုင်ရာ အက်ပ်ကို သုံးပါက သင်သည် အပြေးဖိနပ်များကို စိတ်ဝင်စားသည်ဟု အက်ပ်ကဆုံးဖြတ်နိုင်သည်။ နောင်တွင် သင်သည် အခြားအက်ပ်သုံးပါက ယင်းအက်ပ်သည် ပထမအက်ပ်က အကြံပြုထားသည့် အပြေးဖိနပ်များအတွက် ကြော်ငြာကို သင့်အား ပြနိုင်သည်။\n\nAndroid သည် အက်ပ်အကြံပြု ဒေတာကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ သင်သုံးသော အက်ပ်သည် စာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။ သို့မဟုတ် အက်ပ်ကို သင့်အတွက် ကြော်ငြာများအကြံပြုခြင်းမှ ပိတ်ထားနိုင်သည်။\n\nသင်၏အက်ပ်များတွင် ဤဆက်တင်၊ ကြော်ငြာအကြောင်းအရာများ ဆက်တင်၊ သင်၏ ကြော်ငြာ ID ဆက်တင်နှင့် သင်သုံးနေသည့်အက်ပ်က ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ခြင်း ရှိ၊ မရှိပေါ် မူတည်၍ သင်မြင်ရသော ကြော်ငြာကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ထားနိုင်သည်။"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်ကို ယခုရနိုင်ပါပြီ"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"ကြော်ငြာစွမ်းဆောင်ရည်ကို တိုင်းတာရာတွင် ကူညီပေးရန် အချက်အလက်အနည်းငယ်ကိုသာ အက်ပ်များကြား မျှဝေသည်"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"ကြော်ငြာတိုင်းတာခြင်းဟု ခေါ်သည့် ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်ကို စတင်နေပါသည်။ Android သည် ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို တိုင်းတာရာတွင် အက်ပ်များအားကူညီပေးရန် သင့်ကိုကြော်ငြာပြသည့်အချိန်ကဲ့သို့ အချက်အလက်အနည်းငယ်ကိုသာ အက်ပ်များကြား မျှဝေသည်။"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အပြောင်းအလဲများ လုပ်နိုင်သည်။"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"သင်သုံးသောအက်ပ်များသည် ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို တိုင်းတာရာတွင် ၎င်းတို့အားကူညီပေးရန် Android ထံမှ အချက်အလက်များ တောင်းနိုင်သည်။ Android သည် အက်ပ်များအား ဒေတာအမျိုးအစားများကို အကန့်အသတ်ဖြင့်သာ စုဆောင်းခွင့်ပြုသည်။"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်အသစ်များ"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"သင်၏အထောက်အထားကို ကူညီကာကွယ်ပေးနေစဉ် မြင်ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်လိုက်ပါ"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"သင်၏ ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်များအတွက် အပ်ဒိတ်များ"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"သင်၏အထောက်အထားကို ကူညီကာကွယ်ပေးနေစဉ် မြင်ရသော ကြော်ငြာများပေါ် ပိုမိုရွေးချယ်လိုက်ပါ"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"အက်ပ်များက သင့်အား ပုဂ္ဂိုလ်ရေးသီးသန့် ကြော်ငြာများပြချိန်တွင် သင့်အကြောင်း ၎င်းတို့ လေ့လာနိုင်သည်များကို ကန့်သတ်ရန် Android သည် ကြော်ငြာဆိုင်ရာ အချက်အလက်လုံခြုံမှု အင်္ဂါရပ်များကို တိုးချဲ့နေပါသည်။"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"အက်ပ်များနှင့် ၎င်းတို့၏ ကြော်ငြာပါတနာများသည် သင့်အထောက်အထားကို သီးသန့်ထားပြီး လုံခြုံစေရန် ကူညီပေးနေစဉ် ကြော်ငြာများ ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန်အတွက် ဤစက်ရှိ အခြားအက်ပ်များတွင် သင့်လုပ်ဆောင်ချက်ကို သုံးနိုင်သည်။"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"အက်ပ်အကြံပြုကြော်ငြာများအကြောင်း ပိုမိုသိရှိရန်"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"အက်ပ်များ၏ ကြော်ငြာစွမ်းဆောင်ရည်ကို သိရှိနားလည်ရန် တစ်နေ့တာတွင် သင့်အား ကြော်ငြာပြချိန်ကဲ့သို့ ကန့်သတ်ဒေတာအမျိုးအစားများကို ၎င်းတို့အကြား မျှဝေသည်။"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"ကြော်ငြာတိုင်းတာခြင်းအကြောင်း ပိုမိုသိရှိရန်"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android သည် မကြာသေးမီက သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။ ထို့ပြင် အက်ပ်များနှင့် ၎င်းတို့၏ ကြော်ငြာပါတနာများသည် သင့်အထောက်အထားကို သီးသန့်ထားပြီး လုံခြုံစေရန် ကူညီပေးနေစဉ် ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန် ဤစက်ရှိ အခြားအက်ပ်များတွင် သင့်လုပ်ဆောင်ချက်ကို သုံးနိုင်သည်။"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  သင်သုံးသောအက်ပ်များက သင်၏ အက်ပ် အသုံးပြုမှုပေါ် အခြေခံပြီး သင့်နှစ်သက်မှုကိုလည်း ဆုံးဖြတ်နိုင်သည်။ ဥပမာ အချက်အပြုတ်အက်ပ်များကို ပုံမှန်သုံးပါက အခြားအက်ပ်များတွင် စားသောက်ကုန်ပေးပို့ရေး ဝန်ဆောင်မှုများ (သို့) ဆက်စပ်သော အကြောင်းအရာအတွက် ကြော်ငြာများကို မြင်နိုင်သည်။\n\nအက်ပ်များသည် ဤအချက်အလက်ကို လုံခြုံစွာ သိမ်းနိုင်သဖြင့် အခြားအက်ပ်များတွင် ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန် ကြော်ငြာပါတနာများကသာ ၎င်းတို့ကို သုံးနိုင်သည်။"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"သင်အသုံးပြုသည့် အက်ပ်က ဤအချက်အလက်များကို နောက်ပိုင်းတွင် တောင်းဆိုနိုင်သည်- သင့်ကြော်ငြာအကြောင်းအရာများ (သို့) သင်အသုံးပြုနေသည့် အက်ပ်များက အကြံပြုထားသော ကြော်ငြာများ။"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"သင်သုံးသော အက်ပ်များသည် ၎င်းတို့ကြော်ငြာများ၏ စွမ်းဆောင်ရည်ကို အကဲဖြတ်တိုင်းတာရာတွင် ကူညီပေးရန် Android ထံမှ အချက်အလက်များ တောင်းနိုင်သည်။ Android သည် အက်ပ်များ တစ်ခုနှင့်တစ်ခု မျှဝေနိုင်သည့် အချက်အလက်များကို ကန့်သတ်ခြင်းဖြင့် သင့်ကိုယ်ရေးအချက်အလက် လုံခြုံမှုကို ကာကွယ်ပေးသည်။"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"မည်သည့်ဒေတာကို အသုံးပြုသလဲ။"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"သင်သုံးသောအက်ပ်များသည် ကြော်ငြာစွမ်းဆောင်ရည်ကို တိုင်းတာရာတွင် အထောက်အကူဖြစ်စေသည့် အချက်အလက်ကို Android ထံမှ တောင်းဆိုနိုင်သည်။ Android သည် အက်ပ်အချင်းချင်း မျှဝေနိုင်သည့် အချက်အလက်ကို ကန့်သတ်ခြင်းဖြင့် သင်၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုကို ကူညီကာကွယ်ပေးသည်။"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"ကျွန်ုပ်၏အထောက်အထားကို ဘယ်လိုကာကွယ်ထားသလဲ။"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"အက်ပ်အချင်းချင်း မျှဝေနိုင်သော အချက်အလက်ကို ကန့်သတ်ရန်နှင့် သင့်အထောက်အထားကို ကူညီကာကွယ်ပေးရန် Android သည် ဒေတာပေါင်းစည်းခြင်းနှင့် ဒေတာအပိုများရောနှောခြင်းကဲ့သို့ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ ဆောင်ရွက်ချက်များစွာကို အသုံးပြုပါသည်။\n\nကြော်ငြာတိုင်းတာခြင်းဒေတာကိုလည်း သင့်စက်မှ ပုံမှန်ဖျက်ပါသည်။"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"သင်၏ အက်ပ်အသုံးပြုမှုကို ကြော်ငြာများအကြံပြုရန် သုံးနိုင်သည်။"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"အက်ပ်များက ဤဒေတာကို ဘယ်လိုသုံးလဲ။"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"အခြားအက်ပ်များတွင် ကြော်ငြာများ ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန်အတွက် ကြော်ငြာပါတနာများကသာ ဤအချက်အလက်ကို သုံးနိုင်ရန် အက်ပ်များသည် ၎င်းကို လုံခြုံစွာသိမ်းနိုင်သည်။ ဥပမာ အချက်အပြုတ်အက်ပ်များကို ပုံမှန်သုံးပါက အခြားအက်ပ်များတွင် စားသောက်ကုန်ပေးပို့ရေး ဝန်ဆောင်မှုများ (သို့) ဆက်စပ်သော အကြောင်းအရာအတွက် ကြော်ငြာများကို မြင်နိုင်သည်။"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"ဤဒေတာကို ကျွန်ုပ်ဘယ်လိုစီမံနိုင်မလဲ။"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"သင့်လုပ်ဆောင်ချက်ကို ကြော်ငြာပါတနာများနှင့် မျှဝေခြင်းမှ အက်ပ်အချို့အား ပိတ်ထားနိုင်သည်။ အက်ပ်အကြံပြုကြော်ငြာများကို ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များတွင် အချိန်မရွေး ပြင်ဆင်သတ်မှတ်နိုင် (သို့) ပိတ်နိုင်သည်။ Android သည် ဤဒေတာကိုလည်း အလိုအလျောက် ပုံမှန်ဖျက်သည်။"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"သင့်ကိုယ်ရေးအချက်အလက်လုံခြုံမှုကို Android က ကူညီကာကွယ်ပေးပုံအကြောင်း ပိုမိုလေ့လာရန်"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"အက်ပ်များနှင့် ၎င်းတို့၏ ကြော်ငြာပါတနာများသည် သင့်အကြောင်း အချက်အလက်ကို သီးသန့်ထားပြီး လုံခြုံစေရန် ဆက်လုပ်နေစဉ် ကြော်ငြာများ ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန်အတွက် ဤစက်ရှိ အခြားအက်ပ်များတွင် သင့်လုပ်ဆောင်ချက်ကို သုံးနိုင်သည်။\n\nဥပမာ အချက်အပြုတ်အက်ပ်များကို ပုံမှန်သုံးပါက အခြားအက်ပ်များတွင် စားသောက်ကုန်ပေးပို့ရေး ဝန်ဆောင်မှုများ (သို့) ဆက်စပ်သော အကြောင်းအရာအတွက် ကြော်ငြာများကို မြင်နိုင်သည်။\n\nAndroid သည် သင့်လုပ်ဆောင်ချက်ကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ သို့သော် ဤအချက်အလက်ကို ကြော်ငြာပါတနာများနှင့် မျှဝေခြင်းမှလည်း အက်ပ်များအား ပိတ်ထားနိုင်သည်။"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"ပုဂ္ဂိုလ်ရေးသီးသန့် အသုံးပြုနိုင်ရန် သင်စိတ်ဝင်စားသောအရာများကို အက်ပ်များနှင့် ၎င်းတို့၏ ကြော်ငြာပါတနာများက မှတ်သားလေ့ရှိသည်။ အခြားအက်ပ်များတွင် ကြော်ငြာများ ပြရန်အတွက် ကြော်ငြာပါတနာများကသာ ဤအချက်အလက်ကို သုံးနိုင်ရန် အက်ပ်များသည် ၎င်းကို လုံခြုံစွာသိမ်းနိုင်သည်။\n\nသင့်လုပ်ဆောင်ချက်ဒေတာကို ကြော်ငြာပါတနာများနှင့် မျှဝေခြင်းမှ အက်ပ်တစ်ခုအား ပိတ်ထားနိုင်သည်။ Android သည် မျှဝေထားသော လုပ်ဆောင်ချက်ဒေတာကိုလည်း အလိုအလျောက် ပုံမှန်ဖျက်သောကြောင့် သင်ပြန်သုံးသောအက်ပ်သည် ဤစာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။\n\nသင်မြင်ရသောကြော်ငြာကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ထားခြင်း ရှိ၊ မရှိသည် ဤဆက်တင်၊ ကြော်ငြာအကြောင်းအရာ ဆက်တင်၊ သင်၏ ကြော်ငြာ ID ဆက်တင်များနှင့် သင်သုံးနေသောအက်ပ်က ကြော်ငြာများ ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ထားခြင်း ရှိ၊ မရှိကဲ့သို့ အချက်များစွာပေါ် မူတည်နိုင်သည်။\n\n"<a href="https://support.google.com/android?p=ad_privacy">"အက်ပ်အကြံပြုကြော်ငြာများအကြောင်း ပိုမိုလေ့လာရန်"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"အက်ပ်အချင်းချင်း မျှဝေနိုင်သော အချက်အလက်ကို ကန့်သတ်ရန်နှင့် သင့်အထောက်အထားကို ကူညီကာကွယ်ပေးရန် Android သည် ဒေတာပေါင်းစည်းခြင်းနှင့် ဒေတာအပိုများရောနှောခြင်းကဲ့သို့ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ ဆောင်ရွက်ချက်များစွာကို အသုံးပြုပါသည်။\n\nသင့်ဘရောင်ဇာတွင် အလားတူဆက်တင် ရှိနိုင်သည်။ Android နှင့် သင့်ဘရောင်ဇာနှစ်ခုစလုံးအတွက် ကြော်ငြာတိုင်းတာခြင်း ဖွင့်ထားပါက သင်အသုံးပြုသောအက်ပ်များနှင့် သင်ဝင်ကြည့်သောဝဘ်ဆိုက်များအကြား ကြော်ငြာ၏ထိရောက်မှုကို ကုမ္ပဏီက တိုင်းတာနိုင်သည်။ သင့်ကြည့်ရှုမှုမှတ်တမ်းကို သင်၏စက်တွင် သီးသန့်ထားရှိသည်။\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ကြော်ငြာတိုင်းတာခြင်းအကြောင်း ပိုမိုလေ့လာရန်"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android သည် ပြီးခဲ့သည့်သီတင်းပတ်အနည်းငယ်က သင်သုံးခဲ့သော အက်ပ်များပေါ် အခြေခံ၍ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို မှတ်သားသည်။\n\nနောင်တွင် သင်သုံးသောအက်ပ်သည် သင်မြင်ရသည့် ကြော်ငြာများကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ရန် သင်၏အကြောင်းအရာများကို Android ထံမှ တောင်းဆိုနိုင်သည်။ Android သည် သင့်အထောက်အထားနှင့် သင်၏ အက်ပ်အသုံးပြုမှုဆိုင်ရာ အချက်အလက်များကို ကာကွယ်ပြီး အကြောင်းအရာ ၃ ခုအထိ မျှဝေသည်။\n\nAndroid သည် အကြောင်းအရာများကို အလိုအလျောက် ပုံမှန်ဖျက်သည်။ အက်ပ်များကို ဆက်လက်အသုံးပြုသည်နှင့်အမျှ အကြောင်းအရာသည် စာရင်းတွင် ပြန်ပေါ်လာနိုင်သည်။ သို့မဟုတ် Android အား အက်ပ်များနှင့် မမျှဝေစေလိုသော အကြောင်းအရာများကို သင်က ပိတ်ထားနိုင်သည်။\n\nသင်မြင်ရသောကြော်ငြာကို ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ထားခြင်း ရှိ၊ မရှိသည် ဤဆက်တင်၊ အက်ပ်အကြံပြုကြော်ငြာဆက်တင်၊ သင်၏ ကြော်ငြာ ID ဆက်တင်များနှင့် သင်သုံးနေသောအက်ပ်က ကြော်ငြာများ ပုဂ္ဂိုလ်ရေးသီးသန့်ပြုလုပ်ထားခြင်း ရှိ၊ မရှိကဲ့သို့ အချက်များစွာပေါ် မူတည်နိုင်သည်။\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ကြော်ငြာအကြောင်းအရာများအကြောင်း ပိုမိုလေ့လာရန်"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"တေးဂီတ၊ သတင်းနှင့် အားကစားကဲ့သို့ စိတ်ဝင်စားသည့် အကြောင်းအရာများကို ကိုယ်စားပြုသည့် သင်္ကေတများ၏ အရောင်စုံ သရုပ်ဖော်ပုံ"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"စက်ဝိုင်းအတွင်း သော့ခလောက်ပါသည့် အရောင်စုံ သရုပ်ဖော်ပုံ"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"စတုရန်းဖြစ်စေသည့် ဒေါ့(တ်) ၉ ခု၏ အနက်နှင့် အဖြူ သရုပ်ဖော်ပုံသေး"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"အသည်းနှလုံးပုံ၊ တြိဂံနှင့် စတုရန်းကဲ့သို့ ရိုးရှင်းသောပုံသဏ္ဌာန်များ၏ အနက်နှင့် အဖြူ သရုပ်ဖော်ပုံသေး"</string>
+    <string name="topic10001" msgid="1270825507916795717">"အနုပညာနှင့် ဖျော်ဖြေရေး"</string>
+    <string name="topic10002" msgid="8657696153158750159">"သရုပ်ဆောင်ခြင်းနှင့် ကဇာတ်ရုံ"</string>
+    <string name="topic10003" msgid="8107343709605778937">"အန်နီမီနှင့် မန်ဂါ"</string>
+    <string name="topic10004" msgid="8860839733494442614">"ကာတွန်းများ"</string>
+    <string name="topic10005" msgid="2366794377271477958">"ရုပ်ပြများ"</string>
+    <string name="topic10006" msgid="3856192433168050494">"တေးဂီတဖျော်ဖြေပွဲနှင့် ဂီတပွဲတော်များ"</string>
+    <string name="topic10007" msgid="7701054618107492020">"အက"</string>
+    <string name="topic10008" msgid="5566660187422751041">"ဖျော်ဖြေရေးလုပ်ငန်း"</string>
+    <string name="topic10009" msgid="9048499060637442408">"ရယ်စရာနှင့် ဉာဏ်စမ်း"</string>
+    <string name="topic10010" msgid="2312303716461948144">"ရယ်စရာစမ်းသပ်မှုနှင့် အူကြောင်ကြောင်စစ်တမ်းများ"</string>
+    <string name="topic10011" msgid="175945911179628507">"ဟာသ"</string>
+    <string name="topic10012" msgid="7308795546139033442">"ရယ်စရာပုံနှင့် ဗီဒီယိုများ"</string>
+    <string name="topic10013" msgid="1525199586552473496">"တိုက်ရိုက်လွှင့် ဟာသ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"တိုက်ရိုက်လွှင့် အားကစားပွဲများ"</string>
+    <string name="topic10015" msgid="726046067079821146">"မျက်လှည့်"</string>
+    <string name="topic10016" msgid="2349985783026324836">"ရုပ်ရှင်စာရင်းနှင့် ရုပ်ရှင်ပြသချိန်များ"</string>
+    <string name="topic10017" msgid="5137452934538259985">"ရုပ်ရှင်များ"</string>
+    <string name="topic10018" msgid="2701694124396534094">"ဇာတ်ကြမ်းနှင့် စွန့်စားခန်း ရုပ်ရှင်များ"</string>
+    <string name="topic10019" msgid="4229784972880729321">"လှုပ်ရှားသက်ဝင်ရုပ်ရှင်များ"</string>
+    <string name="topic10020" msgid="7406506079009096133">"ဟာသရုပ်ရှင်များ"</string>
+    <string name="topic10021" msgid="8455397230215712525">"ယုံကြည်မှုဆိုင်ရာနှင့် အင်ဒီး ရုပ်ရှင်များ"</string>
+    <string name="topic10022" msgid="4121646102859453428">"မှတ်တမ်းရုပ်ရှင်များ"</string>
+    <string name="topic10023" msgid="254151319845267278">"အချစ်အလွမ်းရုပ်ရှင်များ"</string>
+    <string name="topic10024" msgid="9166490951622139148">"မိသားစုရုပ်ရှင်များ"</string>
+    <string name="topic10025" msgid="4556814606759167730">"ကြောက်မက်ဖွယ်ရာ ရုပ်ရှင်များ"</string>
+    <string name="topic10026" msgid="210222384439682793">"အချစ်ဇာတ်လမ်း ရုပ်ရှင်များ"</string>
+    <string name="topic10027" msgid="6865151893887179263">"သည်းထိတ်ရင်ဖို"</string>
+    <string name="topic10028" msgid="7591747452141916447">"တေးဂီတနှင့် အသံ"</string>
+    <string name="topic10029" msgid="2603521148910221418">"ဘလူးစ်တေးဂီတ"</string>
+    <string name="topic10030" msgid="1882645896051165373">"ဂန္ထဝင်ဂီတ"</string>
+    <string name="topic10031" msgid="3075843490601826275">"ကျေးလက်တေးဂီတ"</string>
+    <string name="topic10032" msgid="5492959212920168739">"အကနှင့် အီလက်ထရွန်နစ် တေးဂီတ"</string>
+    <string name="topic10033" msgid="895853536740398847">"ကျေးလက်နှင့် ရိုးရာတေးဂီတ"</string>
+    <string name="topic10034" msgid="4234814709585731313">"ဂျက်ဇ်"</string>
+    <string name="topic10035" msgid="4357756001621317728">"တေးဂီတထုတ်လွှင့်မှုနှင့် ဒေါင်းလုဒ်များ"</string>
+    <string name="topic10036" msgid="449833307315797283">"သီချင်းဗီဒီယိုများ"</string>
+    <string name="topic10037" msgid="51698216720637667">"ဂီတတူရိယာ"</string>
+    <string name="topic10038" msgid="8450729953573104572">"စန္ဒယားနှင့် ကီးဘုတ်များ"</string>
+    <string name="topic10039" msgid="9069435933476958784">"ပေါ့ပ်တေးဂီတ"</string>
+    <string name="topic10040" msgid="2307340564445486423">"ရေဒီယို"</string>
+    <string name="topic10041" msgid="7067032299296103616">"ရေဒီယို စကားပြောခန်း"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ရပ်နှင့် ဟစ်ဟော့"</string>
+    <string name="topic10043" msgid="8147403254760123570">"ရော့ခ်တေးဂီတ"</string>
+    <string name="topic10044" msgid="6201404431104417585">"ဂန္ထဝင်ရော့ခ်နှင့် သီချင်းဟောင်း"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ဟာ့ဒ်ရော့ခ်နှင့် ဆန်းသစ်ဂီတ"</string>
+    <string name="topic10046" msgid="4700537150965749092">"အင်ဒီးနှင့် အော်တာနေးတစ် ဂီတ"</string>
+    <string name="topic10047" msgid="6868724754947095800">"နမူနာနှင့် အသံဒစ်ဂျစ်တိုက်များ"</string>
+    <string name="topic10048" msgid="1968071881240362644">"အဆွေးသီချင်းနှင့် အာရ်အန်ဘီ"</string>
+    <string name="topic10049" msgid="3935800983716699672">"ဇာတ်ဝင်တေးများ"</string>
+    <string name="topic10050" msgid="1374275552775889532">"ကမ္ဘာ့တေးဂီတ"</string>
+    <string name="topic10051" msgid="5719726125732251258">"ရပ်ဂေးနှင့် ကာရစ်ဘီယံဂီတ"</string>
+    <string name="topic10052" msgid="1284902821545612733">"အွန်လိုင်းပုံပြခန်းများ"</string>
+    <string name="topic10053" msgid="5420622301656482567">"အွန်လိုင်းဗီဒီယို"</string>
+    <string name="topic10054" msgid="4562235511593399260">"တိုက်ရိုက်လွှင့်ဗီဒီယို"</string>
+    <string name="topic10055" msgid="3752987507076288470">"ရုပ်ရှင်နှင့် TV Streaming"</string>
+    <string name="topic10056" msgid="1316228709578133569">"အော်ပရာ"</string>
+    <string name="topic10057" msgid="3265794667031664331">"TV လမ်းညွှန်နှင့် ရည်ညွှန်းချက်"</string>
+    <string name="topic10058" msgid="8409884272709263707">"TV ကွန်ရက်နှင့် အသံလွှင့်လိုင်းများ"</string>
+    <string name="topic10059" msgid="6770193120260554722">"TV ရှိုးနှင့် အစီအစဉ်များ"</string>
+    <string name="topic10060" msgid="2410694865246432781">"TV ဟာသရှိုးများ"</string>
+    <string name="topic10061" msgid="7733515887806604226">"TV မှတ်တမ်းရုပ်ရှင်နှင့် ဖြစ်ရပ်မှန်"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV ဒရာမာဇာတ်လမ်းများ"</string>
+    <string name="topic10063" msgid="7645361077069015698">"ဘဝသရုပ်ဖော် TV ဇာတ်လမ်းများ"</string>
+    <string name="topic10064" msgid="3322306867038013554">"TV မိသားစုအတွက် ရှိုးများ"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV ဖြစ်ရပ်မှန်ရှိုးများ"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV သိပ္ပံနှင့် စိတ်ကူးယဉ်ရှိုးများ"</string>
+    <string name="topic10067" msgid="6479768451596254929">"ကြည့်ရှုစရာ အနုပညာနှင့် ဒီဇိုင်း"</string>
+    <string name="topic10068" msgid="7999222744500155387">"ဒီဇိုင်း"</string>
+    <string name="topic10069" msgid="3345227631449580699">"ပန်းချီရေးခြင်း"</string>
+    <string name="topic10070" msgid="8921241315781663883">"ဓာတ်ပုံနှင့် ဒစ်ဂျစ်တယ်အနုပညာ"</string>
+    <string name="topic10071" msgid="5802889978655775195">"ကားနှင့် ယာဉ်များ"</string>
+    <string name="topic10072" msgid="7699714565299422080">"ကုန်တင်ယာဉ်နှင့် နောက်တွဲယာဉ်များ"</string>
+    <string name="topic10073" msgid="8309536003187424408">"ရှေးဟောင်းယာဉ်များ"</string>
+    <string name="topic10074" msgid="7682849385993670574">"စိတ်ကြိုက်စွမ်းဆောင်ရည်ယာဉ်များ"</string>
+    <string name="topic10075" msgid="6556611554556269074">"ဂက်စ်ဈေးနှုန်းနှင့် ယာဉ်ဆီဖြည့်ခြင်း"</string>
+    <string name="topic10076" msgid="4919696820372108489">"မော်တာတပ်ယာဉ်များ (အမျိုးအစားအလိုက်)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"အလိုအလျောက်မောင်းသောယာဉ်များ"</string>
+    <string name="topic10078" msgid="4334233882549881927">"အမိုးဖွင့်ကား"</string>
+    <string name="topic10079" msgid="3172046203487780210">"တံခါးနှစ်ပေါက်ကားများ"</string>
+    <string name="topic10080" msgid="8163934214927408125">"နောက်ဖုံးဖွင့်ကားများ"</string>
+    <string name="topic10081" msgid="577995777553561437">"ဟိုက်ဘရစ်နှင့် အစားထိုးယာဉ်များ"</string>
+    <string name="topic10082" msgid="9109129029552185357">"ဇိမ်ခံယာဉ်များ"</string>
+    <string name="topic10083" msgid="2403537768530923605">"ကားသေးနှင့် ကားငယ်များ"</string>
+    <string name="topic10084" msgid="8422281545992763598">"မော်တော်ဆိုင်ကယ်များ"</string>
+    <string name="topic10085" msgid="8083861494180925476">"လမ်းကြမ်းသုံးယာဉ်များ"</string>
+    <string name="topic10086" msgid="7643969175312645412">"ကုန်တင်ကားငယ်များ"</string>
+    <string name="topic10087" msgid="2731154517409527341">"စကူတာနှင့် စက်တပ်စက်ဘီးများ"</string>
+    <string name="topic10088" msgid="3252737061574829966">"ဆလွန်းကား"</string>
+    <string name="topic10089" msgid="5296300331452192377">"စတေရှင်ဝက်ဂွန်ကားများ"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUV နှင့် ပုံပြောင်းကားများ"</string>
+    <string name="topic10091" msgid="1855954783407839458">"ပုံပြောင်းကားများ"</string>
+    <string name="topic10092" msgid="3748598147176261608">"ဗင်နှင့် မီနီဗင်များ"</string>
+    <string name="topic10093" msgid="4427294934418177183">"ကားဆွဲခြင်းနှင့် လမ်းဘေးအကူအညီ"</string>
+    <string name="topic10094" msgid="2377839138225502290">"ယာဉ်နှင့် ယာဉ်လမ်းကြော ဘေးကင်းမှု"</string>
+    <string name="topic10095" msgid="84682415803421329">"ယာဉ်အစိတ်အပိုင်းနှင့် အပိုပစ္စည်းများ"</string>
+    <string name="topic10096" msgid="8920802377602814882">"ယာဉ်ပြင်ဆင်ထိန်းသိမ်းရေး"</string>
+    <string name="topic10097" msgid="1171171183482751335">"ယာဉ်ဝယ်ယူခြင်း"</string>
+    <string name="topic10098" msgid="2079957196489295765">"တစ်ပတ်ရစ်ယာဉ်"</string>
+    <string name="topic10099" msgid="8979943848539150620">"ယာဉ်ပြပွဲများ"</string>
+    <string name="topic10100" msgid="4197262693717174623">"အလှအပနှင့် ကြံ့ခိုင်ရေး"</string>
+    <string name="topic10101" msgid="7348658588841917441">"ကိုယ်ပေါ်အလှဆင်ခြင်း အနုပညာ"</string>
+    <string name="topic10102" msgid="3638722720071045006">"မျက်နှာနှင့် ကိုယ်ခန္ဓာ ပြုစုကုသခြင်း"</string>
+    <string name="topic10103" msgid="7505482487921433611">"ချွေးနံ့ပျောက်ဆေး"</string>
+    <string name="topic10104" msgid="6370054283334591202">"ရေချိုးဆပ်ပြာနှင့် ခန္ဓာကိုယ်ထိန်းသိမ်းရေးပစ္စည်းများ"</string>
+    <string name="topic10105" msgid="1191169056931411220">"စင်ကြယ်သောအလှ"</string>
+    <string name="topic10106" msgid="3928455104996075953">"မိတ်ကပ်နှင့် အလှပြင်ပစ္စည်းများ"</string>
+    <string name="topic10107" msgid="3798923390765338227">"လက်သည်းအလှကုန်များ"</string>
+    <string name="topic10108" msgid="577259588028933025">"ရေမွှေးနှင့် မွှေးရနံ့များ"</string>
+    <string name="topic10109" msgid="2191558742276310934">"သင်တုန်းဓားနှင့် အမွေးရိတ်စက်များ"</string>
+    <string name="topic10110" msgid="4668859731019222824">"ဖက်ရှင်နှင့် စတိုင်"</string>
+    <string name="topic10111" msgid="8382751996496129758">"ကြံ့ခိုင်ရေး"</string>
+    <string name="topic10112" msgid="2904455776326272301">"ကိုယ်ကာယလေ့ကျင့်ခန်း"</string>
+    <string name="topic10113" msgid="8931680908070341060">"ကြံ့ခိုင်ရေးလမ်းညွှန်မှုနှင့် တစ်ကိုယ်ရေလေ့ကျင့်မှု"</string>
+    <string name="topic10114" msgid="1666144425445242905">"ကြံ့ခိုင်ရေးဆိုင်ရာ နည်းပညာထုတ်ကုန်များ"</string>
+    <string name="topic10115" msgid="3024886857586781525">"ဆံပင်ထိန်းသိမ်းမှု"</string>
+    <string name="topic10116" msgid="763642849903586689">"စာအုပ်စာပေ"</string>
+    <string name="topic10117" msgid="2897295398887355445">"ကလေးစာပေ"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-စာအုပ်များ"</string>
+    <string name="topic10119" msgid="894448782525835364">"မဂ္ဂဇင်းများ"</string>
+    <string name="topic10120" msgid="6413553316742475453">"ကဗျာ"</string>
+    <string name="topic10121" msgid="5743038898774111015">"စီးပွားရေးနှင့် လုပ်ငန်း"</string>
+    <string name="topic10122" msgid="9008408720895399838">"ကြော်ငြာခြင်းနှင့် ဈေးကွက်ရှာဖွေခြင်း"</string>
+    <string name="topic10123" msgid="2259134467663515137">"လျှော့ဈေး"</string>
+    <string name="topic10124" msgid="6342988250432534253">"စိုက်ပျိုးရေးနှင့် သစ်တောလုပ်ငန်း"</string>
+    <string name="topic10125" msgid="4258543381071903891">"အစားအသောက်ထုတ်လုပ်မှု"</string>
+    <string name="topic10126" msgid="7175643869342613083">"မော်တော်ယာဉ်ဆိုင်ရာလုပ်ငန်း"</string>
+    <string name="topic10127" msgid="6431712570995680971">"လေကြောင်းဆိုင်ရာလုပ်ငန်း"</string>
+    <string name="topic10128" msgid="4235280795901477432">"လုပ်ငန်းလည်ပတ်မှုများ"</string>
+    <string name="topic10129" msgid="7076722669374577677">"လိုက်လျောညီထွေ အလုပ်စီစဉ်ပေးမှုများ"</string>
+    <string name="topic10130" msgid="3611582433482627069">"လူသားရင်းမြစ်"</string>
+    <string name="topic10131" msgid="1372513307847962621">"လုပ်ငန်းသုံးငှားခြင်း"</string>
+    <string name="topic10132" msgid="4784716346965522438">"ဆောက်လုပ်ရေးနှင့် ပြုပြင်ထိန်းသိမ်းရေး"</string>
+    <string name="topic10133" msgid="7421272318291450977">"မြို့ပြအင်ဂျင်နီယာပညာရပ်"</string>
+    <string name="topic10134" msgid="6960637850006318075">"ကာကွယ်ရေးလုပ်ငန်း"</string>
+    <string name="topic10135" msgid="3682767135401089609">"စွမ်းအင်နှင့် လျှပ်စစ်မီး ဝန်ဆောင်မှုများ"</string>
+    <string name="topic10136" msgid="455894912948558854">"ရေပေးခြင်းနှင့် သန့်စင်ခြင်း"</string>
+    <string name="topic10137" msgid="8298610586001250767">"ဧည့်ဝတ်ပြုခြင်းဆိုင်ရာ လုပ်ငန်း"</string>
+    <string name="topic10138" msgid="1297997683887620829">"ကုန်ထုတ်လုပ်မှု"</string>
+    <string name="topic10139" msgid="2881410777083033235">"သတ္တုနှင့် သတ္တုတွင်း"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM နှင့် လုပ်ငန်းအခွင့်အလမ်းများ"</string>
+    <string name="topic10141" msgid="2209863158714894227">"ဆေးပစ္စည်းနှင့် ဇီဝနည်းပညာ"</string>
+    <string name="topic10142" msgid="5503134498670972397">"ပုံနှိပ်ထုတ်ဝေခြင်း"</string>
+    <string name="topic10143" msgid="7443122495469194311">"လက်လီအရောင်းအဝယ်"</string>
+    <string name="topic10144" msgid="4491152042745513902">"လုပ်ငန်း ရင်းနှီးငွေ"</string>
+    <string name="topic10145" msgid="7181389660165515306">"ကွန်ပျူတာနှင့် အီလက်ထရောနစ်ပစ္စည်းများ"</string>
+    <string name="topic10146" msgid="5319328674320188177">"ကွန်ပျူတာဆက်စပ်ပစ္စည်း"</string>
+    <string name="topic10147" msgid="3115360970477190823">"ပရင်တာများ"</string>
+    <string name="topic10148" msgid="388392714835039199">"ကွန်ပျူတာလုံခြုံရေး"</string>
+    <string name="topic10149" msgid="8669494095915530311">"ဗိုင်းရပ်စ်ကာကွယ်ရေးနှင့် မဲလ်ဝဲ"</string>
+    <string name="topic10150" msgid="7287887356428407082">"ကွန်ရက်လုံခြုံမှု"</string>
+    <string name="topic10151" msgid="1896865948857670589">"လူသုံးကုန် အီလက်ထရောနစ်ပစ္စည်းများ"</string>
+    <string name="topic10152" msgid="2229775287055715130">"ကင်မရာနှင့် ဗီဒီယိုကင်မရာများ"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS နှင့် လမ်းညွှန်သွားလာခြင်း"</string>
+    <string name="topic10154" msgid="6865619906648095342">"အိမ်တွင်း အလိုအလျောက် ထိန်းချုပ်စနစ်"</string>
+    <string name="topic10155" msgid="6083736045761149547">"အိမ်သုံး ရုပ်ရှင်ရုံစနစ်များ"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 နှင့် အိတ်ဆောင်မီဒီယာ ပလေယာ"</string>
+    <string name="topic10157" msgid="5681638457846277732">"ဝတ်ဆင်ပစ္စည်း နည်းပညာ"</string>
+    <string name="topic10158" msgid="3203453971647354680">"ဒေတာမိတ္တူနှင့် ပြန်လည်ရယူခြင်း"</string>
+    <string name="topic10159" msgid="5630430439595766824">"ဒက်စ်တော့ကွန်ပျူတာများ"</string>
+    <string name="topic10160" msgid="4829448963240629016">"လက်ပ်တော့နှင့် နုတ်ဘုတ်ကွန်ပျူတာများ"</string>
+    <string name="topic10161" msgid="172004201167511870">"ကွန်ရက်ချိတ်ဆက်ခြင်း"</string>
+    <string name="topic10162" msgid="6091195506695436179">"ဖြန့်ဖြူးထားမှုနှင့် cloud သုံးဝန်ဆောင်မှု"</string>
+    <string name="topic10163" msgid="1151401754761855146">"ပရိုဂရမ်ရေးခြင်း"</string>
+    <string name="topic10164" msgid="9084381711034794904">"ဆော့ဖ်ဝဲ"</string>
+    <string name="topic10165" msgid="7794619191364239903">"အသံနှင့် တေးဂီတဆော့ဖ်ဝဲ"</string>
+    <string name="topic10166" msgid="8763250476037582784">"လုပ်ငန်းနှင့် အလုပ်ပြီးမြောက်ရေးဆော့ဖ်ဝဲ"</string>
+    <string name="topic10167" msgid="2049380875864013534">"ပြက္ခဒိန်နှင့် အချိန်ဇယားထည့်သွင်းရေး ဆော့ဖ်ဝဲ"</string>
+    <string name="topic10168" msgid="8902187628490964169">"ပူးတွဲလုပ်ကိုင်ရေးနှင့် အစည်းအဝေးလုပ်ခြင်းဆော့ဖ်ဝဲ"</string>
+    <string name="topic10169" msgid="827557334245484202">"တင်ပြမှုဆော့ဖ်ဝဲ"</string>
+    <string name="topic10170" msgid="9004257492478793528">"ဇယားဖိုင်ဆော့ဖ်ဝဲ"</string>
+    <string name="topic10171" msgid="7993474143932045967">"စာရိုက်သည့်ဆော့ဖ်ဝဲ"</string>
+    <string name="topic10172" msgid="7796145013604839047">"ဒက်စ်တော့ထုတ်ဝေရေး"</string>
+    <string name="topic10173" msgid="2914187257631238849">"ဖောင့်များ"</string>
+    <string name="topic10174" msgid="2115617300581130014">"ဒေါင်းလုဒ် မန်နေဂျာများ"</string>
+    <string name="topic10175" msgid="5871766754983733443">"အခမဲ့ဆော့ဖ်ဝဲနှင့် မျှသုံးဆော့ဖ်ဝဲ"</string>
+    <string name="topic10176" msgid="4556902534984350353">"ဂရပ်ဖစ်နှင့် လှုပ်ရှားသက်ဝင်ပုံ ဆော့ဖ်ဝဲ"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ပိုမိုမှန်ကန်တိကျသော ပုဂ္ဂိုလ်ရေးလက်ထောက်များ"</string>
+    <string name="topic10178" msgid="6156514295355993755">"မီဒီယာ ပလေယာများ"</string>
+    <string name="topic10179" msgid="4166560755175055525">"စောင့်ကြည့်စစ်ဆေးခြင်းဆော့ဖ်ဝဲ"</string>
+    <string name="topic10180" msgid="1616408866159152420">"လည်ပတ်သည့်စနစ်များ"</string>
+    <string name="topic10181" msgid="1104637623376778918">"ဓာတ်ပုံနှင့် ဗီဒီယိုဆော့ဖ်ဝဲ"</string>
+    <string name="topic10182" msgid="4433309778429721885">"ဓာတ်ပုံဆော့ဖ်ဝဲ"</string>
+    <string name="topic10183" msgid="7726225846283601216">"ဗီဒီယိုဆော့ဖ်ဝဲ"</string>
+    <string name="topic10184" msgid="7666718573841178521">"အထောက်အကူပြု ဆော့ဖ်ဝဲလ်"</string>
+    <string name="topic10185" msgid="7090504131394943791">"ဝဘ်ဘရောင်ဇာများ"</string>
+    <string name="topic10186" msgid="2894398454040127175">"ငွေကြေး"</string>
+    <string name="topic10187" msgid="3321209590831212269">"စာရင်းကိုင်ခြင်းနှင့် စာရင်းစစ်ခြင်း"</string>
+    <string name="topic10188" msgid="6091864564976149142">"အခွန်ပြင်ဆင်ခြင်းနှင့် အစီအစဉ်ဆွဲခြင်း"</string>
+    <string name="topic10189" msgid="5722909809680931661">"ဘဏ်လုပ်ငန်း"</string>
+    <string name="topic10190" msgid="4954502185848303449">"ငွေလွှဲခြင်းနှင့် ငွေလွှဲဝန်ဆောင်မှုများ"</string>
+    <string name="topic10191" msgid="374364159635356705">"အကြွေးပေးခြင်းနှင့် ငွေထုတ်ချေးခြင်း"</string>
+    <string name="topic10192" msgid="4780985034026130257">"ခရက်ဒစ်ကတ်များ"</string>
+    <string name="topic10193" msgid="5010972379907168829">"အိမ်ဝယ်ယူမှုဆိုင်ရာ ငွေထောက်ပံ့ခြင်း"</string>
+    <string name="topic10194" msgid="1311944420068992723">"ကိုယ်ရေးကိုယ်တာချေးငွေများ"</string>
+    <string name="topic10195" msgid="7554681395283728871">"ကျောင်းသားချေးငွေနှင့် ကောလိပ်အတွက်ငွေထောက်ပံ့ခြင်း"</string>
+    <string name="topic10196" msgid="1390058955048742733">"ငွေကြေးအစီအစဉ်ဆွဲခြင်းနှင့် စီမံခြင်း"</string>
+    <string name="topic10197" msgid="6999203003544574270">"အငြိမ်းစားယူခြင်းနှင့် ပင်စင်"</string>
+    <string name="topic10198" msgid="1172025416206301419">"ထောက်ပံ့ငွေ"</string>
+    <string name="topic10199" msgid="2817599683028682473">"ထောက်ပံ့ငွေ"</string>
+    <string name="topic10200" msgid="4560138974690686847">"အာမခံ"</string>
+    <string name="topic10201" msgid="447240478385298875">"ကားအာမခံ"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ကျန်းမာရေးအာမခံ"</string>
+    <string name="topic10203" msgid="6593194921457271151">"အိမ်အာမခံ"</string>
+    <string name="topic10204" msgid="4634976092969827804">"အသက်အာမခံ"</string>
+    <string name="topic10205" msgid="262581473890356377">"ခရီးသွားအာမခံ"</string>
+    <string name="topic10206" msgid="5534905376642807172">"ရင်းနှီးမြှုပ်နှံခြင်း"</string>
+    <string name="topic10207" msgid="2202788132330201137">"သွင်း/ပို့ကုန်နှင့် ကြိုရောင်းကြိုဝယ် ကုန်သွယ်ခြင်း"</string>
+    <string name="topic10208" msgid="1250532081213960304">"ငွေကြေးနှင့် နိုင်ငံခြားငွေလဲလှယ်ခြင်း"</string>
+    <string name="topic10209" msgid="7384658616986998949">"သီးသန့်ရင်းနှီးမြှုပ်နှံငွေ"</string>
+    <string name="topic10210" msgid="5646412565978393234">"ရင်းနှီးမြှုပ်နှံငွေ"</string>
+    <string name="topic10211" msgid="2001835133812379482">"စတော့နှင့် ငွေချေးစာချုပ်များ"</string>
+    <string name="topic10212" msgid="2364530251853656532">"အစားအသောက်"</string>
+    <string name="topic10213" msgid="805716705436663130">"အချက်အပြုတ်နှင့် ချက်ပြုတ်နည်းများ"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ နှင့် အသားကင်ခြင်း"</string>
+    <string name="topic10215" msgid="1502589059550612499">"ဟင်းလျာများ"</string>
+    <string name="topic10216" msgid="7699499757302291329">"သက်သတ်လွတ်ဟင်းလျာများ"</string>
+    <string name="topic10217" msgid="2160292055279553771">"တိရစ္ဆာန်ထုတ်ကုန်လွတ်ဟင်းလျာ"</string>
+    <string name="topic10218" msgid="4090671581843003332">"ကျန်းမာစွာစားခြင်း"</string>
+    <string name="topic10219" msgid="7663946426520362378">"အစားအသောက်နှင့် ကုန်စုံလက်လီရောင်းသူများ"</string>
+    <string name="topic10220" msgid="4812477283307222367">"ဂိမ်းများ"</string>
+    <string name="topic10221" msgid="2320959705105050635">"အာကိတ်နှင့် အကြွေစေ့ဂိမ်းများ"</string>
+    <string name="topic10222" msgid="1659423113675232767">"ဘိလိယက်"</string>
+    <string name="topic10223" msgid="3526662148224862522">"ဘုတ်ဂိမ်းများ"</string>
+    <string name="topic10224" msgid="8806949357679505576">"စစ်တုရင်နှင့် စိတ်ကူးသက်သက်ဗျူဟာဂိမ်းများ"</string>
+    <string name="topic10225" msgid="564207834821286301">"ဖဲဂိမ်းများ"</string>
+    <string name="topic10226" msgid="6918788605930334066">"ကတ်စုစည်းမှု ဂိမ်းများ"</string>
+    <string name="topic10227" msgid="7011042093822468388">"ကွန်ပျူတာနှင့် ဗီဒီယိုဂိမ်းများ"</string>
+    <string name="topic10228" msgid="6883716111007300369">"ဇာတ်ကြမ်းနှင့် ခုန်ပျံကျော်လွှားဂိမ်းများ"</string>
+    <string name="topic10229" msgid="1448569034984381121">"စွန့်စားခန်း ဂိမ်းများ"</string>
+    <string name="topic10230" msgid="3350872631578952799">"ရိုးရိုး ဂိမ်းများ"</string>
+    <string name="topic10231" msgid="405082026972839048">"ဗီဒီယိုဂိမ်းကစားယှဉ်ပြိုင်ခြင်း"</string>
+    <string name="topic10232" msgid="1839026948327779776">"ကားမောင်းခြင်းနှင့် အမောင်းပြိုင်ဂိမ်းများ"</string>
+    <string name="topic10233" msgid="1188186151495453281">"တိုက်ခိုက်ရေးဂိမ်းများ"</string>
+    <string name="topic10234" msgid="693433817142162565">"ဂိမ်းအကိုးအကားနှင့် သုံးသပ်ချက်များ"</string>
+    <string name="topic10235" msgid="8703923040923920090">"ဗီဒီယိုဂိမ်း လူလည်ကျကုဒ်နှင့် သဲလွန်စများ"</string>
+    <string name="topic10236" msgid="320145832033080647">"လူအုပ် အဖွဲ့လိုက်ကစားရသော ဂိမ်းများ"</string>
+    <string name="topic10237" msgid="5441671482070243974">"တေးဂီတနှင့် အကဂိမ်းများ"</string>
+    <string name="topic10238" msgid="124952008622371505">"စိတ်ကြိုက်ဖန်တီးမှု ဂိမ်းများ"</string>
+    <string name="topic10239" msgid="8116373838332949879">"အပစ်အခတ် ဂိမ်းများ"</string>
+    <string name="topic10240" msgid="429738690314619395">"အသွင်တူ ဂိမ်းများ"</string>
+    <string name="topic10241" msgid="6759586807395308444">"စီးပွားရေးနှင့် လုပ်ငန်းရှင်ဂိမ်းများ"</string>
+    <string name="topic10242" msgid="6446465880310926504">"မြို့တည်သည့် ဂိမ်းများ"</string>
+    <string name="topic10243" msgid="1900180483768183189">"ဘဝအသွင်တူဂိမ်းများ"</string>
+    <string name="topic10244" msgid="7177785844550764762">"ယာဉ်အသွင်တူဂိမ်းများ"</string>
+    <string name="topic10245" msgid="3479291573578622081">"အားကစား ဂိမ်းများ"</string>
+    <string name="topic10246" msgid="1362878793775338590">"အားကစား စီမံခန့်ခွဲသည့် ဂိမ်းများ"</string>
+    <string name="topic10247" msgid="7167743512938031275">"ဗျူဟာ ဂိမ်းများ"</string>
+    <string name="topic10248" msgid="279151815457227293">"ဗီဒီယိုဂိမ်းမော့ဒ်နှင့် အပိုပရိုဂရမ်များ"</string>
+    <string name="topic10249" msgid="631580828608894782">"ပညာရေးဆိုင်ရာ ဂိမ်းများ"</string>
+    <string name="topic10250" msgid="8788829601095126859">"မိသားစုကစားနိုင်သော ဂိမ်းနှင့် လှုပ်ရှားမှုများ"</string>
+    <string name="topic10251" msgid="4289374662760140512">"ပုံဆွဲခြင်းနှင့် ဆေးရောင်ခြယ်ခြင်း"</string>
+    <string name="topic10252" msgid="3704663832286223948">"ပြင်ဆင်ဝတ်စားခြင်းနှင့် ဖက်ရှင်ဂိမ်းများ"</string>
+    <string name="topic10253" msgid="385499297969826942">"ပဟေဠိနှင့် ဦးနှောက်စားသော ပြဿနာများ"</string>
+    <string name="topic10254" msgid="3407688580587226586">"သရုပ်ဆောင်တင်ဆက်မှုဂိမ်းများ"</string>
+    <string name="topic10255" msgid="5123382868307815261">"စားပွဲတင် တင်းနစ်"</string>
+    <string name="topic10256" msgid="3732657908002298514">"အကွက်ငယ်ဂိမ်းများ"</string>
+    <string name="topic10257" msgid="1563737702727245186">"စကားလုံးဂိမ်းများ"</string>
+    <string name="topic10258" msgid="3098024313656910144">"ဝါသနာနှင့် အပန်းဖြေမှု"</string>
+    <string name="topic10259" msgid="4943419230459875946">"နှစ်ပတ်လည်ပွဲများ"</string>
+    <string name="topic10260" msgid="8082531986100775125">"မွေးနေ့နှင့် အမည်ပေးသည့်နေ့များ"</string>
+    <string name="topic10261" msgid="5848226607755547256">"ရေငုပ်ခြင်းနှင့် ရေအောက်လှုပ်ရှားမှုများ"</string>
+    <string name="topic10262" msgid="7200864040450019529">"ချည်မျှင်နှင့် အဝတ်အထည်အနုပညာများ"</string>
+    <string name="topic10263" msgid="361345691023794788">"ပြင်ပဆောင်ရွက်မှုများ"</string>
+    <string name="topic10264" msgid="1786205972094583167">"ငါးမျှားခြင်း"</string>
+    <string name="topic10265" msgid="2823178926106728570">"အမဲလိုက်နှင့် သေနတ်ပစ်ခြင်း"</string>
+    <string name="topic10266" msgid="8850275614185862002">"ဆေးရောင်သုံး သေနတ်ပစ်ကစားခြင်း"</string>
+    <string name="topic10267" msgid="3722262029580639019">"ရေဒီယိုထိန်းချုပ်မှုနှင့် နမူနာလုပ်ခြင်း"</string>
+    <string name="topic10268" msgid="3854589101176380228">"မင်္ဂလာပွဲများ"</string>
+    <string name="topic10269" msgid="6274589872519767859">"အိမ်နှင့် ဥယျာဉ်"</string>
+    <string name="topic10270" msgid="6333380157855869252">"ခြံလုပ်ငန်း"</string>
+    <string name="topic10271" msgid="7654177637864012480">"အိမ်နှင့် အတွင်းပိုင်းအလှဆင်ခြင်း"</string>
+    <string name="topic10272" msgid="3679206633003573176">"အိမ်သုံးပစ္စည်းများ"</string>
+    <string name="topic10273" msgid="7964372799408781017">"အိမ်ပြုပြင်ရေး"</string>
+    <string name="topic10274" msgid="7438404923297950713">"အိမ်ဘေးကင်းလုံခြုံရေး"</string>
+    <string name="topic10275" msgid="682064062059687444">"အိမ်သုံးပစ္စည်းများ"</string>
+    <string name="topic10276" msgid="6967461678618700017">"ရှုခင်းပုံဖော်ခြင်း ဒီဇိုင်း"</string>
+    <string name="topic10277" msgid="5888643119731566320">"အင်တာနက်နှင့် တယ်လီကွန်း"</string>
+    <string name="topic10278" msgid="1736187026108921963">"အီးမေးလ်နှင့် မက်ဆေ့ဂျ်ပို့ခြင်း"</string>
+    <string name="topic10279" msgid="9034205050642228743">"အီးမေးလ်"</string>
+    <string name="topic10280" msgid="3168053876492638177">"စာတိုနှင့် အမြန်မက်ဆေ့ဂျ်ပို့ခြင်း"</string>
+    <string name="topic10281" msgid="582764575763317221">"အသံနှင့် ဗီဒီယိုချတ်"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP များ"</string>
+    <string name="topic10283" msgid="4990902662337451282">"ဖုန်းဝန်ဆောင်မှုပေးသူများ"</string>
+    <string name="topic10284" msgid="8298837964949288587">"ဖုန်းမြည်သံနှင့် မိုဘိုင်းအပြင်အဆင်များ"</string>
+    <string name="topic10285" msgid="5409600379647005862">"ရှာဖွေရေး အင်ဂျင်များ"</string>
+    <string name="topic10286" msgid="5120434472606081895">"စမတ်ဖုန်းများ"</string>
+    <string name="topic10287" msgid="3350459436622898201">"တယ်လီအစည်းအဝေးလုပ်ခြင်း"</string>
+    <string name="topic10288" msgid="4197272921112835157">"ဝဘ်အက်ပ်နှင့် အွန်လိုင်းတူးလ်များ"</string>
+    <string name="topic10289" msgid="5361961713593805925">"ဝဘ်ဝန်ဆောင်မှုများ"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloud သိုလှောင်ခန်း"</string>
+    <string name="topic10291" msgid="4049265350889304495">"ဝဘ်ဒီဇိုင်းနှင့် ဆော့ဖ်ဝဲရေးခြင်း"</string>
+    <string name="topic10292" msgid="3386329227033265361">"ဝဘ်လက်ခံဝန်ဆောင်လုပ်ငန်း"</string>
+    <string name="topic10293" msgid="5737650187548034975">"အလုပ်အကိုင်နှင့် ပညာရေး"</string>
+    <string name="topic10294" msgid="4134169605040294646">"ပညာရေး"</string>
+    <string name="topic10295" msgid="331240908257602211">"ပညာရပ်ဆိုင်ရာအစည်းအဝေးနှင့် ထုတ်ဝေမှုများ"</string>
+    <string name="topic10296" msgid="8588303480683748067">"ကောလိပ်နှင့် တက္ကသိုလ်များ"</string>
+    <string name="topic10297" msgid="6374270931732387420">"အဝေးသင်"</string>
+    <string name="topic10298" msgid="1588575102152049123">"မူကြိုကလေး ပညာသင်ကြားမှု"</string>
+    <string name="topic10299" msgid="2437152839161363820">"မူကြို"</string>
+    <string name="topic10300" msgid="1716635660730089544">"အိမ်တွင်း စာသင်ကြားပို့ချခြင်း"</string>
+    <string name="topic10301" msgid="7986927377838820550">"စံပြုလုပ်ထားသည်များနှင့် ဝင်ခွင့်စာမေးပွဲများ"</string>
+    <string name="topic10302" msgid="5998774512114172286">"သင်ကြားခြင်းနှင့် စာသင်ခန်းရင်းမြစ်များ"</string>
+    <string name="topic10303" msgid="4585533807035591476">"အသက်မွေးမှုနှင့် စဉ်ဆက်မပြတ်ပညာရေး"</string>
+    <string name="topic10304" msgid="7882895278855442691">"အလုပ်အကိုင်များ"</string>
+    <string name="topic10305" msgid="5595618454946980801">"သက်မွေးမှုလုပ်ငန်း ရင်းမြစ်များနှင့် အစီအစဉ်ဆွဲခြင်း"</string>
+    <string name="topic10306" msgid="2721676636117931598">"အလုပ်စာရင်းများ"</string>
+    <string name="topic10307" msgid="1718396745825058084">"ဥပဒေနှင့် အစိုးရ"</string>
+    <string name="topic10308" msgid="5324738087341048710">"ရာဇဝတ်မှုနှင့် တရားမျှတမှု"</string>
+    <string name="topic10309" msgid="6295029954614836413">"ဥပဒေဆိုင်ရာ"</string>
+    <string name="topic10310" msgid="8422735354338745855">"ဥပဒေဆိုင်ရာဝန်ဆောင်မှုများ"</string>
+    <string name="topic10311" msgid="1230675855406761762">"သတင်း"</string>
+    <string name="topic10312" msgid="6827799049548932141">"စီးပွားရေးသတင်း"</string>
+    <string name="topic10313" msgid="2329065661493302739">"ဒေသန္တရသတင်း"</string>
+    <string name="topic10314" msgid="8901835561696055036">"ပေါင်းစီးမှုနှင့် ရယူမှုများ"</string>
+    <string name="topic10315" msgid="5854338074460033131">"သတင်းစာ"</string>
+    <string name="topic10316" msgid="5102748655058857401">"နိုင်ငံရေး"</string>
+    <string name="topic10317" msgid="888696185673599406">"အားကစားသတင်း"</string>
+    <string name="topic10318" msgid="8287583657423629224">"မိုးလေဝသ"</string>
+    <string name="topic10319" msgid="8709805241522664825">"ကမ္ဘာ့သတင်း"</string>
+    <string name="topic10320" msgid="2512907250610386132">"အွန်လိုင်း ကွန်မြူနတီများ"</string>
+    <string name="topic10321" msgid="7457693963027299711">"ကလစ် ရုပ်ပုံနှင့် လှုပ်ရှားသက်ဝင် GIF များ"</string>
+    <string name="topic10322" msgid="3527120229469957977">"ချိန်းတွေ့ခြင်းနှင့် ကိုယ်ရေးကိုယ်တာများ"</string>
+    <string name="topic10323" msgid="6172125921314846923">"ဖိဒ်ပေါင်းစည်းခြင်းနှင့် လူမှုရေးဆိုင်ရာ မှတ်သားခြင်း"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ဖိုင်မျှဝေမှုနှင့် အင်တာနက်လက်ခံဝန်ဆောင်မှု"</string>
+    <string name="topic10325" msgid="916412844647169263">"ဖိုရမ်နှင့် ချတ်ဝန်ဆောင်မှုပေးသူများ"</string>
+    <string name="topic10326" msgid="9167525727089128814">"မိုက်ခရိုဘလော့ဂ်ရေးခြင်း"</string>
+    <string name="topic10327" msgid="3594488251348215868">"ဓာတ်ပုံနှင့် ဗီဒီယိုမျှဝေခြင်း"</string>
+    <string name="topic10328" msgid="5431605505487660527">"ဓာတ်ပုံနှင့် ရုပ်ပုံမျှဝေခြင်း"</string>
+    <string name="topic10329" msgid="2949598007790820705">"ဗီဒီယိုမျှဝေခြင်း"</string>
+    <string name="topic10330" msgid="4210169032750748349">"ရုပ်ပြောင်းဝတ်စုံများ"</string>
+    <string name="topic10331" msgid="9148081156366912077">"လူမှုကွန်ရက်အက်ပ်နှင့် အပိုပရိုဂရမ်များ"</string>
+    <string name="topic10332" msgid="1812925257476776861">"လူမှုကွန်ရက်များ"</string>
+    <string name="topic10333" msgid="5793613565022694596">"လူနှင့် လူအဖွဲ့အစည်း"</string>
+    <string name="topic10334" msgid="2146426680680125392">"မိသားစုနှင့် တော်စပ်ပုံများ"</string>
+    <string name="topic10335" msgid="8268284709343326034">"မျိုးရိုးနှင့် ဗီဇပညာ"</string>
+    <string name="topic10336" msgid="360328903013424569">"အိမ်ထောင်ရေး"</string>
+    <string name="topic10337" msgid="6450553850860149046">"မိဘအုပ်ထိန်းခြင်း"</string>
+    <string name="topic10338" msgid="3722340462966505867">"မွေးစားခြင်း"</string>
+    <string name="topic10339" msgid="8126807339140404862">"ကလေးငယ်နှင့် လမ်းလျှောက်ခါစ ကလေးများ"</string>
+    <string name="topic10340" msgid="259457452971577855">"ကလေးအတွက် အင်တာနက်လုံခြုံမှု"</string>
+    <string name="topic10341" msgid="9138253009638520984">"အချစ်ဇာတ်လမ်း"</string>
+    <string name="topic10342" msgid="3272595442607863965">"စိတ်ကူးယဉ်သိပ္ပံနှင့် စိတ်ကူးယဉ်"</string>
+    <string name="topic10343" msgid="7170264926050881882">"အိမ်မွေးတိရစ္ဆာန်များနှင့် တိရစ္ဆာန်များ"</string>
+    <string name="topic10344" msgid="6956876217624431965">"အိမ်မွေးတိရစ္ဆာန်အစာနှင့် တိရစ္ဆာန်သုံးပစ္စည်းများ"</string>
+    <string name="topic10345" msgid="8114717708270133007">"အိမ်မွေးတိရစ္ဆာန်"</string>
+    <string name="topic10346" msgid="3632598362312784148">"ငှက်များ"</string>
+    <string name="topic10347" msgid="1650823938622414225">"ကြောင်များ"</string>
+    <string name="topic10348" msgid="570783769757187957">"ခွေးများ"</string>
+    <string name="topic10349" msgid="6069145390145874420">"ငါးနှင့် အခြားရေသတ္တဝါများ"</string>
+    <string name="topic10350" msgid="7438757598978766290">"တွားသွားသတ္တဝါနှင့် ကုန်းနေရေနေသတ္တဝါများ"</string>
+    <string name="topic10351" msgid="2065353497413573236">"တိရစ္ဆာန်ကုဆရာဝန်များ"</string>
+    <string name="topic10352" msgid="2787610393079898221">"အိမ်ခြံမြေ"</string>
+    <string name="topic10353" msgid="230887584509968233">"မြေကွက်နှင့် ခြံများ"</string>
+    <string name="topic10354" msgid="2552020152740480445">"အချိန်အလိုက်မျှသုံးခြင်းနှင့် အားလပ်ရက်တည်းခိုစရာများ"</string>
+    <string name="topic10355" msgid="3803439663410756731">"ရည်ညွှန်းချက်"</string>
+    <string name="topic10356" msgid="1282534977124646845">"လုပ်ငန်းသုံးနှင့် ကိုယ်ရေးကိုယ်တာ ဖော်ပြချက်များ"</string>
+    <string name="topic10357" msgid="1506615046588912749">"အထွေထွေရည်ညွှန်းချက်"</string>
+    <string name="topic10358" msgid="4670198218200218886">"ဂဏန်းတွက်စက်နှင့် အကိုးအကားစနစ်များ"</string>
+    <string name="topic10359" msgid="4422164571631604534">"အဘိဓာန်နှင့် စွယ်စုံကျမ်းများ"</string>
+    <string name="topic10360" msgid="4777419229443131291">"ပညာရေးရင်းမြစ်များ"</string>
+    <string name="topic10361" msgid="2911719878674200735">"လုပ်နည်းကိုင်နည်း"</string>
+    <string name="topic10362" msgid="8045493635242789203">"အချိန်နှင့် ပြက္ခဒိန်များ"</string>
+    <string name="topic10363" msgid="3433488479827868110">"ဘာသာစကား ရင်းမြစ်များ"</string>
+    <string name="topic10364" msgid="7272051128606899896">"နိုင်ငံခြားဘာသာ လေ့လာမှု"</string>
+    <string name="topic10365" msgid="1638685557205583094">"ဘာသာပြန်တူးလ်နှင့် ရင်းမြစ်များ"</string>
+    <string name="topic10366" msgid="5972643213789684860">"မြေပုံများ"</string>
+    <string name="topic10367" msgid="4693720215957988260">"သိပွံ"</string>
+    <string name="topic10368" msgid="7342229547845270303">"လွန်ကဲပကတိအသွင်"</string>
+    <string name="topic10369" msgid="7623948477078242419">"ဇီဝဗေဒဆိုင်ရာ သိပ္ပံ"</string>
+    <string name="topic10370" msgid="1849957115993781053">"မျိုးရိုးဗီဇဗေဒ"</string>
+    <string name="topic10371" msgid="5801324530787262649">"ဓာတုဗေဒ"</string>
+    <string name="topic10372" msgid="7043359432633182804">"ဂေဟဗေဒနှင့် ပတ်ဝန်းကျင်"</string>
+    <string name="topic10373" msgid="1506052968197311461">"ဘူမိဗေဒ"</string>
+    <string name="topic10374" msgid="5081919530597944716">"စက်သင်ယူမှုနှင့် ကွန်ပျူတာတုပဉာဏ်"</string>
+    <string name="topic10375" msgid="7880740430968664319">"သင်္ချာ"</string>
+    <string name="topic10376" msgid="8685831276841267222">"ရူပဗေဒ"</string>
+    <string name="topic10377" msgid="8162056465305020784">"စက်ရုပ်အသုံးချနည်းပညာ"</string>
+    <string name="topic10378" msgid="6048245367747141920">"ဈေးဝယ်ခြင်း"</string>
+    <string name="topic10379" msgid="3561154473861357708">"ရှေးဟောင်းပစ္စည်းနှင့် စုဆောင်းစရာများ"</string>
+    <string name="topic10380" msgid="3001377458860648561">"အဝတ်အစား"</string>
+    <string name="topic10381" msgid="1050316146323573972">"ကလေးအဝတ်အထည်"</string>
+    <string name="topic10382" msgid="1131102032733237256">"ဝတ်စုံများ"</string>
+    <string name="topic10383" msgid="2953255538603038999">"အမျိုးသားဝတ်"</string>
+    <string name="topic10384" msgid="5208244211687593882">"အမျိုးသမီးဝတ်"</string>
+    <string name="topic10385" msgid="3335546606796359244">"အမျိုးအစားအလိုက်ခွဲထားသည်များ"</string>
+    <string name="topic10386" msgid="6517746237788385147">"အသုံးပြုသူရင်းမြစ်များ"</string>
+    <string name="topic10387" msgid="8607123472737800846">"ကူပွန်နှင့် လျှော့ဈေးကမ်းလှမ်းချက်များ"</string>
+    <string name="topic10388" msgid="1641030315133068943">"ဖောက်သည်ကတ်နှင့် အစီအစဉ်များ"</string>
+    <string name="topic10389" msgid="8196319126164726646">"နည်းပညာအကူအညီနှင့် ပြင်ဆင်ခြင်း"</string>
+    <string name="topic10390" msgid="1361120031667629697">"ပန်းပွင့်များ"</string>
+    <string name="topic10391" msgid="9119667040520612849">"နှုတ်ခွန်းဆက်ကတ်များ"</string>
+    <string name="topic10392" msgid="6877484311325584713">"ပါတီနှင့် ပွဲတော်ရက်သုံး ပစ္စည်းများ"</string>
+    <string name="topic10393" msgid="7537523054091079737">"ဈေးဝယ်ပေါ်တယ်များ"</string>
+    <string name="topic10394" msgid="5321887056912883029">"အားကစား"</string>
+    <string name="topic10395" msgid="8799420706106672054">"အမေရိကန်ဘောလုံး"</string>
+    <string name="topic10396" msgid="2048632371307841946">"ဩစတြေးလျ ဘောလုံး"</string>
+    <string name="topic10397" msgid="653991203228840785">"ကားပြိုင်ပွဲ"</string>
+    <string name="topic10398" msgid="5412613151176189985">"ဘေ့စ်ဘော"</string>
+    <string name="topic10399" msgid="2009283546036614639">"ဘတ်စကက်ဘော"</string>
+    <string name="topic10400" msgid="5034305624605462351">"ဘိုးလင်းပစ်ကစားခြင်း"</string>
+    <string name="topic10401" msgid="26807857115228330">"လက်ဝှေ့"</string>
+    <string name="topic10402" msgid="6218088033939518718">"ဦးဆောင်အားပေးခြင်း"</string>
+    <string name="topic10403" msgid="3030076002966858939">"ကောလိပ်အားကစား"</string>
+    <string name="topic10404" msgid="4018137098149287073">"ခရစ်ကက်"</string>
+    <string name="topic10405" msgid="9036991434485987285">"စက်ဘီးစီးခြင်း"</string>
+    <string name="topic10406" msgid="7185471418082005024">"မြင်းစီးအားကစား"</string>
+    <string name="topic10407" msgid="316266982792700993">"ပြင်းထန်သော အားကစား"</string>
+    <string name="topic10408" msgid="2571246233605408148">"အမြင့်တက်ခြင်းနှင့် တောင်တက်ခြင်း"</string>
+    <string name="topic10409" msgid="1182462921341224299">"စိတ်ကူးယဉ် အားကစား"</string>
+    <string name="topic10410" msgid="7501849152641094734">"ဂေါက်ရိုက်ခြင်း"</string>
+    <string name="topic10411" msgid="6678464213609789748">"ကျွမ်းဘား"</string>
+    <string name="topic10412" msgid="335770351079973128">"ဟော်ကီ"</string>
+    <string name="topic10413" msgid="416366556259783701">"ရေခဲပြင်စကိတ်စီးခြင်း"</string>
+    <string name="topic10414" msgid="6909439381556710013">"ကိုယ်ခံပညာများ"</string>
+    <string name="topic10415" msgid="4535534983750709163">"ဆိုင်ကယ်ပြိုင်ခြင်း"</string>
+    <string name="topic10416" msgid="1687911875093638923">"အိုလံပစ်ပြိုင်ပွဲ"</string>
+    <string name="topic10417" msgid="2735521554483279111">"ရတ္ဂ်ဘီ"</string>
+    <string name="topic10418" msgid="8763139538107186007">"ပြေးခြင်းနှင့် လမ်းလျှောက်ခြင်း"</string>
+    <string name="topic10419" msgid="979581105119036716">"စကီးစီးခြင်းနှင့် စနိုးဘုတ်စီးခြင်း"</string>
+    <string name="topic10420" msgid="5256622299392338856">"ဘောလုံး"</string>
+    <string name="topic10421" msgid="2654561933626679644">"လှိုင်းစီးခြင်း"</string>
+    <string name="topic10422" msgid="978920114358054206">"ရေကူးခြင်း"</string>
+    <string name="topic10423" msgid="4476847046369253369">"တင်းနစ်"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ပြေးခုန်ပစ်"</string>
+    <string name="topic10425" msgid="3357509018485364691">"ဘော်လီဘော"</string>
+    <string name="topic10426" msgid="3761026182327229458">"နပန်း"</string>
+    <string name="topic10427" msgid="3748043578314103947">"ခရီးသွားခြင်းနှင့် သယ်ယူပို့ဆောင်ရေး"</string>
+    <string name="topic10428" msgid="7483002505617756861">"စွန့်စား၍ ခရီးသွားခြင်း"</string>
+    <string name="topic10429" msgid="8091163959414149724">"လေကြောင်းခရီးသွားခြင်း"</string>
+    <string name="topic10430" msgid="1917556952821193760">"အလုပ်ခရီး"</string>
+    <string name="topic10431" msgid="7980462767288577734">"ကားငှားခြင်း"</string>
+    <string name="topic10432" msgid="4266685292456713522">"အပျော်စီးသင်္ဘောနှင့် စင်းလုံးငှားယာဉ်များ"</string>
+    <string name="topic10433" msgid="5001290528529256942">"မိသားစုခရီးသွားခြင်း"</string>
+    <string name="topic10434" msgid="6310190021663379686">"ပျားရည်စမ်းနှင့် ကြည်နူးစရာခရီးတိုများ"</string>
+    <string name="topic10435" msgid="8897799078890998992">"ဟိုတယ်နှင့် တည်းခိုစရာများ"</string>
+    <string name="topic10436" msgid="6778700611322666596">"အဝေးပြေးဘတ်စ်ကားနှင့် ရထား"</string>
+    <string name="topic10437" msgid="4764816005841382091">"စရိတ်နည်းနှင့် အနီးကပ်စီစဉ်၍ ခရီးသွားခြင်း"</string>
+    <string name="topic10438" msgid="1305380730693546021">"ခရီးဆောင်အိတ်နှင့် ခရီးသွားပစ္စည်းများ"</string>
+    <string name="topic10439" msgid="7731122187851230543">"ကမ္ဘာလှည့်ခရီးသည် လည်ပတ်စရာများ"</string>
+    <string name="topic10440" msgid="8071652555461175118">"ကမ်းခြေနှင့် ကျွန်းများ"</string>
+    <string name="topic10441" msgid="7182533767302670894">"ဒေသဆိုင်ရာ ပန်းခြံနှင့် ဥယျာဉ်များ"</string>
+    <string name="topic10442" msgid="6462141176894347324">"ပျော်ရွှင်ဖွယ် အပန်းဖြေဥယျာဉ်"</string>
+    <string name="topic10443" msgid="7234914754801803285">"တိရစ္ဆာန်ရုံများ"</string>
+    <string name="topic10444" msgid="4322315510441782805">"ယာဉ်ကြောနှင့် လမ်းကြောင်းစီစဉ်သူများ"</string>
+    <string name="topic10445" msgid="1182221450749409373">"ခရီးသွားကိုယ်စားလှယ်နှင့် ဝန်ဆောင်မှုများ"</string>
+    <string name="topic10446" msgid="3104259094878772333">"ခရီးသွားလမ်းညွှန်နှင့် ခရီးသွားမှတ်တမ်းများ"</string>
+</resources>
