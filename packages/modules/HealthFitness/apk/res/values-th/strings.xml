@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="4768580772453324183">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="6401520186678972547">"จัดการสิทธิ์ของแอปในการเข้าถึงข้อมูลสุขภาพ"</string>
+    <string name="permissions_and_data_header" msgid="4406105506837487805">"สิทธิ์และข้อมูล"</string>
+    <string name="home_subtitle" msgid="1750033322147357163">"จัดการข้อมูลสุขภาพและการออกกำลังกายในโทรศัพท์ และควบคุมว่าแอปใดบ้างที่เข้าถึงข้อมูลได้"</string>
+    <string name="data_title" msgid="4456619761533380816">"ข้อมูลและการเข้าถึง"</string>
+    <string name="all_categories_title" msgid="1446410643217937926">"หมวดหมู่ทั้งหมด"</string>
+    <string name="see_all_categories" msgid="5599882403901010434">"ดูหมวดหมู่ทั้งหมด"</string>
+    <string name="no_data" msgid="1906986019249068659">"ไม่มีข้อมูล"</string>
+    <string name="connected_apps_title" msgid="279942692804743223">"สิทธิ์ของแอป"</string>
+    <string name="connected_apps_subtitle" msgid="8464462995533399175">"จัดการแอปและสิทธิ์ต่างๆ"</string>
+    <string name="connected_apps_button_subtitle" msgid="8855528937028500370">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> จาก <xliff:g id="NUM_POSSIBLE_APPS">%2$s</xliff:g> แอปมีสิทธิ์เข้าถึง"</string>
+    <string name="connected_apps_all_apps_connected_subtitle" msgid="3432698291862059492">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> แอปมีสิทธิ์เข้าถึง"</string>
+    <string name="connected_apps_one_app_connected_subtitle" msgid="9095815882509754340">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> แอปมีสิทธิ์เข้าถึง"</string>
+    <string name="connected_apps_button_no_permissions_subtitle" msgid="1651994862419752908">"ไม่มี"</string>
+    <string name="entry_details_title" msgid="590184849040247850">"รายละเอียดรายการ"</string>
+    <string name="backup_title" msgid="211503191266235085">"การสำรองข้อมูล"</string>
+    <string name="data_sources_and_priority_title" msgid="2360222350913604558">"แหล่งข้อมูลและลำดับความสำคัญ"</string>
+    <string name="set_units_title" msgid="2657822539603758029">"ตั้งค่าหน่วย"</string>
+    <string name="recent_access_header" msgid="7623497371790225888">"การเข้าถึงล่าสุด"</string>
+    <string name="no_recent_access" msgid="4724297929902441784">"ไม่มีแอปที่เข้าถึง Health Connect เมื่อเร็วๆ นี้"</string>
+    <string name="show_recent_access_entries_button_title" msgid="3483460066767350419">"ดูการเข้าถึงล่าสุดทั้งหมด"</string>
+    <string name="recent_access_screen_description" msgid="331101209889185402">"ดูแอปที่เข้าถึงข้อมูลในช่วง 24 ชั่วโมงที่ผ่านมา"</string>
+    <string name="today_header" msgid="1006837293203834373">"วันนี้"</string>
+    <string name="yesterday_header" msgid="6652176268273681505">"เมื่อวาน"</string>
+    <string name="read_data_access_label" msgid="7145747310980361968">"อ่าน: %s"</string>
+    <string name="write_data_access_label" msgid="7955988316773000250">"เขียน: %s"</string>
+    <string name="data_type_separator" msgid="1299848322898210658">", "</string>
+    <string name="manage_permissions" msgid="8394221950712608160">"จัดการสิทธิ์"</string>
+    <string name="recent_access_time_content_descritption" msgid="1709675393952226273">"เวลา: %s"</string>
+    <string name="activity_category_uppercase" msgid="136628843341377088">"กิจกรรม"</string>
+    <string name="activity_category_lowercase" msgid="3007220578865400601">"กิจกรรม"</string>
+    <string name="body_measurements_category_uppercase" msgid="422923782603313038">"การตรวจวัดร่างกาย"</string>
+    <string name="body_measurements_category_lowercase" msgid="2259696274629666992">"การตรวจวัดร่างกาย"</string>
+    <string name="sleep_category_uppercase" msgid="3422452674899706786">"การนอนหลับ"</string>
+    <string name="sleep_category_lowercase" msgid="842609634386839011">"การนอนหลับ"</string>
+    <string name="vitals_category_uppercase" msgid="8982333138032938623">"ค่าสัญญาณชีพ"</string>
+    <string name="vitals_category_lowercase" msgid="4664457787866407963">"ค่าสัญญาณชีพ"</string>
+    <string name="cycle_tracking_category_uppercase" msgid="4723200714782660489">"การติดตามรอบเดือน"</string>
+    <string name="cycle_tracking_category_lowercase" msgid="5245446435975317209">"การติดตามรอบเดือน"</string>
+    <string name="nutrition_category_uppercase" msgid="6665096097987741036">"โภชนาการ"</string>
+    <string name="nutrition_category_lowercase" msgid="7804134941649488990">"โภชนาการ"</string>
+    <string name="browse_data_category" msgid="4813955610391357638">"เรียกดูข้อมูล"</string>
+    <string name="manage_data_section" msgid="5859629270946511903">"จัดการข้อมูล"</string>
+    <string name="export_data_button" msgid="7783329820434117744">"ส่งออกข้อมูล"</string>
+    <string name="delete_all_data_button" msgid="7238755635416521487">"ลบข้อมูลทั้งหมด"</string>
+    <string name="no_categories" msgid="2636778482437506241">"คุณไม่มีข้อมูลอยู่ใน Health Connect"</string>
+    <string name="permission_types_title" msgid="7698058200557389436">"ข้อมูลของคุณ"</string>
+    <string name="app_priority_button" msgid="3126133977893705098">"ลำดับความสำคัญของแอป"</string>
+    <string name="delete_category_data_button" msgid="2324773398768267043">"ลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>"</string>
+    <string name="select_all_apps_title" msgid="884487568464305913">"แอปทั้งหมด"</string>
+    <string name="can_read" msgid="4568261079308309564">"อ่านข้อมูล<xliff:g id="PERMISSION_TYPE">%s</xliff:g>ได้"</string>
+    <string name="can_write" msgid="5082414937218423823">"เขียนข้อมูล<xliff:g id="PERMISSION_TYPE">%s</xliff:g>ได้"</string>
+    <string name="inactive_apps" msgid="8956546286760797760">"แอปที่ไม่ได้ใช้งาน"</string>
+    <string name="inactive_apps_message" msgid="4666501359079362486">"แอปเหล่านี้จะเขียนข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ไม่ได้อีกต่อไป แต่จะยังคงมีข้อมูลจัดเก็บอยู่ใน Health Connect"</string>
+    <string name="data_access_empty_message" msgid="9084350402254264452">"แอปไม่สามารถอ่านหรือเขียนข้อมูล<xliff:g id="DATA_TYPE_0">%1$s</xliff:g>ได้อีก และจะไม่มีข้อมูล<xliff:g id="DATA_TYPE_2">%2$s</xliff:g>จัดเก็บไว้ใน Health Connect"</string>
+    <string name="data_access_exercise_description" msgid="6868583522699443570">"ข้อมูลนี้รวมถึงข้อมูลอย่างเช่นเวลาที่เคลื่อนไหวร่างกาย ประเภทการออกกำลังกาย รอบ การทำซ้ำ เซสชัน หรือสโตรกการว่ายน้ำ"</string>
+    <string name="data_access_sleep_description" msgid="74293126050011153">"ข้อมูลนี้รวมถึงข้อมูลอย่างเช่นระยะการนอนหลับและเซสชันการนอนหลับ"</string>
+    <string name="all_entries_button" msgid="5109091107239135235">"ดูรายการข้อมูลทั้งหมด"</string>
+    <string name="selected_date_view_action_description" msgid="6237240886988225664">"เปลี่ยน"</string>
+    <string name="delete_permission_type_data_button" msgid="2270819954943391797">"ลบข้อมูลนี้"</string>
+    <string name="permgrouplab_health" msgid="468961137496587966">"Health Connect"</string>
+    <string name="permgroupdesc_health" msgid="252080476917407273">"เข้าถึงข้อมูลสุขภาพของคุณ"</string>
+    <string name="permlab_readCaloriesBurned" msgid="8998140381590624692">"อ่านข้อมูลแคลอรี่ที่ใช้ไป"</string>
+    <string name="permdesc_readCaloriesBurned" msgid="9012595355389868570">"อนุญาตให้แอปอ่านข้อมูลแคลอรี่ที่ใช้ไป"</string>
+    <string name="background_read_uppercase_label" msgid="5727643918930403320">"การอ่านในเบื้องหลัง"</string>
+    <string name="background_read_lowercase_label" msgid="2490218479761177680">"การอ่านในเบื้องหลัง"</string>
+    <string name="background_read_description" msgid="5263745158443722174">"อ่านข้อมูลสุขภาพในเบื้องหลัง"</string>
+    <string name="active_calories_burned_uppercase_label" msgid="6231684842932528272">"แคลอรี่ที่ใช้ไปในการเคลื่อนไหวร่างกาย"</string>
+    <string name="active_calories_burned_lowercase_label" msgid="6743090878253096737">"แคลอรี่ที่ใช้ไปในการเคลื่อนไหวร่างกาย"</string>
+    <string name="active_calories_burned_read_content_description" msgid="6449442660408754186">"อ่านข้อมูลแคลอรี่ที่ใช้ไปในการเคลื่อนไหวร่างกาย"</string>
+    <string name="active_calories_burned_write_content_description" msgid="8794383690157452892">"เขียนข้อมูลแคลอรี่ที่ใช้ไปในการเคลื่อนไหวร่างกาย"</string>
+    <string name="exercise_uppercase_label" msgid="9174662895529523172">"การออกกำลังกาย"</string>
+    <string name="exercise_lowercase_label" msgid="7210988327804427943">"การออกกำลังกาย"</string>
+    <string name="exercise_read_content_description" msgid="2079728018078185556">"อ่านข้อมูลการออกกำลังกาย"</string>
+    <string name="exercise_write_content_description" msgid="3267630937895011886">"เขียนข้อมูลการออกกำลังกาย"</string>
+    <string name="exercise_route_uppercase_label" msgid="6678863538041931754">"เส้นทางออกกำลังกาย"</string>
+    <string name="exercise_route_lowercase_label" msgid="1691912731748211252">"เส้นทางออกกำลังกาย"</string>
+    <string name="exercise_route_write_content_description" msgid="257809942953352611">"เขียนเส้นทางออกกำลังกาย"</string>
+    <string name="exercise_route_read_content_description" msgid="8394028537674463440">"อ่านเส้นทางออกกำลังกาย"</string>
+    <string name="exercise_routes_read_content_description" msgid="9001690141308870706">"อ่านเส้นทางการออกกำลังกาย"</string>
+    <string name="planned_exercise_uppercase_label" msgid="3315909901236811375">"แผนการออกกำลังกาย"</string>
+    <string name="planned_exercise_lowercase_label" msgid="7642993032791009809">"แผนการออกกำลังกาย"</string>
+    <string name="planned_exercise_read_content_description" msgid="3240286968325192534">"อ่านแผนการออกกำลังกาย"</string>
+    <string name="planned_exercise_write_content_description" msgid="8146488636094126823">"เขียนแผนการออกกำลังกาย"</string>
+    <string name="distance_uppercase_label" msgid="1420705424462077174">"ระยะทาง"</string>
+    <string name="distance_lowercase_label" msgid="2287154001209381379">"ระยะทาง"</string>
+    <string name="distance_read_content_description" msgid="8787235642020285789">"อ่านข้อมูลระยะทาง"</string>
+    <string name="distance_write_content_description" msgid="494549494589487562">"เขียนข้อมูลระยะทาง"</string>
+    <string name="elevation_gained_uppercase_label" msgid="7708101940695442377">"ความสูงที่สะสมได้"</string>
+    <string name="elevation_gained_lowercase_label" msgid="7532517182346738562">"ความสูงที่สะสมได้"</string>
+    <string name="elevation_gained_read_content_description" msgid="6018756385903843355">"อ่านข้อมูลความสูงที่สะสมได้"</string>
+    <string name="elevation_gained_write_content_description" msgid="6790199544670231367">"เขียนข้อมูลความสูงที่สะสมได้"</string>
+    <string name="floors_climbed_uppercase_label" msgid="3754372357767832441">"จำนวนชั้นที่เดินขึ้น"</string>
+    <string name="floors_climbed_lowercase_label" msgid="5326072443481377299">"จำนวนชั้นที่เดินขึ้น"</string>
+    <string name="floors_climbed_read_content_description" msgid="4730764877684911752">"อ่านข้อมูลจำนวนชั้นที่เดินขึ้น"</string>
+    <string name="floors_climbed_write_content_description" msgid="3480340610185615655">"เขียนข้อมูลจำนวนชั้นที่เดินขึ้น"</string>
+    <string name="power_uppercase_label" msgid="8027219480901448660">"กำลัง"</string>
+    <string name="power_lowercase_label" msgid="3893286148577044369">"พาวเวอร์"</string>
+    <string name="power_read_content_description" msgid="6821797135406643841">"อ่านข้อมูลพาวเวอร์"</string>
+    <string name="power_write_content_description" msgid="8091584558688087392">"เขียนข้อมูลพาวเวอร์"</string>
+    <string name="speed_uppercase_label" msgid="3307049861007518587">"ความเร็ว"</string>
+    <string name="speed_lowercase_label" msgid="3462529886150464647">"ความเร็ว"</string>
+    <string name="speed_read_content_description" msgid="9097089387385110692">"อ่านข้อมูลความเร็ว"</string>
+    <string name="speed_write_content_description" msgid="5382921934987959251">"เขียนข้อมูลความเร็ว"</string>
+    <string name="steps_uppercase_label" msgid="2581405504646486105">"จำนวนก้าว"</string>
+    <string name="steps_lowercase_label" msgid="706153549312838582">"จำนวนก้าว"</string>
+    <string name="steps_read_content_description" msgid="7839297670092769964">"อ่านข้อมูลจำนวนก้าว"</string>
+    <string name="steps_write_content_description" msgid="6360223825799711659">"เขียนข้อมูลจำนวนก้าว"</string>
+    <string name="total_calories_burned_uppercase_label" msgid="2749855864302679314">"แคลอรี่ที่ใช้ไปทั้งหมด"</string>
+    <string name="total_calories_burned_lowercase_label" msgid="3185370725975873922">"แคลอรี่ที่ใช้ไปทั้งหมด"</string>
+    <string name="total_calories_burned_read_content_description" msgid="1569722345910293531">"อ่านข้อมูลแคลอรี่ที่ใช้ไปทั้งหมด"</string>
+    <string name="total_calories_burned_write_content_description" msgid="2727752180681851608">"เขียนข้อมูลแคลอรี่ที่ใช้ไปทั้งหมด"</string>
+    <string name="vo2_max_uppercase_label" msgid="6614391499711390476">"ปริมาณการใช้ออกซิเจนสูงสุด"</string>
+    <string name="vo2_max_lowercase_label" msgid="824972630000900033">"ปริมาณการใช้ออกซิเจนสูงสุด"</string>
+    <string name="vo2_max_read_content_description" msgid="8132626885797169882">"อ่านข้อมูลปริมาณการใช้ออกซิเจนสูงสุด"</string>
+    <string name="vo2_max_write_content_description" msgid="4783300275788728546">"เขียนข้อมูลปริมาณการใช้ออกซิเจนสูงสุด"</string>
+    <string name="wheelchair_pushes_uppercase_label" msgid="5582991294340226965">"การทำวีลแชร์พุช"</string>
+    <string name="wheelchair_pushes_lowercase_label" msgid="8919337990806379687">"การทำวีลแชร์พุช"</string>
+    <string name="wheelchair_pushes_read_content_description" msgid="157304610943976471">"อ่านข้อมูลการทำวีลแชร์พุช"</string>
+    <string name="wheelchair_pushes_write_content_description" msgid="2745600707106818641">"เขียนข้อมูลการทำวีลแชร์พุช"</string>
+    <string name="basal_metabolic_rate_uppercase_label" msgid="4802351493928086473">"อัตราการเผาผลาญขณะพัก"</string>
+    <string name="basal_metabolic_rate_lowercase_label" msgid="7195596626083893231">"อัตราการเผาผลาญขณะพัก"</string>
+    <string name="basal_metabolic_rate_read_content_description" msgid="5583222212705234907">"อ่านข้อมูลอัตราการเผาผลาญขณะพัก"</string>
+    <string name="basal_metabolic_rate_write_content_description" msgid="4246137679868953443">"เขียนข้อมูลอัตราการเผาผลาญขณะพัก"</string>
+    <string name="body_fat_uppercase_label" msgid="4618860235119416449">"ไขมันร่างกาย"</string>
+    <string name="body_fat_lowercase_label" msgid="4090686510477176498">"ไขมันร่างกาย"</string>
+    <string name="body_fat_read_content_description" msgid="801664410906939146">"อ่านข้อมูลไขมันร่างกาย"</string>
+    <string name="body_fat_write_content_description" msgid="4863558071904720577">"เขียนข้อมูลไขมันร่างกาย"</string>
+    <string name="body_water_mass_uppercase_label" msgid="7839393299147916863">"มวลน้ำในร่างกาย"</string>
+    <string name="body_water_mass_lowercase_label" msgid="9196249948631920955">"มวลน้ำในร่างกาย"</string>
+    <string name="body_water_mass_read_content_description" msgid="1468266374858854184">"อ่านข้อมูลมวลน้ำในร่างกาย"</string>
+    <string name="body_water_mass_write_content_description" msgid="8485284654932647383">"เขียนข้อมูลมวลน้ำในร่างกาย"</string>
+    <string name="bone_mass_uppercase_label" msgid="6815438946872228501">"มวลกระดูก"</string>
+    <string name="bone_mass_lowercase_label" msgid="5127378263122564055">"มวลกระดูก"</string>
+    <string name="bone_mass_read_content_description" msgid="8401070346821477225">"อ่านข้อมูลมวลกระดูก"</string>
+    <string name="bone_mass_write_content_description" msgid="8711285422751587975">"เขียนข้อมูลมวลกระดูก"</string>
+    <string name="height_uppercase_label" msgid="6839543632311723181">"ส่วนสูง"</string>
+    <string name="height_lowercase_label" msgid="6232582306436492752">"ส่วนสูง"</string>
+    <string name="height_read_content_description" msgid="7107217731605127715">"อ่านข้อมูลส่วนสูง"</string>
+    <string name="height_write_content_description" msgid="6787078298523064040">"เขียนข้อมูลส่วนสูง"</string>
+    <string name="hip_circumference_uppercase_label" msgid="553907293616398764">"รอบสะโพก"</string>
+    <string name="hip_circumference_lowercase_label" msgid="5383037100089745103">"รอบสะโพก"</string>
+    <string name="hip_circumference_read_content_description" msgid="3960843421475522701">"อ่านข้อมูลรอบสะโพก"</string>
+    <string name="hip_circumference_write_content_description" msgid="3828616223599649051">"เขียนข้อมูลรอบสะโพก"</string>
+    <string name="lean_body_mass_uppercase_label" msgid="1660166073148541008">"มวลกายไม่รวมไขมัน"</string>
+    <string name="lean_body_mass_lowercase_label" msgid="9060417901080844357">"มวลกายไม่รวมไขมัน"</string>
+    <string name="lean_body_mass_read_content_description" msgid="3251903339784498051">"อ่านข้อมูลมวลกายไม่รวมไขมัน"</string>
+    <string name="lean_body_mass_write_content_description" msgid="8778176250058913124">"เขียนข้อมูลมวลกายไม่รวมไขมัน"</string>
+    <string name="waist_circumference_uppercase_label" msgid="864537723631507381">"รอบเอว"</string>
+    <string name="waist_circumference_lowercase_label" msgid="7389714051869012003">"รอบเอว"</string>
+    <string name="waist_circumference_read_content_description" msgid="7742632529989685413">"อ่านข้อมูลรอบเอว"</string>
+    <string name="waist_circumference_write_content_description" msgid="6455311628964793644">"เขียนข้อมูลรอบเอว"</string>
+    <string name="weight_uppercase_label" msgid="2240396607601785080">"น้ำหนัก"</string>
+    <string name="weight_lowercase_label" msgid="6592458247010013299">"น้ำหนัก"</string>
+    <string name="weight_read_content_description" msgid="3270514859844811665">"อ่านข้อมูลน้ำหนัก"</string>
+    <string name="weight_write_content_description" msgid="555486014471042366">"เขียนข้อมูลน้ำหนัก"</string>
+    <string name="cervical_mucus_uppercase_label" msgid="7479786340673820763">"มูกไข่ตก"</string>
+    <string name="cervical_mucus_lowercase_label" msgid="7460634889750669420">"มูกไข่ตก"</string>
+    <string name="cervical_mucus_read_content_description" msgid="7163132301693064124">"อ่านข้อมูลมูกไข่ตก"</string>
+    <string name="cervical_mucus_write_content_description" msgid="175802615365382752">"เขียนข้อมูลมูกไข่ตก"</string>
+    <string name="intermenstrual_bleeding_uppercase_label" msgid="1681956139742028987">"ภาวะเลือดออกระหว่างรอบประจำเดือน"</string>
+    <string name="intermenstrual_bleeding_lowercase_label" msgid="5284781275147619132">"ภาวะเลือดออกระหว่างรอบประจำเดือน"</string>
+    <string name="intermenstrual_bleeding_read_content_description" msgid="5970939335115119015">"อ่านข้อมูลภาวะเลือดออกระหว่างรอบประจำเดือน"</string>
+    <string name="intermenstrual_bleeding_write_content_description" msgid="1377719923165234099">"เขียนข้อมูลภาวะเลือดออกระหว่างรอบประจำเดือน"</string>
+    <string name="menstruation_uppercase_label" msgid="9119506748428874832">"ประจำเดือน"</string>
+    <string name="menstruation_lowercase_label" msgid="8098816978006207242">"ประจำเดือน"</string>
+    <string name="menstruation_read_content_description" msgid="7710047469771882021">"อ่านข้อมูลประจำเดือน"</string>
+    <string name="menstruation_write_content_description" msgid="5142669435897047396">"เขียนข้อมูลประจำเดือน"</string>
+    <string name="ovulation_test_uppercase_label" msgid="1929868571862288837">"การทดสอบการตกไข่"</string>
+    <string name="ovulation_test_lowercase_label" msgid="93260039417722840">"การทดสอบการตกไข่"</string>
+    <string name="ovulation_test_read_content_description" msgid="8008351738285775840">"อ่านข้อมูลการทดสอบการตกไข่"</string>
+    <string name="ovulation_test_write_content_description" msgid="7061493310852203463">"เขียนข้อมูลการทดสอบการตกไข่"</string>
+    <string name="sexual_activity_uppercase_label" msgid="1093238473810194127">"กิจกรรมทางเพศ"</string>
+    <string name="sexual_activity_lowercase_label" msgid="8285364117437418834">"กิจกรรมทางเพศ"</string>
+    <string name="sexual_activity_read_content_description" msgid="4937721417714312007">"อ่านข้อมูลกิจกรรมทางเพศ"</string>
+    <string name="sexual_activity_write_content_description" msgid="3063448245882840534">"เขียนข้อมูลกิจกรรมทางเพศ"</string>
+    <string name="spotting_uppercase_label" msgid="5106739829390033240">"เลือดออกกะปริบกะปรอย"</string>
+    <string name="spotting_lowercase_label" msgid="4361141146039580583">"เลือดออกกะปริบกะปรอย"</string>
+    <string name="spotting_read_content_description" msgid="5422420770022357631">"อ่านข้อมูลเลือดออกกะปริบกะปรอย"</string>
+    <string name="spotting_write_content_description" msgid="9049462631184362964">"เขียนข้อมูลเลือดออกกะปริบกะปรอย"</string>
+    <string name="hydration_uppercase_label" msgid="1196083392597480565">"ปริมาณน้ำที่ดื่ม"</string>
+    <string name="hydration_lowercase_label" msgid="7793261552870970551">"ปริมาณน้ำที่ดื่ม"</string>
+    <string name="hydration_read_content_description" msgid="3255941233933808082">"อ่านข้อมูลปริมาณน้ำที่ดื่ม"</string>
+    <string name="hydration_write_content_description" msgid="7549819425875969941">"เขียนข้อมูลปริมาณน้ำที่ดื่ม"</string>
+    <string name="nutrition_uppercase_label" msgid="2352959651072134084">"โภชนาการ"</string>
+    <string name="nutrition_lowercase_label" msgid="4123518952030658702">"โภชนาการ"</string>
+    <string name="nutrition_read_content_description" msgid="5820331769605952082">"อ่านข้อมูลโภชนาการ"</string>
+    <string name="nutrition_write_content_description" msgid="6690090231218210367">"เขียนข้อมูลโภชนาการ"</string>
+    <string name="sleep_uppercase_label" msgid="1458084584315123727">"การนอนหลับ"</string>
+    <string name="sleep_lowercase_label" msgid="7795584924503475035">"การนอนหลับ"</string>
+    <string name="sleep_read_content_description" msgid="7064608272681424436">"อ่านข้อมูลการนอนหลับ"</string>
+    <string name="sleep_write_content_description" msgid="2259414465110376554">"เขียนข้อมูลการนอนหลับ"</string>
+    <string name="basal_body_temperature_uppercase_label" msgid="4571393253935677019">"อุณหภูมิของร่างกายขณะพัก"</string>
+    <string name="basal_body_temperature_lowercase_label" msgid="3363829208971016662">"อุณหภูมิของร่างกายขณะพัก"</string>
+    <string name="basal_body_temperature_read_content_description" msgid="3342604362011725500">"อ่านข้อมูลอุณหภูมิของร่างกายขณะพัก"</string>
+    <string name="basal_body_temperature_write_content_description" msgid="1081636817359407622">"เขียนข้อมูลอุณหภูมิของร่างกายขณะพัก"</string>
+    <string name="blood_glucose_uppercase_label" msgid="7462421849184720721">"น้ำตาลกลูโคสในเลือด"</string>
+    <string name="blood_glucose_lowercase_label" msgid="5036157221577793772">"น้ำตาลกลูโคสในเลือด"</string>
+    <string name="blood_glucose_read_content_description" msgid="563393834563809318">"อ่านข้อมูลน้ำตาลกลูโคสในเลือด"</string>
+    <string name="blood_glucose_write_content_description" msgid="7688360165458091174">"เขียนข้อมูลน้ำตาลกลูโคสในเลือด"</string>
+    <string name="blood_pressure_uppercase_label" msgid="1091450873620857062">"ความดันโลหิต"</string>
+    <string name="blood_pressure_lowercase_label" msgid="5857335698134310172">"ความดันโลหิต"</string>
+    <string name="blood_pressure_read_content_description" msgid="8573617892296408887">"อ่านข้อมูลความดันโลหิต"</string>
+    <string name="blood_pressure_write_content_description" msgid="2649850785684226949">"เขียนข้อมูลความดันโลหิต"</string>
+    <string name="body_temperature_uppercase_label" msgid="5104550330313775324">"อุณหภูมิของร่างกาย"</string>
+    <string name="body_temperature_lowercase_label" msgid="324124730971992259">"อุณหภูมิของร่างกาย"</string>
+    <string name="body_temperature_read_content_description" msgid="5966765249024688738">"อ่านข้อมูลอุณหภูมิของร่างกาย"</string>
+    <string name="body_temperature_write_content_description" msgid="5498016171067859369">"เขียนข้อมูลอุณหภูมิของร่างกาย"</string>
+    <string name="heart_rate_uppercase_label" msgid="4990167215137642430">"อัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_lowercase_label" msgid="693492686337628283">"อัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_read_content_description" msgid="4165867166260001259">"อ่านข้อมูลอัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_write_content_description" msgid="2876667918366409170">"เขียนข้อมูลอัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_variability_uppercase_label" msgid="2047887230527012536">"ความผันแปรของอัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_variability_lowercase_label" msgid="2332638559415663836">"ความผันแปรของอัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_variability_read_content_description" msgid="5812707457872629556">"อ่านข้อมูลความผันแปรของอัตราการเต้นของหัวใจ"</string>
+    <string name="heart_rate_variability_write_content_description" msgid="3628171603035566114">"เขียนข้อมูลความผันแปรของอัตราการเต้นของหัวใจ"</string>
+    <string name="oxygen_saturation_uppercase_label" msgid="1396254185616418355">"ความอิ่มตัวของออกซิเจน"</string>
+    <string name="oxygen_saturation_lowercase_label" msgid="7264179897533866327">"ความอิ่มตัวของออกซิเจน"</string>
+    <string name="oxygen_saturation_read_content_description" msgid="4756434113425028212">"อ่านข้อมูลความอิ่มตัวของออกซิเจน"</string>
+    <string name="oxygen_saturation_write_content_description" msgid="7189901097196830875">"เขียนข้อมูลความอิ่มตัวของออกซิเจน"</string>
+    <string name="respiratory_rate_uppercase_label" msgid="4609498171205294389">"อัตราการหายใจ"</string>
+    <string name="respiratory_rate_lowercase_label" msgid="8138249029197360098">"อัตราการหายใจ"</string>
+    <string name="respiratory_rate_read_content_description" msgid="8545898979648419722">"อ่านข้อมูลอัตราการหายใจ"</string>
+    <string name="respiratory_rate_write_content_description" msgid="7689533746809591931">"เขียนข้อมูลอัตราการหายใจ"</string>
+    <string name="resting_heart_rate_uppercase_label" msgid="5700827752396195453">"อัตราการเต้นของหัวใจขณะพัก"</string>
+    <string name="resting_heart_rate_lowercase_label" msgid="4533866739695973169">"อัตราการเต้นของหัวใจขณะพัก"</string>
+    <string name="resting_heart_rate_read_content_description" msgid="1068160055773401020">"อ่านข้อมูลอัตราการเต้นของหัวใจขณะพัก"</string>
+    <string name="resting_heart_rate_write_content_description" msgid="8848198128082739995">"เขียนข้อมูลอัตราการเต้นของหัวใจขณะพัก"</string>
+    <string name="skin_temperature_uppercase_label" msgid="4880306019368461268">"อุณหภูมิผิวหนัง"</string>
+    <string name="skin_temperature_lowercase_label" msgid="7456421703641980581">"อุณหภูมิผิวหนัง"</string>
+    <string name="skin_temperature_read_content_description" msgid="1896127631429717621">"อ่านข้อมูลอุณหภูมิผิวหนัง"</string>
+    <string name="skin_temperature_write_content_description" msgid="6448587289116206085">"เขียนข้อมูลอุณหภูมิผิวหนัง"</string>
+    <string name="read_permission_category" msgid="6002099618259628632">"อนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" อ่าน"</string>
+    <string name="write_permission_category" msgid="1529702804865008111">"อนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" เขียน"</string>
+    <string name="request_permissions_cancel" msgid="1787483997235365393">"ยกเลิก"</string>
+    <string name="request_permissions_allow" msgid="4201324235711040631">"อนุญาต"</string>
+    <string name="request_permissions_allow_all" msgid="3419414351406638770">"อนุญาตทั้งหมด"</string>
+    <string name="request_permissions_dont_allow" msgid="6375307410951549030">"ไม่อนุญาต"</string>
+    <string name="request_permissions_header_desc" msgid="5561173070722750153">"เลือกข้อมูลที่คุณต้องการให้แอปนี้อ่านหรือเขียนลงใน Health Connect"</string>
+    <string name="request_permissions_header_time_frame_desc" msgid="4617392728203291453">"หากคุณให้สิทธิ์อ่าน แอปนี้จะอ่านข้อมูลใหม่และข้อมูลในช่วง 30 วันที่ผ่านมาได้"</string>
+    <string name="request_permissions_header_title" msgid="4264236128614363479">"อนุญาตให้ <xliff:g id="APP_NAME">%1$s</xliff:g> เข้าถึง Health Connect ไหม"</string>
+    <string name="request_permissions_rationale" msgid="6154280355215802538">"ดูวิธีที่ <xliff:g id="APP_NAME">%1$s</xliff:g> จัดการข้อมูลของคุณใน<xliff:g id="PRIVACY_POLICY_LINK">%2$s</xliff:g>ของนักพัฒนาแอป"</string>
+    <string name="request_permissions_privacy_policy" msgid="228503452643555737">"นโยบายความเป็นส่วนตัว"</string>
+    <string name="permissions_disconnect_dialog_title" msgid="7355211540619034695">"นำสิทธิ์ทั้งหมดออกใช่ไหม"</string>
+    <string name="permissions_disconnect_dialog_disconnect" msgid="8854787587948224752">"นำออกทั้งหมด"</string>
+    <string name="permissions_disconnect_dialog_message" msgid="8679363015400954541">"<xliff:g id="APP_NAME">%1$s</xliff:g> จะไม่สามารถอ่านหรือเขียนข้อมูลจาก Health Connect ได้อีกต่อไป\n\nการดำเนินการนี้ไม่ส่งผลต่อสิทธิ์อื่นๆ ที่แอปนี้อาจมี เช่น สิทธิ์เข้าถึงตำแหน่ง กล้อง หรือไมโครโฟน"</string>
+    <string name="permissions_disconnect_dialog_checkbox" msgid="8646951566431872823">"ลบข้อมูล <xliff:g id="APP_NAME">%1$s</xliff:g> ออกจาก Health Connect ด้วย"</string>
+    <string name="navigation_next_day" msgid="8853443471183944219">"วันถัดไป"</string>
+    <string name="navigation_selected_day" msgid="2510843479734091348">"วันที่เลือก"</string>
+    <string name="navigation_previous_day" msgid="718353386484938584">"วันก่อน"</string>
+    <string name="default_error" msgid="7966868260616403475">"เกิดข้อผิดพลาด โปรดลองอีกครั้ง"</string>
+    <string name="health_permission_header_description" msgid="7497601695462373927">"แอปที่มีสิทธิ์นี้จะอ่านและเขียนข้อมูลสุขภาพและการออกกำลังกายของคุณได้"</string>
+    <string name="connected_apps_text" msgid="1177626440966855831">"ควบคุมว่าแอปใดบ้างสามารถเข้าถึงข้อมูลที่จัดเก็บไว้ใน Health Connect แตะแอปเพื่อตรวจสอบข้อมูลที่จะสามารถอ่านหรือเขียนได้"</string>
+    <string name="connected_apps_section_title" msgid="2415288099612126258">"มีสิทธิ์เข้าถึง"</string>
+    <string name="not_connected_apps_section_title" msgid="452718769894103039">"ไม่มีสิทธิ์เข้าถึง"</string>
+    <string name="needs_updating_apps_section_title" msgid="8561510523049921199">"ต้องอัปเดต"</string>
+    <string name="settings_and_help_header" msgid="5749710693017621168">"การตั้งค่าและความช่วยเหลือ"</string>
+    <string name="disconnect_all_apps" msgid="748945115977534726">"นำสิทธิ์เข้าถึงออกจากทุกแอป"</string>
+    <string name="manage_permissions_read_header" msgid="2031153753057983683">"อนุญาตให้อ่าน"</string>
+    <string name="manage_permissions_write_header" msgid="6876806848658168370">"อนุญาตให้เขียน"</string>
+    <string name="no_apps_allowed" msgid="5794833581324128108">"ไม่ได้อนุญาตแอปใดเลย"</string>
+    <string name="no_apps_denied" msgid="743327680286446017">"ไม่ได้ปฏิเสธแอปใดเลย"</string>
+    <string name="permissions_disconnect_all_dialog_title" msgid="27474286046207122">"นำสิทธิ์เข้าถึงออกจากทุกแอปใช่ไหม"</string>
+    <string name="permissions_disconnect_all_dialog_message" msgid="3151109627457270499">"จะไม่มีแอปใดของคุณเข้าถึงหรือเพิ่มข้อมูลใหม่ใน Health Connect ได้ การดำเนินการนี้จะไม่ลบข้อมูลที่มีอยู่\n\nอีกทั้งจะไม่มีผลกับสิทธิ์อื่นๆ ที่แอปนี้อาจมี เช่น สิทธิ์เข้าถึงตำแหน่ง กล้อง หรือไมโครโฟน"</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" msgid="2134136493310257746">"นำออกทั้งหมด"</string>
+    <string name="manage_permissions_manage_app_header" msgid="6356348062088358761">"จัดการแอป"</string>
+    <string name="see_app_data" msgid="3951030076195119476">"ดูข้อมูลแอป"</string>
+    <string name="delete_app_data" msgid="6890357774873859952">"ลบข้อมูลแอป"</string>
+    <string name="inactive_apps_section_title" msgid="7492812973696378690">"แอปที่ไม่ได้ใช้งาน"</string>
+    <string name="inactive_apps_section_message" msgid="2610789262055974739">"แอปเหล่านี้ไม่มีสิทธิ์เข้าถึงอีกต่อไป แต่จะยังคงมีข้อมูลจัดเก็บอยู่ใน Health Connect"</string>
+    <string name="manage_permissions_time_frame" msgid="1299483940842401923">"<xliff:g id="APP_NAME">%1$s</xliff:g> สามารถอ่านข้อมูลที่เพิ่มหลังวันที่ <xliff:g id="DATA_ACCESS_DATE">%2$s</xliff:g>"</string>
+    <string name="other_android_permissions" msgid="8051485761573324702">"หากต้องการจัดการสิทธิ์อื่นๆ ใน Android ที่แอปนี้เข้าถึงได้ ให้ไปที่การตั้งค่า &gt; แอป"</string>
+    <string name="manage_permissions_rationale" msgid="9183689798847740274">"ข้อมูลที่แชร์กับ <xliff:g id="APP_NAME">%1$s</xliff:g> จะอยู่ภายใต้นโยบายความเป็นส่วนตัวของแอปดังกล่าว"</string>
+    <string name="other_android_permissions_content_description" msgid="2261431010048933820">"หากต้องการจัดการสิทธิ์ของ Android อื่นๆ ที่แอปนี้เข้าถึงได้ ให้ไปที่การตั้งค่าแล้วแตะที่แอป"</string>
+    <string name="manage_permissions_learn_more" msgid="2503189875093300767">"อ่านนโยบายความเป็นส่วนตัว"</string>
+    <string name="app_perms_content_provider_24h" msgid="5977152673988158889">"เข้าถึงในช่วง 24 ชั่วโมงที่ผ่านมา"</string>
+    <string name="app_access_title" msgid="7137018424885371763">"สิทธิ์การเข้าถึงของแอป"</string>
+    <string name="connected_apps_empty_list_section_title" msgid="6821215432694207342">"ตอนนี้คุณยังไม่ได้ติดตั้งแอปที่เข้ากันได้"</string>
+    <string name="additional_access_label" msgid="4645249249222528341">"การเข้าถึงเพิ่มเติม"</string>
+    <string name="denied_apps_banner_title" msgid="1997745063608657965">"สิทธิ์ของแอปที่ถูกนำออก"</string>
+    <string name="denied_apps_banner_message_one_app" msgid="17659513485678315">"Health Connect นำสิทธิ์สำหรับ <xliff:g id="APP_DATA">%s</xliff:g> ออกแล้ว"</string>
+    <string name="denied_apps_banner_message_two_apps" msgid="1147216810892373640">"Health Connect นำสิทธิ์สำหรับ <xliff:g id="APP_DATA_0">%1$s</xliff:g> และ <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> ออกแล้ว"</string>
+    <string name="denied_apps_banner_message_three_apps" msgid="7978499051473471633">"Health Connect นำสิทธิ์สำหรับ <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> และ <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> ออกแล้ว"</string>
+    <string name="denied_apps_banner_message_many_apps" msgid="7249805432604650982">"Health Connect นำสิทธิ์สำหรับ <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g>, <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> และแอปอื่นๆ ออกแล้ว"</string>
+    <string name="denied_apps_banner_button" msgid="4438480389769298412">"ดูรายละเอียด"</string>
+    <string name="denied_apps_dialog_title" msgid="7470227827315635099">"ทำไม Health Connect จึงนำสิทธิ์ของแอปออก"</string>
+    <string name="denied_apps_dialog_message" msgid="7876664965504466099">"หากแอปถูกระงับหรือนำออกจาก Google Play, Health Connect จะนำสิทธิ์ของแอปนั้นออกโดยอัตโนมัติ\n\nซึ่งแปลว่าแอปดังกล่าวจะไม่สามารถเข้าถึงข้อมูลที่เก็บไว้ใน Health Connect ได้อีกต่อไป ข้อมูลที่แอปเคยเขียนไว้จะไปปรากฏในรายการข้อมูลแอปที่ไม่ได้ใช้งาน"</string>
+    <string name="denied_apps_dialog_got_it_button" msgid="4698003516923683959">"รับทราบ"</string>
+    <string name="export_settings_screen_title" msgid="887671826359158339">"บันทึกข้อมูล"</string>
+    <string name="export_settings_screen_description" msgid="5477618165331360989">"บันทึกข้อมูลและสิทธิ์ Health Connect เพื่อให้นำเข้าได้หากเปลี่ยนไปใช้โทรศัพท์เครื่องใหม่ คุณสามารถเลือกตำแหน่งที่จะจัดเก็บข้อมูลนี้ก่อนบันทึก"</string>
+    <string name="setup_button" msgid="1407942598553043961">"ตั้งค่า"</string>
+    <string name="export_settings_header" msgid="2435738153550683355">"การตั้งค่า"</string>
+    <string name="auto_save" msgid="7146497593975616076">"บันทึกอัตโนมัติ"</string>
+    <string name="choose_frequency" msgid="1077467424225083246">"เลือกความถี่"</string>
+    <string name="choose_frequency_description" msgid="752601326653048254">"เลือกเพื่อบันทึกข้อมูลครั้งเดียว หรือตั้งค่าให้บันทึกโดยอัตโนมัติเป็นประจำเมื่อถึงเวลาที่ระบุ"</string>
+    <string name="frequency_daily" msgid="3596412357416125727">"ทุกวัน"</string>
+    <string name="frequency_weekly" msgid="7302587625019573393">"ทุกสัปดาห์"</string>
+    <string name="frequency_monthly" msgid="729674398053825938">"ทุกเดือน"</string>
+    <string name="export_back_button" msgid="3550795479165524982">"กลับ"</string>
+    <string name="export_next_button" msgid="657930567137105172">"ถัดไป"</string>
+    <string name="onboarding_title" msgid="8550656211291180188">"เริ่มต้นใช้งาน Health Connect"</string>
+    <string name="onboarding_description" msgid="4873129122057931161">"Health Connect จะจัดเก็บข้อมูลสุขภาพและการออกกำลังกาย และให้คุณซิงค์แอปต่างๆ ในโทรศัพท์ได้โดยง่าย"</string>
+    <string name="share_data" msgid="3481932156368883946">"แชร์ข้อมูลกับแอปต่างๆ"</string>
+    <string name="share_data_description" msgid="2919871301634375092">"เลือกข้อมูลที่แต่ละแอปจะอ่านหรือเขียนลงใน Health Connect ได้"</string>
+    <string name="manage_your_settings" msgid="7391184508015127137">"จัดการการตั้งค่าและความเป็นส่วนตัว"</string>
+    <string name="manage_your_settings_description" msgid="557943168930365334">"เปลี่ยนสิทธิ์ของแอปและจัดการข้อมูลได้ทุกเมื่อ"</string>
+    <string name="onboarding_go_back_button_text" msgid="5020083846511184625">"ย้อนกลับ"</string>
+    <string name="onboarding_get_started_button_text" msgid="2348061971090731336">"เริ่มต้นใช้งาน"</string>
+    <string name="delete_button_content_description" msgid="9125115327455379618">"ลบข้อมูล"</string>
+    <string name="time_range_title" msgid="6831605283322600165">"เลือกข้อมูลที่ต้องการลบ"</string>
+    <string name="time_range_next_button" msgid="5849096934896557888">"ถัดไป"</string>
+    <string name="time_range_message_all" msgid="7280888587242744729">"การดำเนินการนี้จะลบข้อมูลทั้งหมดที่เพิ่มลงใน Health Connect อย่างถาวรตามระยะเวลาที่เลือก"</string>
+    <string name="time_range_message_data_type" msgid="1896125004829258195">"การดำเนินการนี้จะลบข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ที่เพิ่มลงใน Health Connect อย่างถาวรตามระยะเวลาที่เลือก"</string>
+    <string name="time_range_message_category" msgid="1136451418397326356">"การดำเนินการนี้จะลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>ที่เพิ่มลงใน Health Connect อย่างถาวรตามระยะเวลาที่เลือก"</string>
+    <string name="time_range_message_app_data" msgid="2590800457710603556">"การดำเนินการนี้จะลบข้อมูลจาก <xliff:g id="APP_DATA">%s</xliff:g> ที่เพิ่มลงใน Health Connect อย่างถาวรตามระยะเวลาที่เลือก"</string>
+    <string name="time_range_one_day" msgid="7162709826595446727">"ลบข้อมูลในช่วง 24 ชั่วโมงที่ผ่านมา"</string>
+    <string name="time_range_one_week" msgid="8754523384275645434">"ลบข้อมูลในช่วง 7 วันที่ผ่านมา"</string>
+    <string name="time_range_one_month" msgid="3034747870231999766">"ลบข้อมูลในช่วง 30 วันที่ผ่านมา"</string>
+    <string name="time_range_all" msgid="8167350212705839943">"ลบข้อมูลทั้งหมด"</string>
+    <string name="confirming_question_all" msgid="1585414659784742952">"ลบข้อมูลทั้งหมดในทุกช่วงเวลาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_one_day" msgid="8001434729335611950">"ลบข้อมูลทั้งหมดในช่วง 24 ชั่วโมงที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_one_week" msgid="5441506951423969587">"ลบข้อมูลทั้งหมดในช่วง 7 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_one_month" msgid="4118595547587081940">"ลบข้อมูลทั้งหมดในช่วง 30 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_data_type_all" msgid="1173934949902602037">"ลบข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ในทุกช่วงเวลาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_data_type_one_day" msgid="5386681714769751416">"ลบข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ในช่วง 24 ชั่วโมงที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_data_type_one_week" msgid="8346031951374422501">"ลบข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ในช่วง 7 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_data_type_one_month" msgid="7110328687576360400">"ลบข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>ในช่วง 30 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_category_all" msgid="9182430869247761531">"ลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>ในทุกช่วงเวลาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_category_one_day" msgid="4886776948515472679">"ลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>ในช่วง 24 ชั่วโมงที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_category_one_week" msgid="1790565625674277693">"ลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>ในช่วง 7 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_category_one_month" msgid="9181788460112796273">"ลบข้อมูล<xliff:g id="CATEGORY">%s</xliff:g>ในช่วง 30 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_app_data_all" msgid="4818571921949673097">"ลบข้อมูลจาก <xliff:g id="APP_DATA">%s</xliff:g> ในทุกช่วงเวลาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_app_data_one_day" msgid="444028969015975031">"ลบข้อมูลจาก <xliff:g id="APP_DATA">%s</xliff:g> ในช่วง 24 ชั่วโมงที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_app_data_one_week" msgid="2096555081811730496">"ลบข้อมูลจาก <xliff:g id="APP_DATA">%s</xliff:g> ในช่วง 7 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_app_data_one_month" msgid="6438241250825892892">"ลบข้อมูลจาก <xliff:g id="APP_DATA">%s</xliff:g> ในช่วง 30 วันที่ผ่านมาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_app_remove_all_permissions" msgid="4170343072352701421">"นำสิทธิ์ของ <xliff:g id="APP_WITH_PERMISSIONS">%s</xliff:g> ทั้งหมดออกจาก Health Connect ด้วย"</string>
+    <string name="confirming_question_data_type_from_app_all" msgid="8361163993548510509">"ลบข้อมูล<xliff:g id="DATA_TYPE">%1$s</xliff:g>ทั้งหมดที่ <xliff:g id="APP_DATA">%2$s</xliff:g> เพิ่มเข้ามาอย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_single_entry" msgid="330919962071369305">"ลบรายการข้อมูลนี้อย่างถาวรใช่ไหม"</string>
+    <string name="confirming_question_message" msgid="2934249835529079545">"แอปที่เชื่อมต่อจะเข้าถึงข้อมูลนี้จาก Health Connect ไม่ได้อีก"</string>
+    <string name="confirming_question_message_menstruation" msgid="5286956266565962430">"การดำเนินการนี้จะลบรายการข้อมูลประจำเดือนทั้งหมดตั้งแต่วันที่ <xliff:g id="START_DATE">%1$s</xliff:g> ถึง <xliff:g id="END_DATE">%2$s</xliff:g>"</string>
+    <string name="confirming_question_delete_button" msgid="1999996759507959985">"ลบ"</string>
+    <string name="confirming_question_go_back_button" msgid="9037523726124648221">"ย้อนกลับ"</string>
+    <string name="delete_dialog_success_got_it_button" msgid="8047812840310612293">"เสร็จสิ้น"</string>
+    <string name="delete_dialog_failure_close_button" msgid="4376647579348193224">"ปิด"</string>
+    <string name="delete_dialog_success_title" msgid="5009733262743173477">"ลบข้อมูลแล้ว"</string>
+    <string name="delete_dialog_success_message" msgid="2451953113522118128">"ข้อมูลนี้ไม่ได้จัดเก็บอยู่ใน Health Connect แล้ว"</string>
+    <string name="delete_progress_indicator" msgid="5799502879065833417">"กำลังลบข้อมูล"</string>
+    <string name="delete_dialog_failure_title" msgid="1959020721355789496">"ลบข้อมูลไม่ได้"</string>
+    <string name="delete_dialog_failure_message" msgid="7473241488471319963">"เกิดข้อผิดพลาดและ Health Connect ลบข้อมูลของคุณไม่ได้"</string>
+    <string name="delete_dialog_failure_try_again_button" msgid="4323865124609424838">"ลองอีกครั้ง"</string>
+    <string name="delete_data_notification_title" msgid="7740230240986343347">"กำลังลบข้อมูล Health Connect"</string>
+    <string name="delete_data_notification_ticker_text" msgid="2604051567679235822">"กำลังลบข้อมูล Health Connect"</string>
+    <string name="delete_data_notification_channel_name" msgid="4499713830012802095">"การลบข้อมูล"</string>
+    <string name="data_point_action_content_description" msgid="6881048311770784455">"ลบรายการข้อมูล <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="delete_data_point" msgid="1004049578454616738">"ลบรายการ <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="aggregation_total" msgid="5641333638662325184">"รวม: <xliff:g id="TOTAL_VALUE">%s</xliff:g>"</string>
+    <string name="watt_format" msgid="8500953817369623803">"{value,plural, =1{1 วัตต์}other{# วัตต์}}"</string>
+    <string name="watt_format_long" msgid="7107446926499116109">"{value,plural, =1{1 วัตต์}other{# วัตต์}}"</string>
+    <string name="steps_value" msgid="5779393974668105298">"{count,plural, =1{1 ก้าว}other{# ก้าว}}"</string>
+    <string name="steps_per_minute" msgid="5527133010067502098">"{value,plural, =1{1 ก้าว/นาที}other{# ก้าว/นาที}}"</string>
+    <string name="steps_per_minute_long" msgid="6146224261144843301">"{value,plural, =1{1 ก้าวต่อนาที}other{# ก้าวต่อนาที}}"</string>
+    <string name="heart_rate_value" msgid="6936476566204248578">"{count,plural, =1{1 bpm}other{# bpm}}"</string>
+    <string name="heart_rate_long_value" msgid="7865319425119507300">"{count,plural, =1{1 ครั้งต่อนาที}other{# ครั้งต่อนาที}}"</string>
+    <string name="velocity_speed_miles" msgid="616312758726506781">"{value,plural, =1{1 ไมล์/ชม.}other{# ไมล์/ชม.}}"</string>
+    <string name="velocity_speed_km" msgid="2807705003203399350">"{value,plural, =1{1 กม./ชม.}other{# กม./ชม.}}"</string>
+    <string name="velocity_speed_miles_long" msgid="7945167764392834498">"{value,plural, =1{1 ไมล์ต่อชั่วโมง}other{# ไมล์ต่อชั่วโมง}}"</string>
+    <string name="velocity_speed_km_long" msgid="3962310367408338322">"{value,plural, =1{1 กิโลเมตรต่อชั่วโมง}other{# กิโลเมตรต่อชั่วโมง}}"</string>
+    <string name="time_range_long" msgid="5067423945245490288">"ตั้งแต่ <xliff:g id="START_TIME">%1$s</xliff:g> ถึง <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="date_range_long" msgid="6022190423982451176">"ตั้งแต่ <xliff:g id="START_TIME">%1$s</xliff:g> ถึง <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="wheelchair_pushes" msgid="5807293867148465190">"{count,plural, =1{วีลแชร์พุช 1 ครั้ง}other{วีลแชร์พุช # ครั้ง}}"</string>
+    <string name="liter" msgid="8276522589564337053">"{count,plural, =1{1 ลิตร}other{# ลิตร}}"</string>
+    <string name="liter_long" msgid="7094280457555707835">"{count,plural, =1{1 ลิตร}other{# ลิตร}}"</string>
+    <string name="floors_climbed" msgid="7483572478744998930">"{count,plural, =1{1 ชั้น}other{# ชั้น}}"</string>
+    <string name="elevation_meters" msgid="5099783382361572761">"{count,plural, =1{1 เมตร}other{# เมตร}}"</string>
+    <string name="elevation_meters_long" msgid="3163136353148567981">"{count,plural, =1{1 เมตร}other{# เมตร}}"</string>
+    <string name="cycling_rpm" msgid="2271215098150068276">"{count,plural, =1{1 rpm}other{# rpm}}"</string>
+    <string name="cycling_rpm_long" msgid="4914848042733587007">"{count,plural, =1{1 รอบต่อนาที}other{# รอบต่อนาที}}"</string>
+    <string name="cycling_cadence_series_range_long" msgid="6852892013260504985">"ตั้งแต่ <xliff:g id="MIN">%1$s</xliff:g> ถึง <xliff:g id="MAX">%2$s</xliff:g>"</string>
+    <string name="sexual_activity_protected" msgid="4259473257597274326">"มีการป้องกัน"</string>
+    <string name="sexual_activity_unprotected" msgid="2250981470537379807">"ไม่มีการป้องกัน"</string>
+    <string name="spotting" msgid="1637175837078770520">"เลือดออกกะปริบกะปรอย"</string>
+    <string name="flow_spotting" msgid="832418664953780156">"เลือดออกกะปริบกะปรอย"</string>
+    <string name="flow_light" msgid="1937543318146228793">"มาน้อย"</string>
+    <string name="flow_medium" msgid="3783688724668943154">"มาปานกลาง"</string>
+    <string name="flow_heavy" msgid="8672261792750634294">"มามาก"</string>
+    <string name="period_day" msgid="3821944462093965882">"รอบเดือนวันที่ <xliff:g id="DAY">%1$d</xliff:g> จาก <xliff:g id="TOTAL_LENGTH">%2$d</xliff:g> วัน"</string>
+    <string name="ovulation_positive" msgid="6588547263126320238">"บวก"</string>
+    <string name="ovulation_negative" msgid="591588801112312454">"ลบ"</string>
+    <string name="ovulation_high" msgid="205362931427158291">"สูง"</string>
+    <string name="ovulation_inconclusive" msgid="3447066667631538756">"ไม่มีผลสรุปแน่ชัด"</string>
+    <string name="milliseconds" msgid="284845884516037268">"{count,plural, =1{1 มิลลิวินาที}other{# มิลลิวินาที}}"</string>
+    <string name="milliseconds_long" msgid="93246373745977286">"{count,plural, =1{1 มิลลิวินาที}other{# มิลลิวินาที}}"</string>
+    <string name="repetitions" msgid="5092687490665962229">"{count,plural, =1{1 ครั้ง}other{# ครั้ง}}"</string>
+    <string name="repetitions_long" msgid="9056502282298182438">"{count,plural, =1{1 ครั้ง}other{# ครั้ง}}"</string>
+    <string name="exercise_segments_header" msgid="2992953017179406012">"กลุ่มการออกกำลังกาย"</string>
+    <string name="exercise_laps_header" msgid="117228630553856372">"รอบ"</string>
+    <string name="back_extension" msgid="426518933137440577">"Back Extension"</string>
+    <string name="badminton" msgid="8839727076522086870">"แบดมินตัน"</string>
+    <string name="barbell_shoulder_press" msgid="3800236222803424251">"Barbell Shoulder Press"</string>
+    <string name="baseball" msgid="2520520093470304570">"เบสบอล"</string>
+    <string name="basketball" msgid="1453863811744469210">"บาสเกตบอล"</string>
+    <string name="bench_press" msgid="640506654204391301">"เบนช์เพรส"</string>
+    <string name="bench_sit_up" msgid="6601081870476287683">"ซิทอัพบนม้านั่ง"</string>
+    <string name="biking" msgid="4108296097363777467">"ปั่นจักรยาน"</string>
+    <string name="biking_stationary" msgid="1538524429562124202">"ปั่นจักรยานอยู่กับที่"</string>
+    <string name="boot_camp" msgid="1554811887379786226">"บู๊ตแคมป์"</string>
+    <string name="boxing" msgid="2200194516739940317">"ชกมวย"</string>
+    <string name="burpee" msgid="1434605818712603589">"เบอร์พี"</string>
+    <string name="calisthenics" msgid="9080623890020954493">"คาลิสเทนิกส์"</string>
+    <string name="cricket" msgid="7543586707938752011">"คริกเก็ต"</string>
+    <string name="crunch" msgid="4265356947720591896">"ครันช์"</string>
+    <string name="dancing" msgid="4099572666298130171">"เต้นรำ"</string>
+    <string name="deadlift" msgid="6880561478635890617">"เดดลิฟต์"</string>
+    <string name="dumbbell_curl_left_arm" msgid="4453594605921193509">"ดัมเบลล์เคิร์ลแขนซ้าย"</string>
+    <string name="dumbbell_curl_right_arm" msgid="4680998443002425166">"ดัมเบลล์เคิร์ลแขนขวา"</string>
+    <string name="dumbbell_front_raise" msgid="4411281746015904879">"ดัมเบลล์ฟรอนท์เรส"</string>
+    <string name="dumbbell_lateral_raise" msgid="5839946068429137241">"ดัมเบลล์แลเทอรัลเรส"</string>
+    <string name="dumbbell_triceps_extension_left_arm" msgid="6756023069611493063">"ดัมเบลล์ไตรเซปเอ็กซ์เทนชันแขนซ้าย"</string>
+    <string name="dumbbell_triceps_extension_right_arm" msgid="1498470275564554389">"ดัมเบลล์ไตรเซปเอ็กซ์เทนชันแขนขวา"</string>
+    <string name="dumbbell_triceps_extension_two_arm" msgid="5409860665522903159">"ดัมเบลล์ไตรเซปเอ็กซ์เทนชันสองแขน"</string>
+    <string name="elliptical" msgid="5148914059968910839">"เครื่องเดินวงรี"</string>
+    <string name="exercise_class" msgid="32582249527931454">"คลาสออกกำลังกาย"</string>
+    <string name="fencing" msgid="410347890025055779">"ฟันดาบ"</string>
+    <string name="football_american" msgid="8564554592554502623">"อเมริกันฟุตบอล"</string>
+    <string name="football_australian" msgid="5524598297723674661">"ออสเตรเลียนฟุตบอล"</string>
+    <string name="forward_twist" msgid="2464895720533462566">"ฟอร์เวิร์ดทวิสต์"</string>
+    <string name="frisbee_disc" msgid="5167617057624738753">"จานร่อน"</string>
+    <string name="golf" msgid="2726655052150604682">"กอล์ฟ"</string>
+    <string name="guided_breathing" msgid="8688586393796970733">"ฝึกการหายใจ"</string>
+    <string name="gymnastics" msgid="1122967371410769598">"ยิมนาสติก"</string>
+    <string name="handball" msgid="3088985331906235361">"แฮนด์บอล"</string>
+    <string name="high_intensity_interval_training" msgid="8873384314130026442">"การออกกำลังกายแบบ HIIT"</string>
+    <string name="hiking" msgid="5477476795295322496">"การเดินเขา"</string>
+    <string name="ice_hockey" msgid="3615167122989198051">"ฮอกกี้น้ำแข็ง"</string>
+    <string name="ice_skating" msgid="8509270149324068230">"สเก็ตน้ำแข็ง"</string>
+    <string name="jumping_jack" msgid="8751015874477795657">"กระโดดตบ"</string>
+    <string name="jump_rope" msgid="3065249477862282277">"กระโดดเชือก"</string>
+    <string name="lat_pull_down" msgid="6974730398913678563">"แลตพูลดาวน์"</string>
+    <string name="lunge" msgid="6557814816897990529">"ลันจ์"</string>
+    <string name="martial_arts" msgid="3279383109083496658">"ศิลปะการต่อสู้"</string>
+    <string name="meditation" msgid="7578287714544679183">"การทำสมาธิ"</string>
+    <string name="paddling" msgid="746868067888160788">"การพาย"</string>
+    <string name="paragliding" msgid="8328649138909727690">"พาราไกลดิ้ง"</string>
+    <string name="pilates" msgid="8660903049535347415">"พิลาทิส"</string>
+    <string name="plank" msgid="5537839085592473449">"แพลงก์"</string>
+    <string name="racquetball" msgid="8169482984904052538">"แร็กเก็ตบอล"</string>
+    <string name="rock_climbing" msgid="3123024521372083233">"ปีนผา"</string>
+    <string name="roller_hockey" msgid="3524872164646176686">"โรลเลอร์ฮอกกี้"</string>
+    <string name="rowing" msgid="615898011726585442">"พายเรือ"</string>
+    <string name="rowing_machine" msgid="4075255566862183370">"กรรเชียงบก"</string>
+    <string name="rugby" msgid="5146215118571059267">"รักบี้"</string>
+    <string name="running" msgid="5135754380339217169">"วิ่ง"</string>
+    <string name="running_treadmill" msgid="2083354407217486405">"วิ่งบนลู่วิ่ง"</string>
+    <string name="sailing" msgid="4924304145770903145">"แล่นเรือใบ"</string>
+    <string name="scuba_diving" msgid="4548778216122159229">"ดำน้ำลึก"</string>
+    <string name="skating" msgid="7320438805566302784">"สเก็ต"</string>
+    <string name="skiing" msgid="6773127614153771204">"สกี"</string>
+    <string name="snowboarding" msgid="890584874325367973">"สโนว์บอร์ด"</string>
+    <string name="snowshoeing" msgid="8932096199095096139">"เดินบนหิมะ"</string>
+    <string name="soccer" msgid="2631723269673549642">"ฟุตบอล"</string>
+    <string name="softball" msgid="8389418982713908334">"ซอฟต์บอล"</string>
+    <string name="squash" msgid="1588653991323140302">"สควอช"</string>
+    <string name="squat" msgid="7664163620113834611">"สควอท"</string>
+    <string name="stair_climbing" msgid="4042085961630471238">"เดินขึ้นบันได"</string>
+    <string name="stair_climbing_machine" msgid="4003983194733092325">"เครื่องจำลองการเดินขึ้นบันได"</string>
+    <string name="strength_training" msgid="56772956237540768">"ฝึกความแข็งแรง"</string>
+    <string name="stretching" msgid="8667864173383423787">"ยืดเหยียด"</string>
+    <string name="surfing" msgid="7612503593241904984">"โต้คลื่น"</string>
+    <string name="swimming_open_water" msgid="1030388267758027037">"ว่ายน้ำในแม่น้ำหรือทะเล"</string>
+    <string name="swimming_pool" msgid="1584809250142187550">"ว่ายน้ำในสระ"</string>
+    <string name="swimming_freestyle" msgid="5969535751316106638">"ฟรีสไตล์"</string>
+    <string name="swimming_backstroke" msgid="7293002996518694035">"กรรเชียง"</string>
+    <string name="swimming_breaststroke" msgid="7168282910654289593">"กบ"</string>
+    <string name="swimming_butterfly" msgid="8553167046220664352">"ผีเสื้อ"</string>
+    <string name="swimming_mixed" msgid="4486578691634921168">"ผสม"</string>
+    <string name="swimming_other" msgid="2561131941506955982">"อื่นๆ"</string>
+    <string name="table_tennis" msgid="4849741231221974485">"ปิงปอง"</string>
+    <string name="tennis" msgid="6627063985750125504">"เทนนิส"</string>
+    <string name="upper_twist" msgid="3382862516792841928">"อัปเปอร์ทวิสต์"</string>
+    <string name="volleyball" msgid="7469885673961163729">"วอลเลย์บอล"</string>
+    <string name="walking" msgid="4782496160454621769">"เดิน"</string>
+    <string name="water_polo" msgid="2527119748097860708">"โปโลน้ำ"</string>
+    <string name="weightlifting" msgid="7586735291662318085">"ยกน้ำหนัก"</string>
+    <string name="wheelchair" msgid="2226734836271500057">"วีลแชร์"</string>
+    <string name="workout" msgid="8583398837804461839">"ออกกำลังกาย"</string>
+    <string name="yoga" msgid="138675430777247097">"โยคะ"</string>
+    <string name="arm_curl" msgid="1737456878333201848">"อาร์มเคิร์ล"</string>
+    <string name="ball_slam" msgid="5996773678701283169">"ทุ่มบอล"</string>
+    <string name="double_arm_triceps_extension" msgid="4010735719203872078">"ไตรเซปเอ็กซ์เทนชันสองแขน"</string>
+    <string name="dumbbell_row" msgid="181791808359752158">"ดัมเบลล์โรว์"</string>
+    <string name="front_raise" msgid="1030939481482621384">"ฟรอนท์เรส"</string>
+    <string name="hip_thrust" msgid="8490916766767408053">"ฮิปธรัสต์"</string>
+    <string name="hula_hoop" msgid="1651914953207761226">"ฮูลาฮูป"</string>
+    <string name="kettlebell_swing" msgid="364783119882246413">"เหวี่ยงเคตเทิลเบล"</string>
+    <string name="lateral_raise" msgid="1037404943175363734">"แลเทอรัลเรส"</string>
+    <string name="leg_curl" msgid="5327470513599472344">"เลกเคิร์ล"</string>
+    <string name="leg_extension" msgid="1843556289395164421">"เลกเอ็กซ์เทนชัน"</string>
+    <string name="leg_press" msgid="4544551493384600086">"เลกเพรส"</string>
+    <string name="leg_raise" msgid="3206754140765952088">"เลกเรส"</string>
+    <string name="mountain_climber" msgid="6666288676718010900">"เมาน์เทนไคล์เมอร์"</string>
+    <string name="pull_up" msgid="4056233737860296184">"พุลอัพ"</string>
+    <string name="punch" msgid="7915247952566217050">"ต่อย"</string>
+    <string name="shoulder_press" msgid="4071573271892122319">"โชลเดอร์เพรส"</string>
+    <string name="single_arm_triceps_extension" msgid="4500495528709994121">"ไตรเซปเอ็กซ์เทนชันแขนเดียว"</string>
+    <string name="sit_up" msgid="1872162440154479950">"ซิทอัพ"</string>
+    <string name="rest" msgid="5937058337671252210">"พักผ่อน"</string>
+    <string name="pause" msgid="5161459047750335691">"หยุดชั่วคราว"</string>
+    <string name="activity_type_australian_football" msgid="431838050917315084">"ออสเตรเลียนฟุตบอล"</string>
+    <string name="sleep_session_default" msgid="7376764686701487196">"หลับ <xliff:g id="DURATION"> %1$s</xliff:g>"</string>
+    <string name="sleep_stage_default" msgid="1539043695578480733">"<xliff:g id="DURATION">%1$s</xliff:g> <xliff:g id="NAME">%2$s</xliff:g>⁠"</string>
+    <string name="sleep_stage_awake" msgid="4526767634444460862">"ตื่น"</string>
+    <string name="sleep_stage_awake_in_bed" msgid="5533385496857888503">"ยังไม่หลับ"</string>
+    <string name="sleep_stage_sleeping" msgid="5122840110107303518">"หลับ"</string>
+    <string name="sleep_stage_out_of_bed" msgid="522297068981578046">"ลุกออกจากเตียง"</string>
+    <string name="sleep_stage_rem" msgid="1694477904067543104">"หลับฝัน"</string>
+    <string name="sleep_stage_light" msgid="1070117964678317880">"กึ่งหลับกึ่งตื่น"</string>
+    <string name="sleep_stage_deep" msgid="3134557407657258364">"หลับลึก"</string>
+    <string name="sleep_stage_unknown" msgid="8664190491902295991">"ไม่ทราบ"</string>
+    <string name="minute_duration" msgid="9035288227090160206">"<xliff:g id="MINUTE">%1$s</xliff:g> นาที"</string>
+    <string name="hour_minute_duration_short" msgid="6862483734123680444">"<xliff:g id="HOUR">%1$s</xliff:g> ชม. <xliff:g id="MIN">%2$s</xliff:g> นาที"</string>
+    <string name="hour_duration" msgid="3472489613837138711">"<xliff:g id="HOUR">%1$s</xliff:g> ชม."</string>
+    <string name="hour_minute_duration_accessibility" msgid="1863356122145811614">"<xliff:g id="HOURS">%1$s</xliff:g> <xliff:g id="MINUTES">%2$s</xliff:g>⁠"</string>
+    <string name="hour_duration_accessibility" msgid="4944782597053107276">"{count,plural, =1{1 ชั่วโมง}other{# ชั่วโมง}}"</string>
+    <string name="minute_duration_accessibility" msgid="399158463609534882">"{count,plural, =1{1 นาที}other{# นาที}}"</string>
+    <!-- no translation found for day_duration (3965793251448856729) -->
+    <skip />
+    <string name="day_hour_duration" msgid="6174865584368017275">"<xliff:g id="DAYS">%1$s</xliff:g> และ <xliff:g id="HOURS">%2$s</xliff:g>"</string>
+    <string name="day_duration_accessibility" msgid="3023909370877112320">"{count,plural, =1{1 วัน}other{# วัน}}"</string>
+    <string name="vo2_max" msgid="8129489055516944647">"{value,plural, =1{1 มล./(กิโล·นาที)}other{# มล./(กิโล·นาที)}}"</string>
+    <string name="vo2_max_long" msgid="1031842712595851857">"{value,plural, =1{ปริมาณออกซิเจน 1 มิลลิลิตรต่อน้ำหนักร่างกาย 1 กิโลกรัมต่อ 1 นาที}other{ปริมาณออกซิเจน # มิลลิลิตรต่อน้ำหนักร่างกาย 1 กิโลกรัมต่อ 1 นาที}}"</string>
+    <string name="vo2_metabolic_cart" msgid="4724757223373717896">"Metabolic Cart"</string>
+    <string name="vo2_heart_rate_ratio" msgid="8707274294125886148">"อัตราการเต้นของหัวใจ"</string>
+    <string name="vo2_cooper_test" msgid="4713211595719031518">"การทดสอบของ Cooper"</string>
+    <string name="vo2_multistage_fitness_test" msgid="908967547838751749">"การทดสอบแบบ Multistage"</string>
+    <string name="vo2_rockport_fitness_test" msgid="2951465532122577281">"การทดสอบของ Rockport"</string>
+    <string name="vo2_other" msgid="5359013487285233550">"อื่นๆ"</string>
+    <string name="mucus_dry" msgid="1065582777971603874">"แห้ง"</string>
+    <string name="mucus_sticky" msgid="2086025099544529404">"เหนียว"</string>
+    <string name="mucus_creamy" msgid="7525290054414941569">"เมือกข้น"</string>
+    <string name="mucus_watery" msgid="1875540699006472048">"เป็นน้ำ"</string>
+    <string name="mucus_egg_white" msgid="5578512593433767787">"เมือกใส"</string>
+    <string name="mucus_unusual" msgid="3987847850745292757">"ผิดปกติ"</string>
+    <string name="mucus_light" msgid="5309343389013086860">"น้อย"</string>
+    <string name="mucus_medium" msgid="7666848347740570566">"ปานกลาง"</string>
+    <string name="mucus_heavy" msgid="7864873650773259133">"มาก"</string>
+    <string name="blood_pressure" msgid="7892828162554266437">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> mmHg"</string>
+    <string name="blood_pressure_long" msgid="6487761539434451764">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> มิลลิเมตรปรอท"</string>
+    <string name="body_position_standing_up" msgid="1221924915768574594">"ขณะยืน"</string>
+    <string name="body_position_sitting_down" msgid="8053875174780552282">"ขณะนั่ง"</string>
+    <string name="body_position_lying_down" msgid="1472381098179371143">"ขณะนอน"</string>
+    <string name="body_position_reclining" msgid="5676889701646839079">"ขณะเอนหลัง"</string>
+    <string name="blood_pressure_left_wrist" msgid="2047244346984766880">"ข้อมือซ้าย"</string>
+    <string name="blood_pressure_right_wrist" msgid="1488133877790549424">"ข้อมือขวา"</string>
+    <string name="blood_pressure_left_arm" msgid="5150436840115504433">"แขนซ้ายตอนบน"</string>
+    <string name="blood_pressure_right_arm" msgid="8660682684653121430">"แขนขวาตอนบน"</string>
+    <string name="millimoles_per_liter" msgid="3185457774991908223">"{count,plural, =1{1 มิลลิโมล/ลิตร}other{# มิลลิโมล/ลิตร}}"</string>
+    <string name="millimoles_per_liter_long" msgid="7248942926237335084">"{count,plural, =1{1 มิลลิโมลต่อลิตร}other{# มิลลิโมลต่อลิตร}}"</string>
+    <string name="specimen_source_interstitial_fluid" msgid="2201319049828128946">"ของเหลวระหว่างเซลล์"</string>
+    <string name="specimen_source_capillary_blood" msgid="5525024815754731735">"เลือดจากเส้นเลือดฝอย"</string>
+    <string name="specimen_source_plasma" msgid="8794064916106457747">"พลาสมา"</string>
+    <string name="specimen_source_serum" msgid="6383820057196352355">"ซีรั่ม"</string>
+    <string name="specimen_source_tears" msgid="4368541832400624080">"น้ำตา"</string>
+    <string name="specimen_source_whole_blood" msgid="8884838851343307557">"เลือดครบส่วน"</string>
+    <string name="blood_glucose_general" msgid="7566279829618085436">"ทั่วไป"</string>
+    <string name="blood_glucose_fasting" msgid="2122662399203934350">"ช่วงอดอาหาร"</string>
+    <string name="blood_glucose_before_meal" msgid="5125498172701953751">"ช่วงก่อนอาหาร"</string>
+    <string name="blood_glucose_after_meal" msgid="8101398122897992346">"ช่วงหลังอาหาร"</string>
+    <string name="mealtype_label" msgid="5402474235944051844">"ประเภทอาหาร"</string>
+    <string name="mealtype_unknown" msgid="3024645648636923591">"ไม่ทราบ"</string>
+    <string name="mealtype_breakfast" msgid="119545434987870954">"อาหารเช้า"</string>
+    <string name="mealtype_lunch" msgid="6212310262989550906">"อาหารกลางวัน"</string>
+    <string name="mealtype_dinner" msgid="1896347121249081336">"อาหารค่ำ"</string>
+    <string name="mealtype_snack" msgid="8454859872168781221">"อาหารว่าง"</string>
+    <string name="biotin" msgid="4000818331802478073">"ไบโอติน"</string>
+    <string name="caffeine" msgid="2847006945615912643">"คาเฟอีน"</string>
+    <string name="calcium" msgid="4832722858820295752">"แคลเซียม"</string>
+    <string name="chloride" msgid="2509193544740445654">"คลอไรด์"</string>
+    <string name="cholesterol" msgid="4261128668088502049">"คอเลสเตอรอล"</string>
+    <string name="chromium" msgid="807851794929222026">"โครเมียม"</string>
+    <string name="copper" msgid="8603012497089601260">"ทองแดง"</string>
+    <string name="dietary_fiber" msgid="6928876454420561553">"เส้นใยอาหาร"</string>
+    <string name="energy_consumed_total" msgid="7866804137119190606">"พลังงาน"</string>
+    <string name="energy_consumed_from_fat" msgid="8637734004867176038">"พลังงานจากไขมัน"</string>
+    <string name="folate" msgid="7728279545427110321">"โฟเลต"</string>
+    <string name="folic_acid" msgid="6861953414423667870">"กรดโฟลิก"</string>
+    <string name="iodine" msgid="2896913103021799237">"ไอโอดีน"</string>
+    <string name="iron" msgid="6134405609706877219">"เหล็ก"</string>
+    <string name="magnesium" msgid="6157495455437549170">"แมกนีเซียม"</string>
+    <string name="manganese" msgid="8339856079280400610">"แมงกานีส"</string>
+    <string name="molybdenum" msgid="3762866331212112454">"โมลิบดีนัม"</string>
+    <string name="monounsaturated_fat" msgid="1320950160552507057">"ไขมันไม่อิ่มตัวเชิงเดี่ยว"</string>
+    <string name="niacin" msgid="8425099536322826837">"ไนอาซิน"</string>
+    <string name="pantothenic_acid" msgid="5310842296212528685">"กรดแพนโทเทนิก"</string>
+    <string name="phosphorus" msgid="3912318057064021441">"ฟอสฟอรัส"</string>
+    <string name="polyunsaturated_fat" msgid="6386374757897543025">"ไขมันไม่อิ่มตัวเชิงซ้อน"</string>
+    <string name="potassium" msgid="723134189945209756">"โพแทสเซียม"</string>
+    <string name="protein" msgid="2731834509320364994">"โปรตีน"</string>
+    <string name="riboflavin" msgid="5329306869379867435">"ไรโบเฟลวิน"</string>
+    <string name="saturated_fat" msgid="3174504848270051265">"ไขมันอิ่มตัว"</string>
+    <string name="selenium" msgid="8129594078116221891">"ซีลีเนียม"</string>
+    <string name="sodium" msgid="7687341876185019438">"โซเดียม"</string>
+    <string name="sugar" msgid="656190285547502122">"น้ำตาล"</string>
+    <string name="thiamin" msgid="1662446837028039063">"ไทอามีน"</string>
+    <string name="total_carbohydrate" msgid="7034043840349284931">"คาร์โบไฮเดรตทั้งหมด"</string>
+    <string name="total_fat" msgid="8193647297427112321">"ไขมันทั้งหมด"</string>
+    <string name="trans_fat" msgid="1059715899517909090">"ไขมันทรานส์"</string>
+    <string name="unsaturated_fat" msgid="5495925265449481356">"ไขมันไม่อิ่มตัว"</string>
+    <string name="vitamin_a" msgid="2379293029664252095">"วิตามินเอ"</string>
+    <string name="vitamin_b12" msgid="180162813332325098">"วิตามินบี 12"</string>
+    <string name="vitamin_b6" msgid="370053149968231667">"วิตามินบี 6"</string>
+    <string name="vitamin_c" msgid="5383574357126292194">"วิตามินซี"</string>
+    <string name="vitamin_d" msgid="2717952250555672580">"วิตามินดี"</string>
+    <string name="vitamin_e" msgid="5214468880515744802">"วิตามินอี"</string>
+    <string name="vitamin_k" msgid="2722297637910069736">"วิตามินเค"</string>
+    <string name="zinc" msgid="5211975076671534013">"สังกะสี"</string>
+    <string name="nutrient_with_value" msgid="3327198262871257518">"<xliff:g id="NUTRIENT">%1$s</xliff:g>: <xliff:g id="AMOUNT">%2$s</xliff:g>"</string>
+    <string name="meal_name" msgid="6060648788040408308">"ชื่อ"</string>
+    <string name="gram_short_format" msgid="2355009811799735134">"{count,plural, =1{1 ก.}other{# ก.}}"</string>
+    <string name="gram_long_format" msgid="6160392101513066663">"{count,plural, =1{1 กรัม}other{# กรัม}}"</string>
+    <string name="respiratory_rate_value" msgid="4546418213418344364">"{count,plural, =1{1 rpm}other{# rpm}}"</string>
+    <string name="respiratory_rate_value_long" msgid="3822748008700697049">"{count,plural, =1{หายใจ 1 ครั้งต่อนาที}other{หายใจ # ครั้งต่อนาที}}"</string>
+    <string name="kilograms_short_label" msgid="9098342853218050689">"{count,plural, =1{1 กก.}other{# กก.}}"</string>
+    <string name="pounds_short_label" msgid="6256277330455003180">"{count,plural, =1{1 ปอนด์}other{# ปอนด์}}"</string>
+    <string name="stone_short_label" msgid="8377585176530348612">"{count,plural, =1{1 สโตน}other{# สโตน}}"</string>
+    <string name="stone_pound_short_label" msgid="7157344201618366834">"{stone_part} {pound_part}"</string>
+    <string name="kilograms_long_label" msgid="7883695071156297670">"{count,plural, =1{1 กิโลกรัม}other{# กิโลกรัม}}"</string>
+    <string name="pounds_long_label" msgid="2916697485006416419">"{count,plural, =1{1 ปอนด์}other{# ปอนด์}}"</string>
+    <string name="stone_long_label" msgid="8951426283449456468">"{count,plural, =1{1 สโตน}other{# สโตน}}"</string>
+    <string name="stone_pound_long_label" msgid="1308941435682625204">"{stone_part} {pound_part}"</string>
+    <string name="temperature_celsius" msgid="4552465686251118136">"{value,plural, =1{1 ℃}other{# ℃}}"</string>
+    <string name="temperature_celsius_long" msgid="5789974427381333869">"{value,plural, =1{1 องศาเซลเซียส}other{# องศาเซลเซียส}}"</string>
+    <string name="temperature_kelvin" msgid="4805698375607189394">"{value,plural, =1{1 K}other{# K}}"</string>
+    <string name="temperature_kelvin_long" msgid="6078037481989090665">"{value,plural, =1{1 เคลวิน}other{# เคลวิน}}"</string>
+    <string name="temperature_fahrenheit" msgid="8288674479506567057">"{value,plural, =1{1 ℉}other{# ℉}}"</string>
+    <string name="temperature_fahrenheit_long" msgid="1668948424411289521">"{value,plural, =1{1 องศาฟาเรนไฮต์}other{# องศาฟาเรนไฮต์}}"</string>
+    <string name="temperature_location_armpit" msgid="8359661261125563155">"รักแร้"</string>
+    <string name="temperature_location_finger" msgid="4915449065770967487">"นิ้ว"</string>
+    <string name="temperature_location_forehead" msgid="8603219464757434635">"หน้าผาก"</string>
+    <string name="temperature_location_mouth" msgid="1535682736007063471">"ปาก"</string>
+    <string name="temperature_location_rectum" msgid="1503082804377850076">"ช่องทวารหนัก"</string>
+    <string name="temperature_location_temporal_artery" msgid="2830919806910102535">"เส้นเลือดบริเวณขมับ"</string>
+    <string name="temperature_location_toe" msgid="36730991617372925">"นิ้วเท้า"</string>
+    <string name="temperature_location_ear" msgid="7024374111156026034">"หู"</string>
+    <string name="temperature_location_wrist" msgid="5290446688282752346">"ข้อมือ"</string>
+    <string name="temperature_location_vagina" msgid="1689485374825231749">"ช่องคลอด"</string>
+    <string name="distance_miles" msgid="5419172432458896478">"{dist,plural, =1{1 ไมล์}other{# ไมล์}}"</string>
+    <string name="distance_km" msgid="6383736895665100602">"{dist,plural, =1{1 กม.}other{# กม.}}"</string>
+    <string name="distance_miles_long" msgid="1830844568614100885">"{dist,plural, =1{1 ไมล์}other{# ไมล์}}"</string>
+    <string name="distance_km_long" msgid="6256504627418439859">"{dist,plural, =1{1 กิโลเมตร}other{# กิโลเมตร}}"</string>
+    <string name="height_cm" msgid="94329926270064717">"{height,plural, =1{1 ซม.}other{# ซม.}}"</string>
+    <string name="height_cm_long" msgid="2821030110768530948">"{height,plural, =1{1 เซนติเมตร}other{# เซนติเมตร}}"</string>
+    <string name="height_in_long" msgid="6502316324841498419">"{height,plural, =1{1 นิ้ว}other{# นิ้ว}}"</string>
+    <string name="height_ft_long" msgid="7551582478724981895">"{height,plural, =1{1 ฟุต}other{# ฟุต}}"</string>
+    <string name="height_in_compacted" msgid="6087182983411207466">"{height,plural, =1{1″}other{#″}}"</string>
+    <string name="height_ft_compacted" msgid="1024585112134314039">"{height,plural, =1{1′}other{#′}}"</string>
+    <string name="feet_inches_format" msgid="768610500549967860">"<xliff:g id="FT">%1$s</xliff:g><xliff:g id="IN">%2$s</xliff:g>⁠"</string>
+    <string name="feet_inches_format_long" msgid="5187265716573430363">"<xliff:g id="FT">%1$s</xliff:g> <xliff:g id="IN">%2$s</xliff:g>⁠"</string>
+    <string name="calories_long" msgid="7225535148232419419">"{count,plural, =1{1 แคลอรี่}other{# แคลอรี่}}"</string>
+    <string name="calories" msgid="320906359079319632">"{count,plural, =1{1 แคลอรี่}other{# แคลอรี่}}"</string>
+    <string name="kj" msgid="2742876437259085714">"{count,plural, =1{1 กิโลจูล}other{# กิโลจูล}}"</string>
+    <string name="kj_long" msgid="1837278261960345400">"{count,plural, =1{1 กิโลจูล}other{# กิโลจูล}}"</string>
+    <string name="percent" formatted="false" msgid="9199428244800776575">"{value,plural, =1{1%}other{#%}}"</string>
+    <string name="percent_long" msgid="2201022757867534235">"{value,plural, =1{1 เปอร์เซ็นต์}other{# เปอร์เซ็นต์}}"</string>
+    <string name="units_cancel" msgid="5947097690625771995">"ยกเลิก"</string>
+    <string name="units_title" msgid="6504086463237869339">"หน่วย"</string>
+    <string name="distance_unit_title" msgid="4696952932438418209">"ระยะทาง"</string>
+    <string name="height_unit_title" msgid="5461594609577078049">"ส่วนสูง"</string>
+    <string name="weight_unit_title" msgid="7405186541678939987">"น้ำหนัก"</string>
+    <string name="energy_unit_title" msgid="1714627395963766769">"พลังงาน"</string>
+    <string name="temperature_unit_title" msgid="1973985121774654017">"อุณหภูมิ"</string>
+    <string name="distance_unit_kilometers_label" msgid="1361363017122240294">"กิโลเมตร"</string>
+    <string name="distance_unit_miles_label" msgid="848850214987608211">"ไมล์"</string>
+    <string name="height_unit_centimeters_label" msgid="4096031670561995574">"เซนติเมตร"</string>
+    <string name="height_unit_feet_label" msgid="3311723678628261399">"ฟุตและนิ้ว"</string>
+    <string name="weight_unit_pound_label" msgid="8210663393844989211">"ปอนด์"</string>
+    <string name="weight_unit_kilogram_label" msgid="6623938920860887238">"กิโลกรัม"</string>
+    <string name="weight_unit_stone_label" msgid="3063787243474847180">"สโตน"</string>
+    <string name="energy_unit_calorie_label" msgid="3412965811470957296">"แคลอรี่"</string>
+    <string name="energy_unit_kilojoule_label" msgid="6481196724083455110">"กิโลจูล"</string>
+    <string name="temperature_unit_celsius_label" msgid="4698347100553808449">"เซลเซียส"</string>
+    <string name="temperature_unit_fahrenheit_label" msgid="6590261955872562854">"ฟาเรนไฮต์"</string>
+    <string name="temperature_unit_kelvin_label" msgid="3786210768294615821">"เคลวิน"</string>
+    <string name="help_and_feedback" msgid="4772169905005369871">"ความช่วยเหลือและความคิดเห็น"</string>
+    <string name="cant_see_all_your_apps_description" msgid="7344859063463536472">"หากคุณไม่เห็นแอปที่ติดตั้งแล้ว แอปดังกล่าวอาจยังไม่สามารถใช้งานร่วมกับ Health Connect ได้"</string>
+    <string name="things_to_try" msgid="8200374691546152703">"สิ่งที่ควรลองทำ"</string>
+    <string name="check_for_updates" msgid="3841090978657783101">"ตรวจหาการอัปเดต"</string>
+    <string name="check_for_updates_description" msgid="1347667778199095160">"ตรวจสอบว่าแอปที่ติดตั้งเป็นเวอร์ชันล่าสุด"</string>
+    <string name="see_all_compatible_apps" msgid="6791146164535475726">"ดูแอปทั้งหมดที่เข้ากันได้"</string>
+    <string name="see_all_compatible_apps_description" msgid="2092325337403254491">"ค้นหาแอปใน Google Play"</string>
+    <string name="send_feedback" msgid="7756927746070096780">"ส่งความคิดเห็น"</string>
+    <string name="send_feedback_description" msgid="2887207112856240778">"โปรดแจ้งให้เราทราบว่าแอปด้านสุขภาพและการออกกำลังกายแอปใดบ้างที่คุณต้องการใช้งานร่วมกับ Health Connect"</string>
+    <string name="playstore_app_title" msgid="4138464328693481809">"Play Store"</string>
+    <string name="auto_delete_button" msgid="8536451792268513619">"ลบอัตโนมัติ"</string>
+    <string name="auto_delete_title" msgid="8761742828224207826">"ลบอัตโนมัติ"</string>
+    <string name="auto_delete_header" msgid="4258649705159293715">"ควบคุมระยะเวลาการจัดเก็บข้อมูลใน Health Connect โดยกำหนดให้ลบหลังเวลาที่ตั้งไว้"</string>
+    <string name="auto_delete_learn_more" msgid="7416469042791307994">"ดูข้อมูลเพิ่มเติมเกี่ยวกับการลบอัตโนมัติ"</string>
+    <string name="auto_delete_section" msgid="7732381000331475082">"ลบข้อมูลอัตโนมัติ"</string>
+    <string name="range_after_x_months" msgid="3340127072680117121">"{count,plural, =1{หลังผ่านไป # เดือน}other{หลังผ่านไป # เดือน}}"</string>
+    <string name="range_never" msgid="4429478261788361233">"ไม่เลย"</string>
+    <string name="range_off" msgid="8178520557618184215">"ปิดอยู่"</string>
+    <string name="auto_delete_rationale" msgid="5255442126521464878">"เมื่อเปลี่ยนการตั้งค่าเหล่านี้ Health Connect จะลบข้อมูลที่มีอยู่เพื่อแสดงค่ากำหนดใหม่ของคุณ"</string>
+    <string name="confirming_question_x_months" msgid="8204363800605282103">"{count,plural, =1{ลบข้อมูลอัตโนมัติหลังผ่านไป # เดือนใช่ไหม}other{ลบข้อมูลอัตโนมัติหลังผ่านไป # เดือนใช่ไหม}}"</string>
+    <string name="confirming_message_x_months" msgid="4798474593741471977">"{count,plural, =1{Health Connect จะลบข้อมูลใหม่อัตโนมัติหลังผ่านไป # เดือน การตั้งค่านี้จะลบข้อมูลที่มีอยู่นานเกินกว่า # เดือนด้วย}other{Health Connect จะลบข้อมูลใหม่อัตโนมัติหลังผ่านไป # เดือน การตั้งค่านี้จะลบข้อมูลที่มีอยู่นานเกินกว่า # เดือนด้วย}}"</string>
+    <string name="set_auto_delete_button" msgid="268450418318199197">"ตั้งค่าการลบอัตโนมัติ"</string>
+    <string name="deletion_started_title" msgid="1177766097121885025">"ระบบจะลบข้อมูลที่มีอยู่"</string>
+    <string name="deletion_started_x_months" msgid="6567199107249615612">"{count,plural, =1{Health Connect จะลบข้อมูลทั้งหมดที่เก่ากว่า # เดือน อาจใช้เวลา 1 วันเพื่อให้การเปลี่ยนแปลงเหล่านี้ปรากฏในแอปที่เชื่อมต่อ}other{Health Connect จะลบข้อมูลทั้งหมดที่เก่ากว่า # เดือน อาจใช้เวลา 1 วันเพื่อให้การเปลี่ยนแปลงเหล่านี้ปรากฏในแอปที่เชื่อมต่อ}}"</string>
+    <string name="deletion_started_category_list_section" msgid="3052940611815658991">"ข้อมูลที่จะลบออกจากฟีเจอร์เหล่านี้"</string>
+    <string name="deletion_started_done_button" msgid="1232018689825054257">"เสร็จสิ้น"</string>
+    <string name="priority_dialog_title" msgid="7360654442596118085">"ตั้งค่าลำดับความสำคัญของแอป"</string>
+    <string name="priority_dialog_message" msgid="6971250365335018184">"หากมีแอปที่เพิ่มข้อมูล<xliff:g id="DATA_TYPE">%s</xliff:g>มากกว่า 1 แอป Health Connect จะให้ความสำคัญกับแอปที่อยู่สูงสุดในรายการนี้ ลากแอปเพื่อจัดเรียงลำดับใหม่"</string>
+    <string name="priority_dialog_positive_button" msgid="2503570694373675092">"บันทึก"</string>
+    <string name="action_drag_label_move_up" msgid="4221641798253080966">"เลื่อนขึ้น"</string>
+    <string name="action_drag_label_move_down" msgid="3448000958912947588">"เลื่อนลง"</string>
+    <string name="action_drag_label_move_top" msgid="5114033774108663548">"ย้ายไปด้านบนสุด"</string>
+    <string name="action_drag_label_move_bottom" msgid="3117764196696569512">"ย้ายไปด้านล่างสุด"</string>
+    <string name="reorder_button_content_description" msgid="2685032520710743533">"ปุ่มสำหรับลากและจัดเรียง <xliff:g id="SELECTED_APP">%s</xliff:g> ใหม่ในรายการสำคัญ"</string>
+    <string name="remove_button_content_description" msgid="6170490900032612048">"ปุ่มสำหรับนำ <xliff:g id="SELECTED_APP">%s</xliff:g> ออกจากรายการสำคัญ"</string>
+    <string name="reorder_button_action_description" msgid="5197462036756192214">"แตะสองครั้งแล้วลากเพื่อจัดเรียงใหม่"</string>
+    <string name="search_keywords_home" msgid="5386515593026555327">"ฟิตเนส, ความแข็งแรงสมบูรณ์"</string>
+    <string name="search_keywords_permissions" msgid="7821010295153350533">"สิทธิ์"</string>
+    <string name="search_keywords_data" msgid="5359602744325490523">"Health Connect, ข้อมูลสุขภาพ, หมวดหมู่สุขภาพ, การเข้าถึงข้อมูล, กิจกรรม, การตรวจวัดร่างกาย, การติดตามรอบเดือน, โภชนาการ, การนอนหลับ, ค่าสัญญาณชีพ"</string>
+    <string name="search_breadcrumbs_permissions" msgid="2667471090347475796">"Health Connect &gt; สิทธิ์ของแอป"</string>
+    <string name="search_breadcrumbs_data" msgid="6635428480372024040">"Health Connect &gt; ข้อมูลและการเข้าถึง"</string>
+    <string name="search_connected_apps" msgid="8180770761876928851">"ค้นหาแอป"</string>
+    <string name="no_results" msgid="4007426147286897998">"ไม่พบผลลัพธ์"</string>
+    <string name="help" msgid="6028777453152686162">"ความช่วยเหลือ"</string>
+    <string name="request_route_header_title" msgid="6599707039845646714">"อนุญาตให้ <xliff:g id="APP_NAME">%1$s</xliff:g> เข้าถึงเส้นทางออกกำลังกายนี้ใน Health Connect ใช่ไหม"</string>
+    <string name="request_route_disclaimer_notice" msgid="8060511384737662598">"แอปนี้จะอ่านตำแหน่งที่ผ่านมาบนเส้นทางของคุณได้"</string>
+    <string name="date_owner_format" msgid="4431196384037157320">"<xliff:g id="DATE">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g>"</string>
+    <string name="request_route_info_header_title" msgid="4149969049719763190">"เส้นทางออกกำลังกายมีข้อมูลตำแหน่งอยู่ด้วย"</string>
+    <string name="request_route_info_who_can_see_data_title" msgid="858355329937113994">"ใครจะดูข้อมูลนี้ได้บ้าง"</string>
+    <string name="request_route_info_who_can_see_data_summary" msgid="2439434359808367150">"เฉพาะแอปที่คุณอนุญาตให้เข้าถึงเส้นทางออกกำลังกาย"</string>
+    <string name="request_route_info_access_management_title" msgid="3222594923675464852">"ฉันจะจัดการการเข้าถึงได้อย่างไร"</string>
+    <string name="request_route_info_access_management_summary" msgid="2606548838292829495">"คุณจัดการการเข้าถึงเส้นทางออกกำลังกายของแอปได้ในการตั้งค่า Health Connect"</string>
+    <string name="request_route_allow" msgid="4427372851821847274">"อนุญาตเส้นทางนี้"</string>
+    <string name="request_route_allow_all" msgid="314830698958736916">"อนุญาตเส้นทางทั้งหมด"</string>
+    <string name="request_route_dont_allow" msgid="1186236234664957228">"ไม่อนุญาต"</string>
+    <string name="route_permissions_always_allow" msgid="1383816362804293137">"อนุญาตเสมอ"</string>
+    <string name="route_permissions_label" msgid="5201501195020295860">"แชร์เส้นทางออกกำลังกาย"</string>
+    <string name="route_permissions_summary" msgid="4670908225783213910">"ควบคุมวิธีที่แอปนี้เข้าถึงเส้นทางออกกำลังกายจากแอปที่เชื่อมต่อ"</string>
+    <string name="route_permissions_ask" msgid="3927020960754781917">"ถามทุกครั้ง"</string>
+    <string name="route_permissions_deny" msgid="4263802925221258853">"ไม่อนุญาต"</string>
+    <string name="exercise_permission_dialog_enable_title" msgid="4310997044811843391">"เปิดใช้ข้อมูลทั้ง 2 ประเภทใช่ไหม"</string>
+    <string name="exercise_permission_dialog_disable_title" msgid="1011777519918396883">"ปิดใช้ข้อมูลทั้ง 2 ประเภทใช่ไหม"</string>
+    <string name="exercise_permission_dialog_enabled_summary" msgid="3404390796688813585">"<xliff:g id="APP_NAME">%1$s</xliff:g> ต้องการสิทธิ์เข้าถึงและอ่านข้อมูลการออกกำลังกายเพื่อเปิดใช้เส้นทางการออกกำลังกาย"</string>
+    <string name="exercise_permission_dialog_disable_summary" msgid="397599718182778347">"<xliff:g id="APP_NAME">%1$s</xliff:g> ต้องการสิทธิ์เข้าถึงข้อมูลการออกกำลังกายเพื่อเปิดใช้เส้นทางการออกกำลังกาย"</string>
+    <string name="exercise_permission_dialog_positive_button" msgid="4545939654888655556">"ใช่"</string>
+    <string name="exercise_permission_dialog_negative_button" msgid="7433304732406274998">"ไม่"</string>
+    <string name="back_button" msgid="780519527385993407">"กลับ"</string>
+    <string name="loading" msgid="2526615755685950317">"กำลังโหลด…"</string>
+    <string name="migration_in_progress_screen_title" msgid="6564515269988205874">"การผสานรวมอยู่ระหว่างดำเนินการ"</string>
+    <string name="migration_in_progress_screen_integration_details" msgid="5916989113111973466">"Health Connect กำลังผสานรวมกับระบบ Android\n\nทั้งนี้ การโอนข้อมูลและสิทธิ์ต่างๆ ของคุณอาจใช้เวลาสักระยะหนึ่ง"</string>
+    <string name="migration_in_progress_screen_integration_dont_close" msgid="2095732208438772444">"อย่าปิดแอปจนกว่าจะได้รับการแจ้งเตือนว่าขั้นตอนนี้เสร็จสมบูรณ์แล้ว"</string>
+    <string name="migration_in_progress_notification_title" msgid="8873411008158407737">"การผสานรวม Health Connect อยู่ระหว่างดำเนินการ"</string>
+    <string name="migration_update_needed_screen_title" msgid="3260466598312877429">"ต้องอัปเดต"</string>
+    <string name="migration_update_needed_screen_details" msgid="7984745102006782603">"Health Connect กำลังผสานรวมกับระบบ Android เพื่อให้คุณเข้าถึงได้โดยตรงจากการตั้งค่า"</string>
+    <string name="update_button" msgid="4544529019832009496">"อัปเดต"</string>
+    <string name="migration_update_needed_notification_content" msgid="478899618719297517">"เริ่มการอัปเดตนี้เพื่อให้ Health Connect ผสานรวมกับการตั้งค่าระบบต่อได้"</string>
+    <string name="migration_update_needed_notification_action" msgid="1219223694165492000">"อัปเดตเลย"</string>
+    <string name="migration_module_update_needed_notification_title" msgid="5428523284357105379">"ต้องอัปเดตระบบ"</string>
+    <string name="migration_module_update_needed_action" msgid="7211167950758064289">"อัปเดตระบบโทรศัพท์ก่อนที่จะดำเนินการต่อ"</string>
+    <string name="migration_module_update_needed_restart" msgid="1246884613546321798">"หากอัปเดตระบบโทรศัพท์เรียบร้อยแล้ว ให้ลองรีสตาร์ทโทรศัพท์เพื่อผสานรวมต่อ"</string>
+    <string name="migration_app_update_needed_notification_title" msgid="8971076370900025444">"ต้องอัปเดต Health Connect"</string>
+    <string name="migration_app_update_needed_action" msgid="3289432528592774601">"อัปเดตแอป Health Connect เป็นเวอร์ชันล่าสุดก่อนที่จะดำเนินการต่อ"</string>
+    <string name="migration_more_space_needed_screen_title" msgid="1535473230886051579">"ต้องมีพื้นที่มากขึ้น"</string>
+    <string name="migration_more_space_needed_screen_details" msgid="621140247825603412">"Health Connect ต้องใช้พื้นที่เก็บข้อมูลในโทรศัพท์ <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> เพื่อผสานรวมต่อ\n\nโปรดเพิ่มพื้นที่ว่างในโทรศัพท์แล้วลองอีกครั้ง"</string>
+    <string name="try_again_button" msgid="8745496819992160789">"ลองอีกครั้ง"</string>
+    <string name="free_up_space_button" msgid="4141013808635654695">"เพิ่มพื้นที่ว่าง"</string>
+    <string name="migration_more_space_needed_notification_title" msgid="8238155395120107672">"ต้องมีพื้นที่มากขึ้น"</string>
+    <string name="migration_more_space_needed_notification_content" msgid="4034728181940567836">"Health Connect ต้องใช้พื้นที่เก็บข้อมูลในโทรศัพท์ <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> เพื่อผสานรวมต่อ"</string>
+    <string name="migration_paused_screen_title" msgid="8041170155372429894">"หยุดการผสานรวมชั่วคราว"</string>
+    <string name="migration_paused_screen_details" msgid="5898311710030340187">"แอป Health Connect ปิดลงขณะกำลังผสานรวมกับระบบ Android\n\nคลิก \"ทำต่อ\" เพื่อเปิดแอปอีกครั้ง แล้วดำเนินการโอนข้อมูลและสิทธิ์ต่างๆ ต่อ"</string>
+    <string name="migration_paused_screen_details_timeout" msgid="353768000785837394">"โปรดดำเนินการให้เสร็จสมบูรณ์ภายใน <xliff:g id="TIME_NEEDED">%1$s</xliff:g> เพื่อเก็บข้อมูล Health Connect ของคุณไว้"</string>
+    <string name="resume_button" msgid="2255148549862208047">"ทำต่อ"</string>
+    <string name="migration_paused_notification_title" msgid="4368414714202113077">"หยุดการผสานรวมชั่วคราว"</string>
+    <string name="migration_paused_notification_content" msgid="1950511270109811771">"Health Connect กำลังผสานรวมกับระบบ Android แตะเพื่อดำเนินการต่อ"</string>
+    <string name="resume_migration_banner_title" msgid="4443957114824045317">"ผสานรวมต่อ"</string>
+    <string name="resume_migration_banner_description" msgid="6236230413670826036">"แตะเพื่อผสานรวม Health Connect กับระบบ Android ต่อ โปรดดำเนินการให้เสร็จสมบูรณ์ภายใน <xliff:g id="TIME_NEEDED">%1$s</xliff:g> เพื่อเก็บข้อมูลของคุณไว้"</string>
+    <string name="resume_migration_banner_description_fallback" msgid="6060444898839211883">"แตะเพื่อผสานรวม Health Connect กับระบบ Android ต่อ"</string>
+    <string name="resume_migration_banner_button" msgid="2112318760107756469">"ต่อไป"</string>
+    <string name="resume_migration_notification_title" msgid="8859575633668908327">"ผสานรวม Health Connect ต่อ"</string>
+    <string name="resume_migration_notification_content" msgid="46172108837648715">"โปรดดำเนินการให้เสร็จสมบูรณ์ภายใน <xliff:g id="TIME_NEEDED">%1$s</xliff:g> เพื่อเก็บข้อมูลของคุณไว้"</string>
+    <string name="app_update_needed_banner_title" msgid="4724335956851853802">"ต้องอัปเดตแอป"</string>
+    <string name="app_update_needed_banner_description_single" msgid="1114809360264027362">"ต้องอัปเดต <xliff:g id="APP_NAME">%1$s</xliff:g> ก่อนจึงจะซิงค์กับ Health Connect ต่อได้"</string>
+    <string name="app_update_needed_banner_description_multiple" msgid="4660700626698013764">"บางแอปต้องอัปเดตก่อนจึงจะซิงค์กับ Health Connect ต่อได้"</string>
+    <string name="app_update_needed_banner_button" msgid="8223115764065649627">"ตรวจหาการอัปเดต"</string>
+    <string name="app_update_needed_banner_learn_more_button" msgid="7269232067819258160">"ดูข้อมูลเพิ่มเติม"</string>
+    <string name="migration_pending_permissions_dialog_title" msgid="6019552841791757048">"การผสานรวม Health Connect"</string>
+    <string name="migration_pending_permissions_dialog_content" msgid="6350115816948005466">"Health Connect พร้อมที่จะผสานรวมกับระบบ Android แล้ว หากคุณให้สิทธิ์เข้าถึงแก่ <xliff:g id="APP_NAME">%1$s</xliff:g> ตอนนี้ ฟีเจอร์บางอย่างอาจไม่ทำงานจนกว่าการผสานรวมจะเสร็จสมบูรณ์"</string>
+    <string name="migration_pending_permissions_dialog_content_apps" msgid="6417173899016940664">"Health Connect พร้อมที่จะผสานรวมกับระบบ Android แล้ว หากคุณให้สิทธิ์เข้าถึงแก่แอปตอนนี้ ฟีเจอร์บางอย่างอาจไม่ทำงานจนกว่าการผสานรวมจะเสร็จสมบูรณ์"</string>
+    <string name="migration_pending_permissions_dialog_button_continue" msgid="258571372365364506">"ต่อไป"</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" msgid="754910196871313049">"เริ่มการผสานรวม"</string>
+    <string name="migration_in_progress_permissions_dialog_title" msgid="2188354144857156984">"การผสานรวม Health Connect อยู่ระหว่างดำเนินการ"</string>
+    <string name="migration_in_progress_permissions_dialog_content" msgid="2249793103623253693">"Health Connect กำลังผสานรวมกับระบบ Android\n\nคุณจะได้รับการแจ้งเตือนเมื่อขั้นตอนนี้เสร็จสมบูรณ์ และจะสามารถใช้งาน <xliff:g id="APP_NAME">%1$s</xliff:g> ร่วมกับ Health Connect ได้"</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" msgid="8653954808926889199">"Health Connect กำลังผสานรวมกับระบบ Android\n\nคุณจะได้รับการแจ้งเตือนเมื่อขั้นตอนนี้เสร็จสมบูรณ์และใช้งาน Health Connect ได้"</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" msgid="3437208109334974656">"รับทราบ"</string>
+    <string name="migration_not_complete_dialog_title" msgid="3725576338159027149">"การผสานรวม Health Connect ไม่เสร็จสมบูรณ์"</string>
+    <string name="migration_not_complete_dialog_content" msgid="4992771587233088606">"คุณจะได้รับการแจ้งเตือนเมื่อพร้อมดำเนินการอีกครั้ง"</string>
+    <string name="migration_not_complete_dialog_button" msgid="3271842109680807482">"รับทราบ"</string>
+    <string name="migration_not_complete_notification_title" msgid="7392885522310227293">"การผสานรวม Health Connect ไม่เสร็จสมบูรณ์"</string>
+    <string name="migration_not_complete_notification_action" msgid="757041885992445657">"อ่านเพิ่มเติม"</string>
+    <string name="migration_complete_notification_title" msgid="4988631739109332404">"การผสานรวม Health Connect เสร็จสมบูรณ์"</string>
+    <string name="migration_complete_notification_action" msgid="5350322865206331186">"เปิด"</string>
+    <string name="migration_whats_new_dialog_title" msgid="2349465358457105228">"มีอะไรใหม่"</string>
+    <string name="migration_whats_new_dialog_content" msgid="1271560399054864488">"ตอนนี้คุณสามารถเข้าถึง Health Connect โดยตรงจากการตั้งค่า ถอนการติดตั้งแอป Health Connect ได้ทุกเมื่อเพื่อเพิ่มพื้นที่เก็บข้อมูล"</string>
+    <string name="migration_whats_new_dialog_button" msgid="642575552457587805">"รับทราบ"</string>
+    <string name="data_restore_in_progress_screen_title" msgid="2516161353003274764">"กำลังกู้คืน"</string>
+    <string name="data_restore_in_progress_content" msgid="2684897189974069361">"Health Connect กำลังกู้คืนข้อมูลและสิทธิ์ การดำเนินการนี้อาจใช้เวลาสักครู่"</string>
+    <string name="data_restore_in_progress_dialog_title" msgid="9097805833675345598">"Health Connect กำลังดำเนินการกู้คืน"</string>
+    <string name="data_restore_in_progress_dialog_button" msgid="2096525382430589845">"รับทราบ"</string>
+    <string name="data_restore_pending_banner_title" msgid="6792157138348551175">"ต้องมีการอัปเดต"</string>
+    <string name="data_restore_pending_banner_content" msgid="7631240781262092142">"โปรดอัปเดตระบบโทรศัพท์ก่อนที่จะกู้คืนข้อมูลต่อ"</string>
+    <string name="data_restore_pending_banner_button" msgid="2150345659341456815">"อัปเดตเลย"</string>
+    <string name="data_totals_header" msgid="8316977153276216025">"ผลรวมของข้อมูล"</string>
+    <string name="app_sources_header" msgid="6343062519512947665">"แหล่งที่มาของแอป"</string>
+    <string name="data_sources_footer" msgid="6414387142919741183">"เพิ่มแหล่งที่มาของแอปในรายการเพื่อดูว่าผลรวมของข้อมูลจะเปลี่ยนแปลงไปอย่างไร การนำแอปออกจากรายการนี้จะทำให้แอปนั้นไม่มีส่วนในผลรวม แต่จะยังมีสิทธิ์เขียนอยู่"</string>
+    <string name="data_sources_empty_state" msgid="1899652759274805556">"ไม่มีแหล่งที่มาของแอป"</string>
+    <string name="data_sources_empty_state_footer" msgid="8933950342291569638">"เมื่อคุณให้สิทธิ์แก่แอปในการเขียนข้อมูล<xliff:g id="CATEGORY_NAME">%1$s</xliff:g>แล้ว แหล่งที่มาจะแสดงขึ้นที่นี่"</string>
+    <string name="data_sources_help_link" msgid="7740264923634947915">"วิธีการทำงานของแหล่งที่มาและลำดับความสำคัญ"</string>
+    <string name="data_sources_add_app" msgid="319926596123692514">"เพิ่มแอป"</string>
+    <string name="edit_data_sources" msgid="79641360876849547">"แก้ไขแหล่งที่มาของแอป"</string>
+    <string name="default_app_summary" msgid="6183876151011837062">"ค่าเริ่มต้นของอุปกรณ์"</string>
+    <string name="app_data_title" msgid="6499967982291000837">"ข้อมูลแอป"</string>
+    <string name="no_data_footer" msgid="4777297654713673100">"ข้อมูลจากแอปที่มีสิทธิ์เข้าถึง Health Connect จะแสดงที่นี่"</string>
+    <string name="date_picker_day" msgid="3076687507968958991">"วัน"</string>
+    <string name="date_picker_week" msgid="1038805538316142229">"สัปดาห์"</string>
+    <string name="date_picker_month" msgid="3560692391260778560">"เดือน"</string>
+    <string name="this_week_header" msgid="1280121922548216973">"สัปดาห์นี้"</string>
+    <string name="last_week_header" msgid="5194448963146719382">"สัปดาห์ที่แล้ว"</string>
+    <string name="this_month_header" msgid="2452395268894677189">"เดือนนี้"</string>
+    <string name="last_month_header" msgid="1359164797239191253">"เดือนที่แล้ว"</string>
+    <string name="tab_entries" msgid="3402700951602029493">"รายการ"</string>
+    <string name="tab_access" msgid="7818197975407243701">"การเข้าถึง"</string>
+</resources>

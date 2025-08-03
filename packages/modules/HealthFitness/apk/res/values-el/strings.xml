@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="4768580772453324183">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="6401520186678972547">"Διαχείριση της πρόσβασης των εφαρμογών στα δεδομένα υγείας"</string>
+    <string name="permissions_and_data_header" msgid="4406105506837487805">"Άδειες και δεδομένα"</string>
+    <string name="home_subtitle" msgid="1750033322147357163">"Διαχειριστείτε τα δεδομένα υγείας και φυσικής κατάστασης στο τηλέφωνό σας και ελέγξτε ποιες εφαρμογές έχουν πρόσβαση σε αυτά"</string>
+    <string name="data_title" msgid="4456619761533380816">"Δεδομένα και πρόσβαση"</string>
+    <string name="all_categories_title" msgid="1446410643217937926">"Όλες οι κατηγορίες"</string>
+    <string name="see_all_categories" msgid="5599882403901010434">"Εμφάνιση όλων των κατηγοριών"</string>
+    <string name="no_data" msgid="1906986019249068659">"Δεν υπάρχουν δεδομένα"</string>
+    <string name="connected_apps_title" msgid="279942692804743223">"Άδειες εφαρμογών"</string>
+    <string name="connected_apps_subtitle" msgid="8464462995533399175">"Διαχειριστείτε τις εφαρμογές και τις άδειες"</string>
+    <string name="connected_apps_button_subtitle" msgid="8855528937028500370">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> από <xliff:g id="NUM_POSSIBLE_APPS">%2$s</xliff:g> εφαρμογές έχουν πρόσβαση"</string>
+    <string name="connected_apps_all_apps_connected_subtitle" msgid="3432698291862059492">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> εφαρμογές έχουν πρόσβαση"</string>
+    <string name="connected_apps_one_app_connected_subtitle" msgid="9095815882509754340">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> εφαρμογή έχει πρόσβαση"</string>
+    <string name="connected_apps_button_no_permissions_subtitle" msgid="1651994862419752908">"Καμία"</string>
+    <string name="entry_details_title" msgid="590184849040247850">"Λεπτομέρειες καταχώρισης"</string>
+    <string name="backup_title" msgid="211503191266235085">"Δημιουργία αντιγράφων ασφαλείας"</string>
+    <string name="data_sources_and_priority_title" msgid="2360222350913604558">"Πηγές δεδομένων και προτεραιότητα"</string>
+    <string name="set_units_title" msgid="2657822539603758029">"Ορισμός μονάδων"</string>
+    <string name="recent_access_header" msgid="7623497371790225888">"Πρόσφατη πρόσβαση"</string>
+    <string name="no_recent_access" msgid="4724297929902441784">"Καμία εφαρμογή δεν απέκτησε πρόσφατα πρόσβαση στο Health Connect"</string>
+    <string name="show_recent_access_entries_button_title" msgid="3483460066767350419">"Δείτε όλη την πρόσφατη πρόσβαση"</string>
+    <string name="recent_access_screen_description" msgid="331101209889185402">"Δείτε ποιες εφαρμογές απέκτησαν πρόσβαση στα δεδομένα σας στις προηγούμενες 24 ώρες"</string>
+    <string name="today_header" msgid="1006837293203834373">"Σήμερα"</string>
+    <string name="yesterday_header" msgid="6652176268273681505">"Χθες"</string>
+    <string name="read_data_access_label" msgid="7145747310980361968">"Ανάγνωση: %s"</string>
+    <string name="write_data_access_label" msgid="7955988316773000250">"Εγγραφή: %s"</string>
+    <string name="data_type_separator" msgid="1299848322898210658">", "</string>
+    <string name="manage_permissions" msgid="8394221950712608160">"Διαχείριση αδειών"</string>
+    <string name="recent_access_time_content_descritption" msgid="1709675393952226273">"Χρόνος: %s"</string>
+    <string name="activity_category_uppercase" msgid="136628843341377088">"Δραστηριότητα"</string>
+    <string name="activity_category_lowercase" msgid="3007220578865400601">"δραστηριότητα"</string>
+    <string name="body_measurements_category_uppercase" msgid="422923782603313038">"Μετρήσεις σώματος"</string>
+    <string name="body_measurements_category_lowercase" msgid="2259696274629666992">"μετρήσεις σώματος"</string>
+    <string name="sleep_category_uppercase" msgid="3422452674899706786">"Ύπνος"</string>
+    <string name="sleep_category_lowercase" msgid="842609634386839011">"ύπνος"</string>
+    <string name="vitals_category_uppercase" msgid="8982333138032938623">"Ζωτικές λειτουργίες"</string>
+    <string name="vitals_category_lowercase" msgid="4664457787866407963">"ζωτικές λειτουργίες"</string>
+    <string name="cycle_tracking_category_uppercase" msgid="4723200714782660489">"Παρακολ. καταμηνιαίου κύκλου"</string>
+    <string name="cycle_tracking_category_lowercase" msgid="5245446435975317209">"παρακολ. καταμηνιαίου κύκλου"</string>
+    <string name="nutrition_category_uppercase" msgid="6665096097987741036">"Διατροφή"</string>
+    <string name="nutrition_category_lowercase" msgid="7804134941649488990">"διατροφή"</string>
+    <string name="browse_data_category" msgid="4813955610391357638">"Περιήγηση δεδομένων"</string>
+    <string name="manage_data_section" msgid="5859629270946511903">"Διαχείριση δεδομένων"</string>
+    <string name="export_data_button" msgid="7783329820434117744">"Εξαγωγή δεδομένων"</string>
+    <string name="delete_all_data_button" msgid="7238755635416521487">"Διαγραφή όλων των δεδομένων"</string>
+    <string name="no_categories" msgid="2636778482437506241">"Δεν έχετε δεδομένα στο Health Connect"</string>
+    <string name="permission_types_title" msgid="7698058200557389436">"Τα δεδομένα σας"</string>
+    <string name="app_priority_button" msgid="3126133977893705098">"Προτεραιότητα εφαρμογών"</string>
+    <string name="delete_category_data_button" msgid="2324773398768267043">"Διαγραφή δεδομένων <xliff:g id="CATEGORY">%s</xliff:g>"</string>
+    <string name="select_all_apps_title" msgid="884487568464305913">"Όλες οι εφαρμογές"</string>
+    <string name="can_read" msgid="4568261079308309564">"Δυνατότητα ανάγνωσης <xliff:g id="PERMISSION_TYPE">%s</xliff:g>"</string>
+    <string name="can_write" msgid="5082414937218423823">"Δυνατότητα γραφής <xliff:g id="PERMISSION_TYPE">%s</xliff:g>"</string>
+    <string name="inactive_apps" msgid="8956546286760797760">"Ανενεργές εφαρμογές"</string>
+    <string name="inactive_apps_message" msgid="4666501359079362486">"Αυτές οι εφαρμογές δεν μπορούν πλέον να γράψουν δεδομένα <xliff:g id="DATA_TYPE">%s</xliff:g>, αλλά εξακολουθούν να έχουν δεδομένα αποθηκευμένα στο Health Connect"</string>
+    <string name="data_access_empty_message" msgid="9084350402254264452">"Οι εφαρμογές δεν μπορούν πλέον να διαβάζουν ή να εγγράφουν δεδομένα <xliff:g id="DATA_TYPE_0">%1$s</xliff:g> και δεν υπάρχουν αποθηκευμένα δεδομένα <xliff:g id="DATA_TYPE_2">%2$s</xliff:g> στο Health Connect"</string>
+    <string name="data_access_exercise_description" msgid="6868583522699443570">"Αυτά τα δεδομένα περιλαμβάνουν πληροφορίες όπως είναι ο χρόνος σωματικής δραστηριότητας, ο τύπος της άσκησης, οι γύροι, οι επαναλήψεις ή οι απλωτές κατά την κολύμβηση"</string>
+    <string name="data_access_sleep_description" msgid="74293126050011153">"Αυτά τα δεδομένα περιλαμβάνουν πληροφορίες όπως είναι τα στάδια του ύπνου και οι περίοδοι ύπνου"</string>
+    <string name="all_entries_button" msgid="5109091107239135235">"Εμφάνιση όλων των καταχωρίσεων"</string>
+    <string name="selected_date_view_action_description" msgid="6237240886988225664">"αλλαγή"</string>
+    <string name="delete_permission_type_data_button" msgid="2270819954943391797">"Διαγραφή αυτών των δεδομένων"</string>
+    <string name="permgrouplab_health" msgid="468961137496587966">"Health Connect"</string>
+    <string name="permgroupdesc_health" msgid="252080476917407273">"πρόσβαση σε δεδομένα υγείας"</string>
+    <string name="permlab_readCaloriesBurned" msgid="8998140381590624692">"Ανάγνωση θερμίδων που κάηκαν"</string>
+    <string name="permdesc_readCaloriesBurned" msgid="9012595355389868570">"Επιτρέπει στην εφαρμογή να διαβάζει τις θερμίδες που καίγονται"</string>
+    <string name="background_read_uppercase_label" msgid="5727643918930403320">"Ανάγνωση στο παρασκήνιο"</string>
+    <string name="background_read_lowercase_label" msgid="2490218479761177680">"ανάγνωση στο παρασκήνιο"</string>
+    <string name="background_read_description" msgid="5263745158443722174">"Ανάγνωση δεδομένων υγείας στο παρασκήνιο"</string>
+    <string name="active_calories_burned_uppercase_label" msgid="6231684842932528272">"Ενεργές θερμίδες που έχετε κάψει"</string>
+    <string name="active_calories_burned_lowercase_label" msgid="6743090878253096737">"ενεργές θερμίδες που έχετε κάψει"</string>
+    <string name="active_calories_burned_read_content_description" msgid="6449442660408754186">"Ανάγνωση ενεργών θερμίδων που έχετε κάψει"</string>
+    <string name="active_calories_burned_write_content_description" msgid="8794383690157452892">"Εγγραφή ενεργών θερμίδων που έχετε κάψει"</string>
+    <string name="exercise_uppercase_label" msgid="9174662895529523172">"Άσκηση"</string>
+    <string name="exercise_lowercase_label" msgid="7210988327804427943">"άσκηση"</string>
+    <string name="exercise_read_content_description" msgid="2079728018078185556">"Ανάγνωση δεδομένων άσκησης"</string>
+    <string name="exercise_write_content_description" msgid="3267630937895011886">"Εγγραφή δεδομένων άσκησης"</string>
+    <string name="exercise_route_uppercase_label" msgid="6678863538041931754">"Διαδρομή άσκησης"</string>
+    <string name="exercise_route_lowercase_label" msgid="1691912731748211252">"διαδρομή άσκησης"</string>
+    <string name="exercise_route_write_content_description" msgid="257809942953352611">"Εγγραφή διαδρομής άσκησης"</string>
+    <string name="exercise_route_read_content_description" msgid="8394028537674463440">"Ανάγνωση διαδρομής άσκησης"</string>
+    <string name="exercise_routes_read_content_description" msgid="9001690141308870706">"Ανάγνωση διαδρομών άσκησης"</string>
+    <string name="planned_exercise_uppercase_label" msgid="3315909901236811375">"Προγράμματα προπόνησης"</string>
+    <string name="planned_exercise_lowercase_label" msgid="7642993032791009809">"προγράμματα προπόνησης"</string>
+    <string name="planned_exercise_read_content_description" msgid="3240286968325192534">"Ανάγνωση προγραμμάτων προπόνησης"</string>
+    <string name="planned_exercise_write_content_description" msgid="8146488636094126823">"Εγγραφή προγραμμάτων προπόνησης"</string>
+    <string name="distance_uppercase_label" msgid="1420705424462077174">"Απόσταση"</string>
+    <string name="distance_lowercase_label" msgid="2287154001209381379">"απόσταση"</string>
+    <string name="distance_read_content_description" msgid="8787235642020285789">"Ανάγνωση δεδομένων απόστασης"</string>
+    <string name="distance_write_content_description" msgid="494549494589487562">"Εγγραφή δεδομένων απόστασης"</string>
+    <string name="elevation_gained_uppercase_label" msgid="7708101940695442377">"Κέρδος ανύψωσης"</string>
+    <string name="elevation_gained_lowercase_label" msgid="7532517182346738562">"κέρδος ανύψωσης"</string>
+    <string name="elevation_gained_read_content_description" msgid="6018756385903843355">"Ανάγνωση δεδομένων κέρδους ανύψωσης"</string>
+    <string name="elevation_gained_write_content_description" msgid="6790199544670231367">"Εγγραφή δεδομένων κέρδους ανύψωσης"</string>
+    <string name="floors_climbed_uppercase_label" msgid="3754372357767832441">"Όροφοι που ανεβήκατε"</string>
+    <string name="floors_climbed_lowercase_label" msgid="5326072443481377299">"όροφοι που ανεβήκατε"</string>
+    <string name="floors_climbed_read_content_description" msgid="4730764877684911752">"Ανάγνωση δεδομένων ορόφων που ανεβήκατε"</string>
+    <string name="floors_climbed_write_content_description" msgid="3480340610185615655">"Εγγραφή δεδομένων ορόφων που ανεβήκατε"</string>
+    <string name="power_uppercase_label" msgid="8027219480901448660">"Δύναμη"</string>
+    <string name="power_lowercase_label" msgid="3893286148577044369">"δύναμη"</string>
+    <string name="power_read_content_description" msgid="6821797135406643841">"Ανάγνωση δεδομένων δύναμης"</string>
+    <string name="power_write_content_description" msgid="8091584558688087392">"Εγγραφή δεδομένων δύναμης"</string>
+    <string name="speed_uppercase_label" msgid="3307049861007518587">"Ταχύτητα"</string>
+    <string name="speed_lowercase_label" msgid="3462529886150464647">"ταχύτητα"</string>
+    <string name="speed_read_content_description" msgid="9097089387385110692">"Ανάγνωση δεδομένων ταχύτητας"</string>
+    <string name="speed_write_content_description" msgid="5382921934987959251">"Εγγραφή δεδομένων ταχύτητας"</string>
+    <string name="steps_uppercase_label" msgid="2581405504646486105">"Βήματα"</string>
+    <string name="steps_lowercase_label" msgid="706153549312838582">"βήματα"</string>
+    <string name="steps_read_content_description" msgid="7839297670092769964">"Ανάγνωση δεδομένων βημάτων"</string>
+    <string name="steps_write_content_description" msgid="6360223825799711659">"Εγγραφή δεδομένων βημάτων"</string>
+    <string name="total_calories_burned_uppercase_label" msgid="2749855864302679314">"Συνολική κατανάλωση θερμίδων"</string>
+    <string name="total_calories_burned_lowercase_label" msgid="3185370725975873922">"συνολική κατανάλωση θερμίδων"</string>
+    <string name="total_calories_burned_read_content_description" msgid="1569722345910293531">"Ανάγνωση δεδομένων συνολικής κατανάλωσης θερμίδων"</string>
+    <string name="total_calories_burned_write_content_description" msgid="2727752180681851608">"Εγγραφή δεδομένων συνολικής κατανάλωσης θερμίδων"</string>
+    <string name="vo2_max_uppercase_label" msgid="6614391499711390476">"Μέγ. VO2"</string>
+    <string name="vo2_max_lowercase_label" msgid="824972630000900033">"Μέγ. VO2"</string>
+    <string name="vo2_max_read_content_description" msgid="8132626885797169882">"Ανάγνωση δεδομένων μέγ. VO2"</string>
+    <string name="vo2_max_write_content_description" msgid="4783300275788728546">"Εγγραφή δεδομένων μέγ. VO2"</string>
+    <string name="wheelchair_pushes_uppercase_label" msgid="5582991294340226965">"Ωθήσεις αναπηρικού αμαξιδίου"</string>
+    <string name="wheelchair_pushes_lowercase_label" msgid="8919337990806379687">"ωθήσεις αναπηρικού αμαξιδίου"</string>
+    <string name="wheelchair_pushes_read_content_description" msgid="157304610943976471">"Ανάγνωση δεδομένων ωθήσεων αναπηρικού αμαξιδίου"</string>
+    <string name="wheelchair_pushes_write_content_description" msgid="2745600707106818641">"Εγγραφή δεδομένων ωθήσεων αναπηρικού αμαξιδίου"</string>
+    <string name="basal_metabolic_rate_uppercase_label" msgid="4802351493928086473">"Βασικός ρυθμός μεταβολισμού"</string>
+    <string name="basal_metabolic_rate_lowercase_label" msgid="7195596626083893231">"βασικός ρυθμός μεταβολισμού"</string>
+    <string name="basal_metabolic_rate_read_content_description" msgid="5583222212705234907">"Ανάγνωση δεδομένων βασικού ρυθμού μεταβολισμού"</string>
+    <string name="basal_metabolic_rate_write_content_description" msgid="4246137679868953443">"Εγγραφή δεδομένων βασικού ρυθμού μεταβολισμού"</string>
+    <string name="body_fat_uppercase_label" msgid="4618860235119416449">"Σωματικό λίπος"</string>
+    <string name="body_fat_lowercase_label" msgid="4090686510477176498">"σωματικό λίπος"</string>
+    <string name="body_fat_read_content_description" msgid="801664410906939146">"Ανάγνωση δεδομένων σωματικού λίπους"</string>
+    <string name="body_fat_write_content_description" msgid="4863558071904720577">"Εγγραφή δεδομένων σωματικού λίπους"</string>
+    <string name="body_water_mass_uppercase_label" msgid="7839393299147916863">"Ποσοστό νερού στο σώμα"</string>
+    <string name="body_water_mass_lowercase_label" msgid="9196249948631920955">"ποσοστό νερού στο σώμα"</string>
+    <string name="body_water_mass_read_content_description" msgid="1468266374858854184">"Ανάγνωση δεδομένων ποσοστού νερού στο σώμα"</string>
+    <string name="body_water_mass_write_content_description" msgid="8485284654932647383">"Εγγραφή δεδομένων ποσοστού νερού στο σώμα"</string>
+    <string name="bone_mass_uppercase_label" msgid="6815438946872228501">"Οστική μάζα"</string>
+    <string name="bone_mass_lowercase_label" msgid="5127378263122564055">"οστική μάζα"</string>
+    <string name="bone_mass_read_content_description" msgid="8401070346821477225">"Ανάγνωση δεδομένων οστικής μάζας"</string>
+    <string name="bone_mass_write_content_description" msgid="8711285422751587975">"Εγγραφή δεδομένων οστικής μάζας"</string>
+    <string name="height_uppercase_label" msgid="6839543632311723181">"Ύψος"</string>
+    <string name="height_lowercase_label" msgid="6232582306436492752">"ύψος"</string>
+    <string name="height_read_content_description" msgid="7107217731605127715">"Ανάγνωση δεδομένων ύψους"</string>
+    <string name="height_write_content_description" msgid="6787078298523064040">"Εγγραφή δεδομένων ύψους"</string>
+    <string name="hip_circumference_uppercase_label" msgid="553907293616398764">"Περιφέρεια γοφών"</string>
+    <string name="hip_circumference_lowercase_label" msgid="5383037100089745103">"περιφέρεια γοφών"</string>
+    <string name="hip_circumference_read_content_description" msgid="3960843421475522701">"Ανάγνωση δεδομένων περιφέρειας γοφών"</string>
+    <string name="hip_circumference_write_content_description" msgid="3828616223599649051">"Εγγραφή δεδομένων περιφέρειας γοφών"</string>
+    <string name="lean_body_mass_uppercase_label" msgid="1660166073148541008">"Μυική μάζα σώματος"</string>
+    <string name="lean_body_mass_lowercase_label" msgid="9060417901080844357">"μυική μάζα σώματος"</string>
+    <string name="lean_body_mass_read_content_description" msgid="3251903339784498051">"Ανάγνωση δεδομένων μυικής μάζας σώματος"</string>
+    <string name="lean_body_mass_write_content_description" msgid="8778176250058913124">"Εγγραφή δεδομένων μυικής μάζας σώματος"</string>
+    <string name="waist_circumference_uppercase_label" msgid="864537723631507381">"Περιφέρεια μέσης"</string>
+    <string name="waist_circumference_lowercase_label" msgid="7389714051869012003">"περιφέρεια μέσης"</string>
+    <string name="waist_circumference_read_content_description" msgid="7742632529989685413">"Ανάγνωση δεδομένων περιφέρειας μέσης"</string>
+    <string name="waist_circumference_write_content_description" msgid="6455311628964793644">"Εγγραφή δεδομένων περιφέρειας μέσης"</string>
+    <string name="weight_uppercase_label" msgid="2240396607601785080">"Βάρος"</string>
+    <string name="weight_lowercase_label" msgid="6592458247010013299">"βάρος"</string>
+    <string name="weight_read_content_description" msgid="3270514859844811665">"Ανάγνωση δεδομένων βάρους"</string>
+    <string name="weight_write_content_description" msgid="555486014471042366">"Εγγραφή δεδομένων βάρους"</string>
+    <string name="cervical_mucus_uppercase_label" msgid="7479786340673820763">"Τραχηλική βλέννα"</string>
+    <string name="cervical_mucus_lowercase_label" msgid="7460634889750669420">"τραχηλική βλέννα"</string>
+    <string name="cervical_mucus_read_content_description" msgid="7163132301693064124">"Ανάγνωση δεδομένων τραχηλικής βλέννας"</string>
+    <string name="cervical_mucus_write_content_description" msgid="175802615365382752">"Εγγραφή δεδομένων τραχηλικής βλέννας"</string>
+    <string name="intermenstrual_bleeding_uppercase_label" msgid="1681956139742028987">"Αιμορραγία μεταξύ των περιόδων"</string>
+    <string name="intermenstrual_bleeding_lowercase_label" msgid="5284781275147619132">"αιμορραγία μεταξύ των περιόδων"</string>
+    <string name="intermenstrual_bleeding_read_content_description" msgid="5970939335115119015">"Ανάγνωση δεδομένων για την αιμορραγία μεταξύ των περιόδων"</string>
+    <string name="intermenstrual_bleeding_write_content_description" msgid="1377719923165234099">"Εγγραφή δεδομένων για την αιμορραγία μεταξύ των περιόδων"</string>
+    <string name="menstruation_uppercase_label" msgid="9119506748428874832">"Εμμηνόρροια"</string>
+    <string name="menstruation_lowercase_label" msgid="8098816978006207242">"εμμηνόρροια"</string>
+    <string name="menstruation_read_content_description" msgid="7710047469771882021">"Ανάγνωση δεδομένων εμμηνόρροιας"</string>
+    <string name="menstruation_write_content_description" msgid="5142669435897047396">"Εγγραφή δεδομένων εμμηνόρροιας"</string>
+    <string name="ovulation_test_uppercase_label" msgid="1929868571862288837">"Τεστ ωορρηξίας"</string>
+    <string name="ovulation_test_lowercase_label" msgid="93260039417722840">"τεστ ωορρηξίας"</string>
+    <string name="ovulation_test_read_content_description" msgid="8008351738285775840">"Ανάγνωση δεδομένων τεστ ωορρηξίας"</string>
+    <string name="ovulation_test_write_content_description" msgid="7061493310852203463">"Εγγραφή δεδομένων τεστ ωορρηξίας"</string>
+    <string name="sexual_activity_uppercase_label" msgid="1093238473810194127">"Σεξουαλική δραστηριότητα"</string>
+    <string name="sexual_activity_lowercase_label" msgid="8285364117437418834">"σεξουαλική δραστηριότητα"</string>
+    <string name="sexual_activity_read_content_description" msgid="4937721417714312007">"Ανάγνωση δεδομένων σεξουαλικής δραστηριότητας"</string>
+    <string name="sexual_activity_write_content_description" msgid="3063448245882840534">"Εγγραφή δεδομένων σεξουαλικής δραστηριότητας"</string>
+    <string name="spotting_uppercase_label" msgid="5106739829390033240">"Σταγονοειδής αιμόρροια"</string>
+    <string name="spotting_lowercase_label" msgid="4361141146039580583">"σταγονοειδής αιμόρροια"</string>
+    <string name="spotting_read_content_description" msgid="5422420770022357631">"Ανάγνωση δεδομένων σταγονοειδούς αιμόρροιας"</string>
+    <string name="spotting_write_content_description" msgid="9049462631184362964">"Εγγραφή δεδομένων σταγονοειδούς αιμόρροιας"</string>
+    <string name="hydration_uppercase_label" msgid="1196083392597480565">"Ενυδάτωση"</string>
+    <string name="hydration_lowercase_label" msgid="7793261552870970551">"ενυδάτωση"</string>
+    <string name="hydration_read_content_description" msgid="3255941233933808082">"Ανάγνωση δεδομένων ενυδάτωσης"</string>
+    <string name="hydration_write_content_description" msgid="7549819425875969941">"Εγγραφή δεδομένων ενυδάτωσης"</string>
+    <string name="nutrition_uppercase_label" msgid="2352959651072134084">"Διατροφή"</string>
+    <string name="nutrition_lowercase_label" msgid="4123518952030658702">"διατροφή"</string>
+    <string name="nutrition_read_content_description" msgid="5820331769605952082">"Ανάγνωση δεδομένων διατροφής"</string>
+    <string name="nutrition_write_content_description" msgid="6690090231218210367">"Εγγραφή δεδομένων διατροφής"</string>
+    <string name="sleep_uppercase_label" msgid="1458084584315123727">"Ύπνος"</string>
+    <string name="sleep_lowercase_label" msgid="7795584924503475035">"ύπνος"</string>
+    <string name="sleep_read_content_description" msgid="7064608272681424436">"Ανάγνωση δεδομένων ύπνου"</string>
+    <string name="sleep_write_content_description" msgid="2259414465110376554">"Εγγραφή δεδομένων ύπνου"</string>
+    <string name="basal_body_temperature_uppercase_label" msgid="4571393253935677019">"Βασική θερμοκρασία σώματος"</string>
+    <string name="basal_body_temperature_lowercase_label" msgid="3363829208971016662">"βασική θερμοκρασία σώματος"</string>
+    <string name="basal_body_temperature_read_content_description" msgid="3342604362011725500">"Ανάγνωση δεδομένων βασικής θερμοκρασίας σώματος"</string>
+    <string name="basal_body_temperature_write_content_description" msgid="1081636817359407622">"Εγγραφή δεδομένων βασικής θερμοκρασίας σώματος"</string>
+    <string name="blood_glucose_uppercase_label" msgid="7462421849184720721">"Γλυκόζη στο αίμα"</string>
+    <string name="blood_glucose_lowercase_label" msgid="5036157221577793772">"γλυκόζη στο αίμα"</string>
+    <string name="blood_glucose_read_content_description" msgid="563393834563809318">"Ανάγνωση δεδομένων γλυκόζης στο αίμα"</string>
+    <string name="blood_glucose_write_content_description" msgid="7688360165458091174">"Εγγραφή δεδομένων γλυκόζης στο αίμα"</string>
+    <string name="blood_pressure_uppercase_label" msgid="1091450873620857062">"Αρτηριακή πίεση"</string>
+    <string name="blood_pressure_lowercase_label" msgid="5857335698134310172">"αρτηριακή πίεση"</string>
+    <string name="blood_pressure_read_content_description" msgid="8573617892296408887">"Ανάγνωση δεδομένων αρτηριακής πίεσης"</string>
+    <string name="blood_pressure_write_content_description" msgid="2649850785684226949">"Εγγραφή δεδομένων αρτηριακής πίεσης"</string>
+    <string name="body_temperature_uppercase_label" msgid="5104550330313775324">"Θερμοκρασία σώματος"</string>
+    <string name="body_temperature_lowercase_label" msgid="324124730971992259">"θερμοκρασία σώματος"</string>
+    <string name="body_temperature_read_content_description" msgid="5966765249024688738">"Ανάγνωση δεδομένων θερμοκρασίας σώματος"</string>
+    <string name="body_temperature_write_content_description" msgid="5498016171067859369">"Εγγραφή δεδομένων θερμοκρασίας σώματος"</string>
+    <string name="heart_rate_uppercase_label" msgid="4990167215137642430">"Καρδιακός ρυθμός"</string>
+    <string name="heart_rate_lowercase_label" msgid="693492686337628283">"καρδιακός ρυθμός"</string>
+    <string name="heart_rate_read_content_description" msgid="4165867166260001259">"Ανάγνωση δεδομένων καρδιακού ρυθμού"</string>
+    <string name="heart_rate_write_content_description" msgid="2876667918366409170">"Εγγραφή δεδομένων καρδιακού ρυθμού"</string>
+    <string name="heart_rate_variability_uppercase_label" msgid="2047887230527012536">"Μεταβλητότητα καρδιακού ρυθμού"</string>
+    <string name="heart_rate_variability_lowercase_label" msgid="2332638559415663836">"μεταβλητότητα καρδιακού ρυθμού"</string>
+    <string name="heart_rate_variability_read_content_description" msgid="5812707457872629556">"Ανάγνωση δεδομένων μεταβλητότητας καρδιακού ρυθμού"</string>
+    <string name="heart_rate_variability_write_content_description" msgid="3628171603035566114">"Εγγραφή δεδομένων μεταβλητότητας καρδιακού ρυθμού"</string>
+    <string name="oxygen_saturation_uppercase_label" msgid="1396254185616418355">"Κορεσμός οξυγόνου"</string>
+    <string name="oxygen_saturation_lowercase_label" msgid="7264179897533866327">"κορεσμός οξυγόνου"</string>
+    <string name="oxygen_saturation_read_content_description" msgid="4756434113425028212">"Ανάγνωση δεδομένων κορεσμού οξυγόνου"</string>
+    <string name="oxygen_saturation_write_content_description" msgid="7189901097196830875">"Εγγραφή δεδομένων κορεσμού οξυγόνου"</string>
+    <string name="respiratory_rate_uppercase_label" msgid="4609498171205294389">"Αναπνευστικός ρυθμός"</string>
+    <string name="respiratory_rate_lowercase_label" msgid="8138249029197360098">"αναπνευστικός ρυθμός"</string>
+    <string name="respiratory_rate_read_content_description" msgid="8545898979648419722">"Ανάγνωση δεδομένων αναπνευστικού ρυθμού"</string>
+    <string name="respiratory_rate_write_content_description" msgid="7689533746809591931">"Εγγραφή δεδομένων αναπνευστικού ρυθμού"</string>
+    <string name="resting_heart_rate_uppercase_label" msgid="5700827752396195453">"Καρδιακός ρυθμός χαλάρωσης"</string>
+    <string name="resting_heart_rate_lowercase_label" msgid="4533866739695973169">"καρδιακός ρυθμός χαλάρωσης"</string>
+    <string name="resting_heart_rate_read_content_description" msgid="1068160055773401020">"Ανάγνωση δεδομένων καρδιακού ρυθμού χαλάρωσης"</string>
+    <string name="resting_heart_rate_write_content_description" msgid="8848198128082739995">"Εγγραφή δεδομένων καρδιακού ρυθμού χαλάρωσης"</string>
+    <string name="skin_temperature_uppercase_label" msgid="4880306019368461268">"Θερμοκρασία δέρματος"</string>
+    <string name="skin_temperature_lowercase_label" msgid="7456421703641980581">"θερμοκρασία δέρματος"</string>
+    <string name="skin_temperature_read_content_description" msgid="1896127631429717621">"Ανάγνωση θερμοκρασίας δέρματος"</string>
+    <string name="skin_temperature_write_content_description" msgid="6448587289116206085">"Εγγραφή θερμοκρασίας δέρματος"</string>
+    <string name="read_permission_category" msgid="6002099618259628632">"Παροχή στην εφαρμογή “<xliff:g id="APP_NAME">%1$s</xliff:g>” του δικαιώματος ανάγνωσης"</string>
+    <string name="write_permission_category" msgid="1529702804865008111">"Να επιτρέπεται στην εφαρμογή “<xliff:g id="APP_NAME">%1$s</xliff:g>” να γράφει"</string>
+    <string name="request_permissions_cancel" msgid="1787483997235365393">"Ακύρωση"</string>
+    <string name="request_permissions_allow" msgid="4201324235711040631">"Αποδοχή"</string>
+    <string name="request_permissions_allow_all" msgid="3419414351406638770">"Να επιτρέπονται όλες"</string>
+    <string name="request_permissions_dont_allow" msgid="6375307410951549030">"Να μην επιτρέπεται"</string>
+    <string name="request_permissions_header_desc" msgid="5561173070722750153">"Επιλέξτε τα δεδομένα που θέλετε να διαβάζει ή να γράφει αυτή η εφαρμογή στο Health Connect"</string>
+    <string name="request_permissions_header_time_frame_desc" msgid="4617392728203291453">"Αν παραχωρήσετε πρόσβαση ανάγνωσης, αυτή η εφαρμογή θα έχει δυνατότητα ανάγνωσης νέων δεδομένων και δεδομένων από τις τελευταίες 30 ημέρες."</string>
+    <string name="request_permissions_header_title" msgid="4264236128614363479">"Να επιτρέπεται στο <xliff:g id="APP_NAME">%1$s</xliff:g> να αποκτήσει πρόσβαση στο Health Connect;"</string>
+    <string name="request_permissions_rationale" msgid="6154280355215802538">"Μπορείτε να μάθετε πώς η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> χειρίζεται τα δεδομένα σας στην <xliff:g id="PRIVACY_POLICY_LINK">%2$s</xliff:g> του προγραμματιστή"</string>
+    <string name="request_permissions_privacy_policy" msgid="228503452643555737">"πολιτική απορρήτου"</string>
+    <string name="permissions_disconnect_dialog_title" msgid="7355211540619034695">"Κατάργηση όλων των αδειών;"</string>
+    <string name="permissions_disconnect_dialog_disconnect" msgid="8854787587948224752">"Κατάργηση όλων"</string>
+    <string name="permissions_disconnect_dialog_message" msgid="8679363015400954541">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> δεν θα έχει πλέον δυνατότητα ανάγνωσης ή εγγραφής δεδομένων από το Health Connect.\n\nΑυτό δεν επηρεάζει άλλες άδειες που ενδέχεται να έχει αυτή η εφαρμογή, όπως τοποθεσίας, κάμερας ή μικροφώνου."</string>
+    <string name="permissions_disconnect_dialog_checkbox" msgid="8646951566431872823">"Να διαγραφούν επίσης τα δεδομένα της εφαρμογής <xliff:g id="APP_NAME">%1$s</xliff:g> από το Health Connect"</string>
+    <string name="navigation_next_day" msgid="8853443471183944219">"Επόμενη ημέρα"</string>
+    <string name="navigation_selected_day" msgid="2510843479734091348">"Επιλεγμένη ημέρα"</string>
+    <string name="navigation_previous_day" msgid="718353386484938584">"Προηγούμενη ημέρα"</string>
+    <string name="default_error" msgid="7966868260616403475">"Παρουσιάστηκε κάποιο πρόβλημα. Δοκιμάστε ξανά."</string>
+    <string name="health_permission_header_description" msgid="7497601695462373927">"Οι εφαρμογές με αυτή την άδεια μπορούν να διαβάζουν και να γράφουν δεδομένα υγείας και φυσικής κατάστασης."</string>
+    <string name="connected_apps_text" msgid="1177626440966855831">"Ελέγξτε ποιες εφαρμογές μπορούν να έχουν πρόσβαση στα δεδομένα που είναι αποθηκευμένα στο Health Connect. Πατήστε μια εφαρμογή για να ελέγξετε τα δεδομένα για τα οποία έχει πρόσβαση εγγραφής και ανάγνωσης."</string>
+    <string name="connected_apps_section_title" msgid="2415288099612126258">"Η πρόσβαση επιτρέπεται"</string>
+    <string name="not_connected_apps_section_title" msgid="452718769894103039">"Η πρόσβαση δεν επιτρέπεται"</string>
+    <string name="needs_updating_apps_section_title" msgid="8561510523049921199">"Απαιτείται ενημέρωση"</string>
+    <string name="settings_and_help_header" msgid="5749710693017621168">"Ρυθμίσεις και βοήθεια"</string>
+    <string name="disconnect_all_apps" msgid="748945115977534726">"Κατάργηση πρόσβασης όλων των εφαρμογών"</string>
+    <string name="manage_permissions_read_header" msgid="2031153753057983683">"Επιτρέπεται η ανάγνωση"</string>
+    <string name="manage_permissions_write_header" msgid="6876806848658168370">"Επιτρέπεται η εγγραφή"</string>
+    <string name="no_apps_allowed" msgid="5794833581324128108">"Δεν επιτρέπονται εφαρμογές"</string>
+    <string name="no_apps_denied" msgid="743327680286446017">"Δεν υπάρχουν εφαρμογές που απαγορεύονται"</string>
+    <string name="permissions_disconnect_all_dialog_title" msgid="27474286046207122">"Κατάργηση πρόσβασης όλων των εφαρμογών;"</string>
+    <string name="permissions_disconnect_all_dialog_message" msgid="3151109627457270499">"Καμία από τις εφαρμογές σας δεν θα μπορεί να αποκτήσει πρόσβαση στα δεδομένα του Health Connect ή να προσθέσει νέα δεδομένα. Με αυτή την ενέργεια δεν διαγράφονται τυχόν υπάρχοντα δεδομένα.\n\nΔεν επηρεάζονται άλλες άδειες που ενδέχεται να έχει αυτή η εφαρμογή, όπως οι άδειες για την τοποθεσία, την κάμερα ή το μικρόφωνο."</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" msgid="2134136493310257746">"Κατάργηση όλων"</string>
+    <string name="manage_permissions_manage_app_header" msgid="6356348062088358761">"Διαχείριση εφαρμογής"</string>
+    <string name="see_app_data" msgid="3951030076195119476">"Εμφάνιση δεδομένων εφαρμογών"</string>
+    <string name="delete_app_data" msgid="6890357774873859952">"Διαγραφή δεδομένων εφαρμογής"</string>
+    <string name="inactive_apps_section_title" msgid="7492812973696378690">"Ανενεργές εφαρμογές"</string>
+    <string name="inactive_apps_section_message" msgid="2610789262055974739">"Αυτές οι εφαρμογές δεν έχουν πλέον πρόσβαση, αλλά έχουν ακόμη αποθηκευμένα δεδομένα στο Health Connect"</string>
+    <string name="manage_permissions_time_frame" msgid="1299483940842401923">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> μπορεί να διαβάζει δεδομένα που προστέθηκαν μετά τις <xliff:g id="DATA_ACCESS_DATE">%2$s</xliff:g>"</string>
+    <string name="other_android_permissions" msgid="8051485761573324702">"Για να διαχειριστείτε άλλες άδειες Android στις οποίες μπορεί να έχει πρόσβαση αυτή η εφαρμογή, μεταβείτε στην επιλογή Ρυθμίσεις &gt; Εφαρμογές"</string>
+    <string name="manage_permissions_rationale" msgid="9183689798847740274">"Τα δεδομένα που κοινοποιείτε στην εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> καλύπτονται από την πολιτική απορρήτου της"</string>
+    <string name="other_android_permissions_content_description" msgid="2261431010048933820">"Για να διαχειριστείτε άλλες άδειες Android στις οποίες έχει πρόσβαση αυτή η εφαρμογή, μεταβείτε στις Ρυθμίσεις και πατήστε Εφαρμογές"</string>
+    <string name="manage_permissions_learn_more" msgid="2503189875093300767">"Ανάγνωση πολιτικής απορρήτου"</string>
+    <string name="app_perms_content_provider_24h" msgid="5977152673988158889">"Πρόσβαση τις τελευταίες 24 ώρες"</string>
+    <string name="app_access_title" msgid="7137018424885371763">"Πρόσβαση εφαρμογής"</string>
+    <string name="connected_apps_empty_list_section_title" msgid="6821215432694207342">"Προς το παρόν, δεν έχετε εγκαταστήσει συμβατές εφαρμογές"</string>
+    <string name="additional_access_label" msgid="4645249249222528341">"Επιπλέον πρόσβαση"</string>
+    <string name="denied_apps_banner_title" msgid="1997745063608657965">"Άδειες εφαρμογών που καταργήθηκαν"</string>
+    <string name="denied_apps_banner_message_one_app" msgid="17659513485678315">"Το Health Connect κατάργησε τις άδειες για την εφαρμογή <xliff:g id="APP_DATA">%s</xliff:g>"</string>
+    <string name="denied_apps_banner_message_two_apps" msgid="1147216810892373640">"Το Health Connect κατάργησε τις άδειες για τις εφαρμογές <xliff:g id="APP_DATA_0">%1$s</xliff:g> και <xliff:g id="APP_DATA_TWO">%2$s</xliff:g>"</string>
+    <string name="denied_apps_banner_message_three_apps" msgid="7978499051473471633">"Το Health Connect κατάργησε τις άδειες για τις εφαρμογές <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> και <xliff:g id="APP_DATA_THREE">%3$s</xliff:g>"</string>
+    <string name="denied_apps_banner_message_many_apps" msgid="7249805432604650982">"Το Health Connect κατάργησε τις άδειες για τις εφαρμογές <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> και <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> ακόμη εφαρμογές"</string>
+    <string name="denied_apps_banner_button" msgid="4438480389769298412">"Προβολή λεπτομερειών"</string>
+    <string name="denied_apps_dialog_title" msgid="7470227827315635099">"Γιατί το Health Connect καταργεί άδειες εφαρμογών"</string>
+    <string name="denied_apps_dialog_message" msgid="7876664965504466099">"Αν μια εφαρμογή τεθεί σε αναστολή ή καταργηθεί από το Google Play, το Health Connect καταργεί αυτόματα τις άδειές της.\n\nΑυτό σημαίνει ότι η εφαρμογή δεν μπορεί πλέον να αποκτήσει πρόσβαση σε δεδομένα που έχουν αποθηκευτεί στο Health Connect. Εάν αυτή η εφαρμογή έχει εγγράψει στο παρελθόν δεδομένα, θα εμφανίζεται στη λίστα ανενεργών εφαρμογών."</string>
+    <string name="denied_apps_dialog_got_it_button" msgid="4698003516923683959">"Το κατάλαβα"</string>
+    <string name="export_settings_screen_title" msgid="887671826359158339">"Αποθήκευση δεδομένων"</string>
+    <string name="export_settings_screen_description" msgid="5477618165331360989">"Αποθηκεύστε τα δεδομένα και τις άδειες του Health Connect για να μπορείτε να τα εισαγάγετε σε περίπτωση που κάνετε εναλλαγή σε νέο τηλέφωνο. Μπορείτε να επιλέξετε το σημείο στο οποίο θα αποθηκευτούν τα δεδομένα πριν τα αποθηκεύσετε."</string>
+    <string name="setup_button" msgid="1407942598553043961">"Ρύθμιση"</string>
+    <string name="export_settings_header" msgid="2435738153550683355">"Ρυθμίσεις"</string>
+    <string name="auto_save" msgid="7146497593975616076">"Αυτόματη αποθήκευση"</string>
+    <string name="choose_frequency" msgid="1077467424225083246">"Επιλογή συχνότητας"</string>
+    <string name="choose_frequency_description" msgid="752601326653048254">"Επιλέξτε αν θέλετε να αποθηκεύσετε τα δεδομένα μία φορά ή αν θα αποθηκεύονται αυτόματα ανά τακτά χρονικά διαστήματα."</string>
+    <string name="frequency_daily" msgid="3596412357416125727">"Ανά ημέρα"</string>
+    <string name="frequency_weekly" msgid="7302587625019573393">"Ανά εβδομάδα"</string>
+    <string name="frequency_monthly" msgid="729674398053825938">"Ανά μήνα"</string>
+    <string name="export_back_button" msgid="3550795479165524982">"Πίσω"</string>
+    <string name="export_next_button" msgid="657930567137105172">"Επόμενο"</string>
+    <string name="onboarding_title" msgid="8550656211291180188">"Ξεκινήστε με το Health Connect"</string>
+    <string name="onboarding_description" msgid="4873129122057931161">"Το Health Connect αποθηκεύει τα δεδομένα υγείας και φυσικής κατάστασής σας, προσφέροντας έναν απλό τρόπο συγχρονισμού των διαφορετικών εφαρμογών στο τηλέφωνό σας"</string>
+    <string name="share_data" msgid="3481932156368883946">"Μοιραστείτε δεδομένα με τις εφαρμογές σας"</string>
+    <string name="share_data_description" msgid="2919871301634375092">"Επιλέξτε τα δεδομένα που μπορεί να διαβάσει ή να εγγράψει κάθε εφαρμογή στο Health Connect."</string>
+    <string name="manage_your_settings" msgid="7391184508015127137">"Διαχειριστείτε τις ρυθμίσεις και το απόρρητό σας"</string>
+    <string name="manage_your_settings_description" msgid="557943168930365334">"Αλλάξτε τις άδειες εφαρμογών και διαχειριστείτε τα δεδομένα σας ανά πάσα στιγμή."</string>
+    <string name="onboarding_go_back_button_text" msgid="5020083846511184625">"Επιστροφή"</string>
+    <string name="onboarding_get_started_button_text" msgid="2348061971090731336">"Έναρξη"</string>
+    <string name="delete_button_content_description" msgid="9125115327455379618">"Διαγραφή δεδομένων"</string>
+    <string name="time_range_title" msgid="6831605283322600165">"Επιλογή δεδομένων για διαγραφή"</string>
+    <string name="time_range_next_button" msgid="5849096934896557888">"Επόμενο"</string>
+    <string name="time_range_message_all" msgid="7280888587242744729">"Αυτή η ενέργεια διαγράφει όλα τα δεδομένα που έχουν προστεθεί στο Health Connect την επιλεγμένη χρονική περίοδο"</string>
+    <string name="time_range_message_data_type" msgid="1896125004829258195">"Αυτή η ενέργεια διαγράφει τα δεδομένα <xliff:g id="DATA_TYPE">%s</xliff:g> που έχουν προστεθεί στο Health Connect την επιλεγμένη χρονική περίοδο"</string>
+    <string name="time_range_message_category" msgid="1136451418397326356">"Αυτή η ενέργεια διαγράφει τα δεδομένα <xliff:g id="CATEGORY">%s</xliff:g> που έχουν προστεθεί στο Health Connect την επιλεγμένη χρονική περίοδο"</string>
+    <string name="time_range_message_app_data" msgid="2590800457710603556">"Αυτή η ενέργεια διαγράφει τα δεδομένα <xliff:g id="APP_DATA">%s</xliff:g> που έχουν προστεθεί στο Health Connect την επιλεγμένη χρονική περίοδο"</string>
+    <string name="time_range_one_day" msgid="7162709826595446727">"Διαγραφή των τελευταίων 24 ωρών"</string>
+    <string name="time_range_one_week" msgid="8754523384275645434">"Διαγραφή των τελευταίων 7 ημερών"</string>
+    <string name="time_range_one_month" msgid="3034747870231999766">"Διαγραφή των τελευταίων 30 ημερών"</string>
+    <string name="time_range_all" msgid="8167350212705839943">"Διαγραφή όλων των δεδομένων"</string>
+    <string name="confirming_question_all" msgid="1585414659784742952">"Οριστική διαγραφή όλων των δεδομένων που έχουν καταγραφεί από την αρχή;"</string>
+    <string name="confirming_question_one_day" msgid="8001434729335611950">"Οριστικά διαγραφή όλων των δεδομένων από τις τελευταίες 24 ώρες;"</string>
+    <string name="confirming_question_one_week" msgid="5441506951423969587">"Οριστικά διαγραφή όλων των δεδομένων από τις τελευταίες 7 ημέρες;"</string>
+    <string name="confirming_question_one_month" msgid="4118595547587081940">"Οριστικά διαγραφή όλων των δεδομένων από τις τελευταίες 30 ημέρες;"</string>
+    <string name="confirming_question_data_type_all" msgid="1173934949902602037">"Οριστική διαγραφή των δεδομένων <xliff:g id="DATA_TYPE">%s</xliff:g> που έχουν καταγραφεί από την αρχή;"</string>
+    <string name="confirming_question_data_type_one_day" msgid="5386681714769751416">"Οριστική διαγραφή των δεδομένων <xliff:g id="DATA_TYPE">%s</xliff:g> από τις τελευταίες 24 ώρες;"</string>
+    <string name="confirming_question_data_type_one_week" msgid="8346031951374422501">"Οριστική διαγραφή των δεδομένων <xliff:g id="DATA_TYPE">%s</xliff:g> από τις τελευταίες 7 ημέρες;"</string>
+    <string name="confirming_question_data_type_one_month" msgid="7110328687576360400">"Οριστική διαγραφή των δεδομένων <xliff:g id="DATA_TYPE">%s</xliff:g> από τις τελευταίες 30 ημέρες;"</string>
+    <string name="confirming_question_category_all" msgid="9182430869247761531">"Οριστική διαγραφή των δεδομένων <xliff:g id="CATEGORY">%s</xliff:g> που έχουν καταγραφεί από την αρχή;"</string>
+    <string name="confirming_question_category_one_day" msgid="4886776948515472679">"Οριστική διαγραφή των δεδομένων <xliff:g id="CATEGORY">%s</xliff:g> από τις τελευταίες 24 ώρες;"</string>
+    <string name="confirming_question_category_one_week" msgid="1790565625674277693">"Οριστική διαγραφή των δεδομένων <xliff:g id="CATEGORY">%s</xliff:g> από τις τελευταίες 7 ημέρες;"</string>
+    <string name="confirming_question_category_one_month" msgid="9181788460112796273">"Οριστική διαγραφή των δεδομένων <xliff:g id="CATEGORY">%s</xliff:g> από τις τελευταίες 30 ημέρες;"</string>
+    <string name="confirming_question_app_data_all" msgid="4818571921949673097">"Οριστική διαγραφή των δεδομένων <xliff:g id="APP_DATA">%s</xliff:g> που έχουν καταγραφεί από την αρχή;"</string>
+    <string name="confirming_question_app_data_one_day" msgid="444028969015975031">"Οριστική διαγραφή των δεδομένων <xliff:g id="APP_DATA">%s</xliff:g> από τις τελευταίες 24 ώρες;"</string>
+    <string name="confirming_question_app_data_one_week" msgid="2096555081811730496">"Οριστική διαγραφή των δεδομένων <xliff:g id="APP_DATA">%s</xliff:g> από τις τελευταίες 7 ημέρες;"</string>
+    <string name="confirming_question_app_data_one_month" msgid="6438241250825892892">"Οριστική διαγραφή των δεδομένων <xliff:g id="APP_DATA">%s</xliff:g> από τις τελευταίες 30 ημέρες;"</string>
+    <string name="confirming_question_app_remove_all_permissions" msgid="4170343072352701421">"Καταργήστε επίσης όλες τις άδειες <xliff:g id="APP_WITH_PERMISSIONS">%s</xliff:g> από το Health Connect"</string>
+    <string name="confirming_question_data_type_from_app_all" msgid="8361163993548510509">"Οριστική διαγραφή όλων των δεδομένων <xliff:g id="DATA_TYPE">%1$s</xliff:g> που προστέθηκαν από την εφαρμογή <xliff:g id="APP_DATA">%2$s</xliff:g>;"</string>
+    <string name="confirming_question_single_entry" msgid="330919962071369305">"Οριστική διαγραφή αυτής της καταχώρισης;"</string>
+    <string name="confirming_question_message" msgid="2934249835529079545">"Οι συνδεδεμένες εφαρμογές δεν θα έχουν πλέον πρόσβαση σε αυτά τα δεδομένα από το Health Connect"</string>
+    <string name="confirming_question_message_menstruation" msgid="5286956266565962430">"Με αυτή την ενέργεια θα διαγραφούν όλες οι καταχωρίσεις εμμηνόρροιας από τις <xliff:g id="START_DATE">%1$s</xliff:g> έως τις <xliff:g id="END_DATE">%2$s</xliff:g>."</string>
+    <string name="confirming_question_delete_button" msgid="1999996759507959985">"Διαγραφή"</string>
+    <string name="confirming_question_go_back_button" msgid="9037523726124648221">"Επιστροφή"</string>
+    <string name="delete_dialog_success_got_it_button" msgid="8047812840310612293">"Τέλος"</string>
+    <string name="delete_dialog_failure_close_button" msgid="4376647579348193224">"Κλείσιμο"</string>
+    <string name="delete_dialog_success_title" msgid="5009733262743173477">"Τα δεδομένα διαγράφηκαν"</string>
+    <string name="delete_dialog_success_message" msgid="2451953113522118128">"Αυτά τα δεδομένα δεν αποθηκεύονται πλέον στο Health Connect."</string>
+    <string name="delete_progress_indicator" msgid="5799502879065833417">"Διαγραφή των δεδομένων σας"</string>
+    <string name="delete_dialog_failure_title" msgid="1959020721355789496">"Δεν ήταν δυνατή η διαγραφή των δεδομένων"</string>
+    <string name="delete_dialog_failure_message" msgid="7473241488471319963">"Παρουσιάστηκε κάποιο πρόβλημα και δεν ήταν δυνατή η διαγραφή των δεδομένων σας από το Health Connect."</string>
+    <string name="delete_dialog_failure_try_again_button" msgid="4323865124609424838">"Δοκιμάστε ξανά"</string>
+    <string name="delete_data_notification_title" msgid="7740230240986343347">"Γίνεται διαγραφή των δεδομένων Health Connect"</string>
+    <string name="delete_data_notification_ticker_text" msgid="2604051567679235822">"Γίνεται διαγραφή των δεδομένων Health Connect"</string>
+    <string name="delete_data_notification_channel_name" msgid="4499713830012802095">"Διαγραφή δεδομένων"</string>
+    <string name="data_point_action_content_description" msgid="6881048311770784455">"Διαγραφή καταχώρισης δεδομένων <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="delete_data_point" msgid="1004049578454616738">"Διαγραφή καταχώρισης <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="aggregation_total" msgid="5641333638662325184">"Σύνολο: <xliff:g id="TOTAL_VALUE">%s</xliff:g>"</string>
+    <string name="watt_format" msgid="8500953817369623803">"{value,plural, =1{1 W}other{# W}}"</string>
+    <string name="watt_format_long" msgid="7107446926499116109">"{value,plural, =1{1 watt}other{# watt}}"</string>
+    <string name="steps_value" msgid="5779393974668105298">"{count,plural, =1{1 βήμα}other{# βήματα}}"</string>
+    <string name="steps_per_minute" msgid="5527133010067502098">"{value,plural, =1{1 βήμα/λ.}other{# βήματα/λ.}}"</string>
+    <string name="steps_per_minute_long" msgid="6146224261144843301">"{value,plural, =1{1 βήμα ανά λεπτό}other{# βήματα ανά λεπτό}}"</string>
+    <string name="heart_rate_value" msgid="6936476566204248578">"{count,plural, =1{1 bpm}other{# bpm}}"</string>
+    <string name="heart_rate_long_value" msgid="7865319425119507300">"{count,plural, =1{1 παλμός ανά λεπτό}other{# παλμοί ανά λεπτό}}"</string>
+    <string name="velocity_speed_miles" msgid="616312758726506781">"{value,plural, =1{1 μίλι/ώρα}other{# μίλια/ώρα}}"</string>
+    <string name="velocity_speed_km" msgid="2807705003203399350">"{value,plural, =1{1 χλμ./ω.}other{# χλμ./ω.}}"</string>
+    <string name="velocity_speed_miles_long" msgid="7945167764392834498">"{value,plural, =1{1 μίλι ανά ώρα}other{# μίλια ανά ώρα}}"</string>
+    <string name="velocity_speed_km_long" msgid="3962310367408338322">"{value,plural, =1{1 χιλιόμετρο ανά ώρα}other{# χιλιόμετρα ανά ώρα}}"</string>
+    <string name="time_range_long" msgid="5067423945245490288">"από <xliff:g id="START_TIME">%1$s</xliff:g> έως <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="date_range_long" msgid="6022190423982451176">"από <xliff:g id="START_TIME">%1$s</xliff:g> έως <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="wheelchair_pushes" msgid="5807293867148465190">"{count,plural, =1{1 ώθηση αναπηρικού αμαξιδίου}other{# ωθήσεις αναπηρικού αμαξιδίου}}"</string>
+    <string name="liter" msgid="8276522589564337053">"{count,plural, =1{1 L}other{# L}}"</string>
+    <string name="liter_long" msgid="7094280457555707835">"{count,plural, =1{1 λίτρο}other{# λίτρα}}"</string>
+    <string name="floors_climbed" msgid="7483572478744998930">"{count,plural, =1{1 όροφος}other{# όροφοι}}"</string>
+    <string name="elevation_meters" msgid="5099783382361572761">"{count,plural, =1{1 μ.}other{# μ.}}"</string>
+    <string name="elevation_meters_long" msgid="3163136353148567981">"{count,plural, =1{1 μέτρο}other{# μέτρα}}"</string>
+    <string name="cycling_rpm" msgid="2271215098150068276">"{count,plural, =1{1 rpm}other{# rpm}}"</string>
+    <string name="cycling_rpm_long" msgid="4914848042733587007">"{count,plural, =1{1 στροφή ανά λεπτό}other{# στροφές ανά λεπτό}}"</string>
+    <string name="cycling_cadence_series_range_long" msgid="6852892013260504985">"από <xliff:g id="MIN">%1$s</xliff:g> έως <xliff:g id="MAX">%2$s</xliff:g>"</string>
+    <string name="sexual_activity_protected" msgid="4259473257597274326">"Με προστασία"</string>
+    <string name="sexual_activity_unprotected" msgid="2250981470537379807">"Χωρίς προστασία"</string>
+    <string name="spotting" msgid="1637175837078770520">"Σταγονοειδής αιμόρροια"</string>
+    <string name="flow_spotting" msgid="832418664953780156">"Σταγονοειδής αιμόρροια"</string>
+    <string name="flow_light" msgid="1937543318146228793">"Ήπια αιμόρροια"</string>
+    <string name="flow_medium" msgid="3783688724668943154">"Μέτρια αιμόρροια"</string>
+    <string name="flow_heavy" msgid="8672261792750634294">"Έντονη αιμόρροια"</string>
+    <string name="period_day" msgid="3821944462093965882">"Ημέρα <xliff:g id="DAY">%1$d</xliff:g> της περιόδου από <xliff:g id="TOTAL_LENGTH">%2$d</xliff:g>"</string>
+    <string name="ovulation_positive" msgid="6588547263126320238">"Θετικό"</string>
+    <string name="ovulation_negative" msgid="591588801112312454">"Αρνητικό"</string>
+    <string name="ovulation_high" msgid="205362931427158291">"Υψηλό"</string>
+    <string name="ovulation_inconclusive" msgid="3447066667631538756">"Ασαφές αποτέλεσμα"</string>
+    <string name="milliseconds" msgid="284845884516037268">"{count,plural, =1{1 χιλ. δευτ.}other{# χιλ. δευτ.}}"</string>
+    <string name="milliseconds_long" msgid="93246373745977286">"{count,plural, =1{1 χιλιοστό του δευτερολέπτου}other{# χιλιοστά του δευτερολέπτου}}"</string>
+    <string name="repetitions" msgid="5092687490665962229">"{count,plural, =1{1 επαν.}other{# επαν.}}"</string>
+    <string name="repetitions_long" msgid="9056502282298182438">"{count,plural, =1{1 επανάληψη}other{# επαναλήψεις}}"</string>
+    <string name="exercise_segments_header" msgid="2992953017179406012">"Τμήματα άσκησης"</string>
+    <string name="exercise_laps_header" msgid="117228630553856372">"Γύροι"</string>
+    <string name="back_extension" msgid="426518933137440577">"Ραχιαίοι"</string>
+    <string name="badminton" msgid="8839727076522086870">"Μπάντμιντον"</string>
+    <string name="barbell_shoulder_press" msgid="3800236222803424251">"Πιέσεις ώμων με μπάρα"</string>
+    <string name="baseball" msgid="2520520093470304570">"Μπέιζμπολ"</string>
+    <string name="basketball" msgid="1453863811744469210">"Μπάσκετ"</string>
+    <string name="bench_press" msgid="640506654204391301">"Βάρη σε πάγκο"</string>
+    <string name="bench_sit_up" msgid="6601081870476287683">"Κοιλιακοί σε πάγκο"</string>
+    <string name="biking" msgid="4108296097363777467">"Ποδηλασία"</string>
+    <string name="biking_stationary" msgid="1538524429562124202">"Στατικό ποδήλατο"</string>
+    <string name="boot_camp" msgid="1554811887379786226">"Boot camp"</string>
+    <string name="boxing" msgid="2200194516739940317">"Πυγμαχία"</string>
+    <string name="burpee" msgid="1434605818712603589">"Burpee"</string>
+    <string name="calisthenics" msgid="9080623890020954493">"Καλλισθενική γυμναστική"</string>
+    <string name="cricket" msgid="7543586707938752011">"Κρίκετ"</string>
+    <string name="crunch" msgid="4265356947720591896">"Άρσεις στήθους"</string>
+    <string name="dancing" msgid="4099572666298130171">"Χορός"</string>
+    <string name="deadlift" msgid="6880561478635890617">"Άρσεις θανάτου"</string>
+    <string name="dumbbell_curl_left_arm" msgid="4453594605921193509">"Κάμψεις δικεφάλου αριστερού χεριού με αλτήρα"</string>
+    <string name="dumbbell_curl_right_arm" msgid="4680998443002425166">"Κάμψεις δικεφάλου δεξιού χεριού με αλτήρα"</string>
+    <string name="dumbbell_front_raise" msgid="4411281746015904879">"Μπροστινές άρσεις χεριών με αλτήρα"</string>
+    <string name="dumbbell_lateral_raise" msgid="5839946068429137241">"Πλαϊνές άρσεις χεριών με αλτήρα"</string>
+    <string name="dumbbell_triceps_extension_left_arm" msgid="6756023069611493063">"Εκτάσεις τρικεφάλου αριστερού χεριού με αλτήρα"</string>
+    <string name="dumbbell_triceps_extension_right_arm" msgid="1498470275564554389">"Εκτάσεις τρικεφάλου δεξιού χεριού με αλτήρα"</string>
+    <string name="dumbbell_triceps_extension_two_arm" msgid="5409860665522903159">"Εκτάσεις τρικεφάλου και των δύο χεριών με αλτήρα"</string>
+    <string name="elliptical" msgid="5148914059968910839">"Ελλειπτικό όργανο"</string>
+    <string name="exercise_class" msgid="32582249527931454">"Μάθημα γυμναστικής"</string>
+    <string name="fencing" msgid="410347890025055779">"Ξιφασκία"</string>
+    <string name="football_american" msgid="8564554592554502623">"Αμερικανικό ποδόσφαιρο"</string>
+    <string name="football_australian" msgid="5524598297723674661">"Ποδόσφαιρο Αυστραλίας"</string>
+    <string name="forward_twist" msgid="2464895720533462566">"Μπροστινές περιστροφές"</string>
+    <string name="frisbee_disc" msgid="5167617057624738753">"Φρίσμπι"</string>
+    <string name="golf" msgid="2726655052150604682">"Γκολφ"</string>
+    <string name="guided_breathing" msgid="8688586393796970733">"Καθοδηγούμενη αναπνοή"</string>
+    <string name="gymnastics" msgid="1122967371410769598">"Ενόργανη γυμναστική"</string>
+    <string name="handball" msgid="3088985331906235361">"Χάντμπολ"</string>
+    <string name="high_intensity_interval_training" msgid="8873384314130026442">"Υψηλής έντασης διαλειμματική προπόνηση"</string>
+    <string name="hiking" msgid="5477476795295322496">"Πεζοπορία"</string>
+    <string name="ice_hockey" msgid="3615167122989198051">"Χόκεϊ σε πάγο"</string>
+    <string name="ice_skating" msgid="8509270149324068230">"Πατινάζ στον πάγο"</string>
+    <string name="jumping_jack" msgid="8751015874477795657">"Jumping jack"</string>
+    <string name="jump_rope" msgid="3065249477862282277">"Σχοινάκι"</string>
+    <string name="lat_pull_down" msgid="6974730398913678563">"Έλξεις στην τροχαλία"</string>
+    <string name="lunge" msgid="6557814816897990529">"Προβολές ποδιών"</string>
+    <string name="martial_arts" msgid="3279383109083496658">"Πολεμικές τέχνες"</string>
+    <string name="meditation" msgid="7578287714544679183">"Διαλογισμός"</string>
+    <string name="paddling" msgid="746868067888160788">"Κωπηλασία"</string>
+    <string name="paragliding" msgid="8328649138909727690">"Αλεξίπτωτο πλαγιάς"</string>
+    <string name="pilates" msgid="8660903049535347415">"Πιλάτες"</string>
+    <string name="plank" msgid="5537839085592473449">"Σανίδα"</string>
+    <string name="racquetball" msgid="8169482984904052538">"Ράκετμπολ"</string>
+    <string name="rock_climbing" msgid="3123024521372083233">"Αναρρίχηση βράχων"</string>
+    <string name="roller_hockey" msgid="3524872164646176686">"Ρόλερ χόκεϊ"</string>
+    <string name="rowing" msgid="615898011726585442">"Κωπηλασία σε μηχάνημα"</string>
+    <string name="rowing_machine" msgid="4075255566862183370">"Κωπηλατικό μηχάνημα"</string>
+    <string name="rugby" msgid="5146215118571059267">"Ράγκμπι"</string>
+    <string name="running" msgid="5135754380339217169">"Τρέξιμο"</string>
+    <string name="running_treadmill" msgid="2083354407217486405">"Τρέξιμο σε διάδρομο"</string>
+    <string name="sailing" msgid="4924304145770903145">"Ιστιοπλοΐα"</string>
+    <string name="scuba_diving" msgid="4548778216122159229">"Αυτόνομες καταδύσεις"</string>
+    <string name="skating" msgid="7320438805566302784">"Πατίνια"</string>
+    <string name="skiing" msgid="6773127614153771204">"Σκι"</string>
+    <string name="snowboarding" msgid="890584874325367973">"Σνόουμπορντ"</string>
+    <string name="snowshoeing" msgid="8932096199095096139">"Περπάτημα με χιονοπέδιλα"</string>
+    <string name="soccer" msgid="2631723269673549642">"Ποδόσφαιρο"</string>
+    <string name="softball" msgid="8389418982713908334">"Σόφτμπολ"</string>
+    <string name="squash" msgid="1588653991323140302">"Σκουός"</string>
+    <string name="squat" msgid="7664163620113834611">"Κάθισμα"</string>
+    <string name="stair_climbing" msgid="4042085961630471238">"Σκάλες"</string>
+    <string name="stair_climbing_machine" msgid="4003983194733092325">"Μηχάνημα στεπ"</string>
+    <string name="strength_training" msgid="56772956237540768">"Προπόνηση ενδυνάμωσης"</string>
+    <string name="stretching" msgid="8667864173383423787">"Διατάσεις"</string>
+    <string name="surfing" msgid="7612503593241904984">"Σέρφινγκ"</string>
+    <string name="swimming_open_water" msgid="1030388267758027037">"Κολύμβηση στη θάλασσα"</string>
+    <string name="swimming_pool" msgid="1584809250142187550">"Κολύμβηση σε πισίνα"</string>
+    <string name="swimming_freestyle" msgid="5969535751316106638">"Ελεύθερο"</string>
+    <string name="swimming_backstroke" msgid="7293002996518694035">"Ύπτιο"</string>
+    <string name="swimming_breaststroke" msgid="7168282910654289593">"Πρόσθιο"</string>
+    <string name="swimming_butterfly" msgid="8553167046220664352">"Πεταλούδα"</string>
+    <string name="swimming_mixed" msgid="4486578691634921168">"Συνδυασμός"</string>
+    <string name="swimming_other" msgid="2561131941506955982">"Άλλο"</string>
+    <string name="table_tennis" msgid="4849741231221974485">"Πινγκ πονγκ"</string>
+    <string name="tennis" msgid="6627063985750125504">"Τένις"</string>
+    <string name="upper_twist" msgid="3382862516792841928">"Περιστροφές άνω κορμού"</string>
+    <string name="volleyball" msgid="7469885673961163729">"Βόλεϊ"</string>
+    <string name="walking" msgid="4782496160454621769">"Περπάτημα"</string>
+    <string name="water_polo" msgid="2527119748097860708">"Υδατοσφαίριση"</string>
+    <string name="weightlifting" msgid="7586735291662318085">"Άρση βαρών"</string>
+    <string name="wheelchair" msgid="2226734836271500057">"Αναπηρικό αμαξίδιο"</string>
+    <string name="workout" msgid="8583398837804461839">"Γυμναστική"</string>
+    <string name="yoga" msgid="138675430777247097">"Γιόγκα"</string>
+    <string name="arm_curl" msgid="1737456878333201848">"Κάμψη χεριού"</string>
+    <string name="ball_slam" msgid="5996773678701283169">"Ρίψη μπάλας στο έδαφος"</string>
+    <string name="double_arm_triceps_extension" msgid="4010735719203872078">"Εκτάσεις τρικεφάλου και των δύο χεριών"</string>
+    <string name="dumbbell_row" msgid="181791808359752158">"Σκυφτή κωπηλατική με αλτήρα"</string>
+    <string name="front_raise" msgid="1030939481482621384">"Πρόσθια άρση"</string>
+    <string name="hip_thrust" msgid="8490916766767408053">"Ανύψωση λεκάνης"</string>
+    <string name="hula_hoop" msgid="1651914953207761226">"Χούλα χουπ"</string>
+    <string name="kettlebell_swing" msgid="364783119882246413">"Αιώρηση με kettlebell"</string>
+    <string name="lateral_raise" msgid="1037404943175363734">"Πλάγια άρση"</string>
+    <string name="leg_curl" msgid="5327470513599472344">"Κάμψη ποδιού"</string>
+    <string name="leg_extension" msgid="1843556289395164421">"Έκταση ποδιού"</string>
+    <string name="leg_press" msgid="4544551493384600086">"Πίεση ποδιού"</string>
+    <string name="leg_raise" msgid="3206754140765952088">"Άρση ποδιού"</string>
+    <string name="mountain_climber" msgid="6666288676718010900">"Ορειβατική άσκηση"</string>
+    <string name="pull_up" msgid="4056233737860296184">"Έλξη"</string>
+    <string name="punch" msgid="7915247952566217050">"Γροθιά"</string>
+    <string name="shoulder_press" msgid="4071573271892122319">"Πίεση ώμων"</string>
+    <string name="single_arm_triceps_extension" msgid="4500495528709994121">"Έκταση τρικέφαλου του ενός χεριού"</string>
+    <string name="sit_up" msgid="1872162440154479950">"Κάμψη κοιλιακών"</string>
+    <string name="rest" msgid="5937058337671252210">"Ξεκούραση"</string>
+    <string name="pause" msgid="5161459047750335691">"Παύση"</string>
+    <string name="activity_type_australian_football" msgid="431838050917315084">"Ποδόσφαιρο Αυστραλίας"</string>
+    <string name="sleep_session_default" msgid="7376764686701487196">"Ύπνος <xliff:g id="DURATION"> %1$s</xliff:g>"</string>
+    <string name="sleep_stage_default" msgid="1539043695578480733">"<xliff:g id="DURATION">%1$s</xliff:g> <xliff:g id="NAME">%2$s</xliff:g>⁠"</string>
+    <string name="sleep_stage_awake" msgid="4526767634444460862">"σε εγρήγορση"</string>
+    <string name="sleep_stage_awake_in_bed" msgid="5533385496857888503">"ξύπνιος στο κρεβάτι"</string>
+    <string name="sleep_stage_sleeping" msgid="5122840110107303518">"ύπνος"</string>
+    <string name="sleep_stage_out_of_bed" msgid="522297068981578046">"εκτός κρεβατιού"</string>
+    <string name="sleep_stage_rem" msgid="1694477904067543104">"ύπνος REM"</string>
+    <string name="sleep_stage_light" msgid="1070117964678317880">"ελαφρύς ύπνος"</string>
+    <string name="sleep_stage_deep" msgid="3134557407657258364">"βαθύς ύπνος"</string>
+    <string name="sleep_stage_unknown" msgid="8664190491902295991">"άγνωστη"</string>
+    <string name="minute_duration" msgid="9035288227090160206">"<xliff:g id="MINUTE">%1$s</xliff:g> λ."</string>
+    <string name="hour_minute_duration_short" msgid="6862483734123680444">"<xliff:g id="HOUR">%1$s</xliff:g> ώ. <xliff:g id="MIN">%2$s</xliff:g> λ."</string>
+    <string name="hour_duration" msgid="3472489613837138711">"<xliff:g id="HOUR">%1$s</xliff:g> ω."</string>
+    <string name="hour_minute_duration_accessibility" msgid="1863356122145811614">"<xliff:g id="HOURS">%1$s</xliff:g> <xliff:g id="MINUTES">%2$s</xliff:g>⁠"</string>
+    <string name="hour_duration_accessibility" msgid="4944782597053107276">"{count,plural, =1{1 ώρα}other{# ώρες}}"</string>
+    <string name="minute_duration_accessibility" msgid="399158463609534882">"{count,plural, =1{1 λεπτό}other{# λεπτά}}"</string>
+    <!-- no translation found for day_duration (3965793251448856729) -->
+    <skip />
+    <string name="day_hour_duration" msgid="6174865584368017275">"<xliff:g id="DAYS">%1$s</xliff:g> και <xliff:g id="HOURS">%2$s</xliff:g>"</string>
+    <string name="day_duration_accessibility" msgid="3023909370877112320">"{count,plural, =1{1 ημέρα}other{# ημέρες}}"</string>
+    <string name="vo2_max" msgid="8129489055516944647">"{value,plural, =1{1 mL/(kg·min)}other{# mL/(kg·min)}}"</string>
+    <string name="vo2_max_long" msgid="1031842712595851857">"{value,plural, =1{1 χιλιοστόλιτρο οξυγόνου ανά κιλό μάζας σώματος ανά λεπτό}other{# χιλιοστόλιτρα οξυγόνου ανά κιλό μάζας σώματος ανά λεπτό}}"</string>
+    <string name="vo2_metabolic_cart" msgid="4724757223373717896">"Συσκευή μέτρησης μεταβολικού ρυθμού"</string>
+    <string name="vo2_heart_rate_ratio" msgid="8707274294125886148">"Καρδιακός ρυθμός"</string>
+    <string name="vo2_cooper_test" msgid="4713211595719031518">"Τεστ Cooper"</string>
+    <string name="vo2_multistage_fitness_test" msgid="908967547838751749">"Τεστ φυσικής κατάστασης πολλαπλών σταδίων"</string>
+    <string name="vo2_rockport_fitness_test" msgid="2951465532122577281">"Τεστ φυσικής κατάστασης Rockport"</string>
+    <string name="vo2_other" msgid="5359013487285233550">"Άλλα"</string>
+    <string name="mucus_dry" msgid="1065582777971603874">"Ξηρή"</string>
+    <string name="mucus_sticky" msgid="2086025099544529404">"Κολλώδης"</string>
+    <string name="mucus_creamy" msgid="7525290054414941569">"Κρεμώδης"</string>
+    <string name="mucus_watery" msgid="1875540699006472048">"Υδαρής"</string>
+    <string name="mucus_egg_white" msgid="5578512593433767787">"Ασπράδι αυγού"</string>
+    <string name="mucus_unusual" msgid="3987847850745292757">"Ασυνήθιστη"</string>
+    <string name="mucus_light" msgid="5309343389013086860">"Ήπια"</string>
+    <string name="mucus_medium" msgid="7666848347740570566">"Μέτρια"</string>
+    <string name="mucus_heavy" msgid="7864873650773259133">"Έντονη"</string>
+    <string name="blood_pressure" msgid="7892828162554266437">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> mmHg"</string>
+    <string name="blood_pressure_long" msgid="6487761539434451764">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> χιλιοστό υδραργύρου"</string>
+    <string name="body_position_standing_up" msgid="1221924915768574594">"Όρθια θέση"</string>
+    <string name="body_position_sitting_down" msgid="8053875174780552282">"Καθιστή θέση"</string>
+    <string name="body_position_lying_down" msgid="1472381098179371143">"Κατάκλιση"</string>
+    <string name="body_position_reclining" msgid="5676889701646839079">"Ανάκλιση"</string>
+    <string name="blood_pressure_left_wrist" msgid="2047244346984766880">"Αριστερός καρπός"</string>
+    <string name="blood_pressure_right_wrist" msgid="1488133877790549424">"Δεξιός καρπός"</string>
+    <string name="blood_pressure_left_arm" msgid="5150436840115504433">"Αριστερός άνω βραχίονας"</string>
+    <string name="blood_pressure_right_arm" msgid="8660682684653121430">"Δεξιός άνω βραχίονας"</string>
+    <string name="millimoles_per_liter" msgid="3185457774991908223">"{count,plural, =1{1 mmol/L}other{# mmol/L}}"</string>
+    <string name="millimoles_per_liter_long" msgid="7248942926237335084">"{count,plural, =1{1 χιλιοστογραμμομόριο ανά λίτρο}other{# χιλιοστογραμμομόρια ανά λίτρο}}"</string>
+    <string name="specimen_source_interstitial_fluid" msgid="2201319049828128946">"Μεσοκυττάριο υγρό"</string>
+    <string name="specimen_source_capillary_blood" msgid="5525024815754731735">"Τριχοειδικό αίμα"</string>
+    <string name="specimen_source_plasma" msgid="8794064916106457747">"Πλάσμα"</string>
+    <string name="specimen_source_serum" msgid="6383820057196352355">"Ορός"</string>
+    <string name="specimen_source_tears" msgid="4368541832400624080">"Δάκρυα"</string>
+    <string name="specimen_source_whole_blood" msgid="8884838851343307557">"Ολικό αίμα"</string>
+    <string name="blood_glucose_general" msgid="7566279829618085436">"Γενικά"</string>
+    <string name="blood_glucose_fasting" msgid="2122662399203934350">"Νηστεία"</string>
+    <string name="blood_glucose_before_meal" msgid="5125498172701953751">"Πριν από το γεύμα"</string>
+    <string name="blood_glucose_after_meal" msgid="8101398122897992346">"Μετά το γεύμα"</string>
+    <string name="mealtype_label" msgid="5402474235944051844">"Τύπος γεύματος"</string>
+    <string name="mealtype_unknown" msgid="3024645648636923591">"Άγνωστο"</string>
+    <string name="mealtype_breakfast" msgid="119545434987870954">"Πρωινό"</string>
+    <string name="mealtype_lunch" msgid="6212310262989550906">"Μεσημεριανό"</string>
+    <string name="mealtype_dinner" msgid="1896347121249081336">"Δείπνο"</string>
+    <string name="mealtype_snack" msgid="8454859872168781221">"Σνακ"</string>
+    <string name="biotin" msgid="4000818331802478073">"Βιοτίνη"</string>
+    <string name="caffeine" msgid="2847006945615912643">"Καφεΐνη"</string>
+    <string name="calcium" msgid="4832722858820295752">"Ασβέστιο"</string>
+    <string name="chloride" msgid="2509193544740445654">"Χλώριο"</string>
+    <string name="cholesterol" msgid="4261128668088502049">"Χοληστερόλη"</string>
+    <string name="chromium" msgid="807851794929222026">"Χρώμιο"</string>
+    <string name="copper" msgid="8603012497089601260">"Χαλκός"</string>
+    <string name="dietary_fiber" msgid="6928876454420561553">"Φυτικές ίνες"</string>
+    <string name="energy_consumed_total" msgid="7866804137119190606">"Ενέργεια"</string>
+    <string name="energy_consumed_from_fat" msgid="8637734004867176038">"Ενέργεια από λιπαρά"</string>
+    <string name="folate" msgid="7728279545427110321">"Φολικά άλατα"</string>
+    <string name="folic_acid" msgid="6861953414423667870">"Φολικό οξύ"</string>
+    <string name="iodine" msgid="2896913103021799237">"Ιώδιο"</string>
+    <string name="iron" msgid="6134405609706877219">"Σίδηρος"</string>
+    <string name="magnesium" msgid="6157495455437549170">"Μαγνήσιο"</string>
+    <string name="manganese" msgid="8339856079280400610">"Μαγγάνιο"</string>
+    <string name="molybdenum" msgid="3762866331212112454">"Μολυβδαίνιο"</string>
+    <string name="monounsaturated_fat" msgid="1320950160552507057">"Μονοακόρεστα λιπαρά"</string>
+    <string name="niacin" msgid="8425099536322826837">"Νιασίνη"</string>
+    <string name="pantothenic_acid" msgid="5310842296212528685">"Παντοθενικό οξύ"</string>
+    <string name="phosphorus" msgid="3912318057064021441">"Φώσφορος"</string>
+    <string name="polyunsaturated_fat" msgid="6386374757897543025">"Πολυακόρεστα λιπαρά"</string>
+    <string name="potassium" msgid="723134189945209756">"Κάλιο"</string>
+    <string name="protein" msgid="2731834509320364994">"Πρωτεΐνη"</string>
+    <string name="riboflavin" msgid="5329306869379867435">"Ριβοφλαβίνη"</string>
+    <string name="saturated_fat" msgid="3174504848270051265">"Κορεσμένα λιπαρά"</string>
+    <string name="selenium" msgid="8129594078116221891">"Σελήνιο"</string>
+    <string name="sodium" msgid="7687341876185019438">"Νάτριο"</string>
+    <string name="sugar" msgid="656190285547502122">"Σάκχαρα"</string>
+    <string name="thiamin" msgid="1662446837028039063">"Θειαμίνη"</string>
+    <string name="total_carbohydrate" msgid="7034043840349284931">"Συνολικοί υδατάνθρακες"</string>
+    <string name="total_fat" msgid="8193647297427112321">"Συνολικά λιπαρά"</string>
+    <string name="trans_fat" msgid="1059715899517909090">"Τρανς λιπαρά"</string>
+    <string name="unsaturated_fat" msgid="5495925265449481356">"Ακόρεστα λιπαρά"</string>
+    <string name="vitamin_a" msgid="2379293029664252095">"Βιταμίνη Α"</string>
+    <string name="vitamin_b12" msgid="180162813332325098">"Βιταμίνη Β12"</string>
+    <string name="vitamin_b6" msgid="370053149968231667">"Βιταμίνη Β6"</string>
+    <string name="vitamin_c" msgid="5383574357126292194">"Βιταμίνη C"</string>
+    <string name="vitamin_d" msgid="2717952250555672580">"Βιταμίνη D"</string>
+    <string name="vitamin_e" msgid="5214468880515744802">"Βιταμίνη E"</string>
+    <string name="vitamin_k" msgid="2722297637910069736">"Βιταμίνη K"</string>
+    <string name="zinc" msgid="5211975076671534013">"Ψευδάργυρος"</string>
+    <string name="nutrient_with_value" msgid="3327198262871257518">"<xliff:g id="NUTRIENT">%1$s</xliff:g>: <xliff:g id="AMOUNT">%2$s</xliff:g>"</string>
+    <string name="meal_name" msgid="6060648788040408308">"Όνομα"</string>
+    <string name="gram_short_format" msgid="2355009811799735134">"{count,plural, =1{1 γρ.}other{# γρ.}}"</string>
+    <string name="gram_long_format" msgid="6160392101513066663">"{count,plural, =1{1 γραμμάριο}other{# γραμμάρια}}"</string>
+    <string name="respiratory_rate_value" msgid="4546418213418344364">"{count,plural, =1{1 rpm}other{# rpm}}"</string>
+    <string name="respiratory_rate_value_long" msgid="3822748008700697049">"{count,plural, =1{1 αναπνοή ανά λεπτό}other{# αναπνοές ανά λεπτό}}"</string>
+    <string name="kilograms_short_label" msgid="9098342853218050689">"{count,plural, =1{1 κ.}other{# κ.}}"</string>
+    <string name="pounds_short_label" msgid="6256277330455003180">"{count,plural, =1{1 lb}other{# lb}}"</string>
+    <string name="stone_short_label" msgid="8377585176530348612">"{count,plural, =1{1 st}other{# st}}"</string>
+    <string name="stone_pound_short_label" msgid="7157344201618366834">"{stone_part} {pound_part}"</string>
+    <string name="kilograms_long_label" msgid="7883695071156297670">"{count,plural, =1{1 κιλό}other{# κιλά}}"</string>
+    <string name="pounds_long_label" msgid="2916697485006416419">"{count,plural, =1{1 λίβρα}other{# λίβρες}}"</string>
+    <string name="stone_long_label" msgid="8951426283449456468">"{count,plural, =1{1 stone}other{# stone}}"</string>
+    <string name="stone_pound_long_label" msgid="1308941435682625204">"{stone_part} {pound_part}"</string>
+    <string name="temperature_celsius" msgid="4552465686251118136">"{value,plural, =1{1 ℃}other{# ℃}}"</string>
+    <string name="temperature_celsius_long" msgid="5789974427381333869">"{value,plural, =1{1 βαθμός Κελσίου}other{# βαθμοί Κελσίου}}"</string>
+    <string name="temperature_kelvin" msgid="4805698375607189394">"{value,plural, =1{1 K}other{# K}}"</string>
+    <string name="temperature_kelvin_long" msgid="6078037481989090665">"{value,plural, =1{1 βαθμός Κέλβιν}other{# βαθμοί Κέλβιν}}"</string>
+    <string name="temperature_fahrenheit" msgid="8288674479506567057">"{value,plural, =1{1 ℉}other{# ℉}}"</string>
+    <string name="temperature_fahrenheit_long" msgid="1668948424411289521">"{value,plural, =1{1 βαθμός Φαρενάιτ}other{# βαθμοί Φαρενάιτ}}"</string>
+    <string name="temperature_location_armpit" msgid="8359661261125563155">"Μασχάλη"</string>
+    <string name="temperature_location_finger" msgid="4915449065770967487">"Δάχτυλο"</string>
+    <string name="temperature_location_forehead" msgid="8603219464757434635">"Μέτωπο"</string>
+    <string name="temperature_location_mouth" msgid="1535682736007063471">"Στόμα"</string>
+    <string name="temperature_location_rectum" msgid="1503082804377850076">"Ορθό"</string>
+    <string name="temperature_location_temporal_artery" msgid="2830919806910102535">"Κροταφική αρτηρία"</string>
+    <string name="temperature_location_toe" msgid="36730991617372925">"Δάχτυλο ποδιού"</string>
+    <string name="temperature_location_ear" msgid="7024374111156026034">"Αυτί"</string>
+    <string name="temperature_location_wrist" msgid="5290446688282752346">"Καρπός"</string>
+    <string name="temperature_location_vagina" msgid="1689485374825231749">"Κόλπος"</string>
+    <string name="distance_miles" msgid="5419172432458896478">"{dist,plural, =1{1 μίλι}other{# μίλια}}"</string>
+    <string name="distance_km" msgid="6383736895665100602">"{dist,plural, =1{1 χλμ.}other{# χλμ.}}"</string>
+    <string name="distance_miles_long" msgid="1830844568614100885">"{dist,plural, =1{1 μίλι}other{# μίλια}}"</string>
+    <string name="distance_km_long" msgid="6256504627418439859">"{dist,plural, =1{1 χιλιόμετρο}other{# χιλιόμετρα}}"</string>
+    <string name="height_cm" msgid="94329926270064717">"{height,plural, =1{1 εκ.}other{# εκ.}}"</string>
+    <string name="height_cm_long" msgid="2821030110768530948">"{height,plural, =1{1 εκατοστό}other{# εκατοστά}}"</string>
+    <string name="height_in_long" msgid="6502316324841498419">"{height,plural, =1{1 ίντσα}other{# ίντσες}}"</string>
+    <string name="height_ft_long" msgid="7551582478724981895">"{height,plural, =1{1 πόδι}other{# πόδια}}"</string>
+    <string name="height_in_compacted" msgid="6087182983411207466">"{height,plural, =1{1″}other{#″}}"</string>
+    <string name="height_ft_compacted" msgid="1024585112134314039">"{height,plural, =1{1′}other{#′}}"</string>
+    <string name="feet_inches_format" msgid="768610500549967860">"<xliff:g id="FT">%1$s</xliff:g><xliff:g id="IN">%2$s</xliff:g>⁠"</string>
+    <string name="feet_inches_format_long" msgid="5187265716573430363">"<xliff:g id="FT">%1$s</xliff:g> <xliff:g id="IN">%2$s</xliff:g>⁠"</string>
+    <string name="calories_long" msgid="7225535148232419419">"{count,plural, =1{1 θερμίδα}other{# θερμίδες}}"</string>
+    <string name="calories" msgid="320906359079319632">"{count,plural, =1{1 θερμ.}other{# θερμ.}}"</string>
+    <string name="kj" msgid="2742876437259085714">"{count,plural, =1{1 kJ}other{# kJ}}"</string>
+    <string name="kj_long" msgid="1837278261960345400">"{count,plural, =1{1 kilojoule}other{# kilojoule}}"</string>
+    <string name="percent" formatted="false" msgid="9199428244800776575">"{value,plural, =1{1%}other{#%}}"</string>
+    <string name="percent_long" msgid="2201022757867534235">"{value,plural, =1{1 τοις εκατό}other{# τοις εκατό}}"</string>
+    <string name="units_cancel" msgid="5947097690625771995">"Ακύρωση"</string>
+    <string name="units_title" msgid="6504086463237869339">"Μονάδες"</string>
+    <string name="distance_unit_title" msgid="4696952932438418209">"Απόσταση"</string>
+    <string name="height_unit_title" msgid="5461594609577078049">"Ύψος"</string>
+    <string name="weight_unit_title" msgid="7405186541678939987">"Βάρος"</string>
+    <string name="energy_unit_title" msgid="1714627395963766769">"Ενέργεια"</string>
+    <string name="temperature_unit_title" msgid="1973985121774654017">"Θερμοκρασία"</string>
+    <string name="distance_unit_kilometers_label" msgid="1361363017122240294">"Χιλιόμετρα"</string>
+    <string name="distance_unit_miles_label" msgid="848850214987608211">"Μίλια"</string>
+    <string name="height_unit_centimeters_label" msgid="4096031670561995574">"Εκατοστά"</string>
+    <string name="height_unit_feet_label" msgid="3311723678628261399">"Πόδια και ίντσες"</string>
+    <string name="weight_unit_pound_label" msgid="8210663393844989211">"Λίβρες"</string>
+    <string name="weight_unit_kilogram_label" msgid="6623938920860887238">"Κιλά"</string>
+    <string name="weight_unit_stone_label" msgid="3063787243474847180">"Μονάδες stone"</string>
+    <string name="energy_unit_calorie_label" msgid="3412965811470957296">"Θερμίδες"</string>
+    <string name="energy_unit_kilojoule_label" msgid="6481196724083455110">"Kilojoule"</string>
+    <string name="temperature_unit_celsius_label" msgid="4698347100553808449">"Κελσίου"</string>
+    <string name="temperature_unit_fahrenheit_label" msgid="6590261955872562854">"Φαρενάιτ"</string>
+    <string name="temperature_unit_kelvin_label" msgid="3786210768294615821">"Κέλβιν"</string>
+    <string name="help_and_feedback" msgid="4772169905005369871">"Βοήθεια και σχόλια"</string>
+    <string name="cant_see_all_your_apps_description" msgid="7344859063463536472">"Εάν δεν μπορείτε να δείτε μια εγκατεστημένη εφαρμογή, ενδέχεται να μην είναι ακόμα συμβατή με το Health Connect"</string>
+    <string name="things_to_try" msgid="8200374691546152703">"Τι μπορείτε να δοκιμάσετε"</string>
+    <string name="check_for_updates" msgid="3841090978657783101">"Έλεγχος για ενημερώσεις"</string>
+    <string name="check_for_updates_description" msgid="1347667778199095160">"Βεβαιωθείτε ότι οι εγκατεστημένες εφαρμογές είναι ενημερωμένες"</string>
+    <string name="see_all_compatible_apps" msgid="6791146164535475726">"Δείτε όλες τις συμβατές εφαρμογές"</string>
+    <string name="see_all_compatible_apps_description" msgid="2092325337403254491">"Βρείτε εφαρμογές στο Google Play"</string>
+    <string name="send_feedback" msgid="7756927746070096780">"Αποστολή σχολίων"</string>
+    <string name="send_feedback_description" msgid="2887207112856240778">"Πείτε μας ποιες εφαρμογές υγείας και φυσικής κατάστασης θα θέλατε να χρησιμοποιήσετε με το Health Connect"</string>
+    <string name="playstore_app_title" msgid="4138464328693481809">"Play Store"</string>
+    <string name="auto_delete_button" msgid="8536451792268513619">"Αυτόματη διαγραφή"</string>
+    <string name="auto_delete_title" msgid="8761742828224207826">"Αυτόματη διαγραφή"</string>
+    <string name="auto_delete_header" msgid="4258649705159293715">"Ελέγξτε για πόσο διάστημα αποθηκεύονται τα δεδομένα σας στο Health Connect, προγραμματίζοντας τη διαγραφή τους μετά από ένα ορισμένο χρονικό διάστημα."</string>
+    <string name="auto_delete_learn_more" msgid="7416469042791307994">"Περισσότερα σχετικά με την αυτόματη διαγραφή"</string>
+    <string name="auto_delete_section" msgid="7732381000331475082">"Αυτόματη διαγραφή δεδομένων"</string>
+    <string name="range_after_x_months" msgid="3340127072680117121">"{count,plural, =1{Μετά από # μήνα}other{Μετά από # μήνες}}"</string>
+    <string name="range_never" msgid="4429478261788361233">"Ποτέ"</string>
+    <string name="range_off" msgid="8178520557618184215">"Ανενεργή"</string>
+    <string name="auto_delete_rationale" msgid="5255442126521464878">"Όταν αλλάζετε αυτές τις ρυθμίσεις, το Health Connect διαγράφει τα υπάρχοντα δεδομένα ώστε να αντικατοπτρίζουν τις νέες προτιμήσεις σας."</string>
+    <string name="confirming_question_x_months" msgid="8204363800605282103">"{count,plural, =1{Αυτόματη διαγραφή δεδομένων μετά από # μήνα;}other{Αυτόματη διαγραφή δεδομένων μετά από # μήνες;}}"</string>
+    <string name="confirming_message_x_months" msgid="4798474593741471977">"{count,plural, =1{Το Health Connect θα διαγράφει τα νέα δεδομένα μετά από # μήνα. Ο ορισμός αυτής της ρύθμισης θα διαγράψει επίσης τα υπάρχοντα δεδομένα που είναι παλαιότερα του # μήνα.}other{Το Health Connect θα διαγράφει τα νέα δεδομένα μετά από # μήνες. Ο ορισμός αυτής της ρύθμισης θα διαγράψει επίσης τα υπάρχοντα δεδομένα που είναι παλαιότερα των # μηνών.}}"</string>
+    <string name="set_auto_delete_button" msgid="268450418318199197">"Ορισμός αυτόματης διαγραφής"</string>
+    <string name="deletion_started_title" msgid="1177766097121885025">"Τα υπάρχοντα δεδομένα θα διαγραφούν"</string>
+    <string name="deletion_started_x_months" msgid="6567199107249615612">"{count,plural, =1{Το Health Connect θα διαγράφει όλα τα δεδομένα που είναι παλαιότερα των # μηνών. Μπορεί να χρειαστεί μία ημέρα για να εμφανιστούν αυτές οι αλλαγές στις συνδεδεμένες εφαρμογές σας.}other{Το Health Connect θα διαγράφει όλα τα δεδομένα που είναι παλαιότερα των # μηνών. Μπορεί να χρειαστεί μία ημέρα για να εμφανιστούν αυτές οι αλλαγές στις συνδεδεμένες εφαρμογές σας.}}"</string>
+    <string name="deletion_started_category_list_section" msgid="3052940611815658991">"Διαγραφή δεδομένων από τις ακόλουθες κατηγορίες"</string>
+    <string name="deletion_started_done_button" msgid="1232018689825054257">"Τέλος"</string>
+    <string name="priority_dialog_title" msgid="7360654442596118085">"Ορισμός προτεραιότητας εφαρμογών"</string>
+    <string name="priority_dialog_message" msgid="6971250365335018184">"Εάν περισσότερες από μία εφαρμογές προσθέτουν δεδομένα τύπου \"<xliff:g id="DATA_TYPE">%s</xliff:g>\", το Health Connect δίνει προτεραιότητα στην εφαρμογή που βρίσκεται υψηλότερα σε αυτήν τη λίστα. Σύρετε τις εφαρμογές για να τις αναδιατάξετε."</string>
+    <string name="priority_dialog_positive_button" msgid="2503570694373675092">"Αποθήκευση"</string>
+    <string name="action_drag_label_move_up" msgid="4221641798253080966">"Μετακίνηση προς τα επάνω"</string>
+    <string name="action_drag_label_move_down" msgid="3448000958912947588">"Μετακίνηση προς τα κάτω"</string>
+    <string name="action_drag_label_move_top" msgid="5114033774108663548">"Μετακίνηση στην κορυφή"</string>
+    <string name="action_drag_label_move_bottom" msgid="3117764196696569512">"Μετακίνηση στο τέλος"</string>
+    <string name="reorder_button_content_description" msgid="2685032520710743533">"Κουμπί για σύρσιμο και αναδιάταξη της εφαρμογής <xliff:g id="SELECTED_APP">%s</xliff:g> στη λίστα προτεραιότητας"</string>
+    <string name="remove_button_content_description" msgid="6170490900032612048">"Κουμπί κατάργησης <xliff:g id="SELECTED_APP">%s</xliff:g> από τη λίστα προτεραιοτήτων"</string>
+    <string name="reorder_button_action_description" msgid="5197462036756192214">"Πατήστε δύο φορές και σύρετε για αλλαγή σειράς"</string>
+    <string name="search_keywords_home" msgid="5386515593026555327">"φυσική κατάσταση, ευεξία"</string>
+    <string name="search_keywords_permissions" msgid="7821010295153350533">"άδειες"</string>
+    <string name="search_keywords_data" msgid="5359602744325490523">"health connect, δεδομένα υγείας, κατηγορίες υγείας, πρόσβαση δεδομένων, δραστηριότητα, μετρήσεις σώματος, παρακολούθηση κύκλου, διατροφή, ύπνος, ζωτικές λειτουργίες"</string>
+    <string name="search_breadcrumbs_permissions" msgid="2667471090347475796">"Health Connect &gt; Άδειες εφαρμογών"</string>
+    <string name="search_breadcrumbs_data" msgid="6635428480372024040">"Health Connect &gt; Δεδομένα και πρόσβαση"</string>
+    <string name="search_connected_apps" msgid="8180770761876928851">"Αναζήτηση εφαρμογών"</string>
+    <string name="no_results" msgid="4007426147286897998">"Κανένα αποτέλεσμα"</string>
+    <string name="help" msgid="6028777453152686162">"Βοήθεια"</string>
+    <string name="request_route_header_title" msgid="6599707039845646714">"Επιτρέπετε στο <xliff:g id="APP_NAME">%1$s</xliff:g> την πρόσβαση στο Health Connect;"</string>
+    <string name="request_route_disclaimer_notice" msgid="8060511384737662598">"Αυτή η εφαρμογή θα μπορεί να διαβάζει την προηγούμενη τοποθεσία στη διαδρομή"</string>
+    <string name="date_owner_format" msgid="4431196384037157320">"<xliff:g id="DATE">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g>"</string>
+    <string name="request_route_info_header_title" msgid="4149969049719763190">"Οι διαδρομές άσκησης περιλαμβάνουν πληροφορίες τοποθεσίας"</string>
+    <string name="request_route_info_who_can_see_data_title" msgid="858355329937113994">"Ποιος μπορεί να δει αυτά τα δεδομένα;"</string>
+    <string name="request_route_info_who_can_see_data_summary" msgid="2439434359808367150">"Μόνο οι εφαρμογές στις οποίες επιτρέπετε να έχουν πρόσβαση στις διαδρομές άσκησης"</string>
+    <string name="request_route_info_access_management_title" msgid="3222594923675464852">"Πώς μπορώ να διαχειριστώ την πρόσβαση;"</string>
+    <string name="request_route_info_access_management_summary" msgid="2606548838292829495">"Μπορείτε να διαχειριστείτε την πρόσβαση εφαρμογών στις διαδρομές άσκησης μέσω των ρυθμίσεων του Health Connect"</string>
+    <string name="request_route_allow" msgid="4427372851821847274">"Να επιτρέπεται αυτή η διαδρομή"</string>
+    <string name="request_route_allow_all" msgid="314830698958736916">"Να επιτρέπ. όλες οι διαδρομές"</string>
+    <string name="request_route_dont_allow" msgid="1186236234664957228">"Να μην επιτρέπεται"</string>
+    <string name="route_permissions_always_allow" msgid="1383816362804293137">"Να επιτρέπεται πάντα"</string>
+    <string name="route_permissions_label" msgid="5201501195020295860">"Κοινή χρήση διαδρομής άσκησης"</string>
+    <string name="route_permissions_summary" msgid="4670908225783213910">"Καθορισμός του τρόπου με τον οποίο αυτή η εφαρμογή έχει πρόσβαση σε διαδρομές άσκησης από συνδεδεμένες εφαρμογές"</string>
+    <string name="route_permissions_ask" msgid="3927020960754781917">"Ερώτηση κάθε φορά"</string>
+    <string name="route_permissions_deny" msgid="4263802925221258853">"Να μην επιτρέπεται"</string>
+    <string name="exercise_permission_dialog_enable_title" msgid="4310997044811843391">"Ενεργοποίηση και των δύο τύπων δεδομένων;"</string>
+    <string name="exercise_permission_dialog_disable_title" msgid="1011777519918396883">"Απενεργοποίηση και των δύο τύπων δεδομένων;"</string>
+    <string name="exercise_permission_dialog_enabled_summary" msgid="3404390796688813585">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> απαιτεί πρόσβαση ανάγνωσης για άσκηση προκειμένου να ενεργοποιηθούν οι διαδρομές άσκησης"</string>
+    <string name="exercise_permission_dialog_disable_summary" msgid="397599718182778347">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> απαιτεί πρόσβαση σε ασκήσεις προκειμένου να ενεργοποιηθούν οι διαδρομές άσκησης"</string>
+    <string name="exercise_permission_dialog_positive_button" msgid="4545939654888655556">"Ναι"</string>
+    <string name="exercise_permission_dialog_negative_button" msgid="7433304732406274998">"Όχι"</string>
+    <string name="back_button" msgid="780519527385993407">"Πίσω"</string>
+    <string name="loading" msgid="2526615755685950317">"Φόρτωση…"</string>
+    <string name="migration_in_progress_screen_title" msgid="6564515269988205874">"Η ενσωμάτωση είναι σε εξέλιξη"</string>
+    <string name="migration_in_progress_screen_integration_details" msgid="5916989113111973466">"Γίνεται ενσωμάτωση του Health Connect με το σύστημα Android.\n\nΜπορεί να χρειαστεί λίγος χρόνος για τη μεταφορά των δεδομένων και των αδειών σας."</string>
+    <string name="migration_in_progress_screen_integration_dont_close" msgid="2095732208438772444">"Μην κλείσετε την εφαρμογή μέχρι να λάβετε μια ειδοποίηση ότι η διαδικασία έχει ολοκληρωθεί."</string>
+    <string name="migration_in_progress_notification_title" msgid="8873411008158407737">"Η ενσωμάτωση του Health Connect είναι σε εξέλιξη"</string>
+    <string name="migration_update_needed_screen_title" msgid="3260466598312877429">"Απαιτείται ενημέρωση"</string>
+    <string name="migration_update_needed_screen_details" msgid="7984745102006782603">"Γίνεται ενσωμάτωση του Health Connect με το σύστημα Android, έτσι ώστε να μπορείτε να αποκτήσετε πρόσβαση σε αυτό απευθείας από τις ρυθμίσεις σας."</string>
+    <string name="update_button" msgid="4544529019832009496">"Ενημέρωση"</string>
+    <string name="migration_update_needed_notification_content" msgid="478899618719297517">"Ξεκινήστε αυτή την ενημέρωση, έτσι ώστε το Health Connect να συνεχίσει την ενσωμάτωση με τις ρυθμίσεις συστήματός σας"</string>
+    <string name="migration_update_needed_notification_action" msgid="1219223694165492000">"Ενημέρωση τώρα"</string>
+    <string name="migration_module_update_needed_notification_title" msgid="5428523284357105379">"Απαιτείται ενημέρωση συστήματος"</string>
+    <string name="migration_module_update_needed_action" msgid="7211167950758064289">"Πριν συνεχίσετε, ενημερώστε το σύστημα του τηλεφώνου σας."</string>
+    <string name="migration_module_update_needed_restart" msgid="1246884613546321798">"Αν έχετε ενημερώσει ήδη το σύστημα του τηλεφώνου σας, δοκιμάστε να επανεκκινήσετε το τηλέφωνό σας για να συνεχίσει την ενσωμάτωση"</string>
+    <string name="migration_app_update_needed_notification_title" msgid="8971076370900025444">"Απαιτείται ενημέρωση του Health Connect"</string>
+    <string name="migration_app_update_needed_action" msgid="3289432528592774601">"Πριν συνεχίσετε, ενημερώστε την εφαρμογή Health Connect στην πιο πρόσφατη έκδοση."</string>
+    <string name="migration_more_space_needed_screen_title" msgid="1535473230886051579">"Απαιτείται περισσότερος χρόνος"</string>
+    <string name="migration_more_space_needed_screen_details" msgid="621140247825603412">"Το Health Connect χρειάζεται <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> αποθηκευτικού χώρου στο τηλέφωνό σας προκειμένου να συνεχιστεί η ενσωμάτωση.\n\nΑποδεσμεύστε χώρο στο τηλέφωνό σας και δοκιμάστε ξανά."</string>
+    <string name="try_again_button" msgid="8745496819992160789">"Δοκιμάστε ξανά"</string>
+    <string name="free_up_space_button" msgid="4141013808635654695">"Αποδεσμεύστε χώρο"</string>
+    <string name="migration_more_space_needed_notification_title" msgid="8238155395120107672">"Απαιτείται περισσότερος χρόνος"</string>
+    <string name="migration_more_space_needed_notification_content" msgid="4034728181940567836">"Το Health Connect χρειάζεται <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> αποθηκευτικού χώρου στο τηλέφωνό σας για να συνεχίσει την ενσωμάτωση."</string>
+    <string name="migration_paused_screen_title" msgid="8041170155372429894">"Η ενσωμάτωση τέθηκε σε παύση"</string>
+    <string name="migration_paused_screen_details" msgid="5898311710030340187">"Η εφαρμογή Health Connect έκλεισε ενώ γινόταν ενσωμάτωση με το σύστημα Android.\n\nΚάντε κλικ στη συνέχιση για να ανοίξετε ξανά την εφαρμογή και να συνεχίσετε τη μεταφορά των δεδομένων και των αδειών σας."</string>
+    <string name="migration_paused_screen_details_timeout" msgid="353768000785837394">"Για να διατηρήσετε τα δεδομένα σας Health Connect, ολοκληρώστε αυτήν τη διαδικασία εντός <xliff:g id="TIME_NEEDED">%1$s</xliff:g>"</string>
+    <string name="resume_button" msgid="2255148549862208047">"Συνέχιση"</string>
+    <string name="migration_paused_notification_title" msgid="4368414714202113077">"Η ενσωμάτωση τέθηκε σε παύση"</string>
+    <string name="migration_paused_notification_content" msgid="1950511270109811771">"Γίνεται ενσωμάτωση του Health Connect με το σύστημα Android. Πατήστε για συνέχεια"</string>
+    <string name="resume_migration_banner_title" msgid="4443957114824045317">"Συνέχιση ενσωμάτωσης"</string>
+    <string name="resume_migration_banner_description" msgid="6236230413670826036">"Πατήστε για να συνεχίσετε την ενσωμάτωση του Health Connect με το σύστημα Android. Για να διατηρήσετε τα δεδομένα σας, ολοκληρώστε αυτήν τη διαδικασία εντός <xliff:g id="TIME_NEEDED">%1$s</xliff:g>"</string>
+    <string name="resume_migration_banner_description_fallback" msgid="6060444898839211883">"Πατήστε για να συνεχίσετε την ενσωμάτωση του Health Connect με το σύστημα Android."</string>
+    <string name="resume_migration_banner_button" msgid="2112318760107756469">"Συνέχεια"</string>
+    <string name="resume_migration_notification_title" msgid="8859575633668908327">"Συνέχιση ενσωμάτωσης Health Connect"</string>
+    <string name="resume_migration_notification_content" msgid="46172108837648715">"Για να διατηρήσετε τα δεδομένα σας, ολοκληρώστε αυτήν τη διαδικασία εντός <xliff:g id="TIME_NEEDED">%1$s</xliff:g>"</string>
+    <string name="app_update_needed_banner_title" msgid="4724335956851853802">"Απαιτείται ενημέρωση της εφαρμογής"</string>
+    <string name="app_update_needed_banner_description_single" msgid="1114809360264027362">"Η εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> πρέπει να ενημερωθεί για να συνεχιστεί ο συγχρονισμός με το Health Connect"</string>
+    <string name="app_update_needed_banner_description_multiple" msgid="4660700626698013764">"Ορισμένες εφαρμογές πρέπει να ενημερωθούν για να συνεχιστεί ο συγχρονισμός με το Health Connect"</string>
+    <string name="app_update_needed_banner_button" msgid="8223115764065649627">"Έλεγχος για ενημερώσεις"</string>
+    <string name="app_update_needed_banner_learn_more_button" msgid="7269232067819258160">"Μάθετε περισσότερα"</string>
+    <string name="migration_pending_permissions_dialog_title" msgid="6019552841791757048">"Ενσωμάτωση Health Connect"</string>
+    <string name="migration_pending_permissions_dialog_content" msgid="6350115816948005466">"Το Health Connect είναι έτοιμο να ενσωματωθεί στο σύστημα Android. Αν παραχωρήσετε τώρα πρόσβαση στην εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g>, ορισμένες λειτουργίες ενδέχεται να μην λειτουργούν μέχρι να ολοκληρωθεί η ενσωμάτωση."</string>
+    <string name="migration_pending_permissions_dialog_content_apps" msgid="6417173899016940664">"Το Health Connect είναι έτοιμο να ενσωματωθεί στο σύστημα Android. Αν παραχωρήσετε πρόσβαση στις εφαρμογές τώρα, ορισμένες λειτουργίες ενδέχεται να μην λειτουργούν μέχρι να ολοκληρωθεί η ενσωμάτωση."</string>
+    <string name="migration_pending_permissions_dialog_button_continue" msgid="258571372365364506">"Συνέχεια"</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" msgid="754910196871313049">"Έναρξη ενσωμάτωσης"</string>
+    <string name="migration_in_progress_permissions_dialog_title" msgid="2188354144857156984">"Η ενσωμάτωση του Health Connect είναι σε εξέλιξη"</string>
+    <string name="migration_in_progress_permissions_dialog_content" msgid="2249793103623253693">"Γίνεται ενσωμάτωση του Health Connect με το σύστημα Android.\n\nΘα λάβετε μια ειδοποίηση όταν ολοκληρωθεί η διαδικασία και μπορείτε να χρησιμοποιήσετε την εφαρμογή <xliff:g id="APP_NAME">%1$s</xliff:g> με το Health Connect."</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" msgid="8653954808926889199">"Γίνεται ενσωμάτωση του Health Connect με το σύστημα Android.\n\nΘα λάβετε μια ειδοποίηση όταν ολοκληρωθεί η διαδικασία και θα μπορείτε να χρησιμοποιήσετε το Health Connect."</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" msgid="3437208109334974656">"Το κατάλαβα"</string>
+    <string name="migration_not_complete_dialog_title" msgid="3725576338159027149">"Η ενσωμάτωση του Health Connect δεν ολοκληρώθηκε"</string>
+    <string name="migration_not_complete_dialog_content" msgid="4992771587233088606">"Θα λάβετε μια ειδοποίηση όταν γίνει ξανά διαθέσιμη."</string>
+    <string name="migration_not_complete_dialog_button" msgid="3271842109680807482">"Το κατάλαβα"</string>
+    <string name="migration_not_complete_notification_title" msgid="7392885522310227293">"Η ενσωμάτωση του Health Connect δεν ολοκληρώθηκε"</string>
+    <string name="migration_not_complete_notification_action" msgid="757041885992445657">"Διαβάστε περισσότερα"</string>
+    <string name="migration_complete_notification_title" msgid="4988631739109332404">"Η ενσωμάτωση του Health Connect ολοκληρώθηκε"</string>
+    <string name="migration_complete_notification_action" msgid="5350322865206331186">"Άνοιγμα"</string>
+    <string name="migration_whats_new_dialog_title" msgid="2349465358457105228">"Τι νέο υπάρχει"</string>
+    <string name="migration_whats_new_dialog_content" msgid="1271560399054864488">"Μπορείτε πλέον να αποκτήσετε πρόσβαση στο Health Connect απευθείας από τις ρυθμίσεις σας. Απεγκαταστήστε την εφαρμογή Health Connect ανά πάσα στιγμή για να αποδεσμεύσετε αποθηκευτικό χώρο."</string>
+    <string name="migration_whats_new_dialog_button" msgid="642575552457587805">"Το κατάλαβα"</string>
+    <string name="data_restore_in_progress_screen_title" msgid="2516161353003274764">"Επαναφορά σε εξέλιξη"</string>
+    <string name="data_restore_in_progress_content" msgid="2684897189974069361">"Το Health Connect επαναφέρει δεδομένα και άδειες. Μπορεί να χρειαστεί λίγη ώρα για την ολοκλήρωση της διαδικασίας."</string>
+    <string name="data_restore_in_progress_dialog_title" msgid="9097805833675345598">"Επαναφορά Health Connect σε εξέλιξη"</string>
+    <string name="data_restore_in_progress_dialog_button" msgid="2096525382430589845">"Το κατάλαβα"</string>
+    <string name="data_restore_pending_banner_title" msgid="6792157138348551175">"Απαιτείται ενημέρωση"</string>
+    <string name="data_restore_pending_banner_content" msgid="7631240781262092142">"Πριν συνεχίσετε με την επαναφορά των δεδομένων σας, ενημερώστε το σύστημα του τηλεφώνου."</string>
+    <string name="data_restore_pending_banner_button" msgid="2150345659341456815">"Ενημέρωση τώρα"</string>
+    <string name="data_totals_header" msgid="8316977153276216025">"Σύνολα δεδομένων"</string>
+    <string name="app_sources_header" msgid="6343062519512947665">"Πηγές εφαρμογών"</string>
+    <string name="data_sources_footer" msgid="6414387142919741183">"Προσθέστε πηγές εφαρμογών στη λίστα για να δείτε πώς μπορούν να αλλάξουν τα σύνολα δεδομένων. Εάν καταργήσετε μια εφαρμογή από αυτήν τη λίστα, η εφαρμογή θα σταματήσει να συνεισφέρει στα σύνολα, αλλά θα εξακολουθεί να έχει άδειες εγγραφής."</string>
+    <string name="data_sources_empty_state" msgid="1899652759274805556">"Δεν υπάρχουν πηγές εφαρμογών"</string>
+    <string name="data_sources_empty_state_footer" msgid="8933950342291569638">"Μόλις παραχωρήσετε άδειες εφαρμογών για την εγγραφή δεδομένων <xliff:g id="CATEGORY_NAME">%1$s</xliff:g>, οι πηγές θα εμφανίζονται εδώ."</string>
+    <string name="data_sources_help_link" msgid="7740264923634947915">"Πώς λειτουργούν οι πηγές και η προτεραιότητα"</string>
+    <string name="data_sources_add_app" msgid="319926596123692514">"Προσθήκη εφαρμογής"</string>
+    <string name="edit_data_sources" msgid="79641360876849547">"Επεξεργασία πηγών εφαρμογών"</string>
+    <string name="default_app_summary" msgid="6183876151011837062">"Προεπιλογή συσκευής"</string>
+    <string name="app_data_title" msgid="6499967982291000837">"Δεδομένα εφαρμογών"</string>
+    <string name="no_data_footer" msgid="4777297654713673100">"Τα δεδομένα από εφαρμογές με πρόσβαση στο Health Connect θα εμφανίζονται εδώ"</string>
+    <string name="date_picker_day" msgid="3076687507968958991">"Ημέρα"</string>
+    <string name="date_picker_week" msgid="1038805538316142229">"Εβδομάδα"</string>
+    <string name="date_picker_month" msgid="3560692391260778560">"Μήνας"</string>
+    <string name="this_week_header" msgid="1280121922548216973">"Αυτή την εβδομάδα"</string>
+    <string name="last_week_header" msgid="5194448963146719382">"Προηγούμενη εβδομάδα"</string>
+    <string name="this_month_header" msgid="2452395268894677189">"Αυτόν τον μήνα"</string>
+    <string name="last_month_header" msgid="1359164797239191253">"Προηγούμενος μήνας"</string>
+    <string name="tab_entries" msgid="3402700951602029493">"Καταχωρίσεις"</string>
+    <string name="tab_access" msgid="7818197975407243701">"Πρόσβαση"</string>
+</resources>

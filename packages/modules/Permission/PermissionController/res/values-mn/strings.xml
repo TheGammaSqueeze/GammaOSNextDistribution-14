@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6098036489833144040">"Зөвшөөрлийн хянагч"</string>
+    <string name="ok" msgid="1936281769725676272">"OK"</string>
+    <string name="permission_search_keyword" msgid="1214451577494730543">"зөвшөөрөл"</string>
+    <string name="cancel" msgid="8943320028373963831">"Болих"</string>
+    <string name="back" msgid="6249950659061523680">"Буцах"</string>
+    <string name="available" msgid="6007778121920339498">"Боломжтой"</string>
+    <string name="blocked" msgid="9195547604866033708">"Блоклосон"</string>
+    <string name="on" msgid="280241003226755921">"Асаалттай"</string>
+    <string name="off" msgid="1438489226422866263">"Унтраах"</string>
+    <string name="uninstall_or_disable" msgid="4496612999740858933">"Устгах эсвэл идэвхгүй болгох"</string>
+    <string name="app_not_found_dlg_title" msgid="6029482906093859756">"Апп олдсонгүй"</string>
+    <string name="grant_dialog_button_deny" msgid="88262611492697192">"Бүү зөвшөөр"</string>
+    <string name="grant_dialog_button_deny_and_dont_ask_again" msgid="1748925431574312595">"Бүү зөвшөөр, дахин бүү асуу"</string>
+    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"\"Аппыг ашиглаж байх үед\" хэвээр үлдээх"</string>
+    <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"“Зөвхөн энэ удаад зөвшөөрөх”-г хэвээр хадгалах"</string>
+    <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Дэлгэрэнгүй мэдээлэл"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Бүгдийг зөвшөөрөх"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Бүгдийг үргэлж зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Хязгаарлагдмал хандалтыг зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Зураг болон видеонуудыг сонгох"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"Илүү ихийг сонгох"</string>
+    <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"Нэмж өгөгдөл сонгохгүй"</string>
+    <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Ямартай ч бүү зөвшөөр"</string>
+    <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Үл хэрэгсэх"</string>
+    <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>-н <xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g>"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д <xliff:g id="ACTION">%2$s</xliff:g>-г зөвшөөрөх үү?"</string>
+    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д <xliff:g id="ACTION">%2$s</xliff:g>-г тогтмол зөвшөөрөх үү?"</string>
+    <string name="allow_permission_foreground_only" msgid="116465816039675404">"Зөвхөн апп ашиглах үед"</string>
+    <string name="allow_permission_always" msgid="5194342531206054051">"Тогтмол"</string>
+    <string name="deny_permission_deny_and_dont_ask_again" msgid="6106035221490102341">"Бүү зөвшөөр, дахин бүү асуу"</string>
+    <string name="permission_revoked_count" msgid="4785082705441547086">"<xliff:g id="COUNT">%1$d</xliff:g>-г цуцалсан"</string>
+    <string name="permission_revoked_all" msgid="3397649017727222283">"бүгдийг цуцалсан"</string>
+    <string name="permission_revoked_none" msgid="9213345075484381180">"алийг нь ч цуцлаагүй"</string>
+    <string name="grant_dialog_button_allow" msgid="5314677880021102550">"Зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_always" msgid="4485552579273565981">"Ямар ч үед зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"Аппыг ашиглаж байх үед"</string>
+    <string name="grant_dialog_button_change_to_precise_location" msgid="3273115879467236033">"Нарийвчилсан байршил руу өөрчлөх"</string>
+    <string name="grant_dialog_button_keey_approximate_location" msgid="438025182769080011">"Барагцаалсан байршлыг хэвээр үлдээх"</string>
+    <string name="grant_dialog_button_allow_one_time" msgid="2618088516449706391">"Зөвхөн энэ удаа"</string>
+    <string name="grant_dialog_button_allow_background" msgid="8236044729434367833">"Ямар ч үед зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_all_files" msgid="4955436994954829894">"Бүх файлыг удирдахыг зөвшөөрөх"</string>
+    <string name="grant_dialog_button_allow_media_only" msgid="4832877658422573832">"Медиа файлд хандахыг зөвшөөрөх"</string>
+    <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"Аппууд"</string>
+    <string name="app_permissions" msgid="3369917736607944781">"Аппын зөвшөөрөл"</string>
+    <string name="unused_apps" msgid="2058057455175955094">"Ашиглаагүй аппууд"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"Энэ аппад сонгосон зургуудыг засна уу"</string>
+    <string name="no_unused_apps" msgid="12809387670415295">"Ашиглаагүй апп байхгүй байна"</string>
+    <string name="zero_unused_apps" msgid="9024448554157499748">"0 ашиглаагүй апп"</string>
+    <string name="review_permission_decisions" msgid="309559429150613632">"Саяхны зөвшөөрлийн шийдвэр"</string>
+    <string name="review_permission_decisions_view_all" msgid="90391040431566130">"Саяхны бүх зөвшөөрлийн шийдвэрийг харах"</string>
+    <string name="review_permission_decisions_empty" msgid="8120775336417279806">"Саяхны зөвшөөрлийн шийвдэр байхгүй"</string>
+    <string name="auto_permission_manager_summary" msgid="9157438376234301354">"Календарь, дуудлагын жагсаалт болон бусад зүйлийн өгөгдлийн хандалтыг удирдах"</string>
+    <string name="granted_permission_decision" msgid="7824827491551861365">"Та <xliff:g id="APP_NAME">%1$s</xliff:g>-д <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>-д хандах эрх өгсөн"</string>
+    <string name="denied_permission_decision" msgid="5308961501779563781">"Та <xliff:g id="APP_NAME">%1$s</xliff:g>-г <xliff:g id="PERMISSION_NAME">%2$s</xliff:g>-д хандахаас татгалзсан"</string>
+    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{Өнөөдөр}=1{1 хоногийн өмнө}other{# хоногийн өмнө}}"</string>
+    <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Aппыг идэвхгүй болгох"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Хэрэв та энэ аппыг идэвхгүй болговол Android болон бусад апп цаашид хэвийн ажиллахгүй байж болзошгүй. Энэ аппыг таны төхөөрөмжид урьдчилан суулгасан тул устгах боломжгүйг анхаарна уу. Идэвхгүй болгосноор та энэ аппыг унтрааж, төхөөрөмж дээрээсээ нуух болно."</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"Зөвшөөрлийн менежер"</string>
+    <string name="never_ask_again" msgid="4728762438198560329">"Дахин бүү асуу"</string>
+    <string name="no_permissions" msgid="3881676756371148563">"Зөвшөөрөл алга"</string>
+    <string name="additional_permissions" msgid="5801285469338873430">"Нэмэлт зөвшөөрөл"</string>
+    <string name="app_permissions_info_button_label" msgid="7633312050729974623">"Аппын мэдээллийг нээх"</string>
+    <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{Өөр #}other{Өөр #}}"</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"Энэ аппыг Android-н хуучин хувилбарт зориулсан тул зөвшөөрлөөс татгалзсан тохиолдолд энэ нь зохих ёсоор ажиллахаа больж болзошгүй."</string>
+    <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"Энэ апп нь Android-н хуучин хувилбарт зориулагдсан. Та энэ зөвшөөрлийг зөвшөөрсөн тохиолдолд бүх хадгалах санд (зураг, видео, хөгжим, аудио болон бусад файлыг оруулаад) хандахыг зөвшөөрнө."</string>
+    <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"Энэ апп нь Android-н хуучин хувилбарт зориулагдсан. Та энэ зөвшөөрлөөс татгалзсан тохиолдолд бүх хадгалах санд (зураг, видео, хөгжим, аудио болон бусад файлыг оруулаад) хандахаас татгалзана."</string>
+    <string name="default_permission_description" msgid="4624464917726285203">"тодорхойгүй үйлдэл хийх"</string>
+    <string name="app_permissions_group_summary" msgid="8788419008958284002">"<xliff:g id="COUNT_1">%2$d</xliff:g>-с <xliff:g id="COUNT_0">%1$d</xliff:g> аппыг зөвшөөрсөн"</string>
+    <string name="app_permissions_group_summary2" msgid="4329922444840521150">"<xliff:g id="COUNT_1">%2$d</xliff:g>-с <xliff:g id="COUNT_0">%1$d</xliff:g> аппыг зөвшөөрсөн"</string>
+    <string name="menu_show_system" msgid="4254021607027872504">"Системийг харуулах"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"Системийг нуух"</string>
+    <string name="menu_show_7_days_data" msgid="8979611198508523706">"7 хоногийг харуулах"</string>
+    <string name="menu_show_24_hours_data" msgid="8228054833323380780">"24 цагийг харуулах"</string>
+    <string name="manage_permission" msgid="2895385393037061964">"Зөвшөөрлийг удирдах"</string>
+    <string name="no_apps" msgid="2412612731628386816">"Апп алга"</string>
+    <string name="location_settings" msgid="3624412509133422562">"Байршлын тохиргоо"</string>
+    <string name="location_warning" msgid="2381649060929040962">"<xliff:g id="APP_NAME">%1$s</xliff:g> нь энэ төхөөрөмжийн байршлын үйлчилгээ үзүүлэгч юм. Байршлын хандалтыг байршлын тохиргоонд өөрчилж болно."</string>
+    <string name="system_warning" msgid="1173400963234358816">"Та энэ зөвшөөрлөөс татгалзсан тохиолдолд таны төхөөрөмжийн үндсэн онцлогууд зохих ёсоор ажиллахаа больж болзошгүй."</string>
+    <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"Энэ апп нь Android-н хуучин хувилбарт зориулагдсан. Хэрэв та энэ аппыг зураг болон видеонд хандахаас татгалзвал хөгжим болон бусад аудионд хандахаас мөн татгалзана."</string>
+    <string name="deny_read_media_aural_warning" msgid="8928699919508646732">"Энэ апп нь Android-н хуучин хувилбарт зориулагдсан. Хэрэв та энэ аппыг хөгжим болон бусад аудионд хандахaaс татгалзвал зураг, видеонд хандахаас мөн татгалзана."</string>
+    <string name="cdm_profile_revoke_warning" msgid="4443893270719106700">"Та энэ зөвшөөрлөөс татгалзсан тохиолдолд таны төхөөрөмжийн энэ аппаар удирддаг зарим онцлог зохих ёсоор ажиллахаа больж магадгүй."</string>
+    <string name="permission_summary_enforced_by_policy" msgid="4443598170942950519">"Удирдамжийн дагуу хэрэгжүүлдэг"</string>
+    <string name="permission_summary_disabled_by_policy_background_only" msgid="221995005556362660">"Арын хэсгийн хандалтыг удирдамжийн дагуу идэвхгүй болгосон"</string>
+    <string name="permission_summary_enabled_by_policy_background_only" msgid="8287675974767104279">"Арын хэсгийн хандалтыг удирдамжийн дагуу идэвхжүүлсэн"</string>
+    <string name="permission_summary_enabled_by_policy_foreground_only" msgid="3844582916889767831">"Дэлгэц дээрх хандалтыг удирдамжийн дагуу идэвхжүүлсэн"</string>
+    <string name="permission_summary_enforced_by_admin" msgid="822702574117248700">"Админы хянадаг"</string>
+    <string name="permission_summary_disabled_by_admin_background_only" msgid="3127091456731845646">"Админ арын хэсгийн хандалтыг идэвхгүй болгосон"</string>
+    <string name="permission_summary_enabled_by_admin_background_only" msgid="9132423838440275757">"Админ арын хэсгийн хандалтыг идэвхжүүлсэн"</string>
+    <string name="permission_summary_enabled_by_admin_foreground_only" msgid="1298432715610745358">"Админ дэлгэц дээрх хандалтыг идэвхжүүлсэн"</string>
+    <string name="permission_summary_enabled_system_fixed" msgid="2438344700184127274">"Төхөөрөмж энэ зөвшөөрлийг авсан тохиолдолд ажиллана"</string>
+    <!-- no translation found for background_access_chooser_dialog_choices:0 (1351721623256561996) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:1 (9127301153688725448) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:2 (4305536986042401191) -->
+    <string name="permission_access_always" msgid="1474641821883823446">"Ямар ч үед зөвшөөрөх"</string>
+    <string name="permission_access_only_foreground" msgid="7801170728159326195">"Зөвхөн аппыг ашиглаж байх үед зөвшөөрөх"</string>
+    <string name="permission_access_never" msgid="4647014230217936900">"Бүү зөвшөөр"</string>
+    <string name="loading" msgid="4789365003890741082">"Ачаалж байна…"</string>
+    <string name="all_permissions" msgid="6911125611996872522">"Бүх зөвшөөрөл"</string>
+    <string name="other_permissions" msgid="2901186127193849594">"Аппын бусад чадамж"</string>
+    <string name="permission_request_title" msgid="8790310151025020126">"Зөвшөөрлийн хүсэлт"</string>
+    <string name="permission_review_title_template_install" msgid="1284337937156289081">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н хандаж болох зүйлсийг сонгоно уу"</string>
+    <string name="permission_review_title_template_update" msgid="3232333580548588657">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-г шинэчилсэн. Энэ аппын хандаж болох зүйлсийг сонгоно уу."</string>
+    <string name="review_button_cancel" msgid="2191147944056548886">"Цуцлах"</string>
+    <string name="review_button_continue" msgid="2527918375047602199">"Үргэлжлүүлэх"</string>
+    <string name="new_permissions_category" msgid="552995090178417611">"Шинэ зөвшөөрөл"</string>
+    <string name="current_permissions_category" msgid="4292990083585728880">"Одоогийн зөвшөөрөл"</string>
+    <string name="message_staging" msgid="9110563899955511866">"Аппыг байршуулж байна…"</string>
+    <string name="app_name_unknown" msgid="1319665005754048952">"Тодорхойгүй"</string>
+    <string name="permission_usage_title" msgid="1568233336351734538">"Нууцлалын хяналтын самбар"</string>
+    <string name="auto_permission_usage_summary" msgid="7335667266743337075">"Зөвшөөрлийг саяхан аль аппууд ашигласан болохыг харна уу"</string>
+    <string name="permission_group_usage_title" msgid="2595013198075285173">"<xliff:g id="PERMGROUP">%1$s</xliff:g>-н ашиглалт"</string>
+    <string name="perm_usage_adv_info_title" msgid="3357831829538873708">"Бусад зөвшөөрлийг харах"</string>
+    <string name="perm_usage_adv_info_summary_2_items" msgid="3702175198750127822">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g>"</string>
+    <string name="perm_usage_adv_info_summary_more_items" msgid="949055326299562218">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g> болон бусад <xliff:g id="NUM">%3$s</xliff:g>"</string>
+    <string name="permission_group_usage_subtitle_24h" msgid="5120155996322114181">"Өнгөрсөн 24 цагт аппууд таны <xliff:g id="PERMGROUP">%1$s</xliff:g>-г хэзээ ашигласан болохыг харуулсан он цагийн хэлхээс"</string>
+    <string name="permission_group_usage_subtitle_7d" msgid="1465828402260324654">"Өнгөрсөн 7 хоногт аппууд таны <xliff:g id="PERMGROUP">%1$s</xliff:g>-г хэзээ ашигласан болохыг харуулсан он цагийн хэлхээс"</string>
+    <string name="permission_usage_access_dialog_subtitle" msgid="4171772805196955753">"Энэ апп таны <xliff:g id="PERMGROUP">%1$s</xliff:g>-н зөвшөөрлийг ашигласан үед"</string>
+    <string name="permission_usage_access_dialog_learn_more" msgid="7121468469493184613">"Нэмэлт мэдээлэл авах"</string>
+    <string name="learn_more_content_description" msgid="8673699744544502539">"<xliff:g id="PERMGROUP">%1$s</xliff:g>-н талаар нэмэлт мэдээлэл авах"</string>
+    <string name="manage_permission_summary" msgid="4117555482684114317">"Таны <xliff:g id="PERMGROUP">%1$s</xliff:g>-н аппын хандалтыг хянана уу"</string>
+    <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# хоног}other{# хоног}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# цаг}other{# цаг}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# мин}other{# мин}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# сек}other{# сек}}"</string>
+    <string name="permission_usage_any_permission" msgid="6358023078298106997">"Дурын зөвшөөрөл"</string>
+    <string name="permission_usage_any_time" msgid="3802087027301631827">"Дурын хугацаа"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{Сүүлийн # хоног}other{Сүүлийн # хоног}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{Сүүлийн # цаг}other{Сүүлийн # цаг}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{Сүүлийн # минут}other{Сүүлийн # минут}}"</string>
+    <string name="no_permission_usages" msgid="9119517454177289331">"Зөвшөөрлийн хэрэглээ алга"</string>
+    <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Бүх цаг үеийн хамгийн сүүлийн хандалт"</string>
+    <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Сүүлийн 7 хоногт хамгийн сүүлд хийсэн хандалт"</string>
+    <string name="permission_usage_list_title_last_day" msgid="8730907824567238461">"Сүүлийн 24 цагт хамгийн сүүлд хийсэн хандалт"</string>
+    <string name="permission_usage_list_title_last_hour" msgid="6624161487623223716">"Сүүлийн 1 цагт хамгийн сүүлд хийсэн хандалт"</string>
+    <string name="permission_usage_list_title_last_15_minutes" msgid="8615062016024296833">"Сүүлийн 15 минутад хамгийн сүүлд хийсэн хандалт"</string>
+    <string name="permission_usage_list_title_last_minute" msgid="3572792262919886849">"Сүүлийн 1 минутад хамгийн сүүлд хийсэн хандалт"</string>
+    <string name="permission_usage_bar_chart_title_any_time" msgid="2845251288192246754">"Бүх цаг үеийн зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_bar_chart_title_last_7_days" msgid="5796577162176938349">"Сүүлийн 7 хоногийн зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_bar_chart_title_last_day" msgid="7950805735777472871">"Сүүлийн 24 цагийн зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Сүүлийн 1 цагийн зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Сүүлийн 15 минутын зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Сүүлийн 1 минутын зөвшөөрлийн ашиглалт"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{Сүүлийн # хоногт ашиглаагүй}other{Сүүлийн # хоногт ашиглаагүй}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{Сүүлийн # цагт ашиглаагүй}other{Сүүлийн # цагт ашиглаагүй}}"</string>
+    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{1 апп ашигласан}other{# апп ашигласан}}"</string>
+    <string name="permission_usage_view_details" msgid="6675335735468752787">"Хяналтын самбараас бүгдийг нь харах"</string>
+    <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Шүүсэн: <xliff:g id="PERM">%1$s</xliff:g>"</string>
+    <string name="app_permission_usage_remove_filter" msgid="2926157607436428207">"Шүүлтийг устгах"</string>
+    <string name="filter_by_title" msgid="7300368602759958031">"Дараахаар шүүх"</string>
+    <string name="filter_by_permissions" msgid="7613462963111282568">"Зөвшөөрлөөр шүүх"</string>
+    <string name="filter_by_time" msgid="6667864816999691642">"Цаг хугацаагаар шүүх"</string>
+    <string name="sort_spinner_most_permissions" msgid="1704349738096822836">"Хамгийн олон зөвшөөрөл"</string>
+    <string name="sort_spinner_most_accesses" msgid="5283913004357220161">"Хамгийн олон хандалт"</string>
+    <string name="sort_spinner_recent" msgid="7513845273076525203">"Саяхны"</string>
+    <string name="sort_by_app" msgid="4055799843051138087">"Аппыг ашиглалтаар нь эрэмбэлэх"</string>
+    <string name="sort_by_time" msgid="5435045320002150456">"Цаг хугацаагаар эрэмбэлэх"</string>
+    <string name="item_separator" msgid="4030255389809224513">", "</string>
+    <string name="permission_usage_refresh" msgid="2264056346561305420">"Сэргээх"</string>
+    <string name="permission_history_title" msgid="8340081285133025225">"Зөвшөөрлийн түүх"</string>
+    <string name="permission_history_category_today" msgid="7496389369158806620">"Өнөөдөр"</string>
+    <string name="permission_history_category_yesterday" msgid="7242517121222012521">"Өчигдөр"</string>
+    <string name="app_permission_usage_title" msgid="6676802437831981822">"Аппын зөвшөөрлийн ашиглалт"</string>
+    <string name="app_permission_usage_summary" msgid="390383661936709672">"Хандалт: <xliff:g id="NUM">%1$s</xliff:g> удаа. Нийт хугацаа: <xliff:g id="DURATION">%2$s</xliff:g>. Хамгийн сүүлд <xliff:g id="TIME">%3$s</xliff:g>-н өмнө ашигласан."</string>
+    <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"Хандалт: <xliff:g id="NUM">%1$s</xliff:g> удаа. Хамгийн сүүлд <xliff:g id="TIME">%2$s</xliff:g>-н өмнө ашигласан."</string>
+    <string name="app_permission_button_allow" msgid="5808039516494774647">"Зөвшөөрөх"</string>
+    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"Бүх файлыг удирдахыг зөвшөөрөх"</string>
+    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Зөвхөн медиад хандахыг зөвшөөрөх"</string>
+    <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Ямар ч үед зөвшөөрөх"</string>
+    <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Зөвхөн аппыг ашиглаж байх үед зөвшөөрөх"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"Бүгдийг үргэлж зөвшөөрөх"</string>
+    <string name="app_permission_button_ask" msgid="3342950658789427">"Тухай бүрд асуух"</string>
+    <string name="app_permission_button_deny" msgid="6016454069832050300">"Бүү зөвшөөр"</string>
+    <string name="precise_image_description" msgid="6349638632303619872">"Нарийвчилсан байршил"</string>
+    <string name="approximate_image_description" msgid="938803699637069884">"Барагцаалсан байршил"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Нарийвчилсан байршлыг ашиглах"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Нарийвчилсан байршил унтраалттай үед аппууд таны барагцаалсан байршилд хандах боломжтой"</string>
+    <string name="app_permission_title" msgid="2090897901051370711">"<xliff:g id="PERM">%1$s</xliff:g>-н зөвшөөрөл"</string>
+    <string name="app_permission_header" msgid="2951363137032603806">"Энэ аппын <xliff:g id="PERM">%1$s</xliff:g>-д хандах эрх"</string>
+    <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"<xliff:g id="APP">%1$s</xliff:g>-н бүх зөвшөөрлийг харах"</string>
+    <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Энэ зөвшөөрөлтэй бүх аппыг харах"</string>
+    <string name="assistant_mic_label" msgid="1011432357152323896">"Туслах микрофон ашиглалтыг харуулах"</string>
+    <string name="unused_apps_category_title" msgid="2988455616845243901">"Ашиглаагүй аппын тохиргоо"</string>
+    <string name="auto_revoke_label" msgid="5068393642936571656">"Аппыг ашигладаггүй бол зөвшөөрлийг нь хасах"</string>
+    <string name="unused_apps_label" msgid="2595428768404901064">"Зөвшөөрлийг хасаж, сул зай гаргах"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Ашиглаагүй бол аппын үйл ажиллагааг түр зогсоох"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"Хэрэв ашиглаагүй бол аппыг удирдах"</string>
+    <string name="unused_apps_summary" msgid="8839466950318403115">"Зөвшөөрлийг хасаж, түр зуурын файлыг устгаж мөн мэдэгдлийг зогсооно"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Зөвшөөрлийг хасаж, түр зуурын файлыг устгаж, мэдэгдлийг зогсоож мөн аппыг архивлана"</string>
+    <string name="auto_revoke_summary" msgid="5867548789805911683">"Таны өгөгдлийг хамгаалах үүднээс энэ аппыг хэдэн сарын турш ашиглахгүй бол зөвшөөрлийг нь хасах болно."</string>
+    <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"Таны өгөгдлийг хамгаалах үүднээс аппыг хэдэн сарын турш ашиглахгүй бол  дараах зөвшөөрлүүдийг хасах болно: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
+    <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"Таны өгөгдлийг хамгаалах үүднээс таны хэдэн сарын турш ашиглаагүй аппуудын зөвшөөрлийг нь хассан."</string>
+    <string name="auto_revoke_open_app_message" msgid="8075556291711205039">"Та дахин зөвшөөрөл олгохыг хүсвэл аппыг нээнэ үү."</string>
+    <string name="auto_revoke_disabled" msgid="8697684442991567188">"Автоматаар хасахыг энэ аппын хувьд одоогоор идэвхгүй болгосон байна."</string>
+    <string name="auto_revocable_permissions_none" msgid="8334929619113991466">"Автоматаар цуцлах боломжтой ямар ч зөвшөөрлийг одоогоор олгоогүй байна"</string>
+    <string name="auto_revocable_permissions_one" msgid="5299112369449458176">"<xliff:g id="PERM">%1$s</xliff:g> зөвшөөрлийг хасна."</string>
+    <string name="auto_revocable_permissions_two" msgid="4874067408752041716">"<xliff:g id="PERM_0">%1$s</xliff:g> болон <xliff:g id="PERM_1">%2$s</xliff:g> зөвшөөрлүүдийг хасна."</string>
+    <string name="auto_revocable_permissions_many" msgid="1521807896206032992">"Хасах зөвшөөрлүүд: <xliff:g id="PERMS">%1$s</xliff:g>."</string>
+    <string name="auto_manage_title" msgid="7693181026874842935">"Зөвшөөрлийг автоматаар удирдах"</string>
+    <string name="auto_revoked_app_summary_one" msgid="7093213590301252970">"<xliff:g id="PERMISSION_NAME">%s</xliff:g>-н зөвшөөрлийг хассан"</string>
+    <string name="auto_revoked_app_summary_two" msgid="1910545340763709389">"<xliff:g id="PERMISSION_NAME_0">%1$s</xliff:g> болон <xliff:g id="PERMISSION_NAME_1">%2$s</xliff:g>-н зөвшөөрлийг хассан"</string>
+    <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>-н болон бусад <xliff:g id="NUMBER">%2$s</xliff:g> зөвшөөрлийг хассан"</string>
+    <string name="unused_apps_page_title" msgid="6986983535677572559">"Ашиглаагүй аппууд"</string>
+    <string name="unused_apps_page_summary" msgid="1867593913217272155">"Хэрэв аппыг хэдэн сарын турш ашиглахгүй бол:\n\n• Таны өгөгдлийг хамгаалахын тулд зөвшөөрлийг устгана\n• Батарей хэмнэхийн тулд мэдэгдлийг зогсооно\n• Сул зай гаргахын тулд түр зуурын файлуудыг устгана\n\nЗөвшөөрөл болон мэдэгдлийг дахин зөвшөөрөхийн тулд аппыг нээнэ үү."</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Хэрэв аппыг нэг сарын турш ашиглаагүй бол:\n\n• Таны өгөгдлийг хамгаалахын тулд зөвшөөрлийг хасна\n• Сул зай гаргахын тулд түр зуурын файлуудыг хасна\n\nЗөвшөөрлийг дахин олгохын тулд аппыг нээнэ үү."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Сүүлд # сараас дээш хугацааны өмнө нээсэн}other{Сүүлд # сараас дээш хугацааны өмнө нээсэн}}"</string>
+    <string name="last_opened_summary" msgid="5248984030024968808">"Аппыг хамгийн сүүлд <xliff:g id="DATE">%s</xliff:g>-нд нээсэн"</string>
+    <string name="last_opened_summary_short" msgid="1646067226191176825">"Хамгийн сүүлд <xliff:g id="DATE">%s</xliff:g>-нд нээсэн"</string>
+    <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Хэрэв та бүх файлыг удирдахыг зөвшөөрвөл энэ апп нь уг төхөөрөмжийн нийтлэг хадгалах сан дахь эсвэл холбогдсон хадгалах төхөөрөмж дэх дурын файлд хандах, түүнийг өөрчлөх болон устгах боломжтой. Апп танаас асуухгүйгээр файлуудад хандаж болзошгүй."</string>
+    <string name="special_file_access_dialog" msgid="583804114020740610">"Энэ төхөөрөмж дээрх эсвэл холбогдсон дурын хадгалалтын төхөөрөмжийн файлуудад хандах, тэднийг өөрчлөх болон устгахыг энэ апп-д зөвшөөрөх үү? Энэ апп танаас асуухгүйгээр файлуудад хандаж болзошгүй."</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Энэ зөвшөөрөлтэй аппууд <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"Энэ зөвшөөрөлтэй аппууд таны алхалт, дугуй унах, жолоодлого, алхмын тоо болон бусад биеийн дасгал хөдөлгөөнд хандах боломжтой"</string>
+    <string name="permission_description_summary_calendar" msgid="103329982944411010">"Энэ зөвшөөрөлтэй аппууд таны календарьт хандах боломжтой"</string>
+    <string name="permission_description_summary_call_log" msgid="7321437186317577624">"Энэ зөвшөөрөлтэй аппууд утасны дуудлагын жагсаалтыг унших болон бичих боломжтой"</string>
+    <string name="permission_description_summary_camera" msgid="108004375101882069">"Энэ зөвшөөрөлтэй аппууд зураг авах болон видео бичих боломжтой"</string>
+    <string name="permission_description_summary_contacts" msgid="2337798886460408996">"Энэ зөвшөөрөлтэй аппууд таны харилцагчид хандах боломжтой"</string>
+    <string name="permission_description_summary_location" msgid="2817531799933480694">"Энэ зөвшөөрөлтэй аппууд энэ төхөөрөмжийн байршилд хандах боломжтой"</string>
+    <string name="permission_description_summary_nearby_devices" msgid="8269183818275073741">"Энэ зөвшөөрөлтэй аппууд ойролцоох төхөөрөмжийг илрүүлж, тэдгээрт холбогдож мөн харгалзах байршлыг нь тодорхойлох боломжтой"</string>
+    <string name="permission_description_summary_microphone" msgid="630834800308329907">"Энэ зөвшөөрөлтэй аппууд аудио бичих боломжтой"</string>
+    <string name="permission_description_summary_phone" msgid="4515277217435233619">"Энэ зөвшөөрөлтэй аппууд утасны дуудлага хийх болон тэдгээрийг удирдах боломжтой"</string>
+    <string name="permission_description_summary_sensors" msgid="1836045815643119949">"Энэ зөвшөөрөлтэй аппууд таны биеийн ерөнхий байдлын үзүүлэлтүүдийн талаарх мэдрэгчийн өгөгдөлд хандах боломжтой"</string>
+    <string name="permission_description_summary_sms" msgid="725999468547768517">"Энэ зөвшөөрөлтэй аппууд SMS мессеж илгээх болон харах боломжтой"</string>
+    <string name="permission_description_summary_storage" msgid="6575759089065303346">"Энэ зөвшөөрөлтэй аппууд таны төхөөрөмж дээрх зураг, медиа болон файлд хандах боломжтой"</string>
+    <string name="permission_description_summary_read_media_aural" msgid="3354728149930482199">"Энэ зөвшөөрөлтэй аппууд энэ төхөөрөмж дээрх хөгжим болон бусад аудио файлд хандах боломжтой"</string>
+    <string name="permission_description_summary_read_media_visual" msgid="4991801977881732641">"Энэ зөвшөөрөлтэй аппууд энэ төхөөрөмж дээрх зураг болон видеонд хандах боломжтой"</string>
+    <string name="app_permission_most_recent_summary" msgid="4292074449384040590">"Хамгийн сүүлийн хандалт: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"Одоогоор татгалзсан / Сүүлийн хандалт: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"Хэзээ ч хандаагүй"</string>
+    <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"Татгалзсан / Хэзээ ч хандаагүй"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"Зөвшөөрсөн"</string>
+    <string name="allowed_always_header" msgid="6455903312589013545">"Үргэлж зөвшөөрсөн"</string>
+    <string name="allowed_foreground_header" msgid="6845655788447833353">"Зөвхөн ашиглаж байх үед зөвшөөрөгдсөн"</string>
+    <string name="allowed_storage_scoped" msgid="5383645873719086975">"Зөвхөн медиад хандахыг зөвшөөрсөн"</string>
+    <string name="allowed_storage_full" msgid="5356699280625693530">"Бүх файлыг удирдахыг зөвшөөрсөн"</string>
+    <string name="ask_header" msgid="2633816846459944376">"Тухай бүрд асуух"</string>
+    <string name="denied_header" msgid="903209608358177654">"Зөвшөөрөөгүй"</string>
+    <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Бүх файлд хандах боломжтой бусад аппыг харах"</string>
+    <string name="days" msgid="609563020985571393">"{count,plural, =1{1 өдөр}other{# өдөр}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# цаг}other{# цаг}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# минут}other{# минут}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# секунд}other{# секунд}}"</string>
+    <string name="permission_reminders" msgid="6528257957664832636">"Зөвшөөрлийн сануулагч"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"Ашиглаагүй 1 апп"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"Ашиглаагүй <xliff:g id="NUMBER_OF_APPS">%s</xliff:g> апп"</string>
+    <string name="auto_revoke_permission_reminder_notification_content" msgid="4492228990462107487">"Таны нууцлалыг хамгаалахын тулд зөвшөөрлийг хассан. Хянахын тулд товшино уу"</string>
+    <string name="auto_revoke_permission_notification_title" msgid="2629844160853454657">"Ашиглаагүй аппуудын зөвшөөрлийг хассан"</string>
+    <string name="auto_revoke_permission_notification_content" msgid="5125990886047799375">"Зарим аппыг хэдэн сарын турш ашиглаагүй байна. Шалгахын тулд товшино уу."</string>
+    <string name="unused_apps_notification_title" msgid="4314832015894238019">"{count,plural, =1{Ашиглаагүй # апп}other{Ашиглаагүй # апп}}"</string>
+    <string name="unused_apps_notification_content" msgid="9195026773244581246">"Зөвшөөрөл болон түр зуурын файлуудыг хассан бөгөөд мэдэгдлийг зогсоосон. Хянахын тулд товшино уу."</string>
+    <string name="unused_apps_safety_center_card_title" msgid="5638409355530099149">"Зөвшөөрлийг нь хассан аппуудыг шалгана уу"</string>
+    <string name="unused_apps_safety_center_card_content" msgid="1088557243627427820">"Таны хэсэг хугацааны турш ашиглаагүй аппуудын хувьд зөвшөөрөл болон түр зуурын файлыг хассан бөгөөд мэдэгдлийг зогсоосон."</string>
+    <string name="unused_apps_safety_center_action_title" msgid="8865914432518993194">"Аппуудыг шалгах"</string>
+    <string name="post_drive_permission_decision_reminder_title" msgid="1290697371418139976">"Саяхны зөвшөөрлүүдийг шалгана уу"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_1_permission" msgid="670521503734140711">"Та жолоо барих үедээ <xliff:g id="APP">%1$s</xliff:g>-д <xliff:g id="PERMISSION">%2$s</xliff:g>-т хандах эрх өгсөн"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"Та жолоо барих үедээ <xliff:g id="APP">%1$s</xliff:g>-д <xliff:g id="PERMISSION_1">%2$s</xliff:g> болон <xliff:g id="PERMISSION_2">%3$s</xliff:g>-т хандах эрх өгсөн"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"Та жолоо барих үедээ <xliff:g id="COUNT">%1$d</xliff:g> зөвшөөрлийг <xliff:g id="APP">%2$s</xliff:g>-д олгосон"</string>
+    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{Та жолоо барих үедээ <xliff:g id="APP_0">%1$s</xliff:g> болон бусад аппуудад хандах эрх өгсөн}other{Та жолоо барих үедээ <xliff:g id="APP_1">%1$s</xliff:g> болон # бусад аппад хандах эрх өгсөн}}"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"Тохиргоо руу очих"</string>
+    <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"Зарим аппыг хэдэн сарын турш ашиглаагүй байна"</string>
+    <string name="permissions_removed_category_title" msgid="1064754271178447643">"Зөвшөөрлүүдийг хассан"</string>
+    <string name="permission_removed_page_title" msgid="2627436155091001209">"Зөвшөөрлийг хассан"</string>
+    <string name="all_unused_apps_category_title" msgid="755663524704745414">"Бүх ашиглаагүй апп"</string>
+    <string name="months_ago" msgid="1766026492610646354">"<xliff:g id="COUNT">%1$d</xliff:g> сарын өмнө"</string>
+    <string name="auto_revoke_preference_summary" msgid="5517958331781391481">"Таны нууцлалыг хамгаалахын тулд зөвшөөрлийг хассан"</string>
+    <string name="background_location_access_reminder_notification_title" msgid="1140797924301941262">"<xliff:g id="APP_NAME">%s</xliff:g> таны арын байршлыг авсан"</string>
+    <string name="background_location_access_reminder_notification_content" msgid="7787084707336546245">"Энэ апп таны байршилд тогтмол хандах боломжтой байна. Өөрчлөхийн тулд товшино уу."</string>
+    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"Таны мэдэгдэлд хандах эрхтэй аппыг шалгана уу"</string>
+    <string name="notification_listener_reminder_notification_content" msgid="831476101108863427">"<xliff:g id="APP_NAME">%s</xliff:g> таны мэдэгдлийн контентыг үл хэрэгсэх, дээр нь үйлдэл хийх болон үүнд хандах боломжтой"</string>
+    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"Энэ апп таны мэдэгдлийн контентыг үл хэрэгсэх, дээр нь үйлдэл хийх болон үүнд хандах боломжтой. Зарим апп зориулалтын дагуу ажиллахын тулд тэдгээрт энэ хандалт шаардлагатай."</string>
+    <string name="notification_listener_remove_access_button_label" msgid="7101898782417817097">"Хандалтыг хасах"</string>
+    <string name="notification_listener_review_app_button_label" msgid="3433073281029143924">"Дэлгэрэнгүй харах сонголт"</string>
+    <string name="notification_listener_remove_access_success_label" msgid="2477611529875633107">"Хандалтыг хассан"</string>
+    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"Төхөөрөмжийн бүрэн хандалттай аппыг шалгана уу"</string>
+    <string name="accessibility_access_reminder_notification_content" msgid="7389454158175306720">"<xliff:g id="APP_NAME">%s</xliff:g> таны дэлгэцийг харах болон төхөөрөмж дээр тань үйлдэл гүйцэтгэх боломжтой. Хандалтын аппууд зориулалтын дагуу ажиллахын тулд тэдгээрт энэ төрлийн хандалт шаардлагатай."</string>
+    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"Энэ апп таны дэлгэцийг харах болон төхөөрөмж дээр тань үйлдэл гүйцэтгэх боломжтой. Хандалтын аппууд зориулалтын дагуу ажиллахын тулд тэдгээрт энэ төрлийн хандалт шаардлагатай ч аппыг шалгаад, та үүнд итгэдэг эсэхээ баталгаажуулна уу."</string>
+    <string name="accessibility_remove_access_button_label" msgid="44145801526711640">"Хандалтын эрхийг хасах"</string>
+    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"Бүрэн хандалттай аппуудыг харах"</string>
+    <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"Хандалтын эрхийг хассан"</string>
+    <string name="safety_center_notification_app_label" msgid="2457720616141926534">"Android систем"</string>
+    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"Апп-н зөвшөөрлийг таны нууцлалыг хамгаалахын тулд хассан"</string>
+    <string name="auto_revoke_after_notification_content_one" msgid="6804038707453662753">"<xliff:g id="APP_NAME">%s</xliff:g> аппыг хэдэн сарын турш ашиглаагүй байна. Шалгахын тулд товшино уу."</string>
+    <string name="auto_revoke_after_notification_content_two" msgid="9108709764831425172">"<xliff:g id="APP_NAME">%s</xliff:g> болон өөр 1 аппыг хэдэн сарын турш ашиглаагүй байна. Шалгахын тулд товшино уу."</string>
+    <string name="auto_revoke_after_notification_content_many" msgid="4774106206289751220">"<xliff:g id="APP_NAME">%1$s</xliff:g> болон бусад <xliff:g id="NUMBER_OF_APPS">%2$s</xliff:g> аппыг хэдэн сарын турш ашиглаагүй байна. Шалгахын тулд товшино уу."</string>
+    <string name="auto_revoke_before_notification_title_one" msgid="6758024954464359876">"1 аппыг ашигладаггүй"</string>
+    <string name="auto_revoke_before_notification_title_many" msgid="4415543943846385685">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> аппыг ашигладаггүй"</string>
+    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"Таны нууцлалыг хамгаалахын тулд зөвшөөрлүүдийг хасах болно. Шалгахын тулд товшино уу."</string>
+    <string name="unused_apps_title" msgid="8589298917717872239">"Ашиглаагүй аппууд"</string>
+    <string name="unused_apps_subtitle_after" msgid="2034267519506357898">"Дараахын зөвшөөрлийг хассан"</string>
+    <string name="unused_apps_subtitle_before" msgid="5233302577076132427">"Дараахын зөвшөөрлийг хасна"</string>
+    <string name="unused_permissions_subtitle_two" msgid="2207266295008423015">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g> and <xliff:g id="PERM_NAME_1">%2$s</xliff:g>"</string>
+    <string name="unused_permissions_subtitle_many" msgid="4387289202207450238">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g>, <xliff:g id="PERM_NAME_1">%2$s</xliff:g> болон бусад <xliff:g id="NUMBER_OF_PERMISSIONS">%3$s</xliff:g>"</string>
+    <string name="unused_app_permissions_removed_summary" msgid="6779039455326071033">"Таны өгөгдлийг хамгаалахын тулд таны хэдэн сарын турш ашиглаагүй аппуудын зөвшөөрлийг нь хассан"</string>
+    <string name="unused_app_permissions_removed_summary_some" msgid="5080490037831563441">"Таны өгөгдлийг хамгаалах үүднээс таны хэдэн сарын турш ашиглаагүй аппуудын зөвшөөрлийг нь хассан"</string>
+    <string name="one_unused_app_summary" msgid="7831913934488881991">"1 аппыг хэдэн сарын турш ашиглаагүй байна"</string>
+    <string name="num_unused_apps_summary" msgid="1870719749940571227">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> аппыг хэдэн сарын турш ашиглаагүй байна"</string>
+    <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"Зөвхөн аппыг ашиглаж байх үед"</string>
+    <string name="permission_subtitle_media_only" msgid="8917869683764720717">"Медиа"</string>
+    <string name="permission_subtitle_all_files" msgid="4982613338298067862">"Бүх файл"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_24h_access" msgid="99069906850627181">"Сүүлд <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан"</string>
+    <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"Сүүлд өчигдөр <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан"</string>
+    <string name="app_perms_7d_access" msgid="4945055548894683751">"Сүүлд <xliff:g id="TIME_DATE_1">%2$s</xliff:g>-н <xliff:g id="TIME_DATE_0">%1$s</xliff:g>-д хандсан"</string>
+    <string name="app_perms_content_provider_24h" msgid="1055526027667508972">"Өнгөрсөн 24 цагийн дотор хандсан"</string>
+    <string name="app_perms_content_provider_7d" msgid="3215454898257814868">"Өнгөрсөн 7 хоногт хандсан"</string>
+    <string name="app_perms_24h_access_background" msgid="3413674718969576843">"Хамгийн сүүлд <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_24h_access_yest_background" msgid="9174750810998076725">"Хамгийн сүүлд өчигдөр <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_7d_access_background" msgid="408099213372185627">"Сүүлд <xliff:g id="TIME_DATE_1">%2$s</xliff:g>-н <xliff:g id="TIME_DATE_0">%1$s</xliff:g>-д хандсан • Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_content_provider_24h_background" msgid="3825902995186961496">"Өнгөрсөн 24 цагийн дотор хандсан • Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_content_provider_7d_background" msgid="4818839672116463542">"Өнгөрсөн 7 хоногт хандсан • Үргэлж зөвшөөрсөн"</string>
+    <string name="app_perms_24h_access_media_only" msgid="6651699644199132054">"Сүүлд <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Медиа"</string>
+    <string name="app_perms_24h_access_yest_media_only" msgid="7213187706424998792">"Сүүлд өчигдөр <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Медиа"</string>
+    <string name="app_perms_7d_access_media_only" msgid="1031096653668235200">"Сүүлд <xliff:g id="TIME_DATE_1">%2$s</xliff:g>-н <xliff:g id="TIME_DATE_0">%1$s</xliff:g>-д хандсан • Медиа"</string>
+    <string name="app_perms_content_provider_24h_media_only" msgid="7797963000596179491">"Өнгөрсөн 24 цагийн дотор хандсан • Медиа"</string>
+    <string name="app_perms_content_provider_7d_media_only" msgid="8446239884570262243">"Өнгөрсөн 7 хоногт хандсан • Медиа"</string>
+    <string name="app_perms_24h_access_all_files" msgid="8902360456978159091">"Сүүлд <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Бүх файл"</string>
+    <string name="app_perms_24h_access_yest_all_files" msgid="5708424073126844909">"Сүүлд өчигдөр <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан • Бүх файл"</string>
+    <string name="app_perms_7d_access_all_files" msgid="8246193786397635824">"Сүүлд <xliff:g id="TIME_DATE_1">%2$s</xliff:g>-н <xliff:g id="TIME_DATE_0">%1$s</xliff:g>-д хандсан • Бүх файл"</string>
+    <string name="app_perms_content_provider_24h_all_files" msgid="573104317727770850">"Өнгөрсөн 24 цагийн дотор хандсан • Бүх файл"</string>
+    <string name="app_perms_content_provider_7d_all_files" msgid="7962416229708835558">"Өнгөрсөн 7 хоногт хандсан • Бүх файл"</string>
+    <string name="no_permissions_allowed" msgid="6081976856354669209">"Ямар ч зөвшөөрөл алга"</string>
+    <string name="no_permissions_denied" msgid="8159923922804043282">"Татгалзсан зөвшөөрөл алга"</string>
+    <string name="no_apps_allowed" msgid="7718822655254468631">"Зөвшөөрөлтэй апп алга"</string>
+    <string name="no_apps_allowed_full" msgid="8011716991498934104">"Бүх файлд ямар ч аппыг зөвшөөрөөгүй байна"</string>
+    <string name="no_apps_allowed_scoped" msgid="4908850477787659501">"Зөвхөн медиад ямар ч аппыг зөвшөөрөөгүй байна"</string>
+    <string name="no_apps_denied" msgid="7663435886986784743">"Татгалзсан апп алга"</string>
+    <string name="car_permission_selected" msgid="180837028920791596">"Сонгосон"</string>
+    <string name="settings" msgid="5409109923158713323">"Тохиргоо"</string>
+    <string name="accessibility_service_dialog_title_single" msgid="7956432823014102366">"<xliff:g id="SERVICE_NAME">%s</xliff:g> таны төхөөрөмжид хандах бүрэн эрхтэй байна"</string>
+    <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"Таны төхөөрөмжид хүртээмжийн <xliff:g id="NUM_SERVICES">%s</xliff:g> апп хандах бүрэн эрхтэй байна"</string>
+    <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> таны дэлгэц, үйлдэл, оролтыг харах, үйлдэл гүйцэтгэх болон дэлгэцийг хянах боломжтой."</string>
+    <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Эдгээр апп таны дэлгэц, үйлдэл, оролтыг харах, үйлдэл хийх болон дэлгэцийг хянах боломжтой."</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"Өгөгдмөл дижитал туслах апп"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"Дижитал туслах апп"</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"Туслах аппууд нь таны харж байгаа дэлгэцийн мэдээлэлд тулгуурлан танд туслах боломжтой. Зарим апп танд нэгтгэсэн тусламж үзүүлэх зорилгоор эхлүүлэгч болон дуугаар оруулах үйлчилгээг аль алиныг нь дэмждэг."</string>
+    <string name="role_browser_label" msgid="2877796144554070207">"Хөтчийн өгөгдмөл апп"</string>
+    <string name="role_browser_short_label" msgid="6745009127123292296">"Хөтчийн апп"</string>
+    <string name="role_browser_description" msgid="3465253637499842671">"Танд интернэтийн хандалт өгдөг болон таны товшдог холбоосыг харуулдаг аппууд"</string>
+    <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г хөтчийн өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_browser_request_description" msgid="5888803407905985941">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"Гар утасны өгөгдмөл апп"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"Гар утасны апп"</string>
+    <string name="role_dialer_description" msgid="8768708633696539612">"Танд төхөөрөмж дээрээ утасны дуудлага хийх болон хүлээн авах боломж олгодог аппууд"</string>
+    <string name="role_dialer_request_title" msgid="5959618560705912058">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г гар утасныхаа өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_dialer_request_description" msgid="6288839625724909320">"Энэ аппад таны Камер, Харилцагчид, Микрофон, Утас болон SMS-д хандах эрх өгнө"</string>
+    <string name="role_dialer_search_keywords" msgid="3324448983559188087">"залгагч"</string>
+    <string name="role_sms_label" msgid="8456999857547686640">"SMS-н өгөгдмөл апп"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"SMS-н апп"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"Танд утасны дугаараа ашиглан богино мессеж, зураг, видео болон бусад зүйлийг илгээх, хүлээн авах боломж олгодог аппууд"</string>
+    <string name="role_sms_request_title" msgid="7953552109601185602">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г SMS-н өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_sms_request_description" msgid="2691004766132144886">"Энэ аппад таны Камер, Харилцагчид, Файл ба мeдиа, Микрофон, Утас болон SMS-д хандах эрх өгнө"</string>
+    <string name="role_sms_search_keywords" msgid="8022048144395047352">"мессеж, мессеж бичих, мессеж, мессеж бичих"</string>
+    <string name="role_emergency_label" msgid="7028825857206842366">"Яаралтай тусламжийн өгөгдмөл апп"</string>
+    <string name="role_emergency_short_label" msgid="2388431453335350348">"Яаралтай тусламжийн апп"</string>
+    <string name="role_emergency_description" msgid="5051840234887686630">"Танд эрүүл мэндийн мэдээллээ хадгалж, үүнийг анхлан туслагчдад хандах боломжтой болгодог, цаг агаарын онц ноцтой байдал болон гамшгийн үед сэрэмжлүүлэг авах, тусламж хэрэгтэй үедээ бусдад мэдэгдэх боломжийг олгодог аппууд"</string>
+    <string name="role_emergency_request_title" msgid="8469579020654348567">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г яаралтай тусламжийн өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_emergency_request_description" msgid="131645948770262850">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_emergency_search_keywords" msgid="1920007722599213358">"ice"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"Нүүр хуудасны өгөгдмөл апп"</string>
+    <string name="role_home_short_label" msgid="8544733747952272337">"Home апп"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"Таны Android төхөөрөмжийн үндсэн нүүрийг сольдог бөгөөд таны төхөөрөмжийн контент болон онцлогуудад хандах эрх олгодог, ихэвчлэн эхлүүлэгч гэж нэрлэгддэг аппууд"</string>
+    <string name="role_home_request_title" msgid="738136983453341081">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г нүүр хуудасны өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_home_request_description" msgid="2658833966716057673">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_home_search_keywords" msgid="3830755001192666285">"эхлүүлэгч"</string>
+    <string name="role_call_redirection_label" msgid="5785304207206147590">"Дуудлагыг дахин чиглүүлэх өгөгдмөл апп"</string>
+    <string name="role_call_redirection_short_label" msgid="7568143419571217757">"Дуудлагыг дахин чиглүүлэх апп"</string>
+    <string name="role_call_redirection_description" msgid="6091669882014664420">"Танд залгасан дуудлагыг өөр утасны дугаар луу дамжуулахыг зөвшөөрдөг аппууд"</string>
+    <string name="role_call_redirection_request_title" msgid="2816244455003562925">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г дуудлагыг дахин чиглүүлэх өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_call_redirection_request_description" msgid="3118895714178527164">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_call_screening_label" msgid="883935222060878724">"Үндсэн дуудлага хийгчийн ID, спамын  апп"</string>
+    <string name="role_call_screening_short_label" msgid="2048465565063130834">"Дуудлага хийгчийн ID, спамын апп"</string>
+    <string name="role_call_screening_description" msgid="2349431420497468981">"Танд дуудлага таних болон спам, роботын дуудлага эсвэл хүсээгүй дугаарыг блоклох боломжийг олгодог аппууд"</string>
+    <string name="role_call_screening_request_title" msgid="7358309224566977290">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г дуудлага хийгчийн ID болон спамын өгөгдмөл аппаар тохируулах уу?"</string>
+    <string name="role_call_screening_request_description" msgid="7338511921032446006">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_automotive_navigation_label" msgid="2701890757955474751">"Өгөгдмөл зам заагч апп"</string>
+    <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"Зам заагч апп"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Анхаарал татсан газрын хайлт болон эргэлт эргэлтээр зам заагч хөтчийн үйлчилгээ үзүүлэх боломжтой аппууд"</string>
+    <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г өгөгдмөл зам заагч аппаарaa тохируулах уу?"</string>
+    <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="role_watch_description" msgid="267003778693177779">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г таны мэдэгдлүүдтэй харилцаж, таны Утас, SMS, Харилцагчид болон Календарийн зөвшөөрөлд хандахыг зөвшөөрнө."</string>
+    <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g>-д таны мэдэгдэлтэй харилцах болон таны аппуудыг холбогдсон төхөөрөмжид дамжуулахыг зөвшөөрөх болно."</string>
+    <string name="role_companion_device_computer_description" msgid="416099879217066377">"Энэ үйлчилгээ таны утаснаас зураг, медиа болон мэдэгдлийг тань бусад төхөөрөмжтэй хуваалцана."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Тэмдэглэлийн өгөгдмөл апп"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"Тэмдэглэлийн апп"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Таныг төхөөрөмж дээрээ тэмдэглэл хөтлөх боломж олгодог аппууд"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"тэмдэглэл"</string>
+    <string name="role_wallet_label" msgid="3719419175656204207">"Өгөгдмөл түрийвчийн апп"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"Түрийвчийн апп"</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"Төрөл бүрийн гүйлгээнд туслахын тулд түрийвчийн аппууд таны кредит ба лояалти карт, машины түлхүүр болон бусад зүйлийг хадгалах боломжтой."</string>
+    <string name="role_wallet_request_title" msgid="4770217108262737093">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г таны өгөгдмөл түрийвчийн аппаар тохируулах уу?"</string>
+    <string name="role_wallet_request_description" msgid="6305487425777483053">"Ямар ч зөвшөөрөл шаардлагагүй"</string>
+    <string name="request_role_current_default" msgid="738722892438247184">"Одоогийн өгөгдмөл апп"</string>
+    <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Дахиж бүү асуу"</string>
+    <string name="request_role_set_as_default" msgid="4253949643984172880">"Өгөгдмөлөөр тохируулах"</string>
+    <string name="phone_call_uses_microphone" msgid="233569591461187177">"Микрофоныг &lt;b&gt;утасны дуудлага&lt;/b&gt;-д ашиглаж байна"</string>
+    <string name="phone_call_uses_microphone_and_camera" msgid="6291898755681748189">"Камер болон микрофоныг &lt;b&gt;видео дуудлага&lt;/b&gt;-д ашиглаж байна"</string>
+    <string name="phone_call_uses_camera" msgid="2048417022147857418">"Камерыг &lt;b&gt;видео дуудлага&lt;/b&gt;-д ашиглаж байна"</string>
+    <string name="system_uses_microphone" msgid="576672130318877143">"Системийн үйлчилгээг ашиглан микрофонд хандаж байна"</string>
+    <string name="system_uses_microphone_and_camera" msgid="5124478304275138804">"Системийн үйлчилгээг ашиглан камер болон микрофонд хандаж байна"</string>
+    <string name="system_uses_camera" msgid="1911223105234441470">"Системийн үйлчилгээг ашиглан камерт хандаж байна"</string>
+    <string name="other_use" msgid="6564855051022776692">"Ашиглаж буй бусад апп:"</string>
+    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"Ойлголоо"</string>
+    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"<xliff:g id="TYPES_LIST">%s</xliff:g>-н сүүлийн үеийн хэрэглээ"</string>
+    <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"Микрофоны сүүлийн үеийн хэрэглээ"</string>
+    <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"Камерын сүүлийн үеийн хэрэглээ"</string>
+    <string name="ongoing_usage_dialog_title_mic_camera" msgid="9079747867228772797">"Микрофон болон камерын сүүлийн үеийн хэрэглээ"</string>
+    <string name="ongoing_usage_dialog_separator" msgid="1715181526581520068">", "</string>
+    <string name="ongoing_usage_dialog_last_separator" msgid="4170995004748832163">" болон "</string>
+    <string name="default_app_search_keyword" msgid="8330125736889689743">"өгөгдмөл аппууд"</string>
+    <string name="permgroup_list_microphone_and_camera" msgid="962768198001487969">"Микрофон болон камер"</string>
+    <string name="settings_button" msgid="4414988414732479636">"Тохиргоо"</string>
+    <string name="default_apps" msgid="5119201969348748639">"Өгөгдмөл аппууд"</string>
+    <string name="no_default_apps" msgid="2593466527182950231">"Өгөгдмөл аппууд алга"</string>
+    <string name="default_apps_more" msgid="4078194675848858093">"Бусад өгөгдмөл апп"</string>
+    <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Холбоосыг нээх сонголт"</string>
+    <string name="default_apps_for_work" msgid="4970308943596201811">"Ажлын өгөгдмөл апп"</string>
+    <string name="default_app_none" msgid="9084592086808194457">"Тохируулсан апп алга"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(Системийн өгөгдмөл)"</string>
+    <string name="default_app_no_apps" msgid="115720991680586885">"Апп алга"</string>
+    <string name="car_default_app_selected" msgid="5416420830430644174">"Сонгосон"</string>
+    <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Сонгосон - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
+    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"аппын тусгай хандалт"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"Аппын тусгай хандалт"</string>
+    <string name="no_special_app_access" msgid="6950277571805106247">"Аппын тусгай хандалт алга"</string>
+    <string name="special_app_access_no_apps" msgid="4102911722787886970">"Апп алга"</string>
+    <string name="home_missing_work_profile_support" msgid="1756855847669387977">"Ажлын профайлыг дэмждэггүй"</string>
+    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"Санамж: Хэрвээ та төхөөрөмжөө дахин эхлүүлж, дэлгэцийн түгжээ тохируулбал энэ апп таныг төхөөрөмжийнхөө түгжээг тайлах хүртэл эхлэх боломжгүй."</string>
+    <string name="assistant_confirmation_message" msgid="7476540402884416212">"Туслах таны дэлгэцэд харагддаг эсвэл аппуудаас хандах боломжтой мэдээлэл зэрэг таны системд ашигладаг аппуудын талаарх мэдээллийг унших боломжтой болно."</string>
+    <string name="incident_report_channel_name" msgid="3144954065936288440">"Алдаа засах өгөгдлийг хуваалцах"</string>
+    <string name="incident_report_notification_title" msgid="4635984625656519773">"Алдаа засах дэлгэрэнгүй өгөгдлийг хуваалцах уу?"</string>
+    <string name="incident_report_notification_text" msgid="3376480583513587923">"<xliff:g id="APP_NAME">%1$s</xliff:g> алдаа засах мэдээллийг байршуулах хүсэлтэй байна."</string>
+    <string name="incident_report_dialog_title" msgid="669104389325204095">"Дебаг хийх өгөгдлийг хуваалцах уу?"</string>
+    <string name="incident_report_dialog_intro" msgid="5897733669850951832">"Систем асуудал илрүүллээ."</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"<xliff:g id="APP_NAME_0">%1$s</xliff:g> энэ төхөөрөмжөөс <xliff:g id="DATE">%2$s</xliff:g>-н <xliff:g id="TIME">%3$s</xliff:g>-д авсан алдааны мэдээг байршуулах хүсэлт тавьж байна. Алдааны мэдээнд таны төхөөрөмжийн талаарх эсвэл хэрэглэгчийн нэр, байршлын өгөгдөл, төхөөрөмжийн таниулбар болон сүлжээний мэдээлэл зэрэг аппуудын бүртгэсэн хувийн мэдээллийг агуулна. Та алдааны мэдээг зөвхөн энэ мэдээллийг хуваалцахдаа итгэлтэй байгаа хүмүүс болон аппуудтай хуваалцана уу. <xliff:g id="APP_NAME_1">%4$s</xliff:g>-д алдааны мэдээг байршуулахыг зөвшөөрөх үү?"</string>
+    <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"<xliff:g id="APP_NAME">%1$s</xliff:g>-н алдааны мэдээг боловсруулахад алдаа гарсан тул алдаа засах дэлгэрэнгүй өгөгдлийг хуваалцахаас татгалзлаа. Төвөг удсанд хүлцэл өчье."</string>
+    <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"Зөвшөөрөх"</string>
+    <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"Татгалзах"</string>
+    <string name="adjust_user_sensitive_title" msgid="4196724451314280527">"Нарийвчилсан тохиргоо"</string>
+    <string name="menu_adjust_user_sensitive" msgid="6497923610654425780">"Нарийвчилсан тохиргоо"</string>
+    <string name="adjust_user_sensitive_globally_title" msgid="8649190949066029174">"Системийн апп ашиглалтыг харуулах"</string>
+    <string name="adjust_user_sensitive_globally_summary" msgid="129467818433773912">"Системийн аппын зөвшөөрлийг статус самбар, хяналтын самбар болон хаа нэгтээ харуулах"</string>
+    <string name="adjust_user_sensitive_per_app_header" msgid="4543506440989005648">"Дараахын ашиглалтыг тодруулах"</string>
+    <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"Туслахын өдөөгч илрүүлэлтийг харуулах"</string>
+    <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"Дуут туслахыг идэвхжүүлэхийн тулд микрофоныг ашиглах үед статус самбарт дүрс тэмдэг харуулах"</string>
+    <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д төхөөрөмжийнхөө зураг болон медиад хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_storage_isolated" msgid="5934218468708513375">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх зураг болон медиад хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны харилцагчид хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_contacts" msgid="2270563860206654757">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх харилцагчдад хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмжийн байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_location" msgid="6641436550953715107">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>’s&lt;/b&gt;-н байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"Та тухайн аппыг ашиглаж байгаа үед энэ нь зөвхөн байршилд хандах эрхтэй болно"</string>
+    <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмжийн байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_location" msgid="7660465507029650527">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>-н байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"Энэ апп нь таныг апп ашиглаагүй байх үед ч таны байршилд үргэлж хандах хүcэлтэй байж болзошгүй. "<annotation id="link">"Тохиргоо хэсгээс зөвшөөрнө үү."</annotation></string>
+    <string name="permgroupupgraderequest_location" msgid="8328408946822691636">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д зориулж байршлын хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequest_device_aware_location" msgid="4528266408056426513">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх байршлын хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequestdetail_location" msgid="1550899076845189165">"Энэ апп нь таныг апп ашиглаагүй байх үед ч таны байршилд үргэлж хандах хүcэлтэй байна. "<annotation id="link">"Тохиргоо хэсгээс зөвшөөрнө үү."</annotation></string>
+    <string name="permgrouprequest_nearby_devices" msgid="2272829282660436700">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д ойр төхөөрөмжүүдийг илрүүлж, тэдгээрт холбогдож, харгалзах байршлыг нь тодорхойлохыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_nearby_devices" msgid="7919687165848885665">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх ойролцоох төхөөрөмжүүдийн хамааралтай байршлыг олох, үүнд холбогдох болон үүнийг тодорхойлохыг зөвшөөрөх үү?"</string>
+    <string name="permgroupupgraderequestdetail_nearby_devices" msgid="6877531270654738614">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д ойр төхөөрөмжүүдийг илрүүлж, тэдгээрт холбогдож, харгалзах байршлыг нь тодорхойлохыг зөвшөөрөх үү? "<annotation id="link">"Тохиргоо хэсэгт зөвшөөрнө үү."</annotation></string>
+    <string name="permgrouprequest_fineupgrade" msgid="2334242928821697672">"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>-н байршлын хандалтыг барагцаалснаас нарийвчилсан болгож өөрчлөх үү?"</string>
+    <string name="permgrouprequest_device_aware_fineupgrade" msgid="3947134846432067176">"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>-н таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх байршлын хандалтыг барагцаалснаас нарийвчилсан болгож өөрчлөх үү?"</string>
+    <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмжийн барагцаалсан байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_coarselocation" msgid="9001956706241104626">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;-н барагцаалсан байршилд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"Нарийвчилсан"</string>
+    <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"Барагцаалсан"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны календарьт хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_calendar" msgid="3103987548035171850">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх календарьт хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_sms" msgid="5672063688745420991">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д SMS мессеж илгээх болон харахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_sms" msgid="7212083972999874267">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр SMS мессеж илгээх болон харахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_storage" msgid="8717773092518621602">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны төхөөрөмжийн зураг, медиа болон файлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_storage" msgid="872629037299467086">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх зураг, медиа болон файлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмж дээрх &lt;b&gt;зураг, видео, хөгжим болон аудионд&lt;/b&gt; хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмжийн &lt;b&gt;зураг, видео, хөгжим, аудио, бусад файлд&lt;/b&gt; хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмж дээрх хөгжим болон аудионд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_read_media_aural" msgid="3331524384339036668">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх хөгжим болон аудионд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмж дээрх зураг болон видеонд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_read_media_visual" msgid="5492319750632751551">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх зураг болон видеонд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д энэ төхөөрөмж дээрх бусад зураг болон видеонд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_more_photos" msgid="8946782319103584021">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх бусад зураг, видеонд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_microphone" msgid="2825208549114811299">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д аудио бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_microphone" msgid="1266843551173029370">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр аудио бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Энэ апп зөвхөн таныг ашиглаж байх үед л аудио бичих боломжтой болно"</string>
+    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д аудио бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="4990337225146130185">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр аудио бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"Та аппыг ашиглаагүй үед ч энэ апп үргэлж аудио бичихийг хүсэж болзошгүй. "<annotation id="link">"Тохиргоонд зөвшөөрнө үү."</annotation></string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н микрофоны хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequest_device_aware_microphone" msgid="222471025997100107">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх микрофоны хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"Та аппыг ашиглаагүй үед ч энэ апп үргэлж аудио бичихийг хүснэ. "<annotation id="link">"Тохиргоонд зөвшөөрнө үү."</annotation></string>
+    <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны биеийн дасгал хөдөлгөөнд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_activityRecognition" msgid="3408326850847755759">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх биеийн дасгал, хөдөлгөөнд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д зураг авах, видео бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_camera" msgid="3525106924487608868">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр зураг авч, видео бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"Энэ апп зөвхөн таныг ашиглаж байх үед л зураг авж, видео бичих боломжтой болно"</string>
+    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д зураг авах, видео бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_camera" msgid="6718286540040964849">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр зураг авч, видео бичихийг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"Та аппыг ашиглаагүй үед ч энэ апп үргэлж зураг авж, видео бичихийг хүсэж болзошгүй. "<annotation id="link">"Тохиргоонд зөвшөөрнө үү."</annotation></string>
+    <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н камерын хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequest_device_aware_camera" msgid="4198765626608612156">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-н таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх камерын хандалтыг өөрчлөх үү?"</string>
+    <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"Та аппыг ашиглаагүй үед ч энэ апп үргэлж зураг авж, видео бичихийг хүснэ. "<annotation id="link">"Тохиргоонд зөвшөөрнө үү."</annotation></string>
+    <string name="permgrouprequest_calllog" msgid="2065327180175371397">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны утасны дуудлагын жагсаалтад хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_calllog" msgid="735079772627778095">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх утасны дуудлагын жагсаалтад хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_phone" msgid="1829234136997316752">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д утасны дуудлага хийх, дуудлага удирдахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_phone" msgid="4389610977195521813">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр утасны дуудлага хийх болон дуудлагыг удирдахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны биеийн ерөнхий байдлын үзүүлэлтүүдийн мэдрэгчийн өгөгдөлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_sensors" msgid="1900598688488188225">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх биеийн ерөнхий үзүүлэлтийн мэдрэгчийн өгөгдөлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"Аппыг ашиглаагүй үед ч энэ нь таны биеийн ерөнхий байдлын үзүүлэлтүүдийн талаарх мэдрэгчийн өгөгдөлд үргэлж хандахыг хүсэж байна. Энэ өөрчлөлтийг хийхийн тулд "<annotation id="link">"тохиргоо руу очно уу."</annotation></string>
+    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны биеийн ерөнхий байдлын үзүүлэлтүүдийн талаарх мэдрэгчийн өгөгдөлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="7691308331448239716">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх биеийн ерөнхий үзүүлэлтийн мэдрэгчийн өгөгдөлд хандахыг зөвшөөрөх үү?"</string>
+    <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"Та аппыг ашиглаагүй байсан ч ямар ч үед энэ аппын биеийн мэдрэгчийн өгөгдөлд хандахыг зөвшөөрөх бол "<annotation id="link">"тохиргоо руу очно уу."</annotation></string>
+    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Аппыг ашиглаж байх үедээ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-г биеийн мэдрэгчийн өгөгдөлд хандахыг үргэлжлүүлэн зөвшөөрөх үү?"</string>
+    <string name="permgroupupgraderequest_device_aware_sensors" msgid="3310667992344623159">"Аппыг ашиглаж байх үед &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээрх биеийн мэдрэгчийн өгөгдөлд хандахыг үргэлжлүүлэн зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>-&lt;/b&gt;-д танд мэдэгдэл илгээхийг зөвшөөрөх үү?"</string>
+    <string name="permgrouprequest_device_aware_notifications" msgid="7307588961166360244">"&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;-д таны &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; дээр мэдэгдэл илгээхийг зөвшөөрөх үү?"</string>
+    <string name="auto_granted_permissions" msgid="6009452264824455892">"Хяналттай зөвшөөрөл"</string>
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> байршилд хандах эрхтэй байна"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"Танай байгууллага <xliff:g id="APP_NAME">%1$s</xliff:g>-д байршилд тань хандахыг зөвшөөрдөг"</string>
+    <string name="other_permissions_label" msgid="8986184335503271992">"Бусад зөвшөөрөл"</string>
+    <string name="not_used_permissions_label" msgid="3939839426115141264">"Системийн ашигласан зөвшөөрөл"</string>
+    <string name="not_used_permissions_description" msgid="7595514824169388718">"Зөвхөн системийн аппликэйшний ашигласан зөвшөөрөл."</string>
+    <string name="additional_permissions_label" msgid="7693557637462569046">"Нэмэлт зөвшөөрөл"</string>
+    <string name="additional_permissions_description" msgid="2186611950890732112">"Аппликэйшний тодорхойлсон зөвшөөрөл."</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"Камер"</string>
+    <string name="privdash_label_microphone" msgid="8415035835803511693">"Микрофон"</string>
+    <string name="privdash_label_location" msgid="6882400763866489291">"Байршил"</string>
+    <string name="privdash_label_other" msgid="3710394147423236033">"Бусад"</string>
+    <string name="privdash_label_none" msgid="5991866260360484858">"Хоосон"</string>
+    <string name="privdash_label_24h" msgid="1512532123865375319">"Өнгөрсөн\n24 цагт"</string>
+    <string name="privdash_label_7d" msgid="5645301995348656931">"Өнгөрсөн\n7 хоног"</string>
+    <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"<xliff:g id="APP_NAME">%1$s</xliff:g> нь Android-р хамгаалагдсан. Таны өгөгдлийг энэ төхөөрөмж дээр боловсруулдаг тул энэ аппын зөвшөөрлийн ашиглалтыг статус самбар эсвэл таны нууцлалын хяналтын самбарт харуулаагүй."</string>
+    <string name="exempt_info_label" msgid="6286190981253476699">"<xliff:g id="APP_NAME">%1$s</xliff:g> нь Android-р хамгаалагдсан. Таны өгөгдлийг энэ төхөөрөмж дээр боловсруулдаг тул энэ аппын зөвшөөрлийн ашиглалтыг таны нууцлалын хяналтын самбарт харуулаагүй."</string>
+    <string name="blocked_camera_title" msgid="1128510551791284384">"Төхөөрөмжийн камерыг блоклосон байна"</string>
+    <string name="blocked_microphone_title" msgid="1631517143648232585">"Төхөөрөмжийн микрофоныг блоклосон байна"</string>
+    <string name="blocked_location_title" msgid="2005608279812892383">"Төхөөрөмжийн байршил унтраалттай байна"</string>
+    <string name="blocked_sensor_summary" msgid="4443707628305027375">"Апп болон үйлчилгээнд"</string>
+    <string name="blocked_mic_summary" msgid="8960466941528458347">"Яаралтай тусламжийн утасны дугаар луу залгах үед микрофоны өгөгдлийг хуваалцсан хэвээр байж болзошгүй."</string>
+    <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Өөрчлөх"</string>
+    <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Аюулгүй байдал ба нууцлал"</string>
+    <string name="safety_center_rescan_button" msgid="4517514567809409596">"Төхөөрөмжийг скан хийх"</string>
+    <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"Хаах"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_title" msgid="2734809473425036382">"Энэ сэрэмжлүүлгийг хаах уу?"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_message" msgid="3775418736671093563">"Илүү их хамгаалалт нэмэхийн тулд хүссэн үедээ аюулгүй байдал болон нууцлалын тохиргоогоо шалгана уу"</string>
+    <string name="safety_center_issue_card_confirm_dismiss_button" msgid="5884137843083634556">"Хаах"</string>
+    <string name="safety_center_issue_card_cancel_dismiss_button" msgid="2874578798877712346">"Цуцлах"</string>
+    <string name="safety_center_entries_category_title" msgid="34356964062813115">"Тохиргоо"</string>
+    <string name="safety_status_preference_title_and_summary_content_description" msgid="3511373256505058464">"Аюулгүй байдал болон нууцлалын төлөв. <xliff:g id="OVERALL_SAFETY_STATUS">%1$s</xliff:g>. <xliff:g id="SUMMARY_OF_DEVICE_STATUS">%2$s</xliff:g>"</string>
+    <string name="security_settings" msgid="3808106921175271317">"Аюулгүй байдлын тохиргоо"</string>
+    <string name="sensor_permissions_qs" msgid="1022267900031317472">"Зөвшөөрөл"</string>
+    <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"Аюулгүй байдал ба нууцлал"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"Төлөвийг шалгах"</string>
+    <string name="privacy_controls_qs" msgid="5780144882040591169">"Таны нууцлалын тохиргоо"</string>
+    <string name="security_settings_button_label_qs" msgid="8280343822465962330">"Бусад тохиргоо"</string>
+    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"Камерын хандалт"</string>
+    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"Микрофоны хандалт"</string>
+    <string name="permissions_removed_qs" msgid="8957319130625294572">"Зөвшөөрлийг хассан"</string>
+    <string name="camera_usage_qs" msgid="4394233566086665994">"Камерын саяхны ашиглалтыг харах"</string>
+    <string name="microphone_usage_qs" msgid="8527666682168170417">"Микрофоны саяхны ашиглалтыг харах"</string>
+    <string name="remove_camera_qs" msgid="3649996161066883350">"Энэ аппын зөвшөөрлийг хасах"</string>
+    <string name="remove_microphone_qs" msgid="1276551965129953198">"Энэ аппын зөвшөөрлийг хасах"</string>
+    <string name="manage_service_qs" msgid="7862555549364153805">"Үйлчилгээг удирдах"</string>
+    <string name="manage_permissions_qs" msgid="3780541819763475434">"Зөвшөөрлийг удирдах"</string>
+    <string name="active_call_usage_qs" msgid="8559974395932523391">"Утасны дуудлага ашиглаж байна"</string>
+    <string name="recent_call_usage_qs" msgid="743044899599410935">"Саяхан утасны дуудлагад ашигласан"</string>
+    <string name="active_app_usage_qs" msgid="4063912870936464727">"<xliff:g id="APP_NAME">%1$s</xliff:g> ашиглаж байна"</string>
+    <string name="recent_app_usage_qs" msgid="6650259601306212327">"Саяхан <xliff:g id="APP_NAME">%1$s</xliff:g> ашигласан"</string>
+    <string name="active_app_usage_1_qs" msgid="4325136375823357052">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) ашиглаж байна"</string>
+    <string name="recent_app_usage_1_qs" msgid="261450184773310741">"Саяхан <xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) ашигласан"</string>
+    <string name="active_app_usage_2_qs" msgid="6107866785243565283">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) ашиглаж байна"</string>
+    <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"Саяхан <xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) ашигласан"</string>
+    <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"Баталгаажуулах"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"Буцах"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"Бусад файлд хандахыг мөн зөвшөөрнө"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"Бусад файлд хандахыг мөн зөвшөөрөхгүй"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"Бусад файлд хандахыг мөн зөвшөөрнө"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_deny" msgid="5767849609024384226">"Бусад файлд хандахыг мөн зөвшөөрөхгүй"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_allow" msgid="3191904399336990537">"Зураг болон видеонд хандахыг мөн зөвшөөрнө"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_deny" msgid="3128147568953297969">"Зураг болон видеонд хандахыг мөн зөвшөөрөхгүй"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_allow" msgid="6310682466493330434">"Хөгжим болон аудио файлд хандахыг мөн зөвшөөрнө"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_deny" msgid="1123845663785900471">"Хөгжим болон аудио файлд хандахыг мөн зөвшөөрөхгүй"</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_allow" msgid="7865167246140107623">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп хөгжим, аудио файлд хандах боломжтой бол үүнийг мөн зураг, видео болон бусад файлд хандахыг зөвшөөрнө."</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_deny" msgid="287502523664804786">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп хөгжим, аудио файлд хандах боломжгүй бол үүнийг мөн зураг, видео болон бусад файлд хандахыг зөвшөөрөхгүй."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_allow" msgid="4952410892939590487">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп зураг, видеонд хандах боломжтой бол үүнийг мөн хөгжим, аудио болон бусад файлд хандахыг зөвшөөрнө."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_deny" msgid="6609500525590757681">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп зураг, видеонд хандах боломжгүй бол үүнийг мөн хөгжим, аудио болон бусад файлд хандахыг зөвшөөрөхгүй."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_allow" msgid="1702402580147536160">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп хөгжим болон аудио файлд хандах боломжтой бол үүнийг мөн зураг, видеонд хандахыг зөвшөөрнө."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_deny" msgid="6832087393653561911">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп хөгжим болон аудио файлд хандах боломжгүй бол үүнийг мөн зураг, видеонд хандахыг зөвшөөрөхгүй."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_allow" msgid="3504335060843147760">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп зураг болон видеонд хандах боломжтой бол үүнийг мөн хөгжим, аудио файлд хандахыг зөвшөөрнө."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_deny" msgid="2145973462806481992">"Энэ апп Android-н хамгийн сүүлийн үеийн хувилбарыг дэмждэггүй. Хэрэв энэ апп хөгжим болон аудио файлд хандах боломжгүй бол үүнийг мөн зураг, видеонд хандахыг зөвшөөрөхгүй."</string>
+    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Арын байршилд хандах эрхтэй аппыг шалгана уу"</string>
+    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> апп хаалттай байсан ч таны байршилд үргэлж хандах боломжтой"</string>
+    <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"Арын байршилд хандах эрхтэй аппыг шалгана уу"</string>
+    <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"Энэ апп хаалттай байсан ч таны байршилд үргэлж хандах боломжтой.\n\nАюулгүй байдал болон яаралтай тусламжийн зарим апп зориулалтын дагуу ажиллахын тулд дэвсгэрт таны байршилд хандах шаардлагатай."</string>
+    <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"Хандах эрхийг өөрчилсөн"</string>
+    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"Саяхны байршлын ашиглалтыг харах"</string>
+    <string name="privacy_controls_title" msgid="7605929972256835199">"Нууцлалын тохиргоо"</string>
+    <string name="camera_toggle_title" msgid="1251201397431837666">"Камерын хандалт"</string>
+    <string name="mic_toggle_title" msgid="2649991093496110162">"Микрофоны хандалт"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"Апп болон үйлчилгээнд"</string>
+    <string name="mic_toggle_description" msgid="9163104307990677157">"Апп болон үйлчилгээнд. Энэ тохиргоо унтраалттай тохиолдолд таныг яаралтай тусламжийн утасны дугаар луу залгах үед микрофоны өгөгдлийг хуваалцсан хэвээр байж магадгүй."</string>
+    <string name="location_settings_subtitle" msgid="2328360561197430695">"Байршилд хандах эрхтэй аппууд, үйлчилгээнүүдийг хараарай"</string>
+    <string name="show_clip_access_notification_title" msgid="5168467637351109096">"Түр санах ойн хандалтыг харуулах"</string>
+    <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Аппууд таны хуулсан текст, зураг эсвэл бусад контентод хандах үед мессеж харуулах"</string>
+    <string name="show_password_title" msgid="2877269286984684659">"Нууц үгнүүдийг харуулах"</string>
+    <string name="show_password_summary" msgid="1110166488865981610">"Бичих явцад тэмдэгтийг товчхон харуулах"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"Энэ апп байршлын өгөгдлийг гуравдагч талуудтай хуваалцаж болохыг мэдэгдсэн"</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"Өгөгдөл хуваалцах болон байршил"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"Өгөгдөл хуваалцах мэдээллийг хаанаас авдаг вэ?"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"Хөгжүүлэгч энэ төхөөрөмжийн үйлдвэрлэгчид уг апп хэрхэн өгөгдөл хуваалцдаг талаарх мэдээллийг өгсөн. Хөгжүүлэгч энэ мэдээллийг яваандаа шинэчилж магадгүй."</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"Хөгжүүлэгч энэ апп өгөгдөл хэрхэн хуваалцдаг талаарх мэдээллийг "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s-д"</annotation></annotation>" өгсөн. Хөгжүүлэгч энэ мэдээллийг цагийн аясаар шинэчилж магадгүй."</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"Апп байршлын өгөгдөл дараах зорилгоор хуваалцана:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"Өгөгдөл хуваалцах нь ялгаатай"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"Өгөгдлийн практик нь таны аппын хувилбар, хэрэглээ, бүс нутаг болон наснаас хамаарч янз бүр байж болно. "<annotation id="link">"Өгөгдөл хуваалцах тухай дэлгэрэнгүй"</annotation></string>
+    <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"Өгөгдлийн практик нь таны аппын хувилбар, хэрэглээ, бүс нутаг болон наснаас хамаарч харилцан адилгүй байж болно."</string>
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"Таны байршлын өгөгдөл"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267">"Энэ аппын хандалтыг "<annotation id="link">"нууцлалын тохиргоонд"</annotation>" өөрчилнө үү"</string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"Аппын ажиллагаа"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"Задлан шинжлэл"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"Хөгжүүлэгчийн харилцаа холбоо"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"Сурталчилгаа эсвэл маркетинг"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"Залилангаас урьдчилан сэргийлэх, аюулгүй байдал болон дагаж мөрдөх үүрэг"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"Хувийн тохиргоо"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"Бүртгэлийн удирдлага"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"Өгөгдлийн аюулгүй байдал"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"Байршлын өгөгдлийг хуваалцаж магадгүй"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"Энэ апп таны байршлын өгөгдлийг гуравдагч талуудтай хуваалцаж магадгүйг мэдэгдсэн"</string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"Байршлын өгөгдөл хуваалцах шинэчлэлтүүд"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"Таны байршлын өгөгдлийг хуваалцдаг аргаа өөрчилсөн аппуудыг шалгана уу"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Эдгээр апп таны байршлын өгөгдлийг хуваалцдаг аргаа өөрчилсөн. Тэд үүнийг өмнө нь хуваалцаагүй байж магадгүй эсвэл одоо үүнийг сурталчилгаа, маркетингийн зорилгоор хуваалцаж болзошгүй."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"Эдгээр аппын хөгжүүлэгчид өөрсдийн өгөгдөл хуваалцах практикийнхаа талаарх мэдээллийг апп дэлгүүрт өгсөн. Тэд тухайн мэдээллийг цагийн аясаар шинэчилж магадгүй.\n\nӨгөгдөл хуваалцах практик нь таны аппын хувилбар, хэрэглээ, бүс нутаг болон наснаас хамаарч янз бүр байж болно."</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"Өгөгдөл хуваалцах талаар мэдэж авах"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"Таны байршлын өгөгдлийг одоо гуравдагч талуудтай хуваалцаж байна"</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"Таны байршлын өгөгдлийг одоо сурталчилгаа эсвэл маркетингийн зорилгоор гуравдагч талтай хуваалцаж байна"</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{Сүүлийн өдөрт шинэчилсэн}=1{Сүүлийн өдөрт шинэчилсэн}other{# хоногийн дотор шинэчилсэн}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"Одоогоор ямар ч шинэчлэлт алга"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"Өгөгдөл хуваалцах тухай шинэчлэлт"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"Зарим апп таны байршлын өгөгдлийг хуваалцдаг аргаа өөрчилсөн"</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"Тохиргоо"</string>
+    <string name="wear_app_perms_24h_access" msgid="8668121661337328895">"<xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан"</string>
+    <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"Өчигдөр <xliff:g id="TIME_DATE">%1$s</xliff:g>-д хандсан"</string>
+    <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g>-д хандсан"</string>
+    <string name="test_otp_msg" msgid="7559110574222727550">"Таны нэг удаагийн нууц үг бол 132435"</string>
+    <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Хязгаарлагдсан тохиргоо"</string>
+    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"Таны аюулгүй байдлын үүднээс энэ тохиргоо одоогоор боломжгүй байна."</string>
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="8411239333012890492">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>-г ашиглах зөвшөөрлөөс татгалзсан"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="9207115054288224451">"Энэ апп <xliff:g id="PERMISSION_NAME">%1$s</xliff:g>-н зөвшөөрлийг хүссэн бөгөөд энэ тохиргоо таны аюулгүй байдал болон нууцлалыг эрсдэлд оруулж болох тул үүнийг хязгаарласан. Энэ зөвшөөрлийн хязгаарлалт нь уг аппыг ажиллахаас сэргийлж болно."</string>
+    <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Нэмэлт мэдээлэл авах"</string>
+    <string name="enhanced_confirmation_dialog_ok" msgid="1767075979746135617">"Ойлголоо"</string>
+</resources>

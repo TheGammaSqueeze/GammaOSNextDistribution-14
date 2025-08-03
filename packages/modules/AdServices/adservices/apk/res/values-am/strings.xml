@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"የAdServices ርዕሶች ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"አንድ መተግበሪያ የAdServices ርዕሶች ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"የAdServices ባለቤትነት ኤፒአይዎች መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"አንድ መተግበሪያ የAdServices ባለቤትነት ኤፒአይዎችን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"የAdServices ብጁ ታዳሚ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"አንድ መተግበሪያ የAdServices ብጁ ታዳሚ ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"የማስታወቂያ መታወቂያ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"አንድ መተግበሪያ የማስታወቂያ መታወቂያ ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"የAdServices ፈቃደኝነት ኤፒአይን መድረስ"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"አንድ መተግበሪያ የAdServices ፈቃደኝነት ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"የማስታወቂያ መታወቂያ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"አንድ መተግበሪያ የማስታወቂያ መታወቂያ ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"የAdServices ኮባልት መስቀያ ኤፒአይ"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"አንድ መተግበሪያ AdServices ኮባልት መስቀያ ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"የመተግበሪያዎች ስብስብ መታወቂያ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"አንድ መተግበሪያ የመተግበሪያዎች ስብስብ መታወቂያ ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"የፈቃደኝነት አገልግሎት ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"አንድ መተግበሪያ የAdServices ፈቃደኝነት ኤፒአይን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"የAdServiceየ የማስቻል ሁኔታ ለውጥ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"አንድ መተግበሪያ የAdService የማስቻል ሁኔታ ለውጥ ኤፒአይን እንዲደርስ ያስችላል።"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"የAdService የማስቻል ሁኔታ ኤፒአይ መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"አንድ መተግበሪያ የAdService የማስቻል ሁኔታ ኤፒአይን እንዲደርስ ያስችላል።"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"የAdServicesManager ኤፒአዮች መዳረሻ"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"አንድ መተግበሪያ የAdServicesManager ኤፒአዮችን እንዲደርስ ይፈቅዳል።"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"የAdService ዝማኔ የማስታወቂያ መታወቂያ ኤፒአይ መዳረሻ።"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"መተግበሪያ የAdService ዝማኔ የማስታወቂያ መታወቂያ ኤፒአይ እንዲደርስ ይፈቅዳል።"</string>
+    <string name="app_label" msgid="2639006978056689153">"የማስታወቂያ ግላዊነት"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"የAndroid ማስታወቂያዎች የግላዊነት ቅድመ ይሁንታን ይቀላቀሉ"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android መተግበሪያዎች ይበልጥ ግላዊ የሆኑ ለእርስዎ ማስታወቂያዎችን የሚያሳዩባቸው መንገዶችን እያሰሰ ነው"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"የበለጠ ለመረዳት"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"የAndroid ማስታወቂያዎች የግላዊነት ቅድመ ይሁንታ"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"ምን አዲስ ነገር አለ"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"በግላዊነት Sandbox ውስጥ ያሉት አዲስ የግላዊነት ባህሪያት መተግበሪያዎች ተዛማጅነት ያላቸው ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያስችላሉ፣ ነገር ግን እነዚህ መተግበሪያዎች በሌሎች ገንቢዎች በተሰሩ ድር ጣቢያዎች እና መተግበሪያዎች ላይ ስለ እርስዎ እንቅስቃሴዎች ማወቅ የሚችሉትን ይገድባሉ።"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"እንዴት እንደሚሠራ"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"እንዴት መሳተፍ እንደሚቻል"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"የቅድመ-ይሁንታውን ማብራት መተግበሪያዎች ለእርስዎ ማስታወቂያዎችን ለማሳየት እነዚህን አዲስና ይበልጥ የግል የሆኑ መንገዶች እንዲሞክሩ ያስችላቸዋል። በማንኛውም ጊዜ በእርስዎ የግላዊነት ቅንብሮች ውስጥ ቅድመ-ይሁንታውን ማጥፋት ይችላሉ።"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"አይ፣ አመሰግናለሁ"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"አብራ"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"ተጨማሪ"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"ስለተሳትፎዎ እናመሰግናለን"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"የAndroid የማስታወቂያዎች ግላዊነት ቅድመ-ይሁንታ አካል ነዎት። የግላዊነት Sandbox ለመሣሪያዎ በርቷል።\n\nበማንኛውም ሰዓት በእርስዎ የግላዊነት ቅንብሮች ውስጥ የበለጠ ማወቅ ወይም ቅድመ-ይሁንታውን ማጥፋት ይችላሉ።"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"ላለመሳተፍ መርጠዋል"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"ስለምላሽዎ እናመሰግናለን። የግላዊነት Sandbox ለመሣሪያዎ ጠፍቷል።\n\nሐሳብዎን ከቀየሩ ወይም የበለጠ ለማወቅ ከፈለጉ ወደ የግላዊነት ቅንብሮችዎ ይሂዱ።"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"የግላዊነት ቅንብሮች"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"ገባኝ"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"የቅድመ ይሁንታው አካል ነዎት"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"የግላዊነት Sandbox ለእርስዎ መሣሪያ በርቷል እና መተግበሪያዎች ለእርስዎ ማስታወቂያዎችን ለማሳየት እነዚህን አዲስና ይበልጥ የግል የሆኑ መንገዶች መሞከር ይችላሉ። በማንኛውም ጊዜ በእርስዎ የግላዊነት ቅንብሮች ውስጥ ቅድመ-ይሁንታውን ማጥፋት ይችላሉ።"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"ገባኝ"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"የAndroid የግላዊነት Sandbox መተግበሪያዎች እርስዎ ሊወዷቸው የሚችሉ ማስታወቂያዎችን ለእርስዎ ለማሳየት ሊጠቀሙባቸው የሚችሏቸው አዲስ ባህሪያትን ያቀርባል። እነዚህ ቴክኖሎጂዎች የመሣሪያ ለዪዎችን አይጠቀሙም።\n\nAndroid እና መተግበሪያዎችዎ እርስዎ ሊፈልጓቸው የሚችሉ የማስታወቂያ አይነቶችን መገመት እና ዝንባሌዎቹን በመሣሪያዎ ላይ በጊዜያዊነት ማስቀመጥ ይችላሉ። ይህ መተግበሪያዎች በሌሎች ገንቢዎች በተሰሩ ድር ጣቢያዎች እና መተግበሪያዎች ላይ የሚኖርዎትን እንቅስቃሴ ሳይከታተሉ እርስዎ ሊወዷቸው የሚችሉ ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያስችላቸዋል።"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"በግላዊነት Sandbox ማስታወቂያን ግላዊነት ማላበስ"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  በAndroid የተገመቱ ዝንባሌዎች"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android እርስዎ በሚጠቀሙባቸው መተግበሪያዎች መሰረት የእርስዎን ከፍተኛ ዝንባሌዎች ከጊዜ ወደ ጊዜ ይገምታል፣ ለምሳሌ፣ «ስፖርት» ወይም «ጉዞ»።\n\nበኋላ አንድ መተግበሪያ ይበልጥ ተገቢ የሆኑ ማስታወቂያዎችን ለእርስዎ ለማሳየት እነዚህን ዝንባሌዎች ለመጠቀም Androidን መጠየቅ ይችላል።\n\nየአሁን ዝንባሌዎች ዝርዝርን በእርስዎ የግላዊነት ቅንብሮች ውስጥ ማየት እና ማንኛውንም ያልወደዱትን ማገድ ይችላሉ።"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  በመተግበሪያዎች የተገመቱ ዝንባሌዎች"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"መተግበሪያዎች የእርስዎን ዝንባሌዎች መገመት እና እነዚህን Android ላይ በጊዜያዊነት ማስቀመጥ ይችላሉ። ለምሳሌ፣ የመሮጫ ጫማ ለመግዛት የሚጠቀሙበት መተግበሪያ የእርስዎ ዝንባሌ «ማራቶኖች መሮጥ» እንደሆነ ሊገምት ይችላል።\n\nበኋላ በዚህ ዝንባሌ መሠረት የተለየ መተግበሪያ ከማራቶኖች ጋር የተገናኘ ማስታወቂያ ሊያሳይዎት ይችላል።\n\nበእርስዎ የግላዊነት ቅንብሮች ውስጥ የተቀመጡ ዝንባሌዎች ያላቸውን የመተግበሪያዎች ዝርዝር ማስተዳደር ይችላሉ።"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"አዲስ የማስታወቂያ ግላዊነት ባህሪያት"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"የማስታወቂያ ርዕሶች እና አዲሶቹ መቆጣጠሪያዎች እርስዎ በሚመለከቷቸው ማስታወቂያዎች ላይ ተጨማሪ ምርጫ ይሰጡዎታል"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"አሁን አዲስ የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android በቅርብ በተጠቀሙት መተግበሪያ ላይ በመመሥረት የዝንባሌ ርዕሶች ያስተውላል። እንዲሁም የሚጠቀሙባቸው መተግበሪያዎች እርስዎ ምን እንደሚወዱ መወሰን ይችላሉ። በኋላ ላይ፣ ግላዊነት የተላበሱ ማስታወቂያዎችን ለእርስዎ ለማሳየት መተግበሪያዎች ይህን መረጃ ሊጠይቁ ይችላሉ። ማስታወቂያዎችን ለእርስዎ ለማሳየት የትኛዎቹ ርዕሶች እና መተግበሪያዎች ጥቅም ላይ እንደሚውሉ መምረጥ ይችላሉ።"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"የማስታወቂያ አፈጻጸምን ለመለካት የተገደቡ የውሂብ ዓይነቶች በመተግበሪያዎች መካከል ይጋራሉ።"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"በAndroid ላይ ስለ ማስታወቂያዎች ተጨማሪ"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"ተጨማሪ ጠቃሚ ማስታወቂያዎች"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"የሚመለከቷቸውን ማስታወቂያዎች ግላዊነት ለማላበስ ለማገዝ መተግበሪያዎች Androidን መረጃ ሊጠይቁ ይችላሉ።"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android በቅርቡ በተጠቀሟቸው መተግበሪያዎች መሰረት የዝንባሌዎች ርዕሶችን ያስተውላል።"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  እንዲሁም የሚጠቀሟቸው መተግበሪያዎች እርስዎ እነሱን በሚጠቀሙበት መንገድ መሰረት ምን እንደሚወዱ መወሰን ይችላሉ። ለምሳሌ፣ የረጅም ርቀት የሩጫ ጫማዎችን የሚሸጥ መተግበሪያ ከተጠቀሙ መተግበሪያው እርስዎ ማራቶን የመሮጥ ዝንባሌ እንዳለዎት ሊወስን ይችላል።"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"በኋላ፣ የሚጠቀሙበት መተግበሪያ ይህን መረጃ ሊጠይቅ ይችላል — የእርስዎን የማስታወቂያ ርዕሶች ወይም በተጠቀሟቸው መተግበሪያዎች የተጠቆሙ ማስታወቂያዎችን።"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android ርዕሶችን እና በመተግበሪያ የተጠቆመ ውሂብን በመደበኝነት በራስ-ሰር ይሰርዛል። እንዲሁም እርስዎ የአስተያየት ጥቆማዎችን እንዲያደርጉ የማይፈልጓቸውን የተወሰኑ ርዕሶች እና መተግበሪያዎች ማገድ ይችላሉ።"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"የአንድ ማስታወቂያ አፈጻጸም ምን ያህል ጥሩ እንደሆነ መለካት"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት እንዲያግዛቸው Androidን መረጃ መጠየቅ ይችላሉ። Android መተግበሪያዎች እንደ ማስታወቂያ ለእርስዎ የታየበት የቀኑ ሰዓት ያሉ የተገደቡ የውሂብ ዓይነቶችን እንዲሰበስቡ ይፈቅድላቸዋል።"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"አዲስ የማስታወቂያ ግላዊነት ባህሪያትን ይሞክሩ"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"የማስታወቂያ ርዕሶች እርስዎ ከሚመለከቷቸው ማስታወቂያዎች የበለጠ ምርጫ ይሰጡዎታል"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"ዝርዝሮችን አሳይ"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"አዲስ የማስታወቂያዎች የግላዊነት ባህሪያትን ይሞክሩ"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ ምርጫ የሚሰጡዎትን አዳዲስ የግላዊነት ባህሪያት እየጀመረ ነው።"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"የማስታወቂያ ርዕሶች ለማንነትዎ እና ስለመተግበሪያ አጠቃቀምዎ ላለ መረጃ ጥበቃ እያደረጉ መተግበሪያዎች አግባብነት ያላቸው ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያግዛሉ። Android በቅርብ ጊዜ የተጠቀሟቸው መተግበሪያዎች ላይ በመመስረት የዝንባሌ ርዕሶች ላይ ማስታወሻ መያዝ ይችላል። በኋላ ላይ የሚጠቀሙት መተግበሪያ የሚያዩዋቸውን ማስታወቂያዎች ለማበጀት አግባብነት ላላቸው ርዕሶች Androidን ሊጠይቅ ይችላል።"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"በመሣሪያዎ ቅንብሮች ውስጥ የማስታወቂያ ርዕሶችን ማየት እና ለመተግበሪያዎች ማጋራት የማይፈልጓቸውን ማገድ ይችላሉ። እንዲሁም Android የማስታወቂያ ርዕሶችን በራስ-ሰር ይሰርዛል።"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"በግላዊነት ቅንብሮች ውስጥ ሐሳብዎን በማንኛውም ጊዜ መቀየር ይችላሉ።"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"ስለማስታወቂያ ርዕሶች ተጨማሪ"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"በእኛ "<a href="https://policies.google.com/privacy">"የግላዊነት መመሪያ"</a>" ውስጥ Android እንዴት ውሂብዎን እንደሚጠብቅ የበለጠ ይወቁ።"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"ይሞክሩት"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  ምን ውሂብ ጥቅም ላይ እንደሚውል"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"የእርስዎ የማስታወቂያ ርዕሶች በዚህ መሣሪያ ላይ በቅርቡ በተጠቀሟቸው መተግበሪያዎች እና ምን ያህል እንደተጠቀሟቸው ላይ የተመሰረቱ ናቸው።"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  ይህን ውሂብ እንዴት እንደምንጠቀምበት"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android መተግበሪያዎችዎን ሲጠቀሙ የዝንባሌ ርዕሶችን ያስተውላል። የርዕስ መሰየሚያዎች አስቀድሞ የተገለጹ እና እንደ ሥነ ጥበብ እና መዝናኛ፣ ግብይት እና ስፖርት ያሉ ነገሮችን ያካትታሉ። በኋላ ላይ የሚጠቀሙት መተግበሪያ የሚያዩዋቸውን ማስታወቂያዎች ግላዊነት ለማላበስ ለጥቂት ርዕሶችዎ (ነገር ግን ስለመተግበሪያ አጠቃቀምዎ ወይም ማንነትዎ መረጃ ሳይሆን) Androidን ሊጠይቅ ይችላል።"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  የእርስዎን ውሂብ እንዴት ማስተዳደር እንደሚችሉ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android በመደበኛነት ርዕሶችን በራስ-ሰር ይሰርዛል። መተግበሪያዎችን መጠቀምዎን ሲቀጥሉ በዝርዝሩ ላይ ርዕስ እንደገና ሊታይ ይችላል። እንዲሁም Android ከመተግበሪያዎች ጋር እንዳያጋራ የሚፈልጓቸውን ርዕሶች ማገድ እና በግላዊነት ቅንብሮች ውስጥ በማንኛውም ጊዜ የማስታወቂያ ርዕሶችን ማጥፋት ይችላሉ።"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"በግላዊነት ቅንብሮች ውስጥ ለውጦችን ማድረግ ይችላሉ።"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"አሁን ሌሎች የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"እንዲሁም Android መተግበሪያዎች ለእርስዎ ግላዊነትን የተላበሱ ማስታወቂያዎች ሲያሳዩዎት ስለእርስዎ መማር የሚችሉትን ነገር ለመገደብ አዲስ መንገዶችን ያቀርባል።"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  በመተግበሪያ-የተጠቆሙ ማስታወቂያዎች መተግበሪያዎች አግባብነት ያላቸው ማስታወቂያዎችን እንዲያሳዩዎት እያስቻሉ የእርስዎን ማንነት እና የመተግበሪያ አጠቃቀም መረጃን ለመጠበቅ ያግዛሉ። በእርስዎ እንቅስቃሴ ላይ በመመሥረት፣ የሚጠቀሙበት መተግበሪያ በሌሎች መተግበሪያዎች ላይ ተዛማጅ ማስታወቂያዎችን ሊጠቁም ይችላል። በግላዊነት ቅንብሮች ውስጥ የመተግበሪያዎችን ዝርዝር ማየት እና ጥቆማዎችን እንዳይሰጡ ማገድ ይችላሉ።"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  በማስታወቂያ ልኬት፣ እንደ ማስታወቂያ ለእርስዎ የታየበት ቀን ያሉ የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት የተገደቡ የውሂብ ዓይነቶች በመተግበሪያዎች መካከል ይጋራሉ።"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"ስለ በመተግበሪያ የተጠቆሙ ማስታወቂያዎች እና የማስታወቂያ ልኬት ተጨማሪ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎች"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  ምን ውሂብ ጥቅም ላይ እንደሚውል"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"በዚህ መሣሪያ ላይ በሚጠቀሙት መተግበሪያ ውስጥ ያለ የእርስዎ እንቅስቃሴ።"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  መተግበሪያዎች ይህን ውሂብ እንዴት እንደሚጠቀሙበት"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"መተግበሪያዎች እርስዎ ስለሚወዷቸው ነገሮች በAndroid መረጃ ማከማቸት ይችላሉ። ለምሳሌ፣ እርስዎ ስለማራቶን ስልጠና አንድ መተግበሪያ ከተጠቀሙ፣ መተግበሪያው እርስዎ በመሮጫ ጫማዎች ላይ ዝንባሌ እንዳለዎት ሊወስን ይችላል። በኋላ ላይ፣ የተለየ መተግበሪያ ከተጠቀሙ ያ መተግበሪያ በመጀመሪያው መተግበሪያ አስተያየት ጥቆማ የመሮጫ ጫማዎች ማስታወቂያ ሊያሳይዎት ይችላል።"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  የእርስዎን ውሂብ እንዴት ማስተዳደር እንደሚችሉ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android በመተግበሪያ የተጠቆመ ውሂብን በመደበኛነት በራስ-ሰር ይሰርዛል። በድጋሚ የሚጠቀሙት መተግበሪያ በዝርዝሩ ላይ እንደገና ሊታይ ይችላል።"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"እንዲሁም አንድ መተግበሪያ ለእርስዎ ማስታወቂያዎችን እንዳይጠቁም ማገድ፣ ሁሉንም የማስታወቂያ ጥቆማ ውሂብ ዳግም ማስጀመር ወይም በማንኛውም ጊዜ በግላዊነት ቅንብሮች ውስጥ በመተግበሪያ የተጠቆሙ ማስታወቂያዎችን ማጥፋት ይችላሉ።"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት የሚያግዛቸውን መረጃ Androidን መጠየቅ ይችላሉ። Android መተግበሪያዎች እርስ በርስ የሚያጋሩትን መረጃ በመገደብ ግላዊነትዎን ይጠብቃል።"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"አሁን አዲስ የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"ማንነትዎን እየጠበቁ በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ ያግኙ"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"አሁን አዲስ የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android መተግበሪያዎች ለእርስዎ ግላዊነትን የተላበሱ ማስታወቂያዎች ሲያሳዩዎት ስለእርስዎ ማወቅ የሚችሉትን ነገር ለመገደብ አዲስ መንገዶችን እየጀመረ ነው።"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  በመተግበሪያ በተጠቆሙ ማስታወቂያዎች አዲስ የግላዊነት ባህሪያት መተግበሪያዎች ለእርስዎ አግባብነት ያላቸው ማስታወቂያዎችን እንዲያሳዩ እያስቻሉ ለእርስዎ ማንነት እና ስለመተግበሪያዎ ላለ መረጃ ጥበቃ ለማድረግ ያግዛሉ። በእርስዎ እንቅስቃሴ ላይ በመመሥረት የሚጠቀሙበት መተግበሪያ በሌሎች መተግበሪያዎች ላይ ተዛማጅ ማስታወቂያዎችን መጠቆም ይችላል። በግላዊነት ቅንብሮች ውስጥ የመተግበሪያዎችን ዝርዝር ማየት እና ጥቆማዎችን እንዳይሰጡ ማገድ ይችላሉ።"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  በማስታወቂያ ልኬት እንደ ማስታወቂያ ለእርስዎ የታየበት የቀኑ ጊዜ ያሉ የተገደቡ የውሂብ ዓይነቶች የማስታወቂያዎቻቸውን አፈጻጸም ለመረዳት በመተግበሪያዎች መካከል ይጋራሉ።"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"በዚህ መሣሪያ ላይ ባለ መተግበሪያ ውስጥ ያለው እንቅስቃሴዎ ማስታወቂያዎችን ለመጠቆም ጥቅም ላይ መዋል ይችላል።"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"ሌላ የማስታወቂያዎች የግላዊነት ባህሪን ያብሩ"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"እንዲሁም Android በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ የሚሰጥዎት አዲስ የግላዊነት ባህሪ ያቀርባል።"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"የማስታወቂያ ርዕሶች ለማንነትዎ እና ስለመተግበሪያ አጠቃቀምዎ ላለ መረጃ ጥበቃ እያደረጉ መተግበሪያዎች አግባብነት ያላቸው ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያግዛሉ። Android በቅርብ ጊዜ በተጠቀሟቸው መተግበሪያዎች ላይ በመመስረት የዝንባሌ ርዕሶች ላይ ማስታወሻ መያዝ ይችላል። በኋላ ላይ እርስዎ የሚጠቀሙት መተግበሪያ ይበልጥ አግባብነት ያላቸው ማስታወቂያዎችን ለእርስዎ ለማሳየት አግባብነት ያላቸው ርዕሶችን ከAndroid መጠየቅ ይችላል።"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"በግላዊነት ቅንብሮችዎ ውስጥ የማስታወቂያ ርዕሶችን ማየት እና ለመተግበሪያዎች እንዲጋሩ የማይፈልጓቸውን ማገድ ይችላሉ። እንዲሁም Android የማስታወቂያ ርዕሶችን በመደበኛነት በራስ-ሰር ይሰርዛል።"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"አብራው"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"አሁን አዲስ የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"አሁን ማንነትዎን እየጠበቁ በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ አለ"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"አሁን አዲስ የማስታወቂያዎች የግላዊነት ባህሪያት ይገኛሉ"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"አሁን Android በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ የሚሰጡዎትን አዳዲስ የግላዊነት ባህሪያት ያቀርባል።"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"ቀጣይ"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"የግላዊነት Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"በAndroid ማስታወቂያዎች የግላዊነት ቅድመ ይሁንታ ውስጥ ይሳተፉ"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"የግላዊነት Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"በAndroid የተገመቱ ዝንባሌዎች"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"ዝንባሌዎችን የሚገምቱ መተግበሪያዎች"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"የማስታወቂያ ልኬት"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"መተግበሪያዎች የማስታወቂያዎቻቸውን ውጤታማነት ለመለካት የግላዊነት Sandboxን ሊጠቀሙ ይችላሉ። ይህን ለማድረግ አስተዋዋቂዎች በማስታወቂያዎቻቸው እና መተግበሪያዎቻቸው መካከል ስላሉት መስተጋብሮችዎ Android ላይ ውሂብን በጊዜያዊነት ማስቀመጥ ይችላሉ። ማስቀመጥ የሚችሉት የውሂብ መጠን የተገደበ ነው እና በመደበኛነት ይሰረዛል።\n\nየግላዊነት Sandboxን በማጥፋት ይህን ውሂብ በማንኛውም ጊዜ መሰረዝ ይችላሉ።"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android እርስዎ በሚጠቀሙባቸው መተግበሪያዎች መሰረት ከጊዜ ወደ ጊዜ የእርስዎን ከፍተኛ ዝንባሌዎች ይገምታል። መተግበሪያዎች ይበልጥ ተገቢ የሆኑ ማስታወቂያዎችን ለእርስዎ ለማሳየት እነዚህን ዝንባሌዎች ለመጠቀም Androidን መጠየቅ ይችላሉ።\n\nአንድ ዝንባሌን ካገዱ እርስዎ እገዳውን ካላነሱ በስተቀር ወደ ዝርዝሩ ተመልሶ አይታከልም። አሁንም የተወሰኑ ተዛማጅ ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"አግድ"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"እገዳውን አንሳ"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"እርስዎ ያገዷቸው ዝንባሌዎች"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"ሁሉንም ዝንባሌዎች ዳግም አስጀምር"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"አሁን ምንም የሚታዩ ዝንባሌዎች የሉም።"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"አሁን ምንም የሚታዩ መተግበሪያዎች የሉም።\nስለ "<a href="https://support.google.com/android?p=ad_privacy">"የማስታወቂያ ርዕሶች"</a>" የበለጠ ይወቁ"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"የግላዊነት Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"የAndroid ማስታወቂያዎች የግላዊነት ቅድመ ይሁንታ መተግበሪያዎች እርስዎ ሊወዷቸው የሚችሏቸው ማስታወቂያዎችን ለእርስዎ ለማሳየት ሊጠቀሙባቸው የሚችሉ አዲስ ባህሪያትን ያቀርባል። እነዚህ ቴክኖሎጂዎች የመሣሪያ ለዪዎችን አይጠቀሙም።\n\nAndroid እርስዎ ሊፈልጓቸው የሚችሉ የማስታወቂያ አይነቶችን መገመት እና እነዚህን ዝንባሌዎች በመሣሪያዎ ላይ በጊዜያዊነት ማስቀመጥ ይችላል። ይህ መተግበሪያዎች በሌሎች ገንቢዎች በተሰሩ ድር ጣቢያዎች እና መተግበሪያዎች ላይ እርስዎ የሚኖርዎትን እንቅስቃሴ ሳይከታተሉ ተዛማጅነት ያላቸው ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያስችላቸዋል።"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"ምንም የታገዱ ዝንባሌዎች የሉዎትም"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"ምንም የታገዱ ርዕሶች የሉም"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"የታገዱ ርዕሶችን ይመልከቱ"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"ዝንባሌዎች ዳግም ጀምረዋል"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"ርዕሶች ዳግም ተጀምረዋል"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"መተግበሪያዎች የእርስዎን ዝንባሌዎች መገመት እና እነዚህን Android ላይ በጊዜያዊነት ማስቀመጥ ይችላሉ። በኋላ የተለየ መተግበሪያ በእነዚህ ዝንባሌዎች ላይ ተመስርቶ ማስታወቂያ ለእርስዎ ማሳየት ይችላል።\n\nአንድን መተግበሪያ ካገዱ ተጨማሪ ዝንባሌዎችን አይገምትም። እርስዎ እገዳውን ካላነሱ በስተቀር ወደዚህ የመተግበሪያዎች ዝርዝር ተመልሶ አይታከልም። በመተግበሪያው አስቀድመው የተገመቱ ዝንባሌዎች ይሰረዛሉ ነገር ግን አሁንም አንዳንድ ተዛማጅ ማስታወቂያዎችን ሊያዩ ይችላሉ።"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"እርስዎ ያገዷቸው መተግበሪያዎች"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"የታገዱ መተግበሪያዎችን አሳይ"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"በመተግበሪያዎች የተገመቱ ዝንባሌዎችን ዳግም አስጀምር"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"አሁን ላይ ምንም መተግበሪያዎች ለእርስዎ ዝንባሌዎችን እያመነጩ አይደለም"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"አሁን ምንም የሚታዩ መተግበሪያዎች የሉም። \nስለ "<a href="https://support.google.com/android?p=ad_privacy">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎች"</a>" የበለጠ ይወቁ"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"የግላዊነት Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"የAndroid ማስታወቂያዎች የግላዊነት ቅድመ ይሁንታ መተግበሪያዎች እርስዎ ሊወዷቸው የሚችሏቸው ማስታወቂያዎችን ለእርስዎ ለማሳየት ሊጠቀሙባቸው የሚችሉ አዲስ ባህሪያትን ያቀርባል። እነዚህ ቴክኖሎጂዎች የመሣሪያ ለዪዎችን አይጠቀሙም።\n\nመተግበሪያዎች እርስዎ ሊፈልጓቸው የሚችሉ የማስታወቂያ አይነቶችን መገመት እና እነዚህን ዝንባሌዎች በመሣሪያዎ ላይ በጊዜያዊነት ማስቀመጥ ይችላሉ። ይህ መተግበሪያዎች በሌሎች ገንቢዎች በተሰሩ ድር ጣቢያዎች እና መተግበሪያዎች ላይ እርስዎ የሚኖርዎትን እንቅስቃሴ ሳይከታተሉ ተዛማጅነት ያላቸው ማስታወቂያዎችን ለእርስዎ እንዲያሳዩ ያስችላቸዋል።"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"ምንም የታገዱ መተግበሪያዎች የሉዎትም"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"ምንም የታገዱ መተግበሪያዎች የሉም"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"የማስታወቂያ ልኬትን ይፍቀዱ"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"መተግበሪያዎች እና አስተዋዋቂዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት የሚያግዛቸውን መረጃ ከAndroid መጠየቅ ይችላሉ።\n\nየማስታወቂያ ልኬት ውሂብ ከመሣሪያዎ በመደበኛው ይሰረዛል።"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"የልኬት ውሂብን ዳግም አስጀምር"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android መተግበሪያዎች እርስ በርስ የሚያጋሩትን መረጃ በመገደብ ግላዊነትዎን ይጠብቃል። ማንነትዎን ለመጠበቅ ሪፖርቶች ዘግይተው ይላካሉ።\n\nአሳሸዎ ተመሳሳይ የሆነ ቅንብር ሊኖረው ይችላል። የማስታወቂያ ልኬት ለሁለቱም ለAndroid እና ለአሳሽዎ የሚበራ ከሆነ አንድ ኩባንያ በሚጠቀሟቸው መተግበሪያዎች እና በሚጎበኟቸው ጣቢያዎች መካከል የአንድ ማስታወቂያ ውጤታማነትን መለካት ይችል ይሆናል። የአሰሳ ታሪክዎ በመሣሪያዎ ላይ የግል ሆኖ ይቆያል።\n\nበእኛ "<a href="https://policies.google.com/privacy">"የግላዊነት መመሪያ"</a>" ውስጥ Android ውሂብዎን እንዴት እንደሚጠብቅ የበለጠ ይወቁ።"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"የማስታወቂያ መለኪያ ውሂብ ዳግም ጀምሯል"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"ይቅር"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"የግላዊነት Sandbox ይጥፋ?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"ሐሳብዎን ከቀየሩ ወይም ስለAndroid የማስታወቂያዎች ግላዊነት ቅድመ ይሁንታ የበለጠ ማወቅ ከፈለጉ ወደ የግላዊነት ቅንብሮችዎ ይሂዱ"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"አጥፋ"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> ይታገድ?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"ይህ ርዕስ ይታገዳል እና እርስዎ መልሰው ካላከሉት በስተቀር በዝርዝርዎ ላይ እንደገና አይታከልም። አሁንም አንዳንድ ተዛማጅ ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"አግድ"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"የ<xliff:g id="TOPIC">%1$s</xliff:g> እገዳ ተነስቷል"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android ይህን ርዕስ እንደገና ወደ እርስዎ ዝርዝር ሊያክል ይችላል፣ ነገር ግን ወዲያውኑ ላይታይ ይችላል"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"እሺ"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"ሁሉም የማስታወቂያ ርዕሶች ዳግም ይጀምሩ?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"ዝርዝርዎ ይጸዳል እና ለወደፊት አዳዲስ ርዕሶች ይታከላሉ። አሁንም እርስዎ ዳግም ካስጀመሯቸው ርዕሶች ጋር የሚዛመዱ የተወሰኑ ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"ዳግም አስጀምር"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> ይታገድ?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"ይህ መተግበሪያ እገዳውን ካላነሱለት በስተቀር ማስታወቂያዎችን አይጠቁምም እና ወደ ዝርዝርዎ እንደገና አይታከልም። አሁንም የተወሰኑ ተዛማጅ ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"የ<xliff:g id="APP">%1$s</xliff:g> እገዳ ተነስቷል"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"ይህ መተግበሪያ እንደገና ለእርስዎ ማስታወቂያዎችን መጠቆም ይችላል፣ ነገር ግን በዝርዝርዎ ላይ ወዲያውኑ ላይታይ ይችላል። ተዛማጅ ማስታወቂያዎችን እስከሚያዩ ድረስ ጊዜ ሊወስድ ይችላል።"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"በመተግበሪያዎች የተጠቆሙ ማስታወቂያዎች ዳግም ይጀመሩ?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"በዝርዝርዎ ላይ ካሉ መተግበሪያዎች ያለ የማስታወቂያ ጥቆማ ውሂብ ይሰረዛል እና መተግበሪያዎቹ ለወደፊት አዳዲስ ማስታወቂያዎችን ይጠቁማሉ። አሁንም አንዳንድ ተዛማጅ ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"የመተግበሪያ ውሂብ ዳግም ጀምሯል"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"የማስታወቂያ ርዕሶች በርተዋል"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android የዝንባሌ ርዕሶችን ማስታወሻ መያዝ ይጀምራል፣ ነገር ግን የእርስዎ የመጀመሪያው ርዕሶች እስኪታዩ የተወሰነ ጊዜ ሊወስዱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"የማስታወቂያ ርዕሶች ይጥፉ?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"ይህ የርዕሶች ዝርዝር ይሰረዛል። Android ከእንግዲህ የዝንባሌ ርዕሶችን ማስታወሻ አይዝም፣ ነገር ግን አሁንም አግባብነት ያላቸውን ማስታወቂያዎች ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎች በርተዋል"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"መተግበሪያዎች ማስታወቂያዎችን መጠቆም ሊጀምሩ ይችላሉ። እነሱ አንዴ ማስታወቂያዎችን መጠቆም ሊጀምሩ እርስዎ የመተግበሪያዎች ዝርዝርን ይመለከታሉ።"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎች ይጥፉ?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"ሁሉም የማስታወቂያ ጥቆማ ውሂብ ይሰረዛል። መተግበሪያዎች ከእንግዲህ ማስታወቂያዎችን መጠቆም አይችሉም፣ ነገር ግን እርስዎ አግባብነት ያላቸውን ማስታወቂያዎች ሊመለከቱ ይችላሉ።"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"የማስታወቂያ ልኬት በርቷል"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android መተግበሪያዎችን የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት ለማገዝ ከመተግበሪያዎች ጋር ማጋራት የሚችለው በጣም የተገደበ መረጃን ብቻ ነው።"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"የማስታወቂያ ልኬት ይጥፋ?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"ሁሉም በመጠባበቅ ላይ ያሉ የማስታወቂያ ልኬት ሪፖርቶች ይሰረዛሉ እና ምንም አዲስ ሪፖርቶች አይመነጩም ወይም አይጋሩም።"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"የማስታወቂያ ግላዊነት"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"የማስታወቂያ ርዕሶች"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎች"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android በቅርብ ጊዜ በተጠቀሟቸው መተግበሪያዎች ላይ እና ምን ያህል በተደጋጋሚ እንደተጠቀሟቸው ላይ በመመስረት በዝንባሌ ርዕሶች ላይ ማስታወሻ ይይዛል።"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"እንዲሁም የሚጠቀሟቸው መተግበሪያዎች እርስዎ እነሱን በሚጠቀሙበት መንገድ መሰረት ምን እንደሚወዱ መወሰን ይችላሉ።"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት እንዲያግዛቸው መረጃ Androidን መጠየቅ ይችላሉ። Android መተግበሪያዎች የተገደቡ የውሂብ ዓይነቶችን እንዲሰበስቡ ያደርጋል።"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"ስለ "<a href="https://support.google.com/android?p=ad_privacy">"Android ላይ ያለ የማስታወቂያ ግላዊነት"</a>" የበለጠ ይወቁ"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"በርቷል / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> ርዕሶች"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{በማሳየት ላይ / # ርዕስ}one{በማሳየት ላይ / # ርዕስ}other{በማሳየት ላይ / # ርዕሶች}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"በርቷል / <xliff:g id="APPS_COUNT">%1$d</xliff:g> መተግበሪያዎች"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{በማሳየት ላይ / # መተግበሪያ}one{በማሳየት ላይ / # መተግበሪያ}other{በማሳየት ላይ / # መተግበሪያዎች}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"በርቷል"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"ጠፍቷል"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"የዝንባሌ ርዕሶች በቅርቡ የተጠቀሟቸው መተግበሪያዎች ላይ የተመሰረቱ ናቸው እና ለእርስዎ ግላዊነትን የተላበሱ ማስታወቂያዎች ለማሳየት በመተግበሪያዎች ጥቅም ላይ ይውላሉ።\n\nከመተግበሪያዎች ጋር እንዲጋሩ የማይፈልጓቸውን ርዕሶች ማገድ ይችላሉ። እንዲሁም Android ርዕሶችን በመደበኛነት ይሰርዛል።\n\nይህ ባህሪ መብራት በሚችልበት ጊዜ ይህ ባህሪ ሙሉ በሙሉ እስኪገኝ እና መተግበሪያዎች እሱን መጠቀም እስከሚጀመሩ ድረስ የርዕሶች ዝርዝር ላይታይ ይችላል።"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"የማስታወቂያ ርዕሶችን ፍቀድ"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"እርስዎ ያገዷቸው የማስታወቂያ ርዕሶች"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"ሁሉም የማስታወቂያ ርዕሶችን ዳግም አስጀምር"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"እርስዎ ባለፉት ጥቂት ሳምንታት ውስጥ በተጠቀሟቸው መተግበሪያዎች መሠረት የዝንባሌ ርዕሶችን ያስተውላል።\n\nበኋላ ላይ፣ እርስዎ የሚጠቀሙት አንድ መተግበሪያ እርስዎ የሚያዩትን ማስታወቂያ ግላዊነት ለማላበስ Androidን የእርስዎን ርዕሶች መጠየቅ ይችላል። Android የእርስዎን ማንነት እና ስለመተግበሪያ አጠቃቀምዎ ያለ መረጃን ጥበቃ በማድረግ ላይ ሳለ እስከ 3 ርዕሶች የሚደርሱ ያጋራል።\n\nAndroid ርዕሶችን በመደበኛነት በራስ-ሰር ይሰርዛል። መተግበሪያዎችን መጠቀምዎን ሲቀጥሉ በዝርዝሩ ላይ ርዕስ እንደገና ሊታይ ይችላል። ወይም Android ከመተግበሪያዎች ጋር እንዳያጋራ የሚፈልጓቸውን ርዕሶች ማገድ ይችላሉ።\n\nበእርስዎ መተግበሪያዎች ውስጥ የሚያዩት አንድ ማስታወቂያ በዚህ ቅንብር፣ በመተግበሪያው የተጠቆመው የማስታወቂያዎች ቅንብር፣ የእርስዎ የማስታወቂያ መታወቂያ ቅንብሮች እና እርስዎ በመጠቀም ላይ ያሉት መተግበሪያ ማስታወቂያዎችን ግላዊነት ያላብስ እንደሆነ ላይ ተመስርቶ ግላዊነት የተላበሰ ሊሆን ይችላል።"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"በመተግበሪያ የተጠቆሙ ማስታወቂያዎችን ፍቀድ"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"የሚጠቀሙባቸው መተግበሪያዎች እርስዎ የሚወዱትን ሊወስኑ እና ከዚያም በሌሎች መተግበሪያዎች ላይ ማስታወቂያዎችን ሊጠቁሙ ይችላሉ።\n\nመተግበሪያዎችን ጥቆማዎችን ከማድረግ ማገድ ይችላሉ። እንዲሁም Android በመተግበሪያ የተጠቆመ ውሂብን በመደበኛነት ይሰርዛል።\n\nይህ ባህሪ መብራት በሚችልበት ጊዜ ይህ ባህሪ ሙሉ በሙሉ እስኪገኝ እና መተግበሪያዎች እሱን መጠቀም እስከሚጀመሩ ድረስ የመተግበሪያዎች ዝርዝር ላይታይ ይችላል።"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"እርስዎ ያገዷቸው መተግበሪያዎች"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"በመተግበሪያ የተጠቆመ ውሂብን ዳግም አስጀምር"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"ተሞክሮዎን ግላዊነት ለማላበስ እርስዎ የሚጠቀሟቸው መተግበሪያዎች የእርስዎ ዝንባሌን ማስታወሳቸው የተለመደ ነው። እንዲሁም መተግበሪያዎች ስለርዕሶችዎ በAndroid መረጃን ማከማቸት ይችላሉ።\n\nለምሳሌ ስለማራቶን ስልጠና አንድን መተግበሪያ ከተጠቀሙ መተግበሪያው እርስዎ በሩጫ ጫማዎች ላይ ዝንባሌ እንዳለዎት ሊወስን ይችላል። በኋላ ላይ የተለየ መተግበሪያ የሚጠቀሙ ከሆነ ያ መተግበሪያ በመጀመሪያው መተግበሪያ በአስተያየት የተጠቆሙ የሩጫ ጫማዎች ማስታወቂያ ሊያሳይዎት ይችላል።\n\nAndroid በመተግበሪያ አስተያየት የተደረገ ውሂብን በመደበኛነት በራስ ሰር ይሰርዛል። በድጋሚ የሚጠቀሙት መተግበሪያ በዝርዝሩ ላይ ዳግም ሊታይ ይችላል። ወይም መተግበሪያ ለእርስዎ ማስታወቂያን በአስተያየት ከመጠቆም ማገድ ይችላሉ።\n\nበመተግበሪያዎችዎ ውስጥ በዚህ ቅንብር፣ በማስታወቂያ ርዕሶቹ ቅንብር፣ በእርስዎ የማስታወቂያ መታወቂያ ቅንብሮች እና የሚጠቀሙት መተግበሪያ ማስታወቂያዎችን ግላዊነት በሚያላብስበት መንገድ መሰረት የሚያዩት ማስታወቂያ ግላዊነትን የተላበሰ ሊሆን ይችላል።"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"አዲስ የማስታወቂያዎች የግላዊነት ባህሪ አሁን ይገኛል"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"የማስታወቂያ አፈጻጸምን እንዲለኩ ለማገዝ በመተግበሪያዎች መካከል በጣም የተገደበ መረጃ ብቻ ይጋራል።"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"የማስታወቂያ ልኬት የሚባል አዲስ የማስታወቂያ ግላዊነት ባህሪ እያስጀመርን ነው። Android በመተግበሪያዎች መካከል በጣም የተገደበ መረጃን ብቻ ያጋራል፣ ለምሳሌ የማስታወቂያዎችን አፈጻጸም ለመለካት መተግበሪያዎችን ለማገዝ አንድ ማስታወቂያ ለእርስዎ ሲታይ።"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"እርስዎ በማስታወቂያ ግላዊነት ቅንብሮች ውስጥ ለውጦችን ማድረግ ይችላሉ።"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት እንዲያግዛቸው መረጃ Androidን መጠየቅ ይችላሉ። Android መተግበሪያዎች የተገደቡ የውሂብ ዓይነቶችን ብቻ እንዲሰበስቡ ያደርጋል።"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"አዲስ የማስታወቂያ ግላዊነት ባህሪያት"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"ማንነትዎን ለመጠበቅ በማገዝ ላይ ሳሉ በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ ያግኙ"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"የእርስዎ የማስታወቂያዎች የግላዊነት ባህሪያት ዝማኔዎች"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"ማንነትዎን ለመጠበቅ በማገዝ ላይ ሳሉ በሚያዩዋቸው ማስታወቂያዎች ላይ ተጨማሪ አማራጭ ያግኙ"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android መተግበሪያዎች ግላዊነት የተላበሱ ማስታወቂያዎችን ሲያሳዩ ስለ እርስዎ ምን ማወቅ እንደሚችሉ ለመገደብ የማስታወቂያ ግላዊነት ባህሪያትን እየዘረጋ ነው።"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"መተግበሪያዎች እና የማስታወቂያ አጋሮቻቸው የእርስዎን ማንነት የግል እና ደህንነቱ የተጠበቀ አድርጎ በማቆየት ላይ እያገዙ ሳለ ማስታወቂያዎችን ግላዊ ለማድረግ በዚህ መሣሪያ ላይ ባሉ ሌሎች መተግበሪያዎች ላይ እንቅስቃሴዎን መጠቀም ይችላሉ።"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"ስለ በመተግበሪያ የተጠቆሙ ማስታወቂያዎች ተጨማሪ"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"እንደ ማስታወቂያ ለእርስዎ የታየበት የቀኑ ጊዜ ያሉ የተገደቡ የውሂብ ዓይነቶች የማስታወቂያዎቻቸውን አፈጻጸም ለመረዳት በመተግበሪያዎች መካከል ይጋራሉ።"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"ስለ የማስታወቂያ ልኬት ተጨማሪ"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android በቅርብ በተጠቀሙት መተግበሪያ ላይ በመመሥረት የዝንባሌ ርዕሶች ያስተውላል። እንዲሁም መተግበሪያዎች እና የማስታወቂያ አጋራቸው የእርስዎን ማንነት የግል እና ደህንነቱ የተጠበቀ አድርጎ መቆየት ላይ እያገዙ ሳለ ማስታወቂያዎችን ግላዊ ለማድረግ በዚህ መሣሪያ ላይ ሌሎች መተግበሪያዎች ላይ እንቅስቃሴዎን መጠቀም ይችላሉ።"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  እንዲሁም እርስዎ የሚጠቀሟቸው መተግበሪያዎች በመተግበሪያ እንቅስቃሴዎ ላይ በመመስረ እርስዎ የሚወዱትን ማወቅ ይችላሉ። ለምሳሌ፣ በመደበኛው የምግብ ማዘጋጃ መተግበሪያዎችን የሚጠቀሙ ከሆነ ሌሎች መተግበሪያዎች ውስጥ የሸቀጣ ሸቀጥ ማድረስ አገልግሎቶች ወይም የተዛማጅ ይዘት ማስታወቂያዎችን ሊመለከቱ ይችላሉ።\n\nሌሎች መተግበሪያዎች ላይ ማስታወቂያን ግላዊ ለማድረግ በማስታወቂያ አጋሮቻቸው ብቻ ጥቅም ላይ እንዲውል መተግበሪያዎች ይህን መረጃ ደህንነቱን ጠብቀው ማከማቸት ይቻላሉ።"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"በኋላ፣ የሚጠቀሙበት መተግበሪያ ይህን መረጃ ሊጠይቅ ይችላል – የእርስዎን የማስታወቂያ ርዕሶች ወይም በተጠቀሟቸው መተግበሪያዎች የተጠቆሙ ማስታወቂያዎችን።"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት እንዲያግዛቸው መረጃ Androidን መጠየቅ ይችላሉ። Android መተግበሪያዎች እርስበርስ ማጋራት የሚችሉትን መረጃ በመገደብ ግላዊነትዎን ለመጠበቅ ያግዛል።"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"ምን ውሂብ ጥቅም ላይ ይውላል?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"እርስዎ የሚጠቀሙባቸው መተግበሪያዎች የማስታወቂያዎቻቸውን አፈጻጸም ለመለካት የሚያግዛቸውን መረጃ Androidን መጠየቅ ይችላሉ። Android መተግበሪያዎች እርስ በርስ የሚያጋሩትን መረጃ በመገደብ ግላዊነትዎን በመጠበቅ ያግዛል።"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"የእኔ ማንነት እንዴት ይጠበቃል?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android መተግበሪያዎች እርስ በርስ ሊጋሩ የሚችሉትን መረጃ ለመገደብ እና ማንነትዎን ለመጠበቅ እንዲያግዘው እንደ ማሰባሰብ እና ትርጉም አልባ ውሂብn መሰብሰብ ያሉ ብዙ የግላዊነት ልኬቶችን ይጠቀማል።\n\nእንዲሁም የማስታወቂያ ልኬት ውሂብ ከመሣሪያዎ ላይ በመደበኛነት ይሰረዛል።"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"የመተግበሪያ እንቅስቃሴዎ ማስታወቂያዎችን ለመጠቆም ጥቅም ላይ መዋል ይችላል።"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"መተግበሪያዎች ይህን ውሂብ እንዴት ይጠቀማሉ?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"መተግበሪያዎች በሌሎች መተግበሪያዎች ላይ ማስታወቂያዎችን ግላዊ ለማድረግ በማስታወቂያ አጋሮቻቸው ብቻ ጥቅም ላይ መዋል እንዲችሉ ይህን መረጃ ደህንነቱ በተጠበቀ መልኩ ማከማቸት ይችላሉ። ለምሳሌ፣ በመደበኛው የምግብ ማዘጋጃ መተግበሪያዎችን የሚጠቀሙ ከሆነ ሌሎች መተግበሪያዎች ውስጥ የሸቀጣ ሸቀጥ ማድረስ አገልግሎቶች ወይም የተዛማጅ ይዘት ማስታወቂያዎችን ሊመለከቱ ይችላሉ።"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"ይህን ውሂብ እንዴት ማስተዳደር እችላለሁ?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"የተወሰኑ የመተግበሪያዎች እንቅስቃሴዎን ከማስታወቂያ አጋሮች ጋር ከማጋራት ማገድ ይችላሉ። በመተግበሪያ የተጠቆሙ ማስታወቂያዎችን በማንኛውም ጊዜ የግላዊነት ቅንብሮችዎ ውስጥ ዳግም ማስጀመር ወይም ማጥፋት ይችላሉ። እንዲሁም Android ይህን ውሂብ በመደበኛነት በራስ-ሰር ይሰርዛል።"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Android እንዴት የእርስዎን ግላዊነት ለመጠበቅ እንደሚያግዝ የበለጠ ይወቁ"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"መተግበሪያዎች እና የማስታወቂያ አጋሮቻቸው አሁንም ስለ እርስዎ መረጃ ሚስጥራዊ እና ደህንነቱ እንደተጠበቀ አድርገው ማስታወቂያዎችን ግላዊ ለማድረግ በዚህ መሣሪያ ላይ ባሉ በሌሎች መተግበሪያዎች ላይ የእርስዎን እንቅስቃሴ መጠቀም ይችላሉ።\n\nለምሳሌ በመደበኛነት የማብሰያ መተግበሪያዎችን የሚጠቀሙ ከሆነ፣ የግሮሰሪ ማድረስ አገልግሎቶች ማስታወቂያዎችን ወይም ተዛማጅ ይዘቶችን በሌሎች መተግበሪያዎች ላይ ሊመለከቱ ይችላሉ።\n\nAndroid በመደበኛነት እንቅስቃሴዎን በራስ ሰር ይሰርዘዋል ነገር ግን መተግበሪያዎች ይህን መረጃ ለማስታወቂያ አጋሮቻቸው እንዳያጋሩ ማገድም ይችላሉ።"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"መተግበሪያዎች እና የማስታወቂያ አጋሮቻቸው የእርስዎን ተሞክሮ ግላዊ ለማድረግ እርስዎ ዝንባሌ ያሉዎት ነገሮችን ማስታወስ የተለመደ ነው። መተግበሪያዎች በሌሎች መተግበሪያዎች ላይ ማስታወቂያዎችን ለማሳየት በማስታወቂያ አጋሮቻቸው ብቻ ጥቅም ላይ መዋል እንዲችሉ ይህን መረጃ ደህንነቱ በተጠበቀ መልኩ ማከማቸት ይችላሉ።\n\nመተግበሪያን የእንቅስቃሴ ውሂብዎን ከማስታወቂያ አጋሮች ጋር እንዳያጋራ ማገድ ይችላሉ። እንዲሁም Android የተጋራ የእንቅስቃሴ ውሂብን በመደበኝነት በራስ ሰር ይሰርዛል ስለዚህ እንደገና የሚጠቀሙበት መተግበሪያ በዚህ ዝርዝር ላይ እንደገና ሊታይ ይችላል።\n\nየሚመለከቱት ማስታወቂያ ግላዊነት የተላበሰ ስለመሆኑ በብዙ ሁኔታዎች ላይ የተወሰነ ሊሆን ይችላል ለምሳሌ እንደዚህ ቅንብር፣ የማስታወቂያ ርዕሶች ቅንብር፣ የማስታወቂያ መታወቂያ ቅንብሮችዎ እና በሚጠቀሙበት መተግበሪያ ግላዊነትን የተላበሱ ማስታወቂያዎች።\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ስለ በመተግበሪያ የተጠቆሙ ማስታወቂያዎች የበለጠ ይወቁ።"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android መተግበሪያዎች እርስ በርስ ሊጋሩ የሚችሉትን መረጃ ለመገደብ እና ማንነትዎን ለመጠበቅ እንዲያግዘው እንደ ማሰባሰብ እና ትርጉም አልባ ውሂብn መሰብሰብ ያሉ ብዙ የግላዊነት ልኬቶችን ይጠቀማል።\n\nአሳሽዎ ተመሳሳይ ቅንብር ሊኖረው ይችላል። የማስታወቂያ ልኬት ለሁለቱም ለAndroid እና ለአሳሽዎ የሚበራ ከሆነ አንድ ኩባንያ በሚጠቀሟቸው መተግበሪያዎች እና በሚጎበኟቸው ጣቢያዎች መካከል የአንድ ማስታወቂያ ውጤታማነትን መለካት ይችል ይሆናል። የአሰሳ ታሪክዎ በመሣሪያዎ ላይ የግል ሆኖ ይቆያል።\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ስለ የማስታወቂያ ልኬት የበለጠ ይወቁ"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"እርስዎ ባለፉት ጥቂት ሳምንታት ውስጥ በተጠቀሟቸው መተግበሪያዎች መሠረት የዝንባሌ ርዕሶችን ያስተውላል።\n\nበኋላ ላይ፣ እርስዎ የሚጠቀሙት አንድ መተግበሪያ እርስዎ የሚያዩትን ማስታወቂያ ግላዊ ለማድረግ Androidን የእርስዎን ርዕሶች መጠየቅ ይችላል። Android የእርስዎን ማንነት እና ስለመተግበሪያ አጠቃቀምዎ ያለ መረጃን ጥበቃ በማድረግ ላይ ሳለ እስከ 3 ርዕሶች የሚደርሱ ያጋራል።\n\nAndroid ርዕሶችን በመደበኛነት በራስ-ሰር ይሰርዛል። መተግበሪያዎችን መጠቀምዎን ሲቀጥሉ በዝርዝሩ ላይ ርዕስ እንደገና ሊታይ ይችላል። ወይም Android ከመተግበሪያዎች ጋር እንዳያጋራ የሚፈልጓቸውን ርዕሶች ማገድ ይችላሉ።\n\nየሚመለከቱት ማስታወቂያ ግላዊነት የተላበሰ ስለመሆኑ በብዙ ሁኔታዎች ላይ የተወሰነ ሊሆን ይችላል ለምሳሌ እንደዚህ ቅንብር፣ በመተግበሪያ የተጠቆሙ ማስታወቂያዎች ቅንብሩ፣ የማስታወቂያ መታወቂያ ቅንብሮችዎ፣ እና በሚጠቀሙበት መተግበሪያ ግላዊነትን የተላበሱ ማስታወቂያዎች።\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ስለ የማስታወቂያ ርዕሶች የበለጠ ይወቁ"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"እንደ ሙዚቃ፣ ዜና እና ስፖርት ያሉ የዝንባሌ ርዕሶችን የሚወክሉ በቀለም የተሞሉ የሥዕላዊ ማብራሪያ ምልክቶች"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"በክበብ ውስጥ ያለ በቀለም የተሞላ ቁልፍ ሥዕላዊ ማብራሪያ"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"ኩብ የሚፈጥሩ የዘጠኝ ነጥቦች ትንሽ ጥቁር እና ነጭ ሥዕላዊ ማብራሪያ"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"እንደ ልብ፣ ሦስት ማዕዘን እና ኩብ ያሉ የቀላል ቅርጾች ትንሽ ጥቁር እና ነጭ ሥዕላዊ ማብራሪያ"</string>
+    <string name="topic10001" msgid="1270825507916795717">"ሥነ ጥበባት እና መዝናኛ"</string>
+    <string name="topic10002" msgid="8657696153158750159">"ትወና እና ቲያትር"</string>
+    <string name="topic10003" msgid="8107343709605778937">"አኒሜ እና ማንጋ"</string>
+    <string name="topic10004" msgid="8860839733494442614">"ካርቱኖች"</string>
+    <string name="topic10005" msgid="2366794377271477958">"ኮሚክስ"</string>
+    <string name="topic10006" msgid="3856192433168050494">"ኮንሰርቶች እና የሙዚቃ ፌስቲቫሎች"</string>
+    <string name="topic10007" msgid="7701054618107492020">"ጭፈራ"</string>
+    <string name="topic10008" msgid="5566660187422751041">"የመዝናኛ ኢንዱስትሪ"</string>
+    <string name="topic10009" msgid="9048499060637442408">"አዝናኝ እና የጥያቄና መልስ ውድድር"</string>
+    <string name="topic10010" msgid="2312303716461948144">"አዝናኝ ፈተናዎች እና አስቂኝ የዳሰሳ ጥናቶች"</string>
+    <string name="topic10011" msgid="175945911179628507">"ቀልድ"</string>
+    <string name="topic10012" msgid="7308795546139033442">"አስቂኝ ምስሎች እና ቪድዮዎች"</string>
+    <string name="topic10013" msgid="1525199586552473496">"የቀጥታ ስርጭት አስቂኝ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"የቀጥታ ስፖርት ክስተቶች"</string>
+    <string name="topic10015" msgid="726046067079821146">"ማጂክ"</string>
+    <string name="topic10016" msgid="2349985783026324836">"የፊልም ዝርዝሮች እና የቲያትር ማሳያ ሰዓቶች"</string>
+    <string name="topic10017" msgid="5137452934538259985">"ፊልሞች"</string>
+    <string name="topic10018" msgid="2701694124396534094">"የድርጊት እና የጀብዱ ፊልሞች"</string>
+    <string name="topic10019" msgid="4229784972880729321">"የእነማ ፊልሞች"</string>
+    <string name="topic10020" msgid="7406506079009096133">"አስቂኝ ፊልሞች"</string>
+    <string name="topic10021" msgid="8455397230215712525">"ባለ ብዙ አድናቂ እና ኢንዲ ፊልሞች"</string>
+    <string name="topic10022" msgid="4121646102859453428">"ጥናታዊ ፊልሞች"</string>
+    <string name="topic10023" msgid="254151319845267278">"የድራማ ፊልሞች"</string>
+    <string name="topic10024" msgid="9166490951622139148">"የቤተሰብ ፊልሞች"</string>
+    <string name="topic10025" msgid="4556814606759167730">"አስፈሪ ፊልሞች"</string>
+    <string name="topic10026" msgid="210222384439682793">"የፍቅር ፊልሞች"</string>
+    <string name="topic10027" msgid="6865151893887179263">"ልብ አንጠልጣይ"</string>
+    <string name="topic10028" msgid="7591747452141916447">"ሙዚቃ እና ኦዲዮ"</string>
+    <string name="topic10029" msgid="2603521148910221418">"ብሉዝ"</string>
+    <string name="topic10030" msgid="1882645896051165373">"ክላሲካል ሙዚቃ"</string>
+    <string name="topic10031" msgid="3075843490601826275">"የሀገረሰብ ሙዚቃ"</string>
+    <string name="topic10032" msgid="5492959212920168739">"የጭፈራ እና ኤሌክትሮኒክ ሙዚቃ"</string>
+    <string name="topic10033" msgid="895853536740398847">"የሀገረሰብ እና ባህላዊ ሙዚቃ"</string>
+    <string name="topic10034" msgid="4234814709585731313">"ጃዝ"</string>
+    <string name="topic10035" msgid="4357756001621317728">"የሙዚቃ ዥረቶች እና ውርዶች"</string>
+    <string name="topic10036" msgid="449833307315797283">"የሙዚቃ ቪዲዮዎች"</string>
+    <string name="topic10037" msgid="51698216720637667">"የሙዚቃ መሣሪያዎች"</string>
+    <string name="topic10038" msgid="8450729953573104572">"ፒያኖዎች እና ኪቦርዶች"</string>
+    <string name="topic10039" msgid="9069435933476958784">"ፖፕ ሙዚቃ"</string>
+    <string name="topic10040" msgid="2307340564445486423">"ሬዲዮ"</string>
+    <string name="topic10041" msgid="7067032299296103616">"የንግግር ሬዲዮ"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ራፕ እና ሂፕ-ሆፕ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"ሮክ ሙዚቃ"</string>
+    <string name="topic10044" msgid="6201404431104417585">"የቆየ ተወዳጅ ሮክ እና አንጋፋዎች"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ሃርድ ሮክ እና ፕሮግረሲቭ"</string>
+    <string name="topic10046" msgid="4700537150965749092">"ኢንዲ እና አማራጭ ሙዚቃ"</string>
+    <string name="topic10047" msgid="6868724754947095800">"ናሙናዎች እና የድምጽ ቤተ-መጽሐፍቶች"</string>
+    <string name="topic10048" msgid="1968071881240362644">"ሶል እና አር ኤንድ ቢ"</string>
+    <string name="topic10049" msgid="3935800983716699672">"የፊልም ማጀቢያ ሙዚቃዎች"</string>
+    <string name="topic10050" msgid="1374275552775889532">"የዓለም ሙዚቃ"</string>
+    <string name="topic10051" msgid="5719726125732251258">"ሬጌ እና የካሪቢያን ሙዚቃ"</string>
+    <string name="topic10052" msgid="1284902821545612733">"የመስመር ላይ የምስል ማዕከለ-ሥዕላት"</string>
+    <string name="topic10053" msgid="5420622301656482567">"የመስመር ላይ ቪድዮ"</string>
+    <string name="topic10054" msgid="4562235511593399260">"የቀጥታ ስርጭት የቪድዮ ዥረት"</string>
+    <string name="topic10055" msgid="3752987507076288470">"ፊልም እና የቴሌቪዥን ዥረት"</string>
+    <string name="topic10056" msgid="1316228709578133569">"ኦፔራ"</string>
+    <string name="topic10057" msgid="3265794667031664331">"የቴሌቪዥን መመሪያዎች እና ዋቢዎች"</string>
+    <string name="topic10058" msgid="8409884272709263707">"የቴሌቪዥን አውታረ መረቦች እና ጣቢያዎች"</string>
+    <string name="topic10059" msgid="6770193120260554722">"የቴሌቪዥን ትርዒቶች እና ፕሮግራሞች"</string>
+    <string name="topic10060" msgid="2410694865246432781">"የቴሌቪዥን ኮሜዲዎች"</string>
+    <string name="topic10061" msgid="7733515887806604226">"የቴሌቪዥን ጥናታዊ ፊልም እና ልብ-ወለድ ያልሆኑ"</string>
+    <string name="topic10062" msgid="2539857914076699714">"የቴሌቪዥን ድራማዎች"</string>
+    <string name="topic10063" msgid="7645361077069015698">"የቴሌቪዥን ተከታታይ ድራማዎች"</string>
+    <string name="topic10064" msgid="3322306867038013554">"ቤተሰብ-ተኮር የቴሌቪዥን ትርዒቶች"</string>
+    <string name="topic10065" msgid="6361928032564256523">"የቴሌቪዥን እውነታ ትርዒቶች"</string>
+    <string name="topic10066" msgid="9206067258196707389">"የቴሌቪዥን ሳይሳዊ ልብወለድ እና ምናባዊ ትርዒቶች"</string>
+    <string name="topic10067" msgid="6479768451596254929">"ምስላዊ ሥነ-ጥበብ እና ንድፍ"</string>
+    <string name="topic10068" msgid="7999222744500155387">"ንድፍ"</string>
+    <string name="topic10069" msgid="3345227631449580699">"ሥዕል"</string>
+    <string name="topic10070" msgid="8921241315781663883">"የፎቶግራፍ እና ዲጂታል ሥነ ጥበባት"</string>
+    <string name="topic10071" msgid="5802889978655775195">"መኪናዎች እና ተሸከርካሪዎች"</string>
+    <string name="topic10072" msgid="7699714565299422080">"የጭነት መኪናዎች እና ተጎታቾች"</string>
+    <string name="topic10073" msgid="8309536003187424408">"የቆዩ ተወዳጅ ተሽከርካሪዎች"</string>
+    <string name="topic10074" msgid="7682849385993670574">"ብጁ እና የከፍተኛ ሥራ ተሽከርካሪዎች"</string>
+    <string name="topic10075" msgid="6556611554556269074">"የነዳጅ ዋጋዎች እና የተሽከርካሪ ነዳጅ"</string>
+    <string name="topic10076" msgid="4919696820372108489">"የሞተር ተሽከርካሪዎች (በዓይነት)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"ራስ-ሰር ተሽከርካሪዎች"</string>
+    <string name="topic10078" msgid="4334233882549881927">"ጣራቸው ክፍት የሚሆኑ መኪናዎች"</string>
+    <string name="topic10079" msgid="3172046203487780210">"ባለሁለት በር መኪናዎች"</string>
+    <string name="topic10080" msgid="8163934214927408125">"ሃችባኮች"</string>
+    <string name="topic10081" msgid="577995777553561437">"ሃይብሪድ እና ተለዋጭ ተሽከርካሪዎች"</string>
+    <string name="topic10082" msgid="9109129029552185357">"የቅንጦት ተሽከርካሪዎች"</string>
+    <string name="topic10083" msgid="2403537768530923605">"አነስተኛ መኪናዎች እና ንዑስ ኮምፓክቶች"</string>
+    <string name="topic10084" msgid="8422281545992763598">"ሞተርሳይክሎች"</string>
+    <string name="topic10085" msgid="8083861494180925476">"ከመንገድ ውጭ ተሽከርካሪዎች"</string>
+    <string name="topic10086" msgid="7643969175312645412">"ፒካፕ መኪናዎች"</string>
+    <string name="topic10087" msgid="2731154517409527341">"ስኩተሮች እና ሞፔዶች"</string>
+    <string name="topic10088" msgid="3252737061574829966">"ሴዳኖች"</string>
+    <string name="topic10089" msgid="5296300331452192377">"ስቴሽን ዋገኖች"</string>
+    <string name="topic10090" msgid="3420243367635085619">"ኤስዩቪዎች እና ክሮስኦቨሮች"</string>
+    <string name="topic10091" msgid="1855954783407839458">"ክሮስኦቨሮች"</string>
+    <string name="topic10092" msgid="3748598147176261608">"ሚኒባሶች እና አነስተኛ ሚኒባሶች"</string>
+    <string name="topic10093" msgid="4427294934418177183">"የመጎተት እና የመንገድ ዳር እርዳታ"</string>
+    <string name="topic10094" msgid="2377839138225502290">"የተሽከርካሪ እና የትራፊክ ደህንነት"</string>
+    <string name="topic10095" msgid="84682415803421329">"የተሽከርካሪ ክፍሎች እና መለዋወጫዎች"</string>
+    <string name="topic10096" msgid="8920802377602814882">"የተሽከርካሪ ጥገና እና እደሳ"</string>
+    <string name="topic10097" msgid="1171171183482751335">"የተሽከርካሪ ግዢ"</string>
+    <string name="topic10098" msgid="2079957196489295765">"ያገለገሉ ተሽከርካሪዎች"</string>
+    <string name="topic10099" msgid="8979943848539150620">"የተሽከርካሪ ትርዒቶች"</string>
+    <string name="topic10100" msgid="4197262693717174623">"ውበት እና የአካል ብቃት"</string>
+    <string name="topic10101" msgid="7348658588841917441">"የሰውነት ሥነ ጥበብ"</string>
+    <string name="topic10102" msgid="3638722720071045006">"የመልክ እና የሰውነት እንክብካቤ"</string>
+    <string name="topic10103" msgid="7505482487921433611">"ፀረ-ላብ መድሃኒቶች"</string>
+    <string name="topic10104" msgid="6370054283334591202">"የመታጠቢያ እና የሰውነት ምርቶች"</string>
+    <string name="topic10105" msgid="1191169056931411220">"ንጹህ ውበት"</string>
+    <string name="topic10106" msgid="3928455104996075953">"ሜካፕ እና ኮስሞቲክስ"</string>
+    <string name="topic10107" msgid="3798923390765338227">"የጥፍር መንከባከቢያ ምርቶች"</string>
+    <string name="topic10108" msgid="577259588028933025">"ሽቶዎች እና መዓዛዎች"</string>
+    <string name="topic10109" msgid="2191558742276310934">"ምላጮች እና መላጫዎች"</string>
+    <string name="topic10110" msgid="4668859731019222824">"ፋሽን እና ስታይል"</string>
+    <string name="topic10111" msgid="8382751996496129758">"የአካል ብቃት"</string>
+    <string name="topic10112" msgid="2904455776326272301">"የሰውነት ግንባታ"</string>
+    <string name="topic10113" msgid="8931680908070341060">"የአካል ብቃት መመሪያዎች እና የግል ስልጠና"</string>
+    <string name="topic10114" msgid="1666144425445242905">"የአካል ብቃት ቴክኖሎጂ ምርቶች"</string>
+    <string name="topic10115" msgid="3024886857586781525">"የጸጉር እንክብካቤ"</string>
+    <string name="topic10116" msgid="763642849903586689">"መጽሐፍት እና ሥነ ጽሁፍ"</string>
+    <string name="topic10117" msgid="2897295398887355445">"የልጆች ሥነ ጽሁፍ"</string>
+    <string name="topic10118" msgid="8261966919146004082">"ኢ-መጽሐፍት"</string>
+    <string name="topic10119" msgid="894448782525835364">"መጽሔቶች"</string>
+    <string name="topic10120" msgid="6413553316742475453">"ሥነ ግጥም"</string>
+    <string name="topic10121" msgid="5743038898774111015">"ንግድ እና የኢንዱስትሪ"</string>
+    <string name="topic10122" msgid="9008408720895399838">"ማስታወቂያ እና ግብይት"</string>
+    <string name="topic10123" msgid="2259134467663515137">"ሽያጭ"</string>
+    <string name="topic10124" msgid="6342988250432534253">"ግብርና እና ደን"</string>
+    <string name="topic10125" msgid="4258543381071903891">"የምግብ ማምረት"</string>
+    <string name="topic10126" msgid="7175643869342613083">"የአውቶሞቲቭ ኢንዱስትሪ"</string>
+    <string name="topic10127" msgid="6431712570995680971">"የአየር በረራ ኢንዱስትሪ"</string>
+    <string name="topic10128" msgid="4235280795901477432">"የንግድ ክወናዎች"</string>
+    <string name="topic10129" msgid="7076722669374577677">"ተለዋዋጭ የሥራ ዝግጅቶች"</string>
+    <string name="topic10130" msgid="3611582433482627069">"የሰው ኃይል"</string>
+    <string name="topic10131" msgid="1372513307847962621">"የንግድ ብድር"</string>
+    <string name="topic10132" msgid="4784716346965522438">"ግንባታ እና ጥገና"</string>
+    <string name="topic10133" msgid="7421272318291450977">"ሲቪል ምህንድስና"</string>
+    <string name="topic10134" msgid="6960637850006318075">"የመከላከያ ኢንዱስትሪ"</string>
+    <string name="topic10135" msgid="3682767135401089609">"ኃይል እና መገልገያዎች"</string>
+    <string name="topic10136" msgid="455894912948558854">"የውሃ አቅርቦት እና ህክምና"</string>
+    <string name="topic10137" msgid="8298610586001250767">"የመስተንግዶ ኢንዱስትሪ"</string>
+    <string name="topic10138" msgid="1297997683887620829">"ማምረት"</string>
+    <string name="topic10139" msgid="2881410777083033235">"ብረቶች እና ማዕድን ማውጣት"</string>
+    <string name="topic10140" msgid="3210849036014636721">"ኤም ኤል ኤም እና የንግድ ዕድሎች"</string>
+    <string name="topic10141" msgid="2209863158714894227">"መድሐኒቶች እና ባዮቴክ"</string>
+    <string name="topic10142" msgid="5503134498670972397">"ህትመት እና ስርጭት"</string>
+    <string name="topic10143" msgid="7443122495469194311">"የችርቻሮ ንግድ"</string>
+    <string name="topic10144" msgid="4491152042745513902">"ቬንቸር ካፒታል"</string>
+    <string name="topic10145" msgid="7181389660165515306">"ኮምፒውተሮች እና ኤሌክትሮኒክስ"</string>
+    <string name="topic10146" msgid="5319328674320188177">"የኮምፒውተር ተገጣሚዎች"</string>
+    <string name="topic10147" msgid="3115360970477190823">"አታሚዎች"</string>
+    <string name="topic10148" msgid="388392714835039199">"የኮምፒውተር ደህንነት"</string>
+    <string name="topic10149" msgid="8669494095915530311">"ጸረ-ቫይረስ እና ተንኮል አዘል ዌር"</string>
+    <string name="topic10150" msgid="7287887356428407082">"የአውታረ መረብ ደህንነት"</string>
+    <string name="topic10151" msgid="1896865948857670589">"የተጠቃሚ ኤሌክትሮኒክስ"</string>
+    <string name="topic10152" msgid="2229775287055715130">"ካሜራዎች እና ካምኮርደሮች"</string>
+    <string name="topic10153" msgid="6999943807078774050">"ጂፒኤስ እና አሰሳ"</string>
+    <string name="topic10154" msgid="6865619906648095342">"የቤት ኦቶሜሽን"</string>
+    <string name="topic10155" msgid="6083736045761149547">"የቤት ቲያትር ስርዓቶች"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 እና ተንቀሳቃሽ የሚዲያ ማጫወቻዎች"</string>
+    <string name="topic10157" msgid="5681638457846277732">"የተለባሽ ቴክኖሎጂ"</string>
+    <string name="topic10158" msgid="3203453971647354680">"የውሂብ ምትኬ እና መልሶ ማግኛ"</string>
+    <string name="topic10159" msgid="5630430439595766824">"የዴስክቶፕ ኮምፒውተሮች"</string>
+    <string name="topic10160" msgid="4829448963240629016">"ላፕቶፖች እና ኖትቡኮች"</string>
+    <string name="topic10161" msgid="172004201167511870">"አውታረ መረብ"</string>
+    <string name="topic10162" msgid="6091195506695436179">"የተሰራጨ እና በደመና የኮምፒዩተር ሥራ"</string>
+    <string name="topic10163" msgid="1151401754761855146">"ፕሮግራም ማድረግ"</string>
+    <string name="topic10164" msgid="9084381711034794904">"ሶፍትዌር"</string>
+    <string name="topic10165" msgid="7794619191364239903">"የኦዲዮ እና ሙዚቃ ሶፍትዌር"</string>
+    <string name="topic10166" msgid="8763250476037582784">"የንግድ እና የአምራችነት ሶፍትዌር"</string>
+    <string name="topic10167" msgid="2049380875864013534">"የቀን መቁጠሪያ እና የጊዜ መርሐግብርን ማስያዝ ሶፍትዌር"</string>
+    <string name="topic10168" msgid="8902187628490964169">"የትብብር እና ጉባዔ የማድረግ ሶፍትዌር"</string>
+    <string name="topic10169" msgid="827557334245484202">"የዝግጅት ማቅረቢያ ሶፍትዌር"</string>
+    <string name="topic10170" msgid="9004257492478793528">"የተመን ሉህ ሶፍትዌር"</string>
+    <string name="topic10171" msgid="7993474143932045967">"የጽሑፍ ማቀናበሪያ ሶፍትዌር"</string>
+    <string name="topic10172" msgid="7796145013604839047">"የዴስክቶፕ ህትመት"</string>
+    <string name="topic10173" msgid="2914187257631238849">"ቅርጸ-ቁምፊዎች"</string>
+    <string name="topic10174" msgid="2115617300581130014">"የአውርድ አስተዳዳሪዎች"</string>
+    <string name="topic10175" msgid="5871766754983733443">"ነፃ ዌር እና ተከፋይ ዌር"</string>
+    <string name="topic10176" msgid="4556902534984350353">"የግራፊክስ እና የእነማ ሶፍትዌር"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ብልህ የግል ረዳቶች"</string>
+    <string name="topic10178" msgid="6156514295355993755">"የሚዲያ ማጫወቻዎች"</string>
+    <string name="topic10179" msgid="4166560755175055525">"የቁጥጥር ሶፍትዌር"</string>
+    <string name="topic10180" msgid="1616408866159152420">"ስርዓተ ክወናዎች"</string>
+    <string name="topic10181" msgid="1104637623376778918">"የፎቶ እና የቪድዮ ሶፍትዌር"</string>
+    <string name="topic10182" msgid="4433309778429721885">"የፎቶ ሶፍትዌር"</string>
+    <string name="topic10183" msgid="7726225846283601216">"የቪድዮ ሶፍትዌር"</string>
+    <string name="topic10184" msgid="7666718573841178521">"የሶፍትዌር መገልገያዎች"</string>
+    <string name="topic10185" msgid="7090504131394943791">"ድር አሳሾች"</string>
+    <string name="topic10186" msgid="2894398454040127175">"ፋይናንስ"</string>
+    <string name="topic10187" msgid="3321209590831212269">"የሒሳብ አያያዝ እና ኦዲት ማድረግ"</string>
+    <string name="topic10188" msgid="6091864564976149142">"የግብር አዘገጃጀት እና የዕቅድ አወጣጥ"</string>
+    <string name="topic10189" msgid="5722909809680931661">"የባንክ ሥራ"</string>
+    <string name="topic10190" msgid="4954502185848303449">"የገንዘብ ዝውውር እና የገመድ አገልግሎቶች"</string>
+    <string name="topic10191" msgid="374364159635356705">"ክሬዲት እና ብድር"</string>
+    <string name="topic10192" msgid="4780985034026130257">"ክሬዲት ካርዶች"</string>
+    <string name="topic10193" msgid="5010972379907168829">"የቤት ፋይናንስ"</string>
+    <string name="topic10194" msgid="1311944420068992723">"የግል ብድሮች"</string>
+    <string name="topic10195" msgid="7554681395283728871">"የተማሪ ብድሮች እና የኮሌጅ ፋይናንስ"</string>
+    <string name="topic10196" msgid="1390058955048742733">"የፋይናንስ ዕቅድ አወጣጥ እና አስተዳደር"</string>
+    <string name="topic10197" msgid="6999203003544574270">"ጡረታ እና የጡረታ አበል"</string>
+    <string name="topic10198" msgid="1172025416206301419">"ድጎማዎች"</string>
+    <string name="topic10199" msgid="2817599683028682473">"ድጎማዎች"</string>
+    <string name="topic10200" msgid="4560138974690686847">"መድህን"</string>
+    <string name="topic10201" msgid="447240478385298875">"የመኪና መድህን"</string>
+    <string name="topic10202" msgid="8047136869242553756">"የጤና መድህን"</string>
+    <string name="topic10203" msgid="6593194921457271151">"የቤት መድህን"</string>
+    <string name="topic10204" msgid="4634976092969827804">"የህይወት መድህን"</string>
+    <string name="topic10205" msgid="262581473890356377">"የጉዞ መድህን"</string>
+    <string name="topic10206" msgid="5534905376642807172">"ኢንቨስት ማድረግ"</string>
+    <string name="topic10207" msgid="2202788132330201137">"ሸቀጦች እና የወደፊቶች ንግድ"</string>
+    <string name="topic10208" msgid="1250532081213960304">"ምንዛሬዎች እና የውጪ ምንዛሬ"</string>
+    <string name="topic10209" msgid="7384658616986998949">"ሄጅ ፈንድ"</string>
+    <string name="topic10210" msgid="5646412565978393234">"የጋራ ፈንድ"</string>
+    <string name="topic10211" msgid="2001835133812379482">"አክሲዮኖች እና ቦንዶች"</string>
+    <string name="topic10212" msgid="2364530251853656532">"ምግብ እና መጠጥ"</string>
+    <string name="topic10213" msgid="805716705436663130">"ምግብ ማብሰል እና አሰራሮች"</string>
+    <string name="topic10214" msgid="726298155737413779">"ባርቢኪው እና መጥበስ"</string>
+    <string name="topic10215" msgid="1502589059550612499">"የምግብ ዓይነቶች"</string>
+    <string name="topic10216" msgid="7699499757302291329">"ስጋ የማይበላ ተመጋቢ ምግብ"</string>
+    <string name="topic10217" msgid="2160292055279553771">"የእንስሳት ተዋጽዖዎች የማይበላ ተመጋቢ ምግብ"</string>
+    <string name="topic10218" msgid="4090671581843003332">"ጤነኛ አመጋገብ"</string>
+    <string name="topic10219" msgid="7663946426520362378">"የምግብ እና የሸቀጣሸቀጥ ቸርቻሪዎች"</string>
+    <string name="topic10220" msgid="4812477283307222367">"ጨዋታዎች"</string>
+    <string name="topic10221" msgid="2320959705105050635">"የመጫወቻ ማዕከል እና በሳንቲም የሚገባባቸው ጨዋታዎች"</string>
+    <string name="topic10222" msgid="1659423113675232767">"ቢላርድስ"</string>
+    <string name="topic10223" msgid="3526662148224862522">"የቦርድ ጨዋታዎች"</string>
+    <string name="topic10224" msgid="8806949357679505576">"ቼዝ እና የረቂቅ ስትራቴጂ ጨዋታዎች"</string>
+    <string name="topic10225" msgid="564207834821286301">"የካርታ ጨዋታዎች"</string>
+    <string name="topic10226" msgid="6918788605930334066">"የሚሰበሰቡ የካርታ ጨዋታዎች"</string>
+    <string name="topic10227" msgid="7011042093822468388">"የኮምፒውተር እና የቪድዮ ጨዋታዎች"</string>
+    <string name="topic10228" msgid="6883716111007300369">"የድርጊት እና የመሰረተ ስርዓት ጨዋታዎች"</string>
+    <string name="topic10229" msgid="1448569034984381121">"የጀብዱ ጨዋታዎች"</string>
+    <string name="topic10230" msgid="3350872631578952799">"የተለመዱ ጨዋታዎች"</string>
+    <string name="topic10231" msgid="405082026972839048">"የፉክክር የቪድዮ ጨዋታ"</string>
+    <string name="topic10232" msgid="1839026948327779776">"የመንዳት እና እሽቅድምድም ጨዋታዎች"</string>
+    <string name="topic10233" msgid="1188186151495453281">"የድብድብ ጨዋታዎች"</string>
+    <string name="topic10234" msgid="693433817142162565">"የጨዋታ ዋቢ እና ግምገማዎች"</string>
+    <string name="topic10235" msgid="8703923040923920090">"የቪድዮ ጨዋታ መሸወጃዎች እና ፍንጮች"</string>
+    <string name="topic10236" msgid="320145832033080647">"ግዙፍ ባለብዙ-ተጫዋች ጨዋታዎች"</string>
+    <string name="topic10237" msgid="5441671482070243974">"የሙዚቃ እና የጭፈራ ጨዋታዎች"</string>
+    <string name="topic10238" msgid="124952008622371505">"የማጠሪያ ጨዋታዎች"</string>
+    <string name="topic10239" msgid="8116373838332949879">"የተኳሽ ጨዋታዎች"</string>
+    <string name="topic10240" msgid="429738690314619395">"የማስመሰያ ጨዋታዎች"</string>
+    <string name="topic10241" msgid="6759586807395308444">"የንግድ እና ባለጸጋ ጨዋታዎች"</string>
+    <string name="topic10242" msgid="6446465880310926504">"የከተማ ግንባታ ጨዋታዎች"</string>
+    <string name="topic10243" msgid="1900180483768183189">"የህይወት ማስመሰያ ጨዋታዎች"</string>
+    <string name="topic10244" msgid="7177785844550764762">"የተሽከርካሪ ማስመሰያዎች"</string>
+    <string name="topic10245" msgid="3479291573578622081">"የስፖርት ጨዋታዎች"</string>
+    <string name="topic10246" msgid="1362878793775338590">"የስፖርት አስተዳደር ጨዋታዎች"</string>
+    <string name="topic10247" msgid="7167743512938031275">"የስትራቴጂ ጨዋታዎች"</string>
+    <string name="topic10248" msgid="279151815457227293">"የቪድዮ ጨዋታ ማሻሻያዎች እና ተጨማሪዎች"</string>
+    <string name="topic10249" msgid="631580828608894782">"ትምህርታዊ ጨዋታዎች"</string>
+    <string name="topic10250" msgid="8788829601095126859">"ቤተሰብ ተኮር ጨዋታዎች እና እንቅስቃሴዎች"</string>
+    <string name="topic10251" msgid="4289374662760140512">"ሥዕል መሳል እና ማቅለም"</string>
+    <string name="topic10252" msgid="3704663832286223948">"የአለባበስ እና የፋሽን ጨዋታዎች"</string>
+    <string name="topic10253" msgid="385499297969826942">"እንቆቅልሾች እና የአዕምሮ ጨዋታዎች"</string>
+    <string name="topic10254" msgid="3407688580587226586">"የሚና ጨዋታዎች"</string>
+    <string name="topic10255" msgid="5123382868307815261">"የጠረጴዛ ቴኒስ"</string>
+    <string name="topic10256" msgid="3732657908002298514">"የሰቅ ጨዋታዎች"</string>
+    <string name="topic10257" msgid="1563737702727245186">"የቃላት ጨዋታዎች"</string>
+    <string name="topic10258" msgid="3098024313656910144">"ዝንባሌዎች እና ጊዜ ማሳለፊያ መዝናኛዎች"</string>
+    <string name="topic10259" msgid="4943419230459875946">"ዓመታዊ በዓላት"</string>
+    <string name="topic10260" msgid="8082531986100775125">"የልደት ቀናት እና የስም ቀናት"</string>
+    <string name="topic10261" msgid="5848226607755547256">"የጠለቃ እና የውሃ ውስጥ እንቅስቃሴዎች"</string>
+    <string name="topic10262" msgid="7200864040450019529">"የፋይበር እና የጨርቃጨርቅ ጥበባት"</string>
+    <string name="topic10263" msgid="361345691023794788">"ከቤት ውጭ"</string>
+    <string name="topic10264" msgid="1786205972094583167">"ዓሳ ማጥመድ"</string>
+    <string name="topic10265" msgid="2823178926106728570">"ማደን እና መተኮስ"</string>
+    <string name="topic10266" msgid="8850275614185862002">"የቀለም ጥይት"</string>
+    <string name="topic10267" msgid="3722262029580639019">"የሬዲዮ ቁጥጥር እና ሞዴሊንግ"</string>
+    <string name="topic10268" msgid="3854589101176380228">"ሰርጎች"</string>
+    <string name="topic10269" msgid="6274589872519767859">"ቤት እና የአትክልት ስፍራ"</string>
+    <string name="topic10270" msgid="6333380157855869252">"አትክልት መንከባከብ"</string>
+    <string name="topic10271" msgid="7654177637864012480">"የቤት እና የቤት ውስጥ ማስጌጫ"</string>
+    <string name="topic10272" msgid="3679206633003573176">"የቤት መገልገያዎች"</string>
+    <string name="topic10273" msgid="7964372799408781017">"የቤት ማሻሻያ"</string>
+    <string name="topic10274" msgid="7438404923297950713">"የቤት ደህንነት እና ጥበቃ"</string>
+    <string name="topic10275" msgid="682064062059687444">"የቤት ውስጥ ዕቃዎች"</string>
+    <string name="topic10276" msgid="6967461678618700017">"የመሬት ገጽታ ንድፍ"</string>
+    <string name="topic10277" msgid="5888643119731566320">"በይነመረብ እና ቴሌኮም"</string>
+    <string name="topic10278" msgid="1736187026108921963">"ኢሜይል እና መልዕክት መላላክ"</string>
+    <string name="topic10279" msgid="9034205050642228743">"ኢሜይል"</string>
+    <string name="topic10280" msgid="3168053876492638177">"ጽሁፍ እና ውይይት"</string>
+    <string name="topic10281" msgid="582764575763317221">"የድምጽ እና ቪድዮ ውይይት"</string>
+    <string name="topic10282" msgid="7165187778548433480">"አይኤስፒዎች"</string>
+    <string name="topic10283" msgid="4990902662337451282">"የስልክ ግልጋሎት ሰጪዎች"</string>
+    <string name="topic10284" msgid="8298837964949288587">"የጥሪ ቅላጼዎች እና የሞባይል ገጽታዎች"</string>
+    <string name="topic10285" msgid="5409600379647005862">"የፍለጋ ፕሮግራሞች"</string>
+    <string name="topic10286" msgid="5120434472606081895">"ዘመናዊ ስልኮች"</string>
+    <string name="topic10287" msgid="3350459436622898201">"ቴሌኮንፈረንሲንግ"</string>
+    <string name="topic10288" msgid="4197272921112835157">"የድር መተግበሪያዎች እና የመስመር ላይ መሣሪያዎች"</string>
+    <string name="topic10289" msgid="5361961713593805925">"የድር አገልግሎቶች"</string>
+    <string name="topic10290" msgid="1030690821237195132">"የደመና ማከማቻ"</string>
+    <string name="topic10291" msgid="4049265350889304495">"የድር ንድፍ እና ግንባታ"</string>
+    <string name="topic10292" msgid="3386329227033265361">"የድር መስተንግዶ"</string>
+    <string name="topic10293" msgid="5737650187548034975">"ስራዎች እና ትምህርት"</string>
+    <string name="topic10294" msgid="4134169605040294646">"ትምህርት"</string>
+    <string name="topic10295" msgid="331240908257602211">"ትምህርታዊ ጉባዔዎች እና ህትመቶች"</string>
+    <string name="topic10296" msgid="8588303480683748067">"ኮሌጆች እና ዩኒቨርሲቲዎች"</string>
+    <string name="topic10297" msgid="6374270931732387420">"የርቀት ትምህርት"</string>
+    <string name="topic10298" msgid="1588575102152049123">"የቀድሞ ልጅነት ትምህርት"</string>
+    <string name="topic10299" msgid="2437152839161363820">"ቅድመ-ትምህርት ቤት"</string>
+    <string name="topic10300" msgid="1716635660730089544">"በቤት ውስጥ ማስተማር"</string>
+    <string name="topic10301" msgid="7986927377838820550">"መደበኛ የሆኑ እና የመግቢያ ፈተናዎች"</string>
+    <string name="topic10302" msgid="5998774512114172286">"የማስተማሪያ እና የትምህርት ክፍል ንብረቶች"</string>
+    <string name="topic10303" msgid="4585533807035591476">"የሙያ እና ቀጣይነት ያለው ትምህርት"</string>
+    <string name="topic10304" msgid="7882895278855442691">"ስራዎች"</string>
+    <string name="topic10305" msgid="5595618454946980801">"የስራ ፍለጋ መርጃዎች እና ዕቅድ ማውጣት"</string>
+    <string name="topic10306" msgid="2721676636117931598">"የስራ ዝርዝሮች"</string>
+    <string name="topic10307" msgid="1718396745825058084">"ህግ እና መንግሥት"</string>
+    <string name="topic10308" msgid="5324738087341048710">"ወንጀል እና ፍትህ"</string>
+    <string name="topic10309" msgid="6295029954614836413">"ህጋዊ"</string>
+    <string name="topic10310" msgid="8422735354338745855">"ህጋዊ አገልግሎቶች"</string>
+    <string name="topic10311" msgid="1230675855406761762">"ዜና"</string>
+    <string name="topic10312" msgid="6827799049548932141">"የኢኮኖሚ ዜና"</string>
+    <string name="topic10313" msgid="2329065661493302739">"አካባቢያዊ ዜና"</string>
+    <string name="topic10314" msgid="8901835561696055036">"ውህደቶች እና የድርጅት ግዢዎች"</string>
+    <string name="topic10315" msgid="5854338074460033131">"ጋዜጣዎች"</string>
+    <string name="topic10316" msgid="5102748655058857401">"ፖለቲካ"</string>
+    <string name="topic10317" msgid="888696185673599406">"የስፖርት ዜና"</string>
+    <string name="topic10318" msgid="8287583657423629224">"የአየር ሁኔታ"</string>
+    <string name="topic10319" msgid="8709805241522664825">"የዓለም ዜና"</string>
+    <string name="topic10320" msgid="2512907250610386132">"የመስመር ላይ ማህበረሰቦች"</string>
+    <string name="topic10321" msgid="7457693963027299711">"ቅንጥብ ሥዕል እና የታነሙ GIFዎች"</string>
+    <string name="topic10322" msgid="3527120229469957977">"ለፍቅር መገናኘት እና ራስን ማስተዋወቅ"</string>
+    <string name="topic10323" msgid="6172125921314846923">"የምግብ ውሑድ እና ማኅበራዊ ዕልባት ማድረግ"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ፋይል ማጋራት እና ማስተናገድ"</string>
+    <string name="topic10325" msgid="916412844647169263">"መድረክ እና የውይይት አቅራቢዎች"</string>
+    <string name="topic10326" msgid="9167525727089128814">"ማይክሮብሎግ"</string>
+    <string name="topic10327" msgid="3594488251348215868">"ፎቶ እና ቪድዮ ማጋራት"</string>
+    <string name="topic10328" msgid="5431605505487660527">"ፎቶ እና ምስል ማጋራት"</string>
+    <string name="topic10329" msgid="2949598007790820705">"ቪድዮ ማጋራት"</string>
+    <string name="topic10330" msgid="4210169032750748349">"ቆዳዎች"</string>
+    <string name="topic10331" msgid="9148081156366912077">"የማህበራዊ አውታረ መረብ መተግበሪያዎች እና ተጨማሪዎች"</string>
+    <string name="topic10332" msgid="1812925257476776861">"ማኅበራዊ አውታረ መረቦች"</string>
+    <string name="topic10333" msgid="5793613565022694596">"ሰዎች እና ማህበረሰብ"</string>
+    <string name="topic10334" msgid="2146426680680125392">"ቤተሰብ እና ግንኙነቶች"</string>
+    <string name="topic10335" msgid="8268284709343326034">"የዘር ሐረግ እና የዘር ሐረግ ጥናት"</string>
+    <string name="topic10336" msgid="360328903013424569">"ትዳር"</string>
+    <string name="topic10337" msgid="6450553850860149046">"ወላጅነት"</string>
+    <string name="topic10338" msgid="3722340462966505867">"ጉዲፈቻ"</string>
+    <string name="topic10339" msgid="8126807339140404862">"ሕጻናት እና ጨቅላ ሕጻናት"</string>
+    <string name="topic10340" msgid="259457452971577855">"የልጅ የበይነመረብ ደህንነት"</string>
+    <string name="topic10341" msgid="9138253009638520984">"ፍቅር"</string>
+    <string name="topic10342" msgid="3272595442607863965">"የሳይንስ ልቦለድ እና ምናባዊ"</string>
+    <string name="topic10343" msgid="7170264926050881882">"የቤት እንስሳት እና እንስሳት"</string>
+    <string name="topic10344" msgid="6956876217624431965">"የቤት እንስሳት ምግብ እና የቤት እንስሳት እንክብካቤ አቅርቦቶች"</string>
+    <string name="topic10345" msgid="8114717708270133007">"የቤት እንስሳት"</string>
+    <string name="topic10346" msgid="3632598362312784148">"አዕዋፍ"</string>
+    <string name="topic10347" msgid="1650823938622414225">"ድመቶች"</string>
+    <string name="topic10348" msgid="570783769757187957">"ውሻዎች"</string>
+    <string name="topic10349" msgid="6069145390145874420">"አሳ እና የትርዒት ውሃ ገንዳ"</string>
+    <string name="topic10350" msgid="7438757598978766290">"ገበሎ አስተኔዎች እና እንቁራሪት አስተኔዎች"</string>
+    <string name="topic10351" msgid="2065353497413573236">"የእንስሳት ሐኪሞች"</string>
+    <string name="topic10352" msgid="2787610393079898221">"ሪል እስቴት"</string>
+    <string name="topic10353" msgid="230887584509968233">"ክፍት ቦታ እና መሬት"</string>
+    <string name="topic10354" msgid="2552020152740480445">"በጊዜ ተከፋፍለው የተጋሩ እና የእረፍት ጊዜ ቦታዎች"</string>
+    <string name="topic10355" msgid="3803439663410756731">"ዋቢ"</string>
+    <string name="topic10356" msgid="1282534977124646845">"የንግድ እና የግል ዝርዝሮች"</string>
+    <string name="topic10357" msgid="1506615046588912749">"አጠቃላይ ዋቢ"</string>
+    <string name="topic10358" msgid="4670198218200218886">"ሒሳብ ማስያዎች እና የዋቢ መሳሪያዎች"</string>
+    <string name="topic10359" msgid="4422164571631604534">"መዝገበ ቃላቶች እና ኢንሳይክሎፒዲያዎች"</string>
+    <string name="topic10360" msgid="4777419229443131291">"ትምህርታዊ መርጃዎች"</string>
+    <string name="topic10361" msgid="2911719878674200735">"እንዴት እንደሚደረግ"</string>
+    <string name="topic10362" msgid="8045493635242789203">"ጊዜ እና ቀን መቁጠሪያዎች"</string>
+    <string name="topic10363" msgid="3433488479827868110">"የቋንቋ መርጃዎች"</string>
+    <string name="topic10364" msgid="7272051128606899896">"የውጪ ቋንቋ ጥናት"</string>
+    <string name="topic10365" msgid="1638685557205583094">"የትርጉም መሣሪያዎች እና መርጃዎች"</string>
+    <string name="topic10366" msgid="5972643213789684860">"ካርታዎች"</string>
+    <string name="topic10367" msgid="4693720215957988260">"ሳይንስ"</string>
+    <string name="topic10368" msgid="7342229547845270303">"የላቀ እውነታ እና ምናባዊ እውነታ"</string>
+    <string name="topic10369" msgid="7623948477078242419">"የስነ ሕይወት ሳይንሶች"</string>
+    <string name="topic10370" msgid="1849957115993781053">"ስነ ዘረመል"</string>
+    <string name="topic10371" msgid="5801324530787262649">"ኬሚስትሪ"</string>
+    <string name="topic10372" msgid="7043359432633182804">"ሥነ ምህዳር እና አካባቢ"</string>
+    <string name="topic10373" msgid="1506052968197311461">"ስነ ምድር"</string>
+    <string name="topic10374" msgid="5081919530597944716">"machine learning እና ሰው ሰራሽ ብልሃት"</string>
+    <string name="topic10375" msgid="7880740430968664319">"ሒሳብ"</string>
+    <string name="topic10376" msgid="8685831276841267222">"ፊዚክስ"</string>
+    <string name="topic10377" msgid="8162056465305020784">"ሮቦቲክስ"</string>
+    <string name="topic10378" msgid="6048245367747141920">"ሸመታ"</string>
+    <string name="topic10379" msgid="3561154473861357708">"ቅርሶች እና የሰብሳቢ እቃዎች"</string>
+    <string name="topic10380" msgid="3001377458860648561">"አልባሳት"</string>
+    <string name="topic10381" msgid="1050316146323573972">"የልጆች አልባሳት"</string>
+    <string name="topic10382" msgid="1131102032733237256">"ልዩ አልባሳት"</string>
+    <string name="topic10383" msgid="2953255538603038999">"የወንዶች አልባሳት"</string>
+    <string name="topic10384" msgid="5208244211687593882">"የሴቶች አልባሳት"</string>
+    <string name="topic10385" msgid="3335546606796359244">"ማስታወቂያዎች"</string>
+    <string name="topic10386" msgid="6517746237788385147">"የሸማቾች መርጃዎች"</string>
+    <string name="topic10387" msgid="8607123472737800846">"ኩፖኖች እና የዋጋ ቅናሾች"</string>
+    <string name="topic10388" msgid="1641030315133068943">"የታማኝነት ካርዶች እና ፕሮግራሞች"</string>
+    <string name="topic10389" msgid="8196319126164726646">"ቴክኒካዊ ድጋፍ እና ጥገና"</string>
+    <string name="topic10390" msgid="1361120031667629697">"አበባዎች"</string>
+    <string name="topic10391" msgid="9119667040520612849">"የሰላምታ ካርዶች"</string>
+    <string name="topic10392" msgid="6877484311325584713">"የድግስ እና በዓል አቅርቦቶች"</string>
+    <string name="topic10393" msgid="7537523054091079737">"የሸመታ መግቢያዎች"</string>
+    <string name="topic10394" msgid="5321887056912883029">"ስፖርት"</string>
+    <string name="topic10395" msgid="8799420706106672054">"የአሜሪካ እግር ኳስ"</string>
+    <string name="topic10396" msgid="2048632371307841946">"የአውስትራሊያ እግር ኳስ"</string>
+    <string name="topic10397" msgid="653991203228840785">"የመኪና ውድድር"</string>
+    <string name="topic10398" msgid="5412613151176189985">"ቤዝቦል"</string>
+    <string name="topic10399" msgid="2009283546036614639">"ቅርጫት ኳስ"</string>
+    <string name="topic10400" msgid="5034305624605462351">"ቦውሊንግ"</string>
+    <string name="topic10401" msgid="26807857115228330">"ቦክስ"</string>
+    <string name="topic10402" msgid="6218088033939518718">"ድጋፍ መስጠት"</string>
+    <string name="topic10403" msgid="3030076002966858939">"የኮሌጅ ስፖርቶች"</string>
+    <string name="topic10404" msgid="4018137098149287073">"ክሪኬት"</string>
+    <string name="topic10405" msgid="9036991434485987285">"ብስክሌት መንዳት"</string>
+    <string name="topic10406" msgid="7185471418082005024">"የፈረስ ስፖርት"</string>
+    <string name="topic10407" msgid="316266982792700993">"አደገኛ ስፖርቶች"</string>
+    <string name="topic10408" msgid="2571246233605408148">"ወደ ላይ መውጣት እና ተራራ መውጣት"</string>
+    <string name="topic10409" msgid="1182462921341224299">"ምናባዊ ስፖርቶች"</string>
+    <string name="topic10410" msgid="7501849152641094734">"ጎልፍ"</string>
+    <string name="topic10411" msgid="6678464213609789748">"ጂምናስቲክስ"</string>
+    <string name="topic10412" msgid="335770351079973128">"ሆኪ"</string>
+    <string name="topic10413" msgid="416366556259783701">"የበረዶ ላይ ሸርተቴ"</string>
+    <string name="topic10414" msgid="6909439381556710013">"ማርሻል አርት"</string>
+    <string name="topic10415" msgid="4535534983750709163">"የሞተርሳይክል እሽቅድምድም"</string>
+    <string name="topic10416" msgid="1687911875093638923">"ኦሊምፒክ"</string>
+    <string name="topic10417" msgid="2735521554483279111">"ራግቢ"</string>
+    <string name="topic10418" msgid="8763139538107186007">"ሩጫ እና እርምጃ"</string>
+    <string name="topic10419" msgid="979581105119036716">"የበረዶ ላይ ሸርተቴ እና ስኖውቦርዲንግ"</string>
+    <string name="topic10420" msgid="5256622299392338856">"እግር ኳስ"</string>
+    <string name="topic10421" msgid="2654561933626679644">"የውሃ ላይ ቀዘፋ"</string>
+    <string name="topic10422" msgid="978920114358054206">"ዋና"</string>
+    <string name="topic10423" msgid="4476847046369253369">"ቴኒስ"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ትራክ እና ሜዳ"</string>
+    <string name="topic10425" msgid="3357509018485364691">"መረብ ኳስ"</string>
+    <string name="topic10426" msgid="3761026182327229458">"ነፃ ትግል"</string>
+    <string name="topic10427" msgid="3748043578314103947">"ጉዞ እና መጓጓዣ"</string>
+    <string name="topic10428" msgid="7483002505617756861">"የጀብዱ ጉዞ"</string>
+    <string name="topic10429" msgid="8091163959414149724">"የአየር ጉዞ"</string>
+    <string name="topic10430" msgid="1917556952821193760">"የንግድ ጉዞ"</string>
+    <string name="topic10431" msgid="7980462767288577734">"የመኪና ኪራዮች"</string>
+    <string name="topic10432" msgid="4266685292456713522">"የሽርሽር ጉዞዎች እና የጀልባ ኪራዮች"</string>
+    <string name="topic10433" msgid="5001290528529256942">"የቤተሰብ ጉዞ"</string>
+    <string name="topic10434" msgid="6310190021663379686">"የጫጉላ ሽርሽር እና የፍቅር ሽርሽሮች"</string>
+    <string name="topic10435" msgid="8897799078890998992">"ሆቴሎች እና ማደሪያዎች"</string>
+    <string name="topic10436" msgid="6778700611322666596">"የረጅም ርቀት ባስ እና ባቡር"</string>
+    <string name="topic10437" msgid="4764816005841382091">"የዝቅተኛ ዋጋ እና የመጨረሻ ደቂቃ ጉዞ"</string>
+    <string name="topic10438" msgid="1305380730693546021">"ሻንጣ እና የጉዞ መለዋወጫዎች"</string>
+    <string name="topic10439" msgid="7731122187851230543">"የቱሪስት መዳረሻዎች"</string>
+    <string name="topic10440" msgid="8071652555461175118">"የባህር ዳርቻዎች እና ደሴቶች"</string>
+    <string name="topic10441" msgid="7182533767302670894">"ክልላዊ ፓርኮች እና የአትክልት ስፍራዎች"</string>
+    <string name="topic10442" msgid="6462141176894347324">"የመዝናኛ ፓርኮች"</string>
+    <string name="topic10443" msgid="7234914754801803285">"መካነ አራዊቶች"</string>
+    <string name="topic10444" msgid="4322315510441782805">"የትራፊክ እና የአቅጣጫ ዕቅድ አውጪዎች"</string>
+    <string name="topic10445" msgid="1182221450749409373">"የጉዞ ወኪሎች እና አገልግሎቶች"</string>
+    <string name="topic10446" msgid="3104259094878772333">"የጉዞ መመሪያዎች እና የጉዞ ጽሑፎች"</string>
+</resources>

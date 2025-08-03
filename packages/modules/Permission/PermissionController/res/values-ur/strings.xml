@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6098036489833144040">"اجازت کنٹرولر"</string>
+    <string name="ok" msgid="1936281769725676272">"ٹھیک ہے"</string>
+    <string name="permission_search_keyword" msgid="1214451577494730543">"اجازتیں"</string>
+    <string name="cancel" msgid="8943320028373963831">"منسوخ کریں"</string>
+    <string name="back" msgid="6249950659061523680">"واپس جائیں"</string>
+    <string name="available" msgid="6007778121920339498">"دستیاب ہے"</string>
+    <string name="blocked" msgid="9195547604866033708">"مسدود کردہ"</string>
+    <string name="on" msgid="280241003226755921">"آن"</string>
+    <string name="off" msgid="1438489226422866263">"آف کریں"</string>
+    <string name="uninstall_or_disable" msgid="4496612999740858933">"اَن انسٹال یا غیر فعال کریں"</string>
+    <string name="app_not_found_dlg_title" msgid="6029482906093859756">"ایپ نہیں ملی"</string>
+    <string name="grant_dialog_button_deny" msgid="88262611492697192">"اجازت نہ دیں"</string>
+    <string name="grant_dialog_button_deny_and_dont_ask_again" msgid="1748925431574312595">"اجازت نہ دیں اور دوبارہ نہ پوچھیں"</string>
+    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"”جب تک ایپ استعمال میں ہے“ رکھیں"</string>
+    <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"\"صرف اس وقت\" رکھیں"</string>
+    <string name="grant_dialog_button_more_info" msgid="213350268561945193">"مزید معلومات"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"سبھی کو اجازت دیں"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"ہمیشہ سبھی کو اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"محدود رسائی کی اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"تصاویر اور ویڈیوز منتخب کریں"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"مزید منتخب کریں"</string>
+    <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"مزید منتخب نہ کریں"</string>
+    <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"کسی بھی صورت میں اجازت نہ دیں"</string>
+    <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"برخاست کریں"</string>
+    <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="PERMISSION_COUNT">%2$s</xliff:g> میں سے <xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g>"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو <xliff:g id="ACTION">%2$s</xliff:g> کی اجازت دیں؟"</string>
+    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"‏ہمیشہ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt; کو <xliff:g id="ACTION">%2$s</xliff:g> کی اجازت دیں؟"</string>
+    <string name="allow_permission_foreground_only" msgid="116465816039675404">"صرف ایپ استعمال کرنے کے دوران"</string>
+    <string name="allow_permission_always" msgid="5194342531206054051">"ہمیشہ"</string>
+    <string name="deny_permission_deny_and_dont_ask_again" msgid="6106035221490102341">"اجازت نہ دیں اور دوبارہ نہ پوچھیں"</string>
+    <string name="permission_revoked_count" msgid="4785082705441547086">"<xliff:g id="COUNT">%1$d</xliff:g> غیر فعال ہے"</string>
+    <string name="permission_revoked_all" msgid="3397649017727222283">"سبھی غیر فعال ہیں"</string>
+    <string name="permission_revoked_none" msgid="9213345075484381180">"کوئی بھی غیر فعال نہیں ہے"</string>
+    <string name="grant_dialog_button_allow" msgid="5314677880021102550">"اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_always" msgid="4485552579273565981">"ہر وقت اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"ایپ استعمال کرتے وقت"</string>
+    <string name="grant_dialog_button_change_to_precise_location" msgid="3273115879467236033">"قطعی مقام پر تبدیل کریں"</string>
+    <string name="grant_dialog_button_keey_approximate_location" msgid="438025182769080011">"تخمینی مقام برقرار رکھیں"</string>
+    <string name="grant_dialog_button_allow_one_time" msgid="2618088516449706391">"صرف اس وقت"</string>
+    <string name="grant_dialog_button_allow_background" msgid="8236044729434367833">"ہر وقت اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_all_files" msgid="4955436994954829894">"سبھی فائلز کے نظم و نسق کی اجازت دیں"</string>
+    <string name="grant_dialog_button_allow_media_only" msgid="4832877658422573832">"میڈیا فائلز تک رسائی کی اجازت دیں"</string>
+    <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"ایپس"</string>
+    <string name="app_permissions" msgid="3369917736607944781">"ایپ کی اجازتیں"</string>
+    <string name="unused_apps" msgid="2058057455175955094">"غیر مستعمل ایپس"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"منتخب کریں کہ کن تصاویر تک اس ایپ کو رسائی ہوگی"</string>
+    <string name="no_unused_apps" msgid="12809387670415295">"کوئی غیر مستعمل ایپ نہیں ہے"</string>
+    <string name="zero_unused_apps" msgid="9024448554157499748">"0 غیر مستعمل ایپس"</string>
+    <string name="review_permission_decisions" msgid="309559429150613632">"اجازت کے حالیہ فیصلے"</string>
+    <string name="review_permission_decisions_view_all" msgid="90391040431566130">"اجازت کے تمام حالیہ فیصلے دیکھیں"</string>
+    <string name="review_permission_decisions_empty" msgid="8120775336417279806">"اجازت کا کوئی حالیہ فیصلہ نہیں"</string>
+    <string name="auto_permission_manager_summary" msgid="9157438376234301354">"کیلنڈر، کال لاگز اور مزید تک رسائی کے ڈیٹا کا نظم کریں"</string>
+    <string name="granted_permission_decision" msgid="7824827491551861365">"آپ نے <xliff:g id="APP_NAME">%1$s</xliff:g> کو <xliff:g id="PERMISSION_NAME">%2$s</xliff:g> تک رسائی دی"</string>
+    <string name="denied_permission_decision" msgid="5308961501779563781">"آپ نے <xliff:g id="APP_NAME">%1$s</xliff:g> کو <xliff:g id="PERMISSION_NAME">%2$s</xliff:g> تک رسائی سے منع کر دیا"</string>
+    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{آج}=1{1 دن پہلے}other{# دن پہلے}}"</string>
+    <string name="app_disable_dlg_positive" msgid="7418444149981904940">"ایپ کو غیر فعال کریں"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"‏اگر آپ اس ایپ کو غیر فعال کرتے ہیں تو ہو سکتا ہے Android اور دیگر ایپس ٹھیک سے کام نہ کریں۔ ذہن نشین رکھیں کہ آپ اس ایپ کو حذف نہیں کر سکتے ہیں کیونکہ یہ آپ کے آلہ پر پہلے سے انسٹال ہے۔ غیر فعال کر کے، آپ اس ایپ کو آف کر دیتے ہیں اور اس کو اپنے آلہ پر چھپا دیتے ہیں۔"</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"اجازتوں کا مینیجر"</string>
+    <string name="never_ask_again" msgid="4728762438198560329">"دوبارہ نہ پوچھیں"</string>
+    <string name="no_permissions" msgid="3881676756371148563">"کوئی اجازت نہیں ہے"</string>
+    <string name="additional_permissions" msgid="5801285469338873430">"اضافی اجازتیں"</string>
+    <string name="app_permissions_info_button_label" msgid="7633312050729974623">"ایپ کی معلومات کھولیں"</string>
+    <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{# مزید}other{# مزید}}"</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"‏یہ ایپ Android کے ایک پرانے ورژن کیلئے ڈیزائن کی گئی تھی۔ اجازت دینے سے انکار کرنے پر ممکن ہے کہ یہ مزید ٹھیک سے کام نہ کرے۔"</string>
+    <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"‏یہ ایپ Android کے ایک پرانے ورژن کیلئے ڈیزائن کی گئی تھی۔ اگر آپ اس کی اجازت دیتے ہیں تو سبھی اسٹوریج (بشمول تصاویر، ویڈیوز، موسیقی، آڈیو اور دیگر فائلز) تک رسائی کی اجازت درکار ہے۔"</string>
+    <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"‏یہ ایپ Android کے ایک پرانے ورژن کیلئے ڈیزائن کی گئی تھی۔ اگر آپ اس اجازت کو مسترد کرتے ہیں تو سبھی اسٹوریج (بشمول تصاویر، ویڈیوز، موسیقی، آڈیو اور دیگر فائلز) تک رسائی سے مسترد کر دیا جائے گا۔"</string>
+    <string name="default_permission_description" msgid="4624464917726285203">"ایک نامعلوم کارروائی انجام دیں"</string>
+    <string name="app_permissions_group_summary" msgid="8788419008958284002">"<xliff:g id="COUNT_1">%2$d</xliff:g> میں سے <xliff:g id="COUNT_0">%1$d</xliff:g> ایپس کو اجازت دی گئی ہے"</string>
+    <string name="app_permissions_group_summary2" msgid="4329922444840521150">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g> ایپس کو اجازت دی گئی ہے"</string>
+    <string name="menu_show_system" msgid="4254021607027872504">"سسٹم دکھائیں"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"سسٹم چھپائیں"</string>
+    <string name="menu_show_7_days_data" msgid="8979611198508523706">"7 دن دکھائیں"</string>
+    <string name="menu_show_24_hours_data" msgid="8228054833323380780">"24 گھنٹے دکھائیں"</string>
+    <string name="manage_permission" msgid="2895385393037061964">"اجازت کا نظم کریں"</string>
+    <string name="no_apps" msgid="2412612731628386816">"کوئی ایپ نہیں ہے"</string>
+    <string name="location_settings" msgid="3624412509133422562">"مقام کی ترتیبات"</string>
+    <string name="location_warning" msgid="2381649060929040962">"<xliff:g id="APP_NAME">%1$s</xliff:g> اس آلہ کیلئے مقام کی سروسز کا فراہم کنندہ ہے۔ مقام کی رسائی میں مقام کی ترتیبات سے ترمیم کی جا سکتی ہے۔"</string>
+    <string name="system_warning" msgid="1173400963234358816">"اگرآپ اس اجازت کو مسترد کرتے ہیں تو شاید آپ کے آلہ کی بنیادی خصوصیات ٹھیک سے کام نہ کریں۔"</string>
+    <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"‏یہ ایپ Android کے ایک پرانے ورژن کیلئے ڈیزائن کی گئی تھی۔ اگر آپ اس ایپ کو تصاویر اور ویڈیوز تک رسائی سے مسترد کرتے ہیں تو موسیقی اور دیگر آڈیو تک رسائی سے بھی مسترد کر دیا جائے گا۔"</string>
+    <string name="deny_read_media_aural_warning" msgid="8928699919508646732">"‏یہ ایپ Android کے ایک پرانے ورژن کیلئے ڈیزائن کی گئی تھی۔ اگر آپ اس ایپ کو موسیقی اور دیگر آڈیو تک رسائی سے مسترد کرتے ہیں تو تصاویر اور ویڈیوز تک رسائی سے بھی مسترد کر دیا جائے گا۔"</string>
+    <string name="cdm_profile_revoke_warning" msgid="4443893270719106700">"اگر آپ اس اجازت کو مسترد کرتے ہیں تو ہو سکتا ہے کہ اس ایپ کے زیر انتظام آپ کے آلے کی کچھ خصوصیات ٹھیک سے کام نہ کریں۔"</string>
+    <string name="permission_summary_enforced_by_policy" msgid="4443598170942950519">"پالیسی کے تحت نافذ کردہ"</string>
+    <string name="permission_summary_disabled_by_policy_background_only" msgid="221995005556362660">"پالیسی کے تحت پس منظر کی رسائی غیر فعال ہو گئی ہے"</string>
+    <string name="permission_summary_enabled_by_policy_background_only" msgid="8287675974767104279">"پالیسی کے تحت پس منظر کی رسائی فعال ہو گئی ہے"</string>
+    <string name="permission_summary_enabled_by_policy_foreground_only" msgid="3844582916889767831">"پالیسی کے تحت پیش منظر کی رسائی فعال ہو گئی ہے"</string>
+    <string name="permission_summary_enforced_by_admin" msgid="822702574117248700">"کنٹرول کردہ بذریعہ منتظم"</string>
+    <string name="permission_summary_disabled_by_admin_background_only" msgid="3127091456731845646">"منتظم نے پس منظر کی رسائی غیر فعال کر دی ہے"</string>
+    <string name="permission_summary_enabled_by_admin_background_only" msgid="9132423838440275757">"منتظم نے پس منظر کی رسائی فعال کر دی ہے"</string>
+    <string name="permission_summary_enabled_by_admin_foreground_only" msgid="1298432715610745358">"منتظم نے پیش منظر کی رسائی فعال کر دی ہے"</string>
+    <string name="permission_summary_enabled_system_fixed" msgid="2438344700184127274">"آپریٹ کرنے کے لیے آلہ کو یہ اجازت درکار ہے"</string>
+    <!-- no translation found for background_access_chooser_dialog_choices:0 (1351721623256561996) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:1 (9127301153688725448) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:2 (4305536986042401191) -->
+    <string name="permission_access_always" msgid="1474641821883823446">"ہر وقت اجازت دیں"</string>
+    <string name="permission_access_only_foreground" msgid="7801170728159326195">"صرف ایپ استعمال کرتے وقت اجازت دیں"</string>
+    <string name="permission_access_never" msgid="4647014230217936900">"اجازت نہ دیں"</string>
+    <string name="loading" msgid="4789365003890741082">"لوڈ ہو رہا ہے…"</string>
+    <string name="all_permissions" msgid="6911125611996872522">"تمام اجازتیں"</string>
+    <string name="other_permissions" msgid="2901186127193849594">"ایپ کی دوسری اہلیتیں"</string>
+    <string name="permission_request_title" msgid="8790310151025020126">"اجازت کی درخواست"</string>
+    <string name="permission_review_title_template_install" msgid="1284337937156289081">"‏منتخب کریں کہ &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو کس چیز تک رسائی کی اجازت دینی ہے"</string>
+    <string name="permission_review_title_template_update" msgid="3232333580548588657">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; اپ ڈیٹ ہو گئی ہے۔ منتخب کریں کہ اس ایپ کو کس تک رسائی کی اجازت دینی ہے۔"</string>
+    <string name="review_button_cancel" msgid="2191147944056548886">"منسوخ کریں"</string>
+    <string name="review_button_continue" msgid="2527918375047602199">"جاری رکھیں"</string>
+    <string name="new_permissions_category" msgid="552995090178417611">"نئی اجازتیں"</string>
+    <string name="current_permissions_category" msgid="4292990083585728880">"موجودہ اجازتیں"</string>
+    <string name="message_staging" msgid="9110563899955511866">"ایپ کی مرحلہ بندی ہو رہی ہے…"</string>
+    <string name="app_name_unknown" msgid="1319665005754048952">"نامعلوم"</string>
+    <string name="permission_usage_title" msgid="1568233336351734538">"پرائیویسی ڈیش بورڈ"</string>
+    <string name="auto_permission_usage_summary" msgid="7335667266743337075">"دیکھیں کہ حال ہی میں کون سی ایپ نے اجازتوں کا استعمال کیا ہے"</string>
+    <string name="permission_group_usage_title" msgid="2595013198075285173">"<xliff:g id="PERMGROUP">%1$s</xliff:g> کا استعمال"</string>
+    <string name="perm_usage_adv_info_title" msgid="3357831829538873708">"دیگر اجازتیں دیکھیں"</string>
+    <string name="perm_usage_adv_info_summary_2_items" msgid="3702175198750127822">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>، <xliff:g id="PERMGROUP_1">%2$s</xliff:g>"</string>
+    <string name="perm_usage_adv_info_summary_more_items" msgid="949055326299562218">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>، <xliff:g id="PERMGROUP_1">%2$s</xliff:g> اور <xliff:g id="NUM">%3$s</xliff:g> مزید"</string>
+    <string name="permission_group_usage_subtitle_24h" msgid="5120155996322114181">"گزشتہ 24 گھنٹے میں جب ایپس نے آپ کے <xliff:g id="PERMGROUP">%1$s</xliff:g> کا استعمال کیا، اس کا ٹائم لائن"</string>
+    <string name="permission_group_usage_subtitle_7d" msgid="1465828402260324654">"گزشتہ 7 دن میں جب ایپس نے آپ کے <xliff:g id="PERMGROUP">%1$s</xliff:g> کا استعمال کیا، اس کا ٹائم لائن"</string>
+    <string name="permission_usage_access_dialog_subtitle" msgid="4171772805196955753">"جب اس ایپ نے آپ کی <xliff:g id="PERMGROUP">%1$s</xliff:g> اجازت کا استعمال کیا"</string>
+    <string name="permission_usage_access_dialog_learn_more" msgid="7121468469493184613">"مزید جانیں"</string>
+    <string name="learn_more_content_description" msgid="8673699744544502539">"<xliff:g id="PERMGROUP">%1$s</xliff:g> کے بارے میں مزید جانیں"</string>
+    <string name="manage_permission_summary" msgid="4117555482684114317">"اپنے <xliff:g id="PERMGROUP">%1$s</xliff:g> تک ایپ کی رسائی کو کنٹرول کریں"</string>
+    <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# دن}other{# دن}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# گھنٹہ}other{# گھنٹے}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# منٹ}other{# منٹ}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# سیکنڈ}other{# سیکنڈ}}"</string>
+    <string name="permission_usage_any_permission" msgid="6358023078298106997">"کوئی بھی اجازت"</string>
+    <string name="permission_usage_any_time" msgid="3802087027301631827">"کسی بھی وقت"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{گزشتہ # دن}other{گزشتہ # دن}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{گزشتہ # گھنٹہ}other{گزشتہ # گھنٹے}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{گزشتہ # منٹ}other{گزشتہ # منٹ}}"</string>
+    <string name="no_permission_usages" msgid="9119517454177289331">"اجازت کا استعمال نہیں ہوا ہے"</string>
+    <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"کسی بھی وقت پر حالیہ ترین رسائی"</string>
+    <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"آخری 7 دنوں میں حالیہ ترین رسائی"</string>
+    <string name="permission_usage_list_title_last_day" msgid="8730907824567238461">"آخری 24 گھنٹے میں حالیہ ترین رسائی"</string>
+    <string name="permission_usage_list_title_last_hour" msgid="6624161487623223716">"آخری 1 گھنٹے میں حالیہ ترین رسائی"</string>
+    <string name="permission_usage_list_title_last_15_minutes" msgid="8615062016024296833">"آخری 15 منٹ میں حالیہ ترین رسائی"</string>
+    <string name="permission_usage_list_title_last_minute" msgid="3572792262919886849">"آخری 1 منٹ میں حالیہ ترین رسائی"</string>
+    <string name="permission_usage_bar_chart_title_any_time" msgid="2845251288192246754">"کسی بھی وقت اجازت کا استعمال"</string>
+    <string name="permission_usage_bar_chart_title_last_7_days" msgid="5796577162176938349">"آخری 7 دنوں میں اجازت کا استعمال"</string>
+    <string name="permission_usage_bar_chart_title_last_day" msgid="7950805735777472871">"آخری 24 گھنٹے میں اجازت کا استعمال"</string>
+    <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"آخری 1 گھنٹے میں اجازت کا استعمال"</string>
+    <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"آخری 15 منٹ میں اجازت کا استعمال"</string>
+    <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"آخری 1 منٹ میں اجازت کا استعمال"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{گزشتہ # دن میں استعمال نہیں کی گئی}other{گزشتہ # دن میں استعمال نہیں کی گئی}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{گزشتہ # گھنٹے میں استعمال نہیں کی گئی}other{گزشتہ # گھنٹے میں استعمال نہیں کی گئی}}"</string>
+    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{1 ایپ کے ذریعے استعمال کردہ}other{# ایپس کے ذریعے استعمال کردہ}}"</string>
+    <string name="permission_usage_view_details" msgid="6675335735468752787">"سبھی کو ڈیش بورڈ میں دیکھیں"</string>
+    <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"فلٹر کردہ بلحاظ: <xliff:g id="PERM">%1$s</xliff:g>"</string>
+    <string name="app_permission_usage_remove_filter" msgid="2926157607436428207">"فلٹر ہٹائیں"</string>
+    <string name="filter_by_title" msgid="7300368602759958031">"فلٹر کریں بہ لحاظ"</string>
+    <string name="filter_by_permissions" msgid="7613462963111282568">"اجازتوں کے لحاظ سے فلٹر کریں"</string>
+    <string name="filter_by_time" msgid="6667864816999691642">"وقت کے لحاظ سے فلٹر کریں"</string>
+    <string name="sort_spinner_most_permissions" msgid="1704349738096822836">"زیادہ تر اجازتیں"</string>
+    <string name="sort_spinner_most_accesses" msgid="5283913004357220161">"زیادہ تر رسائی"</string>
+    <string name="sort_spinner_recent" msgid="7513845273076525203">"حالیہ"</string>
+    <string name="sort_by_app" msgid="4055799843051138087">"بلحاظِ استعمالِ ایپ ترتیب دیں"</string>
+    <string name="sort_by_time" msgid="5435045320002150456">"وقت کے لحاظ سے ترتیب دیں"</string>
+    <string name="item_separator" msgid="4030255389809224513">"، "</string>
+    <string name="permission_usage_refresh" msgid="2264056346561305420">"ریفریش کریں"</string>
+    <string name="permission_history_title" msgid="8340081285133025225">"اجازت کی سرگزشت"</string>
+    <string name="permission_history_category_today" msgid="7496389369158806620">"آج"</string>
+    <string name="permission_history_category_yesterday" msgid="7242517121222012521">"گزشتہ کل"</string>
+    <string name="app_permission_usage_title" msgid="6676802437831981822">"ایپ کی اجازتوں کا استعمال"</string>
+    <string name="app_permission_usage_summary" msgid="390383661936709672">"رسائی: <xliff:g id="NUM">%1$s</xliff:g> مرتبہ۔ کل دورانیہ: <xliff:g id="DURATION">%2$s</xliff:g>۔ <xliff:g id="TIME">%3$s</xliff:g> پہلے آخری بار استعمال کیا گيا۔"</string>
+    <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"رسائی: <xliff:g id="NUM">%1$s</xliff:g> مرتبہ۔ <xliff:g id="TIME">%2$s</xliff:g> پہلے آخری بار استعمال کیا گیا۔"</string>
+    <string name="app_permission_button_allow" msgid="5808039516494774647">"اجازت دیں"</string>
+    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"سبھی فائلز کے نظم و نسق کی اجازت دیں"</string>
+    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"صرف میڈیا تک رسائی کی اجازت دیں"</string>
+    <string name="app_permission_button_allow_always" msgid="4573292371734011171">"ہر وقت اجازت دیں"</string>
+    <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"صرف ایپ استعمال کرتے وقت اجازت دیں"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"ہمیشہ سبھی کو اجازت دیں"</string>
+    <string name="app_permission_button_ask" msgid="3342950658789427">"ہر بار پوچھیں"</string>
+    <string name="app_permission_button_deny" msgid="6016454069832050300">"اجازت نہ دیں"</string>
+    <string name="precise_image_description" msgid="6349638632303619872">"قطعی مقام"</string>
+    <string name="approximate_image_description" msgid="938803699637069884">"تخمینی مقام"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"قطعی مقام استعمال کریں"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"قطعی مقام آف ہونے پر ایپس آپ کے تخمینی مقام تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="app_permission_title" msgid="2090897901051370711">"‫<xliff:g id="PERM">%1$s</xliff:g> کی اجازت"</string>
+    <string name="app_permission_header" msgid="2951363137032603806">"اس ایپ کیلئے <xliff:g id="PERM">%1$s</xliff:g> تک رسائی"</string>
+    <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"<xliff:g id="APP">%1$s</xliff:g> کی سبھی اجازتیں دیکھیں"</string>
+    <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"اس اجازت والی سبھی ایپس دیکھیں"</string>
+    <string name="assistant_mic_label" msgid="1011432357152323896">"اسسٹنٹ مائیکروفون کا استعمال دکھائیں"</string>
+    <string name="unused_apps_category_title" msgid="2988455616845243901">"غیر استعمال شدہ ایپ کی ترتیبات"</string>
+    <string name="auto_revoke_label" msgid="5068393642936571656">"ایپ کے استعمال نہ ہونے پر اجازتیں ہٹائیں"</string>
+    <string name="unused_apps_label" msgid="2595428768404901064">"اجازتوں کو ہٹائیں اور جگہ خالی کریں"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"غیر استعمال شدہ ہو تو ایپ سرگرمی روکیں"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"اگر غیر استعمال شدہ ہے تو ایپ کا نظم کریں"</string>
+    <string name="unused_apps_summary" msgid="8839466950318403115">"اجازتیں ہٹائیں، عارضی فائلز حذف کریں اور اطلاعات موقوف کریں"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"اجازتیں ہٹائیں، عارضی فائلوں کو حذف کریں، اطلاعات کو روکیں اور ایپ کو آرکائیو کریں"</string>
+    <string name="auto_revoke_summary" msgid="5867548789805911683">"آپ کے ڈیٹا کی حفاظت کے لیے، اگر ایپ کو کچھ مہینوں تک استعمال نہیں کیا گیا تو اس ایپ کے لیے اجازتیں ہٹا دی جائیں گی۔"</string>
+    <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"آپ کے ڈیٹا کی حفاظت کے لیے، اگر ایپ کو کچھ مہینوں تک استعمال نہیں کیا گيا تو درج ذیل اجازتیں ہٹا دی جائیں گی: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
+    <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"آپ کے ڈیٹا کی حفاظت کے لیے، اجازتوں کو ان ایپس سے ہٹا دیا گیا ہے جنہیں آپ نے کچھ مہینوں سے استعمال نہیں کیا ہے۔"</string>
+    <string name="auto_revoke_open_app_message" msgid="8075556291711205039">"اگر آپ دوبارہ اجازتیں دینا چاہتے ہیں تو ایپ کھولیں۔"</string>
+    <string name="auto_revoke_disabled" msgid="8697684442991567188">"اس ایپ کے لیے خودکار طور پر ہٹانے کی سہولت فی الحال غیر فعال ہے۔"</string>
+    <string name="auto_revocable_permissions_none" msgid="8334929619113991466">"فی الحال کوئی بھی خودکار قابل منسوخ اجازت نہیں دی گئی ہے"</string>
+    <string name="auto_revocable_permissions_one" msgid="5299112369449458176">"<xliff:g id="PERM">%1$s</xliff:g> کی اجازت ہٹا دی جائے گی۔"</string>
+    <string name="auto_revocable_permissions_two" msgid="4874067408752041716">"<xliff:g id="PERM_0">%1$s</xliff:g> اور <xliff:g id="PERM_1">%2$s</xliff:g> کی اجازتیں ہٹا دی جائیں گی۔"</string>
+    <string name="auto_revocable_permissions_many" msgid="1521807896206032992">"وہ اجازتیں جو ہٹا دی جائیں گی: <xliff:g id="PERMS">%1$s</xliff:g>۔"</string>
+    <string name="auto_manage_title" msgid="7693181026874842935">"خودکار طور پر اجازتوں کا نظم کریں"</string>
+    <string name="auto_revoked_app_summary_one" msgid="7093213590301252970">"<xliff:g id="PERMISSION_NAME">%s</xliff:g> اجازت کو ہٹایا گیا"</string>
+    <string name="auto_revoked_app_summary_two" msgid="1910545340763709389">"<xliff:g id="PERMISSION_NAME_0">%1$s</xliff:g> اور <xliff:g id="PERMISSION_NAME_1">%2$s</xliff:g> اجازتوں کو ہٹایا گیا"</string>
+    <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> اور <xliff:g id="NUMBER">%2$s</xliff:g> دیگر اجازتوں کو ہٹایا گیا"</string>
+    <string name="unused_apps_page_title" msgid="6986983535677572559">"غیر مستعمل ایپس"</string>
+    <string name="unused_apps_page_summary" msgid="1867593913217272155">"اگر کوئی ایپ کچھ ماہ تک استعمال نہیں ہوتی ہے تو:\n\n• آپ کے ڈیٹا کی حفاظت کرنے کیلئے اجازتوں کو ہٹا دیا جاتا ہے\n• بیٹری محفوظ کرنے کیلئے اطلاعات کو روک دیا جاتا ہے\n• اسپیس خالی کرنے کیلئے عارضی فائلز کو ہٹا دیا جاتا ہے\n\nاجازتوں اور اطلاعات کو دوبارہ اجازت دینے کیلئے ایپ کو کھولیں۔"</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"اگر کوئی ایپ ایک ماہ تک استعمال نہیں ہوتی ہے تو:\n\n• آپ کے ڈیٹا کی حفاظت کے لیے اجازتوں کو ہٹا دیا جاتا ہے\n• اسپیس خالی کرنے کے لیے عارضی فائلز کو ہٹا دیا جاتا ہے\n\nاجازتوں کو دوبارہ اجازت دینے کے لیے ایپ کھولیں۔"</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{آخری بار # ماہ سے زیادہ پہلے کھولی گئی}other{آخری بار # ماہ سے زیادہ پہلے کھولی گئی}}"</string>
+    <string name="last_opened_summary" msgid="5248984030024968808">"ایپ آخری بار <xliff:g id="DATE">%s</xliff:g> کو کھولی گئی"</string>
+    <string name="last_opened_summary_short" msgid="1646067226191176825">"آخری بار <xliff:g id="DATE">%s</xliff:g> کو کھولی گئی"</string>
+    <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"اگر آپ سبھی فائلز کی مینیجمنٹ کی اجازت دیتے ہیں تو یہ ایپ اس آلہ یا منسلک اسٹوریج آلات پر مشترکہ اسٹوریج میں موجود کسی بھی فائل تک رسائی، اس میں ترمیم اور حذف کر سکتی ہے۔ ایپ آپ سے پوچھے بغیر فائلز تک رسائی حاصل کر سکتی ہے۔"</string>
+    <string name="special_file_access_dialog" msgid="583804114020740610">"اس ایپ کو آلہ یا کسی منسلک اسٹوریج آلات پر فائلز تک رسائی، اس میں ترمیم اور حذف کرنے کی اجازت دیں؟ یہ ایپ آپ سے پوچھے بغیر فائلز تک رسائی حاصل کر سکتی ہے۔"</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"اس اجازت والی ایپس یہ کام کر سکتی ہیں: <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"اس اجازت والی اپپس آپ کی جسمانی سرگرمی، جیسے کہ چہل قدمی، بائی سائیکلنگ، ڈرائیونگ، قدموں کی تعداد اور مزید تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="permission_description_summary_calendar" msgid="103329982944411010">"اس اجازت والی ایپس کو آپ کے کیلنڈر تک رسائی حاصل ہو سکتی ہے"</string>
+    <string name="permission_description_summary_call_log" msgid="7321437186317577624">"اس اجازت والی ایپس فون کے کال لاگ کو پڑھ اور لکھ سکتی ہیں"</string>
+    <string name="permission_description_summary_camera" msgid="108004375101882069">"اس اجازت والی ایپس تصاویر لے اور ویڈیو ریکارڈ کر سکتی ہیں"</string>
+    <string name="permission_description_summary_contacts" msgid="2337798886460408996">"اس اجازت والی ایپس کو آپ کے رابطوں تک رسائی حاصل ہو سکتی ہے"</string>
+    <string name="permission_description_summary_location" msgid="2817531799933480694">"اس اجازت والی ایپس کو اس آلہ کے مقام تک رسائی حاصل ہو سکتی ہے"</string>
+    <string name="permission_description_summary_nearby_devices" msgid="8269183818275073741">"اس اجازت والی ایپس قریبی آلات کو تلاش کر سکتی، ان سے منسلک ہو سکتی اور ان کی متعلقہ پوزیشن کا تعین کر سکتی ہیں"</string>
+    <string name="permission_description_summary_microphone" msgid="630834800308329907">"اس اجازت والی ایپس آڈیو ریکارڈ کر سکتی ہیں"</string>
+    <string name="permission_description_summary_phone" msgid="4515277217435233619">"اس اجازت والی ایپس فون کالز کر اور ان کا نظم کر سکتی ہیں"</string>
+    <string name="permission_description_summary_sensors" msgid="1836045815643119949">"اس اجازت والی ایپس آپ کے اہم اشاروں کے متعلق سینسر ڈیٹا تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="permission_description_summary_sms" msgid="725999468547768517">"‏اس اجازت والی ایپس SMS پیغامات بھیج اور دیکھ سکتی ہیں"</string>
+    <string name="permission_description_summary_storage" msgid="6575759089065303346">"آپ کے آلہ پر اس اجازت والی اپپس تصاویر، میڈیا اور فائلز تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="permission_description_summary_read_media_aural" msgid="3354728149930482199">"اس آلے پر اس اجازت والی اپپس موسیقی اور دیگر آڈیو فائلز تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="permission_description_summary_read_media_visual" msgid="4991801977881732641">"اس آلے پر اس اجازت والی اپپس تصاویر اور ویڈیوز تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="app_permission_most_recent_summary" msgid="4292074449384040590">"آخری رسائی: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"حال ہی میں مسترد کردہ / آخری رسائی: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"کبھی بھی رسائی حاصل نہیں کی"</string>
+    <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"مسترد کر دیا / کبھی رسائی حاصل نہیں کی"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"اجازت یافتہ"</string>
+    <string name="allowed_always_header" msgid="6455903312589013545">"ہر وقت اجازت یافتہ"</string>
+    <string name="allowed_foreground_header" msgid="6845655788447833353">"صرف استعمال کے دوران اجازت ہے"</string>
+    <string name="allowed_storage_scoped" msgid="5383645873719086975">"صرف میڈیا تک رسائی کی اجازت دیں"</string>
+    <string name="allowed_storage_full" msgid="5356699280625693530">"سبھی فائلز کا نظم کرنے کے ليے اجازت یافتہ"</string>
+    <string name="ask_header" msgid="2633816846459944376">"ہر بار پوچھیں"</string>
+    <string name="denied_header" msgid="903209608358177654">"اجازت نہیں ہے"</string>
+    <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"مزید ایپس دیکھیں جو تمام فائلز تک رسائی حاصل کر سکتی ہیں"</string>
+    <string name="days" msgid="609563020985571393">"{count,plural, =1{1 دن}other{# دن}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# گھنٹہ}other{# گھنٹے}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# منٹ}other{# منٹ}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# سیکنڈ}other{# سیکنڈ}}"</string>
+    <string name="permission_reminders" msgid="6528257957664832636">"اجازت کی یاددہانیاں"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 غیر مستعمل ایپ"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> غیر مستعمل ایپس"</string>
+    <string name="auto_revoke_permission_reminder_notification_content" msgid="4492228990462107487">"آپ کی رازداری کی حفاظت کے لیے اجازتوں کو ہٹا دیا گیا۔ جائزہ کے لیے تھپتھپائیں"</string>
+    <string name="auto_revoke_permission_notification_title" msgid="2629844160853454657">"غیر مستعمل ایپس کے ليے اجازتیں ہٹا دی گئیں"</string>
+    <string name="auto_revoke_permission_notification_content" msgid="5125990886047799375">"کچھ ایپس کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے۔ جائزے کے لیے تھپتھپائیں۔"</string>
+    <string name="unused_apps_notification_title" msgid="4314832015894238019">"{count,plural, =1{# غیر مستعمل ایپ}other{# غیر مستعمل ایپس}}"</string>
+    <string name="unused_apps_notification_content" msgid="9195026773244581246">"اجازتوں اور عارضی فائلز کو ہٹا دیا گیا ہے اور اطلاعات کو روک دیا گیا۔ جائزے کے لیے تھپتھپائیں۔"</string>
+    <string name="unused_apps_safety_center_card_title" msgid="5638409355530099149">"ہٹائی گئی اجازتوں والی ایپس کا جائزہ لیں"</string>
+    <string name="unused_apps_safety_center_card_content" msgid="1088557243627427820">"آپ نے جن ایپس کا کچھ عرصے سے استعمال نہیں کیا ہے ان کی اجازتیں اور عارضی فائلز ہٹا دی گئیں اور اطلاعات کو روک دیا گیا۔"</string>
+    <string name="unused_apps_safety_center_action_title" msgid="8865914432518993194">"ایپس کا جائزہ لیں"</string>
+    <string name="post_drive_permission_decision_reminder_title" msgid="1290697371418139976">"حالیہ اجازتیں چیک کریں"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_1_permission" msgid="670521503734140711">"ڈرائیونگ کے دوران، آپ نے <xliff:g id="APP">%1$s</xliff:g> کو <xliff:g id="PERMISSION">%2$s</xliff:g> تک رسائی دی"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"ڈرائیونگ کے دوران، آپ نے <xliff:g id="APP">%1$s</xliff:g> کو <xliff:g id="PERMISSION_1">%2$s</xliff:g> اور <xliff:g id="PERMISSION_2">%3$s</xliff:g> تک رسائی دی"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"ڈرائیونگ کے دوران، آپ نے <xliff:g id="APP">%2$s</xliff:g> کو <xliff:g id="COUNT">%1$d</xliff:g> اجازتیں دیں"</string>
+    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{ڈرائیونگ کے دوران، آپ نے <xliff:g id="APP_0">%1$s</xliff:g> اور # دیگر ایپ تک رسائی دی}other{ڈرائیونگ کے دوران، آپ نے <xliff:g id="APP_1">%1$s</xliff:g> اور # دیگر ایپس تک رسائی دی}}"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"ترتیبات پر جائیں"</string>
+    <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"کچھ ایپس کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے"</string>
+    <string name="permissions_removed_category_title" msgid="1064754271178447643">"ہٹائی گئی اجازتیں"</string>
+    <string name="permission_removed_page_title" msgid="2627436155091001209">"اجازتیں ہٹا دی گئیں"</string>
+    <string name="all_unused_apps_category_title" msgid="755663524704745414">"سبھی غیر مستعمل ایپس"</string>
+    <string name="months_ago" msgid="1766026492610646354">"<xliff:g id="COUNT">%1$d</xliff:g> ماہ پہلے"</string>
+    <string name="auto_revoke_preference_summary" msgid="5517958331781391481">"آپ کی رازداری کی حفاظت کے لیے اجازتوں کو ہٹایا گیا"</string>
+    <string name="background_location_access_reminder_notification_title" msgid="1140797924301941262">"<xliff:g id="APP_NAME">%s</xliff:g> نے پس منظر میں آپ کا مقام حاصل کر لیا ہے"</string>
+    <string name="background_location_access_reminder_notification_content" msgid="7787084707336546245">"یہ ایپ ہمیشہ آپ کے مقام تک رسائی حاصل کر سکتی ہے۔ تبدیل کرنے کے لیے تھپتھپائیں۔"</string>
+    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"اپنی اطلاعات کی رسائی والی ایپ کا جائزہ لیں"</string>
+    <string name="notification_listener_reminder_notification_content" msgid="831476101108863427">"<xliff:g id="APP_NAME">%s</xliff:g> آپ کی اطلاعات کے اندر مواد کو برخاست کر سکتی، اس پر کارروائی کر سکتی اور اس تک رسائی حاصل کر سکتی ہے"</string>
+    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"یہ ایپ آپ کی اطلاعات کے اندر مواد کو برخاست کر سکتی، اس پر کارروائی کر سکتی اور اس تک رسائی حاصل کر سکتی ہے کچھ ایپس کو حسب منشا کام کرنے کے لیے اس رسائی کی ضرورت ہوتی ہے۔"</string>
+    <string name="notification_listener_remove_access_button_label" msgid="7101898782417817097">"رسائی ہٹائیں"</string>
+    <string name="notification_listener_review_app_button_label" msgid="3433073281029143924">"مزید اختیارات دیکھیں"</string>
+    <string name="notification_listener_remove_access_success_label" msgid="2477611529875633107">"رسائی ہٹا دی گئی"</string>
+    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"آلے کی مکمل رسائی کے ساتھ ایپ کا جائزہ لیں"</string>
+    <string name="accessibility_access_reminder_notification_content" msgid="7389454158175306720">"‫<xliff:g id="APP_NAME">%s</xliff:g> آپ کی اسکرین دیکھ اور آپ کے آلے پر کارروائیاں کر سکتی ہے۔ ایکسیسبیلٹی ایپس کو حسب منشا کام کرنے کے لیے اس قسم کی رسائی کی ضرورت ہوتی ہے۔"</string>
+    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"یہ ایپ آپ کی اسکرین دیکھ اور آپ کے آلے پر کارروائیاں کر سکتی ہے۔ ایکسیسبیلٹی ایپس کو حسب منشا کام کرنے کے لیے اس قسم کی رسائی کی ضرورت ہوتی ہے لیکن ایپ کو چیک کریں اور یقینی بنائیں کہ آپ اس پر اعتماد کرتے ہیں۔"</string>
+    <string name="accessibility_remove_access_button_label" msgid="44145801526711640">"رسائی ہٹائیں"</string>
+    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"مکمل رسائی والی ایپس دیکھیں"</string>
+    <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"رسائی ہٹا دی گئی"</string>
+    <string name="safety_center_notification_app_label" msgid="2457720616141926534">"‏Android سسٹم"</string>
+    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"رازداری کی حفاظت کے لیے ایپ کی اجازتوں کو ہٹایا گیا"</string>
+    <string name="auto_revoke_after_notification_content_one" msgid="6804038707453662753">"<xliff:g id="APP_NAME">%s</xliff:g> کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے۔ جائزہ کے لیے تھپتھپائیں۔"</string>
+    <string name="auto_revoke_after_notification_content_two" msgid="9108709764831425172">"<xliff:g id="APP_NAME">%s</xliff:g> اور 1 دیگر ایپس کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے۔ جائزہ کے لیے تھپتھپائیں۔"</string>
+    <string name="auto_revoke_after_notification_content_many" msgid="4774106206289751220">"<xliff:g id="APP_NAME">%1$s</xliff:g> اور<xliff:g id="NUMBER_OF_APPS">%2$s</xliff:g> دوسری ایپس کو کچھ مہینوں سے استعمال نہیں کیا گیا ہے۔ جائزہ کے لیے تھپتھپائیں۔"</string>
+    <string name="auto_revoke_before_notification_title_one" msgid="6758024954464359876">"1 ایپ غیر مستعمل ہے"</string>
+    <string name="auto_revoke_before_notification_title_many" msgid="4415543943846385685">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> ایپس غیر مستعمل ہیں"</string>
+    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"آپ کی رازداری کی حفاظت کے لیے اجازتوں کو ہٹا دیا جائے گا۔ جائزہ کے لیے تھپتھپائیں۔"</string>
+    <string name="unused_apps_title" msgid="8589298917717872239">"غیر مستعمل ایپس"</string>
+    <string name="unused_apps_subtitle_after" msgid="2034267519506357898">"سے اجازتوں کو ہٹایا گیا"</string>
+    <string name="unused_apps_subtitle_before" msgid="5233302577076132427">"سے اجازتیں ہٹا دی جائیں گی"</string>
+    <string name="unused_permissions_subtitle_two" msgid="2207266295008423015">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g> اور <xliff:g id="PERM_NAME_1">%2$s</xliff:g>"</string>
+    <string name="unused_permissions_subtitle_many" msgid="4387289202207450238">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g>، <xliff:g id="PERM_NAME_1">%2$s</xliff:g> اور <xliff:g id="NUMBER_OF_PERMISSIONS">%3$s</xliff:g> مزید"</string>
+    <string name="unused_app_permissions_removed_summary" msgid="6779039455326071033">"آپ کے ڈیٹا کی حفاظت کے لیے، اجازتوں کو ان ایپس سے ہٹا دیا گیا ہے جنہیں آپ نے کچھ مہینوں سے استعمال نہیں کیا ہے"</string>
+    <string name="unused_app_permissions_removed_summary_some" msgid="5080490037831563441">"آپ کے ڈیٹا کی حفاظت کے لیے، اجازتوں کو کچھ ان ایپس سے ہٹا دیا گیا ہے جنہیں آپ نے کچھ مہینوں سے استعمال نہیں کیا ہے"</string>
+    <string name="one_unused_app_summary" msgid="7831913934488881991">"1 ایپ کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے"</string>
+    <string name="num_unused_apps_summary" msgid="1870719749940571227">"<xliff:g id="NUMBER_OF_APPS">%s</xliff:g> ایپس کا استعمال کچھ مہینوں سے نہیں کیا گیا ہے"</string>
+    <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"صرف اپپ کے زیر استعمال ہونے کے دوران"</string>
+    <string name="permission_subtitle_media_only" msgid="8917869683764720717">"میڈیا"</string>
+    <string name="permission_subtitle_all_files" msgid="4982613338298067862">"سبھی فائلز"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_24h_access" msgid="99069906850627181">"‫<xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی"</string>
+    <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"گزشتہ کل <xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی"</string>
+    <string name="app_perms_7d_access" msgid="4945055548894683751">"‫<xliff:g id="TIME_DATE_0">%1$s</xliff:g> کو <xliff:g id="TIME_DATE_1">%2$s</xliff:g> پر آخری بار رسائی حاصل کی گئی"</string>
+    <string name="app_perms_content_provider_24h" msgid="1055526027667508972">"گزشتہ 24 گھنٹے میں رسائی حاصل کی گئی"</string>
+    <string name="app_perms_content_provider_7d" msgid="3215454898257814868">"گزشتہ 7 دن میں رسائی حاصل کی گئی"</string>
+    <string name="app_perms_24h_access_background" msgid="3413674718969576843">"‫<xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_24h_access_yest_background" msgid="9174750810998076725">"گزشتہ کل <xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_7d_access_background" msgid="408099213372185627">"‫<xliff:g id="TIME_DATE_0">%1$s</xliff:g> کو <xliff:g id="TIME_DATE_1">%2$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_content_provider_24h_background" msgid="3825902995186961496">"گزشتہ 24 گھنٹے میں رسائی حاصل کی گئی • ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_content_provider_7d_background" msgid="4818839672116463542">"گزشتہ 7 دن میں رسائی حاصل کی گئی • ہر وقت اجازت یافتہ"</string>
+    <string name="app_perms_24h_access_media_only" msgid="6651699644199132054">"‫<xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • میڈیا"</string>
+    <string name="app_perms_24h_access_yest_media_only" msgid="7213187706424998792">"گزشتہ کل <xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • میڈیا"</string>
+    <string name="app_perms_7d_access_media_only" msgid="1031096653668235200">"‫<xliff:g id="TIME_DATE_0">%1$s</xliff:g> کو <xliff:g id="TIME_DATE_1">%2$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • میڈیا"</string>
+    <string name="app_perms_content_provider_24h_media_only" msgid="7797963000596179491">"گزشتہ 24 گھنٹے میں رسائی حاصل کی گئی • میڈیا"</string>
+    <string name="app_perms_content_provider_7d_media_only" msgid="8446239884570262243">"گزشتہ 7 دن میں رسائی حاصل کی گئی • میڈیا"</string>
+    <string name="app_perms_24h_access_all_files" msgid="8902360456978159091">"‫<xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • سبھی فائلز"</string>
+    <string name="app_perms_24h_access_yest_all_files" msgid="5708424073126844909">"‫<xliff:g id="TIME_DATE">%1$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • سبھی فائلز"</string>
+    <string name="app_perms_7d_access_all_files" msgid="8246193786397635824">"‫<xliff:g id="TIME_DATE_0">%1$s</xliff:g> کو <xliff:g id="TIME_DATE_1">%2$s</xliff:g> پر آخری بار رسائی حاصل کی گئی • تمام فائلز"</string>
+    <string name="app_perms_content_provider_24h_all_files" msgid="573104317727770850">"گزشتہ 24 گھنٹے میں رسائی حاصل کی گئی • سبھی فائلز"</string>
+    <string name="app_perms_content_provider_7d_all_files" msgid="7962416229708835558">"گزشتہ 7 دن میں رسائی حاصل کی گئی • تمام فائلز"</string>
+    <string name="no_permissions_allowed" msgid="6081976856354669209">"کوئی اجازت نہیں دی گئی"</string>
+    <string name="no_permissions_denied" msgid="8159923922804043282">"کوئی بھی اجازت مسترد نہیں ہے"</string>
+    <string name="no_apps_allowed" msgid="7718822655254468631">"کسی ایپ کو اجازت نہیں ہے"</string>
+    <string name="no_apps_allowed_full" msgid="8011716991498934104">"تمام فائلز کے لیے کسی ایپ کو اجازت نہیں ہے"</string>
+    <string name="no_apps_allowed_scoped" msgid="4908850477787659501">"صرف میڈیا کے لیے کسی ایپ کو اجازت نہیں ہے"</string>
+    <string name="no_apps_denied" msgid="7663435886986784743">"کسی ایپ کو انکار نہیں کیا گیا ہے"</string>
+    <string name="car_permission_selected" msgid="180837028920791596">"منتخب کردہ"</string>
+    <string name="settings" msgid="5409109923158713323">"ترتیبات"</string>
+    <string name="accessibility_service_dialog_title_single" msgid="7956432823014102366">"<xliff:g id="SERVICE_NAME">%s</xliff:g> کو آپ کے آلہ تک مکمل رسائی حاصل ہے"</string>
+    <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"<xliff:g id="NUM_SERVICES">%s</xliff:g> ایکسیسبیلٹی ایپس کو آپ کے آلہ تک مکمل رسائی حاصل ہے"</string>
+    <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"<xliff:g id="SERVICE_NAME">%s</xliff:g> آپ کی اسکرین، کارروائیوں اور ان پٹس کو دیکھ، کارروائیاں کر اور ڈسپلے کو کنٹرول کر سکتی ہے۔"</string>
+    <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"یہ ایپس آپ کی اسکرین، کارروائیوں اور ان پُٹس کو دیکھ ، ان پر کارروائیاں اور ڈسپلے کو کنٹرول کر سکتی ہیں۔"</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"ڈیفالٹ ڈیجیٹل اسسٹنٹ ایپ"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"ڈیجیٹل اسسٹنٹ ایپ"</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"آپ جو اسکرین دیکھ رہے ہیں اس کی معلومات کی بنیاد پر معاون ایپس آپ کی مدد کر سکتی ہیں۔ کچھ ایپس آپ کو مربوط مدد فراہم کرنے کے لیے لانچر اور صوتی ان پُٹ کی سروسز دونوں میں سپورٹ کرتی ہیں۔"</string>
+    <string name="role_browser_label" msgid="2877796144554070207">"ڈیفالٹ براؤزر ایپ"</string>
+    <string name="role_browser_short_label" msgid="6745009127123292296">"براؤزر ایپ"</string>
+    <string name="role_browser_description" msgid="3465253637499842671">"وہ ایپس جو آپ کو انٹرنیٹ تک رسائی فراہم کرتی ہیں اور ان لنکس کو ڈسپلے کرتی ہیں جن پر آپ تھپتھپاتے ہیں"</string>
+    <string name="role_browser_request_title" msgid="2895200507835937192">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ براؤزر ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_browser_request_description" msgid="5888803407905985941">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"ڈیفالٹ فون ایپ"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"فون ایپ"</string>
+    <string name="role_dialer_description" msgid="8768708633696539612">"وہ ایپس جو آپ کو آپ کے آلہ پر ٹیلیفون کالز کرنے اور وصول کرنے کی اجازت دیتی ہیں"</string>
+    <string name="role_dialer_request_title" msgid="5959618560705912058">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ فون ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_dialer_request_description" msgid="6288839625724909320">"‏اس ایپ کو آپ کے کیمرا، رابطوں، مائیکروفون، فون اور SMS تک رسائی دی جائے گی"</string>
+    <string name="role_dialer_search_keywords" msgid="3324448983559188087">"ڈائلر"</string>
+    <string name="role_sms_label" msgid="8456999857547686640">"‏ڈیفالٹ SMS ایپ"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"‏SMS ایپ"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"وہ ایپس جو مختصر متنی پیغامات، تصاویر، ویڈیوز وغیرہ بھیجنے اور وصول کرنے کے لیے آپ کو اپنا فون نمبر استعمال کرنے کی اجازت دیتی ہیں"</string>
+    <string name="role_sms_request_title" msgid="7953552109601185602">"‏<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ SMS ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_sms_request_description" msgid="2691004766132144886">"‏اس ایپ کو آپ کے کیمرا، رابطوں، فائلز اور میڈیا، مائیکروفون، فون اور SMS تک رسائی دی جائے گی"</string>
+    <string name="role_sms_search_keywords" msgid="8022048144395047352">"ٹیکسٹ پیغام، پیغام بھیجنا، پیغامات، پیغام رسانی"</string>
+    <string name="role_emergency_label" msgid="7028825857206842366">"ڈیفالٹ ایمرجنسی ایپ"</string>
+    <string name="role_emergency_short_label" msgid="2388431453335350348">"ایمرجنسی ایپ"</string>
+    <string name="role_emergency_description" msgid="5051840234887686630">"وہ ایپس جو آپ کو آپ کی طبی معلومات ریکارڈ کرنے اور اسے ایمرجنسی طبی مدد فراہم کنندگان کے لیے قابل رسائی بنانے؛ خطرناک موسمی واقعات اور آفات کے بارے میں الرٹس حاصل کرنے؛ آپ کو مدد درکار ہونے پر دوسروں کو اطلاع دینے کی اجازت دیتی ہیں"</string>
+    <string name="role_emergency_request_title" msgid="8469579020654348567">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ ایمرجنسی ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_emergency_request_description" msgid="131645948770262850">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_emergency_search_keywords" msgid="1920007722599213358">"ایمرجنسی، آئس، ایپ، ڈیفالٹ"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"ڈیفالٹ ہوم ایپ"</string>
+    <string name="role_home_short_label" msgid="8544733747952272337">"ہوم ایپ"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"‏وہ ایپس، جنہیں اکثر لانچرز کہا جاتا ہے، جو آپ کے Android آلہ پر ہوم اسکرینز کی جگہ لے لیتی ہیں اور آپ کے آلہ کے مواد اور خصوصیات تک آپ کو رسائی فراہم کرتی ہیں"</string>
+    <string name="role_home_request_title" msgid="738136983453341081">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ ہوم ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_home_request_description" msgid="2658833966716057673">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_home_search_keywords" msgid="3830755001192666285">"لانچر"</string>
+    <string name="role_call_redirection_label" msgid="5785304207206147590">"کال ری ڈائریکٹنگ کی ڈیفالٹ ایپ"</string>
+    <string name="role_call_redirection_short_label" msgid="7568143419571217757">"کال ری ڈائریکٹ کرنے والی اپپ"</string>
+    <string name="role_call_redirection_description" msgid="6091669882014664420">"وہ ایپس جو آپ کو کسی دوسرے فون نمبر پر باہر جانے والی کالز کو فارورڈ کرنے کی اجازت دیتی ہیں"</string>
+    <string name="role_call_redirection_request_title" msgid="2816244455003562925">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو کال ری ڈائریکشن کی آپ کی ڈیفالٹ ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_call_redirection_request_description" msgid="3118895714178527164">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_call_screening_label" msgid="883935222060878724">"‏ڈیفالٹ کالر ID اور اسپام ایپ"</string>
+    <string name="role_call_screening_short_label" msgid="2048465565063130834">"‏کالر ID اور اسپام کی ایپ"</string>
+    <string name="role_call_screening_description" msgid="2349431420497468981">"ایسی ایپس جو آپ کو کالز کی شناخت کرنے اور اسپام، روبوکالز، یا ناپسندیدہ نمبروں کو مسدود کرنے کی اجازت دیتی ہیں"</string>
+    <string name="role_call_screening_request_title" msgid="7358309224566977290">"‏<xliff:g id="APP_NAME">%1$s</xliff:g> کو کالر ID اور اسپام کی آپ کی ڈیفالٹ ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_call_screening_request_description" msgid="7338511921032446006">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_automotive_navigation_label" msgid="2701890757955474751">"ڈیفالٹ نیویگیشن ایپ"</string>
+    <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"نیویگیشن ایپ"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"ایسی ایپس جو دلچسپی کے پوائنٹ سے متعلق تلاش اور موڈ در موڈ نیویگیشن کی رہنمائی فراہم کر سکتی ہیں"</string>
+    <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ نیویگیشن ایپ کے بطور سیٹ کریں؟"</string>
+    <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="role_watch_description" msgid="267003778693177779">"‏<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی اطلاعات کے ساتھ تعامل کرنے اور آپ کے فون، SMS، رابطوں اور کیلنڈر کی اجازتوں تک رسائی کی اجازت ہوگی۔"</string>
+    <string name="role_app_streaming_description" msgid="7341638576226183992">"<xliff:g id="APP_NAME">%1$s</xliff:g> آپ کی اطلاعات کے ساتھ تعامل کرنے اور آپ کی ایپس کے منسلک آلے پر سلسلہ بندی کرنے کی اجازت ہوگی۔"</string>
+    <string name="role_companion_device_computer_description" msgid="416099879217066377">"یہ سروس آپ کی تصاویر، میڈیا اور اطلاعات کو آپ کے فون سے دوسرے آلات پر اشتراک کرتی ہے۔"</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"ڈیفالٹ نوٹس ایپ"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"نوٹس ایپ"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"ایسی ایپس جو آپ کو آپ کے آلے پر نوٹس لینے کی اجازت دیتی ہیں"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"نوٹس"</string>
+    <string name="role_wallet_label" msgid="3719419175656204207">"ڈیفالٹ والٹ ایپ"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"والٹ ایپ"</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"والٹ ایپس آپ کے کریڈٹ اور لائلٹی کارڈز، کار کی کلیدوں اور دیگر چیزوں کو ٹرانزیکشنز کی مختلف شکلوں میں مدد کے لیے اسٹور کر سکتی ہیں۔"</string>
+    <string name="role_wallet_request_title" msgid="4770217108262737093">"<xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کی ڈیفالٹ والٹ ایپ کے طور پر سیٹ کریں؟"</string>
+    <string name="role_wallet_request_description" msgid="6305487425777483053">"کوئی اجازت درکار نہیں ہے"</string>
+    <string name="request_role_current_default" msgid="738722892438247184">"موجودہ ڈیفالٹ"</string>
+    <string name="request_role_dont_ask_again" msgid="3556017886029520306">"دوبارہ نہ پوچھیں"</string>
+    <string name="request_role_set_as_default" msgid="4253949643984172880">"بطور ڈیفالٹ سیٹ کریں"</string>
+    <string name="phone_call_uses_microphone" msgid="233569591461187177">"‏&lt;b&gt;فون کال&lt;/b&gt; میں مائیکروفون کا استعمال کیا جاتا ہے"</string>
+    <string name="phone_call_uses_microphone_and_camera" msgid="6291898755681748189">"‏&lt;b&gt;ویڈیو کال&lt;/b&gt; میں کیمرا اور مائیکروفون کا استعمال کیا جاتا ہے"</string>
+    <string name="phone_call_uses_camera" msgid="2048417022147857418">"‏کیمرا &lt;b&gt;ویڈیو کالll&lt;/b&gt; میں استعمال کیا جاتا ہے"</string>
+    <string name="system_uses_microphone" msgid="576672130318877143">"سسٹم سروس کا استعمال کر کے مائیکروفون تک رسائی حاصل کیا جاتا ہے"</string>
+    <string name="system_uses_microphone_and_camera" msgid="5124478304275138804">"سسٹم سروس کا استعمال کر کے کیمرا اور مائیکروفون تک رسائی حاصل کیا جاتا ہے"</string>
+    <string name="system_uses_camera" msgid="1911223105234441470">"سسٹم سروس کا استعمال کر کے کیمرا تک رسائی حاصل کیا جاتا ہے"</string>
+    <string name="other_use" msgid="6564855051022776692">"دیگر استعمال:"</string>
+    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"سمجھ آ گئی"</string>
+    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"<xliff:g id="TYPES_LIST">%s</xliff:g> کا حالیہ استعمال"</string>
+    <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"مائیکروفون کا حالیہ استعمال"</string>
+    <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"کیمرا کا حالیہ استعمال"</string>
+    <string name="ongoing_usage_dialog_title_mic_camera" msgid="9079747867228772797">"مائیکروفون اور کیمرا کا حالیہ استعمال"</string>
+    <string name="ongoing_usage_dialog_separator" msgid="1715181526581520068">"، "</string>
+    <string name="ongoing_usage_dialog_last_separator" msgid="4170995004748832163">" اور "</string>
+    <string name="default_app_search_keyword" msgid="8330125736889689743">"ڈیفالٹ ایپس"</string>
+    <string name="permgroup_list_microphone_and_camera" msgid="962768198001487969">"مائیکروفون اور کیمرا"</string>
+    <string name="settings_button" msgid="4414988414732479636">"ترتیبات"</string>
+    <string name="default_apps" msgid="5119201969348748639">"ڈیفالٹ ایپس"</string>
+    <string name="no_default_apps" msgid="2593466527182950231">"کوئی ڈیفالٹ ایپ نہیں ہے"</string>
+    <string name="default_apps_more" msgid="4078194675848858093">"مزید ڈیفالٹس"</string>
+    <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"شروعاتی لنکس"</string>
+    <string name="default_apps_for_work" msgid="4970308943596201811">"کام کیلئے ڈیفالٹ"</string>
+    <string name="default_app_none" msgid="9084592086808194457">"کوئی نہیں"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(سسٹم ڈیفالٹ)"</string>
+    <string name="default_app_no_apps" msgid="115720991680586885">"کوئی ایپس نہیں ہیں"</string>
+    <string name="car_default_app_selected" msgid="5416420830430644174">"منتخب کردہ"</string>
+    <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"منتخب کردہ - <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
+    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"ایپ کی خاص رسائی"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"خاص ایپ تک رسائی"</string>
+    <string name="no_special_app_access" msgid="6950277571805106247">"خاص ایپ تک کوئی رسائی نہیں ہے"</string>
+    <string name="special_app_access_no_apps" msgid="4102911722787886970">"کوئی ایپ نہیں ہے"</string>
+    <string name="home_missing_work_profile_support" msgid="1756855847669387977">"دفتری پروفائل کا تعاون نہیں کرتا ہے"</string>
+    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"نوٹ: اگر آپ اپنے آلہ کو دوبارہ شروع کرتے ہیں اور آپ کے پاس اسکرین لاک کا سیٹ ہے تو یہ ایپ تب تک شروع نہیں ہو سکتی جب تک آپ اپنا آلہ غیر مقفل نہ کر لیں۔"</string>
+    <string name="assistant_confirmation_message" msgid="7476540402884416212">"اسسٹنٹ آپ کے سسٹم پر زیر استعمال ایپس کے بارے میں معلومات، بشمول آپ کی اسکرین پر نظر آنے والی یا ایپس کے اندر قابل رسائی معلومات پڑھ سکے گی۔"</string>
+    <string name="incident_report_channel_name" msgid="3144954065936288440">"ڈیبگنگ ڈیٹا کا اشتراک کریں"</string>
+    <string name="incident_report_notification_title" msgid="4635984625656519773">"ڈیبگنگ کے تفصیلی ڈیٹا کا اشتراک کریں؟"</string>
+    <string name="incident_report_notification_text" msgid="3376480583513587923">"<xliff:g id="APP_NAME">%1$s</xliff:g> ڈیبگنگ کی معلومات اپ لوڈ کرنا چاہتی ہے۔"</string>
+    <string name="incident_report_dialog_title" msgid="669104389325204095">"ڈیبگنگ ڈیٹا کا اشتراک کریں؟"</string>
+    <string name="incident_report_dialog_intro" msgid="5897733669850951832">"سسٹم نے ایک مسئلے کا پتا لگایا ہے۔"</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"<xliff:g id="APP_NAME_0">%1$s</xliff:g> <xliff:g id="DATE">%2$s</xliff:g> کو <xliff:g id="TIME">%3$s</xliff:g> پر اس آلہ سے لی گئی بگ رپورٹ اپ لوڈ کرنے کی درخواست کر رہی ہے۔ بگ رپورٹس میں آپ کے آلہ کے بارے میں یا ایپس کے ذریعے لاگ کی گئی ذاتی معلومات، جیسے کہ صارف کے نام، مقام کا ڈیٹا، آلہ کے شناخت کاران اور نیٹ ورک کی معلومات شامل ہوتی ہیں۔ صرف ان ہی لوگوں اور ایپس کے ساتھ بگ رپورٹس کا اشتراک کریں جن پر آپ کو اس معلومات کے تعلق سے بھروسہ ہے۔ <xliff:g id="APP_NAME_1">%4$s</xliff:g> کو بگ رپورٹ اپ لوڈ کرنے کی اجازت دیں؟"</string>
+    <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"<xliff:g id="APP_NAME">%1$s</xliff:g> کیلئے بگ رپورٹ پر کارروائی کرنے میں ایک خرابی تھی۔ اس لئے ڈیبگنگ کے مفصل ڈیٹا کے اشتراک کی اجازت نہیں دی گئی۔ رکاوٹ کیلئے معذرت۔"</string>
+    <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"اجازت دیں"</string>
+    <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"مسترد کریں"</string>
+    <string name="adjust_user_sensitive_title" msgid="4196724451314280527">"جدید ترین ترتیبات"</string>
+    <string name="menu_adjust_user_sensitive" msgid="6497923610654425780">"جدید ترین ترتیبات"</string>
+    <string name="adjust_user_sensitive_globally_title" msgid="8649190949066029174">"سسٹم اپپ کا استعمال دکھائيں"</string>
+    <string name="adjust_user_sensitive_globally_summary" msgid="129467818433773912">"اسٹیٹس بار، ڈیش بورڈ اور کسی بھی جگہ پر اجازتوں کے سسٹم اپپ کے استعمال کو شو کریں"</string>
+    <string name="adjust_user_sensitive_per_app_header" msgid="4543506440989005648">"مندرجہ ذیل کے استعمال کو نمایاں کریں"</string>
+    <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"اسسٹنٹ ٹریگر کا پتہ لگانا دکھائیں"</string>
+    <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"جب صوتی معاون کو فعال کرنے کے لیے مائیکروفون کا استعمال کیا جائے تو اسٹیٹس بار میں آئیکن دکھائیں"</string>
+    <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو آپ کے آلہ پر تصاویر اور میڈیا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_storage_isolated" msgid="5934218468708513375">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر تصاویر اور میڈیا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے رابطوں تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_contacts" msgid="2270563860206654757">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کے رابطوں تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو اس آلہ کے مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_location" msgid="6641436550953715107">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; کے مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"جب آپ ایپ استعمال کریں گے تبھی ایپ کو مقام تک رسائی حاصل ہوگی"</string>
+    <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو اس آلہ کے مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequest_device_aware_location" msgid="7660465507029650527">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt; کے مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"ممکن ہے یہ ایپ ہر وقت آپ کے مقام تک رسائی حاصل کرنا چاہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link"></annotation>"ترتیبات میں اجازت دیں۔"</string>
+    <string name="permgroupupgraderequest_location" msgid="8328408946822691636">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کے ليے مقام تک رسائی تبدیل کریں"</string>
+    <string name="permgroupupgraderequest_device_aware_location" msgid="4528266408056426513">"‏آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر &lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کی مقام تک رسائی کو تبدیل کریں؟"</string>
+    <string name="permgroupupgraderequestdetail_location" msgid="1550899076845189165">"یہ ایپ ہر وقت آپ کے مقام تک رسائی حاصل کرنا چاہتی ہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link"></annotation>"ترتیبات میں اجازت دیں۔"</string>
+    <string name="permgrouprequest_nearby_devices" msgid="2272829282660436700">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو قریبی آلات تلاش کرنے، ان سے منسلک ہونے اور ان کی متعلقہ پوزیشن کا تعین کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_nearby_devices" msgid="7919687165848885665">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر قریبی آلات کی متعلقہ پوزیشن تلاش کرنے، ان سے منسلک ہونے اور اس کا تعین کرنے کی اجازت دیں؟"</string>
+    <string name="permgroupupgraderequestdetail_nearby_devices" msgid="6877531270654738614">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو قریبی آلات تلاش کرنے، ان سے منسلک ہونے اور ان کی متعلقہ پوزیشن کا تعین کرنے کی اجازت دیں؟ "<annotation id="link">"ترتیبات میں اجازت دیں۔"</annotation></string>
+    <string name="permgrouprequest_fineupgrade" msgid="2334242928821697672">"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g> کے مقام تک رسائی کو تخمینی سے قطعی میں تبدیل کریں؟"</string>
+    <string name="permgrouprequest_device_aware_fineupgrade" msgid="3947134846432067176">"‏آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر &lt;b&gt;‏<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>&lt;/b&gt; کے مقام  تک رسائی کو تخمینی سے قطعی میں تبدیل کریں؟"</string>
+    <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو اس آلے کے تخمینی مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_coarselocation" msgid="9001956706241104626">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; کے تخمینی مقام تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"قطعی"</string>
+    <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"تخمینی"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے کیلنڈر تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_calendar" msgid="3103987548035171850">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کے کیلنڈر تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_sms" msgid="5672063688745420991">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو SMS پیغامات بھیجنے اور انہیں ملاحظہ کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_sms" msgid="7212083972999874267">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر SMS پیغامات بھیجنے اور دیکھنے کی اجازت دیں؟؟"</string>
+    <string name="permgrouprequest_storage" msgid="8717773092518621602">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے آلہ پر تصاویر، میڈیا اور فائلوں تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_storage" msgid="872629037299467086">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر تصاویر، میڈیا اور فائلز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"‏اس آلے پر &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو &lt;b&gt;تصاویر، ویڈیوز، موسیقی اور آڈیو&lt;/b&gt; تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"‏اس آلے پر &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو &lt;b&gt;تصاویر، ویڈیوز، موسیقی، آڈیو اور دیگر فائلز&lt;/b&gt; تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"‏اس آلے پر &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو موسیقی اور آڈیو تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_read_media_aural" msgid="3331524384339036668">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر موسیقی اور آڈیو تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"‏اس آلے پر &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو تصاویر اور ویڈیوز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_read_media_visual" msgid="5492319750632751551">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر تصاویر اور ویڈیوز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو اس آلے پر مزید تصاویر اور ویڈیوز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_more_photos" msgid="8946782319103584021">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر مزید تصاویر اور ویڈیوز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_microphone" msgid="2825208549114811299">"‏آڈیو ریکارڈ کرنے کے لیے &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_microphone" msgid="1266843551173029370">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"جب آپ ایپ استعمال کر رہے ہوں تب ایپ صرف آڈیو ریکارڈ کر پائے گی"</string>
+    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"‏آڈیو ریکارڈ کرنے کے لیے &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="4990337225146130185">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"ممکن ہے یہ ایپ ہر وقت آڈیو ریکارڈ کرنا چاہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link">"ترتیبات میں اجازت دیں۔"</annotation></string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;? کے ليے مائیکروفون تک رسائی تبدیل کریں؟"</string>
+    <string name="permgroupupgraderequest_device_aware_microphone" msgid="222471025997100107">"‏آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر &lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کی مائیکروفون تک رسائی تبدیل کریں؟"</string>
+    <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"یہ ایپ ہر وقت آڈیو ریکارڈ کرنا چاہتی ہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link">"ترتیبات میں اجازت دیں۔"</annotation></string>
+    <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;b&gt;‎ کو آپ کی جسمانی سرگرمی کی شناخت کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_activityRecognition" msgid="3408326850847755759">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کی جسمانی سرگرمی تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو تصاویر لینے اور ویڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_camera" msgid="3525106924487608868">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر تصاویر لینے اور ویڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"جب آپ ایپ استعمال کر رہے ہوں تب ایپ صرف تصاویر لے سکے گی اور ویڈیوز ریکارڈ کر پائے گی"</string>
+    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو تصاویر لینے اور ویڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequest_device_aware_camera" msgid="6718286540040964849">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر تصاویر لینے اور ویڈیو ریکارڈ کرنے کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"ممکن ہے یہ ایپ ہر وقت تصاویر لینا اور ویڈیو ریکارڈ کرنا چاہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link">"ترتیبات میں اجازت دیں۔"</annotation></string>
+    <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;? کے ليے کیمرا تک رسائی تبدیل کریں؟"</string>
+    <string name="permgroupupgraderequest_device_aware_camera" msgid="4198765626608612156">"‏آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر &lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کی کیمرا تک رسائی تبدیل کریں؟"</string>
+    <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"یہ ایپ ہر وقت تصاویر لینا اور ویڈیو ریکارڈ کرنا چاہتی ہے، اگرچہ آپ ایپ استعمال نہ کر رہے ہوں۔ "<annotation id="link">"ترتیبات میں اجازت دیں۔"</annotation></string>
+    <string name="permgrouprequest_calllog" msgid="2065327180175371397">"‏‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو آپ کے فون کال لاگز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_calllog" msgid="735079772627778095">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کے فون کال لاگز تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_phone" msgid="1829234136997316752">"‏&lt;/b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو فون کالز کرنے اور ان کا نظم کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_phone" msgid="4389610977195521813">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر فون کالز کرنے اور ان کا نظم کرنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے اہم اشاروں کے متعلق سینسر ڈیٹا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_sensors" msgid="1900598688488188225">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کی علامات حیات کے بارے میں سینسر ڈیٹا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"آپ کے ایپ کا استعمال نہ کرنے کے باوجود یہ ایپ ہر وقت آپ کے اہم علامتوں کے متعلق سینسر ڈیٹا تک رسائی حاصل کرنا چاہتی ہے۔ یہ تبدیلی کرنے کے لیے "<annotation id="link">"ترتیبات پر جائیں۔"</annotation></string>
+    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے اہم اشاروں کے متعلق سینسر ڈیٹا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="7691308331448239716">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر آپ کی علامات حیات کے بارے میں سینسر ڈیٹا تک رسائی کی اجازت دیں؟"</string>
+    <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"آپ کے ایپ کا استعمال نہ کرنے کے باوجود اس ایپ کو ہر وقت باڈی سینسر ڈیٹا تک رسائی کی اجازت دینے کے لیے "<annotation id="link">"ترتیبات پر جائیں۔"</annotation></string>
+    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"‏ایپ کے استعمال میں ہونے کے دوران ‎&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;‎ کو باڈی سینسر ڈیٹا تک رسائی کی اجازت دینا جاری رکھیں؟"</string>
+    <string name="permgroupupgraderequest_device_aware_sensors" msgid="3310667992344623159">"‏ایپ کے استعمال کے دوران &lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;/b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر باڈی سینسر ڈیٹا تک رسائی کی اجازت دینا جاری رکھیں؟"</string>
+    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"‏&lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>‏&lt;/b&gt; کو آپ کو اطلاعات بھیجنے کی اجازت دیں؟"</string>
+    <string name="permgrouprequest_device_aware_notifications" msgid="7307588961166360244">"‏&lt;b&gt;‏<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; کو آپ کے &lt;b&gt;‏<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; پر اطلاعات بھیجنے کی اجازت دیں؟"</string>
+    <string name="auto_granted_permissions" msgid="6009452264824455892">"کنٹرول کی گئی اجازتیں"</string>
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"<xliff:g id="APP_NAME">%1$s</xliff:g> کے پاس مقام تک رسائی حاصل ہے"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"آپ کی تنظیم <xliff:g id="APP_NAME">%1$s</xliff:g> کو آپ کے مقام تک رسائی کی اجازت دیتی ہے"</string>
+    <string name="other_permissions_label" msgid="8986184335503271992">"دیگر اجازتیں"</string>
+    <string name="not_used_permissions_label" msgid="3939839426115141264">"سسٹم کے ذریعے استعمال کردہ اجازتیں"</string>
+    <string name="not_used_permissions_description" msgid="7595514824169388718">"صرف سسٹم ایپلیکیشنز کے ذریعے استعمال کردہ اجازتیں۔"</string>
+    <string name="additional_permissions_label" msgid="7693557637462569046">"اضافی اجازتیں"</string>
+    <string name="additional_permissions_description" msgid="2186611950890732112">"ایپلیکیشنز کے ذریعے وضاحت کردہ اجازتیں۔"</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"کیمرا"</string>
+    <string name="privdash_label_microphone" msgid="8415035835803511693">"مائیکروفون"</string>
+    <string name="privdash_label_location" msgid="6882400763866489291">"مقام"</string>
+    <string name="privdash_label_other" msgid="3710394147423236033">"دیگر"</string>
+    <string name="privdash_label_none" msgid="5991866260360484858">"کوئی نہیں"</string>
+    <string name="privdash_label_24h" msgid="1512532123865375319">"گزشتہ\n24 گھنٹے"</string>
+    <string name="privdash_label_7d" msgid="5645301995348656931">"گزشتہ\n7 دن"</string>
+    <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"‏‫Android <xliff:g id="APP_NAME">%1$s</xliff:g> کے ساتھ تحفظ یافتہ ہے۔ کیونکہ آپ کے ڈیٹا پر اس آلے پر کارروائی کی جاتی ہے، اس ایپ کی اجازت کا استعمال اسٹیٹس بار یا آپ کے پرائیویسی ڈیش بورڈ پر دکھائی نہیں دیتا ہے۔"</string>
+    <string name="exempt_info_label" msgid="6286190981253476699">"‏Android <xliff:g id="APP_NAME">%1$s</xliff:g> کے ساتھ تحفظ یافتہ ہے۔ کیونکہ آپ کے ڈیٹا پر اس آلے پر کارروائی کی جاتی ہے، اس ایپ کی اجازت کا استعمال آپ کے پرائیویسی ڈیش بورڈ پر دکھائی نہیں دیتا ہے۔"</string>
+    <string name="blocked_camera_title" msgid="1128510551791284384">"آلے کا کیمرا مسدود ہے"</string>
+    <string name="blocked_microphone_title" msgid="1631517143648232585">"آلے کا مائیکروفون مسدود ہے"</string>
+    <string name="blocked_location_title" msgid="2005608279812892383">"آلے کا مقام آف ہے"</string>
+    <string name="blocked_sensor_summary" msgid="4443707628305027375">"ایپس اور سروسز کے لیے"</string>
+    <string name="blocked_mic_summary" msgid="8960466941528458347">"جب آپ ایمرجنسی نمبر پر کال کرتے ہیں تو مائیکروفون کے ڈیٹا کا اب بھی اشتراک کیا جا سکتا ہے۔"</string>
+    <string name="blocked_sensor_button_label" msgid="6742092634984289658">"تبدیل کریں"</string>
+    <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"سیکیورٹی اور رازداری"</string>
+    <string name="safety_center_rescan_button" msgid="4517514567809409596">"آلہ اسکین کریں"</string>
+    <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"برخاست کریں"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_title" msgid="2734809473425036382">"اس الرٹ کو برخاست کریں؟"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_message" msgid="3775418736671093563">"مزید تحفظ شامل کرنے کے لیے کسی بھی وقت اپنی سیکیورٹی اور رازداری کی ترتیبات کا جائزہ لیں"</string>
+    <string name="safety_center_issue_card_confirm_dismiss_button" msgid="5884137843083634556">"برخاست کریں"</string>
+    <string name="safety_center_issue_card_cancel_dismiss_button" msgid="2874578798877712346">"منسوخ کریں"</string>
+    <string name="safety_center_entries_category_title" msgid="34356964062813115">"ترتیبات"</string>
+    <string name="safety_status_preference_title_and_summary_content_description" msgid="3511373256505058464">"سیکیورٹی اور رازداری کا اسٹیٹس۔ <xliff:g id="OVERALL_SAFETY_STATUS">%1$s</xliff:g>۔ <xliff:g id="SUMMARY_OF_DEVICE_STATUS">%2$s</xliff:g>"</string>
+    <string name="security_settings" msgid="3808106921175271317">"سیکیورٹی کی ترتیبات"</string>
+    <string name="sensor_permissions_qs" msgid="1022267900031317472">"اجازتیں"</string>
+    <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"سیکیورٹی اور رازداری"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"صورتحال چیک کریں"</string>
+    <string name="privacy_controls_qs" msgid="5780144882040591169">"آپ کی رازداری کے کنٹرولز"</string>
+    <string name="security_settings_button_label_qs" msgid="8280343822465962330">"مزید ترتیبات"</string>
+    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"کیمرا تک رسائی"</string>
+    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"مائیکروفون تک رسائی"</string>
+    <string name="permissions_removed_qs" msgid="8957319130625294572">"اجازت کو ہٹایا گیا"</string>
+    <string name="camera_usage_qs" msgid="4394233566086665994">"کیمرے کا حالیہ استعمال دیکھیں"</string>
+    <string name="microphone_usage_qs" msgid="8527666682168170417">"مائیک کا حالیہ استعمال دیکھیں"</string>
+    <string name="remove_camera_qs" msgid="3649996161066883350">"اس ایپ کے لیے اجازت ہٹائیں"</string>
+    <string name="remove_microphone_qs" msgid="1276551965129953198">"اس ایپ کے لیے اجازت ہٹائیں"</string>
+    <string name="manage_service_qs" msgid="7862555549364153805">"سروس کا نظم کریں"</string>
+    <string name="manage_permissions_qs" msgid="3780541819763475434">"اجازتوں کا نظم کریں"</string>
+    <string name="active_call_usage_qs" msgid="8559974395932523391">"فون کال کے ذریعے استعمال کیا جا رہا ہے"</string>
+    <string name="recent_call_usage_qs" msgid="743044899599410935">"فون کال میں حال ہی میں استعمال کیا گیا"</string>
+    <string name="active_app_usage_qs" msgid="4063912870936464727">"<xliff:g id="APP_NAME">%1$s</xliff:g> کے ذریعے استعمال کیا جا رہا ہے"</string>
+    <string name="recent_app_usage_qs" msgid="6650259601306212327">"حال ہی میں <xliff:g id="APP_NAME">%1$s</xliff:g> نے استعمال کیا"</string>
+    <string name="active_app_usage_1_qs" msgid="4325136375823357052">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) کے ذریعے استعمال کیا جا رہا ہے"</string>
+    <string name="recent_app_usage_1_qs" msgid="261450184773310741">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>) کے ذریعے حال ہی میں استعمال کیا گیا"</string>
+    <string name="active_app_usage_2_qs" msgid="6107866785243565283">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) کے ذریعے استعمال کیا جا رہا ہے"</string>
+    <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>) کے ذریعے حال ہی میں استعمال کیا گیا"</string>
+    <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"تصدیق کریں"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"پیچھے"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"دیگر فائلز تک رسائی کی بھی اجازت ہوگی"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"دیگر فائلز تک رسائی کی بھی اجازت نہیں ہوگی"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"دیگر فائلز تک رسائی کی بھی اجازت ہوگی"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_deny" msgid="5767849609024384226">"دیگر فائلز تک رسائی کی بھی اجازت نہیں ہوگی"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_allow" msgid="3191904399336990537">"تصاویر اور ویڈیوز تک رسائی کی بھی اجازت ہوگی"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_deny" msgid="3128147568953297969">"تصاویر اور ویڈیوز تک رسائی کی بھی اجازت نہیں ہوگی"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_allow" msgid="6310682466493330434">"موسیقی اور آڈیو فائلز تک رسائی کی بھی اجازت ہوگی"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_deny" msgid="1123845663785900471">"موسیقی اور آڈیو فائلز تک رسائی کی بھی اجازت نہیں ہوگی"</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_allow" msgid="7865167246140107623">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ موسیقی اور آڈیو فائلز تک رسائی حاصل کر سکتی ہے تو اسے تصاویر، ویڈیوز اور دیگر فائلز تک بھی رسائی کی بھی اجازت ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_deny" msgid="287502523664804786">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ موسیقی اور آڈیو فائلز تک رسائی حاصل نہیں کر سکتی ہے تو اسے تصاویر، ویڈیوز اور دیگر فائلز تک رسائی کی بھی اجازت نہیں ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_allow" msgid="4952410892939590487">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ تصاویر اور ویڈیوز تک رسائی حاصل کر سکتی ہے تو اسے موسیقی، آڈیو اور دیگر فائلز تک رسائی کی بھی اجازت ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_deny" msgid="6609500525590757681">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ تصاویر اور ویڈیوز تک رسائی حاصل نہیں کر سکتی تو اسے موسیقی، آڈیو، دیگر فائلز تک رسائی کی بھی اجازت نہیں ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_allow" msgid="1702402580147536160">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ موسیقی اور آڈیو فائلز تک رسائی حاصل کر سکتی ہے تو اسے تصاویر اور ویڈیوز تک رسائی کی بھی اجازت ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_deny" msgid="6832087393653561911">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ موسیقی اور آڈیو فائلز تک رسائی حاصل نہیں کر سکتی ہے تو اسے تصاویر اور ویڈیوز تک رسائی کی بھی اجازت نہیں ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_allow" msgid="3504335060843147760">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ تصاویر اور ویڈیوز تک رسائی حاصل کر سکتی ہے تو اسے موسیقی اور آڈیو فائلز تک رسائی کی بھی اجازت ہوگی۔"</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_deny" msgid="2145973462806481992">"‏یہ ایپ Android کے تازہ ترین ورژن کو سپورٹ نہیں کرتی ہے۔ اگر یہ ایپ موسیقی اور آڈیو فائلز تک رسائی حاصل نہیں کر سکتی ہے تو اسے تصاویر اور ویڈیوز تک رسائی کی بھی اجازت نہیں ہوگی۔"</string>
+    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"پس منظر میں مقام کے ڈیٹا کی رسائی والی ایپ کا جائزہ لیں"</string>
+    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"<xliff:g id="APP_NAME">%s</xliff:g> ایپ کے بند ہونے پر بھی ہمیشہ آپ کے مقام تک رسائی حاصل کر سکتی ہے"</string>
+    <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"پس منظر میں مقام کے ڈیٹا کی رسائی والی ایپ کا جائزہ لیں"</string>
+    <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"یہ ایپ بند ہونے پر بھی ہمیشہ آپ کے مقام تک رسائی حاصل کر سکتی ہے۔\n\nکچھ حفاظتی اور ایمرجنسی ایپس کو حسب منشا کام کرنے کے لیے پس منظر میں آپ کے مقام تک رسائی کی ضرورت ہوتی ہے۔"</string>
+    <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"رسائی تبدیل ہو گئی"</string>
+    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"حالیہ مقام کا استعمال دیکھیں"</string>
+    <string name="privacy_controls_title" msgid="7605929972256835199">"رازداری سے متعلق کنٹرولز"</string>
+    <string name="camera_toggle_title" msgid="1251201397431837666">"کیمرا تک رسائی"</string>
+    <string name="mic_toggle_title" msgid="2649991093496110162">"مائیکروفون تک رسائی"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"ایپس اور سروسز کے لیے"</string>
+    <string name="mic_toggle_description" msgid="9163104307990677157">"ایپس اور سروسز کے لیے۔ اگر یہ ترتیب آف ہو تو آپ کے ایمرجنسی نمبر پر کال کرتے وقت بھی مائیکروفون کے ڈیٹا کا اشتراک کیا جا سکتا ہے۔"</string>
+    <string name="location_settings_subtitle" msgid="2328360561197430695">"ایسی ایپس اور سروسز دیکھیں جن کو مقام تک رسائی حاصل ہے"</string>
+    <string name="show_clip_access_notification_title" msgid="5168467637351109096">"کلپ بورڈ تک رسائی دکھائیں"</string>
+    <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"ایپس کے آپ کے کاپی کردہ ٹیکسٹ، تصاویر یا دیگر مواد تک رسائی حاصل کرنے پر پیغام دکھائیں"</string>
+    <string name="show_password_title" msgid="2877269286984684659">"پاس ورڈز دکھائیں"</string>
+    <string name="show_password_summary" msgid="1110166488865981610">"ٹائپ کرتے وقت حروف کو مختصر طور پر ڈسپلے کریں"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"اس ایپ نے بتایا ہے کہ یہ مقام کے ڈیٹا کا اشتراک فریقین ثالث کے ساتھ کر سکتی ہے"</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"ڈیٹا کا اشتراک اور مقام"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"ڈیٹا کے اشتراک کی معلومات کا ذریعہ"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"ڈویلپر نے اس آلہ کے مینوفیکچرر کو معلومات فراہم کی کہ یہ ایپ ڈیٹا کا اشتراک کیسے کرتی ہے۔ ڈویلپر وقت کے ساتھ اس معلومات کو اپ ڈیٹ کر سکتا ہے۔"</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"‏ڈویلپر نے "<annotation id="link"><annotation id="install_source" example="App Store">"‏%1$s"</annotation></annotation>" کو معلومات فراہم کی کہ یہ ایپ ڈیٹا کا اشتراک کیسے کرتی ہے۔ ڈویلپر وقت کے ساتھ اس معلومات کو اپ ڈیٹ کر سکتا ہے۔"</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"یہ ایپ ذیل کے لیے مقام کے ڈیٹا کا اشتراک کر سکتی ہے:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"ڈیٹا کا اشتراک مختلف ہوتا ہے"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"آپ کے ایپ ورژن، استعمال، علاقے اور عمر کی بنیاد پر ڈیٹا پریکٹسز مختلف ہو سکتے ہیں۔ "<annotation id="link">"ڈیٹا کے اشتراک کے بارے میں مزید"</annotation></string>
+    <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"آپ کے ایپ ورژن، استعمال، علاقے اور عمر کی بنیاد پر ڈیٹا پریکٹسز مختلف ہو سکتے ہیں۔"</string>
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"آپ کے مقام کا ڈیٹا"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267"><annotation id="link">"رازداری کی ترتیبات"</annotation>" میں اس ایپ کی رسائی کو تبدیل کریں"</string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"ایپ کی فعالیت"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"اینالیٹکس"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"ڈیولپر سے مواصلات"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"تشہیر یا مارکیٹنگ"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"دھوکے سے بچاؤ، سیکیورٹی اور تعمیل"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"ذاتی نوعیت سازی"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"اکاؤنٹ کا نظم و نسق"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"ڈیٹا کی حفاظت"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"مقام کے ڈیٹا کا اشتراک کیا جا سکتا ہے"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"اس ایپ نے بتایا ہے کہ یہ آپ کے مقام کے ڈیٹا کا اشتراک فریقین ثالث کے ساتھ کر سکتی ہے"</string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"مقام کیلئے ڈیٹا کے اشتراک کی اپ ڈیٹس"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"ان ایپس کا جائزہ لیں جنہوں نے آپ کے مقام کے ڈیٹا کے اشتراک کے اپنے ممکنہ طریقے کو تبدیل کر دیا"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"ان ایپس نے آپ کے مقام کے ڈیٹا کے اشتراک کے اپنے ممکنہ طریقے کو تبدیل کر دیا ہے۔ ہو سکتا ہے کہ انہوں نے پہلے اس کا اشتراک نہ کیا ہو یا ممکنہ طور پر اب تشہیر یا مارکیٹنگ کے مقاصد کے لیے اس کا اشتراک کر سکتی ہیں۔"</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"‏ان ایپس کے ڈویلپرز نے اپنے ڈیٹا کے اشتراک کے طریقوں کے بارے میں App اسٹور کو معلومات فراہم کیں۔ وہ اسے وقت کے ساتھ اپ ڈیٹ کر سکتے ہیں۔\n\nڈیٹا کے اشتراک کے طریقے آپ کے ایپ ورژن، استعمال، علاقے اور عمر کی بنیاد پر مختلف ہو سکتے ہیں۔"</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"ڈیٹا کے اشتراک کے بارے میں جانیں"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"آپ کے مقام کے ڈیٹا کا اشتراک اب فریقین ثالث کے ساتھ کیا جاتا ہے"</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"آپ کے مقام کے ڈیٹا کا اشتراک اب تشہیر یا مارکیٹنگ کے لیے فریقین ثالث کے ساتھ کیا جاتا ہے"</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{آخری دن کے اندر اپ ڈیٹ کی گئی}=1{آخری دن کے اندر اپ ڈیٹ کی گئی}other{# دن کے اندر اپ ڈیٹ کی گئی}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"اس وقت کوئی اپ ڈیٹ نہیں ہے"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"ڈیٹا کے اشتراک کی اپ ڈیٹس"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"کچھ ایپس نے آپ کے مقام کے ڈیٹا کے اشتراک کے اپنے ممکنہ طریقے کو تبدیل کر دیا"</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"ترتیبات"</string>
+    <string name="wear_app_perms_24h_access" msgid="8668121661337328895">"<xliff:g id="TIME_DATE">%1$s</xliff:g> پر رسائی حاصل کی گئی"</string>
+    <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"گزشتہ کل <xliff:g id="TIME_DATE">%1$s</xliff:g> پر رسائی حاصل کی گئی"</string>
+    <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"<xliff:g id="TIME_DATE_0">%1$s</xliff:g> <xliff:g id="TIME_DATE_1">%2$s</xliff:g> پر رسائی حاصل کی گئی"</string>
+    <string name="test_otp_msg" msgid="7559110574222727550">"آپ کا ایک وقتی پاس ورڈ 132435 ہے"</string>
+    <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"محدود ترتیب"</string>
+    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"آپ کی سیکیورٹی کیلئے، یہ ترتیب فی الحال دستیاب نہیں ہے۔"</string>
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="8411239333012890492">"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g> کا استعمال کرنے کیلئے اجازت مسترد کر دی گئی ہے"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="9207115054288224451">"اس ایپ نے <xliff:g id="PERMISSION_NAME">%1$s</xliff:g> کی اجازت کی درخواست کی ہے، جو کہ ایک محدود ترتیب ہے کیونکہ یہ آپ کی سیکیورٹی اور رازداری کو خطرے میں ڈال سکتی ہے۔ اس اجازت پر عائد تحدید اس ایپ کو کام کرنے سے روک سکتی ہے۔"</string>
+    <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"مزید جانیں"</string>
+    <string name="enhanced_confirmation_dialog_ok" msgid="1767075979746135617">"سمجھ آ گئی"</string>
+</resources>

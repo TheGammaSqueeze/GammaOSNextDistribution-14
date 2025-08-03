@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"کسی ایپلیکیشن کو AdServices Topics API تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution APIs تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"کسی ایپلیکیشن کو AdServices Attribution APIs تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"کسی ایپلیکیشن کو AdServices Custom Audiences API تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"کسی ایپلیکیشن کو AdId API تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"اس سے ایپلیکیشن کوAdServices Consent API تک رسائی حاصل کرنے کی اجازت ملتی ہے۔"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"کسی ایپلیکیشن کو Ad ID API تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API تک رسائی"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"ایپلیکیشن کو AdServices Cobalt Upload API تک رسائی کی اجازت دیتا ہے۔"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API تک رسائی حاصل کریں"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"کسی ایپلیکیشن کو App Set ID API تک رسائی کی اجازت دیتی ہے۔"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API تک رسائی"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"اس سے ایپلیکیشن کو Consent Service API تک رسائی حاصل کرنے کی اجازت ملتی ہے۔"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService کی فعال حالت میں ترمیم سے متعلق API تک رسائی"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"کسی ایپلیکیشن کو AdService کی فعال حالت میں ترمیم سے متعلق API تک رسائی کی اجازت دیتا ہے۔"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService کی فعال حالت سے متعلق API تک رسائی"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"کسی ایپلیکیشن کو AdService کی فعال حالت سے متعلق API تک رسائی کی اجازت دیتا ہے۔"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager کے APIs تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"اس سے ایپلیکیشن کو AdServicesManager کے APIs تک رسائی کی اجازت ملتی ہے۔"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService کے اپ ڈیٹ AdId API تک رسائی حاصل کریں۔"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"اس سے ایپلیکیشن کو AdService کے اپ ڈیٹ AdId API تک رسائی کی اجازت ملتی ہے۔"</string>
+    <string name="app_label" msgid="2639006978056689153">"اشتہار کی رازداری"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android کے اشتہارات کی رازداری کے بی ٹا ورژن میں شامل ہوں"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android آپ کو اشتہارات دکھانے کی غرض سے ایپس کیلئے مزید نجی طریقے دریافت کر رہا ہے"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"مزید جانیں"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android کے اشتہارات کی رازداری کا بی ٹا ورژن"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"نیا کیا ہے"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"رازداری سینڈ باکس میں موجود رازداری کی نئی خصوصیات ایپس کی جانب سے آپ کو متعلقہ اشتہارات دکھانے کی سہولت دیتی ہیں، لیکن وہ ایپس ویب سائٹس پر آپ کی سرگرمیوں اور دیگر ڈیولپرز کی ایپس کے بارے میں جو کچھ جان سکتی ہیں، اسے محدود کر دیتی ہیں۔"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"اس کے کام کرنے کا طریقہ"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"شرکت کرنے کا طریقہ"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"بی ٹا کو آن کرنے سے، ایپس کو آپ کو اشتہارات دکھانے کیلئے ان مزید نئے طریقوں کو ٹیسٹ کرنے کی سہولت حاصل ہوتی ہے۔ آپ اپنی رازداری کی ترتیبات میں بی ٹا کو کسی بھی وقت آف کر سکتے ہیں۔"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"نہیں شکریہ"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"آن کریں"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"مزید"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"شرکت کرنے کیلئے آپ کا شکریہ"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"آپ Android کے اشتہارات کی رازداری کے بی ٹا ورژن کا حصہ ہیں۔ آپ کے آلے کیلئے رازداری سینڈ باکس آن ہے۔\n\nآپ مزید جان سکتے ہیں یا اپنی رازداری کی ترتیبات میں بی ٹا کو کسی بھی وقت آف کر سکتے ہیں۔"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"آپ نے شامل نہ ہونا منتخب کیا ہے"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"آپ کے جواب کا شکریہ۔ آپ کے آلے کیلئے رازداری سینڈ باکس آف ہے۔\n\nاگر آپ اپنا ارادہ بدلتے ہیں یا مزید جاننا چاہتے ہیں تو اپنی رازداری کی ترتیبات پر جائیں۔"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"رازداری کی ترتیبات"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"سمجھ آ گئی"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"آپ بی ٹا کا حصہ ہیں"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"آپ کے آلے کیلئے رازداری سینڈ باکس آن ہے اور آپ کو اشتہارات دکھانے کیلئے ایپس ان مزید نئے طریقوں کو ٹیسٹ کر سکتی ہیں۔ آپ اپنی رازداری کی ترتیبات میں بی ٹا کو کسی بھی وقت آف کر سکتے ہیں۔"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"سمجھ آ گئی"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android کا رازداری سینڈ باکس ایسی نئی خصوصیات فراہم کرتا ہے جن کا استعمال کر کے ایپس آپ کو پسند آ سکنے والے اشتہارات دکھا سکتی ہیں۔ یہ ٹیکنالوجیز آلے کے شناخت کاران کا استعمال نہیں کرتی ہیں۔\n\nAndroid اور آپ کی ایپس یہ تخمینہ لگا سکتی ہیں کہ آپ کو کن اقسام کے اشتہارات میں دلچسپی ہو سکتی ہے اور وہ آپ کے آلے پر عارضی طور پر دلچسپیوں کو محفوظ کر سکتے ہیں۔ اس سے ایپس کو ویب سائٹس پر آپ کی سرگرمی اور دیگر ڈیولپرز کی ایپس کو ٹریک کئے بغیر آپ کو پسند آ سکنے والے اشتہارات دکھانے کی سہولت حاصل ہوتی ہے۔"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"رازداری سینڈ باکس کی مدد سے اشتہارات کی ذاتی نوعیت سازی"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android کے ذریعے تخمینہ شدہ دلچسپیاں"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"آپ کی استعمال کی جانے والی ایپس کی بنیاد پر، Android وقتاً فوقتاً آپ کی سرفہرست دلچسپیوں کا تخمینہ لگاتا ہے، مثال کے طور پر \"اسپورٹس\" یا \"ٹریول\"۔\n\nبعد میں، ایپ Android سے ان دلچسپیوں کا استعمال کر کے آپ کو متعلقہ اشتہارات دکھانے کیلئے کہہ سکتی ہے۔\n\nآپ اپنی رازداری کی ترتیبات میں موجودہ دلچسپیوں کی فہرست دیکھ سکتے ہیں اور کوئی دلچسپی پسند نہ آنے پر اسے مسدود کر سکتے ہیں۔"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  ایپس کے ذریعے تخمینہ شدہ دلچسپیاں"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"ایپس آپ کی دلچسپیوں کا تخمینہ لگا سکتی ہیں اور Android کی مدد سے انہیں عارضی طور پر محفوظ کر سکتی ہیں۔ مثال کے طور پر، ایک ایسی ایپ جس کا استعمال آپ نے دوڑنے والے جوتے خریدنے کیلئے کیا تھا، وہ آپ کی دلچسپی کا تخمینہ \"میراتھنز میں دوڑنا\" کے طور پر لگا سکتی ہے۔\n\nبعد میں، اس دلچسپی کی بنیاد پر، کوئی مختلف ایپ آپ کو میراتھنز سے متعلق اشتہار دکھا سکتی ہے۔\n\nاپنی رازداری کی ترتیبات میں، آپ دلچسپیاں محفوظ کرنے والی ایپس کی فہرست کا نظم کر سکتے ہیں۔"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"اشتہارات کی رازداری کی نئی خصوصیات"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"اشتہار کے موضوعات اور نئے کنٹرولز آپ کو ان اشتہارات سے زیادہ انتخاب فراہم کرتے ہیں جو آپ دیکھتے ہیں"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"اشتہارات کی رازداری کی نئی خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android آپ کی حال ہی میں استعمال کردہ ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے۔ نیز، آپ جو ایپس استعمال کرتے ہیں وہ اس بات کا تعین کر سکتی ہیں کہ آپ کو کیا پسند ہے۔ بعد میں، ایپس آپ کو ذاتی نوعیت کے اشتہارات دکھانے کے لیے یہ معلومات کا مطالبہ کر سکتی ہیں۔ آپ انتخاب کر سکتے ہیں کہ آپ کو اشتہارات دکھانے کے لیے کون سے موضوعات اور ایپس کا استعمال کیا جائے۔"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"کسی اشتہار کی کارکردگی کی پیمائش کرنے کے لیے، ایپس کے درمیان ڈیٹا کی محدود اقسام کا اشتراک کیا جاتا ہے۔"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android پر اشتہارات کے بارے میں مزید"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"مزید مفید اشتہارات"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"آپ کو دکھائی دینے والے اشتہارات کو ذاتی نوعیت کا بنانے میں مدد کرنے کے لیے ایپس Android سے معلومات طلب کر سکتی ہیں۔"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android آپ کی حال ہی میں استعمال کردہ ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے۔"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  آپ جو ایپس استعمال کرتے ہیں اس کی بنیاد پر آپ ان کو کس طرح استعمال کرتے ہیں اس بات کا تعین بھی کر سکتی ہیں کہ آپ کو کیا پسند ہے۔ مثال کے طور پر، اگر آپ کوئی ایسی ایپ استعمال کرتے ہیں جو لمبے فاصلے والے دوڑنے کے جوتوں کو فروخت کرتی ہے تو ایپ یہ فیصلہ کر سکتی ہے کہ آپ کو دوڑ کے میراتھنز میں دلچسپی ہے۔"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"بعد میں، آپ جو ایپ استعمال کرتے ہیں وہ اس معلومات کا مطالبہ کر سکتی ہے — یا آپ کے اشتہار کے موضوعات یا آپ کی استعمال کردہ ایپس کے ذریعہ تجویز کردہ اشتہارات۔"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android موضوعات اور ایپ کے تجویز کردہ ڈیٹا کو باقاعدگی سے خودکار طور پر حذف کرتا ہے۔ آپ ان مخصوص موضوعات اور ایپس کو بھی مسدود کر سکتے ہیں جنہیں آپ نہیں چاہتے ہیں کہ تجاویز پیش کرے۔"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"اس بات کی پیمائش کرنا کہ اشتہار کتنی اچھی کارکردگی کا مظاہرہ کرتا ہے"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"آپ جو ایپس استعمال کرتے ہیں وہ اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کے لیے Android سے معلومات طلب کر سکتی ہیں۔ Android ایپس کو ڈیٹا کی محدود اقسام جمع کرنے کی اجازت دیتا ہے، جیسے کہ دن کا وہ وقت جب آپ کو اشتہار دکھایا گیا تھا۔"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"اشتہارات کی رازداری کی نئی خصوصیات آزمائیں"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"اشتہار کے عنوانات آپ کو ان اشتہارات پر زیادہ انتخاب دیتے ہیں جو آپ دیکھتے ہیں"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"تفصیلات دیکھیں"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"اشتہارات کی رازداری کی نئی خصوصیات آزمائیں"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android رازداری کی نئی خصوصیات شروع کر رہا ہے جو آپ کو دکھائی دینے والے اشتہارات پر مزید انتخاب فراہم کرتی ہیں۔"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"اشتہار کے موضوعات آپ کی شناخت اور آپ کے ایپ کے استعمال کے بارے میں معلومات کی حفاظت کرتے ہوئے آپ کو متعلقہ اشتہارات دکھانے میں ایپس کی مدد کرتے ہیں۔ Android آپ کی حال ہی میں استعمال کردہ ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کر سکتا ہے۔ بعد میں، آپ کی استعمال کی جانے والی ایپ آپ کو دکھائی دینے والے اشتہارات کو ذاتی نوعیت کا بنانے کے لیے Android سے متعلقہ موضوعات کا مطالبہ کر سکتی ہے۔"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"آپ اپنے آلے کی ترتیبات میں اشتہار کے موضوعات دیکھ سکتے ہیں اور ان کو مسدود کر سکتے ہیں جن کا آپ ایپس کے ساتھ اشتراک نہیں کرنا چاہتے۔ Android اشتہار کے موضوعات کو باقاعدگی سے خودکار طور پر بھی حذف بھی کر دیتا ہے۔"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"آپ رازداری کی ترتیبات میں کسی بھی وقت اپنا ارادہ بدل سکتے ہیں۔"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"اشتہار کے موضوعات کے بارے میں مزید"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"ہماری "<a href="https://policies.google.com/privacy">"رازداری کی پالیسی"</a>" میں اس بارے میں مزید جانیں کہ Android آپ کے ڈیٹا کی حفاظت کیسے کرتا ہے۔"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"اسے آزمائیں"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"کون سا ڈیٹا استعمال کیا جاتا ہے"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"آپ کے اشتہار کے موضوعات ان ایپس پر مبنی ہوتے ہیں جنہیں آپ نے حال ہی میں اس آلہ پر استعمال کیا ہے اور آپ انہیں کتنی مرتبہ استعمال کرتے ہیں۔"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  ہمارا اس ڈیٹا کو استعمال کرنے کا طریقہ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android آپ کے اپنی ایپس استعمال کرتے ہی دلچسپی کے موضوعات کو نوٹ کرتا ہے۔ موضوع کے لیبلز پہلے سے متعینہ ہیں اور ان میں آرٹس اور تفریح، خریداری اور اسپورٹس جیسی چیزیں شامل ہیں۔ بعد میں، آپ جو ایپ استعمال کرتے ہیں وہ آپ کو دکھائی دینے والے اشتہارات کو ذاتی نوعیت کا بنانے کے لیے Android سے آپ کے کچھ موضوعات (لیکن آپ کے ایپ کے استعمال یا شناخت کے بارے میں ڈیٹا نہیں) کا مطالبہ کر سکتی ہے۔"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  آپ اپنے ڈیٹا کا نظم کیسے کر سکتے ہیں"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android موضوعات کو باقاعدگی سے خودکار طور پر حذف کر دیتا ہے۔ جب تک آپ ایپس کا استعمال جاری رکھتے ہیں فہرست پر موضوع دوبارہ ظاہر ہو سکتا ہے۔ آپ ان موضوعات کو بھی مسدود کر سکتے ہیں جن کا آپ چاہتے ہیں کہ Android ایپس کے ساتھ اشتراک نہ کرے اور رازداری کی ترتیبات میں کسی بھی وقت اشتہار کے موضوعات کو بند کر سکتے ہیں۔"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"آپ رازداری کی ترتیبات میں تبدیلیاں کر سکتے ہیں۔"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"اشتہارات کی رازداری کی دیگر خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"ایپس کے آپ کو ذاتی نوعیت کے اشتہارات دکھانے پر وہ آپ کے بارے میں کیا جان سکتی ہیں اسے محدود کرنے کے لیے Android نئے طریقے بھی پیش کرتا ہے۔"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  ایپ کے تجویز کردہ اشتہارات آپ کو متعلقہ اشتہارات دکھانے کے لیے ایپس کو فعال کرتے وقت آپ کی شناخت اور آپ کی ایپ کے استعمال کے بارے میں معلومات کی حفاظت کرنے میں مدد کرتے ہیں۔ آپ کی سرگرمی کی بنیاد پر، آپ جو ایپ استعمال کرتے ہیں وہ دیگر ایپس پر متعلقہ اشتہارات کی تجویز کر سکتی ہے۔ آپ رازداری کی ترتیبات میں ان ایپس کی فہرست دیکھ سکتے ہیں اور انہیں تجاویز پیش کرنے سے مسدود کر سکتے ہیں۔"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  اشتہار کی پیمائش کے ساتھ، ایپس کے درمیان ان کے اشتہارات کی کارکردگی کی پیمائش کرنے کے لیے ڈیٹا کی محدود اقسام کا اشتراک کیا جاتا ہے، جیسے کہ دن کا وہ وقت جب آپ کو اشتہار دکھایا گیا تھا۔"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"ایپ کے تجویز کردہ اشتہارات اور اشتہار کی پیمائش کے بارے میں مزید"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"ایپس کے تجویز کردہ اشتہارات"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"کون سا ڈیٹا استعمال کیا جاتا ہے"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"اس آلے پر استعمال ہونے والی ایپ میں آپ کی سرگرمی۔"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  ایپس کا اس ڈیٹا کو استعمال کرنے کا طریقہ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"ایپس Android کے ساتھ آپ کی پسند کی چیزوں کے بارے میں معلومات کو اسٹور کر سکتی ہیں۔ مثال کے طور پر، اگر آپ میراتھن ٹریننگ کے بارے میں کوئی ایپ استعمال کرتے ہیں تو ایپ یہ فیصلہ کر سکتی ہے کہ آپ دورڑنے کے جوتوں میں دلچسپی رکھتے ہیں۔ بعد میں، اگر آپ کوئی مختلف ایپ استعمال کرتے ہیں تو وہ ایپ آپ کو پہلی ایپ کے ذریعے تجویز کردہ دورڑنے کے جوتوں کا اشتہار دکھا سکتی ہے۔"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  آپ کس طرح اپنے ڈیٹا کا نظم کر سکتے ہیں"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android خودکار طور پر ایپ کے تجویز کردہ ڈیٹا کو باقاعدگی سے حذف کر دیتا ہے۔ آپ کے کسی ایپ کو دوبارہ استعمال کرنے پر فہرست میں وہ دوبارہ نظر آسکتی ہے۔"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"آپ رازداری کی ترتیبات میں کسی بھی وقت کسی ایپ کو اپنے لیے اشتہارات تجویز کرنے سے مسدود کر سکتے ہیں، تمام اشتہاراتی تجاویز کا ڈیٹا ری سیٹ کر سکتے ہیں یا ایپ کے تجویز کردہ اشتہارات کو آف بھی کر سکتے ہیں۔"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"آپ جن ایپس کا استعمال کرتے ہیں وہ Android سے معلومات طلب کر سکتی ہیں جو انہیں اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کرتی ہے۔ Android ان معلومات کو محدود کر کے آپ کی رازداری کی حفاظت کرتا ہے جن کا ایپس ایک دوسرے کے ساتھ اشتراک کر سکتی ہیں۔"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"اشتہارات کی رازداری کی نئی خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"اپنی شناخت کی حفاظت کرتے ہوئے آپ کو نظر آنے والے اشتہارات پر مزید انتخاب حاصل کریں"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"اشتہارات کی رازداری کی نئی خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"ایپ کے آپ کو ذاتی نوعیت کے اشتہارات دکھانے پر وہ آپ کے بارے میں کیا جان سکتی ہے اسے محدود کرنے کے لیے Android نئے طریقے متعارف کرا رہا ہے۔"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  ایپس کے تجویز کردہ اشتہارات کے ساتھ، رازداری کی نئی خصوصیات ایپس کو آپ کو متعلقہ اشتہارات دکھانے کے قابل بناتے ہوئے آپ کی شناخت اور آپ کی ایپ کے استعمال سے متعلق معلومات کے تحفظ میں مدد کرتی ہیں۔ آپ کی سرگرمی کی بنیاد پر، آپ جو ایپ استعمال کرتے ہیں وہ دیگر ایپس پر متعلقہ اشتہارات تجویز کر سکتی ہے۔ آپ رازداری کی ترتیبات میں ایپس کی فہرست دیکھ سکتے ہیں اور انہیں تجاویز پیش کرنے سے مسدود کر سکتے ہیں۔"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  اشتہار کی پیمائش کے ساتھ، ایپس کے درمیان ان کے اشتہارات کی کارکردگی کو سمجھنے کے لیے محدود اقسام کے ڈیٹا کا اشتراک کیا جاتا ہے، جیسے کہ دن کا وہ وقت جب آپ کو کوئی اشتہار دکھایا گیا تھا۔"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"اس آلہ پر کسی ایپ میں آپ کی سرگرمی اشتہارات تجویز کرنے کے لیے استعمال کی جا سکتی ہے۔"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"اشتہارات کی رازداری کی کوئی دوسری خصوصیت آن کریں"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android رازداری کی ایک نئی خصوصیت بھی پیش کرتا ہے جو آپ کو نظر آنے والے اشتہارات کے بارے میں زیادہ انتخاب فراہم کرتی ہے۔"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"اشتہار کے موضوعات آپ کی شناخت اور آپ کی ایپ کے استعمال کے بارے میں معلومات کی حفاظت کرتے ہوئے آپ کو متعلقہ اشتہارات دکھانے میں ایپس کی مدد کرتے ہیں۔ Android آپ کی حال ہی میں استعمال کردہ ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کر سکتا ہے۔ بعد میں، آپ جو ایپ استعمال کرتے ہیں وہ آپ کو مزید متعلقہ اشتہارات دکھانے کے لیے Android سے متعلقہ عنوانات کے لیے کہہ سکتی ہے۔"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"آپ اپنی رازداری کی ترتیبات میں اشتہار کے موضوعات کو دیکھ سکتے ہیں اور ان موضوعات کو حذف کر سکتے ہیں جن کا اشتراک آپ ایپس کے ساتھ نہیں کرنا چاہتے ہیں۔ Android موضوعات کو باقاعدگی سے خودکار طور پر بھی حذف بھی کرتا ہے۔"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"اسے آن کریں"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"اشتہارات کی رازداری کی نئی خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"اب، اپنی شناخت کی حفاظت کرتے ہوئے آپ کو نظر آنے والے اشتہارات پر مزید انتخاب دستیاب ہے"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"اشتہارات کی رازداری کی نئی خصوصیات اب دستیاب ہیں"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android اب رازداری کی نئی خصوصیات پیش کرتا ہے جو آپ کو نظر آنے والے اشتہارات کے بارے میں زیادہ انتخاب فراہم کرتی ہیں۔"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"آگے جائیں"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"رازداری سینڈ باکس"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android کے اشتہارات کی رازداری کے بی ٹا ورژن میں شرکت کریں"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"رازداری سینڈ باکس"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android کے ذریعے تخمینہ شدہ دلچسپیاں"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"دلچسپیوں کا تخمینہ لگانے والی ایپس"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"اشتہار کی اثرپذیری کی پیمائش"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"اپنے اشتہارات کی اثرپذیری کی پیمائش کرنے کیلئے، ایپس رازداری سینڈ باکس کا استعمال کر سکتی ہیں۔ ایسا کرنے کیلئے، مشتہرین Android کی مدد سے ان کے اشتہارات اور ایپس کے درمیان آپ کے تعاملات سے متعلق ڈیٹا کو عارضی طور پر محفوظ کر سکتے ہیں۔ آپ کتنا ڈیٹا محفوظ کر سکتے ہیں، یہ امر محدود کردہ ہے اور اسے باقاعدگی سے حذف کیا جائے گا۔\n\nآپ رازداری سینڈ باکس آف کر کے کسی بھی وقت اس ڈیٹا کو حذف کر سکتے ہیں۔"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"آپ کی استعمال کی جانے والی ایپس کی بنیاد پر، Android وقتاً فوقتاً آپ کی سرفہرست دلچسپیوں کا تخمینہ لگاتا ہے۔ ایپس Android سے ان دلچسپیوں کا استعمال کرتے ہوئے آپ کو متعلقہ اشتہارات دکھانے کیلئے کہہ سکتی ہیں۔\n\nاگر آپ کسی دلچسپی کو مسدود کریں گے تو اسے اس وقت تک دوبارہ فہرست میں شامل نہیں کیا جائے گا جب تک آپ اسے غیر مسدود نہ کر دیں۔ آپ کو اب بھی کچھ متعلقہ اشتہارات دکھائی دے سکتے ہیں۔"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"مسدود کریں"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"غیر مسدود کریں"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"آپ کی مسدود کردہ دلچسپیاں"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"تمام دلچسپیوں کو ری سیٹ کریں"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"فی الوقت دکھانے کے لیے کوئی دلچسپی نہیں ہے۔"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"ابھی دکھانے کے لیے کوئی عنوان نہیں ہے۔\n"<a href="https://support.google.com/android?p=ad_privacy">"اشتہار کے عنوانات"</a>" کے بارے میں مزید جانیں"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"رازداری سینڈ باکس"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android کے اشتہارات کی رازداری کا بی ٹا ورژن ایسی نئی خصوصیات فراہم کرتا ہے جن کا استعمال کر کے ایپس آپ کو پسند آ سکنے والے اشتہارات دکھا سکتی ہیں۔ یہ ٹیکنالوجیز آلے کے شناخت کاران کا استعمال نہیں کرتی ہیں۔\n\nAndroid یہ تخمینہ لگا سکتا ہے کہ آپ کو کن اقسام کے اشتہارات میں دلچسپی ہو سکتی ہے اور وہ آپ کے آلے پر عارضی طور پر دلچسپیوں کو محفوظ کر سکتا ہے۔ اس سے ایپس کو ویب سائٹس پر آپ کی سرگرمی اور دیگر ڈیولپرز کی ایپس کو ٹریک کئے بغیر آپ کو متعلقہ اشتہارات دکھانے کی سہولت حاصل ہوتی ہے۔"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"آپ کے پاس کوئی مسدود کردہ دلچسپی نہیں ہے"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"کوئی بھی مسدود کردہ موضوع نہیں"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"مسدود کردہ موضوعات دیکھیں"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"دلچسپیاں ری سیٹ ہیں"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"موضوعات کو ری سیٹ کیا گیا"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"ایپس آپ کی دلچسپیوں کا تخمینہ لگا سکتی ہیں اور Android کی مدد سے انہیں عارضی طور پر محفوظ کر سکتی ہیں۔ بعد میں، کوئی مختلف ایپ ان دلچسپیوں کی بنیاد پر آپ کو ایک اشتہار دکھا سکتی ہے۔\n\nاگر آپ کسی ایپ کو مسدود کریں گے تو وہ مزید کسی دلچسپی کا تخمینہ نہیں لگائے گی۔ اسے اس وقت تک دوبارہ فہرست میں شامل نہیں کیا جائے گا جب تک آپ اسے غیر مسدود نہ کر دیں۔ ایپ کے ذریعے پہلے ہی سے تخمینہ شدہ دلچسپیاں حذف کر دی جائیں گی، لیکن ہو سکتا ہے کہ آپ کو اس کے باوجود کچھ متعلقہ اشتہارات دکھائی دیں۔"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"آپ کی مسدود کردہ ایپس"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"مسدود کردہ ایپس ملاحظہ کریں"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"ایپس کے ذریعے تخمینہ شدہ دلچسپیوں کو ری سیٹ کریں"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"فی الوقت کوئی ایپ آپ کیلئے دلچسپیاں تجویز نہیں کر رہی ہے"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"ابھی دکھانے کے لیے کوئی ایپ نہیں ہے۔ \n"<a href="https://support.google.com/android?p=ad_privacy">"ایپس کے تجویز کردہ اشتہارات"</a>" کے بارے میں مزید جانیں"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"رازداری سینڈ باکس"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android کے اشتہارات کی رازداری کا بی ٹا ورژن ایسی نئی خصوصیات فراہم کرتا ہے جن کا استعمال کر کے ایپس آپ کو پسند آ سکنے والے اشتہارات دکھا سکتی ہیں۔ یہ ٹیکنالوجیز آلے کے شناخت کاران کا استعمال نہیں کرتی ہیں۔\n\nایپس یہ تخمینہ لگا سکتی ہیں کہ آپ کو کن اقسام کے اشتہارات میں دلچسپی ہو سکتی ہے اور وہ آپ کے آلے پر عارضی طور پر دلچسپیوں کو محفوظ کر سکتی ہیں۔ اس سے ایپس کو ویب سائٹس پر آپ کی سرگرمی اور دیگر ڈیولپرز کی ایپس کو ٹریک کئے بغیر آپ کو متعلقہ اشتہارات دکھانے کی سہولت حاصل ہوتی ہے۔"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"آپ کے پاس کوئی مسدود کردہ ایپ نہیں ہے"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"مسدود کردہ کوئی ایپ نہیں ہے"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"اشتہار کی پیمائش کی اجازت دیں"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"ایپس اور مشتہرین Android سے ایسی معلومات کی درخواست کر سکتے ہیں جو انہیں اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کرتی ہے۔\n\nاشتہار کی اثرپذیری کی پیمائش کا ڈیٹا آپ کے آلے سے باقاعدگی سے حذف کیا جاتا ہے۔"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"پیمائش کے ڈیٹا کو ری سیٹ کریں"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android اس معلومات کو محدود کر کے جس کا اشتراک ایپس ایک دوسرے کے ساتھ کر سکتی ہیں، آپ کی رازداری کی حفاظت کرتا ہے۔ آپ کی شناخت کی حفاظت کے لیے رپورٹیں تاخیر سے بھیجی جاتی ہیں۔\n\nممکن ہے کہ آپ کے براؤزر میں کوئی مماثل ترتیب موجود ہو۔ اگر Android اور آپ کے براؤزر دونوں کے لیے اشتہار کی پیمائش آن ہے تو کمپنی آپ کے استعمال کی جانے والی ایپس اور آپ کے ملاحظہ کی جانے والی سائٹس کے درمیان اشتہار کی تاثیر کی پیمائش کر سکتی ہے۔ آپ کی براؤزنگ کی سرگزشت کو آپ کے آلے پر نجی رکھا جاتا ہے۔\n\nہماری "<a href="https://policies.google.com/privacy">"رازداری کی پالیسی"</a>" میں اس بارے میں مزید جانیں کہ Android آپ کے ڈیٹا کی حفاظت کیسے کرتا ہے۔"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"اشتہار کی پیمائش کا ڈیٹا ری سیٹ کیا گیا"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"منسوخ کریں"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"رازداری سینڈ باکس آف کریں؟"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"اگر آپ اپنا ارادہ تبدیل کرتے ہیں یا Android کے اشتہارات کی رازداری کے بی ٹا کے بارے میں جاننا چاہتے ہیں تو اپنی رازداری کی ترتیبات میں جائیں"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"آف کریں"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> کو مسدود کریں؟"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"یہ موضوع مسدود کر دیا جائے گا اور آپ کے واپس شامل کرنے تک اسے آپ کی فہرست میں دوبارہ شامل نہیں کیا جائے گا۔ آپ اب بھی کچھ متعلقہ اشتہارات دیکھ سکتے ہیں۔"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"مسدود کریں"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> غیر مسدود ہے"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android اس موضوع کو آپ کی فہرست میں دوبارہ شامل کر سکتا ہے لیکن ممکن ہے یہ فوری طور پر نظر نہ آئے"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"ٹھیک ہے"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"اشتہار کے سبھی موضوعات کو ری سیٹ کریں؟"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"آپ کی فہرست صاف کر دی جائے گی اور مستقبل میں نئے موضوعات شامل کیے جائیں گے۔ آپ اب بھی ان موضوعات سے متعلق کچھ اشتہارات دیکھ سکتے ہیں جنہیں آپ نے ری سیٹ کیا ہے۔"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"ری سیٹ کریں"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"‫<xliff:g id="APP">%1$s</xliff:g> کو مسدود کریں؟"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"یہ ایپ اشتہارات کی تجویز نہیں کرے گی اور اسے آپ کے غیر مقفل کرنے تک آپ کی فہرست میں دوبارہ شامل نہیں کیا جائے گا۔ آپ کو اب بھی کچھ متعلقہ اشتہارات دکھائی دے سکتے ہیں۔"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> غیر مسدود ہے"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"یہ ایپ آپ کے لیے دوبارہ اشتہارات تجویز کر سکتی ہے لیکن ممکن ہے یہ فوری طور پر آپ کی فہرست پر نظر نہ آئے۔ آپ کو متعلقہ اشتہارات نظر آنے میں کچھ وقت لگ سکتا ہے۔"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"ایپس کے ذریعے تجویز کردہ اشتہارات کو ری سیٹ کریں؟"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"آپ کی فہرست میں موجود ایپس سے اشتہار کی تجویز کا ڈیٹا حذف کر دیا جائے گا اور ایپس مستقبل میں نئے اشتہارات تجویز کریں گی۔ آپ اب بھی کچھ متعلقہ اشتہارات دیکھ سکتے ہیں۔"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"ایپ کے ڈیٹا کو ری سیٹ کر دیا گیا"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"\'اشتہار کے عنوانات\' آن ہے"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android دلچسپی کے عنوانات کو نوٹ کرنا شروع کرے گا، لیکن آپ کے ابتدائی عنوانات کو دکھائی دینے میں کچھ وقت لگ سکتا ہے۔"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"\'اشتہار کے عنوانات\' آف کریں؟"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"عنوانات کی یہ فہرست حذف ہو جائے گی۔ Android دلچسپی کے عنوانات کو مزید نوٹ نہیں کرے گا، لیکن اس کے باوجود آپ کو متعلقہ اشتہارات دکھائی دے سکتے ہیں۔"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"\'ایپس کے تجویز کردہ اشتہارات\' آن ہے"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"ایپس اشتہارات تجویز کرنا شروع کر سکتی ہیں۔ ایپس کی جانب سے اشتہارات تجویز کرنا شروع کرنے کے بعد، آپ کو ان کی فہرست دکھائی دے گی۔"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"\'ایپس کے تجویز کردہ اشتہارات\' آف کریں؟"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"اشتہار کی تجویز کا تمام ڈیٹا حذف ہو جائے گا۔ ایپس اشتہارات مزید تجویز نہیں کر پائیں گی، لیکن اس کے باوجود آپ کو متعلقہ اشتہارات دکھائی دے سکتے ہیں۔"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"اشتہار کی پیمائش آن ہے"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں ایپس کی مدد کرنے کیلئے، ایپس کے ساتھ Android صرف بہت ہی محدود معلومات کا اشتراک کر سکتا ہے۔"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"اشتہار کی پیمائش آف کریں؟"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"اشتہار کی پیمائش کی تمام زیر التواء رپورٹس حذف ہو جائیں گی اور کوئی نئی رپورٹ جنریٹ نہیں ہوگی یا کسی نئی رپورٹ کا اشتراک نہیں کیا جائے گا۔"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"اشتہارات کی رازداری"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"اشتہار کے موضوعات"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"ایپس کے تجویز کردہ اشتہارات"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android ان ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے جنہیں آپ نے حال ہی میں استعمال کیا ہے اور آپ انہیں کتنی مرتبہ استعمال کرتے ہیں۔"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"آپ جو ایپس استعمال کرتے ہیں وہ اس بات کا تعین بھی کر سکتی ہیں کہ آپ ان کو کس طرح استعمال کرتے ہیں اس کی بنیاد پر آپ کو کیا پسند ہے۔"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"آپ جو ایپس استعمال کرتے ہیں وہ اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کے لیے Android سے معلومات طلب کر سکتی ہیں۔ Android ایپس کو محدود قسم کا ڈیٹا اکٹھا کرنے دیتا ہے۔"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"Android پر اشتہار کی رازداری"</a>" کے بارے میں مزید جانیں"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"آن ہے / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> موضوعات"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{آن / # موضوع}other{آن / # موضوعات}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"آن ہے / <xliff:g id="APPS_COUNT">%1$d</xliff:g> ایپس"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{آن / # ایپ}other{آن / # ایپس}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"آن ہے"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"آف ہے"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"دلچسپی کے موضوعات ان ایپس پر مبنی ہوتے ہیں جنہیں آپ نے حال ہی میں استعمال کیا ہے اور ایپس ان کا استعمال آپ کو ذاتی نوعیت کے اشتہارات دکھانے کے لیے کرتی ہیں۔\n\nآپ ان موضوعات کو مسدود کر سکتے ہیں جن کا اشتراک آپ ایپس کے ساتھ نہیں کرنا چاہتے ہیں۔ Android موضوعات کو باقاعدگی سے خود بخود حذف کرتا ہے۔\n\nجب کہ اس خصوصیت کو آن کیا جا سکتا ہے، ہو سکتا ہے آپ کو موضوعات کی فہرست اس وقت تک نظر نہ آئے جب تک یہ خصوصیت مکمل طور پر دستیاب نہ ہو اور ایپس اسے استعمال کرنا شروع نہ کر دیں۔"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"اشتہار کے موضوعات کی اجازت دیں"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"آپ کے مسدود کردہ اشتہار کے موضوعات"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"اشتہار کے سبھی موضوعات کو ری سیٹ کریں"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android ان ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے جن کا استعمال آپ نے پچھلے کچھ ہفتوں میں کیا ہے۔\n\nبعد میں، آپ جو ایپ استعمال کرتے ہیں وہ Android سے آپ کے موضوعات کے لیے پوچھ سکتی ہے تاکہ آپ کو نظر آنے والے اشتہارات کو ذاتی نوعیت کا بنایا جا سکے۔ Android آپ کی شناخت اور آپ کی ایپ کے استعمال کے بارے میں معلومات کی حفاظت کرتے ہوئے 3 موضوعات تک کا اشتراک کرتا ہے۔\n\nAndroid موضوعات کو باقاعدگی سے خودکار طور پر حذف کرتا ہے۔ جب آپ ایپس کا استعمال جاری رکھتے ہیں تو فہرست میں ایک موضوع دوبارہ ظاہر ہو سکتا ہے۔ یا آپ ان موضوعات کو مسدود کر سکتے ہیں جنہیں آپ نہیں چاہتے ہیں کہ Android ایپس کے ساتھ اشتراک کریں۔\n\nآپ کی ایپس میں اور آپ کو نظر آنے والا اشتہار ذاتی نوعیت کا بنایا جا سکتا ہے، اس ترتیب، ایپ کی تجویز کردہ اشتہار کی ترتیب، آپ کی تشہیری ID کی ترتیبات اور آیا جو ایپ آپ استعمال کر رہے ہیں وہ اشتہارات کو ذاتی نوعیت کا بناتی ہے کی بنیاد پر۔"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"ایپ کے تجویز کردہ اشتہارات کی اجازت دیں"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"آپ جو ایپس استعمال کرتے ہیں وہ اس بات کا تعین کر سکتی ہیں کہ آپ کو کیا پسند ہے اور پھر دوسری ایپس پر اشتہارات تجویز کر سکتی ہیں۔\n\nآپ ایپس کو تجاویز پیش کرنے سے روک سکتے ہیں۔ Android ایپ کے تجویز کردہ ڈیٹا کو بھی باقاعدگی سے خودکار طور پر حذف کرتا ہے۔\n\nجب کہ اس خصوصیت کو آن کیا جا سکتا ہے، ہو سکتا ہے آپ کو ایپس کی فہرست اس وقت تک نظر نہ آئے جب تک یہ خصوصیت مکمل طور پر دستیاب نہ ہو اور ایپس اسے استعمال کرنا شروع نہ کر دیں۔"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"آپ کی مسدود کردہ ایپس"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"ایپ کے تجویز کردہ ڈیٹا کو ری سیٹ کریں"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"یہ ان ایپس کے لیے عام ہے جنہیں آپ اپنے تجربے کو ذاتی نوعیت کا بنانے کے لیے ان چیزوں کو یاد رکھنے کے لیے استعمال کرتے ہیں جن میں آپ کی دلچسپی ہے۔ ایپس آپ کے موضوعات کے بارے میں بھی معلومات کو Android کے ساتھ اسٹور کر سکتی ہیں۔\n\nمثال کے طور پر، اگر آپ میراتھن ٹریننگ کے بارے میں کوئی ایپ استعمال کرتے ہیں تو ایپ یہ فیصلہ کر سکتی ہے کہ آپ کو رننگ شوز میں دلچسپی ہے۔ بعد میں، اگر آپ کوئی مختلف ایپ استعمال کرتے ہیں تو وہ ایپ آپ کو پہلی ایپ کے تجویز کردہ رننگ شوز کا اشتہار دکھا سکتی ہے۔\n\nAndroid ایپ کے تجویز کردہ ڈیٹا کو باقاعدگی سے خودکار طور پر حذف کرتا ہے۔ آپ جو ایپ دوبارہ استعمال کرتے ہیں وہ فہرست میں دوبارہ ظاہر ہو سکتی ہے۔ یا آپ کسی ایپ کو اپنے لیے اشتہارات تجویز کرنے سے مسدود کر سکتے ہیں۔\n\nآپ کی ایپس میں، آپ جو اشتہار دیکھتے ہیں وہ ذاتی نوعیت کا ہو سکتا ہے، اس ترتیب، اشتہار کے موضوعات کی ترتیب، آپ کی تشہیری ID کی ترتیبات اور آیا آپ جس ایپ کو استعمال کر رہے ہیں وہ اشتہارات کو ذاتی نوعیت کا بناتی ہے کی بنیاد پر۔"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"اشتہارات کی رازداری کی نئی خصوصیت اب دستیاب ہے"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"اشتہار کی کارکردگی کی پیمائش کرنے میں مدد کیلئے ایپس کے درمیان صرف بہت محدود معلومات کا اشتراک کیا جاتا ہے"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"ہم اشتہارات کی رازداری کی ایک نئی خصوصیت شروع کر رہے ہیں جسے اشتہار کی اثرپذیری کی پیمائش کہتے ہیں۔ Android ایپس کے درمیان صرف بہت محدود معلومات کا اشتراک کرتا ہے، جیسے کہ آپ کو اشتہار کب دکھایا گیا تھا، تاکہ ایپس کو اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد مل سکے۔"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"آپ اشتہار کی رازداری کی ترتیبات میں تبدیلیاں کر سکتے ہیں۔"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"آپ جو ایپس استعمال کرتے ہیں وہ اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کے لیے Android سے معلومات طلب کر سکتی ہیں۔ Android ایپس کو صرف محدود قسم کا ڈیٹا جمع کرنے دیتا ہے۔"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"اشتہار کی رازداری کی نئی خصوصیات"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"اپنی شناخت کے تحفظ میں مدد کرتے ہوئے، آپ کو نظر آنے والے اشتہارات پر مزید انتخاب حاصل کریں"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"آپ کے اشتہارات کی رازداری کی خصوصیات کے لیے دستیاب اپ ڈیٹس"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"اپنی شناخت کے تحفظ میں مدد کرتے ہوئے، آپ کو نظر آنے والے اشتہارات پر مزید انتخاب حاصل کریں"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"ایپس کے آپ کو ذاتی نوعیت کے اشتہارات دکھانے پر وہ آپ کے بارے میں کیا جان سکتی ہیں اسے محدود کرنے کے لیے Android اشتہار کی رازداری کی خصوصیات کو بڑھا رہا ہے۔"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"ایپس اور ان کے تشہیری پارٹنرز آپ کی شناخت کو نجی اور محفوظ رکھنے میں مدد کرتے ہوئے اشتہارات کو ذاتی نوعیت کا بنانے کیلئے، اس آلے پر موجود دیگر ایپس پر آپ کی سرگرمی کا استعمال کر سکتے ہیں۔"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"\'ایپس کے تجویز کردہ اشتہارات\' سے متعلق مزید معلومات"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"ان کے اشتہارات کی کارکردگی کو سمجھنے کے لیے محدود اقسام کے ڈیٹا کا اشتراک کیا جاتا ہے، جیسے کہ دن کا وہ وقت جب آپ کو کوئی اشتہار دکھایا گیا تھا۔"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"اشتہار کی پیمائش کے بارے میں مزید معلومات"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android آپ کے حال ہی میں استعمال کردہ ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے۔ نیز، اپنی شناخت کو نجی اور محفوظ رکھنے میں مدد کرتے ہوئے اشتہارات کو ذاتی بنانے کیلئے، ایپس اور ان کے تشہیری پارٹنرز اس آلہ پر موجود دیگر ایپس پر آپ کی سرگرمی کا استعمال کر سکتے ہیں۔"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  آپ جو ایپس استعمال کرتے ہیں وہ آپ کی ایپ سرگرمی کی بنیاد پر اس بات کا بھی تعین کر سکتی ہیں کہ آپ کو کیا پسند ہے۔ مثال کے طور پر، اگر آپ باقاعدگی سے کوکنگ ایپس استعمال کرتے ہیں تو آپ کو کریانہ سامان کی ڈیلیوری سروسز یا دیگر ایپس میں متعلقہ مواد کے اشتہارات نظر آ سکتے ہیں۔\n\nایپس اس معلومات کو محفوظ طریقے سے اسٹور کر سکتی ہیں تاکہ اسے صرف ان کے تشہیری پارٹنرز دیگر ایپس پر اشتہارات کو ذاتی نوعیت کا بنانے کے لیے استعمال کر سکیں۔"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"بعد میں، آپ جو ایپ استعمال کرتے ہیں وہ اس معلومات کے بارے میں پوچھ سکتی ہے – یا تو آپ کے اشتہار کے عنوانات یا آپ کے استعمال کردہ ایپس کے تجویز کردہ اشتہار۔"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"آپ جو ایپس استعمال کرتے ہیں وہ اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کے لیے Android سے معلومات طلب کر سکتی ہیں۔ Android ان معلومات کو محدود کر کے جن کا اشتراک ایپس ایک دوسرے کے ساتھ کر سکتی ہیں، آپ کی رازداری کی حفاظت کرنے میں مدد کرتا ہے۔"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"کون سا ڈیٹا استعمال کیا جاتا ہے؟"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"آپ جن ایپس کا استعمال کرتے ہیں وہ Android سے معلومات طلب کر سکتی ہیں جو انہیں اپنے اشتہارات کی کارکردگی کی پیمائش کرنے میں مدد کرتی ہے۔ Android ان معلومات کو محدود کر کے آپ کی رازداری کی حفاظت میں مدد کرتا ہے جن معلومات کا اشتراک ممکنہ طور پر ایپس ایک دوسرے کے ساتھ کر سکتی ہیں۔"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"میری شناخت کی حفاظت کیسے کی جاتی ہے؟"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android ایک دوسرے کے ساتھ اشتراک کی جا سکنے والی معلومات کو محدود کرنے اور آپ کی شناخت کی حفاظت میں مدد کرنے کے لیے رازداری کے متعدد پیمائشوں کا استعمال کرتا ہے جیسے کہ ڈیٹا اکٹھا کرنا اور اسے مبہم بنانا۔\n\nاشتہار کی پیمائش کا ڈیٹا بھی آپ کے آلے سے باقاعدگی سے حذف کیا جاتا ہے۔"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"آپ کی ایپ کی سرگرمی کا استعمال اشتہارات تجویز کرنے کے لیے کیا جا سکتا ہے۔"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"ایپس اس ڈیٹا کا استعمال کیسے کرتی ہیں؟"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"ایپس اس معلومات کو محفوظ طریقے سے اسٹور کر سکتی ہیں تاکہ صرف ان کے تشہیری پارٹنرز ہی دیگر ایپس پر اشتہارات کو ذاتی نوعیت کا بنانے کے لیے اس معلومات کا استعمال کر سکیں۔ مثال کے طور پر، اگر آپ کھانا پکانے سے متعلق ایپس کا باقاعدگی سے استعمال کرتے ہیں تو آپ کو کریانہ سامان کی ڈیلیوری سروسز یا دیگر ایپس میں متعلقہ مواد کے اشتہارات نظر آ سکتے ہیں۔"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"میں اس ڈیٹا کا نظم کیسے کر سکتا ہوں؟"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"آپ مخصوص ایپس کو تشہیری پارٹنرز کے ساتھ اپنی سرگرمی کا اشتراک کرنے سے روک سکتے ہیں۔ آپ اپنی رازداری کی ترتیبات میں کسی بھی وقت ایپ کے تجویز کردہ اشتہارات کو ری سیٹ کر سکتے ہیں یا انہیں آف کر سکتے ہیں۔ Android اس ڈیٹا کو باقاعدگی سے خودکار طور پر حذف بھی کرتا ہے۔"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"مزید جانیں کہ Android آپ کی رازداری کے تحفظ میں کس طرح مدد کرتا ہے"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"آپ سے متعلق معلومات کو نجی اور محفوظ حالت میں برقرار رکھتے ہوئے، اشتہارات کو ذاتی نوعیت کا بنانے کے لیے، ایپس اور ان کے تشہیری پارٹنرز اس آلہ پر موجود دیگر ایپس پر آپ کی سرگرمی کا استعمال کر سکتے ہیں۔\n\nمثال کے طور پر، اگر آپ کھانا پکانے سے متعلق ایپس کا باقاعدگی سے استعمال کرتے ہیں تو آپ کو کریانہ سامان کی ڈیلیوری سروسز یا دیگر ایپس میں متعلقہ مواد کے اشتہارات نظر آ سکتے ہیں۔\n\nAndroid آپ کی سرگرمی کو باقاعدگی سے خودکار طور پر حذف کرتا ہے، تاہم آپ ایپس کو ان کے تشہیری پارٹنرز کے ساتھ اس معلومات کا اشتراک کرنے سے بھی روک سکتے ہیں۔"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"آپ کے تجربے کو ذاتی نوعیت کا بنانے کی خاطر، ایپس اور ان کے تشہیری پارٹنرز کے لیے ان چیزوں کو یاد رکھنا عام بات ہے جن میں آپ کی دلچسپی ہے۔ ایپس اس معلومات کو محفوظ طریقے سے اسٹور کر سکتی ہیں تاکہ اسے صرف ان کے تشہیری پارٹنرز ہی دیگر ایپس پر اشتہارات دکھانے کے لیے استعمال کر سکیں۔\n\nآپ کسی ایپ کو تشہیری پارٹنرز کے ساتھ اپنی سرگرمی کا ڈیٹا اشتراک کرنے سے مسدود کر سکتے ہیں۔ Android اشتراک کردہ سرگرمی کے ڈیٹا کو بھی باقاعدگی سے خودکار طور پر حذف کر دیتا ہے، لہذا آپ جو ایپ دوبارہ استعمال کرتے ہیں وہ اس فہرست میں پھر سے ظاہر ہو سکتی ہے۔\n\nآیا آپ جو اشتہار دیکھتے ہیں وہ ذاتی نوعیت کا ہے اس بات کا انحصار متعدد عوامل پر ہو سکتا ہے جیسے کہ یہ ترتیب، اشتہار کے عنوانات کی ترتیب، آپ کی تشہیری ID کی ترتیبات، ساتھ ہی اس بات پر بھی کہ آیا آپ جس ایپ کا استعمال کر رہے ہیں وہ اشتہارات کو ذاتی نوعیت کا بنانے کی سہولت بھی رکھتی ہے یا نہیں۔\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ایپ کے تجویز کردہ اشتہارات کے بارے میں مزید جانیں"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android ایک دوسرے کے ساتھ اشتراک کی جا سکنے والی معلومات کو محدود کرنے اور آپ کی شناخت کی حفاظت میں مدد کرنے کے لیے رازداری کے متعدد پیمائشوں کا استعمال کرتا ہے جیسے کہ ڈیٹا اکٹھا کرنا اور اسے مبہم بنانا۔\n\nآپ کے براؤزر میں ایک جیسی ترتیب ہو سکتی ہے۔ اگر Android اور آپ کے براؤزر دونوں کے لیے اشتہار کی پیمائش آن ہے تو کمپنی آپ کے استعمال کی جانے والی ایپس اور آپ کے ملاحظہ کی جانے والی سائٹس کے درمیان اشتہار کی تاثیر کی پیمائش کر سکتی ہے۔ آپ کی براؤزنگ کی سرگزشت کو آپ کے آلے پر نجی رکھا جاتا ہے۔\n\n"<a href="https://support.google.com/android?p=ad_privacy">"اشتہار کی پیمائش کے بارے میں مزید جانیں"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android ان ایپس کی بنیاد پر دلچسپی کے موضوعات کو نوٹ کرتا ہے جن کا استعمال آپ نے پچھلے کچھ ہفتوں میں کیا ہے۔\n\nبعد میں، آپ جو ایپ استعمال کرتے ہیں وہ Android سے آپ کے موضوعات کے لیے پوچھ سکتی ہے تاکہ آپ کو نظر آنے والے اشتہارات کو ذاتی نوعیت کا بنایا جا سکے۔ Android آپ کی شناخت اور آپ کی ایپ کے استعمال کے بارے میں معلومات کی حفاظت کرتے ہوئے 3 موضوعات تک کا اشتراک کرتا ہے۔\n\nAndroid موضوعات کو باقاعدگی سے خودکار طور پر حذف کرتا ہے۔ چونکہ آپ ایپس کا استعمال جاری رکھ رہے ہیں، لہذا، اس بات کا امکان ہے کہ فہرست میں کوئی موضوع دوبارہ ظاہر ہو سکتا ہے۔ یا اگر آپ نہیں چاہتے کہ Android کسی بھی موضوع کا ایپس کے ساتھ اشتراک کرے، تو آپ ان موضوعات کو بلاک کر سکتے ہیں۔\n\nآیا آپ جو اشتہار دیکھتے ہیں وہ ذاتی نوعیت کا ہے، اس بات کا انحصار اس ترتیب، ایپ کی تجویز کردہ اشتہارات کی ترتیب، آپ کی تشہیری ID کی ترتیبات پر ہوتا ہے ساتھ ہی اس بات پر بھی کہ آیا جس ایپ کا آپ استعمال کر رہے ہیں وہ اشتہارات کو ذاتی نوعیت کا بنانے کی سہولت رکھتی بھی ہے یا نہیں۔\n\n"<a href="https://support.google.com/android?p=ad_privacy">"اشتہار کے عنوانات کے بارے میں مزید جانیں"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"موسیقی، خبروں اور اسپورٹس جیسے دلچسپی کے موضوعات کی نمائندگی کرنے والے علامات کا رنگین خاکہ"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"دائرے کے اندر قفل کا رنگین خاکہ"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"مربع کو تشکیل دینے والے نو نقطوں کا چھوٹا سیاہ اور سفید خاکہ"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"دل، مثلث اور مربع جیسی سادہ شکلوں کا چھوٹا سیاہ اور سفید خاکہ"</string>
+    <string name="topic10001" msgid="1270825507916795717">"آرٹس اور تفریح"</string>
+    <string name="topic10002" msgid="8657696153158750159">"اداکاری اور تھیٹر"</string>
+    <string name="topic10003" msgid="8107343709605778937">"اینیمی اور مانگا"</string>
+    <string name="topic10004" msgid="8860839733494442614">"کارٹونز"</string>
+    <string name="topic10005" msgid="2366794377271477958">"کامکس"</string>
+    <string name="topic10006" msgid="3856192433168050494">"کنسرٹس اور موسیقی کے فیسٹیولز"</string>
+    <string name="topic10007" msgid="7701054618107492020">"رقص"</string>
+    <string name="topic10008" msgid="5566660187422751041">"تفریحی صنعت"</string>
+    <string name="topic10009" msgid="9048499060637442408">"تفریح اور معلومات"</string>
+    <string name="topic10010" msgid="2312303716461948144">"تفریحی ٹیسٹس اور احمقانہ سرویز"</string>
+    <string name="topic10011" msgid="175945911179628507">"مزاح"</string>
+    <string name="topic10012" msgid="7308795546139033442">"مزاحیہ تصاویر اور ویڈیوز"</string>
+    <string name="topic10013" msgid="1525199586552473496">"لائیو کامیڈی"</string>
+    <string name="topic10014" msgid="4310243571925250159">"لائیو کھیلوں کے ایونٹس"</string>
+    <string name="topic10015" msgid="726046067079821146">"جادو"</string>
+    <string name="topic10016" msgid="2349985783026324836">"فلم کی فہرستیں اور تھیٹر شو کے اوقات"</string>
+    <string name="topic10017" msgid="5137452934538259985">"فلمیں"</string>
+    <string name="topic10018" msgid="2701694124396534094">"ایکشن اور ایڈونچر فلمیں"</string>
+    <string name="topic10019" msgid="4229784972880729321">"اینیمیٹڈ فلمیں"</string>
+    <string name="topic10020" msgid="7406506079009096133">"کامیڈی فلمیں"</string>
+    <string name="topic10021" msgid="8455397230215712525">"کلٹ اور انڈی فلمیں"</string>
+    <string name="topic10022" msgid="4121646102859453428">"دستاویزی فلمیں"</string>
+    <string name="topic10023" msgid="254151319845267278">"ڈراما فلمیں"</string>
+    <string name="topic10024" msgid="9166490951622139148">"فیملی فلمیں"</string>
+    <string name="topic10025" msgid="4556814606759167730">"ڈراؤنی فلمیں"</string>
+    <string name="topic10026" msgid="210222384439682793">"رومانی فلمیں"</string>
+    <string name="topic10027" msgid="6865151893887179263">"ہیجانی"</string>
+    <string name="topic10028" msgid="7591747452141916447">"موسیقی اور آڈیو"</string>
+    <string name="topic10029" msgid="2603521148910221418">"بلیوز"</string>
+    <string name="topic10030" msgid="1882645896051165373">"کلاسیکل موسیقی"</string>
+    <string name="topic10031" msgid="3075843490601826275">"کنٹری موسیقی"</string>
+    <string name="topic10032" msgid="5492959212920168739">"رقص اور الیکٹرانک موسیقی"</string>
+    <string name="topic10033" msgid="895853536740398847">"لوک اور روایتی موسیقی"</string>
+    <string name="topic10034" msgid="4234814709585731313">"جاز"</string>
+    <string name="topic10035" msgid="4357756001621317728">"موسیقی کے سلسلے اور ڈاؤن لوڈز"</string>
+    <string name="topic10036" msgid="449833307315797283">"موسیقی کی ویڈیوز"</string>
+    <string name="topic10037" msgid="51698216720637667">"موسیقی کے آلات"</string>
+    <string name="topic10038" msgid="8450729953573104572">"پیانوز اور کی بورڈز"</string>
+    <string name="topic10039" msgid="9069435933476958784">"پاپ موسیقی"</string>
+    <string name="topic10040" msgid="2307340564445486423">"ریڈیو"</string>
+    <string name="topic10041" msgid="7067032299296103616">"ٹاک ریڈیو"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ریپ اور ہپ ہاپ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"راک موسیقی"</string>
+    <string name="topic10044" msgid="6201404431104417585">"کلاسک راک اور پرانے گانے"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ہارڈ راک اور ارتقاء پذیر"</string>
+    <string name="topic10046" msgid="4700537150965749092">"انڈی اور متبادل موسیقی"</string>
+    <string name="topic10047" msgid="6868724754947095800">"نمونے اور ساؤنڈ لائبریریاں"</string>
+    <string name="topic10048" msgid="1968071881240362644">"سول اور R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"ساؤنڈ ٹریکس"</string>
+    <string name="topic10050" msgid="1374275552775889532">"عالمی موسیقی"</string>
+    <string name="topic10051" msgid="5719726125732251258">"ریگے اور کریبیائی موسیقی"</string>
+    <string name="topic10052" msgid="1284902821545612733">"آن لائن تصویری گیلریاں"</string>
+    <string name="topic10053" msgid="5420622301656482567">"آن لائن ویڈیو"</string>
+    <string name="topic10054" msgid="4562235511593399260">"لائیو ویڈیو سلسلہ بندی"</string>
+    <string name="topic10055" msgid="3752987507076288470">"مووی اور TV سلسلہ بندی"</string>
+    <string name="topic10056" msgid="1316228709578133569">"اوپیرا"</string>
+    <string name="topic10057" msgid="3265794667031664331">"TV گائیڈز اور حوالہ"</string>
+    <string name="topic10058" msgid="8409884272709263707">"TV نیٹ ورکس اور اسٹیشنز"</string>
+    <string name="topic10059" msgid="6770193120260554722">"TV شوز اور پروگرامز"</string>
+    <string name="topic10060" msgid="2410694865246432781">"TV کامیڈیز"</string>
+    <string name="topic10061" msgid="7733515887806604226">"TV دستاویزی اور غیر افسانوی"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV ڈرامے"</string>
+    <string name="topic10063" msgid="7645361077069015698">"TV سوپ اوپیراز"</string>
+    <string name="topic10064" msgid="3322306867038013554">"TV کے فیملی پر مرتکز شوز"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV ریئلٹی شوز"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV سائنسی افسانوی اور افسانوی شوز"</string>
+    <string name="topic10067" msgid="6479768451596254929">"ویژوئل آرٹ اور ڈیزائن"</string>
+    <string name="topic10068" msgid="7999222744500155387">"ڈیزائن"</string>
+    <string name="topic10069" msgid="3345227631449580699">"پینٹنگ"</string>
+    <string name="topic10070" msgid="8921241315781663883">"فوٹوگرافک اور ڈیجیٹل آرٹس"</string>
+    <string name="topic10071" msgid="5802889978655775195">"آٹوز اور گاڑیاں"</string>
+    <string name="topic10072" msgid="7699714565299422080">"کارگو ٹرکس اور ٹریلرز"</string>
+    <string name="topic10073" msgid="8309536003187424408">"کلاسک گاڑیاں"</string>
+    <string name="topic10074" msgid="7682849385993670574">"کسٹم اور پرفارمنس گاڑیاں"</string>
+    <string name="topic10075" msgid="6556611554556269074">"گیس کی قیمتیں اور گاڑی میں ایندھن ڈالنا"</string>
+    <string name="topic10076" msgid="4919696820372108489">"موٹر گاڑیاں (قسم کے لحاظ سے)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"آٹونومس گاڑیاں"</string>
+    <string name="topic10078" msgid="4334233882549881927">"کنورٹیبلز"</string>
+    <string name="topic10079" msgid="3172046203487780210">"کوپس"</string>
+    <string name="topic10080" msgid="8163934214927408125">"ہیچ بیکس"</string>
+    <string name="topic10081" msgid="577995777553561437">"ہائبرڈ اور متبادل گاڑیاں"</string>
+    <string name="topic10082" msgid="9109129029552185357">"تعیش والی گاڑیاں"</string>
+    <string name="topic10083" msgid="2403537768530923605">"چھوٹی کاریں اور سب کمپیکٹ کاریں"</string>
+    <string name="topic10084" msgid="8422281545992763598">"موٹر سائیکلیں"</string>
+    <string name="topic10085" msgid="8083861494180925476">"آف روڈ گاڑیاں"</string>
+    <string name="topic10086" msgid="7643969175312645412">"پک اپ ٹرکس"</string>
+    <string name="topic10087" msgid="2731154517409527341">"اسکوٹرز اور موپیڈز"</string>
+    <string name="topic10088" msgid="3252737061574829966">"سیڈانز"</string>
+    <string name="topic10089" msgid="5296300331452192377">"اسٹیشن ویگنز"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUVs اور کراس اوورز"</string>
+    <string name="topic10091" msgid="1855954783407839458">"کراس اوورز"</string>
+    <string name="topic10092" msgid="3748598147176261608">"وینز اور منی وینز"</string>
+    <string name="topic10093" msgid="4427294934418177183">"ٹوئنگ اور سڑک کنارے امداد"</string>
+    <string name="topic10094" msgid="2377839138225502290">"گاڑی اور ٹریفک میں حفاظت"</string>
+    <string name="topic10095" msgid="84682415803421329">"گاڑی کے پرزے اور لوازمات"</string>
+    <string name="topic10096" msgid="8920802377602814882">"گاڑیوں کی مرمت اور دیکھ بھال"</string>
+    <string name="topic10097" msgid="1171171183482751335">"گاڑی کی خریداری"</string>
+    <string name="topic10098" msgid="2079957196489295765">"استعمال شدہ گاڑیاں"</string>
+    <string name="topic10099" msgid="8979943848539150620">"گاڑی کے شوز"</string>
+    <string name="topic10100" msgid="4197262693717174623">"خوبصورتی اور تندرستی"</string>
+    <string name="topic10101" msgid="7348658588841917441">"باڈی آرٹ"</string>
+    <string name="topic10102" msgid="3638722720071045006">"چہرے اور جسم کی دیکھ بھال"</string>
+    <string name="topic10103" msgid="7505482487921433611">"اینٹی پرسپیرنٹس"</string>
+    <string name="topic10104" msgid="6370054283334591202">"غسل اور جسمانی پروڈکٹس"</string>
+    <string name="topic10105" msgid="1191169056931411220">"بے داغ حسن"</string>
+    <string name="topic10106" msgid="3928455104996075953">"میک اپ اور کاسمیٹکس"</string>
+    <string name="topic10107" msgid="3798923390765338227">"ناخن کی نگہداشت کے پروڈکٹس"</string>
+    <string name="topic10108" msgid="577259588028933025">"پرفیومز اور خوشبوئیات"</string>
+    <string name="topic10109" msgid="2191558742276310934">"ریزرز اور شیورز"</string>
+    <string name="topic10110" msgid="4668859731019222824">"فیشن اور اسٹائل"</string>
+    <string name="topic10111" msgid="8382751996496129758">"تندرستی"</string>
+    <string name="topic10112" msgid="2904455776326272301">"باڈی بلڈنگ"</string>
+    <string name="topic10113" msgid="8931680908070341060">"تندرستی سے متعلق ہدایت اور ذاتی تربیت"</string>
+    <string name="topic10114" msgid="1666144425445242905">"تندرستی ٹیکنالوجی کے پروڈکٹس"</string>
+    <string name="topic10115" msgid="3024886857586781525">"بالوں کی نگہداشت"</string>
+    <string name="topic10116" msgid="763642849903586689">"کتابیں اور ادب"</string>
+    <string name="topic10117" msgid="2897295398887355445">"بچوں کا ادب"</string>
+    <string name="topic10118" msgid="8261966919146004082">"ای بکس"</string>
+    <string name="topic10119" msgid="894448782525835364">"میگزینز"</string>
+    <string name="topic10120" msgid="6413553316742475453">"شاعری"</string>
+    <string name="topic10121" msgid="5743038898774111015">"کاروبار اور صنعتی"</string>
+    <string name="topic10122" msgid="9008408720895399838">"تشہیر اور مارکیٹنگ"</string>
+    <string name="topic10123" msgid="2259134467663515137">"سیلز"</string>
+    <string name="topic10124" msgid="6342988250432534253">"زراعت اور جنگلات"</string>
+    <string name="topic10125" msgid="4258543381071903891">"غذا کی تیاری"</string>
+    <string name="topic10126" msgid="7175643869342613083">"آٹوموٹیو صنعت"</string>
+    <string name="topic10127" msgid="6431712570995680971">"ہوا بازی کی صنعت"</string>
+    <string name="topic10128" msgid="4235280795901477432">"کاروباری آپریشنز"</string>
+    <string name="topic10129" msgid="7076722669374577677">"کام کے لچکدار انتظامات"</string>
+    <string name="topic10130" msgid="3611582433482627069">"انسانی وسائل"</string>
+    <string name="topic10131" msgid="1372513307847962621">"تجارتی قرض دہندگی"</string>
+    <string name="topic10132" msgid="4784716346965522438">"تعمیر اور دیکھ بھال"</string>
+    <string name="topic10133" msgid="7421272318291450977">"سول انجینئرنگ"</string>
+    <string name="topic10134" msgid="6960637850006318075">"دفاعی صنعت"</string>
+    <string name="topic10135" msgid="3682767135401089609">"توانائی اور یوٹیلیٹیز"</string>
+    <string name="topic10136" msgid="455894912948558854">"پانی کی فراہمی اور علاج"</string>
+    <string name="topic10137" msgid="8298610586001250767">"مہمان نوازی کی صنعت"</string>
+    <string name="topic10138" msgid="1297997683887620829">"مینوفیکچرنگ"</string>
+    <string name="topic10139" msgid="2881410777083033235">"دھاتیں اور کان کنی"</string>
+    <string name="topic10140" msgid="3210849036014636721">"ملٹی لیول مارکیٹنگ۔ایم ایل ایم اور کاروباری مواقع"</string>
+    <string name="topic10141" msgid="2209863158714894227">"فارماسیوٹیکلز اور بایوٹیک"</string>
+    <string name="topic10142" msgid="5503134498670972397">"پرنٹنگ اور اشاعت"</string>
+    <string name="topic10143" msgid="7443122495469194311">"ریٹیل تجارت"</string>
+    <string name="topic10144" msgid="4491152042745513902">"وینچر کیپٹل"</string>
+    <string name="topic10145" msgid="7181389660165515306">"کمپیوٹرز اور الیکٹرانکس"</string>
+    <string name="topic10146" msgid="5319328674320188177">"کمپیوٹر پیریفیرلز"</string>
+    <string name="topic10147" msgid="3115360970477190823">"پرنٹرز"</string>
+    <string name="topic10148" msgid="388392714835039199">"کمپیوٹر سیکیورٹی"</string>
+    <string name="topic10149" msgid="8669494095915530311">"اینٹی وائرس اور میلوئیر"</string>
+    <string name="topic10150" msgid="7287887356428407082">"نیٹ ورک سیکیورٹی"</string>
+    <string name="topic10151" msgid="1896865948857670589">"کنزیومر الیکٹرانکس"</string>
+    <string name="topic10152" msgid="2229775287055715130">"کیمرے اور کیمکارڈرز"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS اور نیویگیشن"</string>
+    <string name="topic10154" msgid="6865619906648095342">"ہوم آٹومیشن"</string>
+    <string name="topic10155" msgid="6083736045761149547">"ہوم تھیٹر سسٹمز"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 اور قابل منتقلی میڈیا پلیئرز"</string>
+    <string name="topic10157" msgid="5681638457846277732">"ویئرایبل ٹیکنالوجی"</string>
+    <string name="topic10158" msgid="3203453971647354680">"ڈیٹا بیک اپ اور بازیابی"</string>
+    <string name="topic10159" msgid="5630430439595766824">"ڈیسک ٹاپ کمپیوٹرز"</string>
+    <string name="topic10160" msgid="4829448963240629016">"لیپ ٹاپس اور نوٹ بکس"</string>
+    <string name="topic10161" msgid="172004201167511870">"نیٹ ورکنگ"</string>
+    <string name="topic10162" msgid="6091195506695436179">"تقسیم کردہ اور کلاؤڈ کمپیوٹنگ"</string>
+    <string name="topic10163" msgid="1151401754761855146">"پروگرامنگ"</string>
+    <string name="topic10164" msgid="9084381711034794904">"سافٹ ویئر"</string>
+    <string name="topic10165" msgid="7794619191364239903">"آڈیو اور موسیقی سافٹ ویئر"</string>
+    <string name="topic10166" msgid="8763250476037582784">"کاروباری اور پروڈکٹیوٹی سافٹ ویئر"</string>
+    <string name="topic10167" msgid="2049380875864013534">"کیلنڈر اور شیڈولنگ سافٹ ویئر"</string>
+    <string name="topic10168" msgid="8902187628490964169">"معاونت اور کانفرنسنگ سافٹ ویئر"</string>
+    <string name="topic10169" msgid="827557334245484202">"پریزنٹیشن سافٹ ویئر"</string>
+    <string name="topic10170" msgid="9004257492478793528">"اسپریڈ شیٹ سافٹ ویئر"</string>
+    <string name="topic10171" msgid="7993474143932045967">"ورڈ پروسیسنگ سافٹ ویئر"</string>
+    <string name="topic10172" msgid="7796145013604839047">"ڈیسک ٹاپ پبلشنگ"</string>
+    <string name="topic10173" msgid="2914187257631238849">"فونٹس"</string>
+    <string name="topic10174" msgid="2115617300581130014">"ڈاؤن لوڈ مینیجرز"</string>
+    <string name="topic10175" msgid="5871766754983733443">"فری ویئر اور شیئر ویئر"</string>
+    <string name="topic10176" msgid="4556902534984350353">"گرافکس اور اینیمیشن سافٹ ویئر"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ذہین ذاتی اسسٹنٹس"</string>
+    <string name="topic10178" msgid="6156514295355993755">"میڈیا پلیئرز"</string>
+    <string name="topic10179" msgid="4166560755175055525">"مانیٹرنگ سافٹ ویئر"</string>
+    <string name="topic10180" msgid="1616408866159152420">"آپریٹنگ سسٹمز"</string>
+    <string name="topic10181" msgid="1104637623376778918">"تصویر اور ویڈیو سافٹ ویئر"</string>
+    <string name="topic10182" msgid="4433309778429721885">"تصویری سافٹ ویئر"</string>
+    <string name="topic10183" msgid="7726225846283601216">"ویڈیو سافٹ ویئر"</string>
+    <string name="topic10184" msgid="7666718573841178521">"سافٹ ویئر یوٹیلیٹیز"</string>
+    <string name="topic10185" msgid="7090504131394943791">"ویب براؤزرز"</string>
+    <string name="topic10186" msgid="2894398454040127175">"فائنانس"</string>
+    <string name="topic10187" msgid="3321209590831212269">"اکاؤنٹنگ اور آڈٹنگ"</string>
+    <string name="topic10188" msgid="6091864564976149142">"ٹیکس کی تیاری اور پلاننگ"</string>
+    <string name="topic10189" msgid="5722909809680931661">"بینکنگ"</string>
+    <string name="topic10190" msgid="4954502185848303449">"منی ٹرانسفر اور وائر سروسز"</string>
+    <string name="topic10191" msgid="374364159635356705">"کریڈٹ اور لینڈنگ"</string>
+    <string name="topic10192" msgid="4780985034026130257">"کریڈٹ کارڈز"</string>
+    <string name="topic10193" msgid="5010972379907168829">"گھر کیلئے سرمایہ کی فراہمی"</string>
+    <string name="topic10194" msgid="1311944420068992723">"ذاتی قرضے"</string>
+    <string name="topic10195" msgid="7554681395283728871">"طالب علم کے قرضے اور کالج فائنانسنگ"</string>
+    <string name="topic10196" msgid="1390058955048742733">"مالی پلاننگ اور مینجمنٹ"</string>
+    <string name="topic10197" msgid="6999203003544574270">"ریٹائرمنٹ اور پینشن"</string>
+    <string name="topic10198" msgid="1172025416206301419">"گرانٹس"</string>
+    <string name="topic10199" msgid="2817599683028682473">"گرانٹس"</string>
+    <string name="topic10200" msgid="4560138974690686847">"انشورنس"</string>
+    <string name="topic10201" msgid="447240478385298875">"آٹو انشورنس"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ہیلتھ انشورنس"</string>
+    <string name="topic10203" msgid="6593194921457271151">"ہوم انشورنس"</string>
+    <string name="topic10204" msgid="4634976092969827804">"لائف انشورنس"</string>
+    <string name="topic10205" msgid="262581473890356377">"ٹریول انشورنس"</string>
+    <string name="topic10206" msgid="5534905376642807172">"سرمایہ کاری"</string>
+    <string name="topic10207" msgid="2202788132330201137">"تجارتی اشیاء اور فیوچرز کی تجارت"</string>
+    <string name="topic10208" msgid="1250532081213960304">"کرنسیاں اور غیر ملکی زر مبادلہ"</string>
+    <string name="topic10209" msgid="7384658616986998949">"باڑ لگانے کے فنڈز"</string>
+    <string name="topic10210" msgid="5646412565978393234">"میوچوئل فنڈز"</string>
+    <string name="topic10211" msgid="2001835133812379482">"اسٹاکس اور بونڈز"</string>
+    <string name="topic10212" msgid="2364530251853656532">"غذا اور مشروب"</string>
+    <string name="topic10213" msgid="805716705436663130">"کُکنگ اور نسخے"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ اور گرِلنگ"</string>
+    <string name="topic10215" msgid="1502589059550612499">"پکوان"</string>
+    <string name="topic10216" msgid="7699499757302291329">"سبزی والے پکوان"</string>
+    <string name="topic10217" msgid="2160292055279553771">"سبزی والے پکوان"</string>
+    <string name="topic10218" msgid="4090671581843003332">"صحت بخش کھانا"</string>
+    <string name="topic10219" msgid="7663946426520362378">"غذا اور گروسری ریٹیلرز"</string>
+    <string name="topic10220" msgid="4812477283307222367">"گیمز"</string>
+    <string name="topic10221" msgid="2320959705105050635">"آرکیڈ اور سکے سے چلنے والی گیمز"</string>
+    <string name="topic10222" msgid="1659423113675232767">"بلئرڈز"</string>
+    <string name="topic10223" msgid="3526662148224862522">"بورڈ گیمز"</string>
+    <string name="topic10224" msgid="8806949357679505576">"شطرنج اور تجریدی حکمت عملی گیمز"</string>
+    <string name="topic10225" msgid="564207834821286301">"کارڈ گیمز"</string>
+    <string name="topic10226" msgid="6918788605930334066">"قابل ذخیرہ کارڈ گیمز"</string>
+    <string name="topic10227" msgid="7011042093822468388">"کمپیوٹر اور ویڈیو گیمز"</string>
+    <string name="topic10228" msgid="6883716111007300369">"ایکشن اور پلیٹ فارم گیمز"</string>
+    <string name="topic10229" msgid="1448569034984381121">"ایڈونچر گیمز"</string>
+    <string name="topic10230" msgid="3350872631578952799">"آرام دہ گیم"</string>
+    <string name="topic10231" msgid="405082026972839048">"مسابقتی ویڈیو گیمنگ"</string>
+    <string name="topic10232" msgid="1839026948327779776">"ڈرائیونگ اور ریسنگ گیمز"</string>
+    <string name="topic10233" msgid="1188186151495453281">"فائٹنگ گیمز"</string>
+    <string name="topic10234" msgid="693433817142162565">"گیمنگ ریفرنس اور جائزے"</string>
+    <string name="topic10235" msgid="8703923040923920090">"ویڈیو گیم چیٹس اور اشارے"</string>
+    <string name="topic10236" msgid="320145832033080647">"وسیع پیمانے پر ملٹی پلیئر گیمز"</string>
+    <string name="topic10237" msgid="5441671482070243974">"موسیقی اور رقص والی گمیز"</string>
+    <string name="topic10238" msgid="124952008622371505">"سینڈ باکس گیمز"</string>
+    <string name="topic10239" msgid="8116373838332949879">"شوٹر گیمز"</string>
+    <string name="topic10240" msgid="429738690314619395">"سمیولیشن گیمز"</string>
+    <string name="topic10241" msgid="6759586807395308444">"کاروبار اور ٹائیکون گیمز"</string>
+    <string name="topic10242" msgid="6446465880310926504">"شہر سازی والی گیمز"</string>
+    <string name="topic10243" msgid="1900180483768183189">"لائف سمیولیشن گیمز"</string>
+    <string name="topic10244" msgid="7177785844550764762">"گاڑی کے سمیولیٹرز"</string>
+    <string name="topic10245" msgid="3479291573578622081">"اسپورٹس گیمز"</string>
+    <string name="topic10246" msgid="1362878793775338590">"کھیلوں کے نظم و نسق والے گیمز"</string>
+    <string name="topic10247" msgid="7167743512938031275">"حکمت عملی والی گیمز"</string>
+    <string name="topic10248" msgid="279151815457227293">"ویڈیو گیم موڈز اور اضافے"</string>
+    <string name="topic10249" msgid="631580828608894782">"تعلیمی گیمز"</string>
+    <string name="topic10250" msgid="8788829601095126859">"فیملی پر مرتکز گیمز اور سرگرمیاں"</string>
+    <string name="topic10251" msgid="4289374662760140512">"نقاشی اور رنگ آمیزی"</string>
+    <string name="topic10252" msgid="3704663832286223948">"ڈریس اپ اور فیشن گیمز"</string>
+    <string name="topic10253" msgid="385499297969826942">"پزلز اور دماغی گیمز"</string>
+    <string name="topic10254" msgid="3407688580587226586">"رول ادا کرنے والے گیمز"</string>
+    <string name="topic10255" msgid="5123382868307815261">"ٹیبل ٹینس"</string>
+    <string name="topic10256" msgid="3732657908002298514">"ٹائل گیمز"</string>
+    <string name="topic10257" msgid="1563737702727245186">"ورڈ گیمز"</string>
+    <string name="topic10258" msgid="3098024313656910144">"مشغلے اور فراغت"</string>
+    <string name="topic10259" msgid="4943419230459875946">"سالگرہیں"</string>
+    <string name="topic10260" msgid="8082531986100775125">"سالگرہیں اور مقدس دن"</string>
+    <string name="topic10261" msgid="5848226607755547256">"غوطہ خوری اور زیر آب سرگرمیاں"</string>
+    <string name="topic10262" msgid="7200864040450019529">"فائبر اور ٹیکسٹائل آرٹ"</string>
+    <string name="topic10263" msgid="361345691023794788">"آؤٹ ڈورز"</string>
+    <string name="topic10264" msgid="1786205972094583167">"ماہی گیری"</string>
+    <string name="topic10265" msgid="2823178926106728570">"شکار اور شوٹنگ"</string>
+    <string name="topic10266" msgid="8850275614185862002">"پینٹ بال"</string>
+    <string name="topic10267" msgid="3722262029580639019">"ریڈیو کنٹرول اور ماڈلنگ"</string>
+    <string name="topic10268" msgid="3854589101176380228">"شادیاں"</string>
+    <string name="topic10269" msgid="6274589872519767859">"گھر اور باغ"</string>
+    <string name="topic10270" msgid="6333380157855869252">"باغبانی"</string>
+    <string name="topic10271" msgid="7654177637864012480">"گھر اور داخلی سجاوٹ"</string>
+    <string name="topic10272" msgid="3679206633003573176">"گھریلو آلات"</string>
+    <string name="topic10273" msgid="7964372799408781017">"گھر کی اصلاح"</string>
+    <string name="topic10274" msgid="7438404923297950713">"گھر کی حفاظت اور سیکیورٹی"</string>
+    <string name="topic10275" msgid="682064062059687444">"گھریلو سپلائیز"</string>
+    <string name="topic10276" msgid="6967461678618700017">"لینڈ اسکیپ ڈیزائن"</string>
+    <string name="topic10277" msgid="5888643119731566320">"انٹرنیٹ اور ٹیلی کام"</string>
+    <string name="topic10278" msgid="1736187026108921963">"ای میل اور پیغام رسانی"</string>
+    <string name="topic10279" msgid="9034205050642228743">"ای میل"</string>
+    <string name="topic10280" msgid="3168053876492638177">"ٹیکسٹ اور فوری پیغام رسانی"</string>
+    <string name="topic10281" msgid="582764575763317221">"صوتی اور ویڈیو چیٹ"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISPs"</string>
+    <string name="topic10283" msgid="4990902662337451282">"فون سروس فراہم کنندگان"</string>
+    <string name="topic10284" msgid="8298837964949288587">"رنگ ٹونس اور موبائل تھیمز"</string>
+    <string name="topic10285" msgid="5409600379647005862">"سرچ انجنز"</string>
+    <string name="topic10286" msgid="5120434472606081895">"اسمارٹ فونز"</string>
+    <string name="topic10287" msgid="3350459436622898201">"ٹیلی کانفرنسنگ"</string>
+    <string name="topic10288" msgid="4197272921112835157">"ویب ایپس اور آن لائن ٹولز"</string>
+    <string name="topic10289" msgid="5361961713593805925">"ویب سروسز"</string>
+    <string name="topic10290" msgid="1030690821237195132">"کلاؤڈ اسٹوریج"</string>
+    <string name="topic10291" msgid="4049265350889304495">"ویب ڈیزائن اور ڈویلپمنٹ"</string>
+    <string name="topic10292" msgid="3386329227033265361">"ویب میزبانی"</string>
+    <string name="topic10293" msgid="5737650187548034975">"جابز اور تعلیم"</string>
+    <string name="topic10294" msgid="4134169605040294646">"تعلیم"</string>
+    <string name="topic10295" msgid="331240908257602211">"اکیڈمک کانفرنسیں اور مطبوعات"</string>
+    <string name="topic10296" msgid="8588303480683748067">"کالجز اور یونیورسٹیاں"</string>
+    <string name="topic10297" msgid="6374270931732387420">"فاصلاتی تعلیم"</string>
+    <string name="topic10298" msgid="1588575102152049123">"ابتدائے طفولیت کی تعلیم"</string>
+    <string name="topic10299" msgid="2437152839161363820">"پری اسکول"</string>
+    <string name="topic10300" msgid="1716635660730089544">"ہوم اسکولنگ"</string>
+    <string name="topic10301" msgid="7986927377838820550">"معیاری اور داخلے کے امتحانات"</string>
+    <string name="topic10302" msgid="5998774512114172286">"تدریسی اور کلاس روم وسائل"</string>
+    <string name="topic10303" msgid="4585533807035591476">"حرفتی اور مسلسل تعلیم"</string>
+    <string name="topic10304" msgid="7882895278855442691">"جابز"</string>
+    <string name="topic10305" msgid="5595618454946980801">"کیریئر کے وسائل اور پلاننگ"</string>
+    <string name="topic10306" msgid="2721676636117931598">"جاب کی فہرستیں"</string>
+    <string name="topic10307" msgid="1718396745825058084">"قانون اور حکومت"</string>
+    <string name="topic10308" msgid="5324738087341048710">"جرم اور انصاف"</string>
+    <string name="topic10309" msgid="6295029954614836413">"قانونی"</string>
+    <string name="topic10310" msgid="8422735354338745855">"قانونی خدمات"</string>
+    <string name="topic10311" msgid="1230675855406761762">"خبریں"</string>
+    <string name="topic10312" msgid="6827799049548932141">"معیشت کی خبریں"</string>
+    <string name="topic10313" msgid="2329065661493302739">"مقامی خبریں"</string>
+    <string name="topic10314" msgid="8901835561696055036">"انضمام اور اکتسابات"</string>
+    <string name="topic10315" msgid="5854338074460033131">"اخبارات"</string>
+    <string name="topic10316" msgid="5102748655058857401">"سیاست"</string>
+    <string name="topic10317" msgid="888696185673599406">"کھیل کی خبریں"</string>
+    <string name="topic10318" msgid="8287583657423629224">"موسم"</string>
+    <string name="topic10319" msgid="8709805241522664825">"عالمی خبریں"</string>
+    <string name="topic10320" msgid="2512907250610386132">"آن لائن کمیونٹیز"</string>
+    <string name="topic10321" msgid="7457693963027299711">"کلپ آرٹ اور اینیمیٹڈ GIFs"</string>
+    <string name="topic10322" msgid="3527120229469957977">"ڈیٹنگ اور ذاتیات"</string>
+    <string name="topic10323" msgid="6172125921314846923">"فیڈ کا میزان اور سماجی بک مارکنگ"</string>
+    <string name="topic10324" msgid="6723820054750378285">"فائل کا اشتراک اور میزبانی"</string>
+    <string name="topic10325" msgid="916412844647169263">"فورم اور چیٹ فراہم کنندگان"</string>
+    <string name="topic10326" msgid="9167525727089128814">"مائکرو بلاگنگ"</string>
+    <string name="topic10327" msgid="3594488251348215868">"تصویر اور ویڈیو کا اشتراک"</string>
+    <string name="topic10328" msgid="5431605505487660527">"تصویر اور امیج کا اشتراک"</string>
+    <string name="topic10329" msgid="2949598007790820705">"ویڈیو کا اشتراک"</string>
+    <string name="topic10330" msgid="4210169032750748349">"اسکنس"</string>
+    <string name="topic10331" msgid="9148081156366912077">"سوشل نیٹ ورک ایپس اور اضافے"</string>
+    <string name="topic10332" msgid="1812925257476776861">"سوشل نیٹ ورکس"</string>
+    <string name="topic10333" msgid="5793613565022694596">"لوگ اور سوسائٹی"</string>
+    <string name="topic10334" msgid="2146426680680125392">"فیملی اور رشتے"</string>
+    <string name="topic10335" msgid="8268284709343326034">"شجرہ نسب اورعلم الانساب"</string>
+    <string name="topic10336" msgid="360328903013424569">"شادی"</string>
+    <string name="topic10337" msgid="6450553850860149046">"بچوں کی پرورش"</string>
+    <string name="topic10338" msgid="3722340462966505867">"گود لینا"</string>
+    <string name="topic10339" msgid="8126807339140404862">"بچے اور نونہالان"</string>
+    <string name="topic10340" msgid="259457452971577855">"انٹرنیٹ پر بچوں کی حفاظت"</string>
+    <string name="topic10341" msgid="9138253009638520984">"رومانس"</string>
+    <string name="topic10342" msgid="3272595442607863965">"سائنس فکشن اور افسانہ"</string>
+    <string name="topic10343" msgid="7170264926050881882">"پالتو جانور اور حیوانات"</string>
+    <string name="topic10344" msgid="6956876217624431965">"پالتو جانوروں کی خوراک اور پالتو جانوروں کی دیکھ بھال کا سامان"</string>
+    <string name="topic10345" msgid="8114717708270133007">"پالتو جانور"</string>
+    <string name="topic10346" msgid="3632598362312784148">"پرندے"</string>
+    <string name="topic10347" msgid="1650823938622414225">"بلیاں"</string>
+    <string name="topic10348" msgid="570783769757187957">"کتے"</string>
+    <string name="topic10349" msgid="6069145390145874420">"مچھلی اور ماہی خانہ"</string>
+    <string name="topic10350" msgid="7438757598978766290">"خزندے اور جل تھلیے"</string>
+    <string name="topic10351" msgid="2065353497413573236">"معالجین حیوانات"</string>
+    <string name="topic10352" msgid="2787610393079898221">"ریئل اسٹیٹ"</string>
+    <string name="topic10353" msgid="230887584509968233">"لاٹ اور زمین"</string>
+    <string name="topic10354" msgid="2552020152740480445">"وقت کے اشتراکات اور تعطیل کی خصوصیات"</string>
+    <string name="topic10355" msgid="3803439663410756731">"حوالہ"</string>
+    <string name="topic10356" msgid="1282534977124646845">"کاروباری اور ذاتی فہرست"</string>
+    <string name="topic10357" msgid="1506615046588912749">"عمومی حوالہ"</string>
+    <string name="topic10358" msgid="4670198218200218886">"کیلکولیٹرز اور حوالہ ٹولز"</string>
+    <string name="topic10359" msgid="4422164571631604534">"لغات اور انسائکلوپیڈیاز"</string>
+    <string name="topic10360" msgid="4777419229443131291">"تعلیمی وسائل"</string>
+    <string name="topic10361" msgid="2911719878674200735">"کیسے"</string>
+    <string name="topic10362" msgid="8045493635242789203">"وقت اور کیلنڈرز"</string>
+    <string name="topic10363" msgid="3433488479827868110">"لسانی وسائل"</string>
+    <string name="topic10364" msgid="7272051128606899896">"غیر ملکی زبان کا مطالعہ"</string>
+    <string name="topic10365" msgid="1638685557205583094">"ترجمے کے ٹولز اور وسائل"</string>
+    <string name="topic10366" msgid="5972643213789684860">"نقشے"</string>
+    <string name="topic10367" msgid="4693720215957988260">"سائنس"</string>
+    <string name="topic10368" msgid="7342229547845270303">"افزودہ اور ورچوئل رئیلٹی"</string>
+    <string name="topic10369" msgid="7623948477078242419">"حیاتیاتی سائنسز"</string>
+    <string name="topic10370" msgid="1849957115993781053">"جینیات"</string>
+    <string name="topic10371" msgid="5801324530787262649">"کیمیا"</string>
+    <string name="topic10372" msgid="7043359432633182804">"ایکولوجی اور ماحول"</string>
+    <string name="topic10373" msgid="1506052968197311461">"ارضیات"</string>
+    <string name="topic10374" msgid="5081919530597944716">"مشین لرننگ اور مصنوعی ذہانت"</string>
+    <string name="topic10375" msgid="7880740430968664319">"ریاضی"</string>
+    <string name="topic10376" msgid="8685831276841267222">"طبیعیات"</string>
+    <string name="topic10377" msgid="8162056465305020784">"روبوٹکس"</string>
+    <string name="topic10378" msgid="6048245367747141920">"خریداری"</string>
+    <string name="topic10379" msgid="3561154473861357708">"قدیم اور قابل ذخیرہ"</string>
+    <string name="topic10380" msgid="3001377458860648561">"لباس"</string>
+    <string name="topic10381" msgid="1050316146323573972">"بچوں کے لباس"</string>
+    <string name="topic10382" msgid="1131102032733237256">"ملبوسات"</string>
+    <string name="topic10383" msgid="2953255538603038999">"مردوں کے لباس"</string>
+    <string name="topic10384" msgid="5208244211687593882">"خواتین کے لباس"</string>
+    <string name="topic10385" msgid="3335546606796359244">"کلاسیفائیڈز"</string>
+    <string name="topic10386" msgid="6517746237788385147">"صارف کے وسائل"</string>
+    <string name="topic10387" msgid="8607123472737800846">"کوپنز اور ڈسکاؤنٹ کی پیشکشیں"</string>
+    <string name="topic10388" msgid="1641030315133068943">"لائلٹی کارڈز اور پروگرامز"</string>
+    <string name="topic10389" msgid="8196319126164726646">"تکنیکی سپورٹ اور مرمت"</string>
+    <string name="topic10390" msgid="1361120031667629697">"پھول"</string>
+    <string name="topic10391" msgid="9119667040520612849">"گریٹنگ کارڈز"</string>
+    <string name="topic10392" msgid="6877484311325584713">"پارٹی اور تعطیلات کے سامان"</string>
+    <string name="topic10393" msgid="7537523054091079737">"خریداری کے پورٹلز"</string>
+    <string name="topic10394" msgid="5321887056912883029">"اسپورٹس"</string>
+    <string name="topic10395" msgid="8799420706106672054">"امریکی فٹبال"</string>
+    <string name="topic10396" msgid="2048632371307841946">"آسٹریلیائی فٹ بال"</string>
+    <string name="topic10397" msgid="653991203228840785">"آٹو ریسنگ"</string>
+    <string name="topic10398" msgid="5412613151176189985">"بیس بال"</string>
+    <string name="topic10399" msgid="2009283546036614639">"باسکیٹ بال"</string>
+    <string name="topic10400" msgid="5034305624605462351">"باؤلنگ"</string>
+    <string name="topic10401" msgid="26807857115228330">"باکسنگ"</string>
+    <string name="topic10402" msgid="6218088033939518718">"چیئر لیڈنگ"</string>
+    <string name="topic10403" msgid="3030076002966858939">"کالج کے کھیل"</string>
+    <string name="topic10404" msgid="4018137098149287073">"کرکٹ"</string>
+    <string name="topic10405" msgid="9036991434485987285">"سائیکلنگ"</string>
+    <string name="topic10406" msgid="7185471418082005024">"شہسواری"</string>
+    <string name="topic10407" msgid="316266982792700993">"خطرناک کھیل"</string>
+    <string name="topic10408" msgid="2571246233605408148">"چڑھائی اور کوہ پیمائی"</string>
+    <string name="topic10409" msgid="1182462921341224299">"تصوراتی کھیل"</string>
+    <string name="topic10410" msgid="7501849152641094734">"گولف"</string>
+    <string name="topic10411" msgid="6678464213609789748">"جمناسٹکس"</string>
+    <string name="topic10412" msgid="335770351079973128">"ہاکی"</string>
+    <string name="topic10413" msgid="416366556259783701">"آئس اسکیٹنگ"</string>
+    <string name="topic10414" msgid="6909439381556710013">"مارشل آرٹس"</string>
+    <string name="topic10415" msgid="4535534983750709163">"موٹرسائیکلوں کی ریس"</string>
+    <string name="topic10416" msgid="1687911875093638923">"اولمپکس"</string>
+    <string name="topic10417" msgid="2735521554483279111">"رگبی"</string>
+    <string name="topic10418" msgid="8763139538107186007">"دوڑنا اور چہل قدمی"</string>
+    <string name="topic10419" msgid="979581105119036716">"اسکیئنگ اور اسنو بورڈنگ"</string>
+    <string name="topic10420" msgid="5256622299392338856">"ساکر"</string>
+    <string name="topic10421" msgid="2654561933626679644">"سرفنگ"</string>
+    <string name="topic10422" msgid="978920114358054206">"تیراکی"</string>
+    <string name="topic10423" msgid="4476847046369253369">"ٹینس"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ٹریک اور فیلڈ"</string>
+    <string name="topic10425" msgid="3357509018485364691">"والی بال"</string>
+    <string name="topic10426" msgid="3761026182327229458">"کشتی"</string>
+    <string name="topic10427" msgid="3748043578314103947">"سفر اور نقل و حمل"</string>
+    <string name="topic10428" msgid="7483002505617756861">"ایڈونچر سفر"</string>
+    <string name="topic10429" msgid="8091163959414149724">"ہوائی سفر"</string>
+    <string name="topic10430" msgid="1917556952821193760">"کاروباری سفر"</string>
+    <string name="topic10431" msgid="7980462767288577734">"کار رینٹلز"</string>
+    <string name="topic10432" msgid="4266685292456713522">"کروزز اور چارٹرز"</string>
+    <string name="topic10433" msgid="5001290528529256942">"فیملی کے ساتھ سفر"</string>
+    <string name="topic10434" msgid="6310190021663379686">"ہنی مون اور رومانی سفر"</string>
+    <string name="topic10435" msgid="8897799078890998992">"ہوٹلز اور رہائش"</string>
+    <string name="topic10436" msgid="6778700611322666596">"لمبی دوری کی بس اور ریل"</string>
+    <string name="topic10437" msgid="4764816005841382091">"کم قیمت اور ایمرجنسی سفر"</string>
+    <string name="topic10438" msgid="1305380730693546021">"سامان اور سفر کے لوازمات"</string>
+    <string name="topic10439" msgid="7731122187851230543">"سیاحتی مقامات"</string>
+    <string name="topic10440" msgid="8071652555461175118">"سواحل اور جزائر"</string>
+    <string name="topic10441" msgid="7182533767302670894">"علاقائی پارکس اور باغیچے"</string>
+    <string name="topic10442" msgid="6462141176894347324">"تھیم پارکس"</string>
+    <string name="topic10443" msgid="7234914754801803285">"چڑیا گھر"</string>
+    <string name="topic10444" msgid="4322315510441782805">"ٹریفک اور روٹ پلانرز"</string>
+    <string name="topic10445" msgid="1182221450749409373">"ٹریول ایجنسیز اور سروسز"</string>
+    <string name="topic10446" msgid="3104259094878772333">"ٹریول گائیڈز اور سفرنامے"</string>
+</resources>

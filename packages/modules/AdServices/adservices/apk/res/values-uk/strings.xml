@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"отримувати доступ до AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Надає додатку доступ до AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"отримувати доступ до інтерфейсів AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Надає додатку доступ до інтерфейсів API AdServices Attribution."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"отримувати доступ до AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Надає додатку доступ до інтерфейсів AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Доступ до AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Надає додатку доступ до AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"отримувати доступ до AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Надає додатку доступ до AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"отримувати доступ до Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Надає додатку доступ до Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Доступ до AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Надає додатку доступ до AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"отримувати доступ до App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Надає додатку доступ до App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"отримувати доступ до Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Надає додатку доступ до Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Доступ до API змінення стану ввімкнення AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Надає додатку доступ до API змінення стану ввімкнення AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Доступ до API стану ввімкнення AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Надає додатку доступ до API стану ввімкнення AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Доступ до AdServicesManager API"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Надає додатку доступ до AdServicesManager API."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Доступ до API оновлення AdId AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Надає додатку доступ до API оновлення AdId AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Конфіденційність у рекламі"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Приєднуйтеся до тестування функцій конфіденційності в рекламі для Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android шукає більш захищені способи показу вам реклами в додатках"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Докладніше"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Конфіденційність у рекламі для Android (бета)"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Що нового"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Нові функції конфіденційності в Privacy Sandbox дозволяють додаткам показувати вам доречну рекламу, але обмежують збір ними даних про ваші дії на веб-сайтах і в додатках інших розробників."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Як це працює"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Як узяти участь"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Якщо ввімкнути бета-версію, додатки зможуть тестувати нові, більш захищені способи показу вам реклами. Ви будь-коли можете вимкнути бета-версію в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Ні, дякую"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Увімкнути"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Більше"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Дякуємо за участь"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Ви берете участь у програмі \"Конфіденційність у сфері реклами Android (бета-версія)\". Privacy Sandbox увімкнено для вашого пристрою.\n\nДізнатися більше або вимкнути бета-версію можна будь-коли в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Ви відмовилися від участі"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Дякуємо за відповідь. Privacy Sandbox вимкнено для вашого пристрою.\n\nЯкщо ви передумаєте або захочете дізнатися більше, перейдіть у налаштування конфіденційності."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Налаштування конфіденційності"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Ви берете участь у програмі тестування бета-версії"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox увімкнено для вашого пристрою. Додатки можуть тестувати ці нові, більш захищені способи показу вам реклами. Ви будь-коли можете вимкнути бета-версію в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"ОK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Система Privacy Sandbox в Android надає додаткам нові можливості для показу реклами, яка має вам сподобатися. Ці технології не використовують ідентифікатори пристроїв.\n\nAndroid і ваші додатки можуть визначати типи оголошень, які мають вас зацікавити, і тимчасово зберігати на пристрої дані про ваші інтереси. Завдяки цьому додатки, не відстежуючи ваші дії на веб-сайтах і в додатках інших розробників, показують вам рекламу, яка може вам сподобатися."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Персоналізація реклами за допомогою Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Інтереси, які визначає система Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android періодично визначає ваші найбільші інтереси (наприклад, \"Спорт\" або \"Подорожі\") на основі додатків, якими ви користуєтеся.\n\nЗгодом додаток може запропонувати системі Android використовувати ці інтереси для показу вам доречнішої реклами.\n\nВи можете переглянути перелік поточних інтересів у налаштуваннях конфіденційності, а також заблокувати непотрібні."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Інтереси, які визначають додатки"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Додатки можуть визначати ваші інтереси та тимчасово зберігати їх у системі Android. Наприклад, якщо ви скористалися додатком для покупки кросівок, він може визначити, що ви цікавитеся \"марафонським бігом\".\n\nЗгодом на основі даних про цей інтерес інший додаток показуватиме вам рекламу, пов’язану з марафонами.\n\nВи можете керувати списком додатків зі збереженими інтересами в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Нові функції конфіденційності в реклами"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Теми оголошень і нові параметри допоможуть вам краще контролювати оголошення, які ви бачите"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Тепер доступні нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android запам’ятовує цікаві вам теми на основі додатків, якими ви нещодавно користувалися. Додатки, які ви використовуєте, також можуть визначати ваші вподобання. Інші додатки пізніше можуть запитувати цю інформацію, щоб показувати вам персоналізовану рекламу. Ви можете вибрати, які додатки та теми використовуватимуться для показу вам реклами."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Для оцінки ефективності реклами додатки обмінюються обмеженими типами інформації."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Докладніше про рекламу на пристроях Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Корисніші оголошення"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Додатки можуть запитувати в системи Android інформацію, щоб персоналізувати для вас оголошення."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android запам’ятовує цікаві вам теми на основі додатків, якими ви нещодавно користувалися."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  На основі того, як ви використовуєте додатки, вони також можуть визначати ваші інтереси. Наприклад, якщо ви користуєтеся додатком, через який продаються кросівки для бігу на довгі дистанції, він може вирішити, що ви цікавитеся марафонським бігом."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Пізніше додаток, яким ви користуєтесь, може запитати ваші теми оголошень або рекламу, пропоновану додатками, які ви відкривали."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android регулярно видаляє теми та пропоновані додатками дані автоматично. Ви також можете заблокувати певні теми й додатки, від яких не хочете отримувати пропозиції оголошень."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Оцінювання ефективності реклами"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android дозволяє додаткам збирати лише певні типи даних, зокрема про час доби, коли вам було показано рекламу."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Спробуйте нові функції конфіденційності в рекламі"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Теми оголошень надають вам ширші можливості вибирати, яку саме рекламу ви хочете бачити"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Переглянути деталі"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Спробуйте нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android додає нові функції конфіденційності, що допоможуть вам краще контролювати оголошення, які ви бачите."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Завдяки темам оголошень додатки можуть показувати вам доречну рекламу, водночас захищаючи ваші особисті дані й інформацію про використання вами додатків. Android може запам’ятовувати цікаві вам теми на основі додатків, якими ви нещодавно користувалися. Пізніше додаток, яким ви користуєтесь, може попросити систему Android надати дані про релевантні для вас теми, щоб персоналізувати оголошення."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"У налаштуваннях пристрою можна блокувати теми оголошень, якими ви не хочете ділитися з додатками. Android також регулярно автоматично видаляє теми оголошень."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Ви можете будь-коли змінити своє рішення в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Докладніше про теми оголошень"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Докладну інформацію про те, як Android захищає ваші дані, можна знайти в "<a href="https://policies.google.com/privacy">"Політиці конфіденційності"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Спробувати"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Які дані використовуються"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Теми оголошень для вас визначаються на основі додатків, якими ви нещодавно користувалися на цьому пристрої, і частоти їх використання."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Як ми використовуємо ці дані"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android визначає цікаві вам теми, коли ви користуєтесь додатками. Мітки тем є попередньо визначеними й включають такі категорії, як \"Мистецтво та розваги\", \"Покупки\" й \"Спорт\". Коли ви пізніше користуватиметесь якимсь додатком, він може запитати в системи Android про кілька ваших тем (але не дані про використання додатків або вашу особу), щоб персоналізувати для вас оголошення."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Як ви можете керувати своїми даними"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android регулярно видаляє теми автоматично. Якщо ви надалі користуватиметеся додатками, тема може знову з’явитися в списку. Ви також можете будь-коли заблокувати теми оголошень, якими Android не має ділитись із додатками, або вимкнути їх у налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Ви можете вносити зміни в налаштування конфіденційності."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Тепер доступно більше функцій захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Крім того, Android пропонує нові інструменти, які допоможуть обмежити збір інформації про вас додатками під час показу персоналізованої реклами."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Налаштування \"Реклама, пропонована додатками\" допомагає захищати ваші особисті дані та інформацію про використання вами додатків, водночас дозволяючи їм показувати вам доречну рекламу. На основі ваших дій додаток, яким ви користуєтесь, може пропонувати пов’язані оголошення в інших додатках. Ви можете переглянути список додатків і заблокувати пропозиції реклами в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Для оцінки ефективності реклами додатки обмінюються обмеженою інформацією (наприклад, це час доби, коли вам показано рекламне оголошення)."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Докладніше про оголошення, пропоновані додатками, і оцінку ефективності реклами"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Реклама, пропонована додатками"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Які дані використовуються"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Ваші дії в додатку, яким ви користуєтесь, на цьому пристрої."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Як додатки використовують ці дані"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Додатки можуть зберігати в системі Android інформацію про ваші інтереси. Наприклад, якщо ви використовуєте додаток про підготовку до марафону, цей додаток може вирішити, що вас цікавлять кросівки. Тоді, якщо ви згодом використовуватимете інший додаток, у ньому може з’явитися реклама кросівок, пропонована першим додатком."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Як ви можете керувати своїми даними"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android регулярно видаляє пропоновані додатками дані автоматично. Додаток, яким ви скористаєтеся знову, може повторно з’явитися в списку."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Ви також можете будь-коли заборонити додатку пропонувати вам оголошення, скинути всі дані пропозицій реклами або вимкнути цей параметр у налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android захищає вашу конфіденційність, обмежуючи інформацію, якою додатки можуть обмінюватися між собою."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Тепер доступні нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Отримайте ширші можливості вибирати, яку саме рекламу ви хочете бачити, і водночас захистість свої особисті дані"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Тепер доступні нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android запускає нові інструменти, які допоможуть обмежити збір інформації про вас додатками під час показу персоналізованої реклами."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Завдяки рекламі, пропонованій додатками, і новим функціям захисту конфіденційності ви будете бачити доречні оголошення, а ваші особисті дані й інформація про використання додатків будуть у безпеці. На основі ваших дій додаток, яким ви користуєтесь, може пропонувати пов’язані оголошення в інших додатках. Ви можете переглянути список додатків і заблокувати пропозиції реклами в налаштуваннях конфіденційності."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Для оцінки ефективності реклами додатки обмінюються певною обмеженою інформацією, такою як час доби, коли вам було показано оголошення."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Ваші дії в додатку на цьому пристрої можуть використовуватись, щоб пропонувати вам рекламу."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Увімкніть ще одну функцію захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"В Android також додано нову функцію захисту конфіденційності, що надає вам ширші можливості вибирати, яку саме рекламу ви хочете бачити."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Завдяки темам оголошень додатки можуть показувати вам доречну рекламу, водночас захищаючи ваші особисті дані й інформацію про використання вами додатків. Android може запам’ятовувати цікаві вам теми на основі додатків, якими ви нещодавно користувалися. Пізніше додаток, яким ви користуєтесь, може попросити систему Android надати дані про релевантні для вас теми, щоб показувати вам доречнішу рекламу."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Ви можете бачити теми оголошень у налаштуваннях конфіденційності й блокувати ті з них, якими не хочете ділитися з додатками. Android також регулярно автоматично видаляє теми оголошень."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Увімкнути"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Тепер доступні нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Тепер у вас більше можливостей вибирати, яку саме рекламу ви хочете бачити, – при цьому ваші особисті дані залишаються захищеними"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Тепер доступні нові функції захисту конфіденційності в рекламі"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Тепер в Android є нові функції захисту конфіденційності, що надають вам ширші можливості вибирати, яку саме рекламу ви хочете бачити."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Далі"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Приєднуйтеся до бета-тестування функцій конфіденційності в рекламі для Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Інтереси, які визначає система Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Додатки, які визначають інтереси"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Оцінка ефективності реклами"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Додатки можуть використовувати Privacy Sandbox, щоб оцінювати ефективність своїх оголошень. Для цього рекламодавці можуть тимчасово зберігати в системі Android дані про вашу взаємодію з їхніми оголошеннями й додатками. Обсяг даних, який вони можуть зберігати, обмежений, а дані регулярно видаляються.\n\nВи можете будь-коли видалити їх, вимкнувши опцію Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Система Android періодично визначає ваші найбільші інтереси на основі додатків, якими ви користуєтеся. Додатки можуть пропонувати Android використовувати ці інтереси для показу вам доречнішої реклами.\n\nЯкщо ви заблокуєте інтерес, він більше не додаватиметься до списку, доки ви його не розблокуєте. Деякі пов’язані оголошення можуть показуватися й надалі."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Заблокувати"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Розблокувати"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Інтереси, які ви заблокували"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Скинути всі інтереси"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Наразі немає інтересів для показу."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Наразі немає відповідних тем.\nДізнайтеся більше про "<a href="https://support.google.com/android?p=ad_privacy">"теми оголошень"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Програма конфіденційності в рекламі для Android (бета) надає додаткам нові можливості для показу реклами, яка може вам сподобатися. Ці технології не використовують ідентифікатори пристроїв.\n\nСистема Android може визначати типи оголошень, які можуть вас зацікавити, і тимчасово зберігає дані про такі інтереси на вашому пристрої. Завдяки цьому додатки, не відстежуючи ваших дій на веб-сайтах і в додатках інших розробників, показують вам доречну рекламу."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"У вас немає заблокованих інтересів"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Немає заблокованих тем"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Переглянути заблоковані теми"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Інтереси скинуто"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Теми скинуто"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Додатки можуть визначати ваші інтереси та тимчасово зберігати їх у системі Android. Згодом інший додаток може показувати вам рекламу на основі цих інтересів.\n\nЯкщо ви заблокуєте додаток, він більше не визначатиме ваші інтереси. Доки ви не розблокуєте додаток, він більше не з’явиться в цьому списку. Інтереси, визначені додатком раніше, буде видалено, але деякі пов’язані оголошення можуть показуватися й надалі."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Додатки, які ви заблокували"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Переглянути заблоковані додатки"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Скинути інтереси, визначені додатками"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Зараз немає додатків, які визначають ваші інтереси"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Наразі немає відповідних додатків. \nДізнайтеся більше про "<a href="https://support.google.com/android?p=ad_privacy">"рекламу, пропоновану додатками"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Програма конфіденційності в рекламі для Android (бета) надає додаткам нові можливості для показу реклами, яка може вам сподобатися. Ці технології не використовують ідентифікатори пристроїв.\n\nДодатки можуть визначати типи оголошень, які можуть вас зацікавити, і тимчасово зберігають дані про такі інтереси на вашому пристрої. Завдяки цьому додатки, не відстежуючи ваших дій на веб-сайтах і в додатках інших розробників, показують вам доречну рекламу."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"У вас немає заблокованих додатків"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Немає заблокованих додатків"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Дозволити оцінку ефективності реклами"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Додатки й рекламодавці можуть запитувати в системи Android інформацію, яка допоможе їм оцінювати ефективність своїх оголошень.\n\nДані щодо оцінювання ефективності реклами регулярно видаляються з пристрою."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Скинути дані вимірювання ефективності"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android захищає вашу конфіденційність, обмежуючи інформацію, якою додатки можуть обмінюватися між собою. Для захисту ваших особистих даних звіти надсилаються із затримкою.\n\nПодібне налаштування може бути також у вашому веб-переглядачі. Якщо вимірювання ефективності реклами ввімкнено і для Android, і для вашого веб-переглядача, компанія-рекламодавець може порівнювати ефективність оголошення між додатками, якими ви користуєтеся, і сайтами, які ви відвідуєте. Ваша історія веб-перегляду зберігається на пристрої та залишається конфіденційною.\n\nДокладну інформацію про те, як Android захищає ваші дані, ви знайдете в "<a href="https://policies.google.com/privacy">"Політиці конфіденційності"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Дані щодо оцінки ефективності реклами скинуто"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Скасувати"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Вимкнути Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Якщо ви передумаєте або захочете дізнатися більше про бета-тестування функцій конфіденційності в рекламі для Android, перейдіть у налаштування конфіденційності."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Вимкнути"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Заблокувати тему \"<xliff:g id="TOPIC">%1$s</xliff:g>\"?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Цю тему буде заблоковано. Вона більше не відображатиметься в списку, доки ви знову її не додасте. Деякі пов’язані оголошення можуть показуватися й надалі."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Заблокувати"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Тему \"<xliff:g id="TOPIC">%1$s</xliff:g>\" розблоковано"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android може знову додати цю тему до вашого списку, однак вона може з’явитися в ньому не відразу"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Скинути всі теми оголошень?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Ваш список буде очищено, і надалі додаватимуться нові теми. Деякі оголошення, пов’язані зі скинутими темами, можуть показуватися й надалі."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Скинути"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Заблокувати додаток <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Цей додаток більше не пропонуватиме рекламу й не включатиметься в список, доки ви його не розблокуєте. Деякі пов’язані оголошення можуть показуватися й надалі."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Додаток <xliff:g id="APP">%1$s</xliff:g> розблоковано"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Цей додаток може знову пропонувати вам оголошення, однак, можливо, він не відразу з’явиться у вашому списку. Перш ніж почнуть відображатися пов’язані оголошення, може пройти певний час."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Скинути рекламу, пропоновану додатками?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Дані пропозицій реклами від додатків із вашого списку буде видалено, і надалі додатки пропонуватимуть нові оголошення. Деякі пов’язані оголошення можуть показуватися й надалі."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Дані додатка скинуто"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Теми оголошень увімкнено"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Система Android почне запам’ятовувати цікаві вам теми, але перш ніж ви побачите перші з них, може пройти певний час."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Вимкнути теми оголошень?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Список тем буде видалено. Система Android більше не запам’ятовуватиме цікаві вам теми, але реклама й далі може залишатися доречною."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Рекомендацію реклами в додатках увімкнено"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Додатки можуть почати пропонувати вам рекламу. Коли це станеться, ви побачите список додатків."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Вимкнути рекомендацію реклами в додатках?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Усі дані щодо рекомендації реклами буде видалено. Додатки більше не зможуть пропонувати вам рекламу, але вона й далі може залишатися доречною."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Вимірювання ефективності реклами ввімкнено"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Система Android передає додаткам лише певні типи інформації, яка допомагає їм оцінювати ефективність оголошень."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Вимкнути вимірювання ефективності реклами?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Усі підготовлені звіти про ефективність реклами буде видалено, а нові звіти не будуть генеруватися або передаватися."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Конфіденційність у рекламі"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Теми оголошень"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Реклама, пропонована додатками"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android запам’ятовує цікаві вам теми на основі додатків, якими ви нещодавно користувалися, і частоти їх використання."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"На основі того, як ви використовуєте додатки, вони також можуть визначати ваші вподобання."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android дозволяє додаткам збирати певні типи даних."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Дізнайтеся більше про "<a href="https://support.google.com/android?p=ad_privacy">"конфіденційність у рекламі на пристроях Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Увімкнено / Кількість тем: <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Увімкнено / # тема}one{Увімкнено / # тема}few{Увімкнено / # теми}many{Увімкнено / # тем}other{Увімкнено / # теми}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Увімкнено / Кількість додатків: <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Увімкнено / # додаток}one{Увімкнено / # додаток}few{Увімкнено / # додатки}many{Увімкнено / # додатків}other{Увімкнено / # додатка}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Увімкнено"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Вимкнено"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Цікаві вам теми визначаються на основі додатків, якими ви нещодавно користувалися. З урахуванням цих тем додатки показують вам персоналізовану рекламу.\n\nВи можете заблокувати теми, якими не хочете ділитися з додатками. Android також регулярно видаляє теми автоматично.\n\nНавіть якщо цю функцію ввімкнено, ви можете не бачити список тем, доки функція не буде доступна в повному обсязі й додатки не почнуть її використовувати."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Дозволити теми оголошень"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Заблоковані теми оголошень"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Скинути всі теми оголошень"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android запам’ятовує цікаві вам теми на основі додатків, якими ви користувалися протягом останніх кількох тижнів.\n\nПізніше додаток, яким ви користуєтесь, може запитати в системи Android ваші теми, щоб персоналізувати оголошення для вас. Android розкриває щонайбільше три теми, захищаючи при цьому ваші особисті дані й інформацію про використання вами додатків.\n\nAndroid регулярно видаляє теми автоматично. Якщо ви надалі користуватиметеся додатками, тема може знову з’явитися в списку. Або ви можете заблокувати теми, які не дозволяєте системі Android передавати додаткам.\n\nОголошення, які ви бачите в додатках, можуть персоналізуватися залежно від цього параметра, налаштування пропонованої додатками реклами, налаштувань вашого рекламного ідентифікатора та від того, чи персоналізує оголошення додаток, яким ви користуєтесь."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Дозволити рекламу, пропоновану додатками"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Додатки, які ви використовуєте, можуть визначати ваші вподобання, а тоді пропонувати оголошення в інших додатках.\n\nВи можете заблокувати пропозиції реклами в додатках. Android також регулярно видаляє пропоновані додатками дані автоматично.\n\nНавіть якщо цю функцію ввімкнено, ви можете не бачити список додатків, доки функція не буде доступна в повному обсязі й додатки не почнуть її використовувати."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Додатки, які ви заблокували"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Скинути пропоновані додатками дані"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Зазвичай додатки, якими ви користуєтеся, запам’ятовують цікаві вам теми, щоб персоналізувати для вас контент. Додатки також можуть зберігати в системі Android інформацію про ваші теми.\n\nНаприклад, якщо ви використовуєте додаток для підготовки до марафону, він може вирішити, що вас цікавлять бігові кросівки. Згодом, коли ви використовуватимете інший додаток, він може показувати вам рекламу кросівок, запропоновану першим додатком.\n\nAndroid регулярно видаляє пропоновані додатками дані автоматично. Додаток, яким ви скористаєтеся знову, може повторно з’явитися в списку. Або ви можете заблокувати для додатка можливість показу вам реклами.\n\nОголошення, які ви бачите в додатках, можна персоналізувати залежно від цього параметра, збережених тем оголошень, налаштувань вашого рекламного ідентифікатора та від того, чи персоналізує оголошення додаток, яким ви користуєтесь."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Тепер доступна нова функція конфіденційності в рекламі"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Додатки обмінюються лише певними типами інформації, яка допомагає їм оцінювати ефективність оголошень"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Ми запускаємо нову функцію конфіденційності в рекламі – вимірювання ефективності реклами. Система Android передає між додатками лише певні типи інформації (наприклад, час, коли вам показано рекламне оголошення), яка допомагає додаткам оцінювати ефективність оголошень."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Щоб внести зміни, перейдіть у налаштування конфіденційності в рекламі."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android дозволяє додаткам збирати лише певні типи даних."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Нові функції конфіденційності в рекламі"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Отримайте ширші можливості вибирати, яку саме рекламу ви хочете бачити, і водночас допоможіть захистити свої особисті дані"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Оновлення функцій конфіденційності в рекламі"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Отримайте ширші можливості вибирати, яку саме рекламу ви хочете бачити, і водночас допоможіть захистити свої особисті дані"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android розширює функції конфіденційності в рекламі, обмежуючи інформацію, яку додатки можуть дізнаватися про вас, коли показують вам персоналізовані оголошення."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Додатки і їх рекламні партнери можуть використовувати дані про ваші дії в інших додатках на цьому пристрої, щоб персоналізувати оголошення, водночас допомагаючи забезпечувати конфіденційність і захист ваших особистих даних."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Докладніше про рекомендації реклами в додатках"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Для оцінки ефективності реклами додатки обмінюються певною обмеженою інформацією, такою як час доби, коли вам було показано оголошення."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Докладніше про вимірювання ефективності реклами"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android запам’ятовує цікаві вам теми на основі додатків, якими ви нещодавно користувалися. Крім того, додатки і їх рекламні партнери можуть використовувати дані про ваші дії в інших додатках на цьому пристрої, щоб персоналізувати оголошення, водночас допомагаючи забезпечувати конфіденційність і захист ваших особистих даних."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Додатки, якими ви користуєтесь, також можуть визначати ваші вподобання на основі ваших дій у них. Наприклад, якщо ви регулярно користуєтеся кулінарними додатками, ви можете бачити в інших додатках рекламу послуг із доставки продуктів або схожий контент.\n\nДодатки можуть безпечно зберігати таку інформацію, щоб її могли використовувати лише їх рекламні партнери для персоналізації оголошень в інших додатках."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Пізніше додаток, яким ви користуєтесь, може запитати таку інформацію: ваші теми оголошень або рекламу, пропоновану додатками, які ви відкривали."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android допомагає захищати вашу конфіденційність, обмежуючи інформацію, якою додатки можуть обмінюватися між собою."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Які дані використовуються?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Додатки, якими ви користуєтеся, можуть запитувати в системи Android інформацію, що допоможе їм оцінити ефективність своїх оголошень. Android допомагає захищати вашу конфіденційність, обмежуючи інформацію, якою додатки можуть обмінюватися між собою."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Як захищаються мої особисті дані?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android використовує різноманітні засоби для захисту конфіденційності (зокрема зведення даних і додавання шуму), щоб обмежити інформацію, якою можуть обмінюватися додатки, і захистити ваші особисті дані.\n\nДані щодо вимірювання ефективності реклами також регулярно автоматично видаляються з вашого пристрою."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Ваші дії в додатках можуть використовуватися, щоб пропонувати вам рекламу."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Як додатки використовують ці дані?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Додатки можуть безпечно зберігати таку інформацію, щоб її могли використовувати лише їх рекламні партнери для персоналізації оголошень в інших додатках. Наприклад, якщо ви регулярно користуєтеся кулінарними додатками, ви можете бачити в інших додатках рекламу послуг із доставки продуктів або схожий контент."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Як можна керувати цими даними?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Ви можете забороняти окремим додаткам ділитися даними про ваші дії з рекламними партнерами. У налаштуваннях конфіденційності ви можете скинути або вимкнути рекомендації реклами в додатках. Android також регулярно автоматично видаляє такі дані."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Докладніше про те, як Android допомагає захищати вашу конфіденційність"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Додатки і їх рекламні партнери можуть використовувати дані про ваші дії в інших додатках на цьому пристрої, щоб персоналізувати оголошення, водночас забезпечуючи конфіденційність і захист інформації про вас.\n\nНаприклад, якщо ви регулярно користуєтеся кулінарними додатками, ви можете бачити в інших додатках рекламу послуг із доставки продуктів або схожий контент.\n\nAndroid регулярно автоматично видаляє дані про ваші дії, але ви також можете забороняти додаткам ділитися такою інформацією з їх рекламними партнерами."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Додатки і їх рекламні партнери часто запам’ятовують речі, які вас цікавлять, щоб персоналізувати контент для вас. Додатки можуть безпечно зберігати таку інформацію, щоб її могли використовувати лише їх рекламні партнери для показу оголошень в інших додатках.\n\nВи можете заборонити додатку ділитися даними про ваші дії з рекламними партнерами. Android також регулярно автоматично видаляє спільні дані про дії. Тому якщо ви знову скористаєтесь додатком, він може повторно з’явитися в цьому списку.\n\nТе, чи буде показане вам оголошення персоналізованим, залежить від багатьох факторів. Серед них: це налаштування, налаштування тем оголошень і рекламного ідентифікатора, а також чи персоналізує рекламу додаток, яким ви користуєтесь.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Докладніше про рекомендації реклами в додатках"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android використовує різноманітні засоби для захисту конфіденційності (зокрема зведення даних і додавання шуму), щоб обмежити інформацію, якою можуть обмінюватися додатки, і захистити ваші особисті дані.\n\nПодібне налаштування може бути також у вашому вебпереглядачі. Якщо вимірювання ефективності реклами ввімкнено і для Android, і для вашого вебпереглядача, компанія-рекламодавець може порівнювати ефективність оголошення між додатками, якими ви користуєтеся, і сайтами, які ви відвідуєте. Ваша історія вебперегляду зберігається на пристрої і залишається конфіденційною.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Докладніше про вимірювання ефективності реклами"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android запам’ятовує цікаві вам теми на основі додатків, якими ви користувалися протягом останніх кількох тижнів.\n\nПізніше додаток, яким ви користуєтесь, може запитати в системи Android ваші теми, щоб персоналізувати оголошення для вас. Android розкриває щонайбільше три теми, захищаючи при цьому ваші особисті дані й інформацію про використання вами додатків.\n\nAndroid регулярно видаляє теми автоматично. Якщо ви надалі користуватиметеся додатками, тема може знову з’явитися в списку. Або ви можете заблокувати теми, які не дозволяєте системі Android передавати додаткам.\n\nТе, чи буде показане вам оголошення персоналізованим, залежить від багатьох факторів. Серед них: це налаштування, налаштування тем оголошень і рекламного ідентифікатора, а також чи персоналізує рекламу додаток, яким ви користуєтесь.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Докладніше про теми оголошень"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Кольорова ілюстрація символів, які позначають цікаві вам теми, наприклад \"Музика\", \"Новини\" та \"Спорт\""</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Кольорова ілюстрація замка в колі"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Маленька чорно-біла ілюстрація дев’яти крапок, які утворюють квадрат"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Маленька чорно-біла ілюстрація простих фігур, таких як серце, трикутник і квадрат"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Мистецтво та розваги"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Акторська майстерність і театр"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Аніме та манга"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Мультфільми"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Комікси"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Концерти й музичні фестивалі"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Танці"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Індустрія розваг"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Розваги й вікторини"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Розважальні тести й опитування"</string>
+    <string name="topic10011" msgid="175945911179628507">"Гумор"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Смішні картинки й відео"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Комедійні виступи"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Трансляція спортивних подій у прямому ефірі"</string>
+    <string name="topic10015" msgid="726046067079821146">"Магія"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Розклади фільмів і театральних постановок"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Фільми"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Бойовики та пригодницькі фільми"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Анімаційні фільми"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Комедії"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Культові й альтернативні фільми"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Документальні фільми"</string>
+    <string name="topic10023" msgid="254151319845267278">"Драми"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Фільми для сімейного перегляду"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Фільми жахів"</string>
+    <string name="topic10026" msgid="210222384439682793">"Романтичні фільми"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Трилери"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Музика й аудіо"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Блюз"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Класична музика"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Музика кантрі"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Танцювальна й електронна музика"</string>
+    <string name="topic10033" msgid="895853536740398847">"Фольк і традиційна музика"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Джаз"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Музичні канали та файли для завантаження"</string>
+    <string name="topic10036" msgid="449833307315797283">"Музичні відео"</string>
+    <string name="topic10037" msgid="51698216720637667">"Музичні інструменти"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Фортепіано та клавішні інструменти"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Поп-музика"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Радіо"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Розмовні передачі на радіо"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Реп і хіп-хоп"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Рок-музика"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Класичний рок і ретро"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Хард-рок і прогресивний рок"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Інді й альтернативна музика"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Музичні фрагменти й аудіобібліотеки"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Соул і ритм-н-блюз"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Саундтреки"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Музика народів світу"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Реггі та карибська музика"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Галереї зображень в Інтернеті"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Відео в Інтернеті"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Прямі відеотрансляції"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Перегляд фільмів і телепрограм в Інтернеті"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Опера"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Телепрограми та довідкові матеріали"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Телевізійні мережі та станції"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Телевізійні шоу й передачі"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Телевізійні комедії"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Документальні й інформаційно-освітні передачі"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Телевізійні драми"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Телевізійні мильні опери"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Телевізійні шоу для сімейного перегляду"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Телевізійні реаліті-шоу"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Телевізійна наукова фантастика й фантастичні шоу"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Образотворче мистецтво та дизайн"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Дизайн"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Живопис"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Мистецтво фотографії та цифрове мистецтво"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Автомобілі й автотранспорт"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Вантажні автомобілі та причепи"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Класичні автомобілі"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Спеціалізовані та високопотужні транспортні засоби"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Ціни на пальне й заправка автомобілів"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Автотранспортні засоби (за типом)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Автономні транспортні засоби"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Кабріолети"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Автомобілі-купе"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Хетчбеки"</string>
+    <string name="topic10081" msgid="577995777553561437">"Гібридні й альтернативні автомобілі"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Транспортні засоби класу люкс"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Мікроавто й субкомпактні автомобілі"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Мотоцикли"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Автомобілі підвищеної прохідності"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Вантажівки-пікапи"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Скутери та мопеди"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Седани"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Універсали"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Позашляховики та кросовери"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Кросовери"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Фургони та мінівени"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Послуги евакуатора й технічна допомога на дорозі"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Безпека транспорту та дорожнього руху"</string>
+    <string name="topic10095" msgid="84682415803421329">"Запасні частини й аксесуари для транспортних засобів"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Ремонт і обслуговування транспортних засобів"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Купівля транспортних засобів"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Автомобілі з пробігом"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Автомобільні шоу"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Краса та фітнес"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Боді-арт"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Догляд за обличчям і тілом"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Антиперспіранти"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Засоби для ванни й тіла"</string>
+    <string name="topic10105" msgid="1191169056931411220">"\"Чиста\" косметика"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Косметичні засоби"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Засоби для догляду за нігтями"</string>
+    <string name="topic10108" msgid="577259588028933025">"Парфуми й аромати"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Леза та бритви"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Мода та стиль"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Фітнес"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Бодибілдинг"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Заняття з фітнесу та персональні тренування"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Товари для фітнесу"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Догляд за волоссям"</string>
+    <string name="topic10116" msgid="763642849903586689">"Книги й література"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Дитяча література"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Електронні книги"</string>
+    <string name="topic10119" msgid="894448782525835364">"Журнали"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Поезія"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Бізнес і виробництво"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Реклама й маркетинг"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Продажі"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Сільське й лісове господарство"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Виробництво харчових продуктів"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Автомобільна промисловість"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Авіабудування"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Комерційна діяльність"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Гнучка організація праці"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Кадри"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Комерційне кредитування"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Будівництво й обслуговування"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Цивільне будівництво"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Оборонна промисловість"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Енергетична промисловість і комунальне господарство"</string>
+    <string name="topic10136" msgid="455894912948558854">"Водопостачання й очищення води"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Індустрія гостинності"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Виробництво"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Метали та гірнича промисловість"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Мережевий маркетинг і можливості розвитку бізнесу"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Фармацевтичні препарати та біотехнології"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Друкарство й видавнича справа"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Роздрібна торгівля"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Венчурний капітал"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Комп’ютери й електроніка"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Периферійні комп’ютерні пристрої"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Принтери"</string>
+    <string name="topic10148" msgid="388392714835039199">"Комп’ютерна безпека"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Антивіруси та зловмисне програмне забезпечення"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Безпека мереж"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Побутова електроніка"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Фотоапарати й відеокамери"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS і навігація"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Автоматизація дому"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Системи домашнього кінотеатру"</string>
+    <string name="topic10156" msgid="5908298124114814149">"Портативні медіа- та MP3-програвачі"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Технології портативних пристроїв"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Резервне копіювання й відновлення даних"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Стаціонарні комп’ютери"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Ноутбуки"</string>
+    <string name="topic10161" msgid="172004201167511870">"Мережі"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Розподілені та хмарні обчислення"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Програмування"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Програмне забезпечення"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Програмне забезпечення для обробки аудіо та музики"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Програмне забезпечення для бізнесу та підвищення продуктивності роботи"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Календарі та програмне забезпечення для планування часу"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Програмне забезпечення для спільної роботи й відеоконференцій"</string>
+    <string name="topic10169" msgid="827557334245484202">"Програмне забезпечення для презентацій"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Програмне забезпечення для роботи з електронними таблицями"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Програмне забезпечення для обробки тексту"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Комп’ютерна верстка"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Шрифти"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Диспетчери завантажень"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Безкоштовне й умовно безкоштовне програмне забезпечення"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Програмне забезпечення для обробки графіки й анімації"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Інтелектуальні особисті помічники"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Медіапрогравачі"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Програмне забезпечення для спостереження"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Операційні системи"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Програмне забезпечення для обробки фотографій і відео"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Програмне забезпечення для обробки фотографій"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Програмне забезпечення для обробки відео"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Програмні утиліти"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Веб-переглядачі"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Фінанси"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Бухгалтерський облік і аудит"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Розрахунок і планування податків"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Банкінг"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Послуги з електронного переказу коштів"</string>
+    <string name="topic10191" msgid="374364159635356705">"Кредити та кредитування"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Кредитні картки"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Іпотечне кредитування"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Кредити фізичним особам"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Кредитування студентів і фінансування освіти"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Фінансове планування та фінансовий менеджмент"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Вихід на пенсію та пенсія"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Гранти"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Гранти"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Страхування"</string>
+    <string name="topic10201" msgid="447240478385298875">"Автострахування"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Медичне страхування"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Страхування нерухомості"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Страхування життя"</string>
+    <string name="topic10205" msgid="262581473890356377">"Туристичне страхування"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Інвестиції"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Біржова торгівля товарами й ф’ючерсами"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Валюти й курси валют"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Хедж-фонди"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Пайові інвестиційні фонди"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Акції й облігації"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Їжа та напої"</string>
+    <string name="topic10213" msgid="805716705436663130">"Кулінарія та рецепти"</string>
+    <string name="topic10214" msgid="726298155737413779">"Барбекю та гриль"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Кулінарні традиції"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Вегетаріанська кухня"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Веганська кухня"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Здорове харчування"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Роздрібна торгівля бакалійними та харчовими продуктами"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Ігри"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Аркади й гральні автомати"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Більярд"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Настільні ігри"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Шахи й абстрактні стратегії"</string>
+    <string name="topic10225" msgid="564207834821286301">"Картярські ігри"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Колекційні ігри в карти"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Комп’ютерні й відеоігри"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Платформери й екшни"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Пригодницькі ігри"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Казуальні ігри"</string>
+    <string name="topic10231" msgid="405082026972839048">"Змагання з відеоігор"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Симулятори водіння та перегони"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Бойові ігри"</string>
+    <string name="topic10234" msgid="693433817142162565">"Довідкові матеріали й огляди комп’ютерних і відеоігор"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Хитрощі й підказки для відеоігор"</string>
+    <string name="topic10236" msgid="320145832033080647">"Масові багатокористувацькі ігри"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Музичні й танцювальні ігри"</string>
+    <string name="topic10238" msgid="124952008622371505">"Пісочниці"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Стрілялки"</string>
+    <string name="topic10240" msgid="429738690314619395">"Симулятори"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Ігри в магнатів і бізнес-ігри"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Містобудівні ігри"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Симулятори буденного життя"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Симулятори транспортних засобів"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Спортивні ігри"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Симулятори спортивного менеджменту"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Стратегії"</string>
+    <string name="topic10248" msgid="279151815457227293">"Модифікації та доповнення до відеоігор"</string>
+    <string name="topic10249" msgid="631580828608894782">"Освітні ігри"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Ігри та заходи для всієї сім’ї"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Малювання й розмальовки"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Ігри в стиліста й на тему моди"</string>
+    <string name="topic10253" msgid="385499297969826942">"Головоломки й логічні ігри"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Рольові ігри"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Настільний теніс"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Мозаїки"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Ігри в слова"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Хобі та дозвілля"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Річниці"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Дні народження й іменини"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Дайвінг та інші підводні види спорту"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Текстильне мистецтво"</string>
+    <string name="topic10263" msgid="361345691023794788">"Дозвілля на природі"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Рибальство"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Полювання та стрільба"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Пейнтбол"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Радіокерування та моделювання"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Весілля"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Дім і сад"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Садівництво"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Домашній декор і декор інтер’єру"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Побутові прилади"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Облаштування житла"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Безпека житла"</string>
+    <string name="topic10275" msgid="682064062059687444">"Господарчі товари"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Ландшафтний дизайн"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Інтернет і засоби зв\'язку"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Електронна пошта й обмін повідомленнями"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Електронна пошта"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Обмін текстовими повідомленнями й чати"</string>
+    <string name="topic10281" msgid="582764575763317221">"Голосовий і відеочат"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Постачальники інтернет-послуг"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Постачальники телефонних послуг"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Сигнали дзвінка й теми для мобільних пристроїв"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Пошукові системи"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Смартфони"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Телеконференції"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Веб-додатки й онлайн-інструменти"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Веб-сервіси"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Хмарні сховища"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Веб-дизайн і веб-програмування"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Веб-хостинг"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Робота й освіта"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Освіта"</string>
+    <string name="topic10295" msgid="331240908257602211">"Наукові конференції та публікації"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Коледжі й університети"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Дистанційне навчання"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Освіта дітей раннього віку"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Дошкільна освіта"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Домашнє навчання"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Стандартизовані та вступні тести"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Ресурси для викладання й аудиторної роботи"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Професійно-технічна та післядипломна освіта"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Робота"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Ресурси та планування кар’єрного розвитку"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Оголошення про вакансії"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Право й державне керування"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Злочини та правосуддя"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Право"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Юридичні послуги"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Новини"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Економічні новини"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Місцеві новини"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Злиття й поглинання"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Газети"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Політика"</string>
+    <string name="topic10317" msgid="888696185673599406">"Спортивні новини"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Погода"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Світові новини"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Онлайн-спільноти"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Кліп-арт і анімовані зображення у форматі GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Побачення та знайомства"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Агрегатори каналів і соціальні закладки"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Файлообмінники та хостинг"</string>
+    <string name="topic10325" msgid="916412844647169263">"Форуми й чати"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Мікроблоги"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Обмін фотографіями та відео"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Обмін фотографіями та зображеннями"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Обмін відео"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Скіни"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Додатки й доповнення для соціальних мереж"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Соціальні мережі"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Люди та суспільство"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Сім’я та стосунки"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Походження й генеалогія"</string>
+    <string name="topic10336" msgid="360328903013424569">"Шлюб"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Виховання дітей"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Усиновлення"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Немовлята й малюки"</string>
+    <string name="topic10340" msgid="259457452971577855">"Безпека дітей в Інтернеті"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Романтичні фільми"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Наукова фантастика та фентезі"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Домашні улюбленці й інші тварини"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Їжа й товари для домашніх тварин"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Домашні тварини"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Птахи"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Коти"</string>
+    <string name="topic10348" msgid="570783769757187957">"Собаки"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Риби й акваріуми"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Плазуни та земноводні"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Ветеринарні послуги"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Нерухомість"</string>
+    <string name="topic10353" msgid="230887584509968233">"Земля та земельні ділянки"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Нерухомість для відпочинку та тимчасового використання"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Довідники"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Реєстри підприємств і осіб"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Загальні довідкові матеріали"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Калькулятори та довідкові системи"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Словники й енциклопедії"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Освітні матеріали"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Інструкції"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Час і календарі"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Мовні ресурси"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Вивчення іноземних мов"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Ресурси й інструменти для перекладу"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Карти"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Наука"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Віртуальна та доповнена реальність"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Біологічні науки"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Генетика"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Хімія"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Екологія та довкілля"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Геологія"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Машинне навчання та штучний інтелект"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Математика"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Фізика"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Робототехніка"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Покупки"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Антикваріат і предмети колекціонування"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Одяг"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Дитячий одяг"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Костюми"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Чоловічий одяг"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Жіночий одяг"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Тематичні газетні оголошення"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Ресурси для споживачів"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Купони та дисконтні пропозиції"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Картки постійного покупця та програми лояльності"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Технічна підтримка й ремонт"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Квіти"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Вітальні листівки"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Товари для проведення вечірок і свят"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Портали для покупок"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Спорт"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Американський футбол"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Австралійський футбол"</string>
+    <string name="topic10397" msgid="653991203228840785">"Автоперегони"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Бейсбол"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Баскетбол"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Боулінг"</string>
+    <string name="topic10401" msgid="26807857115228330">"Бокс"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Чирлідинг"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Спорт у коледжі"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Крикет"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Велоспорт"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Кінний спорт"</string>
+    <string name="topic10407" msgid="316266982792700993">"Екстремальні види спорту"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Скелелазіння й альпінізм"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Фентезі-спорт"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Гольф"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Гімнастика"</string>
+    <string name="topic10412" msgid="335770351079973128">"Хокей"</string>
+    <string name="topic10413" msgid="416366556259783701">"Катання на ковзанах"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Бойові мистецтва"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Мотоперегони"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Олімпійські ігри"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Регбі"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Біг і ходьба"</string>
+    <string name="topic10419" msgid="979581105119036716">"Лижний спорт і сноубординг"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Футбол"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Серфінг"</string>
+    <string name="topic10422" msgid="978920114358054206">"Плавання"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Теніс"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Легка атлетика"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Волейбол"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Боротьба"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Подорожі й транспорт"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Пригодницькі подорожі"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Авіаподорожі"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Ділові поїздки"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Прокат автомобілів"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Круїзи та чартерні поїздки"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Сімейні подорожі"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Весільні подорожі та романтичні відпустки"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Готелі та помешкання"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Автобуси та поїзди далекого прямування"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Бюджетні й гарячі тури"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Багаж і аксесуари для подорожі"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Туристичні райони"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Пляжі й острови"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Регіональні парки та сади"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Тематичні парки"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Зоопарки"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Планувальники дорожнього руху й маршрутів"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Туристичні агентства та послуги"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Туристичні посібники та розповіді про подорожі"</string>
+</resources>

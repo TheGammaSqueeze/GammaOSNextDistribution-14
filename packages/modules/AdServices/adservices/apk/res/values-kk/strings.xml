@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API-ын пайдалану"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Қолданбаға AdServices Topics API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API-ларын пайдалану"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Қолданбаға AdServices Attribution API-ларын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API-ын пайдалану"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Қолданбаға AdServices Custom Audience API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdID API-ын пайдалану рұқсаты"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Қолданбаға AdID API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API-ын пайдалану"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Қолданбаға AdServices Consent API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API-ын пайдалану"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Қолданбаға Ad ID API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API-ын пайдалану"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Қолданбаға AdServices Cobalt Upload API-ын пайдалануға рұқсат береді."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API-ын пайдалану"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Қолданбаға App Set ID API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API-ын пайдалану"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Қолданбаға Consent Service API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService қызметін іске қосу күйін өзгертуге қатысты API-ды пайдалану"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Қолданбаға AdService қызметін іске қосу күйін өзгертуге қатысты API-ды пайдалануға рұқсат береді."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService қызметін іске қосу күйіне қатысты API-ды пайдалану"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Қолданбаға AdService қызметін іске қосу күйіне қатысты API-ды пайдалануға рұқсат береді."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager-дің API-ларын пайдалану"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Қолданбаға AdServicesManager-дің API-ларын пайдалануға рұқсат береді."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService жаңартуының AdId API-ын пайдалану."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Қолданбаға AdService жаңартуының AdId API-ын пайдалануға мүмкіндік береді."</string>
+    <string name="app_label" msgid="2639006978056689153">"Жарнамадағы құпиялық"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android жарнамасындағы құпиялық (бета нұсқасы) бағдарламасына қосылыңыз"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android қолданбалардың жарнаманы барынша жеке көрсету жолдарын зерттеп жатыр."</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Толық ақпарат"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android жарнамасындағы құпиялық (бета нұсқасы)"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Жаңалықтар"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privacy Sandbox-тағы жаңа құпиялық функциялары сізге қолданбалардың сәйкес жарнамаларды көрсетуіне мүмкіндік береді. Алайда басқа әзірлеушілердің веб-сайттары мен қолданбаларында жасаған әрекеттеріңіз туралы деректер алу мүмкіндігін шектейді."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Бұл қалай жұмыс істейді?"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Қатысу жолы"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Бета нұсқасын қосқан кезде, қолданбалар жарнама көрсетудің осындай жаңа әрі жеке жолдарын сынай алады. Бета нұсқасын кез келген уақытта құпиялық параметрлерінен өшіруге болады."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Жоқ, рақмет"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Қосу"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Әрі қарай"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Қатысқаныңызға рақмет!"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Сіз Android-тың жарнама құпиялығына (бета нұсқасы) арналған бағдарламаның қатысушысыз. Құрылғыңызда Privacy Sandbox қосылған.\n\nТолық ақпарат алуға немесе бета нұсқасын кез келген уақытта құпиялық параметрлерінде өшіруге болады."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Қатысудан бас тарттыңыз"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Жауабыңызға рақмет! Құрылғыңызда Privacy Sandbox өшірілген.\n\nОйыңызды өзгертсеңіз немесе толық ақпарат алғыңыз келсе, құпиялық параметрлеріне кіріңіз."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Құпиялық параметрлері"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Түсінікті"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Бета нұсқасын пайдаланатын қатысушысыз"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Құрылғыңызда Privacy Sandbox қосулы. Енді қолданбалар жарнама көрсетудің осы жаңа әрі жеке жолдарын сынап көре алады. Бета нұсқасын кез келген уақытта құпиялық параметрлерінен өшіруге болады."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Түсінікті"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android-тың Privacy Sandbox технологиялар жинағы қолданбалар сізге ұнайды деген жарнамаларды көрсету үшін пайдалана алатын жаңа функцияларды ұсынады. Бұл технологиялар құрылғы идентификаторларын пайдаланбайды.\n\nAndroid пен қолданбалар сізді қызықтыруы мүмкін жарнама түрлерін бағалап, қызығушылықтарды құрылғыңызда уақытша сақтай алады. Соның нәтижесінде қолданбалар басқа әзірлеушілердің веб-сайттары мен қолданбаларында жасаған әрекеттеріңізді бақыламай, сізге ұнауы мүмкін жарнамаларды көрсете алады."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Privacy Sandbox-та жарнамаларды жекелендіру"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android бағалаған қызығушылықтар"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android пайдаланатын қолданбаларыңызға қарай \"Спорт\" немесе \"Саяхат\" сияқты негізгі қызығушылықтарыңызды мерзімді түрде талдап отырады.\n\nСодан кейін қолданбалар тиісті жарнамаларды сізге көрсету үшін Android жүйесінен сол қызығушылықтарды пайдалануға рұқсат сұрауы мүмкін.\n\nҚазіргі қызығушылықтар тізімін құпиялық параметрлерінен көріп, ұнамайтынын бөгей аласыз."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Қолданбалар бағалаған қызығушылықтар"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Қолданбалар қызығушылықтарыңызды бағалап, оларды уақытша Android-та сақтай алады. Мысалы, сіз кроссовка сатып алу үшін пайдаланатын қолданба қызығушылығыңызды \"марафондарда жүгіру\" деп бағалауы мүмкін.\n\nСодан кейін осы қызығушылыққа қарай басқа қолданба сізге марафондарға қатысты жарнама көрсете алады.\n\nҚұпиялық параметрлерінде қызығушылықтарды сақтаған қолданбалар тізімін басқара аласыз."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Жарнамадағы құпиялықтың жаңа функциялары"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Жарнама тақырыптары және жаңа басқару элементтері көрсетілетін жарнамаларды таңдауға мүмкіндік береді."</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Жарнамадағы құпиялыққа қатысты жаңа функциялар қолжетімді"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android сіз жақында пайдаланған қолданбалар бойынша қызықты тақырыптарды көрсетеді. Пайдаланатын қолданбаларыңыз да сізге ұнайтын нәрсені анықтай алады. Содан кейін қолданбалар осы ақпаратты сұрап, сізге жекелендірілген жарнамаларды көрсетуі мүмкін. Жарнамалар көрсетуге пайдаланылатын тақырыптар мен қолданбаларды таңдай аласыз."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Жарнаманың өнімділігін өлшеу үшін шектеулі дерек түрлері қолданбаларға беріледі."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android-тағы жарнамалар туралы толық ақпарат"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Пайдасы көбірек жарнамалар"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Қолданбалар Android жүйесінен көрсетілетін жарнамаларды жекелендіруге көмектесу үшін ақпарат сұрай алады."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android сіз жақында пайдаланған қолданбалар бойынша қызықты тақырыптарды көрсетеді."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Сонымен қатар пайдаланатын қолданбаларыңыз олардағы әрекетіңізге қарай сізге не ұнайтынын анықтай алады. Мысалы, алыс қашықтыққа жүгіруге арналған аяқ киім сататын қолданбаны пайдалансаңыз, қолданба сіз марафондарға қызығады деп ұйғаруы мүмкін."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Кейінірек сіз пайдаланатын қолданба осы ақпаратты: жарнама тақырыптарын немесе пайдаланған өолданбалар ұсынған жарнамаларды сұрауы мүмкін."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android жүйесі тақырыптарды және қолданба ұсынған деректерді автоматты түрде жойып отырады. Сондай-ақ ұсыныстар бергенін қаламайтын нақты тақырыптар мен қолданбаларды бөгей аласыз."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Жарнама өнімділігін өлшеу"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Сіз пайдаланатын қолданбалар жарнамалар өнімділігін өлшеуге көмектесу үшін Android жүйесінен ақпарат сұрай алады. Android қолданбалардың жарнама көрсетілген күн уақыты сияқты шектеулі дерек түрлерін жинауына мүмкіндік береді."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Жарнамадағы құпиялықтың жаңа функцияларын пайдаланып көріңіз"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Жарнама тақырыптары сіз көретін жарнамаларды таңдауға мүмкіндік береді."</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Мәліметтерді көру"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Жарнамадағы құпиялыққа қатысты жаңа функцияларды байқап көріңіз"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android көрсетілетін жарнамаларды таңдауға мүмкіндік беретін жаңа құпиялық функцияларын іске қосып жатыр."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Жарнама тақырыптары жеке басыңызды және қолданбаның пайдаланылуы туралы мәліметті қорғай отырып, сізге қолданбалардың қатысты жарнамаларды көрсетуіне көмектеседі. Android өзіңіз жақында пайдаланған қолданбалар бойынша қызық тақырыптарды көрсете алады. Кейін пайдаланатын қолданбаңыз көрсетілетін жарнамаларды жекелендіру үшін Android-тан қатысты тақырыптар сұрауы мүмкін."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Құрылғы параметрлерінен жарнама тақырыптарын көре аласыз және қолданбалармен бөліскіңіз келмейтінін бөгеуіңізге болады. Сондай-ақ Android жарнама тақырыптарын автоматты түрде жойып отырады."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Құпиялық параметрлерінен шешіміңізді кез келген уақытта өзгерте аласыз."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Жарнама тақырыптары туралы толық ақпарат"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Android-тың деректерді қалай қорғайтыны туралы толық ақпаратты мына құжаттан алуға болады: "<a href="https://policies.google.com/privacy">"Құпиялық саясаты"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Байқап көру"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Пайдаланылатын деректер"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Жарнама тақырыптары сіз жақында осы құрылғыда пайдаланған қолданбаларға және оларды пайдалану жиілігіне негізделген."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Бұл деректерді пайдалану жолдары"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Сіз қолданбаларды пайдаланғанда, Android қызықты тақырыптарды көрсетеді. Тақырып белгілері алдын ала анықталған және \"Өнер және ойын-сауық\", \"Сауда жасау\" және \"Спорт\" сияқты санаттарды қамтиды. Кейін сіз пайдаланатын қолданба көретін жарнамаларды жекелендіру үшін Android-тан бірнеше тақырыпты (қолданбаның пайдаланылуы немесе жеке басыңыз туралы мәліметтен басқа) сұрайды."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Деректеріңізді қалай басқара аласыз?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android тақырыптарды автоматты түрде жояды. Қолданбаларды пайдалануыңызға байланысты тақырып тізімде қайта шығуы мүмкін. Сонымен қатар Android қолданбалармен бөліспейтін тақырыптарды бөгей және құпиялық параметрлерінен жарнама тақырыптарын кез келген уақытта өшіре аласыз."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Кез келген уақытта құпиялық параметрлерінде өзгерістер енгізе аласыз."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Жарнамадағы құпиялыққа қатысты басқа функциялар қолжетімді"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Қолданбалар жекелендірілген жарнамалар көрсеткенде, Android жүйесі олардың жеке деректерді пайдалануын шектейтін жаңа әдістерді де ұсынады."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Қолданба ұсынатын жарнамалар қолданбалардың қатысты жарнамаларды көрсетуіне мүмкіндік бере отырып, жеке басыңызды және қолданбаның пайдаланылуы туралы мәліметті қорғауға көмектеседі. Әрекетіңізге байланысты сіз пайдаланатын қолданба басқа қолданбаларда сәйкес жарнамалар ұсына алады. Құпиялық параметрлерінен қолданбалар тізімін қарауға және оларды ұсыныс жасаудан бөгеуге болады."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Жарнама көрсеткіштерін өлшеу кезінде шектеулі дерек түрлері қолданбалар арасында беріліп, олардағы жарнамалардың өнімділігі, соның ішінде жарнама сізге көрсетілген уақыт анықталады."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Қолданба ұсынатын жарнамалар және жарнама көрсеткіштерін өлшеу туралы қосымша ақпарат"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Қолданба ұсынатын жарнамалар"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Пайдаланылатын деректер"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Осы құрылғыда пайдаланатын қолданбадағы әрекетіңіз."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Қолданбалардың деректерді пайдалану жолы"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Android сізге ұнайтын нәрселер туралы ақпаратты Android көмегімен сақтай алады. Мысалы, марафонға дайындық туралы қолданбаны пайдалансаңыз, қолданба сіз жүгіруге арналған аяқ киімге қызығады деп ұйғаруы мүмкін. Кейінірек басқа қолданбаны пайдалансаңыз, сол қолданба сізге бірінші қолданба ұсынған аяқ киімнің жарнамасын көрсетуі мүмкін."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Деректерді басқару жолы"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android жүйесі қолданба ұсынған деректерді автоматты түрде жойып отырады. Қайта пайдаланатын қолданбаңыз тізімде қайта шығуы мүмкін."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Кез келген уақытта құпиялық параметрлерінен қолданбаның сізге жарнамалар ұсынуын бөгеуге, барлық жарнама ұсыну дерегін қайтаруға не қолданба ұсынған жарнамаларды өшіруге болады."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Сіз пайдаланатын қолданбалар Android жүйесінен жарнамаларының өнімділігін өлшеуше көмектесетін ақпаратты сұрай алады. Android қолданбалар өзара бөлісетін ақпаратты шектеу арқылы құпиялығыңызды қорғайды."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Жарнамадағы құпиялыққа қатысты жаңа функциялар қолжетімді"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Жеке басыңызды қорғай отырып, өзіңіз көретін жарнамаларды таңдау мүмкіндігіне ие болыңыз."</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Жарнамадағы құпиялыққа қатысты жаңа функциялар қолжетімді"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android жаңа әдістер іске қосып жатыр: енді қолданбалар жекелендірілген жарнамалар көрсеткенде, олардың жеке деректерді пайдалануы шектеледі."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Қолданба ұсынатын жарнамалар бойынша жаңа құпиялық функциялары қолданбалардың сәйкес жарнамалар көрсетуіне мүмкіндік бере отырып, жеке басыңызды және қолданбаның пайдаланылуы туралы мәліметті қорғауға көмектеседі. Әрекеттеріңізге байланысты сіз пайдаланатын қолданба басқа қолданбаларда сәйкес жарнамалар ұсына алады. Құпиялық параметрлерінен қолданбалар тізімін көріп, олардың ұсыныстар беруін бөгеуіңізге болады."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Жарнама көрсеткіштерін өлшеу кезінде шектеулі дерек түрлерін қолданбалар өзара бөлісіп, ондағы жарнамалардың өнімділігі, соның ішінде жарнама сізге көрсетілген уақыт анықталады."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Осы құрылғыдағы қолданбаны пайдалану деректері сізге жарнама ұсыну үшін пайдаланылуы мүмкін."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Жарнамадағы құпиялыққа қатысты кезекті функцияны қосыңыз"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android жүйесі өзіңіз көретін жарнамаларды таңдауға мүмкіндік беретін жаңа құпиялық функциясын да ұсынады."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Жарнама тақырыптары жеке басыңызды және қолданбаның пайдаланылуы туралы мәліметті қорғай отырып, қолданбаларға сәйкес жарнамаларды көрсетуге көмектеседі. Android сіз жақында пайдаланған қолданбаларға негізделген қызық тақырыптарды көрсете алады. Кейін сіз пайдаланатын қолданба сәйкес жарнамалар көрсету үшін Android-тан қатысы бар тақырыптарды сұрай алады."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Құпиялық параметрлерінен жарнама тақырыптарын көріп, қолданбалармен бөліскіңіз келмейтінін бөгеуіңізге болады. Сондай-ақ Android тақырыптарды автоматты түрде жойып отырады."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Қосу"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Жарнамадағы құпиялыққа қатысты жаңа функциялар қолжетімді"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Жеке басыңызды қорғай отырып, өзіңіз көретін жарнамаларды таңдау мүмкіндігіне ие боласыз."</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Жарнамадағы құпиялыққа қатысты жаңа функциялар қолжетімді"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Енді Android жүйесі өзіңіз көретін жарнамаларды таңдауға мүмкіндік беретін жаңа құпиялық функцияларын ұсынады."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Келесі"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android-тың жарнама құпиялығына (бета нұсқасы) арналған бағдарламасына қатысыңыз."</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android бағалаған қызығушылықтар"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Қызығушылықтарды бағалайтын қолданбалар"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Жарнама көрсеткіштерін өлшеу"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Қолданбалар өз жарнамаларының тиімділігін анықтау үшін Privacy Sandbox-ты пайдалана алады. Ол үшін жарнама берушілер сіздің олардың жарнамалары мен қолданбаларын пайдалануыңыз туралы деректерді Android-та уақытша сақтай алады. Олар сақтай алатын деректер көлемі шектелген және тұрақты түрде жойылып отырады.\n\nPrivacy Sandbox-ты өшіру арқылы бұл деректерді кез келген уақытта жоя аласыз."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android пайдаланатын қолданбаларыңызға қарай мерзімді түрде негізгі қызығушылықтарды талдап отырады. Содан кейін қолданбалар тиісті жарнамаларды сізге көрсету үшін Android жүйесінен сол қызығушылықтарды пайдалануға рұқсат сұрауы мүмкін.\n\nҚызығушылықты бөгесеңіз, бөгеуден алмайынша, ол тізімге қайта қосылмайды. Кейбір сәйкес жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Блоктау"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Блоктан шығару"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Сіз бөгеген қызығушылықтар"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Барлық қызығушылықты қалпына келтіру"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Дәл қазір көрсететін қызығушылық жоқ."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Дәл қазір көрсететін тақырып жоқ.\n"<a href="https://support.google.com/android?p=ad_privacy">"Жарнама тақырыптары"</a>" туралы толық ақпарат алыңыз."</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android жарнамасындағы құпиялық (бета нұсқасы) бағдарламасы қолданбалар сізге ұнайды деген жарнамаларды көрсетуге пайдалана алатын жаңа функцияларды ұсынады. Бұл технологиялар құрылғы идентификаторларын пайдаланбайды.\n\nAndroid сізге қызық деген жарнама түрлерін анықтап, бұл мәліметті құрылғыңызда уақытша сақтайды. Соның нәтижесінде қолданбалар басқа әзірлеушілердің веб-сайттары мен қолданбаларында жасаған әрекеттеріңізді бақыламай, сізге сәйкес жарнамаларды көрсетеді."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Сізде блокталған қызығушылықтар жоқ"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Бөгелген тақырыптар жоқ."</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Бөгелген тақырыптарды көру"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Қызығушылықтар қайтарылды."</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Тақырыптар қайтарылды."</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Қолданбалар қызығушылықтарыңызды бағалап, оларды уақытша Android-та сақтай алады. Содан кейін осы қызығушылыққа қарай басқа қолданба сізге марафондарға қатысты жарнама көрсете алады.\n\nҚолданбаны бөгесеңіз, ол бұдан былай қызығушылықтарды бағаламайды. Қолданбаны бөгеуден алмайынша, ол қолданбалар тізіміне қайта қосылмайды. Қолданба бағалап қойған қызығушылықтар жойылады, бірақ оған қатысты кейбір жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Сіз бөгеген қолданбалар"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Бөгелген қолданбаларды көру"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Қолданбалар бағалаған қызығушылықтарды бастапқы күйге қайтару"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Қазір қолданбалар қызығушылықтарыңызды бағалап жатқан жоқ"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Дәл қазір көрсететін қолданба жоқ. \n"<a href="https://support.google.com/android?p=ad_privacy">"Қолданба ұсынатын жарнамалар"</a>" туралы толық ақпарат алыңыз."</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android жарнамасындағы құпиялық (бета нұсқасы) бағдарламасы қолданбалар сізге ұнайды деген жарнамаларды көрсетуге пайдалана алатын жаңа функцияларды ұсынады. Бұл технологиялар құрылғы идентификаторларын пайдаланбайды.\n\nAndroid сізге қызық деген жарнама түрлерін анықтап, бұл мәліметті құрылғыңызда уақытша сақтайды. Соның нәтижесінде қолданбалар басқа әзірлеушілердің веб-сайттары мен қолданбаларында жасаған әрекеттеріңізді бақыламай, сізге сәйкес жарнамаларды көрсетеді."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Сізде блокталған қолданбалар жоқ"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Бөгелген қолданбалар жоқ."</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Жарнама тиімділігін анықтауға рұқсат ету"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Қолданбалар мен жарнама берушілер Android жүйесінен тиісті жарнамалардың өнімділігін анықтауға көмектесетін ақпаратты сұрауы мүмкін.\n\nЖарнама көрсеткіштерін анықтау деректері құрылғыңыздан тұрақты негізде жойылып отырады."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Тиімділікті анықтау деректерін қайта орнату"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android қолданбалар өзара бөлісетін ақпаратты шектеу арқылы құпиялығыңызды қорғайды. Есептер жеке басыңызды қорғау үшін кешіктіріп жіберіледі.\n\nБраузеріңізде осындай параметр орнатылған болуы мүмкін. Жарнама көрсеткіштерін өлшеу Android пен браузерде қосулы болса, компания сіз пайдаланатын қолданбалар мен кіретін сайттар арасында жарнаманың тиімділігін анықтай алады. Браузерді қолдану тарихы құрылғыда құпия сақталады.\n\nAndroid-тың деректерді қалай қорғайтыны туралы толық ақпаратты мына құжаттан алуға болады: "<a href="https://policies.google.com/privacy">"Құпиялық саясаты"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Жарнама көрсеткіштерін анықтау деректері өшірілді."</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Бас тарту"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Privacy Sandbox өшірілсін бе?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Ойыңыздан айнысаңыз немесе Android жарнамасындағы құпиялық (бета нұсқасы) туралы толық ақпарат алғыңыз келсе, құпиялық параметрлеріне өтіңіз."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Өшіру"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> бөгелсін бе?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Бұл тақырып бөгеледі және тізімге өзіңіз қоспайынша, қайта пайда болмайды. Кейбір сәйкес жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Блоктау"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> бөгеуден шығарылды"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android бұл тақырыпты тізімге қайта қосуы мүмкін. Алайда ол тізімде дереу пайда болмайды."</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Жарайды"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Барлық жарнама тақырыбы бастапқы күйге қайтарылсын ба?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Тізім өшіріледі және алдағы уақытта жаңа тақырыптар қосылады. Бастапқы күйге қайтарылған тақырыптарға қатысты кейбір жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Қайтару"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> бөгелсін бе?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Бұл қолданба жарнамалар ұсынбайды және бөгеу алынбайынша, тізімге қайта қосылмайды. Кейбір сәйкес жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> бөгеуден шығарылды"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Бұл қолданба жарнамаларды қайта ұсына алады. Алайда ол тізімде бірден шықпайды. Тиісті жарнамалардың көрсетілуіне біраз уақыт керек болуы мүмкін."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Қолданба ұсынатын жарнамалардың параметрі бастапқы күйге қайтарылсын ба?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Тізіміңіздегі қолданбалар ұсынған жарнама деректері жойылады және қолданбалар алдағы уақытта жаңа жарнамалар ұсынатын болады. Кейбір сәйкес жарнамалар көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Қолданба деректері қайтарылды."</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Жарнама тақырыптары қосулы"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android сіз қызығатын тақырыптарды белгілей бастайды, бірақ алғашқы тақырыптардың көрсетілуіне біраз уақыт кетуі мүмкін."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Жарнама тақырыптары өшірілсін бе?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Бұл тақырыптар тізімі жойылады. Android бұдан былай сіз қызығатын тақырыптарды белгілемейді, бірақ қатысы бар жарнама көрсетіле береді."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Қолданба ұсынатын жарнамалар қосулы"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Қолданбалар жарнамалар ұсына бастауы мүмкін. Олар жарнамалар ұсына бастағаннан кейін, қолданбалар тізімін көресіз."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Қолданба ұсынатын жарнамалар өшірілсін бе?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Жарнама ұсынысының барлық дерегі жойылады. Қолданбалар бұдан былай жарнамалар ұсынбайды, бірақ қатысы бар жарнама көрсетіле беруі мүмкін."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Жарнама көрсеткіштерін өлшеу қосулы"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android қолданбаларға олар жарнамалардың тиімділігін өлшеуі үшін өте шектелген ақпарат жібере алады."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Жарнама көрсеткіштерін өлшеу өшірілсін бе?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Жарнама көрсеткіштерін өлшеудің жасалып жатқан барлық есебі жойылады. Ешқандай жаңа есеп жасалмайды немесе жіберілмейді."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Жарнамадағы құпиялық"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Жарнама тақырыптары"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Қолданба ұсынатын жарнамалар"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android сіз жақында пайдаланған қолданбаларға және олардың пайдаланылған жиілігіне негізделген қызықты тақырыптарды көрсетеді."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Қолданбаларды қалай пайдаланатыныңызға байланысты олар сізге не ұнайтынын анықтай алады."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Сіз пайдаланатын қолданбалар жарнамалардың тиімділігін бағалау үшін Android-тан мәліметтер сұрауы мүмкін. Android қолданбаларға деректердің белгілі бір түрін ғана жинауға мүмкіндік береді."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"Android-та көрсетілетін жарнамадағы құпиялық"</a>" туралы толық ақпарат алыңыз."</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Қосулы/<xliff:g id="TOPICS_COUNT">%1$d</xliff:g> тақырып"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Қосулы/# тақырып}other{Қосулы/# тақырып}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Қосулы/<xliff:g id="APPS_COUNT">%1$d</xliff:g> қолданба"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Қосулы/# қолданба}other{Қосулы/# қолданба}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Қосулы"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Өшірулі"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Қызығушылық тақырыптары сіз жақында пайдаланған қолданбаларға негізделеді. Қолданбалар оларды жекелендірілген жарнамалар көрсету үшін пайдаланады.\n\nҚолданбалармен бөліскіңіз келмейтін тақырыптарды блоктауыңызға болады. Сондай-ақ Android жүйесі тақырыптарды әрдайым автоматты түрде жойып отырады.\n\nОсы функцияны қосуға болатынына қарамастан, ол толық қолжетімді болмайынша және қолданбалар оны пайдалана бастамайынша, тақырыптар тізімін көрмеуіңіз мүмкін."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Жарнама тақырыптарына рұқсат ету"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Сіз блоктаған жарнама тақырыптары"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Барлық жарнама тақырыбын бастапқы күйге қайтару"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android жүйесі сіз соңғы апталарда пайдаланған қолданбаларға негізделген қызықты тақырыптарды көрсетеді.\n\nКейін сіз пайдаланатын қолданба Android жүйесінен сізге арналған тақырыптарды сұрап, сіз көретін жарнамаларды жекелендіре алады. Android жүйесі жеке басыңызды және сіздің қолданбаны пайдалануыңыз туралы ақпаратты қорғай отырып, 3 тақырыпқа дейін бөліседі.\n\nAndroid жүйесі тақырыптарды үнемі автоматты жойып отырады. Қолданбаларды пайдалануыңызға байланысты тақырып тізімде қайта шығуы мүмкін. Бұл ретте Android-тың қолданбалармен бөліскенін қаламайтын тақырыптарды бөгеуіңізге болады.\n\nҚолданбаларда сіз көретін жарнама осы параметрге, қолданба ұсынатын жарнамалар параметріне, жарнама идентификаторы параметрлеріне және сіз пайдаланатын қолданбаның жарнамаларды өңдеуіне байланыстыжекелендірілуі мүмкін."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Қолданба ұсынатын жарнамаларға рұқсат ету"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Пайдаланатын қолданбаларыңыз сізге ненің ұнайтынын анықтап, басқа қолданбаларда сәйкес жарнамалар ұсына алады.\n\nҚолданбалардың ұсыныс жасауын блоктауыңызға болады. Сондай-ақ Android жүйесі қолданба ұсынған деректерді әрдайым автоматты түрде жойып отырады.\n\nОсы функцияны қосуға болатынына қарамастан, ол толық қолжетімді болмайынша және қолданбалар оны пайдалана бастамайынша, қолданбалар тізімін көрмеуіңіз мүмкін."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Сіз бөгеген қолданбалар"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Қолданба ұсынған деректерді өшіру"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Әдетте сіз пайдаланатын қолданбалар жекелендірілген контент ұсыну үшін сіз қызығатын тақырыптарды есте сақтайды. Сонымен қатар олар Android арқылы тақырыптар туралы мәліметті сақтайды.\n\nМысалы, марафонға дайындалатын жаттығулары бар қолданбаны пайдалансаңыз, қолданба сізді жүгіруге арналған аяқ киімдерге қызығады деп анықтауы мүмкін. Кейін басқа қолданбаны пайдаланғанда, алдыңғы қолданба ұсынған аяқ киімдер көрсетілуі мүмкін.\n\nAndroid қолданба ұсынатын деректерді автоматты түрде жойып отырады. Қолданбаны әрі қарай пайдалана берсеңіз, оның деректері тізімде қайта шығуы мүмкін. Сіз қолданбаның жарнамалар ұсынуына тыйым сала аласыз.\n\nҚолданбалардағы жарнама параметрге байланысты жекелендірілуі мүмкін. Ол тақырыптардың параметріне, жарнама идентификаторының параметрлеріне және пайдаланылып жатқан қолданбаның жарнаманы жекелендіруіне немесе жекелендірмеуіне негізделіп көрсетіледі."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Жарнамадағы құпиялыққа қатысты жаңа функция шықты"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Жарнаманың өнімділігін есептеу мақсатында қолданбалар бір-бірімен шектеулі ақпаратты ғана бөліседі."</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Жарнама көрсеткіштерін өлшеу деп аталатын жаңа жарнамадағы құпиялық функциясын іске қосып жатырмыз. Android қолданбалар арасында шектеулі ақпаратты ғана бөліседі. Мысалы, жарнама сізге көрсетілгенде, қолданбалар жарнаманың өнімділігін есептей алады."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Кез келген уақытта жарнаманың құпиялық параметрлерінде өзгерістер енгізе аласыз."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Сіз пайдаланатын қолданбалар Android-тан оларға өз жарнамаларының өнімділігін бағалауға көмектесетін ақпаратты сұрай алады. Android қолданбаларға деректердің белгілі бір түрін ғана жинауға мүмкіндік береді."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Жарнамадағы жаңа құпиялық функциялары"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Жеке басыңызды қорғауға көмектесе отырып, көрсетілетін жарнамаларды таңдау мүмкіндігіне ие болыңыз."</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Жарнамадағы құпиялық функцияларына енгізілген өзгерістер"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Жеке басыңызды қорғауға көмектесе отырып, көрсетілетін жарнамаларды таңдау мүмкіндігіне ие болыңыз."</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Қолданбалар жекелендірілген жарнамаларды көрсеткен кезде, сіз туралы алатын деректерді шектеу үшін Android жарнамадағы құпиялық функцияларын кеңейтіп жатыр."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Қолданбалар және олардың жарнама серіктестері жеке басыңыздың құпиялығы мен қауіпсіздігін сақтай отырып, жарнамаларды жекелендіру мақсатында осы құрылғыдағы басқа қолданбаларда орындаған әрекеттеріңізді пайдалана алады."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Қолданба ұсынатын жарнамалар туралы толық ақпарат"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Қолданбалар шектеулі дерек түрлерін өзара бөлісіп, ондағы жарнамалардың өнімділігін, соның ішінде жарнама сізге көрсетілген уақытты анықтайды."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Жарнама көрсеткіштерін өлшеу туралы толық ақпарат"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android сіз жақында пайдаланған қолданбаларға сәйкес қызықты тақырыптарды көрсетеді. Қолданбалар және олардың жарнама серіктестері жеке басыңыздың құпиялығы мен қауіпсіздігін сақтайды. Сонымен қатар жарнаманы жекелендіру мақсатында олар осы құрылғы арқылы кірген басқа қолданбалардағы әрекеттеріңізді пайдалана алады."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Қолданбаны пайдалану тарихыңызға сүйене отырып, өзіңіз пайдаланатын қолданбалар сізге не ұнайтынын да анықтай алады. Мысалы, егер ас әзірлеуге қатысты қолданбаларды жиі пайдаланатын болсаңыз, онда басқа қолданбаларда азық-түлікті жеткізу қызметі туралы немесе соған ұқсас контентте жарнама көресіз.\n\nҚолданбалар бұл ақпаратты құпия сақтайды. Сонда оны жарнама серіктестері басқа қолданбалардағы жарнамаларды жекелендіру мақсатында пайдалана алады."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Кейін сіз пайдаланатын қолданба тиісті қолданбалар ұсынған жарнамаларды не жарнама тақырыптарын сұрауы мүмкін."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Сіз пайдаланатын қолданбалар Android-тан оларға өз жарнамаларының өнімділігін бағалауға көмектесетін ақпаратты сұрай алады. Қолданбалар бір-бірімен бөлісетін ақпаратты шектеу арқылы Android құпиялығыңызды қорғауға көмектеседі."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Пайдаланылатын деректер"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Сіз пайдаланатын қолданбалар Android жүйесінен жарнамаларының өнімділігін өлшеуге көмектесетін ақпаратты сұрай алады. Android қолданбалар өзара бөлісетін ақпаратты шектеу арқылы құпиялығыңызды қорғауға көмектеседі."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Менің жеке басым қалай қорғалады?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android қолданбалар өзара бөлісетін ақпаратты шектеу және жеке басыңызды қорғауға көмектесу үшін деректерді жиынтықтау және олардың таралуын азайту сияқты бірнеше құпиялылық шарасын пайдаланады.\n\nЖарнама көрсеткіштерін өлшеу деректері де құрылғыдан үнемі жойылып отырады."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Қолданбаны пайдалану тарихыңыз сізге жарнама ұсыну үшін пайдаланылуы мүмкін."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Қолданбалар бұл деректі қалай пайдаланады?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Қолданбаларда бұл ақпарат құпия сақталады. Оны тек жарнама серіктестері басқа қолданбалардағы жарнамаларды жекелендіру мақсатында пайдалана алады. Мысалы, егер ас әзірлеуге қатысты қолданбаларды жиі пайдаланатын болсаңыз, басқа қолданбаларда азық-түлікті жеткізу қызметі туралы немесе соған ұқсас контентті көре аласыз."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Деректерді қалай басқаруға болады?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Белгілі бір қолданбалардың әрекетіңізді жарнама серіктестерімен бөлісуіне тыйым салуға болады. Құпиялық параметрлерінде қолданба ұсынатын жарнамаларды кез келген уақытта бастапқы күйге қайтаруға немесе өшіруге болады. Сондай-ақ Android бұл деректерді үнемі автоматты түрде жойып отырады."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Android-тың құпиялықты қалай қорғайтыны туралы толық ақпарат"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Қолданбалар және олардың жарнама серіктестері жеке басыңыздың құпиялығы мен қауіпсіздігін сақтай отырып, жарнамаларды жекелендіру мақсатында осы құрылғыдағы басқа қолданбаларда орындаған әрекеттеріңізді пайдалана алады.\n\nМысалы, егер ас әзірлеуге қатысты қолданбаларды жиі пайдаланатын болсаңыз, басқа қолданбаларда азық-түлікті жеткізу қызметі туралы немесе соған ұқсас контентті көре аласыз.\n\nAndroid сіздің әрекеттеріңізді автоматты түрде жойып отырады. Қолданбалардың бұл ақпаратты жарнама серіктестерімен бөлісуіне тыйым салуға да болады."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Әдетте қолданбалар мен олардың жарнама серіктестері жарнамаңызды жекелендіру мақсатында сізді қызықтыратын нәрселерді жадында сақтайды. Қолданбаларда бұл ақпарат құпия сақталады. Оны жарнама серіктестері басқа қолданбаларда жарнама көрсету мақсатында ғана пайдалана алады.\n\nСіз қолданбаның әрекет деректеріңізді жарнама серіктестерімен бөлісуіне тыйым сала аласыз. Сондай-ақ Android бөліскен әрекет деректерін автоматты түрде жойып отырады, сол себепті сіз пайдаланатын қолданба осы тізімде қайта пайда болуы мүмкін.\n\nСіз көріп отырған жарнама осы параметр, жарнама тақырыптары параметрі, жарнама идентификаторының параметрлері және сіз пайдаланатын қолданбаның жарнамаларды жекелендіруі сияқты көптеген факторларға байланысты болуы мүмкін.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Қолданба ұсынатын жарнамалар туралы толық ақпарат алыңыз"</a>"."</string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android қолданбалар өзара бөлісетін ақпаратты шектеу және жеке басыңызды қорғауға көмектесу үшін деректерді жиынтықтау және олардың таралуын азайту сияқты бірнеше құпиялылық шарасын пайдаланады.\n\nБраузеріңізде ұқсас параметр болуы мүмкін. Жарнама көрсеткіштерін өлшеу функциясы Android-та және браузерде қосылып тұрса, компания сіз пайдаланатын және кіретін қолданбалар мен сайттардағы жарнаманың тиімділігін анықтай алады. Браузерді қолдану тарихы құрылғыңызда құпия сақталады.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Жарнама көрсеткіштерін өлшеу туралы толық ақпарат алыңыз"</a>"."</string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android сіз соңғы бірнеше апта ішінде пайдаланған қолданбаларға сүйене отырып, қызықты тақырыптарды өзіне белгілеп алады.\n\nКейін сіз пайдаланатын қолданба Android жүйесінен сізге арналған тақырыптарды сұрап, көрсетілетін жарнамаларды жекелендіре алады. Android жүйесі жеке басыңызды және сіздің қолданбаны пайдалануыңыз туралы ақпаратты қорғай отырып, 3 тақырыпқа дейін бөліседі.\n\nAndroid жүйесі тақырыптарды автоматты түрде жойып отырады. Қолданбаларды пайдалануыңызға байланысты тақырып тізімде қайта шығуы мүмкін. Бұл ретте Android-тың қолданбалармен бөліскенін қаламайтын тақырыптарды блоктауыңызға болады.\n\nСіз көріп отырған жарнама осы параметр, қолданба ұсынған жарнамалар параметрі, жарнама идентификаторының параметрлері және сіз пайдаланатын қолданбаның жарнамаларды жекелендіруі сияқты көптеген факторларға байланысты болуы мүмкін. \n\n"<a href="https://support.google.com/android?p=ad_privacy">"Жарнама тақырыбы туралы толық ақпарат алыңыз"</a>"."</string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Музыка, жаңалықтар және спорт сияқты қызық тақырыптарды қамтитын түрлі-түсті кескіндер"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Шеңбердің ішіндегі құлыптың түрлі-түсті кескіні"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Шаршыны құраған тоғыз нүктенің шағын ақ-қара кескіні"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Жүрек, үшбұрыш және шаршы сияқты пішіндердің шағын ақ-қара кескіні"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Өнер және ойын-сауық"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Актерлік өнер және театр"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Аниме және манга"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Мультфильмдер"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Комикс"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Концерттер мен музыкалық фестивальдар"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Би"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Ойын-сауық саласы"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Қызықтар мен викториналар"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Күлкілі сынақтар мен сауалнамалар"</string>
+    <string name="topic10011" msgid="175945911179628507">"Әзіл"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Күлкілі суреттер мен бейнелер"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Тікелей эфирдегі комедия"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Тікелей эфирдегі спорттық іс-шаралар"</string>
+    <string name="topic10015" msgid="726046067079821146">"Сиқыр"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Кино мен театр афишалары"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Фильмдер"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Экшн және шытырман оқиғалы фильмдер"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Анимациялық фильмдер"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Комедиялық фильмдер"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Культ және инди фильмдері"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Деректі фильмдер"</string>
+    <string name="topic10023" msgid="254151319845267278">"Драма жанрындағы фильмдер"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Отбасына арналған фильмдер"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Қорқынышты фильмдер"</string>
+    <string name="topic10026" msgid="210222384439682793">"Романтикалық фильмдер"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Триллер"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Музыка және аудио"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Блюз"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Классикалық музыка"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Кантри"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Би және электрондық музыка"</string>
+    <string name="topic10033" msgid="895853536740398847">"Фолк және дәстүрлі музыка"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Джаз"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Музыка трансляциясы және жүктеп алу"</string>
+    <string name="topic10036" msgid="449833307315797283">"Музыкалық бейнелер"</string>
+    <string name="topic10037" msgid="51698216720637667">"Музыкалық аспаптар"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Пианино және пернелі аспаптар"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Поп-музыка"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Радио"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Ток-радио"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Рэп және хип-хоп"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Рок"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Классикалық рок және ескі әндер"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Хард-рок және прогрессивтік музыка"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Инди және балама музыка"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Үлгілер мен дыбыс жинақтары"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Соул және R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Саундтректер"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Әлемдік музыка"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Регги және Кариб музыкасы"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Онлайн кескін галереялары"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Онлайн бейне"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Тікелей трансляция"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Фильм және телетрансляция"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Опера"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Телегидтер мен анықтамалар"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Телевизия желілері мен станциялары"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Телешоулар мен бағдарламалар"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Телекомедиялар"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Деректі телефильмдер мен ғылыми бағдарламалар"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Теледрамалар"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Телесериалдар"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Отбасына арналған телебағдарламалар"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Теледидардағы реалити шоулар"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Ғылыми фантастика және фэнтези жанрындағы телесериалдар"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Көрнекі өнер және дизайн"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Дизайн"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Сурет"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Фотография және цифрлық өнер"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Автокөліктер мен көлік құралдары"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Жүк көліктері мен трейлерлер"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Классикалық көліктер"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Кастомдық және өнімділігі жоғары көліктер"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Бензин бағасы мен көлікке жанармай құю"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Автокөліктер (түріне қарай)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Автономдық көлік құралдары"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Кабриолеттер"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Купелер"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Хэтчбектер"</string>
+    <string name="topic10081" msgid="577995777553561437">"Гибрид және балама көліктер"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Люкс көліктер"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Шағын автокөліктер"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Мотоциклдер"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Жол талғамайтын көліктер"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Пикаптар"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Скутерлер мен мопедтер"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Седандар"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Әмбебап автомобильдер"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Жол талғамайтын көліктер мен кроссоверлер"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Кроссоверлер"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Микроавтобустар мен минивэндер"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Буксирмен тарту және жолдағы көліктерге көмек көрсету"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Көлік құралдары және көлік қозғалысының қауіпсіздігі"</string>
+    <string name="topic10095" msgid="84682415803421329">"Көлік бөлшектері мен аксессуарлары"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Көлік жөндеу және техникалық күтім жасау"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Көлік сатып алу"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Айдалған көліктер"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Көлік көрмелері"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Сұлулық және фитнес"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Денені безендіру өнері"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Бет пен денеге күтім жасау"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Антиперспиранттар"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Жуынуға және денеге күтім жасауға арналған өнімдер"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Таза сұлулық"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Опа-далап және косметика"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Тырнақ күтіміне арналған өнімдер"</string>
+    <string name="topic10108" msgid="577259588028933025">"Парфюм және хош иістер"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Қырыну құралдары"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Сән және стиль"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Фитнес"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Бодибилдинг"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Фитнес инструкторлары және жеке жаттығулар"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Технологиялық фитнес өнімдері"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Шаш күтімі"</string>
+    <string name="topic10116" msgid="763642849903586689">"Кітаптар және әдебиет"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Балалар әдебиеті"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Электрондық кітаптар"</string>
+    <string name="topic10119" msgid="894448782525835364">"Журналдар"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Поэзия"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Бизнес және өнеркәсіп"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Жарнама және маркетинг"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Сауда"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Ауыл және орман шаруашылығы"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Тамақ өндірісі"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Автомобиль өнеркәсібі"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Авиация саласы"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Бизнес операциялар"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Икемді жұмыс кестесі"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Еңбек ресурстары"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Коммерциялық несие беру"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Құрылыс және жөндеу жұмыстары"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Азаматтық құрылыс"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Қорғаныс саласы"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Қуат және коммуналдық қызметтер"</string>
+    <string name="topic10136" msgid="455894912948558854">"Су жеткізу және тазарту"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Қонақжайлық индустриясы"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Өндіріс"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Металдар мен тау-кен өндірісі"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM және бизнес мүмкіндіктері"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Фармацевтика және биотехнологиялар"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Баспалар"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Бөлшек сауда"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Венчурлық капитал"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Компьютерлер және электроника"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Компьютердің перифериялық құрылғылары"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Принтерлер"</string>
+    <string name="topic10148" msgid="388392714835039199">"Компьютер қауіпсіздігі"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Антивирус және зиянды бағдарламалар"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Желі қауіпсіздігі"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Тұрмыстық электроника"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Камералар мен бейне жазу құрылғылары"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS және навигация"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Үй құрылғыларын автоматтандыру"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Үй кинотеатры жүйелері"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 және тасымалданатын медиаплеерлер"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Денеге тағылатын құрылғылар"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Деректердің сақтық көшірмесін жасау және қалпына келтіру"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Компьютерлер"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Ноутбуктар"</string>
+    <string name="topic10161" msgid="172004201167511870">"Нетворкинг"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Деректерді үлестіру және бұлтта өңдеу"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Бағдарлама құру"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Бағдарламалық құрал"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Аудио мен музыкаға арналған бағдарламалық құралдар"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Бизнеске және өнімділікті арттыруға арналған бағдарламалық құралдар"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Күнтізбе мен жоспарлауға арналған бағдарламалық құралдар"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Конференция мен бірлесе жұмыс істеуге арналған бағдарламалық құралдар"</string>
+    <string name="topic10169" msgid="827557334245484202">"Презентация жасауға арналған бағдарламалық құралдар"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Электрондық кесте жасауға арналған бағдарламалық құралдар"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Сөз өңдеуге арналған бағдарламалық құралдар"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Беттеу"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Қаріптер"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Жүктеп алу менеджерлері"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Тегін және бөлісуге болатын бағдарламалық құралдар"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Графика мен анимацияға арналған бағдарламалық құралдар"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Ақылды жеке көмекшілер"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Мультимедиа ойнатқыштары"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Бақылауға арналған бағдарламалық құралдар"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Операциялық жүйелер"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Фотосурет пен бейне өңдеуге арналған бағдарламалық құралдар"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Фотосурет өңдеуге арналған бағдарламалық құралдар"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Бейне өңдеуге арналған бағдарламалық құралдар"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Бағдарламалық утилиталар"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Веб-браузерлер"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Қаржы"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Бухгалтерия және аудит"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Салықтарды есептеу және жоспарлау"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Банкинг"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Ақша аудару қызметтері"</string>
+    <string name="topic10191" msgid="374364159635356705">"Несие және қарыз"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Несиелік карталар"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Тұрғын үйді қаржыландыру"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Тұтынушылық несиелер"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Студенттік несиелер және білім алуды қаржыландыру"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Қаржыны жоспарлау және басқару"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Зейнет"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Гранттар"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Гранттар"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Сақтандыру"</string>
+    <string name="topic10201" msgid="447240478385298875">"Көлік сақтандыру"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Денсаулық сақтандыру"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Үй сақтандыру"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Өмір сақтандыру"</string>
+    <string name="topic10205" msgid="262581473890356377">"Туристік сақтандыру"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Инвестиция"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Тауарлар мен фьючерс саудасы"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Валюталар және шетелдік валюта бағамы"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Хедж қорлары"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Инвестициялық пай қорлары"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Акциялар мен облигациялар"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Тамақ пен сусын"</string>
+    <string name="topic10213" msgid="805716705436663130">"Тамақ пісіру және рецептілер"</string>
+    <string name="topic10214" msgid="726298155737413779">"Гриль және барбекю"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Ұлттық тағамдар"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Вегетариандық тағамдар"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Веган тағамдары"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Дұрыс тамақтану"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Азық-түлік дүкендері"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Ойындар"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Аркада және ойын автоматтары"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Бильярд"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Үстел ойындары"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Шахмат және абстрактілі стратегия ойындары"</string>
+    <string name="topic10225" msgid="564207834821286301">"Карта ойындары"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Коллекциялық карта ойындары"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Компьютерлік және бейне ойындар"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Экшн ойындар және платформерлер"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Шытырман ойындар"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Қарапайым ойындар"</string>
+    <string name="topic10231" msgid="405082026972839048">"Сайысатын бейне ойындар"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Көлік жүргізу және жарыс ойындары"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Төбелес ойындары"</string>
+    <string name="topic10234" msgid="693433817142162565">"Ойын анықтамалары және пікірлер"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Бейне ойындағы читтер мен көмекші құралдар"</string>
+    <string name="topic10236" msgid="320145832033080647">"Көп ойыншыға арналған ойындар"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Музыка және би ойындары"</string>
+    <string name="topic10238" msgid="124952008622371505">"Sandbox ойындары"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Атыс ойындары"</string>
+    <string name="topic10240" msgid="429738690314619395">"Симуляциялық ойындар"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Бизнес және магнат ойындары"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Қала салу ойындары"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Өмірді симуляциялау ойындары"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Көлік симуляторлары"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Спорттық ойындар"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Спорт менеджменті туралы ойындар"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Стратегиялық ойындар"</string>
+    <string name="topic10248" msgid="279151815457227293">"Бейне ойын модификациялары мен қосымшалары"</string>
+    <string name="topic10249" msgid="631580828608894782">"Білім беру ойындары"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Отбасына арналған ойындар мен жаттығулар"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Сурет салу және бояу"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Киім және сән ойындары"</string>
+    <string name="topic10253" msgid="385499297969826942">"Басқатырғыштар"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Рөлдік ойындар"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Үстел теннисі"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Бөлшектерді құрастыру ойындары"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Сөз ойындары"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Бос уақыт және хобби"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Мерейтойлар"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Туған күндер мен атаулы күндер"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Дайвинг және суға сүңгу"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Мата және тоқыма өнері"</string>
+    <string name="topic10263" msgid="361345691023794788">"Таза ауада демалу"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Балық аулау"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Аңшылық пен мылтық ату"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Пейнтбол"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Радио арқылы басқару және үлгілеу"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Үйлену тойлары"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Үй және бақша"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Бау-бақша"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Үй және интерьер декорациясы"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Тұрмыстық техника"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Үй жөндеу"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Үй қауіпсіздігі"</string>
+    <string name="topic10275" msgid="682064062059687444">"Үйге арналған тауарлар"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Ландшафт дизайны"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Интернет және телекоммуникация"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Электрондық пошта және хабар алмасу"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Электрондық пошта"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Мәтін және лездік хабар алмасу"</string>
+    <string name="topic10281" msgid="582764575763317221">"Дауыстық чат және бейнечат"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Интернет провайдерлері"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Телефон қызметін көрсетушілер"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Рингтондар мен мобильдік тақырыптар"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Іздеу жүйелері"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Смартфондар"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Телеконференция"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Веб-қолданбалар мен онлайн құралдар"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Веб-қызметтер"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Бұлт жады"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Веб-дизайн және әзірлеу"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Веб-хостинг"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Жұмыс және білім"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Білім"</string>
+    <string name="topic10295" msgid="331240908257602211">"Ғылыми конференциялар мен мақалалар"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Жоғарғы оқу орындары"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Қашықтан білім алу"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Мектепке дейінгі білім"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Балабақша"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Үйде оқыту"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Стандартталған емтихандар және оқуға түсу тестері"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Оқыту және сабаққа арналған ресурстар"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Кәсіби және үздіксіз білім беру"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Жұмыс"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Мансапты жоспарлау және ресурстар"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Вакансиялар"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Заң және үкімет"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Қылмыс пен әділет"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Заң"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Заң қызметтері"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Жаңалықтар"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Экономика жаңалықтары"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Жергілікті жаңалықтар"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Сатып алу және бірігу"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Газеттер"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Саясат"</string>
+    <string name="topic10317" msgid="888696185673599406">"Спорт жаңалықтары"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Ауа райы"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Әлем жаңалықтары"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Онлайн қауымдастықтар"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Клипарт және анимациялық GIF-тер"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Танысу және жеке өмір"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Фидтерді топтастыру және әлеуметтік бетбелгілер"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Ортақ каталог және хостинг"</string>
+    <string name="topic10325" msgid="916412844647169263">"Форум және чат провайдерлері"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Микроблог"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Фотосурет пен бейне бөлісу"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Фотосурет пен кескін бөлісу"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Бейне бөлісу"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Скиндер"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Әлеуметтік желі қолданбалары мен қосымшалары"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Әлеуметтік желілер"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Адам мен қоғам"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Отбасы және қарым-қатынас"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Ата-тек және генеалогия"</string>
+    <string name="topic10336" msgid="360328903013424569">"Неке"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Бала тәрбиесі"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Бала асырап алу"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Нәрестелер мен сәбилер"</string>
+    <string name="topic10340" msgid="259457452971577855">"Баланың интернеттегі қауіпсіздігі"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Романтика"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Ғылыми фантастика және фэнтези"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Үй жануарлары мен аңдар"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Үй жануарларының тағамы мен күтімі"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Үй жануарлары"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Құстар"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Мысықтар"</string>
+    <string name="topic10348" msgid="570783769757187957">"Иттер"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Балықтар мен су жануарлары"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Бауырымен жорғалаушылар мен қосмекенділер"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Ветеринарлар"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Жылжымайтын мүлік"</string>
+    <string name="topic10353" msgid="230887584509968233">"Жер телімдері"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Демалыс үйлері және оларды ортақ жалдау"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Анықтамалар"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Ұйымдар мен адамдар туралы мәлімет"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Жалпы анықтама"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Калькуляторлар мен анықтамалық құралдар"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Сөздіктер мен энциклопедиялар"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Оқу материалдары"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Нұсқаулықтар"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Уақытты бақылау құралдары және күнтізбелер"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Тіл ресурстары"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Шет тілін үйрену"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Аударма құралдары мен ресурстары"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Карталар"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Ғылым"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Толықтырылған және виртуалдық шындық"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Биология ғылымдары"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Генетика"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Химия"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Экология және қоршаған орта"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Геология"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Машинаны үйрету және жасанды зейін"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Математика"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Физика"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Робототехника"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Сауда-саттық"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Антиквариат және коллекциялық бұйымдар"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Киім-кешек"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Балалар киімі"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Костюмдер"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Ерлер киімі"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Әйелдер киімі"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Жарнамалар"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Тұтыну ресурстары"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Купондар мен жеңілдік ұсыныстары"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Тұрақты клиент карталары мен бағдарламалары"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Техникалық қолдау көрсету және жөндеу"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Гүлдер"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Құттықтау хаттары"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Сауық кештері мен мерекелерге арналған тауарлар"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Шопинг порталдары"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Спорт"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Америкалық футбол"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Аустралиялық футбол"</string>
+    <string name="topic10397" msgid="653991203228840785">"Автокөлік жарысы"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Бейсбол"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Баскетбол"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Боулинг"</string>
+    <string name="topic10401" msgid="26807857115228330">"Бокс"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Чирлидинг"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Студенттік спорт"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Крикет"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Велосипед тебу"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ат спорты"</string>
+    <string name="topic10407" msgid="316266982792700993">"Экстремалдық спорт"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Альпинизм және құзға өрмелеу"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Фэнтези-спорт"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Гольф"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Гимнастика"</string>
+    <string name="topic10412" msgid="335770351079973128">"Хоккей"</string>
+    <string name="topic10413" msgid="416366556259783701">"Мұзда коньки тебу"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Жекпе-жек спорт түрі"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Мотоцикл жарысы"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Олимпиада"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Регби"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Жүгіру және жүру"</string>
+    <string name="topic10419" msgid="979581105119036716">"Шаңғы және сноуборд тебу"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Футбол"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Серфинг"</string>
+    <string name="topic10422" msgid="978920114358054206">"Жүзу"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Теннис"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Жеңіл атлетика"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Волейбол"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Күрес"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Саяхат және жолаушы тасымалы"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Шытырман саяхат"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Әуе саяхаты"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Іссапар"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Көлік жалдау"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Круиздер мен чартерлер"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Отбасылық саяхат"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Бал айы және романтикалық орындар"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Қонақ үйлер мен үй-жайлар"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Автобуспен және пойызбен алыс жол жүру"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Арзан және күйіп бара жатқан саяхаттар"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Жолжүк және сапар керек-жарақтары"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Туристік бағыттар"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Жағажайлар мен аралдар"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Өңірлік саябақтар мен гүлзарлар"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Аттракцион парктері"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Хайуанаттар бағы"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Жол және бағыт жоспарлау құралдары"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Саяхат агенттіктері мен қызметтері"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Саяхат гидтері мен каталогтері"</string>
+</resources>

@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"да пристапува до AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Дозволува апликацијата да пристапува до AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"да пристапува до AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Дозволува апликацијата да пристапува до AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"да пристапува до AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Дозволува апликацијата да пристапува до AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Пристап до API за ID на реклами."</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Дозволува апликацијата да пристапува до API за ID на реклами."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"пристап до AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Дозволува апликација да пристапува до AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Пристап до API за ID на реклами"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Дозволува апликацијата да пристапува до API за ID на реклами."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Пристап до AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Дозволува апликација да пристапува до AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Пристап до API за ID на група со апликации"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Дозволува апликацијата да пристапува до API за ID на група со апликации."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Пристап до Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Дозволува апликација да пристапува до Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Пристап до модификација на состојбата на овозможување API на AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Дозволува апликација да пристапува до модификација на состојбата на овозможување API на AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Пристап до овозможување состојбата на API на AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Дозволува апликација да пристапува до состојбата на овозможување API на AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Пристап до API на AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Дозволува апликација да пристапува до API на AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Пристап до ажурирањето на AdService за API за ID на реклама."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Дозволува апликација да пристапува до ажурирањето на AdService за API за ID на реклама."</string>
+    <string name="app_label" msgid="2639006978056689153">"Приватност за реклами"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Придружете се на бета-верзијата за приватност за реклами на Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android истражува поприватни начини на кои апликациите ќе ви прикажуваат реклами"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Дознајте повеќе"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Бета-верзија за приватност за реклами на Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Што има ново"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Новите функции за приватност во Privacy Sandbox им овозможуваат на апликациите да ви прикажуваат релевантни реклами, но го ограничуваат она што тие апликации може да го дознаат за вашите активности на веб-сајтовите и апликациите од други програмери."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Како функционира"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Како да учествувате"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Вклучувањето на бета-верзијата им овозможува на апликациите да ги тестираат овие нови поприватни начини за прикажување реклами. Може да ја исклучите бета-верзијата во секое време во поставките за приватност."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Не, фала"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Вклучи"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Повеќе"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Благодариме за учеството"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Вие сте дел од бета-верзија за приватноста на рекламите на Android. Privacy Sandbox е вклучена за вашиот уред.\n\nМоже да дознаете повеќе или да ја исклучите бета-верзијата во секое време во вашите поставки за приватност."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Избравте да не учествувате"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Благодариме за одговорот. Privacy Sandbox е исклучена за вашиот уред.\n\nАко се премислите или ако сакате да дознаете повеќе, одете во поставките за приватност."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Поставки за приватност"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Сфатив"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Вие сте дел од бета-верзијата"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox е вклучена за вашиот уред, а апликациите може да ги тестираат овие нови поприватни начини за прикажување реклами. Може да ја исклучите бета-верзијата во секое време во поставките за приватност."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Сфатив"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Privacy Sandbox на Android обезбедува нови функции што апликациите може да ги користат за да ви прикажуваат реклами што можеби ќе ви се допаднат. Овие технологии не користат идентификатори на уреди.\n\nAndroid и вашите апликации може да ги проценат типовите реклами што можеби ве интересираат и привремено да ги зачуваат интересите на вашиот уред. Ова им овозможува на апликациите да ви прикажуваат реклами што можеби ќе ви се допаднат, без да ја следат вашата активност на веб-сајтови и апликации од други програмери."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Персонализирање на рекламите со Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Интереси проценети од Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android периодично ги проценува вашите најголеми интереси според апликациите што ги користите, на пример, „Спорт“ или „Патување“.\n\nПодоцна некоја апликација може да побара дозвола од Android да ги користи тие интереси за да ви прикажува порелевантни реклами.\n\nМоже да го видите списокот со тековните интереси во вашите поставки за приватност и да ги блокирате сите што не ви се допаѓаат."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Интереси проценети од апликациите"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Апликациите може да ги проценат вашите интереси и привремено да ги зачуваат со Android. На пример, апликацијата што ја користите за купување патики за трчање може да го процени вашиот интерес како „трчање на маратони“.\n\nПодоцна, според овој интерес, друга апликација може да ви прикаже реклама поврзана со маратони.\n\nВо поставките за приватност може да управувате со списокот со апликации што зачувале интереси."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Нови функции за приватност за реклами"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Темите на реклами и новите контроли ви даваат поголем избор за рекламите што ќе ви се прикажуваат"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Сега се достапни нови функции за приватност за реклами"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android ги утврдува темите од интерес според апликациите што сте ги користеле неодамна. Исто така, апликациите што ги користите може да одредат што ви се допаѓа. Подоцна апликациите може да ги побараат овие податоци за да ви прикажуваат персонализирани реклами. Можете да одберете кои теми и апликации ќе се користат за да ви се прикажуваат реклами."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Заради мерење на изведбата на некоја реклама, се споделуваат ограничени типови податоци помеѓу апликациите."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Повеќе за рекламите на Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Повеќе корисни реклами"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Апликациите може да побараат податоци од Android за да им помогнат во персонализирањето на рекламите што ви се прикажуваат."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android ги утврдува темите од интерес според апликациите што сте ги користеле неодамна."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Апликациите што ги користите може да одредат што ви се допаѓа и според тоа како ги користите. На пример, ако користите апликација за продажба на патики за трчање маратон, апликацијата може да заклучи дека сте заинтересирани за трчање маратон."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Подоцна, апликацијата што ја користите може да ги побара овие податоци: темите за реклами или рекламите предложени од апликациите што сте ги користеле."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android автоматски и редовно ги брише податоците за рекламите предложени од апликации. Исто така, може да блокирате одредени теми и апликации што не сакате да даваат предлози."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Мерење на изведбата на реклама"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Апликациите што ги користите може да побараат податоци од Android за да им помогнат да ја измерат изведбата на нивните реклами. Android им дозволува на апликациите да прибираат ограничени типови податоци, како што е делот од денот кога ви била прикажана рекламата."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Испробајте ги новите функции за приватност за реклами"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Со темите на реклами добивате поголем избор околу рекламите што ги гледате"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Прикажи ги деталите"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Пробајте нови функции за приватност за реклами"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android воведува нови функции за приватност што ви даваат поголем избор за рекламите што ви се прикажуваат."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Темите за реклами им помагаат на апликациите да ви прикажуваат релевантни реклами додека го штитат вашиот идентитет и податоците за вашето користење на апликации. Android може да ги прибележи темите од интерес според апликациите што сте ги користеле неодамна. Подоцна апликацијата што ја користите може да побара од Android релевантни теми за да ги персонализира рекламите што ви се прикажуваат."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Може да ги видите темите на рекламите во поставките за вашиот уред и да ги блокирате оние што не сакате да се споделуваат со апликациите. Android исто така автоматски и редовно ги брише темите на реклами."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Можете да се предомислите во секое време во поставките за приватност."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Повеќе информации за темите на рекламите"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Дознајте повеќе за тоа како Android ги штити вашите податоци во нашата "<a href="https://policies.google.com/privacy">"Политика за приватност"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Пробајте"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Кои податоци се користат"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Вашите теми на реклами зависат од апликациите што сте ги користеле неодамна на уредов и од тоа колку често ги користите."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Како ги користиме податоциве"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android ги утврдува темите од интерес додека ги користите апликациите. Етикетите за темите се однапред дефинирани и вклучуваат работи  како уметност и забава, купување и спорт. Подоцна, апликацијата што ја користите може да побара неколку ваши теми од Android (но не и податоците за користењето на апликациите или идентитетот) за да ги персонализира рекламите што ги гледате."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Како може да управувате со вашите податоци"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android автоматски и редовно ги брише темите. Со понатамошното користење на апликациите, некоја тема може одново да се појави во списокот. Може и да ги блокирате темите што не сакате Android да ги споделува со апликациите и да ги исклучите темите за реклами во секое време во поставките за приватност."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Може да вршите промени во поставките за приватност."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Сега се достапни други функции за приватност за реклами"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android нуди и нови начини за ограничување на она што апликациите може да го дознаат за вас кога ви прикажуваат персонализирани реклами."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Рекламите предложени од апликациите помагаат во заштитата на вашиот идентитет и податоците за користењето на апликациите, а истовремено им овозможуваат на апликациите да ви прикажуваат релевантни реклами. Според вашата активност, апликацијата што ја користите може да предлага слични реклами во други апликации. Може да видите список на овие апликации и да ги блокирате за да не даваат предлози во поставките за приватност."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Со мерењата на рекламите, ограничени типови податоци се споделуваат помеѓу апликациите за да се измери изведбата на нивните реклами, како што е делот од денот кога ви била прикажана рекламата."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Повеќе информации за рекламите предложени од апликации и мерењето реклами"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Реклами предложени од апликации"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Кои податоци се користат"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Вашата активност во некоја апликација што ја користите на уредов."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Како апликациите ги користат податоциве"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Апликациите може да зачувуваат податоци со Android за работите што ви се допаѓаат. На пример, ако користите апликација за тренинг за маратон, апликацијата може да одлучи дека сте заинтересирани за патики за трчање. Подоцна, ако користите друга апликација, таа апликација може да ви прикаже реклама за патики за трчање предложена од првата апликација."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Како може да управувате со вашите податоци"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android автоматски и редовно ги брише податоците за предлозите на апликациите. Апликација што ќе ја употребите повторно може одново да се појави на списокот."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Може и да блокирате апликација за да не ви предлага реклами, да ги ресетирате сите податоци за предложените реклами или да ги исклучите рекламите предложени од апликации во секое време во поставките за приватност."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Апликациите што ги користите може да побараат податоци од Android што ќе им помогнат да ја измерат изведбата на нивните реклами. Android ја штити вашата приватност со ограничување на податоците што апликациите може да ги споделуваат една со друга."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Сега се достапни нови функции за приватност за реклами"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Добијте поголем избор за рекламите што ги гледате, а притоа заштитете го вашиот идентитет"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Сега се достапни нови функции за приватност за реклами"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android воведува нови начини за ограничување на она што апликациите може да го дознаат за вас кога ви прикажуваат персонализирани реклами."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Благодарение на рекламите предложени од апликациите, новите функции за приватност ви овозможуваат да ги заштитите вашиот идентитет и податоците за вашето користење на апликациите, а притоа им овозможуваат на апликациите да ви прикажуваат релевантни реклами. Според вашата активност, апликацијата што ја користите може да предлага слични реклами во други апликации. Може да видите список со апликациите и да ги блокирате за да не даваат предлози во поставките за приватност."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  При мерењето на рекламите, меѓу апликациите се споделуваат ограничени типови податоци за да се анализираат перформансите на нивните реклами, како на пример периодот од денот кога ви била прикажана рекламата."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Вашата активност во некоја апликација на уредов може да се користи за да ви се предлагаат реклами."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Вклучете друга функција за приватност за реклами"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android нуди и нова функција за приватност што ви овозможува поголем избор за рекламите што ви се прикажуваат."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Темите на рекламите им помагаат на апликациите да ви прикажуваат релевантни реклами додека го штитат вашиот идентитет и податоците за вашето користење на апликациите. Android може да ги прибележи темите од интерес според апликациите што сте ги користеле неодамна. Подоцна, апликацијата што ја користите може да побара релевантни теми од Android за да ви прикажува порелевантни реклами."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Може да ги видите темите на рекламите во вашите поставки за приватност и да ги блокирате оние што не сакате да се споделуваат со апликациите. Android автоматски и редовно ги брише темите на реклами."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Вклучи"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Сега се достапни нови функции за приватност за реклами"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Сега имате поголем избор за рекламите што ги гледате, а притоа го штитите вашиот идентитет"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Сега се достапни нови функции за приватност за реклами"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android сега нуди нови функции за приватност што ви даваат поголем избор за рекламите што ви се прикажуваат."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Следно"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Учествувајте во бета-верзијата за приватност за реклами на Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Интереси проценети од Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Апликации што проценуваат интереси"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Мерење реклами"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Апликациите може да ја користат Privacy Sandbox за мерење на ефективноста на нивните реклами. За да го направат ова, огласувачите може привремено да зачувуваат податоци со Android за вашите интеракции со нивните реклами и апликации. Количината на податоци што може да ја зачуваат е ограничена и ќе се брише редовно.\n\nМоже да ги избришете овие податоци во секое време со исклучување на Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android периодично ги проценува вашите најголеми интереси според апликациите што ги користите. Апликациите може да побараат дозвола од Android да ги користат тие интереси за да ви прикажуваат порелевантни реклами.\n\nАко блокирате интерес, нема да биде додаден на списоков повторно, освен ако не го одблокирате. Можеби сѐ уште ќе ви се прикажуваат некои слични реклами."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Блокирај"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Одблокирај"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Интереси што сте ги блокирале"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Ресетирајте ги сите интереси"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Нема интереси за прикажување во моментов."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Нема теми за прикажување во моментов.\nДознајте повеќе за "<a href="https://support.google.com/android?p=ad_privacy">"темите на рекламите"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Бета-верзијата за приватност за реклами на Android обезбедува нови функции што апликациите може да ги користат за да ви прикажуваат реклами што можеби ќе ви се допаднат. Овие технологии не користат идентификатори на уреди.\n\nAndroid може да ги процени типовите реклами што можеби ве интересираат и привремено да ги зачува овие интереси на вашиот уред. Ова им овозможува на апликациите да ви прикажуваат релевантни реклами, без да ја следат вашата активност на веб-сајтови и апликации од други програмери."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Немате блокирани интереси"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Нема блокирани теми"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Прикажи ги блокираните теми"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Интересите се ресетирани"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Темите се ресетирани"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Апликациите може да ги проценат вашите интереси и привремено да ги зачуваат со Android. Подоцна друга апликација може да ви прикаже реклама според овие интереси.\n\nАко блокирате апликација, таа веќе нема да проценува интереси. Нема да биде додадена на списоков со апликации повторно, освен ако не ја одблокирате. Интересите што апликацијата веќе ги проценила ќе се избришат, но можеби сѐ уште ќе ви се прикажуваат некои слични реклами."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Апликации што сте ги блокирале"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Прикажи ги блокираните апликации"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Ресетирајте ги интересите проценети од апликациите"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Ниту една апликација не предлага интереси за вас во моментов"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Нема апликации за прикажување во моментов. \nДознајте повеќе за "<a href="https://support.google.com/android?p=ad_privacy">"рекламите предложени од апликациите"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Бета-верзијата за приватност за реклами на Android нуди нови функции што апликациите може да ги користат за да ви прикажуваат реклами што можеби ќе ви се допаднат. Овие технологии не користат идентификатори на уреди.\n\nАпликациите може да ги проценат типовите реклами што можеби ве интересираат и привремено да ги зачуваат овие интереси на вашиот уред. Ова им овозможува на апликациите да ви прикажуваат релевантни реклами, без да ја следат вашата активност на веб-сајтови и апликации од други програмери."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Немате блокирани апликации"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Нема блокирани апликации"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Дозволи мерење реклами"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Апликациите и огласувачите може да побараат податоци од Android кои ќе им помогнат да ја измерат изведбата на нивните реклами.\n\nПодатоците од мерењето реклами се бришат редовно од вашиот уред."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Ресетирај ги податоците од мерењето"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android ја штити вашата приватност со ограничување на податоците што апликациите може да ги споделуваат една со друга. Извештаите се испраќаат одложено за да се заштити вашиот идентитет.\n\nВашиот прелистувач може да има слична поставка. Ако мерењето реклами е вклучено за Android и вашиот прелистувач, одредена компанија можеби ќе може да ја измери ефикасноста на некоја реклама што се прикажува на апликациите што ги користите и сајтовите што ги посетувате. Вашата историја на прелистувањето останува приватна на вашиот уред.\n\nДознајте повеќе за начинот на кој Android ги штити вашите податоци во нашата "<a href="https://policies.google.com/privacy">"„Политика за приватност“"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Податоците за мерење на рекламите се ресетирани"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Откажи"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Да се исклучи Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Ако се премислите или сакате да дознаете повеќе за бета-верзијата за приватност за реклами на Android, одете на поставките за приватност"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Исклучи"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Да се блокира <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Оваа тема ќе се блокира и нема да се додаде во вашиот список повторно, освен ако вие не ја додадете пак. Можеби сѐ уште ќе ви се прикажуваат некои слични реклами."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Блокирај"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> е одблокирана"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android можеби повторно ќе ја додаде темава на вашиот список, но можеби нема веднаш да се појави"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Во ред"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Да се ресетираат сите теми на реклами?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Вашиот список ќе се избрише, а во иднина ќе се додаваат нови теми. Можеби сѐ уште ќе ви се прикажуваат реклами поврзани со темите што сте ги ресетирале."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Ресетирај"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Да се блокира <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Оваа апликација нема да предлага реклами и нема да се додаде во вашиот список повторно, освен ако не ја одблокирате. Можеби сѐ уште ќе ви се прикажуваат некои слични реклами."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> е одблокирана"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Апликацијава може да ви предлага реклами повторно, но можеби нема веднаш да се појави на списокот. Можеби ќе помине одредено време пред да почнат да ви се прикажуваат слични реклами."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Да се ресетираат рекламите предложени од апликации?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Податоците за предложените реклами од апликациите на вашиот список ќе се избришат, а апликациите ќе предлагаат нови реклами во иднина. Можеби сѐ уште ќе ви се прикажуваат некои слични реклами."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Податоците од апликациите се ресетирани"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Темите на реклами се вклучени"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android ќе почне да ги прибележува темите од интерес, но може да биде потребно одредено време за да се појават вашите први теми."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Да се исклучат темите на реклами?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Списоков со теми ќе се избрише. Android веќе нема да ги прибележува темите од интерес, но можно е сѐ уште да гледате релевантни реклами."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Рекламите предложени од апликации се вклучени"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Апликациите може да почнат да предлагаат реклами. Откако ќе почнат да предлагаат реклами, ќе видите список со апликации."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Да се исклучат рекламите предложени од апликации?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Сите податоци за предлози за реклами ќе се избришат. Апликациите веќе нема да може да предлагаат реклами, но можно е сѐ уште да гледате релевантни реклами."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Мерењето реклами е вклучено"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android може да споделува само многу ограничени податоци со апликациите за да им овозможи да ги мерат перформансите на нивните реклами."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Да се исклучи мерењето реклами?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Сите извештаи за мерење реклами што се во фаза на чекање ќе бидат избришани, а нема да се генерираат или споделуваат нови извештаи."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Приватност за реклами"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Теми на реклами"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Реклами предложени од апликации"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android ги евидентира темите од интерес според апликациите што сте ги користеле неодамна и зависно од тоа колку често ги користите."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Апликациите што ги користите може да одредат и што сакате и според тоа како ги користите."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Апликациите што ги користите може да побараат податоци од Android за да им помогнат да ја измерат изведбата на нивните реклами. Android им дозволува на апликациите да прибираат ограничени типови податоци."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Дознајте повеќе за "<a href="https://support.google.com/android?p=ad_privacy">"приватноста за реклами на Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Вклучено/<xliff:g id="TOPICS_COUNT">%1$d</xliff:g> теми"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Вклучено / # тема}one{Вклучено / # тема}other{Вклучено / # теми}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Вклучено/<xliff:g id="APPS_COUNT">%1$d</xliff:g> апликации"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Вклучено / # апликација}one{Вклучено / # апликација}other{Вклучено / # апликации}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Вклучено"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Исклучено"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Темите од интерес зависат од апликациите што сте ги користеле неодамна, а апликациите ги користат за да ви прикажуваат персонализирани реклами.\n\nМоже да ги блокирате темите што не сакате да се споделуваат со апликации. Покрај тоа, Android редовно врши автоматско бришење на темите.\n\nИако оваа функција може да се вклучи, можеби нема да може да го видите списокот со теми сѐ додека функцијава не стане целосно достапна и сѐ додека апликациите не започнат да ја користат."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Дозволи теми на реклами"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Теми на реклами што сте ги блокирале"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Ресетирај ги сите теми на реклами"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android забележува теми од интерес според апликациите што сте ги користеле во изминатите неколку седмици.\n\nПодоцна, апликацијата што ја користите може да ги побара вашите теми од Android за да ги персонализира рекламите што ги гледате. Android споделува до 3 теми, а притоа го штити вашиот идентитет и податоците за користењето на вашата апликација.\n\nAndroid автоматски и редовно брише теми. Со понатамошното користење на апликациите, некоја тема може одново да се појави на списокот. Може и да ги блокирате темите што не сакате Android да ги споделува со апликациите.\n\nВо апликациите, рекламата што ја гледате може да биде персонализирана, во зависност од оваа поставка, поставката за рекламите предложени од апликации, поставките за вашиот ID за рекламирање и дали апликацијата што ја користите ги персонализира рекламите."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Дозволи реклами предложени од апликации"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Апликациите што ги користите може да утврдуваат што ве интересира и да ви предлагаат реклами во други апликации.\n\nМоже да ги блокирате предлозите од апликациите. Покрај тоа, Android редовно врши автоматско бришење на податоците што ги предлагаат апликациите.\n\nИако оваа функција може да се вклучи, можеби нема да може да го видите списокот со апликации сѐ додека функцијава не стане целосно достапна и сѐ додека апликациите не започнат да ја користат."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Апликации што сте ги блокирале"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Ресетирај ги податоците за предлозите на апликациите"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Вообичаено е апликациите што ги користите да ги помнат работите што ве интересираат за да го персонализираат вашето доживување. Апликациите може и да складираат податоци со Android за темите што ве интересираат.\n\nНа пример, ако користите апликација за тренирање за маратон, апликацијата може да заклучи дека сте заинтересирани за патики за трчање. Подоцна, ако користите друга апликација, таа апликација може да ви прикаже реклама за патики за трчање предложена од првата апликација.\n\nAndroid автоматски и редовно ги брише податоците за рекламите предложени од апликации. Ако некоја апликација ја употребите повторно, таа може одново да се појави на списокот. Може и да го блокирате предлагањето реклами од некоја апликација.\n\nВо апликациите, рекламата што ја гледате може да биде персонализирана, во зависност од оваа поставка, поставката за темите на рекламите, поставките за вашиот ID за рекламирање и дали апликацијата што ја користите ги персонализира рекламите."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Сега е достапна нова функција за приватност за реклами"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Се споделуваат само многу ограничени податоци меѓу апликациите за да се овозможи мерење на изведбата на рекламите"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Воведуваме нова функција за приватност за реклами наречена „Мерење реклами“. Android споделува само многу ограничени податоци меѓу апликациите, на пр. кога ви била прикажана реклама, за да им овозможи на апликациите да ја мерат изведбата на рекламите."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Може да вршите промени во поставките за приватност за реклами."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Апликациите што ги користите може да побараат податоци од Android за да им овозможи да ја мерат изведбата на нивните реклами. Android им дозволува на апликациите да прибираат само ограничени типови податоци."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Нови функции за приватност за реклами"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Добијте поголем избор за рекламите што ги гледате, а притоа помогнете да се заштити вашиот идентитет"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Известувања за вашите функции за приватност за реклами"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Добијте поголем избор за рекламите што ги гледате, а притоа помогнете да се заштити вашиот идентитет"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android ги проширува функциите за приватност за реклами за да ги ограничи работите што може да ги дознаат апликациите за вас кога ви прикажуваат персонализирани реклами."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Апликациите и нивните партнери за рекламирање може да ја користат вашата активност на другите апликации на уредов за да ги персонализираат рекламите, притоа штитејќи ја безбедноста и приватноста на вашиот идентитет."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Повеќе за рекламите предложени од апликации"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Меѓу апликациите се споделуваат ограничени типови податоци за да се анализираат перформансите на нивните реклами, на пр., делот од денот кога ви била прикажана рекламата."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Повеќе за мерењето реклами"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android ги евидентира темите од интерес според апликациите што сте ги користеле неодамна. Освен тоа, апликациите и нивните партнери за рекламирање може да ја користат вашата активност на другите апликации на уредов за да ги персонализираат рекламите, притоа штитејќи ја безбедноста и приватноста на вашиот идентитет."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Апликациите што ги користите може да одредат и што ви се допаѓа, според вашата активност во апликациите. На пример, ако редовно користите апликации за готвење, може да ви се прикажуваат реклами за услуги за достава на намирници или слични содржини во другите апликации.\n\nАпликациите може безбедно да ги чуваат овие податоци така што нив може да ги користат само нивните партнери за рекламирање за да ги персонализираат рекламите во другите апликации."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Подоцна, апликацијата што ја користите може да ги побара овие податоци, односно темите на рекламите или рекламите предложени од апликациите што сте ги користеле."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Апликациите што ги користите може да побараат податоци од Android за да им помогнат да ги измерат перформансите на нивните реклами. Android ја штити вашата приватност со ограничување на податоците што апликациите може да ги споделуваат една со друга."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Кои податоци се користат?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Апликациите што ги користите може да бараат податоци од Android што ќе им помогнат да ги мерат перформансите на нивните реклами. Android помага да се заштити вашата приватност со ограничување на податоците што може да ги споделуваат апликациите меѓусебно."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Како ми се штити идентитетот?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android користи повеќе мерки за приватност, како собирање податоци и вметнување бесмислени информации во нив за да ги ограничи податоците што може да ги споделуваат апликациите меѓусебно и да помогне да се заштити вашиот идентитет.\n\nИ податоците од мерењето реклами редовно се бришат од вашиот уред."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Вашата активност во апликациите може да се користи за да ви се предлагаат реклами."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Како апликациите ги користат податоциве?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Апликациите може да ги складираат овие податоци безбедно за да може да ги користат само нивните партнери за рекламирање за да ги персонализираат рекламите во другите апликации. На пример, ако редовно користите апликации за готвење, може да ви се прикажуваат реклами за услуги за доставување намирници или поврзани содржини во другите апликации."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Како може да управувам со податоциве?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Може да спречите одредени апликации да ја споделуваат вашата активност со партнерите за рекламирање. Може да ги ресетирате или да ги исклучите рекламите предложени од апликации во секое време во поставките за приватност. И Android редовно ги брише податоциве автоматски."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Дознајте повеќе за тоа како Android ја штити вашата приватност"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Апликациите и нивните партнери за рекламирање може да ја користат вашата активност на другите апликации на уредов за да ги персонализираат рекламите, притоа грижејќи се за приватноста и безбедноста на вашите податоци.\n\nНа пример, ако редовно користите апликации за готвење, може да ви се прикажуваат реклами за услуги за доставување намирници или поврзани содржини во другите апликации.\n\nAndroid редовно ја брише вашата активност автоматски, но може и да спречите апликациите да ги споделуваат податоциве со нивните партнери за рекламирање."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Вообичаено е апликациите и нивните партнери за рекламирање да ги помнат работите што ве интересираат за да го персонализираат вашето доживување. Апликациите може да ги складираат овие податоци безбедно за да може да ги користат само нивните партнери за рекламирање за да ги прикажуваат рекламите во другите апликации.\n\nМоже да спречите одредена апликација да ги споделува податоците за вашата активност со партнерите за рекламирање. И Android редовно ги брише споделените податоци за активноста автоматски, па апликацијата што ја користите може да се појави на списоков повторно.\n\nДали рекламата што ја гледате е персонализирана може да зависи од многу фактори како оваа поставка, поставката за теми на реклами, поставките за вашиот ID за рекламирање, како и дали апликацијата што ја користите ги персонализира рекламите.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Дознајте повеќе за рекламите предложени од апликации"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android користи повеќе мерки за приватност, како собирање податоци и вметнување бесмислени информации во нив за да ги ограничи податоците што може да ги споделуваат апликациите меѓусебно и да помогне да се заштити вашиот идентитет.\n\nВашиот прелистувач може да има слична поставка. Ако мерењето реклами е вклучено и за Android и за вашиот прелистувач, одредена компанија можеби ќе може да ја измери ефективноста на некоја реклама што се прикажува на апликациите што ги користите и сајтовите што ги отворате. Вашата историја на прелистувањето останува приватна на вашиот уред.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Дознајте повеќе за мерењето реклами"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android забележува теми од интерес според апликациите што сте ги користеле во минатите неколку седмици.\n\nПодоцна, дадена апликацијата што ја користите може да ги побара вашите теми од Android за да ги персонализира рекламите што ги гледате. Android споделува до 3 теми, а притоа го штити вашиот идентитет и податоците за користењето на вашата апликација.\n\nAndroid редовно брише теми автоматски. Со понатамошното користење на апликациите, некоја тема може одново да се појави на списокот. Може и да ги блокирате темите што не сакате Android да ги споделува со апликациите.\n\nДали рекламата што ја гледате е персонализирана може да зависи од многу фактори како оваа поставка, поставката за реклами предложени од апликации, поставките за вашиот ID за рекламирање, како и дали апликацијата што ја користите ги персонализира рекламите.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Дознајте повеќе за темите на рекламите"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Живописна илустрација на симболи што претставуваат теми од интерес како што се музиката, вестите и спортот"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Живописна илустрација од брава во круг"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Мала црно-бела илустрација од девет точки што формираат квадрат"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Мала црно-бела илустрација од едноставни форми како што се срце, триаголник и квадрат"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Уметност и забава"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Глума и театар"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Аниме и манга"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Цртани филмови"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Стрипови"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Концерти и музички фестивали"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Танц"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Индустрија за забава"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Забава и квизови"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Забавни тестови и смешни анкети"</string>
+    <string name="topic10011" msgid="175945911179628507">"Хумор"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Смешни слики и видеа"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Комедија во живо"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Спортски настани во живо"</string>
+    <string name="topic10015" msgid="726046067079821146">"Магија"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Програма за филмови и кино-претстави"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Филмови"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Филмови со акција и авантура"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Анимирани филмови"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Комедија (филм)"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Култни и инди филмови"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Документарни филмови"</string>
+    <string name="topic10023" msgid="254151319845267278">"Филмови (драма)"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Семејни филмови"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Хорор филмови"</string>
+    <string name="topic10026" msgid="210222384439682793">"Романтични филмови"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Трилер"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Музика и аудио"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Блуз"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Класична музика"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Кантри музика"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Танц и електронска музика"</string>
+    <string name="topic10033" msgid="895853536740398847">"Народна и традиционална музика"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Џез"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Стримувања и преземања на музика"</string>
+    <string name="topic10036" msgid="449833307315797283">"Музички видеа"</string>
+    <string name="topic10037" msgid="51698216720637667">"Музички инструменти"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Пијана и синтисајзери"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Поп музика"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Радио"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Радиоемисии со разговори"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Рап и хип-хоп"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Рок музика"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Класичен рок и стари хитови"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Хард рок и прогресивна"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Инди и алтернативна музика"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Збирки на семплови и звуци"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Соул и R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Филмска музика"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Светска музика"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Реге и карипска музика"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Онлајн галерии за слики"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Онлајн видео"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Видеострим во живо"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Стриминг на филмови и ТВ-серии"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Опера"</string>
+    <string name="topic10057" msgid="3265794667031664331">"ТВ-програми и референци"</string>
+    <string name="topic10058" msgid="8409884272709263707">"ТВ-мрежи и станици"</string>
+    <string name="topic10059" msgid="6770193120260554722">"ТВ-серии и програми"</string>
+    <string name="topic10060" msgid="2410694865246432781">"ТВ-комедии"</string>
+    <string name="topic10061" msgid="7733515887806604226">"ТВ-документарци и научни"</string>
+    <string name="topic10062" msgid="2539857914076699714">"ТВ-драми"</string>
+    <string name="topic10063" msgid="7645361077069015698">"ТВ-сапуници"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Семејни ТВ-серии"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Реални ТВ-емисии"</string>
+    <string name="topic10066" msgid="9206067258196707389">"ТВ-серии од научна фантастика и фантазија"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Визуелна уметност и дизајн"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Дизајн"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Сликарство"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Фотографски и дигитални уметности"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Автомобили и возила"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Карго камиони и приколки"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Класични возила"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Приспособени и возила со перформанси"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Цени за гориво и полнење гориво"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Моторни возила (според тип)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Автономни возила"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Кабриолети"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Купе-автомобили"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Хечбек автомобили"</string>
+    <string name="topic10081" msgid="577995777553561437">"Хибридни и алтернативни возила"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Луксузни возила"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Микровозила и супкомпактни"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Мотори"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Теренски возила"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Пикапи"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Скутери и мопеди"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Седани"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Караван автомобили"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUV и кросовери"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Кросовери"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Комбиња и каравани"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Шлепување и помош на пат"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Безбедност за возила и во сообраќајот"</string>
+    <string name="topic10095" msgid="84682415803421329">"Делови и додатоци за возила"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Поправка и одржување возила"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Купување возила"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Користени возила"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Саеми за автомобили"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Убавина и фитнес"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Уметност на тело"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Нега на лице и тело"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Антиперспиранти"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Производи за туширање и нега на тело"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Еколошка убавина"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Шминка и козметика"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Производи за нега на ноктите"</string>
+    <string name="topic10108" msgid="577259588028933025">"Парфеми и мириси"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Бричеви и машинки за бричење"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Мода и стил"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Фитнес"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Бодибилдинг"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Инструктори по фитнес и лични тренери"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Производи за фитнес технологија"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Нега на коса"</string>
+    <string name="topic10116" msgid="763642849903586689">"Книги и литература"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Детска литература"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Е-книги"</string>
+    <string name="topic10119" msgid="894448782525835364">"Списанија"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Поезија"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Бизнис и индустриски"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Рекламирање и маркетинг"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Распродажби"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Земјоделство и шумарство"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Производство на храна"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Автомобилска индустрија"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Авијациска индустрија"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Деловно работење"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Флексибилни работни аранжмани"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Човечки ресурси"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Комерцијални заеми"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Градежни работи и одржување"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Градежништво"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Одбранбена индустрија"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Енергија и комуналии"</string>
+    <string name="topic10136" msgid="455894912948558854">"Снабдување и третман на вода"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Угостителска индустрија"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Производство"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Метали и рударство"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Мрежен маркетинг и деловни можности"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Фармацевтски и биотехнолошки производи"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Печатење и издаваштво"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Трговија на мало"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Вложувачки капитал"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Компјутери и електроника"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Компјутерски периферни уреди"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Печатачи"</string>
+    <string name="topic10148" msgid="388392714835039199">"Компјутерска безбедност"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Антивирус и злонамерен софтвер"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Мрежна безбедност"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Електронски уреди"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Фотоапарати и видеокамери"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS и навигација"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Автоматизација на домот"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Системи за домашно кино"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 и преносливи плеери"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Технологија на уреди за носење"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Бекап и враќање податоци"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Десктоп компјутери"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Лаптопи и ноутбук"</string>
+    <string name="topic10161" msgid="172004201167511870">"Вмрежување"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Дистрибуирани и компјутерски услуги во облак"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Програмирање"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Софтвер"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Аудио и музички софтвер"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Софтвер за бизнис и продуктивност"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Календари и софтвер за закажување"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Софтвер за соработка и конференции"</string>
+    <string name="topic10169" msgid="827557334245484202">"Софтвер за презентација"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Софтвер за табели"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Софтвер за обработка на текст"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Компјутерско издаваштво"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Фонтови"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Управници за преземање"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Бесплатен софтвер и софтвер за споделување"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Софтвер за графика и анимација"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Интелигентни лични асистенти"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Плеери"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Софтвер за набљудување"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Оперативни системи"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Софтвер за фотографии и видеа"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Софтвер за фотографии"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Видеософтвер"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Услужни програми за софтвер"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Прелистувачи"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Финансии"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Сметководство и ревизија"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Подготовка и планирање даноци"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Банкарство"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Пренос на пари и банкарски услуги"</string>
+    <string name="topic10191" msgid="374364159635356705">"Кредити и заеми"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Кредитни картички"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Домашно финансирање"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Лични заеми"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Студентски заеми и финансирање за колеџ"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Финансиско планирање и менаџмент"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Пензионирање и пензија"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Грантови"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Грантови"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Осигурувања"</string>
+    <string name="topic10201" msgid="447240478385298875">"Автомобилско осигурување"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Здравствено осигурување"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Осигурување на домот"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Животно осигурување"</string>
+    <string name="topic10205" msgid="262581473890356377">"Патничко осигурување"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Инвестирање"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Тргување со стоки и фјучерси"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Валути и размена на пари"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Хеџ фондови"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Заеднички фондови"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Акции и обврзници"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Храна и пијалаци"</string>
+    <string name="topic10213" msgid="805716705436663130">"Готвење и рецепти"</string>
+    <string name="topic10214" msgid="726298155737413779">"Скара"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Кујни"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Вегетаријанска кујна"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Веганска кујна"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Здрава исхара"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Малопродажници на храна и намирници"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Игри"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Аркадни и игри со парички"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Билијард"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Друштвени игри"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Шах и игри со апстрактна стратегија"</string>
+    <string name="topic10225" msgid="564207834821286301">"Игри со карти"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Игри со колекционерски карти"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Компјутерски и видеоигри"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Акциони и игри со платформи"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Авантуристички игри"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Секојдневни игри"</string>
+    <string name="topic10231" msgid="405082026972839048">"Конкурентно играње видеоигри"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Игри со возење и тркање"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Игри со борење"</string>
+    <string name="topic10234" msgid="693433817142162565">"Референци и рецензии за игри"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Шифри и совети за видеоигри"</string>
+    <string name="topic10236" msgid="320145832033080647">"Масивни мултиплеер игри"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Музички и игри со танцување"</string>
+    <string name="topic10238" msgid="124952008622371505">"Игри со слободен стил"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Игри со пукање"</string>
+    <string name="topic10240" msgid="429738690314619395">"Игри со симулација"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Бизнис и тајкунски игри"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Игри со градење градови"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Игри со симулации на животот"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Симулатори за возила"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Спортски игри"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Игри со спортски менаџмент"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Стратегиски игри"</string>
+    <string name="topic10248" msgid="279151815457227293">"Модифицирани видеоигри и додатоци"</string>
+    <string name="topic10249" msgid="631580828608894782">"Образовни игри"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Семејни игри и активности"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Цртање и боење"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Игри со дотерување и мода"</string>
+    <string name="topic10253" msgid="385499297969826942">"Сложувалки и умствени игри"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Игри со играње улоги"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Пинг-понг"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Игри со плочки"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Игри со зборови"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Хобија и одмор"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Годишнини"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Родендени и имендени"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Нуркање и подводни активности"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Уметности со конци и текстил"</string>
+    <string name="topic10263" msgid="361345691023794788">"На отворено"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Риболов"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Лов и пукање"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Пејнтбол"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Радиоконтроли и моделирање"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Свадби"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Дом и градина"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Градинарство"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Дом и интериорен дизајн"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Апарати за домаќинство"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Подобрување на домот"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Безбедност и сигурност на домот"</string>
+    <string name="topic10275" msgid="682064062059687444">"Производи за домаќинство"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Пејзажен дизајн"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Интернет и телеком"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Е-пошта и испраќање пораки"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Е-пошта"</string>
+    <string name="topic10280" msgid="3168053876492638177">"SMS и размена на инстант пораки"</string>
+    <string name="topic10281" msgid="582764575763317221">"Гласовен и видеоразговор"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Интернет-оператори"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Телефонски оператори"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Мелодии и теми за мобилен"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Пребарувачи"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Паметни телефони"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Телеконференции"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Веб-апликации и онлајн алатки"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Веб-услуги"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Простор во облак"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Веб-дизајн и развој"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Хостинг на интернет"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Работни места и образование"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Образование"</string>
+    <string name="topic10295" msgid="331240908257602211">"Академски конференции и публикации"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Колеџи и универзитети"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Далечинско учење"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Образование во раното детство"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Забавиште"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Домашно образование"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Стандардизирани и приемни тестови"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Образовни и училишни ресурси"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Стручно и континуирано образование"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Работни места"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Ресурси и планирање кариера"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Огласи за работа"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Право и влада"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Криминал и законодавство"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Правни"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Правни услуги"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Вести"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Вести за економија"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Локални вести"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Спојувања и аквизиции"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Весници"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Политика"</string>
+    <string name="topic10317" msgid="888696185673599406">"Спортски вести"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Временска прогноза"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Вести од светот"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Онлајн заедници"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Илустрации и анимирани GIF-ови"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Запознавање и лични огласи"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Агрегатор на вести и обележувач на друштвени мрежи"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Споделување датотеки и хостинг"</string>
+    <string name="topic10325" msgid="916412844647169263">"Провајдери на форуми и разговори"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Микроблог"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Споделување фотографии и видеа"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Споделување фотографии и слики"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Споделување видеа"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Скинови"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Апликации на друштвени мрежи и додатоци"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Друштвени мрежи"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Луѓе и општество"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Семејство и врски"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Предци и генеалогија"</string>
+    <string name="topic10336" msgid="360328903013424569">"Брак"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Воспитување деца"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Посвојување"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Бебиња и мали деца"</string>
+    <string name="topic10340" msgid="259457452971577855">"Детска безбедност на интернет"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Романтика"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Научна фантастика и фантазија"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Миленичиња и животни"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Храна и производи за нега на миленици"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Миленици"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Птици"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Мачки"</string>
+    <string name="topic10348" msgid="570783769757187957">"Кучиња"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Риби и аквариуми"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Рептили и водоземци"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Ветеринари"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Недвижности"</string>
+    <string name="topic10353" msgid="230887584509968233">"Плацеви и земјиште"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Имоти за размена и одмор"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Референца"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Бизнис и лични огласи"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Општа референца"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Калкулатори и алатки за референци"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Речници и енциклопедии"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Образовни ресурси"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Упатство"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Време и календари"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Јазични ресурси"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Учење странски јазици"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Алатки и ресурси за превод"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Карти"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Наука"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Зголемена и виртуелна реалност"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Биолошки науки"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Генетика"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Хемија"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Екологија и животна средина"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Геологија"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Машинско учење и вештачка интелигенција"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Математика"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Физика"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Роботика"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Купување"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Антиквитети и колекционерски предмети"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Облека"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Детска облека"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Костими"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Машка облека"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Женска облека"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Огласи"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Потрошувачки ресурси"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Купони и понуди за попусти"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Картички и програми за лојалност"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Техничка поддршка и поправки"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Цвеќиња"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Честитки"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Производи за забава и одмор"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Портали за купување"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Спорт"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Американски фудбал"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Австралиски фудбал"</string>
+    <string name="topic10397" msgid="653991203228840785">"Трки со автомобили"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Бејзбол"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Кошарка"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Куглање"</string>
+    <string name="topic10401" msgid="26807857115228330">"Бокс"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Навивање"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Факултетски спортови"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Крикет"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Велосипедизам"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Коњички спортови"</string>
+    <string name="topic10407" msgid="316266982792700993">"Екстремни спортови"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Алпинизам и планинарство"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Виртуелни спортови"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Голф"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Гимнастика"</string>
+    <string name="topic10412" msgid="335770351079973128">"Хокеј"</string>
+    <string name="topic10413" msgid="416366556259783701">"Уметничко лизгање"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Боречки вештини"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Трка со мотоцикли"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Олимпијада"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Рагби"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Трчање и пешачење"</string>
+    <string name="topic10419" msgid="979581105119036716">"Скијање и сноубординг"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Фудбал"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Сурфање"</string>
+    <string name="topic10422" msgid="978920114358054206">"Пливање"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Тенис"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Атлетика"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Одбојка"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Борење"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Патување и транспорт"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Авантуристички патувања"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Патување со авион"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Деловни патувања"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Изнајмување автомобили"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Крстарења и чартери"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Семејно патување"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Меден месец и романтични патувања"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Хотели и сместување"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Автобус и воз на долги релации"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Евтини патувања и патувања во последен момент"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Багаж и додатоци за патување"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Туристички дестинации"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Плажи и острови"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Регионални паркови и градини"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Тематски паркови"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Зоолошки градини"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Планери на сообраќај и маршрути"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Патнички агенции и услуги"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Водичи за патување и патописи"</string>
+</resources>

@@ -1,0 +1,6296 @@
+{
+	"symbols" : 
+	{
+		"AImageReader_acquireLatestImage" : 
+		{
+			"type" : "func AImageReader_acquireLatestImage"
+		},
+		"AImageReader_acquireLatestImageAsync" : 
+		{
+			"type" : "func AImageReader_acquireLatestImageAsync"
+		},
+		"AImageReader_acquireNextImage" : 
+		{
+			"type" : "func AImageReader_acquireNextImage"
+		},
+		"AImageReader_acquireNextImageAsync" : 
+		{
+			"type" : "func AImageReader_acquireNextImageAsync"
+		},
+		"AImageReader_delete" : 
+		{
+			"type" : "func AImageReader_delete"
+		},
+		"AImageReader_getFormat" : 
+		{
+			"type" : "func AImageReader_getFormat"
+		},
+		"AImageReader_getHeight" : 
+		{
+			"type" : "func AImageReader_getHeight"
+		},
+		"AImageReader_getMaxImages" : 
+		{
+			"type" : "func AImageReader_getMaxImages"
+		},
+		"AImageReader_getWidth" : 
+		{
+			"type" : "func AImageReader_getWidth"
+		},
+		"AImageReader_getWindow" : 
+		{
+			"type" : "func AImageReader_getWindow"
+		},
+		"AImageReader_getWindowNativeHandle" : 
+		{
+			"type" : "func AImageReader_getWindowNativeHandle"
+		},
+		"AImageReader_new" : 
+		{
+			"type" : "func AImageReader_new"
+		},
+		"AImageReader_newWithDataSpace" : 
+		{
+			"type" : "func AImageReader_newWithDataSpace"
+		},
+		"AImageReader_newWithUsage" : 
+		{
+			"type" : "func AImageReader_newWithUsage"
+		},
+		"AImageReader_setBufferRemovedListener" : 
+		{
+			"type" : "func AImageReader_setBufferRemovedListener"
+		},
+		"AImageReader_setImageListener" : 
+		{
+			"type" : "func AImageReader_setImageListener"
+		},
+		"AImage_delete" : 
+		{
+			"type" : "func AImage_delete"
+		},
+		"AImage_deleteAsync" : 
+		{
+			"type" : "func AImage_deleteAsync"
+		},
+		"AImage_getCropRect" : 
+		{
+			"type" : "func AImage_getCropRect"
+		},
+		"AImage_getDataSpace" : 
+		{
+			"type" : "func AImage_getDataSpace"
+		},
+		"AImage_getFormat" : 
+		{
+			"type" : "func AImage_getFormat"
+		},
+		"AImage_getHardwareBuffer" : 
+		{
+			"type" : "func AImage_getHardwareBuffer"
+		},
+		"AImage_getHeight" : 
+		{
+			"type" : "func AImage_getHeight"
+		},
+		"AImage_getNumberOfPlanes" : 
+		{
+			"type" : "func AImage_getNumberOfPlanes"
+		},
+		"AImage_getPlaneData" : 
+		{
+			"type" : "func AImage_getPlaneData"
+		},
+		"AImage_getPlanePixelStride" : 
+		{
+			"type" : "func AImage_getPlanePixelStride"
+		},
+		"AImage_getPlaneRowStride" : 
+		{
+			"type" : "func AImage_getPlaneRowStride"
+		},
+		"AImage_getTimestamp" : 
+		{
+			"type" : "func AImage_getTimestamp"
+		},
+		"AImage_getWidth" : 
+		{
+			"type" : "func AImage_getWidth"
+		},
+		"AMEDIACODEC_KEY_HDR10_PLUS_INFO" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_LOW_LATENCY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_OFFSET_TIME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_REQUEST_SYNC_FRAME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_SUSPEND" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_SUSPEND_TIME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIACODEC_KEY_VIDEO_BITRATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_DRC_ATTENUATION_FACTOR" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_DRC_BOOST_FACTOR" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_DRC_HEAVY_COMPRESSION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_DRC_TARGET_REFERENCE_LEVEL" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_ENCODED_TARGET_LEVEL" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_MAX_OUTPUT_CHANNEL_COUNT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_PROFILE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AAC_SBR_MODE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ALBUM" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ALBUMART" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ALBUMARTIST" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ALLOW_FRAME_DROP" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ARTIST" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AUDIO_PRESENTATION_INFO" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AUDIO_SESSION_ID" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_AUTHOR" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_BITRATE_MODE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_BITS_PER_SAMPLE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_BIT_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CAPTURE_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CDTRACKNUMBER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CHANNEL_COUNT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CHANNEL_MASK" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COLOR_FORMAT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COLOR_RANGE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COLOR_STANDARD" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COLOR_TRANSFER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COMPILATION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COMPLEXITY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_COMPOSER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CREATE_INPUT_SURFACE_SUSPENDED" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_DEFAULT_IV_SIZE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_ENCRYPTED_BYTE_BLOCK" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_ENCRYPTED_SIZES" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_IV" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_KEY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_MODE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_PLAIN_SIZES" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CRYPTO_SKIP_BYTE_BLOCK" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD_0" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD_1" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD_2" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD_AVC" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_CSD_HEVC" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_D263" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DISCNUMBER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DISPLAY_CROP" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DISPLAY_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DISPLAY_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_DURATION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ENCODER_DELAY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ENCODER_PADDING" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ESDS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_EXIF_OFFSET" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_EXIF_SIZE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_FLAC_COMPRESSION_LEVEL" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_FRAME_COUNT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_FRAME_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_GENRE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_GRID_COLUMNS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_GRID_ROWS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_HAPTIC_CHANNEL_COUNT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_HDR10_PLUS_INFO" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_HDR_STATIC_INFO" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ICC_PROFILE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_INTRA_REFRESH_PERIOD" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_IS_ADTS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_IS_AUTOSELECT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_IS_DEFAULT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_IS_FORCED_SUBTITLE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_IS_SYNC_FRAME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_I_FRAME_INTERVAL" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LANGUAGE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LAST_SAMPLE_INDEX_IN_CHUNK" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LATENCY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LEVEL" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LOCATION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LOOP" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LOW_LATENCY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_LYRICIST" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MANUFACTURER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_BIT_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_B_FRAMES" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_FPS_TO_ENCODER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_INPUT_SIZE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_PTS_GAP_TO_ENCODER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MAX_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MIME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MPEG2_STREAM_HEADER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MPEGH_COMPATIBLE_SETS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MPEGH_PROFILE_LEVEL_INDICATION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MPEGH_REFERENCE_CHANNEL_LAYOUT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_MPEG_USER_DATA" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_OPERATING_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PCM_BIG_ENDIAN" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PCM_ENCODING" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PRIORITY" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PROFILE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PSSH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_PUSH_BLANK_BUFFERS_ON_STOP" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_REPEAT_PREVIOUS_FRAME_AFTER" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_ROTATION" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SAMPLE_FILE_OFFSET" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SAMPLE_RATE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SAMPLE_TIME_BEFORE_APPEND" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SAR_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SAR_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SEI" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SLICE_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_SLOW_MOTION_MARKERS" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_STRIDE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TARGET_TIME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TEMPORAL_LAYERING" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TEMPORAL_LAYER_COUNT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TEMPORAL_LAYER_ID" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TEXT_FORMAT_DATA" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_THUMBNAIL_CSD_AV1C" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_THUMBNAIL_CSD_HEVC" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_THUMBNAIL_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_THUMBNAIL_TIME" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_THUMBNAIL_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TILE_HEIGHT" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TILE_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TIME_US" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TITLE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TRACK_ID" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_TRACK_INDEX" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_VALID_SAMPLES" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_WIDTH" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_XMP_OFFSET" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_XMP_SIZE" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMEDIAFORMAT_KEY_YEAR" : 
+		{
+			"type" : "unsigned char8 const*"
+		},
+		"AMediaCodecActionCode_isRecoverable" : 
+		{
+			"type" : "func AMediaCodecActionCode_isRecoverable"
+		},
+		"AMediaCodecActionCode_isTransient" : 
+		{
+			"type" : "func AMediaCodecActionCode_isTransient"
+		},
+		"AMediaCodecCryptoInfo_delete" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_delete"
+		},
+		"AMediaCodecCryptoInfo_getClearBytes" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getClearBytes"
+		},
+		"AMediaCodecCryptoInfo_getEncryptedBytes" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getEncryptedBytes"
+		},
+		"AMediaCodecCryptoInfo_getIV" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getIV"
+		},
+		"AMediaCodecCryptoInfo_getKey" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getKey"
+		},
+		"AMediaCodecCryptoInfo_getMode" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getMode"
+		},
+		"AMediaCodecCryptoInfo_getNumSubSamples" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_getNumSubSamples"
+		},
+		"AMediaCodecCryptoInfo_new" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_new"
+		},
+		"AMediaCodecCryptoInfo_setPattern" : 
+		{
+			"type" : "func AMediaCodecCryptoInfo_setPattern"
+		},
+		"AMediaCodec_configure" : 
+		{
+			"type" : "func AMediaCodec_configure"
+		},
+		"AMediaCodec_createCodecByName" : 
+		{
+			"type" : "func AMediaCodec_createCodecByName"
+		},
+		"AMediaCodec_createCodecByNameForClient" : 
+		{
+			"type" : "func AMediaCodec_createCodecByNameForClient"
+		},
+		"AMediaCodec_createDecoderByType" : 
+		{
+			"type" : "func AMediaCodec_createDecoderByType"
+		},
+		"AMediaCodec_createDecoderByTypeForClient" : 
+		{
+			"type" : "func AMediaCodec_createDecoderByTypeForClient"
+		},
+		"AMediaCodec_createEncoderByType" : 
+		{
+			"type" : "func AMediaCodec_createEncoderByType"
+		},
+		"AMediaCodec_createEncoderByTypeForClient" : 
+		{
+			"type" : "func AMediaCodec_createEncoderByTypeForClient"
+		},
+		"AMediaCodec_createInputSurface" : 
+		{
+			"type" : "func AMediaCodec_createInputSurface"
+		},
+		"AMediaCodec_createPersistentInputSurface" : 
+		{
+			"type" : "func AMediaCodec_createPersistentInputSurface"
+		},
+		"AMediaCodec_delete" : 
+		{
+			"type" : "func AMediaCodec_delete"
+		},
+		"AMediaCodec_dequeueInputBuffer" : 
+		{
+			"type" : "func AMediaCodec_dequeueInputBuffer"
+		},
+		"AMediaCodec_dequeueOutputBuffer" : 
+		{
+			"type" : "func AMediaCodec_dequeueOutputBuffer"
+		},
+		"AMediaCodec_flush" : 
+		{
+			"type" : "func AMediaCodec_flush"
+		},
+		"AMediaCodec_getBufferFormat" : 
+		{
+			"type" : "func AMediaCodec_getBufferFormat"
+		},
+		"AMediaCodec_getInputBuffer" : 
+		{
+			"type" : "func AMediaCodec_getInputBuffer"
+		},
+		"AMediaCodec_getInputFormat" : 
+		{
+			"type" : "func AMediaCodec_getInputFormat"
+		},
+		"AMediaCodec_getName" : 
+		{
+			"type" : "func AMediaCodec_getName"
+		},
+		"AMediaCodec_getOutputBuffer" : 
+		{
+			"type" : "func AMediaCodec_getOutputBuffer"
+		},
+		"AMediaCodec_getOutputFormat" : 
+		{
+			"type" : "func AMediaCodec_getOutputFormat"
+		},
+		"AMediaCodec_queueInputBuffer" : 
+		{
+			"type" : "func AMediaCodec_queueInputBuffer"
+		},
+		"AMediaCodec_queueSecureInputBuffer" : 
+		{
+			"type" : "func AMediaCodec_queueSecureInputBuffer"
+		},
+		"AMediaCodec_releaseCrypto" : 
+		{
+			"type" : "func AMediaCodec_releaseCrypto"
+		},
+		"AMediaCodec_releaseName" : 
+		{
+			"type" : "func AMediaCodec_releaseName"
+		},
+		"AMediaCodec_releaseOutputBuffer" : 
+		{
+			"type" : "func AMediaCodec_releaseOutputBuffer"
+		},
+		"AMediaCodec_releaseOutputBufferAtTime" : 
+		{
+			"type" : "func AMediaCodec_releaseOutputBufferAtTime"
+		},
+		"AMediaCodec_setAsyncNotifyCallback" : 
+		{
+			"type" : "func AMediaCodec_setAsyncNotifyCallback"
+		},
+		"AMediaCodec_setInputSurface" : 
+		{
+			"type" : "func AMediaCodec_setInputSurface"
+		},
+		"AMediaCodec_setOnFrameRenderedCallback" : 
+		{
+			"type" : "func AMediaCodec_setOnFrameRenderedCallback"
+		},
+		"AMediaCodec_setOutputSurface" : 
+		{
+			"type" : "func AMediaCodec_setOutputSurface"
+		},
+		"AMediaCodec_setParameters" : 
+		{
+			"type" : "func AMediaCodec_setParameters"
+		},
+		"AMediaCodec_signalEndOfInputStream" : 
+		{
+			"type" : "func AMediaCodec_signalEndOfInputStream"
+		},
+		"AMediaCodec_start" : 
+		{
+			"type" : "func AMediaCodec_start"
+		},
+		"AMediaCodec_stop" : 
+		{
+			"type" : "func AMediaCodec_stop"
+		},
+		"AMediaCrypto_delete" : 
+		{
+			"type" : "func AMediaCrypto_delete"
+		},
+		"AMediaCrypto_isCryptoSchemeSupported" : 
+		{
+			"type" : "func AMediaCrypto_isCryptoSchemeSupported"
+		},
+		"AMediaCrypto_new" : 
+		{
+			"type" : "func AMediaCrypto_new"
+		},
+		"AMediaCrypto_requiresSecureDecoderComponent" : 
+		{
+			"type" : "func AMediaCrypto_requiresSecureDecoderComponent"
+		},
+		"AMediaDataSource_close" : 
+		{
+			"type" : "func AMediaDataSource_close"
+		},
+		"AMediaDataSource_delete" : 
+		{
+			"type" : "func AMediaDataSource_delete"
+		},
+		"AMediaDataSource_new" : 
+		{
+			"type" : "func AMediaDataSource_new"
+		},
+		"AMediaDataSource_newUri" : 
+		{
+			"type" : "func AMediaDataSource_newUri"
+		},
+		"AMediaDataSource_setClose" : 
+		{
+			"type" : "func AMediaDataSource_setClose"
+		},
+		"AMediaDataSource_setGetAvailableSize" : 
+		{
+			"type" : "func AMediaDataSource_setGetAvailableSize"
+		},
+		"AMediaDataSource_setGetSize" : 
+		{
+			"type" : "func AMediaDataSource_setGetSize"
+		},
+		"AMediaDataSource_setReadAt" : 
+		{
+			"type" : "func AMediaDataSource_setReadAt"
+		},
+		"AMediaDataSource_setUserdata" : 
+		{
+			"type" : "func AMediaDataSource_setUserdata"
+		},
+		"AMediaDrm_closeSession" : 
+		{
+			"type" : "func AMediaDrm_closeSession"
+		},
+		"AMediaDrm_createByUUID" : 
+		{
+			"type" : "func AMediaDrm_createByUUID"
+		},
+		"AMediaDrm_decrypt" : 
+		{
+			"type" : "func AMediaDrm_decrypt"
+		},
+		"AMediaDrm_encrypt" : 
+		{
+			"type" : "func AMediaDrm_encrypt"
+		},
+		"AMediaDrm_getKeyRequest" : 
+		{
+			"type" : "func AMediaDrm_getKeyRequest"
+		},
+		"AMediaDrm_getKeyRequestWithDefaultUrlAndType" : 
+		{
+			"type" : "func AMediaDrm_getKeyRequestWithDefaultUrlAndType"
+		},
+		"AMediaDrm_getPropertyByteArray" : 
+		{
+			"type" : "func AMediaDrm_getPropertyByteArray"
+		},
+		"AMediaDrm_getPropertyString" : 
+		{
+			"type" : "func AMediaDrm_getPropertyString"
+		},
+		"AMediaDrm_getProvisionRequest" : 
+		{
+			"type" : "func AMediaDrm_getProvisionRequest"
+		},
+		"AMediaDrm_getSecureStops" : 
+		{
+			"type" : "func AMediaDrm_getSecureStops"
+		},
+		"AMediaDrm_isCryptoSchemeSupported" : 
+		{
+			"type" : "func AMediaDrm_isCryptoSchemeSupported"
+		},
+		"AMediaDrm_openSession" : 
+		{
+			"type" : "func AMediaDrm_openSession"
+		},
+		"AMediaDrm_provideKeyResponse" : 
+		{
+			"type" : "func AMediaDrm_provideKeyResponse"
+		},
+		"AMediaDrm_provideProvisionResponse" : 
+		{
+			"type" : "func AMediaDrm_provideProvisionResponse"
+		},
+		"AMediaDrm_queryKeyStatus" : 
+		{
+			"type" : "func AMediaDrm_queryKeyStatus"
+		},
+		"AMediaDrm_release" : 
+		{
+			"type" : "func AMediaDrm_release"
+		},
+		"AMediaDrm_releaseSecureStops" : 
+		{
+			"type" : "func AMediaDrm_releaseSecureStops"
+		},
+		"AMediaDrm_removeKeys" : 
+		{
+			"type" : "func AMediaDrm_removeKeys"
+		},
+		"AMediaDrm_restoreKeys" : 
+		{
+			"type" : "func AMediaDrm_restoreKeys"
+		},
+		"AMediaDrm_setOnEventListener" : 
+		{
+			"type" : "func AMediaDrm_setOnEventListener"
+		},
+		"AMediaDrm_setOnExpirationUpdateListener" : 
+		{
+			"type" : "func AMediaDrm_setOnExpirationUpdateListener"
+		},
+		"AMediaDrm_setOnKeysChangeListener" : 
+		{
+			"type" : "func AMediaDrm_setOnKeysChangeListener"
+		},
+		"AMediaDrm_setPropertyByteArray" : 
+		{
+			"type" : "func AMediaDrm_setPropertyByteArray"
+		},
+		"AMediaDrm_setPropertyString" : 
+		{
+			"type" : "func AMediaDrm_setPropertyString"
+		},
+		"AMediaDrm_sign" : 
+		{
+			"type" : "func AMediaDrm_sign"
+		},
+		"AMediaDrm_verify" : 
+		{
+			"type" : "func AMediaDrm_verify"
+		},
+		"AMediaExtractor_advance" : 
+		{
+			"type" : "func AMediaExtractor_advance"
+		},
+		"AMediaExtractor_delete" : 
+		{
+			"type" : "func AMediaExtractor_delete"
+		},
+		"AMediaExtractor_getCachedDuration" : 
+		{
+			"type" : "func AMediaExtractor_getCachedDuration"
+		},
+		"AMediaExtractor_getFileFormat" : 
+		{
+			"type" : "func AMediaExtractor_getFileFormat"
+		},
+		"AMediaExtractor_getPsshInfo" : 
+		{
+			"type" : "func AMediaExtractor_getPsshInfo"
+		},
+		"AMediaExtractor_getSampleCryptoInfo" : 
+		{
+			"type" : "func AMediaExtractor_getSampleCryptoInfo"
+		},
+		"AMediaExtractor_getSampleFlags" : 
+		{
+			"type" : "func AMediaExtractor_getSampleFlags"
+		},
+		"AMediaExtractor_getSampleFormat" : 
+		{
+			"type" : "func AMediaExtractor_getSampleFormat"
+		},
+		"AMediaExtractor_getSampleSize" : 
+		{
+			"type" : "func AMediaExtractor_getSampleSize"
+		},
+		"AMediaExtractor_getSampleTime" : 
+		{
+			"type" : "func AMediaExtractor_getSampleTime"
+		},
+		"AMediaExtractor_getSampleTrackIndex" : 
+		{
+			"type" : "func AMediaExtractor_getSampleTrackIndex"
+		},
+		"AMediaExtractor_getTrackCount" : 
+		{
+			"type" : "func AMediaExtractor_getTrackCount"
+		},
+		"AMediaExtractor_getTrackFormat" : 
+		{
+			"type" : "func AMediaExtractor_getTrackFormat"
+		},
+		"AMediaExtractor_new" : 
+		{
+			"type" : "func AMediaExtractor_new"
+		},
+		"AMediaExtractor_readSampleData" : 
+		{
+			"type" : "func AMediaExtractor_readSampleData"
+		},
+		"AMediaExtractor_seekTo" : 
+		{
+			"type" : "func AMediaExtractor_seekTo"
+		},
+		"AMediaExtractor_selectTrack" : 
+		{
+			"type" : "func AMediaExtractor_selectTrack"
+		},
+		"AMediaExtractor_setDataSource" : 
+		{
+			"type" : "func AMediaExtractor_setDataSource"
+		},
+		"AMediaExtractor_setDataSourceCustom" : 
+		{
+			"type" : "func AMediaExtractor_setDataSourceCustom"
+		},
+		"AMediaExtractor_setDataSourceFd" : 
+		{
+			"type" : "func AMediaExtractor_setDataSourceFd"
+		},
+		"AMediaExtractor_unselectTrack" : 
+		{
+			"type" : "func AMediaExtractor_unselectTrack"
+		},
+		"AMediaFormat_clear" : 
+		{
+			"type" : "func AMediaFormat_clear"
+		},
+		"AMediaFormat_copy" : 
+		{
+			"type" : "func AMediaFormat_copy"
+		},
+		"AMediaFormat_delete" : 
+		{
+			"type" : "func AMediaFormat_delete"
+		},
+		"AMediaFormat_getBuffer" : 
+		{
+			"type" : "func AMediaFormat_getBuffer"
+		},
+		"AMediaFormat_getDouble" : 
+		{
+			"type" : "func AMediaFormat_getDouble"
+		},
+		"AMediaFormat_getFloat" : 
+		{
+			"type" : "func AMediaFormat_getFloat"
+		},
+		"AMediaFormat_getInt32" : 
+		{
+			"type" : "func AMediaFormat_getInt32"
+		},
+		"AMediaFormat_getInt64" : 
+		{
+			"type" : "func AMediaFormat_getInt64"
+		},
+		"AMediaFormat_getRect" : 
+		{
+			"type" : "func AMediaFormat_getRect"
+		},
+		"AMediaFormat_getSize" : 
+		{
+			"type" : "func AMediaFormat_getSize"
+		},
+		"AMediaFormat_getString" : 
+		{
+			"type" : "func AMediaFormat_getString"
+		},
+		"AMediaFormat_new" : 
+		{
+			"type" : "func AMediaFormat_new"
+		},
+		"AMediaFormat_setBuffer" : 
+		{
+			"type" : "func AMediaFormat_setBuffer"
+		},
+		"AMediaFormat_setDouble" : 
+		{
+			"type" : "func AMediaFormat_setDouble"
+		},
+		"AMediaFormat_setFloat" : 
+		{
+			"type" : "func AMediaFormat_setFloat"
+		},
+		"AMediaFormat_setInt32" : 
+		{
+			"type" : "func AMediaFormat_setInt32"
+		},
+		"AMediaFormat_setInt64" : 
+		{
+			"type" : "func AMediaFormat_setInt64"
+		},
+		"AMediaFormat_setRect" : 
+		{
+			"type" : "func AMediaFormat_setRect"
+		},
+		"AMediaFormat_setSize" : 
+		{
+			"type" : "func AMediaFormat_setSize"
+		},
+		"AMediaFormat_setString" : 
+		{
+			"type" : "func AMediaFormat_setString"
+		},
+		"AMediaFormat_toString" : 
+		{
+			"type" : "func AMediaFormat_toString"
+		},
+		"AMediaMuxer_addTrack" : 
+		{
+			"type" : "func AMediaMuxer_addTrack"
+		},
+		"AMediaMuxer_append" : 
+		{
+			"type" : "func AMediaMuxer_append"
+		},
+		"AMediaMuxer_delete" : 
+		{
+			"type" : "func AMediaMuxer_delete"
+		},
+		"AMediaMuxer_getTrackCount" : 
+		{
+			"type" : "func AMediaMuxer_getTrackCount"
+		},
+		"AMediaMuxer_getTrackFormat" : 
+		{
+			"type" : "func AMediaMuxer_getTrackFormat"
+		},
+		"AMediaMuxer_new" : 
+		{
+			"type" : "func AMediaMuxer_new"
+		},
+		"AMediaMuxer_setLocation" : 
+		{
+			"type" : "func AMediaMuxer_setLocation"
+		},
+		"AMediaMuxer_setOrientationHint" : 
+		{
+			"type" : "func AMediaMuxer_setOrientationHint"
+		},
+		"AMediaMuxer_start" : 
+		{
+			"type" : "func AMediaMuxer_start"
+		},
+		"AMediaMuxer_stop" : 
+		{
+			"type" : "func AMediaMuxer_stop"
+		},
+		"AMediaMuxer_writeSampleData" : 
+		{
+			"type" : "func AMediaMuxer_writeSampleData"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"class AImageReader::CallbackHandler" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mReader",
+					"offset" : 1216,
+					"type" : "struct AImageReader*"
+				}
+			],
+			"inheritance" : 
+			[
+				"struct android::AHandler"
+			],
+			"kind" : "class",
+			"size" : 1280
+		},
+		"class AImageReader::CallbackHandler*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class AImageReader::CallbackHandler",
+			"size" : 64
+		},
+		"class CodecHandler" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mCodec",
+					"offset" : 1216,
+					"type" : "struct AMediaCodec*"
+				}
+			],
+			"inheritance" : 
+			[
+				"struct android::AHandler"
+			],
+			"kind" : "class",
+			"size" : 1280
+		},
+		"class CodecHandler*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class CodecHandler",
+			"size" : 64
+		},
+		"class android::BufferItem" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::BufferItem*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::BufferItem",
+			"size" : 64
+		},
+		"class android::BufferItemConsumer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::BufferItemConsumer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::BufferItemConsumer",
+			"size" : 64
+		},
+		"class android::ConsumerBase" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::CpuConsumer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::DataSource" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mWrapper",
+					"offset" : 64,
+					"type" : "struct CDataSource*"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::DataSourceBase",
+				"class android::RefBase"
+			],
+			"kind" : "class",
+			"size" : 256
+		},
+		"class android::DataSource*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::DataSource",
+			"size" : 64
+		},
+		"class android::DataSourceBase" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$DataSourceBase",
+					"offset" : 0,
+					"type" : "func #7**"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::IDrmClient" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$IDrmClient",
+					"offset" : 0,
+					"type" : "func #7**"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "class",
+			"size" : 192
+		},
+		"class android::IGraphicBufferProducer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::IGraphicBufferProducer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::IGraphicBufferProducer",
+			"size" : 64
+		},
+		"class android::KeyedVector<android::String8, android::String8>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mVector",
+					"offset" : 0,
+					"type" : "class android::SortedVector<android::key_value_pair_t<android::String8, android::String8>>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::KeyedVector<unsigned int32, unsigned int32>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mVector",
+					"offset" : 0,
+					"type" : "class android::SortedVector<android::key_value_pair_t>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::LightFlattenable<android::Rect>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class android::LightFlattenablePod<android::Rect>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class android::LightFlattenable<android::Rect>"
+			],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class android::List<AImage*>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$List",
+					"offset" : 0,
+					"type" : "func #7**"
+				},
+				{
+					"name" : "mpMiddle",
+					"offset" : 64,
+					"type" : "class android::List<AImage*>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class android::List<AImage*>::_Node" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mVal",
+					"offset" : 0,
+					"type" : "struct AImage*"
+				},
+				{
+					"name" : "mpPrev",
+					"offset" : 64,
+					"type" : "class android::List<AImage*>::_Node*"
+				},
+				{
+					"name" : "mpNext",
+					"offset" : 128,
+					"type" : "class android::List<AImage*>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 192
+		},
+		"class android::List<AImage*>::_Node*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::List<AImage*>::_Node",
+			"size" : 64
+		},
+		"class android::List<android::BufferItem*>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$List",
+					"offset" : 0,
+					"type" : "func #7**"
+				},
+				{
+					"name" : "mpMiddle",
+					"offset" : 64,
+					"type" : "class android::List<android::BufferItem*>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class android::List<android::BufferItem*>::_Node" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mVal",
+					"offset" : 0,
+					"type" : "class android::BufferItem*"
+				},
+				{
+					"name" : "mpPrev",
+					"offset" : 64,
+					"type" : "class android::List<android::BufferItem*>::_Node*"
+				},
+				{
+					"name" : "mpNext",
+					"offset" : 128,
+					"type" : "class android::List<android::BufferItem*>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 192
+		},
+		"class android::List<android::BufferItem*>::_Node*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::List<android::BufferItem*>::_Node",
+			"size" : 64
+		},
+		"class android::List<android::Vector<unsigned char8>>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$List",
+					"offset" : 0,
+					"type" : "func #7**"
+				},
+				{
+					"name" : "mpMiddle",
+					"offset" : 64,
+					"type" : "class android::List<android::Vector<unsigned char8>>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class android::List<android::Vector<unsigned char8>>::_Node" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mVal",
+					"offset" : 0,
+					"type" : "class android::Vector<unsigned char8>"
+				},
+				{
+					"name" : "mpPrev",
+					"offset" : 320,
+					"type" : "class android::List<android::Vector<unsigned char8>>::_Node*"
+				},
+				{
+					"name" : "mpNext",
+					"offset" : 384,
+					"type" : "class android::List<android::Vector<unsigned char8>>::_Node*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 448
+		},
+		"class android::List<android::Vector<unsigned char8>>::_Node*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::List<android::Vector<unsigned char8>>::_Node",
+			"size" : 64
+		},
+		"class android::Mutex" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mMutex",
+					"offset" : 0,
+					"type" : "struct pthread_mutex_t"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::Rect" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"struct ARect",
+				"class android::LightFlattenablePod<android::Rect>"
+			],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class android::RefBase" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::RefBase::weakref_type" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class android::RefBase::weakref_type*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::RefBase::weakref_type",
+			"size" : 64
+		},
+		"class android::SortedVector<android::key_value_pair_t<android::String8, android::String8>>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class android::SortedVectorImpl"
+			],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::SortedVector<android::key_value_pair_t>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class android::SortedVectorImpl"
+			],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::SortedVectorImpl" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::String8" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::Surface" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::Surface*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::Surface",
+			"size" : 64
+		},
+		"class android::Vector<unsigned char8>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class android::VectorImpl"
+			],
+			"kind" : "class",
+			"size" : 320
+		},
+		"class android::VectorImpl" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::sp<AImageReader::BufferRemovedListener>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AImageReader::BufferRemovedListener*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<AImageReader::CallbackHandler>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class AImageReader::CallbackHandler*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<AImageReader::FrameListener>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AImageReader::FrameListener*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<AImageReader>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AImageReader*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<AImageReader> const" : 
+		{
+			"base_type" : "class android::sp<AImageReader>",
+			"kind" : "const",
+			"size" : 64
+		},
+		"class android::sp<ANativeWindow>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct ANativeWindow*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<CodecHandler>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class CodecHandler*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<DrmListener>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct DrmListener*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::ABuffer>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::ABuffer*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::ALooper>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::ALooper*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::AMessage>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::AMessage*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::BufferItemConsumer>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::BufferItemConsumer*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::DataSource>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::DataSource*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::ICrypto>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::ICrypto*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::IDrm>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::IDrm*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::IGraphicBufferProducer>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::IGraphicBufferProducer*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::MediaCodec>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::MediaCodec*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::MediaMuxerBase>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::MediaMuxerBase*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::NuMediaExtractor>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::NuMediaExtractor*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::sp<android::Surface>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::Surface*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::wp<AImageReader>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AImageReader*"
+				},
+				{
+					"name" : "m_refs",
+					"offset" : 64,
+					"type" : "class android::RefBase::weakref_type*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class android::wp<AImageReader> const" : 
+		{
+			"base_type" : "class android::wp<AImageReader>",
+			"kind" : "const",
+			"size" : 128
+		},
+		"class android::wp<android::ALooper>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct android::ALooper*"
+				},
+				{
+					"name" : "m_refs",
+					"offset" : 64,
+					"type" : "class android::RefBase::weakref_type*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 128
+		},
+		"class std::__1::__compressed_pair<android::CpuConsumer::LockedBuffer*, std::__1::default_delete<android::CpuConsumer::LockedBuffer>>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"struct std::__1::__compressed_pair_elem<android::CpuConsumer::LockedBuffer*, int32, false>",
+				"struct std::__1::__compressed_pair_elem<std::__1::default_delete<android::CpuConsumer::LockedBuffer>, int32, true>"
+			],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class std::__1::unique_ptr<android::CpuConsumer::LockedBuffer, std::__1::default_delete<android::CpuConsumer::LockedBuffer>>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__ptr_",
+					"offset" : 0,
+					"type" : "class std::__1::__compressed_pair<android::CpuConsumer::LockedBuffer*, std::__1::default_delete<android::CpuConsumer::LockedBuffer>>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"float32" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 32
+		},
+		"float32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32",
+			"size" : 64
+		},
+		"float64" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 64
+		},
+		"float64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float64",
+			"size" : 64
+		},
+		"func #1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #1*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1",
+			"size" : 64
+		},
+		"func #10" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned int32",
+				"int32",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #10*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #10",
+			"size" : 64
+		},
+		"func #11" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #11*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #11",
+			"size" : 64
+		},
+		"func #12" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"struct AMediaDrmKeyStatus const*",
+				"unsigned int64",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #12*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #12",
+			"size" : 64
+		},
+		"func #13" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int64",
+				"void*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func #13*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #13",
+			"size" : 64
+		},
+		"func #14" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func #14*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #14",
+			"size" : 64
+		},
+		"func #15" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #15*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #15",
+			"size" : 64
+		},
+		"func #16" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func #16*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #16",
+			"size" : 64
+		},
+		"func #17" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #17*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #17",
+			"size" : 64
+		},
+		"func #18" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func #18*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #18",
+			"size" : 64
+		},
+		"func #19" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #19*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #19",
+			"size" : 64
+		},
+		"func #2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #2*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #2",
+			"size" : 64
+		},
+		"func #3" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*",
+				"int32",
+				"struct AMediaCodecBufferInfo*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #3*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #3",
+			"size" : 64
+		},
+		"func #4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*",
+				"struct AMediaFormat*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #4*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #4",
+			"size" : 64
+		},
+		"func #5" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*",
+				"unsigned int32",
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #5*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #5",
+			"size" : 64
+		},
+		"func #6" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"void*",
+				"int64",
+				"int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #6*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #6",
+			"size" : 64
+		},
+		"func #7" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #7*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #7",
+			"size" : 64
+		},
+		"func #7**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #7*",
+			"size" : 64
+		},
+		"func #8" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"struct AImageReader*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #8",
+			"size" : 64
+		},
+		"func #9" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"struct AImageReader*",
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #9*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #9",
+			"size" : 64
+		},
+		"func AImageReader_acquireLatestImage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImage**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_acquireLatestImageAsync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImage**",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_acquireNextImage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImage**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_acquireNextImageAsync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImage**",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImageReader_getFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_getHeight" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_getMaxImages" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_getWidth" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_getWindow" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct ANativeWindow**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_getWindowNativeHandle" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct native_handle**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"int32",
+				"struct AImageReader**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_newWithDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"unsigned int64",
+				"int32",
+				"unsigned int32",
+				"int32",
+				"struct AImageReader**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_newWithUsage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"int32",
+				"int32",
+				"unsigned int64",
+				"int32",
+				"struct AImageReader**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_setBufferRemovedListener" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImageReader_BufferRemovedListener*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImageReader_setImageListener" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageReader*",
+				"struct AImageReader_ImageListener*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImage_deleteAsync" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImage_getCropRect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"struct AImageCropRect*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getHeight" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getNumberOfPlanes" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getPlaneData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32",
+				"unsigned char8**",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getPlanePixelStride" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getPlaneRowStride" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getTimestamp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AImage_getWidth" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImage const*",
+				"int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecActionCode_isRecoverable" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaCodecActionCode_isTransient" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getClearBytes" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getEncryptedBytes" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getIV" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*",
+				"unsigned char8*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getKey" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*",
+				"unsigned char8*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_getNumSubSamples" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*"
+			],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned int32",
+				"unsigned int64*",
+				"unsigned int64*"
+			],
+			"return_type" : "struct AMediaCodecCryptoInfo*",
+			"size" : 0
+		},
+		"func AMediaCodecCryptoInfo_setPattern" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodecCryptoInfo*",
+				"struct cryptoinfo_pattern_t*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaCodec_configure" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct AMediaFormat const*",
+				"struct ANativeWindow*",
+				"struct AMediaCrypto*",
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_createCodecByName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createCodecByNameForClient" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createDecoderByType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createDecoderByTypeForClient" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createEncoderByType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createEncoderByTypeForClient" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "struct AMediaCodec*",
+			"size" : 0
+		},
+		"func AMediaCodec_createInputSurface" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct ANativeWindow**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_createPersistentInputSurface" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_dequeueInputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaCodec_dequeueOutputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct AMediaCodecBufferInfo*",
+				"int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaCodec_flush" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_getBufferFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaCodec_getInputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned char8*",
+			"size" : 0
+		},
+		"func AMediaCodec_getInputFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaCodec_getName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned char8**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_getOutputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned char8*",
+			"size" : 0
+		},
+		"func AMediaCodec_getOutputFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaCodec_queueInputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"int64",
+				"unsigned int64",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_queueSecureInputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"int64",
+				"struct AMediaCodecCryptoInfo*",
+				"unsigned int64",
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_releaseCrypto" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_releaseName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned char8*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaCodec_releaseOutputBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"bool"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_releaseOutputBufferAtTime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"unsigned int64",
+				"int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_setAsyncNotifyCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct AMediaCodecOnAsyncNotifyCallback",
+				"void*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_setInputSurface" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct ANativeWindow*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_setOnFrameRenderedCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"func #6*",
+				"void*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_setOutputSurface" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct ANativeWindow*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_setParameters" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*",
+				"struct AMediaFormat const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_signalEndOfInputStream" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_start" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCodec_stop" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCodec*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaCrypto_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaCrypto*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaCrypto_isCryptoSchemeSupported" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaCrypto_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "struct AMediaCrypto*",
+			"size" : 0
+		},
+		"func AMediaCrypto_requiresSecureDecoderComponent" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaDataSource_close" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AMediaDataSource*",
+			"size" : 0
+		},
+		"func AMediaDataSource_newUri" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"int32",
+				"unsigned char8 const* const*"
+			],
+			"return_type" : "struct AMediaDataSource*",
+			"size" : 0
+		},
+		"func AMediaDataSource_setClose" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*",
+				"func #15*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_setGetAvailableSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*",
+				"func #16*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_setGetSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*",
+				"func #14*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_setReadAt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*",
+				"func #13*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDataSource_setUserdata" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDataSource*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDrm_closeSession" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_createByUUID" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AMediaDrm*",
+			"size" : 0
+		},
+		"func AMediaDrm_decrypt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_encrypt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getKeyRequest" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned int64",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"struct AMediaDrmKeyValuePair const*",
+				"unsigned int64",
+				"unsigned char8 const**",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getKeyRequestWithDefaultUrlAndType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned int64",
+				"unsigned char8 const*",
+				"unsigned int32",
+				"struct AMediaDrmKeyValuePair const*",
+				"unsigned int64",
+				"unsigned char8 const**",
+				"unsigned int64*",
+				"unsigned char8 const**",
+				"unsigned int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getPropertyByteArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const*",
+				"struct AMediaDrmByteArray*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getPropertyString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const*",
+				"unsigned char8 const**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getProvisionRequest" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const**",
+				"unsigned int64*",
+				"unsigned char8 const**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_getSecureStops" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray*",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_isCryptoSchemeSupported" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaDrm_openSession" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_provideKeyResponse" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned int64",
+				"struct AMediaDrmByteArray*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_provideProvisionResponse" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_queryKeyStatus" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"struct AMediaDrmKeyValuePair*",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_release" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaDrm_releaseSecureStops" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_removeKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_restoreKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"struct AMediaDrmByteArray const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_setOnEventListener" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"func #10*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_setOnExpirationUpdateListener" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"func #11*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_setOnKeysChangeListener" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"func #12*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_setPropertyByteArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_setPropertyString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_sign" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned char8*",
+				"unsigned int64",
+				"unsigned char8*",
+				"unsigned int64*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaDrm_verify" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaDrm*",
+				"struct AMediaDrmByteArray const*",
+				"unsigned char8 const*",
+				"unsigned char8*",
+				"unsigned char8 const*",
+				"unsigned int64",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_advance" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaExtractor_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_getCachedDuration" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaExtractor_getFileFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaExtractor_getPsshInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "struct PsshInfo*",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleCryptoInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "struct AMediaCodecCryptoInfo*",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleFlags" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"struct AMediaFormat*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleTime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaExtractor_getSampleTrackIndex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_getTrackCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*"
+			],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func AMediaExtractor_getTrackFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"unsigned int64"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaExtractor_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AMediaExtractor*",
+			"size" : 0
+		},
+		"func AMediaExtractor_readSampleData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"unsigned char8*",
+				"unsigned int64"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaExtractor_seekTo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"int64",
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_selectTrack" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_setDataSource" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_setDataSourceCustom" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"struct AMediaDataSource*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_setDataSourceFd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"int32",
+				"int64",
+				"int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaExtractor_unselectTrack" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaExtractor*",
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaFormat_clear" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_copy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"struct AMediaFormat*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaFormat_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaFormat_getBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"void**",
+				"unsigned int64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"float64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getFloat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"float32*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getInt32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int32*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getInt64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getRect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int32*",
+				"int32*",
+				"int32*",
+				"int32*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"unsigned int64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_getString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"unsigned char8 const**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AMediaFormat_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaFormat_setBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"float64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setFloat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"float32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setInt32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setInt64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setRect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"int32",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"unsigned int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_setString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*",
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AMediaFormat_toString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaFormat*"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func AMediaMuxer_addTrack" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*",
+				"struct AMediaFormat const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaMuxer_append" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "struct AMediaMuxer*",
+			"size" : 0
+		},
+		"func AMediaMuxer_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaMuxer_getTrackCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AMediaMuxer_getTrackFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*",
+				"unsigned int64"
+			],
+			"return_type" : "struct AMediaFormat*",
+			"size" : 0
+		},
+		"func AMediaMuxer_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned int32"
+			],
+			"return_type" : "struct AMediaMuxer*",
+			"size" : 0
+		},
+		"func AMediaMuxer_setLocation" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*",
+				"float32",
+				"float32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaMuxer_setOrientationHint" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*",
+				"int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaMuxer_start" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaMuxer_stop" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AMediaMuxer_writeSampleData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AMediaMuxer*",
+				"unsigned int64",
+				"unsigned char8 const*",
+				"struct AMediaCodecBufferInfo const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32 const" : 
+		{
+			"base_type" : "int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int32[0]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 0
+		},
+		"int32[10]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 320
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"int64 const" : 
+		{
+			"base_type" : "int64",
+			"kind" : "const",
+			"size" : 64
+		},
+		"int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64",
+			"size" : 64
+		},
+		"struct AHardwareBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AHardwareBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer",
+			"size" : 64
+		},
+		"struct AHardwareBuffer**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer*",
+			"size" : 64
+		},
+		"struct AImage" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mReader",
+					"offset" : 0,
+					"type" : "class android::sp<AImageReader> const"
+				},
+				{
+					"name" : "mFormat",
+					"offset" : 64,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mUsage",
+					"offset" : 128,
+					"type" : "unsigned int64 const"
+				},
+				{
+					"name" : "mBuffer",
+					"offset" : 192,
+					"type" : "class android::BufferItem*"
+				},
+				{
+					"name" : "mLockedBuffer",
+					"offset" : 256,
+					"type" : "class std::__1::unique_ptr<android::CpuConsumer::LockedBuffer, std::__1::default_delete<android::CpuConsumer::LockedBuffer>>"
+				},
+				{
+					"name" : "mTimestamp",
+					"offset" : 320,
+					"type" : "int64 const"
+				},
+				{
+					"name" : "mWidth",
+					"offset" : 384,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mHeight",
+					"offset" : 416,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mNumPlanes",
+					"offset" : 448,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mHalDataSpace",
+					"offset" : 480,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "mIsClosed",
+					"offset" : 512,
+					"type" : "bool"
+				},
+				{
+					"name" : "mLock",
+					"offset" : 544,
+					"type" : "class android::Mutex"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 896
+		},
+		"struct AImage const" : 
+		{
+			"base_type" : "struct AImage",
+			"kind" : "const",
+			"size" : 896
+		},
+		"struct AImage const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImage const",
+			"size" : 64
+		},
+		"struct AImage*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImage",
+			"size" : 64
+		},
+		"struct AImage**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImage*",
+			"size" : 64
+		},
+		"struct AImageCropRect" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "left",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "top",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "right",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "bottom",
+					"offset" : 96,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AImageCropRect*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageCropRect",
+			"size" : 64
+		},
+		"struct AImageReader" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mHandler",
+					"offset" : 128,
+					"type" : "class android::sp<AImageReader::CallbackHandler>"
+				},
+				{
+					"name" : "mCbLooper",
+					"offset" : 192,
+					"type" : "class android::sp<android::ALooper>"
+				},
+				{
+					"name" : "mBuffers",
+					"offset" : 256,
+					"type" : "class android::List<android::BufferItem*>"
+				},
+				{
+					"name" : "mWidth",
+					"offset" : 384,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mHeight",
+					"offset" : 416,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mFormat",
+					"offset" : 448,
+					"type" : "int32"
+				},
+				{
+					"name" : "mUsage",
+					"offset" : 512,
+					"type" : "unsigned int64 const"
+				},
+				{
+					"name" : "mMaxImages",
+					"offset" : 576,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mNumPlanes",
+					"offset" : 608,
+					"type" : "int32 const"
+				},
+				{
+					"name" : "mHalFormat",
+					"offset" : 640,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "mHalDataSpace",
+					"offset" : 672,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "mFrameListener",
+					"offset" : 704,
+					"type" : "class android::sp<AImageReader::FrameListener>"
+				},
+				{
+					"name" : "mBufferRemovedListener",
+					"offset" : 768,
+					"type" : "class android::sp<AImageReader::BufferRemovedListener>"
+				},
+				{
+					"name" : "mHalUsage",
+					"offset" : 832,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mProducer",
+					"offset" : 896,
+					"type" : "class android::sp<android::IGraphicBufferProducer>"
+				},
+				{
+					"name" : "mSurface",
+					"offset" : 960,
+					"type" : "class android::sp<android::Surface>"
+				},
+				{
+					"name" : "mBufferItemConsumer",
+					"offset" : 1024,
+					"type" : "class android::sp<android::BufferItemConsumer>"
+				},
+				{
+					"name" : "mWindow",
+					"offset" : 1088,
+					"type" : "class android::sp<ANativeWindow>"
+				},
+				{
+					"name" : "mWindowHandle",
+					"offset" : 1152,
+					"type" : "struct native_handle*"
+				},
+				{
+					"name" : "mAcquiredImages",
+					"offset" : 1216,
+					"type" : "class android::List<AImage*>"
+				},
+				{
+					"name" : "mIsOpen",
+					"offset" : 1344,
+					"type" : "bool"
+				},
+				{
+					"name" : "mLock",
+					"offset" : 1376,
+					"type" : "class android::Mutex"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 1728
+		},
+		"struct AImageReader const" : 
+		{
+			"base_type" : "struct AImageReader",
+			"kind" : "const",
+			"size" : 1728
+		},
+		"struct AImageReader const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader const",
+			"size" : 64
+		},
+		"struct AImageReader*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader",
+			"size" : 64
+		},
+		"struct AImageReader**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader*",
+			"size" : 64
+		},
+		"struct AImageReader::BufferRemovedListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mListener",
+					"offset" : 64,
+					"type" : "struct AImageReader_BufferRemovedListener"
+				},
+				{
+					"name" : "mReader",
+					"offset" : 192,
+					"type" : "class android::wp<AImageReader> const"
+				},
+				{
+					"name" : "mLock",
+					"offset" : 320,
+					"type" : "class android::Mutex"
+				}
+			],
+			"inheritance" : 
+			[
+				"struct android::BufferItemConsumer::BufferFreedListener"
+			],
+			"kind" : "struct",
+			"size" : 768
+		},
+		"struct AImageReader::BufferRemovedListener*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader::BufferRemovedListener",
+			"size" : 64
+		},
+		"struct AImageReader::FrameListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mListener",
+					"offset" : 64,
+					"type" : "struct AImageReader_ImageListener"
+				},
+				{
+					"name" : "mReader",
+					"offset" : 192,
+					"type" : "class android::wp<AImageReader> const"
+				},
+				{
+					"name" : "mLock",
+					"offset" : 320,
+					"type" : "class android::Mutex"
+				}
+			],
+			"inheritance" : 
+			[
+				"struct android::ConsumerBase::FrameAvailableListener"
+			],
+			"kind" : "struct",
+			"size" : 768
+		},
+		"struct AImageReader::FrameListener*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader::FrameListener",
+			"size" : 64
+		},
+		"struct AImageReader_BufferRemovedListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "context",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "onBufferRemoved",
+					"offset" : 64,
+					"type" : "func #9*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AImageReader_BufferRemovedListener*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader_BufferRemovedListener",
+			"size" : 64
+		},
+		"struct AImageReader_ImageListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "context",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "onImageAvailable",
+					"offset" : 64,
+					"type" : "func #8*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AImageReader_ImageListener*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageReader_ImageListener",
+			"size" : 64
+		},
+		"struct AMediaCodec" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mCodec",
+					"offset" : 0,
+					"type" : "class android::sp<android::MediaCodec>"
+				},
+				{
+					"name" : "mLooper",
+					"offset" : 64,
+					"type" : "class android::sp<android::ALooper>"
+				},
+				{
+					"name" : "mHandler",
+					"offset" : 128,
+					"type" : "class android::sp<CodecHandler>"
+				},
+				{
+					"name" : "mActivityNotification",
+					"offset" : 192,
+					"type" : "class android::sp<android::AMessage>"
+				},
+				{
+					"name" : "mGeneration",
+					"offset" : 256,
+					"type" : "int32"
+				},
+				{
+					"name" : "mRequestedActivityNotification",
+					"offset" : 288,
+					"type" : "bool"
+				},
+				{
+					"name" : "mCallback",
+					"offset" : 320,
+					"type" : "func #1*"
+				},
+				{
+					"name" : "mCallbackUserData",
+					"offset" : 384,
+					"type" : "void*"
+				},
+				{
+					"name" : "mAsyncNotify",
+					"offset" : 448,
+					"type" : "class android::sp<android::AMessage>"
+				},
+				{
+					"name" : "mAsyncCallbackLock",
+					"offset" : 512,
+					"type" : "class android::Mutex"
+				},
+				{
+					"name" : "mAsyncCallback",
+					"offset" : 832,
+					"type" : "struct AMediaCodecOnAsyncNotifyCallback"
+				},
+				{
+					"name" : "mAsyncCallbackUserData",
+					"offset" : 1088,
+					"type" : "void*"
+				},
+				{
+					"name" : "mFrameRenderedNotify",
+					"offset" : 1152,
+					"type" : "class android::sp<android::AMessage>"
+				},
+				{
+					"name" : "mFrameRenderedCallbackLock",
+					"offset" : 1216,
+					"type" : "class android::Mutex"
+				},
+				{
+					"name" : "mFrameRenderedCallback",
+					"offset" : 1536,
+					"type" : "func #6*"
+				},
+				{
+					"name" : "mFrameRenderedCallbackUserData",
+					"offset" : 1600,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1664
+		},
+		"struct AMediaCodec*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaCodec",
+			"size" : 64
+		},
+		"struct AMediaCodecBufferInfo" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "offset",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "size",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "presentationTimeUs",
+					"offset" : 64,
+					"type" : "int64"
+				},
+				{
+					"name" : "flags",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct AMediaCodecBufferInfo const" : 
+		{
+			"base_type" : "struct AMediaCodecBufferInfo",
+			"kind" : "const",
+			"size" : 192
+		},
+		"struct AMediaCodecBufferInfo const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaCodecBufferInfo const",
+			"size" : 64
+		},
+		"struct AMediaCodecBufferInfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaCodecBufferInfo",
+			"size" : 64
+		},
+		"struct AMediaCodecCryptoInfo" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "numsubsamples",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "key",
+					"offset" : 32,
+					"type" : "unsigned char8[16]"
+				},
+				{
+					"name" : "iv",
+					"offset" : 160,
+					"type" : "unsigned char8[16]"
+				},
+				{
+					"name" : "mode",
+					"offset" : 288,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "pattern",
+					"offset" : 320,
+					"type" : "struct cryptoinfo_pattern_t"
+				},
+				{
+					"name" : "clearbytes",
+					"offset" : 384,
+					"type" : "unsigned int64*"
+				},
+				{
+					"name" : "encryptedbytes",
+					"offset" : 448,
+					"type" : "unsigned int64*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 512
+		},
+		"struct AMediaCodecCryptoInfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaCodecCryptoInfo",
+			"size" : 64
+		},
+		"struct AMediaCodecOnAsyncNotifyCallback" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "onAsyncInputAvailable",
+					"offset" : 0,
+					"type" : "func #2*"
+				},
+				{
+					"name" : "onAsyncOutputAvailable",
+					"offset" : 64,
+					"type" : "func #3*"
+				},
+				{
+					"name" : "onAsyncFormatChanged",
+					"offset" : 128,
+					"type" : "func #4*"
+				},
+				{
+					"name" : "onAsyncError",
+					"offset" : 192,
+					"type" : "func #5*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct AMediaCrypto" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mCrypto",
+					"offset" : 0,
+					"type" : "class android::sp<android::ICrypto>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct AMediaCrypto*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaCrypto",
+			"size" : 64
+		},
+		"struct AMediaDataSource" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "userdata",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "readAt",
+					"offset" : 64,
+					"type" : "func #13*"
+				},
+				{
+					"name" : "getSize",
+					"offset" : 128,
+					"type" : "func #14*"
+				},
+				{
+					"name" : "close",
+					"offset" : 192,
+					"type" : "func #15*"
+				},
+				{
+					"name" : "getAvailableSize",
+					"offset" : 256,
+					"type" : "func #16*"
+				},
+				{
+					"name" : "mImpl",
+					"offset" : 320,
+					"type" : "class android::sp<android::DataSource>"
+				},
+				{
+					"name" : "mFlags",
+					"offset" : 384,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct AMediaDataSource*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDataSource",
+			"size" : 64
+		},
+		"struct AMediaDrm" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mDrm",
+					"offset" : 0,
+					"type" : "class android::sp<android::IDrm>"
+				},
+				{
+					"name" : "mIds",
+					"offset" : 64,
+					"type" : "class android::List<android::Vector<unsigned char8>>"
+				},
+				{
+					"name" : "mQueryResults",
+					"offset" : 192,
+					"type" : "class android::KeyedVector<android::String8, android::String8>"
+				},
+				{
+					"name" : "mKeyRequest",
+					"offset" : 512,
+					"type" : "class android::Vector<unsigned char8>"
+				},
+				{
+					"name" : "mDefaultUrl",
+					"offset" : 832,
+					"type" : "class android::String8"
+				},
+				{
+					"name" : "mkeyRequestType",
+					"offset" : 896,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "mProvisionRequest",
+					"offset" : 960,
+					"type" : "class android::Vector<unsigned char8>"
+				},
+				{
+					"name" : "mProvisionUrl",
+					"offset" : 1280,
+					"type" : "class android::String8"
+				},
+				{
+					"name" : "mPropertyString",
+					"offset" : 1344,
+					"type" : "class android::String8"
+				},
+				{
+					"name" : "mPropertyByteArray",
+					"offset" : 1408,
+					"type" : "class android::Vector<unsigned char8>"
+				},
+				{
+					"name" : "mSecureStops",
+					"offset" : 1728,
+					"type" : "class android::List<android::Vector<unsigned char8>>"
+				},
+				{
+					"name" : "mListener",
+					"offset" : 1856,
+					"type" : "class android::sp<DrmListener>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1920
+		},
+		"struct AMediaDrm*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrm",
+			"size" : 64
+		},
+		"struct AMediaDrmByteArray" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "ptr",
+					"offset" : 0,
+					"type" : "unsigned char8 const*"
+				},
+				{
+					"name" : "length",
+					"offset" : 64,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AMediaDrmByteArray const" : 
+		{
+			"base_type" : "struct AMediaDrmByteArray",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct AMediaDrmByteArray const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrmByteArray const",
+			"size" : 64
+		},
+		"struct AMediaDrmByteArray*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrmByteArray",
+			"size" : 64
+		},
+		"struct AMediaDrmKeyStatus" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "keyId",
+					"offset" : 0,
+					"type" : "struct AMediaDrmByteArray"
+				},
+				{
+					"name" : "keyType",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct AMediaDrmKeyStatus const" : 
+		{
+			"base_type" : "struct AMediaDrmKeyStatus",
+			"kind" : "const",
+			"size" : 192
+		},
+		"struct AMediaDrmKeyStatus const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrmKeyStatus const",
+			"size" : 64
+		},
+		"struct AMediaDrmKeyValuePair" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mKey",
+					"offset" : 0,
+					"type" : "unsigned char8 const*"
+				},
+				{
+					"name" : "mValue",
+					"offset" : 64,
+					"type" : "unsigned char8 const*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AMediaDrmKeyValuePair const" : 
+		{
+			"base_type" : "struct AMediaDrmKeyValuePair",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct AMediaDrmKeyValuePair const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrmKeyValuePair const",
+			"size" : 64
+		},
+		"struct AMediaDrmKeyValuePair*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaDrmKeyValuePair",
+			"size" : 64
+		},
+		"struct AMediaExtractor" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mImpl",
+					"offset" : 0,
+					"type" : "class android::sp<android::NuMediaExtractor>"
+				},
+				{
+					"name" : "mPsshBuf",
+					"offset" : 64,
+					"type" : "class android::sp<android::ABuffer>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AMediaExtractor*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaExtractor",
+			"size" : 64
+		},
+		"struct AMediaFormat" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mFormat",
+					"offset" : 0,
+					"type" : "class android::sp<android::AMessage>"
+				},
+				{
+					"name" : "mDebug",
+					"offset" : 64,
+					"type" : "class android::String8"
+				},
+				{
+					"name" : "mStringCache",
+					"offset" : 128,
+					"type" : "class android::KeyedVector<android::String8, android::String8>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct AMediaFormat const" : 
+		{
+			"base_type" : "struct AMediaFormat",
+			"kind" : "const",
+			"size" : 448
+		},
+		"struct AMediaFormat const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaFormat const",
+			"size" : 64
+		},
+		"struct AMediaFormat*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaFormat",
+			"size" : 64
+		},
+		"struct AMediaMuxer" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mImpl",
+					"offset" : 0,
+					"type" : "class android::sp<android::MediaMuxerBase>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct AMediaMuxer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AMediaMuxer",
+			"size" : 64
+		},
+		"struct ANativeWindow" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANativeWindow*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow",
+			"size" : 64
+		},
+		"struct ANativeWindow**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow*",
+			"size" : 64
+		},
+		"struct ARect" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "left",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "top",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "right",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "bottom",
+					"offset" : 96,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct CDataSource" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "readAt",
+					"offset" : 0,
+					"type" : "func #13*"
+				},
+				{
+					"name" : "getSize",
+					"offset" : 64,
+					"type" : "func #17*"
+				},
+				{
+					"name" : "flags",
+					"offset" : 128,
+					"type" : "func #18*"
+				},
+				{
+					"name" : "getUri",
+					"offset" : 192,
+					"type" : "func #19*"
+				},
+				{
+					"name" : "handle",
+					"offset" : 256,
+					"type" : "void*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct CDataSource*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct CDataSource",
+			"size" : 64
+		},
+		"struct DrmListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mObj",
+					"offset" : 64,
+					"type" : "struct AMediaDrm*"
+				},
+				{
+					"name" : "mEventListener",
+					"offset" : 128,
+					"type" : "func #10*"
+				},
+				{
+					"name" : "mExpirationUpdateListener",
+					"offset" : 192,
+					"type" : "func #11*"
+				},
+				{
+					"name" : "mKeysChangeListener",
+					"offset" : 256,
+					"type" : "func #12*"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::IDrmClient"
+			],
+			"kind" : "struct",
+			"size" : 448
+		},
+		"struct DrmListener*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct DrmListener",
+			"size" : 64
+		},
+		"struct PsshInfo" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct PsshInfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct PsshInfo",
+			"size" : 64
+		},
+		"struct android::ABuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::ABuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::ABuffer",
+			"size" : 64
+		},
+		"struct android::AHandler" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mID",
+					"offset" : 128,
+					"type" : "int32"
+				},
+				{
+					"name" : "mLooper",
+					"offset" : 192,
+					"type" : "class android::wp<android::ALooper>"
+				},
+				{
+					"name" : "mVerboseStats",
+					"offset" : 320,
+					"type" : "bool"
+				},
+				{
+					"name" : "mMessageCounter",
+					"offset" : 384,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "mMessages",
+					"offset" : 448,
+					"type" : "class android::KeyedVector<unsigned int32, unsigned int32>"
+				},
+				{
+					"name" : "mLock",
+					"offset" : 768,
+					"type" : "class android::Mutex"
+				},
+				{
+					"name" : "mDeliveringMessage",
+					"offset" : 1088,
+					"type" : "bool"
+				},
+				{
+					"name" : "mCurrentMessageWhat",
+					"offset" : 1120,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "mCurrentMessageStartTimeUs",
+					"offset" : 1152,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 1216
+		},
+		"struct android::ALooper" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::ALooper*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::ALooper",
+			"size" : 64
+		},
+		"struct android::AMessage" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::AMessage*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::AMessage",
+			"size" : 64
+		},
+		"struct android::BufferItemConsumer::BufferFreedListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$BufferFreedListener",
+					"offset" : 0,
+					"type" : "func #7**"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct android::ConsumerBase::FrameAvailableListener" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$FrameAvailableListener",
+					"offset" : 0,
+					"type" : "func #7**"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct android::CpuConsumer::LockedBuffer" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "data",
+					"offset" : 0,
+					"type" : "unsigned char8*"
+				},
+				{
+					"name" : "width",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "height",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "format",
+					"offset" : 128,
+					"type" : "int32"
+				},
+				{
+					"name" : "stride",
+					"offset" : 160,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "crop",
+					"offset" : 192,
+					"type" : "class android::Rect"
+				},
+				{
+					"name" : "transform",
+					"offset" : 320,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "scalingMode",
+					"offset" : 352,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "timestamp",
+					"offset" : 384,
+					"type" : "int64"
+				},
+				{
+					"name" : "dataSpace",
+					"offset" : 448,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "frameNumber",
+					"offset" : 512,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "flexFormat",
+					"offset" : 576,
+					"type" : "int32"
+				},
+				{
+					"name" : "dataCb",
+					"offset" : 640,
+					"type" : "unsigned char8*"
+				},
+				{
+					"name" : "dataCr",
+					"offset" : 704,
+					"type" : "unsigned char8*"
+				},
+				{
+					"name" : "chromaStride",
+					"offset" : 768,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "chromaStep",
+					"offset" : 800,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 832
+		},
+		"struct android::CpuConsumer::LockedBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::CpuConsumer::LockedBuffer",
+			"size" : 64
+		},
+		"struct android::ICrypto" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::ICrypto*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::ICrypto",
+			"size" : 64
+		},
+		"struct android::IDrm" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::IDrm*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::IDrm",
+			"size" : 64
+		},
+		"struct android::MediaCodec" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::MediaCodec*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::MediaCodec",
+			"size" : 64
+		},
+		"struct android::MediaMuxerBase" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::MediaMuxerBase*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::MediaMuxerBase",
+			"size" : 64
+		},
+		"struct android::NuMediaExtractor" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::NuMediaExtractor*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct android::NuMediaExtractor",
+			"size" : 64
+		},
+		"struct android::key_value_pair_t" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct android::key_value_pair_t<android::String8, android::String8>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "key",
+					"offset" : 0,
+					"type" : "class android::String8"
+				},
+				{
+					"name" : "value",
+					"offset" : 64,
+					"type" : "class android::String8"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct cryptoinfo_pattern_t" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "encryptBlocks",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "skipBlocks",
+					"offset" : 32,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct cryptoinfo_pattern_t*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct cryptoinfo_pattern_t",
+			"size" : 64
+		},
+		"struct native_handle" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "version",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "numFds",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "numInts",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "data",
+					"offset" : 96,
+					"type" : "int32[0]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct native_handle*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct native_handle",
+			"size" : 64
+		},
+		"struct native_handle**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct native_handle*",
+			"size" : 64
+		},
+		"struct pthread_mutex_t" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__private",
+					"offset" : 0,
+					"type" : "int32[10]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct std::__1::__compressed_pair_elem<android::CpuConsumer::LockedBuffer*, int32, false>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__value_",
+					"offset" : 0,
+					"type" : "struct android::CpuConsumer::LockedBuffer*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct std::__1::__compressed_pair_elem<std::__1::default_delete<android::CpuConsumer::LockedBuffer>, int32, true>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"struct std::__1::default_delete<android::CpuConsumer::LockedBuffer>"
+			],
+			"kind" : "struct",
+			"size" : 8
+		},
+		"struct std::__1::default_delete<android::CpuConsumer::LockedBuffer>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 8
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8 const" : 
+		{
+			"base_type" : "unsigned char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"unsigned char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const",
+			"size" : 64
+		},
+		"unsigned char8 const* const" : 
+		{
+			"base_type" : "unsigned char8 const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"unsigned char8 const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const* const",
+			"size" : 64
+		},
+		"unsigned char8 const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const*",
+			"size" : 64
+		},
+		"unsigned char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8",
+			"size" : 64
+		},
+		"unsigned char8**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8*",
+			"size" : 64
+		},
+		"unsigned char8[16]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 128
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"unsigned int64 const" : 
+		{
+			"base_type" : "unsigned int64",
+			"kind" : "const",
+			"size" : 64
+		},
+		"unsigned int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64",
+			"size" : 64
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		},
+		"void**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void*",
+			"size" : 64
+		}
+	}
+}

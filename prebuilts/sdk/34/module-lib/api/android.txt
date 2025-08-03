@@ -1,0 +1,2155 @@
+// Signature format: 2.0
+package android {
+
+  public static final class Manifest.permission {
+    field public static final String BLUETOOTH_STACK = "android.permission.BLUETOOTH_STACK";
+    field public static final String CONTROL_AUTOMOTIVE_GNSS = "android.permission.CONTROL_AUTOMOTIVE_GNSS";
+    field public static final String GET_INTENT_SENDER_INTENT = "android.permission.GET_INTENT_SENDER_INTENT";
+    field public static final String MAKE_UID_VISIBLE = "android.permission.MAKE_UID_VISIBLE";
+  }
+
+}
+
+package android.adservices {
+
+  public class AdServicesFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.app {
+
+  @UiContext public class Activity extends android.view.ContextThemeWrapper implements android.content.ComponentCallbacks2 android.view.KeyEvent.Callback android.view.LayoutInflater.Factory2 android.view.View.OnCreateContextMenuListener android.view.Window.Callback {
+    method public final boolean addDumpable(@NonNull android.util.Dumpable);
+  }
+
+  public class ActivityManager {
+    method @RequiresPermission(android.Manifest.permission.SET_ACTIVITY_WATCHER) public void addHomeVisibilityListener(@NonNull java.util.concurrent.Executor, @NonNull android.app.HomeVisibilityListener);
+    method @NonNull @RequiresPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) public int[] getUidFrozenState(@NonNull int[]);
+    method @RequiresPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) public void registerUidFrozenStateChangedCallback(@NonNull java.util.concurrent.Executor, @NonNull android.app.ActivityManager.UidFrozenStateChangedCallback);
+    method @RequiresPermission(android.Manifest.permission.SET_ACTIVITY_WATCHER) public void removeHomeVisibilityListener(@NonNull android.app.HomeVisibilityListener);
+    method @RequiresPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) public void unregisterUidFrozenStateChangedCallback(@NonNull android.app.ActivityManager.UidFrozenStateChangedCallback);
+    method @RequiresPermission(android.Manifest.permission.CHANGE_CONFIGURATION) public boolean updateMccMncConfiguration(@NonNull String, @NonNull String);
+  }
+
+  public static interface ActivityManager.UidFrozenStateChangedCallback {
+    method public void onUidFrozenStateChanged(@NonNull int[], @NonNull int[]);
+    field public static final int UID_FROZEN_STATE_FROZEN = 1; // 0x1
+    field public static final int UID_FROZEN_STATE_UNFROZEN = 2; // 0x2
+  }
+
+  public class AppOpsManager {
+    field public static final String OPSTR_NO_ISOLATED_STORAGE = "android:no_isolated_storage";
+  }
+
+  public class BroadcastOptions {
+    method @Deprecated public int getMaxManifestReceiverApiLevel();
+    method @Deprecated public void setMaxManifestReceiverApiLevel(int);
+  }
+
+  public abstract class HomeVisibilityListener {
+    ctor public HomeVisibilityListener();
+    method public abstract void onHomeVisibilityChanged(boolean);
+  }
+
+  public class NotificationManager {
+    method public boolean hasEnabledNotificationListener(@NonNull String, @NonNull android.os.UserHandle);
+    field public static final String ACTION_NOTIFICATION_LISTENER_ENABLED_CHANGED = "android.app.action.NOTIFICATION_LISTENER_ENABLED_CHANGED";
+  }
+
+  public final class PendingIntent implements android.os.Parcelable {
+    method public boolean addCancelListener(@NonNull java.util.concurrent.Executor, @NonNull android.app.PendingIntent.CancelListener);
+    method @RequiresPermission(android.Manifest.permission.GET_INTENT_SENDER_INTENT) public boolean intentFilterEquals(@Nullable android.app.PendingIntent);
+    method @NonNull @RequiresPermission(android.Manifest.permission.GET_INTENT_SENDER_INTENT) public java.util.List<android.content.pm.ResolveInfo> queryIntentComponents(int);
+    method public void removeCancelListener(@NonNull android.app.PendingIntent.CancelListener);
+  }
+
+  public static interface PendingIntent.CancelListener {
+    method public void onCanceled(@NonNull android.app.PendingIntent);
+  }
+
+  public class StatusBarManager {
+    method @RequiresPermission(android.Manifest.permission.STATUS_BAR) public void setExpansionDisabledForSimNetworkLock(boolean);
+  }
+
+}
+
+package android.app.admin {
+
+  public class DevicePolicyManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public void acknowledgeNewUserDisclaimer();
+    method @Nullable @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.os.UserHandle getLogoutUser();
+    method public boolean hasManagedProfileCallerIdAccess(@NonNull android.os.UserHandle, @NonNull String);
+    method public boolean hasManagedProfileContactsAccess(@NonNull android.os.UserHandle, @NonNull String);
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public int logoutUser();
+    field public static final String ACTION_SHOW_NEW_USER_DISCLAIMER = "android.app.action.SHOW_NEW_USER_DISCLAIMER";
+  }
+
+}
+
+package android.app.role {
+
+  public class RoleFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+  public final class RoleManager {
+    method @Nullable public String getBrowserRoleHolder(int);
+    method @Nullable public String getSmsRoleHolder(int);
+    method @Nullable @RequiresPermission(android.Manifest.permission.SET_PREFERRED_APPLICATIONS) public boolean setBrowserRoleHolder(@Nullable String, int);
+  }
+
+}
+
+package android.app.sdksandbox {
+
+  public final class SdkSandboxManager {
+    field public static final String ACTION_START_SANDBOXED_ACTIVITY = "android.app.sdksandbox.action.START_SANDBOXED_ACTIVITY";
+  }
+
+  public class SdkSandboxManagerFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.app.usage {
+
+  public class NetworkStatsManager {
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void forceUpdate();
+    method public static int getCollapsedRatType(int);
+    method @NonNull @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public android.net.NetworkStats getMobileUidStats();
+    method @NonNull @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public android.net.NetworkStats getWifiUidStats();
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void noteUidForeground(int, boolean);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void notifyNetworkStatus(@NonNull java.util.List<android.net.Network>, @NonNull java.util.List<android.net.NetworkStateSnapshot>, @Nullable String, @NonNull java.util.List<android.net.UnderlyingNetworkInfo>);
+    method @NonNull @WorkerThread public android.app.usage.NetworkStats queryDetailsForDevice(@NonNull android.net.NetworkTemplate, long, long);
+    method @NonNull @WorkerThread public android.app.usage.NetworkStats queryDetailsForUidTagState(@NonNull android.net.NetworkTemplate, long, long, int, int, int) throws java.lang.SecurityException;
+    method @NonNull @WorkerThread public android.app.usage.NetworkStats querySummary(@NonNull android.net.NetworkTemplate, long, long) throws java.lang.SecurityException;
+    method @NonNull @WorkerThread public android.app.usage.NetworkStats.Bucket querySummaryForDevice(@NonNull android.net.NetworkTemplate, long, long);
+    method @NonNull @WorkerThread public android.app.usage.NetworkStats queryTaggedSummary(@NonNull android.net.NetworkTemplate, long, long) throws java.lang.SecurityException;
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}, conditional=true) public void registerUsageCallback(@NonNull android.net.NetworkTemplate, long, @NonNull java.util.concurrent.Executor, @NonNull android.app.usage.NetworkStatsManager.UsageCallback);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void setDefaultGlobalAlert(long);
+    method public void setPollForce(boolean);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void setPollOnOpen(boolean);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void setStatsProviderWarningAndLimitAsync(@NonNull String, long, long);
+    field public static final int NETWORK_TYPE_5G_NSA = -2; // 0xfffffffe
+  }
+
+  public abstract static class NetworkStatsManager.UsageCallback {
+    method public void onThresholdReached(@NonNull android.net.NetworkTemplate);
+  }
+
+}
+
+package android.bluetooth {
+
+  public class BluetoothFrameworkInitializer {
+    method public static void registerServiceWrappers();
+    method public static void setBinderCallsStatsInitializer(@NonNull java.util.function.Consumer<android.content.Context>);
+    method public static void setBluetoothServiceManager(@NonNull android.os.BluetoothServiceManager);
+  }
+
+  public final class BluetoothPan implements android.bluetooth.BluetoothProfile {
+    method @Nullable @RequiresPermission(allOf={android.Manifest.permission.BLUETOOTH_CONNECT, android.Manifest.permission.BLUETOOTH_PRIVILEGED, android.Manifest.permission.TETHER_PRIVILEGED}) public android.net.TetheringManager.TetheredInterfaceRequest requestTetheredInterface(@NonNull java.util.concurrent.Executor, @NonNull android.net.TetheringManager.TetheredInterfaceCallback);
+  }
+
+}
+
+package android.compat {
+
+  public final class Compatibility {
+    method public static void clearBehaviorChangeDelegate();
+    method public static void clearOverrides();
+    method public static boolean isChangeEnabled(long);
+    method public static void reportUnconditionalChange(long);
+    method public static void setBehaviorChangeDelegate(android.compat.Compatibility.BehaviorChangeDelegate);
+    method public static void setOverrides(android.compat.Compatibility.ChangeConfig);
+  }
+
+  public static interface Compatibility.BehaviorChangeDelegate {
+    method public default boolean isChangeEnabled(long);
+    method public default void onChangeReported(long);
+  }
+
+  public static final class Compatibility.ChangeConfig {
+    ctor public Compatibility.ChangeConfig(@NonNull java.util.Set<java.lang.Long>, @NonNull java.util.Set<java.lang.Long>);
+    method @NonNull public long[] getDisabledChangesArray();
+    method @NonNull public java.util.Set<java.lang.Long> getDisabledSet();
+    method @NonNull public long[] getEnabledChangesArray();
+    method @NonNull public java.util.Set<java.lang.Long> getEnabledSet();
+    method public boolean isEmpty();
+    method public boolean isForceDisabled(long);
+    method public boolean isForceEnabled(long);
+  }
+
+}
+
+package android.content {
+
+  public abstract class ContentProvider implements android.content.ComponentCallbacks2 {
+    method @NonNull public static android.net.Uri createContentUriForUser(@NonNull android.net.Uri, @NonNull android.os.UserHandle);
+  }
+
+  public abstract class ContentResolver {
+    method @RequiresPermission(value=android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, conditional=true) public final void registerContentObserverAsUser(@NonNull android.net.Uri, boolean, @NonNull android.database.ContentObserver, @NonNull android.os.UserHandle);
+  }
+
+  public abstract class Context {
+    method @NonNull public android.content.Context createContextForSdkInSandbox(@NonNull android.content.pm.ApplicationInfo, int) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @NonNull public android.os.IBinder getProcessToken();
+    method @NonNull public android.os.UserHandle getUser();
+    field public static final String PAC_PROXY_SERVICE = "pac_proxy";
+    field public static final String TEST_NETWORK_SERVICE = "test_network";
+  }
+
+  public class Intent implements java.lang.Cloneable android.os.Parcelable {
+    field public static final String ACTION_SETTING_RESTORED = "android.os.action.SETTING_RESTORED";
+    field public static final String EXTRA_SETTING_NAME = "setting_name";
+    field public static final String EXTRA_SETTING_NEW_VALUE = "new_value";
+    field public static final String EXTRA_SETTING_PREVIOUS_VALUE = "previous_value";
+    field public static final String EXTRA_SETTING_RESTORED_FROM_SDK_INT = "restored_from_sdk_int";
+  }
+
+}
+
+package android.content.pm {
+
+  public class ApplicationInfo extends android.content.pm.PackageItemInfo implements android.os.Parcelable {
+    method @NonNull public java.util.List<android.content.pm.SharedLibraryInfo> getSharedLibraryInfos();
+    field public static final int HIDDEN_API_ENFORCEMENT_DEFAULT = -1; // 0xffffffff
+    field public static final int HIDDEN_API_ENFORCEMENT_DISABLED = 0; // 0x0
+    field public static final int HIDDEN_API_ENFORCEMENT_ENABLED = 2; // 0x2
+    field public static final int HIDDEN_API_ENFORCEMENT_JUST_WARN = 1; // 0x1
+  }
+
+  public abstract class PackageManager {
+    method @NonNull public String getPermissionControllerPackageName();
+    method @NonNull public String getSdkSandboxPackageName();
+    method @RequiresPermission(android.Manifest.permission.MAKE_UID_VISIBLE) public void makeUidVisible(int, int);
+    field public static final String EXTRA_VERIFICATION_ROOT_HASH = "android.content.pm.extra.VERIFICATION_ROOT_HASH";
+    field public static final int MATCH_STATIC_SHARED_AND_SDK_LIBRARIES = 67108864; // 0x4000000
+  }
+
+}
+
+package android.devicelock {
+
+  public final class DeviceLockFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.hardware.usb {
+
+  public class UsbManager {
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getGadgetHalVersion();
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getUsbBandwidthMbps();
+    method @RequiresPermission(android.Manifest.permission.MANAGE_USB) public int getUsbHalVersion();
+    field public static final int GADGET_HAL_NOT_SUPPORTED = -1; // 0xffffffff
+    field public static final int GADGET_HAL_V1_0 = 10; // 0xa
+    field public static final int GADGET_HAL_V1_1 = 11; // 0xb
+    field public static final int GADGET_HAL_V1_2 = 12; // 0xc
+    field public static final int GADGET_HAL_V2_0 = 20; // 0x14
+    field public static final int USB_DATA_TRANSFER_RATE_10G = 10240; // 0x2800
+    field public static final int USB_DATA_TRANSFER_RATE_20G = 20480; // 0x5000
+    field public static final int USB_DATA_TRANSFER_RATE_40G = 40960; // 0xa000
+    field public static final int USB_DATA_TRANSFER_RATE_5G = 5120; // 0x1400
+    field public static final int USB_DATA_TRANSFER_RATE_FULL_SPEED = 12; // 0xc
+    field public static final int USB_DATA_TRANSFER_RATE_HIGH_SPEED = 480; // 0x1e0
+    field public static final int USB_DATA_TRANSFER_RATE_LOW_SPEED = 2; // 0x2
+    field public static final int USB_DATA_TRANSFER_RATE_UNKNOWN = -1; // 0xffffffff
+    field public static final int USB_HAL_NOT_SUPPORTED = -1; // 0xffffffff
+    field public static final int USB_HAL_RETRY = -2; // 0xfffffffe
+    field public static final int USB_HAL_V1_0 = 10; // 0xa
+    field public static final int USB_HAL_V1_1 = 11; // 0xb
+    field public static final int USB_HAL_V1_2 = 12; // 0xc
+    field public static final int USB_HAL_V1_3 = 13; // 0xd
+    field public static final int USB_HAL_V2_0 = 20; // 0x14
+  }
+
+}
+
+package android.health.connect {
+
+  public class HealthServicesInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.location {
+
+  public class LocationManager {
+    method @RequiresPermission(allOf={android.Manifest.permission.LOCATION_HARDWARE, android.Manifest.permission.ACCESS_FINE_LOCATION}) public boolean injectLocation(@NonNull android.location.Location);
+    method @RequiresPermission(android.Manifest.permission.CONTROL_AUTOMOTIVE_GNSS) public boolean isAutomotiveGnssSuspended();
+    method @RequiresPermission(android.Manifest.permission.CONTROL_AUTOMOTIVE_GNSS) public void setAutomotiveGnssSuspended(boolean);
+  }
+
+}
+
+package android.media {
+
+  public class AudioManager {
+    method public void adjustStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    method public void adjustSuggestedStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    method @NonNull public java.util.List<android.bluetooth.BluetoothCodecConfig> getHwOffloadFormatsSupportedForA2dp();
+    method @NonNull public java.util.List<android.bluetooth.BluetoothLeAudioCodecConfig> getHwOffloadFormatsSupportedForLeAudio();
+    method @NonNull public java.util.List<android.bluetooth.BluetoothLeAudioCodecConfig> getHwOffloadFormatsSupportedForLeBroadcast();
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void handleBluetoothActiveDeviceChanged(@Nullable android.bluetooth.BluetoothDevice, @Nullable android.bluetooth.BluetoothDevice, @NonNull android.media.BluetoothProfileConnectionInfo);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setA2dpSuspended(boolean);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setBluetoothHeadsetProperties(@NonNull String, boolean, boolean);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setHfpEnabled(boolean);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setHfpSamplingRate(int);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setHfpVolume(int);
+    method @RequiresPermission(android.Manifest.permission.BLUETOOTH_STACK) public void setLeAudioSuspended(boolean);
+    method public void setStreamVolumeForUid(int, int, int, @NonNull String, int, int, int);
+    field public static final int FLAG_FROM_KEY = 4096; // 0x1000
+  }
+
+  public final class BluetoothProfileConnectionInfo implements android.os.Parcelable {
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createA2dpInfo(boolean, int);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createA2dpSinkInfo(int);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createHearingAidInfo(boolean);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createLeAudioInfo(boolean, boolean);
+    method @NonNull public static android.media.BluetoothProfileConnectionInfo createLeAudioOutputInfo(boolean, int);
+    method public int describeContents();
+    method public int getProfile();
+    method public int getVolume();
+    method public boolean isLeOutput();
+    method public boolean isSuppressNoisyIntent();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.media.BluetoothProfileConnectionInfo> CREATOR;
+  }
+
+  public class MediaCommunicationManager {
+    method public void dispatchMediaKeyEvent(@NonNull android.view.KeyEvent, boolean);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void registerSessionCallback(@NonNull java.util.concurrent.Executor, @NonNull android.media.MediaCommunicationManager.SessionCallback);
+    method public void unregisterSessionCallback(@NonNull android.media.MediaCommunicationManager.SessionCallback);
+  }
+
+  public static interface MediaCommunicationManager.SessionCallback {
+    method public default void onSession2TokenCreated(@NonNull android.media.Session2Token);
+    method public default void onSession2TokensChanged(@NonNull java.util.List<android.media.Session2Token>);
+  }
+
+  public class MediaFrameworkInitializer {
+    method public static void registerServiceWrappers();
+    method public static void setMediaServiceManager(@NonNull android.media.MediaServiceManager);
+  }
+
+  public class MediaMetadataRetriever implements java.lang.AutoCloseable {
+    field public static final int METADATA_KEY_VIDEO_CODEC_MIME_TYPE = 40; // 0x28
+  }
+
+  @Deprecated public final class MediaParceledListSlice<T extends android.os.Parcelable> implements android.os.Parcelable {
+    ctor @Deprecated public MediaParceledListSlice(@NonNull java.util.List<T>);
+    method @Deprecated public int describeContents();
+    method @Deprecated @NonNull public static <T extends android.os.Parcelable> android.media.MediaParceledListSlice<T> emptyList();
+    method @Deprecated public java.util.List<T> getList();
+    method @Deprecated public void setInlineCountLimit(int);
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated @NonNull public static final android.os.Parcelable.ClassLoaderCreator<android.media.MediaParceledListSlice> CREATOR;
+  }
+
+  public class MediaServiceManager {
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaCommunicationServiceRegisterer();
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaSessionServiceRegisterer();
+    method @NonNull public android.media.MediaServiceManager.ServiceRegisterer getMediaTranscodingServiceRegisterer();
+  }
+
+  public static final class MediaServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+  }
+
+}
+
+package android.media.session {
+
+  public static final class MediaController.PlaybackInfo implements android.os.Parcelable {
+    ctor public MediaController.PlaybackInfo(int, int, @IntRange(from=0) int, @IntRange(from=0) int, @NonNull android.media.AudioAttributes, @Nullable String);
+  }
+
+  public final class MediaSession {
+    field public static final int FLAG_EXCLUSIVE_GLOBAL_PRIORITY = 65536; // 0x10000
+  }
+
+  public static final class MediaSession.Token implements android.os.Parcelable {
+    method public int getUid();
+  }
+
+  public final class MediaSessionManager {
+    method public void addOnActiveSessionsChangedListener(@Nullable android.content.ComponentName, @NonNull android.os.UserHandle, @NonNull java.util.concurrent.Executor, @NonNull android.media.session.MediaSessionManager.OnActiveSessionsChangedListener);
+    method public void dispatchMediaKeyEvent(@NonNull android.view.KeyEvent, boolean);
+    method public void dispatchMediaKeyEventAsSystemService(@NonNull android.view.KeyEvent);
+    method public boolean dispatchMediaKeyEventToSessionAsSystemService(@NonNull android.view.KeyEvent, @NonNull android.media.session.MediaSession.Token);
+    method public void dispatchVolumeKeyEvent(@NonNull android.view.KeyEvent, int, boolean);
+    method public void dispatchVolumeKeyEventAsSystemService(@NonNull android.view.KeyEvent, int);
+    method public void dispatchVolumeKeyEventToSessionAsSystemService(@NonNull android.view.KeyEvent, @NonNull android.media.session.MediaSession.Token);
+    method @NonNull public java.util.List<android.media.session.MediaController> getActiveSessionsForUser(@Nullable android.content.ComponentName, @NonNull android.os.UserHandle);
+    method public void registerRemoteSessionCallback(@NonNull java.util.concurrent.Executor, @NonNull android.media.session.MediaSessionManager.RemoteSessionCallback);
+    method public void unregisterRemoteSessionCallback(@NonNull android.media.session.MediaSessionManager.RemoteSessionCallback);
+    field public static final int RESULT_MEDIA_KEY_HANDLED = 1; // 0x1
+    field public static final int RESULT_MEDIA_KEY_NOT_HANDLED = 0; // 0x0
+  }
+
+  public static interface MediaSessionManager.RemoteSessionCallback {
+    method public void onDefaultRemoteSessionChanged(@Nullable android.media.session.MediaSession.Token);
+    method public void onVolumeChanged(@NonNull android.media.session.MediaSession.Token, int);
+  }
+
+}
+
+package android.nearby {
+
+  public final class NearbyFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.net {
+
+  public final class ConnectivityFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+  public final class ConnectivityFrameworkInitializerTiramisu {
+    method public static void registerServiceWrappers();
+  }
+
+  public class ConnectivityManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void addUidToMeteredNetworkAllowList(int);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void addUidToMeteredNetworkDenyList(int);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void factoryReset();
+    method @NonNull @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public java.util.List<android.net.NetworkStateSnapshot> getAllNetworkStateSnapshots();
+    method @Nullable public android.net.ProxyInfo getGlobalProxy();
+    method @NonNull public static android.util.Range<java.lang.Integer> getIpSecNetIdRange();
+    method @Nullable @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public android.net.LinkProperties getRedactedLinkPropertiesForPackage(@NonNull android.net.LinkProperties, int, @NonNull String);
+    method @Nullable @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public android.net.NetworkCapabilities getRedactedNetworkCapabilitiesForPackage(@NonNull android.net.NetworkCapabilities, int, @NonNull String);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void registerDefaultNetworkCallbackForUid(int, @NonNull android.net.ConnectivityManager.NetworkCallback, @NonNull android.os.Handler);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_SETUP_WIZARD, android.Manifest.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS}) public void registerSystemDefaultNetworkCallback(@NonNull android.net.ConnectivityManager.NetworkCallback, @NonNull android.os.Handler);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void removeUidFromMeteredNetworkAllowList(int);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void removeUidFromMeteredNetworkDenyList(int);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void replaceFirewallChain(int, @NonNull int[]);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void requestBackgroundNetwork(@NonNull android.net.NetworkRequest, @NonNull android.net.ConnectivityManager.NetworkCallback, @NonNull android.os.Handler);
+    method @Deprecated public boolean requestRouteToHostAddress(int, java.net.InetAddress);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_SETUP_WIZARD, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void setAcceptPartialConnectivity(@NonNull android.net.Network, boolean, boolean);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_SETUP_WIZARD, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void setAcceptUnvalidated(@NonNull android.net.Network, boolean, boolean);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_SETUP_WIZARD, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void setAvoidUnvalidated(@NonNull android.net.Network);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void setFirewallChainEnabled(int, boolean);
+    method @RequiresPermission(android.Manifest.permission.NETWORK_STACK) public void setGlobalProxy(@Nullable android.net.ProxyInfo);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setLegacyLockdownVpnEnabled(boolean);
+    method @Deprecated @RequiresPermission(android.Manifest.permission.NETWORK_STACK) public void setProfileNetworkPreference(@NonNull android.os.UserHandle, int, @Nullable java.util.concurrent.Executor, @Nullable Runnable);
+    method @RequiresPermission(android.Manifest.permission.NETWORK_STACK) public void setProfileNetworkPreferences(@NonNull android.os.UserHandle, @NonNull java.util.List<android.net.ProfileNetworkPreference>, @Nullable java.util.concurrent.Executor, @Nullable Runnable);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setRequireVpnForUids(boolean, @NonNull java.util.Collection<android.util.Range<java.lang.Integer>>);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void setUidFirewallRule(int, int, int);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setVpnDefaultForUids(@NonNull String, @NonNull java.util.Collection<android.util.Range<java.lang.Integer>>);
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_TEST_NETWORKS, android.Manifest.permission.NETWORK_STACK}) public void simulateDataStall(int, long, @NonNull android.net.Network, @NonNull android.os.PersistableBundle);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK}) public void startCaptivePortalApp(@NonNull android.net.Network);
+    method public void systemReady();
+    field public static final String ACTION_CLEAR_DNS_CACHE = "android.net.action.CLEAR_DNS_CACHE";
+    field public static final String ACTION_PROMPT_LOST_VALIDATION = "android.net.action.PROMPT_LOST_VALIDATION";
+    field public static final String ACTION_PROMPT_PARTIAL_CONNECTIVITY = "android.net.action.PROMPT_PARTIAL_CONNECTIVITY";
+    field public static final String ACTION_PROMPT_UNVALIDATED = "android.net.action.PROMPT_UNVALIDATED";
+    field public static final int BLOCKED_METERED_REASON_ADMIN_DISABLED = 262144; // 0x40000
+    field public static final int BLOCKED_METERED_REASON_DATA_SAVER = 65536; // 0x10000
+    field public static final int BLOCKED_METERED_REASON_MASK = -65536; // 0xffff0000
+    field public static final int BLOCKED_METERED_REASON_USER_RESTRICTED = 131072; // 0x20000
+    field public static final int BLOCKED_REASON_APP_STANDBY = 4; // 0x4
+    field public static final int BLOCKED_REASON_BATTERY_SAVER = 1; // 0x1
+    field public static final int BLOCKED_REASON_DOZE = 2; // 0x2
+    field public static final int BLOCKED_REASON_LOCKDOWN_VPN = 16; // 0x10
+    field public static final int BLOCKED_REASON_LOW_POWER_STANDBY = 32; // 0x20
+    field public static final int BLOCKED_REASON_NONE = 0; // 0x0
+    field public static final int BLOCKED_REASON_RESTRICTED_MODE = 8; // 0x8
+    field public static final int FIREWALL_CHAIN_DOZABLE = 1; // 0x1
+    field public static final int FIREWALL_CHAIN_LOW_POWER_STANDBY = 5; // 0x5
+    field public static final int FIREWALL_CHAIN_OEM_DENY_1 = 7; // 0x7
+    field public static final int FIREWALL_CHAIN_OEM_DENY_2 = 8; // 0x8
+    field public static final int FIREWALL_CHAIN_OEM_DENY_3 = 9; // 0x9
+    field public static final int FIREWALL_CHAIN_POWERSAVE = 3; // 0x3
+    field public static final int FIREWALL_CHAIN_RESTRICTED = 4; // 0x4
+    field public static final int FIREWALL_CHAIN_STANDBY = 2; // 0x2
+    field public static final int FIREWALL_RULE_ALLOW = 1; // 0x1
+    field public static final int FIREWALL_RULE_DEFAULT = 0; // 0x0
+    field public static final int FIREWALL_RULE_DENY = 2; // 0x2
+    field public static final int PROFILE_NETWORK_PREFERENCE_DEFAULT = 0; // 0x0
+    field public static final int PROFILE_NETWORK_PREFERENCE_ENTERPRISE = 1; // 0x1
+    field public static final int PROFILE_NETWORK_PREFERENCE_ENTERPRISE_BLOCKING = 3; // 0x3
+    field public static final int PROFILE_NETWORK_PREFERENCE_ENTERPRISE_NO_FALLBACK = 2; // 0x2
+  }
+
+  public static class ConnectivityManager.NetworkCallback {
+    method public void onBlockedStatusChanged(@NonNull android.net.Network, int);
+  }
+
+  public class ConnectivitySettingsManager {
+    method public static void clearGlobalProxy(@NonNull android.content.Context);
+    method @Nullable public static String getCaptivePortalHttpUrl(@NonNull android.content.Context);
+    method public static int getCaptivePortalMode(@NonNull android.content.Context, int);
+    method @NonNull public static java.time.Duration getConnectivityKeepPendingIntentDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method @NonNull public static android.util.Range<java.lang.Integer> getDnsResolverSampleRanges(@NonNull android.content.Context);
+    method @NonNull public static java.time.Duration getDnsResolverSampleValidityDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static int getDnsResolverSuccessThresholdPercent(@NonNull android.content.Context, int);
+    method @Nullable public static android.net.ProxyInfo getGlobalProxy(@NonNull android.content.Context);
+    method public static long getIngressRateLimitInBytesPerSecond(@NonNull android.content.Context);
+    method @NonNull public static java.time.Duration getMobileDataActivityTimeout(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static boolean getMobileDataAlwaysOn(@NonNull android.content.Context, boolean);
+    method @NonNull public static java.util.Set<java.lang.Integer> getMobileDataPreferredUids(@NonNull android.content.Context);
+    method public static int getNetworkAvoidBadWifi(@NonNull android.content.Context);
+    method @Nullable public static String getNetworkMeteredMultipathPreference(@NonNull android.content.Context);
+    method public static int getNetworkSwitchNotificationMaximumDailyCount(@NonNull android.content.Context, int);
+    method @NonNull public static java.time.Duration getNetworkSwitchNotificationRateDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method @NonNull public static String getPrivateDnsDefaultMode(@NonNull android.content.Context);
+    method @Nullable public static String getPrivateDnsHostname(@NonNull android.content.Context);
+    method public static int getPrivateDnsMode(@NonNull android.content.Context);
+    method @NonNull public static java.util.Set<java.lang.Integer> getUidsAllowedOnRestrictedNetworks(@NonNull android.content.Context);
+    method public static boolean getWifiAlwaysRequested(@NonNull android.content.Context, boolean);
+    method @NonNull public static java.time.Duration getWifiDataActivityTimeout(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static void setCaptivePortalHttpUrl(@NonNull android.content.Context, @Nullable String);
+    method public static void setCaptivePortalMode(@NonNull android.content.Context, int);
+    method public static void setConnectivityKeepPendingIntentDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static void setDnsResolverSampleRanges(@NonNull android.content.Context, @NonNull android.util.Range<java.lang.Integer>);
+    method public static void setDnsResolverSampleValidityDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static void setDnsResolverSuccessThresholdPercent(@NonNull android.content.Context, @IntRange(from=0, to=100) int);
+    method public static void setGlobalProxy(@NonNull android.content.Context, @NonNull android.net.ProxyInfo);
+    method public static void setIngressRateLimitInBytesPerSecond(@NonNull android.content.Context, @IntRange(from=-1L, to=4294967295L) long);
+    method public static void setMobileDataActivityTimeout(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static void setMobileDataAlwaysOn(@NonNull android.content.Context, boolean);
+    method public static void setMobileDataPreferredUids(@NonNull android.content.Context, @NonNull java.util.Set<java.lang.Integer>);
+    method public static void setNetworkAvoidBadWifi(@NonNull android.content.Context, int);
+    method public static void setNetworkMeteredMultipathPreference(@NonNull android.content.Context, @NonNull String);
+    method public static void setNetworkSwitchNotificationMaximumDailyCount(@NonNull android.content.Context, @IntRange(from=0) int);
+    method public static void setNetworkSwitchNotificationRateDuration(@NonNull android.content.Context, @NonNull java.time.Duration);
+    method public static void setPrivateDnsDefaultMode(@NonNull android.content.Context, @NonNull int);
+    method public static void setPrivateDnsHostname(@NonNull android.content.Context, @Nullable String);
+    method public static void setPrivateDnsMode(@NonNull android.content.Context, int);
+    method public static void setUidsAllowedOnRestrictedNetworks(@NonNull android.content.Context, @NonNull java.util.Set<java.lang.Integer>);
+    method public static void setWifiAlwaysRequested(@NonNull android.content.Context, boolean);
+    method public static void setWifiDataActivityTimeout(@NonNull android.content.Context, @NonNull java.time.Duration);
+    field public static final int CAPTIVE_PORTAL_MODE_AVOID = 2; // 0x2
+    field public static final int CAPTIVE_PORTAL_MODE_IGNORE = 0; // 0x0
+    field public static final int CAPTIVE_PORTAL_MODE_PROMPT = 1; // 0x1
+    field public static final int NETWORK_AVOID_BAD_WIFI_AVOID = 2; // 0x2
+    field public static final int NETWORK_AVOID_BAD_WIFI_IGNORE = 0; // 0x0
+    field public static final int NETWORK_AVOID_BAD_WIFI_PROMPT = 1; // 0x1
+    field public static final int PRIVATE_DNS_MODE_OFF = 1; // 0x1
+    field public static final int PRIVATE_DNS_MODE_OPPORTUNISTIC = 2; // 0x2
+    field public static final int PRIVATE_DNS_MODE_PROVIDER_HOSTNAME = 3; // 0x3
+  }
+
+  public final class DhcpOption implements android.os.Parcelable {
+    ctor public DhcpOption(byte, @Nullable byte[]);
+    method public int describeContents();
+    method public byte getType();
+    method @Nullable public byte[] getValue();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.DhcpOption> CREATOR;
+  }
+
+  public class EthernetManager {
+    method @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) public void addEthernetStateListener(@NonNull java.util.concurrent.Executor, @NonNull java.util.function.IntConsumer);
+    method @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) public void addInterfaceStateListener(@NonNull java.util.concurrent.Executor, @NonNull android.net.EthernetManager.InterfaceStateListener);
+    method @NonNull @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) public java.util.List<java.lang.String> getInterfaceList();
+    method @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE) public void removeEthernetStateListener(@NonNull java.util.function.IntConsumer);
+    method public void removeInterfaceStateListener(@NonNull android.net.EthernetManager.InterfaceStateListener);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setEthernetEnabled(boolean);
+    method public void setIncludeTestInterfaces(boolean);
+    field public static final int ETHERNET_STATE_DISABLED = 0; // 0x0
+    field public static final int ETHERNET_STATE_ENABLED = 1; // 0x1
+    field public static final int ROLE_CLIENT = 1; // 0x1
+    field public static final int ROLE_NONE = 0; // 0x0
+    field public static final int ROLE_SERVER = 2; // 0x2
+    field public static final int STATE_ABSENT = 0; // 0x0
+    field public static final int STATE_LINK_DOWN = 1; // 0x1
+    field public static final int STATE_LINK_UP = 2; // 0x2
+  }
+
+  public static interface EthernetManager.InterfaceStateListener {
+    method public void onInterfaceStateChanged(@NonNull String, int, int, @Nullable android.net.IpConfiguration);
+  }
+
+  public class IpSecManager {
+    field public static final int DIRECTION_FWD = 2; // 0x2
+  }
+
+  public static final class IpSecManager.UdpEncapsulationSocket implements java.lang.AutoCloseable {
+    method public int getResourceId();
+  }
+
+  public class LocalSocket implements java.io.Closeable {
+    ctor public LocalSocket(@NonNull java.io.FileDescriptor);
+  }
+
+  public final class NetworkAgentConfig implements android.os.Parcelable {
+    method @Nullable public String getSubscriberId();
+    method public boolean isBypassableVpn();
+    method public boolean isVpnValidationRequired();
+  }
+
+  public static final class NetworkAgentConfig.Builder {
+    method @NonNull public android.net.NetworkAgentConfig.Builder setBypassableVpn(boolean);
+    method @NonNull public android.net.NetworkAgentConfig.Builder setLocalRoutesExcludedForVpn(boolean);
+    method @NonNull public android.net.NetworkAgentConfig.Builder setSubscriberId(@Nullable String);
+    method @NonNull public android.net.NetworkAgentConfig.Builder setVpnRequiresValidation(boolean);
+  }
+
+  public final class NetworkCapabilities implements android.os.Parcelable {
+    method @NonNull @RequiresPermission(android.Manifest.permission.NETWORK_FACTORY) public java.util.Set<java.lang.Integer> getAllowedUids();
+    method @Nullable public java.util.Set<android.util.Range<java.lang.Integer>> getUids();
+    method public boolean hasForbiddenCapability(int);
+    field public static final long REDACT_ALL = -1L; // 0xffffffffffffffffL
+    field public static final long REDACT_FOR_ACCESS_FINE_LOCATION = 1L; // 0x1L
+    field public static final long REDACT_FOR_LOCAL_MAC_ADDRESS = 2L; // 0x2L
+    field public static final long REDACT_FOR_NETWORK_SETTINGS = 4L; // 0x4L
+    field public static final long REDACT_NONE = 0L; // 0x0L
+    field public static final int TRANSPORT_TEST = 7; // 0x7
+  }
+
+  public static final class NetworkCapabilities.Builder {
+    method @NonNull @RequiresPermission(android.Manifest.permission.NETWORK_FACTORY) public android.net.NetworkCapabilities.Builder setAllowedUids(@NonNull java.util.Set<java.lang.Integer>);
+    method @NonNull public android.net.NetworkCapabilities.Builder setUids(@Nullable java.util.Set<android.util.Range<java.lang.Integer>>);
+  }
+
+  public class NetworkIdentity {
+    method public int getOemManaged();
+    method public int getRatType();
+    method public int getSubId();
+    method @Nullable public String getSubscriberId();
+    method public int getType();
+    method @Nullable public String getWifiNetworkKey();
+    method public boolean isDefaultNetwork();
+    method public boolean isMetered();
+    method public boolean isRoaming();
+  }
+
+  public static final class NetworkIdentity.Builder {
+    ctor public NetworkIdentity.Builder();
+    method @NonNull public android.net.NetworkIdentity build();
+    method @NonNull public android.net.NetworkIdentity.Builder clearRatType();
+    method @NonNull public android.net.NetworkIdentity.Builder setDefaultNetwork(boolean);
+    method @NonNull public android.net.NetworkIdentity.Builder setMetered(boolean);
+    method @NonNull public android.net.NetworkIdentity.Builder setNetworkStateSnapshot(@NonNull android.net.NetworkStateSnapshot);
+    method @NonNull public android.net.NetworkIdentity.Builder setOemManaged(int);
+    method @NonNull public android.net.NetworkIdentity.Builder setRatType(int);
+    method @NonNull public android.net.NetworkIdentity.Builder setRoaming(boolean);
+    method @NonNull public android.net.NetworkIdentity.Builder setSubId(int);
+    method @NonNull public android.net.NetworkIdentity.Builder setSubscriberId(@Nullable String);
+    method @NonNull public android.net.NetworkIdentity.Builder setType(int);
+    method @NonNull public android.net.NetworkIdentity.Builder setWifiNetworkKey(@Nullable String);
+  }
+
+  public class NetworkPolicyManager {
+    method @RequiresPermission(android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK) public int getMultipathPreference(@NonNull android.net.Network);
+    method @RequiresPermission(android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK) public int getRestrictBackgroundStatus(int);
+    method @Nullable @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public android.telephony.SubscriptionPlan getSubscriptionPlan(@NonNull android.net.NetworkTemplate);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public boolean isUidNetworkingBlocked(int, boolean);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public boolean isUidRestrictedOnMeteredNetworks(int);
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void notifyStatsProviderLimitReached();
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void notifyStatsProviderWarningReached();
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public void registerNetworkPolicyCallback(@Nullable java.util.concurrent.Executor, @NonNull android.net.NetworkPolicyManager.NetworkPolicyCallback);
+    method @RequiresPermission(android.Manifest.permission.OBSERVE_NETWORK_POLICY) public void unregisterNetworkPolicyCallback(@NonNull android.net.NetworkPolicyManager.NetworkPolicyCallback);
+  }
+
+  public static interface NetworkPolicyManager.NetworkPolicyCallback {
+    method public default void onUidBlockedReasonChanged(int, int);
+  }
+
+  public class NetworkRequest implements android.os.Parcelable {
+    method @NonNull public int[] getEnterpriseIds();
+    method @NonNull public int[] getForbiddenCapabilities();
+    method public boolean hasEnterpriseId(int);
+    method public boolean hasForbiddenCapability(int);
+  }
+
+  public static class NetworkRequest.Builder {
+    method @NonNull public android.net.NetworkRequest.Builder addForbiddenCapability(int);
+    method @NonNull public android.net.NetworkRequest.Builder removeForbiddenCapability(int);
+    method @NonNull public android.net.NetworkRequest.Builder setUids(@Nullable java.util.Set<android.util.Range<java.lang.Integer>>);
+  }
+
+  public final class NetworkStateSnapshot implements android.os.Parcelable {
+    ctor public NetworkStateSnapshot(@NonNull android.net.Network, @NonNull android.net.NetworkCapabilities, @NonNull android.net.LinkProperties, @Nullable String, int);
+    method public int describeContents();
+    method public int getLegacyType();
+    method @NonNull public android.net.LinkProperties getLinkProperties();
+    method @NonNull public android.net.Network getNetwork();
+    method @NonNull public android.net.NetworkCapabilities getNetworkCapabilities();
+    method public int getSubId();
+    method @Deprecated @Nullable public String getSubscriberId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.NetworkStateSnapshot> CREATOR;
+  }
+
+  public class NetworkStatsCollection {
+    method @NonNull public java.util.Map<android.net.NetworkStatsCollection.Key,android.net.NetworkStatsHistory> getEntries();
+  }
+
+  public static final class NetworkStatsCollection.Builder {
+    ctor public NetworkStatsCollection.Builder(long);
+    method @NonNull public android.net.NetworkStatsCollection.Builder addEntry(@NonNull android.net.NetworkStatsCollection.Key, @NonNull android.net.NetworkStatsHistory);
+    method @NonNull public android.net.NetworkStatsCollection build();
+  }
+
+  public static final class NetworkStatsCollection.Key {
+    ctor public NetworkStatsCollection.Key(@NonNull java.util.Set<android.net.NetworkIdentity>, int, int, int);
+  }
+
+  public final class NetworkStatsHistory implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<android.net.NetworkStatsHistory.Entry> getEntries();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.NetworkStatsHistory> CREATOR;
+  }
+
+  public static final class NetworkStatsHistory.Builder {
+    ctor public NetworkStatsHistory.Builder(long, int);
+    method @NonNull public android.net.NetworkStatsHistory.Builder addEntry(@NonNull android.net.NetworkStatsHistory.Entry);
+    method @NonNull public android.net.NetworkStatsHistory build();
+  }
+
+  public static final class NetworkStatsHistory.Entry {
+    ctor public NetworkStatsHistory.Entry(long, long, long, long, long, long, long);
+    method public long getActiveTime();
+    method public long getBucketStart();
+    method public long getOperations();
+    method public long getRxBytes();
+    method public long getRxPackets();
+    method public long getTxBytes();
+    method public long getTxPackets();
+  }
+
+  public final class NetworkTemplate implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getDefaultNetworkStatus();
+    method public int getMatchRule();
+    method public int getMeteredness();
+    method public int getOemManaged();
+    method public int getRatType();
+    method public int getRoaming();
+    method @NonNull public java.util.Set<java.lang.String> getSubscriberIds();
+    method @NonNull public java.util.Set<java.lang.String> getWifiNetworkKeys();
+    method public boolean matches(@NonNull android.net.NetworkIdentity);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.NetworkTemplate> CREATOR;
+    field public static final int MATCH_BLUETOOTH = 8; // 0x8
+    field public static final int MATCH_CARRIER = 10; // 0xa
+    field public static final int MATCH_ETHERNET = 5; // 0x5
+    field public static final int MATCH_MOBILE = 1; // 0x1
+    field public static final int MATCH_PROXY = 9; // 0x9
+    field public static final int MATCH_WIFI = 4; // 0x4
+    field public static final int NETWORK_TYPE_ALL = -1; // 0xffffffff
+    field public static final int OEM_MANAGED_ALL = -1; // 0xffffffff
+    field public static final int OEM_MANAGED_NO = 0; // 0x0
+    field public static final int OEM_MANAGED_PAID = 1; // 0x1
+    field public static final int OEM_MANAGED_PRIVATE = 2; // 0x2
+    field public static final int OEM_MANAGED_YES = -2; // 0xfffffffe
+  }
+
+  public static final class NetworkTemplate.Builder {
+    ctor public NetworkTemplate.Builder(int);
+    method @NonNull public android.net.NetworkTemplate build();
+    method @NonNull public android.net.NetworkTemplate.Builder setDefaultNetworkStatus(int);
+    method @NonNull public android.net.NetworkTemplate.Builder setMeteredness(int);
+    method @NonNull public android.net.NetworkTemplate.Builder setOemManaged(int);
+    method @NonNull public android.net.NetworkTemplate.Builder setRatType(int);
+    method @NonNull public android.net.NetworkTemplate.Builder setRoaming(int);
+    method @NonNull public android.net.NetworkTemplate.Builder setSubscriberIds(@NonNull java.util.Set<java.lang.String>);
+    method @NonNull public android.net.NetworkTemplate.Builder setWifiNetworkKeys(@NonNull java.util.Set<java.lang.String>);
+  }
+
+  public class NetworkWatchlistManager {
+    method @Nullable public byte[] getWatchlistConfigHash();
+  }
+
+  public class PacProxyManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void addPacProxyInstalledListener(@NonNull java.util.concurrent.Executor, @NonNull android.net.PacProxyManager.PacProxyInstalledListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void removePacProxyInstalledListener(@NonNull android.net.PacProxyManager.PacProxyInstalledListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_STACK, android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_SETTINGS}) public void setCurrentProxyScriptUrl(@Nullable android.net.ProxyInfo);
+  }
+
+  public static interface PacProxyManager.PacProxyInstalledListener {
+    method public void onPacProxyInstalled(@Nullable android.net.Network, @NonNull android.net.ProxyInfo);
+  }
+
+  public final class ProfileNetworkPreference implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public int[] getExcludedUids();
+    method @NonNull public int[] getIncludedUids();
+    method public int getPreference();
+    method public int getPreferenceEnterpriseId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.ProfileNetworkPreference> CREATOR;
+  }
+
+  public static final class ProfileNetworkPreference.Builder {
+    ctor public ProfileNetworkPreference.Builder();
+    method @NonNull public android.net.ProfileNetworkPreference build();
+    method @NonNull public android.net.ProfileNetworkPreference.Builder setExcludedUids(@NonNull int[]);
+    method @NonNull public android.net.ProfileNetworkPreference.Builder setIncludedUids(@NonNull int[]);
+    method @NonNull public android.net.ProfileNetworkPreference.Builder setPreference(int);
+    method @NonNull public android.net.ProfileNetworkPreference.Builder setPreferenceEnterpriseId(int);
+  }
+
+  public final class Proxy {
+    method public static void setHttpProxyConfiguration(@Nullable android.net.ProxyInfo);
+  }
+
+  public final class TestNetworkInterface implements android.os.Parcelable {
+    ctor public TestNetworkInterface(@NonNull android.os.ParcelFileDescriptor, @NonNull String);
+    method public int describeContents();
+    method @NonNull public android.os.ParcelFileDescriptor getFileDescriptor();
+    method @NonNull public String getInterfaceName();
+    method @Nullable public android.net.MacAddress getMacAddress();
+    method public int getMtu();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.TestNetworkInterface> CREATOR;
+  }
+
+  public class TestNetworkManager {
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_TEST_NETWORKS) public android.net.TestNetworkInterface createTapInterface();
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_TEST_NETWORKS) public android.net.TestNetworkInterface createTunInterface(@NonNull java.util.Collection<android.net.LinkAddress>);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_TEST_NETWORKS) public void setupTestNetwork(@NonNull String, @NonNull android.os.IBinder);
+    method @RequiresPermission(android.Manifest.permission.MANAGE_TEST_NETWORKS) public void teardownTestNetwork(@NonNull android.net.Network);
+    field public static final String TEST_TAP_PREFIX = "testtap";
+  }
+
+  public final class TestNetworkSpecifier extends android.net.NetworkSpecifier implements android.os.Parcelable {
+    ctor public TestNetworkSpecifier(@NonNull String);
+    method public int describeContents();
+    method @Nullable public String getInterfaceName();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.TestNetworkSpecifier> CREATOR;
+  }
+
+  public final class TetheringConstants {
+    field public static final String EXTRA_ADD_TETHER_TYPE = "extraAddTetherType";
+    field public static final String EXTRA_PROVISION_CALLBACK = "extraProvisionCallback";
+    field public static final String EXTRA_REM_TETHER_TYPE = "extraRemTetherType";
+    field public static final String EXTRA_RUN_PROVISION = "extraRunProvision";
+    field public static final String EXTRA_SET_ALARM = "extraSetAlarm";
+  }
+
+  public class TetheringManager {
+    ctor public TetheringManager(@NonNull android.content.Context, @NonNull java.util.function.Supplier<android.os.IBinder>);
+    method public int getLastTetherError(@NonNull String);
+    method @NonNull public String[] getTetherableBluetoothRegexs();
+    method @NonNull public String[] getTetherableIfaces();
+    method @NonNull public String[] getTetherableUsbRegexs();
+    method @NonNull public String[] getTetherableWifiRegexs();
+    method @NonNull public String[] getTetheredIfaces();
+    method @NonNull public String[] getTetheringErroredIfaces();
+    method public boolean isTetheringSupported();
+    method public boolean isTetheringSupported(@NonNull String);
+    method public void requestLatestTetheringEntitlementResult(int, @NonNull android.os.ResultReceiver, boolean);
+    method @Deprecated public int setUsbTethering(boolean);
+    method @RequiresPermission(anyOf={android.Manifest.permission.TETHER_PRIVILEGED, android.Manifest.permission.WRITE_SETTINGS}) public void startTethering(int, @NonNull java.util.concurrent.Executor, @NonNull android.net.TetheringManager.StartTetheringCallback);
+    method @Deprecated public int tether(@NonNull String);
+    method @Deprecated public int untether(@NonNull String);
+  }
+
+  public static interface TetheringManager.TetheredInterfaceCallback {
+    method public void onAvailable(@NonNull String);
+    method public void onUnavailable();
+  }
+
+  public static interface TetheringManager.TetheredInterfaceRequest {
+    method public void release();
+  }
+
+  public static interface TetheringManager.TetheringEventCallback {
+    method @Deprecated public default void onTetherableInterfaceRegexpsChanged(@NonNull android.net.TetheringManager.TetheringInterfaceRegexps);
+  }
+
+  @Deprecated public static class TetheringManager.TetheringInterfaceRegexps {
+    method @Deprecated @NonNull public java.util.List<java.lang.String> getTetherableBluetoothRegexs();
+    method @Deprecated @NonNull public java.util.List<java.lang.String> getTetherableUsbRegexs();
+    method @Deprecated @NonNull public java.util.List<java.lang.String> getTetherableWifiRegexs();
+  }
+
+  public class TrafficStats {
+    method public static void attachSocketTagger();
+    method public static void init(@NonNull android.content.Context);
+    method public static void setThreadStatsTagDownload();
+  }
+
+  public interface TransportInfo {
+    method public default long getApplicableRedactions();
+    method @NonNull public default android.net.TransportInfo makeCopy(long);
+  }
+
+  public final class UnderlyingNetworkInfo implements android.os.Parcelable {
+    ctor public UnderlyingNetworkInfo(int, @NonNull String, @NonNull java.util.List<java.lang.String>);
+    method public int describeContents();
+    method @NonNull public String getInterface();
+    method public int getOwnerUid();
+    method @NonNull public java.util.List<java.lang.String> getUnderlyingInterfaces();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.net.UnderlyingNetworkInfo> CREATOR;
+  }
+
+  public class VpnManager {
+    field public static final int TYPE_VPN_LEGACY = 3; // 0x3
+    field public static final int TYPE_VPN_NONE = -1; // 0xffffffff
+    field public static final int TYPE_VPN_OEM = 4; // 0x4
+    field public static final int TYPE_VPN_PLATFORM = 2; // 0x2
+    field public static final int TYPE_VPN_SERVICE = 1; // 0x1
+  }
+
+  public final class VpnTransportInfo implements android.os.Parcelable android.net.TransportInfo {
+    ctor @Deprecated public VpnTransportInfo(int, @Nullable String);
+    method @Nullable public String getSessionId();
+    method @NonNull public android.net.VpnTransportInfo makeCopy(long);
+  }
+
+}
+
+package android.net.ipsec.ike {
+
+  public final class IkeSession implements java.lang.AutoCloseable {
+    method public void setNetwork(@NonNull android.net.Network, int, int, @IntRange(from=0xa, to=0xe10) int);
+    method public void setUnderpinnedNetwork(@NonNull android.net.Network);
+  }
+
+  public final class IkeSessionParams {
+    method public int getEncapType();
+    method public int getIpVersion();
+    field public static final int ESP_ENCAP_TYPE_AUTO = 0; // 0x0
+    field public static final int ESP_ENCAP_TYPE_NONE = -1; // 0xffffffff
+    field public static final int ESP_ENCAP_TYPE_UDP = 17; // 0x11
+    field public static final int ESP_IP_VERSION_AUTO = 0; // 0x0
+    field public static final int ESP_IP_VERSION_IPV4 = 4; // 0x4
+    field public static final int ESP_IP_VERSION_IPV6 = 6; // 0x6
+    field public static final int NATT_KEEPALIVE_INTERVAL_AUTO = -1; // 0xffffffff
+  }
+
+  public static final class IkeSessionParams.Builder {
+    method @NonNull public android.net.ipsec.ike.IkeSessionParams.Builder setEncapType(int);
+    method @NonNull public android.net.ipsec.ike.IkeSessionParams.Builder setIpVersion(int);
+  }
+
+}
+
+package android.net.netstats {
+
+  public class NetworkStatsDataMigrationUtils {
+    method @NonNull public static android.net.NetworkStatsCollection readPlatformCollection(@NonNull String, long) throws java.io.IOException;
+    field public static final String PREFIX_UID = "uid";
+    field public static final String PREFIX_UID_TAG = "uid_tag";
+    field public static final String PREFIX_XT = "xt";
+  }
+
+}
+
+package android.net.wifi {
+
+  public final class WifiKeystore {
+    method @NonNull public static byte[] get(@NonNull String);
+    method @NonNull public static String[] list(@NonNull String);
+    method public static boolean put(@NonNull String, @NonNull byte[]);
+    method public static boolean remove(@NonNull String);
+  }
+
+  public class WifiManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.OVERRIDE_WIFI_CONFIG}) public void addCustomDhcpOptions(@NonNull android.net.wifi.WifiSsid, @NonNull byte[], @NonNull java.util.List<android.net.DhcpOption>);
+    method @RequiresPermission(anyOf={android.Manifest.permission.NETWORK_SETTINGS, android.Manifest.permission.OVERRIDE_WIFI_CONFIG}) public void removeCustomDhcpOptions(@NonNull android.net.wifi.WifiSsid, @NonNull byte[]);
+  }
+
+}
+
+package android.nfc {
+
+  public class NfcFrameworkInitializer {
+    method public static void registerServiceWrappers();
+    method public static void setNfcServiceManager(@NonNull android.nfc.NfcServiceManager);
+  }
+
+  public class NfcServiceManager {
+    method @NonNull public android.nfc.NfcServiceManager.ServiceRegisterer getNfcManagerServiceRegisterer();
+  }
+
+  public static class NfcServiceManager.ServiceNotFoundException extends java.lang.Exception {
+    ctor public NfcServiceManager.ServiceNotFoundException(@NonNull String);
+  }
+
+  public static final class NfcServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @NonNull public android.os.IBinder getOrThrow() throws android.nfc.NfcServiceManager.ServiceNotFoundException;
+    method public void register(@NonNull android.os.IBinder);
+    method @Nullable public android.os.IBinder tryGet();
+  }
+
+}
+
+package android.ondevicepersonalization {
+
+  public class OnDevicePersonalizationFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.os {
+
+  public class ArtModuleServiceManager {
+    method @NonNull public android.os.ArtModuleServiceManager.ServiceRegisterer getArtdServiceRegisterer();
+  }
+
+  public static final class ArtModuleServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder waitForService();
+  }
+
+  public final class BatteryStatsManager {
+    method @RequiresPermission(anyOf={android.net.NetworkStack.PERMISSION_MAINLINE_NETWORK_STACK, android.Manifest.permission.NETWORK_STACK}) public void reportNetworkInterfaceForTransports(@NonNull String, @NonNull int[]) throws java.lang.RuntimeException;
+  }
+
+  public class BluetoothServiceManager {
+    method @NonNull public android.os.BluetoothServiceManager.ServiceRegisterer getBluetoothManagerServiceRegisterer();
+  }
+
+  public static class BluetoothServiceManager.ServiceNotFoundException extends java.lang.Exception {
+    ctor public BluetoothServiceManager.ServiceNotFoundException(@NonNull String);
+  }
+
+  public static final class BluetoothServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @NonNull public android.os.IBinder getOrThrow() throws android.os.BluetoothServiceManager.ServiceNotFoundException;
+    method public void register(@NonNull android.os.IBinder);
+    method @Nullable public android.os.IBinder tryGet();
+  }
+
+  public class Build {
+    method public static boolean isDebuggable();
+  }
+
+  public static class Build.VERSION {
+    field public static final int DEVICE_INITIAL_SDK_INT;
+  }
+
+  public class IpcDataCache<Query, Result> {
+    ctor public IpcDataCache(int, @NonNull String, @NonNull String, @NonNull String, @NonNull android.os.IpcDataCache.QueryHandler<Query,Result>);
+    method public void disableForCurrentProcess();
+    method public static void disableForCurrentProcess(@NonNull String);
+    method public void invalidateCache();
+    method public static void invalidateCache(@NonNull String, @NonNull String);
+    method @Nullable public Result query(@NonNull Query);
+    field public static final String MODULE_BLUETOOTH = "bluetooth";
+  }
+
+  public abstract static class IpcDataCache.QueryHandler<Q, R> {
+    ctor public IpcDataCache.QueryHandler();
+    method @Nullable public abstract R apply(@NonNull Q);
+    method public boolean shouldBypassCache(@NonNull Q);
+  }
+
+  public class Process {
+    method public static final int getAppUidForSdkSandboxUid(int);
+    method public static final boolean isSdkSandboxUid(int);
+    method public static final int toSdkSandboxUid(int);
+    field public static final int NFC_UID = 1027; // 0x403
+    field public static final int VPN_UID = 1016; // 0x3f8
+  }
+
+  public final class ServiceManager {
+    method @NonNull public static String[] getDeclaredInstances(@NonNull String);
+    method public static boolean isDeclared(@NonNull String);
+    method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
+  }
+
+  public class StatsFrameworkInitializer {
+    method public static void registerServiceWrappers();
+    method public static void setStatsServiceManager(@NonNull android.os.StatsServiceManager);
+  }
+
+  public class StatsServiceManager {
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsCompanionServiceRegisterer();
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsManagerServiceRegisterer();
+    method @NonNull public android.os.StatsServiceManager.ServiceRegisterer getStatsdServiceRegisterer();
+  }
+
+  public static class StatsServiceManager.ServiceNotFoundException extends java.lang.Exception {
+    ctor public StatsServiceManager.ServiceNotFoundException(@NonNull String);
+  }
+
+  public static final class StatsServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @Nullable public android.os.IBinder getOrThrow() throws android.os.StatsServiceManager.ServiceNotFoundException;
+  }
+
+  public final class StrictMode {
+    method public static void noteUntaggedSocket();
+  }
+
+  public class SystemConfigManager {
+    method @NonNull public java.util.List<android.content.ComponentName> getEnabledComponentOverrides(@NonNull String);
+  }
+
+  public final class Trace {
+    method public static void asyncTraceBegin(long, @NonNull String, int);
+    method public static void asyncTraceEnd(long, @NonNull String, int);
+    method public static boolean isTagEnabled(long);
+    method public static void traceBegin(long, @NonNull String);
+    method public static void traceCounter(long, @NonNull String, int);
+    method public static void traceEnd(long);
+    field public static final long TRACE_TAG_NETWORK = 2097152L; // 0x200000L
+  }
+
+}
+
+package android.os.storage {
+
+  public class StorageManager {
+    method public long computeStorageCacheBytes(@NonNull java.io.File);
+    method @Nullable public String getCloudMediaProvider();
+    method public void notifyAppIoBlocked(@NonNull java.util.UUID, int, int, int);
+    method public void notifyAppIoResumed(@NonNull java.util.UUID, int, int, int);
+    method public void setCloudMediaProvider(@Nullable String);
+    field public static final int APP_IO_BLOCKED_REASON_TRANSCODING = 1; // 0x1
+    field public static final int APP_IO_BLOCKED_REASON_UNKNOWN = 0; // 0x0
+  }
+
+}
+
+package android.provider {
+
+  public static final class ContactsContract.RawContactsEntity implements android.provider.BaseColumns android.provider.ContactsContract.DataColumns android.provider.ContactsContract.RawContactsColumns {
+    method @NonNull @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public static java.util.Map<java.lang.String,java.util.List<android.content.ContentValues>> queryRawContactEntity(@NonNull android.content.ContentResolver, long);
+  }
+
+  public final class DeviceConfig {
+    field public static final String NAMESPACE_ACTIVITY_MANAGER_COMPONENT_ALIAS = "activity_manager_ca";
+    field public static final String NAMESPACE_ALARM_MANAGER = "alarm_manager";
+    field public static final String NAMESPACE_APP_CLONING = "app_cloning";
+    field public static final String NAMESPACE_APP_STANDBY = "app_standby";
+    field public static final String NAMESPACE_ARC_APP_COMPAT = "arc_app_compat";
+    field public static final String NAMESPACE_BATTERY_STATS = "battery_stats";
+    field public static final String NAMESPACE_CONFIGURATION = "configuration";
+    field public static final String NAMESPACE_CONNECTIVITY_THERMAL_POWER_MANAGER = "connectivity_thermal_power_manager";
+    field public static final String NAMESPACE_CONTACTS_PROVIDER = "contacts_provider";
+    field public static final String NAMESPACE_DEVICE_IDLE = "device_idle";
+    field public static final String NAMESPACE_DEVICE_POLICY_MANAGER = "device_policy_manager";
+    field public static final String NAMESPACE_GAME_OVERLAY = "game_overlay";
+    field public static final String NAMESPACE_INTELLIGENCE_CONTENT_SUGGESTIONS = "intelligence_content_suggestions";
+    field public static final String NAMESPACE_INTERACTION_JANK_MONITOR = "interaction_jank_monitor";
+    field public static final String NAMESPACE_LATENCY_TRACKER = "latency_tracker";
+    field public static final String NAMESPACE_MEMORY_SAFETY_NATIVE = "memory_safety_native";
+    field public static final String NAMESPACE_MEMORY_SAFETY_NATIVE_BOOT = "memory_safety_native_boot";
+    field public static final String NAMESPACE_MGLRU_NATIVE = "mglru_native";
+    field public static final String NAMESPACE_REMOTE_KEY_PROVISIONING_NATIVE = "remote_key_provisioning_native";
+    field public static final String NAMESPACE_ROTATION_RESOLVER = "rotation_resolver";
+    field public static final String NAMESPACE_SETTINGS_STATS = "settings_stats";
+    field public static final String NAMESPACE_SETTINGS_UI = "settings_ui";
+    field public static final String NAMESPACE_TARE = "tare";
+    field public static final String NAMESPACE_VENDOR_SYSTEM_NATIVE = "vendor_system_native";
+    field public static final String NAMESPACE_VENDOR_SYSTEM_NATIVE_BOOT = "vendor_system_native_boot";
+    field public static final String NAMESPACE_VIRTUALIZATION_FRAMEWORK_NATIVE = "virtualization_framework_native";
+    field public static final String NAMESPACE_VOICE_INTERACTION = "voice_interaction";
+    field public static final String NAMESPACE_WEAR = "wear";
+    field public static final String NAMESPACE_WIDGET = "widget";
+    field public static final String NAMESPACE_WINDOW_MANAGER = "window_manager";
+  }
+
+  public static class DeviceConfig.Properties {
+    ctor public DeviceConfig.Properties(@NonNull String, @Nullable java.util.Map<java.lang.String,java.lang.String>);
+  }
+
+  public class DeviceConfigInitializer {
+    method @Nullable public static android.provider.DeviceConfigServiceManager getDeviceConfigServiceManager();
+    method public static void setDeviceConfigServiceManager(@NonNull android.provider.DeviceConfigServiceManager);
+  }
+
+  public class DeviceConfigServiceManager {
+    method @NonNull public android.provider.DeviceConfigServiceManager.ServiceRegisterer getDeviceConfigUpdatableServiceRegisterer();
+  }
+
+  public static class DeviceConfigServiceManager.ServiceNotFoundException extends java.lang.Exception {
+  }
+
+  public static final class DeviceConfigServiceManager.ServiceRegisterer {
+    method @Nullable public android.os.IBinder get();
+    method @NonNull public android.os.IBinder getOrThrow() throws android.provider.DeviceConfigServiceManager.ServiceNotFoundException;
+    method public void register(@NonNull android.os.IBinder);
+    method @Nullable public android.os.IBinder tryGet();
+  }
+
+  public final class DeviceConfigShellCommandHandler {
+    method public static int handleShellCommand(@NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull String[]);
+  }
+
+  public final class Settings {
+    field public static final int RESET_MODE_PACKAGE_DEFAULTS = 1; // 0x1
+    field public static final int RESET_MODE_TRUSTED_DEFAULTS = 4; // 0x4
+    field public static final int RESET_MODE_UNTRUSTED_CHANGES = 3; // 0x3
+    field public static final int RESET_MODE_UNTRUSTED_DEFAULTS = 2; // 0x2
+  }
+
+  public static final class Settings.Config extends android.provider.Settings.NameValueTable {
+    method @RequiresPermission(android.Manifest.permission.MONITOR_DEVICE_CONFIG_ACCESS) public static void clearMonitorCallback(@NonNull android.content.ContentResolver);
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static boolean deleteString(@NonNull String, @NonNull String);
+    method @Nullable @RequiresPermission(android.Manifest.permission.READ_DEVICE_CONFIG) public static String getString(@NonNull String);
+    method @NonNull @RequiresPermission(android.Manifest.permission.READ_DEVICE_CONFIG) public static java.util.Map<java.lang.String,java.lang.String> getStrings(@NonNull String, @NonNull java.util.List<java.lang.String>);
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static int getSyncDisabledMode();
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static boolean putString(@NonNull String, @NonNull String, @Nullable String, boolean);
+    method public static void registerContentObserver(@Nullable String, boolean, @NonNull android.database.ContentObserver);
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static void resetToDefaults(int, @Nullable String);
+    method @RequiresPermission(android.Manifest.permission.MONITOR_DEVICE_CONFIG_ACCESS) public static void setMonitorCallback(@NonNull android.content.ContentResolver, @NonNull java.util.concurrent.Executor, @NonNull android.provider.DeviceConfig.MonitorCallback);
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static boolean setStrings(@NonNull String, @NonNull java.util.Map<java.lang.String,java.lang.String>) throws android.provider.DeviceConfig.BadConfigException;
+    method @RequiresPermission(android.Manifest.permission.WRITE_DEVICE_CONFIG) public static void setSyncDisabledMode(int);
+    method public static void unregisterContentObserver(@NonNull android.database.ContentObserver);
+  }
+
+  public static final class Settings.Global extends android.provider.Settings.NameValueTable {
+    field public static final String BLE_SCAN_ALWAYS_AVAILABLE = "ble_scan_always_enabled";
+    field public static final String BLE_SCAN_BACKGROUND_MODE = "ble_scan_background_mode";
+    field public static final String BLE_SCAN_BALANCED_INTERVAL_MS = "ble_scan_balanced_interval_ms";
+    field public static final String BLE_SCAN_BALANCED_WINDOW_MS = "ble_scan_balanced_window_ms";
+    field public static final String BLE_SCAN_LOW_LATENCY_INTERVAL_MS = "ble_scan_low_latency_interval_ms";
+    field public static final String BLE_SCAN_LOW_LATENCY_WINDOW_MS = "ble_scan_low_latency_window_ms";
+    field public static final String BLE_SCAN_LOW_POWER_INTERVAL_MS = "ble_scan_low_power_interval_ms";
+    field public static final String BLE_SCAN_LOW_POWER_WINDOW_MS = "ble_scan_low_power_window_ms";
+    field public static final String BLUETOOTH_BTSNOOP_DEFAULT_MODE = "bluetooth_btsnoop_default_mode";
+    field public static final String BLUETOOTH_CLASS_OF_DEVICE = "bluetooth_class_of_device";
+    field public static final String BLUETOOTH_DISABLED_PROFILES = "bluetooth_disabled_profiles";
+  }
+
+  public static final class Settings.Secure extends android.provider.Settings.NameValueTable {
+    field public static final String BLUETOOTH_ADDRESS = "bluetooth_address";
+    field public static final String BLUETOOTH_ADDR_VALID = "bluetooth_addr_valid";
+    field public static final String BLUETOOTH_NAME = "bluetooth_name";
+  }
+
+}
+
+package android.safetycenter {
+
+  public final class SafetyCenterFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.scheduling {
+
+  public class SchedulingFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.system {
+
+  public final class NetlinkSocketAddress extends java.net.SocketAddress {
+    ctor public NetlinkSocketAddress(int, int);
+    method public int getGroupsMask();
+    method public int getPortId();
+  }
+
+  public final class Os {
+    method @Nullable public static android.system.StructCapUserData[] capget(@NonNull android.system.StructCapUserHeader) throws android.system.ErrnoException;
+    method public static void capset(@NonNull android.system.StructCapUserHeader, @NonNull android.system.StructCapUserData[]) throws android.system.ErrnoException;
+    method public static int getpgid(int) throws android.system.ErrnoException;
+    method @Nullable public static android.system.StructRlimit getrlimit(int) throws android.system.ErrnoException;
+    method public static int getsockoptInt(@NonNull java.io.FileDescriptor, int, int) throws android.system.ErrnoException;
+    method @Nullable public static android.system.StructLinger getsockoptLinger(@NonNull java.io.FileDescriptor, int, int) throws android.system.ErrnoException;
+    method public static int ioctlInt(@NonNull java.io.FileDescriptor, int) throws android.system.ErrnoException;
+    method @Nullable public static java.io.FileDescriptor[] pipe2(int) throws android.system.ErrnoException;
+    method @Nullable public static String realpath(@Nullable String) throws android.system.ErrnoException;
+    method public static void setpgid(int, int) throws android.system.ErrnoException;
+    method public static void setregid(int, int) throws android.system.ErrnoException;
+    method public static void setreuid(int, int) throws android.system.ErrnoException;
+    method public static void setsockoptIfreq(@NonNull java.io.FileDescriptor, int, int, @Nullable String) throws android.system.ErrnoException;
+    method public static void setsockoptLinger(@NonNull java.io.FileDescriptor, int, int, @NonNull android.system.StructLinger) throws android.system.ErrnoException;
+    method public static long splice(@NonNull java.io.FileDescriptor, @Nullable android.system.Int64Ref, @NonNull java.io.FileDescriptor, @Nullable android.system.Int64Ref, long, int) throws android.system.ErrnoException;
+    method public static void unlink(@Nullable String) throws android.system.ErrnoException;
+  }
+
+  public final class OsConstants {
+    method public static int CAP_TO_INDEX(int);
+    method public static int CAP_TO_MASK(int);
+    field public static final int ARPHRD_LOOPBACK;
+    field public static final int EUSERS;
+    field public static final int MAP_POPULATE;
+    field public static final int O_DIRECT;
+    field public static final int PR_CAP_AMBIENT;
+    field public static final int PR_CAP_AMBIENT_RAISE;
+    field public static final int RLIMIT_NOFILE;
+    field public static final int RTMGRP_IPV4_IFADDR;
+    field public static final int SPLICE_F_MORE;
+    field public static final int SPLICE_F_MOVE;
+    field public static final int TIOCOUTQ;
+    field public static final int UDP_ENCAP;
+    field public static final int UDP_ENCAP_ESPINUDP;
+    field public static final int XATTR_CREATE;
+    field public static final int XATTR_REPLACE;
+    field public static final int _LINUX_CAPABILITY_VERSION_3;
+  }
+
+  public final class PacketSocketAddress extends java.net.SocketAddress {
+    ctor public PacketSocketAddress(int, int, byte[]);
+  }
+
+  public final class StructCapUserData {
+    ctor public StructCapUserData(int, int, int);
+    field public final int effective;
+    field public final int inheritable;
+    field public final int permitted;
+  }
+
+  public final class StructCapUserHeader {
+    ctor public StructCapUserHeader(int, int);
+  }
+
+  public final class StructLinger {
+    ctor public StructLinger(int, int);
+    method public boolean isOn();
+    field public final int l_linger;
+  }
+
+  public final class StructRlimit {
+    field public final long rlim_cur;
+  }
+
+  public final class UnixSocketAddress extends java.net.SocketAddress {
+    method public static android.system.UnixSocketAddress createFileSystem(String);
+  }
+
+}
+
+package android.system.virtualmachine {
+
+  public class VirtualizationFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.telecom {
+
+  public abstract class ConnectionService extends android.app.Service {
+    method @Nullable @RequiresPermission(android.Manifest.permission.MODIFY_PHONE_STATE) public android.telecom.Connection onCreateUnknownConnection(@NonNull android.telecom.PhoneAccountHandle, @NonNull android.telecom.ConnectionRequest);
+  }
+
+}
+
+package android.telephony {
+
+  public class CarrierConfigManager {
+    field public static final String KEY_MIN_UDP_PORT_4500_NAT_TIMEOUT_SEC_INT = "min_udp_port_4500_nat_timeout_sec_int";
+  }
+
+  public abstract class CellSignalStrength {
+    method public static int getNumSignalStrengthLevels();
+  }
+
+  public class SubscriptionManager {
+    method public void addSubscriptionInfoRecord(@NonNull String, @Nullable String, int, int);
+    method public void removeSubscriptionInfoRecord(@NonNull String, int);
+  }
+
+  public class TelephonyManager {
+    method @NonNull public static int[] getAllNetworkTypes();
+  }
+
+}
+
+package android.util {
+
+  public class AtomicFile {
+    ctor public AtomicFile(@NonNull java.io.File, @Nullable android.util.SystemConfigFileCommitEventLogger);
+  }
+
+  public final class Log {
+    method public static int logToRadioBuffer(int, @Nullable String, @Nullable String);
+  }
+
+  public final class Slog {
+    method public static int d(@Nullable String, @NonNull String);
+    method public static int d(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int e(@Nullable String, @NonNull String);
+    method public static int e(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int i(@Nullable String, @NonNull String);
+    method public static int i(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int v(@Nullable String, @NonNull String);
+    method public static int v(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int w(@Nullable String, @NonNull String);
+    method public static int w(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static int w(@Nullable String, @Nullable Throwable);
+    method public static int wtf(@Nullable String, @NonNull String);
+    method public static int wtf(@Nullable String, @Nullable Throwable);
+    method public static int wtf(@Nullable String, @NonNull String, @Nullable Throwable);
+    method public static void wtfQuiet(@Nullable String, @NonNull String);
+    method public static int wtfStack(@Nullable String, @NonNull String);
+  }
+
+  public class SystemConfigFileCommitEventLogger {
+    ctor public SystemConfigFileCommitEventLogger(@NonNull String);
+    method public void setStartTime(long);
+  }
+
+}
+
+package android.uwb {
+
+  public class UwbFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package com.android.okhttp.internalandroidapi {
+
+  public final class AndroidResponseCacheAdapter {
+    ctor public AndroidResponseCacheAdapter(@NonNull com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder);
+    method public void close() throws java.io.IOException;
+    method public void delete() throws java.io.IOException;
+    method public void flush() throws java.io.IOException;
+    method @Nullable public java.net.CacheResponse get(@NonNull java.net.URI, @NonNull String, @Nullable java.util.Map<java.lang.String,java.util.List<java.lang.String>>) throws java.io.IOException;
+    method @NonNull public com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder getCacheHolder();
+    method public int getHitCount();
+    method public long getMaxSize();
+    method public int getNetworkCount();
+    method public int getRequestCount();
+    method public long getSize() throws java.io.IOException;
+    method @Nullable public java.net.CacheRequest put(@NonNull java.net.URI, @NonNull java.net.URLConnection) throws java.io.IOException;
+  }
+
+  public interface HasCacheHolder {
+    method @NonNull public com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder getCacheHolder();
+  }
+
+  public static final class HasCacheHolder.CacheHolder {
+    method @NonNull public static com.android.okhttp.internalandroidapi.HasCacheHolder.CacheHolder create(@NonNull java.io.File, long);
+    method public boolean isEquivalent(@NonNull java.io.File, long);
+  }
+
+}
+
+package dalvik.annotation.codegen {
+
+  @java.lang.annotation.Repeatable(CovariantReturnType.CovariantReturnTypes.class) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface CovariantReturnType {
+    method public abstract int presentAfter();
+    method public abstract Class<?> returnType();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public static @interface CovariantReturnType.CovariantReturnTypes {
+    method public abstract dalvik.annotation.codegen.CovariantReturnType[] value();
+  }
+
+}
+
+package dalvik.annotation.optimization {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface NeverCompile {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.METHOD}) public @interface NeverInline {
+  }
+
+}
+
+package dalvik.system {
+
+  public final class AnnotatedStackTraceElement {
+    method @Nullable public Object getBlockedOn();
+    method @Nullable public Object[] getHeldLocks();
+    method @NonNull public StackTraceElement getStackTraceElement();
+  }
+
+  public class AppSpecializationHooks {
+    method public static void handleCompatChangesBeforeBindingApplication();
+  }
+
+  public class BaseDexClassLoader extends java.lang.ClassLoader {
+    method public void addDexPath(@Nullable String);
+    method public void addNativePath(@NonNull java.util.Collection<java.lang.String>);
+    method @NonNull public String getLdLibraryPath();
+    method public void reportClassLoaderChain();
+    method public static void setReporter(@Nullable dalvik.system.BaseDexClassLoader.Reporter);
+  }
+
+  public static interface BaseDexClassLoader.Reporter {
+    method public void report(@NonNull java.util.Map<java.lang.String,java.lang.String>);
+  }
+
+  public final class BlockGuard {
+    method @NonNull public static dalvik.system.BlockGuard.Policy getThreadPolicy();
+    method @NonNull public static dalvik.system.BlockGuard.VmPolicy getVmPolicy();
+    method public static void setThreadPolicy(@NonNull dalvik.system.BlockGuard.Policy);
+    method public static void setVmPolicy(@NonNull dalvik.system.BlockGuard.VmPolicy);
+    field public static final dalvik.system.BlockGuard.Policy LAX_POLICY;
+    field public static final dalvik.system.BlockGuard.VmPolicy LAX_VM_POLICY;
+  }
+
+  public static interface BlockGuard.Policy {
+    method public int getPolicyMask();
+    method public void onReadFromDisk();
+    method public void onUnbufferedIO();
+    method public void onWriteToDisk();
+  }
+
+  public static interface BlockGuard.VmPolicy {
+    method public void onPathAccess(@NonNull String);
+  }
+
+  public final class CloseGuard {
+    method public void close();
+    method public static dalvik.system.CloseGuard get();
+    method public static dalvik.system.CloseGuard.Reporter getReporter();
+    method public void open(String);
+    method public void openWithCallSite(String, String);
+    method public static void setEnabled(boolean);
+    method public static void setReporter(dalvik.system.CloseGuard.Reporter);
+    method public void warnIfOpen();
+  }
+
+  public static interface CloseGuard.Reporter {
+    method public void report(String, Throwable);
+    method public default void report(String);
+  }
+
+  public final class DelegateLastClassLoader extends dalvik.system.PathClassLoader {
+    ctor public DelegateLastClassLoader(String, String, ClassLoader, ClassLoader[]);
+    ctor public DelegateLastClassLoader(String, String, ClassLoader, ClassLoader[], ClassLoader[]);
+  }
+
+  public final class DexFile {
+    method @Deprecated @NonNull public static dalvik.system.DexFile.OptimizationInfo getDexFileOptimizationInfo(@NonNull String, @NonNull String) throws java.io.FileNotFoundException;
+    method @Nullable public static String[] getDexFileOutputPaths(@NonNull String, @NonNull String) throws java.io.FileNotFoundException;
+    method @Deprecated public static int getDexOptNeeded(@NonNull String, @NonNull String, @NonNull String, @Nullable String, boolean, boolean) throws java.io.FileNotFoundException, java.io.IOException;
+    method @NonNull public static String getSafeModeCompilerFilter(@NonNull String);
+    method public static boolean isOptimizedCompilerFilter(@NonNull String);
+    method public static boolean isProfileGuidedCompilerFilter(@NonNull String);
+    method public static boolean isValidCompilerFilter(@NonNull String);
+    method public static boolean isVerifiedCompilerFilter(@NonNull String);
+    field @Deprecated public static final int DEX2OAT_FOR_FILTER = 3; // 0x3
+    field @Deprecated public static final int NO_DEXOPT_NEEDED = 0; // 0x0
+  }
+
+  public static final class DexFile.OptimizationInfo {
+    method @NonNull public String getReason();
+    method @NonNull public String getStatus();
+  }
+
+  public class PathClassLoader extends dalvik.system.BaseDexClassLoader {
+    ctor public PathClassLoader(@NonNull String, @Nullable String, @Nullable ClassLoader, @Nullable ClassLoader[]);
+    ctor public PathClassLoader(@NonNull String, @Nullable String, @Nullable ClassLoader, @Nullable ClassLoader[], @Nullable ClassLoader[]);
+  }
+
+  public final class RuntimeHooks {
+    method public static void setTimeZoneIdSupplier(@NonNull java.util.function.Supplier<java.lang.String>);
+    method public static void setUncaughtExceptionPreHandler(@Nullable java.lang.Thread.UncaughtExceptionHandler);
+  }
+
+  public abstract class SocketTagger {
+    ctor public SocketTagger();
+    method public static dalvik.system.SocketTagger get();
+    method public static void set(dalvik.system.SocketTagger);
+    method public abstract void tag(java.io.FileDescriptor) throws java.net.SocketException;
+    method public final void tag(java.net.Socket) throws java.net.SocketException;
+    method public final void tag(java.net.DatagramSocket) throws java.net.SocketException;
+    method public abstract void untag(java.io.FileDescriptor) throws java.net.SocketException;
+    method public final void untag(java.net.Socket) throws java.net.SocketException;
+    method public final void untag(java.net.DatagramSocket) throws java.net.SocketException;
+  }
+
+  public final class VMDebug {
+    method public static void attachAgent(String, ClassLoader) throws java.io.IOException;
+    method public static long countInstancesOfClass(Class, boolean);
+    method public static long[] countInstancesOfClasses(Class[], boolean);
+    method public static void dumpHprofData(String) throws java.io.IOException;
+    method public static void dumpHprofData(String, java.io.FileDescriptor) throws java.io.IOException;
+    method public static void dumpHprofDataDdms();
+    method public static void dumpReferenceTables();
+    method public static int getAllocCount(int);
+    method public static int getLoadedClassCount();
+    method public static int getMethodTracingMode();
+    method public static String getRuntimeStat(String);
+    method public static java.util.Map<java.lang.String,java.lang.String> getRuntimeStats();
+    method public static String[] getVmFeatureList();
+    method public static boolean isDebuggerConnected();
+    method public static boolean isDebuggingEnabled();
+    method public static long lastDebuggerActivity();
+    method public static void printLoadedClasses(int);
+    method public static void resetAllocCount(int);
+    method public static void setAllocTrackerStackDepth(int);
+    method public static void startAllocCounting();
+    method public static void startMethodTracing(String, int, int, boolean, int);
+    method public static void startMethodTracing(String, java.io.FileDescriptor, int, int, boolean, int, boolean);
+    method public static void startMethodTracingDdms(int, int, boolean, int);
+    method public static void stopAllocCounting();
+    method public static void stopMethodTracing();
+    method public static void suspendAllAndSendVmStart();
+    method public static long threadCpuTimeNanos();
+    field public static final int KIND_ALL_COUNTS = -1; // 0xffffffff
+    field public static final int KIND_GLOBAL_ALLOCATED_BYTES = 2; // 0x2
+    field public static final int KIND_GLOBAL_ALLOCATED_OBJECTS = 1; // 0x1
+    field public static final int KIND_GLOBAL_CLASS_INIT_COUNT = 32; // 0x20
+    field public static final int KIND_GLOBAL_CLASS_INIT_TIME = 64; // 0x40
+    field public static final int KIND_GLOBAL_FREED_BYTES = 8; // 0x8
+    field public static final int KIND_GLOBAL_FREED_OBJECTS = 4; // 0x4
+    field public static final int KIND_GLOBAL_GC_INVOCATIONS = 16; // 0x10
+    field public static final int KIND_THREAD_ALLOCATED_BYTES = 131072; // 0x20000
+    field public static final int KIND_THREAD_ALLOCATED_OBJECTS = 65536; // 0x10000
+    field public static final int KIND_THREAD_GC_INVOCATIONS = 1048576; // 0x100000
+    field public static final int TRACE_COUNT_ALLOCS = 1; // 0x1
+  }
+
+  public final class VMRuntime {
+    method public long addressOf(Object);
+    method public static void bootCompleted();
+    method public void clampGrowthLimit();
+    method public void clearGrowthLimit();
+    method public static String getCurrentInstructionSet();
+    method public static String getInstructionSet(String);
+    method public static dalvik.system.VMRuntime getRuntime();
+    method public int getTargetSdkVersion();
+    method public boolean is64Bit();
+    method public static boolean is64BitAbi(String);
+    method public static boolean is64BitInstructionSet(String);
+    method public boolean isCheckJniEnabled();
+    method public boolean isNativeDebuggable();
+    method public static boolean isValidClassLoaderContext(String);
+    method public Object newNonMovableArray(Class<?>, int);
+    method public Object newUnpaddedArray(Class<?>, int);
+    method public void notifyStartupCompleted();
+    method public void preloadDexCaches();
+    method public static void registerAppInfo(String, String, String, String[], int);
+    method public void registerNativeAllocation(long);
+    method @Deprecated public void registerNativeAllocation(int);
+    method public void registerNativeFree(long);
+    method @Deprecated public void registerNativeFree(int);
+    method public static void registerSensitiveThread();
+    method public void requestConcurrentGC();
+    method public static void resetJitCounters();
+    method public static void setDedupeHiddenApiWarnings(boolean);
+    method public void setDisabledCompatChanges(long[]);
+    method public void setHiddenApiAccessLogSamplingRate(int);
+    method public void setHiddenApiExemptions(String[]);
+    method public static void setHiddenApiUsageLogger(dalvik.system.VMRuntime.HiddenApiUsageLogger);
+    method public static void setNonSdkApiUsageConsumer(java.util.function.Consumer<java.lang.String>);
+    method public static void setProcessDataDirectory(String);
+    method public static void setProcessPackageName(String);
+    method public void setTargetSdkVersion(int);
+    method public void updateProcessState(int);
+    method public String vmInstructionSet();
+    method public String vmLibrary();
+    field public static final int CODE_PATH_TYPE_PRIMARY_APK = 1; // 0x1
+    field public static final int CODE_PATH_TYPE_SECONDARY_DEX = 4; // 0x4
+    field public static final int CODE_PATH_TYPE_SPLIT_APK = 2; // 0x2
+    field public static final int SDK_VERSION_CUR_DEVELOPMENT = 10000; // 0x2710
+  }
+
+  public static interface VMRuntime.HiddenApiUsageLogger {
+    method public void hiddenApiUsed(int, String, String, int, boolean);
+    field public static final int ACCESS_METHOD_JNI = 2; // 0x2
+    field public static final int ACCESS_METHOD_LINKING = 3; // 0x3
+    field public static final int ACCESS_METHOD_NONE = 0; // 0x0
+    field public static final int ACCESS_METHOD_REFLECTION = 1; // 0x1
+  }
+
+  public final class VMStack {
+    method @Nullable public static dalvik.system.AnnotatedStackTraceElement[] getAnnotatedThreadStackTrace(Thread);
+  }
+
+  public final class ZygoteHooks {
+    method public static void gcAndFinalize();
+    method public static boolean isIndefiniteThreadSuspensionSafe();
+    method public static void onBeginPreload();
+    method public static void onEndPreload();
+    method public static void postForkChild(int, boolean, boolean, String);
+    method public static void postForkCommon();
+    method public static void postForkSystemServer(int);
+    method public static void preFork();
+    method public static void startZygoteNoThreadCreation();
+    method public static void stopZygoteNoThreadCreation();
+  }
+
+}
+
+package java.io {
+
+  public final class FileDescriptor {
+    method public int getInt$();
+    method public void setInt$(int);
+  }
+
+  public class FileInputStream extends java.io.InputStream {
+    ctor public FileInputStream(java.io.FileDescriptor, boolean);
+  }
+
+}
+
+package java.lang {
+
+  public class Thread implements java.lang.Runnable {
+    method public static java.lang.Thread.UncaughtExceptionHandler getUncaughtExceptionPreHandler();
+    method public static void setUncaughtExceptionPreHandler(java.lang.Thread.UncaughtExceptionHandler);
+  }
+
+}
+
+package java.net {
+
+  public class DatagramSocket implements java.io.Closeable {
+    method public java.io.FileDescriptor getFileDescriptor$();
+  }
+
+  public final class Inet4Address extends java.net.InetAddress {
+    field public static final java.net.InetAddress ALL;
+    field public static final java.net.InetAddress ANY;
+    field public static final java.net.InetAddress LOOPBACK;
+  }
+
+  public final class Inet6Address extends java.net.InetAddress {
+    field public static final java.net.InetAddress ANY;
+    field public static final java.net.InetAddress LOOPBACK;
+  }
+
+  public class InetAddress implements java.io.Serializable {
+    method public static void clearDnsCache();
+    method @NonNull public static java.net.InetAddress[] getAllByNameOnNet(@Nullable String, int) throws java.net.UnknownHostException;
+    method @NonNull public static java.net.InetAddress getByNameOnNet(@Nullable String, int) throws java.net.UnknownHostException;
+    method @Deprecated public static boolean isNumeric(String);
+    method @Deprecated public static java.net.InetAddress parseNumericAddress(String);
+  }
+
+  public class InetSocketAddress extends java.net.SocketAddress {
+    ctor public InetSocketAddress();
+  }
+
+  public class ServerSocket implements java.io.Closeable {
+    method public java.net.SocketImpl getImpl() throws java.net.SocketException;
+  }
+
+  public class Socket implements java.io.Closeable {
+    method public java.io.FileDescriptor getFileDescriptor$();
+  }
+
+  public abstract class SocketImpl implements java.net.SocketOptions {
+    method public java.io.FileDescriptor getFD$();
+  }
+
+}
+
+package java.nio {
+
+  public abstract class ByteBuffer extends java.nio.Buffer implements java.lang.Comparable<java.nio.ByteBuffer> {
+    method public void setAccessible(boolean);
+  }
+
+  public class DirectByteBuffer extends java.nio.MappedByteBuffer {
+    ctor public DirectByteBuffer(int, long, java.io.FileDescriptor, Runnable, boolean);
+    method public final long address();
+    method public final void setAccessible(boolean);
+  }
+
+  public final class NIOAccess {
+    method public static Object getBaseArray(java.nio.Buffer);
+    method public static int getBaseArrayOffset(java.nio.Buffer);
+  }
+
+  public final class NioUtils {
+    method public static void freeDirectBuffer(java.nio.ByteBuffer);
+    method public static byte[] unsafeArray(java.nio.ByteBuffer);
+    method public static int unsafeArrayOffset(java.nio.ByteBuffer);
+  }
+
+}
+
+package java.security {
+
+  public abstract class Provider extends java.util.Properties {
+    method public void warmUpServiceProvision();
+  }
+
+  public abstract class Signature extends java.security.SignatureSpi {
+    method public java.security.SignatureSpi getCurrentSpi();
+  }
+
+}
+
+package java.text {
+
+  public abstract class DateFormat extends java.text.Format {
+    method public static final void set24HourTimePref(Boolean);
+  }
+
+}
+
+package java.util {
+
+  public class LinkedHashMap<K, V> extends java.util.HashMap<K,V> implements java.util.Map<K,V> {
+    method public java.util.Map.Entry<K,V> eldest();
+  }
+
+}
+
+package java.util.zip {
+
+  public class ZipEntry implements java.lang.Cloneable {
+    method public long getDataOffset();
+  }
+
+}
+
+package javax.crypto {
+
+  public class Cipher {
+    method public javax.crypto.CipherSpi getCurrentSpi();
+  }
+
+  public class Mac implements java.lang.Cloneable {
+    method public javax.crypto.MacSpi getCurrentSpi();
+  }
+
+}
+
+package javax.net.ssl {
+
+  public abstract class HttpsURLConnection extends java.net.HttpURLConnection {
+    method public static javax.net.ssl.HostnameVerifier getStrictHostnameVerifier();
+  }
+
+}
+
+package libcore.content.type {
+
+  public final class MimeMap {
+    method @NonNull public libcore.content.type.MimeMap.Builder buildUpon();
+    method @NonNull public static libcore.content.type.MimeMap.Builder builder();
+    method @NonNull public java.util.Set<java.lang.String> extensions();
+    method @NonNull public static libcore.content.type.MimeMap getDefault();
+    method @Nullable public String guessExtensionFromMimeType(@Nullable String);
+    method @Nullable public String guessMimeTypeFromExtension(@Nullable String);
+    method public boolean hasExtension(@Nullable String);
+    method public boolean hasMimeType(@Nullable String);
+    method @NonNull public java.util.Set<java.lang.String> mimeTypes();
+    method public static void setDefaultSupplier(@NonNull java.util.function.Supplier<libcore.content.type.MimeMap>);
+  }
+
+  public static final class MimeMap.Builder {
+    method @NonNull public libcore.content.type.MimeMap.Builder addMimeMapping(@NonNull String, @NonNull java.util.List<java.lang.String>);
+    method @NonNull public libcore.content.type.MimeMap build();
+  }
+
+}
+
+package libcore.io {
+
+  public class ForwardingOs implements libcore.io.Os {
+    ctor protected ForwardingOs(@NonNull libcore.io.Os);
+    method public boolean access(@Nullable String, int) throws android.system.ErrnoException;
+    method public java.io.FileDescriptor open(@Nullable String, int, int) throws android.system.ErrnoException;
+    method public void remove(@Nullable String) throws android.system.ErrnoException;
+    method public void rename(@Nullable String, @Nullable String) throws android.system.ErrnoException;
+    method @Nullable public android.system.StructStat stat(@Nullable String) throws android.system.ErrnoException;
+    method public void unlink(@Nullable String) throws android.system.ErrnoException;
+  }
+
+  public final class IoBridge {
+    method public static void closeAndSignalBlockedThreads(@NonNull java.io.FileDescriptor) throws java.io.IOException;
+    method @NonNull public static java.io.FileDescriptor open(@NonNull String, int) throws java.io.FileNotFoundException;
+    method public static int read(@NonNull java.io.FileDescriptor, @NonNull byte[], int, int) throws java.io.IOException;
+    method public static void write(@NonNull java.io.FileDescriptor, @NonNull byte[], int, int) throws java.io.IOException;
+  }
+
+  public final class IoUtils {
+    method public static int acquireRawFd(@NonNull java.io.FileDescriptor);
+    method public static void close(@Nullable java.io.FileDescriptor) throws java.io.IOException;
+    method public static void closeQuietly(@Nullable AutoCloseable);
+    method public static void closeQuietly(@Nullable java.io.FileDescriptor);
+    method public static void closeQuietly(@Nullable java.net.Socket);
+    method @NonNull public static byte[] readFileAsByteArray(@NonNull String) throws java.io.IOException;
+    method @NonNull public static String readFileAsString(@NonNull String) throws java.io.IOException;
+    method public static void setBlocking(@NonNull java.io.FileDescriptor, boolean) throws java.io.IOException;
+    method public static void setFdOwner(@NonNull java.io.FileDescriptor, @NonNull Object);
+  }
+
+  public final class Memory {
+    method public static void memmove(@NonNull Object, int, @NonNull Object, int, long);
+    method public static int peekInt(@NonNull byte[], int, @NonNull java.nio.ByteOrder);
+    method public static short peekShort(@NonNull byte[], int, @NonNull java.nio.ByteOrder);
+    method public static void pokeInt(@NonNull byte[], int, int, @NonNull java.nio.ByteOrder);
+    method public static void pokeLong(@NonNull byte[], int, long, @NonNull java.nio.ByteOrder);
+    method public static void pokeShort(@NonNull byte[], int, short, @NonNull java.nio.ByteOrder);
+  }
+
+  public interface Os {
+    method public static boolean compareAndSetDefault(libcore.io.Os, libcore.io.Os);
+    method public static libcore.io.Os getDefault();
+  }
+
+  public final class Streams {
+    method public static int copy(@NonNull java.io.InputStream, @NonNull java.io.OutputStream) throws java.io.IOException;
+    method public static void readFully(@NonNull java.io.InputStream, @NonNull byte[]) throws java.io.IOException;
+    method @NonNull public static byte[] readFully(@NonNull java.io.InputStream) throws java.io.IOException;
+    method @NonNull public static String readFully(@NonNull java.io.Reader) throws java.io.IOException;
+    method @NonNull public static byte[] readFullyNoClose(@NonNull java.io.InputStream) throws java.io.IOException;
+    method public static int readSingleByte(@NonNull java.io.InputStream) throws java.io.IOException;
+    method public static long skipByReading(@NonNull java.io.InputStream, long) throws java.io.IOException;
+    method public static void writeSingleByte(@NonNull java.io.OutputStream, int) throws java.io.IOException;
+  }
+
+}
+
+package libcore.net {
+
+  public class InetAddressUtils {
+    method public static boolean isNumericAddress(String);
+    method public static java.net.InetAddress parseNumericAddress(String);
+  }
+
+  public abstract class NetworkSecurityPolicy {
+    ctor public NetworkSecurityPolicy();
+    method public static libcore.net.NetworkSecurityPolicy getInstance();
+    method public abstract boolean isCertificateTransparencyVerificationRequired(String);
+    method public abstract boolean isCleartextTrafficPermitted();
+    method public abstract boolean isCleartextTrafficPermitted(String);
+    method public static void setInstance(libcore.net.NetworkSecurityPolicy);
+  }
+
+}
+
+package libcore.net.event {
+
+  public final class NetworkEventDispatcher {
+    method public void dispatchNetworkConfigurationChange();
+    method public static libcore.net.event.NetworkEventDispatcher getInstance();
+  }
+
+}
+
+package libcore.net.http {
+
+  public interface Dns {
+    method @NonNull public java.util.List<java.net.InetAddress> lookup(@Nullable String) throws java.net.UnknownHostException;
+  }
+
+  public class HttpURLConnectionFactory {
+    method @NonNull public static libcore.net.http.HttpURLConnectionFactory createInstance();
+    method public java.net.URLConnection openConnection(@NonNull java.net.URL, @NonNull javax.net.SocketFactory, @NonNull java.net.Proxy) throws java.io.IOException;
+    method public void setDns(@NonNull libcore.net.http.Dns);
+    method public void setNewConnectionPool(int, long, @NonNull java.util.concurrent.TimeUnit);
+  }
+
+}
+
+package libcore.util {
+
+  public final class EmptyArray {
+    field @NonNull public static final boolean[] BOOLEAN;
+    field @NonNull public static final byte[] BYTE;
+    field @NonNull public static final float[] FLOAT;
+    field @NonNull public static final int[] INT;
+    field @NonNull public static final long[] LONG;
+    field @NonNull public static final Object[] OBJECT;
+    field @NonNull public static final String[] STRING;
+  }
+
+  public final class FP16 {
+    method public static short ceil(short);
+    method public static int compare(short, short);
+    method public static boolean equals(short, short);
+    method public static short floor(short);
+    method public static boolean greater(short, short);
+    method public static boolean greaterEquals(short, short);
+    method public static boolean isInfinite(short);
+    method public static boolean isNaN(short);
+    method public static boolean isNormalized(short);
+    method public static boolean less(short, short);
+    method public static boolean lessEquals(short, short);
+    method public static short max(short, short);
+    method public static short min(short, short);
+    method public static short rint(short);
+    method public static float toFloat(short);
+    method public static short toHalf(float);
+    method public static String toHexString(short);
+    method public static short trunc(short);
+    field public static final short EPSILON = 5120; // 0x1400
+    field public static final int EXPONENT_BIAS = 15; // 0xf
+    field public static final int EXPONENT_SHIFT = 10; // 0xa
+    field public static final int EXPONENT_SIGNIFICAND_MASK = 32767; // 0x7fff
+    field public static final short LOWEST_VALUE = -1025; // 0xfffffbff
+    field public static final int MAX_EXPONENT = 15; // 0xf
+    field public static final short MAX_VALUE = 31743; // 0x7bff
+    field public static final int MIN_EXPONENT = -14; // 0xfffffff2
+    field public static final short MIN_NORMAL = 1024; // 0x400
+    field public static final short MIN_VALUE = 1; // 0x1
+    field public static final short NEGATIVE_INFINITY = -1024; // 0xfffffc00
+    field public static final short NEGATIVE_ZERO = -32768; // 0xffff8000
+    field public static final short NaN = 32256; // 0x7e00
+    field public static final short POSITIVE_INFINITY = 31744; // 0x7c00
+    field public static final short POSITIVE_ZERO = 0; // 0x0
+    field public static final int SHIFTED_EXPONENT_MASK = 31; // 0x1f
+    field public static final int SIGNIFICAND_MASK = 1023; // 0x3ff
+    field public static final int SIGN_MASK = 32768; // 0x8000
+    field public static final int SIGN_SHIFT = 15; // 0xf
+    field public static final int SIZE = 16; // 0x10
+  }
+
+  public class HexEncoding {
+    method public static byte[] decode(String) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(String, boolean) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(char[]) throws java.lang.IllegalArgumentException;
+    method public static byte[] decode(char[], boolean) throws java.lang.IllegalArgumentException;
+    method public static char[] encode(byte[]);
+    method public static char[] encode(byte[], boolean);
+    method public static char[] encode(byte[], int, int);
+    method public static String encodeToString(byte, boolean);
+    method public static String encodeToString(byte[]);
+    method public static String encodeToString(byte[], boolean);
+  }
+
+  public class NativeAllocationRegistry {
+    ctor public NativeAllocationRegistry(@NonNull ClassLoader, long, long);
+    method public static void applyFreeFunction(long, long);
+    method public static libcore.util.NativeAllocationRegistry createMalloced(@NonNull ClassLoader, long, long);
+    method public static libcore.util.NativeAllocationRegistry createMalloced(@NonNull ClassLoader, long);
+    method public static libcore.util.NativeAllocationRegistry createNonmalloced(@NonNull ClassLoader, long, long);
+    method @NonNull public Runnable registerNativeAllocation(@NonNull Object, long);
+  }
+
+  public class SneakyThrow {
+    method public static void sneakyThrow(@NonNull Throwable);
+  }
+
+  public class XmlObjectFactory {
+    method @NonNull public static org.xml.sax.XMLReader newXMLReader();
+    method @NonNull public static org.xmlpull.v1.XmlPullParser newXmlPullParser();
+    method @NonNull public static org.xmlpull.v1.XmlSerializer newXmlSerializer();
+  }
+
+}
+
+package org.apache.harmony.dalvik.ddmc {
+
+  public class Chunk {
+    ctor public Chunk(int, byte[], int, int);
+    ctor public Chunk(int, java.nio.ByteBuffer);
+    field public int type;
+  }
+
+  public abstract class ChunkHandler {
+    ctor public ChunkHandler();
+    method public static org.apache.harmony.dalvik.ddmc.Chunk createFailChunk(int, String);
+    method public abstract org.apache.harmony.dalvik.ddmc.Chunk handleChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    method public static String name(int);
+    method public abstract void onConnected();
+    method public abstract void onDisconnected();
+    method public static int type(String);
+    method public static java.nio.ByteBuffer wrapChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    field public static final java.nio.ByteOrder CHUNK_ORDER;
+  }
+
+  public final class DdmServer {
+    method public static void registerHandler(int, org.apache.harmony.dalvik.ddmc.ChunkHandler);
+    method public static void registrationComplete();
+    method public static void sendChunk(org.apache.harmony.dalvik.ddmc.Chunk);
+    method public static org.apache.harmony.dalvik.ddmc.ChunkHandler unregisterHandler(int);
+  }
+
+  public final class DdmVmInternal {
+    method public static void setRecentAllocationsTrackingEnabled(boolean);
+    method public static void setThreadNotifyEnabled(boolean);
+  }
+
+}
+
+package org.json {
+
+  public class JSONObject {
+    method @NonNull public java.util.Set<java.lang.String> keySet();
+  }
+
+}
+
+package sun.misc {
+
+  public class Cleaner extends java.lang.ref.PhantomReference<java.lang.Object> {
+    method public void clean();
+    method public static sun.misc.Cleaner create(Object, Runnable);
+  }
+
+  public final class Unsafe {
+    method public int arrayBaseOffset(Class);
+    method public int arrayIndexScale(Class);
+    method public void copyMemory(long, long, long);
+    method public boolean getBoolean(Object, long);
+    method public byte getByte(Object, long);
+    method public byte getByte(long);
+    method public double getDouble(Object, long);
+    method public double getDouble(long);
+    method public float getFloat(Object, long);
+    method public float getFloat(long);
+    method public int getInt(Object, long);
+    method public int getInt(long);
+    method public long getLong(Object, long);
+    method public long getLong(long);
+    method public Object getObject(Object, long);
+    method public static sun.misc.Unsafe getUnsafe();
+    method public long objectFieldOffset(java.lang.reflect.Field);
+    method public void putBoolean(Object, long, boolean);
+    method public void putByte(Object, long, byte);
+    method public void putByte(long, byte);
+    method public void putDouble(Object, long, double);
+    method public void putDouble(long, double);
+    method public void putFloat(Object, long, float);
+    method public void putFloat(long, float);
+    method public void putInt(Object, long, int);
+    method public void putInt(long, int);
+    method public void putLong(Object, long, long);
+    method public void putLong(long, long);
+    method public void putObject(Object, long, Object);
+  }
+
+}
+
+package sun.security.jca {
+
+  public class Providers {
+    method public static Object startJarVerification();
+    method public static void stopJarVerification(Object);
+  }
+
+}
+
+package sun.security.pkcs {
+
+  public class PKCS7 {
+    ctor public PKCS7(java.io.InputStream) throws java.io.IOException, sun.security.pkcs.ParsingException;
+    ctor public PKCS7(byte[]) throws sun.security.pkcs.ParsingException;
+    method public java.security.cert.X509Certificate[] getCertificates();
+    method public sun.security.pkcs.SignerInfo[] getSignerInfos();
+    method public sun.security.pkcs.SignerInfo verify(sun.security.pkcs.SignerInfo, java.io.InputStream) throws java.io.IOException, java.security.NoSuchAlgorithmException, java.security.SignatureException;
+    method public sun.security.pkcs.SignerInfo[] verify(byte[]) throws java.security.NoSuchAlgorithmException, java.security.SignatureException;
+  }
+
+  public class ParsingException extends java.io.IOException {
+  }
+
+  public class SignerInfo {
+    ctor public SignerInfo();
+    method public java.util.ArrayList<java.security.cert.X509Certificate> getCertificateChain(sun.security.pkcs.PKCS7) throws java.io.IOException;
+  }
+
+}
+
+package sun.security.util {
+
+  public final class ObjectIdentifier implements java.io.Serializable {
+    ctor public ObjectIdentifier(String) throws java.io.IOException;
+  }
+
+}
+
+package sun.security.x509 {
+
+  public class AlgorithmId implements java.io.Serializable {
+    ctor public AlgorithmId(sun.security.util.ObjectIdentifier);
+    method public String getName();
+  }
+
+}
+
