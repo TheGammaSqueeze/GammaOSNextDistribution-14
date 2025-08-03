@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"atzitu AdServices Topics APIa"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"AdServices Topics APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"atzitu AdServices Attribution APIak"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"AdServices Attribution APIak erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"atzitu AdServices Custom Audience APIa"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"AdServices Custom Audience APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Atzitu AdId APIa"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"AdId APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"atzitu AdServices Consent APIa"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"AdServices Consent APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"atzitu Ad ID APIa"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ad ID APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"atzitu AdServices Cobalt Upload APIa"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"AdServices Cobalt Upload APIa atzitzeko baimena ematen zaie aplikazioei."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"atzitu App Set ID APIa"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"App Set ID APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service APIrako sarbidea"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Consent Service APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService-ren gaitze-egoera aldatzeko APIa erabiltzeko baimena"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"AdService-ren gaitze-egoera aldatzeko APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService-ren gaitze-egoeraren APIa erabiltzeko baimena"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"AdService-ren gaitze-egoeraren APIa erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Atzitu AdServicesManager-en APIak"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"AdServicesManager-en APIak erabiltzeko baimena ematen die aplikazioei."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService’s update AdId APIa erabiltzeko baimena."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Aplikazio bati AdService’s update AdId APIa erabiltzeko baimena ematen dio."</string>
+    <string name="app_label" msgid="2639006978056689153">"Iragarkien pribatutasuna"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Probatu Android-eko iragarkien pribatutasunaren beta-bertsioa"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Aplikazioek iragarkiak erakusteko aukera pribatuagoak arakatzen ari da Android"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Lortu informazio gehiago"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android-eko iragarkien pribatutasunaren beta-bertsioa"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Berritasunak"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privacy Sandbox-ak dituen pribatutasun-eginbide berriei esker, aplikazioek iragarki egokiak erakusteko aukera dute, baina beste garatzaile batzuen webgune eta aplikazioetan egiten dituzun jarduerei buruz aplikazioek lor dezaketen informazioa murrizten dute eginbide horiek."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Nola funtzionatzen du?"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Beta-bertsioa probatzeko argibideak"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Beta-bertsioa aktibatuz gero, iragarkiak erakusteko modu berriak eta pribatuagoak probatzeko baimena izango dute aplikazioek. Beta-bertsioa desaktibatzeko, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Ez, eskerrik asko"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Aktibatu"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Gehiago"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Eskerrik asko parte hartzeagatik"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Android-eko iragarkien pribatutasunaren beta-bertsioa probatzen ari zara. Privacy Sandbox-a aktibatuta dago gailuan.\n\nInformazio gehiago lortu edo beta-bertsioa probatzeari utzi nahi izanez gero, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Ez parte hartzea aukeratu duzu"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Eskerrik asko erantzuteagatik. Privacy Sandbox-a desaktibatuta dago gailuan.\n\nIritziz aldatzen bazara edo informazio gehiago lortu nahi izanez gero, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Pribatutasun-ezarpenak"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Ados"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Beta-bertsioa probatzen ari zara"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Aktibatuta dago Privacy Sandbox-a gailuan; beraz, aplikazioek iragarkiak erakusteko modu berriak eta pribatuagoak proba ditzakete. Beta-bertsioa desaktibatzeko, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Ados"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Eginbide berriak eskaintzen ditu Android-en Privacy Sandbox-ak; eginbide horiei esker, aplikazioek agian gustatuko zaizkizun iragarkiak erakutsiko dizkizute. Teknologia horiek ez dute erabiltzen gailuaren identifikatzailerik.\n\nAgian interesatuko zaizkizun iragarki motak estima ditzakete Android-ek eta aplikazioek, eta interesak gailuan aldi baterako gorde. Hala, aplikazioek agian gustatuko zaizkizun iragarkiak erakutsiko dizkizute beste garatzaile batzuen webgune eta aplikazioetan egindako jardueren jarraipena egin gabe."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Privacy Sandbox-arekin iragarkiak pertsonalizatzeko aukera"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android-ek estimatutako interesak"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Aldizka, erabiltzen dituzun aplikazioetan oinarrituta estimatzen ditu zure interes nagusiak Android-ek; adibidez, \"kirolak\" edo \"bidaiak\".\n\nOndoren, aplikazio batek interes horiek erabiltzeko eska diezaioke Android-i, iragarki egokiagoak erakusteko.\n\nOraingo interesen zerrenda ikusteko eta gustuko ez dituzunak blokeatzeko, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Aplikazioek estimatutako interesak"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Aplikazioek zure interesak estima ditzakete, eta Android-en aldi baterako gorde. Adibidez, baliteke korrika egiteko oinetakoak eroste aldera erabiltzen duzun aplikazio batek \"maratoiak\" interes gisa estimatzea.\n\nGeroago, interes horretan oinarrituta, baliteke beste aplikazio batek maratoiekin erlazionatutako iragarki bat erakustea.\n\nInteresak gorde dituzten aplikazioen zerrenda kudeatzeko, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Iragarkien pribatutasuna babesteko eginbide berriak"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Iragarkien gaiekin eta kontrolatzeko aukera berriekin, ikusten dituzun iragarkien gaineko kontrol handiagoa izango duzu"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Orain, iragarkietarako pribatutasun-eginbide berriak daude"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Berriki erabili dituzun aplikazioetan oinarrituta hartzen ditu kontuan Android-ek interesatzen zaizkizun gaiak. Halaber, erabiltzen dituzun aplikazioek gustuko dituzun gaiak zehatz ditzakete. Geroago, erabiltzen dituzun aplikazioek informazio hori eska dezakete, iragarki pertsonalizatuak erakusteko. Iragarkiak erakusteko zein gai eta aplikazio erabiltzen diren aukera dezakezu."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Iragarkien errendimendua neurtzeko, datu mota jakin batzuk soilik partekatzen dituzte aplikazioek elkarrekin."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android-eko iragarkiei buruzko informazio gehiago"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Iragarki erabilgarriagoak"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Ikusten dituzun iragarkiak pertsonalizatzeko informazioa eska diezaiokete aplikazioek Android-i."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"• Berriki erabili dituzun aplikazioetan oinarrituta hartzen ditu kontuan Android-ek interesatzen zaizkizun gaiak."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"• Halaber, erabiltzen dituzun aplikazioek gustuko dituzun gaiak zehatz ditzakete, aplikazioak erabiltzeko moduan oinarrituta. Esaterako, distantzia luzeetan korrika egiteko oinetakoak saltzen dituen aplikazio bat erabiltzen baduzu, baliteke aplikazio horrek maratoiak interesatzen zaizkizula ondorioztatzea."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Geroago, baliteke erabiltzen dituzun aplikazioek informazio hori eskatzea (iragarkien gaiak zein erabilitako aplikazioek iradokitako iragarkiak)."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Gaiak eta aplikazioek iradokitako datuak erregulartasunez automatikoki ezabatzen ditu Android-ek. Gainera, iradokizunak egiterik nahi ez duzun gaiak eta aplikazioak blokea ditzakezu."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Iragarkien errendimendua neurtzea"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Android-ek datu mota jakin batzuk soilik biltzea ahalbidetzen die aplikazioei; adibidez, zer ordutan erakutsi dizuten iragarki bat."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Probatu iragarkien pribatutasuna babesteko eginbide berriak"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Iragarkien gaiekin, ikusten dituzun iragarkien gaineko kontrol handiagoa izango duzu"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Ikusi xehetasunak"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Probatu iragarkietarako pribatutasun-eginbide berriak"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Ikusten dituzun iragarkien gaineko kontrol handiagoa emango dizuten pribatutasun-eginbide berriak kaleratuko ditu Android-ek."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Iragarkien gaiei esker, aplikazioek iragarki egokiak erakusten dizkizute, eta zure identitatea eta aplikazioen erabilerari buruzko informazioa babesten. Berriki erabili dituzun aplikazioetan oinarrituta har ditzake kontuan Android-ek interesatzen zaizkizun gaiak. Geroago, erabiltzen dituzun aplikazioek zuretzako gai egokiak zein diren galde diezaiokete Android-i, ikusten dituzun iragarkiak pertsonalizatzeko."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Gailuaren ezarpenetan, iragarkien gaiak ikus ditzakezu, eta aplikazioekin partekatzea nahi ez duzunak blokeatu. Era berean, Android-ek iragarkien gaiak erregulartasunez automatikoki ezabatzen ditu."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Iritziz aldatzen bazara, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Iragarkien gaiei buruzko informazio gehiago"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Android-ek zure datuak babesteko dauzkan moduei buruzko informazio gehiago lortzeko, irakurri gure "<a href="https://policies.google.com/privacy">"Pribatutasun-gidalerroak"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Probatu"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Zer datu erabiltzen dira?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Gailu honetan berriki erabili dituzun aplikazioetan eta haiek erabiltzeko maiztasunean daude oinarrituta iragarkien gaiak."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"• Nola erabiltzen ditugu datu horiek?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Aplikazioak erabiltzen dituzun neurrian hartzen ditu kontuan Android-ek interesatzen zaizkizun gaiak. Gaien etiketak aurrez definituta daude. Besteak beste, artea eta aisia, erosketak eta kirolak sartzen dira etiketetan. Geroago, erabiltzen dituzun aplikazioek zuri dagozkizun gaiak zein diren galde diezaiokete Android-i (baina ez aplikazioen erabilerari edo zure identitateari buruzko datuak), ikusten dituzun iragarkiak pertsonalizatzeko."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Nola kudea ditzakezu datuak?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Gaiak erregulartasunez ezabatzen ditu Android-ek automatikoki. Aplikazioak erabiltzen jarraitu ahala, baliteke gai bat berriro agertzea zerrendan. Era berean, Android-ek aplikazioekin partekatzerik nahi ez duzun gaiak blokea ditzakezu, eta iragarkien gaiak desaktibatu. Horretarako, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Aldaketak egiteko, joan pribatutasun-ezarpenetara."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Orain, iragarkietarako beste pribatutasun-eginbide batzuk daude"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Aplikazioek, iragarki pertsonalizatuak erakusten dizkizutenean, zuri buruz ikas dezaketena mugatzeko modu berriak ere eskaintzen ditu Android-ek."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"• Aplikazioek iradokitako iragarkiei esker, zure identitatea eta aplikazioen erabilerari buruzko informazioa babesten da, eta aplikazioek iragarki egokiak erakusten dizkizute. Zure jardueretan oinarrituta, baliteke erabiltzen dituzun aplikazioek erlazionatutako iragarkiak erakustea beste aplikazio batzuetan. Pribatutasun-ezarpenetan, aplikazioen zerrenda bat ikus dezakezu, eta haiei iradokizunak egiteko aukera blokeatu."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"• Iragarkien neurketa ezarpenarekin, datu mota jakin batzuk soilik partekatzen dituzte aplikazioek elkarrekin iragarkien errendimendua neurtzeko; adibidez, zer ordutan erakutsi dizuten iragarki bat."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Aplikazioek iradokitako iragarkiei eta iragarkien neurketari buruzko informazio gehiago"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Aplikazioek iradokitako iragarkiak"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Zein datu erabiltzen dira?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Gailu honetan darabilzun aplikazio batean egin dituzun jarduerak."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"• Nola erabiltzen dituzte aplikazioek datu horiek?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Zure interesei eta gustuei buruzko informazioa gorde dezakete aplikazioek Android-en. Adibidez, demagun maratoietarako entrenatzeko aplikazio bat erabiltzen duzula. Hala bada, korrika egiteko oinetakoak interesatzen zaizkizula erabakiko du agian aplikazio horrek. Horregatik, gero beste aplikazio bat irekitzen duzunean, baliteke korrika egiteko oinetakoen iragarki bat agertzea, lehen aplikazioak iradokita."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"• Nola kudea ditzakezu datuak?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Aplikazioek iradokitako datuak erregulartasunez automatikoki ezabatzen ditu Android-ek. Baliteke beste behin erabiltzen duzun aplikazio bat berriro ere zerrendan agertzea."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Hauek ere egin ditzakezu pribatutasun-ezarpenetan: aplikazioei iragarkiak iradokitzeko aukera blokeatu, iragarkien iradokizunekin erlazionatutako datu guztiak berrezarri edo aplikazioek iradokitako iragarkiak desaktibatu."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Android-ek zure pribatutasuna babesten du, aplikazioek haien artean parteka dezaketen informazioa mugatuta."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Orain, iragarkietarako pribatutasun-eginbide berriak daude"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Izan ikusten dituzun iragarkien gaineko kontrol handiagoa zure identitatea babesten duzun bitartean"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Orain, iragarkietarako pribatutasun-eginbide berriak daude"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Aplikazioek, iragarki pertsonalizatuak erakusten dizkizutenean, zuri buruz ikas dezaketena mugatzeko modu berriak kaleratuko ditu Android-ek."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Aplikazioek iradokitako iragarkiei esker, pribatutasun-eginbide berriek zure identitatea eta aplikazioen erabilerari buruzko informazioa babesten dituzte, eta aplikazioei iragarki egokiak erakusteko aukera ematen. Zure jardueretan oinarrituta, baliteke erabiltzen dituzun aplikazioek erlazionatutako iragarkiak iradokitzea beste aplikazio batzuetan. Pribatutasun-ezarpenetan, aplikazioen zerrenda bat ikus dezakezu, eta haiei iradokizunak egiteko aukera blokeatu."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Iragarkien neurketarekin, datu mota mugatuak partekatzen dira aplikazioen artean bertako iragarkien errendimendua ulertzeko; esate baterako, iragarkiak eguneko zer ordutan agertu zaizkizun."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Iragarkiak iradokitzeko erabil daitezke gailu honetan darabilzun aplikazio bateko jarduerak."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Aktibatu iragarkien pribatutasunarekin erlazionatutako beste eginbide bat"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Ikusten dituzun iragarkien gaineko kontrol handiagoa ematen dizun pribatutasun-eginbide berri bat ere eskaintzen du Android-ek."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Iragarkien gaiei esker, aplikazioek iragarki egokiak erakusten dizkizute, eta zure identitatea eta aplikazioen erabilerari buruzko informazioa babesten. Berriki erabili dituzun aplikazioetan oinarrituta har ditzake kontuan Android-ek interesatzen zaizkizun gaiak. Geroago, erabiltzen dituzun aplikazioek gai egokiak zein diren galde diezaiokete Android-i, iragarki egokiagoak erakusteko."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Pribatutasun-ezarpenetan ikus ditzakezu iragarkien gaiak, eta aplikazioekin partekatzea nahi ez duzun gaiak blokeatu. Horrez gain, Android-ek erregulartasunez automatikoki ezabatzen ditu iragarkien gaiak."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Aktibatu"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Orain, iragarkietarako pribatutasun-eginbide berriak daude"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Orain, ikusten dituzun iragarkien gaineko kontrol handiagoa duzu zure identitatea babesten duzun bitartean"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Orain, iragarkietarako pribatutasun-eginbide berriak daude"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Orain, ikusten dituzun iragarkien gaineko kontrol handiagoa ematen dizuten pribatutasun-eginbide berriak eskaintzen ditu Android-ek."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Hurrengoa"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox-a"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Probatu Android-eko iragarkien pribatutasunaren beta-bertsioa"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox-a"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android-ek estimatutako interesak"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Interesak estimatzen dituzten aplikazioak"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Iragarkien neurketa"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Aplikazioek Privacy Sandbox-a erabil dezakete iragarkien eraginkortasuna neurtzeko. Horretarako, Android-en iragarkien eta aplikazioen arteko interakzioei buruzko datuak gorde ditzakete iragarleek aldi baterako. Mugatuta dago gorde dezaketen datu kopurua, eta aldizka ezabatuko dira datu horiek.\n\nDatuok ezabatzeko, desaktibatu Privacy Sandbox-a."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Aldizka, erabiltzen dituzun aplikazioetan oinarrituta estimatzen ditu zure interes nagusiak Android-ek. Aplikazioek interes horiek erabiltzeko eska diezaiokete Android-i, iragarki egokiagoak erakusteko.\n\nInteres bat blokeatzen baduzu, ez da berriz gehituko zerrendan baldin eta interes hori desblokeatzen ez baduzu. Hala ere, baliteke harekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blokeatu"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Desblokeatu"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Blokeatu dituzun interesak"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Berrezarri interes guztiak"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Une honetan ez dago interesik erakusteko."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Une honetan ez dago gairik erakusteko.\nLortu informazio gehiago "<a href="https://support.google.com/android?p=ad_privacy">"iragarkien gaiei buruz"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox-a"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Eginbide berriak eskaintzen ditu Android-eko iragarkien pribatutasunaren beta-bertsioak; eginbide horiei esker, aplikazioek agian gustatuko zaizkizun iragarkiak erakutsiko dizkizute. Teknologia horiek ez dute erabiltzen gailuaren identifikatzailerik.\n\nAgian interesatuko zaizkizun iragarki motak estima ditzake Android-ek, eta interesak gailuan aldi baterako gorde. Hala, aplikazioek iragarki egokiak erakutsiko dizkizute beste garatzaile batzuen webgune eta aplikazioetan egindako jardueren jarraipena egin gabe."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Ez daukazu blokeatutako interesik"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Ez dago blokeatutako gairik"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Ikusi blokeatutako gaiak"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Berrezarri dira interesak"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Berrezarri dira gaiak"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Aplikazioek zure interesak estima ditzakete, eta Android-en aldi baterako gorde. Geroago, interes horietan oinarrituta, baliteke beste aplikazio batek iragarki bat erakustea.\n\nAplikazio bat blokeatzen baduzu, ez du interes gehiagorik estimatuko. Aplikazioa ez da berriz gehituko aplikazioen zerrenda honetan baldin eta aplikazio hori desblokeatzen ez baduzu. Aplikazioak estimatutako interesak ezabatuko dira; hala ere, baliteke haiekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Blokeatu dituzun aplikazioak"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Ikusi blokeatutako aplikazioak"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Berrezarri aplikazioek estimatutako interesak"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Une honetan ez dago interesak iradokitzen dituen aplikaziorik"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Une honetan ez dago aplikaziorik erakusteko. \nLortu informazio gehiago "<a href="https://support.google.com/android?p=ad_privacy">"aplikazioek iradokitako iragarkiei buruz"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox-a"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Eginbide berriak eskaintzen ditu Android-eko iragarkien pribatutasunaren beta-bertsioak; eginbide horiei esker, aplikazioek agian gustatuko zaizkizun iragarkiak erakutsiko dizkizute. Teknologia horiek ez dute erabiltzen gailuaren identifikatzailerik.\n\nAgian interesatuko zaizkizun iragarki motak estima ditzakete aplikazioek, eta interesak gailuan aldi baterako gorde. Hala, aplikazioek iragarki egokiak erakutsiko dizkizute beste garatzaile batzuen webgune eta aplikazioetan egindako jardueren jarraipena egin gabe."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Ez daukazu blokeatutako aplikaziorik"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Ez dago blokeatutako aplikaziorik"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Eman iragarkien neurketa aktibatzeko baimena"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Iragarkien errendimendua hobetzen laguntzen dien informazioa eska diezaiokete aplikazioek eta iragarleek Android-i.\n\nIragarkien neurketari buruzko datuak erregulartasunez ezabatzen dira gailutik."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Berrezarri neurketei buruzko datuak"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Aplikazioek haien artean parteka dezaketen informazioa mugatuta babesten du zure pribatutasuna Android-ek. Zure identitatea babeste aldera, txostenak atzeratuta bidaltzen dira.\n\nBaliteke darabilzun arakatzaileak antzeko ezarpen bat izatea. Iragarkien neurketa Android-en eta darabilzun arakatzailean aktibatuta badago, agian enpresek iragarkien eraginkortasuna neurtu ahalko dute erabiltzen dituzun aplikazioen eta bisitatzen dituzun webguneen artean. Arakatze-historia pribatu mantentzen da gailuan.\n\nAndroid-ek zure datuak babesteko dauzkan moduei buruzko informazio gehiago lortzeko, irakurri gure "<a href="https://policies.google.com/privacy">"Pribatutasun-gidalerroak"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Berrezarri dira iragarkien neurketen datuak"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Utzi"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Privacy Sandbox-a desaktibatu nahi duzu?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Iritziz aldatzen bazara edo Android-eko iragarkien pribatutasunaren beta-bertsioari buruzko informazio gehiago lortu nahi baduzu, joan pribatutasun-ezarpenetara"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Desaktibatu"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> blokeatu nahi duzu?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Gaia blokeatu egingo da, eta ez da gehituko berriro zerrendan, zuk berriz gehitzen ez baduzu. Hala ere, baliteke harekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokeatu"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Desblokeatu da <xliff:g id="TOPIC">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Agian Android-ek berriro gehituko du gaia zerrendan, baina baliteke berehala ez agertzea"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Ados"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Iragarkien gai guztiak berrezarri nahi dituzu?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Zerrenda garbitu egingo da, eta gai berriak gehituko dira aurrerantzean. Hala ere, baliteke berrezarri dituzun gaiekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Berrezarri"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> blokeatu nahi duzu?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Aplikazioak ez du iradokiko iragarkirik, eta ez da gehituko berriro zerrendan, zuk desblokeatzen ez baduzu. Hala ere, baliteke harekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Desblokeatu da <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Aplikazio honek berriro iradoki ditzake iragarkiak, baina baliteke zerrendan berehala ez agertzea. Baliteke erlazionatutako iragarkiak ikusteko tarte bat behar izatea."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Aplikazioek iradokitako iragarkiekin erlazionatutako datuak berrezarri nahi dituzu?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Zerrendako aplikazioek iragarkien iradokizunekin erlazionatuta dauzkaten datuak ezabatuko dira, eta aplikazioek iragarki berriak iradokiko dituzte aurrerantzean. Hala ere, baliteke aplikazio horiekin erlazionatutako iragarki batzuk ikusten jarraitzea."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Berrezarri dira aplikazioetako datuak"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Iragarkien gaiak aktibatuta daude"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Interesatzen zaizkizun gaiak hautematen hasiko da Android, baina tarte bat beharko da lehen gaiak agertzen hasi arte."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Iragarkien gaiak desaktibatu nahi dituzu?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Gaien zerrenda ezabatu egingo da. Aurrerantzean, Android-ek ez ditu hautemango interesatzen zaizkizun gaiak, baina baliteke iragarki egokiak ikustea oraindik ere."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Aplikazioek iradokitako iragarkiak aktibatuta daude"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Baliteke aplikazioak iragarkiak iradokitzen hastea. Hori gertatzean, aplikazioen zerrenda bat ikusiko duzu."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Aplikazioek iradokitako iragarkiak desaktibatu nahi dituzu?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Iradokitako iragarkiei buruzko datu guztiak ezabatuko dira. Aurrerantzean, aplikazioek ezingo dituzte iradoki iragarkiak, baina baliteke iragarki egokiak ikustea oraindik ere."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Iragarkien neurketa aktibatuta dago"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android-ek informazio oso mugatua parteka dezake aplikazioekin, haien iragarkien errendimendua neur dezaten."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Iragarkien neurketa desaktibatu nahi duzu?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Zain dauden iragarkien neurketaren txostenak ezabatu egingo dira eta ez da txosten gehiagorik sortuko edo partekatuko."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Iragarkien pribatutasuna"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Iragarkien gaiak"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Aplikazioek iradokitako iragarkiak"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Berriki erabili dituzun aplikazioetan eta haiek erabiltzeko maiztasunean oinarrituta hartzen ditu kontuan Android-ek interesatzen zaizkizun gaiak."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Halaber, erabiltzen dituzun aplikazioek gustuko dituzun gaiak zehatz ditzakete, aplikazioak erabiltzeko moduan oinarrituta."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Alabaina, Android-ek datu mota mugatuak biltzen uzten die aplikazioei."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Lortu informazio gehiago "<a href="https://support.google.com/android?p=ad_privacy">"Android-eko iragarkien pribatutasunari buruz"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Aktibatuta: <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> gai"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Aktibatuta / # gai}other{Aktibatuta / # gai}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Aktibatuta: <xliff:g id="APPS_COUNT">%1$d</xliff:g> aplikazio"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Aktibatuta / # aplikazio}other{Aktibatuta / # aplikazio}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Aktibatuta"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Desaktibatuta"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Berriki erabili dituzun aplikazioetan daude oinarrituta interesatzen zaizkizun gaiak, eta aplikazioek iragarki pertsonalizatuak erakusteko erabiltzen dituzte.\n\nAplikazioekin partekatzea nahi ez duzun gaiak blokea ditzakezu. Halaber, Android-ek automatikoki ezabatzen ditu gaiak erregulartasunez.\n\nEginbide hori aktibatuta egon daitekeen arren, baliteke gaien zerrendarik ez ikustea eginbidea guztiz erabilgarri egon eta aplikazioek hura erabiltzen hasi arte."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Eman iragarkien gaiak erabiltzeko baimena"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Blokeatu dituzun iragarkien gaiak"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Berrezarri iragarkien gai guztiak"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Azken asteetan erabili dituzun aplikazioetan oinarritzen da Android zer gai interesatzen zaizkizun zehazteko.\n\nGeroago, erabiltzen dituzun aplikazioek zer gai interesatzen zaizkizun galde diezaiokete Android-i zer iragarki erakutsiko dizkizuten erabakitzeko. Android-ek hiru gai partekatzen ditu gehienez, zure identitatea eta aplikazioaren erabilerari buruzko informazioa babesten duen bitartean.\n\nAndroid-ek erregulartasunez ezabatzen ditu gaiak automatikoki. Aplikazioak erabiltzen jarraitu ahala, baliteke gaiak berriro agertzea zerrendan. Bestela, gaiak blokea ditzakezu Android-ek aplikazioekin parteka ez ditzan.\n\nAplikazioetan ikusten dituzun iragarkiak pertsonalizatzea, edo ez, hainbat faktoreren mende dago; besteak beste, ezarpen hau, aplikazioek iradokitako iragarkien ezarpena, zure publizitate-identifikatzailearen ezarpenak eta erabiltzen ari zaren aplikazioak iragarkiak pertsonalizatzen dituen ala ez."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Eman aplikazioek iradokitako iragarkiak erabiltzeko baimena"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Erabiltzen dituzun aplikazioek gustuko dituzun gaiak zehatz ditzakete, eta, ondoren, beste aplikazio batzuetan iragarkiak iradoki.\n\nIradokizunak egiteko aukera blokea diezaiekezu aplikazioei. Halaber, Android-ek automatikoki ezabatzen ditu aplikazioek iradokitako datuak erregulartasunez.\n\nEginbide hori aktibatuta egon daitekeen arren, baliteke aplikazioen zerrendarik ez ikustea eginbidea guztiz erabilgarri egon eta aplikazioek hura erabiltzen hasi arte."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Blokeatu dituzun aplikazioak"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Berrezarri aplikazioek iradokitako datuak"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Ohikoa da erabiltzen dituzun aplikazioek interesatzen zaizkizun gauzak gogoratzea, zerbitzuak pertsonalizatze aldera. Android-en laguntzarekin, aplikazioek zure gaiei buruzko informazioa ere gorde dezakete.\n\nEsaterako, maratoietarako prestatzeko aplikazio bat erabiltzen baduzu, agian aplikazioak korrika egiteko oinetakoak interesatzen zaizkizula erabakiko du. Horregatik, gero beste aplikazio bat erabiltzen duzunean, korrika egiteko oinetakoen iragarki bat agertuko zaizu, lehen aplikazioak iradoki duelako.\n\nAndroid-ek erregulartasunez automatikoki ezabatzen ditu aplikazioek iradokitako datuak. Aplikazioren bat berriro erabiliz gero, litekeena da berriz zerrendan agertzea. Bestela, iragarkiak iradokitzeko aukera blokea diezaiekezu aplikazioei.\n\nZure aplikazioetan, baliteke ikusten dituzun iragarkiak pertsonalizatuta egotea, hauen arabera: ezarpen hau, iragarkien gaien ezarpena, publizitate-identifikatzailearen ezarpenak eta darabilzun aplikazioak iragarkiak pertsonalizatzen dituen ala ez."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Iragarkietarako pribatutasun-eginbide berri bat dago"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Oso informazio gutxi partekatzen du Android-ek aplikazioen artean; aplikazioek iragarkien errendimendua neurtu ahal izateko behar dutena soilik."</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Iragarkietarako pribatutasun-eginbide berri bat kaleratu dugu: iragarkien neurketa. Oso informazio gutxi partekatzen du Android-ek aplikazioen artean; esate baterako, iragarki jakin bat erakutsi zaizula. Horri esker, iragarkien errendimendua neur dezakete aplikazioek."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Aldaketak egiteko, joan iragarkien pribatutasun-ezarpenetara."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Alabaina, Android-ek datu mota jakin batzuk bakarrik uzten die biltzen aplikazioei."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Iragarkietarako pribatutasun-eginbide berriak"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Izan ikusten dituzun iragarkien gaineko kontrol handiagoa zure identitatea babesten duzun bitartean"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Aldaketak egin dira iragarkietarako pribatutasun-eginbideetan"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Izan ikusten dituzun iragarkien gaineko kontrol handiagoa zure identitatea babesten duzun bitartean"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android iragarkietarako pribatutasun-eginbideak hedatzera doa, iragarki pertsonalizatuak erakustean aplikazioek zuri buruz lor dezaketen informazioa mugatzeko."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Aplikazioek eta haien publizitate-bazkideek gailu honetako beste aplikazio batzuetan egiten dituzun jarduerak erabil ditzakete iragarkiak pertsonalizatzeko, baina zure identitatea pribatu eta seguru mantenduta."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Aplikazioek iradokitako iragarkiei buruzko informazio gehiago"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Datu mota mugatuak partekatzen dira aplikazioen artean bertako iragarkien errendimendua ulertzeko; esate baterako, iragarkiak eguneko zer ordutan agertu zaizkizun."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Iragarkien neurketei buruzko informazio gehiago"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Berriki erabili dituzun aplikazioetan oinarrituta hartzen ditu kontuan Android-ek interesatzen zaizkizun gaiak. Horrez gain, aplikazioek eta haien publizitate-bazkideek gailu honetako beste aplikazio batzuetan egiten dituzun jarduerak erabil ditzakete iragarkiak pertsonalizatzeko, baina zure identitatea pribatu eta seguru mantenduta."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Erabiltzen dituzun aplikazioek zer gustatzen zaizun zehatz dezakete, aplikazioak erabiltzeko duzun moduan oinarrituta. Esate baterako, sukaldaritza-aplikazioak maiz erabiltzen badituzu, baliteke beste aplikazio batzuetan janari-bidalketei edo erlazionatutako edukiei buruzko iragarkiak ikustea.\n\nAplikazioek segurtasunez gorde dezakete informazio hori, haien publizitate-bazkideek beste aplikazio batzuetako iragarkiak pertsonalizatzeko soilik erabiltzeko moduan."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Geroago, baliteke erabiltzen dituzun aplikazioek informazio hori eskatzea (iragarkien gaiak zein erabilitako aplikazioek iradokitako iragarkiak)."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Aplikazioek haien artean parteka dezaketen informazioa mugatuta babesten du zure pribatutasuna Android-ek."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Zer datu erabiltzen dira?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Iragarkien errendimendua neurtzen laguntzen dien informazioa eska diezaiokete erabiltzen dituzun aplikazioek Android-i. Android-ek zure pribatutasuna babesten du, aplikazioek haien artean parteka dezaketen informazioa mugatuta."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Nola babesten da nire identitatea?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android-ek askotariko pribatutasun-neurriak hartzen ditu, hala nola datuak multzokatzea eta zikintzea, aplikazioek haien artean parteka dezaketen informazioa mugatzeko eta zure identitatea babesteko.\n\nHalaber, iragarkien neurketen datuak erregulartasunez ezabatzen dira gailutik."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Iragarkiak iradokitzeko erabil daitezke aplikazioetako jarduerak."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Nola erabiltzen dituzte aplikazioek datu horiek?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Aplikazioek segurtasunez gorde dezakete informazio hori, haien publizitate-bazkideek beste aplikazio batzuetako iragarkiak pertsonalizatzeko soilik erabiltzeko moduan. Esate baterako, sukaldaritza-aplikazioak maiz erabiltzen badituzu, baliteke beste aplikazio batzuetan janari-bidalketei edo erlazionatutako edukiei buruzko iragarkiak ikustea."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Nola kudea ditzaket datu horiek?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Zure jarduerak publizitate-bazkideekin partekatzeko aukera blokea diezaiekezu aplikazio jakin batzuei. Edonoiz berrezarri edo desaktiba ditzakezu aplikazioek iradokitako iragarkiak pribatutasun-ezarpenetan. Horrez gain, Android-ek erregulartasunez ezabatzen ditu automatikoki datu horiek."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Lortu Android-ek pribatutasuna babesteko duen moduari buruzko informazio gehiago"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Aplikazioek eta haien publizitate-bazkideek gailu honetako beste aplikazio batzuetan egiten dituzun jarduerak erabil ditzakete iragarkiak pertsonalizatzeko, baina zuri buruzko informazioa pribatu eta seguru mantenduta.\n\nEsate baterako, sukaldaritza-aplikazioak maiz erabiltzen badituzu, baliteke beste aplikazio batzuetan janari-bidalketei edo erlazionatutako edukiei buruzko iragarkiak ikustea.\n\nAndroid-ek erregulartasunez ezabatzen ditu automatikoki jarduerak, baina, horrez gain, informazio hori publizitate-bazkideekin partekatzeko aukera bloka diezaiekezu aplikazioei."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Ohikoa da aplikazioek eta publizitate-bazkideek interesatzen zaizkizun gauzak gogoratzea, zerbitzuen erabilera pertsonalizatzeko. Aplikazioek segurtasunez gorde dezakete informazio hori, haien publizitate-bazkideek beste aplikazio batzuetan iragarkiak erakusteko soilik erabiltzeko moduan.\n\nZure jarduerei buruzko datuak publizitate-bazkideekin partekatzeko aukera blokea diezaiekezu aplikazioei. Android-ek erregulartasunez ezabatzen ditu automatikoki jarduerei buruzko datu partekatuak; beraz, baliteke berriro erabiltzen duzun aplikazio bat zerrenda honetan agertzea berriro.\n\nIkusten dituzun iragarkiak pertsonalizatuak diren edo ez faktore askoren araberakoa da; esaterako, ezarpen hau, iragarkien gaien ezarpena, publizitate-identifikatzailearen ezarpenak eta darabilzun aplikazioak iragarkiak pertsonalizatzen dituen ala ez.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lortu aplikazioek iradokitako iragarkiei buruzko informazio gehiago"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android-ek askotariko pribatutasun-neurriak hartzen ditu, hala nola datuak multzokatzea eta zikintzea, aplikazioek haien artean parteka dezaketen informazioa mugatzeko eta zure identitatea babesteko.\n\nBaliteke darabilzun arakatzaileak antzeko ezarpen bat izatea. Iragarkien neurketa Android-en eta darabilzun arakatzailean aktibatuta badago, agian enpresek iragarkien eraginkortasuna neurtu ahalko dute erabiltzen dituzun aplikazioen eta bisitatzen dituzun webguneen artean. Arakatze-historia pribatu mantentzen da gailuan.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lortu iragarkien neurketari buruzko informazio gehiago"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Azken asteetan erabili dituzun aplikazioetan oinarritzen da Android zer gai interesatzen zaizkizun zehazteko.\n\nGeroago, erabiltzen dituzun aplikazioek zer gai interesatzen zaizkizun galde diezaiokete Android-i zer iragarki erakutsiko dizkizun erabakitzeko. Android-ek hiru gai partekatzen ditu gehienez, zure identitatea eta aplikazioaren erabilerari buruzko informazioa babesten duen bitartean.\n\nAndroid-ek erregulartasunez ezabatzen ditu automatikoki gaiak. Aplikazioak erabiltzen jarraitu ahala, baliteke gaiak berriro agertzea zerrendan. Bestela, gaiak blokea ditzakezu Android-ek aplikazioekin parteka ez ditzan.\n\nIkusten dituzun iragarkiak pertsonalizatuak diren edo ez faktore askoren araberakoa da; esaterako, ezarpen hau, iragarkien gaien ezarpena, publizitate-identifikatzailearen ezarpenak eta darabilzun aplikazioak iragarkiak pertsonalizatzen dituen ala ez.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lortu iragarkien gaiei buruzko informazio gehiago"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Gai interesgarrien (adibidez, musika, albisteak eta kirolak) ikurrak erakusten dituen irudi koloretsua"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Zirkulu batean giltzarrapo bat erakusten duen irudi koloretsua"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Karratu bat osatzen duten bederatzi punturen irudi zuri-beltza"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Ikur sinpleak (bihotz bat, hiruki bat eta karratu bat) erakusten dituen irudi zuri-beltza"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Artea eta aisia"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Interpretazioa eta antzerkia"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Animea eta manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Marrazki bizidunak"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komikiak"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Kontzertuak eta musika-jaialdiak"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Dantza"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Aisialdiaren sektorea"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Dibertsioa eta galde-erantzunen jokoak"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Dibertsio-probak eta inkesta tuntunak"</string>
+    <string name="topic10011" msgid="175945911179628507">"Umorea"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Argazki eta bideo dibertigarriak"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Zuzeneko komedia"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Zuzeneko kirol-gertaerak"</string>
+    <string name="topic10015" msgid="726046067079821146">"Magia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Filmen zerrendak eta antzokiko ikuskizunen ordutegia"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmak"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Ekintza- eta abentura-filmak"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Marrazki bizidunen filmak"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komedia-filmak"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultuzko filmak eta film indieak"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Film-dokumentalak"</string>
+    <string name="topic10023" msgid="254151319845267278">"Dramazko filmak"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Familia-filmak"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Beldurrezko filmak"</string>
+    <string name="topic10026" msgid="210222384439682793">"Film erromantikoak"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Thrillerrak"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musika eta audioa"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Bluesa"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Musika klasikoa"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Countrya"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Dance musika eta musika elektronikoa"</string>
+    <string name="topic10033" msgid="895853536740398847">"Folka eta musika tradizionala"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazza"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Musika zuzenean erreproduzitzea eta deskargatzea"</string>
+    <string name="topic10036" msgid="449833307315797283">"Musika-bideoak"</string>
+    <string name="topic10037" msgid="51698216720637667">"Musika-tresnak"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Pianoak eta teklatuak"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popa"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Irratia"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Irrati-solasaldiak"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rapa eta hip-hopa"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rocka"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Rock klasikoa eta abesti zaharrak"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hard rocka eta rock progresiboa"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Musika indiea eta alternatiboa"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Laginak eta soinu-liburutegiak"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soula eta R&amp;B-a"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Soinu-bandak"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Munduko musika"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggaea eta Karibeko musika"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Sareko irudien galeriak"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Sareko bideoak"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Zuzeneko bideo-igorpenak"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Filmak eta zuzeneko telebista"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Telebista-gidak eta erreferentziak"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Telebista-sareak eta kanalak"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Saioak eta programak"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Telebistako komediak"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Dokumentalak eta ez-fikziozko saioak"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Telenobelak"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Telebistako foiletoiak"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Familia osoarentzako saioak"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Telebistako reality-ak"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Zientzia-fikziozko eta fantasiazko saioak"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Ikusizko artea eta diseinua"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Diseinua"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Pintura"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Argazkilaritza eta arte digitala"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Autoak eta ibilgailuak"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Zama-kamioiak eta trailerrak"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Ibilgailu klasikoak"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Ibilgailu pertsonalizatuak eta errendimendu handiko ibilgailuak"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Erregaien prezioak eta ibilgailuetarako erregaiak"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Ibilgailu motordunak (motaren arabera)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Ibilgailu autonomoak"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Kabrioletak"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Coupéak"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Hatchback-ak"</string>
+    <string name="topic10081" msgid="577995777553561437">"Ibilgailu hibridoak eta alternatiboak"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luxuzko ibilgailuak"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikroautoak eta azpikonpaktuak"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motoak"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Lur orotako ibilgailuak"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pickup kamioiak"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Scooter-ak eta ziklomotoreak"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedanak"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Familiarrak"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Lur orotako ibilgailu arinak eta crossover ibilgailuak"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Crossover ibilgailuak"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Furgonetak eta furgoneta txikiak"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Garabiak eta errepideko laguntza"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Ibilgailuen eta trafikoaren inguruko segurtasuna"</string>
+    <string name="topic10095" msgid="84682415803421329">"Ibilgailuen piezak eta osagarriak"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Ibilgailuen konponketa eta mantentze-lanak"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Ibilgailuen erosketa"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Bigarren eskuko ibilgailuak"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Ibilgailuen erakusketak"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Edertasuna eta fitnessa"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Gorputz-artea"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Aurpegiaren eta gorputzaren zaintza"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antitranspiratzaileak"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Bainugelarako eta gorputzerako produktuak"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Moda garbia"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Makillajea eta kosmetikoak"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Azazkalen zaintzarako produktuak"</string>
+    <string name="topic10108" msgid="577259588028933025">"Perfumeak eta lurrinak"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Bizar-labanak eta bizarra kentzeko makinak"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Moda eta estiloa"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitnessa"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Kulturismoa"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Fitness-eskolak eta entrenatzaile pertsonalak"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Fitnesserako produktu teknologikoak"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Ilea zaintzea"</string>
+    <string name="topic10116" msgid="763642849903586689">"Liburuak eta literatura"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Haurrentzako literatura"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Liburu elektronikoak"</string>
+    <string name="topic10119" msgid="894448782525835364">"Aldizkariak"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poesia"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Enpresak eta industria"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Publizitatea eta marketina"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Salmentak"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Nekazaritza eta basogintza"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Elikadura-ekoizpena"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Automobilgintza"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Abiazioaren sektorea"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Enpresa-eragiketak"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Lan-hitzarmen malguak"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Giza baliabideak"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Merkataritza-alokairua"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Eraikuntza eta mantentze-lanak"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Ingeniaritza zibila"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Defentsaren industria"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia eta hornidura publikoko zerbitzuak"</string>
+    <string name="topic10136" msgid="455894912948558854">"Ur-hornidura eta -tratamendua"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Ostalaritza"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Fabrikazioa"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metalak eta meatzaritza"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Maila anitzeko marketina eta enpresa-aukerak"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmazia eta bioteknologia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Inprenta eta argitalpenak"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Txikizkako merkataritza"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Arrisku-kapitala"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Informatika eta elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Informatikako gailu periferikoak"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Inprimagailuak"</string>
+    <string name="topic10148" msgid="388392714835039199">"Segurtasun informatikoa"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antibirusak eta malwareak"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Sarearen segurtasuna"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Kontsumo-elektronika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kamera eta bideokamerak"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPSa eta nabigazioa"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Domotika"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Etxeko zinema-sistemak"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3ak eta multimedia-erreproduzigailu eramangarriak"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Soinean eramateko gailuek darabilten teknologia"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Datuen babeskopia eta leheneratzea"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Mahaigaineko ordenagailuak"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Ordenagailu eramangarriak eta poltsikoko ordenagailuak"</string>
+    <string name="topic10161" msgid="172004201167511870">"Networking-a"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Informatika banatua eta hodeiko informatika"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programazioa"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Softwarea"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Audio- eta musika-softwarea"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Enpresa- eta produktibitate-softwarea"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Egutegi- eta antolaketa-softwarea"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Elkarlanean jarduteko eta bideokonferentziak egiteko softwarea"</string>
+    <string name="topic10169" msgid="827557334245484202">"Aurkezpen-softwarea"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Kalkulu-orrien softwarea"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Testua prozesatzeko softwarea"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Argitalpen elektronikoak"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Letrak"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Deskargen kudeatzaileak"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Freewarea eta sharewarea"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafiko- eta animazio-softwarea"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Laguntzaile pertsonal adimendunak"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Multimedia-erreproduzigailuak"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Kontrol-softwarea"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Sistema eragileak"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Argazki- eta bideo-softwarea"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Argazki-softwarea"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Bideo-softwarea"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Software-tresnak"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Web-arakatzaileak"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finantzak"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Kontabilitatea eta auditoretza"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Zergen prestaketa eta plangintza"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bankuak"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Diru-transferentziak"</string>
+    <string name="topic10191" msgid="374364159635356705">"Kredituak eta maileguak"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kreditu-txartelak"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Etxebizitzen finantzaketa"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Mailegu pertsonalak"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Ikasleentzako maileguak eta unibertsitaterako finantzaketa"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finantza-plangintza eta -kudeaketa"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Erretiroa eta pentsioa"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Dirulaguntzak"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Dirulaguntzak"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Aseguruak"</string>
+    <string name="topic10201" msgid="447240478385298875">"Auto-aseguruak"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Osasun-aseguruak"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Etxe-aseguruak"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Bizi-aseguruak"</string>
+    <string name="topic10205" msgid="262581473890356377">"Bidaia-aseguruak"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Inbertsioak"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Salgaien eta finantza-gerokoen merkataritza"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Monetak eta trukea"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Estaldura-funtsak"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Funts mutualistak"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Akzioak eta bonuak"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Jan-edanak"</string>
+    <string name="topic10213" msgid="805716705436663130">"Sukaldaritza eta errezetak"</string>
+    <string name="topic10214" msgid="726298155737413779">"Barbakoa eta parrilla"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Sukaldaritza motak"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Sukaldaritza begetarianoa"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Sukaldaritza beganoa"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Osasuntsu jatea"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Jan-edanen saltzaileak"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Jokoak"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arcade eta txanpon bidezko jokoak"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Billarra"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Mahai-jokoak"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Xakea eta estrategia abstraktuko jokoak"</string>
+    <string name="topic10225" msgid="564207834821286301">"Karta-jokoak"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Bilduma-txartelen jokoak"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Ordenagailuko jokoak eta bideojokoak"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Ekintza- eta plataforma-jokoak"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Abentura-jokoak"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Casual jokoak"</string>
+    <string name="topic10231" msgid="405082026972839048">"Bideojokoen lehiaketak"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Gidatzeko jokoak eta lasterketa-jokoak"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Borroka-jokoak"</string>
+    <string name="topic10234" msgid="693433817142162565">"Bideojokoei buruzko erreferentziak eta iritziak"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Bideojokoetarako tranpak eta iradokizunak"</string>
+    <string name="topic10236" msgid="320145832033080647">"Jokalari bat baino gehiagoko joko masiboak"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Musika- eta dantza-jokoak"</string>
+    <string name="topic10238" msgid="124952008622371505">"Mundu irekiko jokoak"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Tiroketa-jokoak"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulazio-jokoak"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Enpresa-jokoak eta jaun eta jabe izateko jokoak"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Hirien eraikuntza-jokoak"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Bizitza-simulazioko jokoak"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Ibilgailuen simulatzaileak"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Kirol-jokoak"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Kirol-taldeak kudeatzeko jokoak"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Estrategia-jokoak"</string>
+    <string name="topic10248" msgid="279151815457227293">"Bideojokoen aldakuntzak eta gehigarriak"</string>
+    <string name="topic10249" msgid="631580828608894782">"Joko hezigarriak"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Familientzako jokoak eta jarduerak"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Marraztea eta margotzea"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Mozorroak eta moda-jokoak"</string>
+    <string name="topic10253" msgid="385499297969826942">"Puzzleak eta buru-hausgarriak"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Rol-jokoak"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Mahai-tenisa"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Fitxa-jokoak"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Hitz-jokoak"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Zaletasunak eta aisia"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Urteurrenak"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Urtebetetzeak eta izenen egunak"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Urpekaritza eta urpeko jarduerak"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Zuntz- eta ehun-arteak"</string>
+    <string name="topic10263" msgid="361345691023794788">"Aire zabala"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Arrantza"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Ehiza eta tiroa"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball-a"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Irratiz kontrolatutako ibilgailuak eta modelismoa"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Ezkontzak"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Etxea eta lorategia"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Lorezaintza"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Etxea eta barne-dekorazioa"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Etxetresnak"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Etxea hobetzea"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Etxeko babesa eta segurtasuna"</string>
+    <string name="topic10275" msgid="682064062059687444">"Etxeko hornigaiak"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Paisaien diseinua"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet eta telekomunikazioak"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Mezu elektronikoak eta mezularitza"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Posta elektronikoa"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Testu-mezuak eta istanteko mezularitza"</string>
+    <string name="topic10281" msgid="582764575763317221">"Ahots- eta bideodeiak"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Interneteko zerbitzu-hornitzaileak"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefono-zerbitzuen hornitzaileak"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Mugikorretarako tonuak eta gaiak"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Bilatzaileak"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Telefono adimendunak"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Bideokonferentziak"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Sareko aplikazioak eta tresnak"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Web-zerbitzuak"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Hodeiko biltegiratzea"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Web-diseinua eta garapena"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Web-ostatatzea"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Enplegua eta hezkuntza"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Hezkuntza"</string>
+    <string name="topic10295" msgid="331240908257602211">"Konferentzia eta argitalpen akademikoak"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Fakultateak eta unibertsitateak"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Urruneko ikasketa"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Haur-hezkuntza goiztiarra"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Haur-hezkuntza"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Etxean eskolatzea"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Proba estandarizatuak eta sarrera-probak"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Irakaskuntza eta eskoletarako baliabideak"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Lanbide-heziketa eta etengabeko heziketa"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Lan-eskaintzak"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Ibilbide profesionalerako baliabideak eta planifikazioa"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Lan-poltsak"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Zuzenbidea eta gobernua"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Krimena eta justizia"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Auziak"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Lege-zerbitzuak"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Albisteak"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Ekonomia-albisteak"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Tokiko albisteak"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Fusioak eta erosketak"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Egunkariak"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Kirol-albisteak"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Eguraldia"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Munduko albisteak"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Sareko komunitateak"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Irudiak eta GIFak"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Zitetarako eta gauza pertsonaletarako zerbitzuak"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Jario-bilketa eta laster-marka sozialak"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Fitxategiak partekatzea eta ostatatzea"</string>
+    <string name="topic10325" msgid="916412844647169263">"Foro- eta txat-hornitzaileak"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblogak"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Argazkiak eta bideoak partekatzea"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Argazkiak eta irudiak partekatzea"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Bideoak partekatzea"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Itxura"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Sare sozialen aplikazioak eta gehigarriak"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Sare sozialak"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Jendea eta gizartea"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Familia eta harremanak"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Jatorria eta genealogia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Ezkontza"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Gurasotasuna"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adopzioa"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Haurtxoak eta ume txikiak"</string>
+    <string name="topic10340" msgid="259457452971577855">"Haurrentzako segurtasuna Interneten"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Erromantikoak"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Zientzia-fikzioa eta fantasia"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Konpainia-animaliak eta animaliak"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Konpainia-animalientzako janaria eta haiek zaintzeko hornigaiak"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Konpainia-animaliak"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Txoriak"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Katuak"</string>
+    <string name="topic10348" msgid="570783769757187957">"Txakurrak"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Arrainak eta akuarioak"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Narrastiak eta anfibioak"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Albaitariak"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Higiezinak"</string>
+    <string name="topic10353" msgid="230887584509968233">"Lursailak"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Denbora partekatuko eta oporretako jabetzak"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Erreferentzia-materialak"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Enpresa eta zerrenda pertsonalak"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Erreferentzia orokorrak"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Kalkulagailuak eta erreferentzia-tresnak"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Hiztegiak eta entziklopediak"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Hezkuntza-baliabideak"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Argibideak"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Denboraren antolamendua eta egutegiak"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Hizkuntza-baliabideak"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Atzerriko hizkuntzen ikasketa"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Itzulpen-tresnak eta -baliabideak"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Mapak"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Zientzia"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Errealitate areagotua eta birtuala"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologia"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kimika"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekologia eta ingurumena"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Ikasketa automatikoa eta adimen artifiziala"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fisika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Erosketak"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antigoaleko gauzak eta bildumak"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Arropa"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Haurren arropa"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Mozorroak"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Gizonen arropa"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Emakumeen arropa"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Iragarkiak"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Kontsumo-baliabideak"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kupoiak eta deskontuak"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Fideltasun-txartelak eta -programak"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Laguntza teknikoa eta konponketa"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Loreak"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Zorion-txartelak"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Festa eta jaietarako hornigaiak"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Erosketa-atariak"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Kirolak"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Futbol amerikarra"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Futbol australiarra"</string>
+    <string name="topic10397" msgid="653991203228840785">"Auto-lasterketak"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Beisbola"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Saskibaloia"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bola-jokoak"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boxeoa"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Kirol-animazioa"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Unibertsitateko kirolak"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriketa"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Txirrindularitza"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Hipika"</string>
+    <string name="topic10407" msgid="316266982792700993">"Muturreko kirolak"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Eskalada eta mendizaletasuna"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantasiazko kirolak"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golfa"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gimnasia"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hockeya"</string>
+    <string name="topic10413" msgid="416366556259783701">"Izotz gaineko patinajea"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Arte martzialak"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Moto-lasterketak"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olinpiar Jokoak"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Errugbia"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Korrika egitea eta ibiltzea"</string>
+    <string name="topic10419" msgid="979581105119036716">"Eskia eta snowboarda"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futbola"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surfa"</string>
+    <string name="topic10422" msgid="978920114358054206">"Igeriketa"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenisa"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atletismo-estadioko kirolak"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Boleibola"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Borroka"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Bidaiak eta garraioak"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Abenturazko bidaiak"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Airetiko bidaiak"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Negozio-bidaiak"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Auto-alokairuak"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Itsas bidaiak eta charterrak"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Familientzako bidaiak"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Eztei-bidaiak eta oporraldi erromantikoak"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotelak eta ostatuak"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Distantzia luzeko autobusak eta trenak"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Kostu txikiko eta azken orduko bidaiak"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Maletak eta bidaia-osagarriak"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turismo-helmugak"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Hondartzak eta uharteak"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Lurraldeko parkeak eta lorategiak"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Parke tematikoak"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zooak"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Trafikoaren eta ibilbideen antolatzaileak"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Bidaia-agentziak eta zerbitzuak"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Bidaia-gidak eta bidaia-dokumentalak"</string>
+</resources>

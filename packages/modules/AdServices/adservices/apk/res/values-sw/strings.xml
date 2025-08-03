@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"kufikia API ya Mada za AdServices"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Huruhusu programu kufikia API ya Mada za AdServices."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"kufikia API za Maelezo za AdServices"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Huruhusu programu kufikia API za Maelezo za AdServices."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"kufikia API ya Hadhira Maalumu ya AdServices"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Huruhusu programu kufikia API ya Hadhira Maalumu ya AdServices."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Uwezo wa kufikia AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Huruhusu programu kufikia AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"fikia API ya Idhini za AdServices"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Inaruhusu programu kufikia API ya Idhini za AdServices."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Kufikia API ya Kitambulisho cha Tangazo"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Huruhusu programu kufikia API ya Kitambulisho cha Tangazo."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Ufikiaji wa API ya Upakiaji ya AdServices Cobalt"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Huruhusu programu kufikia API ya Upakiaji ya AdServices Cobalt."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Kufikia API ya Kitambulisho cha Kundi la Programu"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Hurusu programu kufikia API ya Kitambulisho cha Kundi la Programu."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Uwezo wa kufikia API ya Idhini ya Huduma"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Inaruhusu programu kufikia API ya Idhini ya Huduma."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Ufikiaji wa enablement state modification API ya AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Inaruhusu programu kufikia enablement state modification API ya AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Ufikiaji wa enablement state API ya AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Inaruhusu programu kufikia enablement state API ya AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Uwezo wa kufikia API za AdServicesManager’s"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Inaruhusu programu kufikia API za AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Kufikia API ya AdService ya kusasisha kitambulisho cha tangazo."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Huruhusu programu kufikia API ya AdService ya kusasisha kitambulisho cha tangazo."</string>
+    <string name="app_label" msgid="2639006978056689153">"Faragha ya Matangazo"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Jiunge na toleo la beta la faragha ya matangazo kwenye Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android inaendelea kugundua njia za faragha zaidi za programu kukuonyesha matangazo"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Pata maelezo zaidi"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Toleo la beta la faragha ya matangazo kwenye Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Mambo mapya"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Vipengele vipya vya faragha katika Mazingira ya Faragha huwezesha programu zikuonyeshe matangazo yanayokufaa zaidi, lakini huzuia mambo ambayo programu hizo zinaweza kujifunza kuhusu shughuli zako kwenye tovuti na programu za wasanidi programu wengine."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Jinsi inavyofanya kazi"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Jinsi ya kushiriki"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Kuwasha toleo la beta huwezesha programu kujaribu njia hizi mpya zenye faragha zaidi ili zikuonyeshe matangazo. Unaweza kuzima toleo la beta wakati wowote kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Hapana"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Washa"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Zaidi"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Asante kwa kushiriki"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Umejiunga kwenye toleo la beta la faragha ya matangazo kwenye Android. Kipengele cha Mazingira ya Faragha kimewashwa kwenye kifaa chako.\n\nUnaweza kupata maelezo zaidi au kuzima toleo la beta wakati wowote katika mipangilio ya faragha."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Umechagua kutoshiriki"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Asante kwa jibu lako. Kipengele cha Mazingira ya Faragha kimezimwa kwenye kifaa chako.\n\nIwapo utabadili mawazo yako au utataka kupata maelezo zaidi, nenda kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Mipangilio ya faragha"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Nimeelewa"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Umejiunga kwenye toleo la beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Kipengele cha Mazingira ya Faragha kimewashwa kwenye kifaa chako, na programu zinaweza kujaribu njia hizi mpya zenye faragha zaidi ili zikuonyeshe matangazo. Unaweza kuzima toleo la beta wakati wowote kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Nimeelewa"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Mazingira ya Faragha katika Android yanakupa vipengele vipya ambavyo programu zinaweza kutumia ili zikuonyeshe matangazo ambayo huenda ukayapenda. Teknolojia hizi hazitumii vitambulishi vya kifaa.\n\nAndroid na programu zako zinaweza kukadiria aina ya matangazo ambayo huenda yakakuvutia, na kuhifadhi mambo yanayokuvutia kwa muda kwenye kifaa chako. Hali hii huwezesha programu zikuonyeshe matangazo ambayo huenda ukayapenda, bila kufuatilia shughuli zako kwenye tovuti na programu za wasanidi programu wengine."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Kuweka mapendeleo ya matangazo kupitia Mazingira ya Faragha"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Mambo yanayokuvutia yaliyokadiriwa na Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Mara kwa mara, Android hukadiria mambo makuu yanayokuvutia kulingana na programu unazotumia, kwa mfano, \"Michezo\" au \"Safari.\" \n\nHapo baadaye, programu inaweza kuiomba Android ruhusa ya kutumia mambo hayo yanayokuvutia ili ikuonyeshe matangazo yanayokufaa zaidi.\n\nUnaweza kuangalia orodha ya mambo yanayokuvutia hivi sasa kwenye mipangilio ya faragha, na kuzuia jambo lolote lisilokuvutia."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Mambo yanayokuvutia yaliyokadiriwa na programu"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Programu zinaweza kukadiria mambo yanayokuvutia na kuyahifadhi kwa muda kwenye Android. Kwa mfano, programu unayotumia kununua viatu vya mazoezi ya kukimbia huenda ikakadiria jambo linalokuvutia kuwa \"kukimbia mbio ndefu.\"\n\nHapo baadaye, kulingana na jambo hili linalokuvutia, programu tofauti inaweza kukuonyesha tangazo linalohusiana na mbio ndefu.\n\nKatika mipangilio ya faragha, unaweza kudhibiti orodha ya programu zilizohifadhi mambo yanayokuvutia."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Vipengele vipya vya faragha ya matangazo"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Mada za matangazo na vidhibiti vipya vinakupa chaguo zaidi za matangazo unayoyaona"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Vipengele vipya vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android hutambua mada zinazokuvutia kulingana na programu ulizozitumia hivi karibuni. Pia, programu unazotumia zinaweza kubaini mambo unayopendelea. Baadaye, programu zinaweza kuomba taarifa hizi ili kukuonyesha matangazo yaliyowekewa mapendeleo. Unaweza kuchagua ni mada na programu zipi zinatumika kukuonyesha matangazo."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Ili kupima utendaji wa tangazo, aina chache za data hushirikiwa baina ya programu."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Maelezo zaidi kuhusu matangazo kwenye Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Matangazo muhimu zaidi"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Programu zinaweza kuiomba Android maelezo ili kusaidia kuweka mapendeleo ya matangazo unayoyaona."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android hubaini mada zinazokuvutia kulingana na programu ulizotumia hivi karibuni."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Programu unazotumia zinaweza pia kubainisha mambo unayopendelea kulingana na jinsi unavyozitumia. Kwa mfano, ikiwa utatumia programu inayouza viatu vya kukimbilia umbali mrefu, programu inaweza kuamua kwamba unavutiwa na kukimbia mbio za masafa marefu."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Baadaye, programu unayotumia inaweza kuomba taarifa hizi — mada za matangazo au matangazo yanayopendekezwa na programu ulizotumia."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android hufuta kiotomatiki mada na data inayopendekezwa na programu mara kwa mara. Unaweza pia kuzuia mada na programu mahususi ambazo hupendi ziweke mapendekezo."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Kupima kiwango cha utendaji wa tangazo"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Programu unazotumia zinaweza kuiomba Android taarifa ili kuzisaidia zipime utendaji wa matangazo. Android huziwezesha programu kukusanya aina chache za data, kama vile muda wa siku ambapo ulionyeshwa tangazo."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Jaribu kutumia vipengele vipya vya faragha ya matangazo"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Mada za matangazo hukupatia chaguo zaidi za matangazo unayoona"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Angalia Maelezo"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Jaribu vipengele vipya vya faragha ya matangazo"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android inazindua vipengele vipya vya faragha vinavyokupatia chaguo zaidi kwa matangazo unayoona."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Mada za matangazo husaidia programu kukuonyesha matangazo yanayofaa huku zikilinda utambulisho wako na maelezo kuhusu matumizi yako ya programu. Android inaweza kutambua mada zinazokuvutia kulingana na programu ulizotumia hivi karibuni. Baadaye, programu unayotumia inaweza kuiomba Android mada zinakuzofaa ili iweke mapendeleo kwenye matangazo unayoona."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Unaweza kuona mada za matangazo kwenye mipangilio ya kifaa chako na kuzuia zile ambazo usingependa zishirikiwe na programu. Pia, Android hufuta kiotomatiki mada za matangazo mara kwa mara."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Unaweza kubadilisha uamuzi wako wakati wowote kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Maelezo zaidi kuhusu mada za matangazo"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Pata maelezo zaidi kuhusu jinsi Android inavyolinda data yako kwenye "<a href="https://policies.google.com/privacy">"Sera yetu ya Faragha"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Jaribu"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Aina ya data inayotumiwa"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Mada zako za matangazo hulingana na programu ulizotumia hivi karibuni kwenye kifaa hiki na jinsi unavyozitumia mara kwa mara."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Jinsi tunavyotumia data hii"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android hutambua mada unazopendelea kadiri unavyotumia programu zako. Lebo za mada hubainishwa mapema na hujumuisha vitu kama vile, Sanaa na Burudani, Ununuzi na Michezo. Baadaye, programu unayotumia inaweza kuiomba Android baadhi ya mada zako (lakini si data kuhusu utambulisho na taarifa zako za matumizi ya programu) ili iweke mapendeleo kwenye matangazo unayoona."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Jinsi unavyoweza kudhibiti data yako"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android hufuta kiotomatiki mada mara kwa mara. Kadiri unavyoendelea kutumia programu, mada inaweza kuonekana tena kwenye orodha. Pia, unaweza kuzuia mada ambazo hutaki Android ishiriki na programu na kuzima mada za matangazo wakati wowote kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Unaweza kufanya mabadiliko kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Vipengele vingine vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android pia inakupa njia mpya za kudhibiti mambo ambayo programu zinaweza kujifunza kukuhusu zinapokuonyesha matangazo yaliyowekewa mapendeleo."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Matangazo yanayopendekezwa na programu husaidia kulinda utambulisho na taarifa zako za matumizi ya programu huku yakiwezesha programu kukuonyesha matangazo yanayofaa. Kulingana na shughuli zako, programu unayotumia inaweza kupendekeza matangazo yanayohusiana kwenye programu zingine. Unaweza kuona orodha ya programu na kuzizuia zisiweke mapendekezo, kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Kwa kutumia vipimo vya matangazo, aina chache za data hushirikiwa kati ya programu ili kupima utendaji wa matangazo, kama vile muda katika siku ulipoonyeshwa tangazo."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Maelezo zaidi kuhusu matangazo yanayopendekezwa na programu na upimaji wa matangazo"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Matangazo yanayopendekezwa na programu"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Aina ya data inayotumiwa"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Shughuli yako katika programu unayotumia kwenye kifaa hiki."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Jinsi programu zinavyotumia data hii"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Programu zinaweza kuhifadhi taarifa kwenye Android kuhusu mambo unayopendelea. Kwa mfano, iwapo utatumia programu iliyo na maudhui ya mafunzo ya kukimbia mbio ndefu, huenda programu ikaamua kwamba unavutiwa na viatu vya mazoezi ya kukimbia. Baadaye, ikiwa utatumia programu tofauti, programu hiyo inaweza kukuonyesha tangazo la viatu vya mazoezi ya kukimbia lililopendekezwa na programu ya kwanza."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Jinsi unavyoweza kudhibiti data yako"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android hufuta kiotomatiki data inayopendekezwa na programu mara kwa mara. Programu unayotumia tena huenda ikaonekana tena kwenye orodha."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Pia unaweza kuzuia programu isikupendekezee matangazo, kuweka upya data yote ya mapendekezo ya matangazo au kuzima matangazo yanayopendekezwa na programu wakati wowote kwenye mipangilio ya faragha."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Programu unazotumia zinaweza kuiomba Android taarifa zinazozisaidia kupima utendaji wa matangazo kwenye programu hizo. Android hulinda faragha yako kwa kudhibiti taarifa ambazo programu zinaweza kushiriki na programu zingine."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Vipengele vipya vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Pata chaguo zaidi kwa matangazo unayoyaona huku ukilinda utambulisho wako"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Vipengele vipya vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android inazindua njia mpya za kudhibiti mambo ambayo programu zinaweza kujifunza kukuhusu zinapokuonyesha matangazo yaliyowekewa mapendeleo."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Kupitia matangazo yanayopendekezwa na programu, vipengele vipya vya faragha husaidia kulinda utambulisho na maelezo yako kuhusu matumizi yako ya programu huku vikiruhusu programu zikuonyeshe matangazo yanayokufaa. Kulingana na shughuli zako, programu unayotumia inaweza kupendekeza matangazo yanayohusiana kwenye programu zingine. Unaweza kuona orodha ya programu na kuzizuia zisiweke mapendekezo katika mipangilio ya faragha."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Kwa kutumia upimaji wa matangazo, aina chache za data hushirikiwa kati ya programu ili kuelewa utendaji wa matangazo, kama vile wakati wa siku ulipoonyeshwa tangazo."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Shughuli yako katika programu iliyo kwenye kifaa hiki inaweza kutumika kukupendekezea matangazo."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Washa kipengele kingine cha faragha ya matangazo"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android pia ina kipengele kipya cha faragha kinachokupa chaguo zaidi kwa matangazo unayoyaona."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Mada za matangazo husaidia programu kukuonyesha matangazo yanayofaa huku zikilinda utambulisho wako na maelezo kuhusu matumizi yako ya programu. Android inaweza kutambua mada unazopenda kulingana na programu ulizotumia hivi majuzi. Baadaye, programu unayotumia inaweza kuiomba Android mada zinazofaa ili kukuonyesha matangazo yanayokufaa zaidi."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Unaweza kuona mada za matangazo kwenye mipangilio yako ya faragha na kuzuia mada ambazo usingependa zishirikiwe na programu. Pia, Android hufuta kiotomatiki mada za tangazo mara kwa mara."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Washa"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Vipengele vipya vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Sasa kuna chaguo zaidi kwa matangazo unayoyaona huku ukilinda utambulisho wako"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Vipengele vipya vya faragha ya matangazo sasa vinapatikana"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Sasa Android ina vipengele vipya vya faragha vinavyokupa chaguo zaidi kwa matangazo unayoyaona."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Endelea"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Mazingira ya Faragha"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Shiriki kwenye toleo la beta la faragha ya matangazo kwenye Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Mazingira ya Faragha"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Mambo yanayokuvutia yaliyokadiriwa na Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Programu zinazokadiria mambo yanayokuvutia"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Upimaji wa matangazo"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Programu zinaweza kutumia Mazingira ya Faragha ili kupima ufanisi wa matangazo. Ili kufanya hivi, watangazaji wanaweza kuhifadhi data kwa muda katika Android kuhusu shughuli zako kwenye matangazo na programu zao. Kiasi cha data wanachoweza kuhifadhi kimedhibitiwa na kitafutwa mara kwa mara.\n\nUnaweza kufuta data hii wakati wowote kwa kuzima kipengele cha Mazingira ya Faragha."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Mara kwa mara, Android hukadiria mambo makuu yanayokuvutia kulingana na programu unazotumia. Programu zinaweza kuiomba Android ruhusa ya kutumia mambo hayo yanayokuvutia ili zikuonyeshe matangazo yanayokufaa zaidi.\n\nIkiwa utazuia jambo linalokuvutia, jambo hilo halitawekwa tena katika orodha isipokuwa ukiondoa kizuizi. Huenda bado ukaona baadhi ya matangazo yanayohusiana."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Zuia"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Ondoa kizuizi"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Mambo yanayokuvutia uliyoyazuia"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Weka upya mambo yote yanayokuvutia"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Hakuna mambo yanayokuvutia ya kuonyesha kwa sasa."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Hakuna mada za kuonyesha kwa sasa.\nPata maelezo zaidi kuhusu "<a href="https://support.google.com/android?p=ad_privacy">"mada za tangazo"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Mazingira ya Faragha"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Toleo la beta la faragha ya matangazo kwenye Android hutoa vipengele vipya ambavyo programu zinaweza kutumia ili zikuonyeshe matangazo ambayo huenda ukayapenda. Teknolojia hizi hazitumii vitambulishi vya kifaa.\n\nAndroid inaweza kukadiria aina ya matangazo ambayo huenda yakakuvutia na kuhifadhi mambo haya yanayokuvutia kwa muda kwenye kifaa chako. Hali hii huwezesha programu kukuonyesha matangazo yanayokufaa, bila kufuatilia shughuli zako kwenye tovuti na programu za wasanidi programu wengine."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Huna mambo yanayokuvutia uliyozuia"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Hakuna mada ulizozuia"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Angalia mada ulizozuia"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Mambo yanayokuvutia yamewekwa upya"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Mada zimewekwa upya"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Programu zinaweza kukadiria mambo yanayokuvutia na kuyahifadhi kwa muda kupitia Android. Hapo baadaye, programu tofauti inaweza kukuonyesha tangazo kulingana na mambo haya yanayokuvutia.\n\nIwapo utazuia programu, haitakadiria mambo yanayokuvutia. Haitawekwa tena kwenye orodha hii ya programu isipokuwa uiondolee kizuizi. Mambo yanayokuvutia yaliyoakadiriwa na programu hiyo yatafutwa, ila huenda bado ukaona baadhi ya matangazo yanayohusiana."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Programu ulizozuia"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Angalia programu ulizozuia"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Weka upya mambo yanayokuvutia yaliyokadiriwa na programu"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Huna programu zinazokadiria mambo yanayokuvutia kwa sasa"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Hakuna programu za kuonyesha kwa sasa. \nPata maelezo zaidi kuhusu "<a href="https://support.google.com/android?p=ad_privacy">"matangazo yanayopendekezwa na programu"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Mazingira ya Faragha"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Toleo la beta la faragha ya matangazo kwenye Android hutoa vipengele vipya ambavyo programu zinaweza kutumia ili zikuonyeshe matangazo ambayo huenda ukayapenda. Teknolojia hizi hazitumii vitambulishi vya kifaa.\n\nProgramu zako zinaweza kukadiria aina ya matangazo ambayo huenda yakakuvutia na kuhifadhi mambo haya yanayokuvitia kwa muda kwenye kifaa chako. Hali hii huwezesha programu kukuonyesha matangazo yanayokufaa, bila kufuatilia shughuli zako kwenye tovuti na programu za wasanidi programu wengine."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Huna programu ulizozuia"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Hakuna programu ulizozuia"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Ruhusu upimaji wa matangazo"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Programu na watangazaji wanaweza kuomba maelezo kwenye Android yatakayowasaidia kupima utendaji wa matangazo yao.\n\nData ya kupima matangazo hufutwa mara kwa mara kwenye kifaa chako."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Weka upya data ya upimaji"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android hulinda faragha yako kwa kudhibiti taarifa ambazo programu zinaweza kushiriki na programu zingine. Ripoti hutumwa kwa kuchelewa ili kulinda utambulisho wako.\n\nHuenda kivinjari chako kikawa na mipangilio inayofanana. Ukiwasha kipengele cha upimaji wa tangazo kwenye Android na kwenye kivinjari chako, huenda kampuni ikaweza kupima ufanisi wa tangazo kati ya programu unazotumia na tovuti unazotembelea. Historia yako ya kuvinjari huwekwa kuwa ya faragha kwenye kifaa chako.\n\nPata maelezo zaidi kuhusu jinsi Android inavyolinda data yako katika "<a href="https://policies.google.com/privacy">"Sera yetu ya Faragha"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Data ya upimaji wa tangazo iliwekwa upya"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Ghairi"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Ungependa kuzima kipengele cha Mazingira ya Faragha?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Iwapo utabadili mawazo yako au utataka kupata maelezo zaidi kuhusu toleo la beta la faragha ya matangazo kwenye Android, nenda kwenye mipangilio ya faragha"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Zima"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Ungependa kuzuia mada ya <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Mada hii itazuiwa na haitawekwa kwenye orodha yako tena, isipokuwa ukiiweka mwenyewe. Bado unaweza kuona baadhi ya matangazo yanayohusiana."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Zuia"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Umeiondolea kizuizi mada ya <xliff:g id="TOPIC">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android inaweza ikaweka tena mada hii kwenye orodha yako, lakini huenda isionekane papo hapo"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Sawa"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Ungependa kuweka upya mada zote za matangazo?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Orodha yako itafutwa na mada mpya zitawekwa kuanzia sasa. Huenda ukaendelea kuona baadhi ya matangazo yanayohusiana na mada ulizoziweka upya."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Weka upya"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Ungependa kuzuia <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Programu hii haitapendekeza matangazo na haitawekwa tena kwenye orodha yako, isipokuwa uiondolee kizuizi. Huenda bado ukaona baadhi ya matangazo yanayohusiana."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Umeiondolea kizuizi <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Programu hii inaweza kukupendekezea tena matangazo, lakini huenda isionekane kwenye orodha yako papo hapo. Huenda ikachukua muda hadi uone matangazo yanayohusiana."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Je, ungependa kuweka upya matangazo yanayopendekezwa na programu?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Data ya mapendekezo ya matangazo kutoka kwenye programu zilizo katika orodha yako itafutwa na programu zitapendekeza matangazo mapya kuanzia sasa. Bado unaweza kuona baadhi ya matangazo yanayohusiana."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Data ya programu iliwekwa upya"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Kipengele cha mada za matangazo kimewashwa"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android itaanza kudokeza mada zinazokuvutia, lakini inaweza kuchukua muda kwa mada zako za kwanza kuonekana."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Ungependa kuzima kipengele cha mada za matangazo?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Orodha hii ya mada itafutwa. Android haitadokeza mada zinazokuvutia tena, lakini bado unaweza kuona matangazo yanayofaa."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Umewasha matangazo yanayopendekezwa na programu"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Huenda programu zikaanza kupendekeza matangazo. Utaona orodha ya programu pindi zitakapoanza kupendekeza matangazo."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Ungependa kuzima matangazo yanayopendekezwa na programu?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Data yote ya mapendekezo ya matangazo itafutwa. Programu hazitaweza kupendekeza matangazo tena, lakini bado unaweza kuona matangazo yanayofaa."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Kipengele cha upimaji wa matangazo kimewashwa"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android inaweza tu kushiriki maelezo machache kabisa na programu ili kuzisaidia programu kupima utendaji wa matangazo."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Ungependa kuzima kipengele cha upimaji wa matangazo?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Ripoti zote za upimaji wa matangazo ambazo hazijashughulikiwa zitafutwa na hakuna ripoti mpya zitakazotengenezwa au kushirikiwa."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Faragha ya matangazo"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Mada za matangazo"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Matangazo yanayopendekezwa na programu"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android hutambua mada zinazokuvutia kulingana na programu ulizotumia hivi karibuni pamoja na jinsi unavyozitumia mara kwa mara."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Pia, programu unazotumia zinaweza kubainisha unachopenda kulingana na jinsi unavyozitumia."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Programu unazotumia zinaweza kuiomba Android maelezo ili kuzisaidia zipime utendaji wa matangazo yao. Android huziwezesha programu kukusanya aina chache za data."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Pata maelezo zaidi kuhusu "<a href="https://support.google.com/android?p=ad_privacy">"faragha ya matangazo kwenye Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Umewasha / mada <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Imewashwa / mada #}other{Zimewashwa / mada #}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Imewashwa / programu <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Imewashwa / programu #}other{Zimewashwa / programu #}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Umewasha"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Umezima"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Mada zinazovutia hulingana na programu ulizotumia hivi karibuni na hutumiwa na programu ili kukuonyesha matangazo yaliyowekewa mapendeleo.\n\nUnaweza kuzuia mada ambazo hungependa kushiriki kwenye programu. Android pia hufuta mada kiotomatiki mara kwa mara .\n\nIngawa kipengele hiki kinaweza kuwashwa, huenda usione orodha ya mada hadi kipengele hiki kipatikane kikamilifu na programu zianze kukitumia."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Ruhusu mada za matangazo"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Mada za matangazo ulizozuia"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Weka upya mada zote za matangazo"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android hutambua mada unazopendelea kulingana na programu ulizotumia wiki kadhaa zilizopita.\n\nPia, programu unayotumia inaweza kuomba mfumo wa Android mada unazopendelea ili kuweka mapendeleo ya matangazo unayoyaona. Android hushiriki hadi mada 3 huku ikilinda utambulisho na taarifa zako za matumizi ya programu.\n\nAndroid hufuta mada kiotomatiki mara kwa mara. Kadiri unavyoendelea kutumia programu, huenda mada ikaonekana tena kwenye orodha. Au unaweza kuzuia mada ambazo hutaki Android ishiriki kwenye programu.\n\nKwenye programu zako, tangazo unaloliona huenda likawekewa mapendeleo, kulingana na mipangilio hii, mipangilio ya matangazo yanayopendekezwa na programu, mipangilio yako ya kitambulisho cha matangazo na iwapo programu unayotumia inaweka mapendeleo ya matangazo."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Ruhusu matangazo yanayopendekezwa na programu"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Programu unazotumia zinaweza kubainisha unachopenda kisha kupendekeza matangazo kwenye programu nyingine.\n\nUnaweza kuzuia programu kuweka mapendekezo. Android pia hufuta kiotomatiki data inayopendekezwa na programu mara kwa mara.\n\nIngawa kipengele hiki kinaweza kuwashwa, huenda usione orodha ya mada hadi kipengele hiki kipatikane kikamilifu na programu zianze kukitumia."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Programu ulizozuia"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Weka upya data inayopendekezwa na programu"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Ni kawaida kwa programu unazotumia kukumbuka mambo yanayokuvutia ili kuweka mapendeleo kwenye matumizi yako. Programu zinaweza pia kuhifadhi maelezo kwenye Android kuhusu mada zako.\n\nKwa mfano, ikiwa unatumia programu inayohusu mafunzo ya mbio, programu inaweza kuamua kuwa unavutiwa na viatu vya mazoezi ya kukimbia. Baadaye, ukitumia programu tofauti, programu hiyo inaweza kukuonyesha tangazo la viatu vya mazoezi ya kukimbia lililopendekezwa na programu ya kwanza.\n\nAndroid hufuta kiotomatiki data iliyopendekezwa na programu mara kwa mara. Huenda programu unayotumia tena ikaonekana tena kwenye orodha. Au unaweza kuizuia programu isikupendekezee matangazo.\n\nKwenye programu zako, tangazo unaloona linaweza kuwekewa mapendeleo, kulingana na mipangilio hii, mipangilio ya mada za matangazo, mipangilio ya kitambulisho chako cha matangazo na ikiwa programu unayotumia inaweka mapendeleo kwenye matangazo."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Kipengele kipya cha faragha ya matangazo kinapatikana sasa"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Data mahususi pekee ndiyo hushirikiwa kati ya programu ili kusaidia kupima utendaji wa matangazo"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Tunazindua kipengele kipya cha faragha ya matangazo kinachojulikana kama upimaji wa matangazo. Android hushiriki data mahususi pekee kati ya programu, kama vile wakati ulipoonyeshwa tangazo, ili kuwezesha programu kupima utendaji wa matangazo."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Unaweza kutekeleza mabadiliko kwenye mipangilio ya faragha ya matangazo."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Programu unazotumia zinaweza kuomba idhini ya kufikia data mahususi kwenye Android ili kuziwezesha kupima utendaji wa matangazo. Android huziwezesha programu kukusanya aina chache tu za data."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Vipengele vipya vya faragha ya matangazo"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Pata uwezo zaidi wa kuchagua matangazo ambayo ungependa kuyaona huku ukisaidia kulinda utambulisho wako"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Masasisho ya vipengele vyako vya faragha ya matangazo"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Pata uwezo zaidi wa kuchagua matangazo ambayo ungependa kuyaona huku ukisaidia kulinda utambulisho wako"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android inapanua vipengele vya faragha ya matangazo ili kudhibiti aina ya taarifa ambazo programu zinaweza kupata kukuhusu zinapokuonyesha matangazo yaliyowekewa mapendeleo."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Programu na washirika wake wa utangazaji wanaweza kutumia shughuli zako kwenye programu nyingine katika kifaa hiki kuweka mapendeleo kwenye matangazo huku wakiendelea kusaidia kuimarisha faragha na usalama wa utambulisho wako."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Maelezo zaidi kuhusu matangazo yanayopendekezwa na programu"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Aina chache za data hutumwa kati ya programu ili kuelewa utendaji wa matangazo yao, kama vile wakati wa siku ulipoonyeshwa tangazo."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Maelezo zaidi kuhusu upimaji wa matangazo"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Mada unazopendelea za madokezo ya Android kulingana na programu ulizotumia hivi majuzi. Pia, programu na washirika wake wa utangazaji wanaweza kutumia shughuli zako kwenye programu nyingine katika kifaa hiki kuwekea matangazo mapendeleo huku wakiendelea kusaidia kuweka utambulisho wako ukiwa wa faragha na salama."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Programu unazotumia zinaweza pia kubainisha unachopenda kulingana na shughuli zako kwenye programu. Kwa mfano, iwapo unatumia programu za upishi mara kwa mara, unaweza kuona matangazo ya huduma za kukuletea bidhaa za matumizi ya mapishi mahali ulipo au maudhui yanayohusiana katika programu nyingine. \n\nProgramu zinaweza kuhifadhi maelezo haya kwa usalama ili yatumike tu na washirika wake wa utangazaji kuwekea matangazo mapendeleo kwenye programu nyingine."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Baadaye, programu unayotumia inaweza kuomba maelezo haya, iwe ni mada za matangazo yako au matangazo yaliyopendekezwa na programu ulizotumia."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Programu unazotumia zinaweza kuiomba Android taarifa ili kuzisaidia kupima utendaji wa matangazo. Android hulinda faragha yako kwa kudhibiti taarifa ambazo programu zinaweza kutumiana."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Ni aina gani ya data inayotumiwa?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Programu unazotumia zinaweza kuiomba Android taarifa zinazozisaidia kupima utendaji wa matangazo yao. Android hulinda faragha yako kwa kudhibiti taarifa ambazo programu zinaweza kutumiana."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Je, utambulisho wangu unalindwaje?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android hutumia hatua nyingi za faragha kama vile ujumlishaji na ubadilishaji wa thamani za data bila mpangilio maalum ili kudhibiti maelezo ambayo programu zinaweza kutumiana na kusaidia kulinda utambulisho wako.\n\nPia, data ya upimaji wa matangazo hufutwa mara kwa mara kwenye kifaa chako."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Shughuli zako kwenye programu zinaweza kutumika kukupendekezea matangazo."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Je, programu hutumiaje data hii?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Programu zinaweza kuhifadhi maelezo haya kwa usalama ili yatumike tu na washirika wake wa utangazaji kuweka mapendeleo katika matangazo kwenye programu nyingine. Kwa mfano, iwapo unatumia programu za upishi mara kwa mara, huenda ukaona matangazo ya huduma za kukuletea mboga na matunda mahali ulipo au maudhui yanayohusiana katika programu nyingine."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Ninawezaje kudhibiti data hii?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Unaweza kuzuia programu mahususi ili zisitume shughuli zako kwa washirika wa utangazaji. Unaweza kuweka upya au kuzima matangazo yanayopendekezwa na programu wakati wowote kwenye mipangilio yako ya faragha. Android pia hufuta kiotomatiki data hii mara kwa mara."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Pata maelezo zaidi kuhusu jinsi Android inavyosaidia kulinda faragha yako"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Programu na washirika wake wa utangazaji wanaweza kutumia shughuli zako kwenye programu nyingine katika kifaa hiki kuweka mapendeleo kwenye matangazo huku wakiendelea kuimarisha faragha na usalama wa taarifa zinazokuhusu.\n\nKwa mfano, iwapo unatumia programu za upishi mara kwa mara, huenda ukaona matangazo ya huduma za kukuletea mboga na matunda mahali ulipo au maudhui yanayohusiana katika programu nyingine.\n\nAndroid hufuta kiotomatiki shughuli zako mara kwa mara, lakini unaweza pia kuzuia programu zisitume taarifa hizi kwa washirika wake wa utangazaji."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Ni kawaida kwa programu na washirika wake wa utangazaji kukumbuka mambo yanayokuvutia ili kuweka mapendeleo kwenye hali yako ya utumiaji. Programu zinaweza kuhifadhi maelezo haya kwa usalama ili yatumike tu na washirika wake wa utangazaji kuonyesha matangazo kwenye programu nyingine.\n\nUnaweza kuzuia programu isitume data ya shughuli zako kwa washirika wa utangazaji. Pia, Android hufuta kiotomatiki mara kwa mara data ya shughuli inayotumwa, kwa hivyo programu unayotumia tena huenda ikaonekana tena kwenye orodha hii.\n\nHali ya iwapo tangazo unaloona limewekewa mapendeleo inaweza kutegemea vitu vingi kama vile mipangilio hii, mipangilio ya mada za matangazo, mipangilio yako ya kitambulisho cha matangazo na iwapo programu unayotumia huweka mapendeleo kwenye matangazo.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pata maelezo zaidi kuhusu matangazo yanayopendekezwa na programu"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android hutumia hatua nyingi za faragha kama vile ujumlishaji na ubadilishaji wa thamani za data bila mpangilio maalum ili kudhibiti maelezo ambayo programu zinaweza kutumiana na kusaidia kulinda utambulisho wako.\n\nHuenda kivinjari chako kikawa na mipangilio sawa. Ukiwasha kipengele cha upimaji wa matangazo kwenye Android na katika kivinjari chako, huenda kampuni ikaweza kupima ufanisi wa tangazo kati ya programu unazotumia na tovuti unazotembelea. Historia yako ya kuvinjari huwekwa kuwa ya faragha kwenye kifaa chako.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pata maelezo zaidi kuhusu upimaji wa matangazo"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android hunukuu mada zinazokuvutia kulingana na programu ulizotumia katika kipindi cha wiki kadhaa zilizopita.\n\nBaadaye, programu unayotumia inaweza kuomba Android maelezo ya mada zinazokuvutia ili kuweka mapendeleo kwenye matangazo unayoyaona. Android hutuma hadi mada 3 huku ikilinda utambulisho wako na maelezo kuhusu matumizi yako ya programu.\n\nAndroid hufuta mada kiotomatiki mara kwa mara. Kadiri unavyoendelea kutumia programu, huenda mada ikaonekana tena kwenye orodha. Au unaweza kuzuia mada ambazo hutaki Android itume kwenye programu nyinginezo.\n\nHali ya iwapo tangazo unaloona limewekewa mapendeleo inaweza kutegemea vitu vingi kama vile mipangilio hii, mipangilio ya matangazo yanayopendekezwa na programu, mipangilio yako ya kitambulisho cha matangazo na iwapo programu unayotumia imeweka mapendeleo kwenye matangazo.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pata maelezo zaidi kuhusu mada za matangazo"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Mchoro unaovutia wa ishara unaowakilisha mada unazopendelea kama vile muziki, habari na michezo"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Mchoro unaovutia wa kufuli ikiwa ndani ya duara"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Mchoro mdogo wenye rangi nyeusi na nyeupe ulio na nukta tisa unaounda umbo mraba"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Mchoro mdogo wenye rangi nyeusi na nyeupe ulio na umbo rahisi kama vile moyo, pembe tatu na mraba"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Sanaa na Burudani"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Uigizaji na Ukumbi wa Maonyesho"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Vibonzo na Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Katuni"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Vibonzo"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Maonyesho na Matamasha ya Muziki"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Dansi"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Sekta ya Burudani"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Burudani na Chemshabongo"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Majaribio na Utafiti wa Burudani"</string>
+    <string name="topic10011" msgid="175945911179628507">"Vichekesho"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Picha na Video za Kuchekesha"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Vichekesho vya Moja kwa Moja"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Matukio ya Michezo ya Moja kwa Moja"</string>
+    <string name="topic10015" msgid="726046067079821146">"Kiinimacho"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Orodha za Filamu na Ratiba za Maonyesho ya Ukumbini"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filamu"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Filamu za Mapigano na Matukio"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Filamu za Uhuisho"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Filamu za Kuchekesha"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Filamu Huru na za Itikadi Fulani"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Filamu za Kuonyesha Hali Halisi"</string>
+    <string name="topic10023" msgid="254151319845267278">"Filamu za Maigizo"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Filamu za Familia"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Filamu za Kutisha"</string>
+    <string name="topic10026" msgid="210222384439682793">"Filamu za Mahaba"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Filamu za Kusisimua"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Muziki na Sauti"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Muziki wa Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Muziki wa Zamani"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Muziki wa Country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Muziki wa Kielektroniki na Dansi"</string>
+    <string name="topic10033" msgid="895853536740398847">"Muziki wa Jadi na Asili"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Mitiririko na Vipakuliwa vya Muziki"</string>
+    <string name="topic10036" msgid="449833307315797283">"Video za Muziki"</string>
+    <string name="topic10037" msgid="51698216720637667">"Ala za Muziki"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Piano na Kibodi"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Muziki wa Pop"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Redio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Kipindi cha Mazugumzo kwenye Redio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Muziki wa Rap na Hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Muziki wa Rock"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Muziki wa Classic Rock na Oldies"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Muziki wa Hard Rock na wa Rock wa Kisasa"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Muziki wa Indie na Muziki Mbadala"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Maktaba za Sampuli na Sauti"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Muziki wa Soul na R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Nyimbo za Filamu"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Muziki wa Dunia"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Muziki wa Rege na Karibi"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Maghala ya Picha Mtandaoni"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Video za Mtandaoni"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Utiririshaji wa Video wa Moja kwa Moja"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Utiririshaji wa Filamu na TV"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Mwongozo na Marejeleo ya TV"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Mitandao na Stesheni za TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Vipindi na Maonyesho ya TV"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Vichekesho vya TV"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Makala ya TV ya Maisha Halisi na Maudhui Yasiyo ya Kubuni"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Maigizo kwenye TV"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Tamthilia kwenye TV"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Maonyesho ya TV Mahususi kwa Familia"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Vipindi vya TV vya Maisha Halisi"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Vipindi vya TV vya Ubunifu wa Sayansi na Njozi"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Sanaa ya Maonyesho na Usanifu"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Usanifu"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Upakaji rangi"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Sanaa Digitali na ya Upigaji Picha"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Magari"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Malori na Matrela ya Mizigo"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Magari ya Zamani"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Magari Maalum na Yenye Utendaji wa Juu"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Bei za Mafuta na Ujazaji Mafuta kwenye Magari"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Magari (Kulingana na Aina)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Magari Yanayojiendesha Yenyewe"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Vibandawazi"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Gari la Milango Miwili"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Gari Aina ya Hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"Magari Mahuluti na Mbadala"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Magari ya Kifahari"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Magari Madogo na yenye Ukubwa wa Kati"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Pikipiki"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Magari ya Barabara Zisizo za Lami (Off-Road)"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Magari ya Kuchukulia Bidhaa"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Skuta na Baiskeli Zinazotumia Mota"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Gari Aina ya Sedan"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Gari Aina ya Station Wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Magari Aina ya SUV na yenye Vipuri Mchanganyiko (Crossovers)"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Magari yenye Vipuri Mchanganyiko (Crossovers)"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Magari Makubwa na Madogo yenye Uwezo wa Kubeba Mizigo na Abiria"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Uvutaji Magari yenye Hitilafu na Usaidizi wa Kando ya Barabara"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Usalama wa Magari na Barabara"</string>
+    <string name="topic10095" msgid="84682415803421329">"Vipuri na Vifuasi vya Magari"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Urekebishaji na Matengenezo ya Magari"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Ununuzi wa Magari"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Magari Yaliyotumika"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Maonyesho ya Magari"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Urembo na Siha"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Sanaa ya Mwili"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Utunzaji wa Uso na Mwili"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Marashi ya Mwili"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Bidhaa za Kuogea na Kutunza Mwili"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Urembo Nadhifu"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Urembo na Vipodozi"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Bidhaa za Kutunza Kucha"</string>
+    <string name="topic10108" msgid="577259588028933025">"Marashi na Manukato"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Nyembe na Vifaa vya Kunyolea"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Mitindo na Ubunifu"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Siha"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Kujenga Misuli"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Maelekezo ya Siha na Mazoezi Binafsi"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Bidhaa za Teknolojia ya Siha"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Huduma za Kutunza Nywele"</string>
+    <string name="topic10116" msgid="763642849903586689">"Vitabu na Fasihi"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Fasihi ya Watoto"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Vitabu Pepe"</string>
+    <string name="topic10119" msgid="894448782525835364">"Magazeti"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Ushairi"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Biashara na Sekta ya Viwanda"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Utangazaji na Masoko"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Mauzo"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Kilimo na Elimu ya Misitu"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Uzalishaji wa Chakula"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Sekta ya Uzalishaji Magari"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Sekta ya Usafiri wa Anga"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Shughuli za Biashara"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Mipangilio ya Kazi Inayomfaa Mfanyakazi"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Rasilimali Watu"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Ukopeshaji wa Biashara"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Ujenzi na Matengenezo"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Uhandisi wa Ujenzi"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Sekta ya Ulinzi"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Nishati na Huduma (za Umma na Binafsi)"</string>
+    <string name="topic10136" msgid="455894912948558854">"Usambazaji na Usafishaji wa Maji"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Sekta ya Ukarimu"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Utengenezaji"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Vyuma na Uchimbaji Madini"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Fursa za Biashara na Masoko yenye Viwango Vingi (MLM)"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Kampuni za Dawa na Bioteknolojia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Uchapaji na Uchapishaji"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Biashara Rejareja"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Mtaji wa Uwekezaji"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Kompyuta na Vifaa vya Kielektroniki"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Vifaa vya Kompyuta"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Printa"</string>
+    <string name="topic10148" msgid="388392714835039199">"Usalama wa Kompyuta"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Kingavirusi na Programu Hasidi"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Usalama wa Mtandao"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Vifaa vya Kielektroniki vya Mtumiaji"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kamera na Kamkoda"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS na Uelekezaji"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Kutumia Mifumo Otomatiki Nyumbani"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Vifaa vya Burudani vya Nyumbani"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 na Vicheza Faili za Sauti na Video Vinavyoweza Kubebeka"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Teknolojia ya Kifaa cha Kuvaliwa"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Kurejesha na Kuhifadhi Nakala ya Data"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Kompyuta za Mezani"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Kompyuta za Kupakata na Kompyuta Ndogo"</string>
+    <string name="topic10161" msgid="172004201167511870">"Kushirikiana"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Usambaaji wa Mifumo na Matumizi ya Kompyuta kwenye Wingu"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Usanidi wa programu"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Programu"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Programu ya Sauti na Muziki"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Programu ya Biashara na Tija"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Programu ya Upangaji Ratiba na Kalenda"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Programu ya Ushirikiano na ya Mikutano ya Video"</string>
+    <string name="topic10169" msgid="827557334245484202">"Programu ya Uwasilishaji"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Programu ya Lahajedwali"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Programu ya Kuchakata Maneno"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Uchapishaji katika Eneo-kazi"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Fonti"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Vidhibiti vya Vipakuliwa"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Programu Dezo na Programu ya Kushirikiwa Kabla ya Kuanza Kutozwa"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Programu ya Uhuishaji na Michoro"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Wasaidizi Binafsi Mahiri"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Vicheza Faili za Sauti na Video"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Programu ya Ufuatiliaji"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Mifumo ya Uendeshaji"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Programu ya Kuhariri Picha na Video"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Programu ya Kuhariri Picha"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Programu ya Kuhariri Video"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Huduma za Programu"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Vivinjari"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Fedha"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Uhasibu na Ukaguzi"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Mipango na Maandalizi ya Kodi"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Shughuli za Kibenki"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Huduma za Utumaji na Uhamishaji wa Pesa Kielekroniki"</string>
+    <string name="topic10191" msgid="374364159635356705">"Mikopo na Ukopeshaji"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kadi za Mikopo"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Ufadhili wa Ununuzi wa Nyumba"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Mikopo Binafsi"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Mikopo ya Wanafunzi na Ufadhili wa Masomo ya Chuo"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Mipango na Usimamizi wa Fedha"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Kustaafu na Pensheni"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Ruzuku"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Ruzuku"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Bima"</string>
+    <string name="topic10201" msgid="447240478385298875">"Bima ya Magari"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Bima ya Afya"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Bima ya Nyumba"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Bima ya Maisha"</string>
+    <string name="topic10205" msgid="262581473890356377">"Bima ya Safari"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Uwekezaji"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Bidhaa na Biashara ya Siku Zijazo"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Sarafu na Fedha za Kigeni"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Fedha za Uwekezaji kwa Tahadhari Kubwa"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Fedha za Uwekezaji wa Pamoja"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Hisa na Dhamana"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Vyakula na Vinywaji"</string>
+    <string name="topic10213" msgid="805716705436663130">"Mapishi na Maelekezo ya Upishi"</string>
+    <string name="topic10214" msgid="726298155737413779">"Kubanika na Kuchoma Nyama"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Mapishi"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Mlo wa Wasiokula Nyama"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Mapishi ya Wala Mboga"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Ulaji vyakula vyenye Lishe bora"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Wauzaji wa Rejareja wa Chakula na Bidhaa za Kila Siku"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Michezo"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Michezo ya Kumbi na ya Kutumia Sarafu"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biliadi"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Michezo ya Ubao"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Michezo ya Mikakati Dhahania na Sataranji"</string>
+    <string name="topic10225" msgid="564207834821286301">"Michezo ya Kadi"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Michezo ya Kadi Zinazokusanyika"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Michezo ya Kompyuta na Video"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Michezo ya Majukwaa na Mapigano"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Michezo ya Matukio"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Michezo ya Kawaida"</string>
+    <string name="topic10231" msgid="405082026972839048">"Michezo ya Video yenye Ushindani"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Michezo ya Uendeshaji na Mbio za Magari"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Michezo ya Kupigana"</string>
+    <string name="topic10234" msgid="693433817142162565">"Marejeleo na Maoni ya Michezo ya Video"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Vidokezo na Udanganyifu katika Michezo ya Video"</string>
+    <string name="topic10236" msgid="320145832033080647">"Michezo ya Watu Wengi Zaidi"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Michezo ya Muziki na Dansi"</string>
+    <string name="topic10238" msgid="124952008622371505">"Michezo Inayoruhusu Ubunifu"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Michezo ya Ufyatuaji"</string>
+    <string name="topic10240" msgid="429738690314619395">"Michezo ya Uigaji Matukio"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Michezo ya Biashara na Matajiri"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Michezo ya Kujenga Miji"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Michezo ya Kuiga Maisha"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Viigiza Magari"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Michezo ya Spoti"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Michezo ya Usimamizi wa Spoti"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Michezo ya Mikakati"</string>
+    <string name="topic10248" msgid="279151815457227293">"Kubadilisha Mchezo wa Video na Programu Jalizi"</string>
+    <string name="topic10249" msgid="631580828608894782">"Michezo Inayoelimisha"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Michezo na Shughuli Mahususi kwa Familia"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Kuchora na Kupaka Rangi"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Michezo ya Mavazi na Mitindo"</string>
+    <string name="topic10253" msgid="385499297969826942">"Mafumbo na Chemshabongo"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Michezo ya Uigizaji wa Majukumu"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Mchezo wa Tenisi wa Mezani"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Michezo ya Vigae"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Michezo ya Maneno"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Mapumziko na Mambo Yapendelewayo"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Maadhimisho"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Maadhimisho ya Siku za Kuzaliwa na Siku Muhimu Zinazoambatana na Jina"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Shughuli za Uzamiaji na Upigaji Mbizi"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Sanaa Inayotumia Vitambaa na Nyuzi"</string>
+    <string name="topic10263" msgid="361345691023794788">"Nje ya Nyumba"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Uvuvi"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Uwindaji na Ulengaji wa Shabaha"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Mchezo wa Bunduki Bandia ya Rangi"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Udhibiti wa Redio na Ufanyizaji Miundo"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Harusi"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Nyumba na Bustani"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Utunzaji wa Bustani"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Nyumba na Mapambo ya Ndani"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Vifaa vya Nyumbani"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Uboreshaji wa Nyumba"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Ulinzi na Usalama wa Nyumba"</string>
+    <string name="topic10275" msgid="682064062059687444">"Mahitaji ya Nyumbani"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Muundo wa Mlalo"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Intaneti na Mawasiliano ya Simu"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Barua pepe na Ujumbe"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Barua pepe"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Ujumbe wa Papo Hapo na wa Maandishi"</string>
+    <string name="topic10281" msgid="582764575763317221">"Gumzo la Sauti na Video"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Watoa Huduma za Simu"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Milio na Mandhari za Simu"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Mitambo ya Kutafuta"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Simu Mahiri"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Mkutano kwa njia ya Simu"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Programu za Wavuti na Zana za Mtandaoni"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Huduma za Wavuti"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Hifadhi ya Wingu"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Usanifu na Usanidi wa Wavuti"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Upangishaji wa Wavuti"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Kazi na Elimu"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Elimu"</string>
+    <string name="topic10295" msgid="331240908257602211">"Uchapishaji na Mikutano ya Kitaaluma"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Vyuo na Vyuo Vikuu"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Mafunzo ya Mbali"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Elimu ya Makuzi ya Watoto Wadogo"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Chekechea"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Kusomea Nyumbani"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Majaribio ya Usaili na Kujipima"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Rasilimali za Darasani na za Ufundishaji"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Elimu ya Ufundi na Elimu ya Kujiendeleza"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Kazi"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Rasilimali na Mipango ya Kazi"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Nafasi za Kazi"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Sheria na Serikali"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Uhalifu na Haki"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Ya Kisheria"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Huduma za Kisheria"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Habari"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Habari za Uchumi"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Habari za Mahali Ulipo"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Uunganishaji na Ununuzi"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Magazeti"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Siasa"</string>
+    <string name="topic10317" msgid="888696185673599406">"Habari za Michezo"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Hali ya Hewa"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Habari za Ulimwengu"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Jumuiya za mtandaoni"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Klipu za Sanaa na GIF Zilizohuishwa"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Kuchumbiana na Mambo Binafsi"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Ujumlishaji wa Mipasho na Ualamishaji wa Kijamii"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Kushiriki na Kupangisha Faili"</string>
+    <string name="topic10325" msgid="916412844647169263">"Watoa Huduma za Gumzo na Jukwaa"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Blogu Ndogo"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Kushiriki Picha na Video"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Kushiriki Picha"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Kushiriki Video"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Ngozi"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Programu za Mtandao Jamii na Programu Jalizi"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Mitandao Jamii"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Watu na Jamii"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Familia na Mahusiano"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Asili na Jinialojia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Ndoa"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Malezi"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Kuasili"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Watoto Wachanga na Watoto wenye Umri Kuanzia Mwaka Mmoja hadi Miaka Mitano"</string>
+    <string name="topic10340" msgid="259457452971577855">"Usalama wa Intaneti kwa Watoto"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Mahaba"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Sayansi Dhahania na Njozi"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Wanyama na Wanyama Vipenzi"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Vyakula na Bidhaa za Utunzaji wa Wanyama Vipenzi"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Wanyama Vipenzi"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Ndege"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Paka"</string>
+    <string name="topic10348" msgid="570783769757187957">"Mbwa"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Samaki na Tangi la Kufugia Samaki"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Wanyama Watambaao na Wanaoishi Majini"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Madaktari wa Mifugo"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Mali Isiyohamishika"</string>
+    <string name="topic10353" msgid="230887584509968233">"Maeneo na Mashamba Yasiyoendelezwa"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Mali Zinazomilikiwa kwa Ushirikiano na Maeneo ya Mapumziko"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Marejeleo"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Orodha Binafsi na za Biashara"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Marejeleo ya Jumla"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Vikokotoo na Zana za Marejeleo"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Kamusi na Ensaiklopidia"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Rasilimali za Elimu"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Jinsi Ya"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Muda na Kalenda"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Rasilimali za Lugha"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Mafunzo ya Lugha za Kigeni"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Rasilimali na Zana za Tafsiri"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Ramani"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Sayansi"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Uhalisia Ulioboreshwa na Uhalisia Pepe"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Sayansi za Kibiolojia"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Jenetiki"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kemia"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ikolojia na Mazingira"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Jiolojia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Mashine Kujifunza na Utashi wa Kompyuta"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Hisabati"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fizikia"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Teknolojia ya Roboti"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Ununuzi"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Ukusanyaji wa Vitu vya Thamani na Vitu vya Kale"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Mavazi"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Mavazi ya Watoto"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Mavazi Maalum"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Mavazi ya Wanaume"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Mavazi ya Wanawake"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Matangazo"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Rasilimali za Watumiaji"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Ofa za Kuponi na Punguzo"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Mipango na Kadi za Kutuza Uaminifu"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Usaidizi wa Kiufundi na Marekebisho"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Maua"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Kadi za Salamu"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Bidhaa na Mahitaji ya Sherehe na Sikukuu"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Tovuti za Ununuzi"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Spoti"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Kandanda ya Marekani"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Kandanda ya Australia"</string>
+    <string name="topic10397" msgid="653991203228840785">"Mbio za Magari"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Besiboli"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Mpira wa kikapu"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Kubingirisha tufe"</string>
+    <string name="topic10401" msgid="26807857115228330">"Ndondi"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Ushangiliaji"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Michezo ya Vyuo"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriketi"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Kuendesha baiskeli"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Kuendesha Farasi"</string>
+    <string name="topic10407" msgid="316266982792700993">"Michezo Iliyokithiri"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Kukwea na Kupanda Milima"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Michezo ya Kubuni Taswira"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Gofu"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Sarakasi"</string>
+    <string name="topic10412" msgid="335770351079973128">"Mpira wa magongo"</string>
+    <string name="topic10413" msgid="416366556259783701">"Kuteleza kwenye Barafu"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Sanaa ya Kupigana"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Mbio za Pikipiki"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpiki"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Raga"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Kukimbia na Kutembea"</string>
+    <string name="topic10419" msgid="979581105119036716">"Michezo ya Kuteleza kwenye Theluji"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Soka"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Kuteleza katika Mawimbi"</string>
+    <string name="topic10422" msgid="978920114358054206">"Kuogelea"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenisi"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Michezo ya Riadha na Uwanjani"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Voliboli"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Miereka"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Safari na Usafirishaji"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Safari za Kusisimua"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Usafiri wa Angani"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Safari za Kibiashara"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Ukodishaji Magari"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Meli na Boti Binafsi za Kifahari"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Safari za Kifamilia"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Fungate na Mapumziko ya Wenzi"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hoteli na Malazi"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Safari za Basi na Reli za Umbali Mrefu"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Usafiri wa Bei Rahisi na Ulioandaliwa kwa Muda Mchache"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Vifaa vya Usafiri na Mizigo"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Vivutio vya Watalii"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Fukwe na Visiwa"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Bustani na Hifadhi za Maeneo"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Bustani zenye Maudhui Maalum"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Bustani za Wanyama"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Wapangaji wa Njia na Trafiki"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Huduma na Mawakala wa Safari"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Mwongozo wa Safari na Simulizi za Safari Zilizoambatana na Picha"</string>
+</resources>

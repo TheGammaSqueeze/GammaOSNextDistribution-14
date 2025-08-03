@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"juurdepääs AdServices Topics API-dele"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Annab rakendusele juurdepääsu AdServices Topics API-dele."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"juurdepääs AdServices Attribution API-dele"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Annab rakendusele juurdepääsu AdServices Attribution API-dele."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"juurdepääs AdServices Custom Audience API-dele"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Annab rakendusele juurdepääsu AdServices Custom Audience API-dele."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Juurdepääs AdID API-dele"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Annab rakendusele juurdepääsu AdID API-dele."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"Juurdepääs AdServices Consent API-le"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Annab rakendusele juurdepääsu AdServices Consent API-le."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"juurdepääs Ad ID API-dele"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Annab rakendusele juurdepääsu Ad ID API-dele."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Juurdepääs AdServices Cobalt Upload API-le"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Võimaldab rakendusel juurdepääsu AdServices Cobalt Upload API-le."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"juurdepääs App Set ID API-dele"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Annab rakendusele juurdepääsu App Set ID API-dele."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Access to Consent Service API-le"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Annab rakendusele juurdepääsu Consent Service API-le."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Juurdepääs AdService\'i lubamise oleku muutmise API-le"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Annab rakendusele juurdepääsu AdService\'i lubamise oleku muutmise API-le."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Juurdepääs AdService\'i lubamise oleku API-le"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Annab rakendusele juurdepääsu AdService\'i lubamise oleku API-le."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Juurdepääs üksuse AdServicesManager’s API-dele"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Annab rakendusele juurdepääsu üksuse AdServicesManager API-dele."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Juurdepääs AdService\'i värskenduse AdID API-le."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Annab rakendusele juurdepääsu AdService\'i värskenduse AdID API-le."</string>
+    <string name="app_label" msgid="2639006978056689153">"Reklaamide privaatsus"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Liituge Androidi reklaamide privaatsuse beetaprogrammiga"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android uurib, kuidas rakendused teile privaatsemalt reklaame näidata saaksid"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Lisateave"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Androidi reklaamide privaatsuse beetaprogramm"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Mis on uut?"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privaatsuse liivakasti uued privaatsuse funktsioonid võimaldavad rakendustel teile asjakohaseid reklaame näidata, kui piiravad seda, mida rakendused saavad teistelt arendajatelt õppida selle alusel, mida veebisaitidel ja rakendustes teete."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Kuidas see toimib?"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Osalemine"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Kui lülitate beetaprogrammi sisse, saavad rakendused proovida neid uusi ja privaatsemaid rakenduste näitamise viise. Saate beetaprogrammi igal ajal privaatsusseadete kaudu välja lülitada."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Tänan, ei"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Lülita sisse"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Rohkem"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Täname osalemise eest!"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Osalete Androidi reklaamide privaatsuse beetaprogrammis. Privaatsuse liivakast on teie seadme jaoks sisse lülitatud.\n\nLisateavet leiate ja beetaprogrammi saate igal ajal välja lülitada privaatsusseadete kaudu."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Otsustasite mitte osaleda"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Täname teid vastuse eest. Privaatsuse liivakast on teie seadme jaoks välja lülitatud.\n\nKui muudate meelt või soovite saada lisateavet, avage privaatsusseaded."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Privaatsusseaded"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Selge"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Osalete beetaprogrammis"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privaatsuse liivakast on teie seadme jaoks sisse lülitatud ning rakendused saavad proovida neid uusi ja privaatsemaid reklaamide näitamise viise. Saate beetaprogrammi igal ajal privaatsusseadete kaudu välja lülitada."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Selge"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Androidi privaatsuse liivakast pakub uusi funktsioone, mida rakendused saavad kasutada selleks, et näidata teile reklaame, mis teile meeldida võivad. Need tehnoloogiad ei kasuta seadmete identifikaatoreid.\n\nAndroid ja teie rakendused saavad prognoosida, millised reklaamid teile huvi pakkuda võivad, ja salvestada teie huvid ajutiselt teie seadmesse. See võimaldab rakendustel näidata reklaame, mis teile meeldida võivad, ilma teie tegevust muude arendajate veebisaitidel või rakendustes jälgimata."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Reklaamide isikupärastamine privaatsuse liivakastiga"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Androidi prognoositud huvid"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android prognoosib regulaarselt teie huvisid kasutatud rakenduste põhjal, näiteks võib see teile määrata kategooria „Sport“ või „Reisimine“.\n\nHiljem võib rakendus taotleda Androidilt nende huvide kasutamist, et teile asjakohasemaid reklaame näidata.\n\nOma praeguste huvide loendit näete privaatsusseadetes ja saate blokeerida huvid, mis teile ei meeldi."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Rakenduste prognoositud huvid"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Rakendused saavad teie huvisid prognoosida ja need ajutiselt Androidi salvestada. Näiteks võib rakendus, mida kasutate jooksujalanõude ostmiseks, prognoosida, et teie huvi on „jooksumaratonid“.\n\nHiljem võib muu rakendus selle huvi alusel teile maratonidega seotud reklaami näidata.\n\nSalvestatud huvidega rakenduste loendit saate hallata privaatsusseadetes."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Uued reklaamide privaatsuse funktsioonid"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Reklaamiteemade ja uute juhtelementide abil saate paremini hallata, milliseid reklaame näete"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Nüüd on saadaval uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android talletab teie hiljuti kasutatud rakenduste alusel teile huvitavad teemad. Samuti saavad teie kasutatavad rakendused teie huvisid tuvastada. Hiljem saavad rakendused teile isikupärastatud reklaamide näitamiseks seda teavet küsida. Saate valida, milliseid teemasid ja rakendusi teile reklaamide esitamiseks kasutatakse."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Reklaami toimivuse mõõtmiseks jagatakse rakenduste vahel piiratud tüüpi andmeid."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Lisateave Androidi reklaamide kohta"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Kasulikumad reklaamid"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Rakendused võivad teile näidatavate reklaamide isikupärastamiseks Androidilt teavet küsida."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android talletab hiljuti kasutatud rakenduste alusel teile huvipakkuvad teemad."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Rakendused saavad samuti määrata teie huvid selle põhjal, kuidas neid rakendusi kasutate. Näiteks kui kasutate rakendust, mis müüb pikamaajooksu jalanõusid, võib rakendus otsustada, et teile pakuvad huvi jooksumaratonid."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Hiljem võib mõni teie kasutatav rakendus seda teavet (teavet teie reklaamiteemade või teie kasutatud rakenduste soovitatud reklaamide kohta) küsida."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android kustutab teemasid ja rakenduste soovitatud andmeid automaatselt ja regulaarselt. Samuti saate blokeerida konkreetsed teemad ja rakendused, mille soovituste kasutamist te ei soovi."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Reklaami toimivuse mõõtmine"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Teie kasutatavad rakendused võivad oma reklaamide toimivuse mõõtmiseks Androidilt teavet küsida. Android võimaldab rakendustel koguda piiratud tüüpi andmeid, näiteks reklaami esitamise kellaaega."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Proovige uusi reklaamide privaatsuse funktsioone"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Reklaamiteemade abil saate paremini hallata, milliseid reklaame näete"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Vaadake üksikasju"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Proovige uusi reklaamide privaatsusfunktsioone"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android laseb välja uued privaatsusfunktsioonid, mis võimaldavad teil esitatavate reklaamidega seoses täpsemaid valikuid teha."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Reklaamiteemad aitavad rakendustel esitada teile asjakohaseid reklaame, kaitstes samas teie identiteeti ja rakenduste kasutusteavet. Android saab hiljuti kasutatud rakenduste alusel talleteda teid huvitavad teemad. Hiljem võib mõni teie kasutatav rakendus kuvatavate reklaamide isikupärastamiseks Androidilt asjakohaseid teemasid küsida."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Seadme seadetes saate reklaamiteemasid vaadata ja blokeerida teemad, mida te ei soovi rakendustega jagada. Samuti kustutab Android reklaamiteemasid regulaarselt."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Saate oma meelt igal ajal privaatsusseadete kaudu muuta."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Lisateave reklaamiteemade kohta"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Lugege meie "<a href="https://policies.google.com/privacy">"privaatsuseeskirjadest"</a>" lisateavet selle kohta, kuidas Android teie andmeid kaitseb."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Proovige"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Milliseid andmeid kasutatakse?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Teie reklaamiteemad põhinevad selles seadmes hiljuti kasutatud rakendustel ja nende kasutamissagedusel."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Kuidas me neid andmeid kasutame?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android talletab rakenduste kasutamise ajal teile huvipakkuvad teemad. Teemasildid on eelmääratud ja hõlmavad selliseid teemasid nagu Kunst ja meelelahutus, Ostlemine ja Sport. Hiljem võib mõni teie kasutatav rakendus taotleda Androidilt teile näidatavate reklaamide isikupärastamiseks mõnda teie teemat (kuid mitte teie rakenduste kasutusandmeid ega identiteediteavet)."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Kuidas saate oma andmeid hallata?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android kustutab teemasid automaatselt ja regulaarselt. Rakenduste kasutamise jätkamisel võib mõni teema loendisse tagasi ilmuda. Samuti saate privaatsusseadete kaudu igal ajal blokeerida teemad, mille puhul te ei soovi, et Android neid rakendustega jagaks, ning reklaamiteemad välja lülitada."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Muudatusi saate teha privaatsusseadetes."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Muud reklaamide privaatsusfunktsioonid on nüüd saadaval"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android pakub ka uusi viise, kuidas piirata seda, mida rakendused võivad teile isikupärastatud reklaame kuvades teie kohta teada saada."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Rakenduste soovitatud reklaamid aitavad kaitsta teie identiteeti ja rakenduste kasutusandmeid, võimaldades samas rakendustel esitada teile asjakohaseid reklaame. Kasutatav rakendus võib teie tegevuse alusel teistele rakendustele seotud reklaame soovitada. Privaatsusseadetes saate vaadata nende rakenduste loendit ning blokeerida ka soovituste esitamise konkreetsetest rakendustest."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Reklaamide mõõtmisel jagatakse rakenduste vahel piiratud tüüpi andmeid, et mõõta nende reklaamide toimivust (nt millal päeva jooksul teile reklaami näidati)."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Lisateave rakenduste soovitatud reklaamide ja reklaamide mõõtmise kohta"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Rakenduste soovitatud reklaamid"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Milliseid andmeid kasutatakse?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Teie tegevused rakenduses, mida kasutate selles seadmes."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"• Kuidas rakendused neid andmeid kasutavad"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Saidid võivad Androidi talletada teavet selle kohta, mis teile meeldib. Näiteks kui kasutate maratoniks ettevalmistamise rakendust, võib see rakendus otsustada, et teile pakuvad huvi jooksujalanõud. Kui kasutate hiljem muud rakendust, võib see rakendus näidata teile esimese rakenduse soovituse alusel jooksujalanõude reklaami."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Kuidas saate oma andmeid hallata?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android kustutab rakenduste soovitatud andmeid automaatselt ja regulaarselt. Rakendused, mida uuesti kasutate, võivad loendisse tagasi ilmuda."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Samuti võite igal ajal privaatsusseadetes blokeerida reklaamide soovitamise konkreetsest rakendusest, lähtestada kõik reklaamisoovituste andmed või lülitada välja rakenduste soovitatud reklaamid."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Teie kasutatavad rakendused võivad küsida Androidilt teavet, mis aitab neil mõõta reklaamide toimivust. Teie privaatsuse kaitsmiseks piirab Android teavet, mida rakendused üksteisega jagada saavad."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Nüüd on saadaval uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Saate rohkem valikuvõimalusi vaadatavate reklaamide osas, kaitstes samal ajal oma identiteeti"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Nüüd on saadaval uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android lisab uued lahendused, millega saate piirata seda, mida rakendused isikupärastatud reklaamide näitamisel teie kohta õppida saavad."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Rakenduse soovitatud reklaamide abil aitavad uued privaatsusfunktsioonid kaitsta teie identiteeti ja teavet teie rakenduse kasutamise kohta, võimaldades samal ajal rakendustel teile asjakohaseid reklaame näidata. Kasutatav rakendus saab teie tegevuse alusel teistele rakendustele seotud reklaame soovitada. Rakenduste loendit näete privaatsusseadetes. Seal saate ka blokeerida soovituste esitamise konkreetsetest rakendustest."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Reklaamide mõõtmise puhul jagatakse reklaamide toimivuse mõistmiseks rakenduste vahel piiratud andmetüüpe, näiteks reklaami näitamise kellaaega."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Teie tegevusi selle seadme rakendustes saab kasutada reklaamide soovitamiseks."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Lülitage veel mõni reklaamide privaatsusfunktsioon sisse"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android pakub ka uut privaatsusfunktsiooni, mis annab teile kuvatavate reklaamide osas rohkem valikuvõimalusi."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Reklaamiteemad aitavad rakendustel teile asjakohaseid reklaame näidata, kaitstes samal ajal teie identiteeti ja rakenduste kasutusteavet. Android saab hiljuti kasutatud rakenduste alusel meelde jätta teid huvitavad teemad. Hiljem saab teie kasutatav rakendus küsida Androidilt asjakohaseid teemasid, et teile asjakohasemaid reklaame näidata."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Reklaamiteemasid saate vaadata oma privaatsusseadetes. Seal saate ka blokeerida need teemad, mida te ei soovi rakendustega jagada. Samuti kustutab Android reklaamiteemasid automaatselt ja regulaarselt."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Lülita sisse"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Nüüd on saadaval uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Nüüd on teil rohkem valikuvõimalusi näha reklaame, kaitstes samal ajal oma identiteeti"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Nüüd on saadaval uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android pakub nüüd uusi privaatsusfunktsioone, mis annavad teile kuvatavate reklaamide osas rohkem valikuvõimalusi."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Edasi"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privaatsuse liivakast"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Osalege Androidi reklaamide privaatsuse beetaprogrammis"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privaatsuse liivakast"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Androidi prognoositud huvid"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Huvisid prognoosivad rakendused"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Reklaamide mõõtmine"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Rakendused võivad privaatsuse liivakasti oma reklaamide tõhususe mõõtmiseks kasutada. Selle tegemiseks saavad reklaamijad ajutiselt Androidi salvestada andmeid selle kohta, milliseid interaktsioone nende reklaamide ja rakendustega teete. Salvestatav andmemaht on piiratud ja see kustutatakse regulaarselt.\n\nSaate need andmed igal ajal kustutada, kui lülitate privaatsuse liivakasti välja."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android prognoosib regulaarselt teie peamisi huvisid kasutatud rakenduste alusel. Rakendused võivad Androidilt nende huvide kasutamist taotleda, et teile asjakohasemaid reklaame näidata.\n\nKui blokeerite huvi, ei lisata seda uuesti loendisse enne, kui selle deblokeerite. Võite siiski näha mõnda seotud reklaami."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blokeeri"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Deblokeeri"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Teie blokeeritud huvid"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Lähtesta kõik huvid"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Praegu ei ole kuvamiseks ühtegi huvi."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Praegu ei ole kuvamiseks ühtegi teemat.\nLisateave "<a href="https://support.google.com/android?p=ad_privacy">"reklaamiteemade"</a>" kohta"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privaatsuse liivakast"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Androidi reklaamide privaatsuse beetaprogramm pakub uusi funktsioone, mida rakendused saavad kasutada selleks, et näidata teile reklaame, mis teile meeldida võivad. Need tehnoloogiad ei kasuta seadmete identifikaatoreid.\n\nAndroid saab prognoosida, millised reklaamid teile huvi pakkuda võivad, ja salvestada need huvid ajutiselt teie seadmesse. See võimaldab rakendustel teile asjakohaseid reklaame näidata ilma teie tegevust muude arendajate veebisaitidel või rakendustes jälgimata."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Teil ei ole blokeeritud huvisid"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Blokeeritud teemasid ei ole"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Kuva blokeeritud teemad"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Huvid on lähtestatud"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Teemad lähtestati"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Rakendused saavad teie huvisid prognoosida ja need ajutiselt Androidi salvestada. Hiljem saab muu rakendus teile nende huvide alusel reklaame näidata.\n\nKui blokeerite rakenduse, ei prognoosi see enam teie huvisid. Seda ei lisata rakenduste loendisse uuesti enne, kui selle deblokeerite. Rakenduse prognoositud huvid kustutatakse, ent võite siiski näha mõningaid seotud reklaame."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Blokeeritud rakendused"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Kuva blokeeritud rakendused"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Lähtesta rakenduste prognoositud huvid"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Ükski rakendus ei prognoosi praegu teie huvisid"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Praegu ei ole kuvamiseks ühtegi rakendust. \nLisateave "<a href="https://support.google.com/android?p=ad_privacy">"rakenduse soovitatud reklaamide kohta"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privaatsuse liivakast"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Androidi reklaamide privaatsuse beetaprogramm pakub uusi funktsioone, mida rakendused saavad kasutada selleks, et näidata teile reklaame, mis teile meeldida võivad. Need tehnoloogiad ei kasuta seadmete identifikaatoreid.\n\nRakendused saavad prognoosida, millised reklaamid teile huvi pakkuda võivad, ja salvestada need huvid ajutiselt teie seadmesse. See võimaldab rakendustel teile asjakohaseid reklaame näidata ilma teie tegevust muude arendajate veebisaitidel või rakendustes jälgimata."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Teil pole blokeeritud rakendusi"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Blokeeritud rakendusi pole"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Luba reklaamide mõõtmine"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Rakendused ja reklaamijad võivad küsida Androidilt teavet, mis aitab neil oma reklaamide toimivust mõõta.\n\nReklaamide mõõtmise andmeid kustutatakse teie seadmest regulaarselt."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Lähtesta mõõtmisandmed"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Teie privaatsuse kaitsmiseks piirab Android teavet, mida rakendused üksteisega jagada saavad. Teie identiteedi kaitsmiseks saadetakse andmed viivitusega.\n\nTeie brauseril võib olla sarnane seade. Kui reklaamide mõõtmine on sisse lülitatud nii Androidi kui ka teie brauseri jaoks, on ettevõtetel võimalik mõõta reklaami toimivust eri rakendustes, mida kasutate, ja teie külastatud saitidel. Teie sirvimisajalugu hoitakse privaatselt teie seadmes.\n\nLugege meie "<a href="https://policies.google.com/privacy">"privaatsuseeskirjadest"</a>" lisateavet selle kohta, kuidas Android teie andmeid kaitseb."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Reklaamide mõõtmise andmed lähtestati"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Tühista"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Kas lülitada privaatsuse liivakast välja"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Kui muudate meelt või soovite lisateavet Androidi reklaamide privaatsuse beetaversiooni kohta, avage privaatsusseaded"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Lülita välja"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Kas blokeerida <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"See teema blokeeritakse ja seda ei lisata enam teie loendisse, kui te seda ise tagasi ei lisa. Võite siiski näha mõnda seotud reklaami."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokeeri"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Teema <xliff:g id="TOPIC">%1$s</xliff:g> blokeerimine tühistati"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android võib selle teema uuesti teie loendisse lisada, kuid seda ei pruugita kohe kuvada."</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Kas lähtestada kõik reklaamiteemad?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Teie loend tühjendatakse ja edaspidi lisatakse uusi teemasid. Võite siiski näha mõnda teie lähtestatud teemadega seotud reklaami."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Lähtesta"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Kas blokeerida <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"See rakendus ei soovita reklaame ja seda ei lisata tagasi teie loendisse (v.a kui rakenduse deblokeerite). Võite siiski näha mõnda seotud reklaami."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> ei ole blokeeritud"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"See rakendus saab teie jaoks uuesti reklaame soovitada, kuid neid ei pruugita kohe loendis kuvada. Seotud reklaamide kuvamiseks võib aega kuluda."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Kas lähtestada rakenduste soovitatud reklaamid?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Teie loendis olevate rakenduste reklaamisoovituste andmed kustutatakse ja edaspidi soovitavad rakendused uusi reklaame. Võite siiski näha mõnda seotud reklaami."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Rakenduste andmed lähtestati"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Reklaamiteemad on sisse lülitatud"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android hakkab huvipakkuvaid teemasid üles märkima, kuid teie esimeste teemade ilmumine võib veidi aega võtta."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Kas lülitada reklaamiteemad välja?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"See teemade loend kustutatakse. Android ei märgi enam huvipakkuvaid teemasid, kuid võite siiski näha asjakohaseid reklaame."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Rakenduste soovitatud reklaamid on sisse lülitatud"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Rakendused võivad hakata reklaame soovitama. Näete rakenduste loendit, kui need hakkavad reklaame soovitama."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Kas lülitada rakenduste soovitatud reklaamid välja?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Kõik reklaamisoovituste andmed kustutatakse. Rakendused ei saa enam reklaame soovitada, kuid võite siiski näha asjakohaseid reklaame."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Reklaamide mõõtmine on sisse lülitatud"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android saab rakendustega jagada vaid väga piiratud teavet, et aidata rakendustel oma reklaamide toimivust mõõta."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Kas lülitada reklaamide mõõtmine välja?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Kõik ootel olevad reklaamide mõõtmisaruanded kustutatakse ning uusi aruandeid ei genereerita ega jagata."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Reklaamide privaatsus"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Reklaamiteemad"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Rakenduste soovitatud reklaamid"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android jätab teie hiljuti kasutatud rakenduste ja nende kasutussageduse alusel meelde teile huvipakkuvad teemad."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Rakendused saavad samuti määrata teie huvid selle põhjal, kuidas neid rakendusi kasutate."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Rakendused, mida kasutate, võivad oma reklaamide toimivuse mõõtmiseks Androidilt teavet küsida. Android lubab rakendustel piiratud andmetüüpe koguda."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Lisateave "<a href="https://support.google.com/android?p=ad_privacy">"reklaamide privaatsuse kohta Androidis"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Sees / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> teemat"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Sees / # teema}other{Sees / # teemat}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Sees / <xliff:g id="APPS_COUNT">%1$d</xliff:g> rakendust"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Sees / # rakendus}other{Sees / # rakendust}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Sees"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Väljas"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Huvipakkuvad teemad põhinevad teie hiljuti kasutatud rakendustel ja rakendused kasutavad neid teile isikupärastatud reklaamide näitamiseks.\n\nSaate blokeerida teemad, mida te ei soovi rakendustega jagada. Samuti kustutab Android teemasid automaatselt ja regulaarselt.\n\nKuigi võite selle funktsiooni sisse lülitada, ei pruugi te näha teemade loendit enne, kui see funktsioon täielikult saadavale tuleb ja rakendused seda kasutama hakkavad."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Luba reklaamiteemad"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Blokeeritud reklaamiteemad"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Lähtesta kõik reklaamiteemad"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android jätab teie viimase paari nädala jooksul kasutatud rakenduste alusel meelde teile huvipakkuvad teemad.\n\nHiljem võib teie kasutatav rakendus kuvatavate reklaamide isikupärastamiseks Androidilt teie teemade kohta teavet küsida. Android jagab kuni kolme teemat, kaitstes samal ajal teie identiteeti ja rakenduste kasutusandmeid.\n\nAndroid kustutab teemasid automaatselt ja regulaarselt. Rakenduste kasutamise jätkamisel võib mõni teema loendisse tagasi ilmuda. Samuti võite blokeerida teemad, mille puhul te ei soovi, et Android neid rakendustega jagaks.\n\nRakendustes kuvatavad reklaamid võivad olla isikupärastatud olenevalt sellest seadest, rakenduste soovitatud reklaamide seadest, teie reklaami-ID seadetest ja sellest, kas kasutatav rakendus isikupärastab reklaame."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Luba rakenduste soovitatud reklaamid"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Kasutatavad rakendused saavad teie huvid tuvastada ja seejärel teistele rakendustele reklaame soovitada.\n\nSaate blokeerida soovituste esitamise konkreetsetest rakendustest. Samuti kustutab Android rakenduste soovitatud andmeid automaatselt ja regulaarselt.\n\nKuigi võite selle funktsiooni sisse lülitada, ei pruugi te näha rakenduste loendit enne, kui see funktsioon täielikult saadavale tuleb ja rakendused seda kasutama hakkavad."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Blokeeritud rakendused"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Lähtesta rakenduste soovitatud andmed"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"On tavapärane, et teie kasutatud rakendused jätavad kasutuskogemuse isikupärastamiseks meelde teile huvipakkuvad teemad. Rakendused saavad nende teemade kohta teavet ka Androidi kaudu talletada.\n\nNäiteks kui kasutate maratoniks ettevalmistamise rakendust, võib see rakendus otsustada, et teile pakuvad huvi jooksujalanõud. Kui kasutate hiljem muud rakendust, võib see teile jooksujalanõude reklaami näidata, nagu seda soovitas esimene rakendus.\n\nAndroid kustutab rakenduste soovitatud andmeid automaatselt ja regulaarselt. Rakendused, mida uuesti kasutate, võivad loendisse tagasi ilmuda. Teil on võimalik blokeerida reklaamide soovitamine konkreetsetest rakendustest.\n\nRakendustes kuvatud reklaamid võivad olla isikupärastatud olenevalt sellest seadest, reklaamiteemade seadest, teie reklaami-ID seadetest ja sellest, kas kasutatav rakendus isikupärastab reklaame."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Nüüd on saadaval uus reklaamide privaatsusfunktsioon"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Reklaami toimivuse mõõtmiseks jagatakse rakenduste vahel vaid väga piiratud teavet."</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Anname välja uue reklaamide privaatsusfunktsiooni, mida nimetame reklaamide mõõtmiseks. Android jagab rakenduste vahel ainult väga piiratud teavet, näiteks seda, millal teile reklaami näidati, et aidata rakendustel mõõta reklaamide toimivust."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Muudatusi saate teha reklaamide privaatsusseadetes."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Rakendused, mida kasutate, võivad oma reklaamide toimivuse mõõtmiseks Androidilt teavet küsida. Android lubab rakendustel ainult piiratud andmetüüpe koguda."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Uued reklaamide privaatsusfunktsioonid"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Saate rohkem valikuvõimalusi vaadatavate reklaamide puhul, aidates samal ajal oma identiteeti kaitsta"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Teie reklaamide privaatsusfunktsioonide värskendused"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Saate rohkem valikuvõimalusi vaadatavate reklaamide puhul, aidates samal ajal oma identiteeti kaitsta"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android laiendab reklaamide privaatsusfunktsioone, et piirata seda, mida rakendused saavad teie kohta teada, kui nad teile isikupärastatud reklaame näitavad."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Rakendused ja nende reklaamipartnerid saavad reklaamide isikupärastamiseks teie tegevust kasutada selle seadme muudes rakendustes, aidates samal ajal teie identiteeti privaatse ja turvalisena hoida."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Lisateave rakenduse soovitatud reklaamide kohta"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Rakenduste vahel jagatakse piiratud andmetüüpe, et mõista nende reklaamide toimivust (nt reklaami näitamise kellaaega)."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Lisateave reklaamide mõõtmise kohta"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android jätab teie hiljuti kasutatud rakenduste alusel meelde teid huvitavad teemad. Samuti saavad rakendused ja nende reklaamipartnerid kasutada teie tegevust selle seadme muudes rakendustes reklaamide isikupärastamiseks, aidates samal ajal teie identiteeti privaatsena ja turvalisena hoida."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Kasutatavad rakendused võivad teie rakendustegevuse põhjal määrata, mis teile meeldib. Näiteks kui kasutate regulaarselt toiduvalmistamisrakendusi, võite teistes rakendustes näha toidukaupade kohaletoimetamisteenuste reklaame või sellega seotud sisu.\n\nRakendused saavad seda teavet turvaliselt salvestada, nii et seda saavad kasutada ainult nende reklaamipartnerid teiste rakenduste reklaamide isikupärastamiseks."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Hiljem võib mõni teie kasutatav rakendus seda teavet (teavet teie reklaamiteemade või teie kasutatud rakenduste soovitatud reklaamide kohta) küsida."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Rakendused, mida kasutate, võivad oma reklaamide toimivuse mõõtmiseks Androidilt teavet küsida. Android aitab kaitsta teie privaatsust, piirates teavet, mida rakendused saavad üksteisega jagada."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Milliseid andmeid kasutatakse?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Teie kasutatavad rakendused saavad Androidilt küsida teavet, mis aitab neil mõõta reklaamide toimivust. Teie privaatsuse kaitsmiseks piirab Android teavet, mida rakendused üksteisega jagada saavad."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Kuidas minu identiteeti kaitstakse?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android kasutab mitmeid privaatsusmeetmeid (nt koondamis- ja müraandmeid), et piirata teavet, mida rakendused saavad üksteisega jagada, ning aidata kaitsta teie identiteeti.\n\nSamuti kustutatakse teie seadmest regulaarselt reklaamide mõõtmisandmeid."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Teie tegevusi rakenduses saab kasutada reklaamide soovitamiseks."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Kuidas rakendused neid andmeid kasutavad?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Rakendused saavad seda teavet turvaliselt salvestada, nii et seda saavad muude rakenduste reklaamide isikupärastamiseks kasutada ainult nende reklaamipartnerid. Näiteks kui kasutate regulaarselt toiduvalmistamisrakendusi, võite muudes rakendustes näha toidukaupade kohaletoimetamise teenuste või seotud sisu reklaame."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Kuidas saan neid andmeid hallata?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Teatud rakenduste puhul saate blokeerida oma tegevuse jagamise reklaamipartneritega. Rakenduse soovitatud reklaamid saate igal ajal oma privaatsusseadetes lähtestada või välja lülitada. Samuti kustutab Android neid andmeid automaatselt ja regulaarselt."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Lisateave teie privaatsuse kaitsmise võimaluste kohta Androidis"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Rakendused ja nende reklaamipartnerid saavad reklaamide isikupärastamiseks teie tegevust kasutada selle seadme muudes rakendustes, hoides samal ajal teavet teie kohta privaatse ja turvalisena.\n\nNäiteks kui kasutate regulaarselt toiduvalmistamisrakendusi, võite muudes rakendustes näha toidukaupade kohaletoimetamise teenuste või seotud sisu reklaame.\n\nAndroid kustutab teie tegevust automaatselt ja regulaarselt, kuid saate rakenduste puhul ka blokeerida selle teabe jagamise rakenduste reklaamipartneritega."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"On tavaline, et rakendused ja nende reklaamipartnerid jätavad teie kasutuskogemuse isikupärastamiseks meelde asjad, millest olete huvitatud. Rakendused saavad seda teavet turvaliselt salvestada, nii et seda saavad muudes rakendustes reklaamide esitamiseks kasutada ainult nende reklaamipartnerid.\n\nSaate rakenduse puhul blokeerida oma tegevuste andmete jagamise reklaamipartneritega. Samuti kustutab Android jagatud tegevuste andmeid automaatselt ja regulaarselt, nii et teie uuesti kasutatavat rakendust võidakse selles loendis taas kuvada.\n\nSee, kas teie vaadatav reklaam on isikupärastatud, võib oleneda paljudest teguritest, nt sellest seadest, reklaamiteemade seadest, teie reklaami-ID seadetest ja sellest, kas rakendus kasutab isikupärastatud reklaame.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lisateave rakenduse soovitatud reklaamide kohta"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android kasutab mitmeid privaatsusmeetmeid (nt koondamis- ja müraandmeid), et piirata teavet, mida rakendused saavad üksteisega jagada, ning aidata kaitsta teie identiteeti.\n\nTeie brauseril võib olla sarnane seade. Kui reklaamide mõõtmine on sisse lülitatud nii Androidi kui ka teie brauseri jaoks, on ettevõtetel võimalik mõõta reklaami toimivust eri rakendustes, mida kasutate, ja teie külastatud saitidel. Teie sirvimisajalugu hoitakse privaatselt teie seadmes.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lisateave reklaamide mõõtmise kohta"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android jätab teie viimase paari nädala jooksul kasutatud rakenduste alusel meelde teile huvipakkuvad teemad.\n\nHiljem võib teie kasutatav rakendus kuvatavate reklaamide isikupärastamiseks Androidilt teie teemade kohta teavet küsida. Android jagab kuni kolme teemat, kaitstes samal ajal teie identiteeti ja rakenduste kasutusandmeid.\n\nAndroid kustutab teemasid automaatselt ja regulaarselt. Rakenduste kasutamise jätkamisel võidakse mõnda teemat loendis uuesti kuvada. Samuti võite blokeerida teemad, mille puhul te ei soovi, et Android neid rakendustega jagaks.\n\nSee, kas teie vaadatav reklaam on isikupärastatud, võib oleneda paljudest teguritest, nt sellest seadest, rakenduse soovitatud reklaamide seadetest, teie reklaami-ID seadetest ja sellest, kas rakendus kasutab isikupärastatud reklaame.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Lisateave reklaamiteemade kohta"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Värviline illustratsioon sümbolitest, mis kujutavad huvipakkuvaid teemasid, nagu muusika, uudised ja sport"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Värviline illustratsioon ringi sees olevast lukust"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Väike mustvalge illustratsioon, kus üheksa punkti moodustavad ruudu"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Väike mustvalge illustratsioon lihtsatest kujunditest, nagu süda, kolmnurk ja ruut"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Kunst ja meelelahutus"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Näitlemine ja teater"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime ja manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Multifilmid"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Koomiksid"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Kontserdid ja muusikafestivalid"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Tants"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Meelelahutustööstus"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Meelelahutus ja viktoriinid"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Lõbusad testid ja naljakad küsitlused"</string>
+    <string name="topic10011" msgid="175945911179628507">"Huumor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Naljakad pildid ja videod"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Komöödiaesitused"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Spordisündmuste otseülekanded"</string>
+    <string name="topic10015" msgid="726046067079821146">"Maagia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Filmide ja kinode linastusajad"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmid"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Märuli- ja seiklusfilmid"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animafilmid"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komöödiafilmid"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultus- ja indie-filmid"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentaalfilmid"</string>
+    <string name="topic10023" msgid="254151319845267278">"Draamafilmid"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Perefilmid"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Õudusfilmid"</string>
+    <string name="topic10026" msgid="210222384439682793">"Armastusfilmid"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Põnevik"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Muusika ja heli"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Bluus"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Klassikaline muusika"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Kantrimuusika"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Elektrooniline ja tantsumuusika"</string>
+    <string name="topic10033" msgid="895853536740398847">"Traditsiooniline ja folkmuusika"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Džäss"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Muusika voogesitamine ja allalaadimine"</string>
+    <string name="topic10036" msgid="449833307315797283">"Muusikavideod"</string>
+    <string name="topic10037" msgid="51698216720637667">"Muusikariistad"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Klaverid ja klahvpillid"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popmuusika"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Raadio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Raadiojutusaated"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Räpp ja hiphop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rokkmuusika"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klassikaline rokk ja vanad hitid"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Raske ja progressiivne rokk"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indie- ja alternatiivmuusika"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Sämpli ja heliteegid"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul ja R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Filmimuusika"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Maailmamuusika"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae ja Kariibi muusika"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Veebipõhised pildigaleriid"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Veebivideo"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Reaalajas videote voogesitamine"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Filmide ja telesaadete voogesitamine"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Ooper"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Telekavad ja teabeallikad"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Televõrgud ja -kanalid"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Telesaated ja -programmid"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Telekomöödiad"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Teledokumentaalid ja tõsielusaated"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Teledraamad"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Teleseebiooperid"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Peredele suunatud telesaated"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Tõsielusarjad"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Ulme- ja fantaasiasaated"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Visuaalne kunst ja kujundus"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Kujundus"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Maalimine"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fotograafia ja digikunst"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Autod ja muud sõidukid"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Kaubaveokid ja haagised"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klassikalised sõidukid"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Kohandatud ja suure võimsusega sõidukid"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Kütusehinnad ja sõidukikütus"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Mootorsõidukid (tüübi järgi)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Isejuhtivad sõidukid"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Kabrioletid"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Kupeeautod"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Luukpäraga autod"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hübriid- ja alternatiivsõidukid"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luksussõidukid"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikro- ja subkompaktautod"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Mootorrattad"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Maasturid"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pikapid"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Motorollerid ja mopeedid"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedaanid"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Universaalautod"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Linnamaasturid ja mahturid"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Mahturid"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Kaubikud ja minikaubikud"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Pukseerimine ja maanteeabi"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Sõiduki- ja liiklusohutus"</string>
+    <string name="topic10095" msgid="84682415803421329">"Sõidukite osad ja tarvikud"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Sõidukite remont ja hooldus"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Autoost"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Kasutatud sõidukid"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Autonäitused"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Ilu ja treening"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Kehamaalingud"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Näo- ja kehahooldus"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Higistamisvastased vahendid"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Vanni- ja kehatooted"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Puhas ilu"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Jumestus ja kosmeetika"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Küünehooldustooted"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfüümid ja lõhnad"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Pardlid ja raseerimisvahendid"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Mood ja stiil"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Treening"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Kulturism"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Treeningujuhised ja personaaltreeningud"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Treeningu- ja tervisejälgimisseadmed"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Juuksehooldus"</string>
+    <string name="topic10116" msgid="763642849903586689">"Raamatud ja kirjandus"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Lastekirjandus"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-raamatud"</string>
+    <string name="topic10119" msgid="894448782525835364">"Ajakirjad"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Luule"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Äri ja tööstus"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Reklaam ja turundus"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Müük"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Põllumajandus ja metsandus"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Toiduainetööstus"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Autotööstus"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Lennutööstus"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Majandustegevus"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Paindlikud töötingimused"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Töötajad"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Rendileandmine"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Ehitus ja hooldus"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Ehitus"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Kaitsetööstus"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia- ja kommunaalteenused"</string>
+    <string name="topic10136" msgid="455894912948558854">"Veevarustus ja -puhastus"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Võõrustamistööstus"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Tööstus"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metallid ja kaevandamine"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM ja ärivõimalused"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmaatsia ja biotehnoloogia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Trükkimine ja kirjastamine"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Jaekaubandus"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Riskikapital"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Arvutid ja elektroonika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Arvuti välisseadmed"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Printerid"</string>
+    <string name="topic10148" msgid="388392714835039199">"Arvutikaitse"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Viiruse- ja pahavaratõrje"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Võrguturve"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Tarbeelektroonika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Foto- ja videokaamerad"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS ja navigeerimine"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Kodu automatiseerimine"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Kodukinosüsteemid"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3-pleierid ja kaasaskantavad meediapleierid"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Kehal kantav tehnoloogia"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Andmete varundamine ja taastamine"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Lauaarvutid"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Sülearvutid"</string>
+    <string name="topic10161" msgid="172004201167511870">"Võrgundus"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Hajus- ja pilvandmetöötlus"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programmeerimine"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Tarkvara"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Heli- ja muusikatarkvara"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Äri- ja produktiivsustarkvara"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Kalendri- ja ajastamistarkvara"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Koostöö- ja konverentsitarkvara"</string>
+    <string name="topic10169" msgid="827557334245484202">"Esitlustarkvara"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Arvutustabelitarkvara"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Tekstitöötlustarkvara"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Kompaktkirjastamine"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Fondid"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Allalaadimishaldurid"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Vaba- ja jaosvara"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Graafika- ja animatsioonitarkvara"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Isiklikud nutiassistendid"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Meediapleierid"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Jälgimistarkvara"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operatsioonisüsteemid"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Foto- ja videotarkvara"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Fototarkvara"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Videotarkvara"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Tarkvarautiliidid"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Veebibrauserid"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Rahandus"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Raamatupidamine ja auditeerimine"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Maksualane nõustamine ja plaanimine"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Pangandus"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Raha ülekandmise teenused"</string>
+    <string name="topic10191" msgid="374364159635356705">"Krediit ja laenud"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Krediitkaardid"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Kodu finantseerimine"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Eraisikulaenud"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Õppelaenud ja õpingute rahastamine"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finantsplaneerimine ja -haldus"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Pensionile jäämine ja pension"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Stipendiumid"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Stipendiumid"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Kindlustus"</string>
+    <string name="topic10201" msgid="447240478385298875">"Autokindlustus"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Tervisekindlustus"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Kodukindlustus"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Elukindlustus"</string>
+    <string name="topic10205" msgid="262581473890356377">"Reisikindlustus"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investeerimine"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Toorainete ja futuuridega kauplemine"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Valuutad ja välisbörsid"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Riskifondid"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Investeerimisfondid"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Aktsiad ja võlakirjad"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Söök ja jook"</string>
+    <string name="topic10213" msgid="805716705436663130">"Toiduvalmistamine ja retseptid"</string>
+    <string name="topic10214" msgid="726298155737413779">"Grillimine ja BBQ"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Maailma köögid"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Taimetoiduköök"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegantoidud"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Tervislik toitumine"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Toidukaupade jaemüüjad"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Mängud"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arkaadmängud ja tasulised mänguautomaadid"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Piljard"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Lauamängud"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Male ja abstraktsed strateegiamängud"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kaardimängud"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Kogutavad kaardimängud"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Arvuti- ja videomängud"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Märuli- ja platvormmängud"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Seiklusmängud"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Lihtsad mängud"</string>
+    <string name="topic10231" msgid="405082026972839048">"Videomänguvõistlused"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Autosõidu- ja rallimängud"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Võitlusmängud"</string>
+    <string name="topic10234" msgid="693433817142162565">"Mängude teave ja arvustused"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Videomängude koodid ja vihjed"</string>
+    <string name="topic10236" msgid="320145832033080647">"Paljude mängijatega mängud"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Muusika- ja tantsumängud"</string>
+    <string name="topic10238" msgid="124952008622371505">"Liivakastimängud"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Tulistamismängud"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulatsioonimängud"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Ärimängud"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Linnaehitamismängud"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Elusimulatsioonimängud"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Sõidusimulaatorid"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sportmängud"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Spordimeeskonna juhtimine"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strateegiamängud"</string>
+    <string name="topic10248" msgid="279151815457227293">"Videomängude modifikatsioonid ja lisad"</string>
+    <string name="topic10249" msgid="631580828608894782">"Õppemängud"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Peredele suunatud mängud ja tegevused"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Joonistamine ja värvimine"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Kostüümi- ja moemängud"</string>
+    <string name="topic10253" msgid="385499297969826942">"Mõistatus- ja peamurdmismängud"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Rollimängud"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Lauatennis"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Mosaiigimängud"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Sõnamängud"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Hobid ja vaba aeg"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Aastapäevad"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Sünnipäevad ja nimepäevad"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Sukeldumine ja allveetegevused"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Kiud- ja tekstiilikunst"</string>
+    <string name="topic10263" msgid="361345691023794788">"Vabaõhutegevused"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Kalapüük"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Jaht ja laskmine"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Värvikuulimäng"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Raadio teel juhitavad sõidukid ja mudelism"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Pulmad"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Kodu ja aed"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Aiandus"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Kodusisustus ja sisekujundus"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Koduseadmed"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Kodused remonditööd"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Koduohutus ja -turvalisus"</string>
+    <string name="topic10275" msgid="682064062059687444">"Majapidamistarbed"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Maastikukujundus"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet ja telekommunikatsioon"</string>
+    <string name="topic10278" msgid="1736187026108921963">"E-post ja sõnumside"</string>
+    <string name="topic10279" msgid="9034205050642228743">"E-post"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Tekst- ja kiirsõnumside"</string>
+    <string name="topic10281" msgid="582764575763317221">"Hääl- ja videovestlus"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP-d"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefoniteenuse pakkujad"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Helinad ja mobiiliteemad"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Otsingumootorid"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Nutitelefonid"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonverentsid"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Veebirakendused ja -tööriistad"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Veebiteenused"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Pilvepõhine salvestusruum"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Veebidisain ja -arendus"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Veebimajutus"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Töökohad ja haridus"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Haridus"</string>
+    <string name="topic10295" msgid="331240908257602211">"Akadeemilised konverentsid ja väljaanded"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Kolledžid ja ülikoolid"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Kaugõpe"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Eelkooliharidus"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Eelkooliealised"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Koduõpe"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Standard- ja sisseastumistestid"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Õpetamine ja klassiruumi ressursid"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Kutseharidus ja elukestev õpe"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Töökohad"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Karjääriressursid ja -plaanimine"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Töökuulutused"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Õigus ja haldus"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Kuritegevus ja õigusemõistmine"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Juriidika"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Õigusteenused"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Uudised"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Majandusuudised"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Kohalikud uudised"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Liitumised ja omandamised"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Ajalehed"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Poliitika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Spordiuudised"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Ilm"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Maailma uudised"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Võrgukogukonnad"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Lõikepildid ja animeeritud GIF-id"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Kohtingud ja tutvumiskuulutused"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Voo koondamine ja sotsiaalsed järjehoidjad"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Failide jagamine ja hostimine"</string>
+    <string name="topic10325" msgid="916412844647169263">"Foorumite ja vestlusteenuste pakkujad"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblogimine"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Fotode ja videote jagamine"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Fotode ja piltide jagamine"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Videote jagamine"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Kostüümid"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Suhtlusvõrgustike rakendused ja pistikprogrammid"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Sotsiaalvõrgustikud"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Inimesed ja ühiskond"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Pere ja suhted"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Päritolu ja genealoogia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Abielu"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Lapsevanemad"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adopteerimine"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Imikud ja väikelapsed"</string>
+    <string name="topic10340" msgid="259457452971577855">"Laste internetiohutus"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantika"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Ulme ja fantaasia"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Lemmikloomad ja muud loomad"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Lemmikloomade toit ja hooldustarbed"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Lemmikloomad"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Linnud"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Kassid"</string>
+    <string name="topic10348" msgid="570783769757187957">"Koerad"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Kalad ja akvaariumid"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Roomajad ja kahepaiksed"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Loomaarstid"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Kinnisvara"</string>
+    <string name="topic10353" msgid="230887584509968233">"Krundid ja maa"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Osaajalise kasutusõigusega kinnisvara ja puhkeomandid"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Viide"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Ettevõtete ja eraisikute kuulutused"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Üldressursid"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Kalkulaatorid ja viitetööriistad"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Sõnastikud ja entsüklopeediad"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Haridusressursid"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Õpetused"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Aeg ja kalendrid"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Keeleressursid"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Võõrkeeleõpe"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Tõlketööriistad ja -ressursid"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Kaardid"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Teadus"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Liit- ja virtuaalreaalsus"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Bioloogiateadused"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Geneetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Keemia"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ökoloogia ja keskkond"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geoloogia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Masinõpe ja tehisintellekt"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matemaatika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Füüsika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robootika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Ostud"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antiik- ja kollektsioneeritavad esemed"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Rõivad"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Lasteriided"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostüümid"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Meesteriided"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Naisteriided"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Rubriigikuulutused"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Tarbijatele mõeldud teabeallikad"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kupongid ja allahindluspakkumised"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Kliendikaardid ja -programmid"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Tehniline tugi ja remont"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Lilled"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Õnnitluskaardid"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Peo- ja pühadetarbed"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Ostuportaalid"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Ameerika jalgpall"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Austraalia jalgpall"</string>
+    <string name="topic10397" msgid="653991203228840785">"Autosport"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Pesapall"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Korvpall"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Keegel"</string>
+    <string name="topic10401" msgid="26807857115228330">"Poks"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Ergutustants"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Koolisport"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Rattasport"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ratsasport"</string>
+    <string name="topic10407" msgid="316266982792700993">"Ekstreemsport"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Kalju- ja mägironimine"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantaasiasport"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Võimlemine"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hoki"</string>
+    <string name="topic10413" msgid="416366556259783701">"Uisutamine"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Võitluskunstid"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Mootorrattasõit"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olümpiamängud"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Ragbi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Jooksmine ja kõndimine"</string>
+    <string name="topic10419" msgid="979581105119036716">"Suusatamine ja lumelauasõit"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Jalgpall"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surfamine"</string>
+    <string name="topic10422" msgid="978920114358054206">"Ujumine"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Kergejõustik"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Võrkpall"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Maadlus"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Reisimine ja transport"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Seiklusturism"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Lennusõit"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Ärireis"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Autolaenutused"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Kruiisid ja tšarterreisid"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Perereisid"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Mesinädalad ja romantilised puhkused"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotellid ja majutus"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Kaugliinibussid ja -rongid"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Soodsad ja viimase hetke reisipakkumised"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Pagas ja reisitarvikud"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistisihtkohad"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Rannad ja saared"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Pargid ja aiad"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Teemapargid"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Loomaaiad"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Reisi- ja marsruudiplaanijad"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Reisiagentuurid ja -teenused"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Reisijuhid ja reisikirjad"</string>
+</resources>

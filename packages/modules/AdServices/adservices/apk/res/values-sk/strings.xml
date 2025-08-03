@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"prístup k rozhraniu AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Umožňuje aplikácii prístup k rozhraniu AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"prístup k rozhraniam AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Umožňuje aplikácii prístup k rozhraniam AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"prístup k rozhraniu AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Umožňuje aplikácii prístup k rozhraniu AdServices Custom Audiences API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Prístup k rozhraniu AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Umožňuje prístup aplikácie k rozhraniu AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"prístup k rozhraniu AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Umožňuje aplikácii prístup k rozhraniu AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Prístup k rozhraniu Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Umožňuje aplikácii prístup k rozhraniu Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Prístup k rozhraniu AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Umožnuje aplikácii prístup k rozhraniu AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Prístup k rozhraniu App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Umožňuje aplikácii prístup k rozhraniu App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Prístup k rozhraniu Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Umožňuje aplikácii prístup k rozhraniu Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Prístup k rozhraniu Enablement State Modification API služby AdService."</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Poskytuje aplikácii prístup k rozhraniu Enablement State Modification API služby AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Prístup k rozhraniu Enablement State API služby AdService."</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Poskytuje aplikácii prístup k rozhraniu Enablement State API služby AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Prístup k rozhraniam API služby AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Umožnuje aplikácii prístup k rozhraniam API služby AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Prístup k aktualizácii rozhrania AdId API služby AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Umožňuje aplikácii prístup k aktualizácii rozhrania AdId API služby AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Ochrana súkromia pri reklamách"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Pripojte sa k beta verzii ochrany súkromia pri reklamách v Androide"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android hľadá spôsoby, ako vám aplikácie môžu zobrazovať reklamy s vyššou ochranou súkromia"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Ďalšie informácie"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Beta verzia ochrany súkromia pri reklamách v Androide"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Novinky"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Nové funkcie ochrany súkromia v technológiách Privacy Sandbox umožňujú aplikáciám zobrazovať relevantné reklamy, no obmedzujú, čo tieto aplikácie môžu zistiť o vašich aktivitách na weboch a v aplikáciách od iných vývojárov."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Ako to funguje"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Ako sa zapojiť"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Ak zapnete beta verziu, aplikácie budú môcť testovať tieto nové spôsoby zobrazovania reklám s vyššou ochranou súkromia. Beta verziu môžete kedykoľvek vypnúť v nastaveniach ochrany súkromia."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Nie, vďaka"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Zapnúť"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Viac"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Ďakujeme vám za účasť"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Zapojili ste sa do beta verzie ochrany súkromia pri reklamách v Androide. Technológie Privacy Sandbox sú vo vašom zariadení zapnuté.\n\nViac sa dozviete v nastaveniach ochrany súkromia, kde môžete aj kedykoľvek vypnúť beta verziu."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Rozhodli ste sa nezúčastniť"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Ďakujeme za odpoveď. Technológie Privacy Sandbox sú vo vašom zariadení vypnuté.\n\nAk zmeníte názor alebo sa budete chcieť dozvedieť viac, prejdite do nastavení ochrany súkromia."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Nastavenia ochrany súkromia"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Dobre"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Ste súčasťou beta programu"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Technológie Privacy Sandbox sú vo vašom zariadení zapnuté a aplikácie môžu testovať tieto nové spôsoby zobrazovania reklám s vyššou ochranou súkromia. Beta verziu môžete kedykoľvek vypnúť v nastaveniach ochrany súkromia."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Dobre"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Technológie Privacy Sandbox v Androide poskytujú nové funkcie, pomocou ktorých môžu aplikácie zobrazovať reklamy, ktoré by sa vám mohli páčiť. Tieto technológie nepoužívajú identifikátory zariadenia.\n\nAndroid a vaše aplikácie môžu odhadnúť druhy reklám, ktoré by vás mohli zaujímať, a dočasne uložiť tieto záujmy vo vašom zariadení. Vďaka tomu vám môžu aplikácie zobrazovať reklamy, ktoré by sa vám mohli páčiť, bez sledovania vašej aktivity na weboch a v aplikáciách od iných vývojárov."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Prispôsobenie reklám pomocou technológií Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"• Záujmy odhadnuté Androidom"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android pravidelne odhaduje vaše najvýznamnejšie záujmy (napríklad šport alebo cestovanie) na základe aplikácií, ktoré používate.\n\nNeskôr môže aplikácia požiadať Android, aby vám na základe týchto záujmov zobrazoval relevantnejšie reklamy.\n\nZoznam aktuálnych záujmov si môžete pozrieť vo svojich nastaveniach ochrany súkromia, kde môžete aj zablokovať všetky, ktoré sa vám nepáčia."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"• Záujmy odhadnuté aplikáciami"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Aplikácie môžu odhadnúť vaše záujmy a dočasne ich uložiť v Androide. Napríklad aplikácia, pomocou ktorej si kupujete bežeckú obuv, môže odhadnúť váš záujem ako „beh maratónov“.\n\nNeskôr vám na základe tohto záujmu môže iná aplikácia zobraziť reklamu súvisiacu s maratónmi.\n\nV nastaveniach ochrany súkromia môžete spravovať zoznam aplikácií s uloženými záujmami."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Témy reklám a nové ovládanie vám dávajú väčšiu kontrolu nad zobrazovanými reklamami"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"K dispozícii sú nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android zaznamenáva témy záujmu na základe vašich nedávno použitých aplikácií. Navyše aplikácie, ktoré použijete, môžu odhadovať, čo sa vám páči. Neskôr môžu aplikácie požiadať o tieto informácie, aby vám mohli zobrazovať prispôsobené reklamy. Môžete vybrať, ktoré témy a aplikácie sa budú používať na účely zobrazovania reklám."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Medzi aplikáciami sa zdieľajú obmedzené typy údajov na meranie výkonnosti reklamy."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Ďalšie informácie o reklamách v Androide"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Užitočnejšie reklamy"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Aplikácie môžu požiadať Android o informácie, aby mohli prispôsobovať reklamy, ktoré sa vám zobrazujú."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android zaznamenáva témy záujmu na základe vašich nedávno použitých aplikácií."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Aplikácie, ktoré použijete, môžu tiež na základe vášho spôsobu ich používania odhadovať, čo sa vám páči. Ak napríklad použijete aplikáciu predávajúcu bežeckú obuv na dlhé trate, aplikácia môže usúdiť, že máte záujem o behanie maratónov."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Neskôr môže aplikácia, ktorú použijete, o tieto údaje požiadať – buď o témy reklamy, alebo reklamy navrhované aplikáciami, ktoré ste použili."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android pravidelne automaticky odstraňuje témy a údaje navrhované aplikáciami. Môžete tiež zablokovať konkrétne témy a aplikácie, ktoré nemajú poskytovať návrhy."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Meranie výkonnosti reklamy"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Aplikácie, ktoré použijete, môžu požiadať Android o informácie, ktoré im pomôžu merať výkonnosť ich reklám. Android umožňuje aplikáciám zhromažďovať obmedzené typy údajov, napríklad čas dňa, kedy sa vám zobrazila reklama."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Vyskúšajte nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Vďaka témam reklám máte na výber viac možností v súvislosti so zobrazovanými reklamami"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Zobraziť podrobnosti"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Vyskúšajte nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android predstavuje nové funkcie ochrany súkromia, ktoré vám dávajú väčšiu kontrolu nad zobrazovanými reklamami."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Témy reklám pomáhajú aplikáciám zobrazovať relevantné reklamy a zároveň chrániť vašu totožnosť a informácie o tom, ako aplikácie používate. Android môže zaznamenávať témy záujmu na základe vašich nedávno použitých aplikácií. Neskôr môže aplikácia, ktorú používate, požiadať Android o relevantné témy na prispôsobenie reklám, ktoré sa vám zobrazujú."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"V nastaveniach zariadenia si môžete pozrieť témy reklám a zablokovať tie, ktoré nechcete zdieľať s aplikáciami. Android navyše pravidelne témy reklám automaticky odstraňuje."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Svoje rozhodnutie môžete kedykoľvek zmeniť v nastaveniach ochrany súkromia."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Ďalšie informácie o témach reklám"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"V "<a href="https://policies.google.com/privacy">"pravidlách ochrany súkromia"</a>" si prečítajte viac o tom, ako Android chráni vaše údaje."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Vyskúšať"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Aké údaje sa používajú"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Témy reklám sú založené na aplikáciách, ktoré ste nedávno v tomto zariadení použili, a na tom, ako často ich používate."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Ako tieto údaje používame"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android zaznamenáva pri používaní aplikácií témy záujmu. Štítky tém sú preddefinované a zahŕňajú veci, ako sú Umenie a zábava, Nákupy alebo Šport. Neskôr môže aplikácia, ktorú používate, požiadať Android o niekoľko vašich tém (nie však o údaje o vašom používaní aplikácie alebo vašej totožnosti), aby mohla prispôsobovať reklamy, ktoré sa vám zobrazujú."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Ako môžete spravovať svoje údaje"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android pravidelne automaticky odstraňuje témy. Počas ďalšieho používania aplikácií sa určitá téma môže v zozname znova zobraziť. V nastaveniach ochrany súkromia môžete navyše zablokovať témy, ktoré Android nemá zdieľať s aplikáciami, a kedykoľvek témy reklám vypnúť."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Zmeny môžete vykonať v nastaveniach ochrany súkromia."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"K dispozícii sú ďalšie funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android ponúka aj nové spôsoby obmedzenia informácií, ktoré sa aplikácie môžu o vás dozvedieť, keď vám zobrazujú prispôsobené reklamy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Reklamy navrhované aplikáciami pomáhajú chrániť vašu totožnosť a informácie o tom, ako používate aplikácie, a zároveň umožňujú aplikáciám zobrazovať vám relevantné reklamy. Na základe vašej aktivity môže aplikácia, ktorú používate, navrhovať iným aplikáciám súvisiace reklamy. V nastaveniach ochrany súkromia si môžete zobraziť zoznam aplikácií a zablokovať im možnosť navrhovať reklamy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Pri meraní reklamy sa medzi aplikáciami zdieľajú obmedzené typy údajov (napríklad čas dňa, kedy sa nejaká reklama zobrazila), aby sa dala zmerať výkonnosť reklám, ktoré sa v aplikáciách zobrazujú."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Ďalšie informácie o reklamách navrhovaných aplikáciami a meraní reklamy"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Reklamy navrhované aplikáciami"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Aké údaje sa používajú"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Vaša aktivita v aplikácii, ktorú používate v tomto zariadení."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Ako aplikácie používajú tieto údaje"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Aplikácie môžu v Androide ukladať údaje o tom, čo sa vám páči. Ak napríklad použijete aplikáciu zameranú na maratónsky tréning, táto aplikácia môže usúdiť, že máte záujem o bežeckú obuv. Ak neskôr použijete inú aplikáciu, môže vám na základe návrhu predchádzajúcej aplikácie zobraziť reklamu na bežeckú obuv."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Ako môžete spravovať svoje údaje"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android pravidelne automaticky odstraňuje údaje navrhované aplikáciami. Aplikácia, ktorú znova použijete, sa môže v zozname opäť zobraziť."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"V nastaveniach ochrany súkromia môžete tiež kedykoľvek zablokovať navrhovanie reklám určitou aplikáciou, resetovať všetky údaje návrhov reklám alebo reklamy navrhované aplikáciami vypnúť."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Aplikácie, ktoré použijete, môžu požiadať Android o informácie, ktoré im pomôžu merať výkonnosť ich reklám. Android ochráni vaše súkromie tým, že obmedzuje informácie, ktoré môžu aplikácie medzi sebou zdieľať."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"K dispozícii sú nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Získajte na výber viac možností v súvislosti so zobrazovanými reklamami, ktoré zároveň ochránia vašu totožnosť"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"K dispozícii sú nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android predstavuje nové spôsoby obmedzenia informácií, ktoré sa aplikácie môžu o vás dozvedieť, keď vám zobrazujú prispôsobené reklamy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Pomocou reklám navrhovaných aplikáciami pomáhajú nové funkcie ochrany súkromia chrániť vašu totožnosť a informácie o vašom používaní aplikácie, pričom umožňujú, aby vám aplikácie zobrazovali relevantné reklamy. Na základe vašej aktivity môže aplikácia, ktorú používate, navrhovať iným aplikáciám súvisiace reklamy. V nastaveniach ochrany súkromia si môžete zobraziť zoznam aplikácií a zablokovať ich, aby nemohli zobrazovať návrhy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Pri meraní účinnosti reklamy sa medzi aplikáciami zdieľajú obmedzené typy údajov (napríklad čas dňa, kedy sa reklama zobrazila), aby mohla byť meraná výkonnosť reklám, ktoré sa v týchto aplikáciách zobrazujú."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Vaša aktivita v aplikáciách v tomto zariadení môže byť použitá na navrhovanie reklám."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Zapnite ďalšiu funkciu ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android vám ponúka aj novú funkciu ochrany súkromia, v rámci ktorej máte na výber viac možností v súvislosti so zobrazovanými reklamami."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Témy reklám pomáhajú aplikáciám zobrazovať relevantné reklamy, pričom je chránená vaša totožnosť a informácie o vašom používaní aplikácie. Android môže zaznamenávať témy záujmu na základe nedávno použitých aplikácií. Neskôr môže aplikácia, ktorú používate, požiadať Android o relevantné témy, na základe ktorých sa budú zobrazovať ďalšie relevantné reklamy."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"V nastaveniach ochrany súkromia si môžete zobraziť témy reklám a zablokovať tie, ktoré nechcete zdieľať s aplikáciami. Android tiež témy reklám pravidelne automaticky odstraňuje."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Zapnúť"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"K dispozícii sú nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Teraz máte na výber viac možností v súvislosti so zobrazovanými reklamami, ktoré zároveň ochránia vašu totožnosť"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"K dispozícii sú nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android vám teraz ponúka nové funkcie ochrany súkromia, ktoré poskytujú viac možností v súvislosti so zobrazovanými reklamami."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Ďalej"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Zúčastnite sa beta verzie ochrany súkromia pri reklamách v Androide"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Záujmy odhadnuté Androidom"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Aplikácie, ktoré odhadujú záujmy"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Meranie reklamy"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Aplikácie môžu pomocou technológií Privacy Sandbox merať účinnosť svojich reklám. Inzerenti môžu na tieto účely dočasne ukladať v Androide údaje o vašich interakciách s ich reklamami a aplikáciami. Množstvo údajov, ktoré je možné uložiť, je obmedzené. Tieto údaje sa pravidelne odstraňujú.\n\nKedykoľvek ich môžete odstrániť vypnutím technológií Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android pravidelne odhaduje vaše najvýznamnejšie záujmy na základe aplikácií, ktoré používate. Aplikácia môže požiadať Android, aby vám na základe týchto záujmov zobrazoval relevantnejšie reklamy.\n\nAk nejaký záujem zablokujete, do tohto zoznamu bude pridaný až vtedy, keď ho odblokujete. Naďalej sa vám môžu zobrazovať určité súvisiace reklamy."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blokovať"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Odblokovať"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Záujmy, ktoré ste zablokovali"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Resetovať všetky záujmy"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Momentálne nie sú k dispozícii žiadne záujmy na zobrazenie."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Momentálne nie sú k dispozícii žiadne témy na zobrazenie.\nPrečítajte si viac o "<a href="https://support.google.com/android?p=ad_privacy">"témach reklám"</a>"."</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Beta verzia ochrany súkromia pri reklamách v Androide poskytuje nové funkcie pre aplikácie na zobrazovanie reklám, ktoré by sa vám mohli páčiť. Tieto technológie nepoužívajú identifikátory zariadenia.\n\nAndroid môže odhadnúť druhy reklám, ktoré by vás mohli zaujímať, a dočasne uložiť tieto záujmy vo vašom zariadení. Vďaka tomu vám môžu aplikácie zobrazovať relevantné reklamy bez sledovania vašej aktivity na weboch a v aplikáciách od iných vývojárov."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Nemáte žiadne blokované záujmy"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Žiadne blokované témy"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Zobraziť blokované témy"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Záujmy sa resetujú"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Témy boli resetované"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Aplikácie môžu odhadnúť vaše záujmy a dočasne ich uložiť v Androide. Neskôr vám iná aplikácia môže zobraziť reklamu na základe týchto záujmov.\n\nAk nejakú aplikáciu zablokujete, nebude odhadovať žiadne ďalšie záujmy. Do zoznamu aplikácií bude znova pridaná iba vtedy, keď ju odblokujete. Záujmy, ktoré boli danou aplikáciou odhadnuté, budú odstránené, ale môžu sa vám naďalej zobrazovať určité súvisiace reklamy."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Aplikácie, ktoré ste zablokovali"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Zobraziť blokované aplikácie"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Resetovať záujmy odhadnuté aplikáciami"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Momentálne vaše záujmy neodhadujú žiadne aplikácie"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Momentálne nie sú k dispozícii žiadne aplikácie na zobrazenie. \nPrečítajte si viac o "<a href="https://support.google.com/android?p=ad_privacy">"reklamách navrhovaných aplikáciami"</a>"."</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Beta verzia ochrany súkromia pri reklamách v Androide poskytuje nové funkcie pre aplikácie na zobrazovanie reklám, ktoré by sa vám mohli páčiť. Tieto technológie nepoužívajú identifikátory zariadenia.\n\nAplikácie môžu odhadnúť druhy reklám, ktoré by vás mohli zaujímať, a dočasne uložiť tieto záujmy vo vašom zariadení. Vďaka tomu vám môžu aplikácie zobrazovať relevantné reklamy bez sledovania vašej aktivity na weboch a v aplikáciách od iných vývojárov."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Nemáte žiadne blokované aplikácie"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Žiadne blokované aplikácie"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Povoliť meranie reklám"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Aplikácie a inzerenti môžu Android požiadať o informácie, ktoré im pomôžu merať výkonnosť ich reklám.\n\nÚdaje merania reklám sa z vášho zariadenia pravidelne odstraňujú."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Resetovať údaje merania"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android obmedzuje informácie, ktoré môžu aplikácie medzi sebou zdieľať, čím chráni vaše súkromie. Hlásenia sa odosielajú s oneskorením, aby bola chránená vaša totožnosť.\n\nVáš prehliadač môže mať podobné nastavenie. Ak je meranie reklamy zapnuté v Androide aj prehliadači, určitá firma môže byť schopná merať účinnosť reklamy medzi aplikáciami, ktoré používate, a webmi, ktoré navštevujete. História prehliadania je v zariadení uchovávaná v súkromí.\n\nViac o tom, ako Android chráni vaše údaje, sa dozviete v našich "<a href="https://policies.google.com/privacy">"pravidlách ochrany súkromia"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Údaje merania reklám boli resetované"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Zrušiť"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Chcete vypnúť Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Ak zmeníte názor alebo sa budete chcieť o beta ochrane súkromia pri reklamách v Androide dozvedieť viac, prejdite do nastavení ochrany súkromia"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Vypnúť"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Chcete zablokovať tému <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Táto téma bude blokovaná a nebude znova pridaná do vášho zoznamu, pokiaľ ju nepridáte späť. Naďalej sa vám môžu zobrazovať určité súvisiace reklamy."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokovať"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Téma <xliff:g id="TOPIC">%1$s</xliff:g> nie je blokovaná"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android môže pridať túto tému znova do vášho zoznamu, ale nemusí sa zobraziť ihneď"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Chcete resetovať všetky témy reklám?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Váš zoznam sa vymaže a odteraz sa doň budú pridávať nové témy. Naďalej sa vám môžu zobrazovať určité reklamy súvisiace s témami, ktoré ste resetovali."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Resetovať"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Chcete zablokovať aplikáciu <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Táto aplikácia nebude navrhovať reklamy a nebude znova pridaná do vášho zoznamu, pokiaľ ju neodblokujete. Naďalej sa vám môžu zobrazovať určité súvisiace reklamy."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Aplikácia <xliff:g id="APP">%1$s</xliff:g> nie je blokovaná"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Táto aplikácia vám môže znova navrhovať reklamy, ale nemusí sa ihneď zobraziť vo vašom zozname. Môže chvíľu trvať, než sa vám začnú zobrazovať súvisiace reklamy."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Chcete resetovať reklamy navrhované aplikáciami?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Údaje návrhov reklám z aplikácií vo vašom zozname budú odstránené a aplikácie budú odteraz navrhovať nové reklamy. Naďalej sa vám môžu zobrazovať určité súvisiace reklamy."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Dáta aplikácie boli resetované"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Témy reklám sú zapnuté"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android začne zaznamenávať témy, ktoré vás zaujímajú, ale môže chvíľu trvať, kým sa vám prvé zobrazia."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Chcete vypnúť témy reklám?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Tento zoznam tém sa odstráni. Android už nebude zaznamenávať témy, ktoré vás zaujímajú, ale relevantné reklamy sa vám stále môžu zobrazovať."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Reklamy navrhované aplikáciami sú zapnuté"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Aplikácie môžu začať navrhovať reklamy. Keď začnú navrhovať reklamy, zobrazí sa vám zoznam aplikácií."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Chcete vypnúť reklamy navrhované aplikáciami?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Všetky údaje z návrhov reklám sa odstránia. Aplikácie už nebudú môcť navrhovať reklamy, ale relevantné reklamy sa vám stále môžu zobrazovať."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Meranie reklám je zapnuté"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android môže s aplikáciami zdieľať iba veľmi obmedzené informácie, ktoré pomáhajú aplikáciám merať výkonnosť ich reklám."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Chcete vypnúť meranie reklám?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Všetky nespracované reporty merania reklám budú odstránené a žiadne nové sa nevygenerujú ani sa nebudú zdieľať."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Ochrana súkromia pri reklamách"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Témy reklám"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Reklamy navrhované aplikáciami"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android zaznamenáva témy záujmu na základe nedávno použitých aplikácií a frekvencie ich používania."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Aplikácie, ktoré používate, môžu na základe vášho spôsobu ich používania odhadnúť, čo sa vám páči."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Aplikácie, ktoré používate, môžu Android požiadať o informácie, ktoré im pomôžu merať výkonnosť ich reklám. Android umožňuje aplikáciám zhromažďovať obmedzené typy údajov."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Prečítajte si viac o "<a href="https://support.google.com/android?p=ad_privacy">"ochrane súkromia pri reklamách v Androide"</a>"."</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Zapnuté / počet tém: <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Zapnuté / # téma}few{Zapnuté / # témy}many{On / # topics}other{Zapnuté / # tém}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Zapnuté / počet aplikácií: <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Zapnuté / # aplikácia}few{Zapnuté / # aplikácie}many{On / # apps}other{Zapnuté / # aplikácií}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Zapnuté"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Vypnuté"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Témy záujmu sú založené na aplikáciách, ktoré ste nedávno použili, a aplikácie pomocou nich zobrazujú prispôsobené reklamy.\n\nTémy, ktoré sa nemajú zdieľať s aplikáciami, môžete zablokovať. Android témy pravidelne automaticky odstraňuje.\n\nTúto funkciu síce môžete zapnúť, ale zoznam tém sa vám nemusí zobraziť, kým daná funkcia nebude v plnej miere k dispozícii a aplikácie ju nezačnú používať."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Povoliť témy reklám"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Témy reklám, ktoré ste zablokovali"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Resetovať všetky témy reklám"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android zaznamenáva témy záujmu na základe aplikácií, ktoré ste použili za posledných niekoľko týždňov.\n\nNeskôr môže aplikácia, ktorú používate, požiadať Android o vaše témy, aby mohli byť prispôsobované reklamy, ktoré sa vám zobrazujú. Android môže zdieľať až tri témy, pričom chráni vašu totožnosť a informácie o vašom používaní aplikácie.\n\nAndroid pravidelne témy automaticky odstraňuje. Keď budete aplikácie naďalej používať, téma sa môže v zozname znova zobraziť. Témy, ktoré nemá Android zdieľať s aplikáciami, môžete zablokovať.\n\nReklamy zobrazované aplikáciami môžu byť prispôsobené v závislosti od tohto nastavenia, nastavenia reklám navrhovaných aplikáciami, vašich nastavení reklamného identifikátora a podľa toho, či aplikácia, ktorú používate, prispôsobuje reklamy."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Povoliť reklamy navrhované aplikáciami"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Aplikácie, ktoré používate, môžu odhadnúť, čo sa vám páči, a potom navrhovať reklamy v iných aplikáciách.\n\nPoskytovanie návrhov aplikáciami môžete zablokovať. Android údaje navrhnuté aplikáciami pravidelne automaticky odstraňuje.\n\nTúto funkciu síce môžete zapnúť, ale zoznam aplikácií sa vám nemusí zobraziť, kým daná funkcia nebude v plnej miere k dispozícii a aplikácie ju nezačnú používať."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Aplikácie, ktoré ste zablokovali"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Resetovať údaje navrhované aplikáciami"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Aplikácie, ktoré používate, si bežne pamätajú témy, o ktoré sa zaujímate, aby vám mohli prispôsobovať prostredie. Okrem toho môžu aplikácie ukladať informácie o vašich témach pomocou Androidu.\n\nAk napríklad používate aplikáciu zameranú na tréning maratónu, táto aplikácia môže usúdiť, že máte záujem o kúpu bežeckej obuvi. Ak neskôr použijete inú aplikáciu, môže vám na základe návrhu predchádzajúcej aplikácie zobraziť reklamu na bežeckú obuv.\n\nÚdaje navrhované aplikáciami Android pravidelne automaticky odstraňuje. Aplikácia, ktorú použijete znova, sa môže v zozname opäť zobraziť. Prípadne môžete určitej aplikácii zakázať navrhovať vám reklamy.\n\nReklamy zobrazované aplikáciami môžu byť prispôsobené v závislosti od tohto nastavenia, nastavenia tém reklám, vašich nastavení reklamného identifikátora a podľa toho, či aplikácia, ktorú používate, prispôsobuje reklamy."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"K dispozícii je nová funkcia ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Medzi aplikáciami sa zdieľajú iba veľmi obmedzené informácie, ktoré pomáhajú merať výkonnosť reklám"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Predstavujeme novú funkciu ochrany súkromia pri reklamách nazvanú Meranie reklamy. Android zdieľa medzi aplikáciami iba veľmi obmedzené informácie, napríklad kedy vám bola zobrazená reklama, aby pomohla aplikáciám merať výkonnosť reklám."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Zmeny môžete vykonať v nastaveniach ochrany súkromia."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Aplikácie, ktoré používate, môžu Android požiadať o informácie, ktoré im pomôžu merať výkonnosť ich reklám. Android umožňuje aplikáciám zhromažďovať iba obmedzené typy údajov."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Nové funkcie ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Získajte na výber viac možností v súvislosti so zobrazovanými reklamami, ktoré zároveň pomáhajú chrániť vašu totožnosť"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Aktualizácie funkcií ochrany súkromia pri reklamách"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Získajte na výber viac možností v súvislosti so zobrazovanými reklamami, ktoré zároveň pomáhajú chrániť vašu totožnosť"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android rozširuje funkcie ochrany súkromia pri reklamách, aby obmedzovali, ktoré aplikácie môžu o vás zisťovať informácie, keď vám zobrazujú prispôsobené reklamy."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Aplikácie a ich reklamní partneri môžu pomocou vašej aktivity v iných aplikáciách tohto zariadenia prispôsobovať reklamy a zároveň pomáhať zachovať vašu totožnosť v súkromí a bezpečí."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Viac o reklamách navrhovaných aplikáciami"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Medzi aplikáciami sa zdieľajú obmedzené typy údajov (napríklad čas dňa, kedy sa reklama zobrazila), ktoré umožňujú porozumieť výkonnosti ich reklám."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Viac o meraní reklám"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android zaznamenáva témy záujmu na základe nedávno použitých aplikácií. Aplikácie a ich reklamní partneri môžu navyše pomocou vašej aktivity v iných aplikáciách tohto zariadenia prispôsobovať reklamy a zároveň pomáhať zachovať vašu totožnosť v súkromí a bezpečí."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Aplikácie, ktoré používate, môžu navyše určovať, čo sa vám páči, na základe vašej aktivity s nimi. Ak napríklad pravidelne používate aplikácie na varenie, môžu sa vám zobrazovať reklamy na služby poskytujúce donášku potravín.\n\nAplikácie môžu tieto informácie zabezpečene uchovať, aby ich mohli použiť iba ich reklamní partneri na účely prispôsobenia reklám v iných aplikáciách."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Neskôr môže aplikácia, ktorú používate, o tieto údaje požiadať (buď témy reklamy, alebo reklamy navrhované aplikáciami, ktoré ste použili)."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Aplikácie, ktoré používate, môžu Android požiadať o informácie, ktoré im pomôžu merať výkonnosť ich reklám. Android obmedzuje informácie, ktoré môžu aplikácie medzi sebou zdieľať, čím pomáha chrániť vaše súkromie."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Aké údaje sa využívajú?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Aplikácie, ktoré používate, môžu žiadať Android o informácie, ktoré im pomáhajú merať výkonnosť ich reklám. Android pomáha chrániť vaše súkromie tým, že obmedzuje informácie, ktoré môžu aplikácie medzi sebou zdieľať."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Ako je chránená moja totožnosť?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android pomocou viacerých opatrení na ochranu súkromia, ako sú agregácia a skreslenie údajov, obmedzuje informácie, ktoré aplikácie medzi sebou môžu zdieľať, a pomáha chrániť vašu totožnosť.\n\nÚdaje meraní reklám sú okrem toho z vášho zariadenia pravidelne odstraňované."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Pomocou vašej aktivity v aplikácii môžu byť navrhované reklamy."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Ako aplikácie využívajú tieto údaje?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Aplikácie môžu zabezpečene ukladať tieto informácie, aby ich mohli použiť iba ich reklamní partneri, keď chcú prispôsobiť reklamy v iných aplikáciách. Ak napríklad pravidelne používate aplikácie na varenie, môžu sa vám zobrazovať reklamy na služby poskytujúce donášku potravín alebo súvisiaci obsah v iných aplikáciách."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Ako môžem spravovať tieto údaje?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Zdieľanie svojej aktivity konkrétnymi aplikáciami s reklamnými partnermi môžete zablokovať. Reklamy navrhované aplikáciami môžete kedykoľvek resetovať alebo vypnúť v nastaveniach ochrany súkromia. Android navyše tieto údaje pravidelne automaticky odstraňuje."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Ako Android pomáha chrániť vaše súkromie"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Aplikácie a ich reklamní partneri môžu pomocou vašej aktivity v iných aplikáciách tohto zariadenia prispôsobovať reklamy a zároveň pomáhať zachovať informácie o vás v súkromí a bezpečí.\n\nAk napríklad pravidelne používate aplikácie na varenie, môžu sa vám zobrazovať reklamy na služby poskytujúce donášku potravín alebo súvisiaci obsah v iných aplikáciách.\n\nAndroid pravidelne automaticky odstraňuje vašu aktivitu. Okrem toho však môžete zablokovať zdieľanie týchto informácií aplikáciami s ich reklamnými partnermi."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Pre aplikácie aj ich reklamných partnerov je bežné zapamätať si, čo vás zaujíma, na účely prispôsobenia vášho prostredia. Aplikácie môžu zabezpečene ukladať tieto informácie, aby ich mohli použiť iba ich reklamní partneri, keď chcú prispôsobiť reklamy v iných aplikáciách.\n\nMôžete zablokovať zdieľanie svojich údajov o aktivite aplikáciou s reklamnými partnermi. Android navyše pravidelne automaticky odstraňuje zdieľané údaje o aktivite, takže aplikácia, ktorú znova použijete, sa môže v tomto zozname opäť zobraziť.\n\nTo, či sa vám zobrazí prispôsobená reklama, môže závisieť od mnohých faktorov, ako sú toto nastavenie, nastavenie tém reklám, vaše nastavenia reklamného identifikátora a od toho, či vami používaná aplikácia využíva prispôsobené reklamy.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Ďalšie informácie o reklamách navrhovaných aplikáciami"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android pomocou viacerých opatrení na ochranu súkromia, ako sú agregácia a skreslenie údajov, obmedzuje informácie, ktoré aplikácie medzi sebou môžu zdieľať, a pomáha chrániť vašu totožnosť.\n\nVáš prehliadač môže mať podobné nastavenie. Ak je meranie reklamy zapnuté v Androide aj prehliadači, firma môže odmerať účinnosť reklamy medzi aplikáciami, ktoré používate, a webmi, ktoré navštevujete. História prehliadania je v zariadení uchovávaná v súkromí.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Ďalšie informácie o meraní reklám"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android zaznamenáva témy záujmu na základe aplikácií, ktoré ste použili za posledných niekoľko týždňov.\n\nNeskôr môže aplikácia, ktorú používate, požiadať Android o vaše témy, aby mohli byť prispôsobované reklamy, ktoré sa vám zobrazujú. Android môže zdieľať až tri témy, pričom chráni vašu totožnosť a informácie o vašom používaní aplikácie.\n\nAndroid pravidelne témy automaticky odstraňuje. Keď budete aplikácie naďalej používať, téma sa môže v zozname znova zobraziť. Témy, ktoré nemá Android zdieľať s aplikáciami, môžete zablokovať.\n\nTo, či sa vám zobrazí prispôsobená reklama, môže závisieť od mnohých faktorov, ako sú toto nastavenie, nastavenie reklám navrhovaných aplikáciami, vaše nastavenia reklamného identifikátora a od toho, či vami používaná aplikácia využíva prispôsobené reklamy.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Ďalšie informácie o témach reklám"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Pestrá ilustrácia symbolov znázorňujúcich témy záujmov, ako sú hudba, správy a šport"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Pestrá ilustrácia zámky v kruhu"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Malá čiernobiela ilustrácia deviatich bodiek tvoriacich štvorec"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Malá čiernobiela ilustrácia jednoduchých tvarov, ako sú srdce, trojuholník a štvorec"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Umenie a zábava"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Herectvo a divadlo"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime a manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Kreslené"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komiksy"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Koncerty a hudobné festivaly"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Tanec"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Zábavný priemysel"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Zábava a kvízy"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Zábavné testy a ankety"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Zábavné obrázky a videá"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Humor naživo"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Športové podujatia naživo"</string>
+    <string name="topic10015" msgid="726046067079821146">"Mágia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Zoznamy filmov a časy divadelných predstavení"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmy"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Akčné a dobrodružné filmy"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animované filmy"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Filmové komédie"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultové a indie filmy"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentárne filmy"</string>
+    <string name="topic10023" msgid="254151319845267278">"Filmové drámy"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Rodinné filmy"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Hororové filmy"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romantické filmy"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Triler"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Hudba a zvuk"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Klasická hudba"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Country hudba"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Tanečná a elektronická hudba"</string>
+    <string name="topic10033" msgid="895853536740398847">"Folková a tradičná hudba"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Streaming a sťahovanie hudby"</string>
+    <string name="topic10036" msgid="449833307315797283">"Hudobné videá"</string>
+    <string name="topic10037" msgid="51698216720637667">"Hudobné nástroje"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Klavíre a keyboardy"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popová hudba"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Rádio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Rozhlasové diskusie"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap a hiphop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rocková hudba"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klasický rock a oldies"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hardrock a progresívny rock"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indie a alternatívna hudba"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Sample a knižnice zvukov"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul a R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Soundtracky"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Svetová hudba"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae a karibská hudba"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Online galérie obrázkov"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Video online"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Priame prenosy"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Streaming filmov a televíznych relácií"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Televízne programy"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Televízne siete a stanice"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Televízne relácie a programy"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Televízne komédie"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Dokumentárne a populárno-náučné relácie"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Televízne drámy"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Televízne seriály"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Rodinné televízne relácie"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Televízne reality show"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Televízne sci-fi a fantasy seriály"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Výtvarné umenie a dizajn"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Dizajn"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Maľovanie"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fotografické a digitálne umenie"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Automobily a vozidlá"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Nákladné vozidlá a prívesy"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klasické vozidlá"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Upravené a výkonné vozidlá"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Ceny pohonných látok a tankovanie vozidiel"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Motorové vozidlá (podľa typu)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Autonómne vozidlá"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Kabriolety"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Kupé"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Autá typu hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hybridné a alternatívne vozidlá"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luxusné autá"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikroautá a subkompaktné autá"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motocykle"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Terénne vozidlá"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Nákladné pickupy"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Skútre a mopedy"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedany"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Autá kombi"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Športové úžitkové vozidlá a autá typu crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Autá typu crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Dodávky a minivany"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Odťahová a asistenčná služba"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Bezpečnosť vozidiel a dopravná bezpečnosť"</string>
+    <string name="topic10095" msgid="84682415803421329">"Autosúčiastky a príslušenstvo"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Oprava a údržba vozidiel"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Nákup vozidiel"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Ojazdené vozidlá"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Automobilové veľtrhy"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Krása a telesná kondícia"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Kreslenie na telo"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Starostlivosť o tvár a telo"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antiperspiranty"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Výrobky do kúpeľa a na telo"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Čistá krása"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Mejkap a kozmetika"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Výrobky na starostlivosť o nechty"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfumy a vône"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Holiace strojčeky"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Móda a štýl"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitnes"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Kulturistika"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Pokyny na cvičenie a osobný tréning"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Technologické výrobky pre fitnes"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Starostlivosť o vlasy"</string>
+    <string name="topic10116" msgid="763642849903586689">"Knihy a literatúra"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Detská literatúra"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Elektronické knihy"</string>
+    <string name="topic10119" msgid="894448782525835364">"Časopisy"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poézia"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Obchod a priemysel"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Reklama a marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Predaj"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Poľnohospodárstvo a lesníctvo"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Výroba jedál"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Automobilový priemysel"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Letecký priemysel"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Obchodná činnosť"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Práca s flexibilným pracovným časom"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Ľudské zdroje"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Komerčné pôžičky"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Výstavba a údržba"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Stavebné inžinierstvo"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Obranný priemysel"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia a služby"</string>
+    <string name="topic10136" msgid="455894912948558854">"Dodávky vody a úprava vôd"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Pohostinský priemysel"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Výroba"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Kovy a ťažba"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Viacúrovňový marketing a obchodné príležitosti"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Lieky a biotechnológie"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Tlač a vydávanie"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Maloobchod"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Rizikový kapitál"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Počítače a elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Periférie počítačov"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Tlačiarne"</string>
+    <string name="topic10148" msgid="388392714835039199">"Počítačová bezpečnosť"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivírusy a malvér"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Zabezpečenie sietí"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Spotrebná elektronika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Fotoaparáty a kamery"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS a navigácia"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Automatizácia domácnosti"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Systémy domáceho kina"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 a prenosné prehrávače médií"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Nositeľná technológia"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Zálohovanie a obnova údajov"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Desktopy"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Laptopy a notebooky"</string>
+    <string name="topic10161" msgid="172004201167511870">"Nadväzovanie kontaktov"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Distribuované programovanie a cloud computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programovanie"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Softvér"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Zvukový a hudobný softvér"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Softvér pre firmy a na zvýšenie produktivity"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Softvér na plánovanie a kalendáre"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Softvér na spoluprácu a videohovory"</string>
+    <string name="topic10169" msgid="827557334245484202">"Prezentačný softvér"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Softvér na prácu s tabuľkami"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Softvér na spracovanie textu"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Desktopové vydávanie"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Písma"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Správcovia sťahovania"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Freeware a shareware"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Softvér na grafiku a animácie"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Inteligentní osobní asistenti"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Prehrávače médií"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Sledovací softvér"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operačné systémy"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Softvér na spracovanie fotiek a videa"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Softvér na spracovanie fotiek"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Softvér na spracovanie videa"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Softvérové pomôcky"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Webové prehliadače"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Financie"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Účtovníctvo a audítorstvo"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Príprava a plánovanie daní"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bankovníctvo"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Služby na peňažné prevody"</string>
+    <string name="topic10191" msgid="374364159635356705">"Úver a pôžičky"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kreditné karty"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Hypotéky"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Osobné úvery"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Študentské pôžičky a financovanie vyššieho vzdelania"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finančné plánovanie a manažment"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Dôchodok a penzia"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Granty"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Granty"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Poistenie"</string>
+    <string name="topic10201" msgid="447240478385298875">"Poistenie motorových vozidiel"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Zdravotné poistenie"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Poistenie domácností"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Životné poistenie"</string>
+    <string name="topic10205" msgid="262581473890356377">"Cestovné poistenie"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investovanie"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Obchodovanie s komoditami a futuritami"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Meny a zmenáreň"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Hedžové fondy"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Podielové fondy"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Akcie a dlhopisy"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Jedlo a nápoje"</string>
+    <string name="topic10213" msgid="805716705436663130">"Varenie a recepty"</string>
+    <string name="topic10214" msgid="726298155737413779">"Grilovanie"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Kuchyne"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetariánska kuchyňa"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegánska kuchyňa"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Zdravá výživa"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Predajcovia potravín"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Hry"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arkádové hry a hracie automaty"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biliard"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Stolové hry"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Šach a abstraktné strategické hry"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kartové hry"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Zberateľské kartové hry"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Počítačové hry a videohry"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Akčné a platformové hry"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Dobrodružné hry"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Jednoduché hry"</string>
+    <string name="topic10231" msgid="405082026972839048">"Súťažné hranie videohier"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Automobilové a pretekárske hry"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Bojové hry"</string>
+    <string name="topic10234" msgid="693433817142162565">"Herné príručky a recenzie"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Kódy, rady a pomôcky pre videohry"</string>
+    <string name="topic10236" msgid="320145832033080647">"Hry pre veľký počet hráčov"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Hudobné a tanečné hry"</string>
+    <string name="topic10238" msgid="124952008622371505">"Hry typu sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Strieľacie hry"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulačné hry"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Hry simulujúce podnikanie"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Budovateľské hry"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Hry simulujúce život"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Simulátory vozidiel"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Športové hry"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Športový manažment"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strategické hry"</string>
+    <string name="topic10248" msgid="279151815457227293">"Mody a doplnky pre videohry"</string>
+    <string name="topic10249" msgid="631580828608894782">"Vzdelávacie hry"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Rodinné hry a aktivity"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Kreslenie a maľovanie"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Obliekanie a módne hry"</string>
+    <string name="topic10253" msgid="385499297969826942">"Logické hry a hlavolamy"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Hry s rolami"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Stolný tenis"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Dlaždicové hry"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Slovné hry"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Záľuby a voľný čas"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Výročia"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Narodeniny a meniny"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Potápanie a aktivity pod hladinou"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Tkáčske a textilné umenie"</string>
+    <string name="topic10263" msgid="361345691023794788">"V prírode"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Rybárstvo"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Lov a strelectvo"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintbal"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Modely na diaľkové ovládanie"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Svadby"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Domácnosť a záhrada"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Záhradkárstvo"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Domácnosť a výzdoba interiéru"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Domáce spotrebiče"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Domáci majstri"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Bezpečnosť a zabezpečenie domácnosti"</string>
+    <string name="topic10275" msgid="682064062059687444">"Spotrebný tovar do domácnosti"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Exteriérový dizajn"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet a telekomunikácie"</string>
+    <string name="topic10278" msgid="1736187026108921963">"E‑mail a správy"</string>
+    <string name="topic10279" msgid="9034205050642228743">"E‑mail"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Textové a četové správy"</string>
+    <string name="topic10281" msgid="582764575763317221">"Hlasové hovory a videohovory"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Poskytovatelia internetových služieb"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Poskytovatelia telekomunikačných služieb"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Tóny zvonenia a motívy pre mobilné zariadenia"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Vyhľadávače"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartfóny"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferencie"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Webové aplikácie a online nástroje"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Webové služby"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloudový priestor"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Navrhovanie a vývoj webových stránok"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Webový hosting"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Práca a vzdelávanie"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Vzdelávanie"</string>
+    <string name="topic10295" msgid="331240908257602211">"Akademické konferencie a publikácie"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Vysoké školy a univerzity"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Dištančná výučba"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Predškolské vzdelávanie"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Predškoláci"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Domáce vzdelávanie"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Štandardizované a postupové testy"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Vzdelávacie a školské zdroje"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Odborné a celoživotné vzdelávanie"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Pracovné ponuky"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Kariérne zdroje a plánovanie"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Zoznamy pracovných ponúk"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Právo a verejná správa"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Zločin a spravodlivosť"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Právo"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Právne služby"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Správy"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Správy z ekonomiky"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Miestne správy"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Zlúčenia a akvizície"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Noviny"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Športové správy"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Počasie"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Správy zo sveta"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Online komunity"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Klipart a animované súbory GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Zoznamovanie a osobné inzeráty"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Agregácia informačných kanálov, ukladanie záložiek a ich zdieľanie online"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Zdieľanie a hosting súborov"</string>
+    <string name="topic10325" msgid="916412844647169263">"Poskytovatelia fór a četu"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblogy"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Zdieľanie fotiek a videí"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Zdieľanie fotiek a obrázkov"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Zdieľanie videí"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Skiny"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Aplikácie a doplnky sociálnych sietí"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Sociálne siete"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Ľudia a spoločnosť"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Rodina a vzťahy"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Pôvod a genealógia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Manželstvo"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Rodičovstvo"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adopcia"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Malé deti a batoľatá"</string>
+    <string name="topic10340" msgid="259457452971577855">"Bezpečnosť detí na internete"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantika"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Sci-fi a fantasy"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Domáci miláčikovia a zvieratá"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Potrava a doplnky pre domáce zvieratá"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Domáce zvieratá"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Vtáky"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Mačky"</string>
+    <string name="topic10348" msgid="570783769757187957">"Psy"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Ryby a akváriá"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Plazy a obojživelníky"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veterinári"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Nehnuteľnosti"</string>
+    <string name="topic10353" msgid="230887584509968233">"Parcely a pozemky"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Ubytovacie zariadenia na časovo vymedzené využívanie a dovolenkové nehnuteľnosti"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Príručky"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Zoznamy firiem a osôb"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Všeobecné odkazy"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Kalkulačky a referenčné nástroje"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Slovníky a encyklopédie"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Vzdelávacie zdroje"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Návody"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Čas a kalendáre"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Jazykové zdroje"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Štúdium cudzích jazykov"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Prekladateľské nástroje a zdroje"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Mapy"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Veda"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Rozšírená a virtuálna realita"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologické vedy"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Chémia"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekológia a životné prostredie"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geológia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Strojové učenie a umelá inteligencia"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fyzika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Nákupy"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Starožitnosti a zberateľské predmety"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Oblečenie"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Detská móda"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostýmy"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Pánska móda"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Dámska móda"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Inzercia"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Zdroje pre spotrebiteľov"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kupóny a ponuky zliav"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Vernostné karty a programy"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Technická podpora a opravy"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Kvety"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Blahoželania"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Potreby na oslavy a sviatky"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Nákupné portály"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Šport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Americký futbal"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Austrálsky futbal"</string>
+    <string name="topic10397" msgid="653991203228840785">"Automobilové preteky"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Bejzbal"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basketbal"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Box"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Roztlieskavanie"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Školské športy"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Cyklistika"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Jazdectvo"</string>
+    <string name="topic10407" msgid="316266982792700993">"Extrémne športy"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Lezenie a horolezectvo"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantasy športy"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gymnastika"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hokej"</string>
+    <string name="topic10413" msgid="416366556259783701">"Ľadové korčuľovanie"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Bojové umenia"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Preteky motocyklov"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olympijské hry"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Ragby"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Beh a chôdza"</string>
+    <string name="topic10419" msgid="979581105119036716">"Lyžovanie a snoubordovanie"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futbal"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surfovanie"</string>
+    <string name="topic10422" msgid="978920114358054206">"Plávanie"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Ľahká atletika"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Volejbal"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Zápasenie"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Cestovanie a doprava"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Dobrodružné cesty"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Cestovanie lietadlom"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Služobné cesty"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Požičovne vozidiel"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Výletné a charterové plavby"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Rodinné cestovanie"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Medové týždne a romantické dovolenkové miesta"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotely a ubytovanie"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Diaľkové autobusové a vlakové spoje"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Nízkorozpočtové cestovanie a cesty last minute"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Batožina a cestovné doplnky"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistické destinácie"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Pláže a ostrovy"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Regionálne parky a záhrady"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Tematické parky"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zoologické záhrady"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Premávka a plánovače trás"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Cestovné kancelárie a služby"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Turistickí sprievodcovia a cestopisy"</string>
+</resources>

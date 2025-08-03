@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"aceder à API AdServices Topics"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Permite a uma aplicação aceder à API AdServices Topics."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"aceder às APIs AdServices Attribution"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Permite a uma aplicação aceder às APIs AdServices Attribution."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"aceder à API AdServices Custom Audience"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Permite a uma aplicação aceder à API AdServices Custom Audience."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Acesso à API AdId"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Permite a uma aplicação aceder à API AdId."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"aceder à API AdServices Consent"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Permite a uma aplicação aceder à API AdServices Consent."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Acesso à API Ad ID"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Permite a uma aplicação aceder à API Ad ID."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Acesso à API AdServices Cobalt Upload"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Permite que uma aplicação aceda à API AdServices Cobalt Upload."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Acesso à API App Set ID"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Permite a uma aplicação aceder à API App Set ID."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Acesso à API Consent Service"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Permite a uma aplicação aceder à API Consent Service."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Acesso à API de modificação do estado de ativação do AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Permite a uma aplicação aceder à API de modificação do estado de ativação do AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Acesso à API do estado de ativação do AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Permite a uma aplicação aceder à API do estado de ativação do AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Aceda às APIs de AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Permite que uma aplicação aceda às APIs de AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Acesso à API Update AdId do AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Permite que uma aplicação aceda à API Update AdId do AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Privacidade dos anúncios"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Adira à versão beta da privacidade de anúncios do Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"O Android está a explorar formas mais privadas de as apps lhe mostrarem anúncios"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Saiba mais"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Versão beta da privacidade de anúncios do Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Novidades"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"As novas funcionalidades de privacidade do Privacy Sandbox permitem que as apps lhe mostrem anúncios relevantes, mas restringem o que essas apps podem aprender sobre as suas atividades em Websites e apps de outros programadores."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Como funciona"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Como participar"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Ativar a versão beta permite que as apps testem estas novas formas mais privadas de lhe mostrar anúncios. Pode desativar a versão beta em qualquer altura nas suas definições de privacidade."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Não"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Ativar"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Mais"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Agradecemos a sua participação"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Faz parte da versão beta da privacidade de anúncios do Android O Privacy Sandbox está ativado para o seu dispositivo.\n\nPode saber mais ou desativar a versão beta em qualquer altura nas suas definições de privacidade."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Optou por não participar"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Agradecemos a sua resposta. O Privacy Sandbox está desativado para o seu dispositivo.\n\nSe mudar de ideias ou quiser saber mais, aceda às suas definições de privacidade."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Definições de privacidade"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Faz parte da versão beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"O Privacy Sandbox está ativado para o seu dispositivo e as apps podem testar estas novas formas mais privadas de lhe mostrar anúncios. Pode desativar a versão beta em qualquer altura nas suas definições de privacidade."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"OK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"O Privacy Sandbox do Android fornece novas funcionalidades que as apps podem usar para lhe mostrar anúncios de que pode gostar. Estas tecnologias não usam identificadores de dispositivos.\n\nO Android e as suas apps podem estimar os tipos de anúncios em que pode ter interesse e guardar temporariamente os interesses no seu dispositivo. Isto permite que as apps lhe mostrem anúncios de que pode gostar, sem monitorizar a sua atividade em Websites e apps de outros programadores."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Personalização de anúncios com o Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Interesses estimados pelo Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"O Android estima periodicamente os seus principais interesses com base nas apps que usa, por exemplo, \"Desporto\" ou \"Viagens\".\n\nPosteriormente, uma app pode pedir ao Android para usar esses interesses para lhe mostrar anúncios mais relevantes.\n\nPode ver a lista de interesses atuais nas suas definições de privacidade e bloquear os que não lhe agradam."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Interesses estimados pelas apps"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"As apps podem estimar os seus interesses e guardá-los temporariamente com o Android. Por exemplo, uma app que usa para comprar calçado desportivo pode estimar o seu interesse como \"correr maratonas\".\n\nPosteriormente, com base neste interesse, uma app diferente pode mostrar-lhe um anúncio relacionado com maratonas.\n\nNas suas definições de privacidade, pode gerir a lista de apps que guardaram interesses."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Novas funcionalidades de privacidade de anúncios"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Os tópicos de anúncios e os novos controlos dão-lhe mais opções sobre os anúncios que vê"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Novas funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"O Android regista tópicos de interesse com base nas apps que usou recentemente. Além disso, as apps que usa podem determinar os seus gostos. Posteriormente, as apps podem pedir estas informações para lhe mostrar anúncios personalizados. Pode escolher que tópicos e apps são usados para lhe mostrar anúncios."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Para medir o desempenho de um anúncio, são partilhados tipos de dados limitados entre apps."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Mais sobre anúncios no Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Anúncios mais úteis"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"As apps podem pedir informações ao Android para ajudar a personalizar os anúncios que vê."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  O Android regista tópicos de interesse com base nas apps que usou recentemente."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  As apps que usa também podem determinar os seus gostos com base na forma como as usa. Por exemplo, se usar uma app que vende calçado de corrida de longa distância, a app pode decidir que tem interesse em correr maratonas."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Posteriormente, uma app que usa pode pedir estas informações, quer sejam os tópicos de anúncios ou os anúncios sugeridos pelas apps que usou."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"O Android apaga automaticamente os tópicos e dados sugeridos por apps com regularidade. Também pode bloquear tópicos e apps específicos que não quer que apresentem sugestões."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Medir o desempenho de um anúncio"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"As apps que usa podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android permite que as apps recolham tipos de dados limitados, como a hora do dia em que um anúncio lhe foi apresentado."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Experimente as novas funcionalidades da privacidade de anúncios"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Os tópicos de anúncios dão-lhe mais opções sobre os anúncios que vê"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Ver detalhes"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Experimente as novas funcionalidades de privacidade de anúncios"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"O Android está a lançar novas funcionalidades de privacidade que lhe dão mais opções sobre os anúncios que vê."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Os tópicos de anúncios ajudam as apps a mostrar-lhe anúncios relevantes enquanto protegem a sua identidade e informações sobre a utilização das apps. O Android pode registar tópicos de interesse com base nas apps que usou recentemente. Posteriormente, uma app que usa pode pedir ao Android os tópicos relevantes para personalizar os anúncios que vê."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Pode ver tópicos de anúncios nas definições do dispositivo e bloquear os que não quer partilhar com as apps. O Android também apaga automaticamente os tópicos de anúncios com regularidade."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Pode mudar de ideias em qualquer altura nas definições de privacidade."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Mais sobre tópicos de anúncios"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Saiba como o Android protege os seus dados na nossa "<a href="https://policies.google.com/privacy">"Política de Privacidade"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Experimentar"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Que dados são usados"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Os tópicos de anúncios baseiam-se nas apps que usou recentemente neste dispositivo e na frequência com que as usa."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Como usamos estes dados"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"O Android regista tópicos de interesse à medida que usa as suas apps. As etiquetas de tópicos são predefinidas e incluem, por exemplo, Arte e entretenimento, Compras e Desporto. Posteriormente, uma app que usa pode pedir alguns dos seus tópicos (mas não dados sobre a sua identidade ou utilização da app) ao Android para personalizar os anúncios que vê."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Como pode gerir os seus dados"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"O Android apaga automaticamente os tópicos com regularidade. À medida que usa as apps, um tópico pode voltar a ser apresentado na lista. Também pode bloquear tópicos que não quer que o Android partilhe com apps e desativar os tópicos de anúncios em qualquer altura nas definições de privacidade."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Pode fazer alterações nas definições de privacidade."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Outras funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"O Android também oferece novas formas de limitar o que as apps podem saber sobre si quando lhe mostram anúncios personalizados."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Os anúncios sugeridos por apps ajudam a proteger a sua identidade e informações de utilização das apps, ao mesmo tempo que permitem que as apps lhe mostrem anúncios relevantes. Com base na sua atividade, uma app que usa pode sugerir anúncios relacionados noutras apps. Pode ver uma lista de apps e impedi-las de fazer sugestões nas definições de privacidade."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Com a medição de anúncios, são partilhados tipos de dados limitados entre apps para medir o desempenho dos respetivos anúncios, como a hora do dia em que um anúncio lhe foi mostrado."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Mais sobre os anúncios sugeridos por apps e a medição de anúncios"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Anúncios sugeridos por apps"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Que dados são usados"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"A sua atividade numa app que usa neste dispositivo."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Como as apps usam estes dados"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"As apps podem armazenar informações no Android sobre conteúdo de que gosta. Por exemplo, se usar uma app de preparação para maratonas, a app pode decidir que tem interesse em ténis de corrida. Mais tarde, se usar uma app diferente, essa app pode mostrar-lhe um anúncio de ténis de corrida sugeridos pela primeira app."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Como pode gerir os seus dados"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"O Android apaga automaticamente os dados sugeridos por apps com regularidade. Se voltar a usar uma app, esta pode reaparecer na lista."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Também pode impedir que uma app lhe sugira anúncios, repor todos os dados de sugestões de anúncios ou desativar os anúncios sugeridos por apps em qualquer altura nas definições de privacidade."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"As apps usadas por si podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android protege a sua privacidade ao limitar as informações que as apps podem partilhar entre si."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Novas funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Obtenha mais opções sobre os anúncios que vê enquanto protege a sua identidade"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Novas funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"O Android está a lançar novas formas de limitar o que as apps podem saber sobre si quando lhe mostram anúncios personalizados."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Com anúncios sugeridos por apps, as novas funcionalidades de privacidade ajudam a proteger a sua identidade e informações de utilização das apps enquanto permitem que as apps lhe mostrem anúncios relevantes. Com base na sua atividade, uma app que usa pode sugerir anúncios relacionados noutras apps. Pode ver uma lista de apps e impedi-las de fazer sugestões nas definições de privacidade."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Com a medição de anúncios, os tipos de dados limitados são partilhados entre apps para compreender o desempenho dos respetivos anúncios, como a hora do dia em que um anúncio lhe foi mostrado."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"A sua atividade numa app neste dispositivo pode ser usada para sugerir anúncios."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Ative outra funcionalidade de privacidade dos anúncios"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"O Android também oferece uma nova funcionalidade de privacidade que lhe dá mais opções sobre os anúncios que vê."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Os tópicos de anúncios ajudam as apps a mostrar-lhe anúncios relevantes enquanto protegem a sua identidade e informações sobre a utilização das apps. O Android pode registar os tópicos de interesse com base nas apps que usou recentemente. Mais tarde, uma app que usa pode pedir alguns tópicos relevantes ao Android para lhe mostrar mais anúncios relevantes."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Pode ver tópicos de anúncios nas definições de privacidade e bloquear os que não quer partilhar com as apps. O Android também elimina automaticamente os tópicos de anúncios com regularidade."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Ativar"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Novas funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Agora, existem mais opções sobre os anúncios que vê enquanto protege a sua identidade"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Novas funcionalidades de privacidade dos anúncios já disponíveis"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Agora, o Android oferece novas funcionalidades de privacidade que lhe dão mais opções sobre os anúncios que vê."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Seguinte"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Participe na versão beta da privacidade de anúncios do Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Interesses estimados pelo Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Apps que estimam interesses"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Medição de anúncios"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"As apps podem usar o Privacy Sandbox para medir a eficácia dos respetivos anúncios. Para o fazer, os anunciantes podem guardar temporariamente dados com o Android sobre as suas interações entre os respetivos anúncios e apps. A quantidade de dados que podem guardar é restrita e estes são eliminados regularmente.\n\nPode eliminar estes dados em qualquer altura ao desativar o Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"O Android estima periodicamente os seus principais interesses com base nas apps que usa. As apps podem pedir ao Android para usar esses interesses para lhe mostrar anúncios mais relevantes.\n\nSe bloquear um interesse, não volta a ser adicionado à lista, a menos que o desbloqueie. Ainda pode ver alguns anúncios relacionados."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Bloquear"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Desbloquear"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Interesses que bloqueou"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Repor todos os interesses"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Não existem interesses para mostrar neste momento."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Não existem tópicos para apresentar neste momento.\nSaiba mais sobre "<a href="https://support.google.com/android?p=ad_privacy">"tópicos de anúncios"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"A versão beta da privacidade de anúncios do Android fornece novas funcionalidades que as apps podem usar para lhe mostrar anúncios de que pode gostar. Estas tecnologias não usam identificadores de dispositivos.\n\nO Android podem estimar os tipos de anúncios em que pode ter interesse e guardar estes interesses temporariamente no seu dispositivo. Isto permite que as apps lhe mostrem anúncios relevantes, sem monitorizar a sua atividade em Websites e apps de outros programadores."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Não tem interesses bloqueados"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Sem tópicos bloqueados"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Ver tópicos bloqueados"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Os interesses foram repostos"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Os tópicos foram repostos"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"As apps podem estimar os seus interesses e guardá-los temporariamente com o Android. Posteriormente, uma app diferente pode mostrar-lhe um anúncio com base nestes interesses.\n\nSe bloquear uma app, a mesma deixa de estimar interesses. Não volta a ser adicionada a esta lista de apps, a menos que a desbloqueie. Os interesses já estimados pela app são eliminados, mas pode continuar a ver alguns anúncios relacionados."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Apps que bloqueou"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Ver apps bloqueadas"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Repor interesses estimados pelas apps"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Nenhuma app está a gerar interesses para si neste momento"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Não existem apps para mostrar neste momento. \nSaiba mais sobre "<a href="https://support.google.com/android?p=ad_privacy">"anúncios sugeridos por apps"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"A versão beta da privacidade de anúncios do Android fornece novas funcionalidades que as apps podem usar para lhe mostrar anúncios de que pode gostar. Estas tecnologias não usam identificadores de dispositivos.\n\nAs apps podem estimar os tipos de anúncios em que pode ter interesse e guardar estes interesses temporariamente no seu dispositivo. Isto permite que as apps lhe mostrem anúncios relevantes, sem monitorizar a sua atividade em Websites e apps de outros programadores."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Não tem apps bloqueadas"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Sem apps bloqueadas"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Permitir medição de anúncios"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"As apps e os anunciantes podem pedir ao Android informações que os ajudem a medir o desempenho dos respetivos anúncios.\n\nOs dados de medição de anúncios são apagados do dispositivo regularmente."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Repor dados de medição"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"O Android protege a sua privacidade através da limitação das informações que as apps podem partilhar entre si. Os relatórios são enviados com um atraso para proteger a sua identidade.\n\nO seu navegador pode ter uma definição semelhante. Se a medição de anúncios estiver ativada no Android e no seu navegador, uma empresa pode conseguir medir a eficácia de um anúncio entre as apps que usa e os sites que visita. O seu histórico de navegação permanece privado no dispositivo.\n\nSaiba como o Android protege os seus dados na nossa "<a href="https://policies.google.com/privacy">"Política de Privacidade"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Os dados de medição de anúncios foram repostos"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Cancelar"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Desativar o Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Se mudar de ideias ou quiser saber mais sobre a privacidade de anúncios beta do Android, aceda às definições de privacidade"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Desativar"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Bloquear o tópico <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Este tópico vai ser bloqueado e não vai ser adicionado à sua lista novamente, a menos que o adicione novamente. Ainda pode ver alguns anúncios relacionados."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Bloquear"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Tópico <xliff:g id="TOPIC">%1$s</xliff:g> desbloqueado"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"O Android pode adicionar este tópico à sua lista novamente, mas pode não aparecer de imediato"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Repor todos os tópicos de anúncios?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"A sua lista vai ser limpa e vão ser adicionados novos tópicos no futuro. Ainda pode ver alguns anúncios relacionados com os tópicos que repôs."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Repor"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Bloquear a app <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Esta app não sugere anúncios e não vai ser adicionada à sua lista novamente, a menos que a desbloqueie. Ainda pode ver alguns anúncios relacionados."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"A app <xliff:g id="APP">%1$s</xliff:g> está desbloqueada"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Esta app pode sugerir-lhe anúncios novamente, mas pode não aparecer na sua lista de imediato. Pode demorar algum tempo para conseguir ver anúncios relacionados."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Repor anúncios sugeridos por apps?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Os dados de sugestões de anúncios das apps na sua lista vão ser apagados e as apps vão sugerir novos anúncios no futuro. Ainda pode ver alguns anúncios relacionados."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Os dados de apps foram repostos"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Os tópicos de anúncios estão ativados"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"O Android vai começar a registar tópicos de interesse, mas pode demorar algum tempo até aparecerem os primeiros tópicos."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Desativar os tópicos de anúncios?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"A lista de tópicos vai ser eliminada. O Android vai deixar de registar tópicos de interesse, mas pode continuar a ver anúncios relevantes."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Os anúncios sugeridos por apps estão ativados"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"As apps podem começar a sugerir anúncios. Vai ver uma lista de apps assim que começarem a sugerir anúncios."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Desativar anúncios sugeridos por apps?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Todos os dados de sugestões de anúncios vão ser eliminados. As apps vão deixar de sugerir anúncios, mas pode continuar a ver anúncios relevantes."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"A medição de anúncios está ativada"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"O Android só pode partilhar informações muito limitadas com apps para as ajudar a medir o desempenho dos respetivos anúncios."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Desativar a medição de anúncios?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Todos os relatórios de medição de anúncios pendentes vão ser eliminados e não vão ser gerados nem partilhados novos relatórios."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Privacidade de anúncios"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Tópicos de anúncios"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Anúncios sugeridos por apps"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"O Android regista os tópicos de interesse com base nas apps que usou recentemente e na frequência com que as usa."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"As apps que usa também podem determinar os seus gostos com base na forma como as usa."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"As apps que usa podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android permite que as apps recolham tipos de dados limitados."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Saiba mais sobre a "<a href="https://support.google.com/android?p=ad_privacy">"privacidade dos anúncios no Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Ativado/<xliff:g id="TOPICS_COUNT">%1$d</xliff:g> tópicos"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Ativado/# tópico}other{Ativado/# tópicos}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Ativado/<xliff:g id="APPS_COUNT">%1$d</xliff:g> apps"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Ativado/# app}other{Ativado/# apps}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Ativado"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Desativado"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Os tópicos de interesse baseiam-se nas apps que usou recentemente e são usados pelas apps para lhe mostrar anúncios personalizados.\n\nPode bloquear os tópicos que não quer partilhar com as apps. O Android também elimina automaticamente os tópicos de anúncios com regularidade.\n\nEmbora esta funcionalidade possa ser ativada, pode não ver uma lista de apps até esta funcionalidade estar totalmente disponível e as apps começarem a usá-la."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Permitir tópicos de anúncios"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Tópicos de anúncios que bloqueou"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Repor todos os tópicos de anúncios"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"O Android regista os tópicos de interesse com base nas apps que usou nas últimas semanas.\n\nMais tarde, uma app que usar pode pedir os seus tópicos ao Android para personalizar os anúncios que vê. O Android partilha até 3 tópicos enquanto protege a sua identidade e informações sobre a utilização da app.\n\nO Android apaga automaticamente os tópicos com regularidade. À medida que usa as apps, pode reaparecer um tópico na lista. Em alternativa, pode bloquear os tópicos que não quer que o Android partilhe com apps.\n\nNas suas apps, os anúncios que vê podem ser personalizados consoante esta definição, a definição dos anúncios sugeridos por apps, as definições do ID de publicidade e se a app que está a usar personaliza os anúncios."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Permitir anúncios sugeridos por apps"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"As apps que usa podem determinar os seus gostos e sugerir anúncios noutras apps.\n\nPode impedir que as apps façam sugestões. O Android também elimina automaticamente os dados sugeridos por apps com regularidade.\n\nEmbora esta funcionalidade possa ser ativada, pode não ver uma lista de apps até esta funcionalidade estar totalmente disponível e as apps começarem a usá-la."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Apps que bloqueou"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Repor dados sugeridos por apps"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"As apps que usa memorizam habitualmente conteúdo que lhe interessa para personalizar a sua experiência. As apps também podem armazenar informações no Android sobre os seus tópicos.\n\nPor exemplo, se usar uma app de preparação para maratonas, a app pode decidir que tem interesse em ténis de corrida. Mais tarde, se usar uma app diferente, essa app pode mostrar-lhe um anúncio de ténis de corrida sugerido pela primeira app.\n\nO Android apaga automaticamente os tópicos e dados sugeridos por apps com regularidade. Se voltar a usar uma app, esta pode reaparecer na lista. Em alternativa, pode impedir que uma app lhe sugira anúncios.\n\nNas suas apps, um anúncio que vê pode ser personalizado consoante esta definição, a definição de tópicos de anúncios, as definições do seu ID de publicidade e se a app que usa personaliza anúncios."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Nova funcionalidade de privacidade dos anúncios já disponível"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Apenas são partilhadas informações muito limitadas entre apps para ajudar a medir o desempenho dos anúncios"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Vamos lançar uma nova funcionalidade de privacidade dos anúncios denominada medição de anúncios. O Android partilha apenas informações muito limitadas entre apps, por exemplo, quando um anúncio lhe é mostrado, para ajudar as apps a medirem o desempenho dos anúncios."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Pode fazer alterações nas definições de privacidade dos anúncios."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"As apps que usa podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android permite que as apps recolham apenas tipos de dados limitados."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Novas funcionalidades de privacidade dos anúncios"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Tenha mais opções sobre os anúncios que vê enquanto protege a sua identidade"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Atualizações das funcionalidades de privacidade dos anúncios"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Tenha mais opções sobre os anúncios que vê enquanto protege a sua identidade"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"O Android está a expandir as funcionalidades de privacidade dos anúncios para restringir o que as apps podem saber sobre si quando lhe mostram anúncios personalizados."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"As apps e os respetivos parceiros de publicidade podem usar a sua atividade noutras apps deste dispositivo para personalizar os anúncios, mantendo a sua identidade privada e segura."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Mais sobre anúncios sugeridos por apps"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Os tipos de dados limitados são partilhados entre apps para compreender o desempenho dos respetivos anúncios, como a hora do dia em que um anúncio lhe foi mostrado."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Mais sobre a medição de anúncios"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"O Android regista os tópicos de interesse com base nas apps que usou recentemente. Além disso, as apps e os respetivos parceiros de publicidade podem usar a sua atividade noutras apps deste dispositivo para personalizar os anúncios, mantendo a sua identidade privada e segura."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  As apps que usa também podem determinar os seus gostos com base na sua atividade de apps. Por exemplo, se usar regularmente apps de culinária, pode ver anúncios de serviços de entrega de mercearias ou conteúdos relacionados noutras apps.\n\nAs apps podem armazenar estas informações de forma segura para que apenas possam ser usadas pelos respetivos parceiros de publicidade para personalizar anúncios noutras apps."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Mais tarde, uma app que usa pode pedir estas informações, quer sejam os tópicos de anúncios ou os anúncios sugeridos pelas apps que usou."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"As apps que usa podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android ajuda a proteger a sua privacidade limitando as informações que as apps podem partilhar entre si."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Que dados são usados?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"As apps usadas por si podem pedir informações ao Android para as ajudar a medir o desempenho dos respetivos anúncios. O Android ajuda a proteger a sua privacidade limitando as informações que as apps podem partilhar entre si."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Como é que a minha identidade é protegida?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"O Android usa várias medidas de privacidade, como os dados de ruído e agregação, para limitar as informações que as apps podem partilhar entre si e ajudar a proteger a sua identidade.\n\nOs dados de medição de anúncios também são eliminados regularmente do seu dispositivo."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"A sua atividade de apps pode ser usada para sugerir anúncios."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Como é que as apps usam estes dados?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"As apps podem armazenar estas informações de forma segura para que apenas possam ser usadas pelos respetivos parceiros de publicidade para personalizar anúncios noutras apps. Por exemplo, se usar regularmente apps de culinária, pode ver anúncios de serviços de entrega de mercearias ou conteúdos relacionados noutras apps."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Como é que posso gerir estes dados?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Pode impedir que apps específicas partilhem a sua atividade com parceiros de publicidade. Pode repor ou desativar os anúncios sugeridos por apps em qualquer altura nas definições de privacidade. O Android também elimina automaticamente estes dados com regularidade."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Saiba como o Android ajuda a proteger a sua privacidade"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"As apps e os respetivos parceiros de publicidade podem usar a sua atividade noutras apps deste dispositivo para personalizar os anúncios, mantendo as informações sobre si privadas e seguras.\n\nPor exemplo, se usar regularmente apps de culinária, pode ver anúncios de serviços de entrega de mercearias ou conteúdos relacionados noutras apps.\n\nO Android elimina automaticamente a sua atividade com regularidade, mas também pode impedir que as apps partilhem estas informações com os respetivos parceiros de publicidade."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"As apps e os respetivos parceiros de publicidade memorizam habitualmente conteúdo que lhe interessa para personalizar a sua experiência. As apps podem armazenar estas informações de forma segura para que apenas possam ser usadas pelos respetivos parceiros de publicidade para personalizar anúncios noutras apps.\n\nPode impedir uma app de partilhar os seus dados de atividade com parceiros de publicidade. O Android também elimina automaticamente os dados de atividade partilhados com regularidade, por isso, se voltar a usar uma app, esta pode reaparecer na lista.\n\nO facto de um anúncio que vê ser personalizado pode depender de muitos fatores, como esta definição, a definição de tópicos de anúncios, as definições do seu ID de publicidade e se a app que usa personaliza anúncios.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Saiba mais sobre anúncios sugeridos por apps"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"O Android usa várias medidas de privacidade, como os dados de ruído e agregação, para limitar as informações que as apps podem partilhar entre si e ajudar a proteger a sua identidade.\n\nO seu navegador pode ter uma definição semelhante. Se a medição de anúncios estiver ativada no Android e no seu navegador, uma empresa pode conseguir medir a eficácia de um anúncio entre as apps que usa e os sites que visita. O seu histórico de navegação permanece privado no dispositivo.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Saiba mais sobre a medição de anúncios"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"O Android regista os tópicos de interesse com base nas apps que usou nas últimas semanas.\n\nMais tarde, uma app que usar pode pedir os seus tópicos ao Android para personalizar os anúncios que vê. O Android partilha até 3 tópicos enquanto protege a sua identidade e informações sobre a utilização da app.\n\nO Android apaga automaticamente os tópicos com regularidade. À medida que usa as apps, pode reaparecer um tópico na lista. Em alternativa, pode bloquear os tópicos que não quer que o Android partilhe com apps.\n\nO facto de um anúncio que vê ser personalizado pode depender de muitos fatores, como esta definição, a definição de anúncios sugeridos por apps, as definições do seu ID de publicidade e se a app usa anúncios personalizados.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Saiba mais sobre tópicos de anúncios"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Ilustração colorida de símbolos que representam tópicos de interesse, como música, notícias e desporto"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Ilustração colorida de uma fechadura dentro de um círculo"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Pequena ilustração a preto e branco de nove pontos a formar um quadrado"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Uma pequena ilustração a preto e branco de formas simples, como um coração, um triângulo e um quadrado"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Artes e entretenimento"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Representação e teatro"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime e manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Desenhos animados"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Banda desenhada"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Concertos e festivais de música"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Dança"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Indústria de entretenimento"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Divertimento e curiosidades"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Testes e questionários divertidos"</string>
+    <string name="topic10011" msgid="175945911179628507">"Comédia"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Imagens e vídeos divertidos"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Comédia ao vivo"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Eventos desportivos ao vivo"</string>
+    <string name="topic10015" msgid="726046067079821146">"Magia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Listagens de filmes e espetáculos de teatro"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmes"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Filmes de ação e aventura"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Filmes de animação"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Filmes de comédia"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Filmes de culto e indie"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Documentários"</string>
+    <string name="topic10023" msgid="254151319845267278">"Filmes de drama"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Filmes familiares"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Filmes de terror"</string>
+    <string name="topic10026" msgid="210222384439682793">"Filmes românticos"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Tríler"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Música e áudio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Música clássica"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Música country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Música de dança e eletrónica"</string>
+    <string name="topic10033" msgid="895853536740398847">"Música folk e tradicional"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Transferências e streams de música"</string>
+    <string name="topic10036" msgid="449833307315797283">"Vídeos de música"</string>
+    <string name="topic10037" msgid="51698216720637667">"Instrumentos musicais"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Pianos e órgãos"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Música pop"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Rádio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Debates na rádio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap e hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Música rock"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Rock clássico e músicas antigas"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hard rock e música progressiva"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Música indie e alternativa"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Bibliotecas de samples e sons"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul e R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Bandas sonoras"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Música do mundo"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Música reggae e caribenha"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Galerias de imagens online"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Vídeo online"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Streaming de vídeo em direto"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Streaming de filmes e TV"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Ópera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Referência e guias de TV"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Redes e estações de TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Espetáculos e programas de TV"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Comédias de televisão"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Não ficção e documentários televisivos"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Dramas televisivos"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Novelas"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Programas televisivos familiares"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Reality shows televisivos"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Programas de TV de ficção científica e fantasia"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Arte visual e design"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Design"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Pintura"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Arte fotográfica e digital"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Automóveis e veículos"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Camiões e reboques para carga"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Veículos clássicos"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Veículos personalizados e de alto desempenho"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Preços dos combustíveis e abastecimento de veículos"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Veículos motorizados (por tipo)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Veículos autónomos"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Carros descapotáveis"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Carros coupé"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Veículos de dois volumes"</string>
+    <string name="topic10081" msgid="577995777553561437">"Veículos híbridos e alternativos"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Veículos de luxo"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Microcarros e subcompactos"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motociclos"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Veículos todo-o-terreno"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Carrinhas de caixa aberta"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Scooters e motorizadas"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Veículos de três volumes"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Carrinhas"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUVs e veículos crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Veículos crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Carrinhas e monovolumes"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Reboque e assistência rodoviária"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Segurança dos veículos e do trânsito"</string>
+    <string name="topic10095" msgid="84682415803421329">"Peças e acessórios para veículos"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Reparação e manutenção de veículos"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Compra de veículos"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Veículos usados"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Exposições de veículos"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Beleza e fitness"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Arte corporal"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Cuidados com o rosto e o corpo"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antitranspirantes"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Produtos para o banho e o corpo"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Beleza consciente"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Maquilhagem e cosmética"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Produtos para cuidados das unhas"</string>
+    <string name="topic10108" msgid="577259588028933025">"Perfumes e fragrâncias"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Giletes e máquinas de barbear"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Moda e estilo"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitness"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Musculação"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Ensino de fitness e treino pessoal"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Produtos tecnológicos para fitness"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Cuidados capilares"</string>
+    <string name="topic10116" msgid="763642849903586689">"Livros e literatura"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Literatura infantil"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Livros eletrónicos"</string>
+    <string name="topic10119" msgid="894448782525835364">"Revistas"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poesia"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Comércio e indústria"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Publicidade e marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Vendas"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Agricultura e silvicultura"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Produção de alimentos"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Indústria automóvel"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Indústria da aviação"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Operações comerciais"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Condições de trabalho flexíveis"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Recursos humanos"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Empréstimos comerciais"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Construção e manutenção"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Engenharia civil"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Indústria de defesa"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia e serviços públicos"</string>
+    <string name="topic10136" msgid="455894912948558854">"Tratamento e abastecimento de água"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Indústria hoteleira"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Manufatura"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metais e exploração mineira"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Marketing multinível (MLM) e oportunidades de negócio"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Produtos farmacêuticos e biotecnologia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Impressão e publicação"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Comércio de retalho"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Capital de risco"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Computadores e eletrónica"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Periféricos de computador"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Impressoras"</string>
+    <string name="topic10148" msgid="388392714835039199">"Segurança de computadores"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivírus e software malicioso"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Segurança de redes"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Eletrónica de consumo"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Máquinas fotográficas e câmaras de vídeo"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS e navegação"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Domótica"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Sistemas de cinema em casa"</string>
+    <string name="topic10156" msgid="5908298124114814149">"Leitores de MP3 e multimédia portátil"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Tecnologia em wearable"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Cópia de segurança e recuperação de dados"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Computadores de mesa"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Portáteis"</string>
+    <string name="topic10161" msgid="172004201167511870">"Redes"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Cloud computing e computação distribuída"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programação"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Software"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Software de áudio e música"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Software empresarial e de produtividade"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Software de agendamento e calendário"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Software de videoconferência e colaboração"</string>
+    <string name="topic10169" msgid="827557334245484202">"Software de apresentação"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Software de folhas de cálculo"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Software de processamento de texto"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Edição eletrónica"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Tipos de letra"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Gestores de Transferências"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Programas sem custo financeiro e shareware"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Gráficos e software de animação"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Assistentes pessoais inteligentes"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Leitores de multimédia"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Software de monitorização"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Sistemas operativos"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Software de foto e vídeo"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Software de foto"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Software de vídeo"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Utilitários de software"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Navegadores de Internet"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finanças"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Contabilidade e auditoria"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Preparação e planeamento de impostos"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Serviços bancários"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Serviços de transferência bancária e de dinheiro"</string>
+    <string name="topic10191" msgid="374364159635356705">"Créditos e empréstimos"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Cartões de crédito"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Financiamento de imóveis residenciais"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Empréstimos pessoais"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Empréstimos de estudante e financiamento universitário"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Gestão e planeamento financeiro"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Reforma e pensões"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Concessões"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Concessões"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Seguros"</string>
+    <string name="topic10201" msgid="447240478385298875">"Seguro automóvel"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Seguro de saúde"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Seguro de habitação"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Seguro de vida"</string>
+    <string name="topic10205" msgid="262581473890356377">"Seguro de viagem"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investimentos"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Negociação de futuros e mercadorias"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Câmbios e moedas estrangeiras"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Fundos especulativos"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Fundos de investimento mútuo"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Ações e obrigações"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Comida e bebidas"</string>
+    <string name="topic10213" msgid="805716705436663130">"Culinária e receitas"</string>
+    <string name="topic10214" msgid="726298155737413779">"Churrascos e grelhados"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Cozinhas"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Cozinha vegetariana"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Cozinha vegana"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Alimentação saudável"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Retalhistas de mercearia e alimentares"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Jogos"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Jogos de arcada e de operação por moedas"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Bilhar"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Jogos de tabuleiro"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Xadrez e jogos abstratos de estratégia"</string>
+    <string name="topic10225" msgid="564207834821286301">"Jogos de cartas"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Jogos de cartas de coleção"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Jogos de computador e videojogos"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Jogos de ação e plataformas"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Jogos de aventura"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Jogos casuais"</string>
+    <string name="topic10231" msgid="405082026972839048">"Competições de videojogos"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Jogos de condução e corridas"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Jogos de combate"</string>
+    <string name="topic10234" msgid="693433817142162565">"Críticas e referências para jogos"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Dicas e batotas para videojogos"</string>
+    <string name="topic10236" msgid="320145832033080647">"Jogos multijogador com muitos participantes"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Jogos de música e dança"</string>
+    <string name="topic10238" msgid="124952008622371505">"Jogos sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Jogos de tiro"</string>
+    <string name="topic10240" msgid="429738690314619395">"Jogos de simulação"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Jogos de magnatas empresariais"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Jogos de construção de cidades"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Jogos de simulação da vida real"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Simuladores de veículos"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Jogos de desporto"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Jogos de gestão desportiva"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Jogos de estratégia"</string>
+    <string name="topic10248" msgid="279151815457227293">"Suplementos e modificações para videojogos"</string>
+    <string name="topic10249" msgid="631580828608894782">"Jogos educativos"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Atividades e jogos destinados a famílias"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Desenhar e colorir"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Jogos de vestidos e moda"</string>
+    <string name="topic10253" msgid="385499297969826942">"Puzzles e quebra-cabeças"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Jogos de RPG"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Ténis de mesa"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Jogos de peças"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Jogos de palavras"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Passatempos e lazer"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Aniversários"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Aniversários e dias onomásticos"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Mergulho e atividades subaquáticas"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Arte com fibras e têxteis"</string>
+    <string name="topic10263" msgid="361345691023794788">"Exterior"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Pesca"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Caça e tiro"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Modelismo e aparelhos telecomandados"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Casamentos"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Casa e jardim"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Jardinagem"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Decoração interior e do lar"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Eletrodomésticos"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Bricolage"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Segurança e proteção do lar"</string>
+    <string name="topic10275" msgid="682064062059687444">"Produtos para o lar"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Design paisagístico"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet e telecomunicações"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Email e mensagens"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Email"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Mensagens de texto e instantâneas"</string>
+    <string name="topic10281" msgid="582764575763317221">"Chat de voz e vídeo"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Fornecedores de serviços de Internet (ISPs)"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Fornecedores de serviços telefónicos"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Toques e temas para dispositivos móveis"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Motores de pesquisa"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartphones"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Teleconferências"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Apps Web e ferramentas online"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Serviços Web"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Armazenamento na nuvem"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Web design e programação"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Alojamento Web"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Empregos e educação"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Ensino"</string>
+    <string name="topic10295" msgid="331240908257602211">"Conferências e publicações académicas"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Faculdades e universidades"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Ensino à distância"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Educação para a primeira infância"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Pré-escolar"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Ensino doméstico"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Testes padronizados e de admissão"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Recursos educativos e de sala de aula"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Formação vocacional e contínua"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Empregos"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Recursos e planeamento de carreiras"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Listagens de empregos"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Leis e governo"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Criminalidade e justiça"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Assuntos jurídicos"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Serviços jurídicos"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Notícias"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Notícias de economia"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Notícias locais"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Fusões e aquisições"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Jornais"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Política"</string>
+    <string name="topic10317" msgid="888696185673599406">"Notícias desportivas"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Meteorologia"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Notícias do mundo"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Comunidades online"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clip art e GIFs animados"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Encontros e anúncios pessoais"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Agregadores de feed e marcadores sociais"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Partilha e alojamento de ficheiros"</string>
+    <string name="topic10325" msgid="916412844647169263">"Fornecedores de fóruns e chats"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Microblogues"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Partilha de fotos e vídeos"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Partilha de fotos e imagens"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Partilha de vídeos"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Visuais"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Apps e suplementos de redes sociais"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Redes sociais"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Pessoas e sociedade"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Família e relações amorosas"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Ascendência e genealogia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Casamento"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Parentalidade"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adoção"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Bebés e crianças pequenas"</string>
+    <string name="topic10340" msgid="259457452971577855">"Segurança das crianças na Internet"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romance"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Ficção científica e fantasia"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Animais e animais de estimação"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Produtos e comida para animais de estimação"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Animais de estimação"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Pássaros"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Gatos"</string>
+    <string name="topic10348" msgid="570783769757187957">"Cães"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Peixes e aquários"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Répteis e anfíbios"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veterinários"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Imobiliário"</string>
+    <string name="topic10353" msgid="230887584509968233">"Lotes e terra"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Propriedades em timeshare e de férias"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Referência"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Contactos de empresas e pessoais"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Referência geral"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Calculadoras e ferramentas de referência"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Dicionários e enciclopédias"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Recursos educacionais"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Procedimentos"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Relógio e calendários"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Recursos linguísticos"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Estudo de línguas estrangeiras"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Ferramentas e recursos para tradução"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Mapas"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Ciência"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Realidade aumentada e virtual"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Ciências biológicas"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genética"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Química"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ecologia e ambiente"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Aprendizagem automática e inteligência artificial"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matemática"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Física"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robótica"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Compras"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antiguidades e peças de coleção"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Vestuário"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Vestuário de criança"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Fantasias"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Vestuário de homem"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Vestuário de senhora"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Anúncios classificados"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Recursos para o consumidor"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Cupões e ofertas de desconto"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Programas e cartões de fidelidade"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Reparação e apoio técnico"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Flores"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Cartões de felicitações"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Materiais para festas e dias festivos"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Portais de compras"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Desporto"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Futebol americano"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Futebol australiano"</string>
+    <string name="topic10397" msgid="653991203228840785">"Corrida de carros"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Basebol"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basquetebol"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boxe"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Claques"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Desportos universitários"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Críquete"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Ciclismo"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Equitação"</string>
+    <string name="topic10407" msgid="316266982792700993">"Desportos radicais"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Escalada e montanhismo"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantasy sports"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golfe"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Ginástica"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hóquei"</string>
+    <string name="topic10413" msgid="416366556259783701">"Patinagem no gelo"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Artes marciais"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motociclismo"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Jogos Olímpicos"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Râguebi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Corrida e caminhada"</string>
+    <string name="topic10419" msgid="979581105119036716">"Esqui e snowboard"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futebol"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surf"</string>
+    <string name="topic10422" msgid="978920114358054206">"Natação"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Ténis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atletismo"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Voleibol"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Luta livre"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Viagens e transportes"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Viagens de aventura"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Viagens aéreas"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Viagens de negócios"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Aluguer de carros"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Cruzeiros e charters"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Viagens familiares"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Lua de mel e escapadinhas românticas"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotéis e alojamentos"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Autocarros e comboios de longa distância"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Viagens de última hora e baixo custo"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Bagagem e acessórios de viagem"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Destinos turísticos"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Praias e ilhas"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Parques e jardins regionais"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Parques temáticos"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Jardins zoológicos"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Planeadores de trajetos e trânsito"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Agências e serviços de viagens"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Guias e livros de viagens"</string>
+</resources>

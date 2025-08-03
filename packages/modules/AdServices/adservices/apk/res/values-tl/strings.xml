@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"i-access ang AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Nagbibigay-daan sa isang application na i-access ang AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"i-access ang mga AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Nagbibigay-daan sa isang application na i-access ang mga AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"i-access ang AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Nagbibigay-daan sa isang application na i-access ang AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Access sa AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Nagbibigay-daan sa isang application na i-access ang AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"i-access ang AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Nagbibigay-daan sa isang application na i-access ang AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Access sa Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Nagbibigay-daan sa isang application na i-access ang Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Access sa AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Pinapayagan ang application na i-access ang AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Access sa App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Nagbibigay-daan sa isang application na i-access ang App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Access sa Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Nagbibigay-daan sa isang application na i-access ang Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Access sa enablement state modification API ng AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Nagbibigay-daan sa isang application na i-access ang enablement state modification API ng AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Access sa enablement state API ng AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Nagbibigay-daan sa isang application na i-access ang enablement state API ng AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Access sa mga API ng AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Nagbibigay-daan sa isang application na i-access ang mga API ng AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Access sa update AdId API ng AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Pinapayagan ang application na i-access ang update AdId API ng AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Privacy sa Ad"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Sumali sa beta ng privacy sa mga ad ng Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Nag-e-explore ang Android ng mga mas pribadong paraan para makapagpakita sa iyo ng mga ad ang mga app"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Matuto pa"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Beta ng privacy sa mga ad ng Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Ano\'ng bago"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Nagbibigay-daan ang mga bagong feature ng privacy sa Privacy Sandbox para makapagpakita sa iyo ang mga app ng mga may kaugnayang app, pero pinaghihigpitan nito ang puwedeng matutunan ng mga app na iyon tungkol sa mga aktibidad mo sa mga website at app mula sa iba pang developer."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Paano ito gumagana"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Paano makilahok"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Kapag na-on ang beta, magbibigay-daan ito sa mga app na subukan ang mga bago at karagdagang pribadong paraang ito para magpakita sa iyo ng mga ad. Puwede mong i-off ang beta anumang oras sa iyong mga setting ng privacy."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Huwag na lang"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"I-on"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Higit pa"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Salamat sa paglahok"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Bahagi ka ng beta ng privacy sa mga ad ng Android. Naka-on ang Privacy Sandbox para sa device mo.\n\nPuwede kang matuto pa o puwede mong i-off ang beta kahit kailan sa iyong mga setting ng privacy."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Pinili mong hindi makilahok"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Salamat sa iyong tugon. Naka-off ang Privacy Sandbox para sa iyong device.\n\nKung magbabago ang isip mo o gusto mong matuto pa, pumunta sa iyong mga setting ng privacy."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Mga setting ng privacy"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Bahagi ka ng beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Naka-on ang Privacy Sandbox para sa device mo, at masusubukan ng mga app ang mga bago at karagdagang pribadong paraang ito para magpakita sa iyo ng mga ad. Puwede mong i-off ang beta anumang oras sa iyong mga setting ng privacy."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"OK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Nagbibigay ang Privacy Sandbox ng Android ng mga bagong feature na magagamit ng mga app para magpakita sa iyo ng mga ad na posibleng magustuhan mo. Hindi gumagamit ang mga teknolohiyang ito ng mga identifier ng device.\n\nMatatantya ng Android at ng iyong mga app ang mga uri ng mga ad kung saan posibleng interesado ka, at pansamantalang sine-save ang mga interes sa device mo. Nagbibigay-daan ito sa mga app na magpakita ng mga ad sa iyo na posibleng magustuhan mo, nang hindi sinusubaybayan ang aktibidad mo sa mga website at app mula sa iba pang developer."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Pag-personalize ng mga ad sa Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Mga interes na tinatantya ng Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Pana-panahong tinatantya ng Android ang iyong mga nangungunang interes batay sa mga app na ginagamit mo, halimbawa, \"Sports\" o \"Paglalakbay.\"\n\nSa katagalan, puwedeng hilingin ng isang app sa Android na gamitin ang mga interes na iyon para magpakita sa iyo ng mga mas may kaugnayang ad.\n\nMakikita mo ang listahan ng mga kasalukuyang interes sa iyong mga setting ng privacy, at puwede mong i-block ang kahit anong hindi mo gusto."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Mga interes na tinatantya ng mga app"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Puwedeng tantyahin ng mga app ang iyong mga interes at pansamantalang i-save ang mga ito sa Android. Halimbawa, puwedeng tantyahin ng isang app na ginagamit mo para bumili ng mga pantakbong sapatos bilang \"pagtakbo sa mga marathon\" ang iyong interes\n\nSa katagalan, batay sa interes na ito, puwedeng magpakita sa iyo ang ibang app ng ad na may kaugnayan sa mga marathon.\n\nSa iyong mga setting ng privacy, puwede mong pamahalaan ang listahan ng mga app na may mga naka-save na interes."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Mga bagong feature ng privacy sa mga ad"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Binibigyan ka ng mga paksa ng ad at bagong kontrol ng higit pang pagpipilian sa mga ad na nakikita mo"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Available na ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit. Puwede ring tukuyin ng mga ginagamit mong app kung ano ang gusto mo. Sa ibang pagkakataon, puwedeng hilingin ng mga app ang impormasyong ito para makapagpakita sa iyo ng mga naka-personalize na ad. Puwede mong piliin kung aling mga paksa at app ang gagamitin para magpakita sa iyo ng mga ad."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Para sukatin ang performance ng isang ad, nagbabahagi ng limitadong mga uri ng data sa pagitan ng mga app."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Higit pa tungkol sa mga ad sa Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Mga mas kapaki-pakinabang na ad"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Puwedeng humiling ang mga app ng impormasyon sa Android para makatulong sa pag-personalize ng mga ad na nakikita mo."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Puwede ring matukoy ng mga ginagamit mong app ang mga gusto mo batay sa kung paano mo gamitin ang mga ito. Halimbawa, kung gagamit ka ng app na nagbebenta ng long-distance running shoes, posibleng tukuyin ng app na interesado kang tumakbo sa mga marathon."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Sa ibang pagkakataon, puwedeng hilingin ng ginagamit mong app ang impormasyong ito — ang iyong mga paksa ng ad man o mga ad na iminungkahi ng mga app na nagamit mo."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Regular na awtomatikong dine-delete ng Android ang mga paksa at data na iminumungkahi ng app. Puwede mo ring i-block ang mga partikular na paksa at app na ayaw mong magmungkahi."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Pagtukoy sa husay ng performance ng ad"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Puwedeng humiling ng impormasyon sa Android ang mga app na ginagamit mo para matulungan silang masukat ang performance ng kanilang mga ad. Pinapayagan ng Android ang mga app na mangolekta ng mga limitadong uri ng data, tulad ng oras kung kailan ipinakita sa iyo ang isang ad."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Subukan ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Nagbibigay sa iyo ang mga paksa ng ad ng higit pang opsyon kaugnay ng mga nakikita mong ad"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Tingnan ang Mga Detalye"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Subukan ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Maglulunsad ang Android ng mga bagong feature sa privacy na magbibigay sa iyo ng higit pang pagpipilian tungkol sa mga ad na nakikita mo."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Tinutulungan ng mga paksa ng ad ang mga app na magpakita sa iyo ng mga may kaugnayang ad habang pinoprotektahan ang pagkakakilanlan mo at impormasyon tungkol sa iyong paggamit ng app. Posibleng magtala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit. Sa ibang pagkakataon, puwedeng humiling ang isang app na ginagamit mo sa Android ng mga nauugnay na paksa para ma-personalize ang mga ad na nakikita mo."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Makikita mo ang mga paksa ng ad sa mga setting ng iyong device at i-block ang mga ayaw mong ibahagi sa mga app. Regular ding awtomatikong nagde-delete ang Android ng mga paksa ng ad."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Puwede kang magbago ng isip anumang oras sa mga setting ng privacy."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Higit pa tungkol sa mga paksa ng ad"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Matuto pa tungkol sa kung paano pinoprotektahan ng Android ang iyong data sa aming "<a href="https://policies.google.com/privacy">"Patakaran sa Privacy"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Subukan ito"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Anong data ang ginagamit"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Nakabatay ang iyong mga paksa ng ad sa mga app na ginamit mo kamakailan sa device na ito at kung gaano mo kadalas gamitin ang mga ito."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Paano namin ginagamit ang data na ito"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Nagtatala ang Android ng mga paksa kung saan ka interesado habang ginagamit mo ang iyong mga app. Naka-predefine ang mga label ng paksa at kasama sa mga ito ang mga bagay tulad ng Sining at Entertainment, Shopping, at Sports. Sa ibang pagkakataon, puwedeng humingi sa Android ang isang app na ginagamit mo ng ilan sa iyong mga paksa (pero hindi ng data tungkol sa paggamit mo ng app o iyong pagkakakilanlan) para ma-personalize ang mga ad na nakikita mo."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Paano mo mapapamahalaan ang iyong data"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Regular na awtomatikong nagde-delete ang Android ng mga paksa. Habang patuloy kang gumagamit ng mga app, posibleng may paksang lumabas ulit sa listahan. Puwede mo ring i-block ang mga paksang ayaw mong i-share ng Android sa mga app, at i-off ang mga paksa ng ad anumang oras sa mga setting ng privacy."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Puwede kang gumawa ng mga pagbabago sa mga setting ng privacy."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Available na ang iba pang feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Nag-aalok din ang Android ng mga bagong paraan para limitahan kung ano ang puwedeng malaman ng mga app tungkol sa iyo kapag nagpapakita sa iyo ng mga naka-personalize na ad ang mga ito."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Nakakatulong ang mga ad na iminungkahi ng app na protektahan ang iyong pagkakakilanlan at impormasyon tungkol sa paggamit mo ng app habang nagbibigay-daan sa mga app na magpakita sa iyo ng mga may kaugnayang ad. Batay sa iyong aktibidad, puwedeng magmungkahi ang isang app ng mga kaugnay na ad sa iba pang app. Puwede mong tingnan ang listahan ng mga app at i-block ang mga iyon sa pagmumungkahi sa mga setting ng privacy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Sa pagsukat ng ad, may mga limitadong uri ng data na shine-share sa pagitan ng mga app para sukatin ang performance ng kanilang mga ad, tulad ng oras kung kailan ipinakita sa iyo ang ad."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Higit pa tungkol sa mga ad na iminumungkahi ng app at pagsukat ng ad"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Mga ad na iminumungkahi ng app"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Anong data ang ginagamit"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Iyong aktibidad sa isang app na ginagamit mo sa device na ito."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Paano ginagamit ng mga app ang data na ito"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Puwedeng mag-store ang mga app ng impormasyon sa Android tungkol sa mga bagay na gusto mo. Halimbawa, kung gumagamit ka ng app tungkol sa marathon training, posibleng tukuyin ng app na interesado ka sa running shoes. Sa ibang pagkakataon, kung gagamit ka ng ibang app, puwedeng magpakita ang app na iyon sa iyo ng ad para sa running shoes na iminungkahi ng unang app."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Paano mo mapapamahalaan ang iyong data"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Regular na awtomatikong dine-delete ng Android ang data na iminumungkahi ng app. Posibleng lumabas ulit sa listahan ang isang app na ginamit mo ulit."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Puwede ka ring mag-block ng app sa pagmumungkahi ng mga ad para sa iyo, i-reset ang lahat ng data ng suhestyon ng ad, o i-off ang mga ad na iminumungkahi ng app anumang oras sa mga setting ng privacy."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Puwedeng humiling ng impormasyon sa Android ang mga ginagamit mong app na makakatulong sa kanila na sukatin ang performance ng kanilang mga ad. Pinoprotektahan ng Android ang iyong privacy sa pamamagitan ng paglilimita sa impormasyong puwedeng i-share ng mga app sa isa\'t isa."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Available na ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Makakuha ng higit pang kontrol sa mga ad na nakikita mo habang pinoprotektahan ang iyong pagkakakilanlan"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Available na ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Maglulunsad ang Android ng mga bagong paraan para limitahan kung ano ang puwedeng malaman ng mga app tungkol sa iyo kapag nagpapakita sa iyo ng mga naka-personalize na ad ang mga ito."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Gamit ang mga ad na iminungkahi ng app, nakakatulong ang mga bagong feature sa privacy na maprotektahan ang iyong pagkakakilanlan at impormasyon tungkol sa paggamit mo ng app habang binibigyang-daan ang mga app na magpakita sa iyo ng mga nauugnay na ad. Batay sa iyong aktibidad, makakapagmungkahi ang isang app ng mga kaugnay na ad sa iba pang app. May listahan ng mga app na puwede mong tingnan at puwede mong i-block ang mga iyon sa pagmumungkahi, sa mga setting ng privacy."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Sa pagsusukat ng ad, nagbabahagi ng limitadong uri ng data sa pagitan ng mga app para maunawaan ang performance ng mga ad ng mga ito, gaya ng oras kung kailan ipinakita sa iyo ang isang ad."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Puwedeng gamitin para magmungkahi ng mga ad ang iyong aktibidad sa isang app sa device na ito."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"I-on ang iba pang feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Nag-aalok din ang Android ng bagong feature sa privacy na nagbibigay sa iyo ng higit pang kontrol sa mga ad na nakikita mo."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Nakakatulong ang mga paksa ng ad para makapagpakita sa iyo ng mga may kaugnayang ad habang pinoprotektahan ang pagkakakilanlan mo at impormasyon tungkol sa iyong paggamit ng app. Posibleng magtala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit. Sa ibang pagkakataon, puwedeng humingi sa Android ang isang app na ginagamit mo ng mga nauugnay na paksa para makapagpakita sa iyo ng mga nauugnay na ad."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Makikita mo ang mga paksa ng ad sa iyong mga setting ng privacy at puwede mong i-block ang mga ayaw mong ibahagi sa mga app. Regular ding awtomatikong nagde-delete ang Android ng mga paksa ng ad."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"I-on ito"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Available na ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Ngayon, may karagdagang kontrol na sa mga ad na nakikita mo habang pinoprotektahan ang iyong pagkakakilanlan"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Available na ang mga bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Nag-aalok na ngayon ang Android ng mga bagong feature sa privacy na magbibigay sa iyo ng higit pang kontrol tungkol sa mga ad na nakikita mo."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Susunod"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Lumahok sa beta ng privacy sa mga ad ng Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Mga interes na tinatantya ng Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Mga app na nagtatantya ng mga interes"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Pagsukat ng ad"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Puwedeng gamitin ng mga app ang Privacy Sandbox para sukatin kung gaano kaepektibo ang kanilang mga ad. Para gawin ito, puwedeng pansamantalang i-save ng mga advertiser ang data sa Android tungkol sa iyong mga pakikipag-ugnayan sa pagitan ng kanilang mga ad at app. Pinaghihigpitan ang dami ng data na mase-save nila at regular na ide-delete.\n\nPuwede mong i-delete ang data na ito anumang oras sa pamamagitan ng pag-off sa Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Pana-panahong tinatantya ng Android ang iyong mga nangungunang interes batay sa mga app na ginagamit mo. Puwedeng hilingin ng mga app sa Android na gamitin ang mga interes na iyon para magpakita sa iyo ng mga mas may kaugnayang ad.\n\nKung magba-block ka ng interes, hindi ito idaragdag sa listahan ulit maliban na lang kung ia-unblock mo ito. Posibleng makakita ka pa rin ng ilang nauugnay na ad."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"I-block"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"I-unblock"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Mga interes na na-block mo"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"I-reset ang lahat ng interes"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Walang interes na maipapakita sa ngayon."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Walang maipapakitang paksa sa ngayon.\nMatuto pa tungkol sa "<a href="https://support.google.com/android?p=ad_privacy">"mga paksa ng ad"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Nagbibigay ang beta ng privacy sa mga ad ng Android ng mga bagong feature na magagamit ng mga app para magpakita sa iyo ng mga ad na posibleng magustuhan mo. Hindi gumagamit ang mga teknolohiyang ito ng mga identifier ng device.\n\nMatatantya ng Android ang mga uri ng mga ad kung saan ka posibleng may interes, at pansamantalang sine-save ang mga interes sa device mo. Nagbibigay-daan ito sa mga app na magpakita sa iyo ng mga may kaugnayang ad, nang hindi sinusubaybayan ang aktibidad mo sa mga website at app mula sa iba pang developer."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Wala kang naka-block na interes"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Walang naka-block na paksa"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Tingnan ang mga naka-block na paksa"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Na-reset ang mga interes"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Na-reset ang mga paksa"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Puwedeng tantyahin ng mga app ang iyong mga interes at pansamantalang i-save ang mga ito sa Android. Sa pagtagal, puwedeng may ibang app na magpakita sa iyo ng ad batay sa mga interes na ito.\n\nKung iba-block mo ang isang app, hindi na ito magtatantya ng mga interes. Hindi ito idaragdag ulit sa listahan ng mga app na ito maliban na lang kung i-unblock mo ito. Made-delete ang mga interes na tinatantya na ng app, pero posibleng makakita ka pa rin ng ilang nauugnay na ad."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Mga app na na-block mo"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Tingnan ang mga naka-block na app"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"I-reset ang mga interes na tinatantya ng mga app"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Walang app na bumubuo ng mga interes para sa iyo sa ngayon"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Walang app na maipapakita sa ngayon. \nMatuto pa tungkol sa "<a href="https://support.google.com/android?p=ad_privacy">"mga ad na iminumungkahi ng app"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Nagbibigay ang beta ng privacy sa mga ad ng Android ng mga bagong feature na magagamit ng mga app para magpakita sa iyo ng mga ad na posibleng magustuhan mo. Hindi gumagamit ang mga teknolohiyang ito ng mga identifier ng device.\n\nMatatantya ng mga app ang mga uri ng mga ad kung saan posibleng interesado ka, at pansamantalang sine-save ang mga interes sa device mo. Nagbibigay-daan ito sa mga app na magpakita sa iyo ng mga may kaugnayang ad, nang hindi sinusubaybayan ang aktibidad mo sa mga website at app mula sa iba pang developer."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Wala kang naka-block na app"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Walang naka-block na app"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Pahintulutan ang pagsukat ng ad"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Puwedeng humingi ang mga app at advertiser ng impormasyon mula sa Android na makakatulong sa kanilang sukatin ang performance ng mga ad nila.\n\nRegular na dine-delete ang pagsukat ng ad sa iyong device."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"I-reset ang data ng pagsukat"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Pinoprotektahan ng Android ang iyong privacy sa pamamagitan ng paglilimita sa impormasyong puwedeng ibahagi ng mga app sa isa\'t isa. Ipinapadala ang mga ulat nang may antala para protektahan ang iyong pagkakakilanlan.\n\nPosibleng may katulad na setting ang browser mo. Kung naka-on para sa parehong Android at iyong browser ang pagsukat ng ad, puwedeng masukat ng isang kumpanya ang bisa ng isang ad sa pagitan ng mga app na ginagamit at site na binibisita mo. Pinapanatiling pribado sa iyong device ang history ng pag-browse mo.\n\nMatuto pa tungkol sa kung paano pinoprotektahan ng Android ang iyong data sa aming "<a href="https://policies.google.com/privacy">"Patakaran sa Privacy"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Na-reset ang data ng pagsukat ng ad"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Kanselahin"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"I-off ang Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Kung magbabago ka ng isip o kung gusto mong matuto pa tungkol sa beta ng privacy sa mga ad ng Android, pumunta sa iyong mga setting ng privacy"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"I-off"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"I-block ang <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Iba-block ang paksang ito at hindi na ito idaragdag ulit sa iyong listahan, maliban kung idaragdag mo ito ulit. Posibleng makakita ka pa rin ng ilang nauugnay na ad."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"I-block"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Na-unblock ang <xliff:g id="TOPIC">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Puwedeng idagdag ulit ng Android ang paksang ito sa iyong listahan, pero posibleng hindi ito kaagad lumabas"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"I-reset ang lahat ng paksa ng ad?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Iki-clear ang iyong listahan at magdaragdag ng mga bagong paksa mula ngayon. Posibleng makakita ka pa rin ng ilang ad na nauugnay sa mga na-reset mong paksa."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"I-reset"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"I-block ang <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Hindi magmumungkahi ang app na ito ng mga ad at hindi ito idaragdag ulit sa iyong listahan maliban kung i-unblock mo ito. Posibleng makakita ka pa rin ng ilang nauugnay na ad."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Na-unblock ang <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Puwedeng magmungkahi ulit ang app na ito ng mga ad para sa iyo, pero posibleng hindi ito lumabas agad sa listahan mo. Posibleng matagalan bago ka makakita ng mga nauugnay na ad."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"I-reset ang mga ad na iminumungkahi ng mga app?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Ide-delete ang data ng suhestyon ng ad mula sa mga app na nasa listahan mo at magmumungkahi ang mga app ng mga bagong ad mula roon. Posibleng makakita ka pa rin ng ilang nauugnay na ad."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Na-reset ang data ng app"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Naka-on ang mga paksa ng ad"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Magsisimula ang Android na magtala ng mga paksang pinagkakainteresan, pero posibleng magtagal bago lumabas ang mga una mong paksa."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"I-off ang mga paksa ng ad?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Ide-delete ang listahang ito ng mga paksa. Hindi na magtatala ang Android ng mga paksang pinagkakainteresan, pero posible ka pa ring makakita ng mga kaugnay na ad."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Naka-on ang mga ad na iminumungkahi ng app"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Posibleng magsimulang magmungkahi ng mga ad ang mga app. Makakakita ka ng listahan ng mga app kapag nagsimula nang magmungkahi ng mga ad ang mga ito."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"I-off ang mga ad na iminumungkahi ng app?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Ide-delete ang lahat ng data ng suhestyon sa ad. Hindi na makakapagmungkahi ng mga ad ang mga app, pero posible ka pa ring makakita ng mga nauugnay na ad."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Naka-on ang pagsukat sa ad"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Puwede lang magbahagi ang Android ng napakalimitadong impormasyon sa mga app para makatulong sa mga app na sukatin ang performance ng mga ad ng mga ito."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"I-off ang pagsukat sa ad?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Made-delete ang lahat ng nakabinbing ulat at walang mabubuo o maibabahaging bagong ulat."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Privacy sa ad"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Mga paksa ng ad"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Mga ad na iminumungkahi ng app"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit at kung gaano mo kadalas gamitin ang mga ito."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Matutukoy din ng mga ginagamit mong app kung ano ang gusto mo batay sa kung paano mo ginagamit ang mga iyon."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Puwedeng humiling ng impormasyon sa Android ang mga ginagamit mong app para masukat ng mga ito ang performance ng mga ad ng mga ito. Pinapayagan ng Android ang mga app na mangolekta ng limitadong uri ng data."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Matuto pa tungkol sa "<a href="https://support.google.com/android?p=ad_privacy">"privacy sa ad sa Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Naka-on / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> (na) paksa"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Naka-on / # paksa}one{Naka-on / # paksa}other{Naka-on / # na paksa}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Naka-on / <xliff:g id="APPS_COUNT">%1$d</xliff:g> (na) app"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Naka-on / # app}one{Naka-on / # app}other{Naka-on / # na app}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Naka-on"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Naka-off"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Nakabatay ang mga paksa ng interes sa mga app na ginamit mo kamakailan, at ginagamit ito ng mga app para magpakita sa iyo ng mga naka-personalize na ad.\n\nPuwede mong i-block ang mga paksang hindi mo gustong ibahagi sa mga app. Regular at awtomatiko ring dine-delete ng Android ang mga paksa.\n\nKahit na puwedeng i-on ang feature na ito, posibleng hindi ka makakita ng listahan ng mga paksa hanggang sa ganap na maging available ang feature na ito at simulan itong gamitin ng mga app."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Payagan ang mga paksa ng ad"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Mga na-block mong paksa ng ad"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"I-reset ang lahat ng paksa ng ad"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na ginamit mo sa nakaraang ilang linggo.\n\nSa ibang pagkakataon, puwedeng hilingin ng isang app na ginagamit mo sa Android ang iyong mga paksa para ma-personalize ang mga ad na nakikita mo. Nagbabahagi ang Android ng hanggang 3 paksa habang pinoprotektahan ang iyong pagkakakilanlan at impormasyon tungkol sa paggamit mo ng app.\n\nRegular na awtomatikong nagde-delete ang Android ng mga paksa. Habang patuloy kang gumagamit ng mga app, posibleng lumabas ulit sa listahan ang isang paksa. O kaya, puwede mong i-block ang mga paksang hindi mo gustong ibahagi ng Android sa mga app.\n\nSa iyong mga app, posibleng naka-personalize ang ad na nakikita mo, depende sa setting na ito, sa setting ng mga ad na iminumungkahi ng app, sa mga setting mo para sa advertising ID, at kung nagpe-personalize ng mga ad ang ginagamit mong app."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Payagan ang mga ad na iminumungkahi ng app"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Magagawa ng mga ginagamit mong app na tukuyin kung ano ang gusto mo at pagkatapos ay magmungkahi ng mga ad sa ibang app.\n\nPuwede mong i-block ang mga app sa pagmumungkahi. Regular at awtomatiko ring dine-delete ng Android ang data na iminumungkahi ng app.\n\nKahit na puwedeng i-on ang feature na ito, posibleng hindi ka makakita ng listahan ng mga app hanggang sa ganap na maging available ang feature na ito at simulan itong gamitin ng mga app."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Mga app na na-block mo"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"I-reset ang data na iminumungkahi ng app"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Karaniwang tinatandaan ng mga ginagamit mong app ang mga bagay kung saan ka interesado para ma-personalize ang iyong karanasan. Puwede ring mag-store ang mga app ng impormasyon tungkol sa iyong mga paksa sa Android.\n\nHalimbawa, kung gumagamit ka ng app tungkol sa pagsasanay para sa marathon, posibleng tukuyin ng app na interesado ka sa running shoes. Sa ibang pagkakataon, kung gagamit ka ng ibang app, puwedeng magpakita ang app na iyon sa iyo ng ad para sa running shoes batay sa mungkahi ng naunang app.\n\nRegular na awtomatikong dine-delete ng Android ang data na iminumungkahi ng app. Posibleng lumabas ulit sa listahan ang isang app na ginamit mo ulit. O kaya, puwede kang mag-block ng app sa pagmumungkahi ng mga ad para sa iyo.\n\nSa iyong mga app, posibleng naka-personalize ang ad na nakikita mo, depende sa setting na ito, sa setting ng mga paksa ng ad, sa mga setting mo para sa advertising ID, at kung nagpe-personalize ng mga ad ang ginagamit mong app."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Available na ang bagong feature sa privacy sa mga ad"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Napakalimitadong impormasyon lang ang ibinabahagi sa pagitan ng mga app para tumulong sa pagsukat ng performance ng ad"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Maglulunsad kami ng bagong feature ng privacy sa ad na tinatawag na pagsukat sa ad. Ibinabahagi lang ng Android ang napakalimitadong impormasyon sa pagitan ng mga app, gaya ng kung kailan ipinakita ang isang ad sa iyo, para tulungan ang mga app na sukatin ang performance ng mga ad."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Puwede kang gumawa ng mga pagbabago sa mga setting ng privacy sa ad."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Puwedeng humiling ng impormasyon sa Android ang mga ginagamit mong app para masukat ng mga ito ang performance ng mga ad ng mga ito. Pinapayagan lang ng Android ang mga app na mangolekta ng limitadong uri ng data."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Mga bagong feature ng privacy sa ad"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Makakuha ng higit pang kontrol sa mga ad na nakikita mo habang tumutulong na maprotektahan ang iyong pagkakakilanlan"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Mga update sa iyong mga feature ng privacy sa ad"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Makakuha ng higit pang kontrol sa mga ad na nakikita mo habang tumutulong na maprotektahan ang iyong pagkakakilanlan"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Pinapalawak ng Android ang mga feature ng privacy sa ad para paghigpitan kung ano ang puwedeng matutunan ng mga app tungkol sa iyo kapag nagpapakita ang mga ito sa iyo ng mga naka-personalize na ad."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Puwedeng gamitin ng mga app at ng mga partner sa pag-advertise ng mga ito ang iyong aktibidad sa iba pang app sa device na ito para mag-personalize ng mga ad, habang tumutulong pa rin na panatilihing pribado at secure ang iyong pagkakakilanlan."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Higit pa tungkol sa mga ad na iminumungkahi ng app"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Shine-share ang limitadong uri ng data sa pagitan ng mga app para maunawaan ang performance ng mga ad ng mga ito, gaya ng oras kailan ipinakita sa iyo ang isang ad."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Higit pa tungkol sa pagsukat sa ad"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na kamakailan mong ginamit. Puwede ring gamitin ng mga app at ng mga partner sa pag-advertise ng mga ito ang iyong aktibidad sa ibang app sa device na ito para mag-personalize ng mga ad habang tumutulong pa rin na panatilihing pribado at secure ang iyong pagkakakilanlan."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Puwede ring matukoy ng mga ginagamit mong app kung ano ang gusto mo batay sa iyong aktibidad sa app. Halimbawa, kung regular kang gumagamit ng mga app sa pagluluto, posibleng makakita ka ng mga ad para sa mga serbisyo sa paghahatid ng grocery o nauugnay na content sa ibang app.\n\nPuwedeng secure na i-store ng mga app ang impormasyong ito para ang mga partner sa pag-advertise ng mga ito lang ang makagamit nito para mag-personalize ng mga ad sa ibang app."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Sa ibang pagkakataon, puwedeng hilingin ng ginagamit mong app ang impormasyong ito—ang iyong mga paksa ng ad man o mga ad na iminungkahi ng mga app na nagamit mo."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Puwedeng humiling ng impormasyon sa Android ang mga ginagamit mong app para masukat ng mga ito ang performance ng mga ad ng mga ito. Tumutulong ang Android na protektahan ang iyong privacy sa pamamagitan ng paglilimita sa impormasyong puwedeng ibahagi ng mga app sa isa\'t isa."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Anong data ang ginagamit?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Puwedeng humiling ng impormasyon sa Android ang mga ginagamit mong app na makakatulong sa mga itong sukatin ang performance ng mga ad nito. Tumutulong ang Android na protektahan ang iyong privacy sa pamamagitan ng paglilimita sa impormasyong puwedeng i-share ng mga app sa isa\'t isa."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Paano napoprotektahan ang aking pagkakakilanlan?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Gumagamit ng maraming hakbang sa privacy ang Android tulad ng pag-aggregate at pagdagdag ng noise sa data para limitahan ang impormasyong puwedeng i-share ng mga app sa isa\'t isa at tumulong na maprotektahan ang iyong pagkakakilanlan.\n\nRegular ding dine-delete ang data ng pagsukat sa ad sa device mo."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Puwedeng gamitin ang iyong aktibidad sa app para magmungkahi ng mga ad."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Paano ginagamit ng mga app ang data na ito?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Puwedeng secure na i-store ng mga app ang impormasyong ito para ang mga partner sa pag-advertise ng mga ito lang ang makagamit nito para mag-personalize ng mga ad sa ibang app. Halimbawa, kung regular kang gumagamit ng mga app sa pagluluto, posibleng makakita ka ng mga ad para sa mga serbisyo sa paghahatid ng grocery o nauugnay na content sa iba pang app."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Paano ko mapapamahalaan ang data na ito?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Puwede mong i-block ang mga partikular na app sa pag-share ng iyong aktibidad sa mga partner sa pag-advertise. Puwede mong i-reset o i-off ang mga ad na iminumungkahi ng app anumang oras sa iyong mga setting ng privacy. Regular ding awtomatikong dine-delete ng Android ang data na ito."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Matuto pa tungkol sa kung paano tumutulong ang Android na protektahan ang iyong privacy"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Puwedeng gamitin ng mga app at ng mga partner sa pag-advertise ng mga ito ang aktibidad mo sa iba pang app sa device na ito para mag-personalize ng mga ad habang pinapanatiling pribado at secure ang impormasyon tungkol sa iyo.\n\nHalimbawa, kung regular kang gumagamit ng mga app sa pagluluto, posible kang makakita ng mga ad ng mga serbisyo sa paghahatid ng grocery o nauugnay na content sa iba pang app.\n\nRegular na awtomatikong dine-delete ng Android ang iyong aktibidad, pero puwede mo ring i-block ang mga app sa pag-share ng impormasyong ito sa mga partner sa pag-advertise ng mga nasabing app."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Karaniwan sa mga app at sa mga partner sa pag-advertise ng mga ito na maalala ang mga bagay na interesado ka para i-personalize ang iyong experience. Puwedeng secure na i-store ng mga app ang impormasyong ito para ang mga partner sa pag-advertise ng mga ito lang ang makagamit nito para mag-personalize ng mga ad sa ibang app.\n\nPuwede mong i-block ang isang app sa pag-share ng iyong data ng aktibidad sa mga partner sa pag-advertise. Regular ding awtomatikong dine-delete ng Android ang naka-share na data ng aktibidad, para posibleng lumabas ulit sa listahang ito ang isang app na gagamitin mo ulit.\n\nPuwedeng nakadepende ang pagkaka-personalize ng ad na iyong nakikita sa maraming salik tulad ng setting na ito, setting ng mga paksa ng ad, mga setting mo para sa advertising ID, at kung nagpe-personalize ng mga ad ang app na iyong ginagamit.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Matuto pa tungkol sa mga ad na iminumungkahi ng app"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Gumagamit ng maraming hakbang sa privacy ang Android tulad ng pag-aggregate at pagdagdag ng noise sa data para limitahan ang impormasyong puwedeng i-share ng mga app sa isa\'t isa at tumulong na maprotektahan ang iyong pagkakakilanlan.\n\nPosibleng may parehong setting ang browser mo. Kung naka-on para sa parehong Android at iyong browser ang pagsukat sa ad, puwedeng masukat ng isang kumpanya ang bisa ng isang ad sa pagitan ng mga app na ginagamit at site na binibisita mo. Pinapanatiling pribado sa iyong device ang history ng pag-browse mo.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Matuto pa tungkol sa pagsukat sa ad"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Nagtatala ang Android ng mga paksa kung saan ka interesado batay sa mga app na ginamit mo sa nakaraang ilang linggo.\n\nSa ibang pagkakataon, puwedeng hilingin ng isang app na ginagamit mo sa Android ang iyong mga paksa para ma-personalize ang mga ad na nakikita mo. Nagshe-share ang Android ng hanggang 3 paksa habang pinoprotektahan ang iyong pagkakakilanlan at impormasyon tungkol sa paggamit mo ng app.\n\nRegular na awtomatikong nagde-delete ang Android ng mga paksa. Habang patuloy kang gumagamit ng mga app, posibleng lumabas ulit sa listahan ang isang paksa. O puwede mong i-block ang mga paksang ayaw mong i-share ng Android sa mga app.\n\nPuwedeng nakadepende ang pagkaka-personalize ng ad na iyong nakikita sa maraming salik tulad ng setting na ito, setting ng mga ad na iminumungkahi ng app, mga setting mo para sa advertising ID, at kung nagpe-personalize ng mga ad ang iyong ginagamit na app.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Matuto pa tungkol sa mga paksa ng ad"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Makulay na paglalarawan ng mga simbolong kumakatawan sa mga paksang kaiinteresan gaya ng musika, balita, at sports"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Makulay na paglalarawan ng lock sa loob ng bilog"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Maliit na black and white na paglalarawan ng siyam na tuldok na bumubuo ng kuwadrado"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Maliit na black and white na paglalarawan ng mga simpleng hugis gaya ng puso, tatsulok, at kuwadrado"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Sining at Entertainment"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Pag-arte at Teatro"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime at Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Mga Cartoon"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komiks"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Mga Concert at Music Festival"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Sayaw"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Industriya ng Entertainment"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Katuwaan at Trivia"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Mga Nakakaaliw na Test at Survey"</string>
+    <string name="topic10011" msgid="175945911179628507">"Katatawanan"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Mga Nakakatawang Larawan at Video"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Live na Komedya"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Mga Live na Kaganapan sa Sports"</string>
+    <string name="topic10015" msgid="726046067079821146">"Mahika"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Mga Listing ng Pelikula at Oras ng Pagpapalabas sa Sinehan"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Mga Pelikula"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Mga Pelikulang Action at Adventure"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Mga Pelikulang Animated"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Mga Pelikulang Komedya"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Mga Pelikulang Cult at Indie"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Mga Pelikulang Dokumentaryo"</string>
+    <string name="topic10023" msgid="254151319845267278">"Mga Pelikulang Drama"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Mga Pelikulang Pampamilya"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Mga Pelikulang Katatakutan"</string>
+    <string name="topic10026" msgid="210222384439682793">"Mga Pelikulang Romansa"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Thriller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musika at Audio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Classical Music"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Country Music"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Dance at Electronic Music"</string>
+    <string name="topic10033" msgid="895853536740398847">"Folk at Traditional Music"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Mga Stream at Download ng Musika"</string>
+    <string name="topic10036" msgid="449833307315797283">"Mga Music Video"</string>
+    <string name="topic10037" msgid="51698216720637667">"Mga Instrumentong Pangmusika"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Mga Piano at Keyboard"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Pop Music"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radyo"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Talk Radio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap at Hip-Hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rock Music"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Classic Rock at Mga Lumang Kanta"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hard Rock at Progressive"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indie at Alternative Music"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Mga Library ng Sample at Tunog"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul at R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Mga Soundtrack"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Musika ng Mundo"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae at Caribbean Music"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Mga Online na Gallery ng Larawan"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Online na Video"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Live na Video Stream"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Stream ng Pelikula at TV"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Mga Gabay at Sanggunian sa TV"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Mga Network at Istasyon ng TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Mga Palabas at Programa sa TV"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Mga Komedya sa TV"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Dokumentaryo at Nonfiction sa TV"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Mga Drama sa TV"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Mga Soap Opera sa TV"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Mga Pampamilyang Palabas sa TV"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Mga Reality Show sa TV"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Mga Palabas na Sci-Fi at Fantasy sa TV"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Visual Art at Pagdidisenyo"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Pagdidisensyo"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Pagpipinta"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Photography at Digital Arts"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Mga Auto at Sasakyan"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Mga Cargo Truck at Trailer"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Mga Classic na Sasakyan"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Mga Custom at Performance Vehicle"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Mga Presyo ng Gasolina at Fuel ng Sasakyan"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Mga De-motor na Sasakyan (Ayon sa Uri)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Mga Autonomous na Sasakyan"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Mga Convertible"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Mga Coupe"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Mga Hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"Mga Hybrid at Alternative na Sasakyan"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Mga Luxury Car"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mga Microcar at Subcompact"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Mga Motorsiklo"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Mga Sasakyang Pang-off Road"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Mga Pickup Truck"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Mga Scooter at Moped"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Mga Sedan"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Mga Station Wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Mga SUV at Crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Mga Crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Mga Van at Minivan"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Pag-tow at Tulong sa Tabi ng Kalsada"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Kaligtasan ng Sasakyan at Trapiko"</string>
+    <string name="topic10095" msgid="84682415803421329">"Mga Piyesa at Accessory ng Sasakyan"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Pagkukumpuni at Pagmementina ng Sasakyan"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Pamimili ng Sasakyan"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Mga Gamit Nang Sasakyan"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Mga Palabas Tungkol sa Sasakyan"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Pagpapaganda at Fitness"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Sining sa Katawan"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Pangangalaga sa Mukha at Katawan"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Mga Antiperspirant"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Mga Produkto para sa Paliligo at Katawan"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Mga Natural na Pampaganda"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Make-Up at Kosmetiko"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Mga Produkto para sa Pangangalaga ng Kuko"</string>
+    <string name="topic10108" msgid="577259588028933025">"Mga Pabango at Fragrance"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Mga Razor at Pang-ahit"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Fashion at Istilo"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitness"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Bodybuilding"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Pagtuturo ng Fitness at Personal na Pagsasanay"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Mga Produkto ng Teknolohiya sa Fitness"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Pangangalaga sa Buhok"</string>
+    <string name="topic10116" msgid="763642849903586689">"Mga Aklat at Panitikan"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Panitikang Pambata"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Mga E-Book"</string>
+    <string name="topic10119" msgid="894448782525835364">"Mga Magazine"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Mga Tula"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Negosyo at Industriya"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Pag-advertise at Marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Pagbebenta"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Agrikultura ar Forestry"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Paggawa ng Pagkain"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Industriya ng Automotive"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Industriya ng Aviation"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Business Operations"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Mga Flexible na Work Arrangement"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Human Resources"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Pangkomersyong Pautang"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Konstruksyon at Pagmementina"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Civil Engineering"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Industriya ng Tanggulan"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Enerhiya at Mga Utility"</string>
+    <string name="topic10136" msgid="455894912948558854">"Supply at Pagpoproseso ng Tubig"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Industriya ng Hospitality"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Pagmamanupaktura"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Mga Metal at Pagmimina"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM at Mga Oportunidad sa Negosyo"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Mga Parmasyutiko at Biotech"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Pagpi-print at Paglalathala"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Pangangalakal na Retail"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Venture Capital"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Mga Computer at Electronics"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Mga Computer Peripheral"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Mga Printer"</string>
+    <string name="topic10148" msgid="388392714835039199">"Seguridad sa Computer"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirus at Malware"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Seguridad ng Network"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Consumer Electronics"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Mga Camera at Camcorder"</string>
+    <string name="topic10153" msgid="6999943807078774050">"Pag-navigate Gamit ang GPS"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Home Automation"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Mga Home Theater System"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 at Mga Portable na Media Player"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Nasusuot na Teknolohiya"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Pag-back Up at Pag-recover ng Data"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Mga Desktop Computer"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Mga Laptop at Notebook"</string>
+    <string name="topic10161" msgid="172004201167511870">"Networking"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Distributed at Cloud Computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programming"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Software"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Software para sa Audio at Musika"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Software para sa Negosyo at Pagiging Produktibo"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Software para sa Kalendaryo at Pag-iiskedyul"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Software para sa Pakikipag-collaborate at Pakikipagkumperensya"</string>
+    <string name="topic10169" msgid="827557334245484202">"Software para sa Presentation"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Software ng Spreadsheet"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Software para sa Word Processing"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Desktop Publishing"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Mga Font"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Mga Download Manager"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Freeware at Shareware"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Software para sa Graphics at Animation"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Mga Matalinong Personal Assistant"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Mga Media Player"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Software para sa Pagsubaybay"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Mga Operating System"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Software para sa Larawan at Video"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Software para sa Larawan"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Software para sa Video"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Mga Software Utility"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Mga Web Browser"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Pananalapi"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Accounting at Pag-audit"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Paghahanda at Pagpaplano ng Buwis"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Pagbabangko"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Pag-transfer ng Pera at Mga Wire Service"</string>
+    <string name="topic10191" msgid="374364159635356705">"Credit at Pagpapautang"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Mga Credit Card"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Pagpopondo para sa Bahay"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Mga Personal na Loan"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Mga Loan para sa Mag-aaral at Pagpopondo para sa Kolehiyo"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Pagpaplano at Pamamahala ng Pananalapi"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Pagreretiro at Pensyon"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Mga Grant"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Mga Grant"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Insurance"</string>
+    <string name="topic10201" msgid="447240478385298875">"Insurance sa Sasakyan"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Insurance sa Kalusugan"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Insurance sa Tahanan"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Life Insurance"</string>
+    <string name="topic10205" msgid="262581473890356377">"Insurance sa Paglalakbay"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Pamumuhunan"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Pagpapalitan ng Mga Commodity at Future"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Mga Currency at Foreign Exchange"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Mga Hedge Fund"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Mga Mutual Fund"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Mga Stock at Bond"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Pagkain at Inumin"</string>
+    <string name="topic10213" msgid="805716705436663130">"Pagluluto at Mga Recipe"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ at Pag-iihaw"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Mga Cuisine"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Lutong Pang-vegetarian"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegan Cuisine"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Masustansyang Pagkain"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Mga Retailer ng Pagkain at Grocery"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Mga Laro"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Mga Arcade at Coin-Op Game"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Bilyar"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Mga Board Game"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Chess at Mga Abstract Strategy Game"</string>
+    <string name="topic10225" msgid="564207834821286301">"Mga Card Game"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Mga Collectible Card Game"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Mga Computer at Video Game"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Mga Action at Platforming Game"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Mga Adventure Game"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Mga Casual na Laro"</string>
+    <string name="topic10231" msgid="405082026972839048">"Kumpetisyon sa Video Gaming"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Mga Driving at Racing Game"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Mga Fighting Game"</string>
+    <string name="topic10234" msgid="693433817142162565">"Mga Sanggunian at Review sa Gaming"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Mga Cheat at Hint sa Video Game"</string>
+    <string name="topic10236" msgid="320145832033080647">"Mga Massively Multiplayer Game"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Mga Larong May Musika at Pagsayaw"</string>
+    <string name="topic10238" msgid="124952008622371505">"Mga Sandbox Game"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Mga Larong Barilan"</string>
+    <string name="topic10240" msgid="429738690314619395">"Mga Simulation Game"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Mga Business at Tycoon Game"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Mga City Building Game"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Mga Life Simulation Game"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Mga Simulator ng Sasakyan"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Mga Larong Sports"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Mga Sports Management Game"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Mga Strategy Game"</string>
+    <string name="topic10248" msgid="279151815457227293">"Mga Mod at Add-On sa Video Game"</string>
+    <string name="topic10249" msgid="631580828608894782">"Mga Larong Pang-edukasyon"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Mga Pampamilyang Laro at Aktibidad"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Pagguhit at Pagkukulay"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Mga Dress-Up at Fashion Game"</string>
+    <string name="topic10253" msgid="385499297969826942">"Mga Puzzles at Brainteaser"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Mga Roleplaying Game"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Table Tennis"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Mga Tile Game"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Mga Word Game"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Mga Libangan at Pampalipas-oras"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Mga Anibersaryo"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Mga Kaarawan at Name Day"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Paninisid at Mga Aktibidad sa Ilalim ng Tubig"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Sining ng Fiber at Textile"</string>
+    <string name="topic10263" msgid="361345691023794788">"Outdoors"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Pangingisda"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Pangangaso at Pamamaril"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Pagkontrol at Pagmomodelo ng Radyo"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Mga Kasalan"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Tahanan at Hardin"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Paghahalaman"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Dekorasyon sa Bahay"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Mga Kasangkapang Pantahanan"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Pagpapaganda ng Bahay"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Kaligtasan at Seguridad sa Bahay"</string>
+    <string name="topic10275" msgid="682064062059687444">"Mga Supply sa Sambahayan"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Pagdidisenyo ng Landscape"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet at Telecom"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Email at Pagmemensahe"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Email"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Text at Instant Messaging"</string>
+    <string name="topic10281" msgid="582764575763317221">"Voice at Video Chat"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Mga ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Mga Service Provider sa Telepono"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Mga Ringtone at Tema para sa Mobile"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Mga Search Engine"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Mga Smart Phone"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Teleconferencing"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Mga Web App at Online na Tool"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Mga Serbisyo sa Web"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloud Storage"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Pagdidisenyo at Paggawa ng Website"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Web Hosting"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Mga Trabaho at Edukasyon"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Edukasyon"</string>
+    <string name="topic10295" msgid="331240908257602211">"Mga Akademikong Kumperensya at Publication"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Mga Kolehiyo at Unibersidad"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Distance Learning"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Edukasyon sa Maagang Pagkabata"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Preschool"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Homeschooling"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Mga Standardized at Admissions Test"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Mga Resource para sa Pagtuturo at Silid-aralan"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Vocational at Karagdagang Edukasyon"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Mga Trabaho"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Mga Resource at Pagpaplano para sa Career"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Mga Listing ng Trabaho"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Batas at Pamahalaan"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Krimen at Hustisya"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Legal"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Mga Legal na Serbisyo"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Balita"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Balitang Pang-ekonomiya"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Lokal na Balita"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Mga Merger at Acquisition"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Mga Pahayagan"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Pulitika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Balita sa Sports"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Lagay ng Panahon"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Balita sa Buong Mundo"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Mga Online na Komunidad"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clip Art at Mga Animated na GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Pakikipag-date ang Mga Personal na Usapin"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Pagsasama-sama ng Feed at Social Bookmarking"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Pagbabahagi at Pag-host ng File"</string>
+    <string name="topic10325" msgid="916412844647169263">"Mga Provider ng Forum at Chat"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Microblogging"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Pagbabahgi ng Larawan at Video"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Pagbabahagi ng Litrato at Larawan"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Pagbabahagi ng Video"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Mga Skin"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Mga App at Add-On sa Social Network"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Mga Social Network"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Mga Tao at Lipunan"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Pamilya at Mga Relasyon"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Mga Ninuno at Angkan"</string>
+    <string name="topic10336" msgid="360328903013424569">"Pag-aasawa"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Pagiging Magulang"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Pag-adopt"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Mga Sanggol at Bata"</string>
+    <string name="topic10340" msgid="259457452971577855">"Kaligtasan ng Bata sa Internet"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romansa"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Science Fiction at Fantasy"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Mga Alaga at Mga Hayop"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Pagkain ng Alagang Hayop at Mga Supply sa Pag-aalaga ng Hayop"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Mga Alagang Hayop"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Mga Ibon"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Mga Pusa"</string>
+    <string name="topic10348" msgid="570783769757187957">"Mga Aso"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Mga Isda at Yamang Tubig"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Mga Reptiles at Amphibian"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Mga Beterinaryo"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Real Estate"</string>
+    <string name="topic10353" msgid="230887584509968233">"Mga Lote at Lupain"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Mga Timeshare at Bakasyunan"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Sanggunian"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Mga Listing ng Negosyo at Personal na Listing"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Pangkalahatang Sanggunian"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Mga Calculator at Sangguniang Kagamitan"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Mga Diksyunaryo at Encyclopedia"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Mga Pang-edukasyong Resource"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Paano Gawin"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Oras at Mga Kalendaryo"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Mga Resource sa Wika"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Pag-aaral ng Wikang Banyaga"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Mga Tool at Resource sa Pagsasalin-wika"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Mga Mapa"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Agham"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Augmented at Virtual Reality"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biological na Agham"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetics"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Chemistry"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ecology at Kapaligiran"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geology"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Machine Learning at Artificial Intelligence"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Physics"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotics"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Pamimili"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Mga Antigo at Kinokolektang Kagamitan"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Kasuotan"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Damit na Pambata"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Mga Costume"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Damit na Panlalaki"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Damit na Pambabae"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Mga Classified"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Mga Resource ng Consumer"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Mga Kupon at Alok na Diskwento"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Mga Loyalty Card at Program"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Technical Support at Pagkukumpuni"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Mga Bulaklak"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Mga Greeting Card"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Mga Supply sa Pagdiriwang at Holiday"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Mga Shopping Portal"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sports"</string>
+    <string name="topic10395" msgid="8799420706106672054">"American Football"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Australian Football"</string>
+    <string name="topic10397" msgid="653991203228840785">"Auto Racing"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Baseball"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basketball"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boxing"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Cheerleading"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Mga College Sport"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Cricket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Pagbibisikleta"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Equestrian"</string>
+    <string name="topic10407" msgid="316266982792700993">"Mga Extreme Sport"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Climbing at Mountaineering"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Mga Fantasy Sport"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gymnastics"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hockey"</string>
+    <string name="topic10413" msgid="416366556259783701">"Ice Skating"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Martial Arts"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Karera ng Motorsiklo"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olympics"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rugby"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Pagtakbo at Paglalakad"</string>
+    <string name="topic10419" msgid="979581105119036716">"Skiing at Snowboarding"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Soccer"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surfing"</string>
+    <string name="topic10422" msgid="978920114358054206">"Paglangoy"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Track and Field"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Volleyball"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Wrestling"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Pagbiyahe at Transportasyon"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Pakikipagsapalarang Paglalakbay"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Paglalakbay sa Himpapawid"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Pangnegosyong Pagbiyahe"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Mga Rental ng Kotse"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Mga Cruise at Charter"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Paglalakbay na Pampamilya"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Mga Honeymoon at Romantikong Bakasyon"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Mga Hotel at Akomodasyon"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Pangmalayuang Bus at Tren"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Mura at Last-Minute na Paglalakbay"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Bagahe at Mga Accessory sa Paglalakbay"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Pasyalan ng Mga Turista"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Mga Beach at Isla"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Mga Panrehiyong Parke at Hardin"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Mga Theme Park"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Mga Zoo"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Mga Planner ng Trapiko at Ruta"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Mga Ahensya at Serbisyo sa Paglalakbay"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Mga Gabay sa Paglalakbay at Travelogue"</string>
+</resources>

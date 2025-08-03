@@ -1,0 +1,6015 @@
+{
+ "array_types" :
+ [
+  {
+   "alignment" : 1,
+   "linker_set_key" : "_ZTIA0_c",
+   "name" : "char[0]",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIA0_c",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 1,
+   "linker_set_key" : "_ZTIA1024_c",
+   "name" : "char[1024]",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIA1024_c",
+   "size" : 1024,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIA28_j",
+   "name" : "unsigned int[28]",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIA28_j",
+   "size" : 112,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 1,
+   "linker_set_key" : "_ZTIA56_c",
+   "name" : "char[56]",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIA56_c",
+   "size" : 56,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  },
+  {
+   "alignment" : 1,
+   "linker_set_key" : "_ZTIA64_c",
+   "name" : "char[64]",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIA64_c",
+   "size" : 64,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 1,
+   "linker_set_key" : "_ZTIA92_c",
+   "name" : "char[92]",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIA92_c",
+   "size" : 92,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  }
+ ],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIa",
+   "name" : "signed char",
+   "referenced_type" : "_ZTIa",
+   "self_type" : "_ZTIa",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIb",
+   "name" : "bool",
+   "referenced_type" : "_ZTIb",
+   "self_type" : "_ZTIb",
+   "size" : 1
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIc",
+   "size" : 1
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTId",
+   "name" : "double",
+   "referenced_type" : "_ZTId",
+   "self_type" : "_ZTId",
+   "size" : 8
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIf",
+   "name" : "float",
+   "referenced_type" : "_ZTIf",
+   "self_type" : "_ZTIf",
+   "size" : 4
+  },
+  {
+   "alignment" : 16,
+   "linker_set_key" : "_ZTIg",
+   "name" : "long double",
+   "referenced_type" : "_ZTIg",
+   "self_type" : "_ZTIg",
+   "size" : 16
+  },
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIh",
+   "name" : "unsigned char",
+   "referenced_type" : "_ZTIh",
+   "self_type" : "_ZTIh",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIi",
+   "name" : "int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIi",
+   "size" : 4
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIj",
+   "size" : 4
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIl",
+   "name" : "long",
+   "referenced_type" : "_ZTIl",
+   "self_type" : "_ZTIl",
+   "size" : 8
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIm",
+   "name" : "unsigned long",
+   "referenced_type" : "_ZTIm",
+   "self_type" : "_ZTIm",
+   "size" : 8
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIs",
+   "name" : "short",
+   "referenced_type" : "_ZTIs",
+   "self_type" : "_ZTIs",
+   "size" : 2
+  },
+  {
+   "alignment" : 2,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIt",
+   "name" : "unsigned short",
+   "referenced_type" : "_ZTIt",
+   "self_type" : "_ZTIt",
+   "size" : 2
+  },
+  {
+   "linker_set_key" : "_ZTIv",
+   "name" : "void",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIv"
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIw",
+   "name" : "wchar_t",
+   "referenced_type" : "_ZTIw",
+   "self_type" : "_ZTIw",
+   "size" : 4
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "linker_set_key" : "_ZTIx",
+   "name" : "long long",
+   "referenced_type" : "_ZTIx",
+   "self_type" : "_ZTIx",
+   "size" : 8
+  },
+  {
+   "alignment" : 8,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIy",
+   "name" : "unsigned long long",
+   "referenced_type" : "_ZTIy",
+   "self_type" : "_ZTIy",
+   "size" : 8
+  }
+ ],
+ "elf_functions" :
+ [
+  {
+   "name" : "_Exit"
+  },
+  {
+   "name" : "_Unwind_Backtrace"
+  },
+  {
+   "name" : "_Unwind_DeleteException"
+  },
+  {
+   "name" : "_Unwind_FindEnclosingFunction"
+  },
+  {
+   "name" : "_Unwind_Find_FDE"
+  },
+  {
+   "name" : "_Unwind_ForcedUnwind"
+  },
+  {
+   "name" : "_Unwind_GetCFA"
+  },
+  {
+   "name" : "_Unwind_GetDataRelBase"
+  },
+  {
+   "name" : "_Unwind_GetGR"
+  },
+  {
+   "name" : "_Unwind_GetIP"
+  },
+  {
+   "name" : "_Unwind_GetIPInfo"
+  },
+  {
+   "name" : "_Unwind_GetLanguageSpecificData"
+  },
+  {
+   "name" : "_Unwind_GetRegionStart"
+  },
+  {
+   "name" : "_Unwind_GetTextRelBase"
+  },
+  {
+   "name" : "_Unwind_RaiseException"
+  },
+  {
+   "name" : "_Unwind_Resume"
+  },
+  {
+   "name" : "_Unwind_Resume_or_Rethrow"
+  },
+  {
+   "name" : "_Unwind_SetGR"
+  },
+  {
+   "name" : "_Unwind_SetIP"
+  },
+  {
+   "name" : "__FD_CLR_chk"
+  },
+  {
+   "name" : "__FD_ISSET_chk"
+  },
+  {
+   "name" : "__FD_SET_chk"
+  },
+  {
+   "name" : "__assert"
+  },
+  {
+   "name" : "__assert2"
+  },
+  {
+   "name" : "__b64_ntop"
+  },
+  {
+   "name" : "__b64_pton"
+  },
+  {
+   "name" : "__cmsg_nxthdr"
+  },
+  {
+   "name" : "__ctype_get_mb_cur_max"
+  },
+  {
+   "name" : "__cxa_atexit"
+  },
+  {
+   "name" : "__cxa_finalize"
+  },
+  {
+   "name" : "__cxa_thread_atexit_impl"
+  },
+  {
+   "name" : "__deregister_frame"
+  },
+  {
+   "name" : "__dn_comp"
+  },
+  {
+   "name" : "__dn_count_labels"
+  },
+  {
+   "name" : "__dn_skipname"
+  },
+  {
+   "name" : "__errno"
+  },
+  {
+   "name" : "__fbufsize"
+  },
+  {
+   "name" : "__fgets_chk"
+  },
+  {
+   "name" : "__flbf"
+  },
+  {
+   "name" : "__fp_nquery"
+  },
+  {
+   "name" : "__fp_query"
+  },
+  {
+   "name" : "__fpclassify"
+  },
+  {
+   "name" : "__fpclassifyd"
+  },
+  {
+   "name" : "__fpclassifyf"
+  },
+  {
+   "name" : "__fpclassifyl"
+  },
+  {
+   "name" : "__fpending"
+  },
+  {
+   "name" : "__fpurge"
+  },
+  {
+   "name" : "__fread_chk"
+  },
+  {
+   "name" : "__freadable"
+  },
+  {
+   "name" : "__freading"
+  },
+  {
+   "name" : "__fseterr"
+  },
+  {
+   "name" : "__fsetlocking"
+  },
+  {
+   "name" : "__fwritable"
+  },
+  {
+   "name" : "__fwrite_chk"
+  },
+  {
+   "name" : "__fwriting"
+  },
+  {
+   "name" : "__get_h_errno"
+  },
+  {
+   "name" : "__getcwd_chk"
+  },
+  {
+   "name" : "__gnu_basename"
+  },
+  {
+   "name" : "__gnu_strerror_r"
+  },
+  {
+   "name" : "__hostalias"
+  },
+  {
+   "name" : "__isfinite"
+  },
+  {
+   "name" : "__isfinitef"
+  },
+  {
+   "name" : "__isfinitel"
+  },
+  {
+   "name" : "__isinf"
+  },
+  {
+   "name" : "__isinff"
+  },
+  {
+   "name" : "__isinfl"
+  },
+  {
+   "name" : "__isnan"
+  },
+  {
+   "name" : "__isnanf"
+  },
+  {
+   "name" : "__isnanl"
+  },
+  {
+   "name" : "__isnormal"
+  },
+  {
+   "name" : "__isnormalf"
+  },
+  {
+   "name" : "__isnormall"
+  },
+  {
+   "name" : "__libc_current_sigrtmax"
+  },
+  {
+   "name" : "__libc_current_sigrtmin"
+  },
+  {
+   "name" : "__libc_get_static_tls_bounds"
+  },
+  {
+   "name" : "__libc_init"
+  },
+  {
+   "name" : "__libc_iterate_dynamic_tls"
+  },
+  {
+   "name" : "__libc_register_dynamic_tls_listeners"
+  },
+  {
+   "name" : "__libc_register_thread_exit_callback"
+  },
+  {
+   "name" : "__loc_aton"
+  },
+  {
+   "name" : "__loc_ntoa"
+  },
+  {
+   "name" : "__memchr_chk"
+  },
+  {
+   "name" : "__memcpy_chk"
+  },
+  {
+   "name" : "__memmove_chk"
+  },
+  {
+   "name" : "__mempcpy_chk"
+  },
+  {
+   "name" : "__memrchr_chk"
+  },
+  {
+   "name" : "__memset_chk"
+  },
+  {
+   "name" : "__open_2"
+  },
+  {
+   "name" : "__openat_2"
+  },
+  {
+   "name" : "__p_cdname"
+  },
+  {
+   "name" : "__p_cdnname"
+  },
+  {
+   "name" : "__p_class"
+  },
+  {
+   "name" : "__p_fqname"
+  },
+  {
+   "name" : "__p_fqnname"
+  },
+  {
+   "name" : "__p_option"
+  },
+  {
+   "name" : "__p_query"
+  },
+  {
+   "name" : "__p_rcode"
+  },
+  {
+   "name" : "__p_secstodate"
+  },
+  {
+   "name" : "__p_time"
+  },
+  {
+   "name" : "__p_type"
+  },
+  {
+   "name" : "__poll_chk"
+  },
+  {
+   "name" : "__ppoll64_chk"
+  },
+  {
+   "name" : "__ppoll_chk"
+  },
+  {
+   "name" : "__pread64_chk"
+  },
+  {
+   "name" : "__pread_chk"
+  },
+  {
+   "name" : "__pthread_cleanup_pop"
+  },
+  {
+   "name" : "__pthread_cleanup_push"
+  },
+  {
+   "name" : "__putlong"
+  },
+  {
+   "name" : "__putshort"
+  },
+  {
+   "name" : "__pwrite64_chk"
+  },
+  {
+   "name" : "__pwrite_chk"
+  },
+  {
+   "name" : "__read_chk"
+  },
+  {
+   "name" : "__readlink_chk"
+  },
+  {
+   "name" : "__readlinkat_chk"
+  },
+  {
+   "name" : "__recvfrom_chk"
+  },
+  {
+   "name" : "__register_atfork"
+  },
+  {
+   "name" : "__register_frame"
+  },
+  {
+   "name" : "__res_close"
+  },
+  {
+   "name" : "__res_dnok"
+  },
+  {
+   "name" : "__res_hnok"
+  },
+  {
+   "name" : "__res_hostalias"
+  },
+  {
+   "name" : "__res_isourserver"
+  },
+  {
+   "name" : "__res_mailok"
+  },
+  {
+   "name" : "__res_nameinquery"
+  },
+  {
+   "name" : "__res_nclose"
+  },
+  {
+   "name" : "__res_ninit"
+  },
+  {
+   "name" : "__res_nmkquery"
+  },
+  {
+   "name" : "__res_nquery"
+  },
+  {
+   "name" : "__res_nquerydomain"
+  },
+  {
+   "name" : "__res_nsearch"
+  },
+  {
+   "name" : "__res_nsend"
+  },
+  {
+   "name" : "__res_ownok"
+  },
+  {
+   "name" : "__res_queriesmatch"
+  },
+  {
+   "name" : "__res_querydomain"
+  },
+  {
+   "name" : "__res_randomid"
+  },
+  {
+   "name" : "__res_send"
+  },
+  {
+   "name" : "__res_send_setqhook"
+  },
+  {
+   "name" : "__res_send_setrhook"
+  },
+  {
+   "name" : "__sched_cpualloc"
+  },
+  {
+   "name" : "__sched_cpucount"
+  },
+  {
+   "name" : "__sched_cpufree"
+  },
+  {
+   "name" : "__sendto_chk"
+  },
+  {
+   "name" : "__snprintf_chk"
+  },
+  {
+   "name" : "__sprintf_chk"
+  },
+  {
+   "name" : "__stack_chk_fail"
+  },
+  {
+   "name" : "__stpcpy_chk"
+  },
+  {
+   "name" : "__stpncpy_chk"
+  },
+  {
+   "name" : "__stpncpy_chk2"
+  },
+  {
+   "name" : "__strcat_chk"
+  },
+  {
+   "name" : "__strchr_chk"
+  },
+  {
+   "name" : "__strcpy_chk"
+  },
+  {
+   "name" : "__strlcat_chk"
+  },
+  {
+   "name" : "__strlcpy_chk"
+  },
+  {
+   "name" : "__strlen_chk"
+  },
+  {
+   "name" : "__strncat_chk"
+  },
+  {
+   "name" : "__strncpy_chk"
+  },
+  {
+   "name" : "__strncpy_chk2"
+  },
+  {
+   "name" : "__strrchr_chk"
+  },
+  {
+   "name" : "__sym_ntop"
+  },
+  {
+   "name" : "__sym_ntos"
+  },
+  {
+   "name" : "__sym_ston"
+  },
+  {
+   "name" : "__system_properties_init"
+  },
+  {
+   "name" : "__system_property_add"
+  },
+  {
+   "name" : "__system_property_area_init"
+  },
+  {
+   "name" : "__system_property_area_serial"
+  },
+  {
+   "name" : "__system_property_find"
+  },
+  {
+   "name" : "__system_property_find_nth"
+  },
+  {
+   "name" : "__system_property_foreach"
+  },
+  {
+   "name" : "__system_property_get"
+  },
+  {
+   "name" : "__system_property_read"
+  },
+  {
+   "name" : "__system_property_read_callback"
+  },
+  {
+   "name" : "__system_property_serial"
+  },
+  {
+   "name" : "__system_property_set"
+  },
+  {
+   "name" : "__system_property_set_filename"
+  },
+  {
+   "name" : "__system_property_update"
+  },
+  {
+   "name" : "__system_property_wait"
+  },
+  {
+   "name" : "__system_property_wait_any"
+  },
+  {
+   "name" : "__tls_get_addr"
+  },
+  {
+   "name" : "__umask_chk"
+  },
+  {
+   "name" : "__vsnprintf_chk"
+  },
+  {
+   "name" : "__vsprintf_chk"
+  },
+  {
+   "name" : "__write_chk"
+  },
+  {
+   "name" : "_exit"
+  },
+  {
+   "name" : "_flushlbf"
+  },
+  {
+   "name" : "_getlong"
+  },
+  {
+   "name" : "_getshort"
+  },
+  {
+   "binding" : "weak",
+   "name" : "_longjmp"
+  },
+  {
+   "name" : "_resolv_delete_cache_for_net"
+  },
+  {
+   "name" : "_resolv_flush_cache_for_net"
+  },
+  {
+   "name" : "_resolv_set_nameservers_for_net"
+  },
+  {
+   "binding" : "weak",
+   "name" : "_setjmp"
+  },
+  {
+   "name" : "_tolower"
+  },
+  {
+   "name" : "_toupper"
+  },
+  {
+   "name" : "abort"
+  },
+  {
+   "name" : "abs"
+  },
+  {
+   "name" : "accept"
+  },
+  {
+   "name" : "accept4"
+  },
+  {
+   "name" : "access"
+  },
+  {
+   "name" : "acct"
+  },
+  {
+   "name" : "adjtimex"
+  },
+  {
+   "name" : "alarm"
+  },
+  {
+   "name" : "aligned_alloc"
+  },
+  {
+   "name" : "alphasort"
+  },
+  {
+   "name" : "alphasort64"
+  },
+  {
+   "binding" : "weak",
+   "name" : "android_fdsan_close_with_tag"
+  },
+  {
+   "binding" : "weak",
+   "name" : "android_fdsan_create_owner_tag"
+  },
+  {
+   "binding" : "weak",
+   "name" : "android_fdsan_exchange_owner_tag"
+  },
+  {
+   "binding" : "weak",
+   "name" : "android_fdsan_get_error_level"
+  },
+  {
+   "name" : "android_fdsan_get_fd_table"
+  },
+  {
+   "name" : "android_fdsan_get_owner_tag"
+  },
+  {
+   "name" : "android_fdsan_get_tag_type"
+  },
+  {
+   "name" : "android_fdsan_get_tag_value"
+  },
+  {
+   "binding" : "weak",
+   "name" : "android_fdsan_set_error_level"
+  },
+  {
+   "name" : "android_fdtrack_compare_exchange_hook"
+  },
+  {
+   "name" : "android_fdtrack_get_enabled"
+  },
+  {
+   "name" : "android_fdtrack_set_enabled"
+  },
+  {
+   "name" : "android_fdtrack_set_globally_enabled"
+  },
+  {
+   "name" : "android_get_device_api_level"
+  },
+  {
+   "name" : "android_getaddrinfofornet"
+  },
+  {
+   "name" : "android_getaddrinfofornetcontext"
+  },
+  {
+   "name" : "android_gethostbyaddrfornet"
+  },
+  {
+   "name" : "android_gethostbyaddrfornetcontext"
+  },
+  {
+   "name" : "android_gethostbynamefornet"
+  },
+  {
+   "name" : "android_gethostbynamefornetcontext"
+  },
+  {
+   "name" : "android_mallopt"
+  },
+  {
+   "name" : "android_net_res_stats_aggregate"
+  },
+  {
+   "name" : "android_net_res_stats_get_info_for_net"
+  },
+  {
+   "name" : "android_net_res_stats_get_usable_servers"
+  },
+  {
+   "name" : "android_reset_stack_guards"
+  },
+  {
+   "name" : "android_run_on_all_threads"
+  },
+  {
+   "name" : "android_set_abort_message"
+  },
+  {
+   "name" : "android_unsafe_frame_pointer_chase"
+  },
+  {
+   "name" : "arc4random"
+  },
+  {
+   "name" : "arc4random_buf"
+  },
+  {
+   "name" : "arc4random_uniform"
+  },
+  {
+   "name" : "asctime"
+  },
+  {
+   "name" : "asctime_r"
+  },
+  {
+   "name" : "asprintf"
+  },
+  {
+   "name" : "at_quick_exit"
+  },
+  {
+   "name" : "atof"
+  },
+  {
+   "name" : "atoi"
+  },
+  {
+   "name" : "atol"
+  },
+  {
+   "name" : "atoll"
+  },
+  {
+   "name" : "backtrace"
+  },
+  {
+   "name" : "backtrace_symbols"
+  },
+  {
+   "name" : "backtrace_symbols_fd"
+  },
+  {
+   "name" : "basename"
+  },
+  {
+   "name" : "bind"
+  },
+  {
+   "name" : "bindresvport"
+  },
+  {
+   "name" : "brk"
+  },
+  {
+   "name" : "bsearch"
+  },
+  {
+   "name" : "btowc"
+  },
+  {
+   "name" : "c16rtomb"
+  },
+  {
+   "name" : "c32rtomb"
+  },
+  {
+   "name" : "call_once"
+  },
+  {
+   "name" : "calloc"
+  },
+  {
+   "name" : "capget"
+  },
+  {
+   "name" : "capset"
+  },
+  {
+   "name" : "catclose"
+  },
+  {
+   "name" : "catgets"
+  },
+  {
+   "name" : "catopen"
+  },
+  {
+   "name" : "cfgetispeed"
+  },
+  {
+   "name" : "cfgetospeed"
+  },
+  {
+   "name" : "cfmakeraw"
+  },
+  {
+   "name" : "cfsetispeed"
+  },
+  {
+   "name" : "cfsetospeed"
+  },
+  {
+   "name" : "cfsetspeed"
+  },
+  {
+   "name" : "chdir"
+  },
+  {
+   "name" : "chmod"
+  },
+  {
+   "name" : "chown"
+  },
+  {
+   "name" : "chroot"
+  },
+  {
+   "name" : "clearenv"
+  },
+  {
+   "name" : "clearerr"
+  },
+  {
+   "name" : "clearerr_unlocked"
+  },
+  {
+   "name" : "clock"
+  },
+  {
+   "name" : "clock_adjtime"
+  },
+  {
+   "name" : "clock_getcpuclockid"
+  },
+  {
+   "name" : "clock_getres"
+  },
+  {
+   "name" : "clock_gettime"
+  },
+  {
+   "name" : "clock_nanosleep"
+  },
+  {
+   "name" : "clock_settime"
+  },
+  {
+   "name" : "clone"
+  },
+  {
+   "name" : "close"
+  },
+  {
+   "name" : "closedir"
+  },
+  {
+   "name" : "closelog"
+  },
+  {
+   "name" : "cnd_broadcast"
+  },
+  {
+   "name" : "cnd_destroy"
+  },
+  {
+   "name" : "cnd_init"
+  },
+  {
+   "name" : "cnd_signal"
+  },
+  {
+   "name" : "cnd_timedwait"
+  },
+  {
+   "name" : "cnd_wait"
+  },
+  {
+   "name" : "connect"
+  },
+  {
+   "name" : "creat"
+  },
+  {
+   "name" : "creat64"
+  },
+  {
+   "name" : "ctermid"
+  },
+  {
+   "name" : "ctime"
+  },
+  {
+   "name" : "ctime_r"
+  },
+  {
+   "name" : "daemon"
+  },
+  {
+   "name" : "delete_module"
+  },
+  {
+   "name" : "difftime"
+  },
+  {
+   "name" : "dirfd"
+  },
+  {
+   "name" : "dirname"
+  },
+  {
+   "name" : "div"
+  },
+  {
+   "name" : "dn_expand"
+  },
+  {
+   "name" : "dprintf"
+  },
+  {
+   "name" : "drand48"
+  },
+  {
+   "name" : "dup"
+  },
+  {
+   "name" : "dup2"
+  },
+  {
+   "name" : "dup3"
+  },
+  {
+   "name" : "duplocale"
+  },
+  {
+   "name" : "endgrent"
+  },
+  {
+   "name" : "endhostent"
+  },
+  {
+   "name" : "endmntent"
+  },
+  {
+   "name" : "endnetent"
+  },
+  {
+   "name" : "endprotoent"
+  },
+  {
+   "name" : "endpwent"
+  },
+  {
+   "name" : "endservent"
+  },
+  {
+   "name" : "endutent"
+  },
+  {
+   "name" : "epoll_create"
+  },
+  {
+   "name" : "epoll_create1"
+  },
+  {
+   "name" : "epoll_ctl"
+  },
+  {
+   "name" : "epoll_pwait"
+  },
+  {
+   "name" : "epoll_pwait64"
+  },
+  {
+   "name" : "epoll_wait"
+  },
+  {
+   "name" : "erand48"
+  },
+  {
+   "name" : "err"
+  },
+  {
+   "name" : "error"
+  },
+  {
+   "name" : "error_at_line"
+  },
+  {
+   "name" : "errx"
+  },
+  {
+   "name" : "ether_aton"
+  },
+  {
+   "name" : "ether_aton_r"
+  },
+  {
+   "name" : "ether_ntoa"
+  },
+  {
+   "name" : "ether_ntoa_r"
+  },
+  {
+   "name" : "eventfd"
+  },
+  {
+   "name" : "eventfd_read"
+  },
+  {
+   "name" : "eventfd_write"
+  },
+  {
+   "name" : "execl"
+  },
+  {
+   "name" : "execle"
+  },
+  {
+   "name" : "execlp"
+  },
+  {
+   "name" : "execv"
+  },
+  {
+   "name" : "execve"
+  },
+  {
+   "name" : "execvp"
+  },
+  {
+   "name" : "execvpe"
+  },
+  {
+   "name" : "exit"
+  },
+  {
+   "name" : "faccessat"
+  },
+  {
+   "name" : "fallocate"
+  },
+  {
+   "name" : "fallocate64"
+  },
+  {
+   "name" : "fchdir"
+  },
+  {
+   "name" : "fchmod"
+  },
+  {
+   "name" : "fchmodat"
+  },
+  {
+   "name" : "fchown"
+  },
+  {
+   "name" : "fchownat"
+  },
+  {
+   "name" : "fclose"
+  },
+  {
+   "name" : "fcntl"
+  },
+  {
+   "name" : "fdatasync"
+  },
+  {
+   "name" : "fdopen"
+  },
+  {
+   "name" : "fdopendir"
+  },
+  {
+   "name" : "feof"
+  },
+  {
+   "name" : "feof_unlocked"
+  },
+  {
+   "name" : "ferror"
+  },
+  {
+   "name" : "ferror_unlocked"
+  },
+  {
+   "name" : "fexecve"
+  },
+  {
+   "name" : "fflush"
+  },
+  {
+   "name" : "fflush_unlocked"
+  },
+  {
+   "name" : "ffs"
+  },
+  {
+   "name" : "ffsl"
+  },
+  {
+   "name" : "ffsll"
+  },
+  {
+   "name" : "fgetc"
+  },
+  {
+   "name" : "fgetc_unlocked"
+  },
+  {
+   "name" : "fgetln"
+  },
+  {
+   "name" : "fgetpos"
+  },
+  {
+   "name" : "fgetpos64"
+  },
+  {
+   "name" : "fgets"
+  },
+  {
+   "name" : "fgets_unlocked"
+  },
+  {
+   "name" : "fgetwc"
+  },
+  {
+   "name" : "fgetws"
+  },
+  {
+   "name" : "fgetxattr"
+  },
+  {
+   "name" : "fileno"
+  },
+  {
+   "name" : "fileno_unlocked"
+  },
+  {
+   "name" : "flistxattr"
+  },
+  {
+   "name" : "flock"
+  },
+  {
+   "name" : "flockfile"
+  },
+  {
+   "name" : "fmemopen"
+  },
+  {
+   "name" : "fnmatch"
+  },
+  {
+   "name" : "fopen"
+  },
+  {
+   "name" : "fopen64"
+  },
+  {
+   "name" : "fork"
+  },
+  {
+   "name" : "forkpty"
+  },
+  {
+   "name" : "fpathconf"
+  },
+  {
+   "name" : "fprintf"
+  },
+  {
+   "name" : "fpurge"
+  },
+  {
+   "name" : "fputc"
+  },
+  {
+   "name" : "fputc_unlocked"
+  },
+  {
+   "name" : "fputs"
+  },
+  {
+   "name" : "fputs_unlocked"
+  },
+  {
+   "name" : "fputwc"
+  },
+  {
+   "name" : "fputws"
+  },
+  {
+   "name" : "fread"
+  },
+  {
+   "name" : "fread_unlocked"
+  },
+  {
+   "name" : "free"
+  },
+  {
+   "name" : "freeaddrinfo"
+  },
+  {
+   "name" : "freeifaddrs"
+  },
+  {
+   "name" : "freelocale"
+  },
+  {
+   "name" : "fremovexattr"
+  },
+  {
+   "name" : "freopen"
+  },
+  {
+   "name" : "freopen64"
+  },
+  {
+   "name" : "fscanf"
+  },
+  {
+   "name" : "fseek"
+  },
+  {
+   "name" : "fseeko"
+  },
+  {
+   "name" : "fseeko64"
+  },
+  {
+   "name" : "fsetpos"
+  },
+  {
+   "name" : "fsetpos64"
+  },
+  {
+   "name" : "fsetxattr"
+  },
+  {
+   "name" : "fstat"
+  },
+  {
+   "name" : "fstat64"
+  },
+  {
+   "name" : "fstatat"
+  },
+  {
+   "name" : "fstatat64"
+  },
+  {
+   "name" : "fstatfs"
+  },
+  {
+   "name" : "fstatfs64"
+  },
+  {
+   "name" : "fstatvfs"
+  },
+  {
+   "name" : "fstatvfs64"
+  },
+  {
+   "name" : "fsync"
+  },
+  {
+   "name" : "ftell"
+  },
+  {
+   "name" : "ftello"
+  },
+  {
+   "name" : "ftello64"
+  },
+  {
+   "name" : "ftok"
+  },
+  {
+   "name" : "ftruncate"
+  },
+  {
+   "name" : "ftruncate64"
+  },
+  {
+   "name" : "ftrylockfile"
+  },
+  {
+   "name" : "fts_children"
+  },
+  {
+   "name" : "fts_close"
+  },
+  {
+   "name" : "fts_open"
+  },
+  {
+   "name" : "fts_read"
+  },
+  {
+   "name" : "fts_set"
+  },
+  {
+   "name" : "ftw"
+  },
+  {
+   "name" : "ftw64"
+  },
+  {
+   "name" : "funlockfile"
+  },
+  {
+   "name" : "funopen"
+  },
+  {
+   "name" : "funopen64"
+  },
+  {
+   "name" : "futimens"
+  },
+  {
+   "name" : "futimes"
+  },
+  {
+   "name" : "futimesat"
+  },
+  {
+   "name" : "fwide"
+  },
+  {
+   "name" : "fwprintf"
+  },
+  {
+   "name" : "fwrite"
+  },
+  {
+   "name" : "fwrite_unlocked"
+  },
+  {
+   "name" : "fwscanf"
+  },
+  {
+   "name" : "gai_strerror"
+  },
+  {
+   "name" : "get_avphys_pages"
+  },
+  {
+   "name" : "get_nprocs"
+  },
+  {
+   "name" : "get_nprocs_conf"
+  },
+  {
+   "name" : "get_phys_pages"
+  },
+  {
+   "name" : "getaddrinfo"
+  },
+  {
+   "name" : "getauxval"
+  },
+  {
+   "name" : "getc"
+  },
+  {
+   "name" : "getc_unlocked"
+  },
+  {
+   "name" : "getchar"
+  },
+  {
+   "name" : "getchar_unlocked"
+  },
+  {
+   "name" : "getcwd"
+  },
+  {
+   "name" : "getdelim"
+  },
+  {
+   "name" : "getdomainname"
+  },
+  {
+   "name" : "getegid"
+  },
+  {
+   "name" : "getentropy"
+  },
+  {
+   "name" : "getenv"
+  },
+  {
+   "name" : "geteuid"
+  },
+  {
+   "name" : "getgid"
+  },
+  {
+   "name" : "getgrent"
+  },
+  {
+   "name" : "getgrgid"
+  },
+  {
+   "name" : "getgrgid_r"
+  },
+  {
+   "name" : "getgrnam"
+  },
+  {
+   "name" : "getgrnam_r"
+  },
+  {
+   "name" : "getgrouplist"
+  },
+  {
+   "name" : "getgroups"
+  },
+  {
+   "name" : "gethostbyaddr"
+  },
+  {
+   "name" : "gethostbyaddr_r"
+  },
+  {
+   "name" : "gethostbyname"
+  },
+  {
+   "name" : "gethostbyname2"
+  },
+  {
+   "name" : "gethostbyname2_r"
+  },
+  {
+   "name" : "gethostbyname_r"
+  },
+  {
+   "name" : "gethostent"
+  },
+  {
+   "name" : "gethostname"
+  },
+  {
+   "name" : "getifaddrs"
+  },
+  {
+   "name" : "getitimer"
+  },
+  {
+   "name" : "getline"
+  },
+  {
+   "name" : "getloadavg"
+  },
+  {
+   "name" : "getlogin"
+  },
+  {
+   "name" : "getlogin_r"
+  },
+  {
+   "name" : "getmntent"
+  },
+  {
+   "name" : "getmntent_r"
+  },
+  {
+   "name" : "getnameinfo"
+  },
+  {
+   "name" : "getnetbyaddr"
+  },
+  {
+   "name" : "getnetbyname"
+  },
+  {
+   "name" : "getnetent"
+  },
+  {
+   "name" : "getopt"
+  },
+  {
+   "name" : "getopt_long"
+  },
+  {
+   "name" : "getopt_long_only"
+  },
+  {
+   "name" : "getpagesize"
+  },
+  {
+   "name" : "getpeername"
+  },
+  {
+   "name" : "getpgid"
+  },
+  {
+   "name" : "getpgrp"
+  },
+  {
+   "name" : "getpid"
+  },
+  {
+   "name" : "getppid"
+  },
+  {
+   "name" : "getpriority"
+  },
+  {
+   "name" : "getprogname"
+  },
+  {
+   "name" : "getprotobyname"
+  },
+  {
+   "name" : "getprotobynumber"
+  },
+  {
+   "name" : "getprotoent"
+  },
+  {
+   "name" : "getpt"
+  },
+  {
+   "name" : "getpwent"
+  },
+  {
+   "name" : "getpwnam"
+  },
+  {
+   "name" : "getpwnam_r"
+  },
+  {
+   "name" : "getpwuid"
+  },
+  {
+   "name" : "getpwuid_r"
+  },
+  {
+   "name" : "getrandom"
+  },
+  {
+   "name" : "getresgid"
+  },
+  {
+   "name" : "getresuid"
+  },
+  {
+   "name" : "getrlimit"
+  },
+  {
+   "name" : "getrlimit64"
+  },
+  {
+   "name" : "getrusage"
+  },
+  {
+   "name" : "gets"
+  },
+  {
+   "name" : "getservbyname"
+  },
+  {
+   "name" : "getservbyport"
+  },
+  {
+   "name" : "getservent"
+  },
+  {
+   "name" : "getsid"
+  },
+  {
+   "name" : "getsockname"
+  },
+  {
+   "name" : "getsockopt"
+  },
+  {
+   "name" : "getsubopt"
+  },
+  {
+   "name" : "gettid"
+  },
+  {
+   "name" : "gettimeofday"
+  },
+  {
+   "name" : "getuid"
+  },
+  {
+   "name" : "getutent"
+  },
+  {
+   "name" : "getwc"
+  },
+  {
+   "name" : "getwchar"
+  },
+  {
+   "name" : "getxattr"
+  },
+  {
+   "name" : "glob"
+  },
+  {
+   "name" : "globfree"
+  },
+  {
+   "name" : "gmtime"
+  },
+  {
+   "name" : "gmtime_r"
+  },
+  {
+   "name" : "grantpt"
+  },
+  {
+   "name" : "hasmntopt"
+  },
+  {
+   "name" : "hcreate"
+  },
+  {
+   "name" : "hcreate_r"
+  },
+  {
+   "name" : "hdestroy"
+  },
+  {
+   "name" : "hdestroy_r"
+  },
+  {
+   "name" : "herror"
+  },
+  {
+   "name" : "hsearch"
+  },
+  {
+   "name" : "hsearch_r"
+  },
+  {
+   "name" : "hstrerror"
+  },
+  {
+   "name" : "htonl"
+  },
+  {
+   "name" : "htons"
+  },
+  {
+   "name" : "iconv"
+  },
+  {
+   "name" : "iconv_close"
+  },
+  {
+   "name" : "iconv_open"
+  },
+  {
+   "name" : "if_freenameindex"
+  },
+  {
+   "name" : "if_indextoname"
+  },
+  {
+   "name" : "if_nameindex"
+  },
+  {
+   "name" : "if_nametoindex"
+  },
+  {
+   "name" : "imaxabs"
+  },
+  {
+   "name" : "imaxdiv"
+  },
+  {
+   "name" : "inet_addr"
+  },
+  {
+   "name" : "inet_aton"
+  },
+  {
+   "name" : "inet_lnaof"
+  },
+  {
+   "name" : "inet_makeaddr"
+  },
+  {
+   "name" : "inet_netof"
+  },
+  {
+   "name" : "inet_network"
+  },
+  {
+   "name" : "inet_nsap_addr"
+  },
+  {
+   "name" : "inet_nsap_ntoa"
+  },
+  {
+   "name" : "inet_ntoa"
+  },
+  {
+   "name" : "inet_ntop"
+  },
+  {
+   "name" : "inet_pton"
+  },
+  {
+   "name" : "init_module"
+  },
+  {
+   "name" : "initgroups"
+  },
+  {
+   "name" : "initstate"
+  },
+  {
+   "name" : "inotify_add_watch"
+  },
+  {
+   "name" : "inotify_init"
+  },
+  {
+   "name" : "inotify_init1"
+  },
+  {
+   "name" : "inotify_rm_watch"
+  },
+  {
+   "name" : "insque"
+  },
+  {
+   "name" : "ioctl"
+  },
+  {
+   "name" : "isalnum"
+  },
+  {
+   "name" : "isalnum_l"
+  },
+  {
+   "name" : "isalpha"
+  },
+  {
+   "name" : "isalpha_l"
+  },
+  {
+   "name" : "isascii"
+  },
+  {
+   "name" : "isatty"
+  },
+  {
+   "name" : "isblank"
+  },
+  {
+   "name" : "isblank_l"
+  },
+  {
+   "name" : "iscntrl"
+  },
+  {
+   "name" : "iscntrl_l"
+  },
+  {
+   "name" : "isdigit"
+  },
+  {
+   "name" : "isdigit_l"
+  },
+  {
+   "name" : "isfinite"
+  },
+  {
+   "name" : "isfinitef"
+  },
+  {
+   "name" : "isfinitel"
+  },
+  {
+   "name" : "isgraph"
+  },
+  {
+   "name" : "isgraph_l"
+  },
+  {
+   "name" : "isinf"
+  },
+  {
+   "name" : "isinff"
+  },
+  {
+   "name" : "isinfl"
+  },
+  {
+   "name" : "islower"
+  },
+  {
+   "name" : "islower_l"
+  },
+  {
+   "name" : "isnan"
+  },
+  {
+   "name" : "isnanf"
+  },
+  {
+   "name" : "isnanl"
+  },
+  {
+   "name" : "isnormal"
+  },
+  {
+   "name" : "isnormalf"
+  },
+  {
+   "name" : "isnormall"
+  },
+  {
+   "name" : "isprint"
+  },
+  {
+   "name" : "isprint_l"
+  },
+  {
+   "name" : "ispunct"
+  },
+  {
+   "name" : "ispunct_l"
+  },
+  {
+   "name" : "isspace"
+  },
+  {
+   "name" : "isspace_l"
+  },
+  {
+   "name" : "isupper"
+  },
+  {
+   "name" : "isupper_l"
+  },
+  {
+   "name" : "iswalnum"
+  },
+  {
+   "name" : "iswalnum_l"
+  },
+  {
+   "name" : "iswalpha"
+  },
+  {
+   "name" : "iswalpha_l"
+  },
+  {
+   "name" : "iswblank"
+  },
+  {
+   "name" : "iswblank_l"
+  },
+  {
+   "name" : "iswcntrl"
+  },
+  {
+   "name" : "iswcntrl_l"
+  },
+  {
+   "name" : "iswctype"
+  },
+  {
+   "name" : "iswctype_l"
+  },
+  {
+   "name" : "iswdigit"
+  },
+  {
+   "name" : "iswdigit_l"
+  },
+  {
+   "name" : "iswgraph"
+  },
+  {
+   "name" : "iswgraph_l"
+  },
+  {
+   "name" : "iswlower"
+  },
+  {
+   "name" : "iswlower_l"
+  },
+  {
+   "name" : "iswprint"
+  },
+  {
+   "name" : "iswprint_l"
+  },
+  {
+   "name" : "iswpunct"
+  },
+  {
+   "name" : "iswpunct_l"
+  },
+  {
+   "name" : "iswspace"
+  },
+  {
+   "name" : "iswspace_l"
+  },
+  {
+   "name" : "iswupper"
+  },
+  {
+   "name" : "iswupper_l"
+  },
+  {
+   "name" : "iswxdigit"
+  },
+  {
+   "name" : "iswxdigit_l"
+  },
+  {
+   "name" : "isxdigit"
+  },
+  {
+   "name" : "isxdigit_l"
+  },
+  {
+   "name" : "jrand48"
+  },
+  {
+   "name" : "kill"
+  },
+  {
+   "name" : "killpg"
+  },
+  {
+   "name" : "klogctl"
+  },
+  {
+   "name" : "labs"
+  },
+  {
+   "name" : "lchown"
+  },
+  {
+   "name" : "lcong48"
+  },
+  {
+   "name" : "ldexp"
+  },
+  {
+   "name" : "ldiv"
+  },
+  {
+   "name" : "lfind"
+  },
+  {
+   "name" : "lgetxattr"
+  },
+  {
+   "name" : "link"
+  },
+  {
+   "name" : "linkat"
+  },
+  {
+   "name" : "listen"
+  },
+  {
+   "name" : "listxattr"
+  },
+  {
+   "name" : "llabs"
+  },
+  {
+   "name" : "lldiv"
+  },
+  {
+   "name" : "llistxattr"
+  },
+  {
+   "name" : "localeconv"
+  },
+  {
+   "name" : "localtime"
+  },
+  {
+   "name" : "localtime_r"
+  },
+  {
+   "name" : "lockf"
+  },
+  {
+   "name" : "lockf64"
+  },
+  {
+   "name" : "login_tty"
+  },
+  {
+   "binding" : "weak",
+   "name" : "longjmp"
+  },
+  {
+   "name" : "lrand48"
+  },
+  {
+   "name" : "lremovexattr"
+  },
+  {
+   "name" : "lsearch"
+  },
+  {
+   "name" : "lseek"
+  },
+  {
+   "name" : "lseek64"
+  },
+  {
+   "name" : "lsetxattr"
+  },
+  {
+   "name" : "lstat"
+  },
+  {
+   "name" : "lstat64"
+  },
+  {
+   "name" : "lutimes"
+  },
+  {
+   "name" : "madvise"
+  },
+  {
+   "name" : "mallinfo"
+  },
+  {
+   "name" : "malloc"
+  },
+  {
+   "name" : "malloc_backtrace"
+  },
+  {
+   "name" : "malloc_disable"
+  },
+  {
+   "name" : "malloc_enable"
+  },
+  {
+   "name" : "malloc_info"
+  },
+  {
+   "name" : "malloc_iterate"
+  },
+  {
+   "name" : "malloc_usable_size"
+  },
+  {
+   "name" : "mallopt"
+  },
+  {
+   "name" : "mblen"
+  },
+  {
+   "name" : "mbrlen"
+  },
+  {
+   "name" : "mbrtoc16"
+  },
+  {
+   "name" : "mbrtoc32"
+  },
+  {
+   "name" : "mbrtowc"
+  },
+  {
+   "name" : "mbsinit"
+  },
+  {
+   "name" : "mbsnrtowcs"
+  },
+  {
+   "name" : "mbsrtowcs"
+  },
+  {
+   "name" : "mbstowcs"
+  },
+  {
+   "name" : "mbtowc"
+  },
+  {
+   "name" : "memalign"
+  },
+  {
+   "name" : "memccpy"
+  },
+  {
+   "name" : "memchr"
+  },
+  {
+   "name" : "memcmp"
+  },
+  {
+   "name" : "memcpy"
+  },
+  {
+   "name" : "memfd_create"
+  },
+  {
+   "name" : "memmem"
+  },
+  {
+   "name" : "memmove"
+  },
+  {
+   "name" : "mempcpy"
+  },
+  {
+   "name" : "memrchr"
+  },
+  {
+   "name" : "memset"
+  },
+  {
+   "name" : "mincore"
+  },
+  {
+   "name" : "mkdir"
+  },
+  {
+   "name" : "mkdirat"
+  },
+  {
+   "name" : "mkdtemp"
+  },
+  {
+   "name" : "mkfifo"
+  },
+  {
+   "name" : "mkfifoat"
+  },
+  {
+   "name" : "mknod"
+  },
+  {
+   "name" : "mknodat"
+  },
+  {
+   "name" : "mkostemp"
+  },
+  {
+   "name" : "mkostemp64"
+  },
+  {
+   "name" : "mkostemps"
+  },
+  {
+   "name" : "mkostemps64"
+  },
+  {
+   "name" : "mkstemp"
+  },
+  {
+   "name" : "mkstemp64"
+  },
+  {
+   "name" : "mkstemps"
+  },
+  {
+   "name" : "mkstemps64"
+  },
+  {
+   "name" : "mktemp"
+  },
+  {
+   "name" : "mktime"
+  },
+  {
+   "name" : "mlock"
+  },
+  {
+   "name" : "mlock2"
+  },
+  {
+   "name" : "mlockall"
+  },
+  {
+   "name" : "mmap"
+  },
+  {
+   "name" : "mmap64"
+  },
+  {
+   "name" : "mount"
+  },
+  {
+   "name" : "mprotect"
+  },
+  {
+   "name" : "mrand48"
+  },
+  {
+   "name" : "mremap"
+  },
+  {
+   "name" : "msgctl"
+  },
+  {
+   "name" : "msgget"
+  },
+  {
+   "name" : "msgrcv"
+  },
+  {
+   "name" : "msgsnd"
+  },
+  {
+   "name" : "msync"
+  },
+  {
+   "name" : "mtx_destroy"
+  },
+  {
+   "name" : "mtx_init"
+  },
+  {
+   "name" : "mtx_lock"
+  },
+  {
+   "name" : "mtx_timedlock"
+  },
+  {
+   "name" : "mtx_trylock"
+  },
+  {
+   "name" : "mtx_unlock"
+  },
+  {
+   "name" : "munlock"
+  },
+  {
+   "name" : "munlockall"
+  },
+  {
+   "name" : "munmap"
+  },
+  {
+   "name" : "nanosleep"
+  },
+  {
+   "name" : "newlocale"
+  },
+  {
+   "name" : "nftw"
+  },
+  {
+   "name" : "nftw64"
+  },
+  {
+   "name" : "nice"
+  },
+  {
+   "name" : "nl_langinfo"
+  },
+  {
+   "name" : "nl_langinfo_l"
+  },
+  {
+   "name" : "nrand48"
+  },
+  {
+   "name" : "ns_format_ttl"
+  },
+  {
+   "name" : "ns_get16"
+  },
+  {
+   "name" : "ns_get32"
+  },
+  {
+   "name" : "ns_initparse"
+  },
+  {
+   "name" : "ns_makecanon"
+  },
+  {
+   "name" : "ns_msg_getflag"
+  },
+  {
+   "name" : "ns_name_compress"
+  },
+  {
+   "name" : "ns_name_ntol"
+  },
+  {
+   "name" : "ns_name_ntop"
+  },
+  {
+   "name" : "ns_name_pack"
+  },
+  {
+   "name" : "ns_name_pton"
+  },
+  {
+   "name" : "ns_name_rollback"
+  },
+  {
+   "name" : "ns_name_skip"
+  },
+  {
+   "name" : "ns_name_uncompress"
+  },
+  {
+   "name" : "ns_name_unpack"
+  },
+  {
+   "name" : "ns_parserr"
+  },
+  {
+   "name" : "ns_put16"
+  },
+  {
+   "name" : "ns_put32"
+  },
+  {
+   "name" : "ns_samename"
+  },
+  {
+   "name" : "ns_skiprr"
+  },
+  {
+   "name" : "ns_sprintrr"
+  },
+  {
+   "name" : "ns_sprintrrf"
+  },
+  {
+   "name" : "nsdispatch"
+  },
+  {
+   "name" : "ntohl"
+  },
+  {
+   "name" : "ntohs"
+  },
+  {
+   "name" : "open"
+  },
+  {
+   "name" : "open64"
+  },
+  {
+   "name" : "open_memstream"
+  },
+  {
+   "name" : "open_wmemstream"
+  },
+  {
+   "name" : "openat"
+  },
+  {
+   "name" : "openat64"
+  },
+  {
+   "name" : "opendir"
+  },
+  {
+   "name" : "openlog"
+  },
+  {
+   "name" : "openpty"
+  },
+  {
+   "name" : "pathconf"
+  },
+  {
+   "name" : "pause"
+  },
+  {
+   "name" : "pclose"
+  },
+  {
+   "name" : "perror"
+  },
+  {
+   "name" : "personality"
+  },
+  {
+   "name" : "pidfd_getfd"
+  },
+  {
+   "name" : "pidfd_open"
+  },
+  {
+   "name" : "pidfd_send_signal"
+  },
+  {
+   "name" : "pipe"
+  },
+  {
+   "name" : "pipe2"
+  },
+  {
+   "name" : "poll"
+  },
+  {
+   "name" : "popen"
+  },
+  {
+   "name" : "posix_fadvise"
+  },
+  {
+   "name" : "posix_fadvise64"
+  },
+  {
+   "name" : "posix_fallocate"
+  },
+  {
+   "name" : "posix_fallocate64"
+  },
+  {
+   "name" : "posix_madvise"
+  },
+  {
+   "name" : "posix_memalign"
+  },
+  {
+   "name" : "posix_openpt"
+  },
+  {
+   "name" : "posix_spawn"
+  },
+  {
+   "name" : "posix_spawn_file_actions_addclose"
+  },
+  {
+   "name" : "posix_spawn_file_actions_adddup2"
+  },
+  {
+   "name" : "posix_spawn_file_actions_addopen"
+  },
+  {
+   "name" : "posix_spawn_file_actions_destroy"
+  },
+  {
+   "name" : "posix_spawn_file_actions_init"
+  },
+  {
+   "name" : "posix_spawnattr_destroy"
+  },
+  {
+   "name" : "posix_spawnattr_getflags"
+  },
+  {
+   "name" : "posix_spawnattr_getpgroup"
+  },
+  {
+   "name" : "posix_spawnattr_getschedparam"
+  },
+  {
+   "name" : "posix_spawnattr_getschedpolicy"
+  },
+  {
+   "name" : "posix_spawnattr_getsigdefault"
+  },
+  {
+   "name" : "posix_spawnattr_getsigdefault64"
+  },
+  {
+   "name" : "posix_spawnattr_getsigmask"
+  },
+  {
+   "name" : "posix_spawnattr_getsigmask64"
+  },
+  {
+   "name" : "posix_spawnattr_init"
+  },
+  {
+   "name" : "posix_spawnattr_setflags"
+  },
+  {
+   "name" : "posix_spawnattr_setpgroup"
+  },
+  {
+   "name" : "posix_spawnattr_setschedparam"
+  },
+  {
+   "name" : "posix_spawnattr_setschedpolicy"
+  },
+  {
+   "name" : "posix_spawnattr_setsigdefault"
+  },
+  {
+   "name" : "posix_spawnattr_setsigdefault64"
+  },
+  {
+   "name" : "posix_spawnattr_setsigmask"
+  },
+  {
+   "name" : "posix_spawnattr_setsigmask64"
+  },
+  {
+   "name" : "posix_spawnp"
+  },
+  {
+   "name" : "ppoll"
+  },
+  {
+   "name" : "ppoll64"
+  },
+  {
+   "name" : "prctl"
+  },
+  {
+   "name" : "pread"
+  },
+  {
+   "name" : "pread64"
+  },
+  {
+   "name" : "preadv"
+  },
+  {
+   "name" : "preadv2"
+  },
+  {
+   "name" : "preadv64"
+  },
+  {
+   "name" : "preadv64v2"
+  },
+  {
+   "name" : "printf"
+  },
+  {
+   "name" : "prlimit"
+  },
+  {
+   "name" : "prlimit64"
+  },
+  {
+   "name" : "process_madvise"
+  },
+  {
+   "name" : "process_vm_readv"
+  },
+  {
+   "name" : "process_vm_writev"
+  },
+  {
+   "name" : "pselect"
+  },
+  {
+   "name" : "pselect64"
+  },
+  {
+   "name" : "psiginfo"
+  },
+  {
+   "name" : "psignal"
+  },
+  {
+   "name" : "pthread_atfork"
+  },
+  {
+   "name" : "pthread_attr_destroy"
+  },
+  {
+   "name" : "pthread_attr_getdetachstate"
+  },
+  {
+   "name" : "pthread_attr_getguardsize"
+  },
+  {
+   "name" : "pthread_attr_getinheritsched"
+  },
+  {
+   "name" : "pthread_attr_getschedparam"
+  },
+  {
+   "name" : "pthread_attr_getschedpolicy"
+  },
+  {
+   "name" : "pthread_attr_getscope"
+  },
+  {
+   "name" : "pthread_attr_getstack"
+  },
+  {
+   "name" : "pthread_attr_getstacksize"
+  },
+  {
+   "name" : "pthread_attr_init"
+  },
+  {
+   "name" : "pthread_attr_setdetachstate"
+  },
+  {
+   "name" : "pthread_attr_setguardsize"
+  },
+  {
+   "name" : "pthread_attr_setinheritsched"
+  },
+  {
+   "name" : "pthread_attr_setschedparam"
+  },
+  {
+   "name" : "pthread_attr_setschedpolicy"
+  },
+  {
+   "name" : "pthread_attr_setscope"
+  },
+  {
+   "name" : "pthread_attr_setstack"
+  },
+  {
+   "name" : "pthread_attr_setstacksize"
+  },
+  {
+   "name" : "pthread_barrier_destroy"
+  },
+  {
+   "name" : "pthread_barrier_init"
+  },
+  {
+   "name" : "pthread_barrier_wait"
+  },
+  {
+   "name" : "pthread_barrierattr_destroy"
+  },
+  {
+   "name" : "pthread_barrierattr_getpshared"
+  },
+  {
+   "name" : "pthread_barrierattr_init"
+  },
+  {
+   "name" : "pthread_barrierattr_setpshared"
+  },
+  {
+   "name" : "pthread_cond_broadcast"
+  },
+  {
+   "name" : "pthread_cond_clockwait"
+  },
+  {
+   "name" : "pthread_cond_destroy"
+  },
+  {
+   "name" : "pthread_cond_init"
+  },
+  {
+   "name" : "pthread_cond_signal"
+  },
+  {
+   "name" : "pthread_cond_timedwait"
+  },
+  {
+   "name" : "pthread_cond_timedwait_monotonic_np"
+  },
+  {
+   "name" : "pthread_cond_wait"
+  },
+  {
+   "name" : "pthread_condattr_destroy"
+  },
+  {
+   "name" : "pthread_condattr_getclock"
+  },
+  {
+   "name" : "pthread_condattr_getpshared"
+  },
+  {
+   "name" : "pthread_condattr_init"
+  },
+  {
+   "name" : "pthread_condattr_setclock"
+  },
+  {
+   "name" : "pthread_condattr_setpshared"
+  },
+  {
+   "name" : "pthread_create"
+  },
+  {
+   "name" : "pthread_detach"
+  },
+  {
+   "name" : "pthread_equal"
+  },
+  {
+   "name" : "pthread_exit"
+  },
+  {
+   "name" : "pthread_getattr_np"
+  },
+  {
+   "name" : "pthread_getcpuclockid"
+  },
+  {
+   "name" : "pthread_getname_np"
+  },
+  {
+   "name" : "pthread_getschedparam"
+  },
+  {
+   "name" : "pthread_getspecific"
+  },
+  {
+   "name" : "pthread_gettid_np"
+  },
+  {
+   "name" : "pthread_join"
+  },
+  {
+   "name" : "pthread_key_create"
+  },
+  {
+   "name" : "pthread_key_delete"
+  },
+  {
+   "name" : "pthread_kill"
+  },
+  {
+   "name" : "pthread_mutex_clocklock"
+  },
+  {
+   "name" : "pthread_mutex_destroy"
+  },
+  {
+   "name" : "pthread_mutex_init"
+  },
+  {
+   "name" : "pthread_mutex_lock"
+  },
+  {
+   "name" : "pthread_mutex_timedlock"
+  },
+  {
+   "name" : "pthread_mutex_timedlock_monotonic_np"
+  },
+  {
+   "name" : "pthread_mutex_trylock"
+  },
+  {
+   "name" : "pthread_mutex_unlock"
+  },
+  {
+   "name" : "pthread_mutexattr_destroy"
+  },
+  {
+   "name" : "pthread_mutexattr_getprotocol"
+  },
+  {
+   "name" : "pthread_mutexattr_getpshared"
+  },
+  {
+   "name" : "pthread_mutexattr_gettype"
+  },
+  {
+   "name" : "pthread_mutexattr_init"
+  },
+  {
+   "name" : "pthread_mutexattr_setprotocol"
+  },
+  {
+   "name" : "pthread_mutexattr_setpshared"
+  },
+  {
+   "name" : "pthread_mutexattr_settype"
+  },
+  {
+   "name" : "pthread_once"
+  },
+  {
+   "name" : "pthread_rwlock_clockrdlock"
+  },
+  {
+   "name" : "pthread_rwlock_clockwrlock"
+  },
+  {
+   "name" : "pthread_rwlock_destroy"
+  },
+  {
+   "name" : "pthread_rwlock_init"
+  },
+  {
+   "name" : "pthread_rwlock_rdlock"
+  },
+  {
+   "name" : "pthread_rwlock_timedrdlock"
+  },
+  {
+   "name" : "pthread_rwlock_timedrdlock_monotonic_np"
+  },
+  {
+   "name" : "pthread_rwlock_timedwrlock"
+  },
+  {
+   "name" : "pthread_rwlock_timedwrlock_monotonic_np"
+  },
+  {
+   "name" : "pthread_rwlock_tryrdlock"
+  },
+  {
+   "name" : "pthread_rwlock_trywrlock"
+  },
+  {
+   "name" : "pthread_rwlock_unlock"
+  },
+  {
+   "name" : "pthread_rwlock_wrlock"
+  },
+  {
+   "name" : "pthread_rwlockattr_destroy"
+  },
+  {
+   "name" : "pthread_rwlockattr_getkind_np"
+  },
+  {
+   "name" : "pthread_rwlockattr_getpshared"
+  },
+  {
+   "name" : "pthread_rwlockattr_init"
+  },
+  {
+   "name" : "pthread_rwlockattr_setkind_np"
+  },
+  {
+   "name" : "pthread_rwlockattr_setpshared"
+  },
+  {
+   "name" : "pthread_self"
+  },
+  {
+   "name" : "pthread_setname_np"
+  },
+  {
+   "name" : "pthread_setschedparam"
+  },
+  {
+   "name" : "pthread_setschedprio"
+  },
+  {
+   "name" : "pthread_setspecific"
+  },
+  {
+   "name" : "pthread_sigmask"
+  },
+  {
+   "name" : "pthread_sigmask64"
+  },
+  {
+   "name" : "pthread_sigqueue"
+  },
+  {
+   "name" : "pthread_spin_destroy"
+  },
+  {
+   "name" : "pthread_spin_init"
+  },
+  {
+   "name" : "pthread_spin_lock"
+  },
+  {
+   "name" : "pthread_spin_trylock"
+  },
+  {
+   "name" : "pthread_spin_unlock"
+  },
+  {
+   "name" : "ptrace"
+  },
+  {
+   "name" : "ptsname"
+  },
+  {
+   "name" : "ptsname_r"
+  },
+  {
+   "name" : "putc"
+  },
+  {
+   "name" : "putc_unlocked"
+  },
+  {
+   "name" : "putchar"
+  },
+  {
+   "name" : "putchar_unlocked"
+  },
+  {
+   "name" : "putenv"
+  },
+  {
+   "name" : "puts"
+  },
+  {
+   "name" : "pututline"
+  },
+  {
+   "name" : "putwc"
+  },
+  {
+   "name" : "putwchar"
+  },
+  {
+   "name" : "pwrite"
+  },
+  {
+   "name" : "pwrite64"
+  },
+  {
+   "name" : "pwritev"
+  },
+  {
+   "name" : "pwritev2"
+  },
+  {
+   "name" : "pwritev64"
+  },
+  {
+   "name" : "pwritev64v2"
+  },
+  {
+   "name" : "qsort"
+  },
+  {
+   "name" : "quick_exit"
+  },
+  {
+   "name" : "quotactl"
+  },
+  {
+   "name" : "raise"
+  },
+  {
+   "name" : "rand"
+  },
+  {
+   "name" : "rand_r"
+  },
+  {
+   "name" : "random"
+  },
+  {
+   "name" : "read"
+  },
+  {
+   "name" : "readahead"
+  },
+  {
+   "name" : "readdir"
+  },
+  {
+   "name" : "readdir64"
+  },
+  {
+   "name" : "readdir64_r"
+  },
+  {
+   "name" : "readdir_r"
+  },
+  {
+   "name" : "readlink"
+  },
+  {
+   "name" : "readlinkat"
+  },
+  {
+   "name" : "readv"
+  },
+  {
+   "name" : "realloc"
+  },
+  {
+   "name" : "reallocarray"
+  },
+  {
+   "name" : "realpath"
+  },
+  {
+   "name" : "reboot"
+  },
+  {
+   "name" : "recv"
+  },
+  {
+   "name" : "recvfrom"
+  },
+  {
+   "name" : "recvmmsg"
+  },
+  {
+   "name" : "recvmsg"
+  },
+  {
+   "name" : "regcomp"
+  },
+  {
+   "name" : "regerror"
+  },
+  {
+   "name" : "regexec"
+  },
+  {
+   "name" : "regfree"
+  },
+  {
+   "name" : "remove"
+  },
+  {
+   "name" : "removexattr"
+  },
+  {
+   "name" : "remque"
+  },
+  {
+   "name" : "rename"
+  },
+  {
+   "name" : "renameat"
+  },
+  {
+   "name" : "renameat2"
+  },
+  {
+   "name" : "res_init"
+  },
+  {
+   "name" : "res_mkquery"
+  },
+  {
+   "name" : "res_query"
+  },
+  {
+   "name" : "res_search"
+  },
+  {
+   "name" : "rewind"
+  },
+  {
+   "name" : "rewinddir"
+  },
+  {
+   "name" : "rmdir"
+  },
+  {
+   "name" : "sbrk"
+  },
+  {
+   "name" : "scandir"
+  },
+  {
+   "name" : "scandir64"
+  },
+  {
+   "name" : "scandirat"
+  },
+  {
+   "name" : "scandirat64"
+  },
+  {
+   "name" : "scanf"
+  },
+  {
+   "name" : "sched_get_priority_max"
+  },
+  {
+   "name" : "sched_get_priority_min"
+  },
+  {
+   "name" : "sched_getaffinity"
+  },
+  {
+   "name" : "sched_getcpu"
+  },
+  {
+   "name" : "sched_getparam"
+  },
+  {
+   "name" : "sched_getscheduler"
+  },
+  {
+   "name" : "sched_rr_get_interval"
+  },
+  {
+   "name" : "sched_setaffinity"
+  },
+  {
+   "name" : "sched_setparam"
+  },
+  {
+   "name" : "sched_setscheduler"
+  },
+  {
+   "name" : "sched_yield"
+  },
+  {
+   "name" : "seed48"
+  },
+  {
+   "name" : "seekdir"
+  },
+  {
+   "name" : "select"
+  },
+  {
+   "name" : "sem_clockwait"
+  },
+  {
+   "name" : "sem_close"
+  },
+  {
+   "name" : "sem_destroy"
+  },
+  {
+   "name" : "sem_getvalue"
+  },
+  {
+   "name" : "sem_init"
+  },
+  {
+   "name" : "sem_open"
+  },
+  {
+   "name" : "sem_post"
+  },
+  {
+   "name" : "sem_timedwait"
+  },
+  {
+   "name" : "sem_timedwait_monotonic_np"
+  },
+  {
+   "name" : "sem_trywait"
+  },
+  {
+   "name" : "sem_unlink"
+  },
+  {
+   "name" : "sem_wait"
+  },
+  {
+   "name" : "semctl"
+  },
+  {
+   "name" : "semget"
+  },
+  {
+   "name" : "semop"
+  },
+  {
+   "name" : "semtimedop"
+  },
+  {
+   "name" : "send"
+  },
+  {
+   "name" : "sendfile"
+  },
+  {
+   "name" : "sendfile64"
+  },
+  {
+   "name" : "sendmmsg"
+  },
+  {
+   "name" : "sendmsg"
+  },
+  {
+   "name" : "sendto"
+  },
+  {
+   "name" : "setbuf"
+  },
+  {
+   "name" : "setbuffer"
+  },
+  {
+   "name" : "setdomainname"
+  },
+  {
+   "name" : "setegid"
+  },
+  {
+   "name" : "setenv"
+  },
+  {
+   "name" : "seteuid"
+  },
+  {
+   "name" : "setfsgid"
+  },
+  {
+   "name" : "setfsuid"
+  },
+  {
+   "name" : "setgid"
+  },
+  {
+   "name" : "setgrent"
+  },
+  {
+   "name" : "setgroups"
+  },
+  {
+   "name" : "sethostent"
+  },
+  {
+   "name" : "sethostname"
+  },
+  {
+   "name" : "setitimer"
+  },
+  {
+   "binding" : "weak",
+   "name" : "setjmp"
+  },
+  {
+   "name" : "setlinebuf"
+  },
+  {
+   "name" : "setlocale"
+  },
+  {
+   "name" : "setlogmask"
+  },
+  {
+   "name" : "setmntent"
+  },
+  {
+   "name" : "setnetent"
+  },
+  {
+   "name" : "setns"
+  },
+  {
+   "name" : "setpgid"
+  },
+  {
+   "name" : "setpgrp"
+  },
+  {
+   "name" : "setpriority"
+  },
+  {
+   "name" : "setprogname"
+  },
+  {
+   "name" : "setprotoent"
+  },
+  {
+   "name" : "setpwent"
+  },
+  {
+   "name" : "setregid"
+  },
+  {
+   "name" : "setresgid"
+  },
+  {
+   "name" : "setresuid"
+  },
+  {
+   "name" : "setreuid"
+  },
+  {
+   "name" : "setrlimit"
+  },
+  {
+   "name" : "setrlimit64"
+  },
+  {
+   "name" : "setservent"
+  },
+  {
+   "name" : "setsid"
+  },
+  {
+   "name" : "setsockopt"
+  },
+  {
+   "name" : "setstate"
+  },
+  {
+   "name" : "settimeofday"
+  },
+  {
+   "name" : "setuid"
+  },
+  {
+   "name" : "setutent"
+  },
+  {
+   "name" : "setvbuf"
+  },
+  {
+   "name" : "setxattr"
+  },
+  {
+   "name" : "shmat"
+  },
+  {
+   "name" : "shmctl"
+  },
+  {
+   "name" : "shmdt"
+  },
+  {
+   "name" : "shmget"
+  },
+  {
+   "name" : "shutdown"
+  },
+  {
+   "name" : "sigaction"
+  },
+  {
+   "name" : "sigaction64"
+  },
+  {
+   "name" : "sigaddset"
+  },
+  {
+   "name" : "sigaddset64"
+  },
+  {
+   "name" : "sigaltstack"
+  },
+  {
+   "name" : "sigblock"
+  },
+  {
+   "name" : "sigdelset"
+  },
+  {
+   "name" : "sigdelset64"
+  },
+  {
+   "name" : "sigemptyset"
+  },
+  {
+   "name" : "sigemptyset64"
+  },
+  {
+   "name" : "sigfillset"
+  },
+  {
+   "name" : "sigfillset64"
+  },
+  {
+   "name" : "sighold"
+  },
+  {
+   "name" : "sigignore"
+  },
+  {
+   "name" : "siginterrupt"
+  },
+  {
+   "name" : "sigismember"
+  },
+  {
+   "name" : "sigismember64"
+  },
+  {
+   "binding" : "weak",
+   "name" : "siglongjmp"
+  },
+  {
+   "name" : "signal"
+  },
+  {
+   "name" : "signalfd"
+  },
+  {
+   "name" : "signalfd64"
+  },
+  {
+   "name" : "sigpause"
+  },
+  {
+   "name" : "sigpending"
+  },
+  {
+   "name" : "sigpending64"
+  },
+  {
+   "name" : "sigprocmask"
+  },
+  {
+   "name" : "sigprocmask64"
+  },
+  {
+   "name" : "sigqueue"
+  },
+  {
+   "name" : "sigrelse"
+  },
+  {
+   "name" : "sigset"
+  },
+  {
+   "binding" : "weak",
+   "name" : "sigsetjmp"
+  },
+  {
+   "name" : "sigsetmask"
+  },
+  {
+   "name" : "sigsuspend"
+  },
+  {
+   "name" : "sigsuspend64"
+  },
+  {
+   "name" : "sigtimedwait"
+  },
+  {
+   "name" : "sigtimedwait64"
+  },
+  {
+   "name" : "sigwait"
+  },
+  {
+   "name" : "sigwait64"
+  },
+  {
+   "name" : "sigwaitinfo"
+  },
+  {
+   "name" : "sigwaitinfo64"
+  },
+  {
+   "name" : "sleep"
+  },
+  {
+   "name" : "snprintf"
+  },
+  {
+   "name" : "socket"
+  },
+  {
+   "name" : "socketpair"
+  },
+  {
+   "name" : "splice"
+  },
+  {
+   "name" : "sprintf"
+  },
+  {
+   "name" : "srand"
+  },
+  {
+   "name" : "srand48"
+  },
+  {
+   "name" : "srandom"
+  },
+  {
+   "name" : "sscanf"
+  },
+  {
+   "name" : "stat"
+  },
+  {
+   "name" : "stat64"
+  },
+  {
+   "name" : "statfs"
+  },
+  {
+   "name" : "statfs64"
+  },
+  {
+   "name" : "statvfs"
+  },
+  {
+   "name" : "statvfs64"
+  },
+  {
+   "name" : "statx"
+  },
+  {
+   "name" : "stpcpy"
+  },
+  {
+   "name" : "stpncpy"
+  },
+  {
+   "name" : "strcasecmp"
+  },
+  {
+   "name" : "strcasecmp_l"
+  },
+  {
+   "name" : "strcasestr"
+  },
+  {
+   "name" : "strcat"
+  },
+  {
+   "name" : "strchr"
+  },
+  {
+   "name" : "strchrnul"
+  },
+  {
+   "name" : "strcmp"
+  },
+  {
+   "name" : "strcoll"
+  },
+  {
+   "name" : "strcoll_l"
+  },
+  {
+   "name" : "strcpy"
+  },
+  {
+   "name" : "strcspn"
+  },
+  {
+   "name" : "strdup"
+  },
+  {
+   "name" : "strerror"
+  },
+  {
+   "name" : "strerror_l"
+  },
+  {
+   "name" : "strerror_r"
+  },
+  {
+   "name" : "strftime"
+  },
+  {
+   "name" : "strftime_l"
+  },
+  {
+   "name" : "strlcat"
+  },
+  {
+   "name" : "strlcpy"
+  },
+  {
+   "name" : "strlen"
+  },
+  {
+   "name" : "strncasecmp"
+  },
+  {
+   "name" : "strncasecmp_l"
+  },
+  {
+   "name" : "strncat"
+  },
+  {
+   "name" : "strncmp"
+  },
+  {
+   "name" : "strncpy"
+  },
+  {
+   "name" : "strndup"
+  },
+  {
+   "name" : "strnlen"
+  },
+  {
+   "name" : "strpbrk"
+  },
+  {
+   "name" : "strptime"
+  },
+  {
+   "name" : "strptime_l"
+  },
+  {
+   "name" : "strrchr"
+  },
+  {
+   "name" : "strsep"
+  },
+  {
+   "name" : "strsignal"
+  },
+  {
+   "name" : "strspn"
+  },
+  {
+   "name" : "strstr"
+  },
+  {
+   "name" : "strtod"
+  },
+  {
+   "name" : "strtod_l"
+  },
+  {
+   "name" : "strtof"
+  },
+  {
+   "name" : "strtof_l"
+  },
+  {
+   "name" : "strtoimax"
+  },
+  {
+   "name" : "strtok"
+  },
+  {
+   "name" : "strtok_r"
+  },
+  {
+   "name" : "strtol"
+  },
+  {
+   "name" : "strtol_l"
+  },
+  {
+   "name" : "strtold"
+  },
+  {
+   "name" : "strtold_l"
+  },
+  {
+   "name" : "strtoll"
+  },
+  {
+   "name" : "strtoll_l"
+  },
+  {
+   "name" : "strtoq"
+  },
+  {
+   "name" : "strtoul"
+  },
+  {
+   "name" : "strtoul_l"
+  },
+  {
+   "name" : "strtoull"
+  },
+  {
+   "name" : "strtoull_l"
+  },
+  {
+   "name" : "strtoumax"
+  },
+  {
+   "name" : "strtouq"
+  },
+  {
+   "name" : "strxfrm"
+  },
+  {
+   "name" : "strxfrm_l"
+  },
+  {
+   "name" : "swab"
+  },
+  {
+   "name" : "swapoff"
+  },
+  {
+   "name" : "swapon"
+  },
+  {
+   "name" : "swprintf"
+  },
+  {
+   "name" : "swscanf"
+  },
+  {
+   "name" : "symlink"
+  },
+  {
+   "name" : "symlinkat"
+  },
+  {
+   "name" : "sync"
+  },
+  {
+   "name" : "sync_file_range"
+  },
+  {
+   "name" : "syncfs"
+  },
+  {
+   "name" : "syscall"
+  },
+  {
+   "name" : "sysconf"
+  },
+  {
+   "name" : "sysinfo"
+  },
+  {
+   "name" : "syslog"
+  },
+  {
+   "name" : "system"
+  },
+  {
+   "name" : "tcdrain"
+  },
+  {
+   "name" : "tcflow"
+  },
+  {
+   "name" : "tcflush"
+  },
+  {
+   "name" : "tcgetattr"
+  },
+  {
+   "name" : "tcgetpgrp"
+  },
+  {
+   "name" : "tcgetsid"
+  },
+  {
+   "name" : "tcsendbreak"
+  },
+  {
+   "name" : "tcsetattr"
+  },
+  {
+   "name" : "tcsetpgrp"
+  },
+  {
+   "name" : "tdelete"
+  },
+  {
+   "name" : "tdestroy"
+  },
+  {
+   "name" : "tee"
+  },
+  {
+   "name" : "telldir"
+  },
+  {
+   "name" : "tempnam"
+  },
+  {
+   "name" : "tfind"
+  },
+  {
+   "name" : "tgkill"
+  },
+  {
+   "name" : "thrd_create"
+  },
+  {
+   "name" : "thrd_current"
+  },
+  {
+   "name" : "thrd_detach"
+  },
+  {
+   "name" : "thrd_equal"
+  },
+  {
+   "name" : "thrd_exit"
+  },
+  {
+   "name" : "thrd_join"
+  },
+  {
+   "name" : "thrd_sleep"
+  },
+  {
+   "name" : "thrd_yield"
+  },
+  {
+   "name" : "time"
+  },
+  {
+   "name" : "timegm"
+  },
+  {
+   "name" : "timelocal"
+  },
+  {
+   "name" : "timer_create"
+  },
+  {
+   "name" : "timer_delete"
+  },
+  {
+   "name" : "timer_getoverrun"
+  },
+  {
+   "name" : "timer_gettime"
+  },
+  {
+   "name" : "timer_settime"
+  },
+  {
+   "name" : "timerfd_create"
+  },
+  {
+   "name" : "timerfd_gettime"
+  },
+  {
+   "name" : "timerfd_settime"
+  },
+  {
+   "name" : "times"
+  },
+  {
+   "name" : "timespec_get"
+  },
+  {
+   "name" : "tmpfile"
+  },
+  {
+   "name" : "tmpfile64"
+  },
+  {
+   "name" : "tmpnam"
+  },
+  {
+   "name" : "toascii"
+  },
+  {
+   "name" : "tolower"
+  },
+  {
+   "name" : "tolower_l"
+  },
+  {
+   "name" : "toupper"
+  },
+  {
+   "name" : "toupper_l"
+  },
+  {
+   "name" : "towctrans"
+  },
+  {
+   "name" : "towctrans_l"
+  },
+  {
+   "name" : "towlower"
+  },
+  {
+   "name" : "towlower_l"
+  },
+  {
+   "name" : "towupper"
+  },
+  {
+   "name" : "towupper_l"
+  },
+  {
+   "name" : "truncate"
+  },
+  {
+   "name" : "truncate64"
+  },
+  {
+   "name" : "tsearch"
+  },
+  {
+   "name" : "tss_create"
+  },
+  {
+   "name" : "tss_delete"
+  },
+  {
+   "name" : "tss_get"
+  },
+  {
+   "name" : "tss_set"
+  },
+  {
+   "name" : "ttyname"
+  },
+  {
+   "name" : "ttyname_r"
+  },
+  {
+   "name" : "twalk"
+  },
+  {
+   "name" : "tzset"
+  },
+  {
+   "name" : "umask"
+  },
+  {
+   "name" : "umount"
+  },
+  {
+   "name" : "umount2"
+  },
+  {
+   "name" : "uname"
+  },
+  {
+   "name" : "ungetc"
+  },
+  {
+   "name" : "ungetwc"
+  },
+  {
+   "name" : "unlink"
+  },
+  {
+   "name" : "unlinkat"
+  },
+  {
+   "name" : "unlockpt"
+  },
+  {
+   "name" : "unsetenv"
+  },
+  {
+   "name" : "unshare"
+  },
+  {
+   "name" : "uselocale"
+  },
+  {
+   "name" : "usleep"
+  },
+  {
+   "name" : "utime"
+  },
+  {
+   "name" : "utimensat"
+  },
+  {
+   "name" : "utimes"
+  },
+  {
+   "name" : "utmpname"
+  },
+  {
+   "name" : "vasprintf"
+  },
+  {
+   "name" : "vdprintf"
+  },
+  {
+   "name" : "verr"
+  },
+  {
+   "name" : "verrx"
+  },
+  {
+   "binding" : "weak",
+   "name" : "vfork"
+  },
+  {
+   "name" : "vfprintf"
+  },
+  {
+   "name" : "vfscanf"
+  },
+  {
+   "name" : "vfwprintf"
+  },
+  {
+   "name" : "vfwscanf"
+  },
+  {
+   "name" : "vmsplice"
+  },
+  {
+   "name" : "vprintf"
+  },
+  {
+   "name" : "vscanf"
+  },
+  {
+   "name" : "vsnprintf"
+  },
+  {
+   "name" : "vsprintf"
+  },
+  {
+   "name" : "vsscanf"
+  },
+  {
+   "name" : "vswprintf"
+  },
+  {
+   "name" : "vswscanf"
+  },
+  {
+   "name" : "vsyslog"
+  },
+  {
+   "name" : "vwarn"
+  },
+  {
+   "name" : "vwarnx"
+  },
+  {
+   "name" : "vwprintf"
+  },
+  {
+   "name" : "vwscanf"
+  },
+  {
+   "name" : "wait"
+  },
+  {
+   "name" : "wait4"
+  },
+  {
+   "name" : "waitid"
+  },
+  {
+   "name" : "waitpid"
+  },
+  {
+   "name" : "warn"
+  },
+  {
+   "name" : "warnx"
+  },
+  {
+   "name" : "wcpcpy"
+  },
+  {
+   "name" : "wcpncpy"
+  },
+  {
+   "name" : "wcrtomb"
+  },
+  {
+   "name" : "wcscasecmp"
+  },
+  {
+   "name" : "wcscasecmp_l"
+  },
+  {
+   "name" : "wcscat"
+  },
+  {
+   "name" : "wcschr"
+  },
+  {
+   "name" : "wcscmp"
+  },
+  {
+   "name" : "wcscoll"
+  },
+  {
+   "name" : "wcscoll_l"
+  },
+  {
+   "name" : "wcscpy"
+  },
+  {
+   "name" : "wcscspn"
+  },
+  {
+   "name" : "wcsdup"
+  },
+  {
+   "name" : "wcsftime"
+  },
+  {
+   "name" : "wcsftime_l"
+  },
+  {
+   "name" : "wcslcat"
+  },
+  {
+   "name" : "wcslcpy"
+  },
+  {
+   "name" : "wcslen"
+  },
+  {
+   "name" : "wcsncasecmp"
+  },
+  {
+   "name" : "wcsncasecmp_l"
+  },
+  {
+   "name" : "wcsncat"
+  },
+  {
+   "name" : "wcsncmp"
+  },
+  {
+   "name" : "wcsncpy"
+  },
+  {
+   "name" : "wcsnlen"
+  },
+  {
+   "name" : "wcsnrtombs"
+  },
+  {
+   "name" : "wcspbrk"
+  },
+  {
+   "name" : "wcsrchr"
+  },
+  {
+   "name" : "wcsrtombs"
+  },
+  {
+   "name" : "wcsspn"
+  },
+  {
+   "name" : "wcsstr"
+  },
+  {
+   "name" : "wcstod"
+  },
+  {
+   "name" : "wcstod_l"
+  },
+  {
+   "name" : "wcstof"
+  },
+  {
+   "name" : "wcstof_l"
+  },
+  {
+   "name" : "wcstoimax"
+  },
+  {
+   "name" : "wcstok"
+  },
+  {
+   "name" : "wcstol"
+  },
+  {
+   "name" : "wcstol_l"
+  },
+  {
+   "name" : "wcstold"
+  },
+  {
+   "name" : "wcstold_l"
+  },
+  {
+   "name" : "wcstoll"
+  },
+  {
+   "name" : "wcstoll_l"
+  },
+  {
+   "name" : "wcstombs"
+  },
+  {
+   "name" : "wcstoul"
+  },
+  {
+   "name" : "wcstoul_l"
+  },
+  {
+   "name" : "wcstoull"
+  },
+  {
+   "name" : "wcstoull_l"
+  },
+  {
+   "name" : "wcstoumax"
+  },
+  {
+   "name" : "wcswidth"
+  },
+  {
+   "name" : "wcsxfrm"
+  },
+  {
+   "name" : "wcsxfrm_l"
+  },
+  {
+   "name" : "wctob"
+  },
+  {
+   "name" : "wctomb"
+  },
+  {
+   "name" : "wctrans"
+  },
+  {
+   "name" : "wctrans_l"
+  },
+  {
+   "name" : "wctype"
+  },
+  {
+   "name" : "wctype_l"
+  },
+  {
+   "name" : "wcwidth"
+  },
+  {
+   "name" : "wmemchr"
+  },
+  {
+   "name" : "wmemcmp"
+  },
+  {
+   "name" : "wmemcpy"
+  },
+  {
+   "name" : "wmemmove"
+  },
+  {
+   "name" : "wmempcpy"
+  },
+  {
+   "name" : "wmemset"
+  },
+  {
+   "name" : "wprintf"
+  },
+  {
+   "name" : "write"
+  },
+  {
+   "name" : "writev"
+  },
+  {
+   "name" : "wscanf"
+  }
+ ],
+ "elf_objects" :
+ [
+  {
+   "name" : "__free_hook"
+  },
+  {
+   "name" : "__malloc_hook"
+  },
+  {
+   "name" : "__memalign_hook"
+  },
+  {
+   "name" : "__p_class_syms"
+  },
+  {
+   "name" : "__p_type_syms"
+  },
+  {
+   "name" : "__progname"
+  },
+  {
+   "name" : "__realloc_hook"
+  },
+  {
+   "name" : "__sF"
+  },
+  {
+   "name" : "__stack_chk_guard"
+  },
+  {
+   "name" : "__system_property_area__"
+  },
+  {
+   "name" : "_ctype_"
+  },
+  {
+   "name" : "daylight"
+  },
+  {
+   "name" : "environ"
+  },
+  {
+   "name" : "error_message_count"
+  },
+  {
+   "name" : "error_one_per_line"
+  },
+  {
+   "name" : "error_print_progname"
+  },
+  {
+   "name" : "in6addr_any"
+  },
+  {
+   "name" : "in6addr_loopback"
+  },
+  {
+   "name" : "optarg"
+  },
+  {
+   "name" : "opterr"
+  },
+  {
+   "name" : "optind"
+  },
+  {
+   "name" : "optopt"
+  },
+  {
+   "name" : "optreset"
+  },
+  {
+   "name" : "stderr"
+  },
+  {
+   "name" : "stdin"
+  },
+  {
+   "name" : "stdout"
+  },
+  {
+   "name" : "sys_siglist"
+  },
+  {
+   "name" : "sys_signame"
+  },
+  {
+   "name" : "timezone"
+  },
+  {
+   "name" : "tzname"
+  }
+ ],
+ "enum_types" :
+ [
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 0,
+     "name" : "ANDROID_LOG_UNKNOWN"
+    },
+    {
+     "enum_field_value" : 1,
+     "name" : "ANDROID_LOG_DEFAULT"
+    },
+    {
+     "enum_field_value" : 2,
+     "name" : "ANDROID_LOG_VERBOSE"
+    },
+    {
+     "enum_field_value" : 3,
+     "name" : "ANDROID_LOG_DEBUG"
+    },
+    {
+     "enum_field_value" : 4,
+     "name" : "ANDROID_LOG_INFO"
+    },
+    {
+     "enum_field_value" : 5,
+     "name" : "ANDROID_LOG_WARN"
+    },
+    {
+     "enum_field_value" : 6,
+     "name" : "ANDROID_LOG_ERROR"
+    },
+    {
+     "enum_field_value" : 7,
+     "name" : "ANDROID_LOG_FATAL"
+    },
+    {
+     "enum_field_value" : 8,
+     "name" : "ANDROID_LOG_SILENT"
+    }
+   ],
+   "linker_set_key" : "_ZTI19android_LogPriority",
+   "name" : "android_LogPriority",
+   "referenced_type" : "_ZTI19android_LogPriority",
+   "self_type" : "_ZTI19android_LogPriority",
+   "size" : 4,
+   "source_file" : "system/logging/liblog/include/android/log.h",
+   "underlying_type" : "_ZTIj"
+  },
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 0,
+     "name" : "LOG_ID_MIN"
+    },
+    {
+     "enum_field_value" : 0,
+     "name" : "LOG_ID_MAIN"
+    },
+    {
+     "enum_field_value" : 1,
+     "name" : "LOG_ID_RADIO"
+    },
+    {
+     "enum_field_value" : 2,
+     "name" : "LOG_ID_EVENTS"
+    },
+    {
+     "enum_field_value" : 3,
+     "name" : "LOG_ID_SYSTEM"
+    },
+    {
+     "enum_field_value" : 4,
+     "name" : "LOG_ID_CRASH"
+    },
+    {
+     "enum_field_value" : 5,
+     "name" : "LOG_ID_STATS"
+    },
+    {
+     "enum_field_value" : 6,
+     "name" : "LOG_ID_SECURITY"
+    },
+    {
+     "enum_field_value" : 7,
+     "name" : "LOG_ID_KERNEL"
+    },
+    {
+     "enum_field_value" : 8,
+     "name" : "LOG_ID_MAX"
+    },
+    {
+     "enum_field_value" : 2147483647,
+     "name" : "LOG_ID_DEFAULT"
+    }
+   ],
+   "linker_set_key" : "_ZTI6log_id",
+   "name" : "log_id",
+   "referenced_type" : "_ZTI6log_id",
+   "self_type" : "_ZTI6log_id",
+   "size" : 4,
+   "source_file" : "system/logging/liblog/include/android/log.h",
+   "underlying_type" : "_ZTIj"
+  }
+ ],
+ "function_types" :
+ [
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIFvPK9prop_infoPvE",
+   "name" : "void (const prop_info *, void *)",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIPK9prop_info"
+    },
+    {
+     "referenced_type" : "_ZTIPv"
+    }
+   ],
+   "referenced_type" : "_ZTIFvPK9prop_infoPvE",
+   "return_type" : "_ZTIv",
+   "self_type" : "_ZTIFvPK9prop_infoPvE",
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_pre_split.h"
+  },
+  {
+   "alignment" : 4,
+   "linker_set_key" : "_ZTIFvPvPKcS1_jE",
+   "name" : "void (void *, const char *, const char *, unsigned int)",
+   "parameters" :
+   [
+    {
+     "referenced_type" : "_ZTIPv"
+    },
+    {
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "referenced_type" : "_ZTIFvPvPKcS1_jE",
+   "return_type" : "_ZTIv",
+   "self_type" : "_ZTIFvPvPKcS1_jE",
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  }
+ ],
+ "functions" : [],
+ "global_vars" : [],
+ "lvalue_reference_types" :
+ [
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIRKN7android10properties8TrieNodeE",
+   "name" : "const android::properties::TrieNode &",
+   "referenced_type" : "_ZTIKN7android10properties8TrieNodeE",
+   "self_type" : "_ZTIRKN7android10properties8TrieNodeE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIRN7android10properties20PropertyInfoAreaFileE",
+   "name" : "android::properties::PropertyInfoAreaFile &",
+   "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTIRN7android10properties20PropertyInfoAreaFileE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  }
+ ],
+ "pointer_types" :
+ [
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP10PrefixNode",
+   "name" : "PrefixNode *",
+   "referenced_type" : "_ZTI10PrefixNode",
+   "self_type" : "_ZTIP10PrefixNode",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_split.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP11ContextNode",
+   "name" : "ContextNode *",
+   "referenced_type" : "_ZTI11ContextNode",
+   "self_type" : "_ZTIP11ContextNode",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/context_node.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP13ContextsSplit",
+   "name" : "ContextsSplit *",
+   "referenced_type" : "_ZTI13ContextsSplit",
+   "self_type" : "_ZTIP13ContextsSplit",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_split.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP13__va_list_tag",
+   "name" : "__va_list_tag *",
+   "referenced_type" : "_ZTI13__va_list_tag",
+   "self_type" : "_ZTIP13__va_list_tag",
+   "size" : 8,
+   "source_file" : "bionic/libc/async_safe/include/async_safe/log.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP15ContextListNode",
+   "name" : "ContextListNode *",
+   "referenced_type" : "_ZTI15ContextListNode",
+   "self_type" : "_ZTIP15ContextListNode",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_split.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP16ContextsPreSplit",
+   "name" : "ContextsPreSplit *",
+   "referenced_type" : "_ZTI16ContextsPreSplit",
+   "self_type" : "_ZTIP16ContextsPreSplit",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_pre_split.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP16SystemProperties",
+   "name" : "SystemProperties *",
+   "referenced_type" : "_ZTI16SystemProperties",
+   "self_type" : "_ZTIP16SystemProperties",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP18ContextsSerialized",
+   "name" : "ContextsSerialized *",
+   "referenced_type" : "_ZTI18ContextsSerialized",
+   "self_type" : "_ZTIP18ContextsSerialized",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_serialized.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP7prop_bt",
+   "name" : "prop_bt *",
+   "referenced_type" : "_ZTI7prop_bt",
+   "self_type" : "_ZTIP7prop_bt",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP8Contexts",
+   "name" : "Contexts *",
+   "referenced_type" : "_ZTI8Contexts",
+   "self_type" : "_ZTIP8Contexts",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP9prop_area",
+   "name" : "prop_area *",
+   "referenced_type" : "_ZTI9prop_area",
+   "self_type" : "_ZTIP9prop_area",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIP9prop_info",
+   "name" : "prop_info *",
+   "referenced_type" : "_ZTI9prop_info",
+   "self_type" : "_ZTIP9prop_info",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPFvPK9prop_infoPvE",
+   "name" : "void (*)(const prop_info *, void *)",
+   "referenced_type" : "_ZTIFvPK9prop_infoPvE",
+   "self_type" : "_ZTIPFvPK9prop_infoPvE",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_pre_split.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPFvPvPKcS1_jE",
+   "name" : "void (*)(void *, const char *, const char *, unsigned int)",
+   "referenced_type" : "_ZTIFvPvPKcS1_jE",
+   "self_type" : "_ZTIPFvPvPKcS1_jE",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPK11ContextNode",
+   "name" : "const ContextNode *",
+   "referenced_type" : "_ZTIK11ContextNode",
+   "self_type" : "_ZTIPK11ContextNode",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/context_node.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPK8timespec",
+   "name" : "const timespec *",
+   "referenced_type" : "_ZTIK8timespec",
+   "self_type" : "_ZTIPK8timespec",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPK9prop_area",
+   "name" : "const prop_area *",
+   "referenced_type" : "_ZTIK9prop_area",
+   "self_type" : "_ZTIPK9prop_area",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPK9prop_info",
+   "name" : "const prop_info *",
+   "referenced_type" : "_ZTIK9prop_info",
+   "self_type" : "_ZTIPK9prop_info",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties13PropertyEntryE",
+   "name" : "const android::properties::PropertyEntry *",
+   "referenced_type" : "_ZTIKN7android10properties13PropertyEntryE",
+   "self_type" : "_ZTIPKN7android10properties13PropertyEntryE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties14SerializedDataE",
+   "name" : "const android::properties::SerializedData *",
+   "referenced_type" : "_ZTIKN7android10properties14SerializedDataE",
+   "self_type" : "_ZTIPKN7android10properties14SerializedDataE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties16PropertyInfoAreaE",
+   "name" : "const android::properties::PropertyInfoArea *",
+   "referenced_type" : "_ZTIKN7android10properties16PropertyInfoAreaE",
+   "self_type" : "_ZTIPKN7android10properties16PropertyInfoAreaE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties16TrieNodeInternalE",
+   "name" : "const android::properties::TrieNodeInternal *",
+   "referenced_type" : "_ZTIKN7android10properties16TrieNodeInternalE",
+   "self_type" : "_ZTIPKN7android10properties16TrieNodeInternalE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties20PropertyInfoAreaFileE",
+   "name" : "const android::properties::PropertyInfoAreaFile *",
+   "referenced_type" : "_ZTIKN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTIPKN7android10properties20PropertyInfoAreaFileE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties22PropertyInfoAreaHeaderE",
+   "name" : "const android::properties::PropertyInfoAreaHeader *",
+   "referenced_type" : "_ZTIKN7android10properties22PropertyInfoAreaHeaderE",
+   "self_type" : "_ZTIPKN7android10properties22PropertyInfoAreaHeaderE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKN7android10properties8TrieNodeE",
+   "name" : "const android::properties::TrieNode *",
+   "referenced_type" : "_ZTIKN7android10properties8TrieNodeE",
+   "self_type" : "_ZTIPKN7android10properties8TrieNodeE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKc",
+   "name" : "const char *",
+   "referenced_type" : "_ZTIKc",
+   "self_type" : "_ZTIPKc",
+   "size" : 8,
+   "source_file" : "system/logging/liblog/include/android/log.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPKj",
+   "name" : "const unsigned int *",
+   "referenced_type" : "_ZTIKj",
+   "self_type" : "_ZTIPKj",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPN7android10properties20PropertyInfoAreaFileE",
+   "name" : "android::properties::PropertyInfoAreaFile *",
+   "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTIPN7android10properties20PropertyInfoAreaFileE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPN7android10properties8TrieNodeE",
+   "name" : "android::properties::TrieNode *",
+   "referenced_type" : "_ZTIN7android10properties8TrieNodeE",
+   "self_type" : "_ZTIPN7android10properties8TrieNodeE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPP9prop_area",
+   "name" : "prop_area **",
+   "referenced_type" : "_ZTIP9prop_area",
+   "self_type" : "_ZTIPP9prop_area",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPPKc",
+   "name" : "const char **",
+   "referenced_type" : "_ZTIPKc",
+   "self_type" : "_ZTIPPKc",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPU7_Atomicj",
+   "name" : "_Atomic(unsigned int) *",
+   "referenced_type" : "_ZTIU7_Atomicj",
+   "self_type" : "_ZTIPU7_Atomicj",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPb",
+   "name" : "bool *",
+   "referenced_type" : "_ZTIb",
+   "self_type" : "_ZTIPb",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/context_node.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPc",
+   "name" : "char *",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIPc",
+   "size" : 8,
+   "source_file" : "bionic/libc/async_safe/include/async_safe/log.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPj",
+   "name" : "unsigned int *",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIPj",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTIPv",
+   "name" : "void *",
+   "referenced_type" : "_ZTIv",
+   "self_type" : "_ZTIPv",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  }
+ ],
+ "qualified_types" :
+ [
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIA0_Kc",
+   "name" : "const char[0]",
+   "referenced_type" : "_ZTIA0_c",
+   "self_type" : "_ZTIA0_Kc",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIK11ContextNode",
+   "name" : "const ContextNode",
+   "referenced_type" : "_ZTI11ContextNode",
+   "self_type" : "_ZTIK11ContextNode",
+   "size" : 40,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/context_node.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIK8timespec",
+   "name" : "const timespec",
+   "referenced_type" : "_ZTI8timespec",
+   "self_type" : "_ZTIK8timespec",
+   "size" : 16,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIK9prop_area",
+   "name" : "const prop_area",
+   "referenced_type" : "_ZTI9prop_area",
+   "self_type" : "_ZTIK9prop_area",
+   "size" : 128,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIK9prop_info",
+   "name" : "const prop_info",
+   "referenced_type" : "_ZTI9prop_info",
+   "self_type" : "_ZTIK9prop_info",
+   "size" : 96,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties13PropertyEntryE",
+   "name" : "const android::properties::PropertyEntry",
+   "referenced_type" : "_ZTIN7android10properties13PropertyEntryE",
+   "self_type" : "_ZTIKN7android10properties13PropertyEntryE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties14SerializedDataE",
+   "name" : "const android::properties::SerializedData",
+   "referenced_type" : "_ZTIN7android10properties14SerializedDataE",
+   "self_type" : "_ZTIKN7android10properties14SerializedDataE",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties16PropertyInfoAreaE",
+   "name" : "const android::properties::PropertyInfoArea",
+   "referenced_type" : "_ZTIN7android10properties16PropertyInfoAreaE",
+   "self_type" : "_ZTIKN7android10properties16PropertyInfoAreaE",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties16TrieNodeInternalE",
+   "name" : "const android::properties::TrieNodeInternal",
+   "referenced_type" : "_ZTIN7android10properties16TrieNodeInternalE",
+   "self_type" : "_ZTIKN7android10properties16TrieNodeInternalE",
+   "size" : 28,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties20PropertyInfoAreaFileE",
+   "name" : "const android::properties::PropertyInfoAreaFile",
+   "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTIKN7android10properties20PropertyInfoAreaFileE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties22PropertyInfoAreaHeaderE",
+   "name" : "const android::properties::PropertyInfoAreaHeader",
+   "referenced_type" : "_ZTIN7android10properties22PropertyInfoAreaHeaderE",
+   "self_type" : "_ZTIKN7android10properties22PropertyInfoAreaHeaderE",
+   "size" : 24,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKN7android10properties8TrieNodeE",
+   "name" : "const android::properties::TrieNode",
+   "referenced_type" : "_ZTIN7android10properties8TrieNodeE",
+   "self_type" : "_ZTIKN7android10properties8TrieNodeE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKP7prop_bt",
+   "name" : "prop_bt *const",
+   "referenced_type" : "_ZTIP7prop_bt",
+   "self_type" : "_ZTIKP7prop_bt",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKPj",
+   "name" : "unsigned int *const",
+   "referenced_type" : "_ZTIPj",
+   "self_type" : "_ZTIKPj",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 1,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKc",
+   "name" : "const char",
+   "referenced_type" : "_ZTIc",
+   "self_type" : "_ZTIKc",
+   "size" : 1,
+   "source_file" : "system/logging/liblog/include/android/log.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKi",
+   "name" : "const int",
+   "referenced_type" : "_ZTIi",
+   "self_type" : "_ZTIKi",
+   "size" : 4,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 4,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKj",
+   "name" : "const unsigned int",
+   "referenced_type" : "_ZTIj",
+   "self_type" : "_ZTIKj",
+   "size" : 4,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "is_const" : true,
+   "linker_set_key" : "_ZTIKm",
+   "name" : "const unsigned long",
+   "referenced_type" : "_ZTIm",
+   "self_type" : "_ZTIKm",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  }
+ ],
+ "record_types" :
+ [
+  {
+   "alignment" : 8,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "lock_",
+     "referenced_type" : "_ZTI4Lock"
+    },
+    {
+     "access" : "private",
+     "field_name" : "context_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "access" : "private",
+     "field_name" : "pa_",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIP9prop_area"
+    },
+    {
+     "access" : "private",
+     "field_name" : "no_access_",
+     "field_offset" : 192,
+     "referenced_type" : "_ZTIb"
+    },
+    {
+     "access" : "private",
+     "field_name" : "filename_",
+     "field_offset" : 256,
+     "referenced_type" : "_ZTIPKc"
+    }
+   ],
+   "linker_set_key" : "_ZTI11ContextNode",
+   "name" : "ContextNode",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI11ContextNode",
+   "self_type" : "_ZTI11ContextNode",
+   "size" : 40,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/context_node.h"
+  },
+  {
+   "alignment" : 8,
+   "base_specifiers" :
+   [
+    {
+     "referenced_type" : "_ZTI8Contexts"
+    }
+   ],
+   "fields" :
+   [
+    {
+     "access" : "protected",
+     "field_name" : "prefixes_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIP10PrefixNode"
+    },
+    {
+     "access" : "protected",
+     "field_name" : "contexts_",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIP15ContextListNode"
+    },
+    {
+     "access" : "protected",
+     "field_name" : "serial_prop_area_",
+     "field_offset" : 192,
+     "referenced_type" : "_ZTIP9prop_area"
+    },
+    {
+     "access" : "protected",
+     "field_name" : "filename_",
+     "field_offset" : 256,
+     "referenced_type" : "_ZTIPKc"
+    }
+   ],
+   "linker_set_key" : "_ZTI13ContextsSplit",
+   "name" : "ContextsSplit",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI13ContextsSplit",
+   "self_type" : "_ZTI13ContextsSplit",
+   "size" : 40,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_split.h",
+   "vtable_components" :
+   [
+    {
+     "kind" : "offset_to_top"
+    },
+    {
+     "kind" : "rtti",
+     "mangled_component_name" : "_ZTI13ContextsSplit"
+    },
+    {
+     "kind" : "complete_dtor_pointer",
+     "mangled_component_name" : "_ZN13ContextsSplitD1Ev"
+    },
+    {
+     "kind" : "deleting_dtor_pointer",
+     "mangled_component_name" : "_ZN13ContextsSplitD0Ev"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit10InitializeEbPKcPb"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit18GetPropAreaForNameEPKc"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit17GetSerialPropAreaEv"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit7ForEachEPFvPK9prop_infoPvES3_"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit11ResetAccessEv"
+    },
+    {
+     "mangled_component_name" : "_ZN13ContextsSplit12FreeAndUnmapEv"
+    }
+   ]
+  },
+  {
+   "alignment" : 8,
+   "base_specifiers" :
+   [
+    {
+     "referenced_type" : "_ZTI8Contexts"
+    }
+   ],
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "pre_split_prop_area_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIP9prop_area"
+    }
+   ],
+   "linker_set_key" : "_ZTI16ContextsPreSplit",
+   "name" : "ContextsPreSplit",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI16ContextsPreSplit",
+   "self_type" : "_ZTI16ContextsPreSplit",
+   "size" : 16,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_pre_split.h",
+   "vtable_components" :
+   [
+    {
+     "kind" : "offset_to_top"
+    },
+    {
+     "kind" : "rtti",
+     "mangled_component_name" : "_ZTI16ContextsPreSplit"
+    },
+    {
+     "kind" : "complete_dtor_pointer",
+     "mangled_component_name" : "_ZN16ContextsPreSplitD1Ev"
+    },
+    {
+     "kind" : "deleting_dtor_pointer",
+     "mangled_component_name" : "_ZN16ContextsPreSplitD0Ev"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit10InitializeEbPKcPb"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit18GetPropAreaForNameEPKc"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit17GetSerialPropAreaEv"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit7ForEachEPFvPK9prop_infoPvES3_"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit11ResetAccessEv"
+    },
+    {
+     "mangled_component_name" : "_ZN16ContextsPreSplit12FreeAndUnmapEv"
+    }
+   ]
+  },
+  {
+   "alignment" : 8,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "contexts_data_",
+     "referenced_type" : "_ZTIA64_c"
+    },
+    {
+     "access" : "private",
+     "field_name" : "contexts_",
+     "field_offset" : 512,
+     "referenced_type" : "_ZTIP8Contexts"
+    },
+    {
+     "access" : "private",
+     "field_name" : "initialized_",
+     "field_offset" : 576,
+     "referenced_type" : "_ZTIb"
+    },
+    {
+     "access" : "private",
+     "field_name" : "property_filename_",
+     "field_offset" : 584,
+     "referenced_type" : "_ZTIA1024_c"
+    }
+   ],
+   "linker_set_key" : "_ZTI16SystemProperties",
+   "name" : "SystemProperties",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI16SystemProperties",
+   "self_type" : "_ZTI16SystemProperties",
+   "size" : 1104,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/system_properties.h"
+  },
+  {
+   "alignment" : 8,
+   "base_specifiers" :
+   [
+    {
+     "referenced_type" : "_ZTI8Contexts"
+    }
+   ],
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "filename_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "access" : "private",
+     "field_name" : "property_info_area_file_",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE"
+    },
+    {
+     "access" : "private",
+     "field_name" : "context_nodes_",
+     "field_offset" : 256,
+     "referenced_type" : "_ZTIP11ContextNode"
+    },
+    {
+     "access" : "private",
+     "field_name" : "num_context_nodes_",
+     "field_offset" : 320,
+     "referenced_type" : "_ZTIm"
+    },
+    {
+     "access" : "private",
+     "field_name" : "context_nodes_mmap_size_",
+     "field_offset" : 384,
+     "referenced_type" : "_ZTIm"
+    },
+    {
+     "access" : "private",
+     "field_name" : "serial_prop_area_",
+     "field_offset" : 448,
+     "referenced_type" : "_ZTIP9prop_area"
+    }
+   ],
+   "linker_set_key" : "_ZTI18ContextsSerialized",
+   "name" : "ContextsSerialized",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI18ContextsSerialized",
+   "self_type" : "_ZTI18ContextsSerialized",
+   "size" : 64,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts_serialized.h",
+   "vtable_components" :
+   [
+    {
+     "kind" : "offset_to_top"
+    },
+    {
+     "kind" : "rtti",
+     "mangled_component_name" : "_ZTI18ContextsSerialized"
+    },
+    {
+     "kind" : "complete_dtor_pointer",
+     "mangled_component_name" : "_ZN18ContextsSerializedD1Ev"
+    },
+    {
+     "kind" : "deleting_dtor_pointer",
+     "mangled_component_name" : "_ZN18ContextsSerializedD0Ev"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized10InitializeEbPKcPb"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized18GetPropAreaForNameEPKc"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized17GetSerialPropAreaEv"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized7ForEachEPFvPK9prop_infoPvES3_"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized11ResetAccessEv"
+    },
+    {
+     "mangled_component_name" : "_ZN18ContextsSerialized12FreeAndUnmapEv"
+    }
+   ]
+  },
+  {
+   "alignment" : 8,
+   "fields" :
+   [
+    {
+     "field_name" : "struct_size",
+     "referenced_type" : "_ZTIm"
+    },
+    {
+     "field_name" : "buffer_id",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIi"
+    },
+    {
+     "field_name" : "priority",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIi"
+    },
+    {
+     "field_name" : "tag",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "field_name" : "file",
+     "field_offset" : 192,
+     "referenced_type" : "_ZTIPKc"
+    },
+    {
+     "field_name" : "line",
+     "field_offset" : 256,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "message",
+     "field_offset" : 320,
+     "referenced_type" : "_ZTIPKc"
+    }
+   ],
+   "linker_set_key" : "_ZTI21__android_log_message",
+   "name" : "__android_log_message",
+   "referenced_type" : "_ZTI21__android_log_message",
+   "self_type" : "_ZTI21__android_log_message",
+   "size" : 48,
+   "source_file" : "system/logging/liblog/include/android/log.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "namelen",
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "prop",
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "field_name" : "left",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "field_name" : "right",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "field_name" : "children",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "field_name" : "name",
+     "field_offset" : 160,
+     "referenced_type" : "_ZTIA0_c"
+    }
+   ],
+   "linker_set_key" : "_ZTI7prop_bt",
+   "name" : "prop_bt",
+   "referenced_type" : "_ZTI7prop_bt",
+   "self_type" : "_ZTI7prop_bt",
+   "size" : 20,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTI8Contexts",
+   "name" : "Contexts",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI8Contexts",
+   "self_type" : "_ZTI8Contexts",
+   "size" : 8,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/contexts.h",
+   "vtable_components" :
+   [
+    {
+     "kind" : "offset_to_top"
+    },
+    {
+     "kind" : "rtti",
+     "mangled_component_name" : "_ZTI8Contexts"
+    },
+    {
+     "kind" : "complete_dtor_pointer",
+     "mangled_component_name" : "_ZN8ContextsD1Ev"
+    },
+    {
+     "kind" : "deleting_dtor_pointer",
+     "mangled_component_name" : "_ZN8ContextsD0Ev"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts10InitializeEbPKcPb"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts18GetPropAreaForNameEPKc"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts17GetSerialPropAreaEv"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts7ForEachEPFvPK9prop_infoPvES3_"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts11ResetAccessEv"
+    },
+    {
+     "is_pure" : true,
+     "mangled_component_name" : "_ZN8Contexts12FreeAndUnmapEv"
+    }
+   ]
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "bytes_used_",
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "access" : "private",
+     "field_name" : "serial_",
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "access" : "private",
+     "field_name" : "magic_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "access" : "private",
+     "field_name" : "version_",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "access" : "private",
+     "field_name" : "reserved_",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIA28_j"
+    },
+    {
+     "access" : "private",
+     "field_name" : "data_",
+     "field_offset" : 1024,
+     "referenced_type" : "_ZTIA0_c"
+    }
+   ],
+   "linker_set_key" : "_ZTI9prop_area",
+   "name" : "prop_area",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTI9prop_area",
+   "self_type" : "_ZTI9prop_area",
+   "size" : 128,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_area.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "serial",
+     "referenced_type" : "_ZTIU7_Atomicj"
+    },
+    {
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIN9prop_infoUt_E"
+    },
+    {
+     "field_name" : "name",
+     "field_offset" : 768,
+     "referenced_type" : "_ZTIA0_c"
+    }
+   ],
+   "linker_set_key" : "_ZTI9prop_info",
+   "name" : "prop_info",
+   "referenced_type" : "_ZTI9prop_info",
+   "self_type" : "_ZTI9prop_info",
+   "size" : 96,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "name_offset",
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "namelen",
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "context_index",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "type_index",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties13PropertyEntryE",
+   "name" : "android::properties::PropertyEntry",
+   "referenced_type" : "_ZTIN7android10properties13PropertyEntryE",
+   "self_type" : "_ZTIN7android10properties13PropertyEntryE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 1,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "data_base_",
+     "referenced_type" : "_ZTIA0_Kc"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties14SerializedDataE",
+   "name" : "android::properties::SerializedData",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTIN7android10properties14SerializedDataE",
+   "self_type" : "_ZTIN7android10properties14SerializedDataE",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 1,
+   "base_specifiers" :
+   [
+    {
+     "access" : "private",
+     "referenced_type" : "_ZTIN7android10properties14SerializedDataE"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties16PropertyInfoAreaE",
+   "name" : "android::properties::PropertyInfoArea",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTIN7android10properties16PropertyInfoAreaE",
+   "self_type" : "_ZTIN7android10properties16PropertyInfoAreaE",
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "property_entry",
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "num_child_nodes",
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "child_nodes",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "num_prefixes",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "prefix_entries",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "num_exact_matches",
+     "field_offset" : 160,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "exact_match_entries",
+     "field_offset" : 192,
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties16TrieNodeInternalE",
+   "name" : "android::properties::TrieNodeInternal",
+   "referenced_type" : "_ZTIN7android10properties16TrieNodeInternalE",
+   "self_type" : "_ZTIN7android10properties16TrieNodeInternalE",
+   "size" : 28,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "mmap_base_",
+     "referenced_type" : "_ZTIPv"
+    },
+    {
+     "access" : "private",
+     "field_name" : "mmap_size_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIm"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "name" : "android::properties::PropertyInfoAreaFile",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "current_version",
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "minimum_supported_version",
+     "field_offset" : 32,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "size",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "contexts_offset",
+     "field_offset" : 96,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "types_offset",
+     "field_offset" : 128,
+     "referenced_type" : "_ZTIj"
+    },
+    {
+     "field_name" : "root_offset",
+     "field_offset" : 160,
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties22PropertyInfoAreaHeaderE",
+   "name" : "android::properties::PropertyInfoAreaHeader",
+   "referenced_type" : "_ZTIN7android10properties22PropertyInfoAreaHeaderE",
+   "self_type" : "_ZTIN7android10properties22PropertyInfoAreaHeaderE",
+   "size" : 24,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 8,
+   "fields" :
+   [
+    {
+     "access" : "private",
+     "field_name" : "serialized_data_",
+     "referenced_type" : "_ZTIPKN7android10properties14SerializedDataE"
+    },
+    {
+     "access" : "private",
+     "field_name" : "trie_node_base_",
+     "field_offset" : 64,
+     "referenced_type" : "_ZTIPKN7android10properties16TrieNodeInternalE"
+    }
+   ],
+   "linker_set_key" : "_ZTIN7android10properties8TrieNodeE",
+   "name" : "android::properties::TrieNode",
+   "record_kind" : "class",
+   "referenced_type" : "_ZTIN7android10properties8TrieNodeE",
+   "self_type" : "_ZTIN7android10properties8TrieNodeE",
+   "size" : 16,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "value",
+     "referenced_type" : "_ZTIA92_c"
+    },
+    {
+     "field_name" : "long_property",
+     "referenced_type" : "_ZTIN9prop_infoUt_Ut_E"
+    }
+   ],
+   "is_anonymous" : true,
+   "linker_set_key" : "_ZTIN9prop_infoUt_E",
+   "name" : "prop_info::(anonymous union at bionic/libc/system_properties/include/system_properties/prop_info.h:61:3)",
+   "record_kind" : "union",
+   "referenced_type" : "_ZTIN9prop_infoUt_E",
+   "self_type" : "_ZTIN9prop_infoUt_E",
+   "size" : 92,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  },
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "error_message",
+     "referenced_type" : "_ZTIA56_c"
+    },
+    {
+     "field_name" : "offset",
+     "field_offset" : 448,
+     "referenced_type" : "_ZTIj"
+    }
+   ],
+   "is_anonymous" : true,
+   "linker_set_key" : "_ZTIN9prop_infoUt_Ut_E",
+   "name" : "prop_info::(anonymous union at bionic/libc/system_properties/include/system_properties/prop_info.h:61:3)::(unnamed struct at bionic/libc/system_properties/include/system_properties/prop_info.h:63:5)",
+   "referenced_type" : "_ZTIN9prop_infoUt_Ut_E",
+   "self_type" : "_ZTIN9prop_infoUt_Ut_E",
+   "size" : 60,
+   "source_file" : "bionic/libc/system_properties/include/system_properties/prop_info.h"
+  }
+ ],
+ "rvalue_reference_types" :
+ [
+  {
+   "alignment" : 8,
+   "linker_set_key" : "_ZTION7android10properties20PropertyInfoAreaFileE",
+   "name" : "android::properties::PropertyInfoAreaFile &&",
+   "referenced_type" : "_ZTIN7android10properties20PropertyInfoAreaFileE",
+   "self_type" : "_ZTION7android10properties20PropertyInfoAreaFileE",
+   "size" : 8,
+   "source_file" : "system/core/property_service/libpropertyinfoparser/include/property_info_parser/property_info_parser.h"
+  }
+ ]
+}

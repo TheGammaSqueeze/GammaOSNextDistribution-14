@@ -1,0 +1,1742 @@
+R"( 
+ 
+#ifndef ARM_COMPUTE_HELPERS_ASYMM_H
+#define ARM_COMPUTE_HELPERS_ASYMM_H
+
+ 
+#ifndef ARM_COMPUTE_HELPER_H
+#define ARM_COMPUTE_HELPER_H
+
+ 
+
+ 
+#define STORE_ROW_1(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    VSTORE(N0)                                                 \
+    (BASENAME##0, 0, (__global DATA_TYPE *)(PTR + 0 * STRIDE_Y + Z##0));
+
+#define STORE_ROW_2(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_1(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##1, 0, (__global DATA_TYPE *)(PTR + 1 * STRIDE_Y + Z##1));
+
+#define STORE_ROW_3(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_2(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##2, 0, (__global DATA_TYPE *)(PTR + 2 * STRIDE_Y + Z##2));
+
+#define STORE_ROW_4(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_3(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##3, 0, (__global DATA_TYPE *)(PTR + 3 * STRIDE_Y + Z##3));
+
+#define STORE_ROW_5(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_4(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##4, 0, (__global DATA_TYPE *)(PTR + 4 * STRIDE_Y + Z##4));
+
+#define STORE_ROW_6(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_5(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##5, 0, (__global DATA_TYPE *)(PTR + 5 * STRIDE_Y + Z##5));
+
+#define STORE_ROW_7(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_6(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##6, 0, (__global DATA_TYPE *)(PTR + 6 * STRIDE_Y + Z##6));
+
+#define STORE_ROW_8(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_7(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##7, 0, (__global DATA_TYPE *)(PTR + 7 * STRIDE_Y + Z##7));
+
+#define STORE_ROW_9(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_8(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                 \
+    (BASENAME##8, 0, (__global DATA_TYPE *)(PTR + 8 * STRIDE_Y + Z##8));
+
+#define STORE_ROW_10(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_9(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)      \
+    VSTORE(N0)                                                  \
+    (BASENAME##9, 0, (__global DATA_TYPE *)(PTR + 9 * STRIDE_Y + Z##9));
+
+#define STORE_ROW_11(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_10(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##A, 0, (__global DATA_TYPE *)(PTR + 10 * STRIDE_Y + Z##A));
+
+#define STORE_ROW_12(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_11(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##B, 0, (__global DATA_TYPE *)(PTR + 11 * STRIDE_Y + Z##B));
+
+#define STORE_ROW_13(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_12(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##C, 0, (__global DATA_TYPE *)(PTR + 12 * STRIDE_Y + Z##C));
+
+#define STORE_ROW_14(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_13(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##D, 0, (__global DATA_TYPE *)(PTR + 13 * STRIDE_Y + Z##D));
+
+#define STORE_ROW_15(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_14(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##E, 0, (__global DATA_TYPE *)(PTR + 14 * STRIDE_Y + Z##E));
+
+#define STORE_ROW_16(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_15(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                  \
+    (BASENAME##F, 0, (__global DATA_TYPE *)(PTR + 15 * STRIDE_Y + Z##F));
+   
+
+ 
+#define CONVERT_STORE_ROW_1(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##0), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 0 * STRIDE_Y + Z##0));
+
+#define CONVERT_STORE_ROW_2(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_1(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##1), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 1 * STRIDE_Y + Z##1));
+
+#define CONVERT_STORE_ROW_3(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_2(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##2), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 2 * STRIDE_Y + Z##2));
+
+#define CONVERT_STORE_ROW_4(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_3(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##3), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 3 * STRIDE_Y + Z##3));
+
+#define CONVERT_STORE_ROW_5(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_4(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##4), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 4 * STRIDE_Y + Z##4));
+
+#define CONVERT_STORE_ROW_6(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_5(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##5), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 5 * STRIDE_Y + Z##5));
+
+#define CONVERT_STORE_ROW_7(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_6(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##6), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 6 * STRIDE_Y + Z##6));
+
+#define CONVERT_STORE_ROW_8(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_7(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##7), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 7 * STRIDE_Y + Z##7));
+
+#define CONVERT_STORE_ROW_9(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_8(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                         \
+    (CONVERT_SAT((BASENAME##8), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 8 * STRIDE_Y + Z##8));
+
+#define CONVERT_STORE_ROW_10(N0, DATA, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_9(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    VSTORE(N0)                                                     \
+    (CONVERT_SAT((BASENAME##9), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 9 * STRIDE_Y + Z##9));
+
+#define CONVERT_STORE_ROW_11(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_10(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##A), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 10 * STRIDE_Y + Z##A));
+
+#define CONVERT_STORE_ROW_12(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_11(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##B), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 11 * STRIDE_Y + Z##B));
+
+#define CONVERT_STORE_ROW_13(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_12(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##C), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 12 * STRIDE_Y + Z##C));
+
+#define CONVERT_STORE_ROW_14(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_13(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##D), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 13 * STRIDE_Y + Z##D));
+
+#define CONVERT_STORE_ROW_15(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_14(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##E), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 14 * STRIDE_Y + Z##E));
+
+#define CONVERT_STORE_ROW_16(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    CONVERT_STORE_ROW_15(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE(N0)                                                          \
+    (CONVERT_SAT((BASENAME##F), VEC_DATA_TYPE(DATA_TYPE, N0)), 0, (__global DATA_TYPE *)(PTR + 15 * STRIDE_Y + Z##F));
+
+   
+
+ 
+#define STORE_BLOCK_STR(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) STORE_ROW_##M0(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+#define STORE_BLOCK(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) STORE_BLOCK_STR(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+   
+
+ 
+#define CONVERT_STORE_BLOCK_STR(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) CONVERT_STORE_ROW_##M0(N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+#define CONVERT_STORE_BLOCK(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) CONVERT_STORE_BLOCK_STR(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+   
+
+ 
+#define STORE_ROW_PARTIAL_1(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##0, 0, (__global DATA_TYPE *)(PTR + 0 * STRIDE_Y + Z##0));
+
+#define STORE_ROW_PARTIAL_2(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_1(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##1, 0, (__global DATA_TYPE *)(PTR + 1 * STRIDE_Y + Z##1));
+
+#define STORE_ROW_PARTIAL_3(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_2(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##2, 0, (__global DATA_TYPE *)(PTR + 2 * STRIDE_Y + Z##2));
+
+#define STORE_ROW_PARTIAL_4(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_3(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##3, 0, (__global DATA_TYPE *)(PTR + 3 * STRIDE_Y + Z##3));
+
+#define STORE_ROW_PARTIAL_5(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_4(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##4, 0, (__global DATA_TYPE *)(PTR + 4 * STRIDE_Y + Z##4));
+
+#define STORE_ROW_PARTIAL_6(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_5(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##5, 0, (__global DATA_TYPE *)(PTR + 5 * STRIDE_Y + Z##5));
+
+#define STORE_ROW_PARTIAL_7(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_6(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##6, 0, (__global DATA_TYPE *)(PTR + 6 * STRIDE_Y + Z##6));
+
+#define STORE_ROW_PARTIAL_8(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_7(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##7, 0, (__global DATA_TYPE *)(PTR + 7 * STRIDE_Y + Z##7));
+
+#define STORE_ROW_PARTIAL_9(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_8(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                 \
+    (BASENAME##8, 0, (__global DATA_TYPE *)(PTR + 8 * STRIDE_Y + Z##8));
+
+#define STORE_ROW_PARTIAL_10(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_9(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)      \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##9, 0, (__global DATA_TYPE *)(PTR + 9 * STRIDE_Y + Z##9));
+
+#define STORE_ROW_PARTIAL_11(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_10(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##A, 0, (__global DATA_TYPE *)(PTR + 10 * STRIDE_Y + Z##A));
+
+#define STORE_ROW_PARTIAL_12(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_11(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##B, 0, (__global DATA_TYPE *)(PTR + 11 * STRIDE_Y + Z##B));
+
+#define STORE_ROW_PARTIAL_13(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_12(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##C, 0, (__global DATA_TYPE *)(PTR + 12 * STRIDE_Y + Z##C));
+
+#define STORE_ROW_PARTIAL_14(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_13(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##D, 0, (__global DATA_TYPE *)(PTR + 13 * STRIDE_Y + Z##D));
+
+#define STORE_ROW_PARTIAL_15(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_14(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##E, 0, (__global DATA_TYPE *)(PTR + 14 * STRIDE_Y + Z##E));
+
+#define STORE_ROW_PARTIAL_16(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) \
+    STORE_ROW_PARTIAL_15(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)     \
+    VSTORE_PARTIAL(N0, STORE_N0)                                                  \
+    (BASENAME##F, 0, (__global DATA_TYPE *)(PTR + 15 * STRIDE_Y + Z##F));
+   
+
+ 
+#define STORE_BLOCK_PARTIAL_STR(STORE_M0, STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) STORE_ROW_PARTIAL_##STORE_M0(N0, STORE_N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+#define STORE_BLOCK_PARTIAL(STORE_M0, STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z) STORE_BLOCK_PARTIAL_STR(STORE_M0, STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+ 
+#define STORE_BLOCK_PARTIAL_IN_X_AND_Y(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X) \
+    if(!(PARTIAL_COND_X) && !(PARTIAL_COND_Y))                                                                                                            \
+    {                                                                                                                                                     \
+        STORE_BLOCK_PARTIAL(M0, N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                                                           \
+    }                                                                                                                                                     \
+    else if((PARTIAL_COND_Y) && !(PARTIAL_COND_X))                                                                                                        \
+    {                                                                                                                                                     \
+        STORE_BLOCK_PARTIAL(PARTIAL_STORE_M0, N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                                             \
+    }                                                                                                                                                     \
+    else if(!(PARTIAL_COND_Y) && (PARTIAL_COND_X))                                                                                                        \
+    {                                                                                                                                                     \
+        STORE_BLOCK_PARTIAL(M0, PARTIAL_STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                                             \
+    }                                                                                                                                                     \
+    else                                                                                                                                                  \
+    {                                                                                                                                                     \
+        STORE_BLOCK_PARTIAL(PARTIAL_STORE_M0, PARTIAL_STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                               \
+    }
+ 
+#define STORE_BLOCK_PARTIAL_IN_X(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_N0, PARTIAL_COND_X) \
+    if(!(PARTIAL_COND_X))                                                                                         \
+    {                                                                                                             \
+        STORE_BLOCK_PARTIAL(M0, N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                   \
+    }                                                                                                             \
+    else                                                                                                          \
+    {                                                                                                             \
+        STORE_BLOCK_PARTIAL(M0, PARTIAL_STORE_N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                     \
+    }
+ 
+#define STORE_BLOCK_PARTIAL_IN_Y(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_COND_Y) \
+    if(!(PARTIAL_COND_Y))                                                                                         \
+    {                                                                                                             \
+        STORE_BLOCK_PARTIAL(M0, N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                                   \
+    }                                                                                                             \
+    else                                                                                                          \
+    {                                                                                                             \
+        STORE_BLOCK_PARTIAL(PARTIAL_STORE_M0, N0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z);                     \
+    }
+   
+
+#if defined(PARTIAL_STORE_M0) && defined(PARTIAL_STORE_N0)
+
+ 
+#if PARTIAL_STORE_M0 == 0 && PARTIAL_STORE_N0 == 0
+ 
+#define STORE_BLOCK_BOUNDARY_AWARE(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X) \
+    STORE_BLOCK(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z)
+
+#elif PARTIAL_STORE_M0 > 0 && PARTIAL_STORE_N0 == 0
+ 
+#define STORE_BLOCK_BOUNDARY_AWARE(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X) \
+    STORE_BLOCK_PARTIAL_IN_Y(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_COND_Y)
+
+#elif PARTIAL_STORE_M0 == 0 && PARTIAL_STORE_N0 > 0
+ 
+#define STORE_BLOCK_BOUNDARY_AWARE(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X) \
+    STORE_BLOCK_PARTIAL_IN_X(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_N0, PARTIAL_COND_X)
+
+#else  
+ 
+#define STORE_BLOCK_BOUNDARY_AWARE(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X) \
+    STORE_BLOCK_PARTIAL_IN_X_AND_Y(M0, N0, DATA_TYPE, BASENAME, PTR, STRIDE_Y, Z, PARTIAL_STORE_M0, PARTIAL_STORE_N0, PARTIAL_COND_Y, PARTIAL_COND_X)
+
+#endif  
+
+#endif     
+   
+
+#if defined(PARTIAL_STORE_M0)
+ 
+#define COMPUTE_M0_START_ROW(y, M0, PARTIAL_STORE_M0) \
+    ((uint)(max(0, (int)(y * M0) - (int)((M0 - PARTIAL_STORE_M0) % M0))))
+#else  
+#define COMPUTE_M0_START_ROW(y, M0, PARTIAL_STORE_M0) \
+    ((uint)(y * M0))
+#endif     
+   
+
+ 
+#define STORE_VECTOR_SELECT(basename, data_type, ptr, vec_size, leftover, cond) \
+    STORE_BLOCK_PARTIAL_IN_X(1, vec_size, data_type, basename, ptr, 0, 0, leftover, cond)
+   
+
+#if defined(ARM_COMPUTE_OPENCL_FP16_ENABLED) && defined(cl_khr_fp16)
+#pragma OPENCL EXTENSION cl_khr_fp16 : enable
+#endif  
+
+#if defined(ARM_COMPUTE_OPENCL_DOT8_ENABLED) && defined(cl_arm_integer_dot_product_int8)
+#pragma OPENCL EXTENSION cl_arm_integer_dot_product_int8 : enable
+#endif  
+
+#if defined(ARM_COMPUTE_OPENCL_DOT8_ACC_ENABLED) && defined(cl_arm_integer_dot_product_accumulate_int8)
+#pragma OPENCL EXTENSION cl_arm_integer_dot_product_accumulate_int8 : enable
+#endif  
+
+#if defined(ARM_COMPUTE_DEBUG_ENABLED) && defined(cl_arm_printf)
+#pragma OPENCL EXTENSION cl_arm_printf : enable
+#endif  
+
+#define GPU_ARCH_MIDGARD 0x100
+#define GPU_ARCH_BIFROST 0x200
+#define GPU_ARCH_VALHALL 0x300
+
+ 
+#define CONCAT(a, b) a##b
+
+ 
+#define EXPAND(x) x
+
+ 
+#define CLAMP(x, min_val, max_val) min(max(x, min_val), max_val)
+
+ 
+#define REV1(x) ((x))
+#define REV2(x) ((x).s10)
+#define REV3(x) ((x).s210)
+#define REV4(x) ((x).s3210)
+#define REV8(x) ((x).s76543210)
+#define REV16(x) ((x).sFEDCBA9876543210)
+   
+
+ 
+#define REVERSE_STR(x, s) REV##s((x))
+#define REVERSE(x, s) REVERSE_STR(x, s)
+   
+
+ 
+#define ROT1_0(x) ((x))
+#define ROT1_1(x) ((x))
+
+#define ROT2_0(x) ((x))
+#define ROT2_1(x) ((x).s10)
+#define ROT2_2(x) ((x))
+
+#define ROT3_0(x) ((x))
+#define ROT3_1(x) ((x).s201)
+#define ROT3_2(x) ((x).s120)
+#define ROT3_3(x) ((x))
+
+#define ROT4_0(x) ((x))
+#define ROT4_1(x) ((x).s3012)
+#define ROT4_2(x) ((x).s2301)
+#define ROT4_3(x) ((x).s1230)
+#define ROT4_4(x) ((x))
+
+#define ROT8_0(x) ((x))
+#define ROT8_1(x) ((x).s70123456)
+#define ROT8_2(x) ((x).s67012345)
+#define ROT8_3(x) ((x).s56701234)
+#define ROT8_4(x) ((x).s45670123)
+#define ROT8_5(x) ((x).s34567012)
+#define ROT8_6(x) ((x).s23456701)
+#define ROT8_7(x) ((x).s12345670)
+#define ROT8_8(x) ((x))
+
+#define ROT16_0(x) ((x))
+#define ROT16_1(x) ((x).sF0123456789ABCDE)
+#define ROT16_2(x) ((x).sEF0123456789ABCD)
+#define ROT16_3(x) ((x).sDEF0123456789ABC)
+#define ROT16_4(x) ((x).sCDEF0123456789AB)
+#define ROT16_5(x) ((x).sBCDEF0123456789A)
+#define ROT16_6(x) ((x).sABCDEF0123456789)
+#define ROT16_7(x) ((x).s9ABCDEF012345678)
+#define ROT16_8(x) ((x).s89ABCDEF01234567)
+#define ROT16_9(x) ((x).s789ABCDEF0123456)
+#define ROT16_10(x) ((x).s6789ABCDEF012345)
+#define ROT16_11(x) ((x).s56789ABCDEF01234)
+#define ROT16_12(x) ((x).s456789ABCDEF0123)
+#define ROT16_13(x) ((x).s3456789ABCDEF012)
+#define ROT16_14(x) ((x).s23456789ABCDEF01)
+#define ROT16_15(x) ((x).s123456789ABCDEF0)
+#define ROT16_16(x) ((x))
+   
+
+ 
+#define ROTATE_STR(x, s, n) ROT##s##_##n(x)
+#define ROTATE(x, s, n) ROTATE_STR(x, s, n)
+   
+
+ 
+#define V_OFFS1(dt) (dt##1)(0)
+#define V_OFFS2(dt) (dt##2)(0, 1)
+#define V_OFFS3(dt) (dt##3)(0, 1, 2)
+#define V_OFFS4(dt) (dt##4)(0, 1, 2, 3)
+#define V_OFFS8(dt) (dt##8)(0, 1, 2, 3, 4, 5, 6, 7)
+#define V_OFFS16(dt) (dt##16)(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+   
+
+ 
+#define VEC_OFFS_STR(dt, s) V_OFFS##s(dt)
+#define VEC_OFFS(dt, s) VEC_OFFS_STR(dt, s)
+   
+
+#define VLOAD_STR(size) vload##size
+#define VLOAD(size) VLOAD_STR(size)
+
+ 
+#define VLOAD_PARTIAL_STR(size, load_size) vload_partial_##size##_##load_size
+#define VLOAD_PARTIAL(size, load_size) VLOAD_PARTIAL_STR(size, load_size)
+
+#define NO_LOAD(data, offs, ptr) \
+    {                            \
+    }
+
+ 
+#define vload_partial_1_0 NO_LOAD
+#define vload_partial_1_1 vload1
+#define vload_partial_1_2 NO_LOAD
+#define vload_partial_1_3 NO_LOAD
+#define vload_partial_1_4 NO_LOAD
+#define vload_partial_1_5 NO_LOAD
+#define vload_partial_1_6 NO_LOAD
+#define vload_partial_1_7 NO_LOAD
+#define vload_partial_1_8 NO_LOAD
+#define vload_partial_1_9 NO_LOAD
+#define vload_partial_1_10 NO_LOAD
+#define vload_partial_1_11 NO_LOAD
+#define vload_partial_1_12 NO_LOAD
+#define vload_partial_1_13 NO_LOAD
+#define vload_partial_1_14 NO_LOAD
+#define vload_partial_1_15 NO_LOAD
+#define vload_partial_1_16 NO_LOAD
+ 
+#define vload_partial_2_0 NO_LOAD
+#define vload_partial_2_1 vload_partial_1
+#define vload_partial_2_2 vload_partial_2
+#define vload_partial_2_3 NO_LOAD
+#define vload_partial_2_4 NO_LOAD
+#define vload_partial_2_5 NO_LOAD
+#define vload_partial_2_6 NO_LOAD
+#define vload_partial_2_7 NO_LOAD
+#define vload_partial_2_8 NO_LOAD
+#define vload_partial_2_9 NO_LOAD
+#define vload_partial_2_10 NO_LOAD
+#define vload_partial_2_11 NO_LOAD
+#define vload_partial_2_12 NO_LOAD
+#define vload_partial_2_13 NO_LOAD
+#define vload_partial_2_14 NO_LOAD
+#define vload_partial_2_15 NO_LOAD
+#define vload_partial_2_16 NO_LOAD
+ 
+#define vload_partial_3_0 NO_LOAD
+#define vload_partial_3_1 vload_partial_1
+#define vload_partial_3_2 vload_partial_2
+#define vload_partial_3_3 vload_partial_3
+#define vload_partial_3_4 NO_LOAD
+#define vload_partial_3_5 NO_LOAD
+#define vload_partial_3_6 NO_LOAD
+#define vload_partial_3_7 NO_LOAD
+#define vload_partial_3_8 NO_LOAD
+#define vload_partial_3_9 NO_LOAD
+#define vload_partial_3_10 NO_LOAD
+#define vload_partial_3_11 NO_LOAD
+#define vload_partial_3_12 NO_LOAD
+#define vload_partial_3_13 NO_LOAD
+#define vload_partial_3_14 NO_LOAD
+#define vload_partial_3_15 NO_LOAD
+#define vload_partial_3_16 NO_LOAD
+ 
+#define vload_partial_4_0 NO_LOAD
+#define vload_partial_4_1 vload_partial_1
+#define vload_partial_4_2 vload_partial_2
+#define vload_partial_4_3 vload_partial_3
+#define vload_partial_4_4 vload_partial_4
+#define vload_partial_4_5 NO_LOAD
+#define vload_partial_4_6 NO_LOAD
+#define vload_partial_4_7 NO_LOAD
+#define vload_partial_4_8 NO_LOAD
+#define vload_partial_4_9 NO_LOAD
+#define vload_partial_4_10 NO_LOAD
+#define vload_partial_4_11 NO_LOAD
+#define vload_partial_4_12 NO_LOAD
+#define vload_partial_4_13 NO_LOAD
+#define vload_partial_4_14 NO_LOAD
+#define vload_partial_4_15 NO_LOAD
+#define vload_partial_4_16 NO_LOAD
+ 
+#define vload_partial_8_0 NO_LOAD
+#define vload_partial_8_1 vload_partial_1
+#define vload_partial_8_2 vload_partial_2
+#define vload_partial_8_3 vload_partial_3
+#define vload_partial_8_4 vload_partial_4
+#define vload_partial_8_5 vload_partial_5
+#define vload_partial_8_6 vload_partial_6
+#define vload_partial_8_7 vload_partial_7
+#define vload_partial_8_8 vload_partial_8
+#define vload_partial_8_9 NO_LOAD
+#define vload_partial_8_10 NO_LOAD
+#define vload_partial_8_11 NO_LOAD
+#define vload_partial_8_12 NO_LOAD
+#define vload_partial_8_13 NO_LOAD
+#define vload_partial_8_14 NO_LOAD
+#define vload_partial_8_15 NO_LOAD
+#define vload_partial_8_16 NO_LOAD
+ 
+#define vload_partial_16_0 NO_LOAD
+#define vload_partial_16_1 vload_partial_1
+#define vload_partial_16_2 vload_partial_2
+#define vload_partial_16_3 vload_partial_3
+#define vload_partial_16_4 vload_partial_4
+#define vload_partial_16_5 vload_partial_5
+#define vload_partial_16_6 vload_partial_6
+#define vload_partial_16_7 vload_partial_7
+#define vload_partial_16_8 vload_partial_8
+#define vload_partial_16_9 vload_partial_9
+#define vload_partial_16_10 vload_partial_10
+#define vload_partial_16_11 vload_partial_11
+#define vload_partial_16_12 vload_partial_12
+#define vload_partial_16_13 vload_partial_13
+#define vload_partial_16_14 vload_partial_14
+#define vload_partial_16_15 vload_partial_15
+#define vload_partial_16_16 vload_partial_16
+
+ 
+#define vload_partial_1(DATA, OFFSET, PTR) \
+    DATA.s0 = vload1(OFFSET, PTR);
+
+#define vload_partial_2(DATA, OFFSET, PTR) \
+    DATA.s01 = vload2(OFFSET, PTR);
+
+#define vload_partial_3(DATA, OFFSET, PTR) \
+    DATA.s012 = vload3(OFFSET, PTR);
+
+#define vload_partial_4(DATA, OFFSET, PTR) \
+    DATA.s0123 = vload4(OFFSET, PTR);
+
+#define vload_partial_5(DATA, OFFSET, PTR)    \
+    vload_partial_4(DATA.s0123, OFFSET, PTR); \
+    DATA.s4 = vload1(OFFSET, PTR + 4);
+
+#define vload_partial_6(DATA, OFFSET, PTR)    \
+    vload_partial_4(DATA.s0123, OFFSET, PTR); \
+    vload_partial_2(DATA.s45, OFFSET, PTR + 4);
+
+#define vload_partial_7(DATA, OFFSET, PTR)    \
+    vload_partial_4(DATA.s0123, OFFSET, PTR); \
+    vload_partial_3(DATA.s456, OFFSET, PTR + 4);
+
+#define vload_partial_8(DATA, OFFSET, PTR) \
+    DATA.s01234567 = vload8(OFFSET, PTR);
+
+#define vload_partial_9(DATA, OFFSET, PTR)        \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    DATA.s8 = vload1(OFFSET, PTR + 8);
+
+#define vload_partial_10(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_2(DATA.s89, OFFSET, PTR + 8);
+
+#define vload_partial_11(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_3(DATA.s89A, OFFSET, PTR + 8);
+
+#define vload_partial_12(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_4(DATA.s89AB, OFFSET, PTR + 8);
+ 
+#define vload_partial_13(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_5(DATA.s89ABCDEF, OFFSET, PTR + 8);
+
+#define vload_partial_14(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_6(DATA.s89ABCDEF, OFFSET, PTR + 8);
+
+#define vload_partial_15(DATA, OFFSET, PTR)       \
+    vload_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vload_partial_7(DATA.s89ABCDEF, OFFSET, PTR + 8);
+
+#define vload_partial_16(DATA, OFFSET, PTR) \
+    DATA = vload16(OFFSET, PTR);
+   
+   
+
+#define PIXEL_UNIT4 1
+#define PIXEL_UNIT8 2
+#define PIXEL_UNIT16 4
+
+ 
+#define CONVERT_VECTOR_SIZE_TO_PIXEL_UNIT_STR(vec_size) PIXEL_UNIT##vec_size
+#define CONVERT_VECTOR_SIZE_TO_PIXEL_UNIT(vec_size) CONVERT_VECTOR_SIZE_TO_PIXEL_UNIT_STR(vec_size)
+   
+
+#define read_image2d_floatx1(img, x_coord, y_coord) (float4)(read_imagef(img, (int2)(x_coord, y_coord)));
+#define read_image2d_floatx2(img, x_coord, y_coord) (float8)(read_imagef(img, (int2)(x_coord, y_coord)), read_imagef(img, (int2)(x_coord + 1, y_coord)));
+#define read_image2d_floatx4(img, x_coord, y_coord) (float16)(read_imagef(img, (int2)(x_coord, y_coord)), read_imagef(img, (int2)(x_coord + 1, y_coord)), read_imagef(img, (int2)(x_coord + 2, y_coord)), read_imagef(img, (int2)(x_coord + 3, y_coord)));
+
+#if defined(ARM_COMPUTE_OPENCL_FP16_ENABLED) && defined(cl_khr_fp16)
+#define read_image2d_halfx1(img, x_coord, y_coord) (half4)(read_imageh(img, (int2)(x_coord, y_coord)));
+#define read_image2d_halfx2(img, x_coord, y_coord) (half8)(read_imageh(img, (int2)(x_coord, y_coord)), read_imageh(img, (int2)(x_coord + 1, y_coord)));
+#define read_image2d_halfx4(img, x_coord, y_coord) (half16)(read_imageh(img, (int2)(x_coord, y_coord)), read_imageh(img, (int2)(x_coord + 1, y_coord)), read_imageh(img, (int2)(x_coord + 2, y_coord)), read_imageh(img, (int2)(x_coord + 3, y_coord)));
+#endif  
+
+#define write_image2d_floatx1(img, x_coord, y_coord, values) (write_imagef(img, (int2)(x_coord, y_coord), values));
+#define write_image2d_floatx2(img, x_coord, y_coord, values) (write_imagef(img, (int2)(x_coord, y_coord), values.s0123), write_imagef(img, (int2)(x_coord + 1, y_coord), values.s4567));
+#define write_image2d_floatx4(img, x_coord, y_coord, values) (write_imagef(img, (int2)(x_coord, y_coord), values.s0123), write_imagef(img, (int2)(x_coord + 1, y_coord), values.s4567), write_imagef(img, (int2)(x_coord + 2, y_coord), values.s89AB), write_imagef(img, (int2)(x_coord + 3, y_coord), values.sCDEF));
+
+#if defined(ARM_COMPUTE_OPENCL_FP16_ENABLED) && defined(cl_khr_fp16)
+#define write_image2d_halfx1(img, x_coord, y_coord, values) (write_imageh(img, (int2)(x_coord, y_coord), values));
+#define write_image2d_halfx2(img, x_coord, y_coord, values) (write_imageh(img, (int2)(x_coord, y_coord), values.s0123), write_imageh(img, (int2)(x_coord + 1, y_coord), values.s4567));
+#define write_image2d_halfx4(img, x_coord, y_coord, values) (write_imageh(img, (int2)(x_coord, y_coord), values.s0123), write_imageh(img, (int2)(x_coord + 1, y_coord), values.s4567), write_imageh(img, (int2)(x_coord + 2, y_coord), values.s89AB), write_imageh(img, (int2)(x_coord + 3, y_coord), values.sCDEF));
+#endif  
+
+ 
+#define READ_IMAGE2D_STR(data_type, n0, img, x_coord, y_coord) read_image2d_##data_type##x##n0(img, x_coord, y_coord)
+#define READ_IMAGE2D(data_type, n0, img, x_coord, y_coord) READ_IMAGE2D_STR(data_type, n0, img, x_coord, y_coord)
+
+ 
+#define WRITE_IMAGE2D_STR(data_type, n0, img, x_coord, y_coord, values) write_image2d_##data_type##x##n0(img, x_coord, y_coord, values)
+#define WRITE_IMAGE2D(data_type, n0, img, x_coord, y_coord, values) WRITE_IMAGE2D_STR(data_type, n0, img, x_coord, y_coord, values)
+
+#define VSTORE_STR(size) vstore##size
+#define VSTORE(size) VSTORE_STR(size)
+
+#define float1 float
+#define half1 half
+#define char1 char
+#define uchar1 uchar
+#define short1 short
+#define ushort1 ushort
+#define int1 int
+#define uint1 uint
+#define long1 long
+#define ulong1 ulong
+#define double1 double
+
+#define vload1(OFFSET, PTR) *(OFFSET + PTR)
+#define vstore1(DATA, OFFSET, PTR) *(OFFSET + PTR) = DATA
+
+ 
+#define VSTORE_PARTIAL_STR(size, store_size) vstore_partial_##size##_##store_size
+#define VSTORE_PARTIAL(size, store_size) VSTORE_PARTIAL_STR(size, store_size)
+
+#define NO_STORE(data, offs, ptr) \
+    {                             \
+    }
+
+ 
+#define vstore_partial_1_0 NO_STORE
+#define vstore_partial_1_1 vstore1
+#define vstore_partial_1_2 NO_STORE
+#define vstore_partial_1_3 NO_STORE
+#define vstore_partial_1_4 NO_STORE
+#define vstore_partial_1_5 NO_STORE
+#define vstore_partial_1_6 NO_STORE
+#define vstore_partial_1_7 NO_STORE
+#define vstore_partial_1_8 NO_STORE
+#define vstore_partial_1_9 NO_STORE
+#define vstore_partial_1_10 NO_STORE
+#define vstore_partial_1_11 NO_STORE
+#define vstore_partial_1_12 NO_STORE
+#define vstore_partial_1_13 NO_STORE
+#define vstore_partial_1_14 NO_STORE
+#define vstore_partial_1_15 NO_STORE
+#define vstore_partial_1_16 NO_STORE
+ 
+#define vstore_partial_2_0 NO_STORE
+#define vstore_partial_2_1 vstore_partial_1
+#define vstore_partial_2_2 vstore_partial_2
+#define vstore_partial_2_3 NO_STORE
+#define vstore_partial_2_4 NO_STORE
+#define vstore_partial_2_5 NO_STORE
+#define vstore_partial_2_6 NO_STORE
+#define vstore_partial_2_7 NO_STORE
+#define vstore_partial_2_8 NO_STORE
+#define vstore_partial_2_9 NO_STORE
+#define vstore_partial_2_10 NO_STORE
+#define vstore_partial_2_11 NO_STORE
+#define vstore_partial_2_12 NO_STORE
+#define vstore_partial_2_13 NO_STORE
+#define vstore_partial_2_14 NO_STORE
+#define vstore_partial_2_15 NO_STORE
+#define vstore_partial_2_16 NO_STORE
+ 
+#define vstore_partial_3_0 NO_STORE
+#define vstore_partial_3_1 vstore_partial_1
+#define vstore_partial_3_2 vstore_partial_2
+#define vstore_partial_3_3 vstore_partial_3
+#define vstore_partial_3_4 NO_STORE
+#define vstore_partial_3_5 NO_STORE
+#define vstore_partial_3_6 NO_STORE
+#define vstore_partial_3_7 NO_STORE
+#define vstore_partial_3_8 NO_STORE
+#define vstore_partial_3_9 NO_STORE
+#define vstore_partial_3_10 NO_STORE
+#define vstore_partial_3_11 NO_STORE
+#define vstore_partial_3_12 NO_STORE
+#define vstore_partial_3_13 NO_STORE
+#define vstore_partial_3_14 NO_STORE
+#define vstore_partial_3_15 NO_STORE
+#define vstore_partial_3_16 NO_STORE
+ 
+#define vstore_partial_4_0 NO_STORE
+#define vstore_partial_4_1 vstore_partial_1
+#define vstore_partial_4_2 vstore_partial_2
+#define vstore_partial_4_3 vstore_partial_3
+#define vstore_partial_4_4 vstore_partial_4
+#define vstore_partial_4_5 NO_STORE
+#define vstore_partial_4_6 NO_STORE
+#define vstore_partial_4_7 NO_STORE
+#define vstore_partial_4_8 NO_STORE
+#define vstore_partial_4_9 NO_STORE
+#define vstore_partial_4_10 NO_STORE
+#define vstore_partial_4_11 NO_STORE
+#define vstore_partial_4_12 NO_STORE
+#define vstore_partial_4_13 NO_STORE
+#define vstore_partial_4_14 NO_STORE
+#define vstore_partial_4_15 NO_STORE
+#define vstore_partial_4_16 NO_STORE
+ 
+#define vstore_partial_8_0 NO_STORE
+#define vstore_partial_8_1 vstore_partial_1
+#define vstore_partial_8_2 vstore_partial_2
+#define vstore_partial_8_3 vstore_partial_3
+#define vstore_partial_8_4 vstore_partial_4
+#define vstore_partial_8_5 vstore_partial_5
+#define vstore_partial_8_6 vstore_partial_6
+#define vstore_partial_8_7 vstore_partial_7
+#define vstore_partial_8_8 vstore_partial_8
+#define vstore_partial_8_9 NO_STORE
+#define vstore_partial_8_10 NO_STORE
+#define vstore_partial_8_11 NO_STORE
+#define vstore_partial_8_12 NO_STORE
+#define vstore_partial_8_13 NO_STORE
+#define vstore_partial_8_14 NO_STORE
+#define vstore_partial_8_15 NO_STORE
+#define vstore_partial_8_16 NO_STORE
+ 
+#define vstore_partial_16_0 NO_STORE
+#define vstore_partial_16_1 vstore_partial_1
+#define vstore_partial_16_2 vstore_partial_2
+#define vstore_partial_16_3 vstore_partial_3
+#define vstore_partial_16_4 vstore_partial_4
+#define vstore_partial_16_5 vstore_partial_5
+#define vstore_partial_16_6 vstore_partial_6
+#define vstore_partial_16_7 vstore_partial_7
+#define vstore_partial_16_8 vstore_partial_8
+#define vstore_partial_16_9 vstore_partial_9
+#define vstore_partial_16_10 vstore_partial_10
+#define vstore_partial_16_11 vstore_partial_11
+#define vstore_partial_16_12 vstore_partial_12
+#define vstore_partial_16_13 vstore_partial_13
+#define vstore_partial_16_14 vstore_partial_14
+#define vstore_partial_16_15 vstore_partial_15
+#define vstore_partial_16_16 vstore_partial_16
+
+ 
+#define vstore_partial_1(DATA, OFFSET, PTR) \
+    vstore1(DATA.s0, OFFSET, PTR);
+
+#define vstore_partial_2(DATA, OFFSET, PTR) \
+    vstore2(DATA.s01, OFFSET, PTR);
+
+#define vstore_partial_3(DATA, OFFSET, PTR) \
+    vstore3(DATA.s012, OFFSET, PTR);
+
+#define vstore_partial_4(DATA, OFFSET, PTR) \
+    vstore4(DATA.s0123, OFFSET, PTR);
+
+#define vstore_partial_5(DATA, OFFSET, PTR)    \
+    vstore_partial_4(DATA.s0123, OFFSET, PTR); \
+    vstore1(DATA.s4, OFFSET, PTR + 4);
+
+#define vstore_partial_6(DATA, OFFSET, PTR)    \
+    vstore_partial_4(DATA.s0123, OFFSET, PTR); \
+    vstore_partial_2(DATA.s45, OFFSET, PTR + 4);
+
+#define vstore_partial_7(DATA, OFFSET, PTR)    \
+    vstore_partial_4(DATA.s0123, OFFSET, PTR); \
+    vstore_partial_3(DATA.s456, OFFSET, PTR + 4);
+
+#define vstore_partial_8(DATA, OFFSET, PTR) \
+    vstore8(DATA.s01234567, OFFSET, PTR);
+
+#define vstore_partial_9(DATA, OFFSET, PTR)        \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore1(DATA.s8, OFFSET, PTR + 8);
+
+#define vstore_partial_10(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_2(DATA.s89, OFFSET, PTR + 8);
+
+#define vstore_partial_11(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_3(DATA.s89a, OFFSET, PTR + 8);
+
+#define vstore_partial_12(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_4(DATA.s89ab, OFFSET, PTR + 8);
+
+#define vstore_partial_13(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_5(DATA.s89abcdef, OFFSET, PTR + 8);
+
+#define vstore_partial_14(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_6(DATA.s89abcdef, OFFSET, PTR + 8);
+
+#define vstore_partial_15(DATA, OFFSET, PTR)       \
+    vstore_partial_8(DATA.s01234567, OFFSET, PTR); \
+    vstore_partial_7(DATA.s89abcdef, OFFSET, PTR + 8);
+
+#define vstore_partial_16(DATA, OFFSET, PTR) \
+    vstore16(DATA, OFFSET, PTR);
+   
+   
+
+ 
+ 
+#define convert_float_sat convert_float
+#define convert_float1_sat convert_float
+#define convert_float2_sat convert_float2
+#define convert_float3_sat convert_float3
+#define convert_float4_sat convert_float4
+#define convert_float8_sat convert_float8
+#define convert_float16_sat convert_float16
+#define convert_half_sat convert_float
+#define convert_half1_sat convert_half
+#define convert_half2_sat convert_half2
+#define convert_half3_sat convert_half3
+#define convert_half4_sat convert_half4
+#define convert_half8_sat convert_half8
+#define convert_half16_sat convert_half16
+
+#define convert_float1 convert_float
+#define convert_half1 convert_half
+#define convert_char1 convert_char
+#define convert_uchar1 convert_uchar
+#define convert_short1 convert_short
+#define convert_ushort1 convert_ushort
+#define convert_int1 convert_int
+#define convert_uint1 convert_uint
+#define convert_long1 convert_long
+#define convert_ulong1 convert_ulong
+#define convert_double1 convert_double
+
+#define convert_char1_sat convert_char_sat
+#define convert_uchar1_sat convert_uchar_sat
+#define convert_uchar2_sat convert_uchar2_sat
+#define convert_uchar3_sat convert_uchar3_sat
+#define convert_uchar4_sat convert_uchar4_sat
+#define convert_uchar8_sat convert_uchar8_sat
+#define convert_uchar16_sat convert_uchar16_sat
+#define convert_short1_sat convert_short_sat
+#define convert_ushort1_sat convert_ushort_sat
+#define convert_int1_sat convert_int_sat
+#define convert_uint1_sat convert_uint_sat
+#define convert_long1_sat convert_long_sat
+#define convert_ulong1_sat convert_ulong_sat
+#define convert_double1_sat convert_double_sat
+
+#define VEC_DATA_TYPE_STR(type, size) type##size
+#define VEC_DATA_TYPE(type, size) VEC_DATA_TYPE_STR(type, size)
+
+#define CONVERT_STR(x, type) (convert_##type((x)))
+#define CONVERT(x, type) CONVERT_STR(x, type)
+
+#define CONVERT_SAT_STR(x, type) (convert_##type##_sat((x)))
+#define CONVERT_SAT(x, type) CONVERT_SAT_STR(x, type)
+
+#define CONVERT_SAT_ROUND_STR(x, type, round) (convert_##type##_sat_##round((x)))
+#define CONVERT_SAT_ROUND(x, type, round) CONVERT_SAT_ROUND_STR(x, type, round)
+
+#define select_vec_dt_uchar(size) uchar##size
+#define select_vec_dt_char(size) char##size
+#define select_vec_dt_ushort(size) ushort##size
+#define select_vec_dt_short(size) short##size
+#define select_vec_dt_half(size) short##size
+#define select_vec_dt_uint(size) uint##size
+#define select_vec_dt_int(size) int##size
+#define select_vec_dt_float(size) int##size
+#define select_vec_dt_ulong(size) ulong##size
+#define select_vec_dt_long(size) long##size
+
+#define SELECT_VEC_DATA_TYPE_STR(type, size) select_vec_dt_##type(size)
+#define SELECT_VEC_DATA_TYPE(type, size) SELECT_VEC_DATA_TYPE_STR(type, size)
+#define SELECT_DATA_TYPE(type) SELECT_VEC_DATA_TYPE_STR(type, 1)
+
+#define signed_int_vec_dt_uchar(size) char##size
+#define signed_int_vec_dt_char(size) char##size
+#define signed_int_vec_dt_ushort(size) short##size
+#define signed_int_vec_dt_short(size) short##size
+#define signed_int_vec_dt_half(size) short##size
+#define signed_int_vec_dt_uint(size) int##size
+#define signed_int_vec_dt_int(size) int##size
+#define signed_int_vec_dt_float(size) int##size
+#define signed_int_vec_dt_ulong(size) long##size
+#define signed_int_vec_dt_long(size) long##size
+
+#define SIGNED_INT_VEC_DATA_TYPE_STR(type, size) signed_int_vec_dt_##type(size)
+#define SIGNED_INT_VEC_DATA_TYPE(type, size) SIGNED_INT_VEC_DATA_TYPE_STR(type, size)
+#define SIGNED_INT_DATA_TYPE(type) SIGNED_INT_VEC_DATA_TYPE_STR(type, 1)
+
+#define sum_reduce_1(x) (x)
+#define sum_reduce_2(x) ((x).s0) + ((x).s1)
+#define sum_reduce_3(x) sum_reduce_2((x).s01) + ((x).s2)
+#define sum_reduce_4(x) sum_reduce_2((x).s01) + sum_reduce_2((x).s23)
+#define sum_reduce_8(x) sum_reduce_4((x).s0123) + sum_reduce_4((x).s4567)
+#define sum_reduce_16(x) sum_reduce_8((x).s01234567) + sum_reduce_8((x).s89ABCDEF)
+
+#define SUM_REDUCE_STR(x, size) sum_reduce_##size(x)
+#define SUM_REDUCE(x, size) SUM_REDUCE_STR(x, size)
+
+#define prod_reduce_1(x) (x)
+#define prod_reduce_2(x) ((x).s0) * ((x).s1)
+#define prod_reduce_3(x) prod_reduce_2((x).s01) * ((x).s2)
+#define prod_reduce_4(x) prod_reduce_2((x).s01) * prod_reduce_2((x).s23)
+#define prod_reduce_8(x) prod_reduce_4((x).s0123) * prod_reduce_4((x).s4567)
+#define prod_reduce_16(x) prod_reduce_8((x).s01234567) * prod_reduce_8((x).s89ABCDEF)
+
+#define PROD_REDUCE_STR(x, size) prod_reduce_##size(x)
+#define PROD_REDUCE(x, size) PROD_REDUCE_STR(x, size)
+
+#define max_reduce_1(x) (x)
+#define max_reduce_2(x) max(((x).s0), ((x).s1))
+#define max_reduce_3(x) max(max_reduce_2((x).s01), ((x).s2))
+#define max_reduce_4(x) max(max_reduce_2((x).s01), max_reduce_2((x).s23))
+#define max_reduce_8(x) max(max_reduce_4((x).s0123), max_reduce_4((x).s4567))
+#define max_reduce_16(x) max(max_reduce_8((x).s01234567), max_reduce_8((x).s89ABCDEF))
+
+#define MAX_REDUCE_STR(x, size) max_reduce_##size(x)
+#define MAX_REDUCE(x, size) MAX_REDUCE_STR(x, size)
+
+#define VECTOR_DECLARATION(name)     \
+    __global uchar *name##_ptr,      \
+    uint        name##_stride_x, \
+    uint        name##_step_x,   \
+    uint        name##_offset_first_element_in_bytes
+
+#define IMAGE_DECLARATION(name)      \
+    __global uchar *name##_ptr,      \
+    uint        name##_stride_x, \
+    uint        name##_step_x,   \
+    uint        name##_stride_y, \
+    uint        name##_step_y,   \
+    uint        name##_offset_first_element_in_bytes
+
+#define TENSOR3D_DECLARATION(name)   \
+    __global uchar *name##_ptr,      \
+    uint        name##_stride_x, \
+    uint        name##_step_x,   \
+    uint        name##_stride_y, \
+    uint        name##_step_y,   \
+    uint        name##_stride_z, \
+    uint        name##_step_z,   \
+    uint        name##_offset_first_element_in_bytes
+
+#define TENSOR4D_DECLARATION(name)   \
+    __global uchar *name##_ptr,      \
+    uint        name##_stride_x, \
+    uint        name##_step_x,   \
+    uint        name##_stride_y, \
+    uint        name##_step_y,   \
+    uint        name##_stride_z, \
+    uint        name##_step_z,   \
+    uint        name##_stride_w, \
+    uint        name##_step_w,   \
+    uint        name##_offset_first_element_in_bytes
+
+#define TENSOR5D_DECLARATION(name)   \
+    __global uchar *name##_ptr,      \
+    uint        name##_stride_x, \
+    uint        name##_step_x,   \
+    uint        name##_stride_y, \
+    uint        name##_step_y,   \
+    uint        name##_stride_z, \
+    uint        name##_step_z,   \
+    uint        name##_stride_w, \
+    uint        name##_step_w,   \
+    uint        name##_stride_v, \
+    uint        name##_step_v,   \
+    uint        name##_offset_first_element_in_bytes
+
+#define CONVERT_TO_VECTOR_STRUCT(name) \
+    update_vector_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x)
+
+#define CONVERT_TO_VECTOR_STRUCT_NO_STEP(name) \
+    update_vector_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, 0)
+
+#define CONVERT_TO_IMAGE_STRUCT(name) \
+    update_image_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y)
+
+#define CONVERT_TO_IMAGE_STRUCT_NO_STEP(name) \
+    update_image_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, 0, name##_stride_y, 0)
+
+#define CONVERT_TENSOR3D_TO_IMAGE_STRUCT(name) \
+    update_image_from_tensor3D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y, name##_stride_z, name##_step_z)
+
+#define CONVERT_TENSOR3D_TO_IMAGE_STRUCT_NO_STEP(name) \
+    update_image_from_tensor3D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, 0, name##_stride_y, 0, name##_stride_z, name##_step_z)
+
+#define CONVERT_TENSOR3D_TO_IMAGE_STRUCT(name) \
+    update_image_from_tensor3D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y, name##_stride_z, name##_step_z)
+
+#define CONVERT_TO_TENSOR3D_STRUCT(name)                                                                                                           \
+    update_tensor3D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y, \
+                                 name##_stride_z, name##_step_z)
+
+#define CONVERT_TO_TENSOR3D_STRUCT_NO_STEP(name) \
+    update_tensor3D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, 0, name##_stride_y, 0, name##_stride_z, 0)
+
+#define CONVERT_TO_TENSOR4D_STRUCT(name, mod_size)                                                                                                 \
+    update_tensor4D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y, \
+                                 name##_stride_z, name##_step_z, name##_stride_w, name##_step_w, mod_size)
+
+#define CONVERT_TO_TENSOR4D_STRUCT_NO_STEP(name, mod_size) \
+    update_tensor4D_workitem_ptr(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, 0, name##_stride_y, 0, name##_stride_z, 0, name##_stride_w, 0, mod_size)
+
+#define CONVERT_TO_TENSOR3D_STRUCT_NO_UPDATE_PTR(name)                                                                                       \
+    tensor3D_ptr_no_update(name##_ptr, name##_offset_first_element_in_bytes, name##_stride_x, name##_step_x, name##_stride_y, name##_step_y, \
+                           name##_stride_z, name##_step_z)
+
+ 
+typedef struct Vector
+{
+    __global uchar *ptr;                            
+    int             offset_first_element_in_bytes;  
+    int             stride_x;                       
+} Vector;
+
+ 
+typedef struct Image
+{
+    __global uchar *ptr;                            
+    int             offset_first_element_in_bytes;  
+    int             stride_x;                       
+    int             stride_y;                       
+} Image;
+
+ 
+typedef struct Tensor3D
+{
+    __global uchar *ptr;                            
+    int             offset_first_element_in_bytes;  
+    int             stride_x;                       
+    int             stride_y;                       
+    int             stride_z;                       
+} Tensor3D;
+
+ 
+typedef struct Tensor4D
+{
+    __global uchar *ptr;                            
+    int             offset_first_element_in_bytes;  
+    int             stride_x;                       
+    int             stride_y;                       
+    int             stride_z;                       
+    int             stride_w;                       
+} Tensor4D;
+
+ 
+inline Vector update_vector_workitem_ptr(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x)
+{
+    Vector vector =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+    };
+    vector.ptr += vector.offset_first_element_in_bytes + get_global_id(0) * step_x;
+    return vector;
+}
+
+ 
+inline Image update_image_workitem_ptr(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x, uint stride_y, uint step_y)
+{
+    Image img =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+        .stride_y                      = stride_y
+    };
+    img.ptr += img.offset_first_element_in_bytes + get_global_id(0) * step_x + get_global_id(1) * step_y;
+    return img;
+}
+
+ 
+inline Image update_image_from_tensor3D_workitem_ptr(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x, uint stride_y, uint step_y, uint stride_z, uint step_z)
+{
+    Image img =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+        .stride_y                      = stride_y
+    };
+    img.ptr += img.offset_first_element_in_bytes + get_global_id(0) * step_x + get_global_id(1) * step_y + get_global_id(2) * step_z;
+    return img;
+}
+
+ 
+inline Tensor3D update_tensor3D_workitem_ptr(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x, uint stride_y, uint step_y, uint stride_z, uint step_z)
+{
+    Tensor3D tensor =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+        .stride_y                      = stride_y,
+        .stride_z                      = stride_z
+    };
+    tensor.ptr += tensor.offset_first_element_in_bytes + get_global_id(0) * step_x + get_global_id(1) * step_y + get_global_id(2) * step_z;
+    return tensor;
+}
+
+ 
+inline Tensor3D tensor3D_ptr_no_update(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x, uint stride_y, uint step_y, uint stride_z, uint step_z)
+{
+    Tensor3D tensor =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+        .stride_y                      = stride_y,
+        .stride_z                      = stride_z
+    };
+    return tensor;
+}
+
+inline Tensor4D update_tensor4D_workitem_ptr(__global uchar *ptr, uint offset_first_element_in_bytes, uint stride_x, uint step_x, uint stride_y, uint step_y, uint stride_z, uint step_z, uint stride_w,
+                                             uint step_w,
+                                             uint mod_size)
+{
+    Tensor4D tensor =
+    {
+        .ptr                           = ptr,
+        .offset_first_element_in_bytes = offset_first_element_in_bytes,
+        .stride_x                      = stride_x,
+        .stride_y                      = stride_y,
+        .stride_z                      = stride_z,
+        .stride_w                      = stride_w
+    };
+
+    tensor.ptr += tensor.offset_first_element_in_bytes + get_global_id(0) * step_x + get_global_id(1) * step_y + (get_global_id(2) % mod_size) * step_z + (get_global_id(2) / mod_size) * step_w;
+    return tensor;
+}
+
+ 
+inline __global const uchar *vector_offset(const Vector *vec, int x)
+{
+    return vec->ptr + x * vec->stride_x;
+}
+
+ 
+inline __global uchar *offset(const Image *img, int x, int y)
+{
+    return img->ptr + x * img->stride_x + y * img->stride_y;
+}
+
+ 
+inline __global const uchar *tensor3D_offset(const Tensor3D *tensor, int x, int y, int z)
+{
+    return tensor->ptr + x * tensor->stride_x + y * tensor->stride_y + z * tensor->stride_z;
+}
+
+ 
+inline __global const uchar *tensor4D_offset(const Tensor4D *tensor, int x, int y, int z, int w)
+{
+    return tensor->ptr + x * tensor->stride_x + y * tensor->stride_y + z * tensor->stride_z + w * tensor->stride_w;
+}
+
+ 
+inline __global const uchar *tensor3D_index2ptr(const Tensor3D *tensor, uint width, uint height, uint depth, uint index)
+{
+    uint num_elements = width * height;
+
+    const uint z = index / num_elements;
+
+    index %= num_elements;
+
+    const uint y = index / width;
+
+    index %= width;
+
+    const uint x = index;
+
+    return tensor->ptr + x * tensor->stride_x + y * tensor->stride_y + z * tensor->stride_z + tensor->offset_first_element_in_bytes;
+}
+
+#endif  
+
+ 
+#define CONVERT_DOWN_RTE_STR(x, type) (convert_##type##_rte((x)))
+#define CONVERT_DOWN_RTE(x, type) CONVERT_DOWN_RTE_STR(x, type)
+
+ 
+inline uchar quantize_qasymm8(float input, float offset, float scale)
+{
+    float out_f32 = input / scale + offset;
+    uchar res_u8  = CONVERT_SAT(CONVERT_DOWN_RTE(out_f32, int), uchar);
+    return res_u8;
+}
+
+ 
+inline float dequantize_qasymm8(uchar input, float offset, float scale)
+{
+    return ((float)input - offset) * scale;
+}
+
+ 
+inline float dequantize_qasymm8_signed(char input, float offset, float scale)
+{
+    return ((float)input - offset) * scale;
+}
+
+ 
+#define QUANTIZE_IMPL(type, size)                                                                                       \
+    inline VEC_DATA_TYPE(type, size) quantize_##type##size(VEC_DATA_TYPE(float, size) input, float offset, float scale) \
+    {                                                                                                                   \
+        VEC_DATA_TYPE(float, size)                                                                                      \
+        out_f32 = input / (VEC_DATA_TYPE(float, size))(scale) + (VEC_DATA_TYPE(float, size))(offset);                   \
+        VEC_DATA_TYPE(type, size)                                                                                       \
+        res = CONVERT_SAT(CONVERT_DOWN_RTE(out_f32, VEC_DATA_TYPE(int, size)), VEC_DATA_TYPE(type, size));              \
+        return res;                                                                                                     \
+    }
+
+ 
+#define DEQUANTIZE_IMPL(type, size)                                                                                       \
+    inline VEC_DATA_TYPE(float, size) dequantize_##type##size(VEC_DATA_TYPE(type, size) input, float offset, float scale) \
+    {                                                                                                                     \
+        return (CONVERT(input, VEC_DATA_TYPE(float, size)) - offset) * scale;                                             \
+    }
+
+ 
+#define ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(size)                                                                                        \
+    inline VEC_DATA_TYPE(int, size) asymm_rounding_divide_by_POW2_##size(VEC_DATA_TYPE(int, size) x, VEC_DATA_TYPE(int, size) exponent) \
+    {                                                                                                                                   \
+        const VEC_DATA_TYPE(int, size)                                                                                                  \
+        zero = (VEC_DATA_TYPE(int, size))0;                                                                                         \
+        const VEC_DATA_TYPE(int, size)                                                                                                  \
+        one = (VEC_DATA_TYPE(int, size))1;                                                                                          \
+        VEC_DATA_TYPE(int, size)                                                                                                        \
+        mask = (one << exponent) - one;                                                                                                 \
+        VEC_DATA_TYPE(int, size)                                                                                                        \
+        threshold = (mask >> 1) + select(zero, one, (SELECT_VEC_DATA_TYPE(int, size))(x < 0));                                          \
+        return (x >> exponent) + select(zero, one, (SELECT_VEC_DATA_TYPE(int, size))((x & mask) > threshold));                          \
+    }
+
+ 
+#define ASYMM_MULT_IMPL(size)                                                                                \
+    inline VEC_DATA_TYPE(int, size) asymm_mult##size(VEC_DATA_TYPE(int, size) a, VEC_DATA_TYPE(int, size) b) \
+    {                                                                                                        \
+        VEC_DATA_TYPE(int, size)                                                                             \
+        overflow = a == b && a == INT_MIN;                                                                   \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        a_64 = convert_long##size(a);                                                                        \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        b_64 = convert_long##size(b);                                                                        \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        ab_64 = a_64 * b_64;                                                                                 \
+                                                                                      \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        mask1 = 1 << 30;                                                                                     \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        mask2 = 1 - (1 << 30);                                                                               \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        is_positive_or_zero = ab_64 >= 0;                                                                    \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        nudge = select(mask2, mask1, (SELECT_VEC_DATA_TYPE(long, size))(is_positive_or_zero));               \
+        VEC_DATA_TYPE(long, size)                                                                            \
+        mask = 1ll << 31;                                                                                    \
+        VEC_DATA_TYPE(int, size)                                                                             \
+        ab_x2_high32 = convert_int##size((ab_64 + nudge) / mask);                                            \
+        return select(ab_x2_high32, INT_MAX, (SELECT_VEC_DATA_TYPE(int, size))(overflow));                   \
+    }
+
+ 
+#define ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(size)                                                    \
+    inline VEC_DATA_TYPE(int, size) asymm_exp_on_interval_between_negative_one_quarter_and_0_excl##size(VEC_DATA_TYPE(int, size) a) \
+    {                                                                                                                               \
+        const VEC_DATA_TYPE(int, size) constant_term     = 1895147668;                                                              \
+        const VEC_DATA_TYPE(int, size) constant_1_over_3 = 715827883;                                                               \
+        const int k_fractional_bits = 31;                                                                                           \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x = a + (1 << (k_fractional_bits - 3));                                                                                     \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x2 = ASYMM_MULT(x, x, size);                                                                                                \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x3 = ASYMM_MULT(x2, x, size);                                                                                               \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x4 = ASYMM_MULT(x2, x2, size);                                                                                              \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x4_over_4 = ASYMM_ROUNDING_DIVIDE_BY_POW2(x4, 2, size);                                                                     \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x4_over_24_plus_x3_over_6_plus_x2 = ASYMM_MULT((x4_over_4 + x3), constant_1_over_3, size) + x2;                             \
+        VEC_DATA_TYPE(int, size)                                                                                                    \
+        x4_over_24_plus_x3_over_6_plus_x2_over_2 = ASYMM_ROUNDING_DIVIDE_BY_POW2(x4_over_24_plus_x3_over_6_plus_x2, 1, size);       \
+        return constant_term + ASYMM_MULT(constant_term, x + x4_over_24_plus_x3_over_6_plus_x2_over_2, size);                       \
+    }
+
+ 
+#define ASYMM_SELECT_USING_MASK_IMPL(size)                                                                                                                                \
+    inline VEC_DATA_TYPE(int, size) asymm_select_using_mask##size(VEC_DATA_TYPE(int, size) if_mask, VEC_DATA_TYPE(int, size) then_val, VEC_DATA_TYPE(int, size) else_val) \
+    {                                                                                                                                                                     \
+        return (if_mask & then_val) ^ (~if_mask & else_val);                                                                                                              \
+    }
+
+ 
+#define ASYMM_MASK_IF_ZERO_IMPL(size)                                                    \
+    inline VEC_DATA_TYPE(int, size) asymm_mask_if_zero##size(VEC_DATA_TYPE(int, size) a) \
+    {                                                                                    \
+        const VEC_DATA_TYPE(int, size) all_zeros = 0;                                    \
+        const VEC_DATA_TYPE(int, size) all_ones  = ~0;                                   \
+        return select(all_zeros, all_ones, (SELECT_VEC_DATA_TYPE(int, size))(a == 0));   \
+    }
+
+ 
+#define ASYMM_MASK_IF_NON_ZERO_IMPL(size)                                                    \
+    inline VEC_DATA_TYPE(int, size) asymm_mask_if_non_zero##size(VEC_DATA_TYPE(int, size) a) \
+    {                                                                                        \
+        const VEC_DATA_TYPE(int, size) all_zeros = 0;                                        \
+        const VEC_DATA_TYPE(int, size) all_ones  = ~0;                                       \
+        return select(all_zeros, all_ones, (SELECT_VEC_DATA_TYPE(int, size))(a != 0));       \
+    }
+
+#define EXP_BARREL_SHIFTER_IMPL(size)                                                                                                                                                                         \
+    inline VEC_DATA_TYPE(int, size) exp_barrel_shifter##size(VEC_DATA_TYPE(int, size) result, int exponent, int fp_multiplier, int k_integer_bits, int k_fractional_bits, VEC_DATA_TYPE(int, size) remainder) \
+    {                                                                                                                                                                                                         \
+        if(k_integer_bits > exponent)                                                                                                                                                                         \
+        {                                                                                                                                                                                                     \
+            const int k_shift_amount = k_integer_bits > exponent ? k_fractional_bits + exponent : 0;                                                                                                          \
+            return ASYMM_SELECT_USING_MASK(                                                                                                                                                                   \
+                    ASYMM_MASK_IF_NON_ZERO(remainder & (1 << k_shift_amount), size),                                                                                                                              \
+                    ASYMM_MULT(result, fp_multiplier, size), result, size);                                                                                                                                       \
+        }                                                                                                                                                                                                     \
+        \
+        return result;                                                                                                                                                                                        \
+    }
+
+ 
+#define ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(size)                                                                               \
+    inline VEC_DATA_TYPE(int, size) asymm_exp_on_negative_values##size(VEC_DATA_TYPE(int, size) a, int k_integer_bits)        \
+    {                                                                                                                         \
+        const int k_fractional_bits = 31 - k_integer_bits;                                                                    \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        k_one_quarter = 1 << (k_fractional_bits - 2);                                                                         \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        mask = k_one_quarter - 1;                                                                                             \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        a_mod_quarter_minus_one_quarter = (a & mask) - k_one_quarter;                                                         \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        a_mod_quarter_minus_one_quarter_scaled = a_mod_quarter_minus_one_quarter << k_integer_bits;                           \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        result = ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL(a_mod_quarter_minus_one_quarter_scaled, size); \
+        VEC_DATA_TYPE(int, size)                                                                                              \
+        remainder = a_mod_quarter_minus_one_quarter - a;                                                                      \
+        \
+        result = EXP_BARREL_SHIFTER(result, -2, 1672461947, k_integer_bits, k_fractional_bits, remainder, size);              \
+        result = EXP_BARREL_SHIFTER(result, -1, 1302514674, k_integer_bits, k_fractional_bits, remainder, size);              \
+        result = EXP_BARREL_SHIFTER(result, +0, 790015084, k_integer_bits, k_fractional_bits, remainder, size);               \
+        result = EXP_BARREL_SHIFTER(result, +1, 290630308, k_integer_bits, k_fractional_bits, remainder, size);               \
+        result = EXP_BARREL_SHIFTER(result, +2, 39332535, k_integer_bits, k_fractional_bits, remainder, size);                \
+        result = EXP_BARREL_SHIFTER(result, +3, 720401, k_integer_bits, k_fractional_bits, remainder, size);                  \
+        result = EXP_BARREL_SHIFTER(result, +4, 242, k_integer_bits, k_fractional_bits, remainder, size);                     \
+        \
+        if(k_integer_bits > 5)                                                                                                \
+        {                                                                                                                     \
+            const VEC_DATA_TYPE(int, size) clamp = -(1 << (k_fractional_bits + 5));                                           \
+            result = ASYMM_SELECT_USING_MASK(ASYMM_MASK_IF_NON_ZERO(a < clamp, size), 0, result, size);                       \
+        }                                                                                                                     \
+        \
+        const VEC_DATA_TYPE(int, size) Q0_one = INT_MAX;                                                                      \
+        return ASYMM_SELECT_USING_MASK(ASYMM_MASK_IF_ZERO(a, size), Q0_one, result, size);                                    \
+    }
+
+ 
+#define ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(size)                                                                  \
+    inline VEC_DATA_TYPE(int, size) asymm_saturating_rounding_mult_by_pow2##size(VEC_DATA_TYPE(int, size) x, int exponent) \
+    {                                                                                                                      \
+        if(exponent < 0)                                                                                                   \
+        {                                                                                                                  \
+            return ASYMM_ROUNDING_DIVIDE_BY_POW2(x, -exponent, size);                                                      \
+        }                                                                                                                  \
+        \
+        const VEC_DATA_TYPE(int, size) min = INT_MIN;                                                                      \
+        const VEC_DATA_TYPE(int, size) max = INT_MAX;                                                                      \
+        int threshold = ((1 << (31 - exponent)) - 1);                                                                      \
+        VEC_DATA_TYPE(int, size)                                                                                           \
+        positive_mask = ASYMM_MASK_IF_NON_ZERO(x > threshold, size);                                                       \
+        VEC_DATA_TYPE(int, size)                                                                                           \
+        negative_mask = ASYMM_MASK_IF_NON_ZERO(x < -threshold, size);                                                      \
+        VEC_DATA_TYPE(int, size)                                                                                           \
+        result = x << exponent;                                                                                            \
+        result = ASYMM_SELECT_USING_MASK(positive_mask, max, result, size);                                                \
+        result = ASYMM_SELECT_USING_MASK(negative_mask, min, result, size);                                                \
+        return result;                                                                                                     \
+    }
+
+ 
+#define ASYMM_ROUNDING_HALF_SUM_IMPL(size)                                                                                \
+    inline VEC_DATA_TYPE(int, size) asymm_rounding_half_sum##size(VEC_DATA_TYPE(int, size) a, VEC_DATA_TYPE(int, size) b) \
+    {                                                                                                                     \
+        VEC_DATA_TYPE(long, size)                                                                                         \
+        a64 = convert_long##size(a);                                                                                      \
+        VEC_DATA_TYPE(long, size)                                                                                         \
+        b64 = convert_long##size(b);                                                                                      \
+        VEC_DATA_TYPE(long, size)                                                                                         \
+        sum = a64 + b64;                                                                                                  \
+        const VEC_DATA_TYPE(long, size) one       = 1;                                                                    \
+        const VEC_DATA_TYPE(long, size) minus_one = -1;                                                                   \
+        VEC_DATA_TYPE(long, size)                                                                                         \
+        sign = select(minus_one, one, (SELECT_VEC_DATA_TYPE(long, size))(sum >= 0));                                      \
+        return convert_int##size((sum + sign) / 2);                                                                       \
+    }
+
+ 
+#define ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(size)                                                    \
+    inline VEC_DATA_TYPE(int, size) asymm_one_over_one_plus_x_for_x_in_0_1##size(VEC_DATA_TYPE(int, size) a) \
+    {                                                                                                        \
+        const VEC_DATA_TYPE(int, size) Q0_one = INT_MAX;                                                     \
+        const VEC_DATA_TYPE(int, size) Q2_one = 1 << (31 - 2);                                               \
+        VEC_DATA_TYPE(int, size)                                                                             \
+        half_denominator = ASYMM_ROUNDING_HALF_SUM(a, Q0_one, size);                                         \
+        const VEC_DATA_TYPE(int, size) Q2_48_over_17     = 1515870810;                                       \
+        const VEC_DATA_TYPE(int, size) Q2_neg_32_over_17 = -1010580540;                                      \
+        VEC_DATA_TYPE(int, size)                                                                             \
+        x = Q2_48_over_17 + ASYMM_MULT(half_denominator, Q2_neg_32_over_17, size);                           \
+        for(int i = 0; i < 3; i++)                                                                           \
+        {                                                                                                    \
+            VEC_DATA_TYPE(int, size)                                                                         \
+            half_denominator_times_x = ASYMM_MULT(half_denominator, x, size);                                \
+            VEC_DATA_TYPE(int, size)                                                                         \
+            one_minus_half_denominator_times_x = Q2_one - half_denominator_times_x;                          \
+            VEC_DATA_TYPE(int, size)                                                                         \
+            tmp = ASYMM_MULT(x, one_minus_half_denominator_times_x, size);                                   \
+            x   = x + ASYMM_SATURATING_ROUNDING_MULT_BY_POW2(tmp, 2, size);                                  \
+        }                                                                                                    \
+        return ASYMM_SATURATING_ROUNDING_MULT_BY_POW2(x, 1, size);                                           \
+    }
+
+ 
+#define ASYMM_RESCALE_IMPL(size)                                                                                                    \
+    inline VEC_DATA_TYPE(int, size) asymm_rescale##size(VEC_DATA_TYPE(int, size) value, int src_integer_bits, int dst_integer_bits) \
+    {                                                                                                                               \
+        int exponent = src_integer_bits - dst_integer_bits;                                                                         \
+        return ASYMM_SATURATING_ROUNDING_MULT_BY_POW2(value, exponent, size);                                                       \
+    }
+
+#define QUANTIZE_STR(input, offset, scale, type, size) quantize_##type##size(input, offset, scale)
+#define QUANTIZE(input, offset, scale, type, size) QUANTIZE_STR(input, offset, scale, type, size)
+#define DEQUANTIZE_STR(input, offset, scale, type, size) dequantize_##type##size(input, offset, scale)
+#define DEQUANTIZE(input, offset, scale, type, size) DEQUANTIZE_STR(input, offset, scale, type, size)
+
+#define ASYMM_ROUNDING_DIVIDE_BY_POW2_STR(x, exponent, size) asymm_rounding_divide_by_POW2_##size(x, exponent)
+#define ASYMM_ROUNDING_DIVIDE_BY_POW2(x, exponent, size) ASYMM_ROUNDING_DIVIDE_BY_POW2_STR(x, exponent, size)
+#define ASYMM_MULT_STR(a, b, size) asymm_mult##size(a, b)
+#define ASYMM_MULT(a, b, size) ASYMM_MULT_STR(a, b, size)
+#define ASYMM_MULT_BY_QUANT_MULTIPLIER_GREATER_THAN_ONE(x, quantized_multiplier, left_shift, size) \
+    ASYMM_MULT(x *((VEC_DATA_TYPE(int, size))(1) << (-left_shift)), quantized_multiplier, size)
+#define ASYMM_MULT_BY_QUANT_MULTIPLIER_LESS_THAN_ONE(x, quantized_multiplier, right_shift, size) \
+    ASYMM_ROUNDING_DIVIDE_BY_POW2(ASYMM_MULT(x, quantized_multiplier, size), right_shift, size)
+#define ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL(a, size) asymm_exp_on_interval_between_negative_one_quarter_and_0_excl##size(a)
+#define ASYMM_SELECT_USING_MASK(if_mask, then_val, else_val, size) asymm_select_using_mask##size(if_mask, then_val, else_val)
+#define ASYMM_MASK_IF_ZERO(a, size) asymm_mask_if_zero##size(a)
+#define ASYMM_MASK_IF_NON_ZERO(a, size) asymm_mask_if_non_zero##size(a)
+#define EXP_BARREL_SHIFTER(result, exponent, fp_multiplier, k_integer_bits, k_fractional_bits, remainder, size) exp_barrel_shifter##size(result, exponent, fp_multiplier, k_integer_bits, k_fractional_bits, remainder)
+#define ASYMM_EXP_ON_NEGATIVE_VALUES_STR(a, k_integer_bits, size) asymm_exp_on_negative_values##size(a, k_integer_bits)
+#define ASYMM_EXP_ON_NEGATIVE_VALUES(a, k_integer_bits, size) ASYMM_EXP_ON_NEGATIVE_VALUES_STR(a, k_integer_bits, size)
+#define ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_STR(a, size) asymm_one_over_one_plus_x_for_x_in_0_1##size(a)
+#define ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1(a, size) ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_STR(a, size)
+#define ASYMM_SATURATING_ROUNDING_MULT_BY_POW2(x, exponent, size) asymm_saturating_rounding_mult_by_pow2##size(x, exponent)
+#define ASYMM_ROUNDING_HALF_SUM(a, b, size) asymm_rounding_half_sum##size(a, b)
+#define ASYMM_RESCALE_STR(value, src_integer_bits, dst_integer_bits, size) asymm_rescale##size(value, src_integer_bits, dst_integer_bits)
+#define ASYMM_RESCALE(value, src_integer_bits, dst_integer_bits, size) ASYMM_RESCALE_STR(value, src_integer_bits, dst_integer_bits, size)
+
+#define MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(size)                                                                             \
+    inline VEC_DATA_TYPE(int, size) multiply_by_quantized_multiplier##size(VEC_DATA_TYPE(int, size) input, int qmul, int shift) \
+    {                                                                                                                           \
+        const int left_shift  = shift > 0 ? shift : 0;                                                                          \
+        const int right_shift = shift > 0 ? 0 : -shift;                                                                         \
+        return ASYMM_ROUNDING_DIVIDE_BY_POW2(ASYMM_MULT(input * (1 << left_shift), qmul, size), right_shift, size);             \
+    }
+#define MULTIPLY_BY_QUANTIZED_MULTIPLIER(input, qmul, shift, size) multiply_by_quantized_multiplier##size(input, qmul, shift)
+
+QUANTIZE_IMPL(uchar, 1)
+QUANTIZE_IMPL(char, 1)
+QUANTIZE_IMPL(uint, 1)
+QUANTIZE_IMPL(int, 1)
+QUANTIZE_IMPL(uchar, 2)
+QUANTIZE_IMPL(char, 2)
+QUANTIZE_IMPL(uint, 2)
+QUANTIZE_IMPL(int, 2)
+QUANTIZE_IMPL(uchar, 3)
+QUANTIZE_IMPL(char, 3)
+QUANTIZE_IMPL(uint, 3)
+QUANTIZE_IMPL(int, 3)
+QUANTIZE_IMPL(uchar, 4)
+QUANTIZE_IMPL(ushort, 4)
+QUANTIZE_IMPL(short, 4)
+QUANTIZE_IMPL(int, 4)
+QUANTIZE_IMPL(uchar, 8)
+QUANTIZE_IMPL(char, 8)
+QUANTIZE_IMPL(uint, 8)
+QUANTIZE_IMPL(int, 8)
+QUANTIZE_IMPL(uchar, 16)
+QUANTIZE_IMPL(char, 16)
+QUANTIZE_IMPL(ushort, 16)
+QUANTIZE_IMPL(short, 16)
+QUANTIZE_IMPL(uint, 16)
+QUANTIZE_IMPL(int, 16)
+
+DEQUANTIZE_IMPL(uchar, 1)
+DEQUANTIZE_IMPL(char, 1)
+DEQUANTIZE_IMPL(uint, 1)
+DEQUANTIZE_IMPL(int, 1)
+DEQUANTIZE_IMPL(uchar, 2)
+DEQUANTIZE_IMPL(char, 2)
+DEQUANTIZE_IMPL(uint, 2)
+DEQUANTIZE_IMPL(int, 2)
+DEQUANTIZE_IMPL(uchar, 3)
+DEQUANTIZE_IMPL(char, 3)
+DEQUANTIZE_IMPL(uint, 3)
+DEQUANTIZE_IMPL(int, 3)
+DEQUANTIZE_IMPL(uchar, 4)
+DEQUANTIZE_IMPL(ushort, 4)
+DEQUANTIZE_IMPL(short, 4)
+DEQUANTIZE_IMPL(int, 4)
+DEQUANTIZE_IMPL(uchar, 8)
+DEQUANTIZE_IMPL(char, 8)
+DEQUANTIZE_IMPL(uint, 8)
+DEQUANTIZE_IMPL(int, 8)
+DEQUANTIZE_IMPL(uchar, 16)
+DEQUANTIZE_IMPL(char, 16)
+DEQUANTIZE_IMPL(ushort, 16)
+DEQUANTIZE_IMPL(short, 16)
+DEQUANTIZE_IMPL(uint, 16)
+DEQUANTIZE_IMPL(int, 16)
+
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(1)
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(2)
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(3)
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(4)
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(8)
+ASYMM_ROUNDING_DIVIDE_BY_POW2_IMPL(16)
+
+ASYMM_MULT_IMPL(1)
+ASYMM_MULT_IMPL(2)
+ASYMM_MULT_IMPL(3)
+ASYMM_MULT_IMPL(4)
+ASYMM_MULT_IMPL(8)
+ASYMM_MULT_IMPL(16)
+
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(1)
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(2)
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(3)
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(4)
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(8)
+ASYMM_EXP_ON_INTERVAL_BETWEEN_NEGATIVE_ONE_QUARTER_AND_0_EXCL_IMPL(16)
+
+ASYMM_SELECT_USING_MASK_IMPL(1)
+ASYMM_SELECT_USING_MASK_IMPL(2)
+ASYMM_SELECT_USING_MASK_IMPL(3)
+ASYMM_SELECT_USING_MASK_IMPL(4)
+ASYMM_SELECT_USING_MASK_IMPL(8)
+ASYMM_SELECT_USING_MASK_IMPL(16)
+
+ASYMM_MASK_IF_ZERO_IMPL(1)
+ASYMM_MASK_IF_ZERO_IMPL(2)
+ASYMM_MASK_IF_ZERO_IMPL(3)
+ASYMM_MASK_IF_ZERO_IMPL(4)
+ASYMM_MASK_IF_ZERO_IMPL(8)
+ASYMM_MASK_IF_ZERO_IMPL(16)
+
+ASYMM_MASK_IF_NON_ZERO_IMPL(1)
+ASYMM_MASK_IF_NON_ZERO_IMPL(2)
+ASYMM_MASK_IF_NON_ZERO_IMPL(3)
+ASYMM_MASK_IF_NON_ZERO_IMPL(4)
+ASYMM_MASK_IF_NON_ZERO_IMPL(8)
+ASYMM_MASK_IF_NON_ZERO_IMPL(16)
+
+EXP_BARREL_SHIFTER_IMPL(1)
+EXP_BARREL_SHIFTER_IMPL(2)
+EXP_BARREL_SHIFTER_IMPL(3)
+EXP_BARREL_SHIFTER_IMPL(4)
+EXP_BARREL_SHIFTER_IMPL(8)
+EXP_BARREL_SHIFTER_IMPL(16)
+
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(1)
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(2)
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(3)
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(4)
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(8)
+ASYMM_EXP_ON_NEGATIVE_VALUES_IMPL(16)
+
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(1)
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(2)
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(3)
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(4)
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(8)
+ASYMM_SATURATING_ROUNDING_MULT_BY_POW2_IMPL(16)
+
+ASYMM_ROUNDING_HALF_SUM_IMPL(1)
+ASYMM_ROUNDING_HALF_SUM_IMPL(2)
+ASYMM_ROUNDING_HALF_SUM_IMPL(3)
+ASYMM_ROUNDING_HALF_SUM_IMPL(4)
+ASYMM_ROUNDING_HALF_SUM_IMPL(8)
+ASYMM_ROUNDING_HALF_SUM_IMPL(16)
+
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(1)
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(2)
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(3)
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(4)
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(8)
+ASYMM_ONE_OVER_ONE_PLUS_X_FOR_X_IN_0_1_IMPL(16)
+
+ASYMM_RESCALE_IMPL(1)
+ASYMM_RESCALE_IMPL(2)
+ASYMM_RESCALE_IMPL(3)
+ASYMM_RESCALE_IMPL(4)
+ASYMM_RESCALE_IMPL(8)
+ASYMM_RESCALE_IMPL(16)
+
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(1)
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(2)
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(3)
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(4)
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(8)
+MULTIPLY_BY_QUANTIZED_MULTIPLIER_IMPL(16)
+
+#endif  
+
+#if defined(DATA_TYPE) && defined(DATA_TYPE_DELTAS) && defined(WEIGHT_X) && defined(WEIGHT_Y) && defined(WEIGHT_W) && defined(WEIGHT_H) && defined(IMG_WIDTH) && defined(IMG_HEIGHT) && defined(BOX_FIELDS) && defined(SCALE_BEFORE) && defined(OFFSET_BOXES) && defined(SCALE_BOXES) && defined(OFFSET_DELTAS) && defined(SCALE_DELTAS) && defined(OFFSET_PRED_BOXES) && defined(SCALE_PRED_BOXES)  
+
+ 
+__kernel void bounding_box_transform_quantized(
+    VECTOR_DECLARATION(boxes),
+    IMAGE_DECLARATION(pred_boxes),
+    IMAGE_DECLARATION(deltas))
+{
+     
+    Vector boxes      = CONVERT_TO_VECTOR_STRUCT_NO_STEP(boxes);
+    Image  pred_boxes = CONVERT_TO_IMAGE_STRUCT(pred_boxes);
+    Image  deltas     = CONVERT_TO_IMAGE_STRUCT(deltas);
+
+     
+    const float one     = 1.f;
+    const float halfone = 0.5f;
+
+    const int py           = get_global_id(1);  
+    float4    scale_before = (float4)SCALE_BEFORE;
+    float4 delta           = DEQUANTIZE(vload4(0, (__global DATA_TYPE_DELTAS *)deltas.ptr), OFFSET_DELTAS, SCALE_DELTAS, DATA_TYPE_DELTAS, 4);
+    float4 box             = DEQUANTIZE(vload4(0, (__global DATA_TYPE *)vector_offset(&boxes, BOX_FIELDS * py)), OFFSET_BOXES, SCALE_BOXES, DATA_TYPE, 4) / scale_before;
+
+     
+    float2 dims    = box.s23 - box.s01 + one;
+    float2 ctr     = box.s01 + halfone * dims;
+    float4 weights = (float4)(WEIGHT_X, WEIGHT_Y, WEIGHT_W, WEIGHT_H);
+    delta /= weights;
+    delta.s23 = min(delta.s23, (float)BBOX_XFORM_CLIP);
+
+     
+    float2 pred_ctr  = delta.s01 * dims + ctr;
+    float2 pred_dims = exp(delta.s23) * dims;
+
+     
+    float4 max_values = (float4)(IMG_WIDTH - 1, IMG_HEIGHT - 1, IMG_WIDTH - 1, IMG_HEIGHT - 1);
+    float4 sign       = (float4)(-1, -1, 1, 1);
+    float4 min_values = 0;
+
+     
+    float4 pred_box = pred_ctr.s0101 + sign * halfone * pred_dims.s0101;
+#ifdef OFFSET  
+    pred_box.s23 -= one;
+#endif  
+    pred_box = CLAMP(pred_box, min_values, max_values);
+#ifdef SCALE_AFTER  
+    pred_box *= (float4)SCALE_AFTER;
+#endif  
+
+     
+    vstore4(QUANTIZE(pred_box, OFFSET_PRED_BOXES, SCALE_PRED_BOXES, DATA_TYPE, 4), 0, (__global DATA_TYPE *)pred_boxes.ptr);
+}
+#endif  )"

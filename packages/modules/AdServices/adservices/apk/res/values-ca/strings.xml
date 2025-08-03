@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"accedir a l\'API AdServices Topics"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Permet que una aplicació accedeixi a l\'API AdServices Topics."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"accedir a les API AdServices Attribution"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Permet que una aplicació accedeixi a les API AdServices Attribution."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"accedir a l\'API AdServices Custom Audience"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Permet que una aplicació accedeixi a l\'API AdServices Custom Audience."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Accedir a l\'API AdID"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Permet que una aplicació accedeixi a l\'API AdID."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"accedir a l\'API AdServices Consent"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Permet que una aplicació accedeixi a l\'API AdServices Consent."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Accedir a l\'API Ad ID"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Permet que una aplicació accedeixi a l\'API Ad ID."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Accedeix a l\'API AdServices Cobalt Upload"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Permet que una aplicació accedeixi a l\'API AdServices Cobalt Upload."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Accedir a l\'API App Set ID"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Permet que una aplicació accedeixi a l\'API App Set ID."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"accedir a l\'API Consent Service"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Permet que una aplicació accedeixi a l\'API Consent Service."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Accedir a l\'API de modificació de l\'estat d\'activació d\'AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Permet que una aplicació accedeixi a l\'API de modificació de l\'estat d\'activació d\'AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Accedir a l\'API d\'estat d\'activació d\'AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Permet que una aplicació accedeixi a l\'API d\'estat d\'activació d\'AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Accés a les API d\'AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Permet que una aplicació accedeixi a les API d\'AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Accedeix a l\'actualització de l\'API AdId d\'AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Permet que una aplicació accedeixi a l\'actualització de l\'API AdId d\'AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Privadesa d\'anuncis"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Uneix-te a la versió beta de la privadesa d\'anuncis d\'Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android està explorant maneres més privades perquè les aplicacions et mostrin anuncis"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Més informació"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Privadesa dels anuncis d\'Android (versió beta)"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Novetats"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Les noves funcions de privadesa de Privacy Sandbox permeten que les aplicacions et mostrin anuncis rellevants, però restringeixen la informació que poden obtenir sobre la teva activitat en llocs web i aplicacions d\'altres desenvolupadors."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Com funciona"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Com s\'hi pot participar"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Activar la versió beta permet a les aplicacions provar aquestes noves maneres més privades de mostrar-te anuncis. Pots desactivar la versió beta en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"No, gràcies"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Activa"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Més"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Gràcies per participar"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Participes en la versió beta de privadesa d\'anuncis d\'Android. S\'ha activat Privacy Sandbox per al teu dispositiu.\n\nPots obtenir més informació o desactivar la versió beta en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Has triat no participar-hi"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Gràcies per la teva resposta. S\'ha desactivat Privacy Sandbox per al teu dispositiu.\n\nSi canvies d\'opinió o vols obtenir més informació, ves a la configuració de privadesa."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Configuració de privadesa"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Entesos"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Participes en la versió beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"S\'ha activat Privacy Sandbox per al teu dispositiu i les aplicacions poden provar aquestes noves maneres més privades de mostrar-te anuncis. Pots desactivar la versió beta en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Entesos"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Privacy Sandbox d\'Android ofereix noves funcions que les aplicacions poden utilitzar per mostrar-te anuncis que et poden agradar. Aquestes tecnologies no fan servir identificadors de dispositiu.\n\nAndroid i les teves aplicacions poden estimar els tipus d\'anuncis que et poden interessar i desar aquests interessos temporalment al teu dispositiu. Això permet que les aplicacions et mostrin anuncis que et poden agradar sense fer un seguiment de la teva activitat en llocs web i aplicacions d\'altres desenvolupadors."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Personalització d\'anuncis amb Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Interessos estimats per Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Periòdicament, Android estima els teus interessos principals en funció de les aplicacions que utilitzes, per exemple \"esports\" o \"viatges\".\n\nMés endavant, una aplicació pot demanar a Android que faci servir aquests interessos per mostrar-te anuncis més rellevants.\n\nPots veure la llista d\'interessos actuals a la configuració de privadesa i bloquejar els que no t\'agradin."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Interessos estimats per les aplicacions"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Les aplicacions poden estimar els teus interessos i desar-los temporalment a Android. Per exemple, una aplicació que utilitzis per comprar sabatilles de córrer pot estimar el teu interès en \"córrer maratons\".\n\nMés endavant, basant-se en aquest interès, una altra aplicació pot mostrar-te un anunci relacionat amb les maratons.\n\nA la configuració de privadesa, pots gestionar la llista de les aplicacions que han desat interessos."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Noves funcions de privadesa d\'anuncis"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Els temes d\'anunci i els nous controls t\'ofereixen més opcions sobre els anuncis que veus"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Noves funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android pren nota dels temes d\'interès segons les aplicacions que has utilitzat recentment. Les aplicacions que utilitzes també poden determinar què t\'agrada. Més tard, les aplicacions poden demanar aquesta informació per mostrar-te anuncis personalitzats. Pots triar quins temes i quines aplicacions vols que s\'utilitzin per mostrar-te anuncis."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Per mesurar el rendiment d\'un anunci, es comparteixen tipus de dades limitats entre aplicacions."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Més sobre els anuncis a Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Anuncis més útils"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Les aplicacions poden demanar informació a Android per personalitzar els anuncis que veus."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android pren nota dels temes d\'interès basant-se en les aplicacions que has utilitzat recentment."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Les aplicacions que fas servir també poden determinar què t\'agrada en funció de com les utilitzes. Per exemple, si utilitzes una aplicació que ven sabatilles per córrer llargues distàncies, l\'aplicació pot decidir que t\'interessa córrer maratons."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Més tard, una aplicació que utilitzes pot demanar aquesta informació, ja siguin els temes d\'anunci o els anuncis suggerits per les aplicacions que has utilitzat."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android suprimeix automàticament els temes i les dades suggerits per aplicacions de manera regular. També pots bloquejar temes i aplicacions concrets que no vols que facin suggeriments."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Mesurar el rendiment d\'un anunci"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Les aplicacions que utilitzes poden demanar a Android informació que les ajuda a mesurar el rendiment dels seus anuncis. Android permet que les aplicacions recullin tipus de dades limitats, com ara l\'hora del dia en què se t\'ha mostrat un anunci."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Prova noves funcions de privadesa d\'anuncis"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Els temes d\'anunci t\'ofereixen més opcions sobre els anuncis que veus"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Mostra els detalls"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Prova noves funcions de privadesa d\'anuncis"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android llançarà noves funcions de privadesa que t\'oferiran més opcions sobre els anuncis que veus."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Els temes d\'anunci ajuden les aplicacions a mostrar-te anuncis rellevants, alhora que es protegeix la teva identitat i informació sobre l\'ús d\'aplicacions. Android pot prendre nota dels temes d\'interès segons les aplicacions que has utilitzat recentment. Més tard, una aplicació que utilitzes pot demanar temes rellevants a Android per personalitzar els anuncis que veus."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Pots veure els temes d\'anunci a la configuració del dispositiu i bloquejar els que no vols que es comparteixin amb les aplicacions. De manera regular, Android també suprimeix automàticament els temes d\'anunci."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Pots canviar d\'idea en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Més informació sobre els temes d\'anunci"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Obtén més informació sobre com Android protegeix les teves dades a la nostra "<a href="https://policies.google.com/privacy">"política de privadesa"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Prova-ho"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Quines dades s\'utilitzen"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Els temes d\'anunci es basen en les aplicacions que has utilitzat recentment en aquest dispositiu i amb quina freqüència les utilitzes."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Com utilitzem aquestes dades"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android pren nota dels temes d\'interès mentre utilitzes les aplicacions. Les etiquetes dels temes estan predefinides i inclouen camps com ara Art i entreteniment, Compres i Esports. Més tard, una aplicació que utilitzis pot demanar a Android alguns d\'aquests temes per personalitzar els anuncis que veus (però no les dades sobre l\'ús de les aplicacions ni la teva identitat)."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Com pots gestionar les teves dades"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android suprimeix automàticament els temes i de manera regular. A mesura que facis servir les aplicacions, pot ser que torni a aparèixer un tema a la llista. També pots bloquejar els temes que no vols que Android comparteixi amb les aplicacions i desactivar els temes d\'anunci en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Pots fer canvis a la configuració de privadesa."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Altres funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android també ofereix noves maneres de limitar la informació que les aplicacions poden obtenir sobre tu quan et mostrin anuncis personalitzats."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Els anuncis suggerits per aplicacions ajuden a protegir la teva identitat i informació sobre l\'ús de les aplicacions i, alhora, permeten que les aplicacions et mostrin anuncis rellevants. En funció de la teva activitat, una aplicació que utilitzes pot suggerir anuncis relacionats en altres aplicacions. A la configuració de privadesa, pots veure una llista de les aplicacions i bloquejar-les perquè no facin suggeriments."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Amb el mesurament d\'anuncis, els tipus de dades limitats es comparteixen entre les aplicacions per mesurar el rendiment dels seus anuncis, com ara l\'hora del dia en què se t\'ha mostrat un anunci."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Més informació sobre els anuncis suggerits per aplicacions i el mesurament d\'anuncis"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Anuncis suggerits per aplicacions"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Quines dades s\'utilitzen"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"La teva activitat en una aplicació que utilitzes en aquest dispositiu."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Com les aplicacions utilitzen aquestes dades"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Les aplicacions poden emmagatzemar informació amb Android sobre coses que t\'agraden. Per exemple, si utilitzes una aplicació sobre entrenament de maratons, l\'aplicació pot decidir que t\'interessen les sabatilles de córrer. Més endavant, si utilitzes una altra aplicació, aquesta aplicació pot mostrar-te un anunci de sabatilles de córrer suggerit per la primera aplicació."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Com pots gestionar les teves dades"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android suprimeix automàticament les dades suggerides per aplicacions de manera regular. És possible que una aplicació que tornis a utilitzar nou reaparegui a la llista."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"També pots impedir que una aplicació et suggereixi anuncis, restablir totes les dades de suggeriments d\'anuncis o desactivar els anuncis de suggeriments d\'aplicacions en qualsevol moment a la configuració de privadesa."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Les aplicacions que utilitzes poden demanar a Android informació que les ajuda a mesurar el rendiment dels seus anuncis. Android protegeix la teva privadesa limitant la informació que les aplicacions poden compartir entre elles."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Noves funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Obtén més opcions sobre els anuncis que veus, alhora que es protegeix la teva identitat"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Noves funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android llançarà noves maneres de limitar la informació que les aplicacions poden obtenir sobre tu quan et mostrin anuncis personalitzats."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Amb els anuncis suggerits per aplicacions, les noves funcions de privadesa ajuden a protegir la teva identitat i informació sobre l\'ús de les aplicacions i, alhora, permeten que les aplicacions et mostrin anuncis rellevants. En funció de la teva activitat, una aplicació que utilitzes pot suggerir anuncis relacionats en altres aplicacions. A la configuració de privadesa, pots veure una llista de les aplicacions i bloquejar-les perquè no facin suggeriments."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Amb el mesurament d\'anuncis, els tipus de dades limitats es comparteixen entre les aplicacions per entendre el rendiment dels seus anuncis, com ara l\'hora del dia en què se t\'ha mostrat un anunci."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"L\'activitat que dus a terme amb una aplicació en aquest dispositiu es pot utilitzar per suggerir anuncis."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Activa una altra funció de privadesa d\'anuncis"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android també ofereix una nova funció de privadesa que et proporciona més opcions sobre els anuncis que veus."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Els temes d\'anunci ajuden les aplicacions a mostrar-te anuncis rellevants, alhora que es protegeix la teva identitat i informació sobre l\'ús d\'aplicacions. Android pot prendre nota dels temes d\'interès segons les aplicacions que has utilitzat recentment. Més tard, una aplicació que utilitzes pot demanar temes rellevants a Android per mostrar-te anuncis més rellevants."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Pots veure els temes d\'anunci a la configuració de privadesa i bloquejar els que no vols que es comparteixin amb les aplicacions. De manera regular, Android també suprimeix automàticament els temes d\'anunci."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Activa"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Noves funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Ara tens més opcions sobre els anuncis que veus, alhora que es protegeix la teva identitat"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Noves funcions de privadesa d\'anuncis disponibles"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Ara Android ofereix noves funcions de privadesa que et proporcionen més opcions sobre els anuncis que veus."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Següent"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Participa en la versió beta de la privadesa d\'anuncis d\'Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Interessos estimats per Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Aplicacions que estimen interessos"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Mesurament d\'anuncis"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Les aplicacions poden utilitzar Privacy Sandbox per mesurar l\'efectivitat dels seus anuncis. Per fer-ho, els anunciants poden desar temporalment dades a Android sobre les teves interaccions entre els seus anuncis i les aplicacions. La quantitat de dades que poden desar està restringida i se suprimiran regularment.\n\nPots suprimir aquestes dades en qualsevol moment desactivant Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Periòdicament, Android estima els teus interessos principals en funció de les aplicacions que utilitzes. Les aplicacions poden demanar a Android que faci servir aquests interessos per mostrar-te anuncis més rellevants.\n\nSi bloqueges un interès, no es tornarà a afegir a la llista tret que el desbloquegis. Pot ser que continuïs veient alguns anuncis relacionats."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Bloqueja"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Desbloqueja"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Interessos que has bloquejat"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Restableix tots els interessos"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Ara mateix, no hi ha cap interès per mostrar."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Ara mateix, no hi ha cap tema per mostrar.\nMés informació sobre els "<a href="https://support.google.com/android?p=ad_privacy">"temes d\'anunci"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"La versió beta de la privadesa d\'anuncis d\'Android ofereix noves funcions que les aplicacions poden utilitzar per mostrar-te anuncis que et poden agradar. Aquestes tecnologies no fan servir identificadors de dispositiu.\n\nAndroid pot estimar els tipus d\'anuncis que et poden interessar i desar-los temporalment al teu dispositiu. Això permet que les aplicacions et mostrin anuncis rellevants sense fer un seguiment de la teva activitat en llocs web i aplicacions d\'altres desenvolupadors."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"No tens cap interès bloquejat"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Cap tema bloquejat"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Mostra els temes bloquejats"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"S\'han restablert els interessos"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"S\'han restablert els temes"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Les aplicacions poden estimar els teus interessos i desar-los temporalment a Android. Més endavant, una altra aplicació pot mostrar-te un anunci basant-se en aquests interessos.\n\nSi bloqueges una aplicació, no estimarà més interessos. No es tornarà a afegir a aquesta llista d\'aplicacions tret que la desbloquegis. Els interessos que l\'aplicació ja hagi estimat se suprimiran, però pot ser que encara vegis alguns anuncis relacionats."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Aplicacions que has bloquejat"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Mostra les aplicacions bloquejades"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Restableix els interessos estimats per les aplicacions"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"En aquests moments, cap aplicació no està generant interessos per a tu"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Ara mateix, no hi ha cap aplicació per mostrar. \nMés informació sobre els "<a href="https://support.google.com/android?p=ad_privacy">"anuncis suggerits per aplicacions"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"La versió beta de la privadesa d\'anuncis d\'Android ofereix noves funcions que les aplicacions poden utilitzar per mostrar-te anuncis que et poden agradar. Aquestes tecnologies no fan servir identificadors de dispositiu.\n\nLes aplicacions poden estimar els tipus d\'anuncis que et poden interessar i desar aquests interessos temporalment al teu dispositiu. Això permet que les aplicacions et mostrin anuncis rellevants sense fer un seguiment de la teva activitat en llocs web i aplicacions d\'altres desenvolupadors."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"No tens cap aplicació bloquejada"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Cap aplicació bloquejada"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Permet el mesurament d\'anuncis"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Les aplicacions i els anunciants poden sol·licitar informació a Android que els ajuda a mesurar el rendiment dels seus anuncis.\n\nLes dades de mesurament d\'anuncis se suprimeixen del dispositiu regularment."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Restableix les dades de mesurament"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android protegeix la teva privadesa limitant la informació que les aplicacions poden compartir entre elles. Els informes s\'envien amb retard per protegir la teva identitat.\n\nEl teu navegador pot tenir una opció de configuració similar. Si el mesurament d\'anuncis està activat per a Android i el navegador, una empresa podrà mesurar l\'efectivitat d\'un anunci entre les aplicacions que utilitzis i els llocs web que visitis. L\'historial de navegació es manté privat al dispositiu.\n\nObtén més informació sobre com Android protegeix les teves dades a la nostra "<a href="https://policies.google.com/privacy">"política de privadesa"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Les dades de mesurament d\'anuncis s\'han restablert"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Cancel·la"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Vols desactivar Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Si canvies d\'opinió o vols obtenir més informació sobre la versió beta de la privadesa d\'anuncis d\'Android, ves a la configuració de privadesa"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Desactiva"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Vols bloquejar <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Aquest tema es bloquejarà i no es tornarà a afegir a la llista, tret que l\'afegeixis de nou. Pot ser que continuïs veient alguns anuncis relacionats."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Bloqueja"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> s\'ha desbloquejat"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"És possible que Android torni a afegir aquest tema a la teva llista, però pot ser que no aparegui immediatament"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"D\'acord"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Vols restablir tots els temes d\'anunci?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"La llista s\'esborrarà i s\'afegiran nous temes a partir d\'aquest moment. Pot ser que continuïs veient alguns anuncis relacionats amb els temes que has restablert."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Restableix"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Vols bloquejar <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Aquesta aplicació no et suggerirà anuncis ni es tornarà a afegir a la llista, tret que la desbloquegis. Pot ser que continuïs veient alguns anuncis relacionats."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> s\'ha desbloquejat"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Aquesta aplicació pot tornar a suggerir-te anuncis, però pot ser que no aparegui a la llista immediatament. Pot ser que tardis una estona a veure anuncis relacionats."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Vols restablir els anuncis suggerits per les aplicacions?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Les dades de suggeriments d\'anuncis de les aplicacions de la llista se suprimiran i les aplicacions suggeriran anuncis nous a partir d\'aquest moment. Pot ser que continuïs veient alguns anuncis relacionats."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Les dades de l\'aplicació s\'han restablert"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Els temes d\'anunci estan activats"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android començarà a prendre nota dels temes d\'interès, però és possible que els primers tardin una mica a mostrar-se."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Vols desactivar els temes d\'anunci?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Aquesta llista de temes se suprimirà. Android deixarà de prendre nota dels temes d\'interès, però és possible que encara vegis anuncis rellevants."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Els anuncis suggerits per aplicacions estan activats"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"És possible que les aplicacions comencin a suggerir anuncis. Veuràs una llista d\'aplicacions un cop comencin a suggerir anuncis."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Vols desactivar els anuncis suggerits per aplicacions?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Totes les dades de suggeriment d\'anuncis se suprimiran. Les aplicacions ja no podran suggerir anuncis, però és possible que encara vegis anuncis rellevants."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"El mesurament d\'anuncis està activat"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android només pot compartir informació molt limitada amb les aplicacions per ajudar-les a mesurar el rendiment dels seus anuncis."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Vols desactivar el mesurament d\'anuncis?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Tots els informes de mesurament d\'anuncis pendents se suprimiran i no se\'n generaran ni compartiran de nous."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Privadesa d\'anuncis"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Temes d\'anunci"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Anuncis suggerits per aplicacions"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android pren nota dels temes d\'interès segons les aplicacions que has utilitzat recentment i amb quina freqüència les utilitzes."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Les aplicacions que utilitzes també poden determinar què t\'agrada segons l\'ús que en fas."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Les aplicacions que utilitzes poden demanar a Android informació que les ajuda a mesurar el rendiment dels seus anuncis. Android permet que les aplicacions recullin tipus de dades limitats."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Més informació sobre la "<a href="https://support.google.com/android?p=ad_privacy">"privadesa d\'anuncis a Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Activat / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> temes"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Activat / # tema}other{Activat / # temes}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Activat / <xliff:g id="APPS_COUNT">%1$d</xliff:g> aplicacions"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Activat / # aplicació}other{Activat / # aplicacions}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Activat"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Desactivat"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Els temes d\'interès es basen en les aplicacions que has utilitzat recentment i les aplicacions els utilitzen per mostrar-te anuncis personalitzats.\n\nPots bloquejar els temes que no vols que es comparteixin amb les aplicacions. Android també suprimeix automàticament els temes de manera regular.\n\nTot i que aquesta funció es pugui activar, és possible que no vegis una llista dels temes fins que la funció estigui totalment disponible i les aplicacions comencin a utilitzar-la."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Permet els temes d\'anunci"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Temes d\'anunci que has bloquejat"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Restableix tots els temes d\'anunci"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android pren nota dels temes d\'interès segons les aplicacions que has utilitzat durant les darreres setmanes.\n\nMés endavant, una aplicació que utilitzis pot demanar a Android els temes per personalitzar els anuncis que veus. Android comparteix fins a 3 temes, alhora que protegeix la teva identitat i informació sobre l\'ús de les aplicacions.\n\nAndroid suprimeix automàticament els temes de manera regular. A mesura que facis servir les aplicacions, pot ser que torni a aparèixer un tema a la llista. O pots bloquejar els temes que no vols que Android comparteixi amb les aplicacions.\n\nA les teves aplicacions, un anunci que vegis pot estar personalitzat, depenent d\'aquesta configuració, de la configuració d\'anuncis suggerits per aplicacions, de la configuració d\'identificador de publicitat i de si l\'aplicació que utilitzes personalitza anuncis."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Permet els anuncis suggerits per aplicacions"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Les aplicacions que utilitzes poden determinar què t\'agrada i, a continuació, suggerir anuncis en altres aplicacions.\n\nPots bloquejar les aplicacions perquè no facin suggeriments. Android també suprimeix automàticament les dades suggerides per aplicacions de manera regular.\n\nTot i que aquesta funció es pugui activar, és possible que no vegis una llista de les aplicacions fins que la funció estigui totalment disponible i les aplicacions comencin a utilitzar-la."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Aplicacions que has bloquejat"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Restableix les dades suggerides per aplicacions"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"És habitual que les aplicacions que utilitzes recordin coses que t\'interessen per personalitzar la teva experiència. Les aplicacions també poden emmagatzemar informació amb Android sobre els teus temes.\n\nPer exemple, si utilitzes una aplicació sobre entrenament de maratons, l\'aplicació pot decidir que t\'interessen les sabatilles de córrer. Més endavant, si utilitzes una altra aplicació, aquesta aplicació pot mostrar-te un anunci de sabatilles de córrer suggerit per la primera aplicació.\n\nAndroid suprimeix automàticament les dades suggerides per aplicacions de manera regular. Pot ser que una aplicació que utilitzis de nou torni a aparèixer a la llista. O pots bloquejar una aplicació per impedir que et suggereixi anuncis.\n\nA les teves aplicacions, un anunci que vegis pot estar personalitzat, depenent d\'aquesta configuració, de la configuració de temes d\'anunci, de la configuració d\'identificador de publicitat i de si l\'aplicació que utilitzes personalitza anuncis."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Ara hi ha una nova funció de privadesa d\'anuncis disponible"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Només es comparteix informació molt limitada entre aplicacions per ajudar a mesurar el rendiment dels anuncis"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Estem llançant una nova funció de privadesa d\'anuncis anomenada \"mesurament d\'anuncis\". Android comparteix només informació molt limitada entre aplicacions, com ara quan se t\'ha mostrat un anunci, per ajudar les aplicacions a mesurar el rendiment dels anuncis."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Pots fer canvis a la configuració de privadesa d\'anuncis."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Les aplicacions que utilitzes poden demanar a Android informació per ajudar-les a mesurar el rendiment dels seus anuncis. Android permet que les aplicacions només recullin tipus de dades limitats."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Noves funcions de privadesa d\'anuncis"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Obtén més opcions sobre els anuncis que veus, alhora que ajudes a protegir la teva identitat"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Actualitzacions de les funcions de privadesa d\'anuncis"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Obtén més opcions sobre els anuncis que veus, alhora que ajudes a protegir la teva identitat"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android està ampliant les funcions de privadesa d\'anuncis per restringir quines aplicacions poden obtenir informació sobre tu quan et mostrin anuncis personalitzats."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Les aplicacions i els seus partners publicitaris poden utilitzar la teva activitat en altres aplicacions d\'aquest dispositiu per personalitzar anuncis, alhora que ajuden a mantenir la teva identitat privada i segura."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Més informació sobre els anuncis suggerits per aplicacions"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Els tipus de dades limitats es comparteixen entre les aplicacions per entendre el rendiment dels seus anuncis, com ara l\'hora del dia en què se t\'ha mostrat un anunci."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Més informació sobre el mesurament d\'anuncis"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android pren nota dels temes d\'interès segons les aplicacions que has utilitzat recentment. Les aplicacions i els seus partners publicitaris també poden utilitzar la teva activitat en altres aplicacions d\'aquest dispositiu per personalitzar anuncis, alhora que ajuden a mantenir la teva identitat privada i segura."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Les aplicacions que fas servir també poden determinar què t\'agrada en funció de la teva activitat. Per exemple, si normalment utilitzes aplicacions de cuina, és possible que vegis anuncis de serveis d\'entrega d\'aliments a domicili o continguts relacionats en altres aplicacions.\n\nLes aplicacions poden emmagatzemar aquesta informació de manera segura perquè només l\'utilitzin els partners publicitaris amb l\'objectiu de personalitzar anuncis en altres aplicacions."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Més tard, una aplicació que utilitzes pot demanar aquesta informació, ja siguin els temes d\'anunci o els anuncis suggerits per les aplicacions que has utilitzat."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Les aplicacions que utilitzes poden demanar a Android informació per ajudar-les a mesurar el rendiment dels seus anuncis. Android ajuda a protegir la teva privadesa limitant la informació que les aplicacions poden compartir entre elles."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Quines dades s\'utilitzen?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Les aplicacions que utilitzes poden demanar a Android informació que les ajuda a mesurar el rendiment dels seus anuncis. Android ajuda a protegir la teva privadesa limitant la informació que les aplicacions poden compartir entre elles."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Com es protegeix la meva identitat?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android utilitza diverses mesures de privadesa, com ara l\'agregació i l\'exclusió de dades sorolloses per limitar la informació que les aplicacions poden compartir entre elles i ajudar a protegir la teva identitat.\n\nLes dades de mesurament d\'anuncis també se suprimeixen del dispositiu de manera regular."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"La teva activitat en aplicacions es pot utilitzar per suggerir-te anuncis."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Com utilitzen aquestes dades les aplicacions?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Les aplicacions poden emmagatzemar aquesta informació de manera segura perquè només l\'utilitzin els partners publicitaris amb l\'objectiu de personalitzar anuncis en altres aplicacions. Per exemple, si normalment utilitzes aplicacions de cuina, és possible que vegis anuncis de serveis d\'entrega d\'aliments a domicili o continguts relacionats en altres aplicacions."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Com puc gestionar aquestes dades?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Pots bloquejar aplicacions específiques perquè no comparteixin la teva activitat amb partners publicitaris. Pots restablir o desactivar els anuncis suggerits per aplicacions en qualsevol moment a la configuració de privadesa. Android també suprimeix automàticament aquestes dades de manera regular."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Més informació sobre com Android ajuda a protegir la teva privadesa"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Les aplicacions i els seus partners publicitaris també poden utilitzar la teva activitat en altres aplicacions d\'aquest dispositiu per personalitzar anuncis, alhora que mantenen la informació sobre tu privada i segura.\n\nPer exemple, si normalment utilitzes aplicacions de cuina, és possible que vegis anuncis de serveis d\'entrega d\'aliments a domicili o continguts relacionats en altres aplicacions.\n\nAndroid suprimeix automàticament la teva activitat de manera regular, però també pots bloquejar aplicacions perquè no comparteixin aquesta informació amb els partners publicitaris."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"És habitual que les aplicacions i els seus partners publicitaris recordin coses que t\'interessen per personalitzar la teva experiència. Les aplicacions poden emmagatzemar aquesta informació de manera segura perquè només l\'utilitzin els partners publicitaris amb l\'objectiu de mostrar anuncis en altres aplicacions.\n\nPots bloquejar una aplicació perquè no comparteixi les dades de la teva activitat amb partners publicitaris. Android també suprimeix automàticament les dades d\'activitat de manera regular. Per això és possible que una aplicació que tornis a utilitzar aparegui de nou en aquesta llista.\n\nEl fet que un anunci que vegis estigui personalitzat pot dependre de molts factors, com ara la configuració, la configuració de temes d\'anuncis, la configuració d\'identificador de publicitat i de si l\'aplicació que utilitzes personalitza anuncis.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Més informació sobre els anuncis suggerits per aplicacions"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android utilitza diverses mesures de privadesa, com ara l\'agregació i l\'exclusió de dades sorolloses per limitar la informació que les aplicacions poden compartir entre elles i ajudar a protegir la teva identitat.\n\nEl teu navegador pot tenir una opció de configuració similar. Si el mesurament d\'anuncis està activat per a Android i el navegador, una empresa podrà mesurar l\'efectivitat d\'un anunci entre les aplicacions que utilitzis i els llocs web que visitis. L\'historial de navegació es manté privat al dispositiu.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Més informació sobre el mesurament d\'anuncis"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android pren nota dels temes d\'interès segons les aplicacions que has utilitzat durant les darreres setmanes.\n\nMés endavant, una aplicació que utilitzis pot demanar a Android els temes per personalitzar els anuncis que veus. Android comparteix fins a 3 temes, alhora que protegeix la teva identitat i informació sobre l\'ús de les aplicacions.\n\nAndroid suprimeix automàticament els temes de manera regular. A mesura que facis servir les aplicacions, pot ser que torni a aparèixer un tema a la llista. O pots bloquejar els temes que no vols que Android comparteixi amb les aplicacions.\n\nEl fet que un anunci que vegis estigui personalitzat pot dependre de molts factors, com ara la configuració, la configuració d\'anuncis suggerits per aplicacions, la configuració d\'identificador de publicitat i de si l\'aplicació que utilitzes personalitza anuncis.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Més informació sobre els temes d\'anuncis"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Il·lustració de símbols acolorida que representa temes d\'interès, com música, notícies i esports"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Il·lustració acolorida d\'un cadenat dins d\'un cercle"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Il·lustració petita en blanc i negre de nou punts que formen un quadrat"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Il·lustració petita en blanc i negre de formes senzilles, com ara un cor, un triangle i un quadrat"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Art i entreteniment"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Interpretació i teatre"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime i manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Dibuixos animats"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Còmics"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Concerts i festivals de música"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Ball"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Sector de l\'entreteniment"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Diversió i jocs de preguntes"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Tests divertits i enquestes absurdes"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Fotos i vídeos divertits"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Comèdia en directe"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Esdeveniments esportius en directe"</string>
+    <string name="topic10015" msgid="726046067079821146">"Màgia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Cartelleres i horaris de cinemes"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Pel·lícules"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Pel·lícules d\'acció i aventures"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Pel·lícules animades"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Pel·lícules còmiques"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Pel·lícules de culte i independents"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Pel·lícules documentals"</string>
+    <string name="topic10023" msgid="254151319845267278">"Pel·lícules dramàtiques"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Pel·lícules familiars"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Pel·lícules de terror"</string>
+    <string name="topic10026" msgid="210222384439682793">"Pel·lícules romàntiques"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Thriller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Música i àudio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Música clàssica"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Música country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Música dance i electrònica"</string>
+    <string name="topic10033" msgid="895853536740398847">"Música folklòrica i tradicional"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Reproduccions en continu i baixades de música"</string>
+    <string name="topic10036" msgid="449833307315797283">"Vídeos musicals"</string>
+    <string name="topic10037" msgid="51698216720637667">"Instruments musicals"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Pianos i teclats"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Música pop"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Ràdio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Ràdio parlada"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap i hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Música rock"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Rock clàssic i èxits antics"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Rock dur i progressiu"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Música independent i alternativa"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Biblioteques de sons i mostres"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul i R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Bandes sonores"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Músiques del món"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Música reggae i caribenya"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Galeries d\'imatges en línia"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Vídeo en línia"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Reproducció de vídeo en directe"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Serveis de reproducció en línia de programes de televisió i pel·lícules"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Òpera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Guies i materials de consulta de televisió"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Emissores i cadenes de TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Programes de televisió"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Comèdies de televisió"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Televisió documental i de no-ficció"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Sèries dramàtiques de televisió"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Telenovel·les"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Programes de TV orientats a les famílies"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Xous d\'impacte de televisió"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Programes de televisió de fantasia i ciència-ficció"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Art visual i disseny"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Disseny"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Pintura"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Arts digitals i fotogràfiques"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Automòbils i vehicles"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Remolcs i camions de càrrega"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Vehicles clàssics"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Vehicles personalitzats i d\'alt rendiment"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Preus de la gasolina i proveïment de combustible per als vehicles"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Vehicles de motor (per tipus)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Vehicles autònoms"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Descapotables"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Cupès"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Cotxes amb porta posterior"</string>
+    <string name="topic10081" msgid="577995777553561437">"Vehicles híbrids i alternatius"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Vehicles de luxe"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Microcotxes i cotxes urbans"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motocicletes"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Vehicles tot terreny"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Camionetes descobertes"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Escúters i ciclomotors"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Berlines"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Vehicles familiars"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Vehicles tot camí i multisegment"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Vehicles multisegment"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Furgonetes i monovolums"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Remolcs i serveis d\'assistència en carretera"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Seguretat de vehicles i de trànsit"</string>
+    <string name="topic10095" msgid="84682415803421329">"Peces i accessoris de vehicles"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Manteniment i reparació de vehicles"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Compra de vehicles"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Vehicles de segona mà"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Exhibicions de vehicles"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Bellesa i fitnes"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Art corporal"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Tractaments facials i corporals"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antitranspirants"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Productes corporals i de bany"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Cosmètica ètica i sostenible"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Maquillatge i cosmètica"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Productes de manicura"</string>
+    <string name="topic10108" msgid="577259588028933025">"Perfums i fragàncies"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Navalles i màquines d\'afaitar"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Moda i estil"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitnes"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Culturisme"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Classes de fitnes i preparació personal"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Productes tecnològics de fitnes"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Cura del cabell"</string>
+    <string name="topic10116" msgid="763642849903586689">"Llibres i literatura"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Literatura infantil"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Llibres electrònics"</string>
+    <string name="topic10119" msgid="894448782525835364">"Revistes"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poesia"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Empresa i indústria"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Publicitat i màrqueting"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Vendes"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Agricultura i silvicultura"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Producció alimentària"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Sector de l\'automoció"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Sector de l\'aviació"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Operacions empresarials"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Treball flexible"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Recursos humans"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Préstecs comercials"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Construcció i manteniment"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Enginyeria civil"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Sector de defensa"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia i empreses de serveis públics"</string>
+    <string name="topic10136" msgid="455894912948558854">"Tractament i subministrament d\'aigua"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Sector de l\'hostaleria"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Fabricació"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metal·lúrgia i mineria"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM i oportunitats empresarials"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmàcia i biotecnologia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Premsa i editorials"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Comerç al detall"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Capital de risc"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Informàtica i electrònica"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Perifèrics informàtics"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Impressores"</string>
+    <string name="topic10148" msgid="388392714835039199">"Seguretat informàtica"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirus i programari maliciós"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Seguretat de xarxes"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Electrodomèstics"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Càmeres i videocàmeres"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS i navegació"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Domòtica"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Sistemes de cinema domèstic"</string>
+    <string name="topic10156" msgid="5908298124114814149">"Reproductors multimèdia portàtils i MP3"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Tecnologia connectada"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Còpia de seguretat i recuperació de dades"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Ordinadors"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Portàtils"</string>
+    <string name="topic10161" msgid="172004201167511870">"Treball en xarxa"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Informàtica al núvol i computació distribuïda"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programació"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Programari"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Programari de música i àudio"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Programari d\'empresa i productivitat"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Programari de calendari i programació"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Programari de col·laboració i conferència"</string>
+    <string name="topic10169" msgid="827557334245484202">"Programari de presentacions"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Programari de full de càlcul"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Programari de processament de paraules"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Autoedició"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Fonts"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Gestors de baixades"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Programari a 0 € i de prova"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Programari de gràfics i d\'animació"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Assistents personals intel·ligents"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Reproductors multimèdia"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Programari de supervisió"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Sistemes operatius"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Programari de fotografia i vídeo"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Programari de fotografia"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Programari de vídeo"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Eines de programari"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Navegadors web"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finances"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Auditories i comptabilitat"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Preparació i planificació d\'impostos"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Banca"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Serveis de transferències electròniques i de diners"</string>
+    <string name="topic10191" msgid="374364159635356705">"Crèdit i préstec"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Targetes de crèdit"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Finançament de l\'habitatge"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Préstecs personals"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Crèdits d\'estudi i finançament universitari"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Planificació i gestió financera"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Jubilació i pensions"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Ajuts"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Ajuts"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Assegurances"</string>
+    <string name="topic10201" msgid="447240478385298875">"Assegurances d\'automòbils"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Assegurances mèdiques"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Assegurances de la llar"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Assegurances de vida"</string>
+    <string name="topic10205" msgid="262581473890356377">"Assegurances de viatges"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Inversions"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Comerç de matèries primeres i futurs"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Monedes i canvi de divisa"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Fons d\'inversió lliure"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Fons d\'inversió"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Accions i bons"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Menjar i beguda"</string>
+    <string name="topic10213" msgid="805716705436663130">"Cuina i receptes"</string>
+    <string name="topic10214" msgid="726298155737413779">"Barbacoa i cuina a la brasa"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Cuina"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Cuina vegetariana"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Cuina vegana"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Alimentació saludable"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Botigues d\'alimentació i comestibles"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Jocs"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Jocs arcade i recreatius"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Billar"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Jocs de taula"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Escacs i jocs d\'estratègia abstracta"</string>
+    <string name="topic10225" msgid="564207834821286301">"Jocs de cartes"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Jocs de cartes col·leccionables"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Jocs d\'ordinador i videojocs"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Jocs d\'acció i de plataformes"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Jocs d\'aventura"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Jocs de gran públic"</string>
+    <string name="topic10231" msgid="405082026972839048">"Videojocs competitius"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Jocs de conducció i de curses"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Jocs de lluita"</string>
+    <string name="topic10234" msgid="693433817142162565">"Materials de consulta i ressenyes sobre jocs"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Trucs i suggeriments de videojocs"</string>
+    <string name="topic10236" msgid="320145832033080647">"Jocs multijugador massius"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Jocs de música i dansa"</string>
+    <string name="topic10238" msgid="124952008622371505">"Jocs de desplaçament lliure"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Jocs de trets"</string>
+    <string name="topic10240" msgid="429738690314619395">"Jocs de simulació"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Jocs de magnats i d\'empreses"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Jocs de construcció de ciutats"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Jocs de simulació de la vida real"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Simuladors de vehicles"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Jocs d\'esports"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Jocs de gestió esportiva"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Jocs d\'estratègia"</string>
+    <string name="topic10248" msgid="279151815457227293">"Mods i complements de videojocs"</string>
+    <string name="topic10249" msgid="631580828608894782">"Jocs educatius"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Activitats i jocs orientats a les famílies"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Dibuix i pintura"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Jocs de moda i de vestir"</string>
+    <string name="topic10253" msgid="385499297969826942">"Trencaclosques i endevinalles"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Jocs de rol"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Tennis de taula"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Jocs de mosaics"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Jocs de paraules"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Aficions i oci"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Aniversaris"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Aniversaris i efemèrides"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Activitats subaquàtiques i submarinisme"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Fibres i arts tèxtils"</string>
+    <string name="topic10263" msgid="361345691023794788">"Activitats a l\'aire lliure"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Pesca"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Caça i tir"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Guerra de pintura"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Maquetes i radiocontrol"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Casaments"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Casa i jardí"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Jardineria"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Decoració de la llar i interiors"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Electrodomèstics"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Reformes i redecoració de la llar"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Seguretat a la llar"</string>
+    <string name="topic10275" msgid="682064062059687444">"Productes per a la llar"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Paisatgisme"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet i telecomunicacions"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Correu electrònic i missatgeria"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Correu electrònic"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Missatgeria de text i instantània"</string>
+    <string name="topic10281" msgid="582764575763317221">"Xat de veu i de vídeo"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Proveïdors d\'Internet"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Proveïdors de serveis telefònics"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Sons de trucada i temes per al mòbil"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Motors de cerca"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Telèfons intel·ligents"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Teleconferència"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Eines en línia i aplicacions web"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Serveis web"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Emmagatzematge al núvol"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Disseny i desenvolupament web"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Allotjament web"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Feines i educació"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Educació"</string>
+    <string name="topic10295" msgid="331240908257602211">"Conferències i publicacions acadèmiques"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Facultats i universitats"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Aprenentatge a distància"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Ensenyament preescolar"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Preescolar"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Educació a casa"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Proves d\'admissió i estandarditzades"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Recursos docents i per a les aules"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Formació professional i continuada"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Feines"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Recursos i planificació de carreres"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Ofertes de feina"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Legislació i govern"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Crims i justícia"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Legal"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Serveis legals"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Notícies"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Notícies d\'economia"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Notícies locals"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Fusions i adquisicions"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Diaris"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Política"</string>
+    <string name="topic10317" msgid="888696185673599406">"Notícies d\'esports"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Temps"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Notícies del món"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Comunitats en línia"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Imatges predissenyades i GIF animats"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Cites i anuncis personals"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Marcadors de xarxes socials i agregadors de feeds"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Allotjament i compartició de fitxers"</string>
+    <string name="topic10325" msgid="916412844647169263">"Proveïdors de xats i fòrums"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Microblogs"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Compartició de fotos i vídeos"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Compartició d\'imatges i fotos"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Compartició de vídeos"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Màscares"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Aplicacions i complements de xarxes socials"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Xarxes socials"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Persones i societat"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Família i relacions"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Genealogia i ascendència"</string>
+    <string name="topic10336" msgid="360328903013424569">"Matrimoni"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Criança"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adopció"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Nadons i nens petits"</string>
+    <string name="topic10340" msgid="259457452971577855">"Seguretat infantil a Internet"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romàntic"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Fantasia i ciència-ficció"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Animals i animals de companyia"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Menjar i productes per a animals de companyia"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Animals de companyia"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Aus"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Gats"</string>
+    <string name="topic10348" msgid="570783769757187957">"Gossos"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Peixos i aquaris"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Rèptils i amfibis"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veterinaris"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Béns immobles"</string>
+    <string name="topic10353" msgid="230887584509968233">"Parcel·les i terrenys"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Multipropietats i propietats vacacionals"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Referències"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Directoris personals i empresarials"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Materials de consulta general"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Calculadores i eines de consulta"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Diccionaris i enciclopèdies"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Recursos educatius"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Tutorials"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Hora i calendaris"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Recursos lingüístics"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Estudi d\'idiomes estrangers"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Eines i recursos per a la traducció"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Mapes"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Ciència"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Realitat virtual i augmentada"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologia"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genètica"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Química"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ecologia i medi ambient"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Intel·ligència artificial i aprenentatge automàtic"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matemàtiques"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Física"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robòtica"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Compres"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antiguitats i col·leccionables"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Indumentària"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Moda infantil"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Disfresses"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Moda masculina"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Moda femenina"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Classificats"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Recursos per a consumidors"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Cupons i ofertes de descompte"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Programes i targetes de fidelització"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Assistència tècnica i reparació"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Flors"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Targetes de felicitació"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Productes per a festes i celebracions"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Portals de compres"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Esports"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Futbol americà"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Futbol australià"</string>
+    <string name="topic10397" msgid="653991203228840785">"Curses automobilístiques"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Beisbol"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Bàsquet"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bitlles"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boxa"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Animació"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Esports universitaris"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Criquet"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Ciclisme"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Hípica"</string>
+    <string name="topic10407" msgid="316266982792700993">"Esports de risc"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Escalada i alpinisme"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Esports de fantasia"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gimnàstica"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hoquei"</string>
+    <string name="topic10413" msgid="416366556259783701">"Patinatge sobre gel"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Arts marcials"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motociclisme"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Jocs Olímpics"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rugbi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Caminar i córrer"</string>
+    <string name="topic10419" msgid="979581105119036716">"Esquí i surf de neu"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futbol"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surf"</string>
+    <string name="topic10422" msgid="978920114358054206">"Natació"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atletisme"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Voleibol"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Lluita"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Viatges i transport"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Viatges d\'aventura"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Viatges aeris"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Viatges d\'empresa"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Lloguers de cotxes"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Creuers i xàrters"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Viatges en família"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Llunes de mel i escapades romàntiques"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotels i allotjament"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Autobusos i trens de llarga distància"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Viatges de baix cost i última hora"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Equipatge i accessoris de viatge"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Destinacions turístiques"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Platges i illes"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Parcs i jardins regionals"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Parcs temàtics"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zoològics"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Planificadors de trànsit i rutes"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Agències i serveis de viatges"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Guies i diaris de viatge"</string>
+</resources>

@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API taʼminotiga ruxsat"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Ilovaga AdServices Topics API taʼminotiga kirishga ruxsat beradi."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API taʼminotiga ruxsat"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Ilovaga AdServices Attribution API taʼminotlariga kirishga ruxsat beradi."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API taʼminotiga ruxsat"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Ilovaga AdServices Custom Audiences API taʼminotiga kirishga ruxsat beradi."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API taʼminotiga ruxsat"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Ilovaga AdId API ruxsatini beradi."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API ishlatish"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Ilovaga AdServices Consent API ishlatish ruxsatini beradi."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API taʼminotiga ruxsat"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ilovaga Ad ID API ruxsatini beradi."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API ruxsati"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Ilovaga AdServices Cobalt Upload API ruxsatini beradi."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API taʼminotiga ruxsat"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Ilovaga App Set ID API uchun ruxsat beradi."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API ishlatish"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Ilovaga Consent Service API ishlatish ruxsatini beradi."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService yoqish holatini oʻzgartirish APIsiga kirish"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Ilovaga AdServicening yoqish holatini oʻzgartirish APIsiga kirishga ruxsat beradi."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService yoqish holati APIsiga kirish"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Ilovaga AdService yoqish holati APIsiga kirishga ruxsat beradi."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager API taʼminotiga ruxsat"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Ilovaga AdServicesManager API ruxsatini beradi."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Ilovaga AdService yangilangan AdId APIʼga kirish."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Ilovaga AdService yangilangan AdId APIʼga kirishga ruxsat beradi."</string>
+    <string name="app_label" msgid="2639006978056689153">"Reklamada maxfiylik"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Androidda reklamalardagi maxfiylik beta dasturida ishtirok eting"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android ilovalarning sizga yanada maxfiy reklama chiqarishi usullari ustida ishlamoqda"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Batafsil"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Androidda reklamalardagi maxfiylik beta dasturi"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Nima yangiliklar"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privacy Sandbox yangi maxfiylik sozlamalari ilovalarga siz uchun yanada mos reklama chiqarish imkonini beradi, lekin bu ilovalarga boshqa ishlab chiquvchilarning saytlari va ilovalaridagi faoliyatingizni kuzatishni taqiqlaydi."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Ishlash tartibi"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Qanday qatnashish mumkin"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Beta versiya yoqilsa, ilovalar sizga reklama chiqarishning yanada maxfiy usullarini sinay oladi. Beta versiyani istalgan vaqt maxfiylik sozlamalari orqali faolsizlashtirish mumkin."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Kerak emas"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Yoqish"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Yana"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Ishtirokingiz uchun rahmat"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Siz Androidda chiqadigan reklamalardagi maxfiylik beta dasturidasiz. Qurilmangiz uchun Privacy Sandbox funksiyasi yoqilgan.\n\nMaxfiylik sozlamalari orqali istalgan vaqtda beta versiya haqida batafsil axborot olish yoki uni faolsizlantirish mumkin."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Siz dasturda qatnashishni rad etdingiz"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Javobingiz uchun rahmat. Qurilmangiz uchun Privacy Sandbox funksiyasi faolsizlantirildi.\n\nUni qayta yoqish yoki batafsil axborot olish uchun maxfiylik sozlamalari sahifasini oching."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Maxfiylik sozlamalari"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Siz beta sinovdasiz"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Qurilmangiz uchun Privacy Sandbox yoqilgan va ilovalar sizga reklama chiqarishning yanada maxfiy usullarini sinashi mumkin. Beta versiyani istalgan vaqt maxfiylik sozlamalari orqali faolsizlashtirish mumkin."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"OK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android Privacy Sandbox yangi funksiyalari yordamida ilovalar sizga yoqishi mumkin reklama chiqara oladi. Bu texnologiyalar qurilma identifikatorlarini ishlatmaydi.\n\nAndroid va ilovalaringiz sizga qiziq boʻlishi mumkin reklamalarni taxmin qiladi, qiziqishlar axborotini vaqtincha qurilmada saqlaydi. Bunda ilovalar boshqa ishlab chiquvchilarning saytlari va ilovalaridagi faoliyatingizni kuzatmagan holda sizga yoqishi mumkin reklamalarni chiqarishi mumkin."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Privacy Sandbox yordamida reklamalarni moslashtirish"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android taxmin qilgan qiziqishlar"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Vaqti-vaqti bilan Android ishlatilgan ilovalar asosida qiziqishlarni (masalan, “Sport” yoki “Sayohat” kabi) taxmin qiladi.\n\nKeyin ilova mos reklama chiqarish maqsadida Androiddan bu qiziqishlardan foydalanishga ruxsat soʻrashi mumkin.\n\nMaxfiylik sozlamalari orqali joriy qiziqishlarni koʻrish va yoqmaganini bloklash mumkin."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Ilovalar taxmin qilgan qiziqishlar"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Android orqali ilovalar qiziqishlarni taxmin qilishi va vaqtincha saqlashi mumkin. Masalan, yugurish poyabzali xarid qilishda ishlatilgan ilova “marafonda yugurish” qiziqishini taxmin qilishi mumkin.\n\nKeyin bu qiziqish asosida boshqa ilova sizga marafonga aloqador reklamalar chiqarishi mumkin.\n\nMaxfiylik sozlamalari orqali qiziqishlarni saqlagan ilovalar roʻyxatini boshqarish mumkin."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Reklamalardagi maxfiylikka oid yangi funksiyalar"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Reklama mavzulari va yangi parametrlar sizga chiqadigan reklamalarni yanada aniqroq sozlash imkonini beradi"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Yangi reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android yaqinda ishlatilgan ilovalar asosida qiziqish mavzularini qayd qiladi. Shuningdek, ilovalar ham qiziqishlarni aniqlashi mumkin. Keyinchalik ilovalar reklamalarni moslashtirishda ushbu maʼlumotlarni olishga ruxsat soʻrashi mumkin. Sizga chiqadigan reklamalarni aniqlashda ishlatiladigan mavzular va ilovalarni tanlashingiz mumkin."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Reklamalar unumdorligini hisoblash uchun ilovalar orasida ayrim turdagi maʼlumotlar ulashiladi."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android qurilmalarida reklamalar haqida batafsil"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Yanada foydali reklamalar"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Ilovalar sizga aloqador reklamalarni chiqarish uchun Androiddan maʼlumot olishi mumkin."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android yaqinda ishlatilgan ilovalar asosida qiziqish mavzularini qayd qiladi."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Shuningdek, ilovalar ham ularning ishlatilishi asosida qiziqishlarni aniqlashi mumkin. Masalan, uzoq masofalarga yugurish oyoq kiyimlarini sotadigan ilovadan foydalansangiz, ilova sizni marafonlarda yugurishga qiziqadi, deb hisoblashi mumkin."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Keyinchalik, siz foydalanadigan ilova reklama mavzulari yoki siz foydalangan ilovalar tomonidan taklif qilingan reklamalar kabi maʼlumotlarni soʻrashi mumkin."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android mavzular va ilovalar taklif qiladigan reklamalarga oid maʼlumotlarni muntazam ravishda tozalab turadi. Shuningdek, siz muayyan mavzular va ilovalarni ham bloklashingiz mumkin."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Reklamalar samaradorligini hisoblash"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Siz foydalanadigan ilovalar oʻz reklamalari samaradorligini hisoblashda yordam berishi uchun Androiddan maʼlumot soʻrashi mumkin. Android ilovalarga reklama chiqqan kundagi vaqt kabi ayrim turdagi maʼlumotlarni olish imkonini beradi."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Reklamalardagi maxfiylikka oid yangi funksiyalarni sinang"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Reklama mavzulari sizga chiqadigan reklamalarni yanada aniqroq sozlash imkonini beradi"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Tafsilotlar"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Yangi reklamalarda maxfiylik funksiyalarini sinab koʻring"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Yangi maxfiylik sozlamalari Android foydalanuvchilariga ularga chiqadigan reklamalarni boshqarish imkonini beradi."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Reklama mavzulari ilovalarga shaxsingiz va ilovadan foydalanishga oid maʼlumotlarni himoyalagan holda sizga mos reklamalarni chiqarishga yordam beradi. Android yaqinda ochilgan ilovalar asosida qiziq mavzularni qayd qiladi. Keyinchalik siz foydalanadigan ilova sizga chiqadigan reklamalarni moslashtirish uchun Android tizimidan mos mavzularni olishi mumkin."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Qurilma sozlamalarida reklama mavzularini koʻrish va ilovalarga ulashilmaydigan mavzularni bloklash mumkin. Android muntazam ravishda reklama mavzularini avtomatik ravishda oʻchirib turadi."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Istalgan vaqt maxfiylik sozlamalari orqali roziligingizni bekor qilishingiz mumkin."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Reklamadagi mavzular haqida batafsil"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Android maʼlumotlaringizni qanday himoyalashi haqida "<a href="https://policies.google.com/privacy">"Maxfiylik siyosatida"</a>" batafsil axborot olish mumkin."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Sinab koʻring"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Qanday maʼlumotlar ishlatiladi"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Reklamalardagi mavzular ushbu qurilmada yaqinda ishlatilgan ilovalar va ulardan qanchalik foydalanishingizga asoslanadi."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Bu maʼlumotlar qanday ishlatiladi"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android siz ishlatgan ilovalar asosida qiziqish mavzularini qayd qiladi. Mavzu nomlari oldindan belgilanadi hamda Sanʼat va hordiq, xaridlar, sport kabi turkumlardan iborat boʻladi. Keyinchalik siz ishlatgan ilova Androiddan reklamalarni moslashtirish maqsadida ayrim (ilovalardan foydalanish statistikasi va shaxsingizdan tashqari) mavzularni soʻrashi mumkin."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Maʼlumotlaringizni qanday boshqarish mumkin"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android muntazam ravishda eski mavzularni avtomatik oʻchirib turadi. Biror ilovadan yana foydalansangiz, tegishli mavzu roʻyxatga qayta kiritilishi mumkin. Android boshqa ilovalarga ulashmasligi va aloqador reklamalar chiqmasligi uchun istalgan mavzuni maxfiylik sozlamalari orqali taqiqlash mumkin."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Maxfiylik sozlamalarida oʻzgartirishlar kiritishingiz mumkin."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Boshqa reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android, shuningdek, ilovalar sizga moslashtirilgan reklamalarni chiqarishda siz haqingizda nimalarni bilishini cheklashning yangi usullarini taklif etadi."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Ilovalar taklif qilgan reklamalarda shaxsingiz va ilovalardan foydalanish haqidagi maʼlumotlar himoya qilinadi, shuningdek, ilovalar sizga aloqador reklamalarni chiqaradi. Siz foydalanadigan ilova, xatti-harakatlaringiz asosida, boshqa ilovalarda sizga aloqador reklamalarni taklif qilishi mumkin. Maxfiylik sozlamalarida ilovalar roʻyxatini koʻrish va ularni bloklashingiz mumkin."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Reklamalarni baholash orqali ilovalar orasida reklamalar samaradorligini hisoblash uchun sizga reklama chiqarilgan kun vaqti kabi cheklangan turdagi axborotlar ulashiladi."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Ilovalar taklif qiladigan reklamalar va reklamalarni baholash haqida batafsil"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Ilovalar taklif qiladigan reklamalar"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Qanday maʼlumotlar ishlatiladi"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Bu qurilmadagi biror ilovada bajaradigan harakatlaringiz."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Ilovalar bu maʼlumotlardan qanday foydalanadi"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Ilovalar sizga yoqqan narsalarni Androidga saqlashi mumkin. Masalan, siz marafon mashqlariga oid ilovadan foydalansangiz, u sizni yugurish oyoq kiyimlariga qiziqadi deb hisoblashi mumkin. Keyinroq boshqa ilovani ochsangiz, u birinchi ilova tomonidan taklif qilingan oyoq kiyim reklamalarini chiqarishi mumkin."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Maʼlumotlaringizni qanday boshqarish mumkin"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android ilovalar taklif qiladigan maʼlumotlarni muntazam ravishda avtomatik tozalab turadi. Agar biror ilovadan yana foydalansangiz, unga oid maʼlumotlar yana roʻyxatga kiritilishi mumkin."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Shuningdek, istalgan vaqtda maxfiylik sozlamalarida ilovani sizga reklama taklif qilishini taqiqlash, ilovalarda taklif qiladigan barcha maʼlumotlarni tozalash yoki ilovalarning reklama taklif qilishini taqiqlashingiz mumkin."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Siz foydalanadigan ilovalar oʻz reklamalari unumdorligini hisoblashda yordam berishi uchun Androiddan maʼlumot soʻrashi mumkin. Android ilovalar ulasha oladigan maʼlumotlarni cheklash orqali maxfiyligingizni himoyalaydi."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Yangi reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Shaxsingizni himoya qilgan holda koʻriladigan reklamalar ustidan koʻproq tanlovga ega boʻling"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Yangi reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android, ilovalar sizga moslashtirilgan reklamalarni chiqarishda siz haqingizda nimalarni bilishini cheklashning yangi usullarini taklif etadi."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Ilova taklif qiladigan reklamalar bilan yangi maxfiylik funksiyalari shaxsingiz va ilovalaringizdan foydalanish haqidagi axborotni himoya qilishga yordam beradi hamda ilovalar sizga aloqador reklamalarni chiqarishga imkon beradi. Faoliyatingiz asosida siz foydalanadigan ilova boshqa ilovalarda tegishli reklamalarni taklif qilishi mumkin. Maxfiylik sozlamalarida ilovalar roʻyxatini koʻrishingiz va ularni bloklashingiz mumkin."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Reklamalarni baholash orqali ilovalar oʻrtasida reklamalar samaradorligini hisoblash uchun sizga reklama koʻrsatilgan kun vaqti kabi cheklangan turdagi maʼlumotlar taqsimlanadi."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Reklama tavsiya qilishda ishlatiladigan bu qurilmadagi ilova ichidagi faollik."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Boshqa reklamalarda maxfiylik funksiyasini yoqish"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Shuningdek, Android sizga chiqadigan reklamalar ustidan koʻproq tanlov beradigan yangi maxfiylik funksiyasini taklif etadi."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Reklamadagi mavzular ilovalarga shaxsingiz va ilovadan foydalanish axborotini himoyalagan holda mos reklamalarni chiqarishga yordam beradi. Android yaqinda ochilgan ilovalar asosida qiziq mavzularni qayd qiladi. Keyinchalik, siz foydalanadigan ilova sizga mosroq reklamalarni chiqarish uchun Androiddan tegishli mavzularni soʻrashi mumkin."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Maxfiylik sozlamalarida reklama mavzularini koʻrish va ilovalarga ulashilmaydigan mavzularni bloklash mumkin. Android muntazam ravishda reklama mavzularini avtomatik ravishda oʻchirib tashlaydi."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Yoqish"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Yangi reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Endi shaxsingizni himoya qilishda chiqadigan reklamalar uchun koʻproq tanlov mavjud"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Yangi reklamalarda maxfiylik funksiyalari ishga tushirildi"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android sizga chiqariladigan reklamalarni boshqarish imkonini beruvchi yangi maxfiylik funksiyalarini taqdim etadi."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Keyingisi"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Androidda reklamalardagi maxfiylik beta dasturida ishtirok eting"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android taxmin qilgan qiziqishlar"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Qiziqishlarni taxmin qilgan ilovalar"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Reklamalarni baholash"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Privacy Sandbox yordamida ilovalar oʻz reklamalari samaradorligini oʻlchashi mumkin. Buning uchun reklama beruvchilar ularning reklamalari va ilovalaridagi harakatlaringiz axborotini Android yordamida vaqtincha saqlashi mumkin. Ular saqlashi mumkin axborotlar soni cheklangan va har kuni tozalanadi.\n\nPrivacy Sandboxni faolsizlantirish orqali bu axborotlarni istalgan vaqt oʻchirib tashlash mumkin."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Vaqti-vaqti bilan Android ishlatilgan ilovalar asosida top qiziqishlarni taxmin qiladi. Ilovalar yanada mos reklama chiqarish maqsadida Androiddan bu qiziqishlardan foydalanishga ruxsat soʻrashi mumkin.\n\nQiziqish bloklansa, blokdan chiqarilmaguncha roʻyxatga qayta kiritilmaydi. Aloqador ayrim reklamalar chiqib turishi mumkin."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Bloklash"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Blokdan chiqarish"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Siz bloklagan qiziqishlar"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Barcha qiziqishlarni tiklash"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Hozircha hech qanday qiziqish mavjud emas."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Hozircha hech qanday mavzu chiqmaydi.\n"<a href="https://support.google.com/android?p=ad_privacy">"Reklama mavzulari"</a>" haqida batafsil"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Androidda reklamalardagi maxfiylik beta dasturining yangi funksiyalari yordamida ilovalar sizga yoqishi mumkin reklama chiqara oladi. Bu texnologiyalar qurilma identifikatorlarini ishlatmaydi.\n\nAndroid sizga qiziq boʻlishi mumkin reklamalarni taxmin qiladi, qiziqishlar axborotini vaqtincha qurilmada saqlaydi. Bunda ilovalar boshqa ishlab chiquvchilarning saytlari va ilovalaridagi faoliyatingizni kuzatmagan holda sizga yanada mos reklamalarni chiqarishi mumkin."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Hech qaysi qiziqish bloklanmagan"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Hech qanday bloklangan mavzu yoʻq"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Bloklangan mavzularni ochish"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Qiziqishlar tiklanadi"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Mavzular tozalandi"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Android orqali ilovalar qiziqishlarni taxmin qilishi va vaqtincha saqlashi mumkin. Keyin boshqa ilovalar bu qiziqishlar asosida reklama chiqarishi mumkin.\n\nIlova bloklansa, u boshqa qiziqishlarni taxmin qila olmaydi. Ilova blokdan chiqarilmaguncha bu ilovalar roʻyxatiga qayta kiritilmaydi. Qiziqishlarni taxmin qilgan ilova oʻchiriladi, lekin hali ham ayrim tegishli reklamalar chiqib qolishi mumkin."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Bloklangan ilovalar"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Bloklangan ilovalarni koʻrish"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Ilovalar taxmin qilgan qiziqishlarni tozalash"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Hozir hech qaysi ilova qiziqishlarni taxmin qilmayapti"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Hozircha hech qanday ilova chiqmaydi. \nBatafsil: "<a href="https://support.google.com/android?p=ad_privacy">"ilova taklif qiladigan reklamalar haqida"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Androidda reklamalardagi maxfiylik beta dasturining yangi funksiyalari yordamida ilovalar sizga yoqishi mumkin reklama chiqara oladi. Bu texnologiyalar qurilma identifikatorlarini ishlatmaydi.\n\nIlovalar sizga qiziq boʻlishi mumkin reklamalarni taxmin qiladi, qiziqishlar axborotini vaqtincha qurilmada saqlaydi. Bunda ilovalar boshqa ishlab chiquvchilarning saytlari va ilovalaridagi faoliyatingizni kuzatmagan holda sizga yanada mos reklamalarni chiqarishi mumkin."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Hech qaysi ilova bloklanmagan"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Hech qanday bloklangan ilova yoʻq"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Reklama oʻlchanishiga ruxsat berish"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Ilovalar va reklama beruvchilar oʻz reklamalarining unumdorligini hisoblashga yordam beradigan maʼlumotni Androiddan soʻrashi mumkin.\n\nReklamalar unumdorligini hisoblash maʼlumotlari qurilmangizdan muntazam ravishda oʻchirib turiladi."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Baholash maʼlumotlarini tozalash"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android ilovalar ulashadigan maʼlumotlarni cheklash orqali maxfiyligingizni himoyalaydi. Shaxsingizni himoyalash maqsadida hisobotlar darhol yuborilmaydi.\n\nBrauzerda ham shunday sozlama boʻlishi mumkin. Agar brauzer va Android qurilmasida reklamalar samaradorligini baholash yoqilgan boʻlsa, kompaniya siz ishlatadigan ilovalar va siz kiradigan saytlarda reklamalar unumdorligini baholashi mumkin. Brauzer tarixi faqat qurilmangizda maxfiy saqlanadi.\n\nAndroid maʼlumotlaringizni qanday himoyalashi haqida "<a href="https://policies.google.com/privacy">"Maxfiylik siyosatida"</a>" batafsil axborot olish mumkin."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Reklamani oʻlchash maʼlumotlari tiklandi"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Bekor qilish"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Privacy Sandbox faolsizlantirilsinmi?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Fikringizni oʻzgartirsangiz yoki Androidda reklamalarning maxfiyligi beta versiyasi haqida batafsil axborot olishni xohlasangiz, maxfiylik sozlamalariga kiring."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Faolsizlantirish"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"<xliff:g id="TOPIC">%1$s</xliff:g> bloklansinmi?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Bu mavzu bloklanadi va siz uni qayta qoʻshmasangiz roʻyxatingizga qoʻshilmaydi Aloqador ayrim reklamalar chiqib turishi mumkin."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Bloklash"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> blokdan chiqarildi"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android ushbu reklama mavzusini yana roʻyxatingizga kiritishi mumkin, lekin u darhol chiqmasligi mumkin"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Barcha reklama mavzulari tiklansinmi?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Roʻyxatingiz tozalanadi va kelgusida yangi mavzular qoʻshiladi. Tiklangan mavzularga aloqador ayrim reklamalar chiqib turishi mumkin."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Tiklash"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> bloklansinmi?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Bu ilova reklamalarni taklif qilmaydi va blokdan chiqarmasangiz, yana roʻyxatingizga qoʻshilmaydi. Aloqador ayrim reklamalar chiqib turishi mumkin."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> blokdan chiqarildi"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Bu ilova reklama taklif qilishi mumkin, lekin u darhol roʻyxatingizda koʻrinmasligi mumkin. Tegishli reklamalarni koʻrish uchun biroz vaqt ketishi mumkin."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Ilovalar taklif qiladigan reklama axboroti tiklansinmi?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Roʻyxatingizdagi ilovalardan reklama taklifi maʼlumotlari oʻchirib tashlanadi va ilovalar kelgusida yangi reklamalarni taklif qiladi. Aloqador ayrim reklamalar chiqib turishi mumkin."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Ilova maʼlumotlari tiklandi"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Reklama mavzulari yoniq"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android qiziqish mavzularini qayd qilishni boshlaydi, lekin birinchi mavzularingiz chiqishi uchun biroz vaqt ketishi mumkin."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Reklama mavzulari faolsizlantirilsinmi?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Mavzularning bu roʻyxati oʻchirib tashlanadi. Endi Android hech qanday qiziqish mavzularini qayd qilmaydi, lekin sizga mos reklamalar chiqishi mumkin."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Ilova taklif qiladigan reklamalar yoniq"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Ilovalar reklamalar taklif qilishni boshlashi mumkin. Reklama taklif qilishni boshlagandan keyin ilovalar roʻyxatini koʻrishingiz mumkin."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Ilova taklif qiladigan reklamalar faolsizlantirilsinmi?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Barcha reklama tavsiyasi maʼlumotlari oʻchirib tashlanadi. Ilovalar endi hech qachon reklamalar taklif qila olmaydi, lekin sizga mos reklamalar chiqarilishi mumkin."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Reklamalar samaradorligini hisoblash yoniq"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android ilovalarga oʻz reklamalarining samaradorligini hisoblashga yordam berish uchun ilovalar bilan juda cheklangan maʼlumotlarni ulashishi mumkin."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Reklamalar samaradorligini hisoblash faolsizlantirilsinmi?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Barcha kutilayotgan reklamalar samaradorligini hisoblash hisobotlari oʻchirib tashlanadi va hech qanday yangi hisobotlar yaratilmaydi yoki ulashilmaydi."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Reklamalardagi maxfiylik"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Reklama mavzulari"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Ilovalar taklif qiladigan reklama"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android yaqinda ochilgan ilovalar va ulardan qanchalik foydalanishingiz asosida qiziqish mavzularini qayd qiladi."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Shuningdek, ilovalar ham ularning ishlatilishi asosida qiziqishlarni aniqlashi mumkin."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Siz foydalanadigan ilovalar oʻz reklamalari unumdorligini oʻlchashda yordam berish uchun Androiddan maʼlumot soʻrashi mumkin. Android ilovalarga cheklangan turdagi maʼlumotlarni toʻplashga ruxsat beradi."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819"><a href="https://support.google.com/android?p=ad_privacy">"Androidda reklama maxfiyligi"</a>" haqida batafsil"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Yoniq / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> ta mavzu"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{# ta mavzu yoniq}other{# ta mavzu yoniq}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Yoniq / <xliff:g id="APPS_COUNT">%1$d</xliff:g> ta ilova"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{# ta ilovada yoniq}other{# ta ilovada yoniq}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Yoniq"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Oʻchiq"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Qiziqarli mavzular yaqinda foydalangan ilovalaringizga asoslanadi va ilovalar tomonidan sizga moslashtirilgan reklamalar koʻrsatish uchun foydalaniladi.\n\nIlovalarga ulashilmaydigan mavzularni bloklashingiz mumkin. Android ham mavzularni muntazam tozalab turadi.\n\nBu funksiyani yoqish mumkin boʻlsa-da, bu funksiya ishga tushmagunicha va ilovalar undan foydalanishni boshlamagunicha mavzular roʻyxati chiqmasligi mumkin."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Reklamadagi mavzularga ruxsat berish"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Siz bloklagan reklama mavzulari"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Barcha reklama mavzularini tiklash"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android oxirgi haftada ochilgan ilovalar asosida qiziq mavzularni qayd qiladi.\n\nKeyinchalik siz foydalanadigan ilova chiqadigan reklamalarni moslashtirish uchun Androiddan mavzularni soʻrashi mumkin. Android 3 tagacha mavzuni ulashadi, shu bilan birga shaxsingizni va ilovadan foydalanish haqidagi maʼlumotlarni himoya qiladi.\n\nAndroid muntazam ravishda reklama mavzularini tozalab turadi. Ayrim hollarda ilovadan foydalanish vaqtida ular roʻyxatda yana chiqib qolishi mumkin. Yoki ilovalarga ulashilmaydigan mavzularni bloklashingiz mumkin.\n\nIlovalaringizda chiqadigan reklama ushbu sozlamaga, ilova tomonidan tavsiya etilgan reklamalar sozlamasiga, reklama identifikatori sozlamalariga va siz foydalanayotgan ilova reklamalarni moslashtirishiga qarab moslashtirilgan boʻlishi mumkin."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Ilovalar taklif qiladigan reklamaga ruxsat berish"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Ishlatiladigan ilovalar qiziqishlarni aniqlashi va boshqa ilovalarda reklama taklif qilishi mumkin.\n\nIlovalar taklif qilishini bloklash mumkin. Android ham ilovalar taklif qiladigan maʼlumotlarni muntazam tozalab turadi.\n\nBu funksiyani yoqish mumkin boʻlsa-da, bu funksiya ishga tushmagunicha va ilovalar undan foydalanishni boshlamagunicha ilovalar roʻyxati chiqmasligi mumkin."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Bloklangan ilovalar"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Ilovalar taklif qiladigan maʼlumotlarni tiklash"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Odatda, siz foydalanadigan ilovalar sizga mos kontentni taklif qilish uchun sizni qiziqtirgan mavzularni eslab qoladi. Qiziqishlaringiz haqidagi maʼlumotlar Androidda ham saqlanishi mumkin.\n\nMasalan, siz marafon mashqlari ilovasidan foydalangan boʻlsangiz, u sizni yugurish poyafzaliga qiziqadi deb hisoblashi mumkin. Keyinroq boshqa ilovani ochsangiz, u birinchi ilova tomonidan taklif qilingan poyafzal reklamalarini koʻrsatishi mumkin.\n\nAndroid ilovalar tomonidan taklif qilingan maʼlumotlarni muntazam ravishda oʻchirib turadi. Ilovadan foydalanishda davom etsangiz, uning maʼlumotlari yana roʻyxatga kiritilishi mumkin. Yoki ilova sizga reklama taklif qilishini bloklashingiz mumkin. .\n\nIlovalarda chiqadigan reklamalar moslashtirilgan boʻlishi mumkin. Ushbu sozlama, shuningdek, reklama mavzulari, reklama identifikatori va siz foydalanayotgan ilova sozlamalari asosida koʻrsatiladi."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Yangi reklamalarda maxfiylik funksiyasi ishga tushdi"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Reklama samaradorligini oʻlchashga yordam berish uchun ilovalar oʻrtasida faqat juda cheklangan maʼlumotlar ulashiladi"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Biz reklamada yangi maxfiylik funksiyasini ishga tushiryapmiz. Android ilovalarga reklamalar samaradorligini oʻlchashga yordam berish uchun ilovalar oʻrtasida faqat juda cheklangan maʼlumotlarni, masalan, sizga reklama chiqarilgan vaqtni ulashadi."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Reklamada maxfiylik sozlamalarida oʻzgartirishlar kiritishingiz mumkin."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Siz foydalanadigan ilovalar oʻz reklamalari unumdorligini hisoblashda yordam berishi uchun Androiddan maʼlumot soʻrashi mumkin. Android ilovalarga faqat cheklangan turdagi maʼlumotlarni toʻplashga ruxsat beradi."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Reklamalardagi maxfiylikka oid yangi funksiyalar"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Shaxsingizni himoya qilgan holda koʻriladigan reklamalar ustidan koʻproq tanlovga ega boʻling"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Reklamada maxfiylik funksiyalari yangilanishi"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Shaxsingizni himoya qilgan holda koʻriladigan reklamalar ustidan koʻproq tanlovga ega boʻling"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Reklamani moslashda ilovalar uchun shaxsiy axborotlarga ruxsatni cheklash maqsadida Android tizimiga reklamada maxfiylikka oid yangi funksiyalar kiritiladi."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Ilovalar va reklama hamkorlari bu qurilmada oʻrnatilgan boshqa ilovalardagi faoliyatingiz axborotidan shaxsingizni oshkor qilmagan holda reklamani moslashtirish maqsadida foydalanishi mumkin."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Ilova taklif qiladigan reklamalar haqida batafsil"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Ilovalar oʻrtasida reklamalar samaradorligini hisoblash uchun sizga reklama koʻrsatilgan kun vaqti kabi cheklangan turdagi maʼlumotlar taqsimlanadi."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Reklama samaradorligini hisoblash haqida batafsil"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android yaqinda ochilgan ilovalar asosida qiziq mavzularni qayd qiladi. Shuningdek, ilovalar va reklama hamkorlari bu qurilmada oʻrnatilgan boshqa ilovalardagi faoliyatingiz axborotidan shaxsingizni oshkor qilmagan holda reklamani moslashtirish maqsadida foydalanishi mumkin."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Shuningdek, ilovalar ham ulardagi faoliyat asosida qiziqishlarni aniqlashi mumkin. Masalan, oshpazlik ilovalaridan muntazam foydalansangiz, boshqa ilovalarda oziq-ovqat yetkazib berish xizmatlari reklamasi chiqishi mumkin.\n\nIlovalar bu maʼlumotlarni xavfsiz saqlaydi va reklama hamkorlari ulardan faqatgina boshqa ilovalardagi reklamani moslashtirish maqsadida foydalanishi mumkin."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Keyinchalik, siz foydalanadigan ilova reklama mavzularingiz yoki siz foydalangan ilovalar tomonidan taklif qilingan reklamalar kabi maʼlumotlarni soʻrashi mumkin."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Siz foydalanadigan ilovalar oʻz reklamalari unumdorligini hisoblashda yordam berishi uchun Androiddan maʼlumot soʻrashi mumkin. Android ilovalar ulashishi mumkin boʻlgan maʼlumotlarni cheklash orqali maxfiyligingizni himoyalashga yordam beradi."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Qanday maʼlumotlar ishlatiladi?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Siz foydalanadigan ilovalar oʻz reklamalari unumdorligini hisoblashda yordam berishi uchun Android tizimidan maʼlumot soʻrashi mumkin. Android ilovalar ulasha oladigan maʼlumotlarni cheklash orqali maxfiyligingizni himoyalaydi."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Shaxsiy axborotlar qanday himoyalanadi?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android maxfliylikni turli usullar bilan himoyalaydi, jumladan, cheklangan maʼlumotlarni oʻzaro almashinuvchi ilovalarga axborot yuborishda va taqsimlashda axborot shovqini kiritiladi.\n\nReklama samaradorligini hisoblash maʼlumotlari ham qurilmadan muntazam tozalanadi."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Ilova ichidagi faollik tarixingiz reklama tavsiya qilishda ishlatilishi mumkin."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Ilovalar bu axborotdan qanday foydalanadi?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Ilovalar bu maʼlumotlarni xavfsiz saqlaydi va reklama hamkorlari ulardan faqatgina boshqa ilovalardagi reklamani moslashtirish maqsadida foydalanishi mumkin. Masalan, oshpazlik ilovalaridan muntazam foydalansangiz, boshqa ilovalarda oziq-ovqat yetkazib berish xizmatlari reklamasi chiqishi mumkin."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Bu axborotni qanday boshqarish mumkin?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Muayyan ilovalar uchun faollik tarixini reklama beruvchilarga ulashishni taqiqlash mumkin. Maxfiylik sozlamalari orqali istalgan vaqt ilova taklif qiladigan reklamalarni faolsizlantirish yoki sozlamalarini tiklash mumkin. Android ham ilovalar taklif qiladigan reklama maʼlumotlarini muntazam tozalab turadi."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Android tizimida maxfiylik qanday himoyalanishi haqida batafsil"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Ilovalar va reklama hamkorlari bu qurilmada oʻrnatilgan boshqa ilovalardagi faoliyatingiz axborotidan shaxsingizni oshkor qilmagan holda reklamani moslashtirish maqsadida foydalanishi mumkin.\n\nMasalan, oshpazlik ilovalaridan muntazam foydalansangiz, boshqa ilovalarda oziq-ovqat yetkazib berish xizmatlari reklamasi chiqishi mumkin.\n\nAndroid faollik tarixini muntazam avtomatik tozalaydi, lekin muayyan ilovalar uchun bu axborotni reklama hamkorlariga uzatishni mustaqil taqiqlash ham mumkin."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Xizmatlarni moslashtirish maqsadida ilova va reklama hamkorlari odatda sizga qiziq mavzularni qayd qiladi. Ilovalar bu maʼlumotlarni xavfsiz saqlaydi va reklama hamkorlari ulardan faqatgina boshqa ilovalardagi reklamani moslashtirish maqsadida foydalanishi mumkin.\n\nIlova faollik axborotini reklama hamkoriga uzatishini taqiqlash mumkin. Shuningdek, Android ham bunday maʼlumotlarni muntazam tozalab turadi. Ilovadan foydalanishda davom etsangiz, uning axborotlari roʻyxatga qayta kiritilishi mumkin.\n\nReklamani moslash jarayoni mazkur parametr, reklama mavzulari, reklama identifikatori kabi sozlamalar hamda joriy ilovada reklama moslangani kabi turli omillar asosida amalga oshadi.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Ilova taklif qiladigan reklamalar haqida batafsil"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android maxfliylikni turli usullar bilan himoyalaydi, jumladan, cheklangan maʼlumotlarni oʻzaro almashinuvchi ilovalarga axborot yuborishda va taqsimlashda axborot shovqini kiritiladi.\n\nBrauzerda shu kabi sozlama boʻlishi mumkin. Agar reklama unumdorligini baholash brauzer va Android qurilmasida yoqilgan boʻlsa, kompaniya siz ishlatadigan ilovalar va siz kiradigan saytlarda reklamalar unumdorligini baholashi mumkin. Ochilgan veb-sahifalar tarixi faqat qurilmangizda maxfiy saqlanadi.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Reklama samaradorligini hisoblash haqida batafsil"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android oxirgi haftada ochilgan ilovalar asosida qiziq mavzularni qayd qiladi.\n\nKeyinchalik siz foydalanadigan ilova chiqadigan reklamalarni moslashtirish uchun Androiddan mavzularni soʻrashi mumkin. Android 3 tagacha mavzuni ulashadi, shu bilan birga shaxsingizni va ilovadan foydalanish haqidagi maʼlumotlarni himoya qiladi.\n\nAndroid muntazam ravishda reklama mavzularini tozalab turadi. Ayrim hollarda ilovadan foydalanish vaqtida ular roʻyxatda yana chiqib qolishi mumkin. Yoki ilovalarga ulashilmaydigan mavzularni bloklashingiz mumkin.\n\nReklamani moslashtirish jarayoni mazkur parametr, ilova taklif qiladigan reklama, reklama identifikatori kabi sozlamalar hamda joriy ilovada reklama moslangani kabi turli omillar asosida amalga oshadi.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Reklama mavzulari haqida batafsil"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Musiqa, yangiliklar va sport kabi mavzularni aks ettiruvchi belgilarning rangli tasvir"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Doira ichidagi qulfning rangli tasviri"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Kvadrat shaklidagi toʻqqizta nuqtadan iborat oq va qora rangli kichik tasvir"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Yurak, uchburchak va kvadrat shaklidagi oq va qora rangli kichik tasvir"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Sanʼat va hordiq"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Aktyorlik va teatr"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime va manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Multfilmlar"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komikslar"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Konsertlar va musiqa festivallari"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Raqs"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Hordiq sohasi"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Koʻngilxushlik va viktorinalar"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Qiziqarli testlar va hazilomuz soʻrovlar"</string>
+    <string name="topic10011" msgid="175945911179628507">"Hazil-mutoyiba"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Kulgili rasmlar va videolar"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Jonli komediya"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Jonli sport tadbirlari"</string>
+    <string name="topic10015" msgid="726046067079821146">"Sehr"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Filmlar roʻyxati va teatr tomoshalari"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmlar"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Jangari va sarguzasht filmlar"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animatsiyali filmlar"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komediyalar"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kult va indi filmlar"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Hujjatli filmlar"</string>
+    <string name="topic10023" msgid="254151319845267278">"Dramatik filmlar"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Oilaviy filmlar"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Qoʻrqinchli filmlar"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romantik filmlar"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Triller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musiqa va audio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blyuz"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Mumtoz musiqa"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Kantri"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Raqs va elektron musiqa"</string>
+    <string name="topic10033" msgid="895853536740398847">"Folklor va anʼanaviy musiqa"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jaz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Musiqiy translatsiyalar va yuklab olishlar"</string>
+    <string name="topic10036" msgid="449833307315797283">"Videokliplar"</string>
+    <string name="topic10037" msgid="51698216720637667">"Musiqiy asboblar"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Pianino va klavishlar"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Pop musiqa"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Radio suhbat"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rep va hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rok-musiqa"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klassik rok va eski musiqa"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Xard-rok va progressiv-rok"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indi va muqobil musiqa"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Namunalar va tovush kutubxonalari"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul va RNB"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Saundtreklar"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Etnik musiqa"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggi va Karib musiqasi"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Onlayn rasm galereyalari"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Onlayn video"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Jonli video strimingi"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Film va TV strimingi"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Teledasturlar va maʼlumotlar"</string>
+    <string name="topic10058" msgid="8409884272709263707">"TV tarmoqlar va telestansiyalar"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Seriallar va dasturlar"</string>
+    <string name="topic10060" msgid="2410694865246432781">"TV komediyalar"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Televizion hujjatli koʻrsatuvlar"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV dramalar"</string>
+    <string name="topic10063" msgid="7645361077069015698">"TV dramalar"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Oilaga moʻljallangan telekoʻrsatuvlar"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV realiti-shoular"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV Sci-Fi va fantastik shoular"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Vizual sanʼat va dizayn"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Dizayn"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Rassomchilik"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fotosurat va raqamli sanʼat"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Transport"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Yuk mashinalari va treylerlar"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klassik avtomobillar"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Maxsus va sport avtomobillari"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Yonilgʻi narxlari va avtomobillarga yonilgʻi quyish"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Avtotransport vositalari (turi boʻyicha)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Avtonom transport vositalari"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Kabrioletlar"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Kupe"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Xetchbeklar"</string>
+    <string name="topic10081" msgid="577995777553561437">"Gibrid va muqobil avtomobillar"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Hashamatli avtomobillar"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikroavtomobillar va subkompaktlar"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Mototsikllar"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Yoʻltanlamas transport"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pikaplar"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Skuterlar va mopedlar"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedanlar"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Ulama vagonlar"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Yoʻltanlamas va krossoverlar"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Krossoverlar"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Furgonlar va mini-furgonlar"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Tortish va yoʻldagi yordam"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Avtomobil va yoʻl harakati xavfsizligi"</string>
+    <string name="topic10095" msgid="84682415803421329">"Avtomobil qismlari va aksessuarlari"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Avtomobilni tuzatish va taʼmirlash"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Avtomobil xaridi"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Minilgan avtomobillar"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Avto koʻrgazmalar"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Goʻzallik va fitnes"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Bodi-art"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Yuz va tana parvarishi"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antiperspirantlar"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Vanna va tana uchun mahsulotlar"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Pardozsiz goʻzallik"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Pardoz va kosmetika"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Tirnoq parvarishi mahsulotlari"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfyumeriya va xushboʻy hidlar"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Ustara va soqol olish mashinasi"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Moda va uslub"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitnes"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Bodibilding"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Fitnes boʻyicha koʻrsatmalar va alohida shugʻullanish"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Fitnes texnologiyasi mahsulotlari"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Soch parvarishi"</string>
+    <string name="topic10116" msgid="763642849903586689">"Kitoblar va adabiyot"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Bolalar adabiyoti"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-kitoblar"</string>
+    <string name="topic10119" msgid="894448782525835364">"Jurnallar"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Nazm"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Biznes va sanoat"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Reklama va marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Sotuv"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Qishloq xoʻjaligi va oʻrmon xoʻjaligi"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Oziq-ovqat ishlab chiqarish"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Avtomobil sanoati"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Aviatsiya sohasi"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Tijoriy faoliyat"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Ishni qulay tashkillashtirish"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Mehnat resurslari tashkiloti"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Tijoriy kredit"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Qurilish va xizmat koʻrsatish"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Fuqarolik muhandisligi"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Mudofaa sohasi"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energiya va vositalar"</string>
+    <string name="topic10136" msgid="455894912948558854">"Suv taʼminoti va u bilan davolash"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Turizm sohasi"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Ishlab chiqarish"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metallar va konchilik"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM va biznes imkoniyatlari"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmasevtika va biotexnologiya"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Chop etish va nashriyot"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Chakana savdo"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Venchur kapitali"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Kompyuterlar va elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Kompyuter tashqi qurilmalari"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Printerlar"</string>
+    <string name="topic10148" msgid="388392714835039199">"Kompyuter xavfsizligi"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirus va zararli dasturlardan himoya"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Tarmoq xavfsizligi"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Maishiy elektronika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kameralar va videokameralar"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS va navigatsiya"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Uyni avtomatlashtirish"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Uy kinoteatri tizimlari"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 va koʻchma media pleyerlar"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Taqiladigan qurilmalar"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Maʼlumotlarni zaxiralash va tiklash"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Kompyuterlar"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Laptoplar va noutbuklar"</string>
+    <string name="topic10161" msgid="172004201167511870">"Ishga oid kontaktlar"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Tarqalgan va bulutli hisoblash"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Dasturlash"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Dastur"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Audio va musiqiy dastur"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Biznes va samaradorlik uchun dasturiy taʼminot"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Taqvim va rejalashtirish uchun dastur"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Hamkorlik va konferensiya uchun dastur"</string>
+    <string name="topic10169" msgid="827557334245484202">"Taqdimot uchun dastur"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Elektron jadval uchun dastur"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Matn bilan ishlash uchun dastur"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Noshirlik dasturlari"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Shriftlar"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Yuklanmalar boshqaruvlari"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Bepul va shartlar asosida bepul"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafika va animatsiya uchun dastur"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Intellektual shaxsiy yordamchilar"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Media pleyerlar"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Monitoring dasturi"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operatsion tizimlar"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Foto va video uchun dastur"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Foto dasturlari"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Video dasturlari"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Dasturiy vositalar"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Veb-brauzerlar"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Moliya"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Buxgalteriya hisobi va audit"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Soliq tayyorgarligi va rejalashtirish"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bank ishi"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Pul oʻtkazmalari va bank oʻtkazmalari"</string>
+    <string name="topic10191" msgid="374364159635356705">"Kredit va qarz berish"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kredit kartalar"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Uylarni moliyalashtirish"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Isteʼmol krediti"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Talaba kreditlari va kollejni moliyalashtirish"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Moliyaviy rejalashtirish va menejment"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Pensiyaga chiqish va nafaqa"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Grantlar"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Grantlar"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Sugʻurta"</string>
+    <string name="topic10201" msgid="447240478385298875">"Avtosugʻurta"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Tibbiy sugʻurta"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Mol-mulk sugʻurtasi"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Hayotni sugʻurtalash"</string>
+    <string name="topic10205" msgid="262581473890356377">"Sayohat sugʻurtasi"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investitsiya"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Tovarlar va fyuchers savdosi"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Valyutalar va chet el valyutasi"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Xedj fondlari"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Investitsiya fondlari"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Qimmatli qogʻozlar va obligatsiyalar"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Oziq-ovqat va ichimliklar"</string>
+    <string name="topic10213" msgid="805716705436663130">"Oshpazlik va retseptlar"</string>
+    <string name="topic10214" msgid="726298155737413779">"Barbekyu va grill"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Oshxonalar"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetarian oshxonasi"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegetarian oshxonasi"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Sogʻlom ovqatlanish"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Taom va oziq-ovqat doʻkoni"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Oʻyinlar"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arkada va tanga bilan boshqariladigan oʻyinlar"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Bilyard"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Stol usti oʻyinlari"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Shaxmat va mavhum strategiya oʻyinlari"</string>
+    <string name="topic10225" msgid="564207834821286301">"Karta oʻyinlari"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Toʻplamli karta oʻyinlari"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Kompyuter va video oʻyinlar"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Jangari oʻyinlar"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Sarguzasht oʻyinlar"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Kazual oʻyinlar"</string>
+    <string name="topic10231" msgid="405082026972839048">"Musobaqa video oʻyinlari"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Poyga oʻyinlari"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Yakkakurash"</string>
+    <string name="topic10234" msgid="693433817142162565">"Oʻyin uchun maʼlumot va sharhlar"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Video oʻyin hiylalari va maslahatlar"</string>
+    <string name="topic10236" msgid="320145832033080647">"Yirik multipleyer oʻyinlar"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Musiqa va raqs oʻyinlari"</string>
+    <string name="topic10238" msgid="124952008622371505">"Bunyodkor oʻyinlar"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Otishma oʻyinlar"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulyatorlar"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Iqtisodiy oʻyinlar"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Shaharsozlik oʻyinlari"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Hayotiy simulyatorlar"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Avtosimulyatorlar"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sport oʻyinlari"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Sport menejmenti oʻyinlari"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strategiya oʻyinlari"</string>
+    <string name="topic10248" msgid="279151815457227293">"Video oʻyin usullari va qoʻshimcha dasturlar"</string>
+    <string name="topic10249" msgid="631580828608894782">"Taʼlimga oid oʻyinlar"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Oilaga moslangan oʻyinlar va harakatlar"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Chizish va boʻyash"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Kiyinish va moda oʻyinlari"</string>
+    <string name="topic10253" msgid="385499297969826942">"Jumboq va boshqotirmalar"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Rol oʻynash oʻyinlari"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Stol tennisi"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Katakchali oʻyinlar"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Soʻz oʻyinlari"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Xobbi va dam olish"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Yubileylar"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Tavallud va ism berish kunlari"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Gʻavvoslik va suv osti faoliyati"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Sellyuloza va toʻqimachilik sanʼati"</string>
+    <string name="topic10263" msgid="361345691023794788">"Tashqarida"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Baliq ovi"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Ovchilik va merganlik"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Peyntbol"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Radio boshqaruvi va modellashtirish"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Toʻy"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Uy va bogʻ"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Bogʻdorchilik"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Uy va ichki bezak"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Uy jihozlari"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Uyni jihozlash"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Uy xavfsizligi va xavfsizlik"</string>
+    <string name="topic10275" msgid="682064062059687444">"Uy uchun mahsulotlar"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Landshaft dizayni"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet va telekom"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Email va xabar almashinuv"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Email"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Matnli va tezkor xabar almashish"</string>
+    <string name="topic10281" msgid="582764575763317221">"Ovozli va video chat"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefon xizmati provayderlari"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Ringtonlar va mobil mavzular"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Qidiruv tizimlari"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartfonlar"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferensiyalar"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Veb-ilovalar va onlayn vositalar"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Veb-xizmatlar"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Bulutdagi xotira"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Veb-dizayn va dasturlash"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Veb-hosting"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Ish va taʼlim"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Taʼlim"</string>
+    <string name="topic10295" msgid="331240908257602211">"Ilmiy konferensiyalar va nashrlar"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Kollej va universitetlar"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Masofadan oʻrganish"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Maktabgacha taʼlim"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Maktabgacha taʼlim"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Uyda yakka tartibda taʼlim"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Standartlashtirilgan va qabul testlari"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Oʻqitish va sinf uchun resurslar"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Kasbiy va uzluksiz taʼlim"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Ishlar"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Ish resurslari va rejalashtirish"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Boʻsh ish oʻrni"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Qonun va hukumat"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Jinoyat va adolat"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Huquqiy"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Yuridik va huquqiy xizmatlar"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Yangiliklar"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Iqtisodiyot yangiliklari"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Mahalliy yangiliklar"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Birlashish va yutuqlar"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Gazetalar"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Siyosat"</string>
+    <string name="topic10317" msgid="888696185673599406">"Sport yangiliklari"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Ob-havo"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Dunyo yangiliklari"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Onlayn hamjamiyatlar"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Klip-art va animatsiyali GIF fayllar"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Tanishuv va shaxsiy maʼlumotlar"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Yangiliklar agregatori va ijtimoiy bukmarking"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Fayl ulashish va hosting"</string>
+    <string name="topic10325" msgid="916412844647169263">"Forum va chat provayderlari"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblog yuritish"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Foto va videolarni ulashish"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Foto va rasmlarni ulashish"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Video ulashish"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Qiyofalar"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Ijtimoiy tarmoq ilovalari va qoʻshimcha dasturlar"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Ijtimoiy tarmoqlar"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Inson va jamiyat"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Oila va qarindoshlik"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Ajdodlar va genealogiya"</string>
+    <string name="topic10336" msgid="360328903013424569">"Nikoh"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Tarbiya"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Asrab olish"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Chaqaloqlar va kichkintoylar"</string>
+    <string name="topic10340" msgid="259457452971577855">"Bolalar uchun xavfsiz internet"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantika"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Ilmiy fantastika va fantaziya"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Jonivorlar"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Uy hayvonlari uchun oziq-ovqat va uy hayvonlarini parvarish qilish vositalari"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Uy hayvonlari"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Qushlar"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Mushuklar"</string>
+    <string name="topic10348" msgid="570783769757187957">"Itlar"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Baliq va akvarium"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Sudralib yuruvchilar va amfibiyalar"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veterinarlar"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Koʻchmas mulk"</string>
+    <string name="topic10353" msgid="230887584509968233">"Yer va yer uchastkalari"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Taymsherlar va dam olish maskanlari"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Axborotnoma"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Biznes va shaxsiy roʻyxatlar"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Umumiy maʼlumot"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Kalkulyatorlar va maʼlumot vositalari"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Lugʻatlar va ensiklopediyalar"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Taʼlim resurslari"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Koʻrsatmalar"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Vaqt va taqvim"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Til manbalari"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Chet tillarini oʻrganish"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Tarjima vositalari va manbalari"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Xaritalar"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Ilm-fan"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Kengaytirilgan va virtual reallik"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologiya fanlari"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kimyo"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekologiya va atrof-muhit"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologiya"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Mashinaviy oʻrganish va sunʼiy intellekt"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fizika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robototexnika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Savdo-sotiq"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antiqa buyumlar va toʻplamlar"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Kiyim-kechak"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Bolalar kiyimlari"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostyumlar"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Erkaklar kiyimlari"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Ayollar kiyimlari"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Eʼlonlar"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Isteʼmolchilar uchun"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kuponlar va chegirma takliflari"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Sodiq mijoz kartalari va dasturlar"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Texnik yordam va tuzatish"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Gullar"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Tabriknomalar"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Kecha va bayram jihozlari"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Savdo portallari"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Amerikancha futbol"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Avstraliyacha futbol"</string>
+    <string name="topic10397" msgid="653991203228840785">"Avtopoyga"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Beysbol"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basketbol"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bouling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boks"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Chirliding"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Kollej sporti"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Velosport"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ot sporti"</string>
+    <string name="topic10407" msgid="316266982792700993">"Ekstremal sport turlari"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Toqqa chiqish va alpinizm"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fentezi sport"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gimnastika"</string>
+    <string name="topic10412" msgid="335770351079973128">"Xokkey"</string>
+    <string name="topic10413" msgid="416366556259783701">"Konkida uchish"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Jangovar yakkakurash"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Mototsikl poygasi"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpiada"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Regbi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Yugurish va piyoda yurish"</string>
+    <string name="topic10419" msgid="979581105119036716">"Changʻi va snoubord"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futbol"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Serfing"</string>
+    <string name="topic10422" msgid="978920114358054206">"Suzish"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Yengil atletika"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Voleybol"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Kurash"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Sayohat va transport"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Sarguzashtli sayohatlar"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Avia sayohatlar"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Biznes sayohat"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Avtomobil ijarasi"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Kruizlar va charterlar"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Oilaviy sahoyat"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Asal oyi va romantik sayohatlar"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Mehmonxona va turar joylar"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Uzoqqa qatnaydigan avtobus va temiryoʻl"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Kam xarajatli va tezkor sayohat"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Yuk va sayohat jihozlari"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistik manzillar"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Sohillar va orollar"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Hududiy parklar va bogʻlar"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Tematik parklar"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zooparklar"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Tirbandlik va yoʻnalishni rejalashtirish"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Sayohat agentliklari va xizmatlari"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Sayohat qoʻllanmalari va sayohatnomalar"</string>
+</resources>

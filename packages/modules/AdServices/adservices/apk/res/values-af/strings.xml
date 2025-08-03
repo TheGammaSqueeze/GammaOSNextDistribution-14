@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"kry toegang tot AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Gee ’n program toegang tot AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"kry toegang tot AdServices Attribution API\'s"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Gee ’n program toegang tot AdServices Attribution API\'s."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"kry toegang tot AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Gee ’n program toegang tot AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Toegang tot AdID API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Gee ’n program toegang tot AdID API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"kry toegang tot AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Gee ’n program toegang tot AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Toegang tot Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Gee ’n program toegang tot Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Toegang tot AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Gee ’n app toegang tot AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Toegang tot App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Gee ’n program toegang tot App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Toegang tot Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Gee ’n program toegang tot Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Toegang tot AdService se aktiveringstaatwysiging-API."</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Gee ’n program toegang tot AdService se aktiveringstaatwysiging-API."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Toegang tot AdService se aktiveringstaat-API."</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Gee ’n program toegang tot AdService se aktiveringstaat-API."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Toegang tot AdServicesManager se API’s"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Gee ’n app toegang tot AdServicesManager se API’s."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Toegang tot AdService se Adid API-opdatering."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Gee ’n app toegang tot AdService se Adid API-opdatering."</string>
+    <string name="app_label" msgid="2639006978056689153">"Advertensieprivaatheid"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Sluit aan by Android se advertensieprivaatheidbeta"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android verken meer private maniere waarop programme vir jou advertensies kan wys"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Kom meer te wete"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android se advertensieprivaatheidbeta"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Wat\'s nuut"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Die nuwe privaatheidkenmerke in die Privacy Sandbox laat programme toe om vir jou relevante advertensies te wys, maar beperk wat daardie programme oor jou aktiwiteite op webwerwe en programme van ander ontwikkelaars te wete kan kom."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Hoe dit werk"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Hoe om deel te neem"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"As die beta aangeskakel is, word programme toegelaat om hierdie nuwe, meer private maniere te toets om vir jou advertensies te wys. Jy kan die beta enige tyd in jou privaatheidinstellings afskakel."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Nee, dankie"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Skakel aan"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Meer"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Dankie vir jou deelname"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Jy is deel van Android se advertensieprivaatheidbeta. Die Privacy Sandbox is vir jou toestel aangeskakel.\n\nJy kan enige tyd in jou privaatheidinstellings meer te wete kom of die beta afskakel."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Jy het gekies om nie deel te neem nie"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Dankie vir jou antwoord. Die Privacy Sandbox is vir jou toestel afgeskakel.\n\nGaan na jou privaatheidinstellings as jy van plan verander of meer te wete wil kom."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Privaatheidinstellings"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Het dit"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Jy is deel van die beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Die Privacy Sandbox is aan vir jou toestel, en programme kan hierdie nuwe, meer private maniere toets om vir jou advertensies te wys. Jy kan die beta enige tyd in jou privaatheidinstellings afskakel."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Het dit"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android se Privacy Sandbox bied nuwe kenmerke wat programme kan gebruik om vir jou advertensies te wys waarvan jy dalk sal hou. Hierdie tegnologieë gebruik nie toestelidentifiseerders nie.\n\nAndroid en jou programme kan die soorte advertensies skat waarin jy dalk belang sal stel, en stoor die belangstellings tydelik op jou toestel. Dit maak dit vir programme moontlik om vir jou advertesies te wys waarvan jy dalk sal hou sonder om jou aktiwiteit op webwerwe en programme van ander ontwikkelaars na te spoor."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Advertensiepersonalisering met Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Belangstellings wat deur Android geskat word"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android skat van tyd tot tyd jou topbelangstellings op grond van die programme wat jy gebruik, byvoorbeeld \"Sport\" of \"Reis\".\n\nLater kan ’n program Android vra om daardie belangstellings te gebruik om vir jou meer relevante advertensies te wys.\n\nJy kan die lys huidige belangstellings in jou privaatheidinstellings sien, en kan enige daarvan blokkeer waarvan jy nie hou nie."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Belangstellings geskat deur programme"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Programme kan jou belangstellings skat en hulle tydelik met Android stoor. Byvoorbeeld, ’n program wat jy gebruik om drafskoene te koop, kan jou belangstelling skat as \"draf maratonne\".\n\nLater kan ’n ander program vir jou op grond van hierdie belangstelling ’n advertensie wys wat met maratonne verband hou.\n\nJy kan in jou privaatheidinstellings die lys programme bestuur wat gestoorde belangstellings het."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Nuwe advertensieprivaatheidkenmerke"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Advertensie-onderwerpe gee vir jou meer van ’n keuse oor watter advertensies jy sien"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Nuwe advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android neem kennis van onderwerpe waarin jy belangstel gegrond op apps wat jy onlangs gebruik het. Apps wat jy gebruik, kan ook bepaal waarvan jy hou. Apps kan later vir hierdie inligting vra om vir jou gepersonaliseerde advertensies te wys. Jy kan kies watter onderwerpe en apps gebruik word om vir jou advertensies te wys."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Om die werkverrigting van ’n advertensie te meet word beperkte soorte data tussen apps gedeel ."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Meer oor advertensies op Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Nuttiger advertensies"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Apps kan Android vir inligting vra om te help om die advertensies wat jy sien, te personaliseer."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android neem kennis van onderwerpe waarin jy belangstel gegrond op die apps wat jy onlangs gebruik het."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Apps wat jy gebruik, kan ook bepaal waarvan jy hou gegrond op hoe jy hulle gebruik. As jy byvoorbeeld ’n app gebruik wat langafstandhardloopskoene verkoop, kan die app dalk besluit dat jy belangstel om marathons te hardloop."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"’n App wat jy gebruik, kan later vir hierdie inligting vra – óf jou advertensie-onderwerpe óf advertensies wat voorgestel word deur apps wat jy gebruik het."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android vee onderwerpe en appvoorgestelde data gereeld outomaties uit. Jy kan ook spesifieke onderwerpe en apps wat jy nie wil hê voorstelle moet maak nie, blokkeer."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Meet hoe goed ’n advertensie vaar"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Apps wat jy gebruik, kan Android vra vir inligting wat hulle help om die werkverrigting van hul advertensies te meet. Android laat apps toe om beperkte soorte data in te samel, soos die tyd van die dag waarop ’n advertensie vir jou gewys is."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Probeer nuwe advertensieprivaatheidkenmerke"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Advertensie-onderwerpe gee vir jou meer keuse oor watter advertensies jy sien"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Bekyk besonderhede"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Probeer nuwe advertensieprivaatheidkenmerke"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android stel nuwe privaatheidkenmerke bekend wat vir jou meer van ’n keuse gee oor die advertensies wat jy sien."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Advertensie-onderwerpe help apps om vir jou relevante advertensies te wys terwyl dit jou identiteit en inligting oor jou appgebruik beskerm. Android kan kennis neem van onderwerpe waarin jy belangstel gegrond op die apps wat jy onlangs gebruik het. ’n App wat jy gebruik, kan later vir Android vir relevante onderwerpe vra om die advertensies wat jy sien, te personaliseer."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Jy kan advertensie-onderwerpe in jou toestelinstellings sien en dié onderwerpe blokkeer wat jy nie wil hê met apps gedeel moet word nie. Android vee ook advertensie-onderwerpe gereeld outomaties uit."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Jy kan enige tyd in privaatheidsinstellings van plan verander."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Meer oor advertensie-onderwerpe"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Kom in ons "<a href="https://policies.google.com/privacy">"privaatheidsbeleid"</a>" meer te wete oor hoe Android jou data beskerm."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Probeer dit"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Watter data gebruik word"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Jou advertensie-onderwerpe word gegrond op die apps wat jy onlangs op hierdie toestel gebruik het en hoe dikwels jy hulle gebruik."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Hoe ons hierdie data gebruik"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android neem kennis van onderwerpe waarin jy belangstel terwyl jy jou apps gebruik. Onderwerpetikette word vooraf gedefinieer en sluit dinge in soos Kuns en Vermaak, Inkopies, en Sport. ’n App wat jy gebruik, kan later vir Android vir ’n paar van jou onderwerpe vra (maar nie vir data oor jou appgebruik of identiteit nie) om die advertensies wat jy sien, te personaliseer."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Hoe jy jou data kan bestuur"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android vee onderwerpe gereeld outomaties uit. ’n Onderwerp kan weer op die lys verskyn soos jy aanhou om apps te gebruik. Jy kan ook onderwerpe blokkeer wat jy nie wil hê Android met apps moet deel nie, en advertensie-onderwerpe enige tyd in privaatheidinstellings afskakel."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Jy kan veranderinge in privaatheidinstellings maak."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Ander advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android bied ook nuwe maniere aan om te beperk wat apps oor jou kan uitvind wanneer hulle vir jou gepersonaliseerde advertensies wys."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Appvoorgestelde advertensies help om jou identiteit en inligting oor jou appgebruik te beskerm terwyl apps vir jou relevante advertensies kan wys.’n App wat jy gebruik kan op grond van jou aktiwiteit verwante advertensies in ander apps voorstel. Jy kan in privaatheidinstellings ’n lys van apps sien en hulle keer om voorstelle te maak."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Met advertensiemeting word beperkte soorte data tussen apps gedeel om die werkverrigting van hul advertensies te meet, soos die tyd van die dag waarop ’n advertensie vir jou gewys is."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Meer oor appvoorgestelde advertensies en advertensiemeting"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Appvoorgestelde advertensies"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Watter data word gebruik"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Jou aktiwiteit in ’n app wat jy op hierdie toestel gebruik."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Hoe apps hierdie data gebruik"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Apps kan inligting berg by Android oor dinge waarvan jy hou. As jy byvoorbeeld ’n app oor marathonvoorbereiding gebruik, kan die app dalk besluit dat jy in hardloopskoene belangstel. As jy later ’n ander app gebruik, kan daardie app vir jou ’n advertensie vir hardloopskoene wys wat deur die eerste app voorgestel is."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Hoe jy jou data kan bestuur"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android vee appvoorgestelde data gereeld outomaties uit. ’n App wat jy weer gebruik, kan weer op die lys verskyn."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Jy kan ook enige tyd in privaatheidinstellings ’n app keer om vir jou advertensies voor te stel, alle advertensievoorsteldata terugstel, of appvoorgestelde advertensies afskakel."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Apps wat jy gebruik kan Android vra vir inligting wat hulle help om die werkverrigting van hul advertensies te meet. Android beskerm jou privaatheid deur die inligting wat apps met mekaar kan deel, te beperk."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Nuwe advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Kry groter keuse oor die advertensies wat jy sien terwyl jou identiteit beskerm word"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Nuwe advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android stel tans nuwe maniere bekend om te beperk wat apps oor jou kan uitvind wanneer hulle vir jou gepersonaliseerde advertensies wys."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Met appvoorgestelde advertensies help nuwe privaatheidkenmerke om jou identiteit en inligting oor jou appgebruik te beskerm terwyl dit apps in staat stel om vir jou relevante advertensies te wys. ’n App wat jy gebruik, kan op grond van jou aktiwiteit verwante advertensies in ander apps voorstel. Jy kan in privaatheidinstellings ’n lys apps sien en hulle keer om voorstelle te maak."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Met advertensiemeting word beperkte soorte data tussen apps gedeel om die prestasie van hul advertensies te verstaan, soos die tyd van die dag waarop ’n advertensie vir jou gewys is."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Jou aktiwiteit in ’n app op hierdie toestel kan gebruik word om advertensies voor te stel."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Skakel nog ’n advertensieprivaatheidkenmerk aan"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android bied ook ’n nuwe privaatheidkenmerk aan wat jou groter keuse gee oor die advertensies wat jy sien."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Advertensie-onderwerpe help apps om vir jou relevante advertensies te wys terwyl dit jou identiteit en inligting oor jou appgebruik beskerm. Android kan kennis neem van onderwerpe waarin jy belangstel gegrond op apps wat jy onlangs gebruik het. Later kan ’n app wat jy gebruik Android vir relevante onderwerpe vra om vir jou meer relevante advertensies te wys."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Jy kan advertensie-onderwerpe in jou privaatheidinstellings sien en dié blokkeer wat jy nie wil hê met apps gedeel moet word nie. Android vee advertensie-onderwerpe ook gereeld outomaties uit."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Skakel dit aan"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Nuwe advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Jy het nou groter keuse oor die advertensies wat jy sien terwyl jou identiteit beskerm word"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Nuwe advertensieprivaatheidkenmerke is nou beskikbaar"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android bied nou nuwe privaatheidkenmerke aan wat jou groter keuse gee oor die advertensies wat jy sien."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Volgende"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Neem deel aan Android se advertensieprivaatheidbeta"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Belangstellings wat deur Android geskat word"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Programme wat belangstellings skat"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Advertensiemeting"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Programme kan die Privacy Sandbox gebruik om die doeltreffendheid van hul advertensies te meet. Om dit te doen, kan adverteerders tydelik data oor jou interaksies tussen hul advertensies en programme met Android stoor. Die hoeveelheid data wat hulle kan stoor, word beperk, en dit sal gereeld uitgevee word.\n\nJy kan hierdie data enige tyd uitvee deur die Privacy Sandbox af te skakel."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android skat van tyd tot tyd jou topbelangstellings op grond van die programme wat jy gebruik. Programme kan Android vra om daardie belangstellings te gebruik om vir jou meer relevante advertensies te wys.\n\nAs jy ’n belangstelling blokkeer, sal dit nie weer by die lys gevoeg word nie, tensy jy dit deblokkeer. Jy kan steeds ’n paar verwante advertensies sien."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blok"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Deblokkeer"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Belangstellings wat jy geblokkeer het"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Stel alle belangstellings terug"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Geen belangstellings om op die oomblik te wys nie."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Geen onderwerpe om op die oomblik te wys nie.\nKom meer te wete oor "<a href="https://support.google.com/android?p=ad_privacy">"advertensieonderwerpe"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android se advertensieprivaatheidbeta bied nuwe kenmerke wat apps kan gebruik om vir jou advertensies te wys waarvan jy dalk sal hou. Hierdie tegnologieë gebruik nie toestelidentifiseerders nie.\n\nAndroid kan die soorte advertensies skat waarin jy dalk belang sal stel, en stoor hierdie belangstellings tydelik op jou toestel. Dit maak dit vir apps moontlik om vir jou relevante advertesies te wys sonder om jou aktiwiteit op webwerwe en apps van ander ontwikkelaars na te spoor."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Jy het geen geblokkeerde belangstellings nie"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Geen geblokkeerde onderwerpe nie"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Bekyk geblokkeerde onderwerpe"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Belangstellings is teruggestel"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Onderwerpe is teruggestel"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Programme kan jou belangstellings skat en hulle tydelik met Android stoor. ’n Ander program kan later vir jou ’n advertensie wys wat op hierdie belangstellings gegrond is.\n\nAs jy ’n program blokkeer, sal dit nie meer enige belangstellings skat nie. Dit sal nie weer by hierdie lys programme gevoeg word nie, tensy jy dit deblokkeer. Belangstellings wat reeds deur die program geskat is, sal uitgevee word, maar jy sal steeds verwante advertensies sien."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Apps wat jy geblokkeer het"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Bekyk geblokkeerde apps"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Stel belangstellings terug wat deur programme geskat is"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Geen programme genereer op die oomblik vir jou belangstellings nie"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Geen apps om op die oomblik te wys nie. \nKom meer te wete oor "<a href="https://support.google.com/android?p=ad_privacy">"appvoorgestelde advertensies"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android se advertensieprivaatheidbeta bied nuwe kenmerke wat apps kan gebruik om vir jou advertensies te wys waarvan jy dalk sal hou. Hierdie tegnologieë gebruik nie toestelidentifiseerders nie.\n\nApps kan die soorte advertensies skat waarin jy dalk belang sal stel, en stoor hierdie belangstellings tydelik op jou toestel. Dit maak dit vir apps moontlik om vir jou relevante advertesies te wys sonder om jou aktiwiteit op webwerwe en apps van ander ontwikkelaars na te spoor."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Jy het geen geblokkeerde programme nie"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Geen geblokkeerde apps nie"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Laat advertensiemeting toe"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Apps en adverteerders kan Android vir inligting vra wat hulle help om die werkverrigting van hul advertensies te meet.\n\nAdvertensiemetingdata word gereeld outomaties van jou toestel af uitgevee."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Stel metingdata terug"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android beskerm jou privaatheid deur die inligting wat apps met mekaar kan deel, te beperk. Die stuur van verslae word vertraag om jou identiteit te beskerm.\n\nJou blaaier kan ’n soortgelyke instelling hê. As advertensiemeting vir sowel Android as jou blaaier aangeskakel is, kan ’n maatskappy die doeltreffendheid van ’n advertensie tussen apps wat jy gebruik en werwe wat jy besoek, meet. Jou blaaigeskiedenis word privaat op jou toestel gehou.\n\nKom in ons "<a href="https://policies.google.com/privacy">"privaatheidsbeleid"</a>" meer te wete oor hoe Android jou data beskerm."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Advertensiemetingdata is teruggestel"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Kanselleer"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Skakel Privacy Sandbox af?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Gaan na jou privaatheidinstellings as jy van plan verander of meer oor Android se advertensieprivaatheidbeta te wete wil kom."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Skakel af"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Blokkeer <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Hierdie onderwerp sal geblokkeer word en sal nie weer by jou lys gevoeg word nie, tensy jy dit self weer byvoeg. Jy kan steeds ’n paar verwante advertensies sien."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokkeer"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> is gedeblokkeer"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android kan hierdie onderwerp weer by jou lys voeg, maar dit sal dalk nie dadelik verskyn nie"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Stel alle onderwerpe terug?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Jou lys sal uitgevee word en nuwe onderwerpe sal van nou af bygevoeg word. Jy kan steeds sommige advertensies sien wat verband hou met onderwerpe wat jy teruggestel het."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Stel terug"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Blokkeer <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Hierdie app stel nie advertensies voor nie en sal nie weer by jou lys gevoeg word nie, tensy jy dit deblokkeer. Jy kan steeds ’n paar verwante advertensies sien."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> is gedeblokkeer"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Hierdie app kan weer advertensies vir jou voorstel, maar dit sal dalk nie dadelik op jou lys verskyn nie. Dit kan ’n rukkie duur voordat jy verwante advertensies sien."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Stel alle advertensies wat deur apps voorgestel is, terug?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Advertensievoorsteldata vanaf die apps op jou lys sal uitgevee word en die apps sal van nou af nuwe advertensies voorstel. Jy kan steeds ’n paar verwante advertensies sien."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Appdata is teruggestel"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Advertensie-onderwerpe is aan"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android sal begin oplet na onderwerpe waarin jy belangstel, maar dit kan ’n rukkie neem voordat jou eerste onderwerpe begin verskyn."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Skakel advertensie-onderwerpe af?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Hierdie lys onderwerpe sal uitgevee word. Android sal nie meer oplet na onderwerpe waarin jy belangstel nie, maar jy sal dalk steeds relevante advertensies sien."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Appvoorgestelde advertensies is aan"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Apps kan advertensies begin voorstel. Jy sal ’n lys apps sien wanneer hulle advertensies begin voorstel."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Skakel appvoorgestelde advertensies af?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Alle advertensievoorsteldata sal uitgevee word. Apps sal nie meer advertensies kan voorstel nie, maar jy sal dalk steeds relevante advertensies sien."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Advertensiemeting is aan"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android kan net baie beperkte inligting met apps deel om apps te help om die prestasie van hul advertensies te meet."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Skakel advertensiemeting af?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Alle onbevestigde advertensiemetingverslae sal uitgevee word en geen nuwe verslae sal gegenereer of gedeel word nie."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Advertensieprivaatheid"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Advertensie-onderwerpe"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Appvoorgestelde advertensies"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android neem kennis van onderwerpe waarin jy belangstel gegrond op apps wat jy onlangs gebruik het en hoe dikwels jy hulle gebruik."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Apps wat jy gebruik, kan ook bepaal waarvan jy hou gegrond op hoe jy hulle gebruik."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Apps wat jy gebruik, kan Android vir inligting vra om hulle te help om die werkverrigting van hul advertensies te meet. Android laat apps toe om beperkte soorte data in te samel."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Kom meer te wete oor "<a href="https://support.google.com/android?p=ad_privacy">"advertensieprivaatheid op Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Aan / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> onderwerpe"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Aan / # onderwerp}other{Aan / # onderwerpe}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Aan / <xliff:g id="APPS_COUNT">%1$d</xliff:g> apps"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Aan / # app}other{Aan / # apps}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Aan"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Af"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Onderwerpe waarin jy belangstel, word gegrond op die apps wat jy onlangs gebruik het, en word deur apps gebruik om vir jou gepersonaliseerde advertensies te wys.\n\nJy kan onderwerpe blokkeer wat jy nie wil hê met apps gedeel moet word nie. Android vee ook gereeld onderwerpe outomaties uit.\n\nAl kan hierdie kenmerk aangeskakel word, sal jy dalk nie ’n lys onderwerpe sien voordat hierdie kenmerk ten volle beskikbaar is en apps dit begin gebruik nie."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Laat advertensie-onderwerpe toe"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Advertensie-onderwerpe wat jy geblokkeer het"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Stel alle advertensie-onderwerpe terug"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android neem kennis van onderwerpe waarin jy belangstel gegrond op die apps wat jy in die afgelope paar weke gebruik het.\n\n’n App wat jy gebruik, kan later vir Android vra wat jou onderwerpe is om die advertensies wat jy sien, te personaliseer. Android deel tot 3 onderwerpe terwyl dit jou identiteit en inligting oor jou appgebruik beskerm.\n\nAndroid vee onderwerpe gereeld outomaties uit. ’n Onderwerp kan dalk weer op die lys verskyn soos jy aanhou om apps te gebruik. Of jy kan onderwerpe blokkeer wat jy nie wil hê Android met apps moet deel nie.\n\n’n Advertensie wat jy in jou apps sien, kan dalk gepersonaliseer word na gelang van hierdie instelling, die appvoorgestelde advertensie-instelling, jou reklame-ID-instellings, en óf die app wat jy gebruik, advertensies personaliseer."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Laat appvoorgestelde advertensies toe"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Apps wat jy gebruik, kan bepaal waarvan jy hou en dan advertensies in ander apps voorstel.\n\nJy kan apps keer om voorstelle te maak. Android vee ook gereeld appvoorstelle outomaties uit.\n\nAl kan hierdie kenmerk aangeskakel word, sal jy dalk nie ’n lys apps sien voordat hierdie kenmerk ten volle beskikbaar is en apps dit begin gebruik nie."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Apps wat jy geblokkeer het"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Stel appvoorgestelde data terug"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Dit is algemeen dat apps wat jy gebruik dinge onthou waarin jy belangstel, sodat hulle jou ervaring kan personaliseer. Apps kan ook inligting oor jou onderwerpe by Android berg.\n\nAs jy byvoorbeeld ’n app oor marathonvoorbereiding gebruik, kan die app besluit dat jy in hardloopskoene belangstel. As jy later ’n ander app gebruik, kan daardie app vir jou ’n advertensie vir hardloopskoene wys wat deur die eerste app voorgestel is.\n\nAndroid vee appvoorgestelde data gereeld outomaties uit. ’n App wat jy weer gebruik, kan dalk weer op die lys verskyn. Of jy kan ’n app keer om vir jou advertensies voor te stel.\n\n’n Advertensie wat jy in jou apps sien, kan dalk gepersonaliseer word na gelang van hierdie instelling, die advertensie-onderwerpinstelling, jou reklame-ID-instellings, en óf die app wat jy gebruik, advertensies personaliseer."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Nuwe advertensieprivaatheidkenmerk is nou beskikbaar"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Net baie beperkte inligting word tussen apps gedeel om advertensiewerkverrigting te help meet"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Ons stel ’n nuwe advertensieprivaatheidkenmerk genaamd advertensiemeting bekend. Android deel baie beperkte inligting tussen apps, soos wanneer ’n advertensie aan jou gewys is, om apps te help om die werkverrigting van advertensies te meet."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Jy kan veranderinge in advertensieprivaatheidinstellings maak."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Apps wat jy gebruik, kan Android vir inligting vra om hulle te help om die werkverrigting van hul advertensies te meet. Android laat apps slegs toe om beperkte soorte data in te samel."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Nuwe advertensieprivaatheidkenmerke"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Kry groter keuse oor die advertensies wat jy sien terwyl dit help om jou identiteit te beskerm"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Opdaterings van jou advertensieprivaatheidkenmerke"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Kry groter keuse oor die advertensies wat jy sien terwyl dit help om jou identiteit te beskerm"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android brei advertensieprivaatheidkenmerke uit om te beperk watter apps meer oor jou kan uitvind wanneer hulle vir jou gepersonaliseerde advertensies wys."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Apps en hul reklamevennote kan jou aktiwiteit in ander apps op hierdie toestel gebruik om advertensies te personaliseer terwyl hulle steeds help om jou identiteit privaat en veilig te hou."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Meer oor appvoorgestelde advertensies"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Beperkte soorte data word tussen apps gedeel om die prestasie van hul advertensies te verstaan, soos hoe laat in die dag ’n advertensie vir jou gewys is."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Meer oor advertensiemeting"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android neem kennis van onderwerpe waarin jy belangstel gegrond op apps wat jy onlangs gebruik het. Apps en hul reklamevennote kan ook jou aktiwiteit in ander apps op hierdie toestel gebruik om advertensies te personaliseer terwyl hulle steeds help om jou identiteit privaat en veilig te hou."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Apps wat jy gebruik, kan ook bepaal waarvan jy hou gegrond op jou appaktiwiteit. Byvoorbeeld, as jy gereeld kookapps gebruik, kan jy advertensies sien vir kruideniersware-afleweringdienste of soortgelyke inhoud in ander apps.\n\nApps kan hierdie inligting veilig berg sodat dit slegs deur hul advertensievennote gebruik kan word om advertensies in ander apps te personaliseer."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"’n App wat jy gebruik, kan later vir hierdie inligting vra – hetsy jou advertensie-onderwerpe óf advertensies wat voorgestel is deur die apps wat jy gebruik het."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Apps wat jy gebruik, kan Android vir inligting vra om hulle te help om die werkverrigting van hul advertensies te meet. Android help om jou privaatheid te beskerm deur die inligting wat apps met mekaar kan deel, te beperk."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Watter data word gebruik?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Apps wat jy gebruik, kan Android vra vir inligting wat hulle help om die prestasie van hul advertensies te meet. Android help om jou privaatheid te beskerm deur die inligting te beperk wat apps met mekaar kan deel."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Hoe word my identiteit beskerm?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android gebruik veelvuldige privaatheidmaatreëls, soos samevoeging en die byvoeging van betekenislose data, om die inligting te beperk wat apps kan met mekaar kan deel, en om te help om jou identiteit te beskerm.\n\nAdvertensiemetingdata word ook gereeld op jou toestel uitgevee."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Jou appaktiwiteit kan gebruik word om advertensies voor te stel."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Hoe gebruik apps hierdie data?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Apps kan hierdie inligting veilig berg sodat dit slegs deur hul reklamevennote gebruik kan word om advertensies in ander apps te personaliseer. Byvoorbeeld, as jy gereeld kookapps gebruik, kan jy advertensies vir kruidenierswareafleweringdienste of soortgelyke inhoud in ander apps sien."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Hoe kan ek hierdie data bestuur?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Jy kan spesifieke apps blokkeer om jou aktiwiteit met reklamevennote te deel. Jy kan appvoorgestelde advertensies enige tyd in jou privaatheidinstellings terugstel of afstel. Android vee hierdie data ook gereeld outomaties uit."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Kry meer inligting oor hoe Android help om jou privaatheid te beskerm"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Apps en hul reklamevennote kan jou aktiwiteit in ander apps op hierdie toestel gebruik om advertensies te personaliseer terwyl hulle steeds inligting oor jou privaat en veilig hou.\n\nByvoorbeeld, as jy gereeld kookapps gebruik, kan jy advertensies vir kruidenierswareafleweringdienste of soortgelyke inhoud in ander apps sien.\n\nAndroid vee jou aktiwiteit gereeld outomaties uit, maar jy kan apps ook blokkeer om hierdie inligting met hul reklamevennote te deel."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Apps en hul reklamevennote onthou gebruiklik dinge waarin jy belangstel om jou ervaring te personaliseer. Apps kan hierdie inligting veilig berg sodat dit slegs deur hul reklamevennote gebruik kan word om advertensies in ander apps te wys.\n\nJy kan ’n app blokkeer om jou aktiwiteitdata met reklamevennote te deel. Android vee ook gedeelde aktiwiteitdata gereeld outomaties uit, met die gevolg dat ’n app wat jy weer gebruik weer op hierdie lys kan verskyn.\n\nOf ’n advertensie wat jy sien gepersonaliseer is, kan van baie faktore afhang, soos hierdie instelling, die advertensie-onderwerpe-instelling, jou reklame-ID-instellings en of die app wat jy gebruik advertensies gepersonaliseer het.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Kry meer inligting oor appvoorgestelde advertensies"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android gebruik veelvuldige privaatheidmaatreëls, soos samevoeging en die byvoeging van betekenislose data, om die inligting te beperk wat apps met mekaar kan deel, en om te help om jou identiteit te beskerm.\n\nJou blaaier het dalk ’n soortgelyke instelling. As advertensiemeting vir sowel Android as jou blaaier aangeskakel is, sal ’n maatskappy dalk die doeltreffendheid kan meet van ’n advertensie tussen apps wat jy gebruik en werwe wat jy besoek. Jou blaaigeskiedenis word privaat op jou toestel gehou.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Kry meer inligting oor advertensiemeting"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android neem kennis van onderwerpe waarin jy belangstel gegrond op die apps wat jy in die afgelope paar weke gebruik het.\n\n’n App wat jy gebruik, kan Android later vra wat jou onderwerpe is om die advertensies wat jy sien, te personaliseer. Android deel tot 3 onderwerpe terwyl dit jou identiteit en inligting oor jou appgebruik beskerm.\n\nAndroid vee onderwerpe gereeld outomaties uit. ’n Onderwerp sal dalk weer op die lys verskyn soos jy aanhou om apps te gebruik. Of jy kan onderwerpe blokkeer wat jy nie wil hê Android met apps moet deel nie.\n\nOf ’n advertensie wat jy sien gepersonaliseer is, hang van baie faktore af, soos hierdie instelling, die instelling vir appvoorgestelde advertensies, jou reklame-ID-instellings en of die app wat jy gebruik advertensies gepersonaliseer het.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Kry meer inligting oor advertensie-onderwerpe"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Kleurvolle illustrasie van simbole wat onderwerpe waarin jy belangstel verteenwoordig, soos musiek, nuus en sport"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Kleurvolle illustrasie van ’n slot binne ’n kring"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Klein illustrasie in swart en wit van nege kolletjies wat ’n vierkant vorm"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Klein illustrasie in swart en wit van eenvoudige vorms soos ’n hart, driehoek en vierkant"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Kuns en vermaak"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Toneelspel en teater"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime en Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Spotprente"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Strokiesprente"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Konserte en musiekfeeste"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Dans"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Vermaakbedryf"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Pret en trivia"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Prettige toetse en verspotte opnames"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Snaakse prente en video\'s"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Regstreekse komedie"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Regstreekse sportgeleenthede"</string>
+    <string name="topic10015" msgid="726046067079821146">"Towery"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Fliekroosters en teatervertoontye"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Flieks"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Aksie- en avontuurflieks"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animasieflieks"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komedieflieks"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultus- en indieflieks"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentêre flieks"</string>
+    <string name="topic10023" msgid="254151319845267278">"Dramaflieks"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Gesinsflieks"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Gruwelflieks"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romanseflieks"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Riller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musiek en oudio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Klassieke musiek"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Countrymusiek"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Dans- en elektroniese musiek"</string>
+    <string name="topic10033" msgid="895853536740398847">"Volk- en tradisionele musiek"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Musiekstrome en -aflaaie"</string>
+    <string name="topic10036" msgid="449833307315797283">"Musiekvideo\'s"</string>
+    <string name="topic10037" msgid="51698216720637667">"Musiekinstrumente"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Klaviere en klawerborde"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popmusiek"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Geselsradio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap en hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rockmusiek"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klassieke rock en immergroen treffers"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Harde rock en progressiewe musiek"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indie- en alternatiewe musiek"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Voorbeelde en klankbiblioteke"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul en R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Klankbane"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Wêreldmusiek"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae- en Karibiese musiek"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Aanlyn prentgalerye"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Aanlyn video"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Regstreekse videostroming"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Fliek- en TV-stroming"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"TV-gidse en verwysing"</string>
+    <string name="topic10058" msgid="8409884272709263707">"TV-netwerke en -stasies"</string>
+    <string name="topic10059" msgid="6770193120260554722">"TV-programme"</string>
+    <string name="topic10060" msgid="2410694865246432781">"TV-komedies"</string>
+    <string name="topic10061" msgid="7733515887806604226">"TV-dokumentêr en -niefiksie"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV-dramas"</string>
+    <string name="topic10063" msgid="7645361077069015698">"TV-sepies"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Gesinsgerigte TV-programme"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV-realiteitsprogramme"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV-wetenskapfiksie- en -fantasieprogramme"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Visuele kuns en ontwerp"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Ontwerp"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Skilder"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fotografiese en digitale kunste"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Motors en voertuie"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Vragtrokke en -sleepwaens"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klassieke voertuie"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Gepasmaakte en werkwerrigtingvoertuie"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Gaspryse en voertuigbrandstofinname"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Motorvoertuie (volgens soort)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Selfbestuurvoertuie"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Afslaankapmotors"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Koepees"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Luikrugmotors"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hibried- en alternatiewe voeruie"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luukse voertuie"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikromotors en kleinerige motors"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motorfietse"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Veldvoertuie"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Bakkies"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Bromponies en kragfietse"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedans"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Stasiewaens"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SNV\'s en oorkruisvoertuie"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Oorkruisvoertuie"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Paneelwaens en miniwaens"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Insleepdienste en noodvoertuighulp"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Voertuig- en verkeersveiligheid"</string>
+    <string name="topic10095" msgid="84682415803421329">"Voertuigonderdele en -bykomstighede"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Voertuigherstelwerk en -onderhoud"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Voertuiginkopies"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Gebruikte voertuie"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Voertuigskoue"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Skoonheid en fiksheid"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Liggaamkuns"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Gesig- en liggaamsorg"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antisweetmiddels"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Bad- en liggaamprodukte"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Skoon skoonheid"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Grimering en skoonheidsmiddels"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Naelsorgprodukte"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfuum en reukwater"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Skeermesse en skeertoestelle"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Mode en styl"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fiksheid"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Liggaamsbou"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Fiksheidsonderrig en persoonlike afrigting"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Fiksheidtegnologieprodukte"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Haarsorg"</string>
+    <string name="topic10116" msgid="763642849903586689">"Boeke en literatuur"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Kinderliteratuur"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-boeke"</string>
+    <string name="topic10119" msgid="894448782525835364">"Tydskrifte"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poësie"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Besigheid- en nywerheidsbedrywighede"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Reklame en bemarking"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Verkope"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Landbou en bosbou"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Voedselproduksie"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Motorbedryf"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Lugvaartbedryf"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Besigheidsbedrywighede"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Plooibare werkreëlings"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Menslike hulpbronne"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Kommersiële lenings"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Konstruksie en instandhouding"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Siviele ingenieurswese"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Verdedigingbedryf"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energie- en munisipale dienste"</string>
+    <string name="topic10136" msgid="455894912948558854">"Watervoorsiening en -behandeling"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Gasvryheidsbedryf"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Vervaardiging"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metale en mynbou"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Multivlakbemarking en besigheidsgeleenthede"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmaseutiese middels en biotegnologie"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Drukwerk en uitgewery"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Kleinhandel"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Ondernemingkapitaal"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Rekenaars en elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Rekenaarrandapparatuur"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Drukkers"</string>
+    <string name="topic10148" msgid="388392714835039199">"Rekenaarsekuriteit"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirusprogramme en wanware"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Netwerksekuriteit"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Verbruikerselektronika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kameras en videokameras"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS en navigasie"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Huisoutomatisering"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Tuisteaterstelsels"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3- en draagbare mediaspelers"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Drabare tegnologie"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Datarugsteun en -terugstelling"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Rekenaars"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Skootrekenaars"</string>
+    <string name="topic10161" msgid="172004201167511870">"Netwerk"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Verspreide en wolkverwerking"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programmering"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Sagteware"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Oudio- en musieksagteware"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Besigheid- en produktiwiteitsagteware"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Kalender- en skeduleringsagteware"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Samewerking- en konferensiesagteware"</string>
+    <string name="topic10169" msgid="827557334245484202">"Aanbiedingsagteware"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Sigbladsagteware"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Woordverwerkingsagteware"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Rekenaarpublisering"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Lettertipes"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Aflaaibestuurders"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Vryware en deelware"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafika- en animasiesagteware"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Intelligente persoonlike assistente"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Mediaspelers"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Moniteringsagteware"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Bedryfstelsels"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Foto- en videosagteware"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Fotosagteware"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Videosagteware"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Sagtewarenutsgoed"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Webblaaiers"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finansies"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Rekeningkunde en ouditeerkunde"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Belastingvoorbereiding en -beplanning"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bankdienste"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Geldoorplasing en oorplasingsdienste"</string>
+    <string name="topic10191" msgid="374364159635356705">"Krediet en uitlening"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kredietkaarte"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Huisfinansiering"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Persoonlike lenings"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Studentelenings en kollegefinansiering"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finansiële beplanning en bestuur"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Aftrede en pensioen"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Toelae"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Toelae"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Versekering"</string>
+    <string name="topic10201" msgid="447240478385298875">"Motorversekering"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Gesondheidsversekering"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Huisversekering"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Lewensversekering"</string>
+    <string name="topic10205" msgid="262581473890356377">"Reisversekering"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Belegging"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Kommoditeite en termynkontrakhandel"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Geldeenhede en buitelandse valuta"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Skansfondse"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Onderlinge beleggingtrusts"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Aandele en effekte"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Kos en drinkgoed"</string>
+    <string name="topic10213" msgid="805716705436663130">"Kookkuns en resepte"</string>
+    <string name="topic10214" msgid="726298155737413779">"Braai en rooster"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Kookkuns"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetariese kos"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegetariese kookkuns"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Gesonde eetgewoontes"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Kleinhandelaars in kos en kruideniersware"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Speletjies"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arkade- en muntoutomaatspeletjies"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biljart"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Bordspeletjies"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Skaak en abstrakte strategiespeletjies"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kaartspeletjies"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Handeldrywende kaartspeletjies"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Rekenaar- en videospeletjies"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Aksie- en platformspeletjies"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Avontuurspeletjies"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Informele speletjies"</string>
+    <string name="topic10231" msgid="405082026972839048">"Mededingende videospeletjies"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Bestuur- en jaagspeletjies"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Gevegspeletjies"</string>
+    <string name="topic10234" msgid="693433817142162565">"Speletjieverwysing en -resensies"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Kultruuks en wenke vir videospeletjies"</string>
+    <string name="topic10236" msgid="320145832033080647">"Massiewe multispelerspeletjies"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Musiek- en dansspeletjies"</string>
+    <string name="topic10238" msgid="124952008622371505">"Sandbox-speletjies"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Skietspeletjies"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulasiespeletjies"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Besigheid- en geldmagnaatspeletjies"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Stadbouspeletjies"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Lewensimulasiespeletjies"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Voertuigsimulators"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sportspeletjies"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Sportbestuurspeletjies"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strategiespeletjies"</string>
+    <string name="topic10248" msgid="279151815457227293">"Videospeletjiemodusse en -byvoegings"</string>
+    <string name="topic10249" msgid="631580828608894782">"Opvoedkundige speletjies"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Gesinsgerigte speletjies en aktiwiteite"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Teken en inkleur"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Aantrek- en modespeletjies"</string>
+    <string name="topic10253" msgid="385499297969826942">"Legkaarte en breinboelies"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Rolspelspeletjies"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Tafeltennis"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Teëlspeletjies"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Woordspeletjies"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Stokperdjies en ontspanning"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Herdenkings"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Verjaarsdae en naamdae"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Duik- en onderwateraktiwiteite"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Vesel- en tekstielkuns"</string>
+    <string name="topic10263" msgid="361345691023794788">"Buitelug"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Visvang"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Jag en skiet"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Verfbal"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Radiobeheer en modelle"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Troues"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Huis en tuin"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Tuinmaak"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Huis en binnenshuise dekor"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Huistoestelle"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Huisverbetering"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Huisveiligheid en -sekuriteit"</string>
+    <string name="topic10275" msgid="682064062059687444">"Huishoudelike benodigdhede"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Landskapontwerp"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet en telekommunikasie"</string>
+    <string name="topic10278" msgid="1736187026108921963">"E-posse en boodskappe"</string>
+    <string name="topic10279" msgid="9034205050642228743">"E-pos"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Teks- en kitsboodskappe"</string>
+    <string name="topic10281" msgid="582764575763317221">"Stem- en videoklets"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Prentverwerkers"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Foondiensverskaffers"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Luitone en mobiele temas"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Soekenjins"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Slimfone"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferensies"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Webprogramme en aanlyn nutsgoed"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Webdienste"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Wolkberging"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Webontwerp en -ontwikkeling"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Webhuisvesting"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Werkgeleenthede en opvoeding"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Opvoeding"</string>
+    <string name="topic10295" msgid="331240908257602211">"Akademiese konferensies en publikasies"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Kolleges en universiteite"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Afstandsonderrig"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Vroeëkinderjare-onderwys"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Voorskool"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Tuisonderwys"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Gestandaardiseerde en toelatingstoetse"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Onderrig- en klaskamerhulpbronne"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Beroeps- en voortgesette onderwys"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Werkgeleenthede"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Loopbaanhulpbronne en -beplanning"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Werkgeleentheidinskrywings"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Regspraak en regering"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Misdaad en geregtigheid"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Wetlik"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Regsdienste"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Nuus"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Ekonomiese nuus"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Plaaslike nuus"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Samesmeltings en verkrygings"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Koerante"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politiek"</string>
+    <string name="topic10317" msgid="888696185673599406">"Sportnuus"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Weer"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Wêreldnuus"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Aanlyn gemeenskappe"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Knip-illustrasies en geanimeerde GIF\'s"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Ontmoetings en persoonlike advertensies"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Stroomaggregrasie en sosiale boekmerke"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Lêerdeling en -huisvesting"</string>
+    <string name="topic10325" msgid="916412844647169263">"Forum- en kletsverskaffers"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblogskryf"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Foto- en videodeling"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Foto- en prentdeling"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Videodeling"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Oorleggers"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Sosialenetwerkprogramme en -byvoegings"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Sosiale netwerke"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Mense en samelewing"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Gesin en verhoudings"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Voorouers en genealogie"</string>
+    <string name="topic10336" msgid="360328903013424569">"Huwelik"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Ouerskap"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Aanneming"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Babas en kleuters"</string>
+    <string name="topic10340" msgid="259457452971577855">"Kinderinternetveiligheid"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romanse"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Wetenskapsfiksie en fantasie"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Troeteldiere en diere"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Troeteldierkos en troeteldiersorgbenodigdhede"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Troeteldiere"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Voëls"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Katte"</string>
+    <string name="topic10348" msgid="570783769757187957">"Honde"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Vis en akwaria"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Reptiele en amfibieë"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veeartse"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Eiendom"</string>
+    <string name="topic10353" msgid="230887584509968233">"Erwe en grondbesit"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Tyddeel en vakansie-eiendomme"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Verwysing"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Besigheid- en persoonlike inskrywings"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Algemene verwysing"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Sakrekenaars en verwysingnutsgoed"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Woordeboeke en ensiklopedieë"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Opvoedkundige hulpbronne"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Demonstrasies"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Tyd en kalenders"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Taalhulpbronne"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Leer van vreemde tale"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Vertalingnutsgoed en -hulpbronne"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Kaarte"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Wetenskap"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Aangevulde en virtuele realiteit"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologiese wetenskappe"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Chemie"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekologie en omgewing"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologie"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Masjienleer en kunsmatige intelligensie"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Wiskunde"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fisika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Inkopies"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antieke ware en versamelstukke"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Klerasie"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Kinderklere"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostuums"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Mansklere"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Vroueklere"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Kleinadvertensies"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Vebruikerhulpbronne"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Koepons en afslagaanbiedings"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Lojaliteitskaarte en -programme"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Tegniese steun en herstelwerk"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Blomme"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Groetekaartjies"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Partytjie- en vakansiebenodigdhede"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Inkopieportale"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Amerikaanse voetbal"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Australiese voetbal"</string>
+    <string name="topic10397" msgid="653991203228840785">"Motorwedrenne"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Bofbal"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basketbal"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Rolbal"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boks"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Rasieleiding"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Kollegesport"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Krieket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Fietsry"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Perdry"</string>
+    <string name="topic10407" msgid="316266982792700993">"Adrenaliensport"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Klim en bergklim"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantasiesport"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Gholf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gimnastiek"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hokkie"</string>
+    <string name="topic10413" msgid="416366556259783701">"Ysskaats"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Oosterse gevegskuns"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motorfietswedrenne"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpiese Spele"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rugby"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Hardloop en stap"</string>
+    <string name="topic10419" msgid="979581105119036716">"Ski en sneeuplankry"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Sokker"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Branderry"</string>
+    <string name="topic10422" msgid="978920114358054206">"Swem"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Baan-en-veldatletiek"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Vlugbal"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Stoei"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Reis en vervoer"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Avontuurreise"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Lugreise"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Sakereise"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Motorhuur"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Bootreise en -huur"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Gesinsreise"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Wittebrood en romantiese wegbreek"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotelle en akkommodasie"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Langafstandbus- en treinreise"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Laekoste- en laastenippertjiereise"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Bagasie en reisbenodigdhede"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Toeristebestemmings"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Strande en eilande"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Streeksparke en -tuine"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Temaparke"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Dieretuine"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Reis- en roetebeplanners"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Reisagentskappe en -dienste"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Reisgidse en reispraatjies"</string>
+</resources>

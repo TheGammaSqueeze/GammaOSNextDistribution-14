@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"finyelela i-AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Ivumela i-app ukufinyelela i-AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"finyelela ama-AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Ivumela i-app ukufinyelela kuma-AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"finyelela ku-AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Ivumela i-app ukufinyelela i-AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Finyelela ku-AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Ivumela i-application ukuba ifinyelele ku-AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"finyelela i-AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Ivumela i-application ifinyelele ku-AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Finyelela ku-Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ivumela i-application ukuba ifinyelele ku-Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Ukungena ku-AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Ivumela i-application ukuba ingene ku-AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Finyelela ku-ID yokusetha i-App ye-API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Ivumela i-application ukuba ifinyelele kwi-ID yokusetha i-App ye-API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Finyelela ku-Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Ivumela i-application ifinyelele ku-Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Ukufinyelela ku-API yokuguqula isimo sokuvumela kwe-AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Ivumela i-application ukufinyelela i-API yokuguqula isimo sokuvumela kwe-AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Ukufinyelela ku-API yesimo sokunika amandla se-AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Ivumela i-application ukufinyelela i-API yesimo sokuvumela se-AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Ukufinyelela kuma-API we-AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Ivumela i-app ukufinyelela i-AdServicesManager\'s API."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Ukufinyelela i-API ye-AdId yesibuyekezo se-AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Ivumela i-application ukuthi ifinyelele i-API ye-AdId yesibuyekezo se-AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Ubumfihlo Besikhangiso"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Joyina i-beta yobumfihlo yezikhangiso ze-Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"I-Android ihlola izindlela eziyimfihlo ezengeziwe zokuthi ama-app akubonise izikhangiso"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Funda kabanzi"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"I-beta yobumfihlo yezikhangiso ze-Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Yini entsha"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Izakhi ezintsha zobumfihlo ku-Privacy Sandbox zivumela i-app ukuthi ikubonise izikhangiso ezifanele, kodwa zikhawulela lokho lawo ama-app angakufunda mayelana nemisebenzi yakho kumawebhusayithi nama-app avela kwabanye onjiniyela."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Isebenza kanjani"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Indlela yokuhlanganyela"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Ukuvula i-beta kuvumela ama-app ukuthi ahlole lezi zindlela ezintsha, zokugodliwe zokukubonisa izikhangiso. Ungakwazi ukuvala i-beta noma nini kumasethingi akho obumfihlo."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Cha ngiyabonga"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Vula"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Okwengeziwe"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Siyabonga ngokubamba iqhaza"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Uyingxenye ye-beta yobumfihlo yezikhangiso ze-Android. I-Privacy Sandbox ivuliwe kudivayisi yakho.\n\nUngafunda kabanzi noma uvale i-beta noma nini kumasethingi akho obumfihlo."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Ukhethe ukungabambi iqhaza"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Siyabonga ngempendulo yakho. I-Privacy Sandbox ivaliwe kudivayisi yakho.\n\nUma ushintsha umqondo wakho noma ufuna ukufunda kabanzi, iya kumasethingi akho obumfihlo."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Amasethingi obumfihlo"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Ngiyezwa"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Uyingxenye ye-beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"I-Privacy Sandbox ivuliwe kudivayisi yakho, futhi ama-app angahlola lezi zindlela ezintsha, ezigodliwe zokukubonisa izikhangiso. Ungakwazi ukuvala i-beta noma nini kumasethingi akho obumfihlo."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Ngiyezwa"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"I-Android Privacy Sandbox inikeza izakhi ezintsha ezingasetshenziswa ama-app ukuze akubonise izikhangiso ongase uzithande. Lobu buchwepheshe abuzisebenzisi izinkomba zedivayisi.\n\nI-Android nama-app akho kungalinganisela izinhlobo zezikhangiso ongaba nentshisekelo kuzo, futhi kulondoloze ongaba nentshisekelo kukho okwesikhashana kudivayisi yakho. Lokhu kuvumela ama-app ukuthi akubonise izikhangiso ongase uzithande, ngaphandle kokulandelela umsebenzi wakho kuwo wonke amawebhusayithi nama-app avela kwabanye onjiniyela."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Ukwenza ngezifiso izikhangiso nge-Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Ongaba nentshisekelo kukho okusikiselwe yi-Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"I-Android ngezikhathi ezithile isikisela izinto eziphezulu ongaba nentshisekelo kuzo ngokususelwe kuma-app owasebenzisayo, ngokwesibonelo, \"Ezemidlalo\" noma \"I-Travel.\"\n\nKamuva, i-app ingacela i-Android ukuthi isebenzise lezo zintshisekelo zakho ukuze ikubonise izikhangiso ezihambelana kakhulu.\n\nUngabona uhlu longaba nentshisekelo kukho kwamanje kumasethingi akho wobumfihlo, futhi uvimbele noma yikuphi ongakuthandi."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Ongaba nentshisekelo kukho okusikiselwe ama-app"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Ama-app angalinganisela ongaba nentshisekelo kukho futhi alondoloze lezi okwesikhashana nge-Android. Ngokwesibonelo, i-app oyisebenzisela ukuthenga izicathulo zokugijima ingase isikisele intshisekelo yakho njengokuthi \"ezokugijima amamarathoni.\"\n\nKamuva, ngokusekelwe kule ntshisekelo, i-app ehlukile ingakubonisa isikhangiso esihlobene namamarathoni.\n\nKumasethingi akho wobumfihlo, ungaphatha uhlu lwama-app alondoloze ongaba nentshisekelo kukho."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Izakhi ezintsha zobumfihlo besikhangiso"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Izihloko zezikhangiso nezilawuli ezintsha zikunikeza ukukhetha okwengeziwe ezikhangisweni ozibonayo"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Izakhi zobumfihlo zezikhangiso ezintsha seziyatholakala"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"I-Android iphawula izihloko ongaba nentshisekelo kuzo ngokusekelwe kuma-app osanda kuwasebenzisa. Futhi, ama-app owasebenzisayo anganquma ukuthi yini oyithandayo. Kamuva, ama-app angacela lolu lwazi ukuze akubonise izikhangiso eziqondene nawe. Ungakhetha ukuthi yiziphi izihloko nama-app ezisetshenziselwa ukukubonisa izikhangiso."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Ukuze kukalwe ukusebenza kwesikhangiso, izinhlobo ezikhawulelwe zedatha zabiwa phakathi kwama-app."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Okuningi mayelana nezikhangiso ku-Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Izikhangiso eziwusizo ezengeziwe"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Ama-app angacela ulwazi lwe-Android ukuze asize ukuqondanisa nomuntu siqu izikhangiso ozibonayo."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  I-Android yazisa izihloko ongaba nentshisekelo kuzo ngokusekelwe kuma-app osanda kuwasebenzisa."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Ama-app owasebenzisayo angase aphinde anqume ukuthi yini oyithandayo ngokusekelwe endleleni owasebenzisa ngayo. Ngokwesibonelo, uma usebenzisa i-app ethengisa izicathulo zokugijima amabanga amade, i-app inganquma ukuthi uthanda ukugijima imijaho."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Kamuva, i-app oyisebenzisayo ingacela lolu lwazi — kungaba yizihloko zesikhangiso sakho noma izikhangiso eziphakanyiswe ama-app owasebenzisile."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"I-Android isusa ngokuzenzekela izihloko nedatha ephakanyiswa yi-app njalo. Ungakwazi futhi ukuvimba izihloko ezithile nama-app ongafuni ukuwenza iziphakamiso."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Ukulinganisa ukuthi isikhangiso senza kahle kangakanani"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Ama-app owasebenzisayo angacela i-Android ulwazi oluzowasiza ukuthi alinganisele ukusebenza kwezikhangiso zawo. I-Android ivumela ama-app ukuthi aqoqe izinhlobo ezikhawulelwe zedatha, njengesikhathi sosuku isikhangiso esiboniswe ngaso."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Zama izakhi ezintsha zobumfihlo besikhangiso"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Izihloko zesikhangiso zikunikeza ukukhetha okwengeziwe kunezikhangiso ozibonayo"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Buka Imininingwane"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Zama izakhi ezintsha zobumfihlo bezikhangiso"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"I-Android yethula izakhi ezintsha zobumfihlo ezikunikeza ukukhetha okwengeziwe kunezikhangiso ozibonayo."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Izihloko zesikhangiso zisiza ama-app ukuthi akubonise izikhangiso ezifanele ngenkathi evikela ubuwena kanye nolwazi olumayelana nokusetshenziswa kwe-app yakho. I-Android ingakwazi ukuphawula izihloko ozithakaselayo ngokusekelwe kuma-app osanda kuwasebenzisa. Kamuva, i-app oyisebenzisayo ingacela i-Android ngezihloko ezihambisanayo zokuqondanisa nomuntu siqu izikhangiso ozibonayo."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Ungabona izihloko zesikhangiso kumasethingi edivayisi yakho futhi uvimbele lezo ongafuni ukuthi zabiwe nama-app. I-Android iphinde isuse ngokuzenzekela izihloko zesikhangiso njalo."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Ungashintsha umqondo wakho noma nini kumasethingi obumfihlo."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Okuningi mayelana nezihloko zezikhangiso"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Funda kabanzi mayelana nokuthi i-Android iyivikela kanjani idatha yakho "<a href="https://policies.google.com/privacy">"Kunqubomgomo yethu Yobumfihlo"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Kuzame"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Iyiphi idatha esetshenziswayo"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Izihloko zezikhangiso zakho zisekelwe kuma-app osanda kuwasebenzisa kule divayisi nokuthi uwasebenzisa kaningi kangakanani."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Indlela esisebenzisa ngayo le datha"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"I-Android iphawula izihloko ongaba nentshisekelo kuzo njengoba usebenzisa ama-app akho. Amalebula esihloko achazwa kusengaphambili futhi afaka izinto ezifana Nezobuciko Nezokuzijabulisa, Ukuthenga, Nezemidlalo. Ngemva kwalokho, i-app oyisebenzisayo ingacela i-Android izihloko zakho ezimbalwa (kodwa hhayi idatha emayelana nokusetshenziswa kwe-app noma ubuwena) ukuze uqondanise nomuntu siqu izikhangiso ozibonayo"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Indlela ongaphatha ngayo idatha yakho"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"I-Android isusa ngokuzenzakalela izihloko njalo. Njengoba uqhubeka usebenzisa ama-app, isihloko singase sivele ohlwini. Ungakwazi nokuvimba izihloko ongafuni ukuthi i-Android izabe nama-app, futhi uvale izihloko zesikhangiso noma kunini kumasethingi obumfihlo."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Ungenza izinguquko kumasethingi obumfihlo."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Ezinye izakhi zobumfihlo zezikhangiso seziyatholakala"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"I-Android futhi inikeza izindlela ezintsha zokukhawulela lokho ama-app angakufunda ngawe uma ekubonisa izikhangiso eziqondaniswe nomuntu siqu."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Izikhangiso eziphakanyiswe yi-app zisiza ukuvikela ubuwena kanye nolwazi olumayelana nokusetshenziswa kwe-app kuyilapho kuvumela ama-app ukuthi akubonise izikhangiso ezifanele. Ngokusekelwe kumsebenzi wakho, i-app oyisebenzisayo ingaphakamisa izikhangiso ezihlobene kwamanye ama-app. Ungabona uhlu lwama-app futhi uwavimbe ekwenzeni iziphakamiso, kumasethingi obumfihlo."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Ngesilinganiso sesikhangiso, izinhlobo ezilinganiselwe zedatha zabiwa phakathi kwama-app ukuze kulinganiswe ukusebenza kwezikhangiso zazo, njengesikhathi sosuku isikhangiso esiboniswe ngalo."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Okuningi mayelana nezikhangiso eziphakanyiswe yi-app kanye nesilinganiso sesikhangiso"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Izikhangiso eziphakanyiswe yi-app"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Ngeyiphi idatha esetshenziswayo"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Umsebenzi wakho ku-app oyisebenzisa kule divayisi."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Indlela ama-app asebenzisa ngayo le datha"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Ama-app angagcina ulwazi nge-Android mayelana nezinto ozithandayo. Ngokwesibonelo, uma usebenzisa i-app emayelana nokuqeqeshela umjaho i-app inganquma ukuthi uthanda izicathulo zokugijima. Kamuva, uma usebenzisa i-app ehlukile, leyo app ingakubonisa isikhangiso sezicathulo zokugijima esiphakanyiswe i-app yokuqala."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Indlela ongaphatha ngayo idatha yakho"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"I-Android isula ngokuzenzekela idatha ephakanyiswe yizikhangiso ngokuvamile. I-App oyisebenzisayo futhi ingase ivele ohlwini."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Ungakwazi futhi ukuvimba i-app ekuphakamiseni izikhangiso, usethe kabusha yonke idatha yesiphakamiso sesikhangiso, noma uvale izikhangiso eziphakanyiswe i-app noma kunini kumasethingi obumfihlo."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Ama-app owasebenzisayo angacela i-Android ulwazi olusiza ukulinganisele ukusebenza kwezikhangiso zawo. I-Android ivikela ubumfihlo bakho ngokukhawulela i-app yolwazi engabelana ngawo wodwa."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Izakhi zobumfihlo zezikhangiso ezintsha seziyatholakala"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Thola ukukhetha okwengeziwe phezu kwezikhangiso ozibonayo kuyilapho uvikela ubuwena"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Izakhi zobumfihlo zezikhangiso ezintsha seziyatholakala"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"I-Android yethula izindlela ezintsha zokukhawulela lokho ama-app angakufunda ngawe uma ekubonisa izikhangiso eziqondaniswe nomuntu siqu."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Ngezikhangiso eziphakanyiswa yi-app, izakhi ezintsha zobumfihlo zisiza ukuvikela ubunikazi bakho kanye nolwazi olumayelana nokusetshenziswa kwe-app yakho kuyilapho kuvumela ama-app ukuthi akubonise izikhangiso ezifanele. Ngokusekelwe kumsebenzi wakho, i-app oyisebenzisayo ingaphakamisa izikhangiso ezihlobene kwamanye ama-app. Ungabona uhlu lwama-app futhi uwavimbe ekwenzeni iziphakamiso, kumasethingi obumfihlo."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Ngokulinganisela isikhangiso, izinhlobo ezikhawulelwe zedatha zabiwa phakathi kwama-app ukuze kulinganiswe ukusebenza kwezikhangiso zazo, njengesikhathi sosuku owaboniswa ngaso isikhangiso."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Umsebenzi wakho ku-app kule divayisi ungasetshenziswa ukuphakamisa izikhangiso."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Vula esinye isakhi sobumfihlo bezikhangiso"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"I-Android iphinde inikeze isakhi esisha sobumfihlo esikunikeza ukukhetha okwengeziwe kunezikhangiso ozibonayo."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Izihloko zesikhangiso zisiza ama-app ukuthi akubonise izikhangiso ezifanele ngenkathi evikela ubuwena kanye nolwazi olumayelana nokusetshenziswa kwe-app yakho. I-Android ingakwazi ukuphawula izihloko ozithakaselayo ngokusekelwe kuma-app osanda kuwasebenzisa. Kamuva, i-app oyisebenzisayo ingacela i-Android izihloko ezihambisanayo ukuze ikubonise izikhangiso ezihambisana kakhulu."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Ungabona izihloko zesikhangiso kumasethingi edivayisi yakho futhi uvimbele lezo ongafuni ukuthi zabiwe nama-app. I-Android iphinde isuse ngokuzenzekela izihloko zesikhangiso njalo."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Yivule"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Izakhi zobumfihlo zezikhangiso ezintsha seziyatholakala"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Manje, kukhona ukukhetha okwengeziwe phezu kwezikhangiso ozibonayo kuyilapho uvikela ubuwena"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Izakhi zobumfihlo zezikhangiso ezintsha seziyatholakala"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"I-Android manje ikunikeza izakhi ezintsha zobumfihlo ezikunikeza ukukhetha okwengeziwe kunezikhangiso ozibonayo."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Okulandelayo"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"I-Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Hlanganyela ku-beta yobumfihlo yezikhangiso ze-Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"I-Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Ongaba nentshisekelo kukho okusikiselwe yi-Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Ama-app asikisela ongaba netshisekelo kukho"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Isilinganiso sesikhangiso"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Ama-app angasebenzisa i-Privacy Sandbox ukukala ukusebenza kahle kwezikhangiso zawo. Ukwenza lokhu, abakhangisi bangalondoloza idatha okwesikhashana nge-Android mayelana nokusebenzisana kwakho phakathi kwezikhangiso zabo nama-app. Inani ledatha abangakwazi ukulilondoloza likhawulelwe futhi lizosulwa ngokuvamile.\n\nUngasula le datha noma kunini ngokuvala i-Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"I-Android ngezikhathi ezithile ilinganisela ongaba nentshiseklo kukho okuphezulu ngokususelwe kuma-app owasebenzisayo. Ama-app angacela i-Android ukuthi isebenzise lokho ongaba nentshisekelo kukho ukuze ikubonise izikhangiso ezihambisana kakhulu.\n\nUma uvimbela ongaba nentshisekelo kukho, ngeke yengezwe ohlwini futhi ngaphandle kokuthi uyivulele. Usengabona ezinye zezikhangiso ezihambisanayo."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Vimba"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Vulela"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Ongaba nentshisekelo kukho okuvimbele"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Setha kabusha konke ongaba nentshisekelo kukho"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Azikho izintshisekelo ongazibonisa njengamanje."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Azikho izihloko ezingaboniswa njengamanje.\nFunda kabanzi mayelana "<a href="https://support.google.com/android?p=ad_privacy">"nezihloko zesikhangiso"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"I-Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"I-beta yobumfihlo yezikhangiso ze-Android inikeza izakhi ezintsha ezingasetshenziswa ama-app ukuze akubonise izikhangiso ongase uzithande. Lobu buchwepheshe abuzisebenzisi izinkomba zedivayisi.\n\nI-Android ingalinganisela izinhlobo zezikhangiso ongaba nentshisekelo kuzo, futhi ilondoloze lezi zintshisekelo zakho okwesikhashana kudivayisi yakho. Lokhu kuvumela ama-app ukuthi akubonise izikhangiso ezihambisanayo, ngaphandle kokulandelela umsebenzi wakho kuwo wonke amawebhusayithi nama-app avela kwabanye onjiniyela."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Awunakho ongaba nentshiseklo kukho okuvinjiwe"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Azikho izihloko ezivinjiwe"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Buka izihloko ezivinjiwe"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Izintshisekelo zisethiwe kabusha"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Izihloko zisethwe kabusha"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Ama-app angalinganisela ongaba nentshisekelo kukho futhi alondoloze lezi okwesikhashana nge-Android. Kamuva, i-app ehlukile ingakubonisa isikhangiso esisekelwe kulezi zintshisekelo.\n\nUma uvimba i-app, ngeke iphinde isikisele okunye ongaba nentshisekelo kukho. Ngeke iphinde yengezwe kulolu uhlu lwama-app ngaphandle kokuthi uyivulele. Ongaba netshisekelo kukho okusikiselwe kakade i-app kuzosulwa, kodwa usengabona ezinye izikhangiso ezihambisanayo."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Ama-app owavimbile"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Buka ama-app avinjiwe"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Setha kabusha ongaba nentshisekelo kukho okusikiselwe ama-app"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Akekho ama-app akhiqiza izintshisekelo zelungelo lakho manje"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Awekho ama-app angaboniswa njengamanje. \nFunda kabanzi mayelana "<a href="https://support.google.com/android?p=ad_privacy">"nezikhangiso ezisikiselwe yi-app"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"I-Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"I-beta yobumfihlo bezikhangiso ze-Android inikeza izakhi ezintsha ezingasetshenziswa ama-app ukuze akubonise izikhangiso ongase uzithande. Lobu buchwepheshe abuzisebenzisi izinkomba zedivayisi.\n\nAma-app angalinganisela izinhlobo zezikhangiso ongaba nentshisekelo kuzo, futhi alondoloze lezi zintshisekelo zakho okwesikhashana kudivayisi yakho. Lokhu kuvumela ama-app ukuthi akubonise izikhangiso ezihambisanayo, ngaphandle kokulandelela umsebenzi wakho kuwo wonke amawebhusayithi nama-app avela kwabanye onjiniyela."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Awunawo ama-app avinjiwe"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Awekho ama-app avinjiwe"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Vumela ukulinganiswa kwesikhangiso"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Ama-app nabakhangisi bangacela ulwazi ku-Android olubasiza balinganise ukusebenza kwezikhangiso zabo.\n\nIdatha yokulinganisa isikhangiso isuswa njalo kudivayisi yakho."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Setha kabusha idatha yokulinganisa"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"I-Android ivikela ubumfihlo bakho ngokukhawulela ama-app olwazi angabelana ngazo wodwa. Imibiko ithunyelwa ngokubambezeleka ukuze kuvikelwe ubuwena.\n\nIbhrawuza yakho ingase ibe nesethingi elifanayo. Uma ukulinganiswa kwesikhangiso kuvulelwe kokubili i-Android nebhrawuza yakho, inkampani ingase ikwazi ukukulinganisela ukusebenza kahle kwesikhangiso phakathi kwama-app owasebenzisayo namasayithi owavakashelayo. Umlando wakho wokubhrawuza ugcinwa uyimfihlo kudivayisi yakho.\n\nFunda kabanzi mayelana nokuthi i-Android iyivikela kanjani idatha yakho "<a href="https://policies.google.com/privacy">"Kunqubomgomo yethu Yobumfihlo"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Idatha yokulinganisa isikhangiso isethwe kabusha"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Khansela"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Vala i-Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Uma ushintsha umqondo wakho noma ufuna ukufunda okwengeziwe mayelana ne-beta yobumfihlo yezikhangiso ze-Android, yiya kumasethingi akho obumfihlo"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Vala"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Vimba i-<xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Lesi sihloko sizovinjwa futhi ngeke sengezwe ohlwini lwakho futhi, ngaphandle uma usengeza futhi. Usengabona ezinye zezikhangiso ezihlobene."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Vimba"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"I-<xliff:g id="TOPIC">%1$s</xliff:g> ivulelwe"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"I-Android ingase yengeze lesi sihloko ohlwini lwakho futhi, kodwa ingase ingaveli ngokushesha"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"KULUNGILE"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Setha kabusha zonke izihloko zesikhangiso?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Uhlu lwakho luzosulwa futhi izihloko ezintsha zizongezwa ukuya phambili. Usengabona ezinye izikhangiso ezihlobene nezihloko ozisethe kabusha."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Setha kabusha"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Vimba i-<xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Le app ngeke iphakamise izikhangiso futhi ngeke yengezwe ohlwini lwakho futhi, ngaphandle kokuthi uyivulele. Usengabona ezinye zezikhangiso ezihambisanayo."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"I-<xliff:g id="APP">%1$s</xliff:g> ivulelwe"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Le app ingakuphakamisela izikhangiso futhi, kodwa ingase ingaveli ohlwini lwakho ngokushesha. Kungase kuthathe isikhashana ukuze ubone izikhangiso ezihlobene."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Setha kabusha izikhangiso eziphakanyiswe ama-app?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Idatha yesiphakamiso sesikhangiso kusukela kuma-app asohlwini lwakho izosulwa futhi ama-app azophakamisa izikhangiso ezintsha ukuya phambili. Usengabona ezinye zezikhangiso ezihlobene."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Idatha ye-app isethwe kabusha"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Izihloko zesikhangiso zivuliwe"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"I-Android izoqala ukuqaphela izihloko onentshisekelo kuzo. kodwa kungase kuthathe isikhashana ukuthi izihloko zakho zokuqala zivele."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Vala izihloko zesikhangiso?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Lolu uhlu lwezihloko luzosulwa. I-Android ngeke isakwazi ukuphawula izihloko ozithakaselayo, kodwa usengabona izikhangiso ezifanele."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Izikhangiso zeziphakamiso ze-app zivuliwe"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Ama-app angaqala ukuphakamisa izikhangiso. Uzobona uhlu lwama-app uma sewaqale ukuphakamisa izikhangiso."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Vala izikhangiso eziphakanyiswe yi-app?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Yonke idatha yesiphakamiso sesikhangiso izosulwa. Ama-app ngeke esakwazi ukuphakamisa izikhangiso, kodwa usengabona izikhangiso ezihlobene."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Ukulinganisela isikhangiso kuvuliwe"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"I-Android ingabelana ngolwazi olulinganiselwe nama-app kuphela ukuze isize ama-app alinganisele ukusebenza kwezikhangiso zawo."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Vala ukulinganisela isikhangiso?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Yonke imibiko elindile yokulinganisa izikhangiso izosulwa futhi ayikho imibiko emisha ezokwenziwa noma kwabelwane ngayo."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Ubumfihlo besikhangiso"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Izihloko zezikhangiso"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Izikhangiso ezisikiselwe yi-app"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"I-Android iphawula izihloko ezithakaselwayo ezisuselwe kuma-app osanda kuwasebenzisa nokuthi uwasebenzisa kaningi kangakanani."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Ama-app owasebenzisayo angase futhi anqume ukuthi yini oyithandayo ngokusekelwe endleleni owasebenzisa ngayo."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Ama-app owasebenzisayo angacela i-Android ulwazi oluzowasiza ukuthi alinganisele ukusebenza kwezikhangiso zawo. I-Android ivumela ama-app ukuthi aqoqe izinhlobo ezikhawulelwe zedatha."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Funda kabanzi mayelana "<a href="https://support.google.com/android?p=ad_privacy">"nobumfihlo bezikhangiso ze-Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Vuliwe / izihloko ezingu-<xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Vuliwe / isihloko esingu-#}one{Vuliwe / izihloko ezingu-#}other{Vuliwe / izihloko ezingu-#}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Vuliwe / ama-app angu-<xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Vuliwe / i-app engu-#}one{Vuliwe / ama-app angu-#}other{Vuliwe / ama-app angu-#}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Vuliwe"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Valiwe"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Izihloko ongaba nentshisekelo kuzo zisekelwe kuma-app osanda kuwasebenzisa, futhi zisetshenziswa ama-app ukukubonisa izikhangiso eziqondene nawe.\n\nUngakwazi ukuvimba izihloko ongafuni zabiwe nama-app. I-Android iphinda isule ngokuzenzekela izihloko ngokuvamile.\n\nNakuba lesi sakhi singavulwa, ungase ungaboni uhlu lwezihloko kuze kube yilapho lesi sakhi sesitholakala ngokugcwele nama-app aqala ukusisebenzisa."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Vumela izihloko zesikhangiso"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Izihloko zezikhangiso ozivimbile"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Setha kabusha zonke izihloko zesikhangiso"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"I-Android iphawula izihloko onentshisekelo kuzo ngokusekelwe kuma-app owasebenzise kula maviki ambalwa adlule.\n\nKamuva, i-app oyisebenzisayo ingacela i-Android ukuthi izihloko zakho ziqondanise nomuntu siqu izikhangiso ozibonayo. I-Android yabelana ngezihloko ezifika kwezi-3 kuyilapho ivikela ubuwena kanye nolwazi olumayelana nokusetshenziswa kwe-app.\n\nI-Android isusa ngokuzenzakalela izihloko njalo. Njengoba uqhubeka usebenzisa ama-app, isihloko singase sivele ohlwini. Noma ungavimba izihloko ongafuni ukuthi i-Android izabe nama-app.\n\nKuma-app akho, isikhangiso osibonayo singaqondaniswa nomuntu siqu, kuye ngaleli sethingi, isethingi yezikhangiso eziphakanyiswa i-app, amasethingi e-ID yokukhangisa, kanye nokuthi i-app oyisebenzisayo iqondanisa izikhangiso nomuntu siqu yini."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Vumela izikhangiso ezisikiselwe yi-app"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Ama-app owasebenzisayo anganquma ukuthi yini oyithandayo bese aphakamisa izikhangiso kwamanye ama-app.\n\nUngavimba ama-app ekwenzeni iziphakamiso. I-Android iphinda isule ngokuzenzekela idatha ephakanyiswe i-app njalo.\n\nNakuba lesi sakhi singavulwa, ungase ungaboni uhlu lwama-app kuze kube yilapho lesi sakhi sesitholakala ngokugcwele nama-app aqala ukusisebenzisa."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Ama-app owavimbile"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Setha kabusha idatha ephakanyiswe yi-app"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Kuvamile ukuthi ama-app owasebenzisayo akhumbule izinto onentshisekelo kuzo ukuze ziqondanise nomuntu siqu ukuzizwisa kwakho. Ama-app angase futhi agcine ulwazi nge-Android mayelana nezihloko zakho.\n\nNgokwesibonelo, uma usebenzisa i-app emayelana nokuqeqeshwa kwe-marathon, i-app inganquma ukuthi uthanda izicathulo zokugijima. Kamuva, uma usebenzisa i-app ehlukile, leyo app ingakubonisa isikhangiso sezicathulo zokugijima esiphakanyiswe i-app yokuqala.\n\nI-Android isusa ngokuzenzekela idatha ephakanyiswa njalo i-app. I-App oyisebenzisayo futhi ingase ivele ohlwini. Noma ungavimba i-app ukuthi ikuphakamisele izikhangiso.\n\nKuma-app akho, isikhangiso osibonayo singaqondaniswa nomuntu siqu, kuye ngale sethingi, isethingi lezihloko zesikhangiso, amasethingi akho e-ID yokukhangisa, nokuthi i-app oyisebenzisayo iqondanisa nomuntu siqu yini izikhangiso."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Isakhi esisha sobumfihlo sezikhangiso manje siyatholakala"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Ulwazi olukhawulelwe kakhulu olwabiwayo phakathi kwama-app ukusiza ukulinganisa ukusebenza kwesikhangiso"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Sethula isakhi esisha sobumfihlo besikhangiso esibizwa ngokuthi yisilinganiso sesikhangiso. I-Android yabelana kuphela ngolwazi olukhawulelwe kakhulu phakathi kwama-app, njengokuthi uma isikhangiso siboniswa kuwe, ukusiza ama-app ukulinganisa ukusebenza kwezikhangiso."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Ungenza izinguquko kumasethingi obumfihlo wesikhangiso."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Ama-app owasebenzisayo angacela i-Android ulwazi oluzowasiza ukuthi alinganisele ukusebenza kwezikhangiso zawo. I-Android ivumela ama-app ukuthi aqoqe kuphela izinhlobo ezikhawulelwe zedatha."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Izakhi ezintsha zobumfihlo besikhangiso"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Thola ukukhetha okwengeziwe phezu kwezikhangiso ozibonayo kuyilapho usiza ukuvikela ubuwena"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Izibuyekezo ezakhini zakho eziyimfihlo zesikhangiso"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Thola ukukhetha okwengeziwe phezu kwezikhangiso ozibonayo kuyilapho usiza ukuvikela ubuwena"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"I-Android inweba izakhi eziyimfihlo zesikhangiso ukuze zikhawulele lokho ama-app angakufunda ngawe uma ekubonisa izikhangiso eziqondaniswe nomuntu siqu."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Ama-app nozakwethu bawo bokukhangisa bangasebenzisa umsebenzi wakho kuwo wonke amanye ama-app kule divayisi ukuqondanisa izikhangiso nomuntu siqu kuyilapho esiza ukugcina ubuwena bugodliwe futhi buvikelekile."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Okuningi mayelana nezikhangiso zeziphakamiso ze-app"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Ngokulinganisela isikhangiso, izinhlobo ezikhawulelwe zedatha zabiwa phakathi kwama-app ukuze kulinganiswe ukusebenza kwezikhangiso zazo, njengesikhathi sosuku owaboniswa ngaso isikhangiso."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Okwengeziwe mayelana nesilinganiso sesikhangiso"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"I-Android iyaziqaphela izihloko ongaba nentshisekelo kuzo ngokusekelwe kuma-app osanda kuwasebenzisa. Futhi, ama-app nozakwethu bawo bokukhangisa bangasebenzisa umsebenzi wakho kuwo wonke amanye ama-app kule divayisi ukwenza izikhangiso eziqondene nomuntu siqu kuyilapho esiza ukugcina ubuwena bugodliwe futhi buvikelekile."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Ama-app owasebenzisayo angase futhi anqume ukuthi yini oyithandayo ngokusekelwe kumsebenzi wakho we-app. Isibonelo, uma usebenzisa ama-app okupheka njalo, ungase ubone izikhangiso zamasevisi okudilivwa kwegrosa noma okuqukethwe okuhlobene kwamanye amanye ama-app\n\nAma-app angalugcina ngokuphephile lolu lwazi ukuze lusetshenziswe ozakwabo bokukhangisa kuphela ukwenza izikhangiso eziqondene nomuntu siqu kwamanye ama-app."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Kamuva, i-app oyisebenzisayo ingacela lolu lwazi – kungaba yizihloko zesikhangiso sakho noma izikhangiso eziphakanyiswe ama-app owasebenzisile."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Ama-app owasebenzisayo angacela i-Android ulwazi oluzowasiza ukuthi alinganisele ukusebenza kwezikhangiso zawo. I-Android isiza ngokuvikela ubumfihlo bakho ngokukhawulela ulwazi ama-app angabelana ngalo wodwa."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Iyiphi idatha esetshenziswayo?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Ama-app owasebenzisayo angacela i-Android ulwazi olusiza ukuba alinganisele ukusebenza kwezikhangiso zawo. I-Android ivikela ubumfihlo bakho ngokukhawulela i-app yolwazi engabelana ngawo wodwa."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Ubunikazi bami buvikelwa kanjani?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"I-Android isebenzisa izindlela eziningi zobumfihlo ezifana nokuhlukanisa kanye nedatha enomsindo ukuze ikhawulele ama-app olwazi engabelana ngawo wodwa futhi isize ukuvikela ubuwena.\n\nIdatha yokulinganisa isikhangiso nayo isulwa njalo kudivayisi yakho."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Umsebenzi wakho we-app ungasetshenziswa ukuphakamisa izikhangiso."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Ingabe ama-app ayisebenzisa kanjani le datha?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Ama-app angagcina ngokuphephile lolu lwazi ukuze asetshenziswe ozakwethu bokukhangisa kuphela ukuqondanisa izikhangiso nomuntu siqu kwamanye ama-app. Ngokwesibonelo, uma usebenzisa njalo ama-app wokupheka, ungase ubone izikhangiso zamasevisi okudilivwa kwegrosa noma okuqukethwe okuhlobene kwamanye ama-app."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Indlela yokuphatha le datha?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Ungavimba am-app athile ekwabelaneni ngomsebenzi wakho nozakwethu bokukhangisa. Ungasetha kabusha noma uvale izikhangiso zeziphakamiso ze-app noma kunini kumasethingi wakho obumfihlo. I-Android iphinda isule ngokuzenzekela le datha njalo."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Funda kabanzi mayelana nendlela i-Android esiza ngayo ukuvikela ubumfihlo bakho"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Ama-app nozakwethu bawo bezokukhangisa bangasebenzisa umsebenzi wakho kuwo wonke amanye ama-app kule divayisi ukuqondanisa izikhangiso nomuntu siqu kuyilapho zisagcina ulwazi olumayelana nawe lugodliwe futhi luvikelekile.\n\nNgokwesibonelo, uma usebenzisa njalo ama-pp wokupheka, ungase ubone izikhangiso zamasevisi okudilivwa kwegrosa noma okuqukethwe okuhlobene kwamanye ama-app.\n\nI-Android isusa ngokuzenzekela umsebenzi wakho njalo, kodwa futhi ungavimbela ama-app ekwabelaneni ngalolu lwazi nozakwethu bawo bezokukhangisa."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Kuvamile ukuthi ama-app nozakwethu bawo bokukhangisa bakhumbule izinto onentshisekelo kuzo ukuze benze ukuzizwisa kube ngokwakho. Ama-app angagcina ngokuphephile lolu lwazi ukuze lusetshenziswe ozakwethu bokukhangisa kuphela ukubonisa izikhangiso kwamanye ama-app.\n\nUngavimba i-app ekwabelaneni ngedatha yomsebenzi wakho nozakwethu bokukhangisa. I-Android iphinda isuse ngokuzenzekela idatha yomsebenzi owabiwe njalo, ukuze i-app oyisebenzisayo futhi iphinde ivele kulolu hlu.\n\nUkuthi isikhangiso osibonayo siqondaniswe nomuntu siqu kungancika ezintweni eziningi ezifana naleli sethingi, amasethingi ezihloko zesikhangiso, amasethingi wakho we-ID yokukhangisa, nokuthi ingabe i-app oyisebenzisayo iqondanisa izikhangiso nomuntu siqu.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Funda kabanzi mayelana nezikhangiso zeziphakamiso ze-app"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"I-Android isebenzisa izindlela eziningi zobumfihlo ezifana nokuhlanganisa nedatha enomsindo ukuze ikhawulele ama-app wolwazi angabelana ngalo wodwa futhi asize ukuvikela ubuwena.\n\nIbhrawuza yakho ingase ibe nesethingi elifanayo. Uma ukulinganisela isikhangiso kuvulelwe kokubili i-Android nebhrawuza yakho, inkampani ingase ikwazi ukulinganisela ukusebenza kahle kwesikhangiso phakathi kwama-app owasebenzisayo namasayithi owavakashelayo. Umlando wakho wokuphequlula ugcinwa uyimfihlo kudivayisi yakho.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Funda kabanzi mayelana nesilinganiso sesikhangiso"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"I-Android iphawula izihloko onentshisekelo kuzo ngokusekelwe kuma-app owasebenzise kula maviki ambalwa adlule.\n\nKamuva, i-app oyisebenzisayo ingacela i-Android ukuthi izihloko zakho ziqondanise nomuntu siqu izikhangiso ozibonayo. I-Android yabelana ngezihloko ezifika kwezingu-3 kuyilapho ivikela ubuwena kanye nolwazi olumayelana nokusetshenziswa kwe-app.\n\nI-Android isusa ngokuzenzekela izihloko njalo. Njengoba uqhubeka usebenzisa ama-app, isihloko singase sivele ohlwini. Noma ungavimba izihloko ongafuni ukuthi i-Android izabe nama-app.\n\nUkuthi isikhangiso osibonayo siqondaniswe nomuntu siqu kungancika ezintweni eziningi ezifana naleli sethingi, isethingi lezikhangiso zeziphakamiso ze-app, amasethingi we-ID yokukhangisa, kanye nokuthi i-app isebenzisa izikhangiso eziqondaniswe nomuntu siqu.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Funda kabanzi mayelana nezihloko zesikhangiso"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Umfanekiso omibalabala wezimpawu ezimele izihloko ozithakaselayo njengomculo, izindaba, nezemidlalo"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Umfanekiso omibalabala wesikhiya esingaphakathi kwendilinga"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Umfanekiso omncane omnyama nomhlophe wamachashazi ayisishiyagalolunye akha isikwele"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Umfanekiso omncane omnyama nomhlophe wokwakheka olula njengenhliziyo, unxantathu, nesikwele"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Ubuciko Nokokuzijabulisa"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Ukulingisa Netiyetha"</string>
+    <string name="topic10003" msgid="8107343709605778937">"I-Anime ne-Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Opopayi"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Awopopayi"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Amakhonsathi Namafestivali Omculo"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Umdanso"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Imboni yokuzijabulisa"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Ukuzijabulisa kanye ne-Trivia"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Izivivinyo Ezijabulisayo Nezinhlolovo Ezingenangqondo"</string>
+    <string name="topic10011" msgid="175945911179628507">"Amahlaya"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Izithombe Ezihlekisayo Namavidiyo"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Ihlaya elibukhoma"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Imicimbi yemidlalo yabukhoma"</string>
+    <string name="topic10015" msgid="726046067079821146">"Umlingo"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Uhlu Lwama-movie Nezikhathi Zezinhlelo Zetiyetha"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Ama-movie"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Amafilimu Esenzo Nokuzidela"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Amafilimu agqwayizayo"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Amafilimu Amahlaya"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Amafilimu Enkolo nama-Indie"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Amafilimu wedokhumentari"</string>
+    <string name="topic10023" msgid="254151319845267278">"Amafilimu edrama"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Amafilimu omndeni"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Awamafilimu athusayo"</string>
+    <string name="topic10026" msgid="210222384439682793">"Amafilimu ezothando"</string>
+    <string name="topic10027" msgid="6865151893887179263">"I-Thriller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Umculo Nomsindo"</string>
+    <string name="topic10029" msgid="2603521148910221418">"I-Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Umculo weklasikhi"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Umculo we-country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Umculo Wokudansa Nowe-elekthronikhi"</string>
+    <string name="topic10033" msgid="895853536740398847">"Umculo Wesintu Nomdabu"</string>
+    <string name="topic10034" msgid="4234814709585731313">"I-Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Ukusakazwa Komculo Nokudawunilodiwe"</string>
+    <string name="topic10036" msgid="449833307315797283">"Amavidiyo omculo"</string>
+    <string name="topic10037" msgid="51698216720637667">"Okokudlala umculo"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Amapiyano Namakhibhodi"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Umculo we-Pop"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Irediyo"</string>
+    <string name="topic10041" msgid="7067032299296103616">"I-Talk Radio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"I-Rap ne-Hip-Hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Umculo we-rock"</string>
+    <string name="topic10044" msgid="6201404431104417585">"I-Classic Rock nama-Oldies"</string>
+    <string name="topic10045" msgid="3723162035372109422">"I-Hard Rock ne-Progressive"</string>
+    <string name="topic10046" msgid="4700537150965749092">"I-Indie Nomunye Umculo"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Amasampula Namalabhulari Womsindo"</string>
+    <string name="topic10048" msgid="1968071881240362644">"I-Soul ne-R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Ama-Soundtrack"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Umculo womhlaba"</string>
+    <string name="topic10051" msgid="5719726125732251258">"I-Reggae Nomculo we-Caribbean"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Amagalari ezithombe eziku-intanethi"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Ividiyo eku-inthanethi"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Ukusakaza Ividiyo Bukhoma"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Ukusakaza i-Movie ne-TV"</string>
+    <string name="topic10056" msgid="1316228709578133569">"I-Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Imihlahlandlela ye-TV Nereferensi"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Amanethiwekhi Neziteshi ze-TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Imidlalo ye-TV Nezinhlelo"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Amahlaya we-TV"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Idokhumentari ye-TV Nezinganekwane"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Amadrama e-TV"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Ama-TV Soap Operas"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Izinhlelo ze-TV ezifanele imindeni"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Izinhlelo ze-TV Zokuphila Kwangempela"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Izinhlelo ze-TV  ze-Sci-Fi ne-Fantasy"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Ubuciko Obubonakalayo Nomklamo"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Ukuklama"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Ukupenda"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Umthwebuli Wezithombe Nobuciko Bedijithali"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Izimoto nezinqola"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Amaloli Ezimpahla Nezinqola"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Izimoto Zakudala"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Izimoto Zokomuntu Ngamunye Nezokusebenza"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Izintengo Zegesi Nokuthelwa Uphethiloli Kwezimoto"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Izimoto (Ngohlobo)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Izimoto Ezizihambelayo"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Izimoto Ezishintshwayo"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Ama-coupe"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Ama-hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"I-Hybrid kanye Nezinye Izimoto"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Izimoto Ezinethezekile"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Ama-Microcar nama-Subcompact"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Izithuthuthu"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Izimoto ezingahambi emgwaqweni"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Amaloli Okulanda"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Izikuta nama-Moped"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Ama-sedan"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Ama-station wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Ama-SUV nama-Crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Ama-crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Amaveni namaveni amancane"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Ukudonsa kanye Nosizo Lomgwaqo"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Imoto Nokuphepha Kwezimoto"</string>
+    <string name="topic10095" msgid="84682415803421329">"Izingxenye Zemoto Nezisetshenziswa"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Ukulungiswa Nokunakekelwa Kwezimoto"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Ukuthenga imoto"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Izimoto Ezisetshenzisiwe"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Izinhlelo zezimoto"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Ubuhle Nokufaneleka"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Ubuciko bomzimba"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Ukunakekelwa Kobuso Nomzimba"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Ama-Antiperspirant"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Imikhiqizo Yokugeza Neyomzimba"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Ezobuhle Obuhlanzekile"</string>
+    <string name="topic10106" msgid="3928455104996075953">"I-Make-up kanye Nezimonyo"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Imikhiqizo Yokunakekela Izinzipho"</string>
+    <string name="topic10108" msgid="577259588028933025">"Izithako Namakha"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Ama-razor nama-Shaver"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Imfashini Nesitayela"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Ukuzivocavoca"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Ukwakha umzimba"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Imfundo Yokufaneleka Nokuqeqeshwa Komuntu Siqu"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Imikhiqizo Yobuchwepheshe Bokufaneleka"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Ukunakekelwa kwezinwele"</string>
+    <string name="topic10116" msgid="763642849903586689">"Izincwadi Namabhuku"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Incwadi yezingane"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-Books"</string>
+    <string name="topic10119" msgid="894448782525835364">"Amamagazini"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Inkondlo"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Amabhizinisi nezimboni"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Ukukhangisa Nokumaketha"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Okuthengiswayo"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Ezolimo Namahlathi"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Ukukhiqizwa kokudla"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Imboni yezimoto"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Imboni Yezokundiza"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Imisebenzi yebhizinisi"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Amalungiselelo Womsebenzi Aguquguqukayo"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Izinsiza zomuntu"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Ukubolekwa kokuthengisa"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Ukwakha kanye Nokunakekela"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Awobunjiniyela bengqalasizinda"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Umsebenzi wozokuvikela"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Amandla Nezinsiza"</string>
+    <string name="topic10136" msgid="455894912948558854">"Ukuhlinzekwa Kwamanzi Nokwelashwa"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Umkhakha Wokungenisa Izihambi"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Ezokukhiqiza"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Izinsimbi kanye Nezimayini"</string>
+    <string name="topic10140" msgid="3210849036014636721">"I-MLM kanye Namathuba Ebhizinisi"</string>
+    <string name="topic10141" msgid="2209863158714894227">"I-Pharmaceuticals kanye ne-Biotech"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Ukuphrinta Nokushicilela"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Ukuhweba Kokuthengisa"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Ikhephithali yebhizinisi"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Amakhompyutha kanye ne-Electronics"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Izixhumi zekhompyutha"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Amaphrinta"</string>
+    <string name="topic10148" msgid="388392714835039199">"Ukuvikela ikhompyutha"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Isivikeli-magciwane kanye Nohlelo Olungayilungele Ikhompyutha"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Ukuvikeleka kwenethiwekhi"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Ama-electronic wabasebenzisi"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Amakhamera nama-Camcorder"</string>
+    <string name="topic10153" msgid="6999943807078774050">"I-GPS ne-Navigation"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Okuzenzakalelayo kwasekhaya"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Isistimu yasesinema yasekhaya"</string>
+    <string name="topic10156" msgid="5908298124114814149">"I-MP3 kanye Nezidlali Zemidiya Eziphathwayo"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Ubuchwepheshe Obugqokekayo"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Isipele Sedatha Nokutakula"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Amakhompyutha wedeskithophu"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Amakhompuyutha aphathekayo nama-notebook"</string>
+    <string name="topic10161" msgid="172004201167511870">"Ukunethiwekha"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Kusatshalaliswe kanye ne-Cloud Computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Ukuhlela"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Isofthiwe"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Isofthiwe Yomsindo Nomculo"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Isofthiwe Yebhizinisi Nokukhiqiza"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Ikhalenda Nesofthiwe Yokuhlela"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Isofthiwe Yokuhlanganyela Nenkomfa"</string>
+    <string name="topic10169" msgid="827557334245484202">"Isofthiwe yephrezentheshini"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Isofthiwe yespredishithi"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Isothiwe ye-Word Processing"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Ukushicilelwa kwedeskithophu"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Amafonti"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Abaphathi bokulanda"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Amasofthiwe Amahhala Nabelanwayo"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Isofthiwe Yezithombe Nopopayi"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Abasizi Bomuntu Abahlakaniphile"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Izidlali zemidiya"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Isofthiwe Yokuqapha"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Amasistimu okusebenza"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Isofthiwe Yesithombe Nevidiyo"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Isofthiwe Yezithombe"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Isofthiwe Yevidiyo"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Izinsiza zesofthiwe"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Amabhrawuza Ewebhu"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Imali"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Ezezimali Nezokuhlola"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Ukulungiselela Nokuhlelwa Kwentela"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Ibhange"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Ukudlulisela Imali Namasevisi we-Wire"</string>
+    <string name="topic10191" msgid="374364159635356705">"Isikweletu Nokuboleka"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Amakhadi esikweletu"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Ukusiza ngezimali kwekhaya"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Imalimboleko Yomuntu Siqu"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Imalimboleko Yabafundi kanye Nezimali Zasekolishi"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Ukuhlelwa Nokuphathwa Kwezezimali"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Umhlalaphansi kanye Nempesheni"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Amagranti"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Amagranti"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Umshwalense"</string>
+    <string name="topic10201" msgid="447240478385298875">"Umshwalensi wokuzenzakalela"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Umshwalense wempilo"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Umshwalensi wasekhaya"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Umshwalense wempilo"</string>
+    <string name="topic10205" msgid="262581473890356377">"Umshwalense wokuhamba"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Ukutshala imali"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Impahla Nokuhweba Ngesivumelwano Samanani"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Uhlobo Lwezimali Nokushintshisana Ngezimali Zakwamanye Amazwe"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Izimali ezivikela ukulahlekelwa"</string>
+    <string name="topic10210" msgid="5646412565978393234">"I-Mutual Funds"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Izitoko Namabhondi"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Ukudla Neziphuzo"</string>
+    <string name="topic10213" msgid="805716705436663130">"Ukupheka Namarisiphu"</string>
+    <string name="topic10214" msgid="726298155737413779">"Ukosa Nokuthosa"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Ama-Cuisine"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Ukudla kwabangadli inyama"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Ukudla kwe-Vegan"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Ukudla kahle"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Izitolo Zokudla Negrosa"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Amageyimu"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Amageyimu e-Arcade kanye ne-Coin-Op"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Ama-Billiard"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Amageyimu ebhodi"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Amageyimu we-Chess ne-Abstract Strategy"</string>
+    <string name="topic10225" msgid="564207834821286301">"Amageyimu Ekhadi"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Amageyimu wamakhadi aqoqekayo"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Amageyimu Wekhompyutha Nevidiyo"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Awamageyimu we-Action nawasezitolo"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Amageyimu okuzidela"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Amageyimu angavamile"</string>
+    <string name="topic10231" msgid="405082026972839048">"Amageyimu Evidiyo Okuncintisana"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Awamageyimu wokushayela nawomjaho"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Amageyimu okulwa"</string>
+    <string name="topic10234" msgid="693433817142162565">"Ireferensi Yegeyimu Nezibuyekezo"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Ukukopela Kwegeyimu Yevidiyo Namacebiso"</string>
+    <string name="topic10236" msgid="320145832033080647">"Imidlalo Yabadlali Abaningi Kakhulu"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Awamageyimu womculo wokudansa"</string>
+    <string name="topic10238" msgid="124952008622371505">"Amageyimu e-Sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Amageyimu okudubula"</string>
+    <string name="topic10240" msgid="429738690314619395">"Amageyimu okulingisa"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Awebhizinisi nawamageyimu wosozimali"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Amageyimu wokwakha amadolobha"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Awamageyimu okulingisa impilo"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Awezenzisi zemoto"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Amageyimu ezemidlalo"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Amageyimu okuphatha ezemidlalo"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Amageyimu amacebo"</string>
+    <string name="topic10248" msgid="279151815457227293">"Amamodi Wegeyimu Yevidiyo Nezengezo"</string>
+    <string name="topic10249" msgid="631580828608894782">"Amageyimu wemfundo"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Amageyimu Nemisebenzi Egxile Emndenini"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Ukudweba kanye Nokufaka Umbala"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Amageyimu Okugqoka Nemfashini"</string>
+    <string name="topic10253" msgid="385499297969826942">"Ama-puzzle nama-Brainteaser"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Ukudlala Amageyimu"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Ithenisi Yasetafuleni"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Amageyimu e-tile"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Amageyimu omhlaba"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Okokuzilibazisa Nokungcebeleka"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Imigubho"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Izinsuku Zokuzalwa Nezinsuku Zegama"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Imisebenzi Yokutshuza Nangaphansi Kwamanzi"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Ubuciko be-Fiber ne-Textile"</string>
+    <string name="topic10263" msgid="361345691023794788">"Ngaphandle"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Ukudoba"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Ukuzingela Nokudubula"</string>
+    <string name="topic10266" msgid="8850275614185862002">"I-Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Ukulawulwa Komsakazo Nokumodela"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Imishado"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Ikhaya Nengadi"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Ezokutshala"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Ukuhlobisa Kwasekhaya Nangaphakathi"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Izinto zikagesi zasekhaya"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Ezokuthuthukiswa Kwekhaya"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Ukuphepha Nokuvikeleka Ekhaya"</string>
+    <string name="topic10275" msgid="682064062059687444">"Izisetshenziswa Zasendlini"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Ukuklanywa Kwamagceke"</string>
+    <string name="topic10277" msgid="5888643119731566320">"I-inthanethi ne-Telecom"</string>
+    <string name="topic10278" msgid="1736187026108921963">"I-imeyili Nemiyalezo"</string>
+    <string name="topic10279" msgid="9034205050642228743">"I-imeyili"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Umbhalo kanye Nemiyalezo Esheshayo"</string>
+    <string name="topic10281" msgid="582764575763317221">"Ukuxoxa Ngezwi Nevidiyo"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Ama-ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Abahlinzeki Bamasevisi Efoni"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Amathoni Okukhala Namatimu Wokweselula"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Izinjini zokusesha"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Amafoni Asmathi"</string>
+    <string name="topic10287" msgid="3350459436622898201">"I-Teleconferencing"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Ama-app Ewebhu Namathuluzi Aku-inthanethi"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Amasevisi ewebhu"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Isitoreji se-Cloud"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Ukuklanywa Nokuthuthukiswa Kwewebhu"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Ukusingatha Iwebhu"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Imisebenzi Nemfundo"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Imfundo"</string>
+    <string name="topic10295" msgid="331240908257602211">"Izinkomfa Zezemfundo Nokushicilelwa"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Amakolishi Namanyuvesi"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Ukufundela ekhaya"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Imfundo yezingane ezincane"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Inkulisa"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Ukufundela ekhaya"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Izivivinyo Zezimiso Nezokwamukelwa"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Izinsiza Zokufundisa Nezasekilasini"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Imfundo Yezandla Neqhubekayo"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Imisebenzi"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Izinsiza Zemisebenzi Nokuhlela"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Uhlu lwemisebenzi"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Umthetho Nohulumeni"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Ubugebengu Nobulungisa"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Ezomthetho"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Amasevisi wezomthetho"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Izindaba"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Izindaba zomnotho"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Izindaba zendawo"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Ukuhlanganiswa Nokutholwa"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Amaphephandaba"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Ezepolotiki"</string>
+    <string name="topic10317" msgid="888696185673599406">"Izindaba Zemidlalo"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Isimo sezulu"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Izindaba Zezwe"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Imiphakathi eku-inthanethi"</string>
+    <string name="topic10321" msgid="7457693963027299711">"I-Clip Art nama-GIF Opopayi"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Ukuqomisana Nobuntu"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Ukuhlanganisa Okuphakelayo kanye Nokubhukhimakha Komphakathi"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Ukwabelana Ngefayela Nokusingathwa"</string>
+    <string name="topic10325" msgid="916412844647169263">"Inkundla kanye Nabahlinzeki Bezingxoxo"</string>
+    <string name="topic10326" msgid="9167525727089128814">"I-Microblogging"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Ukwabelana Ngesithombe Nevidiyo"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Ukwabelana Ngesithombe Nomfanekiso"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Ukwabelana ngevidiyo"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Izikhumba"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Ama-app Okuxhumana Komphakathi Nezengezo"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Amanethiwekhi wokuxhumana nomphakathi"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Abantu kanye Nomphakathi"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Umndeni Nobudlelwano"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Indabuko Nozalo"</string>
+    <string name="topic10336" msgid="360328903013424569">"Umshado"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Ubuzali"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Ukutholwa"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Izingane kanye Nojahidada"</string>
+    <string name="topic10340" msgid="259457452971577855">"Ukuphepha Kwezingane Ku-inthanethi"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Ezothando"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Okwesayensi okuqanjiwe Nokusemqondweni"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Izilwane ezifuywayo nezasendle"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Ukudla Kwezilwane Ezifuywayo Nokokuzinakekela"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Izilwane zasekhaya"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Izinyoni"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Amakati"</string>
+    <string name="topic10348" msgid="570783769757187957">"Izinja"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Izinhlanzi ne-Aquaria"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Izilwane Ezinwabuzelayo kanye Nezilwane Ezihlala Emanzini"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Odokotela bezilwane"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Izindlu ezithengiswayo"</string>
+    <string name="topic10353" msgid="230887584509968233">"Inkatho Nomhlaba"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Ama-Timeshare Nezindawo Zokuvakasha"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Ireferensi"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Uhlu Lwebhizinisi Nomuntu Siqu"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Ukunikezela okuvamile"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Izibali kanye Namathuluzi Ereferensi"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Izichazamazwi nama-Encyclopedia"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Izinsiza zezemfundo"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Ungakwenza kanjani"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Isikhathi Namakhalenda"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Izinsiza zolimi"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Isifundo solimi lwangaphandle"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Amathuluzi Okuhumusha Nezinsiza"</string>
+    <string name="topic10366" msgid="5972643213789684860">"I-Maps"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Isayensi"</string>
+    <string name="topic10368" msgid="7342229547845270303">"I-Augmented kanye ne-Virtual Reality"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Isayensi yezinto eziphilayo"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Izakhi zofuzo"</string>
+    <string name="topic10371" msgid="5801324530787262649">"I-Chemistry"</string>
+    <string name="topic10372" msgid="7043359432633182804">"I-Ecology kanye Nemvelo"</string>
+    <string name="topic10373" msgid="1506052968197311461">"I-Geology"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Ukufunda komshini kanye Nobuhlakani Bokwenziwa"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Izibalo"</string>
+    <string name="topic10376" msgid="8685831276841267222">"I-Physics"</string>
+    <string name="topic10377" msgid="8162056465305020784">"I-Robotics"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Ukuthenga"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Izinto Zasendulo Neziqoqwayo"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Okokwembatha"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Izingubo zezingane"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Imvunulo"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Izingubo zamadoda"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Izingubo zabesifazane"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Okuhleliwe"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Izinsiza zekhasimende"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Amakhuphoni Nemititilizo Yesaphulelo"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Amakhadi Obuqotho Nezinhlelo"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Ukwesekwa Kwezobuchwepheshe Nokulungisa"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Izimbali"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Amakhadi wemikhonzo"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Izimpahla Zephathi Namaholide"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Amaphothali Okuthenga"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Ezemidlalo"</string>
+    <string name="topic10395" msgid="8799420706106672054">"I-American Football"</string>
+    <string name="topic10396" msgid="2048632371307841946">"I-Australian Football"</string>
+    <string name="topic10397" msgid="653991203228840785">"Umjaho Wezimoto"</string>
+    <string name="topic10398" msgid="5412613151176189985">"I-Baseball"</string>
+    <string name="topic10399" msgid="2009283546036614639">"I-Basketball"</string>
+    <string name="topic10400" msgid="5034305624605462351">"I-Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Isibhakela"</string>
+    <string name="topic10402" msgid="6218088033939518718">"I-Cheerleading"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Ezemidlalo zekolishi"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Ikhilikithi"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Amabhayisikili"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ezamahhashi"</string>
+    <string name="topic10407" msgid="316266982792700993">"Ezemidlalo Yamagangangozi"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Ukuqwala Nokugibela Izintaba"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Imidlalo yomcabango"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Igalofu"</string>
+    <string name="topic10411" msgid="6678464213609789748">"I-Gymnastics"</string>
+    <string name="topic10412" msgid="335770351079973128">"Ihokhi"</string>
+    <string name="topic10413" msgid="416366556259783701">"Ukutshununuza Eqhweni"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Ezobuciko Bokulwa"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Umjaho wezithuthuthu"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Ama-Olympics"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Ibhola lombhoxo"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Ukugijima Nokuhamba"</string>
+    <string name="topic10419" msgid="979581105119036716">"Ukushushuluza kanye ne-Snowboarding"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Unobhutshuzwayo"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Ukusefa"</string>
+    <string name="topic10422" msgid="978920114358054206">"Ukubhukuda"</string>
+    <string name="topic10423" msgid="4476847046369253369">"I-Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"I-Track ne-Field"</string>
+    <string name="topic10425" msgid="3357509018485364691">"I-Volleyball"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Umdlalo wokulwa"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Ukuhamba Nezokuthutha"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Uhambo oluyisigigaba"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Ukundiza"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Ukuhamba Ngebhizinisi"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Ukuqashisa Imoto"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Ama-Cruise kanye nama-Charter"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Ukuhamba Komndeni"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Ama-Honeymoon kanye ne-Romantic Getaway"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Amahhotela Nezindawo Zokulala"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Ibhasi Nesitimela Sebanga Elide"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Uhambo Lwezindleko Eziphansi Nolomzuzu Wokugcina"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Imithwalo Nezinto Zokuvakasha"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Izindawo zezivakashi"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Amabhishi Neziqhingi"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Amapaki Nezingadi Zesifunda"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Amapaki e-Theme"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Amazu"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Abahleli Bethrafikhi kanye Nomzila"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Izinkampani Zokuvakasha kanye Nezinsizakalo"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Imihlahlandlela Yokuhamba kanye nama-Travelogues"</string>
+</resources>

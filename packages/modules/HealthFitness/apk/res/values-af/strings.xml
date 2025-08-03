@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="4768580772453324183">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="6401520186678972547">"Bestuur apptoegang tot gesondheidsdata"</string>
+    <string name="permissions_and_data_header" msgid="4406105506837487805">"Toestemmings en data"</string>
+    <string name="home_subtitle" msgid="1750033322147357163">"Bestuur die gesondheid- en fiksheiddata op jou foon, en beheer watter apps toegang daartoe het"</string>
+    <string name="data_title" msgid="4456619761533380816">"Data en toegang"</string>
+    <string name="all_categories_title" msgid="1446410643217937926">"Alle kategorieë"</string>
+    <string name="see_all_categories" msgid="5599882403901010434">"Sien alle kategorieë"</string>
+    <string name="no_data" msgid="1906986019249068659">"Geen data nie"</string>
+    <string name="connected_apps_title" msgid="279942692804743223">"Apptoestemmings"</string>
+    <string name="connected_apps_subtitle" msgid="8464462995533399175">"Bestuur jou apps en toestemmings"</string>
+    <string name="connected_apps_button_subtitle" msgid="8855528937028500370">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> van <xliff:g id="NUM_POSSIBLE_APPS">%2$s</xliff:g> apps het toegang"</string>
+    <string name="connected_apps_all_apps_connected_subtitle" msgid="3432698291862059492">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> apps het toegang"</string>
+    <string name="connected_apps_one_app_connected_subtitle" msgid="9095815882509754340">"<xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> app het toegang"</string>
+    <string name="connected_apps_button_no_permissions_subtitle" msgid="1651994862419752908">"Geen"</string>
+    <string name="entry_details_title" msgid="590184849040247850">"Invoerbesonderhede"</string>
+    <string name="backup_title" msgid="211503191266235085">"Rugsteun"</string>
+    <string name="data_sources_and_priority_title" msgid="2360222350913604558">"Databronne en prioriteit"</string>
+    <string name="set_units_title" msgid="2657822539603758029">"Stel eenhede"</string>
+    <string name="recent_access_header" msgid="7623497371790225888">"Onlangse toegang"</string>
+    <string name="no_recent_access" msgid="4724297929902441784">"Geen apps het onlangs toegang tot Health Connect gekry nie"</string>
+    <string name="show_recent_access_entries_button_title" msgid="3483460066767350419">"Sien alle onlangse toegang"</string>
+    <string name="recent_access_screen_description" msgid="331101209889185402">"Sien watter apps in die afgelope 24 uur toegang tot jou data verkry het"</string>
+    <string name="today_header" msgid="1006837293203834373">"Vandag"</string>
+    <string name="yesterday_header" msgid="6652176268273681505">"Gister"</string>
+    <string name="read_data_access_label" msgid="7145747310980361968">"Lees: %s"</string>
+    <string name="write_data_access_label" msgid="7955988316773000250">"Skryf: %s"</string>
+    <string name="data_type_separator" msgid="1299848322898210658">", "</string>
+    <string name="manage_permissions" msgid="8394221950712608160">"Bestuur toestemmings"</string>
+    <string name="recent_access_time_content_descritption" msgid="1709675393952226273">"Tyd: %s"</string>
+    <string name="activity_category_uppercase" msgid="136628843341377088">"Aktiwiteit"</string>
+    <string name="activity_category_lowercase" msgid="3007220578865400601">"aktiwiteit"</string>
+    <string name="body_measurements_category_uppercase" msgid="422923782603313038">"Liggaamsmetings"</string>
+    <string name="body_measurements_category_lowercase" msgid="2259696274629666992">"liggaamsmetings"</string>
+    <string name="sleep_category_uppercase" msgid="3422452674899706786">"Slaap"</string>
+    <string name="sleep_category_lowercase" msgid="842609634386839011">"slaap"</string>
+    <string name="vitals_category_uppercase" msgid="8982333138032938623">"Lewensfunksies"</string>
+    <string name="vitals_category_lowercase" msgid="4664457787866407963">"lewensfunksies"</string>
+    <string name="cycle_tracking_category_uppercase" msgid="4723200714782660489">"Siklusnasporing"</string>
+    <string name="cycle_tracking_category_lowercase" msgid="5245446435975317209">"siklusnasporing"</string>
+    <string name="nutrition_category_uppercase" msgid="6665096097987741036">"Voeding"</string>
+    <string name="nutrition_category_lowercase" msgid="7804134941649488990">"voeding"</string>
+    <string name="browse_data_category" msgid="4813955610391357638">"Blaai deur data"</string>
+    <string name="manage_data_section" msgid="5859629270946511903">"Bestuur data"</string>
+    <string name="export_data_button" msgid="7783329820434117744">"Voer data uit"</string>
+    <string name="delete_all_data_button" msgid="7238755635416521487">"Vee alle data uit"</string>
+    <string name="no_categories" msgid="2636778482437506241">"Jy het geen data in Health Connect nie"</string>
+    <string name="permission_types_title" msgid="7698058200557389436">"Jou data"</string>
+    <string name="app_priority_button" msgid="3126133977893705098">"Appprioriteit"</string>
+    <string name="delete_category_data_button" msgid="2324773398768267043">"Vee <xliff:g id="CATEGORY">%s</xliff:g>-data uit"</string>
+    <string name="select_all_apps_title" msgid="884487568464305913">"Alle apps"</string>
+    <string name="can_read" msgid="4568261079308309564">"Kan <xliff:g id="PERMISSION_TYPE">%s</xliff:g> lees"</string>
+    <string name="can_write" msgid="5082414937218423823">"Kan <xliff:g id="PERMISSION_TYPE">%s</xliff:g> skryf"</string>
+    <string name="inactive_apps" msgid="8956546286760797760">"Onaktiewe apps"</string>
+    <string name="inactive_apps_message" msgid="4666501359079362486">"Hierdie apps kan nie meer <xliff:g id="DATA_TYPE">%s</xliff:g> skryf nie, maar het steeds data wat in Health Connect geberg is"</string>
+    <string name="data_access_empty_message" msgid="9084350402254264452">"Apps kan nie meer <xliff:g id="DATA_TYPE_0">%1$s</xliff:g> lees of skryf nie, en geen <xliff:g id="DATA_TYPE_2">%2$s</xliff:g>-data word in Health Connect geberg nie"</string>
+    <string name="data_access_exercise_description" msgid="6868583522699443570">"Hierdie data sluit inligting in soos tyd wat jy aktief is, soort oefening, rondtes, herhalings, sessies of swemhale"</string>
+    <string name="data_access_sleep_description" msgid="74293126050011153">"Hierdie data sluit inligting in soos slaapfases en slaapsessies"</string>
+    <string name="all_entries_button" msgid="5109091107239135235">"Sien alle inskrywings"</string>
+    <string name="selected_date_view_action_description" msgid="6237240886988225664">"verander"</string>
+    <string name="delete_permission_type_data_button" msgid="2270819954943391797">"Vee hierdie data uit"</string>
+    <string name="permgrouplab_health" msgid="468961137496587966">"Health Connect"</string>
+    <string name="permgroupdesc_health" msgid="252080476917407273">"toegang tot jou gesondheiddata"</string>
+    <string name="permlab_readCaloriesBurned" msgid="8998140381590624692">"Lees kalorieë verbrand"</string>
+    <string name="permdesc_readCaloriesBurned" msgid="9012595355389868570">"Laat die app toe om die kalorieë verbrand te lees"</string>
+    <string name="background_read_uppercase_label" msgid="5727643918930403320">"Agtergrondlees"</string>
+    <string name="background_read_lowercase_label" msgid="2490218479761177680">"agtergrondlees"</string>
+    <string name="background_read_description" msgid="5263745158443722174">"Lees gesondheidsdata in die agtergrond"</string>
+    <string name="active_calories_burned_uppercase_label" msgid="6231684842932528272">"Aktiewe kalorieë verbrand"</string>
+    <string name="active_calories_burned_lowercase_label" msgid="6743090878253096737">"aktiewe kalorieë verbrand"</string>
+    <string name="active_calories_burned_read_content_description" msgid="6449442660408754186">"Lees aktiewe kalorieë verbrand"</string>
+    <string name="active_calories_burned_write_content_description" msgid="8794383690157452892">"Skryf aktiewe kalorieë verbrand"</string>
+    <string name="exercise_uppercase_label" msgid="9174662895529523172">"Oefening"</string>
+    <string name="exercise_lowercase_label" msgid="7210988327804427943">"oefening"</string>
+    <string name="exercise_read_content_description" msgid="2079728018078185556">"Lees oefening"</string>
+    <string name="exercise_write_content_description" msgid="3267630937895011886">"Skryf oefening"</string>
+    <string name="exercise_route_uppercase_label" msgid="6678863538041931754">"Oefenroete"</string>
+    <string name="exercise_route_lowercase_label" msgid="1691912731748211252">"oefenroete"</string>
+    <string name="exercise_route_write_content_description" msgid="257809942953352611">"Skryf oefenroete"</string>
+    <string name="exercise_route_read_content_description" msgid="8394028537674463440">"Lees oefenroete"</string>
+    <string name="exercise_routes_read_content_description" msgid="9001690141308870706">"Lees oefeningroetes"</string>
+    <string name="planned_exercise_uppercase_label" msgid="3315909901236811375">"Oefeningplanne"</string>
+    <string name="planned_exercise_lowercase_label" msgid="7642993032791009809">"oefeningplanne"</string>
+    <string name="planned_exercise_read_content_description" msgid="3240286968325192534">"Lees oefeningplanne"</string>
+    <string name="planned_exercise_write_content_description" msgid="8146488636094126823">"Skryf oefeningplanne"</string>
+    <string name="distance_uppercase_label" msgid="1420705424462077174">"Afstand"</string>
+    <string name="distance_lowercase_label" msgid="2287154001209381379">"afstand"</string>
+    <string name="distance_read_content_description" msgid="8787235642020285789">"Lees afstand"</string>
+    <string name="distance_write_content_description" msgid="494549494589487562">"Skryf afstand"</string>
+    <string name="elevation_gained_uppercase_label" msgid="7708101940695442377">"Hoogteverskil"</string>
+    <string name="elevation_gained_lowercase_label" msgid="7532517182346738562">"hoogteverskil"</string>
+    <string name="elevation_gained_read_content_description" msgid="6018756385903843355">"Lees hoogteverskil"</string>
+    <string name="elevation_gained_write_content_description" msgid="6790199544670231367">"Skryf hoogteverskil"</string>
+    <string name="floors_climbed_uppercase_label" msgid="3754372357767832441">"Verdiepings geklim"</string>
+    <string name="floors_climbed_lowercase_label" msgid="5326072443481377299">"verdiepings geklim"</string>
+    <string name="floors_climbed_read_content_description" msgid="4730764877684911752">"Lees verdiepings geklim"</string>
+    <string name="floors_climbed_write_content_description" msgid="3480340610185615655">"Skryf verdiepings geklim"</string>
+    <string name="power_uppercase_label" msgid="8027219480901448660">"Krag"</string>
+    <string name="power_lowercase_label" msgid="3893286148577044369">"krag"</string>
+    <string name="power_read_content_description" msgid="6821797135406643841">"Lees krag"</string>
+    <string name="power_write_content_description" msgid="8091584558688087392">"Skryf krag"</string>
+    <string name="speed_uppercase_label" msgid="3307049861007518587">"Spoed"</string>
+    <string name="speed_lowercase_label" msgid="3462529886150464647">"spoed"</string>
+    <string name="speed_read_content_description" msgid="9097089387385110692">"Lees spoed"</string>
+    <string name="speed_write_content_description" msgid="5382921934987959251">"Skryf spoed"</string>
+    <string name="steps_uppercase_label" msgid="2581405504646486105">"Treë"</string>
+    <string name="steps_lowercase_label" msgid="706153549312838582">"treë"</string>
+    <string name="steps_read_content_description" msgid="7839297670092769964">"Lees treë"</string>
+    <string name="steps_write_content_description" msgid="6360223825799711659">"Skryf treë"</string>
+    <string name="total_calories_burned_uppercase_label" msgid="2749855864302679314">"Totale aantal kalorieë verbrand"</string>
+    <string name="total_calories_burned_lowercase_label" msgid="3185370725975873922">"totale aantal kalorieë verbrand"</string>
+    <string name="total_calories_burned_read_content_description" msgid="1569722345910293531">"Lees totale aantal kalorieë verbrand"</string>
+    <string name="total_calories_burned_write_content_description" msgid="2727752180681851608">"Skryf totale aantal kalorieë verbrand"</string>
+    <string name="vo2_max_uppercase_label" msgid="6614391499711390476">"Maksimum suurstofopname"</string>
+    <string name="vo2_max_lowercase_label" msgid="824972630000900033">"Maksimum suurstofopname"</string>
+    <string name="vo2_max_read_content_description" msgid="8132626885797169882">"Lees maksimum suurstofopname"</string>
+    <string name="vo2_max_write_content_description" msgid="4783300275788728546">"Skryf maksimum suurstofopname"</string>
+    <string name="wheelchair_pushes_uppercase_label" msgid="5582991294340226965">"Rolstoelstote"</string>
+    <string name="wheelchair_pushes_lowercase_label" msgid="8919337990806379687">"rolstoelstote"</string>
+    <string name="wheelchair_pushes_read_content_description" msgid="157304610943976471">"Lees rolstoelstote"</string>
+    <string name="wheelchair_pushes_write_content_description" msgid="2745600707106818641">"Skryf rolstoelstote"</string>
+    <string name="basal_metabolic_rate_uppercase_label" msgid="4802351493928086473">"Basale metaboliese koers"</string>
+    <string name="basal_metabolic_rate_lowercase_label" msgid="7195596626083893231">"basale metaboliese koers"</string>
+    <string name="basal_metabolic_rate_read_content_description" msgid="5583222212705234907">"Lees basale metaboliese koers"</string>
+    <string name="basal_metabolic_rate_write_content_description" msgid="4246137679868953443">"Skryf basale metaboliese koers"</string>
+    <string name="body_fat_uppercase_label" msgid="4618860235119416449">"Liggaamsvet"</string>
+    <string name="body_fat_lowercase_label" msgid="4090686510477176498">"liggaamsvet"</string>
+    <string name="body_fat_read_content_description" msgid="801664410906939146">"Lees liggaamsvet"</string>
+    <string name="body_fat_write_content_description" msgid="4863558071904720577">"Skryf liggaamsvet"</string>
+    <string name="body_water_mass_uppercase_label" msgid="7839393299147916863">"Liggaamswatermassa"</string>
+    <string name="body_water_mass_lowercase_label" msgid="9196249948631920955">"liggaamswatermassa"</string>
+    <string name="body_water_mass_read_content_description" msgid="1468266374858854184">"Lees liggaamswatermassa"</string>
+    <string name="body_water_mass_write_content_description" msgid="8485284654932647383">"Skryf liggaamswatermassa"</string>
+    <string name="bone_mass_uppercase_label" msgid="6815438946872228501">"Beenmassa"</string>
+    <string name="bone_mass_lowercase_label" msgid="5127378263122564055">"beenmassa"</string>
+    <string name="bone_mass_read_content_description" msgid="8401070346821477225">"Lees beenmassa"</string>
+    <string name="bone_mass_write_content_description" msgid="8711285422751587975">"Skryf beenmassa"</string>
+    <string name="height_uppercase_label" msgid="6839543632311723181">"Lengte"</string>
+    <string name="height_lowercase_label" msgid="6232582306436492752">"lengte"</string>
+    <string name="height_read_content_description" msgid="7107217731605127715">"Lees lengte"</string>
+    <string name="height_write_content_description" msgid="6787078298523064040">"Skryf lengte"</string>
+    <string name="hip_circumference_uppercase_label" msgid="553907293616398764">"Heupomtrek"</string>
+    <string name="hip_circumference_lowercase_label" msgid="5383037100089745103">"heupomtrek"</string>
+    <string name="hip_circumference_read_content_description" msgid="3960843421475522701">"Lees heupomtrek"</string>
+    <string name="hip_circumference_write_content_description" msgid="3828616223599649051">"Skryf heupomtrek"</string>
+    <string name="lean_body_mass_uppercase_label" msgid="1660166073148541008">"Maer liggaamsmassa"</string>
+    <string name="lean_body_mass_lowercase_label" msgid="9060417901080844357">"maer liggaamsmassa"</string>
+    <string name="lean_body_mass_read_content_description" msgid="3251903339784498051">"Lees maer liggaamsmassa"</string>
+    <string name="lean_body_mass_write_content_description" msgid="8778176250058913124">"Skryf maer liggaamsmassa"</string>
+    <string name="waist_circumference_uppercase_label" msgid="864537723631507381">"Middellyfomtrek"</string>
+    <string name="waist_circumference_lowercase_label" msgid="7389714051869012003">"middellyfomtrek"</string>
+    <string name="waist_circumference_read_content_description" msgid="7742632529989685413">"Lees middellyfomtrek"</string>
+    <string name="waist_circumference_write_content_description" msgid="6455311628964793644">"Skryf middellyfomtrek"</string>
+    <string name="weight_uppercase_label" msgid="2240396607601785080">"Gewig"</string>
+    <string name="weight_lowercase_label" msgid="6592458247010013299">"gewig"</string>
+    <string name="weight_read_content_description" msgid="3270514859844811665">"Lees gewig"</string>
+    <string name="weight_write_content_description" msgid="555486014471042366">"Skryf gewig"</string>
+    <string name="cervical_mucus_uppercase_label" msgid="7479786340673820763">"Servikale slym"</string>
+    <string name="cervical_mucus_lowercase_label" msgid="7460634889750669420">"servikale slym"</string>
+    <string name="cervical_mucus_read_content_description" msgid="7163132301693064124">"Lees servikale slym"</string>
+    <string name="cervical_mucus_write_content_description" msgid="175802615365382752">"Skryf servikale slym"</string>
+    <string name="intermenstrual_bleeding_uppercase_label" msgid="1681956139742028987">"Intermenstruele bloeding"</string>
+    <string name="intermenstrual_bleeding_lowercase_label" msgid="5284781275147619132">"intermenstruele bloeding"</string>
+    <string name="intermenstrual_bleeding_read_content_description" msgid="5970939335115119015">"Lees intermenstruele bloeding"</string>
+    <string name="intermenstrual_bleeding_write_content_description" msgid="1377719923165234099">"Skryf intermenstruele bloeding"</string>
+    <string name="menstruation_uppercase_label" msgid="9119506748428874832">"Menstruasie"</string>
+    <string name="menstruation_lowercase_label" msgid="8098816978006207242">"menstruasie"</string>
+    <string name="menstruation_read_content_description" msgid="7710047469771882021">"Lees menstruasie"</string>
+    <string name="menstruation_write_content_description" msgid="5142669435897047396">"Skryf menstruasie"</string>
+    <string name="ovulation_test_uppercase_label" msgid="1929868571862288837">"Ovulasietoets"</string>
+    <string name="ovulation_test_lowercase_label" msgid="93260039417722840">"ovulasietoets"</string>
+    <string name="ovulation_test_read_content_description" msgid="8008351738285775840">"Lees ovulasietoets"</string>
+    <string name="ovulation_test_write_content_description" msgid="7061493310852203463">"Skryf ovulasietoets"</string>
+    <string name="sexual_activity_uppercase_label" msgid="1093238473810194127">"Seksuele aktiwiteit"</string>
+    <string name="sexual_activity_lowercase_label" msgid="8285364117437418834">"seksuele aktiwiteit"</string>
+    <string name="sexual_activity_read_content_description" msgid="4937721417714312007">"Lees seksuele aktiwiteit"</string>
+    <string name="sexual_activity_write_content_description" msgid="3063448245882840534">"Skryf seksuele aktiwiteit"</string>
+    <string name="spotting_uppercase_label" msgid="5106739829390033240">"Sporadiese vloei"</string>
+    <string name="spotting_lowercase_label" msgid="4361141146039580583">"sporadiese vloei"</string>
+    <string name="spotting_read_content_description" msgid="5422420770022357631">"Lees sporadiese vloei"</string>
+    <string name="spotting_write_content_description" msgid="9049462631184362964">"Skryf sprodadiese vloei"</string>
+    <string name="hydration_uppercase_label" msgid="1196083392597480565">"Hidrasie"</string>
+    <string name="hydration_lowercase_label" msgid="7793261552870970551">"hidrasie"</string>
+    <string name="hydration_read_content_description" msgid="3255941233933808082">"Lees hidrasie"</string>
+    <string name="hydration_write_content_description" msgid="7549819425875969941">"Skryf hidrasie"</string>
+    <string name="nutrition_uppercase_label" msgid="2352959651072134084">"Voeding"</string>
+    <string name="nutrition_lowercase_label" msgid="4123518952030658702">"voeding"</string>
+    <string name="nutrition_read_content_description" msgid="5820331769605952082">"Lees voeding"</string>
+    <string name="nutrition_write_content_description" msgid="6690090231218210367">"Skryf voeding"</string>
+    <string name="sleep_uppercase_label" msgid="1458084584315123727">"Slaap"</string>
+    <string name="sleep_lowercase_label" msgid="7795584924503475035">"slaap"</string>
+    <string name="sleep_read_content_description" msgid="7064608272681424436">"Lees slaap"</string>
+    <string name="sleep_write_content_description" msgid="2259414465110376554">"Skryf slaap"</string>
+    <string name="basal_body_temperature_uppercase_label" msgid="4571393253935677019">"Basale liggaamstemperatuur"</string>
+    <string name="basal_body_temperature_lowercase_label" msgid="3363829208971016662">"basale liggaamstemperatuur"</string>
+    <string name="basal_body_temperature_read_content_description" msgid="3342604362011725500">"Lees basale liggaamstemperatuur"</string>
+    <string name="basal_body_temperature_write_content_description" msgid="1081636817359407622">"Skryf basale liggaamstemperatuur"</string>
+    <string name="blood_glucose_uppercase_label" msgid="7462421849184720721">"Bloedglukose"</string>
+    <string name="blood_glucose_lowercase_label" msgid="5036157221577793772">"bloedglukose"</string>
+    <string name="blood_glucose_read_content_description" msgid="563393834563809318">"Lees bloedglukose"</string>
+    <string name="blood_glucose_write_content_description" msgid="7688360165458091174">"Skryf bloedglukose"</string>
+    <string name="blood_pressure_uppercase_label" msgid="1091450873620857062">"Bloeddruk"</string>
+    <string name="blood_pressure_lowercase_label" msgid="5857335698134310172">"bloeddruk"</string>
+    <string name="blood_pressure_read_content_description" msgid="8573617892296408887">"Lees bloeddruk"</string>
+    <string name="blood_pressure_write_content_description" msgid="2649850785684226949">"Skryf bloeddruk"</string>
+    <string name="body_temperature_uppercase_label" msgid="5104550330313775324">"Liggaamstemperatuur"</string>
+    <string name="body_temperature_lowercase_label" msgid="324124730971992259">"liggaamstemperatuur"</string>
+    <string name="body_temperature_read_content_description" msgid="5966765249024688738">"Lees liggaamstemperatuur"</string>
+    <string name="body_temperature_write_content_description" msgid="5498016171067859369">"Skryf liggaamstemperatuur"</string>
+    <string name="heart_rate_uppercase_label" msgid="4990167215137642430">"Polsslag"</string>
+    <string name="heart_rate_lowercase_label" msgid="693492686337628283">"polsslag"</string>
+    <string name="heart_rate_read_content_description" msgid="4165867166260001259">"Lees polsslag"</string>
+    <string name="heart_rate_write_content_description" msgid="2876667918366409170">"Skryf polsslag"</string>
+    <string name="heart_rate_variability_uppercase_label" msgid="2047887230527012536">"Polsslagveranderlikheid"</string>
+    <string name="heart_rate_variability_lowercase_label" msgid="2332638559415663836">"polsslagveranderlikheid"</string>
+    <string name="heart_rate_variability_read_content_description" msgid="5812707457872629556">"Lees polsslagveranderlikheid"</string>
+    <string name="heart_rate_variability_write_content_description" msgid="3628171603035566114">"Skryf polsslagveranderlikheid"</string>
+    <string name="oxygen_saturation_uppercase_label" msgid="1396254185616418355">"Suurstofsaturasie"</string>
+    <string name="oxygen_saturation_lowercase_label" msgid="7264179897533866327">"suurstofsaturasie"</string>
+    <string name="oxygen_saturation_read_content_description" msgid="4756434113425028212">"Lees suurstofsaturasie"</string>
+    <string name="oxygen_saturation_write_content_description" msgid="7189901097196830875">"Skryf suurstofsaturasie"</string>
+    <string name="respiratory_rate_uppercase_label" msgid="4609498171205294389">"Asemhalingtempo"</string>
+    <string name="respiratory_rate_lowercase_label" msgid="8138249029197360098">"asemhalingtempo"</string>
+    <string name="respiratory_rate_read_content_description" msgid="8545898979648419722">"Lees asemhalingtempo"</string>
+    <string name="respiratory_rate_write_content_description" msgid="7689533746809591931">"Skryf asemhalingtempo"</string>
+    <string name="resting_heart_rate_uppercase_label" msgid="5700827752396195453">"Rustende polsslag"</string>
+    <string name="resting_heart_rate_lowercase_label" msgid="4533866739695973169">"rustende polsslag"</string>
+    <string name="resting_heart_rate_read_content_description" msgid="1068160055773401020">"Lees rustende polsslag"</string>
+    <string name="resting_heart_rate_write_content_description" msgid="8848198128082739995">"Skryf rustende polsslag"</string>
+    <string name="skin_temperature_uppercase_label" msgid="4880306019368461268">"Veltemperatuur"</string>
+    <string name="skin_temperature_lowercase_label" msgid="7456421703641980581">"veltemperatuur"</string>
+    <string name="skin_temperature_read_content_description" msgid="1896127631429717621">"Lees veltemperatuur"</string>
+    <string name="skin_temperature_write_content_description" msgid="6448587289116206085">"Skryf veltemperatuur neer"</string>
+    <string name="read_permission_category" msgid="6002099618259628632">"Laat “<xliff:g id="APP_NAME">%1$s</xliff:g>” toe om te lees"</string>
+    <string name="write_permission_category" msgid="1529702804865008111">"Laat “<xliff:g id="APP_NAME">%1$s</xliff:g>” toe om te skryf"</string>
+    <string name="request_permissions_cancel" msgid="1787483997235365393">"Kanselleer"</string>
+    <string name="request_permissions_allow" msgid="4201324235711040631">"Laat toe"</string>
+    <string name="request_permissions_allow_all" msgid="3419414351406638770">"Laat alles toe"</string>
+    <string name="request_permissions_dont_allow" msgid="6375307410951549030">"Moenie toelaat nie"</string>
+    <string name="request_permissions_header_desc" msgid="5561173070722750153">"Kies data in Health Connect wat jy wil hê hierdie app moet lees of skryf"</string>
+    <string name="request_permissions_header_time_frame_desc" msgid="4617392728203291453">"As jy leestoegang gee, kan hierdie app nuwe data en data van die afgelope 30 dae lees"</string>
+    <string name="request_permissions_header_title" msgid="4264236128614363479">"Gee <xliff:g id="APP_NAME">%1$s</xliff:g> toegang tot Health Connect?"</string>
+    <string name="request_permissions_rationale" msgid="6154280355215802538">"Jy kan in die ontwikkelaar se <xliff:g id="PRIVACY_POLICY_LINK">%2$s</xliff:g> uitvind hoe <xliff:g id="APP_NAME">%1$s</xliff:g> jou data hanteer"</string>
+    <string name="request_permissions_privacy_policy" msgid="228503452643555737">"privaatheidsbeleid"</string>
+    <string name="permissions_disconnect_dialog_title" msgid="7355211540619034695">"Verwyder alle toestemmings?"</string>
+    <string name="permissions_disconnect_dialog_disconnect" msgid="8854787587948224752">"Verwyder almal"</string>
+    <string name="permissions_disconnect_dialog_message" msgid="8679363015400954541">"<xliff:g id="APP_NAME">%1$s</xliff:g> sal nie meer enige data van Health Connect af kan lees of skryf nie.\n\nDit raak nie ander toestemmings wat hierdie app dalk het nie, soos ligging, kamera of mikrofoon."</string>
+    <string name="permissions_disconnect_dialog_checkbox" msgid="8646951566431872823">"Vee ook <xliff:g id="APP_NAME">%1$s</xliff:g>-data in Health Connect uit"</string>
+    <string name="navigation_next_day" msgid="8853443471183944219">"Volgende dag"</string>
+    <string name="navigation_selected_day" msgid="2510843479734091348">"Gekose dag"</string>
+    <string name="navigation_previous_day" msgid="718353386484938584">"Vorige dag"</string>
+    <string name="default_error" msgid="7966868260616403475">"Iets was fout. Probeer weer."</string>
+    <string name="health_permission_header_description" msgid="7497601695462373927">"Apps met hierdie toestemming kan jou gesondheid- en fiksheiddata lees en skryf."</string>
+    <string name="connected_apps_text" msgid="1177626440966855831">"Beheer watter apps toegang het tot data wat in Health Connect geberg word. Tik op ’n app om die data na te gaan wat dit kan lees of skryf."</string>
+    <string name="connected_apps_section_title" msgid="2415288099612126258">"Het toegang"</string>
+    <string name="not_connected_apps_section_title" msgid="452718769894103039">"Het nie toegang nie"</string>
+    <string name="needs_updating_apps_section_title" msgid="8561510523049921199">"Opdatering is nodig"</string>
+    <string name="settings_and_help_header" msgid="5749710693017621168">"Instellings en hulp"</string>
+    <string name="disconnect_all_apps" msgid="748945115977534726">"Verwyder toegang vir alle apps"</string>
+    <string name="manage_permissions_read_header" msgid="2031153753057983683">"Toegelaat om te lees"</string>
+    <string name="manage_permissions_write_header" msgid="6876806848658168370">"Toegelaat om te skryf"</string>
+    <string name="no_apps_allowed" msgid="5794833581324128108">"Geen apps toegelaat nie"</string>
+    <string name="no_apps_denied" msgid="743327680286446017">"Geen apps geweier nie"</string>
+    <string name="permissions_disconnect_all_dialog_title" msgid="27474286046207122">"Verwyder alle apptoegang?"</string>
+    <string name="permissions_disconnect_all_dialog_message" msgid="3151109627457270499">"Geen van jou apps sal toegang tot nuwe data kan kry of dit by Health Connect kan voeg nie. Dit vee nie enige bestaande data uit nie.\n\nAs hierdie app enige ander toestemmings soos ligging, kamera of mikrofoon het, sal dit nie geraak word nie."</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" msgid="2134136493310257746">"Verwyder alles"</string>
+    <string name="manage_permissions_manage_app_header" msgid="6356348062088358761">"Bestuur app"</string>
+    <string name="see_app_data" msgid="3951030076195119476">"Sien appdata"</string>
+    <string name="delete_app_data" msgid="6890357774873859952">"Vee appdata uit"</string>
+    <string name="inactive_apps_section_title" msgid="7492812973696378690">"Onaktiewe apps"</string>
+    <string name="inactive_apps_section_message" msgid="2610789262055974739">"Hierdie apps het nie meer toegang nie, maar het steeds data wat in Health Connect geberg is"</string>
+    <string name="manage_permissions_time_frame" msgid="1299483940842401923">"<xliff:g id="APP_NAME">%1$s</xliff:g> kan data lees wat ná <xliff:g id="DATA_ACCESS_DATE">%2$s</xliff:g> bygevoeg is"</string>
+    <string name="other_android_permissions" msgid="8051485761573324702">"Gaan na Instellings &gt; Apps om ander Android-toestemmings te bestuur waartoe hierdie app toegang het"</string>
+    <string name="manage_permissions_rationale" msgid="9183689798847740274">"Data wat jy met <xliff:g id="APP_NAME">%1$s</xliff:g> deel, word deur hul privaatheidsbeleid gedek"</string>
+    <string name="other_android_permissions_content_description" msgid="2261431010048933820">"Gaan na Instellings en tik dan op Apps om ander Android-toestemmings te bestuur waartoe hierdie app toegang het"</string>
+    <string name="manage_permissions_learn_more" msgid="2503189875093300767">"Lees die privaatheidsbeleid"</string>
+    <string name="app_perms_content_provider_24h" msgid="5977152673988158889">"In afgelope 24 uur gebruik"</string>
+    <string name="app_access_title" msgid="7137018424885371763">"Apptoegang"</string>
+    <string name="connected_apps_empty_list_section_title" msgid="6821215432694207342">"Jy het tans geen versoenbare apps geïnstalleer nie"</string>
+    <string name="additional_access_label" msgid="4645249249222528341">"Bykomende toegang"</string>
+    <string name="denied_apps_banner_title" msgid="1997745063608657965">"Het apptoestemmings verwyder"</string>
+    <string name="denied_apps_banner_message_one_app" msgid="17659513485678315">"Health Connect het toestemmings vir <xliff:g id="APP_DATA">%s</xliff:g> verwyder"</string>
+    <string name="denied_apps_banner_message_two_apps" msgid="1147216810892373640">"Health Connect het toestemmings vir <xliff:g id="APP_DATA_0">%1$s</xliff:g> en <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> verwyder"</string>
+    <string name="denied_apps_banner_message_three_apps" msgid="7978499051473471633">"Health Connect het toestemmings vir <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> en <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> verwyder"</string>
+    <string name="denied_apps_banner_message_many_apps" msgid="7249805432604650982">"Health Connect het toestemmings vir <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g>, <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> en ander apps verwyder"</string>
+    <string name="denied_apps_banner_button" msgid="4438480389769298412">"Sien besonderhede"</string>
+    <string name="denied_apps_dialog_title" msgid="7470227827315635099">"Hoekom Health Connect apptoestemmings verwyder"</string>
+    <string name="denied_apps_dialog_message" msgid="7876664965504466099">"As ’n app opgeskort of uit Google Play verwyder word, verwyder Health Connect outomaties sy toestemmings.\n\nDit beteken dat die app nie meer toegang kan kry tot data wat in Health Connect geberg is nie. As hierdie app voorheen data geskryf het, sal dit op die lys van onaktiewe apps verskyn."</string>
+    <string name="denied_apps_dialog_got_it_button" msgid="4698003516923683959">"Het dit"</string>
+    <string name="export_settings_screen_title" msgid="887671826359158339">"Stoor data"</string>
+    <string name="export_settings_screen_description" msgid="5477618165331360989">"Stoor Health Connect-data en -toestemmings sodat jy dit kan invoer as jy na \'n nuwe foon oorskakel. Jy kan kies waar om hierdie data te berg voordat jy dit stoor."</string>
+    <string name="setup_button" msgid="1407942598553043961">"Stel op"</string>
+    <string name="export_settings_header" msgid="2435738153550683355">"Instellings"</string>
+    <string name="auto_save" msgid="7146497593975616076">"Outostoor"</string>
+    <string name="choose_frequency" msgid="1077467424225083246">"Kies frekwensie"</string>
+    <string name="choose_frequency_description" msgid="752601326653048254">"Kies om data een keer te stoor, of stel dit om outomaties op gereelde tye te stoor."</string>
+    <string name="frequency_daily" msgid="3596412357416125727">"Daagliks"</string>
+    <string name="frequency_weekly" msgid="7302587625019573393">"Weekliks"</string>
+    <string name="frequency_monthly" msgid="729674398053825938">"Maandeliks"</string>
+    <string name="export_back_button" msgid="3550795479165524982">"Terug"</string>
+    <string name="export_next_button" msgid="657930567137105172">"Volgende"</string>
+    <string name="onboarding_title" msgid="8550656211291180188">"Kom aan die gang met Health Connect"</string>
+    <string name="onboarding_description" msgid="4873129122057931161">"Health Connect berg jou gesondheid- en fiksheiddata en bied só ’n eenvoudige manier om die verskillende apps op jou foon te sinkroniseer"</string>
+    <string name="share_data" msgid="3481932156368883946">"Deel data met jou apps"</string>
+    <string name="share_data_description" msgid="2919871301634375092">"Kies die data wat elke app in Health Connect kan lees of skryf"</string>
+    <string name="manage_your_settings" msgid="7391184508015127137">"Bestuur jou instellings en privaatheid"</string>
+    <string name="manage_your_settings_description" msgid="557943168930365334">"Verander apptoestemmings en bestuur jou data enige tyd"</string>
+    <string name="onboarding_go_back_button_text" msgid="5020083846511184625">"Gaan terug"</string>
+    <string name="onboarding_get_started_button_text" msgid="2348061971090731336">"Begin hier"</string>
+    <string name="delete_button_content_description" msgid="9125115327455379618">"Vee data uit"</string>
+    <string name="time_range_title" msgid="6831605283322600165">"Kies data om uit te vee"</string>
+    <string name="time_range_next_button" msgid="5849096934896557888">"Volgende"</string>
+    <string name="time_range_message_all" msgid="7280888587242744729">"Dit vee alle data wat in die gekose tydperk by Health Connect gevoeg is permanent uit"</string>
+    <string name="time_range_message_data_type" msgid="1896125004829258195">"Dit vee <xliff:g id="DATA_TYPE">%s</xliff:g>-data wat in die gekose tydperk by Health Connect gevoeg is permanent uit"</string>
+    <string name="time_range_message_category" msgid="1136451418397326356">"Dit vee <xliff:g id="CATEGORY">%s</xliff:g>-data wat in die gekose tydperk by Health Connect gevoeg is permanent uit"</string>
+    <string name="time_range_message_app_data" msgid="2590800457710603556">"Dit vee <xliff:g id="APP_DATA">%s</xliff:g>-data wat in die gekose tydperk by Health Connect gevoeg is permanent uit"</string>
+    <string name="time_range_one_day" msgid="7162709826595446727">"Vee afgelope 24 uur uit"</string>
+    <string name="time_range_one_week" msgid="8754523384275645434">"Vee afgelope 7 dae uit"</string>
+    <string name="time_range_one_month" msgid="3034747870231999766">"Vee afgelope 30 dae uit"</string>
+    <string name="time_range_all" msgid="8167350212705839943">"Vee alle data uit"</string>
+    <string name="confirming_question_all" msgid="1585414659784742952">"Vee alle data van altyd af permanent uit?"</string>
+    <string name="confirming_question_one_day" msgid="8001434729335611950">"Vee alle data van die afgelope 24 uur permanent uit?"</string>
+    <string name="confirming_question_one_week" msgid="5441506951423969587">"Vee alle data van die afgelope 7 dae permanent uit?"</string>
+    <string name="confirming_question_one_month" msgid="4118595547587081940">"Vee alle data van die afgelope 30 dae permanent uit?"</string>
+    <string name="confirming_question_data_type_all" msgid="1173934949902602037">"Vee <xliff:g id="DATA_TYPE">%s</xliff:g>-data van altyd af permanent uit?"</string>
+    <string name="confirming_question_data_type_one_day" msgid="5386681714769751416">"Vee <xliff:g id="DATA_TYPE">%s</xliff:g>-data van die afgelope 24 uur permanent uit?"</string>
+    <string name="confirming_question_data_type_one_week" msgid="8346031951374422501">"Vee <xliff:g id="DATA_TYPE">%s</xliff:g>-data van die afgelope 7 dae permanent uit?"</string>
+    <string name="confirming_question_data_type_one_month" msgid="7110328687576360400">"Vee <xliff:g id="DATA_TYPE">%s</xliff:g>-data van die afgelope 30 dae permanent uit?"</string>
+    <string name="confirming_question_category_all" msgid="9182430869247761531">"Vee <xliff:g id="CATEGORY">%s</xliff:g>-data van altyd af permanent uit?"</string>
+    <string name="confirming_question_category_one_day" msgid="4886776948515472679">"Vee <xliff:g id="CATEGORY">%s</xliff:g>-data van die afgelope 24 uur permanent uit?"</string>
+    <string name="confirming_question_category_one_week" msgid="1790565625674277693">"Vee <xliff:g id="CATEGORY">%s</xliff:g>-data van die afgelope 7 dae permanent uit?"</string>
+    <string name="confirming_question_category_one_month" msgid="9181788460112796273">"Vee <xliff:g id="CATEGORY">%s</xliff:g>-data van die afgelope 30 dae permanent uit?"</string>
+    <string name="confirming_question_app_data_all" msgid="4818571921949673097">"Vee <xliff:g id="APP_DATA">%s</xliff:g>-data van altyd af permanent uit?"</string>
+    <string name="confirming_question_app_data_one_day" msgid="444028969015975031">"Vee <xliff:g id="APP_DATA">%s</xliff:g>-data van die afgelope 24 uur permanent uit?"</string>
+    <string name="confirming_question_app_data_one_week" msgid="2096555081811730496">"Vee <xliff:g id="APP_DATA">%s</xliff:g>-data van die afgelope 7 dae permanent uit?"</string>
+    <string name="confirming_question_app_data_one_month" msgid="6438241250825892892">"Vee <xliff:g id="APP_DATA">%s</xliff:g>-data van die afgelope 30 dae permanent uit?"</string>
+    <string name="confirming_question_app_remove_all_permissions" msgid="4170343072352701421">"Verwyder ook alle <xliff:g id="APP_WITH_PERMISSIONS">%s</xliff:g>-toestemmings vir Health Connect"</string>
+    <string name="confirming_question_data_type_from_app_all" msgid="8361163993548510509">"Vee alle <xliff:g id="DATA_TYPE">%1$s</xliff:g>-data wat deur <xliff:g id="APP_DATA">%2$s</xliff:g> bygevoeg is permanent uit?"</string>
+    <string name="confirming_question_single_entry" msgid="330919962071369305">"Vee hierdie inskrywing permanent uit?"</string>
+    <string name="confirming_question_message" msgid="2934249835529079545">"Gekoppelde apps sal nie meer toegang tot hierdie data van Health Connect af hê nie"</string>
+    <string name="confirming_question_message_menstruation" msgid="5286956266565962430">"Dit sal alle menstruasie-inskrywings van <xliff:g id="START_DATE">%1$s</xliff:g> tot <xliff:g id="END_DATE">%2$s</xliff:g> uitvee."</string>
+    <string name="confirming_question_delete_button" msgid="1999996759507959985">"Vee uit"</string>
+    <string name="confirming_question_go_back_button" msgid="9037523726124648221">"Gaan terug"</string>
+    <string name="delete_dialog_success_got_it_button" msgid="8047812840310612293">"Klaar"</string>
+    <string name="delete_dialog_failure_close_button" msgid="4376647579348193224">"Maak toe"</string>
+    <string name="delete_dialog_success_title" msgid="5009733262743173477">"Data is uitgevee"</string>
+    <string name="delete_dialog_success_message" msgid="2451953113522118128">"Hierdie data word nie meer in Health Connect geberg nie."</string>
+    <string name="delete_progress_indicator" msgid="5799502879065833417">"Vee tans jou data uit"</string>
+    <string name="delete_dialog_failure_title" msgid="1959020721355789496">"Kon nie data uitvee nie"</string>
+    <string name="delete_dialog_failure_message" msgid="7473241488471319963">"Iets was fout, en Health Connect kon nie jou data uitvee nie"</string>
+    <string name="delete_dialog_failure_try_again_button" msgid="4323865124609424838">"Probeer weer"</string>
+    <string name="delete_data_notification_title" msgid="7740230240986343347">"Vee tans Health Connect-data uit"</string>
+    <string name="delete_data_notification_ticker_text" msgid="2604051567679235822">"Vee tans Health Connect-data uit"</string>
+    <string name="delete_data_notification_channel_name" msgid="4499713830012802095">"Uitvee van data"</string>
+    <string name="data_point_action_content_description" msgid="6881048311770784455">"Vee data-inskrywing <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g> uit"</string>
+    <string name="delete_data_point" msgid="1004049578454616738">"Vee inskrywing <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g> uit"</string>
+    <string name="aggregation_total" msgid="5641333638662325184">"Totaal: <xliff:g id="TOTAL_VALUE">%s</xliff:g>"</string>
+    <string name="watt_format" msgid="8500953817369623803">"{value,plural, =1{1 W}other{# W}}"</string>
+    <string name="watt_format_long" msgid="7107446926499116109">"{value,plural, =1{1 watt}other{# watt}}"</string>
+    <string name="steps_value" msgid="5779393974668105298">"{count,plural, =1{1 tree}other{# treë}}"</string>
+    <string name="steps_per_minute" msgid="5527133010067502098">"{value,plural, =1{1 tree/minuut}other{# treë/minuut}}"</string>
+    <string name="steps_per_minute_long" msgid="6146224261144843301">"{value,plural, =1{1 tree per minuut}other{# treë per minuut}}"</string>
+    <string name="heart_rate_value" msgid="6936476566204248578">"{count,plural, =1{1 bpm}other{# bpm}}"</string>
+    <string name="heart_rate_long_value" msgid="7865319425119507300">"{count,plural, =1{1 slag per minuut}other{# slae per minuut}}"</string>
+    <string name="velocity_speed_miles" msgid="616312758726506781">"{value,plural, =1{1 m.p.u.}other{# m.p.u.}}"</string>
+    <string name="velocity_speed_km" msgid="2807705003203399350">"{value,plural, =1{1 km/h}other{# km/h}}"</string>
+    <string name="velocity_speed_miles_long" msgid="7945167764392834498">"{value,plural, =1{1 myl per uur}other{# myl per uur}}"</string>
+    <string name="velocity_speed_km_long" msgid="3962310367408338322">"{value,plural, =1{1 kilometer per uur}other{# kilometer per uur}}"</string>
+    <string name="time_range_long" msgid="5067423945245490288">"van <xliff:g id="START_TIME">%1$s</xliff:g> af tot <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="date_range_long" msgid="6022190423982451176">"van <xliff:g id="START_TIME">%1$s</xliff:g> af tot <xliff:g id="END_TIME">%2$s</xliff:g>"</string>
+    <string name="wheelchair_pushes" msgid="5807293867148465190">"{count,plural, =1{1 rolstoelstoot}other{# rolstoelstote}}"</string>
+    <string name="liter" msgid="8276522589564337053">"{count,plural, =1{1 l}other{# l}}"</string>
+    <string name="liter_long" msgid="7094280457555707835">"{count,plural, =1{1 liter}other{# liter}}"</string>
+    <string name="floors_climbed" msgid="7483572478744998930">"{count,plural, =1{1 verdieping}other{# verdiepings}}"</string>
+    <string name="elevation_meters" msgid="5099783382361572761">"{count,plural, =1{1 m}other{# m}}"</string>
+    <string name="elevation_meters_long" msgid="3163136353148567981">"{count,plural, =1{1 meter}other{# meter}}"</string>
+    <string name="cycling_rpm" msgid="2271215098150068276">"{count,plural, =1{1 RPM}other{# RPM}}"</string>
+    <string name="cycling_rpm_long" msgid="4914848042733587007">"{count,plural, =1{1 omwenteling per minuut}other{# omwentelings per minuut}}"</string>
+    <string name="cycling_cadence_series_range_long" msgid="6852892013260504985">"van <xliff:g id="MIN">%1$s</xliff:g> tot <xliff:g id="MAX">%2$s</xliff:g>"</string>
+    <string name="sexual_activity_protected" msgid="4259473257597274326">"Beskermd"</string>
+    <string name="sexual_activity_unprotected" msgid="2250981470537379807">"Onbeskermd"</string>
+    <string name="spotting" msgid="1637175837078770520">"Sporadiese vloei"</string>
+    <string name="flow_spotting" msgid="832418664953780156">"Sporadiese vloei"</string>
+    <string name="flow_light" msgid="1937543318146228793">"Ligte vloei"</string>
+    <string name="flow_medium" msgid="3783688724668943154">"Middelmatige vloei"</string>
+    <string name="flow_heavy" msgid="8672261792750634294">"Sterk vloei"</string>
+    <string name="period_day" msgid="3821944462093965882">"Menstruasiedag <xliff:g id="DAY">%1$d</xliff:g> van <xliff:g id="TOTAL_LENGTH">%2$d</xliff:g>"</string>
+    <string name="ovulation_positive" msgid="6588547263126320238">"Positief"</string>
+    <string name="ovulation_negative" msgid="591588801112312454">"Negatief"</string>
+    <string name="ovulation_high" msgid="205362931427158291">"Hoog"</string>
+    <string name="ovulation_inconclusive" msgid="3447066667631538756">"Onbeslis"</string>
+    <string name="milliseconds" msgid="284845884516037268">"{count,plural, =1{1 ms}other{# ms}}"</string>
+    <string name="milliseconds_long" msgid="93246373745977286">"{count,plural, =1{1 millisekonde}other{# millisekondes}}"</string>
+    <string name="repetitions" msgid="5092687490665962229">"{count,plural, =1{1 herhaling}other{# herhalings}}"</string>
+    <string name="repetitions_long" msgid="9056502282298182438">"{count,plural, =1{1 herhaling}other{# herhalings}}"</string>
+    <string name="exercise_segments_header" msgid="2992953017179406012">"Oefensegmente"</string>
+    <string name="exercise_laps_header" msgid="117228630553856372">"Lengtes"</string>
+    <string name="back_extension" msgid="426518933137440577">"Rugstrekking"</string>
+    <string name="badminton" msgid="8839727076522086870">"Pluimbal"</string>
+    <string name="barbell_shoulder_press" msgid="3800236222803424251">"Skoueropstoot met staafgewig"</string>
+    <string name="baseball" msgid="2520520093470304570">"Bofbal"</string>
+    <string name="basketball" msgid="1453863811744469210">"Basketbal"</string>
+    <string name="bench_press" msgid="640506654204391301">"Gewigopstoot in lêposisie"</string>
+    <string name="bench_sit_up" msgid="6601081870476287683">"Opsitoefeninge op bankie"</string>
+    <string name="biking" msgid="4108296097363777467">"Fietsry"</string>
+    <string name="biking_stationary" msgid="1538524429562124202">"Stilstaande fietsry"</string>
+    <string name="boot_camp" msgid="1554811887379786226">"Oefenkamp"</string>
+    <string name="boxing" msgid="2200194516739940317">"Boks"</string>
+    <string name="burpee" msgid="1434605818712603589">"Hurksprong"</string>
+    <string name="calisthenics" msgid="9080623890020954493">"Liggaamstrekoefeninge"</string>
+    <string name="cricket" msgid="7543586707938752011">"Krieket"</string>
+    <string name="crunch" msgid="4265356947720591896">"Maagkrul"</string>
+    <string name="dancing" msgid="4099572666298130171">"Dans"</string>
+    <string name="deadlift" msgid="6880561478635890617">"Halflyfgewigoptel"</string>
+    <string name="dumbbell_curl_left_arm" msgid="4453594605921193509">"Handgewigkrul met linkerarm"</string>
+    <string name="dumbbell_curl_right_arm" msgid="4680998443002425166">"Handgewigkrul met regterarm"</string>
+    <string name="dumbbell_front_raise" msgid="4411281746015904879">"Lig handgewig na voor op"</string>
+    <string name="dumbbell_lateral_raise" msgid="5839946068429137241">"Lig handgewig na die kant op"</string>
+    <string name="dumbbell_triceps_extension_left_arm" msgid="6756023069611493063">"Driekopspierstrekking met handgewig in linkerhand"</string>
+    <string name="dumbbell_triceps_extension_right_arm" msgid="1498470275564554389">"Driekopspierstrekking met handgewig in regterhand"</string>
+    <string name="dumbbell_triceps_extension_two_arm" msgid="5409860665522903159">"Driekopspierstrekking met handgewigte: albei hande"</string>
+    <string name="elliptical" msgid="5148914059968910839">"Elliptiese oefenmasjien"</string>
+    <string name="exercise_class" msgid="32582249527931454">"Oefenklas"</string>
+    <string name="fencing" msgid="410347890025055779">"Skermkuns"</string>
+    <string name="football_american" msgid="8564554592554502623">"Amerikaanse voetbal"</string>
+    <string name="football_australian" msgid="5524598297723674661">"Australiese voetbal"</string>
+    <string name="forward_twist" msgid="2464895720533462566">"Vorentoe draaistrek"</string>
+    <string name="frisbee_disc" msgid="5167617057624738753">"Frisbee"</string>
+    <string name="golf" msgid="2726655052150604682">"Gholf"</string>
+    <string name="guided_breathing" msgid="8688586393796970733">"Geleide asemhaling"</string>
+    <string name="gymnastics" msgid="1122967371410769598">"Gimnastiek"</string>
+    <string name="handball" msgid="3088985331906235361">"Handbal"</string>
+    <string name="high_intensity_interval_training" msgid="8873384314130026442">"Intervaloefening teen hoë intensiteit"</string>
+    <string name="hiking" msgid="5477476795295322496">"Voetslaan"</string>
+    <string name="ice_hockey" msgid="3615167122989198051">"Yshokkie"</string>
+    <string name="ice_skating" msgid="8509270149324068230">"Ysskaats"</string>
+    <string name="jumping_jack" msgid="8751015874477795657">"Sprong met wye arms en bene"</string>
+    <string name="jump_rope" msgid="3065249477862282277">"Springtou"</string>
+    <string name="lat_pull_down" msgid="6974730398913678563">"Aftrekoefening"</string>
+    <string name="lunge" msgid="6557814816897990529">"Groot tree vorentoe"</string>
+    <string name="martial_arts" msgid="3279383109083496658">"Gevegskuns"</string>
+    <string name="meditation" msgid="7578287714544679183">"Meditasie"</string>
+    <string name="paddling" msgid="746868067888160788">"Roei met kortspaan"</string>
+    <string name="paragliding" msgid="8328649138909727690">"Skermsweef"</string>
+    <string name="pilates" msgid="8660903049535347415">"Pilates"</string>
+    <string name="plank" msgid="5537839085592473449">"Plankposisie"</string>
+    <string name="racquetball" msgid="8169482984904052538">"Raketbal"</string>
+    <string name="rock_climbing" msgid="3123024521372083233">"Rotsklim"</string>
+    <string name="roller_hockey" msgid="3524872164646176686">"Rolskaatshokkie"</string>
+    <string name="rowing" msgid="615898011726585442">"Roei"</string>
+    <string name="rowing_machine" msgid="4075255566862183370">"Roeimasjien"</string>
+    <string name="rugby" msgid="5146215118571059267">"Rugby"</string>
+    <string name="running" msgid="5135754380339217169">"Draf"</string>
+    <string name="running_treadmill" msgid="2083354407217486405">"Trapmeuldraf"</string>
+    <string name="sailing" msgid="4924304145770903145">"Seil"</string>
+    <string name="scuba_diving" msgid="4548778216122159229">"Skubaduik"</string>
+    <string name="skating" msgid="7320438805566302784">"Skaats"</string>
+    <string name="skiing" msgid="6773127614153771204">"Ski"</string>
+    <string name="snowboarding" msgid="890584874325367973">"Sneeuplankry"</string>
+    <string name="snowshoeing" msgid="8932096199095096139">"Sneeuskoenloop"</string>
+    <string name="soccer" msgid="2631723269673549642">"Sokker"</string>
+    <string name="softball" msgid="8389418982713908334">"Sagtebal"</string>
+    <string name="squash" msgid="1588653991323140302">"Muurbal"</string>
+    <string name="squat" msgid="7664163620113834611">"Hurksit"</string>
+    <string name="stair_climbing" msgid="4042085961630471238">"Trapklim"</string>
+    <string name="stair_climbing_machine" msgid="4003983194733092325">"Trapklimmasjien"</string>
+    <string name="strength_training" msgid="56772956237540768">"Kragoefeninge"</string>
+    <string name="stretching" msgid="8667864173383423787">"Strekoefeninge"</string>
+    <string name="surfing" msgid="7612503593241904984">"Branderry"</string>
+    <string name="swimming_open_water" msgid="1030388267758027037">"Oopwaterswem"</string>
+    <string name="swimming_pool" msgid="1584809250142187550">"Swembadswem"</string>
+    <string name="swimming_freestyle" msgid="5969535751316106638">"Vryslag"</string>
+    <string name="swimming_backstroke" msgid="7293002996518694035">"Rugslag"</string>
+    <string name="swimming_breaststroke" msgid="7168282910654289593">"Borsslag"</string>
+    <string name="swimming_butterfly" msgid="8553167046220664352">"Vlinder"</string>
+    <string name="swimming_mixed" msgid="4486578691634921168">"Gemeng"</string>
+    <string name="swimming_other" msgid="2561131941506955982">"Ander"</string>
+    <string name="table_tennis" msgid="4849741231221974485">"Tafeltennis"</string>
+    <string name="tennis" msgid="6627063985750125504">"Tennis"</string>
+    <string name="upper_twist" msgid="3382862516792841928">"Bolyfdraaistrek"</string>
+    <string name="volleyball" msgid="7469885673961163729">"Vlugbal"</string>
+    <string name="walking" msgid="4782496160454621769">"Stap"</string>
+    <string name="water_polo" msgid="2527119748097860708">"Waterpolo"</string>
+    <string name="weightlifting" msgid="7586735291662318085">"Gewigoptel"</string>
+    <string name="wheelchair" msgid="2226734836271500057">"Rolstoel"</string>
+    <string name="workout" msgid="8583398837804461839">"Oefensessie"</string>
+    <string name="yoga" msgid="138675430777247097">"Joga"</string>
+    <string name="arm_curl" msgid="1737456878333201848">"Armkruloefening"</string>
+    <string name="ball_slam" msgid="5996773678701283169">"Balneergooi-oefening"</string>
+    <string name="double_arm_triceps_extension" msgid="4010735719203872078">"Driekopspierstrekking met albei arms"</string>
+    <string name="dumbbell_row" msgid="181791808359752158">"Handgewigroei"</string>
+    <string name="front_raise" msgid="1030939481482621384">"Lig gewig voor lyf met reguit arm"</string>
+    <string name="hip_thrust" msgid="8490916766767408053">"Heupopligoefening"</string>
+    <string name="hula_hoop" msgid="1651914953207761226">"Hoelahoepel"</string>
+    <string name="kettlebell_swing" msgid="364783119882246413">"Ketelgewigswaai"</string>
+    <string name="lateral_raise" msgid="1037404943175363734">"Lig gewig sywaarts op"</string>
+    <string name="leg_curl" msgid="5327470513599472344">"Beenkruloefening"</string>
+    <string name="leg_extension" msgid="1843556289395164421">"Beenligoefening"</string>
+    <string name="leg_press" msgid="4544551493384600086">"Beenstootoefening"</string>
+    <string name="leg_raise" msgid="3206754140765952088">"Beenopligoefening"</string>
+    <string name="mountain_climber" msgid="6666288676718010900">"Bergklimmeroefening"</string>
+    <string name="pull_up" msgid="4056233737860296184">"Optrekoefening"</string>
+    <string name="punch" msgid="7915247952566217050">"Boks"</string>
+    <string name="shoulder_press" msgid="4071573271892122319">"Skoueropstootoefening"</string>
+    <string name="single_arm_triceps_extension" msgid="4500495528709994121">"Driekopspierstrekking met een arm"</string>
+    <string name="sit_up" msgid="1872162440154479950">"Opsitoefening"</string>
+    <string name="rest" msgid="5937058337671252210">"Rus"</string>
+    <string name="pause" msgid="5161459047750335691">"Onderbreek"</string>
+    <string name="activity_type_australian_football" msgid="431838050917315084">"Australiese voetbal"</string>
+    <string name="sleep_session_default" msgid="7376764686701487196">"<xliff:g id="DURATION"> %1$s</xliff:g> aan die slaap"</string>
+    <string name="sleep_stage_default" msgid="1539043695578480733">"<xliff:g id="DURATION">%1$s</xliff:g> <xliff:g id="NAME">%2$s</xliff:g>"</string>
+    <string name="sleep_stage_awake" msgid="4526767634444460862">"wakker"</string>
+    <string name="sleep_stage_awake_in_bed" msgid="5533385496857888503">"wakker in die bed"</string>
+    <string name="sleep_stage_sleeping" msgid="5122840110107303518">"slaap"</string>
+    <string name="sleep_stage_out_of_bed" msgid="522297068981578046">"nie in die bed nie"</string>
+    <string name="sleep_stage_rem" msgid="1694477904067543104">"REM-slaap"</string>
+    <string name="sleep_stage_light" msgid="1070117964678317880">"ligte slaap"</string>
+    <string name="sleep_stage_deep" msgid="3134557407657258364">"diep slaap"</string>
+    <string name="sleep_stage_unknown" msgid="8664190491902295991">"onbekend"</string>
+    <string name="minute_duration" msgid="9035288227090160206">"<xliff:g id="MINUTE">%1$s</xliff:g> m."</string>
+    <string name="hour_minute_duration_short" msgid="6862483734123680444">"<xliff:g id="HOUR">%1$s</xliff:g> u. <xliff:g id="MIN">%2$s</xliff:g> min."</string>
+    <string name="hour_duration" msgid="3472489613837138711">"<xliff:g id="HOUR">%1$s</xliff:g> u."</string>
+    <string name="hour_minute_duration_accessibility" msgid="1863356122145811614">"<xliff:g id="HOURS">%1$s</xliff:g> <xliff:g id="MINUTES">%2$s</xliff:g>"</string>
+    <string name="hour_duration_accessibility" msgid="4944782597053107276">"{count,plural, =1{1 uur}other{# uur}}"</string>
+    <string name="minute_duration_accessibility" msgid="399158463609534882">"{count,plural, =1{1 minuut}other{# minute}}"</string>
+    <!-- no translation found for day_duration (3965793251448856729) -->
+    <skip />
+    <string name="day_hour_duration" msgid="6174865584368017275">"<xliff:g id="DAYS">%1$s</xliff:g> en <xliff:g id="HOURS">%2$s</xliff:g>"</string>
+    <string name="day_duration_accessibility" msgid="3023909370877112320">"{count,plural, =1{1 dag}other{# dae}}"</string>
+    <string name="vo2_max" msgid="8129489055516944647">"{value,plural, =1{1 mL/(kg·min.)}other{# mL/(kg·min.)}}"</string>
+    <string name="vo2_max_long" msgid="1031842712595851857">"{value,plural, =1{1 milliliter suurstof per kilogram liggaamsmassa per minuut}other{# milliliter suurstof per kilogram liggaamsmassa per minuut}}"</string>
+    <string name="vo2_metabolic_cart" msgid="4724757223373717896">"Metaboliese waentjie"</string>
+    <string name="vo2_heart_rate_ratio" msgid="8707274294125886148">"Polsslagverhouding"</string>
+    <string name="vo2_cooper_test" msgid="4713211595719031518">"Cooper-toets"</string>
+    <string name="vo2_multistage_fitness_test" msgid="908967547838751749">"Meerstadiumfiksheidtoets"</string>
+    <string name="vo2_rockport_fitness_test" msgid="2951465532122577281">"Rockport-fiksheidtoets"</string>
+    <string name="vo2_other" msgid="5359013487285233550">"Ander"</string>
+    <string name="mucus_dry" msgid="1065582777971603874">"Droog"</string>
+    <string name="mucus_sticky" msgid="2086025099544529404">"Taai"</string>
+    <string name="mucus_creamy" msgid="7525290054414941569">"Romerig"</string>
+    <string name="mucus_watery" msgid="1875540699006472048">"Waterig"</string>
+    <string name="mucus_egg_white" msgid="5578512593433767787">"Eierwit"</string>
+    <string name="mucus_unusual" msgid="3987847850745292757">"Ongewoon"</string>
+    <string name="mucus_light" msgid="5309343389013086860">"Lig"</string>
+    <string name="mucus_medium" msgid="7666848347740570566">"Medium"</string>
+    <string name="mucus_heavy" msgid="7864873650773259133">"Swaar"</string>
+    <string name="blood_pressure" msgid="7892828162554266437">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> mmHg"</string>
+    <string name="blood_pressure_long" msgid="6487761539434451764">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> millimeter kwik"</string>
+    <string name="body_position_standing_up" msgid="1221924915768574594">"Staande posisie"</string>
+    <string name="body_position_sitting_down" msgid="8053875174780552282">"Sittende posisie"</string>
+    <string name="body_position_lying_down" msgid="1472381098179371143">"Lêende posisie"</string>
+    <string name="body_position_reclining" msgid="5676889701646839079">"Terugleunposisie"</string>
+    <string name="blood_pressure_left_wrist" msgid="2047244346984766880">"Linkerpols"</string>
+    <string name="blood_pressure_right_wrist" msgid="1488133877790549424">"Regterpols"</string>
+    <string name="blood_pressure_left_arm" msgid="5150436840115504433">"Linkerboarm"</string>
+    <string name="blood_pressure_right_arm" msgid="8660682684653121430">"Regterboarm"</string>
+    <string name="millimoles_per_liter" msgid="3185457774991908223">"{count,plural, =1{1 mmol/L}other{# mmol/L}}"</string>
+    <string name="millimoles_per_liter_long" msgid="7248942926237335084">"{count,plural, =1{1 millimol per liter}other{# millimol per liter}}"</string>
+    <string name="specimen_source_interstitial_fluid" msgid="2201319049828128946">"Interstisiële vloeistof"</string>
+    <string name="specimen_source_capillary_blood" msgid="5525024815754731735">"Kapillêre bloed"</string>
+    <string name="specimen_source_plasma" msgid="8794064916106457747">"Plasma"</string>
+    <string name="specimen_source_serum" msgid="6383820057196352355">"Serum"</string>
+    <string name="specimen_source_tears" msgid="4368541832400624080">"Trane"</string>
+    <string name="specimen_source_whole_blood" msgid="8884838851343307557">"Volle bloedmonster"</string>
+    <string name="blood_glucose_general" msgid="7566279829618085436">"Algemeen"</string>
+    <string name="blood_glucose_fasting" msgid="2122662399203934350">"Vastende"</string>
+    <string name="blood_glucose_before_meal" msgid="5125498172701953751">"Voor ete"</string>
+    <string name="blood_glucose_after_meal" msgid="8101398122897992346">"Ná ete"</string>
+    <string name="mealtype_label" msgid="5402474235944051844">"Soort maaltyd"</string>
+    <string name="mealtype_unknown" msgid="3024645648636923591">"Onbekend"</string>
+    <string name="mealtype_breakfast" msgid="119545434987870954">"Ontbyt"</string>
+    <string name="mealtype_lunch" msgid="6212310262989550906">"Middagete"</string>
+    <string name="mealtype_dinner" msgid="1896347121249081336">"Aandete"</string>
+    <string name="mealtype_snack" msgid="8454859872168781221">"Peuselhappie"</string>
+    <string name="biotin" msgid="4000818331802478073">"Biotien"</string>
+    <string name="caffeine" msgid="2847006945615912643">"Kafeïen"</string>
+    <string name="calcium" msgid="4832722858820295752">"Kalsium"</string>
+    <string name="chloride" msgid="2509193544740445654">"Chloried"</string>
+    <string name="cholesterol" msgid="4261128668088502049">"Cholesterol"</string>
+    <string name="chromium" msgid="807851794929222026">"Chroom"</string>
+    <string name="copper" msgid="8603012497089601260">"Koper"</string>
+    <string name="dietary_fiber" msgid="6928876454420561553">"Dieetvesel"</string>
+    <string name="energy_consumed_total" msgid="7866804137119190606">"Energie"</string>
+    <string name="energy_consumed_from_fat" msgid="8637734004867176038">"Energie uit vet"</string>
+    <string name="folate" msgid="7728279545427110321">"Folaat"</string>
+    <string name="folic_acid" msgid="6861953414423667870">"Foliensuur"</string>
+    <string name="iodine" msgid="2896913103021799237">"Jodium"</string>
+    <string name="iron" msgid="6134405609706877219">"Yster"</string>
+    <string name="magnesium" msgid="6157495455437549170">"Magnesium"</string>
+    <string name="manganese" msgid="8339856079280400610">"Mangaan"</string>
+    <string name="molybdenum" msgid="3762866331212112454">"Molibdeen"</string>
+    <string name="monounsaturated_fat" msgid="1320950160552507057">"Mono-onversadigde vet"</string>
+    <string name="niacin" msgid="8425099536322826837">"Niasien"</string>
+    <string name="pantothenic_acid" msgid="5310842296212528685">"Pantoteensuur"</string>
+    <string name="phosphorus" msgid="3912318057064021441">"Fosfor"</string>
+    <string name="polyunsaturated_fat" msgid="6386374757897543025">"Poli-onversadigde vet"</string>
+    <string name="potassium" msgid="723134189945209756">"Kalium"</string>
+    <string name="protein" msgid="2731834509320364994">"Proteïen"</string>
+    <string name="riboflavin" msgid="5329306869379867435">"Riboflavien"</string>
+    <string name="saturated_fat" msgid="3174504848270051265">"Versadigde vet"</string>
+    <string name="selenium" msgid="8129594078116221891">"Seleen"</string>
+    <string name="sodium" msgid="7687341876185019438">"Natrium"</string>
+    <string name="sugar" msgid="656190285547502122">"Suiker"</string>
+    <string name="thiamin" msgid="1662446837028039063">"Tiamien"</string>
+    <string name="total_carbohydrate" msgid="7034043840349284931">"Totale koolhidrate"</string>
+    <string name="total_fat" msgid="8193647297427112321">"Totale vet"</string>
+    <string name="trans_fat" msgid="1059715899517909090">"Transvet"</string>
+    <string name="unsaturated_fat" msgid="5495925265449481356">"Onversadigde vet"</string>
+    <string name="vitamin_a" msgid="2379293029664252095">"Vitamien A"</string>
+    <string name="vitamin_b12" msgid="180162813332325098">"Vitamien B12"</string>
+    <string name="vitamin_b6" msgid="370053149968231667">"Vitamien B6"</string>
+    <string name="vitamin_c" msgid="5383574357126292194">"Vitamien C"</string>
+    <string name="vitamin_d" msgid="2717952250555672580">"Vitamien D"</string>
+    <string name="vitamin_e" msgid="5214468880515744802">"Vitamien E"</string>
+    <string name="vitamin_k" msgid="2722297637910069736">"Vitamien K"</string>
+    <string name="zinc" msgid="5211975076671534013">"Sink"</string>
+    <string name="nutrient_with_value" msgid="3327198262871257518">"<xliff:g id="NUTRIENT">%1$s</xliff:g>: <xliff:g id="AMOUNT">%2$s</xliff:g>"</string>
+    <string name="meal_name" msgid="6060648788040408308">"Naam"</string>
+    <string name="gram_short_format" msgid="2355009811799735134">"{count,plural, =1{1 g}other{# g}}"</string>
+    <string name="gram_long_format" msgid="6160392101513066663">"{count,plural, =1{1 gram}other{# gram}}"</string>
+    <string name="respiratory_rate_value" msgid="4546418213418344364">"{count,plural, =1{1 RPM}other{# RPM}}"</string>
+    <string name="respiratory_rate_value_long" msgid="3822748008700697049">"{count,plural, =1{1 respirasie per minuut}other{# respirasies per minuut}}"</string>
+    <string name="kilograms_short_label" msgid="9098342853218050689">"{count,plural, =1{1 kg}other{# kg}}"</string>
+    <string name="pounds_short_label" msgid="6256277330455003180">"{count,plural, =1{1 pd.}other{# pd.}}"</string>
+    <string name="stone_short_label" msgid="8377585176530348612">"{count,plural, =1{1 st.}other{# st.}}"</string>
+    <string name="stone_pound_short_label" msgid="7157344201618366834">"{stone_part} {pound_part}"</string>
+    <string name="kilograms_long_label" msgid="7883695071156297670">"{count,plural, =1{1 kilogram}other{# kilogram}}"</string>
+    <string name="pounds_long_label" msgid="2916697485006416419">"{count,plural, =1{1 pond}other{# pond}}"</string>
+    <string name="stone_long_label" msgid="8951426283449456468">"{count,plural, =1{1 stone}other{# stone}}"</string>
+    <string name="stone_pound_long_label" msgid="1308941435682625204">"{stone_part} {pound_part}"</string>
+    <string name="temperature_celsius" msgid="4552465686251118136">"{value,plural, =1{1 ℃}other{# ℃}}"</string>
+    <string name="temperature_celsius_long" msgid="5789974427381333869">"{value,plural, =1{1 graad Celsius}other{# grade Celsius}}"</string>
+    <string name="temperature_kelvin" msgid="4805698375607189394">"{value,plural, =1{1 K}other{# K}}"</string>
+    <string name="temperature_kelvin_long" msgid="6078037481989090665">"{value,plural, =1{1 kelvin}other{# kelvin}}"</string>
+    <string name="temperature_fahrenheit" msgid="8288674479506567057">"{value,plural, =1{1 ℉}other{# ℉}}"</string>
+    <string name="temperature_fahrenheit_long" msgid="1668948424411289521">"{value,plural, =1{1 graad Fahrenheit}other{# grade Fahrenheit}}"</string>
+    <string name="temperature_location_armpit" msgid="8359661261125563155">"Oksel"</string>
+    <string name="temperature_location_finger" msgid="4915449065770967487">"Vinger"</string>
+    <string name="temperature_location_forehead" msgid="8603219464757434635">"Voorkop"</string>
+    <string name="temperature_location_mouth" msgid="1535682736007063471">"Mond"</string>
+    <string name="temperature_location_rectum" msgid="1503082804377850076">"Rektum"</string>
+    <string name="temperature_location_temporal_artery" msgid="2830919806910102535">"Slaapslagaar"</string>
+    <string name="temperature_location_toe" msgid="36730991617372925">"Toon"</string>
+    <string name="temperature_location_ear" msgid="7024374111156026034">"Oor"</string>
+    <string name="temperature_location_wrist" msgid="5290446688282752346">"Pols"</string>
+    <string name="temperature_location_vagina" msgid="1689485374825231749">"Vagina"</string>
+    <string name="distance_miles" msgid="5419172432458896478">"{dist,plural, =1{1 myl}other{# myl}}"</string>
+    <string name="distance_km" msgid="6383736895665100602">"{dist,plural, =1{1 km}other{# km}}"</string>
+    <string name="distance_miles_long" msgid="1830844568614100885">"{dist,plural, =1{1 myl}other{# myl}}"</string>
+    <string name="distance_km_long" msgid="6256504627418439859">"{dist,plural, =1{1 kilometer}other{# kilometer}}"</string>
+    <string name="height_cm" msgid="94329926270064717">"{height,plural, =1{1 cm}other{# cm}}"</string>
+    <string name="height_cm_long" msgid="2821030110768530948">"{height,plural, =1{1 sentimeter}other{# sentimeter}}"</string>
+    <string name="height_in_long" msgid="6502316324841498419">"{height,plural, =1{1 duim}other{# duim}}"</string>
+    <string name="height_ft_long" msgid="7551582478724981895">"{height,plural, =1{1 voet}other{# voet}}"</string>
+    <string name="height_in_compacted" msgid="6087182983411207466">"{height,plural, =1{1″}other{#″}}"</string>
+    <string name="height_ft_compacted" msgid="1024585112134314039">"{height,plural, =1{1′}other{#′}}"</string>
+    <string name="feet_inches_format" msgid="768610500549967860">"<xliff:g id="FT">%1$s</xliff:g><xliff:g id="IN">%2$s</xliff:g>"</string>
+    <string name="feet_inches_format_long" msgid="5187265716573430363">"<xliff:g id="FT">%1$s</xliff:g> <xliff:g id="IN">%2$s</xliff:g>"</string>
+    <string name="calories_long" msgid="7225535148232419419">"{count,plural, =1{1 kalorie}other{# kalorieë}}"</string>
+    <string name="calories" msgid="320906359079319632">"{count,plural, =1{1 kal.}other{# kal.}}"</string>
+    <string name="kj" msgid="2742876437259085714">"{count,plural, =1{1 kJ}other{# kJ}}"</string>
+    <string name="kj_long" msgid="1837278261960345400">"{count,plural, =1{1 kilojoule}other{# kilojoules}}"</string>
+    <string name="percent" formatted="false" msgid="9199428244800776575">"{value,plural, =1{1%}other{#%}}"</string>
+    <string name="percent_long" msgid="2201022757867534235">"{value,plural, =1{1 persent}other{# persent}}"</string>
+    <string name="units_cancel" msgid="5947097690625771995">"Kanselleer"</string>
+    <string name="units_title" msgid="6504086463237869339">"Eenhede"</string>
+    <string name="distance_unit_title" msgid="4696952932438418209">"Afstand"</string>
+    <string name="height_unit_title" msgid="5461594609577078049">"Lengte"</string>
+    <string name="weight_unit_title" msgid="7405186541678939987">"Gewig"</string>
+    <string name="energy_unit_title" msgid="1714627395963766769">"Energie"</string>
+    <string name="temperature_unit_title" msgid="1973985121774654017">"Temperatuur"</string>
+    <string name="distance_unit_kilometers_label" msgid="1361363017122240294">"Kilometer"</string>
+    <string name="distance_unit_miles_label" msgid="848850214987608211">"Myl"</string>
+    <string name="height_unit_centimeters_label" msgid="4096031670561995574">"Sentimeter"</string>
+    <string name="height_unit_feet_label" msgid="3311723678628261399">"Voet en duim"</string>
+    <string name="weight_unit_pound_label" msgid="8210663393844989211">"Pond"</string>
+    <string name="weight_unit_kilogram_label" msgid="6623938920860887238">"Kilogram"</string>
+    <string name="weight_unit_stone_label" msgid="3063787243474847180">"Stone"</string>
+    <string name="energy_unit_calorie_label" msgid="3412965811470957296">"Kalorieë"</string>
+    <string name="energy_unit_kilojoule_label" msgid="6481196724083455110">"Kilojoules"</string>
+    <string name="temperature_unit_celsius_label" msgid="4698347100553808449">"Celsius"</string>
+    <string name="temperature_unit_fahrenheit_label" msgid="6590261955872562854">"Fahrenheit"</string>
+    <string name="temperature_unit_kelvin_label" msgid="3786210768294615821">"Kelvin"</string>
+    <string name="help_and_feedback" msgid="4772169905005369871">"Hulp en terugvoer"</string>
+    <string name="cant_see_all_your_apps_description" msgid="7344859063463536472">"As jy nie ’n geïnstalleerde app kan sien nie, is dit dalk nog nie met Health Connect versoenbaar nie"</string>
+    <string name="things_to_try" msgid="8200374691546152703">"Dinge om te probeer"</string>
+    <string name="check_for_updates" msgid="3841090978657783101">"Kyk vir opdaterings"</string>
+    <string name="check_for_updates_description" msgid="1347667778199095160">"Maak seker dat geïnstalleerde apps bygewerk is"</string>
+    <string name="see_all_compatible_apps" msgid="6791146164535475726">"Sien alle versoenbare apps"</string>
+    <string name="see_all_compatible_apps_description" msgid="2092325337403254491">"Soek apps op Google Play"</string>
+    <string name="send_feedback" msgid="7756927746070096780">"Stuur terugvoer"</string>
+    <string name="send_feedback_description" msgid="2887207112856240778">"Sê vir ons watter gesondheid- en fiksheidapps jy wil hê met Health Connect moet werk"</string>
+    <string name="playstore_app_title" msgid="4138464328693481809">"Play Winkel"</string>
+    <string name="auto_delete_button" msgid="8536451792268513619">"Vee outomaties uit"</string>
+    <string name="auto_delete_title" msgid="8761742828224207826">"Vee outomaties uit"</string>
+    <string name="auto_delete_header" msgid="4258649705159293715">"Jy kan beheer hoe lank jou data in Health Connect geberg word deur te skeduleer dat dit ná ’n vasgestelde tyd uitgevee word"</string>
+    <string name="auto_delete_learn_more" msgid="7416469042791307994">"Kom meer te wete oor Vee Outomaties Uit"</string>
+    <string name="auto_delete_section" msgid="7732381000331475082">"Vee data outomaties uit"</string>
+    <string name="range_after_x_months" msgid="3340127072680117121">"{count,plural, =1{Ná # maand}other{Ná # maande}}"</string>
+    <string name="range_never" msgid="4429478261788361233">"Nooit"</string>
+    <string name="range_off" msgid="8178520557618184215">"Af"</string>
+    <string name="auto_delete_rationale" msgid="5255442126521464878">"As jy hierdie instellings verander, sal Health Connect bestaande data uitvee om jou nuwe voorkeure te weerspieël"</string>
+    <string name="confirming_question_x_months" msgid="8204363800605282103">"{count,plural, =1{Vee data ná # maand outomaties uit?}other{Vee data ná # maande outomaties uit?}}"</string>
+    <string name="confirming_message_x_months" msgid="4798474593741471977">"{count,plural, =1{Health Connect sal nuwe data ná # maand outomaties uitvee. As dit gestel is, sal bestaande data ouer as # maand ook uitgevee word.}other{Health Connect sal nuwe data ná # maande outomaties uitvee. As dit gestel word, sal bestaande data ouer as # maande ook uitgevee word.}}"</string>
+    <string name="set_auto_delete_button" msgid="268450418318199197">"Stel Vee Outomaties Uit"</string>
+    <string name="deletion_started_title" msgid="1177766097121885025">"Bestaande data sal uitgevee word"</string>
+    <string name="deletion_started_x_months" msgid="6567199107249615612">"{count,plural, =1{Health Connect sal alle data ouer as # maande uitvee. Dit kan ’n dag neem voordat hierdie veranderinge in jou gekoppelde apps verskyn.}other{Health Connect sal alle data ouer as # maande uitvee. Dit kan ’n dag neem voordat hierdie veranderinge in jou gekoppelde apps verskyn.}}"</string>
+    <string name="deletion_started_category_list_section" msgid="3052940611815658991">"Data in hierdie kategorieë sal uitgevee word"</string>
+    <string name="deletion_started_done_button" msgid="1232018689825054257">"Klaar"</string>
+    <string name="priority_dialog_title" msgid="7360654442596118085">"Stel appprioriteit"</string>
+    <string name="priority_dialog_message" msgid="6971250365335018184">"As meer as een app <xliff:g id="DATA_TYPE">%s</xliff:g>-data byvoeg, gee Health Connect voorkeur aan die app wat die hoogste op hierdie lys is. Sleep apps om hulle te herrangskik."</string>
+    <string name="priority_dialog_positive_button" msgid="2503570694373675092">"Stoor"</string>
+    <string name="action_drag_label_move_up" msgid="4221641798253080966">"Skuif op"</string>
+    <string name="action_drag_label_move_down" msgid="3448000958912947588">"Skuif af"</string>
+    <string name="action_drag_label_move_top" msgid="5114033774108663548">"Skuif na bo"</string>
+    <string name="action_drag_label_move_bottom" msgid="3117764196696569512">"Skuif na onder"</string>
+    <string name="reorder_button_content_description" msgid="2685032520710743533">"Knoppie om <xliff:g id="SELECTED_APP">%s</xliff:g> in die prioriteitslys te sleep en herrangskik"</string>
+    <string name="remove_button_content_description" msgid="6170490900032612048">"Knoppie om <xliff:g id="SELECTED_APP">%s</xliff:g> van die prioriteitslys te verwyder"</string>
+    <string name="reorder_button_action_description" msgid="5197462036756192214">"Dubbeltik en sleep om te herrangskik"</string>
+    <string name="search_keywords_home" msgid="5386515593026555327">"fiksheid, welstand"</string>
+    <string name="search_keywords_permissions" msgid="7821010295153350533">"toestemmings"</string>
+    <string name="search_keywords_data" msgid="5359602744325490523">"health connect, gesondheiddata, gesondheidkategorieë, datatoegang, aktiwiteit, liggaamsmetings, siklusnasporing, voeding, slaap, lewensfunksies"</string>
+    <string name="search_breadcrumbs_permissions" msgid="2667471090347475796">"Health Connect &gt; Apptoestemmings"</string>
+    <string name="search_breadcrumbs_data" msgid="6635428480372024040">"Health Connect &gt; Data en toegang"</string>
+    <string name="search_connected_apps" msgid="8180770761876928851">"Deursoek apps"</string>
+    <string name="no_results" msgid="4007426147286897998">"Geen resultate nie"</string>
+    <string name="help" msgid="6028777453152686162">"Hulp"</string>
+    <string name="request_route_header_title" msgid="6599707039845646714">"Gee <xliff:g id="APP_NAME">%1$s</xliff:g> toegang tot hierdie oefenroete in Health Connect?"</string>
+    <string name="request_route_disclaimer_notice" msgid="8060511384737662598">"Hierdie app sal jou vorige ligging op die roete kan lees"</string>
+    <string name="date_owner_format" msgid="4431196384037157320">"<xliff:g id="DATE">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g>"</string>
+    <string name="request_route_info_header_title" msgid="4149969049719763190">"Oefenroetes sluit ligginginligting in"</string>
+    <string name="request_route_info_who_can_see_data_title" msgid="858355329937113994">"Wie kan hierdie data sien?"</string>
+    <string name="request_route_info_who_can_see_data_summary" msgid="2439434359808367150">"Net apps wat jy toegang tot jou oefenroetes gee"</string>
+    <string name="request_route_info_access_management_title" msgid="3222594923675464852">"Hoe kan ek toegang bestuur?"</string>
+    <string name="request_route_info_access_management_summary" msgid="2606548838292829495">"Jy kan apptoegang tot oefenroetes in Health Connect-instellings bestuur"</string>
+    <string name="request_route_allow" msgid="4427372851821847274">"Laat hierdie roete toe"</string>
+    <string name="request_route_allow_all" msgid="314830698958736916">"Laat alle roetes toe"</string>
+    <string name="request_route_dont_allow" msgid="1186236234664957228">"Moenie toelaat nie"</string>
+    <string name="route_permissions_always_allow" msgid="1383816362804293137">"Laat altyd toe"</string>
+    <string name="route_permissions_label" msgid="5201501195020295860">"Oefenroetedeling"</string>
+    <string name="route_permissions_summary" msgid="4670908225783213910">"Beheer hoe die app toegang tot oefenroetes van gekoppelde apps af kry"</string>
+    <string name="route_permissions_ask" msgid="3927020960754781917">"Vra elke keer"</string>
+    <string name="route_permissions_deny" msgid="4263802925221258853">"Moenie toelaat nie"</string>
+    <string name="exercise_permission_dialog_enable_title" msgid="4310997044811843391">"Aktiveer albei datasoorte?"</string>
+    <string name="exercise_permission_dialog_disable_title" msgid="1011777519918396883">"Deaktiveer albei datasoorte?"</string>
+    <string name="exercise_permission_dialog_enabled_summary" msgid="3404390796688813585">"<xliff:g id="APP_NAME">%1$s</xliff:g> vereis leestoegang tot oefening sodat oefeningroetes geaktiveer kan word"</string>
+    <string name="exercise_permission_dialog_disable_summary" msgid="397599718182778347">"<xliff:g id="APP_NAME">%1$s</xliff:g> vereis oefeningtoegang sodat oefeningroetes geaktiveer kan word"</string>
+    <string name="exercise_permission_dialog_positive_button" msgid="4545939654888655556">"Ja"</string>
+    <string name="exercise_permission_dialog_negative_button" msgid="7433304732406274998">"Nee"</string>
+    <string name="back_button" msgid="780519527385993407">"Terug"</string>
+    <string name="loading" msgid="2526615755685950317">"Laai tans …"</string>
+    <string name="migration_in_progress_screen_title" msgid="6564515269988205874">"Integrasie is aan die gang"</string>
+    <string name="migration_in_progress_screen_integration_details" msgid="5916989113111973466">"Health Connect word tans met die Android-stelsel geïntegreer.\n\nDit kan ’n rukkie neem vir jou data en toestemmings om oorgedra te word."</string>
+    <string name="migration_in_progress_screen_integration_dont_close" msgid="2095732208438772444">"Moenie die app toemaak totdat jy ’n kennisgewing gekry het dat die proses voltooi is nie."</string>
+    <string name="migration_in_progress_notification_title" msgid="8873411008158407737">"Health Connect-integrasie is aan die gang"</string>
+    <string name="migration_update_needed_screen_title" msgid="3260466598312877429">"Opdatering is nodig"</string>
+    <string name="migration_update_needed_screen_details" msgid="7984745102006782603">"Health Connect word met die Android-stelsel geïntegreer sodat jy direk van jou instellings af toegang daartoe kan kry."</string>
+    <string name="update_button" msgid="4544529019832009496">"Dateer op"</string>
+    <string name="migration_update_needed_notification_content" msgid="478899618719297517">"Begin hierdie opdatering sodat Health Connect kan voortgaan om met jou stelselinstellings te integreer"</string>
+    <string name="migration_update_needed_notification_action" msgid="1219223694165492000">"Dateer nou op"</string>
+    <string name="migration_module_update_needed_notification_title" msgid="5428523284357105379">"Stelselopdatering is nodig"</string>
+    <string name="migration_module_update_needed_action" msgid="7211167950758064289">"Dateer jou foonstelsel op voordat jy voortgaan."</string>
+    <string name="migration_module_update_needed_restart" msgid="1246884613546321798">"As jy reeds jou foonstelsel opgedateer het, kan jy probeer om jou foon te herbegin sodat jy met die integrasie kan voortgaan"</string>
+    <string name="migration_app_update_needed_notification_title" msgid="8971076370900025444">"Health Connect-opdatering nodig"</string>
+    <string name="migration_app_update_needed_action" msgid="3289432528592774601">"Voordat jy voortgaan, moet jy die Health Connect-app na die jongste weergawe opdateer."</string>
+    <string name="migration_more_space_needed_screen_title" msgid="1535473230886051579">"Nog spasie nodig"</string>
+    <string name="migration_more_space_needed_screen_details" msgid="621140247825603412">"Health Connect het <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> se bergingspasie op jou foon nodig sodat die integrasie kan voortgaan.\n\nMaak spasie op jou foon beskikbaar en probeer dan weer."</string>
+    <string name="try_again_button" msgid="8745496819992160789">"Probeer weer"</string>
+    <string name="free_up_space_button" msgid="4141013808635654695">"Maak spasie beskikbaar"</string>
+    <string name="migration_more_space_needed_notification_title" msgid="8238155395120107672">"Nog spasie nodig"</string>
+    <string name="migration_more_space_needed_notification_content" msgid="4034728181940567836">"Health Connect het <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> se bergingspasie op jou foon nodig sodat die integrasie kan voortgaan."</string>
+    <string name="migration_paused_screen_title" msgid="8041170155372429894">"Integrasie is onderbreek"</string>
+    <string name="migration_paused_screen_details" msgid="5898311710030340187">"Die Health Connect-app het toegemaak terwyl die proses om dit met die Android-stelsel te integreer, aan die gang was.\n\nKlik hervat om die app weer oop te maak en voort te gaan om jou data en toestemmings oor te dra."</string>
+    <string name="migration_paused_screen_details_timeout" msgid="353768000785837394">"Voltooi dit binne <xliff:g id="TIME_NEEDED">%1$s</xliff:g> as jy jou Health Connect-data wil behou"</string>
+    <string name="resume_button" msgid="2255148549862208047">"Hervat"</string>
+    <string name="migration_paused_notification_title" msgid="4368414714202113077">"Integrasie is onderbreek"</string>
+    <string name="migration_paused_notification_content" msgid="1950511270109811771">"Health Connect word tans met die Android-stelsel geïntegreer. Tik om voort te gaan"</string>
+    <string name="resume_migration_banner_title" msgid="4443957114824045317">"Hervat integrasie"</string>
+    <string name="resume_migration_banner_description" msgid="6236230413670826036">"Tik om voort te gaan om Health Connect met die Android-stelsel te integreer. Voltooi dit binne <xliff:g id="TIME_NEEDED">%1$s</xliff:g> as jy jou data wil behou"</string>
+    <string name="resume_migration_banner_description_fallback" msgid="6060444898839211883">"Tik om voort te gaan om Health Connect met die Android-stelsel te integreer."</string>
+    <string name="resume_migration_banner_button" msgid="2112318760107756469">"Gaan voort"</string>
+    <string name="resume_migration_notification_title" msgid="8859575633668908327">"Hervat Health Connect-integrasie"</string>
+    <string name="resume_migration_notification_content" msgid="46172108837648715">"Voltooi dit binne <xliff:g id="TIME_NEEDED">%1$s</xliff:g> as jy jou data wil behou"</string>
+    <string name="app_update_needed_banner_title" msgid="4724335956851853802">"Appopdatering word benodig"</string>
+    <string name="app_update_needed_banner_description_single" msgid="1114809360264027362">"<xliff:g id="APP_NAME">%1$s</xliff:g> moet opgedateer word om steeds met Health Connect te sinkroniseer"</string>
+    <string name="app_update_needed_banner_description_multiple" msgid="4660700626698013764">"Sommige apps moet opgedateer word om steeds met Health Connect te sinkroniseer"</string>
+    <string name="app_update_needed_banner_button" msgid="8223115764065649627">"Kyk vir opdaterings"</string>
+    <string name="app_update_needed_banner_learn_more_button" msgid="7269232067819258160">"Meer inligting"</string>
+    <string name="migration_pending_permissions_dialog_title" msgid="6019552841791757048">"Health Connect-integrasie"</string>
+    <string name="migration_pending_permissions_dialog_content" msgid="6350115816948005466">"Health Connect is gereed om met jou Android-stelsel geïntegreer te word. As jy <xliff:g id="APP_NAME">%1$s</xliff:g> nou toegang gee, sal sommige kenmerke nie werk totdat integrasie voltooi is nie."</string>
+    <string name="migration_pending_permissions_dialog_content_apps" msgid="6417173899016940664">"Health Connect is gereed om met jou Android-stelsel geïntegreer te word. As jy apps nou toegang gee, sal sommige kenmerke nie werk voordat integrasie voltooi is nie."</string>
+    <string name="migration_pending_permissions_dialog_button_continue" msgid="258571372365364506">"Gaan voort"</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" msgid="754910196871313049">"Begin integrasie"</string>
+    <string name="migration_in_progress_permissions_dialog_title" msgid="2188354144857156984">"Health Connect-integrasie is aan die gang"</string>
+    <string name="migration_in_progress_permissions_dialog_content" msgid="2249793103623253693">"Health Connect word tans met die Android-stelsel geïntegreer.\n\nJy sal ’n kennisgewing kry wanneer die proses voltooi is en jy <xliff:g id="APP_NAME">%1$s</xliff:g> met Health Connect kan gebruik."</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" msgid="8653954808926889199">"Health Connect word tans met die Android-stelsel geïntegreer.\n\nJy sal ’n kennisgewing kry wanneer die proses voltooi is en jy Health Connect kan gebruik."</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" msgid="3437208109334974656">"Het dit"</string>
+    <string name="migration_not_complete_dialog_title" msgid="3725576338159027149">"Health Connect-integrasie is nie voltooi nie."</string>
+    <string name="migration_not_complete_dialog_content" msgid="4992771587233088606">"Jy sal ’n kennisgewing kry wanneer dit weer beskikbaar word."</string>
+    <string name="migration_not_complete_dialog_button" msgid="3271842109680807482">"Het dit"</string>
+    <string name="migration_not_complete_notification_title" msgid="7392885522310227293">"Health Connect-integrasie is nie voltooi nie."</string>
+    <string name="migration_not_complete_notification_action" msgid="757041885992445657">"Lees meer"</string>
+    <string name="migration_complete_notification_title" msgid="4988631739109332404">"Health Connect-integrasie is voltooi"</string>
+    <string name="migration_complete_notification_action" msgid="5350322865206331186">"Oop"</string>
+    <string name="migration_whats_new_dialog_title" msgid="2349465358457105228">"Wat’s nuut"</string>
+    <string name="migration_whats_new_dialog_content" msgid="1271560399054864488">"Jy kan nou direk van jou instellings af toegang tot Health Connect kry. Deïnstalleer die Health Connect-app enige tyd om bergingspasie beskikbaar te maak."</string>
+    <string name="migration_whats_new_dialog_button" msgid="642575552457587805">"Het dit"</string>
+    <string name="data_restore_in_progress_screen_title" msgid="2516161353003274764">"Terugstelling aan die gang"</string>
+    <string name="data_restore_in_progress_content" msgid="2684897189974069361">"Health Connect stel tans data en toestemmings terug. Dit kan ’n tydjie neem om te voltooi."</string>
+    <string name="data_restore_in_progress_dialog_title" msgid="9097805833675345598">"Health Connect-terugstelling is aan die gang"</string>
+    <string name="data_restore_in_progress_dialog_button" msgid="2096525382430589845">"Het dit"</string>
+    <string name="data_restore_pending_banner_title" msgid="6792157138348551175">"Opdatering is nodig"</string>
+    <string name="data_restore_pending_banner_content" msgid="7631240781262092142">"Dateer jou foonstelsel op voor jy voortgaan om jou data terug te stel."</string>
+    <string name="data_restore_pending_banner_button" msgid="2150345659341456815">"Dateer nou op"</string>
+    <string name="data_totals_header" msgid="8316977153276216025">"Datatotale"</string>
+    <string name="app_sources_header" msgid="6343062519512947665">"Appbronne"</string>
+    <string name="data_sources_footer" msgid="6414387142919741183">"Voeg appbronne by die lys om te sien hoe die datatotale kan verander. ’n App sal ophou om tot die totale by te dra wanneer dit van hierdie lys af verwyder word, maar dit sal steeds skryftoestemmings hê."</string>
+    <string name="data_sources_empty_state" msgid="1899652759274805556">"Geen appbronne nie"</string>
+    <string name="data_sources_empty_state_footer" msgid="8933950342291569638">"Bronne sal hier gewys word nadat jy apptoestemmings gegee het om <xliff:g id="CATEGORY_NAME">%1$s</xliff:g>-data te skryf."</string>
+    <string name="data_sources_help_link" msgid="7740264923634947915">"Hoe bronne en prioritisering werk"</string>
+    <string name="data_sources_add_app" msgid="319926596123692514">"Voeg ’n app by"</string>
+    <string name="edit_data_sources" msgid="79641360876849547">"Wysig appbronne"</string>
+    <string name="default_app_summary" msgid="6183876151011837062">"Toestelverstek"</string>
+    <string name="app_data_title" msgid="6499967982291000837">"Appdata"</string>
+    <string name="no_data_footer" msgid="4777297654713673100">"Data vanaf apps met toegang tot Health Connect sal hier gewys word"</string>
+    <string name="date_picker_day" msgid="3076687507968958991">"Dag"</string>
+    <string name="date_picker_week" msgid="1038805538316142229">"Week"</string>
+    <string name="date_picker_month" msgid="3560692391260778560">"Maand"</string>
+    <string name="this_week_header" msgid="1280121922548216973">"Hierdie week"</string>
+    <string name="last_week_header" msgid="5194448963146719382">"Verlede week"</string>
+    <string name="this_month_header" msgid="2452395268894677189">"Hierdie maand"</string>
+    <string name="last_month_header" msgid="1359164797239191253">"Verlede maand"</string>
+    <string name="tab_entries" msgid="3402700951602029493">"Inskrywings"</string>
+    <string name="tab_access" msgid="7818197975407243701">"Toegang"</string>
+</resources>

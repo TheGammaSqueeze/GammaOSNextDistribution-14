@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"pasiekti „AdServices Topics“ API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Leidžiama programai pasiekti „AdServices Topics“ API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"pasiekti „AdServices Attribution“ API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Leidžiama programai pasiekti „AdServices Attribution“ API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"pasiekti „AdServices Custom Audience“ API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Leidžiama programai pasiekti „AdServices Custom Audience“ API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Prieiga prie reklamavimo ID API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Leidžiama programai pasiekti reklamavimo ID API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"pasiekti „AdServices Consent“ API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Leidžiama programai pasiekti „AdServices Consent“ API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Prieiga prie „Ad ID“ API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Leidžiama programai pasiekti „Ad ID“ API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Galimybė pasiekti „AdServices Cobalt“ įkėlimo API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Leidžiama programai pasiekti „AdServices Cobalt“ įkėlimo API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Prieiga prie „App Set ID“ API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Leidžiama programai pasiekti „App Set ID“ API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Pasiekti „Consent Service“ API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Leidžiama programai pasiekti „Consent Service“ API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Prieiga prie skelbimų paslaugos įgalinimo būsenos keitimo API"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Leidžiama programai pasiekti skelbimų paslaugos įgalinimo būsenos keitimo API."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Prieiga prie skelbimų paslaugos įgalinimo būsenos API"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Leidžiama programai pasiekti skelbimų paslaugos įgalinimo būsenos API."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Prieiga prie „AdServicesManager“ API"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Leidžiama programai pasiekti „AdServicesManager“ API."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Prieiga prie „AdService“ naujinio reklamavimo ID API."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Leidžiama programai pasiekti „AdService“ naujinio reklamavimo ID API."</string>
+    <string name="app_label" msgid="2639006978056689153">"Su skelbimais susijęs privatumas"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Prisijunkite prie „Android“ su skelbimais susijusio privatumo beta versijos programos"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"„Android“ bando rasti privatesnių būdų, kaip programos gali jums rodyti skelbimus"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Sužinokite daugiau"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"„Android“ su skelbimais susijusio privatumo programos beta versija"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Kas naujo"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Naudojant naujas Privatumo „sandbox“ (smėlio dėžės) privatumo funkcijas, programoms leidžiama rodyti aktualius skelbimus, bet ribojama, ką jos gali sužinoti apie jūsų veiklą svetainėse ir kitų kūrėjų programose."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Kaip tai veikia"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Kaip dalyvauti"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Įjungus beta versiją, programos gali išbandyti šiuos naujus privatesnius būdus skelbimams rodyti. Galite bet kuriuo metu išjungti beta versiją privatumo nustatymuose."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Ne, ačiū"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Įjungti"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Daugiau"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Dėkojame, kad dalyvaujate"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Dalyvaujate „Android“ su skelbimais susijusio privatumo beta versijos programoje. Privatumo „sandbox“ (smėlio dėžė) jūsų įrenginyje įjungta.\n\nGalite sužinoti daugiau arba bet kuriuo metu išjungti beta versiją privatumo nustatymuose."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Pasirinkote nedalyvauti"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Dėkojame už atsakymą. Privatumo „sandbox“ (smėlio dėžė) jūsų įrenginyje išjungta.\n\nJei apsigalvosite ar norėsite sužinoti daugiau, eikite į privatumo nustatymus."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Privatumo nustatymai"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Supratau"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Dalyvaujate beta versijos programoje"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privatumo „sandbox“ (smėlio dėžė) įjungta jūsų įrenginyje ir programos gali išbandyti šiuos naujus privatesnius būdus skelbimams rodyti. Galite bet kuriuo metu išjungti beta versiją privatumo nustatymuose."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Supratau"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"„Android“ privatumo „sandbox“ (smėlio dėžė) teikia naujų funkcijų, kurias programos gali naudoti, kad rodytų skelbimus, kurie jums gali patikti. Šios technologijos nenaudoja įrenginio identifikatorių.\n\n„Android“ ir jūsų programos nustato, kokio tipo skelbimai jus gali dominti, ir laikinai išsaugo šiuos pomėgius įrenginyje. Tai leidžia programoms rodyti skelbimus, kurie jums gali patikti, nestebint jūsų veiklos svetainėse ir kitų kūrėjų programose."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Skelbimų suasmeninimas su Privatumo „sandbox“ (smėlio dėže)"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  „Android“ nustatyti pomėgiai"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Pagal tai, kokias programas naudojate, „Android“ periodiškai nustato svarbiausius jūsų pomėgius, pvz., sportas ar kelionės.\n\nVėliau programa gali prašyti, kad „Android“ pasitelktų šiuos pomėgius aktualesniems skelbimams rodyti.\n\nPrivatumo nustatymuose galite peržiūrėti esamų pomėgių sąrašą ir užblokuoti visus nepatinkančius pomėgius."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Programų nustatyti pomėgiai"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Programos gali nustatyti jūsų pomėgius ir laikinai juos išsaugoti sistemoje „Android“. Pavyzdžiui, programa, kurią naudodami įsigijote bėgimo batelius, gali nustatyti, kad jūsų pomėgis yra bėgti maratoną.\n\nVėliau pagal šį pomėgį kita programa gali parodyti su maratonu susijusį skelbimą.\n\nPrivatumo nustatymuose galite tvarkyti programų, kuriose yra išsaugotų pomėgių, sąrašą."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Naujos su skelbimais susijusio privatumo funkcijos"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Naudojant skelbimų temas ir naujus valdiklius suteikiama daugiau norimų matyti skelbimų pasirinkimo galimybių"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Dabar pasiekiama naujų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"„Android“ nustato dominančias temas pagal jūsų neseniai naudotas programas. Be to, pagal naudojamas programas galima nustatyti, kas jums patinka. Vėliau programos gali prašyti šios informacijos, kad galėtų jums rodyti suasmenintus skelbimus. Galite pasirinkti, kokios temos ir programos naudojamos skelbimams rodyti."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Siekiant įvertinti skelbimo našumą, tarp programų bendrinami ribotų tipų duomenys."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Daugiau apie skelbimus sistemoje „Android“"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Daugiau naudingų skelbimų"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Programos gali prašyti „Android“ informacijos, kad galėtų suasmeninti jums rodomus skelbimus."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  „Android“ pažymi jus dominančias temas pagal neseniai naudotas programas."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Jūsų naudojamos programos taip pat gali nustatyti, kas jums patinka, pagal tai, kaip jas naudojate. Pavyzdžiui, jei naudojate programą, kurioje parduodami ilgo nuotolio bėgimo bateliai, ji gali nuspręsti, kad jus domina bėgimo maratonai."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Vėliau naudojam programa gali prašyti šios informacijos: skelbimų temų arba naudojamų programų asiūlomų skelbimų."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"„Android“ reguliariai automatiškai ištrina temas ir programų siūlomus duomenis. Taip pat galite blokuoti konkrečias temas ir programas, jei nenorite, kad jos rodytų pasiūlymus."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Skelbimo našumo vertinimas"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Naudojamos programos gali prašyti „Android“ informacijos, padedančios įvertinti savo skelbimų našumą. „Android“ leidžia programoms rinkti tam tikrų tipų duomenis, pvz., dienos laiką, kada skelbimas buvo jums rodomas."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Išbandykite naujas su skelbimais susijusio privatumo funkcijas"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Naudojant skelbimų temas suteikiama daugiau norimų matyti skelbimų pasirinkimo galimybių"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Žr. išsamią informaciją"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Išbandykite naujas skelbimų privatumo funkcijas"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"„Android“ pristato naujas privatumo funkcijas, suteikiančias daugiau norimų matyti skelbimų pasirinkimo galimybių."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Skelbimų temos suteikia programoms galimybę rodyti jums atitinkamus skelbimus, apsaugant jūsų tapatybę ir informaciją apie programų naudojimą. „Android“ gali nustatyti dominančias temas pagal jūsų neseniai naudotas programas. Vėliau programa, kurią naudojate, gali prašyti „Android“ informacijos apie aktualias temas, kad galėtų suasmeninti jums rodomus skelbimus."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Galite peržiūrėti skelbimų temas įrenginio nustatymuose ir užblokuoti tas, kurių nenorite bendrinti su programomis. „Android“ taip pat reguliariai automatiškai ištrina skelbimų temas."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Privatumo nustatymuose bet kada galite pakeisti nustatymą."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Daugiau apie skelbimų temas"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Sužinokite daugiau, kaip „Android“ apsaugo jūsų duomenis, peržiūrėję "<a href="https://policies.google.com/privacy">"privatumo politiką"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Išbandyti"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Kokie duomenys naudojami"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Skelbimų temos yra pagrįstos neseniai šiame įrenginyje naudotomis programomis ir tuo, kaip dažnai jas naudojate."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Kaip naudojame šiuos duomenis"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"„Android“ nustato dominančias temas jums naudojant programas. Temų etiketės nustatomos iš anksto ir apima tokias temas kaip menas ir pramogos, apsipirkimas ir sportas. Vėliau naudojama programa gali paprašyti „Android“ informacijos apie kelias temas (bet ne duomenų apie jūsų programų naudojimą ar tapatybę), kad galėtų suasmeninti jums rodomus skelbimus."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Kaip galite tvarkyti savo duomenis"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"„Android“ reguliariai automatiškai ištrina temas. Ir toliau naudojant programas, tema gali būti vėl įtraukta į sąrašą. Be to, privatumo nustatymuose bet kada galite užblokuoti konkrečias temas, jei nenorite, kad „Android“ jas bendrintų su programomis, ir išjungti skelbimų temas."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Pakeitimus galite atlikti privatumo nustatymuose."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Dabar pasiekiama kitų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Be to, „Android“ teikia naujų metodų, kaip apriboti programoms teikiamą informaciją apie jus, rodant suasmenintus skelbimus."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Programų siūlomi skelbimai padeda apsaugoti jūsų tapatybę ir informaciją apie jūsų programų naudojimą, leisdami programoms rodyti jums atitinkamus skelbimus. Atsižvelgdama į jūsų veiklą, naudojama programa gali siūlyti susijusius skelbimus kitose programose. Galite peržiūrėti programų sąrašą ir blokuoti jas, kad neteiktų pasiūlymų, apsilankę privatumo nustatymuose."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Naudojant skelbimų vertinimo funkciją, tam tikrų tipų duomenys bendrinami su programomis, kad būtų galima įvertinti jų skelbimų našumą, pvz., paros laiką, kada skelbimas buvo jums rodomas."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Daugiau apie programų siūlomus skelbimus ir skelbimų įvertinimą"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Programų siūlomi skelbimai"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Kokie duomenys naudojami"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Jūsų veikla naudojamoje programoje šiame įrenginyje."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Kaip programos naudoja šiuos duomenis"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Programos sistemoje „Android“ gali išsaugoti informaciją apie tai, ką mėgstate. Pavyzdžiui, jei naudojate ruošimosi maratonui programą, programa gali nuspręsti, kad jus domina bėgimo bateliai. Vėliau, naudojant kitą programą, ta programa gali rodyti bėgimo batelių skelbimą, pasiūlytą pirmosios programos."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Kaip galite tvarkyti savo duomenis"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"„Android“ reguliariai automatiškai ištrina programų siūlomus duomenis. Iš naujo naudojama programa gali būti vėl rodoma sąraše."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Be to, galite bet kada neleisti programai siūlyti jums skelbimų, iš naujo nustatyti visus skelbimų pasiūlymų duomenis arba išjungti programų siūlomus skelbimus privatumo nustatymuose."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Naudojamos programos gali prašyti „Android“ informacijos, kad galėtų lengviau įvertinti savo skelbimų našumą. „Android“ užtikrina jūsų privatumą ribodama programų bendrinamą informaciją."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Dabar pasiekiama naujų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Gaukite daugiau norimų matyti skelbimų pasirinkimo galimybių apsaugodami savo tapatybę"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Dabar pasiekiama naujų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"„Android“ pristato naujų metodų, kaip apriboti programoms teikiamą informaciją apie jus, rodant suasmenintus skelbimus."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Naudojant programų siūlomus skelbimus naujos privatumo funkcijos padeda apsaugoti jūsų tapatybę ir informaciją apie jūsų programų naudojimą, leisdamos programoms rodyti jums aktualius skelbimus. Atsižvelgdama į jūsų veiklą, naudojama programa gali siūlyti susijusius skelbimus kitose programose. Galite peržiūrėti programų sąrašą ir blokuoti jas, kad neteiktų pasiūlymų, apsilankę privatumo nustatymuose."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Naudojant skelbimų vertinimo funkciją, tam tikrų tipų duomenys bendrinami su programomis, siekiant suprasti jų skelbimų našumą, pvz., dienos laikas, kada skelbimas buvo jums rodomas."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Jūsų veikla programoje šiame įrenginyje gali būti naudojama siūlant skelbimus."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Kitos skelbimų privatumo funkcijos įjungimas"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Be to, „Android“ teikia naują privatumo funkciją, suteikiančią daugiau norimų matyti skelbimų pasirinkimo galimybių."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Skelbimų temos padeda programoms rodyti jums atitinkamus skelbimus, apsaugant jūsų tapatybę ir informaciją apie programų naudojimą. „Android“ gali pažymėti jus dominančias temas pagal neseniai naudotas programas. Vėliau naudojama programa gali paprašyti „Android“ atitinkamų temų, kad galėtų rodyti jums aktualesnius skelbimus."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Galite peržiūrėti skelbimų temas privatumo nustatymuose ir užblokuoti tas, kurių nenorite bendrinti su programomis. Be to, „Android“ reguliariai automatiškai ištrina skelbimų temas."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Įjungti"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Dabar pasiekiama naujų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Dabar teikiama daugiau norimų matyti skelbimų pasirinkimo galimybių apsaugant jūsų tapatybę"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Dabar pasiekiama naujų skelbimų privatumo funkcijų"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Dabar „Android“ teikia naujas privatumo funkcijas, suteikiančias daugiau norimų matyti skelbimų pasirinkimo galimybių."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Kitas"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privatumo „sandbox“ (smėlio dėžė)"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Dalyvaukite „Android“ su skelbimais susijusio privatumo beta versijos programoje"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privatumo „sandbox“ (smėlio dėžė)"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"„Android“ nustatyti pomėgiai"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Pomėgius nustatančios programos"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Skelbimų vertinimas"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Programos, naudodamos Privatumo „sandbox“ (smėlio dėžę), gali įvertinti savo skelbimų efektyvumą. Kad būtų galima tai atlikti, reklamuotojai sistemoje „Android“ gali laikinai išsaugoti duomenis apie jūsų sąveiką su programomis ir skelbimais. Galimų išsaugoti duomenų kiekis ribojamas ir jie reguliariai ištrinami.\n\nGalite bet kuriuo metu ištrinti šiuos duomenis išjungdami Privatumo „sandbox“ (smėlio dėžę)."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"„Android“ periodiškai nustato svarbiausius jūsų pomėgius pagal naudojamas programas. Programos gali prašyti, kad „Android“ pasitelktų šiuos pomėgius aktualesniems skelbimams rodyti.\n\nJei užblokuosite pomėgį, jis nebebus pridėtas į sąrašą, nebent jį atblokuosite. Vis tiek gali būti rodomi kai kurie susiję skelbimai."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blokuoti"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Panaikinti blokavimą"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Jūsų užblokuoti pomėgiai"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Iš naujo nustatyti visus pomėgius"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Šiuo metu nėra rodytinų pomėgių."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Šiuo metu nėra rodytinų temų.\nSužinokite daugiau apie "<a href="https://support.google.com/android?p=ad_privacy">"skelbimų temas"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privatumo „sandbox“ (smėlio dėžė)"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"„Android“ su skelbimais susijusio privatumo beta versijos programa teikia naujų funkcijų, kurias programos gali naudoti, kad rodytų skelbimus, kurie jums gali patikti. Šios technologijos nenaudoja įrenginio identifikatorių.\n\n„Android“ gali nustatyti, kokio tipo skelbimai jus gali dominti, ir laikinai išsaugoti šiuos pomėgius įrenginyje. Tai leidžia programoms rodyti aktualius skelbimus, nestebint jūsų veiklos svetainėse ir kitų kūrėjų programose."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Nėra užblokuotų pomėgių"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Nėra užblokuotų temų"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Užblokuotų temų peržiūra"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Pomėgiai nustatyti iš naujo"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Temos nustatytos iš naujo"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Programos gali nustatyti jūsų pomėgius ir laikinai juos išsaugoti sistemoje „Android“. Vėliau kita programa gali parodyti su šiais pomėgiais susijusį skelbimą.\n\nJei užblokuosite programą, ji nebenustatys pomėgių. Ji nebebus pridėta į šį programų sąrašą, nebent ją atblokuosite. Pomėgiai, kuriuos programa jau nustatė, bus ištrinti, bet vis tiek gali būti rodomi kai kurie susiję skelbimai."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Jūsų užblokuotos programos"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Žr. užblokuotas programas"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Iš naujo nustatyti programų nustatytus pomėgius"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Šiuo metu jokios programos nebando nustatyti jūsų pomėgių"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Šiuo metu nėra rodytinų programų. \nSužinokite daugiau apie "<a href="https://support.google.com/android?p=ad_privacy">"programų siūlomus skelbimus"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privatumo „sandbox“ (smėlio dėžė)"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"„Android“ su skelbimais susijusio privatumo beta versijos programa teikia naujų funkcijų, kurias programos gali naudoti, kad rodytų skelbimus, kurie jums gali patikti. Šios technologijos nenaudoja įrenginio identifikatorių.\n\nProgramos gali nustatyti, kokio tipo skelbimai jus gali dominti, ir laikinai išsaugoti šiuos pomėgius įrenginyje. Tai leidžia programoms rodyti aktualius skelbimus, nestebint jūsų veiklos svetainėse ir kitų kūrėjų programose."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Nėra užblokuotų programų"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Nėra užblokuotų programų"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Leisti vertinti skelbimus"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Programos ir reklamuotojai gali prašyti informacijos iš „Android“, kuri jiems padeda įvertinti skelbimų našumą.\n\nSkelbimų vertinimo duomenys reguliai ištrinami iš jūsų įrenginio."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Iš naujo nustatyti vertinimo duomenis"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"„Android“ užtikrina jūsų privatumą ribodama programų bendrinamą informaciją. Ataskaitų siuntimas atidedamas siekiant apsaugoti jūsų tapatybę.\n\nNaršyklėje gali būti naudojamas panašus nustatymas. Jei skelbimų vertinimo funkcija įjungta sistemoje „Android“ ir naršyklėje, įmonei gali būti suteikiama galimybė įvertinti skelbimo efektyvumą jūsų naudojamose programose ir svetainėse, kuriose lankotės. Naršymo istorija saugoma privačiai įrenginyje.\n\nSužinokite daugiau, kaip „Android“ saugo duomenis, peržiūrėję "<a href="https://policies.google.com/privacy">"privatumo politiką"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Skelbimų vertinimo duomenys nustatyti iš naujo"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Atšaukti"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Išjungti privatumo „sandbox“ (smėlio dėžę)?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Jei apsigalvotumėte ar norėtumėte sužinoti daugiau apie „Android“ skelbimų privatumo beta versiją, eikite į privatumo nustatymus"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Išjungti"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Blokuoti „<xliff:g id="TOPIC">%1$s</xliff:g>“?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Ši tema bus užblokuota ir nebus vėl pridėta prie jūsų sąrašo, nebent patys vėl pridėsite. Vis tiek gali būti rodomi kai kurie susiję skelbimai."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokuoti"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"„<xliff:g id="TOPIC">%1$s</xliff:g>“ blokavimas panaikintas"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"„Android“ gali vėl pridėti šią temą prie jūsų sąrašo, bet ji gali būti pateikta ne iš karto."</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Gerai"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Iš naujo nustatyti visas skelbimų temas?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Sąrašas bus išvalytas ir toliau bus pridedamos naujos temos. Vis tiek galite matyti su iš naujo nustatytomis temomis susijusių skelbimų."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Nustatyti iš naujo"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Blokuoti „<xliff:g id="APP">%1$s</xliff:g>“?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Ši programa nesiūlys skelbimų ir nebus vėl pridėta prie jūsų sąrašo, nebent panaikinsite jos blokavimą. Vis tiek gali būti rodomi kai kurie susiję skelbimai."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"„<xliff:g id="APP">%1$s</xliff:g>“ blokavimas panaikintas"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Ši programa gali vėl siūlyti jums skelbimus, bet sąraše gali būti pateikta ne iš karto. Gali šiek tiek užtrukti, kol bus rodomi susiję skelbimai."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Iš naujo nustatyti programų siūlomus skelbimus?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Skelbimų pasiūlymų duomenys iš programų jūsų sąraše bus ištrinti ir toliau programos siūlys naujus skelbimus. Vis tiek gali būti rodomi kai kurie susiję skelbimai."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Programų duomenys nustatyti iš naujo"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Skelbimų temos įjungtos"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"„Android“ pradės žymėti jus dominančias temas, bet gali šiek tiek užtrukti, kol bus parodytos pirmosios temos."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Išjungti skelbimų temas?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Šis temų sąrašas bus ištrintas. „Android“ nebežymės jus dominančių temų, bet vis tiek gali būti rodomi aktualūs skelbimai."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Programų siūlomi skelbimai įjungti"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Programos gali pradėti siūlyti skelbimus. Bus pateiktas programų sąrašas, kai jos pradės siūlyti skelbimus."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Išjungti programų siūlomus skelbimus?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Visi skelbimų pasiūlymų duomenys bus ištrinti. Programos nebegalės siūlyti skelbimų, bet vis tiek gali būti rodomi aktualūs skelbimai."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Skelbimų vertinimas įjungtas"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"„Android“ gali bendrinti tik labai ribotą informaciją su programomis, kad padėtų programoms įvertinti skelbimų našumą."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Išjungti skelbimų vertinimą?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Visos laukiančios skelbimų vertinimo ataskaitos bus ištrintos ir nebus generuojamos ar bendrinamos jokios naujos ataskaitos."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Su skelbimais susijęs privatumas"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Skelbimų temos"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Programų siūlomi skelbimai"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"„Android“ pažymi jus dominančias temas, atsižvelgdama į neseniai naudotas programas ir jų naudojimo dažnumą."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Jūsų naudojamos programos taip pat gali nustatyti, ką mėgstate, pagal tai, kaip jas naudojate."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Naudojamos programos gali prašyti „Android“ informacijos, kad galėtų lengviau įvertinti savo skelbimų našumą. „Android“ leidžia programoms rinkti tam tikrų tipų duomenis."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Sužinokite daugiau apie "<a href="https://support.google.com/android?p=ad_privacy">"su skelbimais susijusį privatumą sistemoje „Android“"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Įjungta / temų: <xliff:g id="TOPICS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Įjungta / # tema}one{Įjungta / # tema}few{Įjungta / # temos}many{Įjungta / # temos}other{Įjungta / # temų}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Įjungta / programų: <xliff:g id="APPS_COUNT">%1$d</xliff:g>"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Įjungta / # programa}one{Įjungta / # programa}few{Įjungta / # programos}many{Įjungta / # programos}other{Įjungta / # programų}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Įjungta"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Išjungta"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Dominančios temos priklauso nuo neseniai naudotų programų, ir programos jas naudoja, kad galėtų jums rodyti suasmenintus skelbimus.\n\nGalite užblokuoti temas, kurių nenorite bendrinti su programomis. „Android“ taip pat reguliariai automatiškai ištrina temas.\n\nNors ši funkcija gali būti įjungta, galite nematyti temų sąrašo, kol ši funkcija nebus visiškai pasiekiama ir programos nepradės jos naudoti."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Leisti skelbimų temas"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Jūsų užblokuotos skelbimų temos"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Iš naujo nustatyti visas skelbimų temas"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"„Android“ pažymi jus dominančias temas pagal per kelias pastarąsias savaites naudotas programas.\n\nVėliau programa, kurią naudojate, gali prašyti „Android“ jūsų temų, kad galėtų suasmeninti jums rodomus skelbimus. „Android“ bendrina iki 3 temų ir apsaugo jūsų tapatybę bei informaciją apie programų naudojimą.\n\n„Android“ reguliariai automatiškai ištrina temas. Ir toliau naudojant programas, tema gali būti vėl įtraukta į sąrašą. Arba galite užblokuoti konkrečias temas, jei nenorite, kad „Android“ jas bendrintų su programomis.\n\nProgramose rodomas skelbimas gali būti suasmeninamas pagal šį nustatymą, programų siūlomų skelbimų nustatymą, jūsų reklamavimo ID nustatymą ir pagal tai, ar jūsų naudojama programa suasmenina skelbimus."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Leisti programos siūlomus skelbimus"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Pagal naudojamas programas galima nustatyti, kas jums patinka, ir siūlyti skelbimus kitose programose.\n\nGalite blokuoti programas, kad neteiktų pasiūlymų. Be to, „Android“ reguliariai automatiškai ištrina programų siūlomus duomenis.\n\nNors ši funkcija gali būti įjungta, galite nematyti programų sąrašo, kol ši funkcija nebus visiškai pasiekiama ir programos nepradės jos naudoti."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Jūsų užblokuotos programos"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Iš naujo nustatyti programų siūlomus duomenis"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Naudojamose programose dažnai įsimenami jus dominantys dalykai, kad būtų galima suasmeninti jums teikiamas funkcijas. Be to, programos gali saugoti informaciją sistemoje „Android“ apie jūsų temas.\n\nPvz., jei naudojate maratono mokymo programą, programa gali nuspręsti, kad jus domina bėgimo bateliai. Vėliau, naudojant kitą programą, ši programa gali rodyti bėgimo batelių skelbimą, pasiūlytą pirmosios programos.\n\n„Android“ reguliariai automatiškai ištrina programų siūlomus duomenis. Vėl naudojama programa gali būti iš naujo rodoma sąraše. Arba galite neleisti programai siūlyti jums skelbimų.\n\nProgramose rodomas skelbimas gali būti suasmenintas, atsižvelgiant į šį nustatymą, skelbimų temų, reklamavimo ID ir naudojamos programos skelbimų suasmeninimo nustatymus."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Dabar pasiekiama nauja skelbimų privatumo funkcija"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Su programomis bendrinama tik labai ribota informacija, siekiant padėti įvertinti programų našumą"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Pristatome naują skelbimų privatumo funkciją, vadinamą skelbimų vertinimu. „Android“ su programomis bendrina tik labai ribotą informaciją, pvz., kada skelbimas jums buvo parodytas, kad padėtų programoms įvertinti skelbimų našumą."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Pakeitimus galite atlikti su skelbimais susijusio privatumo nustatymuose."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Naudojamos programos gali prašyti „Android“ informacijos, kad galėtų lengviau įvertinti savo skelbimų našumą. „Android“ leidžia programoms rinkti tik tam tikrų tipų duomenis."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Naujos su skelbimais susijusio privatumo funkcijos"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Gaukite daugiau galimybių pasirinkti norimus matyti skelbimus kartu padėdami apsaugoti savo tapatybę"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Su skelbimais susijusio privatumo funkcijų atnaujinimai"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Gaukite daugiau galimybių pasirinkti norimus matyti skelbimus kartu padėdami apsaugoti savo tapatybę"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"„Android“ plečia su skelbimais susijusio privatumo funkcijas ir apriboja, ką programos gali apie jus sužinoti, rodydamos jums suasmenintus skelbimus."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Programos ir jų reklamavimo partneriai gali naudoti jūsų veiklos duomenis kitose programose šiame įrenginyje, kad galėtų suasmeninti skelbimus, kartu užtikrinant jūsų tapatybės privatumą ir saugą."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Daugiau apie programų siūlomus skelbimus"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Naudojant skelbimų vertinimo funkciją, tam tikrų tipų duomenys bendrinami su programomis, siekiant suprasti jų skelbimų našumą, pvz., dienos laikas, kada skelbimas buvo jums rodomas."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Daugiau apie skelbimų vertinimą"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"„Android“ pažymi jus dominančias temas pagal neseniai naudotas programas. Be to, programos ir jų reklamavimo partneriai gali naudoti jūsų veiklos duomenis kitose programose šiame įrenginyje, kad galėtų suasmeninti skelbimus, kartu užtikrinant jūsų tapatybės privatumą ir saugą."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Naudojamos programos taip pat gali nustatyti, ką mėgstate, pagal jūsų programų veiklą. Pavyzdžiui, jei nuolat naudojate maisto gaminimo programas, kitose programose galite matyti maisto prekių pristatymo paslaugų skelbimų ar susijusio turinio.\n\nProgramos gali patikimai saugoti šią informaciją, kad ją naudotų tik jų reklamavimo partneriai siekdami suasmeninti skelbimus savo programose."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Vėliau naudojamoje programoje gali būti prašoma šios informacijos: skelbimų temų arba naudojamų programų siūlomų skelbimų."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Naudojamos programos gali prašyti „Android“ informacijos, kad galėtų lengviau įvertinti savo skelbimų našumą. „Android“ padeda apsaugoti jūsų privatumą ribodama programų bendrinamą informaciją."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Kokie duomenys naudojami?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Naudojamos programos gali prašyti „Android“ informacijos, kad galėtų lengviau įvertinti savo skelbimų našumą. „Android“ padeda apsaugoti jūsų privatumą ribodama programų bendrinamą informaciją."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Kaip saugoma mano tapatybė?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"„Android“ naudoja įvairias privatumo užtikrinimo priemones, pvz., kaupia ir grynina duomenis, siekdama apriboti informaciją, kurią programos gali bendrinti tarpusavyje, ir apsaugoti jūsų tapatybę.\n\nBe to, skelbimų vertinimo duomenys nuolat ištrinami iš jūsų įrenginio."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Jūsų programų veikla gali būti naudojama siūlant skelbimus."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Kaip programos naudoja šiuos duomenis?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Programos gali patikimai saugoti šią informaciją, kad ją naudotų tik jų reklamavimo partneriai siekdami suasmeninti skelbimus savo programose. Pavyzdžiui, jei nuolat naudojate maisto gaminimo programas, kitose programose galite matyti maisto prekių pristatymo paslaugų skelbimų ar susijusio turinio."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Kaip galiu valdyti šiuos duomenis?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Galite užblokuoti tam tikras programas, kad jos nebendrintų jūsų veiklos su reklamavimo partneriais. Galite bet kada iš naujo nustatyti arba išjungti programų siūlomus skelbimus privatumo nustatymuose. Be to, „Android“ reguliariai ištrina šiuos duomenis."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Sužinokite daugiau apie tai, kaip „Android“ padeda apsaugoti jūsų privatumą"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Programos ir jų reklamavimo partneriai gali naudoti jūsų veiklos duomenis kitose programose šiame įrenginyje, kad galėtų suasmeninti skelbimus, kartu užtikrinant informacijos apie jus privatumą ir saugą.\n\nPavyzdžiui, jei nuolat naudojate maisto gaminimo programas, kitose programose galite matyti maisto prekių pristatymo paslaugų skelbimų ar susijusio turinio.\n\n„Android“ reguliariai automatiškai ištrina jūsų veiklą, bet taip pat galite užblokuoti programas, kad jos nebendrintų šios informacijos su savo reklamavimo partneriais."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Programoms ir jų reklamavimo partneriams įprasta įsiminti jus dominančius dalykus, kad galėtų suasmeninti jūsų patirtį. Programos gali patikimai saugoti šią informaciją, kad ją naudotų tik jų reklamavimo partneriai siekdami rodyti skelbimus savo programose.\n\nGalite užblokuoti tam tikrą programą, kad nebendrintų veiklos duomenų su reklamavimo partneriais. Be to, „Android“ reguliariai automatiškai ištrina bendrintus veiklos duomenis, kad jūsų naudojama programa vėl galėtų būti rodoma šiame sąraše.\n\nAr rodomas skelbimas yra suasmenintas, gali priklausyti nuo daugelio veiksnių, pvz., šio nustatymo, skelbimų temų nustatymo, reklamavimo ID nustatymų ir nuo to, ar naudojama programa suasmenina skelbimus.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Sužinokite daugiau apie programų siūlomus skelbimus"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"„Android“ naudoja įvairias privatumo užtikrinimo priemones, pvz., kaupia ir grynina duomenis, siekdama apriboti informaciją, kurią programos gali bendrinti tarpusavyje, ir apsaugoti jūsų tapatybę.\n\nNaršyklėje gali būti naudojamas panašus nustatymas. Jei skelbimų vertinimo funkcija įjungta sistemoje „Android“ ir naršyklėje, įmonei gali būti suteikiama galimybė įvertinti skelbimo efektyvumą jūsų naudojamose programose ir svetainėse, kuriose lankotės. Jūsų naršymo istorija saugoma privačiai įrenginyje.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Sužinokite daugiau apie skelbimų vertinimą"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"„Android“ pažymi jus dominančias temas pagal per kelias pastarąsias savaites naudotas programas.\n\nVėliau programa, kurią naudojate, gali prašyti „Android“ jūsų temų, kad galėtų suasmeninti jums rodomus skelbimus. „Android“ bendrina iki trijų temų ir apsaugo jūsų tapatybę bei informaciją apie programų naudojimą.\n\n„Android“ reguliariai automatiškai ištrina temas. Ir toliau naudojant programas, tema gali būti vėl įtraukta į sąrašą. Arba galite užblokuoti konkrečias temas, jei nenorite, kad „Android“ jas bendrintų su programomis.\n\nAr rodomas skelbimas yra suasmenintas, gali priklausyti nuo daugelio veiksnių, pvz., šio nustatymo, programų siūlomų skelbimų nustatymo, reklamavimo ID nustatymų ir nuo to, ar naudojama programa suasmenina skelbimus.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Sužinokite daugiau apie skelbimų temas"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Spalvota simbolių, vaizduojančių dominančias temas, pvz., muziką, naujienas ir sportą, iliustracija"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Spalvota užrakto apskritimo viduryje iliustracija"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Nedidelė nespalvota devynių taškų, sudarančių kvadratą, iliustracija"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Nedidelė nespalvota paprastų formų, pvz., širdies, trikampio ir kvadrato, iliustracija"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Menas ir pramogos"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Vaidyba ir teatras"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Animė ir manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Animaciniai filmai"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komiksai"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Koncertai ir muzikos festivaliai"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Šokiai"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Pramogų industrija"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Malonumai ir smulkmenos"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Juokingi testai ir nerimtos apklausos"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humoras"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Juokingos nuotraukos ir vaizdo įrašai"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Komedija tiesiogiai"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Sporto įvykiai tiesiogiai"</string>
+    <string name="topic10015" msgid="726046067079821146">"Iliuzionizmas"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Filmų sąrašai ir kino teatrų repertuaras"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmai"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Veiksmo ir nuotykių filmai"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animaciniai filmai"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komedijos"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultiniai ir nepriklausomi filmai"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentiniai filmai"</string>
+    <string name="topic10023" msgid="254151319845267278">"Dramos"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Šeimai tinkantys filmai"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Siaubo filmai"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romantiški filmai"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Trileris"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Muzika ir garso įrašai"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Bliuzas"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Klasikinė muzika"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Kantri muzika"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Šokių ir elektroninė muzika"</string>
+    <string name="topic10033" msgid="895853536740398847">"Liaudies ir tradicinė muzika"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Džiazas"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Muzikos srautai ir atsisiuntimai"</string>
+    <string name="topic10036" msgid="449833307315797283">"Muzikiniai vaizdo įrašai"</string>
+    <string name="topic10037" msgid="51698216720637667">"Muzikos instrumentai"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Pianinai ir klavišiniai muzikos instrumentai"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popmuzika"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radijas"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Pokalbių radijas"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Repas ir hiphopas"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Roko muzika"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klasikinis rokas ir „Oldies“"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Sunkusis rokas ir progresyvusis rokas"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Nepriklausoma ir alternatyvioji muzika"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Pavyzdžiai ir garso bibliotekos"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soulo ir ritmenbliuzo muzika"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Garso takeliai"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Pasaulinė muzika"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Regis ir Karibų muzika"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Vaizdų galerijos prisijungus"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Vaizdo įrašas prisijungus"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Tiesioginė vaizdo transliacija"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Filmų ir TV srautinis perdavimas"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"TV gidai ir informacija"</string>
+    <string name="topic10058" msgid="8409884272709263707">"TV tinklai ir stotys"</string>
+    <string name="topic10059" msgid="6770193120260554722">"TV laidos ir programos"</string>
+    <string name="topic10060" msgid="2410694865246432781">"TV komedijos"</string>
+    <string name="topic10061" msgid="7733515887806604226">"TV dokumentika ir negrožinė kūryba"</string>
+    <string name="topic10062" msgid="2539857914076699714">"TV dramos"</string>
+    <string name="topic10063" msgid="7645361077069015698">"TV muilo operos"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Pramoginės šeimai skirtos TV laidos"</string>
+    <string name="topic10065" msgid="6361928032564256523">"TV realybės šou"</string>
+    <string name="topic10066" msgid="9206067258196707389">"TV mokslinės ir maginės fantastikos laidos"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Regimasis menas ir dizainas"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Dizainas"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Tapyba"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fotografijos ir skaitmeninis menas"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Automobiliai ir transporto priemonės"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Krovininiai sunkvežimiai ir priekabos"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klasikinės transporto priemonės"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Priskirtos ir didelio našumo transporto priemonės"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Degalų kainos ir transporto priemonių degalų sąnaudos"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Motorinės transporto priemonės (pagal tipą)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Autonominės transporto priemonės"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Automobiliai pakeliamu stogu"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Kupė"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Hečbekai"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hibridinės ir alternatyviosios transporto priemonės"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Prabangios transporto priemonės"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Nedideli ir subkompaktiniai automobiliai"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motociklai"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Visureigiai"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pikapai"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Motoroleriai ir mopedai"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedanai"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Universalai"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Padidinto pravažumo automobiliai ir krosoveriai"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Krosoveriai"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Autobusiukai ir mikroautobusiukai"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Vilkimo paslaugos ir pagalba pakelėje"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Transporto priemonių ir eismo sauga"</string>
+    <string name="topic10095" msgid="84682415803421329">"Transporto priemonių dalys ir priedai"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Transporto priemonių taisymas ir techninė priežiūra"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Transporto priemonių pirkimas"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Naudotos transporto priemonės"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Transporto priemonių parodos"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Grožis ir mankšta"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Kūno menas"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Veido ir kūno priežiūra"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Priemonės nuo prakaitavimo"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Vonios ir kūno priežiūros produktai"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Švarieji grožio produktai"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Makiažas ir kosmetika"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Nagų priežiūros produktai"</string>
+    <string name="topic10108" msgid="577259588028933025">"Kvepalai ir aromatai"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Skustuvai ir skutimosi priemonės"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Mada ir stilius"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Kūno rengyba"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Kultūrizmas"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Kūno rengybos mokymai ir asmeninės treniruotės"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Kūno rengybos technologijų produktai"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Plaukų priežiūra"</string>
+    <string name="topic10116" msgid="763642849903586689">"Knygos ir literatūra"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Vaikų literatūra"</string>
+    <string name="topic10118" msgid="8261966919146004082">"El. knygos"</string>
+    <string name="topic10119" msgid="894448782525835364">"Žurnalai"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poezija"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Verslas ir pramonė"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Reklamavimas ir rinkodara"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Pardavimas"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Žemės ūkis ir miškininkystė"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Maisto gamyba"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Automobilių pramonė"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Aviacijos pramonė"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Verslo operacijos"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Lanksčios darbo sąlygos"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Žmogiškieji ištekliai"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Komercinės paskolos"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Statyba ir techninė priežiūra"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Statybos inžinerija"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Gynybos pramonė"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energija ir komunalinės paslaugos"</string>
+    <string name="topic10136" msgid="455894912948558854">"Vandens tiekimas ir apdorojimas"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Svetingumo pramonė"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Gamyba"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metalai ir kasyba"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM ir verslo galimybės"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Medikamentai ir biotechnologijos"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Spausdinimas ir leidyba"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Mažmeninė prekyba"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Rizikos kapitalas"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Kompiuteriai ir elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Kompiuterių išoriniai įrenginiai"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Spausdintuvai"</string>
+    <string name="topic10148" msgid="388392714835039199">"Kompiuterio sauga"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirusinės ir kenkėjiškos programos"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Tinklo sauga"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Elektronikos prekės"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Fotoaparatai ir vaizdo kameros"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS ir navigacija"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Namų įrenginių automatizavimas"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Namų kino sistemos"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 ir nešiojamosios medijos leistuvės"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Nešiojamosios technologijos"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Atsarginės duomenų kopijos ir atkūrimas"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Staliniai kompiuteriai"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Nešiojamieji kompiuteriai ir užrašinės"</string>
+    <string name="topic10161" msgid="172004201167511870">"Tinklai"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Paskirstymas ir duomenų apdorojimas debesyje"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programavimas"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Programinė įranga"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Garso įrašai ir muzikos programinė įranga"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Verslo ir produktyvumo programinė įranga"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Kalendoriaus ir planavimo programinė įranga"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Bendradarbiavimo ir konferencijų programinė įranga"</string>
+    <string name="topic10169" msgid="827557334245484202">"Pristatymo programinė įranga"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Skaičiuoklės programinė įranga"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Žodžių apdorojimo programinė įranga"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Stalinė leidyba"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Šriftai"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Atsisiuntimų tvarkytuvės"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Programinė įranga be mokesčio ir laikinai be mokesčio teikiama programinė įranga"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafikos ir animacijos programinė įranga"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Išmanieji asmeniniai asistentai"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Medijos leistuvės"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Stebėjimo programinė įranga"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operacinės sistemos"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Nuotraukų ir vaizdo įrašų programinė įranga"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Nuotraukų programinė įranga"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Vaizdo įrašų programinė įranga"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Programinės įrangos priemonės"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Žiniatinklio naršyklės"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finansai"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Apskaita ir auditas"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Mokesčių paruošimas ir planavimas"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bankininkystė"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Pinigų pervedimas ir telegrafo paslaugos"</string>
+    <string name="topic10191" msgid="374364159635356705">"Kreditai ir skolinimas"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kredito kortelės"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Namų finansinė apskaita"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Asmeninės paskolos"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Paskolos studentams ir studijų finansavimas"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finansų planavimas ir valdymas"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Atsistatydinimas ir pensija"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Suteikiamas biudžetas"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Suteikiamas biudžetas"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Draudimas"</string>
+    <string name="topic10201" msgid="447240478385298875">"Automobilių draudimas"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Sveikatos draudimas"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Būsto draudimas"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Gyvybės draudimas"</string>
+    <string name="topic10205" msgid="262581473890356377">"Kelionių draudimas"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investavimas"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Prekės ir ateities sandoriai"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Valiuta ir užsienio valiutos keitimas"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Rizikos draudimo fondai"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Savitarpio pagalbos fondai"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Akcijos ir obligacijos"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Maistas ir gėrimai"</string>
+    <string name="topic10213" msgid="805716705436663130">"Gaminimas ir receptai"</string>
+    <string name="topic10214" msgid="726298155737413779">"Kepsniai ir kepimas ant grotelių"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Virtuvės"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetariška virtuvė"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Veganiška virtuvė"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Sveika mityba"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Maisto ir bakalėjos prekių mažmenininkai"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Žaidimai"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Arkados ir žaidimų automatai"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biliardas"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Stalo žaidimai"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Šachmatai ir abstraktūs strateginiai žaidimai"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kortų žaidimai"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Kolekcionuojamų kortų žaidimai"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Kompiuteriniai ir vaizdo žaidimai"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Veiksmo ir platformų žaidimai"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Nuotykių žaidimai"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Paprasti žaidimai"</string>
+    <string name="topic10231" msgid="405082026972839048">"Konkurenciniai vaizdo žaidimai"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Vairavimo ir lenktynių žaidimai"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Koviniai žaidimai"</string>
+    <string name="topic10234" msgid="693433817142162565">"Žaidimų nuorodos ir peržiūros"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Vaizdo žaidimų atmintinės ir patarimai"</string>
+    <string name="topic10236" msgid="320145832033080647">"Kelių žaidėjų režimo žaidimai"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Muzikiniai ir šokių žaidimai"</string>
+    <string name="topic10238" msgid="124952008622371505">"Smėlio dėžės žaidimai"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Šaudyklės žaidimai"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simuliaciniai žaidimai"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Verslo ir „Tycoon“ žaidimai"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Miestų statybos žaidimai"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Gyvenimo simuliaciniai žaidimai"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Transporto priemonių simuliatoriai"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sporto žaidimai"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Sporto vadybos žaidimai"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strateginiai žaidimai"</string>
+    <string name="topic10248" msgid="279151815457227293">"Vaizdo žaidimų modifikacijos ir priedai"</string>
+    <string name="topic10249" msgid="631580828608894782">"Mokomieji žaidimai"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Šeimai skirti žaidimai ir veikla"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Piešimas ir spalvinimas"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Aprangos ir mados žaidimai"</string>
+    <string name="topic10253" msgid="385499297969826942">"Galvosūkiai ir mąstymo žaidimai"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Vaidmenų žaidimai"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Stalo tenisas"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Dėlionės"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Žodžių žaidimai"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Pomėgiai ir laisvalaikis"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Sukaktys"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Gimimo ir vardo dienos"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Nardymas ir povandeninė veikla"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Pluošto ir audinių menai"</string>
+    <string name="topic10263" msgid="361345691023794788">"Lauke"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Žvejyba"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Medžioklė ir šaudymas"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Dažasvydis"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Valdymas radijo bangomis ir modeliavimas"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Vestuvės"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Namai ir sodas"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Sodininkystė"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Namų ir interjero dekoravimas"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Namų apyvokos prietaisai"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Namų patobulinimas"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Namų apsauga ir saugos sistemos"</string>
+    <string name="topic10275" msgid="682064062059687444">"Namų ūkio reikmenys"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Kraštovaizdžio dizainas"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internetas ir telekomunikacijos"</string>
+    <string name="topic10278" msgid="1736187026108921963">"El. paštas ir pranešimų siuntimas"</string>
+    <string name="topic10279" msgid="9034205050642228743">"El. paštas"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Teksto ir tikralaikio pokalbio žinutės"</string>
+    <string name="topic10281" msgid="582764575763317221">"Balso ir vaizdo pokalbiai"</string>
+    <string name="topic10282" msgid="7165187778548433480">"IPT"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefono paslaugų teikėjai"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Skambėjimo tonai ir temos mobiliesiems"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Paieškos varikliai"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Išmanieji telefonai"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferencijos"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Žiniatinklio programos ir internetiniai įrankiai"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Žiniatinklio paslaugos"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Saugykla debesyje"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Žiniatinklio dizainas ir kūrimas"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Žiniatinklio priegloba"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Darbas ir švietimas"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Švietimas"</string>
+    <string name="topic10295" msgid="331240908257602211">"Akademinės konferencijos ir leidiniai"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Kolegijos ir universitetai"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Nuotolinis mokymasis"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Švietimas ankstyvoje vaikystėje"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Ikimokyklinio amžiaus vaikams"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Mokymas namuose"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Sunorminti stojamieji testai"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Mokymo ir klasėse naudojami šaltiniai"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Profesinis ir tęstinis mokymas"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Darbai"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Karjeros šaltiniai ir planavimas"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Darbų sąrašai"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Įstatymai ir vyriausybė"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Nusikaltimai ir teisingumas"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Teisinė informacija"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Teisinės paslaugos"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Naujienos"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Ekonomikos naujienos"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Vietinės naujienos"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Susijungimas ir įsigijimas"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Laikraščiai"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Sporto naujienos"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Orai"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Pasaulio naujienos"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Interneto bendruomenės"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Iliustracijos ir animuoti GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Pažinčių ir asmeniniai skelbimai"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Sklaidos kanalų apibendrinimas ir socialinis žymėjimas"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Failų bendrinimas ir priegloba"</string>
+    <string name="topic10325" msgid="916412844647169263">"Forumų ir pokalbių teikėjai"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikrotinklaraščiai"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Nuotraukų ir vaizdo įrašų bendrinimas"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Nuotraukų ir vaizdų bendrinimas"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Vaizdo įrašų bendrinimas"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Temos"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Socialinių tinklų programos ir priedai"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Socialiniai tinklai"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Žmonės ir visuomenė"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Šeima ir ryšiai"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Protėviai ir genealogija"</string>
+    <string name="topic10336" msgid="360328903013424569">"Santuoka"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Vaikų auklėjimas"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Įvaikinimas"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Kūdikiai ir pradedantys vaikščioti vaikai"</string>
+    <string name="topic10340" msgid="259457452971577855">"Vaikų saugumas internete"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantika"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Mokslinė ir maginė fantastika"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Augintiniai ir kiti gyvūnai"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Maistas naminiams gyvūnams ir priežiūros reikmenys"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Naminiai gyvūnai"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Paukščiai"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Katės"</string>
+    <string name="topic10348" msgid="570783769757187957">"Šunys"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Žuvys ir akvariumai"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Ropliai ir amfibijos"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Veterinarai"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Nekilnojamasis turtas"</string>
+    <string name="topic10353" msgid="230887584509968233">"Sklypai ir žemė"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Nuosavybė, padalyta pagal naudojimosi laiką, ir atostogų ypatybės"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Informacijos šaltiniai"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Įmonių ir asmeniniai sąrašai"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Bendra informacija"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Skaičiuotuvai ir kreipiniai"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Žodynai ir enciklopedijos"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Švietimo šaltiniai"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Instrukcijos"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Laikas ir kalendoriai"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Kalbos šaltiniai"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Užsienio kalbų studijos"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Vertimo įrankiai ir šaltiniai"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Žemėlapiai"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Mokslas"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Išplėstoji ir virtualioji realybė"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologijos mokslai"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Chemija"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekologija ir aplinka"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologija"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Mašininis mokymasis ir dirbtinis intelektas"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fizika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotų technika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Apsipirkimas"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antikvariniai ir kolekcionuojami daiktai"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Drabužiai"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Vaikų apranga"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostiumai"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Vyrų apranga"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Moterų apranga"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Į kategorijas suskirstyti skelbimai"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Klientų šaltiniai"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kuponai ir nuolaidų pasiūlymai"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Lojalumo kortelės ir programos"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Techninis palaikymas ir remontas"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Gėlės"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Sveikinimo atvirukai"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Vakarėlių ir švenčių prekės"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Apsipirkimo portalai"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sportas"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Amerikietiškasis futbolas"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Australiškasis futbolas"</string>
+    <string name="topic10397" msgid="653991203228840785">"Automobilių lenktynės"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Beisbolas"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Krepšinis"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Kėgliai"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boksas"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Komandų palaikymas"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Kolegijų sportas"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriketas"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Važiavimas dviračiu"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Jojimas"</string>
+    <string name="topic10407" msgid="316266982792700993">"Ekstremalusis sportas"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Kopimas ir alpinizmas"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Virtualusis sportas"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golfas"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gimnastika"</string>
+    <string name="topic10412" msgid="335770351079973128">"Ledo ritulys"</string>
+    <string name="topic10413" msgid="416366556259783701">"Čiuožimas"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Kovos menai"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motociklų lenktynės"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpiada"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Regbis"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Bėgimas ir ėjimas"</string>
+    <string name="topic10419" msgid="979581105119036716">"Slidinėjimas ir snieglenčių sportas"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Futbolas"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Banglenčių sportas"</string>
+    <string name="topic10422" msgid="978920114358054206">"Plaukimas"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenisas"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Lengvoji atletika"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Tinklinis"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Imtynės"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Kelionės ir transportavimo paslaugos"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Nuotykinės kelionės"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Kelionės lėktuvu"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Verslo kelionės"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Automobilių nuoma"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Kruizai ir frachtavimas"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Šeimos kelionės"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Medaus mėnesio ir romantinės išvykos"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Viešbučiai ir apgyvendinimo paslaugos"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Tolimojo susisiekimo autobusai ir traukiniai"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Pigios ir paskutinės minutės kelionės"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Bagažas ir kelionių reikmenys"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistų lankomos vietos"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Paplūdimiai ir salos"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Regioniniai parkai ir sodai"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Pramogų parkai"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zoologijos sodai"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Eismo ir maršruto planavimo priemonės"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Kelionių agentūros ir paslaugos"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Kelionių vadovai ir paskaitos apie keliones"</string>
+</resources>

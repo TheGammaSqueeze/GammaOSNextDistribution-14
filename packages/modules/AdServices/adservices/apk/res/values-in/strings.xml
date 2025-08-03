@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"mengakses AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Mengizinkan aplikasi mengakses AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"mengakses AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Mengizinkan aplikasi mengakses AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"mengakses AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Mengizinkan aplikasi mengakses AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Akses ke AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Mengizinkan aplikasi mengakses AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"mengakses AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Mengizinkan aplikasi mengakses AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Akses ke Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Mengizinkan aplikasi mengakses Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Akses ke AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Mengizinkan aplikasi mengakses AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Akses ke App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Mengizinkan aplikasi mengakses App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Akses ke Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Mengizinkan aplikasi mengakses Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Akses ke enablement state modification API AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Mengizinkan aplikasi mengakses enablement state modification API AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Akses ke enablement state API AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Mengizinkan aplikasi mengakses enablement state API AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Akses ke API AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Mengizinkan aplikasi mengakses API AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Akses ke update AdId API AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Mengizinkan aplikasi mengakses update AdId API AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Privasi Iklan"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Bergabung ke privasi iklan Android beta"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android sedang mengembangkan cara yang lebih pribadi bagi aplikasi untuk menampilkan iklan kepada Anda"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Pelajari lebih lanjut"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Privasi iklan Android beta"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Yang baru"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Fitur privasi baru di Privacy Sandbox memungkinkan aplikasi menampilkan iklan yang relevan kepada Anda, tetapi membatasi info yang dapat dipelajari oleh aplikasi tersebut tentang aktivitas Anda di situs dan aplikasi dari developer lainnya."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Cara kerja"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Cara berpartisipasi"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Mengaktifkan program beta memungkinkan aplikasi menguji cara baru yang lebih pribadi ini untuk menampilkan iklan kepada Anda. Anda dapat menonaktifkan program beta kapan saja di setelan privasi."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Lain kali"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Aktifkan"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Lainnya"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Terima kasih sudah berpartisipasi"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Anda berpartisipasi dalam privasi iklan Android beta. Privacy Sandbox diaktifkan untuk perangkat Anda.\n\nAnda dapat mempelajari lebih lanjut atau menonaktifkan program beta kapan saja di setelan privasi."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Anda telah memilih untuk tidak berpartisipasi"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Terima kasih atas respons Anda. Privacy Sandbox dinonaktifkan untuk perangkat Anda.\n\nJika Anda berubah pikiran atau ingin mempelajari lebih lanjut, buka setelan privasi."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Setelan privasi"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Oke"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Anda berpartisipasi dalam program beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox aktif untuk perangkat Anda, dan aplikasi dapat menguji cara baru yang lebih pribadi ini untuk menampilkan iklan kepada Anda. Anda dapat menonaktifkan program beta kapan saja di setelan privasi."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Oke"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Privacy Sandbox Android memberikan fitur baru yang dapat digunakan aplikasi untuk menampilkan iklan yang mungkin Anda sukai. Teknologi ini tidak menggunakan ID perangkat.\n\nAndroid dan aplikasi dapat memperkirakan jenis iklan yang mungkin menarik bagi Anda, dan menyimpan minat untuk sementara di perangkat Anda. Hal ini memungkinkan aplikasi menampilkan iklan yang mungkin Anda sukai, tanpa melacak aktivitas Anda di seluruh situs dan aplikasi dari developer lainnya."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Personalisasi iklan dengan Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Minat hasil perkiraan Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android secara berkala memperkirakan minat teratas Anda berdasarkan aplikasi yang Anda gunakan, misalnya, \"Olahraga\" atau \"Wisata\".\n\nSelanjutnya, aplikasi dapat meminta Android untuk menggunakan minat tersebut guna menampilkan iklan yang lebih relevan kepada Anda.\n\nAnda dapat melihat daftar minat saat ini di setelan privasi, dan memblokir minat yang tidak Anda sukai."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Minat hasil perkiraan aplikasi"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Aplikasi dapat memperkirakan minat dan menyimpannya untuk sementara di Android. Misalnya, aplikasi yang Anda gunakan untuk membeli sepatu lari dapat memperkirakan bahwa Anda berminat pada \"lari maraton\".\n\nSelanjutnya, aplikasi lain dapat menampilkan iklan terkait maraton kepada Anda berdasarkan minat ini.\n\nDi setelan privasi, Anda dapat mengelola daftar aplikasi yang telah menyimpan minat."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Fitur privasi iklan baru"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Topik iklan dan kontrol baru memberikan lebih banyak pilihan atas iklan yang Anda lihat"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android mencatat minat berdasarkan aplikasi yang Anda gunakan baru-baru ini. Selain itu, aplikasi yang Anda gunakan dapat menentukan hal-hal yang Anda sukai. Kemudian, aplikasi lain dapat meminta informasi ini untuk menampilkan iklan yang dipersonalisasi kepada Anda. Anda dapat memilih topik dan aplikasi yang digunakan untuk menampilkan iklan kepada Anda."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Untuk mengukur performa iklan, beberapa jenis data tertentu dibagikan aplikasi kepada satu sama lain."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Selengkapnya tentang iklan di Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Iklan yang lebih berguna"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Aplikasi dapat meminta informasi dari Android untuk membantu mempersonalisasi iklan yang Anda lihat."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android mencatat topik minat berdasarkan aplikasi yang Anda gunakan baru-baru ini."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Aplikasi yang Anda gunakan juga dapat menyimpulkan minat Anda berdasarkan cara Anda menggunakannya. Misalnya, jika Anda menggunakan aplikasi yang menjual sepatu lari jarak jauh, aplikasi tersebut mungkin akan menyimpulkan bahwa Anda tertarik berlari maraton."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Kemudian, aplikasi yang Anda gunakan dapat meminta informasi ini — baik topik iklan atau iklan yang disarankan oleh aplikasi yang telah Anda gunakan."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android otomatis menghapus topik dan data yang disarankan aplikasi secara rutin. Anda juga dapat memblokir topik dan aplikasi tertentu agar tidak memberikan saran iklan."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Mengukur seberapa baik performa iklan"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantunya mengukur performa iklan. Android mengizinkan aplikasi mengumpulkan beberapa jenis data tertentu, misalnya jam berapa iklan ditampilkan kepada Anda."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Coba fitur privasi iklan baru"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Topik iklan memberikan lebih banyak pilihan atas iklan yang Anda lihat"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Lihat Detail"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Coba fitur privasi iklan baru"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android meluncurkan fitur privasi baru yang memberi Anda lebih banyak pilihan atas iklan yang Anda lihat."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Topik iklan membantu aplikasi menampilkan iklan yang relevan, sambil tetap melindungi identitas Anda dan informasi tentang penggunaan aplikasi oleh Anda. Android dapat mencatat topik yang Anda minati berdasarkan aplikasi yang Anda gunakan baru-baru ini. Kemudian, aplikasi dapat meminta topik yang relevan dari Android untuk mempersonalisasi iklan yang Anda lihat."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Anda dapat melihat topik iklan di setelan perangkat dan memblokir topik yang tidak ingin Anda bagikan kepada aplikasi. Selain itu, Android juga menghapus otomatis topik iklan secara rutin."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Anda dapat mengubahnya kapan saja di setelan privasi."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Selengkapnya tentang topik iklan"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Pelajari lebih lanjut cara Android melindungi data Anda di "<a href="https://policies.google.com/privacy">"Kebijakan Privasi"</a>" kami."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Cobalah"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Data yang digunakan"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Topik iklan didasarkan pada aplikasi yang Anda gunakan baru-baru ini di perangkat ini dan seberapa sering Anda menggunakannya."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Cara kami menggunakan data ini"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android mencatat topik minat saat Anda menggunakan aplikasi. Label topik sudah ditentukan sebelumnya dan mencakup hal-hal seperti Seni &amp; Hiburan, Belanja, dan Olahraga. Kemudian, aplikasi yang Anda gunakan dapat meminta beberapa topik Anda (tetapi bukan data tentang penggunaan aplikasi atau identitas Anda) dari Android untuk mempersonalisasi iklan yang Anda lihat."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Cara Anda dapat mengelola data Anda"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android otomatis menghapus topik secara rutin. Suatu topik dapat muncul kembali di dalam daftar, sesuai dengan penggunaan aplikasi Anda. Anda juga dapat memblokir topik dari Android yang Anda tidak ingin bagikan kepada aplikasi dan menonaktifkan topik iklan kapan saja di setelan privasi."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Anda dapat membuat perubahan di setelan privasi."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Fitur privasi iklan lainnya kini tersedia"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android juga menawarkan cara baru untuk membatasi informasi yang dapat dipelajari aplikasi tentang Anda saat aplikasi menampilkan iklan yang dipersonalisasi kepada Anda."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Iklan yang disarankan aplikasi membantu melindungi identitas dan informasi Anda tentang penggunaan aplikasi sekaligus memungkinkan aplikasi menampilkan iklan yang relevan kepada Anda. Berdasarkan aktivitas Anda, aplikasi yang Anda gunakan dapat menyarankan iklan yang terkait untuk ditampilkan di aplikasi lain. Anda dapat melihat daftar aplikasi dan memblokirnya agar tidak memberikan saran seperti ini di setelan privasi."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Dengan pengukuran iklan, beberapa jenis data tertentu dibagikan oleh aplikasi kepada satu sama lain untuk mengukur performa iklan mereka, misalnya jam berapa iklan ditampilkan kepada Anda."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Selengkapnya tentang iklan yang disarankan aplikasi dan pengukuran iklan"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Iklan yang disarankan aplikasi"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Data yang digunakan"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Aktivitas Anda di aplikasi yang digunakan di perangkat ini."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Cara aplikasi menggunakan data ini"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Aplikasi dapat menyimpan informasi dengan Android tentang hal-hal yang Anda suka. Misalnya, jika Anda menggunakan aplikasi tentang latihan maraton, aplikasi mungkin akan menyimpulkan bahwa Anda tertarik dengan sepatu lari. Kemudian, jika Anda menggunakan aplikasi lain, aplikasi tersebut dapat menampilkan iklan sepatu lari yang disarankan oleh aplikasi pertama."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Cara untuk mengelola data Anda"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android rutin menghapus otomatis data yang disarankan aplikasi. Aplikasi yang Anda gunakan lagi mungkin akan muncul kembali di daftar."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Anda juga dapat memblokir aplikasi agar tidak menyarankan iklan untuk Anda, mereset semua data rekomendasi iklan, atau menonaktifkan iklan yang disarankan aplikasi kapan saja di setelan privasi."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantunya mengukur performa iklan. Android melindungi privasi Anda dengan membatasi informasi yang dapat dibagikan aplikasi kepada satu sama lain."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Dapatkan lebih banyak pilihan atas iklan yang Anda lihat sekaligus melindungi identitas Anda"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android meluncurkan cara baru untuk membatasi informasi yang dapat dipelajari aplikasi tentang Anda saat menampilkan iklan yang dipersonalisasi."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Dengan iklan yang disarankan aplikasi, fitur privasi baru membantu melindungi identitas dan informasi Anda terkait penggunaan aplikasi Anda sekaligus memungkinkan aplikasi menampilkan iklan yang relevan kepada Anda. Berdasarkan aktivitas Anda, aplikasi yang Anda gunakan dapat menyarankan iklan terkait di aplikasi lain. Anda dapat melihat daftar aplikasi dan memblokirnya agar tidak memberikan saran di setelan privasi."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Dengan pengukuran iklan, jenis data terbatas dibagikan antar-aplikasi untuk memahami performa iklan mereka, seperti waktu iklan ditampilkan kepada Anda."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Aktivitas Anda di aplikasi pada perangkat ini dapat digunakan untuk menyarankan iklan."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Aktifkan fitur privasi iklan lainnya"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android juga menawarkan fitur privasi baru yang memberi Anda lebih banyak pilihan atas iklan yang Anda lihat."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Topik iklan membantu aplikasi menampilkan iklan yang relevan kepada Anda sekaligus melindungi identitas dan informasi Anda terkait penggunaan aplikasi Anda. Android dapat mencatat topik minat berdasarkan aplikasi yang Anda gunakan baru-baru ini. Kemudian, aplikasi yang Anda gunakan dapat meminta topik yang relevan ke Android untuk menampilkan iklan yang lebih relevan kepada Anda."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Anda dapat melihat topik iklan di setelan privasi Anda dan memblokir topik yang tidak ingin Anda bagikan ke aplikasi. Android juga menghapus otomatis topik iklan secara rutin."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Aktifkan"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Kini, ada lebih banyak pilihan atas iklan yang Anda lihat sekaligus melindungi identitas Anda"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android kini menawarkan fitur privasi baru yang memberi Anda lebih banyak pilihan atas iklan yang Anda lihat."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Berikutnya"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Berpartisipasi dalam privasi iklan Android beta"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Minat hasil perkiraan Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Aplikasi yang memperkirakan minat"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Pengukuran iklan"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Aplikasi dapat menggunakan Privacy Sandbox untuk mengukur keefektifan iklannya. Untuk melakukannya, pengiklan dapat menyimpan sementara data di Android tentang interaksi Anda dengan iklan dan aplikasi milik pengiklan. Jumlah data yang dapat disimpan oleh pengiklan dibatasi dan akan dihapus secara berkala.\n\nAnda dapat menghapus data ini kapan saja dengan menonaktifkan Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android secara berkala memperkirakan minat teratas Anda berdasarkan aplikasi yang Anda gunakan. Aplikasi dapat meminta Android untuk menggunakan minat tersebut guna menampilkan iklan yang lebih relevan kepada Anda.\n\nJika Anda memblokir suatu minat, minat tersebut tidak akan ditambahkan ke daftar lagi kecuali jika Anda berhenti memblokirnya. Anda mungkin masih melihat beberapa iklan terkait."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Blokir"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Berhenti memblokir"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Minat yang Anda blokir"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Reset semua minat"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Tidak ada minat untuk ditampilkan sekarang."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Saat ini tidak ada topik untuk ditampilkan.\nPelajari lebih lanjut "<a href="https://support.google.com/android?p=ad_privacy">"topik iklan"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Privasi iklan Android beta memberikan fitur baru yang dapat digunakan aplikasi untuk menampilkan iklan yang mungkin Anda sukai. Teknologi ini tidak menggunakan ID perangkat.\n\nAndroid dapat memperkirakan jenis iklan yang mungkin menarik bagi Anda, dan menyimpan minat ini untuk sementara di perangkat Anda. Hal ini memungkinkan aplikasi menampilkan iklan yang relevan, tanpa melacak aktivitas Anda di seluruh situs dan aplikasi dari developer lainnya."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Tidak ada minat yang diblokir"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Tidak ada topik yang diblokir"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Lihat topik yang diblokir"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Minat direset"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Topik telah direset"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Aplikasi dapat memperkirakan minat dan menyimpannya untuk sementara di Android. Selanjutnya, aplikasi lain dapat menampilkan iklan kepada Anda berdasarkan minat ini.\n\nJika Anda memblokir suatu aplikasi, aplikasi tersebut tidak akan memperkirakan minat lagi. Aplikasi tidak akan ditambahkan ke daftar aplikasi ini lagi kecuali jika Anda berhenti memblokirnya. Minat yang telah diperkirakan oleh aplikasi akan dihapus, tetapi Anda mungkin masih melihat beberapa iklan terkait."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Aplikasi yang Anda blokir"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Lihat aplikasi yang diblokir"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Reset minat hasil perkiraan aplikasi"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Saat ini tidak ada aplikasi yang memperkirakan minat untuk Anda"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Saat ini tidak ada aplikasi untuk ditampilkan. \nPelajari lebih lanjut "<a href="https://support.google.com/android?p=ad_privacy">"iklan yang disarankan aplikasi"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Privasi iklan Android beta memberikan fitur baru yang dapat digunakan aplikasi untuk menampilkan iklan yang mungkin Anda sukai. Teknologi ini tidak menggunakan ID perangkat.\n\nAplikasi dapat memperkirakan jenis iklan yang mungkin menarik bagi Anda, dan menyimpan minat ini untuk sementara di perangkat Anda. Hal ini memungkinkan aplikasi menampilkan iklan yang relevan, tanpa melacak aktivitas Anda di seluruh situs dan aplikasi dari developer lainnya."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Tidak ada aplikasi yang diblokir"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Tidak ada aplikasi yang diblokir"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Izinkan pengukuran iklan"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Aplikasi dan pengiklan dapat meminta informasi dari Android yang membantu mereka mengukur performa iklan mereka.\n\nData pengukuran iklan dihapus secara rutin dari perangkat Anda."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Reset data pengukuran"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android melindungi privasi Anda dengan membatasi informasi yang dapat dibagikan antar-aplikasi. Laporan dikirim dengan penundaan untuk melindungi identitas Anda.\n\nBrowser Anda mungkin memiliki setelan serupa. Jika pengukuran iklan diaktifkan untuk Android dan browser, suatu perusahaan mungkin dapat mengukur efektivitas iklan antara aplikasi yang Anda gunakan dan situs yang Anda buka. Histori penjelajahan Anda tetap bersifat pribadi di perangkat Anda.\n\nPelajari lebih lanjut cara Android melindungi data Anda di "<a href="https://policies.google.com/privacy">"Kebijakan Privasi"</a>" kami."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Data pengukuran iklan telah direset"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Batal"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Nonaktifkan Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Jika Anda berubah pikiran atau ingin mempelajari privasi iklan Android beta lebih lanjut, buka setelan privasi"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Nonaktifkan"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Blokir <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Topik ini akan diblokir dan tidak akan ditambahkan ke daftar Anda lagi, kecuali jika Anda menambahkannya kembali. Anda mungkin masih melihat beberapa iklan terkait."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Blokir"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> berhenti diblokir"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android dapat menambahkan topik ini lagi ke daftar Anda, tetapi topik mungkin tidak langsung muncul"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Oke"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Reset semua topik iklan?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Daftar Anda akan dihapus dan topik baru akan ditambahkan ke depannya. Anda mungkin masih melihat beberapa iklan terkait topik yang telah Anda reset."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Reset"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Blokir <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Aplikasi ini tidak akan menyarankan iklan dan tidak akan ditambahkan ke daftar Anda lagi, kecuali jika Anda berhenti memblokirnya. Anda mungkin masih melihat beberapa iklan terkait."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> berhenti diblokir"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Aplikasi ini dapat menyarankan iklan lagi untuk Anda, tetapi mungkin tidak langsung muncul di daftar Anda. Mungkin perlu waktu agak lama bagi Anda untuk melihat iklan terkait."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Reset iklan yang disarankan oleh aplikasi?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Data rekomendasi iklan dari aplikasi dalam daftar Anda akan dihapus dan aplikasi tersebut akan menyarankan iklan baru ke depannya. Anda mungkin masih melihat beberapa iklan terkait."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Data aplikasi telah direset"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Topik iklan diaktifkan"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android akan mulai mencatat topik minat, tetapi mungkin perlu waktu beberapa saat sebelum topik pertama Anda muncul."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Nonaktifkan topik iklan?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Daftar topik ini akan dihapus. Android tidak akan lagi mencatat topik minat, tetapi Anda mungkin masih melihat iklan yang relevan."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Iklan yang disarankan aplikasi diaktifkan"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Aplikasi mungkin mulai menyarankan iklan. Anda akan melihat daftar aplikasi setelah aplikasi mulai menyarankan iklan."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Nonaktifkan iklan yang disarankan aplikasi?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Semua data rekomendasi iklan akan dihapus. Aplikasi tidak dapat lagi menyarankan iklan, tetapi Anda mungkin masih melihat iklan yang relevan."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Pengukuran iklan diaktifkan"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android dapat membagikan hanya informasi yang sangat terbatas ke aplikasi untuk membantu aplikasi mengukur performa iklan."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Nonaktifkan pengukuran iklan?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Semua laporan pengukuran iklan yang tertunda akan dihapus dan tidak ada laporan baru yang akan dibuat atau dibagikan."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Privasi iklan"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Topik iklan"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Iklan yang disarankan aplikasi"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android mencatat topik minat berdasarkan aplikasi yang Anda gunakan baru-baru ini dan seberapa sering Anda menggunakannya."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Aplikasi yang Anda gunakan juga dapat menyimpulkan minat Anda berdasarkan cara Anda menggunakannya."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantu mereka mengukur performa iklan. Android mengizinkan aplikasi mengumpulkan beberapa jenis data tertentu."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Pelajari lebih lanjut "<a href="https://support.google.com/android?p=ad_privacy">"privasi iklan di Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Aktif / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> topik"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Aktif/# topik}other{Aktif/# topik}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Aktif / <xliff:g id="APPS_COUNT">%1$d</xliff:g> aplikasi"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Aktif/# aplikasi}other{Aktif/# aplikasi}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Aktif"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Nonaktif"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Minat topik didasarkan pada aplikasi yang digunakan baru-baru ini dan digunakan oleh aplikasi untuk menampilkan iklan yang dipersonalisasi kepada Anda.\n\nAnda dapat memblokir topik yang tidak ingin dibagikan ke aplikasi. Android juga menghapus otomatis topik secara berkala.\n\nMeskipun fitur ini dapat diaktifkan, Anda mungkin tidak akan melihat daftar topik hingga fitur ini sepenuhnya tersedia dan aplikasi mulai menggunakannya."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Izinkan topik iklan"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Topik iklan yang Anda blokir"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Reset semua topik iklan"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android mencatat topik minat berdasarkan aplikasi yang Anda gunakan dalam beberapa minggu terakhir.\n\nNantinya, aplikasi yang Anda gunakan dapat meminta topik dari Android untuk mempersonalisasi iklan yang Anda lihat. Android membagikan hingga 3 topik sekaligus melindungi identitas dan informasi Anda tentang penggunaan aplikasi.\n\nAndroid menghapus otomatis topik secara rutin. Saat Anda melanjutkan menggunakan aplikasi, topik dapat muncul kembali dalam daftar. Atau, Anda dapat memblokir topik yang tidak ingin dibagikan ke aplikasi dari Android.\n\nDi aplikasi Anda, iklan yang Anda lihat mungkin dipersonalisasikan, berdasarkan setelan ini, setelan iklan yang disarankan aplikasi, setelan ID iklan Anda, dan apakah aplikasi yang Anda gunakan mempersonalisasi iklan."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Izinkan iklan yang disarankan aplikasi"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Aplikasi yang Anda gunakan dapat mengetahui hal yang Anda sukai lalu menyarankan iklan di aplikasi lain.\n\nAnda dapat memblokir aplikasi agar tidak membuat saran. Android juga menghapus otomatis data yang disarankan aplikasi secara berkala.\n\nMeskipun fitur ini dapat diaktifkan, Anda mungkin tidak akan melihat daftar aplikasi hingga fitur ini sepenuhnya tersedia dan aplikasi mulai menggunakannya."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Aplikasi yang Anda blokir"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Reset data yang disarankan aplikasi"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Aplikasi yang Anda gunakan biasanya mengingat hal-hal yang Anda minati untuk mempersonalisasi pengalaman Anda. Aplikasi juga dapat menyimpan informasi dengan Android tentang topik yang Anda suka.\n\nMisalnya, jika Anda menggunakan aplikasi untuk latihan maraton, aplikasi mungkin akan menyimpulkan bahwa Anda tertarik dengan sepatu lari. Nantinya, jika Anda menggunakan aplikasi lain, aplikasi tersebut dapat menampilkan iklan sepatu lari yang disarankan oleh aplikasi pertama.\n\nAndroid akan rutin menghapus otomatis data yang disarankan aplikasi. Aplikasi yang Anda gunakan lagi mungkin akan muncul kembali di daftar. Atau, Anda dapat memblokir aplikasi agar tidak menyarankan iklan untuk Anda.\n\nDi aplikasi, iklan yang Anda lihat mungkin telah dipersonalisasi, bergantung pada setelan ini, setelan topik iklan, setelan ID iklan Anda, dan apakah aplikasi Anda menggunakan iklan yang dipersonalisasi."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Fitur privasi iklan baru kini tersedia"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Hanya info yang sangat terbatas yang dibagikan antar-aplikasi untuk membantu mengukur performa iklan"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Kami meluncurkan fitur privasi iklan baru yang disebut pengukuran iklan. Android hanya membagikan informasi yang sangat terbatas antar-aplikasi, seperti saat iklan ditampilkan kepada Anda, untuk membantu aplikasi mengukur performa iklan."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Anda dapat mengubahnya di setelan privasi iklan."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantu mereka mengukur performa iklan. Android mengizinkan aplikasi mengumpulkan beberapa jenis data tertentu saja."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Fitur privasi iklan baru"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Dapatkan lebih banyak pilihan atas iklan yang Anda lihat sekaligus membantu melindungi identitas Anda"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Update pada fitur privasi iklan"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Dapatkan lebih banyak pilihan atas iklan yang Anda lihat sekaligus membantu melindungi identitas Anda"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android memperluas fitur privasi iklan untuk membatasi informasi tentang Anda yang dapat dipelajari oleh aplikasi saat aplikasi menampilkan iklan yang dipersonalisasi."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Aplikasi dan partner iklannya dapat menggunakan aktivitas Anda di berbagai aplikasi lain di perangkat ini untuk mempersonalisasi iklan dengan tetap membantu menjaga kerahasiaan dan keamanan identitas Anda."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Selengkapnya tentang iklan yang disarankan aplikasi"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Jenis data terbatas dibagikan antar-aplikasi untuk memahami performa iklannya, seperti waktu iklan ditampilkan kepada Anda."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Selengkapnya tentang pengukuran iklan"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android mencatat topik minat berdasarkan aplikasi yang Anda gunakan baru-baru ini. Selain itu, aplikasi dan partner iklan aplikasi dapat menggunakan aktivitas Anda di berbagai aplikasi lain di perangkat ini untuk mempersonalisasi iklan dengan tetap membantu menjaga kerahasiaan dan keamanan identitas Anda."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Aplikasi yang Anda gunakan juga dapat menentukan hal-hal yang Anda sukai berdasarkan aktivitas aplikasi Anda. Misalnya, jika Anda rutin menggunakan aplikasi memasak, Anda akan melihat iklan untuk layanan pengiriman bahan makanan atau konten terkait di aplikasi lain.\n\nAplikasi dapat menyimpan informasi ini dengan aman agar informasi tersebut hanya dapat digunakan oleh partner iklannya untuk mempersonalisasi iklan di aplikasi lain."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Nantinya, aplikasi yang Anda gunakan dapat meminta informasi ini — baik topik iklan atau iklan yang disarankan oleh aplikasi yang telah Anda gunakan."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantu mereka mengukur performa iklan. Android membantu melindungi privasi Anda dengan membatasi informasi yang dapat dibagikan antar-aplikasi."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Data apa saja yang digunakan?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Aplikasi yang Anda gunakan dapat meminta informasi dari Android untuk membantunya mengukur performa iklan. Android membantu melindungi privasi Anda dengan membatasi informasi yang dapat dibagikan antar-aplikasi."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Bagaimana cara identitas saya dilindungi?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android menggunakan beberapa teknologi pelindung privasi, seperti penggabungan dan pengacakan data untuk membatasi informasi yang dapat dibagikan antar-aplikasi dan membantu melindungi identitas Anda.\n\nData pengukuran iklan juga disimpan secara rutin dari perangkat Anda."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Aktivitas aplikasi Anda dapat digunakan untuk menyarankan iklan."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Bagaimana cara aplikasi menggunakan data ini?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Aplikasi dapat menyimpan informasi ini dengan aman agar informasi tersebut hanya dapat digunakan oleh partner iklannya untuk mempersonalisasi iklan di aplikasi lain. Misalnya, jika Anda rutin menggunakan aplikasi memasak, Anda akan melihat iklan untuk layanan pengiriman bahan makanan atau konten terkait di aplikasi lain."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Bagaimana cara mengelola data ini?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Anda dapat memblokir aplikasi tertentu agar tidak membagikan aktivitas Anda ke partner iklan. Anda dapat mereset atau menonaktifkan iklan yang disarankan aplikasi kapan saja di setelan privasi. Android juga menghapus otomatis data ini secara rutin."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Pelajari lebih lanjut cara Android membantu melindungi privasi Anda"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Aplikasi dan partner iklannya dapat menggunakan aktivitas Anda di berbagai aplikasi lain di perangkat ini untuk mempersonalisasi iklan dengan tetap menjaga kerahasiaan dan keamanan informasi tentang Anda.\n\nMisalnya, jika Anda rutin menggunakan aplikasi memasak, Anda akan melihat iklan untuk layanan pengiriman bahan makanan atau konten terkait di aplikasi lain.\n\nAndroid rutin menghapus otomatis aktivitas Anda, tetapi Anda juga dapat memblokir aplikasi agar tidak berbagi informasi ini dengan partner iklan aplikasi."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Aplikasi dan partner iklannya biasanya mengingat hal-hal yang Anda minati untuk mempersonalisasi pengalaman Anda. Aplikasi dapat menyimpan informasi ini dengan aman agar informasi tersebut hanya dapat digunakan oleh partner iklannya untuk menampilkan iklan di aplikasi lain.\n\nAnda dapat memblokir aplikasi agar tidak berbagi data aktivitas Anda dengan partner iklan. Android juga rutin menghapus otomatis data aktivitas yang dibagikan, sehingga aplikasi yang Anda gunakan lagi dapat muncul kembali di daftar ini.\n\nDipersonalisasi atau tidaknya iklan yang Anda lihat dapat bergantung pada banyak faktor, seperti setelan ini, setelan topik iklan, setelan ID iklan Anda, dan apakah aplikasi yang Anda gunakan mempersonalisasi iklan.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pelajari lebih lanjut iklan yang disarankan aplikasi"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android menggunakan beberapa teknologi pelindung privasi, seperti penggabungan dan pengacakan data untuk membatasi informasi yang dapat dibagikan antar-aplikasi dan membantu melindungi identitas Anda.\n\nBrowser Anda mungkin memiliki setelan yang serupa. Jika pengukuran iklan diaktifkan untuk Android dan browser, suatu perusahaan mungkin dapat mengukur efektivitas iklan antara aplikasi yang Anda gunakan dan situs yang Anda buka. Histori penjelajahan Anda tetap bersifat pribadi di perangkat Anda.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pelajari lebih lanjut pengukuran iklan"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android mencatat topik minat berdasarkan aplikasi yang Anda gunakan dalam beberapa minggu terakhir.\n\nNantinya, aplikasi yang Anda gunakan dapat meminta topik dari Android untuk mempersonalisasi iklan yang Anda lihat. Android membagikan hingga 3 topik sekaligus melindungi identitas dan informasi Anda tentang penggunaan aplikasi.\n\nAndroid menghapus otomatis topik secara rutin. Saat Anda melanjutkan penggunaan aplikasi, topik dapat muncul kembali dalam daftar. Atau, Anda dapat memblokir topik yang tidak ingin dibagikan ke aplikasi dari Android.\n\nDipersonalisasi atau tidaknya iklan yang Anda lihat dapat bergantung pada banyak faktor, seperti setelan ini, setelan iklan yang disarankan aplikasi, setelan ID iklan Anda, dan apakah aplikasi yang Anda gunakan mempersonalisasi iklan.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Pelajari lebih lanjut topik iklan"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Ilustrasi simbol penuh warna yang menampilkan topik minat seperti musik, berita, dan olahraga"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Ilustrasi kunci dalam lingkaran yang penuh warna"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Ilustrasi hitam putih kecil yang menggambarkan sembilan titik membentuk persegi"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Ilustrasi hitam putih kecil yang menggambarkan bentuk sederhana seperti hati, segitiga, dan persegi"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Seni &amp; Hiburan"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Akting &amp; Teater"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime &amp; Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Kartun"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Komik"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Konser &amp; Festival Musik"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Tarian"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Industri Hiburan"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Game &amp; Trivia"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Tes Santai &amp; Survei Menyenangkan"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Gambar &amp; Video Lucu"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Komedi Langsung"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Acara Olahraga Langsung"</string>
+    <string name="topic10015" msgid="726046067079821146">"Sulap"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Daftar Film &amp; Waktu Pertunjukan Teater"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Film"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Film Aksi &amp; Petualangan"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Film Animasi"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Film Komedi"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Film Kultus &amp; Indie"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Film Dokumenter"</string>
+    <string name="topic10023" msgid="254151319845267278">"Film Drama"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Film Keluarga"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Film Horor"</string>
+    <string name="topic10026" msgid="210222384439682793">"Film Romantis"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Menegangkan"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musik &amp; Audio"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Musik Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Musik Klasik"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Musik Country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Musik Dansa &amp; Elektronik"</string>
+    <string name="topic10033" msgid="895853536740398847">"Musik Rakyat &amp; Tradisional"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Musik Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Download &amp; Streaming Musik"</string>
+    <string name="topic10036" msgid="449833307315797283">"Video Musik"</string>
+    <string name="topic10037" msgid="51698216720637667">"Alat Musik"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Piano &amp; Keyboard"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Musik Pop"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Radio Bincang"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap &amp; Hip-Hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Musik Rock"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Rock Klasik &amp; Oldies"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hard Rock &amp; Progressive"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Musik Indie &amp; Alternatif"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Koleksi Sample &amp; Suara"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul &amp; R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Musik Soundtrack"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Musik Dunia"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Musik Reggae &amp; Karibia"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Galeri Gambar Online"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Video Online"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Streaming Video Live"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Streaming Film &amp; TV"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Panduan &amp; Referensi TV"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Jaringan &amp; Stasiun TV"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Program &amp; Acara TV"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Komedi TV"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Dokumenter &amp; Non-fiksi TV"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Drama TV"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Sinetron TV"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Acara TV Berorientasi Keluarga"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Acara Reality Show TV"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Acara Sci-Fi &amp; Fantasi TV"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Seni &amp; Desain Visual"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Desain"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Melukis"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Seni Fotografi &amp; Digital"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Mobil &amp; Kendaraan"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Truk &amp; Trailer Kargo"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Kendaraan Klasik"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Kendaraan Modifikasi &amp; Performa Tinggi"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Harga Bahan Bakar &amp; Pengisian Bahan Bakar Kendaraan"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Kendaraan Bermotor (Menurut Jenis)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Kendaraan Otonom"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Konvertibel"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Coupe"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"Kendaraan Hibrida &amp; Alternatif"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Kendaraan Mewah"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mobil Subkompak &amp; Mikro"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Sepeda Motor"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Kendaraan Off-Road"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Truk Pickup"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Skuter &amp; Moped"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Mobil Sedan"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Mobil Station Wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Mobil SUV &amp; Crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Mobil Crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Van &amp; Minivan"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Derek &amp; Bantuan Darurat saat di Jalan"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Kendaraan &amp; Keselamatan Berlalu Lintas"</string>
+    <string name="topic10095" msgid="84682415803421329">"Suku Cadang &amp; Aksesori Kendaraan"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Perbaikan &amp; Pemeliharaan Kendaraan"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Belanja Kendaraan"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Kendaraan Bekas"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Pameran Kendaraan"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Kecantikan &amp; Kebugaran"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Seni Rajah dan Tindik"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Perawatan Wajah &amp; Tubuh"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antiperspiran"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Produk Perlengkapan Mandi &amp; Perawatan Tubuh"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Produk Kecantikan Ramah Lingkungan"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Tata Rias &amp; Kosmetik"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Produk Perawatan Kuku"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfum &amp; Wewangian"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Pisau Cukur &amp; Alat Cukur"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Fashion &amp; Gaya"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Kebugaran"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Binaraga"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Instruksi Kebugaran &amp; Pelatihan Pribadi"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Produk Teknologi Kebugaran"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Perawatan Rambut"</string>
+    <string name="topic10116" msgid="763642849903586689">"Buku &amp; Literatur"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Literatur untuk Anak-Anak"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-Book"</string>
+    <string name="topic10119" msgid="894448782525835364">"Majalah"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Puisi"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Bisnis &amp; Industri"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Iklan &amp; Pemasaran"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Penjualan"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Pertanian &amp; Kehutanan"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Produksi Makanan"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Industri Otomotif"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Industri Penerbangan"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Operasional Bisnis"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Pengaturan Kerja Fleksibel"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Sumber Daya Manusia"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Pinjaman Niaga"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Konstruksi &amp; Pemeliharaan"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Teknik Sipil"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Industri Pertahanan"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energi &amp; Utilitas"</string>
+    <string name="topic10136" msgid="455894912948558854">"Pasokan &amp; Pengolahan Air"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Industri Pelayanan"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Manufaktur"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Logam &amp; Pertambangan"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM &amp; Peluang Bisnis"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Farmasi &amp; Bioteknologi"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Percetakan &amp; Penerbitan"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Perdagangan Retail"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Modal Ventura"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Komputer &amp; Elektronik"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Periferal Komputer"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Printer"</string>
+    <string name="topic10148" msgid="388392714835039199">"Keamanan Komputer"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirus &amp; Malware"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Keamanan Jaringan"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Barang Elektronik Konsumen"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kamera &amp; Perekam Video"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS &amp; Navigasi"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Otomatisasi Rumah"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Sistem Teater Rumah"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 &amp; Pemutar Media Portabel"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Teknologi Wearable"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Pencadangan &amp; Pemulihan Data"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Komputer Desktop"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Laptop &amp; Notebook"</string>
+    <string name="topic10161" msgid="172004201167511870">"Jaringan"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Komputasi Terdistribusi &amp; Cloud Computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Pemrograman"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Software"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Software Audio &amp; Musik"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Software Bisnis &amp; Produktivitas"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Software Kalender &amp; Jadwal"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Software Kolaborasi &amp; Konferensi"</string>
+    <string name="topic10169" msgid="827557334245484202">"Software Presentasi"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Software Spreadsheet"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Software Pemroses Kata"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Penerbitan Desktop"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Font"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Pengelola Download"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Software Gratis &amp; Berbagi"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Software Grafis &amp; Animasi"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Asisten Pribadi Cerdas"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Pemutar Media"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Software Pemantauan"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Sistem Operasi"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Software Foto &amp; Video"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Software Foto"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Software Video"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Utilitas Software"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Browser Web"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Keuangan"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Akuntansi &amp; Pengauditan"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Persiapan &amp; Perencanaan Pajak"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Perbankan"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Layanan Transfer Uang &amp; Transfer Antar-Bank di Negara Lain"</string>
+    <string name="topic10191" msgid="374364159635356705">"Kredit &amp; Pinjaman"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kartu Kredit"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Pembiayaan Rumah"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Pinjaman Pribadi"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Pinjaman Pelajar &amp; Pembiayaan Kuliah"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Perencanaan &amp; Pengelolaan Keuangan"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Pengunduran Diri &amp; Pensiun"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Hibah"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Hibah"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Asuransi"</string>
+    <string name="topic10201" msgid="447240478385298875">"Asuransi Otomotif"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Asuransi Kesehatan"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Asuransi Rumah"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Asuransi Jiwa"</string>
+    <string name="topic10205" msgid="262581473890356377">"Asuransi Perjalanan"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investasi"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Perdagangan Komoditas &amp; Berjangka"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Mata Uang Asing &amp; Kurs"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Dana Lindung Nilai"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Reksa Dana"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Saham &amp; Obligasi"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Makanan &amp; Minuman"</string>
+    <string name="topic10213" msgid="805716705436663130">"Masakan &amp; Resep"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ &amp; Memanggang"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Masakan"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Masakan Vegetarian"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Masakan Vegan"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Pola Makan Sehat"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Retailer Makanan &amp; Bahan Pangan"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Game"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Game Arkade &amp; Koin"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biliar"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Permainan Papan"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Catur &amp; Game Strategi Abstrak"</string>
+    <string name="topic10225" msgid="564207834821286301">"Game Kartu"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Game Kartu Koleksi"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Game Komputer &amp; Video Game"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Game Aksi &amp; Platform"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Game Petualangan"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Game Kasual"</string>
+    <string name="topic10231" msgid="405082026972839048">"Kompetisi Video Game"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Game Menyetir &amp; Balap"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Game Pertarungan"</string>
+    <string name="topic10234" msgid="693433817142162565">"Referensi &amp; Ulasan Game"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Cheat &amp; Petunjuk Video Game"</string>
+    <string name="topic10236" msgid="320145832033080647">"Game MMO"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Game Musik &amp; Tari"</string>
+    <string name="topic10238" msgid="124952008622371505">"Game Sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Game Menembak"</string>
+    <string name="topic10240" msgid="429738690314619395">"Game Simulasi"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Game Bisnis &amp; Taipan"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Game Pembangunan Perkotaan"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Game Simulasi Kehidupan"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Simulator Kendaraan"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Game Olahraga"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Game Pengelolaan Olahraga"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Game Strategi"</string>
+    <string name="topic10248" msgid="279151815457227293">"Mod &amp; Add-On Video Game"</string>
+    <string name="topic10249" msgid="631580828608894782">"Game Edukasi"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Game &amp; Aktivitas Berorientasi Keluarga"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Menggambar &amp; Mewarnai"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Game Berdandan &amp; Fashion"</string>
+    <string name="topic10253" msgid="385499297969826942">"Teka-Teki &amp; Asah Otak"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Game RPG"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Tenis Meja"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Game Balok"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Game Kata"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Hobi &amp; Waktu Luang"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Hari Jadi"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Ulang Tahun &amp; Pemberian Nama"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Aktivitas Menyelam &amp; Bawah Air"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Seni Serat &amp; Tekstil"</string>
+    <string name="topic10263" msgid="361345691023794788">"Luar Ruangan"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Memancing"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Berburu &amp; Menembak"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Kontrol &amp; Pemodelan Radio"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Pernikahan"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Rumah &amp; Taman"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Berkebun"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Dekorasi Rumah &amp; Interior"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Perabot Rumah Tangga"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Renovasi Rumah"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Keamanan &amp; Keselamatan Rumah"</string>
+    <string name="topic10275" msgid="682064062059687444">"Perlengkapan Rumah Tangga"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Desain Lanskap"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet &amp; Telekom"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Email &amp; Pesan"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Email"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Teks &amp; Instant Messaging"</string>
+    <string name="topic10281" msgid="582764575763317221">"Chat Suara &amp; Video Chat"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Penyedia Layanan Telepon"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Nada Dering &amp; Tema Seluler"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Mesin Telusur"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartphone"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferensi"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Aplikasi Web &amp; Alat Online"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Layanan Web"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Penyimpanan Cloud"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Desain &amp; Pengembangan Web"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Hosting Web"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Pekerjaan &amp; Pendidikan"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Pendidikan"</string>
+    <string name="topic10295" msgid="331240908257602211">"Konferensi &amp; Publikasi Akademik"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Perguruan Tinggi &amp; Universitas"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Pembelajaran Jarak Jauh"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Pendidikan Anak Usia Dini"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Prasekolah"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Homeschooling"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Ujian Terstandardisasi &amp; Ujian Masuk"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Referensi Pengajaran &amp; Ruang Kelas"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Pendidikan Keterampilan &amp; Berkelanjutan"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Pekerjaan"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Sumber Daya &amp; Perencanaan Karier"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Lowongan Pekerjaan"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Hukum &amp; Pemerintah"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Kejahatan &amp; Keadilan"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Hukum"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Layanan Hukum"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Berita"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Berita Ekonomi"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Berita Lokal"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Merger &amp; Akuisisi"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Koran"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politik"</string>
+    <string name="topic10317" msgid="888696185673599406">"Berita Olahraga"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Cuaca"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Berita Dunia"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Komunitas Online"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Gambar Klip &amp; GIF Animasi"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Kencan &amp; Pribadi"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Pengumpulan Feed &amp; Bookmark Sosial"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Berbagi &amp; Hosting File"</string>
+    <string name="topic10325" msgid="916412844647169263">"Penyedia Forum &amp; Chat"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblog"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Berbagi Foto &amp; Video"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Berbagi Foto &amp; Gambar"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Berbagi Video"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Kulit"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Aplikasi &amp; Add-On Jaringan Sosial"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Jaringan Sosial"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Rakyat &amp; Masyarakat"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Keluarga &amp; Hubungan"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Garis Keturunan &amp; Genealogi"</string>
+    <string name="topic10336" msgid="360328903013424569">"Pernikahan"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Mengasuh Anak"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adopsi"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Bayi &amp; Balita"</string>
+    <string name="topic10340" msgid="259457452971577855">"Perlindungan Internet Anak"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Percintaan"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Fiksi Ilmiah &amp; Fantasi"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Hewan &amp; Peliharaan"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Makanan &amp; Perlengkapan Perawatan Hewan Peliharaan"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Hewan Peliharaan"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Burung"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Kucing"</string>
+    <string name="topic10348" msgid="570783769757187957">"Anjing"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Ikan &amp; Akuarium"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Reptil &amp; Amfibi"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Dokter Hewan"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Properti"</string>
+    <string name="topic10353" msgid="230887584509968233">"Kaveling &amp; Tanah"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Properti Hak Guna &amp; Liburan"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Referensi"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Daftar Bisnis &amp; Pribadi"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Referensi Umum"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Kalkulator &amp; Alat Referensi"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Kamus &amp; Ensiklopedia"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Referensi Pendidikan"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Petunjuk"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Waktu &amp; Kalender"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Referensi Bahasa"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Studi Bahasa Asing"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Alat &amp; Materi Terjemahan"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Peta"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Sains"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Augmented &amp; Virtual Reality"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Ilmu Biologi"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kimia"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ekologi &amp; Lingkungan"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologi"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Machine Learning &amp; Kecerdasan Buatan"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fisika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Belanja"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Barang Antik &amp; Barang Koleksi"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Busana"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Pakaian Anak"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostum"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Pakaian Pria"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Pakaian Wanita"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Iklan Baris"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Referensi Konsumen"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kupon &amp; Penawaran Diskon"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Kartu &amp; Program Loyalitas"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Dukungan &amp; Perbaikan Teknis"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Bunga"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Kartu Ucapan"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Perlengkapan Pesta &amp; Liburan"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Portal Belanja"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Olahraga"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Sepak Bola Amerika"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Sepak Bola Australia"</string>
+    <string name="topic10397" msgid="653991203228840785">"Balap Mobil"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Bisbol"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Bola basket"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Boling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Tinju"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Pemandu Sorak"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Olahraga Kampus"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Kriket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Bersepeda"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Berkuda"</string>
+    <string name="topic10407" msgid="316266982792700993">"Olahraga Ekstrem"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Memanjat &amp; Panjat Gunung"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Olahraga Fantasi"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Senam"</string>
+    <string name="topic10412" msgid="335770351079973128">"Hoki"</string>
+    <string name="topic10413" msgid="416366556259783701">"Seluncur Es"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Seni Bela Diri"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Balap Motor"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpiade"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rugbi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Lari &amp; Jalan Kaki"</string>
+    <string name="topic10419" msgid="979581105119036716">"Ski &amp; Seluncur salju"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Sepak Bola"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Selancar"</string>
+    <string name="topic10422" msgid="978920114358054206">"Renang"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atletik"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Bola Voli"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Gulat"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Perjalanan &amp; Transportasi"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Wisata Petualangan"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Perjalanan Udara"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Perjalanan Bisnis"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Rental Mobil"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Pesiar &amp; Charter"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Wisata Keluarga"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Bulan Madu &amp; Liburan Romantis"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hotel &amp; Akomodasi"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Bus &amp; Kereta Jarak Jauh"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Perjalanan Murah &amp; Menit Terakhir"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Bagasi &amp; Aksesori Perjalanan"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Tujuan Wisata"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Pantai &amp; Pulau"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Taman &amp; Kebun Daerah"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Taman Bertema"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Kebun Binatang"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Perencana Lalu Lintas &amp; Rute"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Agen &amp; Jasa Perjalanan"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Panduan &amp; Catatan Perjalanan"</string>
+</resources>

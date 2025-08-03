@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"få adgang til AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Tillader, at en app får adgang til AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"få adgang til AdServices Attribution API\'er"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Tillader, at en app får adgang til AdServices Attribution API\'er."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"få adgang til AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Tillader, at en app får adgang til AdServices Custom Audience API."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Adgang til AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Tillader, at en app får adgang til AdId API."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"få adgang til AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Tillader, at en app får adgang til AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Få adgang til to Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Tillader, at en app får adgang til Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Adgang til AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Giver en app adgang til AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Få adgang til App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Tillader, at en app får adgang til App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Adgang til Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Tillader, at en app får adgang til Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Adgang til API\'en for ændring af aktiveringstilstand for AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Tillader, at en app får adgang til API\'en for ændring af aktiveringstilstand for AdService."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Adgang til API\'en for aktiveringstilstand for AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Tillader, at en app får adgang til API\'en for aktiveringstilstand for AdService."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Adgang til AdServicesManager’s API\'er"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Giver en app adgang til AdServicesManager’s API\'er."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Adgang til AdServices opdatering af AdId API."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Giver en app adgang til AdServices opdatering af AdId API."</string>
+    <string name="app_label" msgid="2639006978056689153">"Privatliv vedrørende annoncering"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Tilmeld dig Privatliv ved annoncering i Android (beta)"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android undersøger, hvordan apps kan vise dig annoncer på en mere privat måde"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Få flere oplysninger"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Privatliv ved annoncering i Android (beta)"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Nyheder"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"De nye privatlivsfunktioner i Privacy Sandbox giver apps mulighed for at vise dig relevante annoncer, men begrænser samtidig, hvad disse apps kan indsamle af oplysninger om dine aktiviteter på websites og i apps fra andre udviklere."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Sådan fungerer det"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Sådan kan du deltage"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Hvis du aktiverer betaversionen, giver du apps mulighed for at teste disse nye og mere private måder at vise dig annoncer på. Du kan altid deaktivere betaversionen i privatlivsindstillingerne."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Nej tak"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Slå til"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Mere"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Tak, fordi du deltager"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Du deltager i betaen Privatliv ved annoncering i Android. Privacy Sandbox er aktiveret på din enhed.\n\nDu kan få flere oplysninger eller deaktivere betaversionen i privatlivsindstillingerne."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Du har valgt ikke at deltage"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Tak for dit svar. Privacy Sandbox er deaktiveret på din enhed.\n\nHvis du ombestemmer dig eller gerne vil have flere oplysninger, kan du gå til privatlivsindstillingerne."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Privatlivsindstillinger"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Du er en del af betaprogrammet"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox er aktiveret på din enhed, og apps kan teste disse nye og mere private måder at vise dig annoncer på. Du kan altid deaktivere betaversionen i privatlivsindstillingerne."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"OK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Androids Privacy Sandbox giver nye funktioner, som apps kan bruge til at vise dig annoncer, der muligvis er relevante for dig. Disse teknologier anvender ikke enheds-id\'er.\n\nAndroid og dine apps kan anslå, hvilke typer annoncer du muligvis er interesseret i, og gemme disse oplysninger midlertidigt på din enhed. Dette giver apps mulighed for at vise dig annoncer, der muligvis er relevante for dig, uden at spore din aktivitet på websites og i apps fra andre udviklere."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Personlig tilpasning af annoncer med Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Dine interesser – anslået af Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android anslår med jævne mellemrum, hvad du interesserer dig mest for, baseret på de apps, du bruger, f.eks. \"Sport\" eller \"Rejser\".\n\nEn app kan senere anmode Android om tilladelse til at bruge disse oplysninger til at vise dig mere relevante annoncer.\n\nDu kan se listen over dine aktuelle interesser i privatlivsindstillingerne og blokere dem, du ikke kan lide."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Dine interesser – anslået af apps"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Apps kan anslå, hvilke interesser du muligvis har, og ved hjælp af Android gemme disse oplysninger. En app, du bruger til at købe løbesko, kan f.eks. anslå din interesse til at være \"maratonløb\".\n\nBaseret på denne interesse kan en anden app senere vise dig en annonce, der er relateret til maratonløb.\n\nDu kan administrere listen over apps, der har gemt dine interesser, i privatlivsindstillingerne."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Nye privatlivfunktioner til annoncer"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Annonceemner og nye indstillinger giver dig flere valgmuligheder for de annoncer, du får vist"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Nye annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt for nylig. De apps, du bruger, kan også fastslå, hvad du kan lide. Derefter kan dine apps anmode om disse oplysninger for at vise dig personligt tilpassede annoncer. Du kan vælge, hvilke emner og apps der skal bruges til at vise dig annoncer."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"For at måle effektiviteten af en annonce deles der begrænsede typer af data mellem apps."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Mere om annoncer i Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Mere nyttige annoncer"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Apps kan anmode Android om oplysninger for at hjælpe med at personligt tilpasse de annoncer, du ser."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"• Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt for nylig."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"• De apps, du bruger, kan også skønne, hvad du kan lide, baseret på, hvordan du bruger dem. Hvis du bruger en app, der sælger løbesko til langdistanceløb, kan appen f.eks. skønne, at du er interesseret i at løbe maraton."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Senere kan en app, du bruger, anmode om disse oplysninger – enten dine annonceemner eller foreslåede annoncer fra apps, du har brugt."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android sletter automatisk data om annonceemner og foreslåede annoncer fra apps med jævne mellemrum. Du kan også blokere bestemte emner og apps, så de ikke kan foreslå annoncer til dig."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Måling af en annonces effektivitet"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Apps, du bruger, kan anmode Android  om oplysninger for at hjælpe dem med at måle effektiviteten af deres annoncer. Android giver websites mulighed for at indsamle begrænsede typer data, f.eks. det tidspunkt på dagen, hvor der blev vist en annonce til dig."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Prøv nye privatlivfunktioner til annoncer"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Annonceemner giver dig større valgfrihed i forhold til, hvilke annoncer du får vist"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Vis oplysninger"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Prøv nye privatlivsfunktioner til annoncer"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android introducerer nye privatlivsfunktioner, der giver dig flere valgmuligheder for de annoncer, du får vist."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Annonceemner hjælper apps med at vise dig relevante annoncer, samtidig med at din identitet og oplysninger om din appbrug beskyttes. Android kan registrere emner, du muligvis er interesseret i, baseret på de apps, du har brugt for nylig. Senere kan en app, du bruger, bede Android om relevante emner for at personligt tilpasse de annoncer, du får vist."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Du kan se annonceemner i dine enhedsindstillinger og blokere dem, der ikke skal deles med apps. Android sletter også automatisk annonceemner med jævne mellemrum."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Du kan til enhver tid ændre mening i privatlivsindstillingerne."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Mere om annonceemner"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Få flere oplysninger om, hvordan Android beskytter dine data, i vores "<a href="https://policies.google.com/privacy">"privatlivspolitik"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Prøv det"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Hvilke data bruger vi?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Dine annonceemner er baseret på de apps, du har brugt for nylig på denne enhed, og hvor ofte du bruger dem."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"• Sådan bruger vi dataene"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android registrerer emner, du kan være interesseret i, når du bruger dine apps. Emneetiketter er foruddefinerede og kan f.eks. være Kunst og underholdning, Shopping og Sport. Når du derefter bruger en app, kan den anmode Android om nogle få af dine emner (men ikke data om din appbrug eller identitet) for at personligt tilpasse de annoncer, du ser."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"• Sådan kan du administrere dine data"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android sletter automatisk emner med jævne mellemrum. Mens du bruger appen, kan et emne dukke op på listen igen. Du kan også blokere de emner, som Android ikke skal dele med apps, og slå annonceemner fra i privatlivsindstillingerne når som helst."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Du kan foretage ændringer i privatlivsindstillingerne."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Andre annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android tilbyder også nye metoder til at begrænse, hvad apps kan lære om dig, når de viser dig personligt tilpassede annoncer."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"• Foreslåede annoncer fra apps hjælper med at beskytte din identitet og oplysninger om din appbrug og muliggør samtidig, at annoncer kan vise dig relevante annoncer. Når du bruger en app, kan den foreslå relaterede annoncer i andre apps baseret på din aktivitet. I privatlivsindstillingerne kan du se en liste over apps og blokere dem, så de ikke kan foreslå annoncer til dig."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"• Med annoncemåling deles begrænsede typer data mellem apps for at måle effektiviteten af deres annoncer, f.eks. det tidspunkt på dagen, hvor en annonce blev vist til dig."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Flere oplysninger om foreslåede annoncer fra apps og annoncemåling"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Foreslåede annoncer fra apps"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Hvilke data bruger vi?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Din aktivitet i en app, du bruger på denne enhed."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Sådan bruger apps disse data"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Apps kan gemme oplysninger om de ting, du kan lide, i Android. Hvis du bruger en app til maratontræning, kan appen f.eks. skønne, at du er interesseret i løbesko. Hvis du derefter bruger en anden app, kan den pågældende app vise dig en annonce om løbesko, som er foreslået af den første app."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"• Sådan kan du administrere dine data"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android foretager regelmæssigt en automatisk sletning af foreslåede appdata. Når du bruger en app igen, kan den dukke op på listen igen."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"I privatlivsindstillingerne kan du også til enhver tid blokere en app, så den ikke kan foreslå dig annoncer, nulstille alle data for foreslåede annoncer eller deaktivere foreslåede annoncer fra apps."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Apps, du bruger, kan anmode Android om oplysninger, som hjælper den pågældende app med at måle effektiviteten af annoncer i appen. Android giver privatlivsbeskyttelse ved at begrænse de oplysninger, som apps kan dele med hinanden."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Nye annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Få mere valgfrihed i forhold til de annoncer, du ser, samtidig med at din identitet beskyttes"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Nye annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android lancerer nye metoder til at begrænse, hvad apps kan lære om dig, når de viser dig personligt tilpassede annoncer."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Takket være annoncer foreslået af apps hjælper de nye privatlivsfunktioner med at beskytte din identitet og oplysninger om din brug af apps, samtidigt med at apps kan vise dig relevante annoncer. Når du bruger en app, kan den foreslå relaterede annoncer i andre apps baseret på din aktivitet. I privatlivsindstillingerne kan du se en liste over apps og blokere dem, så de ikke kan foreslå annoncer til dig."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Med annoncemåling deles begrænsede typer data mellem apps for at forstå effektiviteten af deres annoncer, f.eks. det tidspunkt på dagen, hvor en annonce blev vist til dig."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Din aktivitet i en app på denne enhed kan bruges til at foreslå annoncer."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Aktivér den annoncerelaterede privatlivsfunktion"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android tilbyder også en ny privatlivsfunktion, der giver dig mere valgfrihed i forhold til de annoncer, du ser."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Annonceemner hjælper apps med at vise dig relevante annoncer, samtidig med at din identitet og oplysninger om din appbrug beskyttes. Android kan fastslå emner, der interesserer dig, baseret på de apps, du har brugt for nylig. Når du derefter bruger en app, kan den anmode Android om relevante emner for at vise dig mere relevante annoncer."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Du kan se annonceemner i dine privatlivsindstillinger og blokere dem, der ikke skal deles med apps. Android sletter også automatisk annonceemner med jævne mellemrum."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Aktivér"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Nye annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Nu får du mere valgfrihed i forhold til de annoncer, du ser, samtidig med at din identitet beskyttes"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Nye annoncerelaterede privatlivsfunktioner er nu tilgængelige"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android tilbyder nu nye privatlivsfunktioner, der giver dig mere valgfrihed i forhold til de annoncer, du ser."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Næste"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Deltag i betatesten af Privatliv ved annoncering i Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Dine interesser – anslået af Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Apps, der anslår dine interesser"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Annoncemåling"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Apps kan anvende Privacy Sandbox til at måle effektiviteten af deres annoncer. Dette gør annoncøren ved midlertidigt at gemme data via Android om dine interaktioner med deres annoncer og apps. Mængden af data de kan gemme er begrænset og slettes med jævne mellemrum.\n\nDu kan altid slette disse data ved at deaktivere Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android anslår med jævne mellemrum, hvad du er mest interesseret i, baseret på de apps, du bruger. En app kan anmode Android om tilladelse til at bruge disse oplysninger til at vise dig mere relevante annoncer.\n\nHvis du blokerer en interesse, føjes den ikke til listen igen, medmindre du fjerner blokeringen. Du får muligvis stadig vist nogle relaterede annoncer."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Bloker"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Fjern blokering"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Interesser, du har blokeret"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Nulstil alle interesser"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Der er ingen interesser at vise lige nu."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Der er ingen emner at vise lige nu.\nFå flere oplysninger om "<a href="https://support.google.com/android?p=ad_privacy">"annonceemner"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Privatliv ved annoncering i Android (beta) giver nye funktioner, som apps kan bruge til at vise dig annoncer, der muligvis er relevante for dig. Disse teknologier anvender ikke enheds-id\'er.\n\nAndroid kan anslå, hvilke typer annoncer du muligvis er interesseret i, og gemme disse oplysninger midlertidigt på din enhed. Dette giver apps mulighed for at vise dig relevante annoncer, uden at spore din aktivitet på websites og i apps fra andre udviklere."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Du har ingen blokerede interesser"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Der er ingen blokerede emner"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Se blokerede emner"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Interesser er nulstillet"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Emnerne blev nulstillet"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Apps kan anslå, hvilke interesser du muligvis har, og ved hjælp af Android gemme disse oplysninger. En anden app kan senere vise dig en annonce baseret på disse oplysninger.\n\nHvis du blokerer en app, anslår den ikke længere, hvilke interesser du muligvis har. Den føjes ikke til listen over apps igen, medmindre du fjerner blokeringen af den. Interesser, der allerede er anslået af appen, slettes, men du får muligvis stadig vist nogle relaterede annoncer."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Apps, du har blokeret"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Se blokerede apps"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Nulstil interesser, der er anslået af apps"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Der er ingen apps, der anslår interesser for dig lige nu"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Der er ingen apps at vise lige nu. \nFå flere oplysninger om "<a href="https://support.google.com/android?p=ad_privacy">"annoncer foreslået af apps"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Privatliv ved annoncering i Android (beta) giver nye funktioner, som apps kan bruge til at vise dig annoncer, der muligvis er relevante for dig. Disse teknologier anvender ikke enheds-id\'er.\n\nApps kan anslå, hvilke typer annoncer du muligvis er interesseret i, og gemme disse oplysninger midlertidigt på din enhed. Dette giver apps mulighed for at vise dig relevante annoncer, uden at spore din aktivitet på websites og i apps fra andre udviklere."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Du har ingen blokerede apps"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Der er ingen blokerede apps"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Tillad annoncemåling"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Apps og annoncører kan anmode Android om oplysninger med henblik på at måle effektiviteten af deres annoncer.\n\nData for annoncemåling slettes jævnligt fra din enhed."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Nulstil måledata"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android beskytter dit privatliv ved at begrænse, hvilke oplysninger apps kan dele med hinanden. Rapporteringerne sendes med forsinkelse for at beskytte din identitet.\n\nDin browser har muligvis en lignende indstilling. Hvis annoncemåling er aktiveret i både Android og din browser, kan en virksomhed måle effektiviteten af en annonce i de apps, du bruger, og på de websites, du besøger. Din browserhistorik opbevares privat på din enhed.\n\nFå flere oplysninger om, hvordan Android beskytter dine data, i vores "<a href="https://policies.google.com/privacy">"privatlivspolitik"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Dataene om annoncemåling er nulstillet"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Annuller"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Vil du deaktivere Privacy Sandbox?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Hvis du ombestemmer dig eller gerne vil have flere oplysninger om Privatliv ved annoncering i Android (beta), skal du gå til dine privatlivsindstillinger."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Deaktiver"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Vil du blokere <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Dette emne blokeres og føjes ikke til din liste igen, medmindre du tilføjer det igen. Der vises muligvis stadig nogle relaterede annoncer."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Bloker"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Blokeringen af <xliff:g id="TOPIC">%1$s</xliff:g> er fjernet"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android kan føje dette emne til din liste igen, men det vises muligvis ikke med det samme"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Vil du nulstille alle annonceemner?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Din liste ryddes, og fremover tilføjes nye emner. Der vises muligvis stadig nogle annoncer, som er relateret til de emner, du har nulstillet."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Nulstil"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Vil du blokere <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Denne app vil ikke foreslå annoncer og føjes ikke til din liste igen, medmindre du fjerner blokeringen af den. Der vises muligvis stadig nogle relaterede annoncer."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Blokeringen af <xliff:g id="APP">%1$s</xliff:g> er fjernet"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Denne app kan foreslå dig annoncer igen, men den vises muligvis ikke på listen med det samme. Der kan gå noget tid, før du får vist relaterede annoncer."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Vil du nulstille annoncer foreslået af apps?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Data for foreslåede annoncer fra de apps, der er angivet på din liste, slettes, og de pågældende apps vil fremover foreslå nye annoncer. Der vises muligvis stadig nogle relaterede annoncer."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Appdata er nulstillet"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Annonceemner er aktiveret"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android vil begynde at registrere emner, du kan være interesseret i, men der kan gå lidt tid, før dine første emner vises."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Vil du deaktivere annonceemner?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Denne liste over emner slettes. Android vil ikke længere registrere emner, du kan være interesseret i, men du vil muligvis stadig se relevante annoncer."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Annoncer foreslået af apps er aktiveret"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Apps begynder muligvis at foreslå annoncer. Du vil se en liste over apps, når de begynder at foreslå annoncer."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Vil du deaktivere annoncer foreslået af apps?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Alle data vedrørende annonceforslag slettes. Apps vil ikke længere kunne foreslå annoncer, men du kan muligvis stadig se relevante annoncer."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Annoncemåling er aktiveret"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android kan kun dele meget begrænsede oplysninger med apps for at hjælpe med at måle effektiviteten af deres annoncer."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Vil du deaktivere annoncemåling?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Alle afventende rapporter om annoncemåling slettes, og ingen nye rapporter genereres eller deles."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Privatliv ved annoncering"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Annonceemner"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Annoncer foreslået af apps"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt for nylig, og hvor ofte du bruger dem."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Apps, du bruger, kan også fastslå dine interesser, ud fra hvordan du bruger dem."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"De apps, du bruger, kan anmode Android om oplysninger for at hjælpe dem med at måle effektiviteten af deres annoncer. Android tillader, at apps kan indsamle visse typer data."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Få flere oplysninger om "<a href="https://support.google.com/android?p=ad_privacy">"privatliv ved annoncering i Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Til/<xliff:g id="TOPICS_COUNT">%1$d</xliff:g> emner"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Til/# emne}one{Til/# emne}other{Til/# emner}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Til/<xliff:g id="APPS_COUNT">%1$d</xliff:g> apps"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Til/# app}one{Til/# app}other{Til/# apps}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Til"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Fra"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"De emner, du kan være interesseret i, er baseret på de apps, du har brugt for nylig, og anvendes af apps til at vise dig personligt tilpassede annoncer.\n\nDu kan blokere de emner, der ikke skal deles med apps. Android foretager også regelmæssigt en automatisk sletning af emner.\n\nDu kan aktivere denne funktion, men du kan muligvis ikke se en liste over emner, før denne funktion er fuldt tilgængelig, og apps begynder at anvende den."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Tillad annonceemner"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Annonceemner, du har blokeret"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Nulstil alle annonceemner"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt inden for de seneste par uger.\n\nNår du derefter bruger en app, kan den anmode Android om dine emner for at personligt tilpasse de annoncer, du får vist. Android deler op til 3 emner, samtidig med at din identitet og oplysninger om din appbrug beskyttes.\n\nAndroid sletter automatisk emner med jævne mellemrum. Når du fortsætter med at bruge apps, kan et emne dukke op på listen igen. Du kan også blokere de emner, som Android ikke skal dele med apps.\n\nNår du får vist en annonce i dine apps, kan annoncen være personligt tilpasset i henhold til denne indstilling, indstillingen for foreslåede annoncer fra apps, dine indstillinger for annoncerings-id, og om den app, du bruger, tilpasser annoncer."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Tillad annoncer foreslået af apps"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"De apps, du bruger, kan fastslå, hvad du kan lide, og derefter foreslå annoncer i andre apps.\n\nDu kan blokere apps, så de ikke kan give dig forslag. Android foretager også regelmæssigt en automatisk sletning af foreslåede appdata.\n\nDu kan aktivere denne funktion, men du kan muligvis ikke se en liste over apps, før denne funktion er fuldt tilgængelig, og apps begynder at anvende den."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Apps, du har blokeret"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Nulstil data om foreslåede annoncer fra apps"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Det er helt normalt, at de apps, du bruger, husker de ting, du er interesseret i, for at personligt tilpasse din brugeroplevelse. Apps kan også gemme oplysninger om dine emner i Android.\n\nHvis du bruger en app til maratontræning, kan appen f.eks. skønne, at du er interesseret i løbesko. Hvis du derefter bruger en anden app, kan den pågældende app vise dig en annonce om løbesko, som er foreslået af den første app.\n\nAndroid sletter automatisk data for foreslåede annoncer fra apps med jævne mellemrum. Når du bruger en app igen, kan den dukke op på listen igen. Du kan også blokere en app, så den ikke kan foreslå annoncer til dig.\n\nI dine apps kan en annonce, du får vist, være personligt tilpasset i henhold til denne indstilling, indstillingen for annonceemner, dine indstillinger for annoncerings-id, og om den app, du bruger, tilpasser annoncer."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Nye privatlivsfunktioner til annoncer er nu tilgængelige"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Der deles kun meget begrænsede oplysninger mellem apps for at hjælpe apps med at måle annonceeffektivitet"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Vi lancerer en ny privatlivsfunktion for annoncer, der hedder Annoncemåling. Android deler kun meget begrænsede oplysninger mellem apps, f.eks. hvornår en annonce er vist til dig, for at hjælpe apps med at måle annonceeffektivitet."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Du kan ændre indstillingerne for privatliv ved annoncering."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"De apps, du bruger, kan anmode Android om oplysninger for at hjælpe dem med at måle effektiviteten af deres annoncer. Android tillader kun, at apps indsamler begrænsede typer data."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Nye privatlivsfunktioner til annoncer"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Få mere valgfrihed i forhold til de annoncer, du ser, og hjælp samtidig med at beskytte din identitet"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Opdateringer af dine privatlivsfunktioner til annoncer"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Få mere valgfrihed i forhold til de annoncer, du ser, og hjælp samtidig med at beskytte din identitet"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android udvider privatlivsfunktioner til annoncer for at begrænse, hvilke oplysninger apps kan få om dig, når de viser dig personligt tilpassede annoncer."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Apps og deres annonceringspartnere kan bruge din aktivitet i andre apps på denne enhed til at tilpasse annoncer til dig personligt, samtidig med at de hjælper med at beskytte din identitet og holde den privat."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Mere om annoncer foreslået af apps"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Begrænsede typer data deles mellem apps for at forstå effektiviteten af deres annoncer, f.eks. det tidspunkt på dagen, hvor en annonce blev vist til dig."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Mere om annoncemåling"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt for nylig. Desuden kan apps og deres annonceringspartnere bruge din aktivitet i andre apps på denne enhed til at tilpasse annoncer til dig personligt, samtidig med at de hjælper med at beskytte din identitet og holde den privat."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  De apps, du bruger, kan også fastslå, hvad du kan lide, baseret på din appaktivitet. Hvis du f.eks. jævnligt bruger madlavningsapps, får du muligvis annoncer for udbringning af dagligvarer eller relateret indhold i andre apps.\n\nApps kan gemme disse oplysninger sikkert, så de kun kan benyttes af deres annonceringspartnere til at tilpasse annoncer til dig personligt i andre apps."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Senere kan en app, du bruger, anmode om disse oplysninger – enten dine annonceemner eller annonceforslag fra de apps, du har brugt."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"De apps, du bruger, kan anmode Android om oplysninger for at hjælpe dem med at måle effektiviteten af deres annoncer. Android hjælper med at beskytte dit privatliv ved at begrænse de oplysninger, apps kan dele med hinanden."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Hvilke data bruges?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Apps, du bruger, kan anmode Android om oplysninger, som hjælper den pågældende app med at måle effektiviteten af annoncer i appen. Android hjælper med at beskytte dit privatliv ved at begrænse de oplysninger, som apps kan dele med hinanden."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Hvordan beskyttes min identitet?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android anvender flere tiltag i forhold til privatlivsbeskyttelse som f.eks. aggregering og tilføjelse af støj til data for at begrænse, hvilke oplysninger apps kan dele med hinanden, og hjælpe med at beskytte din identitet.\n\nAnnoncemålingsdata slettes også med jævne mellemrum fra din enhed."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Din appaktivitet kan bruges til at foreslå annoncer."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Hvordan bruger apps disse data?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Apps kan gemme disse oplysninger sikkert, så de kun kan benyttes af deres annonceringspartnere til at tilpasse annoncer til dig personligt i andre apps. Hvis du f.eks. jævnligt bruger madlavningsapps, får du muligvis vist annoncer for udbringning af dagligvarer eller relateret indhold i andre apps."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Hvordan kan jeg administrere disse data?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Du kan forhindre bestemte apps i at dele din aktivitet med annonceringspartnere. Du kan til enhver tid nulstille eller deaktivere annoncer foreslået af apps i dine privatlivsindstillinger. Android sletter også automatisk disse data med jævne mellemrum."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Få flere oplysninger om, hvordan Android hjælper med at beskytte dit privatliv"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Apps og deres annonceringspartnere kan bruge din aktivitet i andre apps på denne enhed til at tilpasse annoncer til dig personligt, samtidig med at de beskytter og holder oplysninger om dig private.\n\nHvis du f.eks. jævnligt bruger madlavningsapps, får du muligvis vist annoncer for udbringning af dagligvarer eller relateret indhold i andre apps.\n\nAndroid sletter automatisk din aktivitet med jævne mellemrum, men du kan også forhindre apps i at dele disse oplysninger med deres annonceringspartnere."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Det er helt normalt, at apps og annonceringspartnere husker de ting, du er interesseret i, for at tilpasse brugeroplevelsen til dig personligt. Apps kan gemme disse oplysninger sikkert, så de kun kan benyttes af deres annonceringspartnere til at vise annoncer i andre apps.\n\nDu kan forhindre en app i at dele dine aktivitetsdata med annonceringspartnere. Android sletter også automatisk delte aktivitetsdata med jævne mellemrum, så en app, du bruger igen, kan dukke op på listen igen.\n\nOm en annonce, du ser, er personligt tilpasset, kan afhænge af mange faktorer som f.eks. denne indstilling, indstillingen for annonceemner, dine indstillinger for annoncerings-id, samt om den app, du bruger, tilpasser annoncer personligt.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Få flere oplysninger om annoncer foreslået af apps"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android anvender flere tiltag i forhold til privatlivsbeskyttelse som f.eks. aggregering og tilføjelse af støj til data for at begrænse, hvilke oplysninger apps kan dele med hinanden, og hjælpe med at beskytte din identitet.\n\nDin browser kan have en lignende indstilling. Hvis annoncemåling er aktiveret både i Android og på din browser, kan en virksomhed måle effektiviteten af en annonce i de apps, du bruger, og på de websites, du besøger. Din browserhistorik opbevares privat på din enhed.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Få flere oplysninger om annoncemåling"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android registrerer emner, du kan være interesseret i, baseret på de apps, du har brugt inden for de seneste par uger.\n\nNår du derefter bruger en app, kan den anmode Android om dine emner for at foretage personlig tilpasning af de annoncer, du får vist. Android deler op til 3 emner, samtidig med at din identitet og oplysninger om din appbrug beskyttes.\n\nAndroid sletter automatisk emner med jævne mellemrum. Når du fortsætter med at bruge apps, kan et emne dukke op på listen igen. Du kan også blokere de emner, som Android ikke skal dele med apps.\n\nOm en annonce, du ser, er personligt tilpasset, kan afhænge af mange faktorer som f.eks. denne indstilling, indstillingen for annoncer foreslået af apps, dine indstillinger for annoncerings-id, samt om den app, du bruger, tilpasser annoncer personligt.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Få flere oplysninger om annonceemner"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Farvestrålende illustration af symboler, der repræsenterer emner, du kan være interesseret i, f.eks. musik, nyheder og sport"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Farvestrålende illustration af en lås inden i en cirkel"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Lille sort-hvid illustration af ni punkter, der danner en firkant"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Lille sort-hvid illustration af simple former som f.eks. et hjerte, en trekant og en firkant"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Kunst og underholdning"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Skuespil og teater"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime og manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Tegnefilm"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Tegneserier"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Koncerter og musikfestivaler"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Dans"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Underholdningsindustri"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Sjov og spas"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Sjove quizzer og skøre spørgsmål"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Sjove billeder og videoer"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Livecomedy"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Live sportsbegivenheder"</string>
+    <string name="topic10015" msgid="726046067079821146">"Magi"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Filmoversigter og biografspilletider"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Film"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Action- og adventurefilm"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animationsfilm"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Komediefilm"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kult- og indiefilm"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentarfilm"</string>
+    <string name="topic10023" msgid="254151319845267278">"Dramafilm"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Familiefilm"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Gyserfilm"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romantiske film"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Thriller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Musik og lyd"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Klassisk musik"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Countrymusik"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Dance og elektronisk musik"</string>
+    <string name="topic10033" msgid="895853536740398847">"Folk og traditionel musik"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Streaming og download af musik"</string>
+    <string name="topic10036" msgid="449833307315797283">"Musikvideoer"</string>
+    <string name="topic10037" msgid="51698216720637667">"Musikinstrumenter"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Klaverer og keyboards"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popmusik"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Radio"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Debatradio"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap og hiphop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rockmusik"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klassisk rock og oldies"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hård rock og progressiv rock"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indiemusik og alternativ musik"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Samlinger med uddrag og lyd"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul og R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Soundtracks"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Verdensmusik"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae og caribisk musik"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Online billedgallerier"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Onlinevideo"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Live videostreaming"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Film- og tv-streaming"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Tv-guider og -oversigter"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Tv-selskaber og -kanaler"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Tv-udsendelser og -programmer"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Tv-komedier"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Tv-dokumentarer og -nonfiktion"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Tv-drama"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Tv-sæbeoperaer"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Familieorienterede tv-shows"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Tv-realityshows"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Tv-science fiction- og -fantasyshows"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Visuel kunst og design"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Design"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Malerkunst"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Foto- og digitalkunst"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Biler og køretøjer"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Lastbiler og anhængere"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klassiske biler"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Ombyggede biler og sportsvogne"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Brændstoftspriser og opfyldning af biler"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Motorkøretøjer (efter type)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Selvkørende biler"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Cabrioleter"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Coupémodeller"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Hatchbacks"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hybridbiler og alternative biler"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luksusbiler"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Mikrobiler og minibiler"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motorcykler"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Offroadkøretøjer"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pickuptrucks"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Scootere og knallerter"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Sedaner"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Stationcars"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUV\'er og crossover-biler"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Crossover-biler"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Kassevogne og minibusser"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Bugsering og vejhjælp"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Køretøjs- og trafiksikkerhed"</string>
+    <string name="topic10095" msgid="84682415803421329">"Dele og tilbehør til køretøjer"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Reparation og vedligeholdelse af køretøjer"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Indkøb af køretøj"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Brugte biler"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Biludstillinger"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Skønhed og fitness"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Kropskunst"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Ansigts- og kropspleje"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Antiperspirant"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Produkter til badeværelset og kropspleje"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Ren skønhed"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Makeup og kosmetik"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Negleplejeprodukter"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfume og dufte"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Skrabere og barbermaskiner"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Mode og stil"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitness"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Bodybuilding"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Fitnesstræning og personlig træning"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Tekniske fitnessprodukter"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Hårpleje"</string>
+    <string name="topic10116" msgid="763642849903586689">"Bøger og litteratur"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Børnebøger"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-bøger"</string>
+    <string name="topic10119" msgid="894448782525835364">"Magasiner"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Poesi"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Virksomheder og industri"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Annoncering og marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Salg"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Landbrug og skovbrug"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Levnedsmiddelproduktion"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Automobilindustrien"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Flybranchen"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Virksomhedsdrift"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Fleksibelt arbejde"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Human Resources"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Kommercielle lån"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Konstruktion og vedligeholdelse"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Byggeingeniørarbejde"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Forsvarsindustri"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energi og forsyning"</string>
+    <string name="topic10136" msgid="455894912948558854">"Vandforsyning og -behandling"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Restaurations- og hotelbranchen"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Produktion"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Metaller og minedrift"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM og forretningsmuligheder"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Lægemidler og bioteknologi"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Trykkeri og udgivelse"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Detailhandel"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Risikovillig kapital"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Computere og elektronik"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Computertilbehør"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Printere"</string>
+    <string name="topic10148" msgid="388392714835039199">"Computersikkerhed"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Antivirus og malware"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Netværkssikkerhed"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Forbrugerelektronik"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Kameraer og videokameraer"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS og navigation"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Automatisering i hjemmet"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Hjemmebiografsystemer"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3-afspillere og transportable medieafspillere"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Teknologi til at tage på"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Sikkerhedskopiering og gendannelse af data"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Stationære computere"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Bærbare computere"</string>
+    <string name="topic10161" msgid="172004201167511870">"Networking"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Distribueret computing og cloud computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programmering"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Software"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Lyd- og musiksoftware"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Virksomheds- og produktivitetssoftware"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Kalender- og planlægningssoftware"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Samarbejds- og mødesoftware"</string>
+    <string name="topic10169" msgid="827557334245484202">"Præsentationssoftware"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Regnearkssoftware"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Software til tekstbehandling"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Desktoppublishing"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Skrifttyper"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Downloadprogrammer"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Freeware og shareware"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafik- og animationssoftware"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Intelligente personlige assistenter"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Medieafspillere"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Overvågningssoftware"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operativsystemer"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Foto- og videosoftware"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Fotosoftware"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Videosoftware"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Softwareværktøjer"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Webbrowsere"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Finans"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Regnskab og revision"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Forberedelse på og planlægning i forbindelse med betaling af skat"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Bankrelaterede handlinger"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Pengeoverførselstjenester"</string>
+    <string name="topic10191" msgid="374364159635356705">"Kredit og udlån"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Kreditkort"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Husfinansiering"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Privatlån"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Studielån og finansiering af uddannelse"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Finansiel planlægning og styring"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Pension"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Legater"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Legater"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Forsikring"</string>
+    <string name="topic10201" msgid="447240478385298875">"Bilforsikring"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Sundhedsforsikring"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Indboforsikring"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Livsforsikring"</string>
+    <string name="topic10205" msgid="262581473890356377">"Rejseforsikring"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Investering"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Handel med råvarer og futures"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Valutaer og valutakurser"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Hedgefonde"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Investeringsselskaber"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Aktier og obligationer"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Mad og drikke"</string>
+    <string name="topic10213" msgid="805716705436663130">"Madlavning og opskrifter"</string>
+    <string name="topic10214" msgid="726298155737413779">"BBQ og grill"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Køkkener"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetarmad"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegansk mad"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Sund kost"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Forhandlere af mad og dagligvarer"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Spil"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Spillemaskiner og arkadespil"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Billard"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Brætspil"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Skak og abstrakte strategispil"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kortspil"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Samlekort"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Computer- og videospil"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Action- og platformspil"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Adventurespil"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Hyggespil"</string>
+    <string name="topic10231" msgid="405082026972839048">"Computerspil på konkurrenceplan"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Køre- og væddeløbsspil"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Kampspil"</string>
+    <string name="topic10234" msgid="693433817142162565">"Spilreferencer og -anmeldelser"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Snyd og tip til computerspil"</string>
+    <string name="topic10236" msgid="320145832033080647">"Multiplayerspil"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Musik- og dansespil"</string>
+    <string name="topic10238" msgid="124952008622371505">"Sandbox-spil"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Skydespil"</string>
+    <string name="topic10240" msgid="429738690314619395">"Simulationsspil"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Forretningsstrategispil"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Strategispil"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Simulationsspil"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Bilsimulatorer"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sportsspil"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Sportsmanagerspil"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Strategispil"</string>
+    <string name="topic10248" msgid="279151815457227293">"Modifikationer og tilføjelser til computerspil"</string>
+    <string name="topic10249" msgid="631580828608894782">"Pædagogiske spil"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Spil og aktiviteter til familier"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Tegning og farvelægning"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Udklædnings- og modespil"</string>
+    <string name="topic10253" msgid="385499297969826942">"Nørklespil"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Rollespil"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Bordtennis"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Brikspil"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Spil med ord"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Hobby og fritid"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Årsdage"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Fødselsdage og navnedage"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Dykning og undervandsaktiviteter"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Fiber- og tekstilkunst"</string>
+    <string name="topic10263" msgid="361345691023794788">"Udendørsliv"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Fiskeri"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Jagt og skydning"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Radiostyring og modeller"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Bryllupper"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Hus og have"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Havearbejde"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Boligindretning"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Husholdningsapparater"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Boligforbedring"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Sikkerhed og beskyttelse i hjemmet"</string>
+    <string name="topic10275" msgid="682064062059687444">"Husholdningsartikler"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Landskabsarkitektur"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet og telekommunikation"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Mail og meddelelser"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Mail"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Beskeder og chatfunktioner"</string>
+    <string name="topic10281" msgid="582764575763317221">"Tale- og videochat"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP\'er"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefonserviceudbydere"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Ringetoner og mobiltemaer"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Søgemaskiner"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartphones"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferencer"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Webapps og onlineværktøjer"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Webtjenester"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloud Storage"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Webdesign og -udvikling"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Webhosting"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Job og uddannelse"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Uddannelse"</string>
+    <string name="topic10295" msgid="331240908257602211">"Akademiske konferencer og udgivelser"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Gymnasier og universiteter"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Fjernundervisning"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Børnehaver og vuggestuer"</string>
+    <string name="topic10299" msgid="2437152839161363820">"De mindste børn"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Hjemmeundervisning"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Standardiserede prøver og adgangsprøver"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Ressourcer til læring og undervisningslokalet"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Erhvervsrettet uddannelse og efteruddannelse"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Job"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Karriereressourcer og -planlægning"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Jobformidling"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Lovgivning og regering"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Kriminalitet og retfærdighed"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Jura"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Juridisk bistand"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Nyheder"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Nyheder om økonomi"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Lokale nyheder"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Fusion og opkøb"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Aviser"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politik"</string>
+    <string name="topic10317" msgid="888696185673599406">"Sportsnyheder"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Vejr"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Internationale nyheder"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Onlinefællesskaber"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clipart og animerede GIF-billeder"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Dating og personlige annoncer"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Feedaggregering og sociale bogmærker"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Fildeling og hosting"</string>
+    <string name="topic10325" msgid="916412844647169263">"Udbydere af fora og chatprogrammer"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Microblogs"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Deling af billeder og videoer"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Deling af billeder"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Deling af videoer"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Skins"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Apps og tilføjelser til sociale netværk"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Sociale netværk"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Mennesker og samfund"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Familie og forhold"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Slægtsforskning og slægtshistorie"</string>
+    <string name="topic10336" msgid="360328903013424569">"Ægteskab"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Opdragelse"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Adoption"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Babyer og småbørn"</string>
+    <string name="topic10340" msgid="259457452971577855">"Børns sikkerhed på internettet"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantik"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Science fiction og fantasy"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Dyr"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Foder og udstyr til pleje af kæledyr"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Kæledyr"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Fugle"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Katte"</string>
+    <string name="topic10348" msgid="570783769757187957">"Hunde"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Fisk og akvarier"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Krybdyr og padder"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Dyrlæger"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Fast ejendom"</string>
+    <string name="topic10353" msgid="230887584509968233">"Grunde og jord"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Timeshares og ferieejendomme"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Reference"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Salg af privat- og erhvervsejendomme"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Generelle referencer"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Regnemaskiner og referenceværktøjer"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Ordbøger og encyklopædier"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Uddannelsesressourcer"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Vejledninger"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Tid og kalendere"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Sproglige ressourcer"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Fremmedsprog"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Oversættelsesværktøjer og -ressourcer"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Kort"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Videnskab"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Augmented og virtual reality"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Biologisk videnskab"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetik"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kemi"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Økologi og miljø"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geologi"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Maskinlæring og kunstig intelligens"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematik"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fysik"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotvidenskab"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Shopping"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antikviteter og samleobjekter"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Beklædning"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Børnetøj"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Kostumer"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Herretøj"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Dametøj"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Rubrikannoncer"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Forbrugerressourcer"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kuponer og rabattilbud"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Loyalitetskort og programmer"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Teknisk support og reparation"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Blomster"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Tillykke-/fødselsdagskort"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Fest- og helligdagsartikler"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Shoppingportaler"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Amerikansk fodbold"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Australsk fodbold"</string>
+    <string name="topic10397" msgid="653991203228840785">"Racerløb"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Baseball"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Basketball"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Boksning"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Cheerleading"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Collegesport"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Cricket"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Cykling"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ridning"</string>
+    <string name="topic10407" msgid="316266982792700993">"Ekstremsport"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Klatring og bjergbestigning"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Fantasy-sport"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Gymnastik"</string>
+    <string name="topic10412" msgid="335770351079973128">"Ishockey"</string>
+    <string name="topic10413" msgid="416366556259783701">"Skøjteløb"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Kampsport"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motorcykelløb"</string>
+    <string name="topic10416" msgid="1687911875093638923">"OL"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rugby"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Løb og gåture"</string>
+    <string name="topic10419" msgid="979581105119036716">"Ski og snowboarding"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Fodbold"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Surfing"</string>
+    <string name="topic10422" msgid="978920114358054206">"Svømning"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tennis"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atletik"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Volleyball"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Brydning"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Rejse og transport"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Oplevelsesrejser"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Flyrejser"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Forretningsrejser"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Biludlejning"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Krydstogter og charterrejser"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Familierejser"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Bryllupsferie og romantiske rejser"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Hoteller og overnatningsmuligheder"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Langdistancebusser og -tog"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Billige rejser og afbudsrejser"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Kufferter og udstyr til rejser"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistdestinationer"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Strande og øer"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Parker og haver"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Forlystelsesparker"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Zoologiske haver"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Trafik- og ruteplanlægningsværktøjer"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Rejsebureauer og -tjenester"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Rejsevejledninger og rejsekataloger"</string>
+</resources>
