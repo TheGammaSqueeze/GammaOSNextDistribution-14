@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"AdServices Topics API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"AdServices Attribution API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"AdServices Custom Audience API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"AdId API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"AdServices Consent API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API へのアクセス"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Ad ID API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API へのアクセス"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"AdServices Cobalt Upload API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API へのアクセス"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"App Set ID API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API へのアクセス"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Consent Service API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService の有効化状態変更 API へのアクセス"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"AdService の有効化状態変更 API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService の有効化状態 API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"AdService の有効化状態 API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager の API へのアクセス"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"AdServicesManager の API へのアクセスをアプリに許可します。"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdService の AdId API のアップデートへのアクセス。"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"AdService の AdId API のアップデートへのアクセスをアプリに許可します。"</string>
+    <string name="app_label" msgid="2639006978056689153">"広告のプライバシー"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Android の広告のプライバシー（ベータ版）にご参加ください"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android はプライバシー保護を強化した方法に基づいてアプリが広告を表示するよう取り組んでいます"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"詳細"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android の広告のプライバシー（ベータ版）"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"新機能"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"プライバシー サンドボックスの新しいプライバシー機能により、関連性の高い広告がアプリに表示されますが、これらのアプリが他のデベロッパーのウェブサイトやアプリでのユーザーのアクティビティについて確認できる情報は制限されます。"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"仕組み"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"参加方法"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"ベータ版を ON にすると、アプリは広告の表示でプライバシー保護を強化したこれらの新しい方法をテストできます。ベータ版はプライバシー設定でいつでも OFF にできます。"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"利用しない"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"ON にする"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"その他"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"ご参加ありがとうございます"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Android の広告のプライバシー（ベータ版）にご参加いただきありがとうございます。プライバシー サンドボックスはこのデバイスで ON になっています。\n\nベータ版はプライバシー設定でいつでも OFF にできます。詳しくは、プライバシー設定をご覧ください。"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"参加を取り消しました"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"ありがとうございました。プライバシー サンドボックスはこのデバイスで OFF になっています。\n\n改めて参加される場合や、詳細をご覧になりたい場合は、プライバシー設定に移動してください。"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"プライバシー設定"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"OK"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"ベータ版にご参加いただきありがとうございます"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"プライバシー サンドボックスはこのデバイスで ON になっているため、プライバシー保護を強化した広告表示の新しい方法をアプリがテストできます。ベータ版はプライバシー設定でいつでも OFF にできます。"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"OK"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android のプライバシー サンドボックスは、アプリがユーザーにおすすめの広告を表示する場合に役立つ新しい機能を提供しています。これらの技術でデバイス識別子が使用されることはありません。\n\nAndroid とアプリにより、ユーザーが興味や関心を持ちそうな広告の種類が推測され、その興味や関心がデバイスに一時的に保存されます。そのためアプリは、他のデベロッパーのウェブサイトやアプリでユーザーのアクティビティを追跡することなく、ユーザーにおすすめの広告を表示することができます。"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"プライバシー サンドボックスによる広告のカスタマイズ"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Android が推定した興味 / 関心"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android は、ユーザーが使用するアプリに基づいて、「スポーツ」や「旅行」など、上位の興味 / 関心を定期的に推測します。\n\n後で、アプリは Android に対して、より関連性の高い広告を表示するためにこれらの興味 / 関心の使用を求めることができます。\n\n現在登録されている興味 / 関心のリストはプライバシー設定で確認でき、必要ないものをブロックすることもできます。"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  アプリが推定した興味 / 関心"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"アプリはユーザーの興味 / 関心を推測し、Android で一時的に保存することができます。たとえば、ユーザーがランニング シューズの購入に使用しているアプリは、「ランニング マラソン」という興味 / 関心を推測する可能性があります。\n\nその後この興味 / 関心に基づき、別のアプリがマラソン関連の広告をユーザーに表示することができます。\n\n興味 / 関心を保存したアプリのリストは、プライバシー設定で管理できます。"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"広告のプライバシーの新機能"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"広告のトピックと新しい設定を通じて、表示される広告をご自身でより細かくコントロールできます"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android では、ユーザーの最近のアプリ使用に基づいて興味 / 関心のあるトピックが記録されます。また、使用したアプリによりユーザーの好みが特定される場合もあります。その後、パーソナライズド広告を表示するために、このような情報をアプリから後で求められることがあります。広告を表示するために使用するトピックやアプリは選択できます。"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"広告のパフォーマンスを測定するため、限られた種類のデータがアプリ間で共有されます。"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Android における広告の詳細"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"広告の有用性が向上"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"表示する広告をパーソナライズするため、アプリから Android に情報を求められることがあります。"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android では、ユーザーの最近のアプリ使用に基づいて興味 / 関心のあるトピックが記録されます。"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  使用するアプリでは、アプリの使用状況に基づいてユーザーの好みが特定される場合もあります。たとえば、長距離ランニング シューズを販売するアプリを使用すると、そのユーザーはマラソンに興味があると判断されます。"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"その後、使用するアプリから、この情報（広告のトピックまたは使用するアプリによる広告の提案）を求められることがあります。"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android では、トピックとアプリによる提案データが定期的に自動削除されます。また、提案してほしくないトピックやアプリをブロックすることもできます。"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"広告効果の測定"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"使用するアプリから、広告のパフォーマンスを測定するための情報が Android に求められることがあります。Android では、広告が表示された日時など、限られた種類のデータをアプリが収集できるようにします。"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"広告の新しいプライバシー機能を試す"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"広告のトピックを通じて、表示される広告をご自身でより細かくコントロールできます"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"詳細を表示"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"広告のプライバシーの新機能を使ってみる"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android では、ユーザーの選択の幅が広がる新たなプライバシー機能がリリースされます。"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"広告のトピックは、ユーザーの個人情報やアプリの使用状況に関する情報を保護しながら、アプリで関連性の高い広告を表示できるようにする機能です。Android では、ユーザーが最近使用したアプリに基づいて興味 / 関心のあるトピックが保存されます。その後、使用するアプリでは、表示する広告をカスタマイズするために、Android に関連するトピックを提示するよう要求できます。"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"デバイスの設定で広告のトピックを確認して、アプリと共有したくないトピックをブロックできます。Android では、定期的に広告のトピックも自動削除されます。"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"プライバシー設定でいつでも変更できます。"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"広告のトピックの詳細"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Android によるユーザーデータの保護について、詳しくは"<a href="https://policies.google.com/privacy">"プライバシー ポリシー"</a>"をご覧ください。"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"試してみる"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  使用されるデータ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"広告のトピックは、このデバイスで最近使用されたアプリとアプリの使用頻度に基づきます。"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Google によるこのデータの使用"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android では、ユーザーのアプリ使用時に興味 / 関心のあるトピックが記録されます。トピックのラベルは事前定義されていて、「アート、エンターテインメント」、「ショッピング」、「スポーツ」などがあります。その後、使用するアプリでは、表示する広告をパーソナライズするため、Android に（アプリの使用状況や個人情報に関するデータではなく）いくつかのトピックを提示するよう要求されることがあります。"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"データの管理方法"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android では、トピックが定期的に自動削除されます。アプリを引き続き使用していると、トピックがリストに再度表示される場合もあります。また、プライバシー設定では、Android からアプリと共有しないトピックをブロックしたり、広告のトピックを無効にしたりすることがいつでも可能です。"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"プライバシー設定で変更できます。"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"その他の広告のプライバシー機能がリリースされました"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android は、パーソナライズド広告の表示にあたってユーザーの情報を収集できるアプリを制限する新しい機能もリリースします。"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  アプリによる広告の提案は、個人情報とアプリの使用状況に関する情報を保護しながら、アプリで関連性の高い広告を表示できるようにする機能です。使用するアプリでは、ユーザーのアクティビティに基づき、関連する広告を他のアプリで表示することを提案できます。設定で、アプリのリストを確認したり、アプリによる提案をブロックしたりできます。"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  広告の測定では、広告効果を測定するため、広告が表示された日時など、限られた種類のデータがアプリ間で共有されます。"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"アプリによる広告の提案と広告測定の詳細"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"アプリによる広告の提案"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  使用されるデータ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"このデバイスで使用しているアプリでのアクティビティ。"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  アプリによるこのデータの使用"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"アプリでは、ユーザーの興味 / 関心に関する情報を Android に保存できます。たとえば、マラソン トレーニングのアプリを使用した場合、そのアプリは、ユーザーはランニング シューズに関心があると判断されます。その後、別のアプリを使用すると、最初に使用したアプリにより提案されたランニング シューズの広告が表示されます。"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  データの管理方法"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android では、アプリにより提案されたデータが定期的に自動削除されます。アプリをもう一度使用すると、リストにそのアプリが再度表示される場合もあります。"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"また、プライバシー設定では、アプリによる広告の提案をブロックしたり、アプリによる提案データをリセットしたり、アプリによる広告の提案を無効したりすることがいつでも可能です。"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"使用するアプリが、広告のパフォーマンスを測定するための情報を提示するよう Android に求めることがあります。Android では、アプリ間で共有できる情報を制限することにより、ユーザーのプライバシーを保護します。"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"個人情報を保護しつつ、表示される広告をご自身でより細かく選択できます"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android は、パーソナライズド広告の表示にあたってユーザーの情報を収集できるアプリを制限する新しい機能をリリースします。"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  新しいプライバシー機能の「アプリによる広告の提案」では、個人情報とアプリの使用に関する情報を保護しながら、ユーザーに関連性の高い広告をアプリで表示できるようにします。ユーザーのアクティビティに基づいて、ユーザーが使用しているアプリから他のアプリに対して、表示する関連広告を提案することができます。プライバシー設定で、アプリのリストを確認したり、アプリによる提案をブロックしたりできます。"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  広告の測定では、限られた種類のデータ（広告が表示された時間帯など）が、広告パフォーマンスの把握のためにアプリ間で共有されます。"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"このデバイスにある 1 つのアプリでのアクティビティが、広告の選定に使用されることがあります。"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"その他の広告のプライバシー機能を ON にする"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android は、表示される広告をご自身でより細かく選択できる新しいプライバシー機能もリリースします。"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"広告のトピックによって、関連性の高い広告をアプリが表示できるようになるとともに、ユーザーの個人情報やアプリの使い方に関する情報も保護できます。Android は、最近使用されたアプリをもとにユーザーが興味のあるトピックを記録できます。トピックが記録されたら、今度はアプリが Android からその情報を得てユーザーに関連性の高い広告を表示することができます。"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"プライバシー設定で広告のトピックを確認し、アプリと共有したくないトピックをブロックすることができます。また Android では、広告のトピックを定期的に自動削除しています。"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"ON にする"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"個人情報を保護しつつ、表示される広告をご自身でより細かく選択できるようになりました"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android は、表示される広告をご自身でより細かく選択できる新しいプライバシー機能をリリースします。"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"次へ"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"プライバシー サンドボックス"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Android の広告のプライバシー（ベータ版）にご参加ください"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"プライバシー サンドボックス"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Android が推定した興味 / 関心"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"興味 / 関心を推定できるアプリ"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"広告の測定"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"アプリはプライバシー サンドボックスを使用して広告の効果を測定することができます。この測定のため、広告主は広告とアプリ間のインタラクションについて、Android でデータを一時的に保存できます。保存できるデータの容量は制限され、データは定期的に削除されます。\n\nこのデータは、プライバシー サンドボックスを OFF にすることでいつでも削除できます。"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android は、ユーザーが使用しているアプリに基づいて、ユーザーが最も興味 / 関心を持っているものを定期的に推測します。アプリは Android に対して、より関連性の高い広告を表示するためにこれらの興味 / 関心の使用を求めることができます。\n\nブロックした興味 / 関心は、ブロックを解除しない限り、リストに再び追加されることはありません。なお、一部の関連する広告は引き続き表示される可能性もあります。"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"ブロック"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"ブロックを解除"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"ブロックした興味 / 関心"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"すべての興味 / 関心をリセット"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"現在、表示できる興味 / 関心はありません。"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"現在、表示できるトピックはありません。\n詳しくは、"<a href="https://support.google.com/android?p=ad_privacy">"広告のトピック"</a>"についての説明をご覧ください"</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"プライバシー サンドボックス"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android の広告のプライバシー（ベータ版）は、アプリがユーザーにおすすめの広告を表示する場合に役立つ新しい機能を提供しています。これらの技術でデバイス識別子が使用されることはありません。\n\nAndroid により、ユーザーが興味や関心を持ちそうな広告の種類が推測され、その興味や関心がデバイスに一時的に保存されます。これにより、アプリは、他のデベロッパーのウェブサイトやアプリでユーザーのアクティビティを追跡することなく、関連性の高い広告を表示することができます。"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"ブロック中の興味 / 関心はありません"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"ブロック中のトピックはありません"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"ブロックされたトピックを表示"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"興味 / 関心をリセットしました"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"トピックがリセットされました"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"アプリはユーザーの興味 / 関心を推測し、Android で一時的に保存することができます。その後別のアプリがこれらの興味 / 関心に基づいて広告を表示することができます。\n\nブロックしたアプリは、今後、興味 / 関心を推測しなくなります。ブロックを解除しない限り、そのアプリがこのアプリのリストに再び追加されることはありません。ブロックしたアプリですでに推測された興味 / 関心は削除されますが、一部の関連する広告は引き続き表示されることがあります。"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"ブロックしたアプリ"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"ブロックされたアプリを表示"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"アプリが推定した興味 / 関心をリセット"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"現時点であなたの興味 / 関心を推定するアプリはありません"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"現在、表示できるアプリはありません、\n詳しくは、"<a href="https://support.google.com/android?p=ad_privacy">"アプリによる広告の提案"</a>"についての説明をご覧ください"</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"プライバシー サンドボックス"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android の広告のプライバシー（ベータ版）は、アプリがユーザーにおすすめの広告を表示する場合に役立つ新しい機能を提供しています。これらの技術でデバイス識別子が使用されることはありません。\n\nアプリにより、ユーザーが興味や関心を持ちそうな広告の種類が推測され、その興味や関心がデバイスに一時的に保存されます。これにより、アプリは、他のデベロッパーのウェブサイトやアプリでユーザーのアクティビティを追跡することなく、関連性の高い広告を表示することができます。"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"ブロック中のアプリはありません"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"ブロック中のアプリはありません"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"広告の測定を許可"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"アプリと広告主は、広告効果の測定に役立つ情報を Android からリクエストする場合があります。\n\n広告の測定データはデバイスから定期的に削除されます。"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"測定データをリセット"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android は、アプリ間で共有される情報を限定することで、ユーザーのプライバシーを保護します。レポートは個人情報を保護するため遅れて送信されます。\n\nブラウザにも同様の設定がある場合があります。Android とブラウザの両方で広告の測定が ON の場合、広告主はユーザーが使用しているアプリとアクセスしているサイトの間で広告の効果を測定できることがあります。閲覧履歴は非公開で、デバイスから外部に送信されることはありません。\n\nAndroid がユーザーデータを保護する仕組みについては、"<a href="https://policies.google.com/privacy">"プライバシー ポリシー"</a>"をご覧ください。"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"広告の測定データがリセットされました"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"キャンセル"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"プライバシー サンドボックスを OFF にしますか？"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"改めて参加される場合や、Android の広告のプライバシーのベータ版について詳細をご覧になりたい場合は、プライバシー設定にアクセスしてください。"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"OFF にする"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"「<xliff:g id="TOPIC">%1$s</xliff:g>」をブロックしますか？"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"このトピックはブロックされました。ご自身で再び追加しない限り、リストに再度追加されることはありません。なお、一部の関連する広告は引き続き表示される可能性があります。"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"ブロック"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"「<xliff:g id="TOPIC">%1$s</xliff:g>」のブロックを解除しました"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android がこのトピックを再びリストに追加することがあります。ただし、追加されてもすぐには反映されない場合があります。"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"すべての広告トピックをリセットしますか？"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"現在のリストは削除され、今後は新しいトピックが追加されます。なお、リセットしたトピックに関連する広告が引き続き表示されることもあります。"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"リセット"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"<xliff:g id="APP">%1$s</xliff:g> をブロックしますか？"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"ブロックを解除しない限り、このアプリは広告を提案せず、リストに再び追加されません。なお、関連する広告が引き続き表示されることもあります。"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> のブロックを解除しました"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"このアプリは広告を再び提案できるようになりますが、すぐにはリストに反映されない可能性があります。関連する広告が表示されるまで時間がかかることがあります。"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"アプリによる広告の候補をリセットしますか？"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"リストのアプリから取得された広告の候補データは削除され、今後はアプリが新しい広告を提案するようになります。なお、関連する広告が引き続き表示されることもあります。"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"アプリデータがリセットされました"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"広告のトピックは ON になっています"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android は興味 / 関心のあるトピックの記録を開始しますが、最初のトピックが表示されるまでしばらく時間がかかることがあります。"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"広告のトピックを OFF にしますか？"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"このトピックのリストは削除されます。Android は興味 / 関心のあるトピックを記録しなくなりますが、関連性の高い広告が引き続き表示される場合があります。"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"アプリによる広告の提案は ON になっています"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"アプリによる広告の提案が開始される可能性があります。広告の提案が開始されると、アプリのリストが表示されます。"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"アプリによる広告の提案を OFF にしますか？"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"広告の提案に関するデータはすべて削除されます。アプリは広告を提案できなくなりますが、関連性の高い広告が引き続き表示される場合があります。"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"広告の測定は ON になっています"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"アプリが広告のパフォーマンスを測定できるように、Android はごく一部の情報のみをアプリと共有する可能性があります。"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"広告の測定を OFF にしますか？"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"保留中の広告の測定レポートはすべて削除されます。新しいレポートは生成も共有もされなくなります。"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"広告プライバシー"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"広告のトピック"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"アプリによる広告の提案"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android は、ユーザーが最近使ったアプリとその使用頻度に基づいて興味 / 関心のあるトピックを記録します。"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"ユーザーが使用するアプリは、アプリの使われ方を元にユーザーの好みを特定する場合もあります。"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"ユーザーが使用しているアプリから Android に対して広告の効果を測定するための情報が要求されると、Android は限定的な種類のデータの収集のみをアプリに許可します。"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"詳しくは、"<a href="https://support.google.com/android?p=ad_privacy">"Android における広告のプライバシー"</a>"についての説明をご覧ください"</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"ON / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> 件のトピック"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{ON / # 件のトピック}other{ON / # 件のトピック}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"ON / <xliff:g id="APPS_COUNT">%1$d</xliff:g> 個のアプリ"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{ON / # 個のアプリ}other{ON / # 個のアプリ}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"ON"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"OFF"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"広告のトピックは、最近使用されたアプリに基づいており、パーソナライズド広告を表示するためにアプリが使用します。\n\nアプリで共有されたくないトピックをブロックできます。また Android では、トピックを定期的に自動で削除しています。\n\nこの機能を ON にすることもできますが、この機能が全面的に利用可能になって各種アプリで使用されるようになるまでは、トピックの一覧は表示されません。"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"広告トピックを許可"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"ブロックした広告トピック"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"すべての広告トピックをリセット"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android は、過去数週間にユーザーが使用したアプリに基づいて興味 / 関心のあるトピックを記録します。\n\nパーソナライズド広告のため、使用するアプリから後で Android に対してトピックが求められることがあります。Android は個人情報とアプリの使用に関する情報を保護する形で最大 3 件のトピックを共有します。\n\nAndroid は定期的にトピックを自動削除します。アプリを引き続き使用すると、トピックはリストに再表示される可能性があります。また、Android にアプリと共有されたくないトピックをブロックすることもできます。\n\nアプリにパーソナライズド広告が表示されるかどうかは、この設定のほか、アプリから提案される広告の設定、広告 ID の設定、使用しているアプリが広告をパーソナライズするかどうかによって決まります。"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"アプリによる広告の提案を許可"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"ユーザーが使用するアプリがユーザーの好みを特定して、別のアプリで広告を提案する場合があります。\n\n広告の提案を行わないようアプリをブロックできます。また Android では、アプリによるおすすめのデータを定期的に自動で削除しています。\n\nこの機能を ON にすることもできますが、この機能が全面的に利用可能になって各種アプリで使用されるようになるまでは、アプリの一覧は表示されません。"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"ブロックしたアプリ"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"アプリから提案されたデータをリセット"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"一般に、ご利用のアプリはユーザーの利便性をパーソナライズするためにユーザーが関心 / 興味を持っている内容を記録します。また、アプリはユーザーのトピックに関する情報も Android で保存できます。\n\nたとえば、マラソンのトレーニングについてアプリを使用した場合、そのアプリは、ユーザーはランニング シューズに関心がある、と判断することがあります。その後に使用した別のアプリには、最初のアプリから提案されたランニング シューズの広告が表示される可能性があります。\n\nAndroid は、アプリから提案されたデータを定期的に自動削除します。再び使用したアプリはリストに再表示される可能性があります。また、アプリがユーザーに適した広告を提案しないようブロックすることもできます。\n\nアプリにパーソナライズド広告が表示されるかどうかは、この設定のほか、広告トピックの設定、広告 ID の設定、使用しているアプリが広告をパーソナライズするかどうかによって決まります。"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"広告プライバシーの新しい機能がリリースされました"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"広告の効果を測定するため、限定的な情報のみがアプリ間で共有されます"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"このたび、「広告の測定」という広告プライバシーの新しい機能をリリースします。Android では、アプリによる広告の効果測定に役立てるため、広告が表示されたタイミングなどの限定的な情報のみをアプリ間で共有するようになります。"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"広告プライバシー設定で変更できます。"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"ユーザーが使用しているアプリから Android に対して広告の効果を測定するための情報が要求されると、Android は限定的な種類のデータの収集のみをアプリに許可します。"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"広告のプライバシーの新機能"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"個人情報を保護できるようにしつつ、表示される広告をご自身でより細かく選択できます"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"広告のプライバシー機能に関する最新情報"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"個人情報を保護できるようにしつつ、表示される広告をご自身でより細かく選択できます"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android では、パーソナライズド広告を表示する際にアプリが取得できるユーザー情報を制限するため、広告のプライバシー機能を強化しています。"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"アプリとその広告パートナーも、個人のプライバシーとセキュリティを確保しながら、広告をパーソナライズするためにこのデバイス上の他のアプリでのユーザーのアクティビティを使用できます。"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"アプリによる広告の提案の詳細"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"限られた種類のデータ（広告が表示された時間帯など）が、広告パフォーマンスの把握のためにアプリ間で共有されます。"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"広告の測定の詳細"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android では、ユーザーの最近のアプリ使用に基づいて興味 / 関心のあるトピックが記録されます。また、アプリとその広告パートナーも、個人のプライバシーとセキュリティを確保しながら、広告をパーソナライズするためにこのデバイス上の他のアプリでのユーザーのアクティビティを使用できます。"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"• 使用するアプリでは、アプリのアクティビティに基づいてユーザーの好みが特定される場合もあります。たとえば、料理アプリを定期的に使用している場合、食料品の宅配サービスや関連コンテンツの広告が他のアプリに表示される可能性があります。\n\nこの情報は、広告パートナーが他のアプリで広告をパーソナライズする目的以外で使用できないようアプリで安全に保管することができます。"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"その後、使用するアプリから、この情報（広告のトピックまたは使用するアプリによる広告の提案）を求められることがあります。"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"使用するアプリが、広告のパフォーマンスを測定するための情報を Android に求めることがあります。Android は、アプリ間で共有される情報を限定することで、ユーザーのプライバシーを保護できます。"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"どのようなデータが使用されますか？"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"使用するアプリが、広告のパフォーマンスを測定するための情報を提示するよう Android に求めることがあります。Android では、アプリ間で共有できる情報を制限することにより、ユーザーのプライバシーを保護できるようにしています。"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"個人情報はどのように保護されますか？"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android では、集約やデータへのノイズ付加などの複数のプライバシー対策を使用してアプリ同士の情報共有を制限し、個人情報を保護できるようにしています。\n\nまた、広告の測定データは定期的にデバイスから削除されます。"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"アプリでのアクティビティが広告の選定に使用されることがあります。"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"アプリはこのデータをどのように使用するのですか？"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"この情報は、広告パートナーが他のアプリで広告をパーソナライズする目的以外で使用できないようアプリで安全に保管することができます。たとえば、料理アプリを定期的に使用している場合、食料品の宅配サービスや関連コンテンツの広告が他のアプリに表示される可能性があります。"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"このデータはどのように管理できますか？"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"特定のアプリでアクティビティが広告パートナーと共有されないようにブロックすることができます。アプリによる広告の提案のリセットと無効化は、プライバシー設定でいつでも可能です。また Android では、このデータを定期的に自動で削除しています。"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"プライバシーを保護する Android の仕組みの詳細を確認"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"アプリとその広告パートナーは、個人情報のプライバシーとセキュリティを確保しながら、広告をパーソナライズするためにこのデバイス上の他のアプリでのユーザーのアクティビティを使用できます。\n\nたとえば、料理アプリを定期的に使用している場合、食料品の宅配サービスや関連コンテンツの広告が他のアプリに表示される可能性があります。\n\nAndroid ではユーザーのアクティビティを定期的に自動で削除していますが、アプリでこの情報が広告パートナーと共有されないようにユーザーがブロックすることもできます。"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"アプリとその広告パートナーがユーザーの興味の対象を記憶してエクスペリエンスのパーソナライズを行うのは一般的なことです。この情報は、広告パートナーが他のアプリで広告を表示する目的以外で使用できないようアプリで安全に保管することができます。\n\nユーザーは、アプリでアクティビティ データが広告パートナーと共有されないようにブロックできます。Android では、共有されたアクティビティ データを定期的に自動で削除しています。再度使用したアプリはこのリストに再度表示される可能性があります。\n\n表示される広告がパーソナライズされるかどうかは、この設定、広告トピックの設定、広告 ID の設定、使用しているアプリで広告のパーソナライズが行われたかどうかなど、さまざまな要因の影響を受けます。\n\n"<a href="https://support.google.com/android?p=ad_privacy">"アプリによる広告の提案の詳細を確認"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android では、集約やデータへのノイズ付加などの複数のプライバシー対策を使用してアプリ同士の情報共有を制限し、個人情報を保護できるようにしています。\n\nブラウザにも同様の設定がある場合があります。Android とブラウザの両方で広告の測定が ON の場合、広告主はユーザーが使用しているアプリとアクセスしているサイトの間で広告の効果を測定できることがあります。閲覧履歴は非公開で、デバイスから外部に送信されることはありません。\n\n"<a href="https://support.google.com/android?p=ad_privacy">"広告の測定の詳細を確認"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android は、過去数週間にユーザーが使用したアプリに基づいて興味 / 関心のあるトピックを記録します。\n\nパーソナライズド広告のため、使用するアプリから後で Android に対してトピックが求められることがあります。Android は個人情報とアプリの使用に関する情報を保護する形で最大 3 件のトピックを共有します。\n\nAndroid は定期的にトピックを自動削除します。アプリを引き続き使用すると、トピックはリストに再表示される可能性があります。また、Android にアプリと共有されたくないトピックをブロックすることもできます。\n\n表示される広告がパーソナライズされるかどうかは、この設定、アプリによる広告の提案の設定、広告 ID の設定、使用しているアプリで広告のパーソナライズが行われたかどうかなど、さまざまな要因の影響を受けます。\n\n"<a href="https://support.google.com/android?p=ad_privacy">"広告のトピックの詳細を確認"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"音楽、ニュース、スポーツなど、興味 / 関心のあるトピックを表すカラフルなイラスト"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"円の中に鍵が描かれているカラフルなイラスト"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"9 個の点で四角形が描かれているモノクロの小さなイラスト"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"ハート、三角形、四角形などのシンプルな図形が描かれているモノクロの小さなイラスト"</string>
+    <string name="topic10001" msgid="1270825507916795717">"アート、エンターテインメント"</string>
+    <string name="topic10002" msgid="8657696153158750159">"劇場、映画館"</string>
+    <string name="topic10003" msgid="8107343709605778937">"アニメ、漫画"</string>
+    <string name="topic10004" msgid="8860839733494442614">"キャラクター アニメ、子供向けアニメ"</string>
+    <string name="topic10005" msgid="2366794377271477958">"コミック"</string>
+    <string name="topic10006" msgid="3856192433168050494">"コンサート、音楽祭"</string>
+    <string name="topic10007" msgid="7701054618107492020">"ダンス"</string>
+    <string name="topic10008" msgid="5566660187422751041">"エンターテインメント業"</string>
+    <string name="topic10009" msgid="9048499060637442408">"クイズ、雑学"</string>
+    <string name="topic10010" msgid="2312303716461948144">"クイズ、おもしろ診断"</string>
+    <string name="topic10011" msgid="175945911179628507">"ユーモア"</string>
+    <string name="topic10012" msgid="7308795546139033442">"おもしろい写真、動画"</string>
+    <string name="topic10013" msgid="1525199586552473496">"お笑いライブ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"スポーツ観戦"</string>
+    <string name="topic10015" msgid="726046067079821146">"マジック"</string>
+    <string name="topic10016" msgid="2349985783026324836">"映画情報、劇場情報"</string>
+    <string name="topic10017" msgid="5137452934538259985">"映画"</string>
+    <string name="topic10018" msgid="2701694124396534094">"アクション映画、アドベンチャー映画"</string>
+    <string name="topic10019" msgid="4229784972880729321">"アニメ映画"</string>
+    <string name="topic10020" msgid="7406506079009096133">"コメディー映画"</string>
+    <string name="topic10021" msgid="8455397230215712525">"カルト映画、インディーズ映画"</string>
+    <string name="topic10022" msgid="4121646102859453428">"ドキュメンタリー映画"</string>
+    <string name="topic10023" msgid="254151319845267278">"ドラマ"</string>
+    <string name="topic10024" msgid="9166490951622139148">"ファミリー映画"</string>
+    <string name="topic10025" msgid="4556814606759167730">"ホラー映画"</string>
+    <string name="topic10026" msgid="210222384439682793">"恋愛映画"</string>
+    <string name="topic10027" msgid="6865151893887179263">"スリラー"</string>
+    <string name="topic10028" msgid="7591747452141916447">"音楽、オーディオ"</string>
+    <string name="topic10029" msgid="2603521148910221418">"ブルース"</string>
+    <string name="topic10030" msgid="1882645896051165373">"クラシック音楽"</string>
+    <string name="topic10031" msgid="3075843490601826275">"カントリー ミュージック"</string>
+    <string name="topic10032" msgid="5492959212920168739">"ダンス音楽、電子音楽"</string>
+    <string name="topic10033" msgid="895853536740398847">"民族音楽、伝統音楽"</string>
+    <string name="topic10034" msgid="4234814709585731313">"ジャズ"</string>
+    <string name="topic10035" msgid="4357756001621317728">"音楽配信、ダウンロード"</string>
+    <string name="topic10036" msgid="449833307315797283">"ミュージック ビデオ"</string>
+    <string name="topic10037" msgid="51698216720637667">"楽器"</string>
+    <string name="topic10038" msgid="8450729953573104572">"ピアノ、キーボード"</string>
+    <string name="topic10039" msgid="9069435933476958784">"ポップ ミュージック"</string>
+    <string name="topic10040" msgid="2307340564445486423">"ラジオ"</string>
+    <string name="topic10041" msgid="7067032299296103616">"ラジオのトーク番組"</string>
+    <string name="topic10042" msgid="7915590336813971860">"ラップ、ヒップホップ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"ロック"</string>
+    <string name="topic10044" msgid="6201404431104417585">"クラシック ロック、オールディーズ"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ハードロック、プログレッシブ"</string>
+    <string name="topic10046" msgid="4700537150965749092">"インディーズ音楽、オルタナティブ ミュージック"</string>
+    <string name="topic10047" msgid="6868724754947095800">"サウンド サンプル、ライブラリ"</string>
+    <string name="topic10048" msgid="1968071881240362644">"ジャズ、R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"サウンドトラック"</string>
+    <string name="topic10050" msgid="1374275552775889532">"ワールド ミュージック"</string>
+    <string name="topic10051" msgid="5719726125732251258">"レゲエ、カリビアン音楽"</string>
+    <string name="topic10052" msgid="1284902821545612733">"オンライン画像集"</string>
+    <string name="topic10053" msgid="5420622301656482567">"オンライン動画"</string>
+    <string name="topic10054" msgid="4562235511593399260">"ライブ動画ストリーミング"</string>
+    <string name="topic10055" msgid="3752987507076288470">"映画ストリーミング、テレビ ストリーミング"</string>
+    <string name="topic10056" msgid="1316228709578133569">"オペラ"</string>
+    <string name="topic10057" msgid="3265794667031664331">"テレビ情報誌、番組表"</string>
+    <string name="topic10058" msgid="8409884272709263707">"テレビ ネットワーク、テレビ局"</string>
+    <string name="topic10059" msgid="6770193120260554722">"テレビ番組"</string>
+    <string name="topic10060" msgid="2410694865246432781">"お笑い番組"</string>
+    <string name="topic10061" msgid="7733515887806604226">"ドキュメンタリー番組、ノンフィクション番組"</string>
+    <string name="topic10062" msgid="2539857914076699714">"テレビドラマ"</string>
+    <string name="topic10063" msgid="7645361077069015698">"メロドラマ"</string>
+    <string name="topic10064" msgid="3322306867038013554">"ファミリー向け番組"</string>
+    <string name="topic10065" msgid="6361928032564256523">"リアリティ番組"</string>
+    <string name="topic10066" msgid="9206067258196707389">"SF 番組、ファンタジー番組"</string>
+    <string name="topic10067" msgid="6479768451596254929">"ビジュアル アート、デザイン"</string>
+    <string name="topic10068" msgid="7999222744500155387">"デザイン"</string>
+    <string name="topic10069" msgid="3345227631449580699">"絵画"</string>
+    <string name="topic10070" msgid="8921241315781663883">"芸術写真、デジタルアート"</string>
+    <string name="topic10071" msgid="5802889978655775195">"自動車、乗り物"</string>
+    <string name="topic10072" msgid="7699714565299422080">"貨物トラック、トレーラー"</string>
+    <string name="topic10073" msgid="8309536003187424408">"クラシックカー"</string>
+    <string name="topic10074" msgid="7682849385993670574">"カスタムカー、高性能車"</string>
+    <string name="topic10075" msgid="6556611554556269074">"ガソリン料金、燃費"</string>
+    <string name="topic10076" msgid="4919696820372108489">"自動車（種類別）"</string>
+    <string name="topic10077" msgid="7501391101287632363">"自律走行車"</string>
+    <string name="topic10078" msgid="4334233882549881927">"コンバーチブル"</string>
+    <string name="topic10079" msgid="3172046203487780210">"クーペ"</string>
+    <string name="topic10080" msgid="8163934214927408125">"ハッチバック"</string>
+    <string name="topic10081" msgid="577995777553561437">"ハイブリッド車、代替燃料車"</string>
+    <string name="topic10082" msgid="9109129029552185357">"高級車"</string>
+    <string name="topic10083" msgid="2403537768530923605">"マイクロカー、小型車"</string>
+    <string name="topic10084" msgid="8422281545992763598">"オートバイ"</string>
+    <string name="topic10085" msgid="8083861494180925476">"オフロード車"</string>
+    <string name="topic10086" msgid="7643969175312645412">"ピックアップ トラック"</string>
+    <string name="topic10087" msgid="2731154517409527341">"スクーター、モペッド"</string>
+    <string name="topic10088" msgid="3252737061574829966">"セダン"</string>
+    <string name="topic10089" msgid="5296300331452192377">"ステーション ワゴン"</string>
+    <string name="topic10090" msgid="3420243367635085619">"SUV、クロスオーバー"</string>
+    <string name="topic10091" msgid="1855954783407839458">"クロスオーバー"</string>
+    <string name="topic10092" msgid="3748598147176261608">"バン、ミニバン"</string>
+    <string name="topic10093" msgid="4427294934418177183">"レッカー、ロードサービス"</string>
+    <string name="topic10094" msgid="2377839138225502290">"交通安全"</string>
+    <string name="topic10095" msgid="84682415803421329">"自動車部品、アクセサリ"</string>
+    <string name="topic10096" msgid="8920802377602814882">"自動車修理、メンテナンス"</string>
+    <string name="topic10097" msgid="1171171183482751335">"自動車販売"</string>
+    <string name="topic10098" msgid="2079957196489295765">"中古車"</string>
+    <string name="topic10099" msgid="8979943848539150620">"モーターショー、オートショー"</string>
+    <string name="topic10100" msgid="4197262693717174623">"美容、フィットネス"</string>
+    <string name="topic10101" msgid="7348658588841917441">"ボディアート"</string>
+    <string name="topic10102" msgid="3638722720071045006">"フェイス、ボディケア"</string>
+    <string name="topic10103" msgid="7505482487921433611">"制汗剤"</string>
+    <string name="topic10104" msgid="6370054283334591202">"バス、ボディ商品"</string>
+    <string name="topic10105" msgid="1191169056931411220">"クリーン ビューティー"</string>
+    <string name="topic10106" msgid="3928455104996075953">"メイク、化粧品"</string>
+    <string name="topic10107" msgid="3798923390765338227">"ネイルケア商品"</string>
+    <string name="topic10108" msgid="577259588028933025">"香水、香料"</string>
+    <string name="topic10109" msgid="2191558742276310934">"かみそり、シェーバー"</string>
+    <string name="topic10110" msgid="4668859731019222824">"ファッション、スタイル"</string>
+    <string name="topic10111" msgid="8382751996496129758">"フィットネス"</string>
+    <string name="topic10112" msgid="2904455776326272301">"ボディビル"</string>
+    <string name="topic10113" msgid="8931680908070341060">"運動指導、パーソナル トレーニング"</string>
+    <string name="topic10114" msgid="1666144425445242905">"フィットネス商品"</string>
+    <string name="topic10115" msgid="3024886857586781525">"ヘアケア"</string>
+    <string name="topic10116" msgid="763642849903586689">"書籍、文学"</string>
+    <string name="topic10117" msgid="2897295398887355445">"児童文学"</string>
+    <string name="topic10118" msgid="8261966919146004082">"電子書籍"</string>
+    <string name="topic10119" msgid="894448782525835364">"雑誌"</string>
+    <string name="topic10120" msgid="6413553316742475453">"詩"</string>
+    <string name="topic10121" msgid="5743038898774111015">"ビジネス、産業"</string>
+    <string name="topic10122" msgid="9008408720895399838">"広告、マーケティング"</string>
+    <string name="topic10123" msgid="2259134467663515137">"販売"</string>
+    <string name="topic10124" msgid="6342988250432534253">"農業、林業"</string>
+    <string name="topic10125" msgid="4258543381071903891">"食品産業"</string>
+    <string name="topic10126" msgid="7175643869342613083">"自動車産業"</string>
+    <string name="topic10127" msgid="6431712570995680971">"航空産業"</string>
+    <string name="topic10128" msgid="4235280795901477432">"事業運営"</string>
+    <string name="topic10129" msgid="7076722669374577677">"フレックス タイム制"</string>
+    <string name="topic10130" msgid="3611582433482627069">"人材"</string>
+    <string name="topic10131" msgid="1372513307847962621">"営利貸付"</string>
+    <string name="topic10132" msgid="4784716346965522438">"建設、メンテナンス"</string>
+    <string name="topic10133" msgid="7421272318291450977">"土木"</string>
+    <string name="topic10134" msgid="6960637850006318075">"軍需産業"</string>
+    <string name="topic10135" msgid="3682767135401089609">"エネルギー、公益事業"</string>
+    <string name="topic10136" msgid="455894912948558854">"上水道、水処理"</string>
+    <string name="topic10137" msgid="8298610586001250767">"サービス業"</string>
+    <string name="topic10138" msgid="1297997683887620829">"製造"</string>
+    <string name="topic10139" msgid="2881410777083033235">"金属、鉱業"</string>
+    <string name="topic10140" msgid="3210849036014636721">"マルチ商法、ビジネス チャンス"</string>
+    <string name="topic10141" msgid="2209863158714894227">"医薬品、バイオテクノロジー"</string>
+    <string name="topic10142" msgid="5503134498670972397">"印刷、出版"</string>
+    <string name="topic10143" msgid="7443122495469194311">"小売業"</string>
+    <string name="topic10144" msgid="4491152042745513902">"ベンチャー キャピタル"</string>
+    <string name="topic10145" msgid="7181389660165515306">"コンピュータ、電化製品"</string>
+    <string name="topic10146" msgid="5319328674320188177">"コンピュータ周辺機器"</string>
+    <string name="topic10147" msgid="3115360970477190823">"プリンタ"</string>
+    <string name="topic10148" msgid="388392714835039199">"コンピュータ セキュリティ"</string>
+    <string name="topic10149" msgid="8669494095915530311">"ウイルス対策、マルウェア"</string>
+    <string name="topic10150" msgid="7287887356428407082">"ネットワーク セキュリティ"</string>
+    <string name="topic10151" msgid="1896865948857670589">"家電"</string>
+    <string name="topic10152" msgid="2229775287055715130">"カメラ、ビデオカメラ"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS、ナビゲーション"</string>
+    <string name="topic10154" msgid="6865619906648095342">"スマートホーム"</string>
+    <string name="topic10155" msgid="6083736045761149547">"ホームシアター システム"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3、ポータブル メディア プレーヤー"</string>
+    <string name="topic10157" msgid="5681638457846277732">"ウェアラブル技術"</string>
+    <string name="topic10158" msgid="3203453971647354680">"データのバックアップ、復元"</string>
+    <string name="topic10159" msgid="5630430439595766824">"デスクトップ パソコン"</string>
+    <string name="topic10160" msgid="4829448963240629016">"ノートパソコン"</string>
+    <string name="topic10161" msgid="172004201167511870">"ネットワーク"</string>
+    <string name="topic10162" msgid="6091195506695436179">"分散コンピューティング、クラウド コンピューティング"</string>
+    <string name="topic10163" msgid="1151401754761855146">"プログラミング"</string>
+    <string name="topic10164" msgid="9084381711034794904">"ソフトウェア"</string>
+    <string name="topic10165" msgid="7794619191364239903">"オーディオ、音楽ソフトウェア"</string>
+    <string name="topic10166" msgid="8763250476037582784">"ビジネス、生産性ソフトウェア"</string>
+    <string name="topic10167" msgid="2049380875864013534">"カレンダー、スケジュール管理ソフトウェア"</string>
+    <string name="topic10168" msgid="8902187628490964169">"コラボレーション、会議用ソフトウェア"</string>
+    <string name="topic10169" msgid="827557334245484202">"プレゼンテーション ソフトウェア"</string>
+    <string name="topic10170" msgid="9004257492478793528">"表計算ソフトウェア"</string>
+    <string name="topic10171" msgid="7993474143932045967">"文書作成ソフトウェア"</string>
+    <string name="topic10172" msgid="7796145013604839047">"DTP"</string>
+    <string name="topic10173" msgid="2914187257631238849">"フォント"</string>
+    <string name="topic10174" msgid="2115617300581130014">"ダウンロード マネージャー"</string>
+    <string name="topic10175" msgid="5871766754983733443">"フリーウェア、シェアウェア"</string>
+    <string name="topic10176" msgid="4556902534984350353">"グラフィック、アニメーション ソフトウェア"</string>
+    <string name="topic10177" msgid="5020885617411375213">"インテリジェント パーソナル アシスタント"</string>
+    <string name="topic10178" msgid="6156514295355993755">"メディア プレーヤー"</string>
+    <string name="topic10179" msgid="4166560755175055525">"監視ソフトウェア"</string>
+    <string name="topic10180" msgid="1616408866159152420">"オペレーティング システム"</string>
+    <string name="topic10181" msgid="1104637623376778918">"写真、ビデオ ソフトウェア"</string>
+    <string name="topic10182" msgid="4433309778429721885">"写真編集ソフトウェア"</string>
+    <string name="topic10183" msgid="7726225846283601216">"動画編集ソフトウェア"</string>
+    <string name="topic10184" msgid="7666718573841178521">"ユーティリティ ソフトウェア"</string>
+    <string name="topic10185" msgid="7090504131394943791">"ウェブブラウザ"</string>
+    <string name="topic10186" msgid="2894398454040127175">"金融"</string>
+    <string name="topic10187" msgid="3321209590831212269">"会計、監査"</string>
+    <string name="topic10188" msgid="6091864564976149142">"確定申告、税務"</string>
+    <string name="topic10189" msgid="5722909809680931661">"銀行"</string>
+    <string name="topic10190" msgid="4954502185848303449">"送金、振込"</string>
+    <string name="topic10191" msgid="374364159635356705">"クレジット、融資"</string>
+    <string name="topic10192" msgid="4780985034026130257">"クレジット カード"</string>
+    <string name="topic10193" msgid="5010972379907168829">"住宅ローン"</string>
+    <string name="topic10194" msgid="1311944420068992723">"個人ローン"</string>
+    <string name="topic10195" msgid="7554681395283728871">"学生ローン、大学ローン"</string>
+    <string name="topic10196" msgid="1390058955048742733">"財務プランニング、マネジメント"</string>
+    <string name="topic10197" msgid="6999203003544574270">"老後、年金"</string>
+    <string name="topic10198" msgid="1172025416206301419">"資金援助"</string>
+    <string name="topic10199" msgid="2817599683028682473">"資金援助"</string>
+    <string name="topic10200" msgid="4560138974690686847">"保険"</string>
+    <string name="topic10201" msgid="447240478385298875">"自動車保険"</string>
+    <string name="topic10202" msgid="8047136869242553756">"健康保険"</string>
+    <string name="topic10203" msgid="6593194921457271151">"住宅保険"</string>
+    <string name="topic10204" msgid="4634976092969827804">"生命保険"</string>
+    <string name="topic10205" msgid="262581473890356377">"旅行保険"</string>
+    <string name="topic10206" msgid="5534905376642807172">"投資"</string>
+    <string name="topic10207" msgid="2202788132330201137">"商品取引、先物取引"</string>
+    <string name="topic10208" msgid="1250532081213960304">"通貨、為替"</string>
+    <string name="topic10209" msgid="7384658616986998949">"ヘッジファンド"</string>
+    <string name="topic10210" msgid="5646412565978393234">"投資信託"</string>
+    <string name="topic10211" msgid="2001835133812379482">"株式、債券"</string>
+    <string name="topic10212" msgid="2364530251853656532">"フード、ドリンク"</string>
+    <string name="topic10213" msgid="805716705436663130">"料理、レシピ"</string>
+    <string name="topic10214" msgid="726298155737413779">"バーベキュー、グリル"</string>
+    <string name="topic10215" msgid="1502589059550612499">"料理"</string>
+    <string name="topic10216" msgid="7699499757302291329">"ベジタリアン料理"</string>
+    <string name="topic10217" msgid="2160292055279553771">"ビーガン料理"</string>
+    <string name="topic10218" msgid="4090671581843003332">"健康的な食事"</string>
+    <string name="topic10219" msgid="7663946426520362378">"食料品小売業"</string>
+    <string name="topic10220" msgid="4812477283307222367">"ゲーム"</string>
+    <string name="topic10221" msgid="2320959705105050635">"アーケード ゲーム、コインゲーム"</string>
+    <string name="topic10222" msgid="1659423113675232767">"ビリヤード"</string>
+    <string name="topic10223" msgid="3526662148224862522">"ボードゲーム"</string>
+    <string name="topic10224" msgid="8806949357679505576">"チェス、アブストラクト ゲーム"</string>
+    <string name="topic10225" msgid="564207834821286301">"カードゲーム"</string>
+    <string name="topic10226" msgid="6918788605930334066">"トレーディング カード ゲーム"</string>
+    <string name="topic10227" msgid="7011042093822468388">"テレビゲーム、ビデオゲーム"</string>
+    <string name="topic10228" msgid="6883716111007300369">"アクション ゲーム、プラットフォーム ゲーム"</string>
+    <string name="topic10229" msgid="1448569034984381121">"アドベンチャー ゲーム"</string>
+    <string name="topic10230" msgid="3350872631578952799">"カジュアル ゲーム"</string>
+    <string name="topic10231" msgid="405082026972839048">"競技ビデオゲーム"</string>
+    <string name="topic10232" msgid="1839026948327779776">"ドライビング ゲーム、レース ゲーム"</string>
+    <string name="topic10233" msgid="1188186151495453281">"格闘ゲーム"</string>
+    <string name="topic10234" msgid="693433817142162565">"ゲーム関連情報、レビュー"</string>
+    <string name="topic10235" msgid="8703923040923920090">"ビデオゲームの攻略法、裏技"</string>
+    <string name="topic10236" msgid="320145832033080647">"大規模マルチプレーヤー型ゲーム"</string>
+    <string name="topic10237" msgid="5441671482070243974">"音楽ゲーム、ダンスゲーム"</string>
+    <string name="topic10238" msgid="124952008622371505">"サンドボックス ゲーム"</string>
+    <string name="topic10239" msgid="8116373838332949879">"シューティング ゲーム"</string>
+    <string name="topic10240" msgid="429738690314619395">"シミュレーション ゲーム"</string>
+    <string name="topic10241" msgid="6759586807395308444">"経営シミュレーション ゲーム"</string>
+    <string name="topic10242" msgid="6446465880310926504">"都市開発シミュレーション ゲーム"</string>
+    <string name="topic10243" msgid="1900180483768183189">"人生シミュレーション ゲーム"</string>
+    <string name="topic10244" msgid="7177785844550764762">"運転シミュレーション ゲーム"</string>
+    <string name="topic10245" msgid="3479291573578622081">"スポーツゲーム"</string>
+    <string name="topic10246" msgid="1362878793775338590">"スポーツ育成シミュレーション ゲーム"</string>
+    <string name="topic10247" msgid="7167743512938031275">"ストラテジー ゲーム"</string>
+    <string name="topic10248" msgid="279151815457227293">"ビデオゲームの MOD、アドオン"</string>
+    <string name="topic10249" msgid="631580828608894782">"学習ゲーム"</string>
+    <string name="topic10250" msgid="8788829601095126859">"家族向けゲーム、アクティビティ"</string>
+    <string name="topic10251" msgid="4289374662760140512">"お絵かき、塗り絵"</string>
+    <string name="topic10252" msgid="3704663832286223948">"着せ替えゲーム、ファッション ゲーム"</string>
+    <string name="topic10253" msgid="385499297969826942">"パズル、頭の体操"</string>
+    <string name="topic10254" msgid="3407688580587226586">"ロールプレイング ゲーム"</string>
+    <string name="topic10255" msgid="5123382868307815261">"卓球"</string>
+    <string name="topic10256" msgid="3732657908002298514">"タイル並べ"</string>
+    <string name="topic10257" msgid="1563737702727245186">"ワードゲーム"</string>
+    <string name="topic10258" msgid="3098024313656910144">"趣味、レジャー"</string>
+    <string name="topic10259" msgid="4943419230459875946">"記念日"</string>
+    <string name="topic10260" msgid="8082531986100775125">"誕生日"</string>
+    <string name="topic10261" msgid="5848226607755547256">"ダイビング、水中アクティビティ"</string>
+    <string name="topic10262" msgid="7200864040450019529">"手芸"</string>
+    <string name="topic10263" msgid="361345691023794788">"アウトドア"</string>
+    <string name="topic10264" msgid="1786205972094583167">"釣り"</string>
+    <string name="topic10265" msgid="2823178926106728570">"狩猟、シューティング"</string>
+    <string name="topic10266" msgid="8850275614185862002">"ペイントボール"</string>
+    <string name="topic10267" msgid="3722262029580639019">"ラジコン、模型"</string>
+    <string name="topic10268" msgid="3854589101176380228">"ウェディング"</string>
+    <string name="topic10269" msgid="6274589872519767859">"家庭、園芸"</string>
+    <string name="topic10270" msgid="6333380157855869252">"ガーデニング"</string>
+    <string name="topic10271" msgid="7654177637864012480">"室内装飾、内装"</string>
+    <string name="topic10272" msgid="3679206633003573176">"生活家電用品"</string>
+    <string name="topic10273" msgid="7964372799408781017">"リフォーム"</string>
+    <string name="topic10274" msgid="7438404923297950713">"ホーム セキュリティ"</string>
+    <string name="topic10275" msgid="682064062059687444">"家庭用品"</string>
+    <string name="topic10276" msgid="6967461678618700017">"造園設計"</string>
+    <string name="topic10277" msgid="5888643119731566320">"インターネット、通信"</string>
+    <string name="topic10278" msgid="1736187026108921963">"メール、メッセージ"</string>
+    <string name="topic10279" msgid="9034205050642228743">"メール"</string>
+    <string name="topic10280" msgid="3168053876492638177">"テキスト メッセージ、インスタント メッセージ"</string>
+    <string name="topic10281" msgid="582764575763317221">"ボイスチャット、ビデオチャット"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"電話サービス プロバイダ"</string>
+    <string name="topic10284" msgid="8298837964949288587">"着メロ、モバイルテーマ"</string>
+    <string name="topic10285" msgid="5409600379647005862">"検索エンジン"</string>
+    <string name="topic10286" msgid="5120434472606081895">"スマートフォン"</string>
+    <string name="topic10287" msgid="3350459436622898201">"テレビ会議"</string>
+    <string name="topic10288" msgid="4197272921112835157">"ウェブアプリ、オンライン ツール"</string>
+    <string name="topic10289" msgid="5361961713593805925">"ウェブサービス"</string>
+    <string name="topic10290" msgid="1030690821237195132">"クラウド ストレージ"</string>
+    <string name="topic10291" msgid="4049265350889304495">"ウェブデザイン、開発"</string>
+    <string name="topic10292" msgid="3386329227033265361">"ウェブ ホスティング"</string>
+    <string name="topic10293" msgid="5737650187548034975">"仕事、教育"</string>
+    <string name="topic10294" msgid="4134169605040294646">"教育"</string>
+    <string name="topic10295" msgid="331240908257602211">"学術会議、学術出版"</string>
+    <string name="topic10296" msgid="8588303480683748067">"短大、大学"</string>
+    <string name="topic10297" msgid="6374270931732387420">"遠隔学習"</string>
+    <string name="topic10298" msgid="1588575102152049123">"幼児教育"</string>
+    <string name="topic10299" msgid="2437152839161363820">"保育園"</string>
+    <string name="topic10300" msgid="1716635660730089544">"ホームスクーリング"</string>
+    <string name="topic10301" msgid="7986927377838820550">"共通テスト、入学試験"</string>
+    <string name="topic10302" msgid="5998774512114172286">"教育用教材、資料"</string>
+    <string name="topic10303" msgid="4585533807035591476">"職業訓練、生涯学習"</string>
+    <string name="topic10304" msgid="7882895278855442691">"仕事"</string>
+    <string name="topic10305" msgid="5595618454946980801">"キャリア設計、プランニング"</string>
+    <string name="topic10306" msgid="2721676636117931598">"求人情報"</string>
+    <string name="topic10307" msgid="1718396745825058084">"法律、行政"</string>
+    <string name="topic10308" msgid="5324738087341048710">"犯罪、裁判"</string>
+    <string name="topic10309" msgid="6295029954614836413">"法律"</string>
+    <string name="topic10310" msgid="8422735354338745855">"司法サービス"</string>
+    <string name="topic10311" msgid="1230675855406761762">"ニュース"</string>
+    <string name="topic10312" msgid="6827799049548932141">"経済ニュース"</string>
+    <string name="topic10313" msgid="2329065661493302739">"ローカル ニュース"</string>
+    <string name="topic10314" msgid="8901835561696055036">"合併、買収"</string>
+    <string name="topic10315" msgid="5854338074460033131">"新聞"</string>
+    <string name="topic10316" msgid="5102748655058857401">"政治"</string>
+    <string name="topic10317" msgid="888696185673599406">"スポーツ ニュース"</string>
+    <string name="topic10318" msgid="8287583657423629224">"天気"</string>
+    <string name="topic10319" msgid="8709805241522664825">"世界のニュース"</string>
+    <string name="topic10320" msgid="2512907250610386132">"オンライン コミュニティ"</string>
+    <string name="topic10321" msgid="7457693963027299711">"クリップアート、アニメーション GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"出会い"</string>
+    <string name="topic10323" msgid="6172125921314846923">"フィード アグリゲーション、ソーシャル ブックマーク"</string>
+    <string name="topic10324" msgid="6723820054750378285">"ファイル共有、ホスティング"</string>
+    <string name="topic10325" msgid="916412844647169263">"フォーラム、チャット プロバイダ"</string>
+    <string name="topic10326" msgid="9167525727089128814">"ミニブログ"</string>
+    <string name="topic10327" msgid="3594488251348215868">"写真、動画の共有"</string>
+    <string name="topic10328" msgid="5431605505487660527">"写真、画像の共有"</string>
+    <string name="topic10329" msgid="2949598007790820705">"動画の共有"</string>
+    <string name="topic10330" msgid="4210169032750748349">"スキン"</string>
+    <string name="topic10331" msgid="9148081156366912077">"ソーシャル ネットワーク アプリ、アドオン"</string>
+    <string name="topic10332" msgid="1812925257476776861">"ソーシャル ネットワーク"</string>
+    <string name="topic10333" msgid="5793613565022694596">"人々、社会"</string>
+    <string name="topic10334" msgid="2146426680680125392">"家族、人間関係"</string>
+    <string name="topic10335" msgid="8268284709343326034">"先祖、家系"</string>
+    <string name="topic10336" msgid="360328903013424569">"結婚"</string>
+    <string name="topic10337" msgid="6450553850860149046">"子育て、育児"</string>
+    <string name="topic10338" msgid="3722340462966505867">"養子縁組"</string>
+    <string name="topic10339" msgid="8126807339140404862">"乳児、幼児"</string>
+    <string name="topic10340" msgid="259457452971577855">"子どものインターネット セーフティ"</string>
+    <string name="topic10341" msgid="9138253009638520984">"ロマンス"</string>
+    <string name="topic10342" msgid="3272595442607863965">"SF、ファンタジー"</string>
+    <string name="topic10343" msgid="7170264926050881882">"ペット、動物"</string>
+    <string name="topic10344" msgid="6956876217624431965">"ペットフード、ペットケア用品"</string>
+    <string name="topic10345" msgid="8114717708270133007">"ペット"</string>
+    <string name="topic10346" msgid="3632598362312784148">"鳥"</string>
+    <string name="topic10347" msgid="1650823938622414225">"猫"</string>
+    <string name="topic10348" msgid="570783769757187957">"犬"</string>
+    <string name="topic10349" msgid="6069145390145874420">"魚、水槽"</string>
+    <string name="topic10350" msgid="7438757598978766290">"爬虫類、両生類"</string>
+    <string name="topic10351" msgid="2065353497413573236">"獣医"</string>
+    <string name="topic10352" msgid="2787610393079898221">"不動産"</string>
+    <string name="topic10353" msgid="230887584509968233">"用地、土地"</string>
+    <string name="topic10354" msgid="2552020152740480445">"タイムシェア、別荘"</string>
+    <string name="topic10355" msgid="3803439663410756731">"リファレンス"</string>
+    <string name="topic10356" msgid="1282534977124646845">"電話帳、企業リスト"</string>
+    <string name="topic10357" msgid="1506615046588912749">"一般資料"</string>
+    <string name="topic10358" msgid="4670198218200218886">"計算機、参照ツール"</string>
+    <string name="topic10359" msgid="4422164571631604534">"辞書、百科事典"</string>
+    <string name="topic10360" msgid="4777419229443131291">"教育リソース"</string>
+    <string name="topic10361" msgid="2911719878674200735">"ハウツー"</string>
+    <string name="topic10362" msgid="8045493635242789203">"時計、カレンダー"</string>
+    <string name="topic10363" msgid="3433488479827868110">"言語資料"</string>
+    <string name="topic10364" msgid="7272051128606899896">"外国語学習"</string>
+    <string name="topic10365" msgid="1638685557205583094">"翻訳ツール、資料"</string>
+    <string name="topic10366" msgid="5972643213789684860">"地図"</string>
+    <string name="topic10367" msgid="4693720215957988260">"科学"</string>
+    <string name="topic10368" msgid="7342229547845270303">"拡張現実、バーチャル リアリティ"</string>
+    <string name="topic10369" msgid="7623948477078242419">"生物科学"</string>
+    <string name="topic10370" msgid="1849957115993781053">"遺伝学"</string>
+    <string name="topic10371" msgid="5801324530787262649">"化学"</string>
+    <string name="topic10372" msgid="7043359432633182804">"生態学、環境"</string>
+    <string name="topic10373" msgid="1506052968197311461">"地質学"</string>
+    <string name="topic10374" msgid="5081919530597944716">"機械学習、人工知能"</string>
+    <string name="topic10375" msgid="7880740430968664319">"数学"</string>
+    <string name="topic10376" msgid="8685831276841267222">"物理学"</string>
+    <string name="topic10377" msgid="8162056465305020784">"ロボット工学"</string>
+    <string name="topic10378" msgid="6048245367747141920">"ショッピング"</string>
+    <string name="topic10379" msgid="3561154473861357708">"アンティーク、コレクション"</string>
+    <string name="topic10380" msgid="3001377458860648561">"アパレル"</string>
+    <string name="topic10381" msgid="1050316146323573972">"子ども服"</string>
+    <string name="topic10382" msgid="1131102032733237256">"衣装"</string>
+    <string name="topic10383" msgid="2953255538603038999">"紳士服"</string>
+    <string name="topic10384" msgid="5208244211687593882">"婦人服"</string>
+    <string name="topic10385" msgid="3335546606796359244">"個人広告"</string>
+    <string name="topic10386" msgid="6517746237788385147">"消費者資源"</string>
+    <string name="topic10387" msgid="8607123472737800846">"クーポン、割引サービス"</string>
+    <string name="topic10388" msgid="1641030315133068943">"ポイントカード、ポイント システム"</string>
+    <string name="topic10389" msgid="8196319126164726646">"テクニカル サポート、修理"</string>
+    <string name="topic10390" msgid="1361120031667629697">"花"</string>
+    <string name="topic10391" msgid="9119667040520612849">"グリーティング カード"</string>
+    <string name="topic10392" msgid="6877484311325584713">"パーティ、イベント用品"</string>
+    <string name="topic10393" msgid="7537523054091079737">"ショッピング総合サイト"</string>
+    <string name="topic10394" msgid="5321887056912883029">"スポーツ"</string>
+    <string name="topic10395" msgid="8799420706106672054">"アメリカン フットボール"</string>
+    <string name="topic10396" msgid="2048632371307841946">"オーストラリアン フットボール"</string>
+    <string name="topic10397" msgid="653991203228840785">"自動車レース"</string>
+    <string name="topic10398" msgid="5412613151176189985">"野球"</string>
+    <string name="topic10399" msgid="2009283546036614639">"バスケットボール"</string>
+    <string name="topic10400" msgid="5034305624605462351">"ボーリング"</string>
+    <string name="topic10401" msgid="26807857115228330">"ボクシング"</string>
+    <string name="topic10402" msgid="6218088033939518718">"チアリーディング"</string>
+    <string name="topic10403" msgid="3030076002966858939">"大学スポーツ"</string>
+    <string name="topic10404" msgid="4018137098149287073">"クリケット"</string>
+    <string name="topic10405" msgid="9036991434485987285">"サイクリング"</string>
+    <string name="topic10406" msgid="7185471418082005024">"乗馬"</string>
+    <string name="topic10407" msgid="316266982792700993">"エクストリーム スポーツ"</string>
+    <string name="topic10408" msgid="2571246233605408148">"登山"</string>
+    <string name="topic10409" msgid="1182462921341224299">"ファンタジー スポーツ"</string>
+    <string name="topic10410" msgid="7501849152641094734">"ゴルフ"</string>
+    <string name="topic10411" msgid="6678464213609789748">"体操"</string>
+    <string name="topic10412" msgid="335770351079973128">"ホッケー"</string>
+    <string name="topic10413" msgid="416366556259783701">"アイススケート"</string>
+    <string name="topic10414" msgid="6909439381556710013">"格闘技"</string>
+    <string name="topic10415" msgid="4535534983750709163">"オートバイ レース"</string>
+    <string name="topic10416" msgid="1687911875093638923">"オリンピック"</string>
+    <string name="topic10417" msgid="2735521554483279111">"ラグビー"</string>
+    <string name="topic10418" msgid="8763139538107186007">"ランニング、ウォーキング"</string>
+    <string name="topic10419" msgid="979581105119036716">"スキー、スノーボード"</string>
+    <string name="topic10420" msgid="5256622299392338856">"サッカー"</string>
+    <string name="topic10421" msgid="2654561933626679644">"サーフィン"</string>
+    <string name="topic10422" msgid="978920114358054206">"水泳"</string>
+    <string name="topic10423" msgid="4476847046369253369">"テニス"</string>
+    <string name="topic10424" msgid="6170255954653344524">"陸上競技"</string>
+    <string name="topic10425" msgid="3357509018485364691">"バレーボール"</string>
+    <string name="topic10426" msgid="3761026182327229458">"レスリング"</string>
+    <string name="topic10427" msgid="3748043578314103947">"旅行、交通"</string>
+    <string name="topic10428" msgid="7483002505617756861">"冒険旅行"</string>
+    <string name="topic10429" msgid="8091163959414149724">"空の旅"</string>
+    <string name="topic10430" msgid="1917556952821193760">"出張旅行"</string>
+    <string name="topic10431" msgid="7980462767288577734">"レンタカー"</string>
+    <string name="topic10432" msgid="4266685292456713522">"クルーズ、チャーター"</string>
+    <string name="topic10433" msgid="5001290528529256942">"家族旅行"</string>
+    <string name="topic10434" msgid="6310190021663379686">"ハネムーン、カップル向け旅行"</string>
+    <string name="topic10435" msgid="8897799078890998992">"ホテル、宿泊"</string>
+    <string name="topic10436" msgid="6778700611322666596">"長距離バス、鉄道"</string>
+    <string name="topic10437" msgid="4764816005841382091">"低価格、直前予約可能な旅行サービス"</string>
+    <string name="topic10438" msgid="1305380730693546021">"旅行バッグ、旅行用品"</string>
+    <string name="topic10439" msgid="7731122187851230543">"観光地"</string>
+    <string name="topic10440" msgid="8071652555461175118">"ビーチ、島"</string>
+    <string name="topic10441" msgid="7182533767302670894">"公園、庭園"</string>
+    <string name="topic10442" msgid="6462141176894347324">"テーマパーク"</string>
+    <string name="topic10443" msgid="7234914754801803285">"動物園"</string>
+    <string name="topic10444" msgid="4322315510441782805">"乗換案内、交通情報"</string>
+    <string name="topic10445" msgid="1182221450749409373">"旅行代理店、旅行サービス"</string>
+    <string name="topic10446" msgid="3104259094878772333">"旅行ガイド、旅行記"</string>
+</resources>

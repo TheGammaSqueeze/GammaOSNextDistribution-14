@@ -1,0 +1,5074 @@
+{
+	"symbols" : 
+	{
+		"ABinderProcess_handlePolledCommands" : 
+		{
+			"type" : "func ABinderProcess_handlePolledCommands"
+		},
+		"ABinderProcess_isThreadPoolStarted" : 
+		{
+			"type" : "func ABinderProcess_isThreadPoolStarted"
+		},
+		"ABinderProcess_joinThreadPool" : 
+		{
+			"type" : "func ABinderProcess_joinThreadPool"
+		},
+		"ABinderProcess_setThreadPoolMaxThreadCount" : 
+		{
+			"type" : "func ABinderProcess_setThreadPoolMaxThreadCount"
+		},
+		"ABinderProcess_setupPolling" : 
+		{
+			"type" : "func ABinderProcess_setupPolling"
+		},
+		"ABinderProcess_startThreadPool" : 
+		{
+			"type" : "func ABinderProcess_startThreadPool"
+		},
+		"AIBinder_Class_define" : 
+		{
+			"type" : "func AIBinder_Class_define"
+		},
+		"AIBinder_Class_disableInterfaceTokenHeader" : 
+		{
+			"type" : "func AIBinder_Class_disableInterfaceTokenHeader"
+		},
+		"AIBinder_Class_getDescriptor" : 
+		{
+			"type" : "func AIBinder_Class_getDescriptor"
+		},
+		"AIBinder_Class_setHandleShellCommand" : 
+		{
+			"type" : "func AIBinder_Class_setHandleShellCommand"
+		},
+		"AIBinder_Class_setOnDump" : 
+		{
+			"type" : "func AIBinder_Class_setOnDump"
+		},
+		"AIBinder_DeathRecipient_delete" : 
+		{
+			"type" : "func AIBinder_DeathRecipient_delete"
+		},
+		"AIBinder_DeathRecipient_new" : 
+		{
+			"type" : "func AIBinder_DeathRecipient_new"
+		},
+		"AIBinder_DeathRecipient_setOnUnlinked" : 
+		{
+			"type" : "func AIBinder_DeathRecipient_setOnUnlinked"
+		},
+		"AIBinder_Weak_clone" : 
+		{
+			"type" : "func AIBinder_Weak_clone"
+		},
+		"AIBinder_Weak_delete" : 
+		{
+			"type" : "func AIBinder_Weak_delete"
+		},
+		"AIBinder_Weak_lt" : 
+		{
+			"type" : "func AIBinder_Weak_lt"
+		},
+		"AIBinder_Weak_new" : 
+		{
+			"type" : "func AIBinder_Weak_new"
+		},
+		"AIBinder_Weak_promote" : 
+		{
+			"type" : "func AIBinder_Weak_promote"
+		},
+		"AIBinder_associateClass" : 
+		{
+			"type" : "func AIBinder_associateClass"
+		},
+		"AIBinder_debugGetRefCount" : 
+		{
+			"type" : "func AIBinder_debugGetRefCount"
+		},
+		"AIBinder_decStrong" : 
+		{
+			"type" : "func AIBinder_decStrong"
+		},
+		"AIBinder_dump" : 
+		{
+			"type" : "func AIBinder_dump"
+		},
+		"AIBinder_forceDowngradeToSystemStability" : 
+		{
+			"type" : "func AIBinder_forceDowngradeToSystemStability"
+		},
+		"AIBinder_forceDowngradeToVendorStability" : 
+		{
+			"type" : "func AIBinder_forceDowngradeToVendorStability"
+		},
+		"AIBinder_fromJavaBinder" : 
+		{
+			"type" : "func AIBinder_fromJavaBinder"
+		},
+		"AIBinder_getCallingPid" : 
+		{
+			"type" : "func AIBinder_getCallingPid"
+		},
+		"AIBinder_getCallingSid" : 
+		{
+			"type" : "func AIBinder_getCallingSid"
+		},
+		"AIBinder_getCallingUid" : 
+		{
+			"type" : "func AIBinder_getCallingUid"
+		},
+		"AIBinder_getClass" : 
+		{
+			"type" : "func AIBinder_getClass"
+		},
+		"AIBinder_getExtension" : 
+		{
+			"type" : "func AIBinder_getExtension"
+		},
+		"AIBinder_getUserData" : 
+		{
+			"type" : "func AIBinder_getUserData"
+		},
+		"AIBinder_incStrong" : 
+		{
+			"type" : "func AIBinder_incStrong"
+		},
+		"AIBinder_isAlive" : 
+		{
+			"type" : "func AIBinder_isAlive"
+		},
+		"AIBinder_isHandlingTransaction" : 
+		{
+			"type" : "func AIBinder_isHandlingTransaction"
+		},
+		"AIBinder_isRemote" : 
+		{
+			"type" : "func AIBinder_isRemote"
+		},
+		"AIBinder_linkToDeath" : 
+		{
+			"type" : "func AIBinder_linkToDeath"
+		},
+		"AIBinder_lt" : 
+		{
+			"type" : "func AIBinder_lt"
+		},
+		"AIBinder_markSystemStability" : 
+		{
+			"type" : "func AIBinder_markSystemStability"
+		},
+		"AIBinder_markVendorStability" : 
+		{
+			"type" : "func AIBinder_markVendorStability"
+		},
+		"AIBinder_markVintfStability" : 
+		{
+			"type" : "func AIBinder_markVintfStability"
+		},
+		"AIBinder_new" : 
+		{
+			"type" : "func AIBinder_new"
+		},
+		"AIBinder_ping" : 
+		{
+			"type" : "func AIBinder_ping"
+		},
+		"AIBinder_prepareTransaction" : 
+		{
+			"type" : "func AIBinder_prepareTransaction"
+		},
+		"AIBinder_setExtension" : 
+		{
+			"type" : "func AIBinder_setExtension"
+		},
+		"AIBinder_setInheritRt" : 
+		{
+			"type" : "func AIBinder_setInheritRt"
+		},
+		"AIBinder_setMinSchedulerPolicy" : 
+		{
+			"type" : "func AIBinder_setMinSchedulerPolicy"
+		},
+		"AIBinder_setRequestingSid" : 
+		{
+			"type" : "func AIBinder_setRequestingSid"
+		},
+		"AIBinder_toJavaBinder" : 
+		{
+			"type" : "func AIBinder_toJavaBinder"
+		},
+		"AIBinder_transact" : 
+		{
+			"type" : "func AIBinder_transact"
+		},
+		"AIBinder_unlinkToDeath" : 
+		{
+			"type" : "func AIBinder_unlinkToDeath"
+		},
+		"AParcel_appendFrom" : 
+		{
+			"type" : "func AParcel_appendFrom"
+		},
+		"AParcel_create" : 
+		{
+			"type" : "func AParcel_create"
+		},
+		"AParcel_delete" : 
+		{
+			"type" : "func AParcel_delete"
+		},
+		"AParcel_fromJavaParcel" : 
+		{
+			"type" : "func AParcel_fromJavaParcel"
+		},
+		"AParcel_getAllowFds" : 
+		{
+			"type" : "func AParcel_getAllowFds"
+		},
+		"AParcel_getDataPosition" : 
+		{
+			"type" : "func AParcel_getDataPosition"
+		},
+		"AParcel_getDataSize" : 
+		{
+			"type" : "func AParcel_getDataSize"
+		},
+		"AParcel_markSensitive" : 
+		{
+			"type" : "func AParcel_markSensitive"
+		},
+		"AParcel_marshal" : 
+		{
+			"type" : "func AParcel_marshal"
+		},
+		"AParcel_readBool" : 
+		{
+			"type" : "func AParcel_readBool"
+		},
+		"AParcel_readBoolArray" : 
+		{
+			"type" : "func AParcel_readBoolArray"
+		},
+		"AParcel_readByte" : 
+		{
+			"type" : "func AParcel_readByte"
+		},
+		"AParcel_readByteArray" : 
+		{
+			"type" : "func AParcel_readByteArray"
+		},
+		"AParcel_readChar" : 
+		{
+			"type" : "func AParcel_readChar"
+		},
+		"AParcel_readCharArray" : 
+		{
+			"type" : "func AParcel_readCharArray"
+		},
+		"AParcel_readDouble" : 
+		{
+			"type" : "func AParcel_readDouble"
+		},
+		"AParcel_readDoubleArray" : 
+		{
+			"type" : "func AParcel_readDoubleArray"
+		},
+		"AParcel_readFloat" : 
+		{
+			"type" : "func AParcel_readFloat"
+		},
+		"AParcel_readFloatArray" : 
+		{
+			"type" : "func AParcel_readFloatArray"
+		},
+		"AParcel_readInt32" : 
+		{
+			"type" : "func AParcel_readInt32"
+		},
+		"AParcel_readInt32Array" : 
+		{
+			"type" : "func AParcel_readInt32Array"
+		},
+		"AParcel_readInt64" : 
+		{
+			"type" : "func AParcel_readInt64"
+		},
+		"AParcel_readInt64Array" : 
+		{
+			"type" : "func AParcel_readInt64Array"
+		},
+		"AParcel_readParcelFileDescriptor" : 
+		{
+			"type" : "func AParcel_readParcelFileDescriptor"
+		},
+		"AParcel_readParcelableArray" : 
+		{
+			"type" : "func AParcel_readParcelableArray"
+		},
+		"AParcel_readStatusHeader" : 
+		{
+			"type" : "func AParcel_readStatusHeader"
+		},
+		"AParcel_readString" : 
+		{
+			"type" : "func AParcel_readString"
+		},
+		"AParcel_readStringArray" : 
+		{
+			"type" : "func AParcel_readStringArray"
+		},
+		"AParcel_readStrongBinder" : 
+		{
+			"type" : "func AParcel_readStrongBinder"
+		},
+		"AParcel_readUint32" : 
+		{
+			"type" : "func AParcel_readUint32"
+		},
+		"AParcel_readUint32Array" : 
+		{
+			"type" : "func AParcel_readUint32Array"
+		},
+		"AParcel_readUint64" : 
+		{
+			"type" : "func AParcel_readUint64"
+		},
+		"AParcel_readUint64Array" : 
+		{
+			"type" : "func AParcel_readUint64Array"
+		},
+		"AParcel_reset" : 
+		{
+			"type" : "func AParcel_reset"
+		},
+		"AParcel_setDataPosition" : 
+		{
+			"type" : "func AParcel_setDataPosition"
+		},
+		"AParcel_unmarshal" : 
+		{
+			"type" : "func AParcel_unmarshal"
+		},
+		"AParcel_writeBool" : 
+		{
+			"type" : "func AParcel_writeBool"
+		},
+		"AParcel_writeBoolArray" : 
+		{
+			"type" : "func AParcel_writeBoolArray"
+		},
+		"AParcel_writeByte" : 
+		{
+			"type" : "func AParcel_writeByte"
+		},
+		"AParcel_writeByteArray" : 
+		{
+			"type" : "func AParcel_writeByteArray"
+		},
+		"AParcel_writeChar" : 
+		{
+			"type" : "func AParcel_writeChar"
+		},
+		"AParcel_writeCharArray" : 
+		{
+			"type" : "func AParcel_writeCharArray"
+		},
+		"AParcel_writeDouble" : 
+		{
+			"type" : "func AParcel_writeDouble"
+		},
+		"AParcel_writeDoubleArray" : 
+		{
+			"type" : "func AParcel_writeDoubleArray"
+		},
+		"AParcel_writeFloat" : 
+		{
+			"type" : "func AParcel_writeFloat"
+		},
+		"AParcel_writeFloatArray" : 
+		{
+			"type" : "func AParcel_writeFloatArray"
+		},
+		"AParcel_writeInt32" : 
+		{
+			"type" : "func AParcel_writeInt32"
+		},
+		"AParcel_writeInt32Array" : 
+		{
+			"type" : "func AParcel_writeInt32Array"
+		},
+		"AParcel_writeInt64" : 
+		{
+			"type" : "func AParcel_writeInt64"
+		},
+		"AParcel_writeInt64Array" : 
+		{
+			"type" : "func AParcel_writeInt64Array"
+		},
+		"AParcel_writeParcelFileDescriptor" : 
+		{
+			"type" : "func AParcel_writeParcelFileDescriptor"
+		},
+		"AParcel_writeParcelableArray" : 
+		{
+			"type" : "func AParcel_writeParcelableArray"
+		},
+		"AParcel_writeStatusHeader" : 
+		{
+			"type" : "func AParcel_writeStatusHeader"
+		},
+		"AParcel_writeString" : 
+		{
+			"type" : "func AParcel_writeString"
+		},
+		"AParcel_writeStringArray" : 
+		{
+			"type" : "func AParcel_writeStringArray"
+		},
+		"AParcel_writeStrongBinder" : 
+		{
+			"type" : "func AParcel_writeStrongBinder"
+		},
+		"AParcel_writeUint32" : 
+		{
+			"type" : "func AParcel_writeUint32"
+		},
+		"AParcel_writeUint32Array" : 
+		{
+			"type" : "func AParcel_writeUint32Array"
+		},
+		"AParcel_writeUint64" : 
+		{
+			"type" : "func AParcel_writeUint64"
+		},
+		"AParcel_writeUint64Array" : 
+		{
+			"type" : "func AParcel_writeUint64Array"
+		},
+		"APersistableBundle_delete" : 
+		{
+			"type" : "func APersistableBundle_delete"
+		},
+		"APersistableBundle_dup" : 
+		{
+			"type" : "func APersistableBundle_dup"
+		},
+		"APersistableBundle_erase" : 
+		{
+			"type" : "func APersistableBundle_erase"
+		},
+		"APersistableBundle_getBoolean" : 
+		{
+			"type" : "func APersistableBundle_getBoolean"
+		},
+		"APersistableBundle_getBooleanKeys" : 
+		{
+			"type" : "func APersistableBundle_getBooleanKeys"
+		},
+		"APersistableBundle_getBooleanVector" : 
+		{
+			"type" : "func APersistableBundle_getBooleanVector"
+		},
+		"APersistableBundle_getBooleanVectorKeys" : 
+		{
+			"type" : "func APersistableBundle_getBooleanVectorKeys"
+		},
+		"APersistableBundle_getDouble" : 
+		{
+			"type" : "func APersistableBundle_getDouble"
+		},
+		"APersistableBundle_getDoubleKeys" : 
+		{
+			"type" : "func APersistableBundle_getDoubleKeys"
+		},
+		"APersistableBundle_getDoubleVector" : 
+		{
+			"type" : "func APersistableBundle_getDoubleVector"
+		},
+		"APersistableBundle_getDoubleVectorKeys" : 
+		{
+			"type" : "func APersistableBundle_getDoubleVectorKeys"
+		},
+		"APersistableBundle_getInt" : 
+		{
+			"type" : "func APersistableBundle_getInt"
+		},
+		"APersistableBundle_getIntKeys" : 
+		{
+			"type" : "func APersistableBundle_getIntKeys"
+		},
+		"APersistableBundle_getIntVector" : 
+		{
+			"type" : "func APersistableBundle_getIntVector"
+		},
+		"APersistableBundle_getIntVectorKeys" : 
+		{
+			"type" : "func APersistableBundle_getIntVectorKeys"
+		},
+		"APersistableBundle_getLong" : 
+		{
+			"type" : "func APersistableBundle_getLong"
+		},
+		"APersistableBundle_getLongKeys" : 
+		{
+			"type" : "func APersistableBundle_getLongKeys"
+		},
+		"APersistableBundle_getLongVector" : 
+		{
+			"type" : "func APersistableBundle_getLongVector"
+		},
+		"APersistableBundle_getLongVectorKeys" : 
+		{
+			"type" : "func APersistableBundle_getLongVectorKeys"
+		},
+		"APersistableBundle_getPersistableBundle" : 
+		{
+			"type" : "func APersistableBundle_getPersistableBundle"
+		},
+		"APersistableBundle_getPersistableBundleKeys" : 
+		{
+			"type" : "func APersistableBundle_getPersistableBundleKeys"
+		},
+		"APersistableBundle_getString" : 
+		{
+			"type" : "func APersistableBundle_getString"
+		},
+		"APersistableBundle_getStringKeys" : 
+		{
+			"type" : "func APersistableBundle_getStringKeys"
+		},
+		"APersistableBundle_getStringVector" : 
+		{
+			"type" : "func APersistableBundle_getStringVector"
+		},
+		"APersistableBundle_getStringVectorKeys" : 
+		{
+			"type" : "func APersistableBundle_getStringVectorKeys"
+		},
+		"APersistableBundle_isEqual" : 
+		{
+			"type" : "func APersistableBundle_isEqual"
+		},
+		"APersistableBundle_new" : 
+		{
+			"type" : "func APersistableBundle_new"
+		},
+		"APersistableBundle_putBoolean" : 
+		{
+			"type" : "func APersistableBundle_putBoolean"
+		},
+		"APersistableBundle_putBooleanVector" : 
+		{
+			"type" : "func APersistableBundle_putBooleanVector"
+		},
+		"APersistableBundle_putDouble" : 
+		{
+			"type" : "func APersistableBundle_putDouble"
+		},
+		"APersistableBundle_putDoubleVector" : 
+		{
+			"type" : "func APersistableBundle_putDoubleVector"
+		},
+		"APersistableBundle_putInt" : 
+		{
+			"type" : "func APersistableBundle_putInt"
+		},
+		"APersistableBundle_putIntVector" : 
+		{
+			"type" : "func APersistableBundle_putIntVector"
+		},
+		"APersistableBundle_putLong" : 
+		{
+			"type" : "func APersistableBundle_putLong"
+		},
+		"APersistableBundle_putLongVector" : 
+		{
+			"type" : "func APersistableBundle_putLongVector"
+		},
+		"APersistableBundle_putPersistableBundle" : 
+		{
+			"type" : "func APersistableBundle_putPersistableBundle"
+		},
+		"APersistableBundle_putString" : 
+		{
+			"type" : "func APersistableBundle_putString"
+		},
+		"APersistableBundle_putStringVector" : 
+		{
+			"type" : "func APersistableBundle_putStringVector"
+		},
+		"APersistableBundle_readFromParcel" : 
+		{
+			"type" : "func APersistableBundle_readFromParcel"
+		},
+		"APersistableBundle_size" : 
+		{
+			"type" : "func APersistableBundle_size"
+		},
+		"APersistableBundle_writeToParcel" : 
+		{
+			"type" : "func APersistableBundle_writeToParcel"
+		},
+		"AServiceManager_NotificationRegistration_delete" : 
+		{
+			"type" : "func AServiceManager_NotificationRegistration_delete"
+		},
+		"AServiceManager_addService" : 
+		{
+			"type" : "func AServiceManager_addService"
+		},
+		"AServiceManager_addServiceWithFlags" : 
+		{
+			"type" : "func AServiceManager_addServiceWithFlags"
+		},
+		"AServiceManager_checkService" : 
+		{
+			"type" : "func AServiceManager_checkService"
+		},
+		"AServiceManager_forEachDeclaredInstance" : 
+		{
+			"type" : "func AServiceManager_forEachDeclaredInstance"
+		},
+		"AServiceManager_forceLazyServicesPersist" : 
+		{
+			"type" : "func AServiceManager_forceLazyServicesPersist"
+		},
+		"AServiceManager_getService" : 
+		{
+			"type" : "func AServiceManager_getService"
+		},
+		"AServiceManager_getUpdatableApexName" : 
+		{
+			"type" : "func AServiceManager_getUpdatableApexName"
+		},
+		"AServiceManager_isDeclared" : 
+		{
+			"type" : "func AServiceManager_isDeclared"
+		},
+		"AServiceManager_isUpdatableViaApex" : 
+		{
+			"type" : "func AServiceManager_isUpdatableViaApex"
+		},
+		"AServiceManager_openDeclaredPassthroughHal" : 
+		{
+			"type" : "func AServiceManager_openDeclaredPassthroughHal"
+		},
+		"AServiceManager_reRegister" : 
+		{
+			"type" : "func AServiceManager_reRegister"
+		},
+		"AServiceManager_registerForServiceNotifications" : 
+		{
+			"type" : "func AServiceManager_registerForServiceNotifications"
+		},
+		"AServiceManager_registerLazyService" : 
+		{
+			"type" : "func AServiceManager_registerLazyService"
+		},
+		"AServiceManager_setActiveServicesCallback" : 
+		{
+			"type" : "func AServiceManager_setActiveServicesCallback"
+		},
+		"AServiceManager_tryUnregister" : 
+		{
+			"type" : "func AServiceManager_tryUnregister"
+		},
+		"AServiceManager_waitForService" : 
+		{
+			"type" : "func AServiceManager_waitForService"
+		},
+		"AStatus_delete" : 
+		{
+			"type" : "func AStatus_delete"
+		},
+		"AStatus_deleteDescription" : 
+		{
+			"type" : "func AStatus_deleteDescription"
+		},
+		"AStatus_fromExceptionCode" : 
+		{
+			"type" : "func AStatus_fromExceptionCode"
+		},
+		"AStatus_fromExceptionCodeWithMessage" : 
+		{
+			"type" : "func AStatus_fromExceptionCodeWithMessage"
+		},
+		"AStatus_fromServiceSpecificError" : 
+		{
+			"type" : "func AStatus_fromServiceSpecificError"
+		},
+		"AStatus_fromServiceSpecificErrorWithMessage" : 
+		{
+			"type" : "func AStatus_fromServiceSpecificErrorWithMessage"
+		},
+		"AStatus_fromStatus" : 
+		{
+			"type" : "func AStatus_fromStatus"
+		},
+		"AStatus_getDescription" : 
+		{
+			"type" : "func AStatus_getDescription"
+		},
+		"AStatus_getExceptionCode" : 
+		{
+			"type" : "func AStatus_getExceptionCode"
+		},
+		"AStatus_getMessage" : 
+		{
+			"type" : "func AStatus_getMessage"
+		},
+		"AStatus_getServiceSpecificError" : 
+		{
+			"type" : "func AStatus_getServiceSpecificError"
+		},
+		"AStatus_getStatus" : 
+		{
+			"type" : "func AStatus_getStatus"
+		},
+		"AStatus_isOk" : 
+		{
+			"type" : "func AStatus_isOk"
+		},
+		"AStatus_newOk" : 
+		{
+			"type" : "func AStatus_newOk"
+		},
+		"_Z25AIBinder_toPlatformBinderP8AIBinder" : 
+		{
+			"type" : "func _Z25AIBinder_toPlatformBinderP8AIBinder"
+		},
+		"_Z26AParcel_viewPlatformParcelP7AParcel" : 
+		{
+			"type" : "func _Z26AParcel_viewPlatformParcelP7AParcel"
+		},
+		"_Z26AParcel_viewPlatformParcelPK7AParcel" : 
+		{
+			"type" : "func _Z26AParcel_viewPlatformParcelPK7AParcel"
+		},
+		"_Z27AIBinder_fromPlatformBinderRKN7android2spINS_7IBinderEEE" : 
+		{
+			"type" : "func _Z27AIBinder_fromPlatformBinderRKN7android2spINS_7IBinderEEE"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"bool const" : 
+		{
+			"base_type" : "bool",
+			"kind" : "const",
+			"size" : 8
+		},
+		"bool const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "bool const",
+			"size" : 32
+		},
+		"bool*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "bool",
+			"size" : 32
+		},
+		"char8" : 
+		{
+			"kind" : "char",
+			"signed" : true,
+			"size" : 8
+		},
+		"char8 const" : 
+		{
+			"base_type" : "char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const",
+			"size" : 32
+		},
+		"char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8",
+			"size" : 32
+		},
+		"char8**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8*",
+			"size" : 32
+		},
+		"class _jobject" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class _jobject*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class _jobject",
+			"size" : 32
+		},
+		"class android::IBinder" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::IBinder*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::IBinder",
+			"size" : 32
+		},
+		"class android::IBinder::DeathRecipient" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$DeathRecipient",
+					"offset" : 0,
+					"type" : "func #1**"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "class",
+			"size" : 96
+		},
+		"class android::IServiceManager" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::Parcel" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::Parcel const" : 
+		{
+			"base_type" : "class android::Parcel",
+			"kind" : "const",
+			"size" : 0
+		},
+		"class android::Parcel const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::Parcel const",
+			"size" : 32
+		},
+		"class android::Parcel*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::Parcel",
+			"size" : 32
+		},
+		"class android::RefBase" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::RefBase::weakref_type" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class android::RefBase::weakref_type*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::RefBase::weakref_type",
+			"size" : 32
+		},
+		"class android::String16" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mString",
+					"offset" : 0,
+					"type" : "unsigned char16 const*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 32
+		},
+		"class android::String16 const" : 
+		{
+			"base_type" : "class android::String16",
+			"kind" : "const",
+			"size" : 32
+		},
+		"class android::String8" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::binder::Status" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mException",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "mErrorCode",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "mMessage",
+					"offset" : 64,
+					"type" : "class android::String8"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 96
+		},
+		"class android::os::PersistableBundle" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AIBinder_DeathRecipient::TransferDeathRecipient*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 32
+		},
+		"class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>",
+			"size" : 32
+		},
+		"class android::sp<android::IBinder>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::IBinder*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 32
+		},
+		"class android::sp<android::IBinder> const" : 
+		{
+			"base_type" : "class android::sp<android::IBinder>",
+			"kind" : "const",
+			"size" : 32
+		},
+		"class android::sp<android::IBinder> const&" : 
+		{
+			"kind" : "reference",
+			"pointee_type" : "class android::sp<android::IBinder> const",
+			"size" : 32
+		},
+		"class android::wp<AIBinder>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AIBinder*"
+				},
+				{
+					"name" : "m_refs",
+					"offset" : 32,
+					"type" : "class android::RefBase::weakref_type*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::wp<AIBinder_DeathRecipient>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "struct AIBinder_DeathRecipient*"
+				},
+				{
+					"name" : "m_refs",
+					"offset" : 32,
+					"type" : "class android::RefBase::weakref_type*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class android::wp<android::IBinder>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m_ptr",
+					"offset" : 0,
+					"type" : "class android::IBinder*"
+				},
+				{
+					"name" : "m_refs",
+					"offset" : 32,
+					"type" : "class android::RefBase::weakref_type*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 64
+		},
+		"class std::__1::__basic_string_common<true>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class std::__1::__compressed_pair<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"struct std::__1::__compressed_pair_elem<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*, int32, false>",
+				"struct std::__1::__compressed_pair_elem<std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>, int32, true>"
+			],
+			"kind" : "class",
+			"size" : 32
+		},
+		"class std::__1::__compressed_pair<std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep, std::__1::allocator<unsigned char8>>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"struct std::__1::__compressed_pair_elem<std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep, int32, false>",
+				"struct std::__1::__compressed_pair_elem<std::__1::allocator<unsigned char8>, int32, true>"
+			],
+			"kind" : "class",
+			"size" : 96
+		},
+		"class std::__1::__vector_base<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__begin_",
+					"offset" : 0,
+					"type" : "class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*"
+				},
+				{
+					"name" : "__end_",
+					"offset" : 32,
+					"type" : "class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*"
+				},
+				{
+					"name" : "__end_cap_",
+					"offset" : 64,
+					"type" : "class std::__1::__compressed_pair<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>"
+				}
+			],
+			"inheritance" : 
+			[
+				"class std::__1::__vector_base_common<true>"
+			],
+			"kind" : "class",
+			"size" : 96
+		},
+		"class std::__1::__vector_base_common<true>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class std::__1::allocator<unsigned char8>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__r_",
+					"offset" : 0,
+					"type" : "class std::__1::__compressed_pair<std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep, std::__1::allocator<unsigned char8>>"
+				}
+			],
+			"inheritance" : 
+			[
+				"class std::__1::__basic_string_common<true>"
+			],
+			"kind" : "class",
+			"size" : 96
+		},
+		"class std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>> const" : 
+		{
+			"base_type" : "class std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>",
+			"kind" : "const",
+			"size" : 96
+		},
+		"class std::__1::mutex" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__m_",
+					"offset" : 0,
+					"type" : "struct pthread_mutex_t"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 32
+		},
+		"class std::__1::vector<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class std::__1::__vector_base<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>"
+			],
+			"kind" : "class",
+			"size" : 96
+		},
+		"float32" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 32
+		},
+		"float32 const" : 
+		{
+			"base_type" : "float32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"float32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32 const",
+			"size" : 32
+		},
+		"float32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32",
+			"size" : 32
+		},
+		"float32**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32*",
+			"size" : 32
+		},
+		"float64" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 64
+		},
+		"float64 const" : 
+		{
+			"base_type" : "float64",
+			"kind" : "const",
+			"size" : 64
+		},
+		"float64 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float64 const",
+			"size" : 32
+		},
+		"float64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float64",
+			"size" : 32
+		},
+		"float64**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float64*",
+			"size" : 32
+		},
+		"func #1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #1*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1",
+			"size" : 32
+		},
+		"func #1**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1*",
+			"size" : 32
+		},
+		"func #10" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"void*"
+			],
+			"return_type" : "unsigned char8*",
+			"size" : 0
+		},
+		"func #10*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #10",
+			"size" : 32
+		},
+		"func #11" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"char8**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #11*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #11",
+			"size" : 32
+		},
+		"func #12" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void const*",
+				"unsigned int32"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #12*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #12",
+			"size" : 32
+		},
+		"func #13" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #13*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #13",
+			"size" : 32
+		},
+		"func #14" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"unsigned int32",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #14*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #14",
+			"size" : 32
+		},
+		"func #15" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"void const*",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #15*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #15",
+			"size" : 32
+		},
+		"func #16" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"unsigned int64**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #16*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #16",
+			"size" : 32
+		},
+		"func #17" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"int64**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #17*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #17",
+			"size" : 32
+		},
+		"func #18" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #18*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #18",
+			"size" : 32
+		},
+		"func #18**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #18*",
+			"size" : 32
+		},
+		"func #19" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"struct AIBinder*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #19*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #19",
+			"size" : 32
+		},
+		"func #2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*"
+			],
+			"return_type" : "void*",
+			"size" : 0
+		},
+		"func #2*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #2",
+			"size" : 32
+		},
+		"func #2* const" : 
+		{
+			"base_type" : "func #2*",
+			"kind" : "const",
+			"size" : 32
+		},
+		"func #20" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #20*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #20",
+			"size" : 32
+		},
+		"func #21" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"unsigned char16**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #21*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #21",
+			"size" : 32
+		},
+		"func #22" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"int32**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #22*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #22",
+			"size" : 32
+		},
+		"func #23" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"float64**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #23*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #23",
+			"size" : 32
+		},
+		"func #24" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"unsigned int32",
+				"int32",
+				"unsigned char8**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #24*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #24",
+			"size" : 32
+		},
+		"func #25" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #25*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #25",
+			"size" : 32
+		},
+		"func #26" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"unsigned char8**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #26*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #26",
+			"size" : 32
+		},
+		"func #27" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void const*",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func #27*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #27",
+			"size" : 32
+		},
+		"func #28" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"unsigned int32**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #28*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #28",
+			"size" : 32
+		},
+		"func #29" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"bool",
+				"void*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #29*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #29",
+			"size" : 32
+		},
+		"func #3" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #3*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #3",
+			"size" : 32
+		},
+		"func #3* const" : 
+		{
+			"base_type" : "func #3*",
+			"kind" : "const",
+			"size" : 32
+		},
+		"func #4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"unsigned int32",
+				"struct AParcel const*",
+				"struct AParcel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #4*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #4",
+			"size" : 32
+		},
+		"func #4* const" : 
+		{
+			"base_type" : "func #4*",
+			"kind" : "const",
+			"size" : 32
+		},
+		"func #5" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"int32",
+				"unsigned char8 const**",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #5*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #5",
+			"size" : 32
+		},
+		"func #6" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"int32",
+				"int32",
+				"int32",
+				"unsigned char8 const**",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #6*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #6",
+			"size" : 32
+		},
+		"func #9" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"int32",
+				"float32**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #9*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #9",
+			"size" : 32
+		},
+		"func ABinderProcess_handlePolledCommands" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ABinderProcess_isThreadPoolStarted" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func ABinderProcess_joinThreadPool" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ABinderProcess_setThreadPoolMaxThreadCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func ABinderProcess_setupPolling" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ABinderProcess_startThreadPool" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_Class_define" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"func #2*",
+				"func #3*",
+				"func #4*"
+			],
+			"return_type" : "struct AIBinder_Class*",
+			"size" : 0
+		},
+		"func AIBinder_Class_disableInterfaceTokenHeader" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Class*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_Class_getDescriptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Class const*"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func AIBinder_Class_setHandleShellCommand" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Class*",
+				"func #6*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_Class_setOnDump" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Class*",
+				"func #5*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_DeathRecipient_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_DeathRecipient*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_DeathRecipient_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"func #3*"
+			],
+			"return_type" : "struct AIBinder_DeathRecipient*",
+			"size" : 0
+		},
+		"func AIBinder_DeathRecipient_setOnUnlinked" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_DeathRecipient*",
+				"func #3*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_Weak_clone" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Weak const*"
+			],
+			"return_type" : "struct AIBinder_Weak*",
+			"size" : 0
+		},
+		"func AIBinder_Weak_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Weak*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_Weak_lt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Weak const*",
+				"struct AIBinder_Weak const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_Weak_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "struct AIBinder_Weak*",
+			"size" : 0
+		},
+		"func AIBinder_Weak_promote" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Weak*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AIBinder_associateClass" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AIBinder_Class const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_debugGetRefCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_decStrong" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_dump" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"int32",
+				"unsigned char8 const**",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_forceDowngradeToSystemStability" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_forceDowngradeToVendorStability" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_fromJavaBinder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AIBinder_getCallingPid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_getCallingSid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func AIBinder_getCallingUid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AIBinder_getClass" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "struct AIBinder_Class const*",
+			"size" : 0
+		},
+		"func AIBinder_getExtension" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AIBinder**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_getUserData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void*",
+			"size" : 0
+		},
+		"func AIBinder_incStrong" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_isAlive" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_isHandlingTransaction" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_isRemote" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_linkToDeath" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AIBinder_DeathRecipient*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_lt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder const*",
+				"struct AIBinder const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AIBinder_markSystemStability" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_markVendorStability" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_markVintfStability" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder_Class const*",
+				"void*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AIBinder_ping" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_prepareTransaction" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AParcel**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_setExtension" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AIBinder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_setInheritRt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_setMinSchedulerPolicy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"int32",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_setRequestingSid" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AIBinder_toJavaBinder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"struct AIBinder*"
+			],
+			"return_type" : "class _jobject*",
+			"size" : 0
+		},
+		"func AIBinder_transact" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"unsigned int32",
+				"struct AParcel**",
+				"struct AParcel**",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AIBinder_unlinkToDeath" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"struct AIBinder_DeathRecipient*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_appendFrom" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct AParcel*",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AParcel*",
+			"size" : 0
+		},
+		"func AParcel_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AParcel_fromJavaParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*"
+			],
+			"return_type" : "struct AParcel*",
+			"size" : 0
+		},
+		"func AParcel_getAllowFds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AParcel_getDataPosition" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_getDataSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_markSensitive" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AParcel_marshal" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"unsigned char8*",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readBool" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"bool*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readBoolArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #13*",
+				"func #14*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readByte" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"char8*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readByteArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #11*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readChar" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"unsigned char16*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readCharArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #21*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"float64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readDoubleArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #23*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readFloat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"float32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readFloatArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #9*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readInt32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readInt32Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #22*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readInt64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readInt64Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #17*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readParcelFileDescriptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readParcelableArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #13*",
+				"func #25*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readStatusHeader" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct AStatus**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #26*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readStringArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #13*",
+				"func #24*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readStrongBinder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct AIBinder**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readUint32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readUint32Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #28*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readUint64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"unsigned int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_readUint64Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"void*",
+				"func #16*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_reset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_setDataPosition" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_unmarshal" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned char8 const*",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeBool" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeBoolArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"void const*",
+				"int32",
+				"func #12*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeByte" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"char8"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeByteArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"char8 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeChar" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned char16"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeCharArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned char16 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"float64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeDoubleArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"float64 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeFloat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"float32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeFloatArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"float32 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeInt32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeInt32Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"int32 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeInt64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeInt64Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"int64 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeParcelFileDescriptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeParcelableArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"void const*",
+				"int32",
+				"func #15*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeStatusHeader" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"struct AStatus const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeStringArray" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"void const*",
+				"int32",
+				"func #27*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeStrongBinder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"struct AIBinder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeUint32" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeUint32Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned int32 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeUint64" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AParcel_writeUint64Array" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*",
+				"unsigned int64 const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_dup" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*"
+			],
+			"return_type" : "struct APersistableBundle*",
+			"size" : 0
+		},
+		"func APersistableBundle_erase" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getBoolean" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"bool*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_getBooleanKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getBooleanVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"bool*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getBooleanVectorKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"float64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_getDoubleKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getDoubleVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"float64*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getDoubleVectorKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getInt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"int32*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_getIntKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getIntVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"int32*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getIntVectorKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getLong" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"int64*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_getLongKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getLongVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"int64*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getLongVectorKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getPersistableBundle" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"struct APersistableBundle**"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_getPersistableBundleKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"unsigned char8**",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getStringKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getStringVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8 const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_getStringVectorKeys" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"unsigned char8**",
+				"int32",
+				"func #10*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_isEqual" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"struct APersistableBundle const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func APersistableBundle_new" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct APersistableBundle*",
+			"size" : 0
+		},
+		"func APersistableBundle_putBoolean" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putBooleanVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"bool const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putDouble" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"float64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putDoubleVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"float64 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putInt" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putIntVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"int32 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putLong" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"int64"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putLongVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"int64 const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putPersistableBundle" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"struct APersistableBundle const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_putStringVector" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle*",
+				"unsigned char8 const*",
+				"unsigned char8 const* const*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func APersistableBundle_readFromParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct APersistableBundle**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_size" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func APersistableBundle_writeToParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct APersistableBundle const*",
+				"struct AParcel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AServiceManager_NotificationRegistration_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AServiceManager_NotificationRegistration*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_addService" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AServiceManager_addServiceWithFlags" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"unsigned char8 const*",
+				"unsigned int32 const"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AServiceManager_checkService" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AServiceManager_forEachDeclaredInstance" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"void*",
+				"func #20*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_forceLazyServicesPersist" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_getService" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AServiceManager_getUpdatableApexName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"void*",
+				"func #20*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_isDeclared" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AServiceManager_isUpdatableViaApex" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AServiceManager_openDeclaredPassthroughHal" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"unsigned char8 const*",
+				"int32"
+			],
+			"return_type" : "void*",
+			"size" : 0
+		},
+		"func AServiceManager_reRegister" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_registerForServiceNotifications" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*",
+				"func #19*",
+				"void*"
+			],
+			"return_type" : "struct AServiceManager_NotificationRegistration*",
+			"size" : 0
+		},
+		"func AServiceManager_registerLazyService" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AServiceManager_setActiveServicesCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"func #29*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AServiceManager_tryUnregister" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AServiceManager_waitForService" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"func AStatus_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AStatus_deleteDescription" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AStatus_fromExceptionCode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func AStatus_fromExceptionCodeWithMessage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func AStatus_fromServiceSpecificError" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func AStatus_fromServiceSpecificErrorWithMessage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"unsigned char8 const*"
+			],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func AStatus_fromStatus" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func AStatus_getDescription" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func AStatus_getExceptionCode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AStatus_getMessage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "unsigned char8 const*",
+			"size" : 0
+		},
+		"func AStatus_getServiceSpecificError" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AStatus_getStatus" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AStatus_isOk" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AStatus const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AStatus_newOk" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AStatus*",
+			"size" : 0
+		},
+		"func _Z25AIBinder_toPlatformBinderP8AIBinder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AIBinder*"
+			],
+			"return_type" : "class android::sp<android::IBinder>",
+			"size" : 0
+		},
+		"func _Z26AParcel_viewPlatformParcelP7AParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel*"
+			],
+			"return_type" : "class android::Parcel*",
+			"size" : 0
+		},
+		"func _Z26AParcel_viewPlatformParcelPK7AParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*"
+			],
+			"return_type" : "class android::Parcel const*",
+			"size" : 0
+		},
+		"func _Z27AIBinder_fromPlatformBinderRKN7android2spINS_7IBinderEEE" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"class android::sp<android::IBinder> const&"
+			],
+			"return_type" : "struct AIBinder*",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32 const" : 
+		{
+			"base_type" : "int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32 const",
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 32
+		},
+		"int32**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32*",
+			"size" : 32
+		},
+		"int32[1]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 32
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"int64 const" : 
+		{
+			"base_type" : "int64",
+			"kind" : "const",
+			"size" : 64
+		},
+		"int64 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64 const",
+			"size" : 32
+		},
+		"int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64",
+			"size" : 32
+		},
+		"int64**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64*",
+			"size" : 32
+		},
+		"struct AIBinder" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$AIBinder",
+					"offset" : 0,
+					"type" : "func #1**"
+				},
+				{
+					"name" : "mClazz",
+					"offset" : 32,
+					"type" : "struct AIBinder_Class const*"
+				},
+				{
+					"name" : "mClazzMutex",
+					"offset" : 64,
+					"type" : "class std::__1::mutex"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 160
+		},
+		"struct AIBinder const" : 
+		{
+			"base_type" : "struct AIBinder",
+			"kind" : "const",
+			"size" : 160
+		},
+		"struct AIBinder const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder const",
+			"size" : 32
+		},
+		"struct AIBinder*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder",
+			"size" : 32
+		},
+		"struct AIBinder**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder*",
+			"size" : 32
+		},
+		"struct AIBinder_Class" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "writeHeader",
+					"offset" : 0,
+					"type" : "bool"
+				},
+				{
+					"name" : "onCreate",
+					"offset" : 32,
+					"type" : "func #2* const"
+				},
+				{
+					"name" : "onDestroy",
+					"offset" : 64,
+					"type" : "func #3* const"
+				},
+				{
+					"name" : "onTransact",
+					"offset" : 96,
+					"type" : "func #4* const"
+				},
+				{
+					"name" : "onDump",
+					"offset" : 128,
+					"type" : "func #5*"
+				},
+				{
+					"name" : "handleShellCommand",
+					"offset" : 160,
+					"type" : "func #6*"
+				},
+				{
+					"name" : "mInterfaceDescriptor",
+					"offset" : 192,
+					"type" : "class std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>> const"
+				},
+				{
+					"name" : "mWideInterfaceDescriptor",
+					"offset" : 288,
+					"type" : "class android::String16 const"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct AIBinder_Class const" : 
+		{
+			"base_type" : "struct AIBinder_Class",
+			"kind" : "const",
+			"size" : 320
+		},
+		"struct AIBinder_Class const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_Class const",
+			"size" : 32
+		},
+		"struct AIBinder_Class*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_Class",
+			"size" : 32
+		},
+		"struct AIBinder_DeathRecipient" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mDeathRecipientsMutex",
+					"offset" : 64,
+					"type" : "class std::__1::mutex"
+				},
+				{
+					"name" : "mDeathRecipients",
+					"offset" : 96,
+					"type" : "class std::__1::vector<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>, std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>>"
+				},
+				{
+					"name" : "mOnDied",
+					"offset" : 192,
+					"type" : "func #3*"
+				},
+				{
+					"name" : "mOnUnlinked",
+					"offset" : 224,
+					"type" : "func #3*"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 256
+		},
+		"struct AIBinder_DeathRecipient*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_DeathRecipient",
+			"size" : 32
+		},
+		"struct AIBinder_DeathRecipient::TransferDeathRecipient" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mWho",
+					"offset" : 32,
+					"type" : "class android::wp<android::IBinder>"
+				},
+				{
+					"name" : "mCookie",
+					"offset" : 96,
+					"type" : "void*"
+				},
+				{
+					"name" : "mParentRecipient",
+					"offset" : 128,
+					"type" : "class android::wp<AIBinder_DeathRecipient>"
+				},
+				{
+					"name" : "mOnDied",
+					"offset" : 192,
+					"type" : "func #3* const"
+				},
+				{
+					"name" : "mOnUnlinked",
+					"offset" : 224,
+					"type" : "func #3* const"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::IBinder::DeathRecipient"
+			],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct AIBinder_DeathRecipient::TransferDeathRecipient*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_DeathRecipient::TransferDeathRecipient",
+			"size" : 32
+		},
+		"struct AIBinder_Weak" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "binder",
+					"offset" : 0,
+					"type" : "class android::wp<AIBinder>"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 64
+		},
+		"struct AIBinder_Weak const" : 
+		{
+			"base_type" : "struct AIBinder_Weak",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct AIBinder_Weak const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_Weak const",
+			"size" : 32
+		},
+		"struct AIBinder_Weak*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AIBinder_Weak",
+			"size" : 32
+		},
+		"struct AParcel" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mBinder",
+					"offset" : 0,
+					"type" : "struct AIBinder const*"
+				},
+				{
+					"name" : "mParcel",
+					"offset" : 32,
+					"type" : "class android::Parcel*"
+				},
+				{
+					"name" : "mOwns",
+					"offset" : 64,
+					"type" : "bool"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct AParcel const" : 
+		{
+			"base_type" : "struct AParcel",
+			"kind" : "const",
+			"size" : 96
+		},
+		"struct AParcel const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AParcel const",
+			"size" : 32
+		},
+		"struct AParcel*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AParcel",
+			"size" : 32
+		},
+		"struct AParcel**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AParcel*",
+			"size" : 32
+		},
+		"struct APersistableBundle" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mPBundle",
+					"offset" : 0,
+					"type" : "class android::os::PersistableBundle"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 1088
+		},
+		"struct APersistableBundle const" : 
+		{
+			"base_type" : "struct APersistableBundle",
+			"kind" : "const",
+			"size" : 1088
+		},
+		"struct APersistableBundle const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct APersistableBundle const",
+			"size" : 32
+		},
+		"struct APersistableBundle*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct APersistableBundle",
+			"size" : 32
+		},
+		"struct APersistableBundle**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct APersistableBundle*",
+			"size" : 32
+		},
+		"struct AServiceManager_NotificationRegistration" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "m",
+					"offset" : 32,
+					"type" : "class std::__1::mutex"
+				},
+				{
+					"name" : "instance",
+					"offset" : 64,
+					"type" : "unsigned char8 const*"
+				},
+				{
+					"name" : "cookie",
+					"offset" : 96,
+					"type" : "void*"
+				},
+				{
+					"name" : "onRegister",
+					"offset" : 128,
+					"type" : "func #19*"
+				}
+			],
+			"inheritance" : 
+			[
+				"struct android::IServiceManager::LocalRegistrationCallback"
+			],
+			"kind" : "struct",
+			"size" : 224
+		},
+		"struct AServiceManager_NotificationRegistration*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AServiceManager_NotificationRegistration",
+			"size" : 32
+		},
+		"struct AStatus" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "mStatus",
+					"offset" : 0,
+					"type" : "class android::binder::Status"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct AStatus const" : 
+		{
+			"base_type" : "struct AStatus",
+			"kind" : "const",
+			"size" : 96
+		},
+		"struct AStatus const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AStatus const",
+			"size" : 32
+		},
+		"struct AStatus*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AStatus",
+			"size" : 32
+		},
+		"struct AStatus**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AStatus*",
+			"size" : 32
+		},
+		"struct _JNIEnv" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct _JNIEnv*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct _JNIEnv",
+			"size" : 32
+		},
+		"struct android::IServiceManager::LocalRegistrationCallback" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "_vptr$LocalRegistrationCallback",
+					"offset" : 0,
+					"type" : "func #18**"
+				}
+			],
+			"inheritance" : 
+			[
+				"class android::RefBase"
+			],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct pthread_mutex_t" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__private",
+					"offset" : 0,
+					"type" : "int32[1]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 32
+		},
+		"struct std::__1::__compressed_pair_elem<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*, int32, false>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__value_",
+					"offset" : 0,
+					"type" : "class android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 32
+		},
+		"struct std::__1::__compressed_pair_elem<std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>, int32, true>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class std::__1::allocator<android::sp<AIBinder_DeathRecipient::TransferDeathRecipient>>"
+			],
+			"kind" : "struct",
+			"size" : 8
+		},
+		"struct std::__1::__compressed_pair_elem<std::__1::allocator<unsigned char8>, int32, true>" : 
+		{
+			"fields" : [],
+			"inheritance" : 
+			[
+				"class std::__1::allocator<unsigned char8>"
+			],
+			"kind" : "struct",
+			"size" : 8
+		},
+		"struct std::__1::__compressed_pair_elem<std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep, int32, false>" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__value_",
+					"offset" : 0,
+					"type" : "struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__long" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__cap_",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__size_",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "__data_",
+					"offset" : 64,
+					"type" : "unsigned char8*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__raw" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__words",
+					"offset" : 0,
+					"type" : "unsigned int32[3]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "union std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep::#7"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__short" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "",
+					"offset" : 0,
+					"type" : "union std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__short::#8"
+				},
+				{
+					"name" : "__data_",
+					"offset" : 8,
+					"type" : "unsigned char8[11]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct std::__1::char_traits<unsigned char8>" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 8
+		},
+		"union std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__rep::#7" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__l",
+					"offset" : 0,
+					"type" : "struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__long"
+				},
+				{
+					"name" : "__s",
+					"offset" : 0,
+					"type" : "struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__short"
+				},
+				{
+					"name" : "__r",
+					"offset" : 0,
+					"type" : "struct std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__raw"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 96
+		},
+		"union std::__1::basic_string<unsigned char8, std::__1::char_traits<unsigned char8>, std::__1::allocator<unsigned char8>>::__short::#8" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "__size_",
+					"offset" : 0,
+					"type" : "unsigned char8"
+				},
+				{
+					"name" : "__lx",
+					"offset" : 0,
+					"type" : "unsigned char8"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "union",
+			"size" : 8
+		},
+		"unsigned char16" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 16
+		},
+		"unsigned char16 const" : 
+		{
+			"base_type" : "unsigned char16",
+			"kind" : "const",
+			"size" : 16
+		},
+		"unsigned char16 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char16 const",
+			"size" : 32
+		},
+		"unsigned char16*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char16",
+			"size" : 32
+		},
+		"unsigned char16**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char16*",
+			"size" : 32
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8 const" : 
+		{
+			"base_type" : "unsigned char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"unsigned char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const",
+			"size" : 32
+		},
+		"unsigned char8 const* const" : 
+		{
+			"base_type" : "unsigned char8 const*",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned char8 const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const* const",
+			"size" : 32
+		},
+		"unsigned char8 const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const*",
+			"size" : 32
+		},
+		"unsigned char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8",
+			"size" : 32
+		},
+		"unsigned char8**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8*",
+			"size" : 32
+		},
+		"unsigned char8[11]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 88
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32 const" : 
+		{
+			"base_type" : "unsigned int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32 const",
+			"size" : 32
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 32
+		},
+		"unsigned int32**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32*",
+			"size" : 32
+		},
+		"unsigned int32[3]" : 
+		{
+			"element_type" : "unsigned int32",
+			"kind" : "array",
+			"size" : 96
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"unsigned int64 const" : 
+		{
+			"base_type" : "unsigned int64",
+			"kind" : "const",
+			"size" : 64
+		},
+		"unsigned int64 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64 const",
+			"size" : 32
+		},
+		"unsigned int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64",
+			"size" : 32
+		},
+		"unsigned int64**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64*",
+			"size" : 32
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 32
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 32
+		}
+	}
+}

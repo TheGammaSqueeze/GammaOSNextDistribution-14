@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"hozzáférés az AdServices Topics API-hoz"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdServices Topics API-hoz."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"hozzáférés az AdServices Attribution API-khoz"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdServices Attribution API-khoz."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"hozzáférés az AdServices Custom Audience API-hoz"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdServices Custom Audience API-hoz."</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Hozzáférés az AdID API-hoz"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdID API-hoz."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"hozzáférés az AdServices Consent API-hoz"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdServices Consent API-hoz."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"hozzáférés az Ad ID API-hoz"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az Ad ID API-hoz."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Hozzáférés az AdServices Cobalt Upload API-hoz"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Engedélyezi az alkalmazásnak az AdServices Cobalt Upload API-hoz való hozzáférést."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"hozzáférés az App Set ID API-hoz"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az App Set ID API-hoz."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Hozzáférés a Consent Service API-hoz"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen a Consent Service API-hoz."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Hozzáférés az AdService enablement state modification API-jához"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdService enablement state modification API-jához."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Hozzáférés az AdService enablement state API-jához"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdService enablement state API-jához."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Hozzáférés az AdServicesManager API-jaihoz"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Lehetővé teszi egy alkalmazás számára, hogy hozzáférjen az AdServicesManager API-jaihoz."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Az AdService AdId API frissítése funkciójához való hozzáférés."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Lehetővé teszi, hogy az adott alkalmazás hozzáférjen az AdService AdId API frissítése funkciójához."</string>
+    <string name="app_label" msgid="2639006978056689153">"Hirdetésekhez kapcsolódó adatvédelem"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Csatlakozzon Ön is az Android hirdetésekhez kapcsolódó adatvédelmi bétaprogramjához"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Az Android folyamatosan privátabb jellegű módokat keres az alkalmazások számára a hirdetések megjelenítéséhez"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"További információ"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Az Android hirdetésekhez kapcsolódó adatvédelmének bétaverziója"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Újdonságok:"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"A Privacy Sandbox új adatvédelmi funkciói lehetővé teszik, hogy az alkalmazások releváns hirdetéseket jelenítsenek meg Önnek, de korlátozhatják is, hogy a szóban forgó alkalmazások mit tudhatnak meg az Ön más fejlesztőktől származó webhelyeken és alkalmazásokban folytatott tevékenységeiről."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Hogyan működik?"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Részvételi szabályok"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"A bétaverzió bekapcsolásával az alkalmazások tesztelhetik a hirdetések megjelenítésének ezen új, privátabb módjait. A bétaverziót bármikor kikapcsolhatja az adatvédelmi beállítások között."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Most nem"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Bekapcsolás"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Továbbiak"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Köszönjük részvételét"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Ön részt vesz az Android hirdetésekhez kapcsolódó adatvédelmi bétaprogramjában. A Privacy Sandbox be van kapcsolva eszközén.\n\nTovábbi információt az adatvédelmi beállítások között talál, és itt kapcsolhatja ki a bétaverziót is."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Úgy döntött, hogy nem vesz részt a programban"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Köszönjük válaszát! A Privacy Sandbox ki van kapcsolva eszközén.\n\nHa meggondolja magát, vagy további információra kíváncsi, lépjen az adatvédelmi beállítások oldalára."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Adatvédelmi beállítások"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Értem"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Ön részt vesz a bétaprogramban"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"A Privacy Sandbox be van kapcsolva az eszközén, az alkalmazások pedig tesztelhetik a hirdetések megjelenítésének ezen új, privátabb jellegű módjait. A bétaverziót bármikor kikapcsolhatja az adatvédelmi beállítások között."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Értem"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Az Android Privacy Sandbox technológiája olyan új funkciókat biztosít, melyek segítségével az alkalmazások Önnek esetlegesen tetsző hirdetéseket jeleníthetnek meg. Ezek a technológiák nem használnak eszközazonosítókat.\n\nAz Android és alkalmazások megbecsülhetik az Önt esetlegesen érdeklő hirdetéstípusokat, az érdeklődési köröket pedig ideiglenesen az eszközön mentik. Ennek segítségével az alkalmazások Önnek esetlegesen tetsző hirdetéseket jeleníthetnek meg anélkül, hogy nyomon követnék a más fejlesztőktől származó webhelyeken és alkalmazásokban végzett tevékenységeit."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Hirdetések személyre szabása a Privacy Sandbox segítségével"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Az Android becslése szerinti érdeklődési körök"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Az Android rendszeres időközönként becslést tesz a legfontosabb érdeklődési köreire vonatkozóan az Ön által használt alkalmazások alapján (ilyen például a „sport” vagy az „utazás”).\n\nKésőbb az adott alkalmazás kérheti az Androidtól a szóban forgó érdeklődési körök használatát, hogy még inkább releváns hirdetéseket jelenítsen meg Önnek.\n\nAz aktuális érdeklődési köreinek listáját az adatvédelmi beállítások között találja, és itt tilthatja le az Önnek nem tetszőket is."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Az alkalmazások becslése szerinti érdeklődési körök"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Az alkalmazások becslést tehetnek az Ön érdeklődési köreire vonatkozóan, és ideiglenesen menthetik e becsléseket az Android rendszerre. Előfordulhat például, hogy a futócipő vásárlásához használt alkalmazás „maratonfutásnak” becsli az Ön érdeklődési körét.\n\nKésőbb – ezen érdeklődési kör alapján – egy másik alkalmazás maratonfutással kapcsolatos hirdetést jeleníthet meg Önnek.\n\nAz adatvédelmi beállításokban kezelheti azon alkalmazások listáját, amelyek esetében mentett érdeklődési körök szerepelnek."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Új funkciók a hirdetésekhez kapcsolódó adatvédelem terén"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"A hirdetéstémák és az új vezérlők révén jobban megválogathatja az Ön számára megjelenő hirdetéseket."</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Az Android feljegyzi az Önt érdeklő témákat az Ön nemrégiben használt alkalmazásai alapján. Az Ön által használt alkalmazások meg is határozhatják, hogy mi tetszik Önnek. Később az appok lekérhetik ezt az információt, hogy személyre szabott hirdetéseket jelenítsenek meg Önnek. Ön kiválaszthatja, hogy a rendszer mely témákat és alkalmazásokat használja arra, hogy hirdetéseket jelenítsen meg Önnek."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"A hirdetések teljesítményének méréséhez az alkalmazások korlátozott adattípusokat osztanak meg egymás között."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"További információ az Androidon megjelenő hirdetésekről"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Hasznosabb hirdetések"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Az alkalmazások információkat kérhetnek az Android rendszertől az Önnek megjelenített hirdetések személyre szabásához."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Az Android feljegyzi az Önt érdeklő témákat a nemrégiben használt alkalmazásai alapján."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Az alkalmazások a használat módja alapján is kikövetkeztethetik, hogy mit kedvel. Ha például Ön hosszútávfutáshoz készült cipőket árusító alkalmazást használ, akkor előfordulhat, hogy az alkalmazás úgy dönt, Ön érdeklődik a maratonfutás iránt."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"A későbbiekben az Ön által használt alkalmazások lekérhetik ezeket az információkat – akár az Önre vonatkozó hirdetéstémákat, akár a használt alkalmazások által javasolt hirdetéseket."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Az Android automatikusan, rendszeresen törli a témákat és az alkalmazások által javasolt adatokat. Önnek lehetősége van arra is, hogy letiltson bizonyos témákat, valamint azokat az alkalmazásokat is, amelyeknél nem szeretné, hogy javaslatot tegyenek."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Hirdetések teljesítményének mérése"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Az Ön által használt alkalmazások olyan információkat kérhetnek az Android rendszertől, amelyek segítségével mérhetik a hirdetések teljesítményét. Az Android lehetővé teszi az alkalmazások számára, hogy korlátozott adattípusokat gyűjtsenek (például hogy milyen napszakban jelent meg Önnek a hirdetés)."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Próbálja ki a hirdetésekhez kapcsolódó adatvédelem új funkcióit"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"A hirdetéstémák révén jobban megválogathatja az Ön számára megjelenő hirdetéseket"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Részletek megtekintése"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Próbálja ki a hirdetésekhez kapcsolódó adatvédelem új funkcióit"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Az android új adatvédelmi funkciókat vezet be, amelyek nagyobb választási szabadságot biztosítanak a megjelenő hirdetések felett."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"A hirdetéstémák segítségével az alkalmazások releváns hirdetéseket jeleníthetnek meg Önnek, miközben a rendszer védi a személyazonosságát és az alkalmazáshasználatával kapcsolatos adatokat. Az Android feljegyezheti az Önt érdeklő témákat a nemrégiben használt alkalmazásai alapján. Később egy Ön által használt alkalmazás lekérdezheti az Androidtól a releváns témákat, hogy személyre szabhassa az Önnek megjelenő hirdetéseket."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"A hirdetéstémákat megtekintheti az eszköz beállításaiban, ahol le is tilthatja azokat a témákat, amelyeket nem szeretne megosztani az alkalmazásokkal. Az Android ezenkívül rendszeresen, automatikusan törli is a hirdetéstémákat."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Bármikor meggondolhatja magát, és módosíthatja az adatvédelmi beállításokat."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"További információ a hirdetéstémákról"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Az "<a href="https://policies.google.com/privacy">"adatvédelmi irányelvekben"</a>" további információkat találhat arról, hogy az Android miként védi az adatait."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Kipróbálom"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Milyen adatokat használunk fel?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Hirdetéstémái azokon az alkalmazásokon alapulnak, amelyeket a közelmúltban használt ezen az eszközön, valamint azon, hogy milyen gyakran használja őket."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Az adatok felhasználási módja"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Miközben használja az alkalmazásait, az Android feljegyzi az Önt érdeklő témákat. A témakörcímkék előre meg vannak határozva, például a következők tartoznak közéjük: Művészet és szórakozás, Vásárlás és Sport. Később az egyik Ön által használt alkalmazás lekérdezhet az Androidtól néhány témát (de alkalmazáshasználattal vagy személyazonossággal kapcsolatos információkat nem) a megjelenő hirdetések személyre szabásához."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Hogyan kezelheti az adatait?"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Az Android rendszeresen és automatikusan törli a témákat. Az alkalmazások használata során egy-egy téma újra megjelenhet a listán. Lehetősége van arra is, hogy letiltsa azokat a témákat, amelyeket nem szeretné, hogy az Android megosszon alkalmazásokkal, valamint bármikor ki is kapcsolhatja a hirdetéstémákat az adatvédelmi beállításokban."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Módosíthatja az adatvédelmi beállításokat."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Mostantól további, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Az Android továbbá új megoldásokat is kínál annak korlátozására, hogy mit tudhatnak meg Önről az alkalmazások, amikor személyre szabott hirdetéseket jelenítenek meg."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Az alkalmazások által javasolt hirdetések védik a személyazonosságát és az alkalmazáshasználattal kapcsolatos adatait, miközben lehetővé teszik az alkalmazások számára, hogy releváns hirdetéseket jelenítsenek meg Önnek. Tevékenységei alapján az Ön által használt alkalmazások javasolhatnak kapcsolódó hirdetéseket más alkalmazásoknak. Az adatvédelmi beállításokban megtekintheti az alkalmazások listáját, és letilthatja számukra, hogy javaslatokat tegyenek."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  A hirdetésméréssel korlátozott adattípusokat osztanak meg egymással az alkalmazások a hirdetéseik teljesítményének mérése érdekében (ilyen adat például az a napszak, amikor egy adott hirdetés megjelent Önnek)."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"További információk az alkalmazások által javasolt hirdetésekről és a hirdetésmérésről"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Alkalmazások által javasolt hirdetések"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Felhasznált adatok"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Az Ön tevékenységei az ezen az eszközön használt egyik alkalmazásban."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Hogyan használják az alkalmazások ezeket az adatokat?"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Az alkalmazások információkat tárolhatnak az Android rendszeren az Önt érdeklő témákról. Ha például egy maratonra való felkészüléssel kapcsolatos alkalmazást használ, az app megállapíthatja, hogy Önt érdeklik a futócipők. Később, egy másik alkalmazás megjeleníthet Önnek egy futócipőkkel kapcsolatos hirdetést az első app javaslata alapján."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Az adatok kezelésének módja"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Az Android automatikusan, rendszeresen törli az alkalmazások által javasolt adatokat. Ha ismét használja valamelyik alkalmazást, újra megjelenhet a listán."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Az adatvédelmi beállítások között letilthatja, hogy egy adott webhely hirdetéseket javasoljon Önnek, visszaállíthatja az összes hirdetésjavaslat-adatot, és bármikor kikapcsolhatja az alkalmazások által javasolt hirdetéseket."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Az Ön által használt alkalmazások olyan információkat kérhetnek az Android rendszertől, amelyek segítenek nekik a hirdetéseik teljesítményének mérésében. Az Android elkötelezett az Ön adatainak védelme iránt, ezért korlátozza azokat az információkat, amelyeket az alkalmazások megoszthatnak egymással."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Jobban megválogathatja az Ön számára megjelenő hirdetéseket, miközben védi a személyazonosságát"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Az Android új megoldásokat vezet be annak korlátozására, hogy mit tudhatnak meg a felhasználókról az alkalmazások, amikor személyre szabott hirdetéseket jelenítenek meg."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Az új adatvédelmi funkciók az alkalmazások által javasolt hirdetésekkel segítenek megvédeni az Ön személyazonosságát és alkalmazáshasználati adatait, miközben lehetővé teszik, hogy releváns hirdetéseket jelenítsenek meg Önnek az appok. Tevékenységei alapján az Ön által használt alkalmazások javasolhatnak kapcsolódó hirdetéseket más alkalmazásoknak. Az adatvédelmi beállításokban megtekintheti az alkalmazások listáját, és letilthatja számukra, hogy javaslatokat tegyenek."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  A hirdetésméréssel korlátozott adattípusokat osztanak meg egymással az alkalmazások a hirdetéseik teljesítményének megértése érdekében (ilyen adat például az a napszak, amikor egy adott hirdetés megjelent Önnek)."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Az ezen az eszközön használt egyik alkalmazásban végzett tevékenységei javasolt hirdetések megjelenítésére használhatók fel."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Újabb, hirdetésekhez kapcsolódó adatvédelmi funkciót kapcsolhat be"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Az Android egy új adatvédelmi funkciót is kínál, amellyel jobban megválogathatja az Ön számára megjelenő hirdetéseket."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"A hirdetéstémák segítségével az alkalmazások releváns hirdetéseket jeleníthetnek meg Önnek, miközben a rendszer védi a személyazonosságát és az alkalmazáshasználatával kapcsolatos adatokat. Az Android feljegyezheti az Önt érdeklő témákat a nemrégiben használt alkalmazásai alapján. Később egy Ön által használt alkalmazás lekérdezheti az Androidtól a releváns témákat, hogy relevánsabb hirdetéseket jeleníthessen meg Önnek."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"A hirdetéstémákat megtekintheti az adatvédelmi beállításaiban, ahol le is tilthatja azokat, amelyeket nem szeretne megosztani az alkalmazásokkal. Az Android ezenkívül rendszeresen, automatikusan törli is a hirdetéstémákat."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Bekapcsolás"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Mostantól jobban megválogathatja az Ön számára megjelenő hirdetéseket, miközben védi a személyazonosságát"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkciók állnak rendelkezésre"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Az Android mostantól új adatvédelmi funkciókat kínál, amelyek révén jobban megválogathatja az Ön számára megjelenő hirdetéseket."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Tovább"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Részvétel az Android hirdetésekhez kapcsolódó adatvédelmi bétaprogramjában"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Az Android becslése szerinti érdeklődési körök"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Az érdeklődési köröket megbecsülő alkalmazások"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Hirdetésmérés"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Az alkalmazások a Privacy Sandbox segítségével mérhetik a hirdetéseik hatékonyságát. Ehhez a hirdetők ideiglenesen menthetik Android rendszeren a hirdetéseik és alkalmazásaik közötti interakciókkal kapcsolatos adatokat. Az általuk menthető adatok mennyisége korlátozott, és rendszeres időközönként törlődnek.\n\nA Privacy Sandbox kikapcsolásával bármikor törölheti ezeket az adatokat."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Az Android rendszeres időközönként becslést tesz a legfontosabb érdeklődési köreire vonatkozóan az Ön által használt alkalmazások alapján. Az alkalmazások kérhetik az Androidtól a szóban forgó érdeklődési körök használatát, hogy még inkább releváns hirdetéseket jelenítsenek meg Önnek.\n\nHa letiltja valamelyik érdeklődési kört, nem kerül fel újra a listára, kivéve, ha Ön feloldja a letiltását. Továbbra is láthat néhány kapcsolódó hirdetést."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Letiltás"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Tiltás feloldása"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Letiltott érdeklődési körök"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Az összes érdeklődési kör visszaállítása"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Jelenleg nincsenek megjeleníthető érdeklődési körök."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Jelenleg nincsenek megjeleníthető témák.\nTovábbi információ a "<a href="https://support.google.com/android?p=ad_privacy">"hirdetéstémákról"</a>"."</string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Az Android hirdetési adatvédelmének bétaverziója olyan új funkciókat biztosít, melyek segítségével az alkalmazások Önnek esetlegesen tetsző hirdetéseket jeleníthetnek meg. Ezek a technológiák nem használnak eszközazonosítókat.\n\nAz Android becslést tehet az Önt esetlegesen érdeklő hirdetéstípusokra, az érdeklődési köröket pedig ideiglenesen az eszközön menti. Az alkalmazások ennek segítségével releváns hirdetéseket jeleníthetnek meg Önnek anélkül, hogy nyomon követnék a más fejlesztőktől származó webhelyeken és alkalmazásokban végzett tevékenységeit."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Önnek nincsenek letiltott érdeklődési körei"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Nincsenek letiltott témák"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Letiltott témák megtekintése"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"A rendszer visszaállította az érdeklődési köröket"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"A témák visszaállítása megtörtént"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Az alkalmazások becslést tehetnek az Ön érdeklődési köreire vonatkozóan, és ideiglenesen menthetik e becsléseket az Android rendszerre. Később egy másik alkalmazás hirdetéseket jeleníthet meg Önnek ezen érdeklődési körök alapján.\n\nHa letiltja valamelyik alkalmazást, akkor az a továbbiakban nem tesz becslést az érdeklődési körökre vonatkozóan. Nem kerül fel újból az alkalmazások ezen listájára, kivéve, ha Ön feloldja a letiltását. Az alkalmazás becslése szerinti érdeklődési körök törlődnek majd, de előfordulhat, hogy továbbra is megjelenik néhány kapcsolódó hirdetés."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Ön által letiltott alkalmazások"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Letiltott alkalmazások megtekintése"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Az alkalmazások becslése szerinti érdeklődési körök visszaállítása"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Jelenleg egyetlen alkalmazás sem generál érdeklődési köröket Önnek"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Jelenleg nincsenek megjeleníthető alkalmazások. \nTovábbi információ az "<a href="https://support.google.com/android?p=ad_privacy">"alkalmazások által javasolt hirdetésekről"</a>"."</string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Az Android hirdetésekhez kapcsolódó adatvédelmének bétaverziója olyan új funkciókat biztosít, melyek segítségével az alkalmazások Önnek esetlegesen tetsző hirdetéseket jeleníthetnek meg. Ezek a technológiák nem használnak eszközazonosítókat.\n\nAz alkalmazások becslést tehetnek az Önt esetlegesen érdeklő hirdetéstípusokra vonatkozóan, az érdeklődési köröket pedig ideiglenesen az eszközre mentik. Az alkalmazások ennek segítségével releváns hirdetéseket jeleníthetnek meg Önnek anélkül, hogy nyomon követnék a más fejlesztőktől származó webhelyeken és alkalmazásokban végzett tevékenységeit."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Nincsenek letiltott alkalmazásai"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Nincsenek letiltott alkalmazások"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Hirdetésmérés engedélyezése"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Az alkalmazások és a hirdetők olyan információkat kérhetnek az Androidtól, amelyek segítségével mérni tudják a hirdetéseik teljesítményét.\n\nAz alkalmazásmérési adatok rendszeresen törlődnek az eszközről."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Mérési adatok visszaállítása"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Az Android elkötelezett az Ön adatainak védelme iránt, ezért korlátozza azokat az információkat, amelyeket az alkalmazások megoszthatnak egymással. Az Ön személyazonosságának védelme érdekében késleltetve küldjük el a jelentéseket.\n\nBöngészője is rendelkezhet hasonló beállítással. Ha a hirdetésmérés az Android rendszeren és a böngészőben is aktív, akkor előfordulhat, hogy egyes vállalatok összehasonlítják az Ön által használt alkalmazásokban és meglátogatott webhelyeken megjelenített hirdetések hatékonyságát. Böngészési előzményei privátak maradnak az eszközén.\n\nAz "<a href="https://policies.google.com/privacy">"adatvédelmi irányelvekben"</a>" további információkat találhat arról, hogy az Android miként védi az adatait."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Hirdetésmérési adatok alaphelyzetbe állítva"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Mégse"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Kikapcsolja a Privacy Sandbox szolgáltatást?"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Ha meggondolja magát, vagy részletesebben meg szeretné ismerni az Android hirdetésekhez kapcsolódó adatvédelmének bétaverzióját, lépjen az adatvédelmi beállításokhoz"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Kikapcsolás"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Letiltja ezt: <xliff:g id="TOPIC">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"A rendszer letiltja ezt a témát, és nem veszi fel újból a listára, hacsak Ön újra hozzá nem adja. Ennek ellenére előfordulhat, hogy továbbra is lát néhány kapcsolódó hirdetést."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Letiltás"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"<xliff:g id="TOPIC">%1$s</xliff:g> letiltása feloldva"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Az Android újból felveheti ezt a témát az Ön listájára, de előfordulhat, hogy nem jelenik meg azonnal."</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Visszaállítja az összes hirdetéstémát?"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Listájának tartalma törlődik, és mostantól új témák lesznek hozzáadva. Ezzel együtt előfordulhat, hogy találkozik néhány olyan hirdetéssel, amely a visszaállított témákhoz kapcsolódik."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Alaphelyzet"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Letiltja ezt: <xliff:g id="APP">%1$s</xliff:g>?"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Ez az alkalmazás nem fog hirdetéseket javasolni, és addig nem kerül fel újból a listájára, amíg Ön vissza nem vonja a letiltását. Ennek ellenére előfordulhat, hogy továbbra is lát néhány kapcsolódó hirdetést."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> letiltása feloldva"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Ez az alkalmazás újra javasolhat Önnek hirdetéseket, de előfordulhat, hogy nem jelenik meg azonnal a listáján. Szükség lehet némi időre ahhoz, hogy kapcsolódó hirdetéseket láthasson."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Visszaállítja az alkalmazások által javasolt hirdetéseket?"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"A listáján található alkalmazásoktól származó hirdetésjavaslat-adatok törölve lesznek, és mostantól új hirdetéseket javasolnak majd az alkalmazások. Ennek ellenére előfordulhat, hogy továbbra is lát néhány kapcsolódó hirdetést."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Alkalmazásadatok visszaállítva"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Hirdetéstémák bekapcsolva"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Az Android elkezdi feljegyezni az az Önt érdeklő témákat, de eltarthat egy ideig, amíg az első témakörök megjelennek."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Hirdetéstémák kikapcsolása?"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"A témakörök e listáját a rendszer törli majd. A Android már nem jegyzi fel az Önt érdeklő témákat, de előfordulhat, hogy továbra is lát majd releváns hirdetéseket."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Alkalmazások által javasolt hirdetések bekapcsolva"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Előfordulhat, hogy az alkalmazás hirdetéseket kezd javasolni. Miután hirdetéseket kezdenek javasolni, megjelenik az alkalmazások listája."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Az alkalmazások által javasolt hirdetések kikapcsolása?"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"A rendszer minden hirdetésjavaslat-adatot töröl. Az alkalmazások többé nem tudnak majd hirdetéseket javasolni, de előfordulhat, hogy továbbra is lát majd releváns hirdetéseket."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Hirdetésmérés bekapcsolva"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Az Android csak rendkívül korlátozott mértékű adatokat oszthat meg az alkalmazásokkal annak érdekében, hogy az alkalmazások mérni tudják hirdetéseik teljesítményét."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"A hirdetésmérés kikapcsolása?"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"A rendszer az összes függőben lévő hirdetésmérési jelentést törli, új jelentéseket pedig nem hoz létre vagy oszt meg."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Hirdetésekhez kapcsolódó adatvédelem"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Hirdetéstémák"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Alkalmazások által javasolt hirdetések"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Az Android feljegyzi az Önt érdeklő témákat a nemrégiben használt alkalmazásai, valamint az alapján, hogy milyen gyakran használja őket."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Az Ön által használt alkalmazások meg is határozhatják, hogy mi tetszik Önnek az alapján, hogy hogyan használja őket."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Az Ön által használt alkalmazások információkat kérhetnek az Android rendszertől, amelyek segítenek a hirdetéseik teljesítményének mérésében. Az Android korlátozott adattípusok gyűjtését engedélyezi az alkalmazásoknak."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"További információ a "<a href="https://support.google.com/android?p=ad_privacy">"hirdetésekhez kapcsolódó adatvédelemről Android rendszeren"</a>"."</string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Bekapcsolva / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> téma"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Bekapcsolva / # téma}other{Bekapcsolva / # téma}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Bekapcsolva / <xliff:g id="APPS_COUNT">%1$d</xliff:g> alkalmazás"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Bekapcsolva / # alkalmazás}other{Bekapcsolva / # alkalmazás}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Be"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Ki"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Az Önt érdeklő témák az Ön által nemrégiben használt alkalmazásokon alapulnak, az alkalmazások pedig arra használják e témákat, hogy személyre szabott hirdetéseket jelenítsenek meg Önnek.\n\nLehetősége van azoknak a témáknak a letiltására, amelyeket nem kíván megosztani az alkalmazásokkal. Az Android ezenkívül automatikusan, rendszeresen törli is a témákat.\n\nBár ez a funkció már bekapcsolható, előfordulhat, hogy nem látja a témák listáját, amíg a funkció nem áll rendelkezésre teljeskörűen, és el nem kezdik használni az alkalmazások."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Hirdetéstémák engedélyezése"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Ön által letiltott hirdetéstémák"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Az összes hirdetéstéma visszaállítása"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Az Android az elmúlt hetekben Ön által használt alkalmazások alapján megjegyzi az Önt érdeklő témákat.\n\nKésőbb az egyik Ön által használt alkalmazás lekérdezhet az Androidtól néhány témát, hogy személyre szabja az Önnek megjelenített hirdetéseket. Az Android legfeljebb három témát oszt meg, miközben védi az Ön személyazonosságát és az alkalmazáshasználatára vonatkozó információkat.\n\nAz Android rendszeresen, automatikusan törli a témákat. Az alkalmazások használata során egy-egy téma újra megjelenhet a listán. Lehetősége van arra is, hogy letiltsa azokat a témákat, amelyeket nem szeretne, hogy az Android megosszon az alkalmazásokkal.\n\nAz alkalmazásokban Önnek megjelenő hirdetések személyre szabottak lehetnek attól függően, hogy ez a beállítás, az alkalmazás által javasolt hirdetések beállítása, a hirdetésazonosítóval kapcsolatos beállításai és az Ön által használt alkalmazás személyre szabja-e a hirdetéseket."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Alkalmazás által javasolt hirdetések engedélyezése"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Az Ön által használt alkalmazások meghatározhatják, hogy mi tetszik Önnek, majd hirdetéseket javasolhatnak más alkalmazások számára.\n\nÖn letilthatja az egyes appok számára, hogy javaslatokat tegyenek. Az Android ezenkívül automatikusan, rendszeresen törli is az alkalmazások által javasolt adatokat.\n\nBár ez a funkció már bekapcsolható, előfordulhat, hogy nem látja az alkalmazások listáját, amíg a funkció nem áll rendelkezésre teljeskörűen, és el nem kezdik használni az alkalmazások."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Ön által letiltott alkalmazások"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Az alkalmazások által javasolt adatok visszaállítása"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Az alkalmazások gyakran megjegyzik, hogy Ön mi iránt érdeklődik, hogy személyre szabhassák a felhasználói élményt. Ezenkívül információkat is tárolhatnak az Android rendszeren az Önt érdeklő témákról.\n\nHa például egy maratonra való felkészüléssel kapcsolatos alkalmazást használ, az alkalmazás megállapíthatja, hogy Önt érdeklik a futócipők. Később, egy másik alkalmazás megjeleníthet Önnek egy futócipőkkel kapcsolatos hirdetést az első app javaslata alapján.\n\nAz Android automatikusan, rendszeresen törli az alkalmazások által javasolt adatokat. Ha ismét használja valamelyik alkalmazást, újra megjelenhet a listán. Emellett lehetősége van arra is, hogy letiltsa a kívánt alkalmazás számára, hogy hirdetéseket javasoljon Önnek.\n\nAz alkalmazásaiban megjelenő hirdetések a következőktől függően lehetnek személyre szabva: ez a beállítás, a hirdetéstémák beállítás, a hirdetésazonosítóval kapcsolatos beállításai, valamint az, hogy az éppen használt app személyre szabott hirdetéseket használ-e."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Mostantól új, hirdetésekhez kapcsolódó adatvédelmi funkció áll rendelkezésre"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"A hirdetésteljesítmény mérése érdekében csak nagyon korlátozottan kerülnek megosztásra adatok az alkalmazások között"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Új, hirdetésekhez kapcsolódó adatvédelmi funkciót vezetünk be, melynek neve hirdetésmérés. Az Android csak nagyon korlátozottan oszt meg információt az alkalmazások között (például arról, hogy mikor jelent meg Önnek egy hirdetés) annak érdekében, hogy segítsen az appoknak a hirdetések teljesítményének mérésében."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Módosíthatja a hirdetésekhez kapcsolódó adatvédelmi beállításokat."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Az Ön által használt alkalmazások információkat kérhetnek az Android rendszertől, amelyek segítenek a hirdetéseik teljesítményének mérésében. Az Android csak korlátozott adattípusok gyűjtését engedélyezi az alkalmazásoknak."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Új funkciók a hirdetésekhez kapcsolódó adatvédelem terén"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Jobban megválogathatja az Ön számára megjelenő hirdetéseket, miközben védi a személyazonosságát"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"A hirdetésekhez kapcsolódó adatvédelmi funkciók módosításai"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Jobban megválogathatja az Ön számára megjelenő hirdetéseket, miközben védi a személyazonosságát"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Az Android kiterjeszti a hirdetésekhez kapcsolódó adatvédelmi funkciókat, hogy korlátozza, mit tudhatnak meg Önről az alkalmazások, amikor személyre szabott hirdetéseket jelenítenek meg."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Az alkalmazások és hirdetési partnereik felhasználhatják az Önnek az eszközön található más alkalmazásokban végzett tevékenységeit a hirdetések személyre szabásához, miközben az Ön személyazonossága továbbra is privát és biztonságos marad."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"További információ az alkalmazások által javasolt hirdetésekről"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Az alkalmazások korlátozott adattípusokat osztanak meg egymással a hirdetéseik teljesítményének megértése érdekében (ilyen adat például az a napszak, amikor egy adott hirdetés megjelent Önnek)."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"További információ a hirdetésmérésről"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Az Android feljegyzi az Önt érdeklő témákat az Ön nemrégiben használt alkalmazásai alapján. Emellett az alkalmazások és hirdetési partnereik felhasználhatják az Önnek az eszközön található más alkalmazásokban végzett tevékenységeit a hirdetések személyre szabásához, miközben az Ön személyazonossága továbbra is privát és biztonságos marad."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Az Ön által használt alkalmazások az Ön alkalmazástevékenységei alapján azt is meghatározhatják, hogy mi tetszik Önnek. Ha például rendszeresen használ receptalkalmazásokat, előfordulhat, hogy más alkalmazásokban élelmiszer-kiszállítási szolgáltatások vagy kapcsolódó tartalmak hirdetései jelennek meg.\n\nAz alkalmazások biztonságosan tárolhatják ezeket az információkat, hogy csak a hirdetési partnereik használhassák fel őket a hirdetések személyre szabására más alkalmazásokban."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"A későbbiekben az Ön által használt alkalmazások lekérhetik ezeket az információkat – akár az Önre vonatkozó hirdetéstémákat, akár a használt alkalmazások által javasolt hirdetéseket."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Az Ön által használt alkalmazások információkat kérhetnek az Android rendszertől, amelyek segítenek a hirdetéseik teljesítményének mérésében. Az Android az alkalmazások egymás között megosztható információinak korlátozásával segíti az Ön adatainak védelmét."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Milyen adatokat használunk fel?"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Az Ön által használt alkalmazások olyan információkat kérhetnek az Android rendszertől, amelyek segítenek nekik a hirdetéseik teljesítményének mérésében. Az Android elkötelezett az Ön adatainak védelme iránt, ezért korlátozza azokat az információkat, amelyeket az alkalmazások megoszthatnak egymással."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Hogyan védik a személyazonosságomat?"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Az Android többféle adatvédelmi intézkedést használ az Ön személyazonosságának védelme érdekében, például összesíti és zajosabbá teszi az adatokat, így korlátozva az alkalmazások számára az információmegosztást.\n\nEmellett a hirdetésmérési adatokat is rendszeresen törli az eszközről."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Az alkalmazástevékenységek felhasználhatók javasolt hirdetések megjelenítésére."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Hogyan használják az alkalmazások ezeket az adatokat?"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Az alkalmazások biztonságosan tárolhatják ezeket az információkat, hogy csak a hirdetési partnereik használhassák fel őket a hirdetések személyre szabására más alkalmazásokban. Ha például rendszeresen használ receptalkalmazásokat, előfordulhat, hogy más alkalmazásokban élelmiszer-kiszállítási szolgáltatások vagy kapcsolódó tartalmak hirdetései jelennek meg."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Hogyan kezelhetem ezeket az adatokat?"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Egyes alkalmazások számára letilthatja, hogy megosszák az Ön tevékenységeit hirdetési partnerekkel. Az adatvédelmi beállításokban bármikor visszaállíthatja vagy kikapcsolhatja az alkalmazások által javasolt hirdetéseket. Az Android rendszeresen törli ezeket az adatokat."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"További információ arról, hogyan segít az Android az adatok védelmében"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Az alkalmazások és hirdetési partnereik felhasználhatják az Önnek az eszközön található más alkalmazásokban végzett tevékenységeit a hirdetések személyre szabásához, miközben az adatai biztonságban maradnak és megőrzik privát jellegüket.\n\nHa például rendszeresen használ receptalkalmazásokat, előfordulhat, hogy más alkalmazásokban élelmiszer-kiszállítási szolgáltatások vagy kapcsolódó tartalmak hirdetései jelennek meg.\n\nAz Android automatikusan és rendszeresen törli a tevékenységeket, de Ön le is tilthatja az egyes alkalmazások számára, hogy megosszák ezeket az információkat a hirdetési partnereikkel."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Az alkalmazások és a hirdetési partnereik gyakran megjegyzik az Önt érdeklő dolgokat, hogy személyre szabják az élményt. Az alkalmazások biztonságosan tárolhatják ezeket az információkat, hogy csak a hirdetési partnereik használhassák fel őket hirdetések megjelenítésére más alkalmazásokban.\n\nAz egyes alkalmazások számára letilthatja, hogy megosszák a tevékenységadatait a hirdetési partnerekkel. Emellett az Android rendszeresen törli a megosztott tevékenységadatokat, ezért újra megjelenhetnek a listán azok az alkalmazások, amelyeket ismét használ.\n\nAz, hogy egy megjelenő hirdetés személyre szabott-e, több tényezőtől is függhet, például ettől a beállítástól, a hirdetéstémák beállításaitól, az Ön hirdetésazonosítójának beállításaitól, valamint attól, hogy a használt alkalmazás személyre szabja-e a hirdetéseket.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"További információ az alkalmazások által javasolt hirdetésekről."</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Az Android többféle adatvédelmi intézkedést használ az Ön személyazonosságának védelme érdekében, például összesíti és zajosabbá teszi az adatokat, így korlátozva az alkalmazások számára az információmegosztást.\n\nA böngészője is rendelkezhet hasonló beállítással. Ha a hirdetésmérés az Android rendszeren és a böngészőben is aktív, akkor előfordulhat, hogy egyes vállalatok összehasonlítják az Ön által használt alkalmazásokban és meglátogatott webhelyeken megjelenített hirdetések hatékonyságát. A böngészési előzményeit kizárólag az eszköze tárolja.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"További információ a hirdetésmérésről."</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Az Android az elmúlt hetekben Ön által használt alkalmazások alapján megjegyzi az Önt érdeklő témákat.\n\nKésőbb az egyik Ön által használt alkalmazás lekérdezhet az Androidtól néhány témát, hogy személyre szabja az Önnek megjelenített hirdetéseket. Az Android legfeljebb három témát oszt meg, miközben védi az Ön személyazonosságát és az alkalmazáshasználatára vonatkozó információkat.\n\nAz Android rendszeresen, automatikusan törli a témákat. Az alkalmazások használata során egy-egy téma újra megjelenhet a listán. Lehetősége van arra is, hogy letiltsa azokat a témákat, amelyeket nem szeretne, hogy az Android megosszon az alkalmazásokkal.\n\nAz, hogy egy megjelenő hirdetés személyre szabott-e, több tényezőtől is függhet, például ettől a beállítástól, az alkalmazások által javasolt hirdetések beállításaitól, az Ön hirdetésazonosítójának beállításaitól, valamint attól, hogy a használt alkalmazás személyre szabja-e a hirdetéseket.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"További információ a hirdetéstémákról."</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Érdeklődési köröket, például zenét, híreket vagy sportot jelképező szimbólumok színes illusztrációja"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Körben lévő lakat színes illusztrációja"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Négyzetet formáló kilenc pont kis méretű, fekete-fehér illusztrációja"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Egyszerű alakzatok, például szív, háromszög és négyzet kis méretű, fekete-fehér illusztrációja"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Művészetek és szórakoztatás"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Színészet és színház"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Anime és manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Rajzfilmek"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Képregények"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Koncertek és zenei fesztiválok"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Tánc"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Szórakoztatóipar"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Szórakozás és érdekességek"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Vicces tesztek és felmérések"</string>
+    <string name="topic10011" msgid="175945911179628507">"Humor"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Vicces képek és videók"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Élő kabaré"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Élő sportesemények"</string>
+    <string name="topic10015" msgid="726046067079821146">"Mágia"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Mozi- és színházműsorok"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Filmek"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Akció- és kalandfilmek"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Animációs filmek"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Vígjátékok"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Kultikus filmek és művészfilmek"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Dokumentumfilmek"</string>
+    <string name="topic10023" msgid="254151319845267278">"Filmdrámák"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Családi filmek"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Horrorfilmek"</string>
+    <string name="topic10026" msgid="210222384439682793">"Romantikus filmek"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Thriller"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Zene és hang"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Blues"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Komolyzene"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Countryzene"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Dance és elektronikus zene"</string>
+    <string name="topic10033" msgid="895853536740398847">"Népzene és hagyományos zene"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Jazz"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Zenei adatfolyamok és letöltések"</string>
+    <string name="topic10036" msgid="449833307315797283">"Zenei videók"</string>
+    <string name="topic10037" msgid="51698216720637667">"Hangszerek"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Zongorák és szintetizátorok"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Popzene"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Rádió"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Rádiós beszélgetős műsorok"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Rap és hip-hop"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Rockzene"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Klasszikus rock és régi zenék"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Kemény rock és progresszív"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Indie és alternatív zene"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Hangminták és zenekönyvtárak"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Soul és R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Filmzenék"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Világzene"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Reggae és a Karib-térség zenéje"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Internetes képgalériák"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Online videó"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Élő videóstreamelés"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Filmek és sorozatok streamelése"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Opera"</string>
+    <string name="topic10057" msgid="3265794667031664331">"TV-műsorismertetők és segédanyagok"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Televíziós hálózatok és csatornák"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Tévéműsorok és programok"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Televíziós vígjátékok"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Tévés dokumentum- és nem fikciós műsorok"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Televíziós filmdrámák"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Televíziós szappanoperák"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Családi tévéműsorok"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Televíziós valóságshow-k"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Televíziós sci-fi és fantasy műsorok"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Vizuális művészet és design"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Kialakítás"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Festés"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Fényképezés és digitális művészetek"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Autók és más járművek"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Áruszállító teherautók és kamionok"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Klasszikus járművek"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Egyedi és nagy teljesítményű járművek"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Benzinárak és járművek tankolása"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Gépjárművek (típus szerint)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Autonóm járművek"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Nyitható tetejű autók"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Kupék"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Ötajtós autók"</string>
+    <string name="topic10081" msgid="577995777553561437">"Hibrid és alternatív járművek"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Luxusjárművek"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Kisautók és szubkompakt autók"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Motorkerékpárok"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Terepjárók"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Pickupok"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Robogók és mopedek"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Szedánok"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Kombik"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Városi terepjárók és crossover autók"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Crossover autók"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Mikrobuszok és kisbuszok"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Vontatás és útmenti segítségnyújtás"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Jármű- és forgalombiztonság"</string>
+    <string name="topic10095" msgid="84682415803421329">"Járműalkatrészek és kiegészítők"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Járművek javítása és karbantartása"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Járművásárlás"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Használt járművek"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Járműbemutatók"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Szépség és fitnesz"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Testművészet"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Arc- és testápolás"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Izzadásgátlók"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Fürdő- és testápoló termékek"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Etikus szépségápolás"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Smink és kozmetikumok"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Körömápolási termékek"</string>
+    <string name="topic10108" msgid="577259588028933025">"Parfümök és illatszerek"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Borotvák"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Divat és stílus"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Fitnesz"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Testépítés"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Fitnesztanácsadás és személyi edzés"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Fitnesztechnikai termékek"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Hajápolás"</string>
+    <string name="topic10116" msgid="763642849903586689">"Könyvek és irodalom"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Gyermekirodalom"</string>
+    <string name="topic10118" msgid="8261966919146004082">"E-könyvek"</string>
+    <string name="topic10119" msgid="894448782525835364">"Magazinok"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Költészet"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Üzleti és ipari"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Hirdetés és marketing"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Értékesítés"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Mezőgazdaság és erdészet"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Élelmiszergyártás"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Autóipar"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Légiközlekedési szektor"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Üzleti vállalkozások"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Rugalmas munkaidő"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Humán erőforrások"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Üzleti hitelezés"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Építkezés és karbantartás"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Építőmérnöki tudomány"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Védelmi ipar"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Energia és közművek"</string>
+    <string name="topic10136" msgid="455894912948558854">"Vízellátás és -kezelés"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Vendéglátóipar"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Gyártás"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Fémek és bányászat"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM és üzleti lehetőségek"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Gyógyszerészet és biotechnológia"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Nyomda és kiadás"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Kiskereskedelem"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Vállalkozási tőke"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Számítógépek és elektronika"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Számítógép-alkatrészek"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Nyomtatók"</string>
+    <string name="topic10148" msgid="388392714835039199">"Számítógépes biztonság"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Vírusok és kártékony programok elleni védelem"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Hálózati biztonság"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Szórakoztató elektronika"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Fényképezőgépek és kamerák"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS és navigáció"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Otthonautomatizálás"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Házimozirendszerek"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3-lejátszók és hordozható zenelejátszók"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Hordható technológia"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Adatmentés és -visszaállítás"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Asztali számítógépek"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Laptopok és notebookok"</string>
+    <string name="topic10161" msgid="172004201167511870">"Hálózatok"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Elosztott rendszerek és felhőalapú számítástechnika"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Programozás"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Szoftver"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Zene- és audioszoftverek"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Üzleti és hatékonysági szoftver"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Naptár- és időbeosztási szoftverek"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Együttműködést támogató és konferenciaszoftverek"</string>
+    <string name="topic10169" msgid="827557334245484202">"Prezentációs szoftverek"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Táblázatkezelő szoftverek"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Szövegszerkesztő szoftverek"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Kiadványszerkesztés (DTP)"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Betűtípusok"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Letöltéskezelők"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Freeware és shareware programok"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Grafikai és animációs szoftver"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Intelligens személyi asszisztensek"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Médialejátszók"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Figyelőszoftverek"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Operációs rendszer"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Kép- és videószerkesztő szoftverek"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Képszerkesztő szoftverek"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Videószerkesztő szoftverek"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Segédprogramok"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Böngészők"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Pénzügy"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Számvitel és auditálás"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Adóelőkészítés és -tervezés"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Banki ügyintézés"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Pénzátutalási szolgáltatások"</string>
+    <string name="topic10191" msgid="374364159635356705">"Hitel és kölcsön"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Hitelkártyák"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Lakásfinanszírozás"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Személyi kölcsönök"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Diákhitelek és felsőoktatási tanulmányok finanszírozása"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Pénzügyi tervezés és menedzsment"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Nyugdíjba vonulás és nyugdíj"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Google Grants"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Google Grants"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Biztosítás"</string>
+    <string name="topic10201" msgid="447240478385298875">"Gépjármű-biztosítás"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Egészségbiztosítás"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Otthonbiztosítás"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Életbiztosítás"</string>
+    <string name="topic10205" msgid="262581473890356377">"Utazási biztosítás"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Befektetések"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Árukereskedelem és árutőzsde"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Pénznemek és deviza"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Hedge Fund befektetési alapok"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Nyílt végű befektetési alap"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Részvények és kötvények"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Étel-ital"</string>
+    <string name="topic10213" msgid="805716705436663130">"Főzés és receptek"</string>
+    <string name="topic10214" msgid="726298155737413779">"Barbecue és grillezés"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Konyha"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Vegetáriánus konyha"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegán konyha"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Egészséges táplálkozás"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Élelmiszerboltok és -kereskedők"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Játékok"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Játéktermi és pénzbedobós játékok"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Biliárd"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Társasjátékok"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Sakk és absztrakt stratégiai játékok"</string>
+    <string name="topic10225" msgid="564207834821286301">"Kártyajátékok"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Gyűjthető kártyajátékok"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Számítógépes és videójátékok"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Akció- és platformjátékok"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Kalandjátékok"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Egyszerű játékok"</string>
+    <string name="topic10231" msgid="405082026972839048">"Videójáték-versenyzés"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Autós és versenyzős játékok"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Verekedős játékok"</string>
+    <string name="topic10234" msgid="693433817142162565">"Videójátékokkal kapcsolatos referenciaanyagok és vélemények"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Csalások és tippek játékokhoz"</string>
+    <string name="topic10236" msgid="320145832033080647">"Multiplayer játékok"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Zenés és táncos játékok"</string>
+    <string name="topic10238" msgid="124952008622371505">"Nyitott világú játékok"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Lövöldözős játékok"</string>
+    <string name="topic10240" msgid="429738690314619395">"Szimulációs játékok"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Üzleti és befektetési játékok"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Városépítő játékok"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Életszimulációs játékok"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Járműszimulátorok"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Sportjátékok"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Sportmenedzselési játékok"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Stratégiai játékok"</string>
+    <string name="topic10248" msgid="279151815457227293">"Modok és kiegészítők videojátékokhoz"</string>
+    <string name="topic10249" msgid="631580828608894782">"Oktatójátékok"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Családnak szóló játékok és tevékenységek"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Rajzolás és színezés"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Öltöztetés és divatjátékok"</string>
+    <string name="topic10253" msgid="385499297969826942">"Kirakós játékok és fejtörők"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Szerepjátékok"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Asztalitenisz"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Kirakójáték"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Szójátékok"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Hobbi és szabadidő"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Évfordulók"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Születésnapok és névnapok"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Búvárkodás és víz alatti tevékenységek"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Szövet- és textilművészet"</string>
+    <string name="topic10263" msgid="361345691023794788">"Kültéri"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Halászat és horgászat"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Vadászat és lövészet"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Rádió-távirányítás és modellezés"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Esküvő"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Otthon és kert"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Kertészkedés"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Lakberendezés és belső dekoráció"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Háztartási eszközök"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Lakásfelújítás"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Otthoni biztonság"</string>
+    <string name="topic10275" msgid="682064062059687444">"Háztartási kellékek"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Tájépítészet"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Internet és telekommunikáció"</string>
+    <string name="topic10278" msgid="1736187026108921963">"E-mail és üzenetküldés"</string>
+    <string name="topic10279" msgid="9034205050642228743">"E-mail"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Szöveges és azonnali üzenetek"</string>
+    <string name="topic10281" msgid="582764575763317221">"Audio- és videocsevegés"</string>
+    <string name="topic10282" msgid="7165187778548433480">"Internetszolgáltatók"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Telefonos szolgáltatók"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Csengőhangok és mobiltémák"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Keresőmotorok"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Okostelefonok"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Telekonferencia"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Internetes alkalmazások és online eszközök"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Internetes szolgáltatások"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloud Storage"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Webdesign és -fejlesztés"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Webes tárhelyszolgáltatás"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Munka és oktatás"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Oktatás"</string>
+    <string name="topic10295" msgid="331240908257602211">"Tudományos konferenciák és publikációk"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Főiskolák és egyetemek"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Távoktatás"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Korai gyermekoktatás"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Óvoda"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Otthoni oktatás és magántanulás"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Standardizált és felvételi vizsgák"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Tanítási és osztálytermi segédletek"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Szakképzés és folyamatos képzés"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Álláslehetőségek"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Karrieranyagok és karriertervezés"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Álláshirdetések"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Jog és kormányzat"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Bűnözés és igazságszolgáltatás"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Jogi"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Jogi szolgáltatások"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Hírek"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Gazdasági hírek"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Helyi hírek"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Vállalategyesülések és -felvásárlások"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Újságok"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Politika"</string>
+    <string name="topic10317" msgid="888696185673599406">"Sporthírek"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Időjárás"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Hírek a nagyvilágból"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Online közösségek"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clipartok és animált GIF-ek"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Párkeresés és ismerkedés"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Hírcsatorna-figyelés és közösségi könyvjelzők kezelése"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Fájlmegosztás és -tárolás"</string>
+    <string name="topic10325" msgid="916412844647169263">"Fórum- és chatszolgáltatók"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Mikroblogok"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Kép- és videómegosztás"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Képmegosztás"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Videómegosztás"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Felületek"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Közösségi hálózati alkalmazások és bővítmények"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Közösségi hálózatok"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Emberek és társadalom"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Család és kapcsolatok"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Eredettan és genealógia"</string>
+    <string name="topic10336" msgid="360328903013424569">"Házasság"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Gyermeknevelés"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Örökbefogadás"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Csecsemők és kisgyermekek"</string>
+    <string name="topic10340" msgid="259457452971577855">"Gyermekek internetes biztonsága"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Romantikus"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Sci-fi és fantasy"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Házi kedvencek és egyéb állatok"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Állateledel és kisállat-gondozási kellékek"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Kisállatok"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Madarak"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Macskák"</string>
+    <string name="topic10348" msgid="570783769757187957">"Kutyák"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Halak és akváriumok"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Hüllők és kétéltűek"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Állatorvosok"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Ingatlan"</string>
+    <string name="topic10353" msgid="230887584509968233">"Telkek és földek"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Üdülési jogok és üdülők"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Referenciák"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Üzleti és személyes címtárak"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Általános segédanyagok"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Számológépek és segédeszközök"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Szótárak és enciklopédiák"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Oktatási anyagok"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Oktatóanyagok"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Idő és naptárak"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Nyelvi anyagok"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Nyelvtanulás"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Fordítóeszközök és -erőforrások"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Térkép"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Tudomány"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Virtuális és kiterjesztett valóság"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Élettudományok"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Genetika"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Kémia"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Ökológia és környezet"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Geológia"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Gépi tanulás és mesterséges intelligencia"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Matematika"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Fizika"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Robotika"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Vásárlás"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Antikvitás, gyűjtemények"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Ruházat"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Gyermekruházat"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Jelmezek"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Férfi ruházat"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Női ruházat"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Apróhirdetés"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Fogyasztói segédletek"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Kuponok és kedvezményes ajánlatok"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Hűségkártyák és hűségprogramok"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Terméktámogatás és javítás"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Virágok"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Üdvözlőlapok"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Bulik és nyaralások kellékei"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Kiskereskedelmi portálok"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Sport"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Amerikai futball"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Ausztrál futball"</string>
+    <string name="topic10397" msgid="653991203228840785">"Autóversenyzés"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Baseball"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Kosárlabda"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Bowling"</string>
+    <string name="topic10401" msgid="26807857115228330">"Box"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Cheerleading"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Egyetemi sportok"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Krikett"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Kerékpározás"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Lovaglás"</string>
+    <string name="topic10407" msgid="316266982792700993">"Extrém sportok"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Szikla- és hegymászás"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Sportmenedzserjátékok"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Golf"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Torna"</string>
+    <string name="topic10412" msgid="335770351079973128">"Jégkorong"</string>
+    <string name="topic10413" msgid="416366556259783701">"Jégkorcsolyázás"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Harcművészet"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Motorversenyzés"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Olimpia"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Rögbi"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Futás és gyaloglás"</string>
+    <string name="topic10419" msgid="979581105119036716">"Síelés és snowboard"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Labdarúgás"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Szörfözés"</string>
+    <string name="topic10422" msgid="978920114358054206">"Úszás"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Tenisz"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Atlétika"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Röplabda"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Birkózás"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Utazás és közlekedés"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Kalandturizmus"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Repülőutak"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Üzleti utazás"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Autókölcsönzés"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Hajóutak és hajóbérlés"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Családi utazás"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Nászutak és romantikus kirándulások"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Szállodák és szálláslehetőségek"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Távolsági busz és vonat"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Olcsó, last minute utazások"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Poggyász és az utazás egyéb kiegészítői"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Turistacélpontok"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Partok és szigetek"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Regionális parkok és kertek"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Vidámparkok"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Állatkertek"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Forgalomfigyelők és útvonaltervezők"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Utazási irodák és szolgáltatások"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Útikönyvek és utazási katalógusok"</string>
+</resources>

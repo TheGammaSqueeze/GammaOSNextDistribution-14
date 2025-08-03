@@ -1,0 +1,1126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Rhyngwyneb y System</string>
+    <string name="battery_low_title">Troi\'r Arbedwr Batri ymlaen?</string>
+    <string name="battery_low_description">Mae <xliff:g id="percentage" example="20%">%s</xliff:g> o fatri\u2019n weddill. Mae\u2019r Arbedwr Batri yn troi\u2019r thema dywyll ymlaen, yn cyfyngu ar weithgaredd yn y cefndir, ac yn oedi hysbysiadau.</string>
+    <string name="battery_low_intro">Mae\u2019r Arbedwr Batri yn troi\u2019r thema dywyll ymlaen, yn cyfyngu ar weithgaredd yn y cefndir, ac yn oedi hysbysiadau.</string>
+    <string name="battery_low_percent_format"><xliff:g id="percentage">%s</xliff:g> yn weddill</string>
+    <string name="invalid_charger_title">Methu â gwefru trwy USB</string>
+    <string name="invalid_charger_text">Defnyddia\'r gwefrydd daeth gyda dy ddyfais</string>
+    <string name="battery_saver_confirmation_title">Troi\'r Arbedwr Batri ymlaen?</string>
+    <string name="battery_saver_confirmation_title_generic">Ynghylch Arbedwr Batri</string>
+    <string name="battery_saver_confirmation_ok">Troi ymlaen</string>
+    <string name="battery_saver_start_action">Troi ymlaen</string>
+    <string name="battery_saver_dismiss_action">Dim diolch</string>
+    <string name="status_bar_settings_auto_rotation">Troi\'r sgrin yn awtomatig</string>
+    <string name="usb_device_permission_prompt">Caniatáu <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i gael mynediad at <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?</string>
+    <string name="usb_device_permission_prompt_warn">Caniatáu <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i gael mynediad at <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?\nNid yw\'r ap hwn wedi cael caniatâd i recordio ond gallai gipio sain trwy\'r ddyfais USB hon.</string>
+    <string name="usb_audio_device_permission_prompt_title">Caniatáu <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i gael mynediad at <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?</string>
+    <string name="usb_audio_device_confirm_prompt_title">Agor <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i drin <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?</string>
+    <string name="usb_audio_device_prompt_warn">Dyw\u2019r ap hwn heb gael caniatâd i recordio ond gallai gipio sain trwy\u2019r ddyfais USB hon. Gall defnyddio <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> gyda\u2019r ddyfais hon rwystro clywed galwadau, hysbysiadau a larymau.</string>
+    <string name="usb_audio_device_prompt">Gall defnyddio <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> gyda\u2019r ddyfais hon rwystro clywed galwadau, hysbysiadau a larymau.</string>
+    <string name="usb_accessory_permission_prompt">Caniatáu <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i gael mynediad at <xliff:g id="usb_accessory" example="USB Dock">%2$s</xliff:g>?</string>
+    <string name="usb_device_confirm_prompt">Agor <xliff:g id="application">%1$s</xliff:g> i ymwneud â <xliff:g id="usb_device">%2$s</xliff:g>?</string>
+    <string name="usb_device_confirm_prompt_warn">Agor <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> i drin <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?\nNid yw\'r ap hwn wedi cael caniatâd i recordio ond gallai gipio sain trwy\'r ddyfais USB hon.</string>
+    <string name="usb_accessory_confirm_prompt">Agor <xliff:g id="application">%1$s</xliff:g> i ymwneud â <xliff:g id="usb_accessory">%2$s</xliff:g>?</string>
+    <string name="usb_accessory_uri_prompt">Does dim apiau ar y ddyfais yn gweithio gyda\'r ategolyn USB hwn. Dysga mwy am yr ategolyn yma: <xliff:g id="url">%1$s</xliff:g></string>
+    <string name="title_usb_accessory">Ategolyn USB</string>
+    <string name="label_view">Gweld</string>
+    <string name="always_use_device">Agor <xliff:g id="application">%1$s</xliff:g> pob tro cysylltir <xliff:g id="usb_device">%2$s</xliff:g></string>
+    <string name="always_use_accessory">Agor <xliff:g id="application">%1$s</xliff:g> pob tro cysylltir <xliff:g id="usb_accessory">%2$s</xliff:g></string>
+    <string name="usb_debugging_title">Caniatáu dadfygio USB?</string>
+    <string name="usb_debugging_message">Ôl bys allwedd RSA y cyfrifiadur yw:\n<xliff:g id="fingerprint">%1$s</xliff:g></string>
+    <string name="usb_debugging_always">Caniatáu bob tro gan y cyfrifiadur hwn</string>
+    <string name="usb_debugging_allow">Caniatáu</string>
+    <string name="usb_debugging_secondary_user_title">Ni chaniateir dadfygio USB</string>
+    <string name="hdmi_cec_set_menu_language_title">Wyt ti am newid iaith y system i <xliff:g id="language" example="German">%1$s</xliff:g>?</string>
+    <string name="hdmi_cec_set_menu_language_description">Mae cais gan ddyfais arall i newid iaith y system</string>
+    <string name="hdmi_cec_set_menu_language_accept">Newid iaith</string>
+    <string name="hdmi_cec_set_menu_language_decline">Cadw\'r iaith cyfredol</string>
+    <string name="share_wifi_button_text">Rhannu Wi\u2011Fi</string>
+    <string name="wifi_debugging_title">Caniatáu dadfygio gwallau di-wifr ar y rhwydwaith hwn?</string>
+    <string name="wifi_debugging_message">Enw Rhwydwaith (SSID)\n<xliff:g id="ssid" example="My wifi">%1$s</xliff:g>\n\nCyfeiriad Wi\u2011Fi (BSSID\n<xliff:g id="bssid" example="AB:CD:EF:12:34:56">%2$s</xliff:g></string>
+    <string name="wifi_debugging_always">Caniatáu ar y rhwydwaith hwn bob amser</string>
+    <string name="wifi_debugging_allow">Caniatáu</string>
+    <string name="wifi_debugging_secondary_user_title">Ni chaniateir dadfygio gwallau di-wifr</string>
+    <string name="usb_contaminant_title">Analluogwyd y porth USB</string>
+    <string name="usb_contaminant_message">I warchod dy ddyfais rhag baw neu hylif, mae\u2019r porth USB wedi\u2019i analluogi ac ni fydd yn synhwyro unrhyw beth gaiff ei gysylltu.\n\nBydd hysbysiad yn rhoi gwybod pan fydd yn iawn i ddefnyddio\u2019r porth USB eto.</string>
+    <string name="usb_port_enabled">Galluogwyd y porth USB i synhwyro gwefrwyr batri ac ategolion</string>
+    <string name="usb_disable_contaminant_detection">Galluogi USB</string>
+    <string name="learn_more">Dysgu mwy</string>
+    <string name="global_action_screenshot">Sgrinlun</string>
+    <string name="remote_input_image_insertion_text">anfonwyd delwedd</string>
+    <string name="screenshot_saving_title">Yn cadw\'r sgrinlun\u2026</string>
+    <string name="screenshot_saving_work_profile_title">Yn cadw sgrinlun i\u2019r proffil gwaith\u2026</string>
+    <string name="screenshot_saved_title">Wedi cadw\'r sgrinlun</string>
+    <string name="screenshot_failed_title">Methwyd â chadw\'r sgrinlun</string>
+    <string name="screenshot_failed_external_display_indication">Dangosydd Allanol</string>
+    <string name="screenshot_failed_to_save_user_locked_text">Rhaid bod y ddyfais wedi\u2019i ddatgloi cyn gallu cadw sgrinlun</string>
+    <string name="screenshot_failed_to_save_unknown_text">Rho gynnig ar gymryd sgrinlun eto</string>
+    <string name="screenshot_failed_to_save_text">Methu cadw\u2019r sgrinlun</string>
+    <string name="screenshot_failed_to_capture_text">Ni chaniateir cymryd sgrinluniau gan yr ap neu dy sefydliad.</string>
+    <string name="screenshot_blocked_by_admin">Mae tynnu sgrinluniau wedi\'i rwystro gan dy weinyddwr TG</string>
+    <string name="screenshot_edit_label">Golygu</string>
+    <string name="screenshot_edit_description">Golygu\u2019r sgrinlun</string>
+    <string name="screenshot_share_description">Rhannu\u2019r sgrinlun</string>
+    <string name="screenshot_scroll_label">Cipio mwy</string>
+    <string name="screenshot_dismiss_description">Cau\'r sgrinlun</string>
+    <string name="screenshot_dismiss_work_profile">Wfftio neges proffil gwaith</string>
+    <string name="screenshot_preview_description">Rhagolwg o\'r sgrinlun</string>
+    <string name="screenshot_top_boundary_pct">Terfyn uchaf <xliff:g id="percent" example="50">%1$d</xliff:g> y cant</string>
+    <string name="screenshot_bottom_boundary_pct">Terfyn isaf <xliff:g id="percent" example="50">%1$d</xliff:g> y cant</string>
+    <string name="screenshot_left_boundary_pct">Terfyn chwith <xliff:g id="percent" example="50">%1$d</xliff:g> y cant</string>
+    <string name="screenshot_right_boundary_pct">Terfyn de <xliff:g id="percent" example="50">%1$d</xliff:g> y cant</string>
+    <string name="screenshot_work_profile_notification">Cadwyd yn <xliff:g id="app" example="Files">%1$s</xliff:g> yn y proffil gwaith</string>
+    <string name="screenshot_default_files_app_name">Ffeiliau</string>
+    <string name="screenshot_detected_template">Canfododd <xliff:g id="appName" example="Google Chrome">%1$s</xliff:g> y sgrinlun hwn.</string>
+    <string name="screenshot_detected_multiple_template">Canfododd <xliff:g id="appName" example="Google Chrome">%1$s</xliff:g> ac apiau eraill y sgrinlun hwn.</string>
+    <string name="app_clips_save_add_to_note">Ychwanegu at nodyn</string>
+    <string name="screenrecord_title">Recordydd Sgrin</string>
+    <string name="screenrecord_background_processing_label">Prosesu recordiad sgrin</string>
+    <string name="screenrecord_channel_description">Hysbysiad i ddangos bod y sgrin yn cael ei recordio</string>
+    <string name="screenrecord_permission_dialog_title">Dechrau recordio?</string>
+    <string name="screenrecord_permission_dialog_warning_entire_screen">Wrth i ti recordio, mae gan Android fynediad at unrhyw beth sy\u2019n weledol ar dy sgrin neu\u2019n chwarae ar dy ddyfais, felly bydda\u2019n ofalus gyda phethau fel cyfrineiriau, manylion talu, negeseuon, lluniau, a sain a fideo.</string>
+    <string name="screenrecord_permission_dialog_warning_single_app">Wrth i ti recordio ap, mae gan Android fynediad at unrhyw beth sy\u2019n weledol ar dy sgrin neu\u2019n chwarae ar dy ddyfais, felly bydda\u2019n ofalus gyda phethau fel cyfrineiriau, manylion talu, negeseuon, lluniau, a sain a fideo.</string>
+    <string name="screenrecord_permission_dialog_continue">Dechrau recordio</string>
+    <string name="screenrecord_audio_label">Recordio sain</string>
+    <string name="screenrecord_device_audio_label">Sain dyfais</string>
+    <string name="screenrecord_device_audio_description">Sain o dy ddyfais, megis cerddoriaeth, galwadau a thonau canu</string>
+    <string name="screenrecord_mic_label">Meicroffon</string>
+    <string name="screenrecord_device_audio_and_mic_label">Sain dyfais a meicroffon</string>
+    <string name="screenrecord_continue">Dechrau</string>
+    <string name="screenrecord_ongoing_screen_only">Yn recordio\'r sgrin</string>
+    <string name="screenrecord_ongoing_screen_and_audio">Yn recordio\'r sgrin a sain</string>
+    <string name="screenrecord_taps_label">Dangos cyffyrddiadau ar y sgrin</string>
+    <string name="screenrecord_stop_label">Stopio</string>
+    <string name="screenrecord_share_label">Rhannu</string>
+    <string name="screenrecord_save_title">Wedi cadw recordiad sgrin</string>
+    <string name="screenrecord_save_text">Tapia i weld</string>
+    <string name="screenrecord_save_error">Gwall cadw recordiad sgrin</string>
+    <string name="screenrecord_start_error">Gwall wrth gychwyn recordio\'r sgrin</string>
+    <string name="issuerecord_share_label">Rhannu</string>
+    <string name="issuerecord_save_text">Tapia i weld</string>
+    <string name="immersive_cling_description">I adael, llusga i lawr o\u2019r top.</string>
+    <string name="immersive_cling_positive">Deall yn iawn</string>
+    <string name="accessibility_back">Nôl</string>
+    <string name="accessibility_home">Cartref</string>
+    <string name="accessibility_menu">Dewislen</string>
+    <string name="accessibility_accessibility_button">Hygyrchedd</string>
+    <string name="accessibility_rotate_button">Cylchdroi\'r sgrin</string>
+    <string name="accessibility_recent">Trosolwg</string>
+    <string name="accessibility_camera_button">Camera</string>
+    <string name="accessibility_phone_button">Ffôn</string>
+    <string name="accessibility_voice_assist_button">Cymorth Llais</string>
+    <string name="accessibility_wallet_button">Waled</string>
+    <string name="accessibility_qr_code_scanner_button">Sganiwr Codau QR</string>
+    <string name="accessibility_unlock_button">Wedi datgloi</string>
+    <string name="accessibility_lock_icon">Dyfais dan glo</string>
+    <string name="accessibility_scanning_face">Sganio wyneb</string>
+    <string name="accessibility_send_smart_reply">Anfon</string>
+    <string name="cancel">Diddymu</string>
+    <string name="biometric_dialog_confirm">Cadarnhau</string>
+    <string name="biometric_dialog_try_again">Ceisio eto</string>
+    <string name="biometric_dialog_empty_space_description">Tapia i ddiddymu dilysu</string>
+    <string name="biometric_dialog_face_icon_description_idle">Rho gynnig arall arni</string>
+    <string name="biometric_dialog_face_icon_description_authenticating">Yn edrych am dy wyneb</string>
+    <string name="biometric_dialog_face_icon_description_authenticated">Dilyswyd y wyneb</string>
+    <string name="biometric_dialog_face_icon_description_confirmed">Cadarnhawyd</string>
+    <string name="biometric_dialog_tap_confirm">Tapia Cadarnhau i gwblhau</string>
+    <string name="biometric_dialog_tap_confirm_with_face">Datglowyd gydag wyneb</string>
+    <string name="biometric_dialog_tap_confirm_with_face_alt_1">Datglowyd gydag wyneb. Pwysa i barhau.</string>
+    <string name="biometric_dialog_tap_confirm_with_face_alt_2">Wedi adnabod wyneb. Pwysa i barhau.</string>
+    <string name="biometric_dialog_tap_confirm_with_face_alt_3">Wedi adnabod wyneb. Pwysa\u2019r eicon datgloi i barhau.</string>
+    <string name="biometric_dialog_authenticated">Dilyswyd</string>
+    <string name="biometric_dialog_cancel_authentication">Diddymu Dilysiad</string>
+    <string name="biometric_dialog_use_pin">Defnyddio PIN</string>
+    <string name="biometric_dialog_use_pattern">Defnyddio patrwm</string>
+    <string name="biometric_dialog_use_password">Defnyddio cyfrinair</string>
+    <string name="biometric_dialog_wrong_pin">PIN anghywir</string>
+    <string name="biometric_dialog_wrong_pattern">Patrwm anghywir</string>
+    <string name="biometric_dialog_wrong_password">Cyfrinair anghywir</string>
+    <string name="biometric_dialog_credential_too_many_attempts">Gormod o ymdrechion anghywir.\nRho gynnig arall arni ymhen <xliff:g id="number">%d</xliff:g> eiliad.</string>
+    <string name="work_challenge_emergency_button_text">Argyfwng</string>
+    <string name="biometric_dialog_credential_attempts_before_wipe">Ceisio eto. Ymgais <xliff:g id="attempts" example="1">%1$d</xliff:g> o <xliff:g id="max_attempts" example="3">%2$d</xliff:g>.</string>
+    <string name="biometric_dialog_last_attempt_before_wipe_dialog_title">Caiff dy ddata ei ddileu</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_device">Os fyddi wedi rhoi\'r patrwm anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei ddileu.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_device">Os fyddi wedi rhoi\'r PIN anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_device">Os fyddi wedi rhoi\'r cyfrinair anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_user">Os fyddi wedi rhoi\'r patrwm anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_user">Os fyddi wedi rhoi\'r PIN anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_user">Os fyddi wedi rhoi\'r cyfrinair anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_profile">Os fyddi wedi rhoi\'r patrwm anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_profile">Os fyddi wedi rhoi\'r PIN anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_profile">Os fyddi wedi rhoi\'r cyfrinair anghywir ar yr ymgais nesaf, bydd data\'r ddyfais hon yn cael ei dileu.</string>
+    <string name="biometric_re_enroll_dialog_confirm">Gosod</string>
+    <string name="biometric_re_enroll_dialog_cancel">Dim nawr</string>
+    <string name="biometric_re_enroll_notification_content">Mae angen hwn i wella diogelwch a pherfformiad</string>
+    <string name="fingerprint_re_enroll_notification_title">Gosod Datgloi ag Ôl Bys eto</string>
+    <string name="fingerprint_re_enroll_notification_name">Datgloi ag Ôl Bys</string>
+    <string name="fingerprint_re_enroll_dialog_title">Gosod Datgloi ag Ôl Bys</string>
+    <string name="fingerprint_re_enroll_dialog_content">I osod Datgloi ag Ôl Bys eto, caiff delweddau a modelau cyfredol dy olion bysedd eu dileu.\n\nAr ôl iddynt gael eu dileu, bydd rhaid gosod Datgloi ag Ôl Bys eto i ddefnyddio dy ôl bys i ddatgloi dy ffôn neu gadarnhau mai ti sy\u2019n ei defnyddio.</string>
+    <string name="fingerprint_re_enroll_dialog_content_singular">I osod Datgloi ag Ôl Bys eto, caiff delweddau a model cyfredol dy ôl bys eu dileu.\n\nAr ôl iddynt gael eu dileu, bydd rhaid gosod Datgloi ag Ôl Bys eto i ddefnyddio dy ôl bys i ddatgloi dy ffôn neu gadarnhau mai ti sy\u2019n ei defnyddio.</string>
+    <string name="fingerprint_reenroll_failure_dialog_content">Methwyd gosod datgloi ag ôl bys. Cer i\u2019r Gosodiadau i geisio eto.</string>
+    <string name="face_re_enroll_notification_title">Gosod Datgloi ag Wyneb eto</string>
+    <string name="face_re_enroll_notification_name">Datgloi ag Wyneb</string>
+    <string name="face_re_enroll_dialog_title">Gosod Datgloi ag Wyneb</string>
+    <string name="face_re_enroll_dialog_content">I osod Datgloi ag Wyneb eto, caiff model cyfredol dy wyneb ei ddileu.\n\nBydd rhaid gosod Datgloi ag Wyneb eto i ddefnyddio dy wyneb i ddatgloi dy ffôn.</string>
+    <string name="face_reenroll_failure_dialog_content">Methwyd gosod datgloi ag wyneb. Cer i\u2019r Gosodiadau i geisio eto.</string>
+    <string name="fingerprint_dialog_touch_sensor">Cyffyrdda\'r synhwyrydd ôl bys</string>
+    <string name="fingerprint_dialog_use_fingerprint_instead">Heb adnabod wyneb. Defnyddia ôl bys yn lle.</string>
+    <string name="keyguard_face_failed_use_fp">@string/fingerprint_dialog_use_fingerprint_instead</string>
+    <string name="keyguard_face_failed">Heb adnabod wyneb</string>
+    <string name="keyguard_suggest_fingerprint">Defnyddo ôl bys yn lle</string>
+    <string name="keyguard_face_unlock_unavailable">Datgloi â Wyneb ddim ar gael</string>
+    <string name="accessibility_bluetooth_connected">Bluetooth wedi cysylltu.</string>
+    <string name="accessibility_bluetooth_device_icon">Eicon dyfais Bluetooth</string>
+    <string name="accessibility_bluetooth_device_settings_gear">Clicia i ffurfweddu manylion dyfais</string>
+    <string name="accessibility_bluetooth_device_settings_see_all">Clicia i weld pob dyfais</string>
+    <string name="accessibility_bluetooth_device_settings_pair_new_device">Clicia i baru dyfais newydd</string>
+    <string name="accessibility_battery_unknown">Canran y batri yn anhysbys.</string>
+    <string name="accessibility_bluetooth_name">Wedi cysylltu â <xliff:g id="bluetooth" example="Car Audio">%s</xliff:g>.</string>
+    <string name="accessibility_cast_name">Wedi cysylltu gyda <xliff:g id="cast" example="TV">%s</xliff:g>.</string>
+    <string name="accessibility_not_connected">Heb gysylltu.</string>
+    <string name="data_connection_roaming">Crwydro</string>
+    <string name="cell_data_off">I ffwrdd</string>
+    <string name="accessibility_airplane_mode">Modd awyren.</string>
+    <string name="accessibility_vpn_on">VPN ymlaen.</string>
+    <string name="accessibility_battery_level">Batri <xliff:g id="number">%d</xliff:g> y cant.</string>
+    <string name="accessibility_battery_level_with_estimate">Batri <xliff:g id="percentage" example="95%">%1$d</xliff:g> y cant, <xliff:g id="time" example="Until 3:15pm">%2$s</xliff:g></string>
+    <string name="accessibility_battery_level_charging">Batri\'n gwefru, <xliff:g id="battery_percentage">%d</xliff:g> y cant.</string>
+    <string name="accessibility_battery_level_charging_paused">Batri <xliff:g id="percentage" example="90%">%d</xliff:g> y cant, gwefru wedi oedi i warchod y batri.</string>
+    <string name="accessibility_battery_level_charging_paused_with_estimate">Batri <xliff:g id="percentage" example="90%">%1$d</xliff:g> y cant, <xliff:g id="time" example="Until 3:15pm">%2$s</xliff:g>, gwefru wedi oedi i warchod y batri.</string>
+    <string name="accessibility_overflow_action">Gweld pob hysbysiad</string>
+    <string name="accessibility_tty_enabled">Galluogwyd TeleTypewriter (TTY).</string>
+    <string name="accessibility_ringer_vibrate">Caniad ffôn yn dirgrynu.</string>
+    <string name="accessibility_ringer_silent">Tonau canu yn ddistaw.</string>
+    <string name="accessibility_casting">@string/quick_settings_casting</string>
+    <string name="accessibility_desc_notification_shade">Cysgodi hysbysiadau.</string>
+    <string name="accessibility_desc_quick_settings">Gosodiadau cyflym.</string>
+    <string name="accessibility_desc_qs_notification_shade">Gosodiadau cyflym a chysgod Hysbysiadau.</string>
+    <string name="accessibility_desc_lock_screen">Sgrin cloi</string>
+    <string name="accessibility_desc_work_lock">Sgrin cloi gwaith</string>
+    <string name="accessibility_desc_close">Cau</string>
+    <string name="accessibility_quick_settings_dnd_none_on">distawrwydd llwyr</string>
+    <string name="accessibility_quick_settings_dnd_alarms_on">larymau yn unig</string>
+    <string name="accessibility_quick_settings_dnd">Paid â Tharfu.</string>
+    <string name="accessibility_quick_settings_bluetooth">Bluetooth</string>
+    <string name="accessibility_quick_settings_bluetooth_on">Bluetooth ymlaen.</string>
+    <string name="accessibility_quick_settings_alarm">Larwm wedi\'i osod ar gyfer <xliff:g id="time" example="Wed 3:30 PM">%s</xliff:g>.</string>
+    <string name="accessibility_quick_settings_more_time">Rhagor o amser.</string>
+    <string name="accessibility_quick_settings_less_time">Llai o amser.</string>
+    <string name="accessibility_casting_turned_off">Mae bwrw\'r sgrin wedi stopio.</string>
+    <string name="accessibility_brightness">Disgleirdeb y dangosydd</string>
+    <string name="data_usage_disabled_dialog_mobile_title">Mae data symudol wedi\'i atal</string>
+    <string name="data_usage_disabled_dialog_title">Mae data wedi\'i atal</string>
+    <string name="data_usage_disabled_dialog">Mae\'r terfyn data gosodaist wedi ei gyrraedd. Dyw\'r ddyfais ddim yn defnyddio data symudol bellach.\n\nOs wyt ti\'n parhau, mae\'n bosib bydd costau ychwanegol am ddefnydd data.</string>
+    <string name="data_usage_disabled_dialog_enable">Parhau</string>
+    <string name="accessibility_location_active">Ceisiadau am leoliad yn weithredol</string>
+    <string name="accessibility_sensors_off_active">Synhwyryddion i ffwrdd ar waith</string>
+    <string name="accessibility_clear_all">Clirio pob hysbysiad.</string>
+    <string name="notification_group_overflow_indicator">+ <xliff:g id="number" example="3">%s</xliff:g></string>
+    <string name="notification_group_overflow_description">{count, plural,
+        =1 {# hysbysiad arall tu mewn.}
+        other {# hysbysiad arall tu mewn.}
+    }</string>
+    <string name="accessibility_rotation_lock_on_landscape">Mae\'r sgrin wedi\'i chloi yn y gorweddiad tirwedd.</string>
+    <string name="accessibility_rotation_lock_on_portrait">Mae\'r sgrin wedi\'i chloi yn y gorweddiad darlun.</string>
+    <string name="dessert_case">Cyflwyniad Pwdinau</string>
+    <string name="start_dreams">Arbedwr sgrin</string>
+    <string name="ethernet_label">Ether-rwyd</string>
+    <string name="quick_settings_dnd_label">Paid â Tharfu</string>
+    <string name="quick_settings_bluetooth_label">Bluetooth</string>
+    <string name="quick_settings_bluetooth_detail_empty_text">Dim dyfeisiau wedi\'u paru ar gael</string>
+    <string name="quick_settings_bluetooth_tile_subtitle">Tapia i gysylltu neu ddatgysylltu dyfais</string>
+    <string name="pair_new_bluetooth_devices">Paru â dyfais newydd</string>
+    <string name="see_all_bluetooth_devices">Gweld y cwbl</string>
+    <string name="turn_on_bluetooth">Defnyddio Bluetooth</string>
+    <string name="quick_settings_bluetooth_device_connected">Wedi cysylltu</string>
+    <string name="quick_settings_bluetooth_device_saved">Wedi ei chadw</string>
+    <string name="accessibility_quick_settings_bluetooth_device_tap_to_disconnect">datgysylltu</string>
+    <string name="accessibility_quick_settings_bluetooth_device_tap_to_activate">actifadu</string>
+    <string name="quick_settings_bluetooth_secondary_label_battery_level"><xliff:g id="battery_level_as_percentage">%s</xliff:g> batri</string>
+    <string name="quick_settings_bluetooth_secondary_label_audio">Sain</string>
+    <string name="quick_settings_bluetooth_secondary_label_headset">Clustffonau</string>
+    <string name="quick_settings_bluetooth_secondary_label_input">Mewnbwn</string>
+    <string name="quick_settings_bluetooth_secondary_label_hearing_aids">Cymorthyddion clyw</string>
+    <string name="quick_settings_bluetooth_secondary_label_transient">Yn troi ymlaen…</string>
+    <string name="quick_settings_rotation_unlocked_label">Troi yn Awtomatig</string>
+    <string name="accessibility_quick_settings_rotation">Troi\'r sgrin yn awtomatig</string>
+    <string name="quick_settings_location_label">Lleoliad</string>
+    <string name="quick_settings_screensaver_label">Arbedwr sgrin</string>
+    <string name="quick_settings_camera_label">Mynediad at gamera</string>
+    <string name="quick_settings_mic_label">Mynediad at ficroffon</string>
+    <string name="quick_settings_camera_mic_available">Ar gael</string>
+    <string name="quick_settings_camera_mic_blocked">Wedi\u2019i rhwystro</string>
+    <string name="quick_settings_media_device_label">Dyfais cyfryngau</string>
+    <string name="quick_settings_user_title">Defnyddiwr</string>
+    <string name="quick_settings_wifi_label">Wi-Fi</string>
+    <string name="quick_settings_internet_label">Rhyngrwyd</string>
+    <string name="quick_settings_networks_available">Rhwydweithiau ar gael</string>
+    <string name="quick_settings_networks_unavailable">Rhwydweithiau dim ar gael</string>
+    <string name="quick_settings_wifi_detail_empty_text">Dim rhwydweithiau Wi-Fi ar gael</string>
+    <string name="quick_settings_wifi_secondary_label_transient">Yn troi ymlaen…</string>
+    <string name="quick_settings_cast_title">Bwrw\'r Sgrin</string>
+    <string name="quick_settings_casting">Yn bwrw</string>
+    <string name="quick_settings_cast_device_default_name">Dyfais dienw</string>
+    <string name="quick_settings_cast_detail_empty_text">Dim dyfeisiau ar gael</string>
+    <string name="quick_settings_brightness_dialog_title">Disgleirdeb</string>
+    <string name="quick_settings_inversion_label">Gwrthdroad lliwiau</string>
+    <string name="quick_settings_color_correction_label">Cywiriad lliw</string>
+    <string name="quick_settings_font_scaling_label">Maint ffont</string>
+    <string name="quick_settings_more_user_settings">Rheoli defnyddwyr</string>
+    <string name="quick_settings_done">Cwblhau</string>
+    <string name="quick_settings_close_user_panel">Cau</string>
+    <string name="quick_settings_connected">Wedi cysylltu</string>
+    <string name="quick_settings_connected_battery_level">Wedi cysylltu, batri <xliff:g id="battery_level_as_percentage">%1$s</xliff:g></string>
+    <string name="quick_settings_connecting">Yn cysylltu...</string>
+    <string name="quick_settings_hotspot_label">Llecyn Wi-Fi</string>
+    <string name="quick_settings_hotspot_secondary_label_transient">Yn troi ymlaen…</string>
+    <string name="quick_settings_hotspot_secondary_label_data_saver_enabled">Arbedwr Data ar waith</string>
+    <string name="quick_settings_hotspot_secondary_label_num_devices">{count, plural,
+        zero {# dyfeisiau}
+        =1 {#dyfais}
+        two {# ddyfais}
+        other {# dyfais}
+    }</string>
+    <string name="quick_settings_flashlight_label">Fflacholau</string>
+    <string name="quick_settings_flashlight_camera_in_use">Camera yn cael ei ddefnyddio</string>
+    <string name="quick_settings_cellular_detail_title">Data symudol</string>
+    <string name="quick_settings_cellular_detail_data_usage">Defnydd data</string>
+    <string name="quick_settings_cellular_detail_remaining_data">Data sy\'n weddill</string>
+    <string name="quick_settings_cellular_detail_over_limit">Dros y terfyn</string>
+    <string name="quick_settings_cellular_detail_data_used"><xliff:g id="data_used" example="2.0 GB">%s</xliff:g> wedi ei defnyddio</string>
+    <string name="quick_settings_cellular_detail_data_limit">Cyfyngiad <xliff:g id="data_limit" example="2.0 GB">%s</xliff:g></string>
+    <string name="quick_settings_cellular_detail_data_warning">Rhybudd <xliff:g id="data_limit" example="2.0 GB">%s</xliff:g></string>
+    <string name="quick_settings_work_mode_label">Apiau gwaith</string>
+    <string name="quick_settings_work_mode_paused_state">Wedi seibio</string>
+    <string name="quick_settings_night_display_label">Golau Nos</string>
+    <string name="quick_settings_night_secondary_label_on_at_sunset">Wrth i\'r haul machlud</string>
+    <string name="quick_settings_night_secondary_label_until_sunrise">Nes i\'r haul codi</string>
+    <string name="quick_settings_night_secondary_label_on_at">Ymlaen am <xliff:g id="time" example="10 pm">%s</xliff:g></string>
+    <string name="quick_settings_secondary_label_until">Nes <xliff:g id="time" example="7 am">%s</xliff:g></string>
+    <string name="quick_settings_ui_mode_night_label">Thema dywyll</string>
+    <string name="quick_settings_dark_mode_secondary_label_battery_saver">Arbedwr Batri</string>
+    <string name="quick_settings_dark_mode_secondary_label_on_at_sunset">Wrth i\'r haul machlud</string>
+    <string name="quick_settings_dark_mode_secondary_label_until_sunrise">Nes i\'r haul codi</string>
+    <string name="quick_settings_dark_mode_secondary_label_on_at">Ymlaen am <xliff:g id="time" example="10 pm">%s</xliff:g></string>
+    <string name="quick_settings_dark_mode_secondary_label_until">Nes <xliff:g id="time" example="7 am">%s</xliff:g></string>
+    <string name="quick_settings_dark_mode_secondary_label_on_at_bedtime">Ymlaen amser gwely</string>
+    <string name="quick_settings_dark_mode_secondary_label_until_bedtime_ends">Nes bod amser gwely ar ben</string>
+    <string name="quick_settings_nfc_label">Cyfathrebiad Maes Cyfagos (NFC)</string>
+    <string name="quick_settings_nfc_off">NFC wedi ei analluogi</string>
+    <string name="quick_settings_nfc_on">NFC wedi ei alluogi.</string>
+    <string name="quick_settings_screen_record_label">Recordio\u2019r sgrin</string>
+    <string name="quick_settings_screen_record_start">Dechrau</string>
+    <string name="quick_settings_screen_record_stop">Stopio</string>
+    <string name="qs_record_issue_start">Dechrau</string>
+    <string name="qs_record_issue_stop">Stopio</string>
+    <string name="qs_record_issue_dropdown_screenrecord">Recordio\u2019r sgrin</string>
+    <string-array name="qs_record_issue_types">
+        <item>Perfformiad</item>
+        <item>Rhyngwyneb Defnyddiwr</item>
+        <item>Batri</item>
+    </string-array>
+    <string name="quick_settings_onehanded_label">Modd un llaw</string>
+    <string name="quick_settings_contrast_label">Cyferbyniaeth</string>
+    <string name="quick_settings_contrast_standard">Safonol</string>
+    <string name="quick_settings_contrast_medium">Canolig</string>
+    <string name="quick_settings_contrast_high">Uchel</string>
+    <string name="sensor_privacy_start_use_mic_dialog_title">Dadrwystro meicroffon y ddyfais?</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title">Dadrwystro camera\u2019r dyfais?</string>
+    <string name="sensor_privacy_start_use_mic_camera_dialog_title">Dadrwystro camera a meicroffon y ddyfais?</string>
+    <string name="sensor_privacy_start_use_mic_dialog_content">Mae hyn yn dadrwystro mynediad i\u2019r holl apiau a gwasanaethau sy\u2019n cael defnyddio dy feicroffon.</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content">Mae hyn yn dadrwystro mynediad i\u2019r holl apiau a gwasanaethau sy\u2019n cael defnyddio dy gamera.</string>
+    <string name="sensor_privacy_start_use_mic_camera_dialog_content">Mae hyn yn dadrwystro mynediad i\u2019r holl apiau a gwasanaethau sy\u2019n cael defnyddio dy gamera neu feicroffon.</string>
+    <string name="sensor_privacy_start_use_mic_blocked_dialog_title">Meicroffon wedi\u2019i rwystro</string>
+    <string name="sensor_privacy_start_use_camera_blocked_dialog_title">Camera wedi\u2019i rwystro</string>
+    <string name="sensor_privacy_start_use_mic_camera_blocked_dialog_title">Meicroffon a chamera wedi\u2019u rhwystro</string>
+    <string name="sensor_privacy_start_use_mic_blocked_dialog_content">        I ddadrwystro, symuda\u2019r botwm preifatrwydd ar dy ddyfais i leoliad meicroffon ymlaen i ganiatáu
+        mynediad at y meicroffon. Gweler llawlyfr y ddyfais i ganfod y swits preifatrwydd ar dy ddyfais.
+    </string>
+    <string name="sensor_privacy_start_use_camera_blocked_dialog_content">        I ddadrwystro, symuda\u2019r botwm preifatrwydd ar dy ddyfais i leoliad camera ymlaen i ganiatáu
+        mynediad at y camera. Gweler llawlyfr y ddyfais i ganfod y swits preifatrwydd ar dy ddyfais.
+    </string>
+    <string name="sensor_privacy_start_use_mic_camera_blocked_dialog_content">        I ddadrwystro, symuda\u2019r botwm preifatrwydd ar dy ddyfais i leoliad dadrwystro i ganiatáu
+        mynediad. Gweler llawlyfr y ddyfais i ganfod y swits preifatrwydd ar dy ddyfais.
+    </string>
+    <string name="sensor_privacy_mic_unblocked_toast_content">        Meicroffon ar gael
+    </string>
+    <string name="sensor_privacy_camera_unblocked_toast_content">        Camera ar gael
+    </string>
+    <string name="sensor_privacy_mic_camera_unblocked_toast_content">        Meicroffon a chamera ar gael
+    </string>
+    <string name="sensor_privacy_dialog_open_settings">Agor Gosodiadau</string>
+    <string name="media_seamless_other_device">Dyfais arall</string>
+    <string name="quick_step_accessibility_toggle_overview">Toglo Trosolwg</string>
+    <string name="zen_priority_introduction">Ni chei dy boeni gan synau na dirgrynu, ond am larymau, hysbysiadau atgoffa, digwyddiadau a galwyr rwyt wedi eu dewis yn benodol. Mi fyddi\'n dal i glywed unrhyw beth rwyt yn dewis chwarae, megis cerddoriaeth, fideos a gemau.</string>
+    <string name="zen_alarms_introduction">Ni chei dy boeni gan synau na dirgrynu, ond am larymau. Mi fyddi\'n dal i glywed unrhyw beth rwyt yn dewis chwarae, megis cerddoriaeth, fideos a gemau.</string>
+    <string name="zen_priority_customize_button">Addasu</string>
+    <string name="zen_silence_introduction_voice">Mae hyn yn rhwystro POB sain a dirgrynu, gan gynnwys larymau, cerddoriaeth, fideos a gemau. Mi fydd dal yn bosib gwneud galwadau ffôn.</string>
+    <string name="zen_silence_introduction">Mae hyn yn rhwystro POB sain a dirgrynu, gan gynnwys larymau, cerddoriaeth, fideos a gemau.</string>
+    <string name="notification_tap_again">Tapia eto i agor</string>
+    <string name="tap_again">Tapia eto</string>
+    <string name="keyguard_unlock">Llusga i fyny i agor</string>
+    <string name="keyguard_unlock_press">Pwysa\u2019r eicon datgloi i agor</string>
+    <string name="keyguard_face_successful_unlock_swipe">Datglowyd gydag wyneb. Llusga i fyny i barhau.</string>
+    <string name="keyguard_face_successful_unlock_press">Datglowyd gydag wyneb. Pwysa\u2019r eicon datgloi i agor.</string>
+    <string name="keyguard_face_successful_unlock_press_alt_1">Datglowyd gydag wyneb. Pwysa i agor.</string>
+    <string name="keyguard_face_successful_unlock_press_alt_2">Wedi adnabod wyneb. Pwysa i agor.</string>
+    <string name="keyguard_face_successful_unlock_press_alt_3">Wedi adnabod wyneb. Pwysa\u2019r eicon datgloi i agor.</string>
+    <string name="keyguard_face_successful_unlock">Datglowyd gydag wyneb</string>
+    <string name="keyguard_face_successful_unlock_alt1">Wedi adnabod wyneb</string>
+    <string name="keyguard_retry">Llusga i fyny i geisio eto</string>
+    <string name="require_unlock_for_nfc">Datgloi i ddefnyddio NFC</string>
+    <string name="do_disclosure_generic">Mae\'r ddyfais hon yn perthyn i dy sefydliad</string>
+    <string name="do_disclosure_with_name">Mae\'r ddyfais hon yn perthyn i <xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g></string>
+    <string name="do_financed_disclosure_with_name">Darperir y ddyfais hon gan <xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g></string>
+    <string name="phone_hint">Llusga oddi wrth yr eicon i agor ffôn</string>
+    <string name="voice_hint">Llusga oddi wrth yr eicon i agor cymorth llais</string>
+    <string name="camera_hint">Llusga oddi wrth yr eicon i agor camera</string>
+    <string name="interruption_level_none_with_warning">Distawrwydd llwyr. Bydd hyn hefyd yn distewi rhai darllenwyr sgrin.</string>
+    <string name="interruption_level_none">Distawrwydd llwyr</string>
+    <string name="interruption_level_priority">Blaenoriaeth yn unig</string>
+    <string name="interruption_level_alarms">Larymau yn unig</string>
+    <string name="interruption_level_none_twoline">Distawrwydd\nllwyr</string>
+    <string name="interruption_level_priority_twoline">Blaenoriaeth\nyn unig</string>
+    <string name="interruption_level_alarms_twoline">Larymau\nyn unig</string>
+    <string name="keyguard_indication_charging_time_wireless"><xliff:g id="percentage" example="20%">%2$s</xliff:g> • Yn gwefru\u2019n ddi-wifr • Llawn mewn <xliff:g id="charging_time_left" example="4 hr, 2 min">%1$s</xliff:g></string>
+    <string name="keyguard_indication_charging_time"><xliff:g id="percentage">%2$s</xliff:g> • Yn gwefru • Llawn mewn <xliff:g id="charging_time_left" example="4 hr, 2 min">%1$s</xliff:g></string>
+    <string name="keyguard_indication_charging_time_fast"><xliff:g id="percentage">%2$s</xliff:g> • Yn gwefru\u2019n gyflym • Llawn mewn <xliff:g id="charging_time_left" example="4 hr, 2 min">%1$s</xliff:g></string>
+    <string name="keyguard_indication_charging_time_slowly"><xliff:g id="percentage">%2$s</xliff:g> • Yn gwefru\u2019n araf • Llawn mewn <xliff:g id="charging_time_left" example="4 hr, 2 min">%1$s</xliff:g></string>
+    <string name="keyguard_indication_charging_time_dock"><xliff:g id="percentage" example="20%">%2$s</xliff:g> • Yn gwefru • Llawn mewn <xliff:g id="charging_time_left" example="4 hr, 2 min">%1$s</xliff:g></string>
+    <string name="cta_tile_button_to_open_widget_editor">Addasu</string>
+    <string name="cta_tile_button_to_dismiss">Diystyru</string>
+    <string name="cta_label_to_open_widget_picker">Ychwanegu rhagor o declynnau</string>
+    <string name="button_to_configure_widgets_text">Ffurfweddu teclynnau</string>
+    <string name="button_to_remove_widget">Tynnu</string>
+    <string name="hub_mode_editing_exit_button_text">Cwblhau</string>
+    <string name="accessibility_multi_user_switch_switcher">Newid defnyddiwr</string>
+    <string name="accessibility_multi_user_list_switcher">dewislen tynnu i lawr</string>
+    <string name="guest_exit_guest_dialog_message">Caiff holl apiau a data\'r sesiwn hon eu dileu.</string>
+    <string name="guest_wipe_session_title">Croeso nôl, gwestai!</string>
+    <string name="guest_wipe_session_message">Wyt ti am barhau gyda dy sesiwn?</string>
+    <string name="guest_wipe_session_wipe">Dechrau eto</string>
+    <string name="guest_wipe_session_dontwipe">Ydw, parhau</string>
+    <string name="guest_notification_app_name">Modd gwestai</string>
+    <string name="guest_notification_session_active">Rwyt yn y modd gwestai</string>
+    <string name="user_add_user_message_guest_remove">\n\nBydd ychwanegu defnyddiwr newydd yn gadael modd gwestai a dileu holl apiau a data\u2019r sesiwn gwestai cyfredol.</string>
+    <string name="user_limit_reached_title">Terfyn defnyddwyr wedi\'i gyrraedd</string>
+    <string name="user_limit_reached_message">{count, plural,
+       =1 {Gellir ond creu un defnyddiwr.}
+        two {Gellir ond creu # ddefnyddiwr.}
+        other {Gellir ond creu # defnyddiwr.}
+    }</string>
+    <string name="user_remove_user_title">Tynnu defnyddiwr?</string>
+    <string name="user_remove_user_message">Caiff holl apiau a data\'r defnyddiwr hwn eu dileu.</string>
+    <string name="user_remove_user_remove">Tynnu</string>
+    <string name="media_projection_dialog_title">Dechrau recordio neu daflu gyda <xliff:g id="app_seeking_permission" example="Hangouts">%s</xliff:g>?</string>
+    <string name="media_projection_dialog_warning">Bydd gan <xliff:g id="app_seeking_permission" example="Hangouts">%s</xliff:g> fynediad at y holl wybodaeth sy\'n weladwy ar dy sgrin neu a chwaraeir o dy ddyfais wrth recordio neu daflu. Mae hyn yn cynnwys gwybodaeth fel cyfrineiriau, manylion talu, lluniau, negeseuon, a sain rwyt ti\'n eu chwarae.</string>
+    <string name="media_projection_sys_service_dialog_title">Dechrau recordio neu daflu?</string>
+    <string name="media_projection_sys_service_dialog_warning">Bydd gan y gwasanaeth sy\'n darparu\'r swyddogaeth hon fynediad at y holl wybodaeth sy\'n weladwy ar dy sgrin neu a chwaraeir o dy ddyfais wrth recordio neu daflu. Mae hyn yn cynnwys gwybodaeth fel cyfrineiriau, manylion talu, lluniau, negeseuon, a sain rwyt ti\'n eu chwarae.</string>
+    <string name="screen_share_permission_dialog_option_entire_screen">Sgrin gyfan</string>
+    <string name="screen_share_permission_dialog_option_single_app">Ap unigol</string>
+    <string name="screen_share_permission_app_selector_title">Rhannu neu recordio ap</string>
+    <string name="media_projection_entry_app_permission_dialog_continue">Dechrau</string>
+    <string name="media_projection_entry_generic_permission_dialog_continue">Dechrau</string>
+    <string name="screen_capturing_disabled_by_policy_dialog_title">Rhwystrwyd gan dy weinyddwr TG</string>
+    <string name="screen_capturing_disabled_by_policy_dialog_description">Analluogwyd cymryd sgrinluniau gan bolisi\u2019r ddyfais</string>
+    <string name="clear_all_notifications_text">Clirio\'r cwbl</string>
+    <string name="manage_notifications_text">Rheoli</string>
+    <string name="manage_notifications_history_text">Hanes</string>
+    <string name="notification_section_header_incoming">Newydd</string>
+    <string name="notification_section_header_gentle">Distaw</string>
+    <string name="notification_section_header_alerting">Hysbysiadau</string>
+    <string name="notification_section_header_conversations">Sgyrsiau</string>
+    <string name="accessibility_notification_section_header_gentle_clear_all">Clirio pob hysbysiad tawel</string>
+    <string name="dnd_suppressing_shade_text">Hysbysiadau wedi\'u seibio gan Paid â Tharfu</string>
+    <string name="media_projection_action_text">Dechrau nawr</string>
+    <string name="empty_shade_text">Dim hysbysiadau</string>
+    <string name="no_unseen_notif_text">Dim hysbysiadau newydd</string>
+    <string name="unlock_to_see_notif_text">Datgloi i weld hysbysiadau hŷn</string>
+    <string name="quick_settings_disclosure_parental_controls">Rheolir y ddyfais hon gan dy riant</string>
+    <string name="quick_settings_disclosure_management_monitoring">Dy sefydliad di sydd berchen y ddyfais hon ac efallai y bydd yn monitro traffig rhwydwaith</string>
+    <string name="quick_settings_disclosure_named_management_monitoring"><xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> sydd berchen y ddyfais hon a gall fonitro traffig rhwydwaith</string>
+    <string name="quick_settings_financed_disclosure_named_management">Darperir y ddyfais hon gan <xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g></string>
+    <string name="quick_settings_disclosure_management_named_vpn">Mae\'r ddyfais hon yn perthyn i dy sefydliad ac mae wedi\'i chysylltu â\'r rhyngrwyd trwy  <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+    <string name="quick_settings_disclosure_named_management_named_vpn">Mae\'r ddyfais hon yn perthyn i <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> ac mae wedi\'i chysylltu â\'r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%2$s</xliff:g></string>
+    <string name="quick_settings_disclosure_management">Mae\'r ddyfais hon yn perthyn i dy sefydliad</string>
+    <string name="quick_settings_disclosure_named_management">Mae\'r ddyfais hon yn perthyn i <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g></string>
+    <string name="quick_settings_disclosure_management_vpns">Mae\'r ddyfais hon yn perthyn i dy sefydliad ac mae wedi\'i chysylltu â\'r rhyngrwyd trwy VPN</string>
+    <string name="quick_settings_disclosure_named_management_vpns">Mae\'r ddyfais hon yn perthyn i <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> ac mae wedi\'i chysylltu â\'r rhyngrwyd trwy VPNs</string>
+    <string name="quick_settings_disclosure_managed_profile_monitoring">Gall dy sefydliad fonitro traffig rhwydwaith yn dy broffil gwaith</string>
+    <string name="quick_settings_disclosure_named_managed_profile_monitoring">Gall <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> fonitro traffig rhwydwaith yn dy broffil gwaith</string>
+    <string name="quick_settings_disclosure_managed_profile_network_activity">Mae gweithgaredd rhwydwaith y proffil gwaith yn weladwy i dy weinyddwr TG</string>
+    <string name="quick_settings_disclosure_monitoring">Mae\'n bosib caiff y rhwydwaith ei fonitro</string>
+    <string name="quick_settings_disclosure_vpns">Mae\u2019r ddyfais hon wedi cysylltu â\u2019r rhyngrwyd trwy VPN</string>
+    <string name="quick_settings_disclosure_managed_profile_named_vpn">Mae dy apiau gwaith wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+    <string name="quick_settings_disclosure_personal_profile_named_vpn">Mae dy apiau personol wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+    <string name="quick_settings_disclosure_named_vpn">Mae\'r ddyfais hon wedi\'i chysylltu â\'r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+    <string name="monitoring_title_financed_device">Darperir y ddyfais hon gan <xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g></string>
+    <string name="monitoring_title_device_owned">Rheolaeth dyfais</string>
+    <string name="monitoring_subtitle_vpn">VPN</string>
+    <string name="monitoring_subtitle_network_logging">Logio rhwydwaith</string>
+    <string name="monitoring_subtitle_ca_certificate">Tystysgrifau CA</string>
+    <string name="monitoring_button_view_policies">Gweld Polisïau</string>
+    <string name="monitoring_button_view_controls">Gweld rheoliadau</string>
+    <string name="monitoring_description_named_management">Mae\'r ddyfais hon yn perthyn i<xliff:g id="organization_name" example="Foo, Inc."> %1$s</xliff:g>\n\nGall dy weinyddwr TG fonitro a rheoli gosodiadau, mynediad corfforaethol, apiau, data sy\'n gysylltiedig â\'r dyfais, a gwybodaeth am leoliad y ddyfais.\n\nAm ragor o wybodaeth, cysyllta â dy weinyddwr TG.</string>
+    <string name="monitoring_financed_description_named_management">Gallai <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> cael mynediad at ddata yn ymwneud â\'r ddyfais hon, rheoli apiau, a newid gosodiadau\'r ddyfais.\n\nOs oes gennyt gwestiynau, cysyllta â <xliff:g id="organization_name" example="Foo, Inc.">%2$s</xliff:g>.</string>
+    <string name="monitoring_description_management">Mae\'r ddyfais hon yn perthyn i dy sefydliad.\n\nGall dy weinyddwr TG fonitro a rheoli gosodiadau, mynediad corfforaethol, apiau, a data sy\'n gysylltiedig â\'r ddyfais, a manylion lleoliad y ddyfais.</string>
+    <string name="monitoring_description_management_ca_certificate">Gosododd dy sefydliad tystysgrif awdurdod ar y ddyfais hon. Gall fod dy draffig rhwydwaith diogel yn cael ei fonitro neu ei addasu.</string>
+    <string name="monitoring_description_managed_profile_ca_certificate">Gosododd dy sefydliad tystysgrif awdurdod yn dy broffil gwaith. Gall fod dy draffig rhwydwaith diogel yn cael ei fonitro neu ei addasu.</string>
+    <string name="monitoring_description_ca_certificate">Mae awdurdod tystysgrif wedi ei osod ar y ddyfais hon. Gall fod dy draffig rhwydwaith diogel yn cael ei fonitro neu ei addasu.</string>
+    <string name="monitoring_description_management_network_logging">Mae dy weinyddwr wedi rhoi logio rhwydwaith ar waith. Mae hyn yn monitro traffig ar dy ddyfais.</string>
+    <string name="monitoring_description_managed_profile_network_logging">Mae dy weinyddwr wedi troi logio rhwydwaith ymlaen, sy\u2019n monitro traffig yn dy broffil gwaith ond nid yn dy broffil personol.</string>
+    <string name="monitoring_description_managed_device_named_vpn">Mae\u2019r ddyfais hon wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g>. Mae dy weithgaredd rhwydwaith, gan gynnwys negeseuon e-bost a data pori, yn weladwy i dy weinyddwr TG.</string>
+    <string name="monitoring_description_two_named_vpns">Mae\u2019r ddyfais hon wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g> a <xliff:g id="vpn_app" example="Bar VPN App">%2$s</xliff:g>. Mae dy weithgaredd rhwydwaith, gan gynnwys negeseuon e-bost a data pori, yn weladwy i dy weinyddwr TG.</string>
+    <string name="monitoring_description_managed_profile_named_vpn">Mae dy apiau gwaith wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g>. Mae dy weithgaredd rhwydwaith yn dy apiau gwaith, gan gynnwys negeseuon e-bost a data pori, yn weladwy i dy weinyddwr TG a darparwr VPN.</string>
+    <string name="monitoring_description_personal_profile_named_vpn">Mae dy apiau personol wedi cysylltu â\u2019r rhyngrwyd trwy <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g>. Mae dy weithgaredd rhwydwaith, gan gynnwys negeseuon e-bost a data pori, yn weladwy i dy ddarparwr VPN.</string>
+    <string name="monitoring_description_vpn_settings">Agor gosodiadau VPN</string>
+    <string name="monitoring_description_parental_controls">Rheolir y ddyfais hon gan dy riant. Gall dy riant weld a rheoli gwybodaeth fel yr apiau rwyt yn eu defnyddio, dy leoliad, a dy amser yn defnyddio\u2019r ddyfais.</string>
+    <string name="legacy_vpn_name">VPN</string>
+    <string name="keyguard_indication_trust_unlocked">TrustAgent yn ei gadw heb ei gloi</string>
+    <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+    <string name="accessibility_volume_settings">Gosodiadau sain</string>
+    <string name="volume_odi_captions_tip">Isdeitlo cyfryngau yn awtomatig</string>
+    <string name="accessibility_volume_close_odi_captions_tip">Awgrym isdeitlau</string>
+    <string name="volume_odi_captions_content_description">Troshaen isdeitlau</string>
+    <string name="volume_odi_captions_hint_enable">galluogi</string>
+    <string name="volume_odi_captions_hint_disable">analluogi</string>
+    <string name="sound_settings">Sain a dirgrynu</string>
+    <string name="volume_panel_dialog_settings_button">Gosodiadau</string>
+    <string name="screen_pinning_title">Ap wedi\'i binio</string>
+    <string name="screen_pinning_description">Mae hyn yn ei chadw mewn golwg nes dy fod yn ei dadbinio. Cyffyrdda a dal Nôl a Throsolwg i\'w dadbinio.</string>
+    <string name="screen_pinning_description_recents_invisible">Mae hyn yn ei chadw mewn golwg nes dy fod yn ei dadbinio. Cyffyrdda a dal Nôl a Cartref i\'w dadbinio.</string>
+    <string name="screen_pinning_description_gestural">Mae hyn yn ei gadw mewn golwg nes dy fod yn ei dadbinio. Llusga i fyny a dal i ddadbinio.</string>
+    <string name="screen_pinning_description_accessible">Mae hyn yn ei chadw mewn golwg nes dy fod yn ei dadbinio. Cyffyrdda a dal Trosolwg i\'w dadbinio.</string>
+    <string name="screen_pinning_description_recents_invisible_accessible">Mae hyn yn ei chadw mewn golwg nes dy fod yn ei dadbinio. Cyffyrdda a dal Cartref i\'w dadbinio.</string>
+    <string name="screen_pinning_exposes_personal_data">Gall data personol fod yn hygyrch (megis cysylltiadau a chynnwys e-bost).</string>
+    <string name="screen_pinning_can_open_other_apps">Gall ap wedi\'i binio agor apiau eraill.</string>
+    <string name="screen_pinning_toast">I ddadbinio\'r ap hwn, cyffyrdda a dal y botymau Nôl a
+        Throsolwg</string>
+    <string name="screen_pinning_toast_recents_invisible">I ddadbinio\'r ap hwn, cyffyrdda a dal y botymau Nôl a
+        Chartref</string>
+    <string name="screen_pinning_toast_gesture_nav">I ddadbinio\'r ap hwn, llusga i fyny a dal</string>
+    <string name="screen_pinning_positive">Deall yn iawn</string>
+    <string name="screen_pinning_negative">Dim diolch</string>
+    <string name="screen_pinning_start">Ap wedi\'i binio</string>
+    <string name="screen_pinning_exit">Ap wedi\'i ddadbinio</string>
+    <string name="stream_voice_call">Galw</string>
+    <string name="stream_system">System</string>
+    <string name="stream_ring">Canu</string>
+    <string name="stream_music">Cyfryngau</string>
+    <string name="stream_alarm">Larwm</string>
+    <string name="stream_notification">Hysbysiad</string>
+    <string name="stream_bluetooth_sco">Bluetooth</string>
+    <string name="stream_dtmf">Amledd aml-dôn deuol</string>
+    <string name="stream_accessibility">Hygyrchedd</string>
+    <string name="volume_ringer_status_normal">Canu</string>
+    <string name="volume_ringer_status_vibrate">Dirgrynu</string>
+    <string name="volume_ringer_status_silent">Distewi</string>
+    <string name="volume_stream_content_description_unmute">%1$s. Tapia i ddad-ddistewi.</string>
+    <string name="volume_stream_content_description_vibrate">%1$s. Tapia i\'w osod i ddirgrynu. Mae\'n bosib bydd gwasanaethau hygyrchedd yn cael eu distewi.</string>
+    <string name="volume_stream_content_description_mute">%1$s. Tapia i\'w distewi. Mae\'n bosib bydd gwasanaethau hygyrchedd yn cael eu distewi.</string>
+    <string name="volume_stream_content_description_vibrate_a11y">%1$s. Tapia i\'w osod i ddirgrynu.</string>
+    <string name="volume_stream_content_description_mute_a11y">%1$s. Tapia i ddistewi.</string>
+    <string name="volume_ringer_change">Tapia i newid modd canu</string>
+    <string name="volume_ringer_hint_mute">distewi</string>
+    <string name="volume_ringer_hint_unmute">dad-distewi</string>
+    <string name="volume_ringer_hint_vibrate">dirgrynu</string>
+    <string name="volume_dialog_title">Rheolaeth sain %s</string>
+    <string name="volume_dialog_ringer_guidance_ring">Ni fydd unrhyw alwadau na hysbysiadau yn canu (<xliff:g id="volume level" example="56">%1$s</xliff:g>)</string>
+    <string name="system_ui_tuner">Tiwniwr Rhyngwyneb y System</string>
+    <string name="status_bar">Bar statws</string>
+    <string name="demo_mode">Modd arddangos y system mewn siopau</string>
+    <string name="enable_demo_mode">Galluogi modd arddangos ar gyfer siopau</string>
+    <string name="show_demo_mode">Dangos modd arddangos ar gyfer siopau</string>
+    <string name="status_bar_ethernet">Ether-rwyd</string>
+    <string name="status_bar_alarm">Larwm</string>
+    <string name="wallet_title">Waled</string>
+    <string name="wallet_empty_state_label">Gosoda nawr i wneud taliadau mwy cyflym a diogel gyda dy ffôn</string>
+    <string name="wallet_app_button_label">Dangos y cwbl</string>
+    <string name="wallet_secondary_label_no_card">Tapio i agor</string>
+    <string name="wallet_secondary_label_updating">Yn diweddaru</string>
+    <string name="wallet_secondary_label_device_locked">Datgloi i\u2019w ddefnyddio</string>
+    <string name="wallet_error_generic">Roedd problem yn cael dy gardiau. Rho gynnig arall arni\u2019n hwyrach.</string>
+    <string name="wallet_lockscreen_settings_label">Gosodiadau\u2019r sgrin cloi</string>
+    <string name="qr_code_scanner_title">Sganiwr codau QR</string>
+    <string name="qr_code_scanner_updating_secondary_label">Yn diweddaru</string>
+    <string name="status_bar_work">Proffil gwaith</string>
+    <string name="status_bar_airplane">Modd awyren</string>
+    <string name="zen_alarm_warning_indef">Ni fyddi\'n clywed dy larwm nesaf tan <xliff:g id="when" example="at 7:00 AM">%1$s</xliff:g> oni bai dy fod yn diffodd hwn cyn hynny.</string>
+    <string name="zen_alarm_warning">Ni fyddi\'n clywed dy larwm nesaf tan <xliff:g id="when" example="at 7:00 AM">%1$s</xliff:g></string>
+    <string name="alarm_template">am <xliff:g id="when" example="7:00 AM">%1$s</xliff:g></string>
+    <string name="alarm_template_far">am <xliff:g id="when" example="Gwener 7:00 AM">%1$s</xliff:g></string>
+    <string name="accessibility_status_bar_hotspot">Llecyn Wi-Fi</string>
+    <string name="accessibility_managed_profile">Proffil gwaith</string>
+    <string name="tuner_warning_title">Yn hwyl i rai ond nid i bawb</string>
+    <string name="tuner_warning">Mae Tiwniwr Rhyngwyneb y System yn rhoi dulliau ychwanegol i addasu rhyngwyneb defnyddiwr Android. Gall rhai nodweddion arbrofol cael eu haddasu, torri neu diflannu mewn fersiynau yn y dyfodol. Defnyddia â gofal.</string>
+    <string name="tuner_persistent_warning">Gall rhai nodweddion arbrofol cael eu haddasu, torri neu diflannu mewn fersiynau yn y dyfodol. Defnyddia â gofal.</string>
+    <string name="got_it">Deall yn iawn</string>
+    <string name="tuner_toast">Llongyfarchiadau! Mae Tiwniwr Rhyngwyneb y System wedi ei ychwanegu i\'r Gosodiadau.</string>
+    <string name="remove_from_settings">Tynnu o\'r Gosodiadau</string>
+    <string name="remove_from_settings_prompt">Tynnu Tiwniwr Rhyngwyneb y System o\'r Gosodiadau a stopio\'i holl nodweddion?</string>
+    <string name="enable_bluetooth_title">Rhoi Bluetooth ar waith?</string>
+    <string name="enable_bluetooth_message">I gysylltu dy fysellfwrdd gyda dy lechen, rhaid yn gyntaf troi Bluetooth ymlaen.</string>
+    <string name="enable_bluetooth_confirmation_ok">Troi ymlaen</string>
+    <string name="rotation_lock_camera_rotation_on">Ymlaen - Ar sail wyneb</string>
+    <string name="inline_done_button">Cwblhau</string>
+    <string name="inline_ok_button">Gosod</string>
+    <string name="inline_turn_off_notifications">Diffodd hysbysiadau</string>
+    <string name="notification_silence_title">Distaw</string>
+    <string name="notification_automatic_title">Awtomatig</string>
+    <string name="notification_channel_summary_low">Dim sain na dirgryniad</string>
+    <string name="notification_conversation_summary_low">Dim sain na dirgryniad ac mae\'n ymddangos yn is yn yr adran sgwrsio</string>
+    <string name="notification_channel_summary_default">Gall ganu neu ddirgrynu yn dibynnu ar osodiadau\u2019r ddyfais</string>
+    <string name="notification_channel_summary_default_with_bubbles">Gall ganu neu ddirgrynu yn dibynnu ar osodiadau\u2019r ddyfais. Mae sgyrsiau gan <xliff:g id="app_name" example="YouTube">%1$s</xliff:g> fel swigod yn rhagosodedig.</string>
+    <string name="notification_channel_summary_automatic">Cael y system i bennu a ddylai\u2019r hysbysiad hwn wneud sain neu dirgrynu</string>
+    <string name="notification_channel_summary_automatic_alerted">&lt;b&gt;Statws:&lt;/b&gt; Wedi\u2019i codi i Rhagosodiad</string>
+    <string name="notification_channel_summary_automatic_silenced">&lt;b&gt;Statws:&lt;/b&gt; Wedi\u2019i ddisgyn i Tawel</string>
+    <string name="notification_channel_summary_automatic_promoted">&lt;b&gt;Statws:&lt;/b&gt; Wedi\u2019i Osod yn Uwch</string>
+    <string name="notification_channel_summary_automatic_demoted">&lt;b&gt;Statws:&lt;/b&gt; Wedi\u2019i Osod yn Is</string>
+    <string name="notification_channel_summary_priority_baseline">I\u2019w gweld ar frig hysbysiadau sgwrs ac fel llun proffil ar y sgrin cloi</string>
+    <string name="notification_channel_summary_priority_bubble">I\u2019w gweld ar frig hysbysiadau sgwrs ac fel llun proffil ar y sgrin cloi, yn ymddangos fel swigen</string>
+    <string name="notification_channel_summary_priority_dnd">I\u2019w gweld ar frig hysbysiadau sgwrs ac fel llun proffil ar y sgrin cloi, yn anwybyddu Paid â Tharfu</string>
+    <string name="notification_channel_summary_priority_all">I\u2019w gweld ar frig hysbysiadau sgwrs ac fel llun proffil ar y sgrin cloi, yn ymddangos fel swigen, yn anwybyddu Paid â Tharfu</string>
+    <string name="notification_priority_title">Blaenoriaeth</string>
+    <string name="no_shortcut">Nid yw <xliff:g id="app_name" example="YouTube">%1$s</xliff:g> yn cefnogi nodweddion sgwrsio</string>
+    <string name="notification_unblockable_desc">Ni ellir addasu\'r hysbysiadau hyn.</string>
+    <string name="notification_unblockable_call_desc">Ni ellir addasu\'r hysbysiadau galwadau.</string>
+    <string name="notification_multichannel_desc">Ni ellir ffurfweddu\'r grŵp hwn o hysbysiadau yma</string>
+    <string name="notification_delegate_header">Hysbysiad procsi</string>
+    <string name="notification_channel_dialog_title">Pob hysbysiad <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="see_more_title">Gweld mwy</string>
+    <string name="feedback_alerted">Cafodd yr hysbysiad hwn ei &lt;b&gt;hyrwyddo i Rhagosod&lt;/b&gt; yn awtomatig gan y system.</string>
+    <string name="feedback_silenced">Cafodd yr hysbysiad hwn ei &lt;b&gt;ddarostwng i Tawel&lt;/b&gt; yn awtomatig gan y system.</string>
+    <string name="feedback_promoted">Cafodd yr hysbysiad hwn ei &lt;b&gt;hyrwyddo yn uwch&lt;/b&gt; yn awtomatig yn dy gysgod.</string>
+    <string name="feedback_demoted">Cafodd yr hysbysiad hwn ei &lt;b&gt;ddarostwng yn is&lt;/b&gt; yn awtomatig yn dy gysgod.</string>
+    <string name="feedback_prompt">Gadael i\u2019r datblygwr gael dy adborth. A oedd hyn yn gywir?</string>
+    <string name="notification_channel_controls_opened_accessibility">Agorwyd rheolaeth hysbysiadau ar gyfer <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="notification_channel_controls_closed_accessibility">Caewyd rheolaeth hysbysiadau ar gyfer <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="notification_more_settings">Rhagor o osodiadau</string>
+    <string name="notification_app_settings">Addasu</string>
+    <string name="notification_conversation_bubble">Dangos swigen</string>
+    <string name="notification_conversation_unbubble">Tynnu swigod</string>
+    <string name="notification_menu_accessibility"><xliff:g id="app_name" example="YouTube">%1$s</xliff:g> <xliff:g id="menu_description" example="notification controls">%2$s</xliff:g></string>
+    <string name="notification_menu_gear_description">rheolaeth hysbysiadau</string>
+    <string name="notification_menu_snooze_description">dewisiadau oedi hysbysiad</string>
+    <string name="notification_menu_snooze_action">Atgoffa fi</string>
+    <string name="snooze_undo">Dad-wneud</string>
+    <string name="snoozed_for_time">Ar oediad am <xliff:g id="time_amount" example="15 minutes">%1$s</xliff:g></string>
+    <string name="snoozeHourOptions">{count, plural,
+       =1 {# awr}
+        =2 {# awr}
+        other {# awr}
+    }</string>
+    <string name="snoozeMinuteOptions">{count, plural,
+        =1 {# munud}
+        zero {# munudau}
+        two {# funud}
+        few {# munud}
+        many {# munud}
+        other {# munud}
+    }</string>
+    <string name="battery_detail_switch_title">Arbedwr Batri</string>
+    <string name="keyboard_key_button_template">Botwm <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="keyboard_key_home">Cartref</string>
+    <string name="keyboard_key_back">Nôl</string>
+    <string name="keyboard_key_dpad_center">Canol</string>
+    <string name="keyboard_key_tab">Tab</string>
+    <string name="keyboard_key_space">Bwlch</string>
+    <string name="keyboard_key_enter">Bysell \'Enter\'</string>
+    <string name="keyboard_key_backspace">Bysell Backspace</string>
+    <string name="keyboard_key_media_play_pause">Chwarae/Saib</string>
+    <string name="keyboard_key_media_stop">Stopio</string>
+    <string name="keyboard_key_media_next">Nesaf</string>
+    <string name="keyboard_key_media_previous">Blaenorol</string>
+    <string name="keyboard_key_media_rewind">Yn ôl</string>
+    <string name="keyboard_key_media_fast_forward">Ymlaen</string>
+    <string name="keyboard_key_page_up">Bysell \'Page Up\'</string>
+    <string name="keyboard_key_page_down">Bysell \'Page Down\'</string>
+    <string name="keyboard_key_forward_del">Bysedd \'Delete\'</string>
+    <string name="keyboard_key_move_home">Cartref</string>
+    <string name="keyboard_key_move_end">Bysell \'End\'</string>
+    <string name="keyboard_key_insert">Bysell \'Insert\'</string>
+    <string name="keyboard_key_num_lock">Bysell \'Num Lock\'</string>
+    <string name="keyboard_key_numpad_template">Pad Rhifau <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="notif_inline_reply_remove_attachment_description">Tynnu atodiad</string>
+    <string name="keyboard_shortcut_group_system">System</string>
+    <string name="keyboard_shortcut_group_system_home">Cartref</string>
+    <string name="keyboard_shortcut_group_system_recents">Diweddar</string>
+    <string name="keyboard_shortcut_group_system_back">Nôl</string>
+    <string name="keyboard_shortcut_group_system_notifications">Hysbysiadau</string>
+    <string name="keyboard_shortcut_group_system_shortcuts_helper">Bysellau Brys</string>
+    <string name="keyboard_shortcut_group_system_switch_input">Newid gosodiad y bysellfwrdd</string>
+    <string name="keyboard_shortcut_search_category_system">System</string>
+    <string name="keyboard_shortcut_search_category_input">Mewnbwn</string>
+    <string name="group_system_access_system_settings">Agor gosodiadau</string>
+    <string name="group_system_lock_screen">Sgrin cloi</string>
+    <string name="keyboard_shortcut_group_input">Mewnbwn</string>
+    <string name="keyboard_shortcut_group_applications">Apiau</string>
+    <string name="keyboard_shortcut_group_applications_browser">Porwr</string>
+    <string name="keyboard_shortcut_group_applications_contacts">Cysylltiadau</string>
+    <string name="keyboard_shortcut_group_applications_email">Ebost</string>
+    <string name="keyboard_shortcut_group_applications_sms">SMS</string>
+    <string name="keyboard_shortcut_group_applications_music">Cerddoriaeth</string>
+    <string name="keyboard_shortcut_group_applications_calendar">Calendr</string>
+    <string name="volume_and_do_not_disturb">Paid â Tharfu</string>
+    <string name="volume_dnd_silent">Bysellau brys sain</string>
+    <string name="battery">Batri</string>
+    <string name="headset">Clustffonau</string>
+    <string name="accessibility_long_click_tile">Agor gosodiadau</string>
+    <string name="accessibility_status_bar_headphones">Clustffonau wedi\'u cysylltu</string>
+    <string name="accessibility_status_bar_headset">Clustffonau wedi\'u cysylltu</string>
+    <string name="data_saver">Arbedwr Data</string>
+    <string name="accessibility_data_saver_on">Arbedwr Data ar waith</string>
+    <string name="switch_bar_on">Ymlaen</string>
+    <string name="switch_bar_off">I ffwrdd</string>
+    <string name="tile_unavailable">Ddim ar gael</string>
+    <string name="accessibility_tile_disabled_by_policy_action_description">dysgu rhagor</string>
+    <string name="nav_bar">Bar llywio</string>
+    <string name="nav_bar_layout">Gosodiad</string>
+    <string name="left_nav_bar_button_type">Math botwm chwith ychwanegol</string>
+    <string name="right_nav_bar_button_type">Math botwm dde ychwanegol</string>
+    <string-array name="nav_bar_buttons">
+        <item>Clipfwrdd</item>
+        <item>Allweddgod</item>
+        <item>Cylchdroi i gadarnhau, newidydd bysellfwrdd</item>
+        <item>Dim</item>
+    </string-array>
+    <string-array name="nav_bar_layouts">
+        <item>Arferol</item>
+        <item>Cryno</item>
+        <item>Gwyro tua\'r chwith</item>
+        <item>Gwyro tua\'r dde</item>
+    </string-array>
+    <string name="save">Cadw</string>
+    <string name="reset">Ailosod</string>
+    <string name="clipboard">Clipfwrdd</string>
+    <string name="accessibility_key">Botwm llywio addasedig</string>
+    <string name="left_keycode">Allweddgod chwith</string>
+    <string name="right_keycode">Allweddgod dde</string>
+    <string name="left_icon">Eicon chwith</string>
+    <string name="right_icon">Eicon dde</string>
+    <string name="drag_to_add_tiles">Dalia a llusgo i ychwanegu teils</string>
+    <string name="drag_to_rearrange_tiles">Dal a llusgo i aildrefnu teils</string>
+    <string name="drag_to_remove_tiles">Llusga yma i\'w tynnu</string>
+    <string name="drag_to_remove_disabled">Rhaid bod o leiaf <xliff:g id="min_num_tiles" example="6">%1$d</xliff:g> teil</string>
+    <string name="qs_edit">Golygu</string>
+    <string name="tuner_time">Amser</string>
+    <string-array name="clock_options">
+        <item>Dangos oriadu, munudau ac eiliadau</item>
+        <item>Dangos oriau a munudau (rhagosodedig)</item>
+        <item>Peidio â dangos yr eicon hwn</item>
+    </string-array>
+    <string-array name="battery_options">
+        <item>Dangos y canran o hyd</item>
+        <item>Dangos y canran wrth wefru (rhagosodedig)</item>
+        <item>Peidio â dangos yr eicon hwn</item>
+    </string-array>
+    <string name="tuner_low_priority">Dangos eiconau hysbysiadau blaenoriaeth isel</string>
+    <string name="other">Arall</string>
+    <string name="accessibility_qs_edit_remove_tile_action">tynnu\'r teilsen</string>
+    <string name="accessibility_qs_edit_tile_add_action">ychwanegu teilsen i\'r diwedd</string>
+    <string name="accessibility_qs_edit_tile_start_move">Symud teilsen</string>
+    <string name="accessibility_qs_edit_tile_start_add">Ychwanegu teilsen</string>
+    <string name="accessibility_qs_edit_tile_move_to_position">Symud i <xliff:g id="position" example="5">%1$d</xliff:g></string>
+    <string name="accessibility_qs_edit_tile_add_to_position">Ychwanegu i safle <xliff:g id="position" example="5">%1$d</xliff:g></string>
+    <string name="accessibility_qs_edit_position">Safle <xliff:g id="position" example="5">%1$d</xliff:g></string>
+    <string name="accessibility_qs_edit_tile_added">Ychwanegwyd teil</string>
+    <string name="accessibility_qs_edit_tile_removed">Tynnwyd teil</string>
+    <string name="accessibility_desc_quick_settings_edit">Golygydd gosodiadau cyflym</string>
+    <string name="accessibility_desc_notification_icon">Hysbysiad <xliff:g name="app_name" example="Gmail">%1$s</xliff:g>: <xliff:g name="notification_text" example="5 new messages">%2$s</xliff:g></string>
+    <string name="accessibility_quick_settings_settings">Agor gosodiadau</string>
+    <string name="accessibility_quick_settings_expand">Agor gosodiadau cyflym</string>
+    <string name="accessibility_quick_settings_collapse">Cau\'r gosodiadau cyflym.</string>
+    <string name="accessibility_quick_settings_user">Wedi mewngofnodi fel <xliff:g name="user" example="John">%s</xliff:g></string>
+    <string name="accessibility_quick_settings_choose_user_action">dewisa ddefnyddiwr</string>
+    <string name="data_connection_no_internet">Dim rhyngrwyd</string>
+    <string name="accessibility_quick_settings_open_settings">Agor gosodiadau <xliff:g name="page" example="Bluetooth">%s</xliff:g>.</string>
+    <string name="accessibility_quick_settings_edit">Golygu trefn y gosodiadau</string>
+    <string name="accessibility_quick_settings_power_menu">Dewislen pŵer</string>
+    <string name="accessibility_quick_settings_page">Tudalen <xliff:g name="current_page" example="1">%1$d</xliff:g> o <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+    <string name="tuner_lock_screen">Sgrin cloi</string>
+    <string name="thermal_shutdown_dialog_help_text">Gweler y camau gofal</string>
+    <string name="high_temp_dialog_help_text">Gweler y camau gofal</string>
+    <string name="high_temp_alarm_title">Datgysyllta dy ddyfais</string>
+    <string name="high_temp_alarm_notify_message">Mae dy ddyfais yn cynhesu wrth y porth gwefru. Datgysyllta unrhyw wifren neu ategyn USB gan gymryd gofal rhag ofn ei fod hefyd yn boeth.</string>
+    <string name="high_temp_alarm_help_care_steps">Gweler y camau gofal</string>
+    <string name="lockscreen_shortcut_left">Llwybr byr chwith</string>
+    <string name="lockscreen_shortcut_right">Llwybr byr dde</string>
+    <string name="lockscreen_unlock_left">Llwybr byr chwith hefyd yn datgloi</string>
+    <string name="lockscreen_unlock_right">Llwybr byr dde hefyd yn datgloi</string>
+    <string name="lockscreen_none">Dim</string>
+    <string name="tuner_launch_app">Lansio <xliff:g id="app" example="Settings">%1$s</xliff:g></string>
+    <string name="tuner_other_apps">Apiau eraill</string>
+    <string name="tuner_circle">Cylch</string>
+    <string name="tuner_plus">Plws</string>
+    <string name="tuner_minus">Minws</string>
+    <string name="tuner_left">Chwith</string>
+    <string name="tuner_right">De</string>
+    <string name="tuner_menu">Dewislen</string>
+    <string name="tuner_app"><xliff:g id="app">%1$s</xliff:g> ap</string>
+    <string name="notification_channel_alerts">Rhybuddion</string>
+    <string name="notification_channel_battery">Batri</string>
+    <string name="notification_channel_screenshot">Sgrinluniau</string>
+    <string name="notification_channel_instant">Apiau ar Unwaith</string>
+    <string name="notification_channel_setup">Gosod</string>
+    <string name="notification_channel_storage">Storfa</string>
+    <string name="notification_channel_hints">Awgrymiadau</string>
+    <string name="notification_channel_accessibility">Hygyrchedd</string>
+    <string name="instant_apps">Apiau ar Unwaith</string>
+    <string name="instant_apps_title"><xliff:g id="app" example="Gmail">%1$s</xliff:g> yn rhedeg</string>
+    <string name="instant_apps_message">Agorir yr ap heb iddo fod wedi ei osod.</string>
+    <string name="instant_apps_message_with_help">Agorir yr ap heb iddo fod wedi ei osod. Tapia i ddysgu rhagor.</string>
+    <string name="app_info">Gwybodaeth ap</string>
+    <string name="go_to_web">Mynd i\'r porwr</string>
+    <string name="mobile_data">Data symudol</string>
+    <string name="mobile_data_text_format"><xliff:g name="roaming_status" example="Roaming">%1$s</xliff:g> \u2014 <xliff:g name="mobile_data_type" example="LTE">%2$s</xliff:g></string>
+    <string name="mobile_carrier_text_format"><xliff:g id="carrier_name" example="Test">%1$s</xliff:g>, <xliff:g id="mobile_data_type" example="LTE">%2$s</xliff:g></string>
+    <string name="wifi_is_off">Mae Wi-Fi i ffwrdd</string>
+    <string name="bt_is_off">Mae Bluetooth i ffwrdd</string>
+    <string name="dnd_is_off">Mae Paid â Tharfu i ffwrdd</string>
+    <string name="dnd_is_on">Mae Paid â Tharfu ymlaen</string>
+    <string name="qs_dnd_prompt_auto_rule">Cafodd Paid â Tharfu ei droi i ffwrdd gan reol awtomatig (<xliff:g name="rule">%s</xliff:g>).</string>
+    <string name="qs_dnd_prompt_app">Cafodd Paid â Tharfu ei droi ymlaen gan ap (<xliff:g name="app">%s</xliff:g>).</string>
+    <string name="qs_dnd_prompt_auto_rule_app">Cafodd Paid â Tharfu ei droi i ffwrdd gan reol awtomatig neu ap.</string>
+    <string name="running_foreground_services_title">Apiau sy\'n rhedeg yn y cefndir</string>
+    <string name="running_foreground_services_msg">Tapia am fanylion defnydd batri a data</string>
+    <string name="mobile_data_disable_title">Diffodd data symudol?</string>
+    <string name="mobile_data_disable_message">Ni fydd gennyt fynediad at ddata na\'r rhyngrwyd trwy <xliff:g id="carrier" example="T-Mobile">%s</xliff:g>. Bydd y rhyngrwyd ond ar gael dros Wi-Fi.</string>
+    <string name="mobile_data_disable_message_default_carrier">dy ddarparwr gwasanaeth</string>
+    <string name="auto_data_switch_disable_title">Newid yn ôl i <xliff:g id="carrier" example="T-Mobile">%s</xliff:g>?</string>
+    <string name="auto_data_switch_disable_message">Ni fydd data symudol yn troi ymlaen yn awtomatig yn ôl argaeledd</string>
+    <string name="auto_data_switch_dialog_negative_button">Dim diolch</string>
+    <string name="auto_data_switch_dialog_positive_button">Ie, newid</string>
+    <string name="touch_filtered_warning">Ni all Gosodiadau gwirio dy ymateb gan fod ap yn rhwystro cais am ganiatâd.</string>
+    <string name="slice_permission_title">Caniatáu i <xliff:g id="app" example="Example App">%1$s</xliff:g> ddangos sleisiau <xliff:g id="app_2" example="Other Example App">%2$s</xliff:g>?</string>
+    <string name="slice_permission_text_1"> - Gall ddarllen gwybodaeth o <xliff:g id="app" example="Example App">%1$s</xliff:g></string>
+    <string name="slice_permission_text_2"> - Gall wneud pethau o fewn <xliff:g id="app" example="Example App">%1$s</xliff:g></string>
+    <string name="slice_permission_checkbox">Caniatáu i <xliff:g id="app" example="Example App">%1$s</xliff:g> ddangos sleisiau o unrhyw ap</string>
+    <string name="slice_permission_allow">Caniatáu</string>
+    <string name="slice_permission_deny">Gwrthod</string>
+    <string name="auto_saver_title">Tapia i osod amser Arbedwr Batri</string>
+    <string name="auto_saver_text">Troi ymlaen pan fo\'r batri yn debygol o redeg allan</string>
+    <string name="no_auto_saver_action">Dim diolch</string>
+    <string name="ongoing_privacy_dialog_a11y_title">Mewn defnydd</string>
+    <string name="ongoing_privacy_chip_content_multiple_apps">Mae apiau yn defnyddio <xliff:g id="types_list" example="camera, location">%s</xliff:g>.</string>
+    <string name="ongoing_privacy_dialog_separator">,\u0020</string>
+    <string name="ongoing_privacy_dialog_last_separator">\u0020a\u0020</string>
+    <string name="ongoing_privacy_dialog_using_op">Yn cael ei ddefnyddio gan <xliff:g id="application_name" example="Photos">%1$s</xliff:g></string>
+    <string name="ongoing_privacy_dialog_recent_op">Defnyddir yn ddiweddar gan <xliff:g id="application_name" example="Photos">%1$s</xliff:g></string>
+    <string name="ongoing_privacy_dialog_enterprise">(gwaith)</string>
+    <string name="ongoing_privacy_dialog_phonecall">Galwad ffôn</string>
+    <string name="ongoing_privacy_dialog_attribution_text">(trwy <xliff:g id="application name(s)" example="Maps, and Assistant">%s</xliff:g>)</string>
+    <string name="ongoing_privacy_dialog_attribution_label">(<xliff:g id="attribution_label" example="For Wallet">%s</xliff:g>)</string>
+    <string name="ongoing_privacy_dialog_attribution_proxy_label">(<xliff:g id="attribution_label" example="For Wallet">%1$s</xliff:g>  \u2022 <xliff:g id="proxy_label" example="Maps, and Assistant">%2$s</xliff:g>)</string>
+    <string name="privacy_type_camera">camera</string>
+    <string name="privacy_type_location">lleoliad</string>
+    <string name="privacy_type_microphone">meicroffon</string>
+    <string name="privacy_type_media_projection">recordio\'r sgrin</string>
+    <string name="music_controls_no_title">Dim teitl</string>
+    <string name="inattentive_sleep_warning_title">Modd segur</string>
+    <string name="font_scaling_dialog_title">Maint Ffont</string>
+    <string name="font_scaling_smaller">Gwneud yn llai</string>
+    <string name="font_scaling_larger">Gwneud yn fwy</string>
+    <string name="magnification_window_title">Ffenestr Chwyddo</string>
+    <string name="magnification_controls_title">Rheolyddion Ffenestr Chwyddo</string>
+    <string name="accessibility_control_zoom_in">Chwyddo mewn</string>
+    <string name="accessibility_control_zoom_out">Chwyddo allan</string>
+    <string name="accessibility_control_move_up">Symud i fyny</string>
+    <string name="accessibility_control_move_down">Symud i lawr</string>
+    <string name="accessibility_control_move_left">Symud i\u2019r chwith</string>
+    <string name="accessibility_control_move_right">Symud i\u2019r dde</string>
+    <string name="magnification_mode_switch_description">Newid chwyddiad</string>
+    <string name="magnification_mode_switch_state_full_screen">Chwyddo\u2019r sgrin gyfan</string>
+    <string name="magnification_mode_switch_state_window">Chwyddo rhan o\u2019r sgrin</string>
+    <string name="accessibility_resize">Ailfeintio</string>
+    <string name="accessibility_magnification_done">Cwblhau</string>
+    <string name="accessibility_magnifier_edit">Golygu</string>
+    <string name="accessibility_floating_button_migration_tooltip">Tapia i agor nodweddion hygyrchedd. Ffurfwedda neu newid y botwm hwn yn Gosodiadau. \n\n<annotation id="link">Gweld gosodiadau</annotation></string>
+    <string name="accessibility_floating_button_docking_tooltip">Symud botwm i\u2019r ymyl i\u2019w guddio dros dro</string>
+    <string name="accessibility_floating_button_undo">Dad-wneud</string>
+    <string name="accessibility_floating_button_action_move_top_left">Symud top chwith</string>
+    <string name="accessibility_floating_button_action_move_top_right">Symud top dde</string>
+    <string name="accessibility_floating_button_action_move_bottom_left">Symud gwaelod chwith</string>
+    <string name="accessibility_floating_button_action_move_bottom_right">Symud gwaelod dde</string>
+    <string name="accessibility_floating_button_action_move_to_edge_and_hide_to_half">Symud i\u2019r ymyl a chuddio</string>
+    <string name="accessibility_floating_button_action_move_out_edge_and_show">Symud yr ymyl allan a dangos</string>
+    <string name="accessibility_floating_button_action_remove_menu">Tynnu</string>
+    <string name="accessibility_floating_button_action_double_tap_to_toggle">toglo</string>
+    <string name="accessibility_floating_button_action_edit">Golygu</string>
+    <string name="quick_controls_title">Rheolyddion dyfeisiau</string>
+    <string name="controls_providers_title">Dewis ap i ychwanegu rheolyddion</string>
+    <string name="controls_number_of_favorites">{count, plural,
+        =1 {Ychwanegwyd # rheolydd.}
+two {Ychwanegwyd # reolydd.}
+        other {Ychwanegwyd # rheolydd.}
+    }</string>
+    <string name="controls_removed">Tynnwyd</string>
+    <string name="controls_panel_authorization_title">Ychwanegu <xliff:g id="appName" example="My app">%s</xliff:g>?</string>
+    <string name="controls_panel_authorization">Gall <xliff:g id="appName" example="My app">%s</xliff:g> ddewis pa reolyddion a chynnwys sydd i\u2019w gweld yma.</string>
+    <string name="controls_panel_remove_app_authorization">Tynnnu rheolyddion ar gyfer <xliff:g example="My app" id="appName">%s</xliff:g>?</string>
+    <string name="accessibility_control_favorite">Ffefrynwyd</string>
+    <string name="accessibility_control_favorite_position">Ffefrynwyd, safle <xliff:g id="number" example="1">%d</xliff:g></string>
+    <string name="accessibility_control_not_favorite">Dad-ffefrynnwyd</string>
+    <string name="accessibility_control_change_favorite">ffefrynnu</string>
+    <string name="accessibility_control_change_unfavorite">dad-ffefrynnu</string>
+    <string name="accessibility_control_move">Symud i safle <xliff:g id="number" example="1">%d</xliff:g></string>
+    <string name="controls_favorite_default_title">Rheolyddion</string>
+    <string name="controls_favorite_rearrange">Dal a llusgo i aildrefnu rheolyddion</string>
+    <string name="controls_favorite_removed">Tynnwyd yr holl reolyddion</string>
+    <string name="controls_favorite_toast_no_changes">Newidiadau heb eu cadw</string>
+    <string name="controls_favorite_see_other_apps">Gweld apiau eraill</string>
+    <string name="controls_favorite_add_controls">Ychwanegu rheolyddion</string>
+    <string name="controls_favorite_load_error">Methwyd llwytho rheolyddion. Gwiria\'r ap <xliff:g id="app" example="System UI">%s</xliff:g> i sicrhau nad yw gosodiadau\'r ap wedi newid.</string>
+    <string name="controls_favorite_load_none">Nid oes rheolyddion sy\'n gytûn ar gael</string>
+    <string name="controls_favorite_other_zone_header">Arall</string>
+    <string name="controls_dialog_title">Ychwanegu at reolyddion dyfais</string>
+    <string name="controls_dialog_ok">Ychwanegu</string>
+    <string name="controls_dialog_remove">Tynnu</string>
+    <string name="controls_dialog_message">Awgrymwyd gan <xliff:g id="app" example="System UI">%s</xliff:g></string>
+    <string name="controls_tile_locked">Dyfais dan glo</string>
+    <string name="controls_settings_show_controls_dialog_title">Dangos a rheoli dyfeisiau o\u2019r sgrin cloi?</string>
+    <string name="controls_settings_show_controls_dialog_message">Gellir ychwanegu rheolyddion ar gyfer dy ddyfeisiau allanol i\'r sgrin cloi.\n\nGall ap dy ddyfais ganiatáu i ti reoli rhai dyfeisiau heb ddatgloi dy ffôn neu lechen.\n\nGellir gwneud newidiadau ar unrhyw adeg yn Gosodiadau.</string>
+    <string name="controls_settings_trivial_controls_dialog_title">Rheoli dyfeisiau o\u2019r sgrin cloi?</string>
+    <string name="controls_settings_trivial_controls_dialog_message">Gellir rheoli rhai dyfeisiau heb ddatgloi dy ffôn neu lechen. Bydd ap dy ddyfais yn pennu pa ddyfeisiau y gellid eu rheoli fel hyn.</string>
+    <string name="controls_settings_dialog_neutral_button">Dim diolch</string>
+    <string name="controls_settings_dialog_positive_button">Iawn</string>
+    <string name="controls_pin_use_alphanumeric">Mae\'r PIN yn cynnwys llythrennau neu symbolau</string>
+    <string name="controls_pin_verify">Gwiria <xliff:g id="device" example="Backdoor lock">%s</xliff:g></string>
+    <string name="controls_pin_wrong">PIN anghywir</string>
+    <string name="controls_pin_instructions">Rho\'r PIN</string>
+    <string name="controls_pin_instructions_retry">Rho gynnig ar PIN arall</string>
+    <string name="controls_confirmation_message">Cadarnhau newid <xliff:g id="device" example="Backdoor lock">%s</xliff:g></string>
+    <string name="controls_structure_tooltip">Llusgo i weld mwy</string>
+    <string name="controls_seeding_in_progress">Argymhellion llwytho</string>
+    <string name="controls_media_title">Cyfryngau</string>
+    <string name="controls_media_close_session">Cuddio\u2019r rheolydd cyfryngau hwn ar gyfer <xliff:g id="app_name" example="Foo Music App">%1$s</xliff:g>?</string>
+    <string name="controls_media_active_session">Ni ellir cuddio\u2019r sesiwn cyfryngau cyfredol.</string>
+    <string name="controls_media_dismiss_button">Cuddio</string>
+    <string name="controls_media_resume">Parhau</string>
+    <string name="controls_media_settings_button">Gosodiadau</string>
+    <string name="controls_media_playing_item_description">Mae <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> gan <xliff:g id="artist_name" example="Various artists">%2$s</xliff:g> yn chwarae o <xliff:g id="app_label" example="Spotify">%3$s</xliff:g></string>
+    <string name="controls_media_seekbar_description"><xliff:g id="elapsed_time" example="1:30">%1$s</xliff:g> o <xliff:g id="total_time" example="3:00">%2$s</xliff:g></string>
+    <string name="controls_media_empty_title">Mae <xliff:g id="app_name" example="Foo Music App">%1$s</xliff:g> yn rhedeg</string>
+    <string name="controls_media_button_play">Chwarae</string>
+    <string name="controls_media_button_pause">Seibio</string>
+    <string name="controls_media_button_prev">Trac blaenorol</string>
+    <string name="controls_media_button_next">Trac nesaf</string>
+    <string name="controls_media_button_connecting">Yn cysylltu</string>
+    <string name="controls_media_smartspace_rec_title">Chwarae</string>
+    <string name="controls_media_smartspace_rec_description">Agor <xliff:g id="app_label" example="Spotify">%1$s</xliff:g></string>
+    <string name="controls_media_smartspace_rec_item_description">Chwarae <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> gan <xliff:g id="artist_name" example="Various artists">%2$s</xliff:g> o <xliff:g id="app_label" example="Spotify">%3$s</xliff:g></string>
+    <string name="controls_media_smartspace_rec_item_no_artist_description">Chwarae <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> o <xliff:g id="app_label" example="Spotify">%2$s</xliff:g></string>
+    <string name="controls_media_smartspace_rec_header">Ar Dy Gyfer</string>
+    <string name="media_transfer_undo">Dad-wneud</string>
+    <string name="media_move_closer_to_start_cast">Symuda\u2019n agosach i chwarae ar <xliff:g id="deviceName" example="My Tablet">%1$s</xliff:g></string>
+    <string name="media_move_closer_to_end_cast">I chwarae yma, symuda\u2019n agosach at <xliff:g id="deviceName" example="tablet">%1$s</xliff:g></string>
+    <string name="media_transfer_playing_different_device">Yn chwarae ar <xliff:g id="deviceName" example="My Tablet">%1$s</xliff:g></string>
+    <string name="media_transfer_failed">Aeth rhywbeth o\'i le. Rho gynnig arall arni.</string>
+    <string name="media_transfer_loading">Yn llwytho</string>
+    <string name="media_ttt_default_device_type">llechen</string>
+    <string name="media_transfer_receiver_content_description_unknown_app">Yn bwrw dy gyfrwng</string>
+    <string name="media_transfer_receiver_content_description_with_app_name">Yn bwrw <xliff:g id="app_label" example="Spotify">%1$s</xliff:g></string>
+    <string name="controls_error_timeout">Anactif, gwiria\'r ap</string>
+    <string name="controls_error_removed">Heb ganfod</string>
+    <string name="controls_error_removed_title">Nid yw\'r rheolydd ar gael</string>
+    <string name="controls_error_removed_message">Methu cael mynediad at <xliff:g id="device" example="Backdoor lock">%1$s</xliff:g>. Gwiria\'r ap<xliff:g id="application" example="Google Home">%2$s</xliff:g> i sicrhau bod y rheolydd ar gael o hyd ac nad yw gosodiadau\'r ap wedi newid.</string>
+    <string name="controls_open_app">Agor ap</string>
+    <string name="controls_error_generic">Methu llwytho statws</string>
+    <string name="controls_error_failed">Gwall, ceisia eto</string>
+    <string name="controls_menu_add">Ychwanegu rheolyddion</string>
+    <string name="controls_menu_edit">Golygu rheolyddion</string>
+    <string name="controls_menu_add_another_app">Ychwanegu ap</string>
+    <string name="controls_menu_remove">Tynnu ap</string>
+    <string name="media_output_dialog_add_output">Ychwanegu allbynnau</string>
+    <string name="media_output_dialog_group">Grŵp</string>
+    <string name="media_output_dialog_single_device">Dewiswyd 1 ddyfais</string>
+    <string name="media_output_dialog_multiple_devices"><xliff:g id="count" example="2">%1$d</xliff:g> dyfais wedi\'u dewis</string>
+    <string name="media_output_dialog_disconnected">(wedi datgysylltu)</string>
+    <string name="media_output_dialog_connect_failed">Methu newid. Tapia i geisio eto.</string>
+    <string name="media_output_dialog_pairing_new">Cysylltu â dyfais</string>
+    <string name="media_output_dialog_launch_app_text">I fwrw\u2019r sesiwn hon, agora\u2019r ap.</string>
+    <string name="media_output_dialog_unknown_launch_app_name">Ap anhysbys</string>
+    <string name="media_output_dialog_button_stop_casting">Stopio taflu</string>
+    <string name="media_output_dialog_accessibility_title">Dyfeisiau ar gael ar gyfer allbwn sain.</string>
+    <string name="media_output_dialog_accessibility_seekbar">Uchder sain</string>
+    <string name="media_output_dialog_volume_percentage"><xliff:g id="percentage" example="10">%1$d</xliff:g>%%</string>
+    <string name="media_output_group_title_speakers_and_displays">Seinyddion a Dangosyddion</string>
+    <string name="media_output_group_title_suggested_device">Dyfeisiau a Awgrymir</string>
+    <string name="media_output_end_session_dialog_stop">Stopio</string>
+    <string name="media_output_first_broadcast_title">Sut mae darlledu\u2019n gweithio</string>
+    <string name="media_output_broadcast">Darlledu</string>
+    <string name="media_output_first_notify_broadcast_message">Gall pobl gerllaw gyda dyfeisiau Bluetooth wrando ar y cyfrwng rwyt yn ei ddarlledu</string>
+    <string name="media_output_broadcasting_message">I wrando ar dy ddarllediad, gall pobl gerllaw gyda dyfeisiau Bluetooth cydnaws sganio dy god QR neu ddefnyddio dy enw a chyfrinair darlledu</string>
+    <string name="media_output_broadcast_name">Enw Darllediad</string>
+    <string name="media_output_broadcast_code">Cyfrinair</string>
+    <string name="media_output_broadcast_dialog_save">Cadw</string>
+    <string name="media_output_broadcast_starting">Yn dechrau…</string>
+    <string name="media_output_broadcast_start_failed">Methu darlledu</string>
+    <string name="media_output_broadcast_update_error">Methu cadw. Ceisia eto.</string>
+    <string name="media_output_broadcast_last_update_error">Methu cadw.</string>
+    <string name="media_output_broadcast_code_hint_no_less_than_min">Defnyddia o leiaf 4 nod</string>
+    <string name="build_number_clip_data_label">Rhif adeiledd</string>
+    <string name="build_number_copy_toast">Wedi copïo rhif adeiledd i\u2019r clipfwrdd.</string>
+    <string name="basic_status">Agor sgwrs</string>
+    <string name="select_conversation_title">Teclynnau sgwrs</string>
+    <string name="select_conversation_text">Tapia sgwrs i\u2019w ychwanegu at dy sgrin Gartref</string>
+    <string name="no_conversations_text">Bydd dy sgyrsiau diweddar yn cael eu dangos yma</string>
+    <string name="priority_conversations">Sgyrsiau blaenoriaeth</string>
+    <string name="recent_conversations">Sgyrsiau diweddar</string>
+    <string name="days_timestamp"><xliff:g id="duration" example="5">%1$s</xliff:g> diwrnod yn ôl</string>
+    <string name="one_week_timestamp">1 wythnos yn ôl</string>
+    <string name="two_weeks_timestamp">2 wythnos yn ôl</string>
+    <string name="over_one_week_timestamp">Dros 1 wythnos yn ôl</string>
+    <string name="over_two_weeks_timestamp">Dros 2 wythnos yn ôl</string>
+    <string name="birthday_status">Pen-blwydd</string>
+    <string name="birthday_status_content_description">Mae\u2019n ben-blwydd ar <xliff:g id="name" example="Anna">%1$s</xliff:g></string>
+    <string name="upcoming_birthday_status">Pen-blwydd yn fuan</string>
+    <string name="upcoming_birthday_status_content_description">Mae\u2019n ben-blwydd ar <xliff:g id="name" example="Anna">%1$s</xliff:g> yn fuan</string>
+    <string name="anniversary_status">Pen-blwydd Achlysur</string>
+    <string name="anniversary_status_content_description">Mae\u2019n ben-blwydd achlysur ar <xliff:g id="name" example="Anna">%1$s</xliff:g></string>
+    <string name="location_status">Rhannu lleoliad</string>
+    <string name="location_status_content_description">Mae <xliff:g id="name" example="Anna">%1$s</xliff:g> yn rhannu lleoliad</string>
+    <string name="new_story_status">Stori newydd</string>
+    <string name="new_story_status_content_description">Mae <xliff:g id="name" example="Anna">%1$s</xliff:g> wedi rhannu stori newydd</string>
+    <string name="video_status">Yn gwylio</string>
+    <string name="audio_status">Yn gwrando</string>
+    <string name="game_status">Yn chwarae</string>
+    <string name="empty_user_name">Ffrindiau</string>
+    <string name="empty_status">Gad i ni gael sgwrs heno!</string>
+    <string name="status_before_loading">Daw cynnwys yma\u2019n fuan</string>
+    <string name="missed_call">Galwad wedi\u2019i methu</string>
+    <string name="messages_count_overflow_indicator"><xliff:g id="number" example="7">%d</xliff:g>+</string>
+    <string name="people_tile_description">Gweld negeseuon diweddar, galwadau wedi\u2019u methu, a diweddariadau statws</string>
+    <string name="people_tile_title">Sgwrs</string>
+    <string name="paused_by_dnd">Ar saib gan Paid â Tharfu</string>
+    <string name="new_notification_text_content_description">Anfonodd <xliff:g id="name" example="Anna">%1$s</xliff:g> neges: <xliff:g id="notification" example="Hey! How is your day going">%2$s</xliff:g></string>
+    <string name="new_notification_image_content_description">Anfonodd <xliff:g id="name" example="Anna">%1$s</xliff:g> ddelwedd</string>
+    <string name="new_status_content_description">Mae diweddariad statws gan <xliff:g id="name" example="Anna">%1$s</xliff:g>: <xliff:g id="status" example="Listening to music">%2$s</xliff:g></string>
+    <string name="person_available">Ar gael</string>
+    <string name="battery_state_unknown_notification_title">Problem darllen dy fesurydd batri</string>
+    <string name="battery_state_unknown_notification_text">Tapia am ragor o wybodaeth</string>
+    <string name="qs_alarm_tile_no_alarm">Dim larwm wedi\u2019i osod</string>
+    <string name="accessibility_fingerprint_label">Synhwyrydd ôl bys</string>
+    <string name="accessibility_authenticate_hint">dilysu</string>
+    <string name="accessibility_enter_hint">rho ddyfais</string>
+    <string name="keyguard_try_fingerprint">Defnyddio ôl bys i\u2019w agor</string>
+    <string name="accessibility_fingerprint_bouncer">Angen dilysu. Cyffyrdda\u2019r synhwyrydd ôl bys i ddilysu.</string>
+    <string name="ongoing_phone_call_content_description">Galwad ffôn ar y gweill</string>
+    <string name="mobile_data_settings_title">Data symudol</string>
+    <string name="preference_summary_default_combination"><xliff:g id="state" example="Connected">%1$s</xliff:g> / <xliff:g id="networkMode" example="LTE">%2$s</xliff:g></string>
+    <string name="mobile_data_connection_active">Wedi cysylltu</string>
+    <string name="mobile_data_temp_connection_active">Cysylltwyd dros dro</string>
+    <string name="mobile_data_poor_connection">Cysylltiad gwael</string>
+    <string name="mobile_data_off_summary">Ni fydd data symudol yn cysylltu yn awtomatig</string>
+    <string name="mobile_data_no_connection">Dim cysylltiad</string>
+    <string name="non_carrier_network_unavailable">Dim rhwydweithiau eraill ar gael</string>
+    <string name="all_network_unavailable">Dim rhwydweithiau ar gael</string>
+    <string name="turn_on_wifi">Wi\u2011Fi</string>
+    <string name="tap_a_network_to_connect">Tapia rwydwaith i gysylltu</string>
+    <string name="unlock_to_view_networks">Datglo i weld rhwydweithiau</string>
+    <string name="wifi_empty_list_wifi_on">Yn chwilio am rwydweithiau\u2026</string>
+    <string name="wifi_failed_connect_message">Methwyd cysylltu â rhwydwaith</string>
+    <string name="wifi_wont_autoconnect_for_now">Ni fydd Wi\u2011Fi yn awto-gysylltu am y tro</string>
+    <string name="see_all_networks">Gweld y cwbl</string>
+    <string name="to_switch_networks_disconnect_ethernet">I newid rhwydwaith, datgysyllta ether-rwyd</string>
+    <string name="wifi_scan_notify_message">I wella profiad gyda\u2019r ddyfais, gall apiau a gwasanaethau dal i sganio am rwydweithiau Wi\u2011Fi unrhyw bryd, hyd yn oed pan fo Wi\u2011Fi i ffwrdd. Gellir newid hyn yng ngosodiadau sganio am Wi\u2011Fi. <annotation id="link">Newid</annotation></string>
+    <string name="turn_off_airplane_mode">Diffodd modd awyren</string>
+    <string name="qs_tile_request_dialog_text">Mae <xliff:g id="appName" example="Fake App">%1$s</xliff:g> eisiau ychwanegu\u2019r teil canlynol i Gosodiadau Cyflym</string>
+    <string name="qs_tile_request_dialog_add">Ychwanegu teilsen</string>
+    <string name="qs_tile_request_dialog_not_add">Peidio ag ychwnegu teitl</string>
+    <string name="qs_user_switch_dialog_title">Dewis defnyddiwr</string>
+    <string name="fgs_manager_footer_label">{count, plural,
+        =1 {Mae # ap yn weithredol}
+one {Mae # ap yn weithredol}
+two  {Mae # ap yn weithredol}
+few {Mae # ap yn weithredol}
+many {Mae # ap yn weithredol}
+        zero {Does # apiau yn weithredol}
+        other {Mae # ap yn weithredol}
+    }</string>
+    <string name="fgs_dot_content_description">Gwybodaeth newydd</string>
+    <string name="fgs_manager_dialog_title">Apiau gweithredol</string>
+    <string name="fgs_manager_dialog_message">Mae\u2019r apiau hyn yn weithredol ac yn rhedeg, hyd yn oed pan nad wyt yn eu defnyddio. Mae hyn yn gwella eu gweithrediad, ond gall hefyd effeithio ar oes batri.</string>
+    <string name="fgs_manager_app_item_stop_button_label">Stopio</string>
+    <string name="fgs_manager_app_item_stop_button_stopped_label">Wedi\'i stopio</string>
+    <string name="clipboard_edit_text_done">Cwblhau</string>
+    <string name="clipboard_overlay_text_copied">Copïwyd</string>
+    <string name="clipboard_edit_source">Oddi wrth <xliff:g id="appName" example="Gmail">%1$s</xliff:g></string>
+    <string name="clipboard_dismiss_description">Anwybyddu testun wedi\u2019i gopïo</string>
+    <string name="clipboard_edit_text_description">Golygu testun wedi\2019i gopïo</string>
+    <string name="clipboard_edit_image_description">Golygu delwedd wedi\u2019i gopïo</string>
+    <string name="clipboard_send_nearby_description">Anfon at ddyfais gerllaw</string>
+    <string name="clipboard_text_hidden">Tapia i weld</string>
+    <string name="clipboard_text_copied">Testun wedi\'i gopïo</string>
+    <string name="clipboard_image_copied">Delwedd wedi\u2019i gopïo</string>
+    <string name="clipboard_content_copied">Cynnwys wedi\u2019i gopïo</string>
+    <string name="clipboard_editor">Golygydd Clipfwrdd</string>
+    <string name="clipboard_overlay_window_name">Clipfwrdd</string>
+    <string name="clipboard_image_preview">Rhagolwg delwedd</string>
+    <string name="clipboard_edit">golygu</string>
+    <string name="add">Ychwanegu</string>
+    <string name="manage_users">Rheoli defnyddwyr</string>
+    <string name="dream_overlay_status_bar_wifi_off">Wi\u2011Fi ddim ar gael</string>
+    <string name="dream_overlay_status_bar_priority_mode">Modd blaenoriaeth</string>
+    <string name="dream_overlay_status_bar_alarm_set">Larwm wedi\u2019i osod</string>
+    <string name="dream_overlay_status_bar_camera_off">Mae\u2019r camera i ffwrdd</string>
+    <string name="dream_overlay_status_bar_mic_off">Mae\u2019r meic i ffwrdd</string>
+    <string name="dream_overlay_status_bar_camera_mic_off">Mae\u2019r camera a\u2019r meic i ffwrdd</string>
+    <string name="dream_overlay_status_bar_notification_indicator">{count, plural,
+=1 {# hysbysiad}
+    other {# hysbysiad}
+    }</string>
+    <string name="dream_overlay_weather_complication_desc">        <xliff:g id="weather_condition" example="Partly cloudy">%1$s</xliff:g>, <xliff:g id="temperature" example="7°C">%2$s</xliff:g>
+    </string>
+    <string name="broadcasting_description_is_broadcasting">Darlledu</string>
+    <string name="bt_le_audio_broadcast_dialog_title">Stopio darlledu <xliff:g id="app_name" example="App Name 1">%1$s</xliff:g>?</string>
+    <string name="bt_le_audio_broadcast_dialog_sub_title">Os wyt yn darlledu <xliff:g id="switchApp" example="App Name 2">$1%s</xliff:g> neu newid yr allbwn, bydd dy ddarllediad cyfredol yn stopio</string>
+    <string name="bt_le_audio_broadcast_dialog_switch_app">Darlledu <xliff:g id="switchApp" example="App Name 2">%1$s</xliff:g></string>
+    <string name="bt_le_audio_broadcast_dialog_different_output">Newid allbwn</string>
+    <string name="bt_le_audio_broadcast_dialog_unknown_name">Anhysbys</string>
+    <string name="dream_time_complication_12_hr_time_format">h:mm</string>
+    <string name="dream_time_complication_24_hr_time_format">kk:mm</string>
+    <string name="log_access_confirmation_learn_more">Dysgu mwy</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template">Agor <xliff:g id="appName" example="Wallet">%1$s</xliff:g></string>
+    <string name="keyguard_affordance_press_too_short">Cyffyrdda a dal y llwybr byr</string>
+    <string name="rear_display_bottom_sheet_cancel">Diddymu</string>
+    <string name="rear_display_bottom_sheet_confirm">Newid sgriniau nawr</string>
+    <string name="rear_display_folded_bottom_sheet_title">Dadblygu\u2019r ffôn</string>
+    <string name="rear_display_unfolded_bottom_sheet_title">Newid sgriniau?</string>
+    <string name="rear_display_folded_bottom_sheet_description">Am gydraniad uwch, defnyddia\'r camera cefn</string>
+    <string name="rear_display_unfolded_bottom_sheet_description">Am gydranaid uwch, fflipia\'r ffôn</string>
+    <string name="rear_display_accessibility_folded_animation">Dyfais blygadwy\'n cael ei dat-blygu</string>
+    <string name="rear_display_accessibility_unfolded_animation">Dyfais blygadwy\'n cael ei fflipio</string>
+    <string name="stylus_battery_low_percentage"><xliff:g id="percentage" example="16%">%s</xliff:g> o fatri\u2019n weddill</string>
+    <string name="stylus_battery_low_subtitle">Cysyllta dy ysgrifbin at wefrydd</string>
+    <string name="stylus_battery_low">Batri ysgrifbin yn isel</string>
+    <string name="video_camera">Camera fideo</string>
+    <string name="call_from_work_profile_action">Newid i\u2019r proffil gwaith</string>
+    <string name="call_from_work_profile_close">Diddymu</string>
+    <string name="wifi_unavailable_dream_overlay_content_description">Wi-Fi ddim ar gael</string>
+    <string name="camera_blocked_dream_overlay_content_description">Camera wedi\u2019i rwystro</string>
+    <string name="camera_and_microphone_blocked_dream_overlay_content_description">Camera a meicroffon wedi\u2019u rhwystro</string>
+    <string name="microphone_blocked_dream_overlay_content_description">Meicroffon wedi\u2019i rwystro</string>
+    <string name="priority_mode_dream_overlay_content_description">Modd blaenoriaeth ymlaen</string>
+    <string name="dismiss_dialog">Diystyru</string>
+    <string name="privacy_dialog_done_button">Cwblhau</string>
+    <string name="privacy_dialog_collapse_action">Lleihau</string>
+</resources>
