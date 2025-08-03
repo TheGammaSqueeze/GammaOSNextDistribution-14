@@ -1,0 +1,33 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsAdbHostTestCases",
+    defaults: ["cts_defaults"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "cts-tradefed",
+        "tradefed",
+        "compatibility-host-util",
+    ],
+    static_libs: [
+        "CtsAdbHostTestCases_res",
+    ],
+    srcs: ["src/**/*.java"],
+}
+
+java_genrule_host {
+    name: "CtsAdbHostTestCases_res",
+    tools: [
+        "soong_zip",
+        "check_ms_os_desc",
+    ],
+    out: ["CtsAdbHostTestCases_res.jar"],
+    cmd: "$(location soong_zip) -jar -o $(location CtsAdbHostTestCases_res.jar) " +
+        " -j -f $(location check_ms_os_desc)",
+}

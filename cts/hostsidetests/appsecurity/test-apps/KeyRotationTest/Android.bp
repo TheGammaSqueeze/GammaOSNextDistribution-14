@@ -1,0 +1,133 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_platform_security",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts_signature_query_service",
+    srcs: [
+        "src/**/*.java",
+        "src/**/I*.aidl",
+    ],
+    sdk_version: "current",
+}
+
+// This is the first version of the test app signed with the initial signing
+// key. This app exports the bound service from the cts_signature_query_service
+// library and is used to verify end to end updates with key rotation.
+android_test {
+    name: "CtsSignatureQueryService",
+    defaults: ["cts_support_defaults"],
+    compile_multilib: "both",
+    sdk_version: "current",
+    static_libs: ["cts_signature_query_service"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256",
+    v4_signature: true,
+}
+
+// This is the second version of the test app signed with the rotated signing
+// key with an updated version number. This app is intended to verify that an
+// app continues to function as expected after an update with a rotated key.
+android_test {
+    name: "CtsSignatureQueryService_v2",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v2.xml",
+    compile_multilib: "both",
+    sdk_version: "current",
+    static_libs: ["cts_signature_query_service"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    v4_signature: true,
+}
+
+// This is the third version of the test app signed with the same rotated
+// signing key as v2. This app is intended to verify that an app can still
+// be updated and function as expected after the signing key has been rotated.
+android_test {
+    name: "CtsSignatureQueryService_v3",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v3.xml",
+    compile_multilib: "both",
+    sdk_version: "current",
+    static_libs: ["cts_signature_query_service"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    v4_signature: true,
+}
+
+// This is the second version of the test app signed with the rotated signing
+// key targeting SDK version 33 for rotation with an updated version number.
+// This app is intended to verify that an app continues to function as expected
+// after an update with a rotated key in the v3.1 block.
+android_test {
+    name: "CtsSignatureQueryService_v2-tgt-33",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v2.xml",
+    compile_multilib: "both",
+    min_sdk_version: "32",
+    sdk_version: "current",
+    static_libs: ["cts_signature_query_service"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    rotationMinSdkVersion: "33",
+    v4_signature: true,
+}
+
+// This is the third version of the test app signed with the same rotated
+// signing key as v2 and targeting SDK version 33 for rotation. This app
+// is intended to verify that an app can still be updated and function as
+// expected after the signing key has been rotated in the v3.1 block.
+android_test {
+    name: "CtsSignatureQueryService_v3-tgt-33",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v3.xml",
+    compile_multilib: "both",
+    min_sdk_version: "32",
+    sdk_version: "current",
+    static_libs: ["cts_signature_query_service"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    rotationMinSdkVersion: "33",
+    v4_signature: true,
+}

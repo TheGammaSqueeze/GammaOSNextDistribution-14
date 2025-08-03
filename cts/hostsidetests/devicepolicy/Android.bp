@@ -1,0 +1,102 @@
+// Copyright (C) 2014 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsDevicePolicyManagerTestCases",
+    defaults: ["cts_defaults"],
+    srcs: ["src/**/*.java"],
+    libs: [
+        "tools-common-prebuilt",
+        "cts-tradefed",
+        "tradefed",
+        "guava",
+        "truth",
+    ],
+    // tag this module as a cts test artifact
+    test_suites: [
+        "arcts",
+        "cts",
+        "general-tests",
+        "mts-permission",
+        "mcts-permission",
+    ],
+    static_libs: [
+        "cts-statsd-atom-host-test-utils",
+    ],
+    java_resource_dirs: ["res"],
+    data: [
+        ":cts-current-api-gz",
+        ":CtsCertInstallerApp",
+        ":CtsContactDirectoryProvider",
+        ":CtsCorpOwnedManagedProfile",
+        ":CtsCorpOwnedManagedProfile2",
+        ":CtsCrossProfileEnabledApp",
+        ":CtsCrossProfileUserEnabledApp",
+        ":CtsDelegateApp",
+        ":CtsDeviceAdminApp23",
+        ":CtsDeviceAdminApp24",
+        ":CtsDeviceAdminApp29",
+        ":CtsDeviceAdminService2",
+        ":CtsDeviceAdminService4",
+        ":CtsDeviceAdminServiceB",
+        ":CtsDeviceAndProfileOwnerApp",
+        ":CtsDeviceAndProfileOwnerApp23",
+        ":CtsDeviceAndProfileOwnerApp25",
+        ":CtsDeviceAndProfileOwnerApp30",
+        ":CtsDeviceOwnerApp",
+        ":CtsDeviceAdminService1",
+        ":CtsDeviceAdminService2",
+        ":CtsDeviceAdminService3",
+        ":CtsDevicePolicyAssistApp",
+        ":CtsDevicePolicyAutofillApp",
+        ":CtsEmptyTestApp",
+        ":CtsHasLauncherActivityApp",
+        ":CtsIntentReceiverApp",
+        ":CtsIntentSenderApp",
+        ":CtsLauncherAppsTests",
+        ":CtsLauncherAppsTestsSupport",
+        ":CtsManagedProfileApp",
+        ":CtsMeteredDataTestApp",
+        ":CtsNoLauncherActivityApp",
+        ":CtsNoPermissionApp",
+        ":CtsNotificationSenderApp",
+        ":CtsPackageInstallerApp",
+        ":CtsPermissionApp",
+        ":CtsProfileOwnerApp",
+        ":CtsSimplePreMApp",
+        ":CtsTransferOwnerIncomingApp",
+        ":CtsTransferOwnerOutgoingApp",
+        ":CtsVpnFirewallApp",
+        ":CtsVpnFirewallAppApi23",
+        ":CtsVpnFirewallAppApi24",
+        ":CtsVpnFirewallAppNotAlwaysOn",
+        ":CtsWidgetProviderApp",
+        ":CtsWifiConfigCreator",
+        ":SharingApp1",
+        ":SharingApp2",
+        ":SharedUidApp1",
+        ":SharedUidApp2",
+        ":SimpleSmsApp",
+        ":TestApp1",
+        ":TestApp2",
+        ":TestApp3",
+        ":TestApp4",
+        ":TestIme",
+    ],
+    per_testcase_directory: true,
+}

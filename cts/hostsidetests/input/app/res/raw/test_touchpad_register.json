@@ -1,0 +1,77 @@
+{
+  "id": 1,
+  "type": "uinput",
+  "command": "register",
+  "name": "Test Touchpad",
+  "vid": 0x18d1,
+  "pid": 0xabcd,
+  "bus": "usb",
+  "port": "usb:1",
+  "configuration": [
+    {"type": "UI_SET_EVBIT", "data": ["EV_KEY", "EV_ABS"]},
+    {"type": "UI_SET_KEYBIT", "data": [
+      "BTN_LEFT",
+      "BTN_TOOL_FINGER",
+      "BTN_TOOL_QUINTTAP",
+      "BTN_TOUCH",
+      "BTN_TOOL_DOUBLETAP",
+      "BTN_TOOL_TRIPLETAP",
+      "BTN_TOOL_QUADTAP"
+    ]},
+    {"type": "UI_SET_ABSBIT", "data": [
+      "ABS_MT_SLOT",
+      "ABS_MT_TOUCH_MAJOR",
+      "ABS_MT_TOUCH_MINOR",
+      "ABS_MT_ORIENTATION",
+      "ABS_MT_POSITION_X",
+      "ABS_MT_POSITION_Y",
+      "ABS_MT_TOOL_TYPE",
+      "ABS_MT_TRACKING_ID",
+      "ABS_MT_PRESSURE"
+    ]},
+    {"type": "UI_SET_PROPBIT", "data": [
+      "INPUT_PROP_POINTER",
+      "INPUT_PROP_BUTTONPAD"
+    ]}
+  ],
+  "abs_info": [
+    {"code":"ABS_MT_SLOT", "info": {
+      "minimum": 0,
+      "maximum": 9
+    }},
+    {"code":"ABS_MT_TOUCH_MAJOR", "info": {
+      "minimum": 0,
+      "maximum": 15
+    }},
+    {"code":"ABS_MT_TOUCH_MINOR", "info": {
+      "minimum": 0,
+      "maximum": 15
+    }},
+    {"code":"ABS_MT_ORIENTATION", "info": {
+      "minimum": 0,
+      "maximum": 1
+    }},
+    {"code":"ABS_MT_POSITION_X", "info": {
+      "minimum": 0,
+      "maximum": 1936,
+      "resolution": 20
+    }},
+    {"code":"ABS_MT_POSITION_Y", "info": {
+      "minimum": 0,
+      "maximum": 1057,
+      "resolution": 20
+    }},
+    {"code":"ABS_MT_TOOL_TYPE", "info": {
+      "minimum": 0,  // MT_TOOL_FINGER
+      "maximum": 2   // MT_TOOL_PALM
+    }},
+    {"code":"ABS_MT_TRACKING_ID", "info": {
+      "minimum": 0,
+      "maximum": 65535
+    }},
+    {"code":"ABS_MT_PRESSURE", "info": {
+      "minimum": 0,
+      "maximum": 255
+    }}
+  ]
+}

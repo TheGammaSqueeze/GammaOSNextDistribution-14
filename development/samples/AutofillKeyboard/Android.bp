@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "AutofillKeyboard",
+    srcs: ["**/*.java"],
+    min_sdk_version: "30",
+    target_sdk_version: "30",
+    sdk_version: "current",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.autofill_autofill",
+        "android-support-annotations",
+    ],
+}

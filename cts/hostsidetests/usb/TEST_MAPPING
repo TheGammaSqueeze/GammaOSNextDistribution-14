@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsUsbTests"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsUsbTests"
+    }
+  ]
+}

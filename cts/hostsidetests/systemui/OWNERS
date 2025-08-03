@@ -1,0 +1,4 @@
+# Bug component: 78010
+per-file *TileService* = file:/tests/quicksettings/OWNERS
+per-file *Notification* = juliacr@google.com
+dsandler@android.com #{LAST_RESORT_SUGGESTION}

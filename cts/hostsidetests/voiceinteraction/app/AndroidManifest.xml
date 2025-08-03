@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.cts.voiceinteraction">
+
+    <uses-sdk android:minSdkVersion="32" android:targetSdkVersion="32"/>
+
+    <application android:debuggable="true">
+        <uses-library android:name="android.test.runner" />
+        <activity android:name=".VoiceInteractionMain"
+                  android:exported="true"
+                  android:visibleToInstantApps="true">
+            <intent-filter>
+                <action android:name="android.intent.action.START_TEST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SettingsActivity"
+                  android:label="Voice Interaction Settings"
+                  android:exported="true"
+                  android:visibleToInstantApps="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.ASSIST"/>
+            </intent-filter>
+        </activity>
+        <service android:name=".MainInteractionSessionService"
+                 android:permission="android.permission.BIND_VOICE_INTERACTION"
+                 android:process=":session"
+                 android:exported="true"
+                 android:visibleToInstantApps="true">
+        </service>
+        <service android:name=".ControllableHotwordDetectionService"
+                 android:permission="android.permission.BIND_HOTWORD_DETECTION_SERVICE"
+                 android:isolatedProcess="true"
+                 android:allowSharedIsolatedProcess="true"
+                 android:exported="true">
+        </service>
+        <service android:name=".ProxyVoiceInteractionService"
+                 android:label="CTS test proxy voice interaction service with binder interface"
+                 android:permission="android.permission.BIND_VOICE_INTERACTION"
+                 android:process=":interactor"
+                 android:exported="true"
+                 android:visibleToInstantApps="true">
+            <meta-data android:name="android.voice_interaction"
+                       android:resource="@xml/interaction_service_with_hotword" />
+            <intent-filter>
+                <action android:name="android.service.voice.VoiceInteractionService" />
+            </intent-filter>
+        </service>
+    </application>
+
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.android.cts.voiceinteraction">
+    </instrumentation>
+
+</manifest>

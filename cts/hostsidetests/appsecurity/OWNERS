@@ -1,0 +1,99 @@
+# Bug component: 36137
+# Bug component: 36137 = per-file ApplicationVisibilityTest.java
+# Bug component: 36137 = per-file BaseInstallMultiple.java
+# Bug component: 568761 = per-file CorruptApkTests.java
+# Bug component: 36137 = per-file EphemeralTest.java
+# Bug component: 36137 = per-file InstantAppUserTest.java
+# Bug component: 36137 = per-file InstantCookieHostTest.java
+# Bug component: 36137 = per-file IsolatedSplitsTests.java
+# Bug component: 36137 = per-file MajorVersionTest.java
+# Bug component: 568631 = per-file OverlayHostTest.java
+# Bug component: 36137 = per-file Package*
+# Bug component: 36137 = per-file Pkg*
+# Bug component: 36137 = per-file PrivilegedUpdateTests.java
+# Bug component: 36137 = per-file SharedUserIdTest.java
+# Bug component: 36137 = per-file SplitTests.java
+
+# Storage bug component
+# Bug component: 46626 = per-file *Adoptable*
+# Bug component: 46626 = per-file *DirectBoot*
+# Bug component: 46626 = per-file *Storage*
+
+# OTA bug component
+# Bug component: 330599 = per-file *ResumeOnReboot*
+# Bug component: 330599 = per-file ApexSignatureVerificationTest.java
+
+# Security bug component
+# Bug component: 36824 = per-file ListeningPortsTest.java
+
+patb@google.com
+include platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+
+# Permissions
+per-file AppOpsTest.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+per-file LocationPolicyTest.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+per-file PermissionEscalationTest.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+per-file RoleSecurityTest.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+
+# Data Isolation
+per-file AppDataIsolationTests.java = rickywai@google.com,alanstokes@google.com
+
+# Use Embedded Dex
+per-file UseEmbeddedDexTest.java = victorhsieh@google.com
+
+# Security
+per-file AccessSerialNumberTest.java = mpgroover@google.com
+per-file AppSecurityTests.java = mpgroover@google.com
+per-file DeviceIdentifierTest.java = mpgroover@google.com
+per-file KeySetHostTest.java = mpgroover@google.com
+per-file ListeningPortsTest.java = mpgroover@google.com
+per-file PkgInstallSignatureVerificationTest.java = mpgroover@google.com
+per-file StatsdAppSecurityAtomTest.java = yaochen@google.com
+
+# Package Manager
+per-file ApplicationVisibilityTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file BaseInstallMultiple.java =  file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file EphemeralTest.java =  file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file InstantAppUserTest.java =  file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file InstantCookieHostTest.java =  file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file IsolatedSplitsTests.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file MajorVersionTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file PackageResolutionHostTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file PackageSetInstallerTest.kt = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file PackageVisibilityTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file PkgInstallSignatureVerificationTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file PrivilegedUpdateTests.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file ReadableSettingsFieldsTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file SessionReferrerUriTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file SettingsProviderInvalidKeyTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file SharedUserIdTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file SplitTests.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+per-file UseProcessTest.java = file:platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+
+# Resources
+per-file CorruptApkTests.java = patb@google.com, zyy@google.com
+per-file OverlayHostTest.java = patb@google.com, zyy@google.com
+
+# test apps
+per-file BasePermissionsTest.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+per-file ReviewPermissionHelper = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+per-file UsePermission*.java = file:platform/frameworks/base:/core/java/android/permission/OWNERS
+
+# CTS shim packages
+per-file CtsShim*.apk = dariofreni@google.com
+per-file CtsShim*.apk = ioffe@google.com
+per-file com.android.apex.cts.shim.*.apex = dariofreni@google.com
+per-file com.android.apex.cts.shim.*.apex = ioffe@google.com
+
+# Storage
+per-file *Adoptable* = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file *DirectBoot* = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file *Storage* = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+
+# OTA
+per-file ApexSignatureVerificationTest.java = dariofreni@google.com
+per-file *ResumeOnReboot* = file:platform/frameworks/base:/core/java/android/service/resumeonreboot/OWNERS
+per-file BootCountTrackerRule.java = file:platform/frameworks/base:/core/java/android/service/resumeonreboot/OWNERS
+
+# FS Verify
+per-file ApkVerityInstallTest.java = file:platform/system/security:/fsverity/OWNERS

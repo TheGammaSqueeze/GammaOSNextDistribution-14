@@ -1,0 +1,96 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_lse_app_compat",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_static {
+    name: "pre_install_override_lib",
+    sdk_version: "current",
+    srcs: ["src/**/*.java"],
+}
+
+android_test_helper_app {
+    name: "appcompat_preinstall_override_versioncode1_debuggable",
+    defaults: ["cts_defaults"],
+    sdk_version: "current",
+    static_libs: ["pre_install_override_lib"],
+    manifest: "AndroidManifest_versioncode1_debuggable.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "vts10",
+        "general-tests",
+    ],
+}
+
+android_test_helper_app {
+    name: "appcompat_preinstall_override_versioncode2_debuggable",
+    defaults: ["cts_defaults"],
+    sdk_version: "current",
+    static_libs: ["pre_install_override_lib"],
+    manifest: "AndroidManifest_versioncode2_debuggable.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "vts10",
+        "general-tests",
+    ],
+}
+
+android_test_helper_app {
+    name: "appcompat_preinstall_override_versioncode1_release",
+    defaults: ["cts_defaults"],
+    sdk_version: "current",
+    static_libs: ["pre_install_override_lib"],
+    manifest: "AndroidManifest_versioncode1_release.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "vts10",
+        "general-tests",
+    ],
+}
+
+android_test_helper_app {
+    name: "appcompat_preinstall_override_versioncode2_release",
+    defaults: ["cts_defaults"],
+    sdk_version: "current",
+    static_libs: ["pre_install_override_lib"],
+    manifest: "AndroidManifest_versioncode2_release.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "vts10",
+        "general-tests",
+    ],
+}
+
+android_test_helper_app {
+    name: "appcompat_preinstall_override2_versioncode1_release",
+    defaults: ["cts_defaults"],
+    sdk_version: "current",
+    static_libs: ["pre_install_override_lib"],
+    manifest: "AndroidManifest_2_versioncode1_release.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "vts10",
+        "general-tests",
+    ],
+}

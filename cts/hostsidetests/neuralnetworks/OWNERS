@@ -1,0 +1,2 @@
+# Bug component: 195575
+include platform/packages/modules/NeuralNetworks:/NNAPI_OWNERS  # Neuralnetworks team

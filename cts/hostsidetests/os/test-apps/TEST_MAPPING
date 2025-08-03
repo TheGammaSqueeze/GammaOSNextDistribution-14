@@ -1,0 +1,22 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsOsHostTestCases",
+      "file_patterns": [
+          "(/|^)StaticSharedLib.*",
+          "(/|^)StaticSharedNativeLib.*"
+      ],
+      "options": [
+        {
+          "include-filter": "android.os.cts.StaticSharedLibsHostTests"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "org.junit.Ignore"
+        }
+      ]
+    }
+  ]
+}

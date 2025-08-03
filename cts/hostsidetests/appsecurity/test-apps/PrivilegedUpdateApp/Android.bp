@@ -1,0 +1,98 @@
+//##########################################################
+// Package w/ tests
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "CtsPrivilegedUpdateTests",
+    defaults: ["cts_support_defaults"],
+    sdk_version: "test_current",
+    static_libs: [
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+    ],
+    libs: ["android.test.base"],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    optimize: {
+        enabled: false,
+    },
+    dex_preopt: {
+        enabled: false,
+    },
+    srcs: ["src/**/*.java"],
+}
+
+//##########################################################
+// Variant: Privileged app upgrade
+
+android_test_import {
+    name: "CtsShimPrivUpgradePrebuilt",
+    // Make sure the build system doesn't try to resign the APK
+    presigned: true,
+    preprocessed: true,
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    // The 'arm' apk has both arm and arm64 so's. Same for x86/x86_64.
+    arch: {
+        arm: {
+            apk: "apk/arm/CtsShimPrivUpgrade.apk",
+        },
+        arm64: {
+            apk: "apk/arm/CtsShimPrivUpgrade.apk",
+        },
+        x86: {
+            apk: "apk/x86/CtsShimPrivUpgrade.apk",
+        },
+        x86_64: {
+            apk: "apk/x86/CtsShimPrivUpgrade.apk",
+        },
+        riscv64: {
+            // This apk has compressed JNI libraries when it shouldn't if it's presigned
+            skip_preprocessed_apk_checks: true,
+            apk: "apk/riscv64/CtsShimPrivUpgrade.apk",
+        },
+    },
+}
+
+//##########################################################
+// Variant: Privileged app upgrade (wrong SHA)
+
+android_test_import {
+    name: "CtsShimPrivUpgradeWrongSHAPrebuilt",
+    // Make sure the build system doesn't try to resign the APK
+    presigned: true,
+    preprocessed: true,
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    arch: {
+        arm: {
+            apk: "apk/arm/CtsShimPrivUpgradeWrongSHA.apk",
+        },
+        arm64: {
+            apk: "apk/arm/CtsShimPrivUpgradeWrongSHA.apk",
+        },
+        x86: {
+            apk: "apk/x86/CtsShimPrivUpgradeWrongSHA.apk",
+        },
+        x86_64: {
+            apk: "apk/x86/CtsShimPrivUpgradeWrongSHA.apk",
+        },
+        riscv64: {
+            // This apk has compressed JNI libraries when it shouldn't if it's presigned
+            skip_preprocessed_apk_checks: true,
+            apk: "apk/riscv64/CtsShimPrivUpgradeWrongSHA.apk",
+        },
+    },
+}

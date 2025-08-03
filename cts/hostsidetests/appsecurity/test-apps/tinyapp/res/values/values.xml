@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="known_certs_ec-p256_1-3">
+      <item>6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599</item>
+      <item>9369370ffcfdc1e92dae777252c05c483b8cbb55fa9d5fd9f6317f623ae6d8c6</item>
+    </string-array>
+</resources>

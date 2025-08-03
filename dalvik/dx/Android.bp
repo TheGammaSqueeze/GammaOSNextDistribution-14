@@ -1,0 +1,45 @@
+// Copyright 2006 The Android Open Source Project
+//
+
+// dx java library
+// ============================================================
+package {
+    default_applicable_licenses: ["dalvik_dx_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "dalvik_dx_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+java_binary_host {
+    name: "dx",
+    wrapper: "etc/dx",
+    srcs: ["src/**/*.java"],
+    manifest: "etc/manifest.txt",
+    java_version: "1.7",
+}
+
+java_binary_host {
+  name: "jasmin",
+  wrapper: "etc/jasmin",
+  static_libs: [ "jasmin-jar" ],
+}
+
+java_import_host {
+  name: "jasmin-jar",
+  jars: ["etc/jasmin.jar"],
+}
+
+filegroup {
+    name: "mainDexClassesRules",
+    srcs: ["etc/mainDexClasses*.rules"],
+}

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.cts.tagging.sdk30">
+
+    <uses-sdk android:minSdkVersion="30" android:targetSdkVersion="30" />
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+
+    <queries>
+      <package android:name="android.cts.tagging.sdk30memtag" />
+    </queries>
+
+    <application android:debuggable="true"
+                 android:zygotePreloadName=".ZygotePreload">
+      <uses-library android:name="android.test.runner" />
+      <processes>
+        <process />
+        <process android:process=":CrashMemtagSync"
+                 android:memtagMode="sync" />
+        <process android:process=":CrashMemtagAsync"
+                 android:memtagMode="async" />
+        <process android:process=":CrashProcess" />
+        <process android:process=":HeapZeroInitProcess"
+                 android:nativeHeapZeroInitialized="true" />
+        <process android:process=":HeapZeroInitMemtagAsyncProcess"
+                 android:memtagMode="async"
+                 android:nativeHeapZeroInitialized="true" />
+
+        <process android:process=":MemtagOffProcess"/>
+        <process android:process=":MemtagSyncProcess"
+                 android:memtagMode="sync" />
+        <process android:process=":MemtagAsyncProcess"
+                 android:memtagMode="async" />
+
+
+      </processes>
+
+      <activity android:name=".TestActivity" />
+      <activity android:name="android.cts.tagging.ServiceRunnerActivity" />
+
+      <activity android:name=".CrashActivity" android:process=":CrashProcess" />
+      <activity android:name=".CrashMemtagSyncActivity" android:process=":CrashMemtagSync" />
+      <activity android:name=".CrashMemtagAsyncActivity" android:process=":CrashMemtagAsync" />
+      <activity android:name=".HeapZeroInitActivity" android:process=":HeapZeroInitProcess" />
+      <activity android:name=".HeapZeroInitMemtagAsyncActivity"
+                android:process=":HeapZeroInitMemtagAsyncProcess" />
+
+      <service android:name=".ExportedMemtagSyncAppZygoteService"
+               android:process=":MemtagSyncProcess"
+               android:useAppZygote="true"
+               android:isolatedProcess="true"
+               android:externalService="true"
+               android:exported="true" />
+
+      <service android:name=".ExportedMemtagOffAppZygoteService"
+               android:process=":MemtagOffProcess"
+               android:useAppZygote="true"
+               android:isolatedProcess="true"
+               android:externalService="true"
+               android:exported="true" />
+
+      <service android:name=".ExportedMemtagSyncService"
+               android:process=":MemtagSyncProcess"
+               android:isolatedProcess="true"
+               android:externalService="true"
+               android:exported="true" />
+
+      <service android:name=".ExportedMemtagOffService"
+               android:process=":MemtagOffProcess"
+               android:isolatedProcess="true"
+               android:externalService="true"
+               android:exported="true" />
+    </application>
+
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="android.cts.tagging.sdk30" />
+</manifest>

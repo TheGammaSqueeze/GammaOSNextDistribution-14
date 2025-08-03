@@ -1,0 +1,6 @@
+
+The entire libs/ directory is built and constructed automatically with
+the build_libs.sh script.  Don't attempt to modify manually.  To rebuild
+the native code, make NDK_BUILD variable to point the correct path in
+the host environment, and then run build_libs.sh:
+

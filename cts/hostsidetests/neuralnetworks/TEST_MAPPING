@@ -1,0 +1,12 @@
+{
+  "mainline-presubmit": [
+    {
+      "name": "CtsNNAPIStatsdAtomHostTestCases[com.google.android.neuralnetworks.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsNNAPIStatsdAtomHostTestCases"
+    }
+  ]
+}

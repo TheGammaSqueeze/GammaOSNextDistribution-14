@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- light rose colors for Theme_Rose -->
+    <color name="rose_custom_color">@color/pink_light</color>
+    <color name="rose_navigation_bar_color">@color/rose_light</color>
+    <color name="rose_status_bar_color">@color/ruby_light</color>
+
+    <color name="pink_light">#ffffb6c1</color>
+    <color name="rose_light">#ffff66cc</color>
+    <color name="ruby_light">#ffff0da6</color>
+</resources>

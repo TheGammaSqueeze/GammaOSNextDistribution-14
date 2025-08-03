@@ -1,0 +1,32 @@
+package {
+    default_team: "trendy_team_mainline_modularization",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsClasspathDeviceInfoTestCases",
+
+    srcs: ["src/**/*.java"],
+
+    libs: [
+        "compatibility-host-util",
+        "cts-tradefed",
+        "junit",
+        "tradefed",
+    ],
+
+    static_libs: [
+        "compat-classpaths-testing",
+        "modules-utils-build-testing",
+    ],
+
+    test_suites: [
+        "cts",
+        "gts",
+        "general-tests",
+    ],
+
+    data: [":SharedLibraryInfoTestApp"],
+
+    per_testcase_directory: true,
+}

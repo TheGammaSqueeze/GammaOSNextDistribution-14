@@ -1,0 +1,54 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libneuralnetworkshelper_statsdatom",
+    srcs: ["jni/trigger_libneuralnetworks_atoms.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    header_libs: ["jni_headers"],
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+        "libneuralnetworks",
+    ],
+    static_libs: ["libbase_ndk"],
+    stl: "c++_static",
+    sdk_version: "current",
+    min_sdk_version: "29",
+}
+
+android_test_helper_app {
+    name: "CtsNnapiStatsdAtomApp",
+    defaults: ["cts_defaults"],
+    platform_apis: true,
+    min_sdk_version: "29",
+    srcs: [
+        "src/**/*.java",
+    ],
+    privileged: true,
+    jni_libs: [
+        "libneuralnetworkshelper_statsdatom",
+    ],
+    compile_multilib: "both",
+    v4_signature: true,
+}

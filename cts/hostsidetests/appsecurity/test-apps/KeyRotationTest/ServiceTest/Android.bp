@@ -1,0 +1,123 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// This is the instrumentation test package for the CtsSignatureQueryService
+// app. This app verifies that the standalone app is functioning as expected
+// after a key rotation and provides a companion package that can be used for
+// the PackageManager checkSignatures APIs.
+
+package {
+    default_team: "trendy_team_platform_security",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsSignatureQueryServiceTest",
+    defaults: ["cts_support_defaults"],
+    compile_multilib: "both",
+    sdk_version: "current",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "cts_signature_query_service",
+        "androidx.test.core",
+        "androidx.test.rules",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256",
+    v4_signature: true,
+    // Disable dexpreopt and <uses-library> check for test
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+// This is the instrumentation test package signed with the same signing key and
+// lineage as v2 and v3 of the CtsSignatureQueryService test app.
+android_test {
+    name: "CtsSignatureQueryServiceTest_v2",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v2.xml",
+    compile_multilib: "both",
+    sdk_version: "current",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "cts_signature_query_service",
+        "androidx.test.core",
+        "androidx.test.rules",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    v4_signature: true,
+    // Disable dexpreopt and <uses-library> check for test
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+// This is the instrumentation test package signed with the same signing key and
+// lineage as v2 and v3 of the CtsSignatureQueryService test app with rotation
+// targeting SDK version 33.
+android_test {
+    name: "CtsSignatureQueryServiceTest_v2-tgt-33",
+    defaults: ["cts_support_defaults"],
+    manifest: "AndroidManifest_v2.xml",
+    compile_multilib: "both",
+    min_sdk_version: "32",
+    sdk_version: "current",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "cts_signature_query_service",
+        "androidx.test.core",
+        "androidx.test.rules",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    certificate: ":ec-p256_2",
+    additional_certificates: [":ec-p256"],
+    lineage: ":ec-p256-por_1_2-default-caps",
+    rotationMinSdkVersion: "33",
+    v4_signature: true,
+    // Disable dexpreopt and <uses-library> check for test
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}

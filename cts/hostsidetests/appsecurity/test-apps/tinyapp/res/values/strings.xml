@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tiny App for CTS</string>
+    <string name="known_cert_ec-p256_1">6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599</string>
+</resources>

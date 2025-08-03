@@ -1,0 +1,571 @@
+// Copyright (C) 2009 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+TEST_SUITES_DEFAULT = [
+    "cts",
+    "general-tests",
+    "mts-documentsui",
+    "mts-mainline-infra",
+    "mts-mediaprovider",
+    "mcts-documentsui",
+    "mcts-mainline-infra",
+    "mcts-mediaprovider",
+]
+
+java_library_host {
+    name: "CtsAppSecurityUtils",
+    defaults: ["cts_defaults"],
+
+    libs: [
+        "cts-tradefed",
+        "tradefed",
+        "compatibility-host-util",
+        "truth",
+        "hamcrest-library",
+    ],
+
+    static_libs: [
+        "CompatChangeGatingTestBase",
+        "CtsPkgInstallerConstants",
+        "cts-host-utils",
+        "cts-statsd-atom-host-test-utils",
+        "sts-host-util",
+    ],
+
+    srcs: [
+        "src/**/AppSecurityPreparer.java",
+        "src/**/BaseAppSecurityTest.java",
+        "src/**/BaseInstallMultiple.java",
+        "src/**/ExceptionUtils.java",
+        "src/**/LockScreenInspector.java",
+        "src/**/MatcherUtils.java",
+        "src/**/ThrowingRunnable.java",
+        "src/**/Utils.java",
+    ],
+}
+
+java_defaults {
+    name: "appsecurity_cts_defaults",
+    defaults: ["cts_defaults"],
+
+    libs: [
+        "cts-tradefed",
+        "tradefed",
+        "compatibility-host-util",
+        "truth",
+        "hamcrest-library",
+    ],
+
+    static_libs: [
+        "CtsAppSecurityUtils",
+        "CompatChangeGatingTestBase",
+        "CtsPkgInstallerConstants",
+        "cts-host-utils",
+        "cts-statsd-atom-host-test-utils",
+        "sts-host-util",
+        "flag-junit-host",
+        "com.android.internal.pm.pkg.component.flags-aconfig-java-host",
+    ],
+
+    java_resource_dirs: ["res"],
+
+    per_testcase_directory: true,
+
+    test_suites: TEST_SUITES_DEFAULT,
+}
+
+java_test_host {
+    name: "CtsAppSecurityHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/ApexSignatureVerificationTest.java",
+        "src/**/AppSecurityTests.java",
+        "src/**/DeviceIdentifierTest.java",
+        "src/**/KeySetHostTest.java",
+        "src/**/ListeningPortsTest.java",
+        "src/**/PkgInstallSignatureVerificationTest.java",
+        "src/**/StatsdAppSecurityAtomTest.java",
+        "src/**/RoleSecurityTest.java",
+    ],
+
+    static_libs: [
+        "flag-junit-host",
+        "android.security.flags-aconfig-java-host",
+        "sts-host-util",
+    ],
+
+    test_suites: TEST_SUITES_DEFAULT + ["sts"],
+
+    data: [
+        // AppSecurityTests
+        ":CtsAppAccessData",
+        ":CtsAppWithData",
+        ":CtsDuplicatePermission_SamePermissionGroup",
+        ":CtsDuplicatePermissionDeclareApp_DifferentProtectionLevel",
+        ":CtsDuplicatePermissionDeclareApp_SameProtectionLevel",
+        ":CtsDuplicatePermissionDeclareApp",
+        ":CtsInstrumentationAppDiffCert",
+        ":CtsMalformedDuplicatePermission_DifferentPermissionGroup",
+        ":CtsPermissionDeclareApp",
+        ":CtsPermissionDeclareAppCompat",
+        ":CtsSimpleAppInstall",
+        ":CtsSimpleAppInstallDiffCert",
+        ":CtsTargetInstrumentationApp",
+        ":CtsUsePermissionDiffCert",
+        // DeviceIdentifierTest
+        ":CtsAccessDeviceIdentifiers",
+        // KeySetHostTest
+        ":CtsKeySetPermDefSigningA",
+        ":CtsKeySetPermDefSigningB",
+        ":CtsKeySetPermUseSigningA",
+        ":CtsKeySetPermUseSigningB",
+        ":CtsKeySetSharedUserSigningAUpgradeB",
+        ":CtsKeySetSharedUserSigningBUpgradeB",
+        ":CtsKeySetSigningAAndBUpgradeA",
+        ":CtsKeySetSigningAAndCUpgradeB",
+        ":CtsKeySetSigningABadUpgradeB",
+        ":CtsKeySetSigningANoDefUpgradeB",
+        ":CtsKeySetSigningAUpgradeA",
+        ":CtsKeySetSigningAUpgradeAOrB",
+        ":CtsKeySetSigningAUpgradeB",
+        ":CtsKeySetSigningAUpgradeEcA",
+        ":CtsKeySetSigningAUpgradeNone",
+        ":CtsKeySetSigningBUpgradeA",
+        ":CtsKeySetSigningBUpgradeB",
+        ":CtsKeySetSigningCBadAUpgradeAB",
+        ":CtsKeySetSigningEcAUpgradeA",
+        ":CtsKeySetTestApp",
+        // ListeningPortsTest
+        ":CtsListeningPortsTest",
+        // PkgInstallSignatureVerificationTest deps
+        ":CtsSignatureQueryService",
+        ":CtsSignatureQueryServiceTest",
+        ":CtsV3SigningSchemeRotationTest",
+        ":CtsSignatureQueryService_v2-tgt-33",
+        ":CtsSignatureQueryService_v2",
+        ":CtsSignatureQueryService_v3-tgt-33",
+        ":CtsSignatureQueryService_v3",
+        ":CtsSignatureQueryServiceTest",
+        ":CtsSignatureQueryServiceTest_v2",
+        ":CtsSignatureQueryServiceTest_v2-tgt-33",
+        ":v1v2-ec-p256-two-signers-targetSdk-30",
+        ":v3-ec-p256-1-companion-usesperm",
+        ":v3-ec-p256-1-sharedUid",
+        ":v3-ec-p256-1-sharedUid-companion2",
+        ":v3-ec-p256_2-companion-uses-knownSigner",
+        ":v3-ec-p256-2-sharedUid-companion",
+        ":v3-ec-p256_3-companion-uses-knownSigner",
+        ":v3-ec-p256-with-por_1_2_3-1-no-caps-2-default-declperm",
+        ":v3-ec-p256-with-por-1_2_3_4_5-default-caps",
+        ":v3-ec-p256-with-por_1_2_3-no-caps-declperm",
+        ":v3-ec-p256-with-por_1_2_4-companion-usesperm",
+        ":v3-ec-p256-with-por_1_2-companion-uses-knownSigner",
+        ":v3-ec-p256-with-por_1_2-default-caps",
+        ":v3-ec-p256-with-por_1_2-default-caps-sharedUid",
+        ":v3-ec-p256-with-por_1_2-default-caps-sharedUid-companion",
+        ":v3-ec-p256-with-por_1_2-default-caps-sharedUid-companion3",
+        ":v3-ec-p256-with-por_1_2-no-perm-cap-sharedUid",
+        ":v3-ec-p256-with-por_1_2-no-shUid-cap-declperm2",
+        ":v3-ec-p256-with-por_1_2-no-shUid-cap-sharedUid",
+        ":v3-ec-p256-with-por_1_2-no-shUid-cap-sharedUid-companion",
+        ":v3-ec-p256-with-por_1_2-no-shUid-cap-sharedUid-companion2",
+        ":v3-por_Y_1_2-default-caps-sharedUid",
+        ":v3-por_Z_1_2-default-caps-sharedUid-companion",
+        ":v3-rsa-2048-decl-knownSigner-ec-p256-1-3",
+        ":v3-rsa-2048-decl-knownSigner-str-const-ec-p256-1",
+        ":v3-rsa-2048-decl-knownSigner-str-res-ec-p256-1",
+        ":v3-rsa-2048-declperm",
+        // StatsdAppSecurityAtomTest
+        ":CtsStatsSecurityApp",
+        // ApkVerityInstallTest
+        ":CtsApkVerityTestApp",
+        ":CtsApkVerityTestAppSplit",
+        // PackageSetInstallerTest
+        ":CtsPkgInstallerPermRequestApp",
+        ":CtsPkgInstallerPermWhitelistApp",
+        // CtsAppDataIsolationAppA
+        ":CtsAppDataIsolationAppA",
+        ":CtsAppDataIsolationAppSharedA",
+        ":CtsAppDataIsolationAppDirectBootA",
+        ":CtsAppDataIsolationAppApi29A",
+        ":CtsAppDataIsolationAppB",
+        ":CtsAppDataIsolationAppSharedB",
+        // ReadableSettingsFieldsTest
+        ":CtsReadSettingsFieldsApp",
+        ":CtsReadSettingsFieldsAppTestOnly",
+        ":CtsReadSettingsFieldsAppTargetQ",
+        ":CtsReadSettingsFieldsAppTargetR",
+        ":CtsReadSettingsFieldsAppTargetS",
+        // UseProcessTest
+        ":CtsUseProcessFailActivity",
+    ],
+}
+
+java_test_host {
+    name: "CtsPermissionsHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    test_suites: TEST_SUITES_DEFAULT + ["sts"],
+
+    srcs: [
+        "src/**/AccessSerialNumberTest.java",
+        "src/**/AppOpsTest.java",
+        "src/**/LocationPolicyTest.java",
+        "src/**/PermissionEscalationTest.java",
+    ],
+    data: [
+        // AccessSerialNumberTest
+        ":CtsAccessSerialLegacy",
+        ":CtsAccessSerialModern",
+        // LocationPolicyTest
+        ":CtsLocationPolicyApp",
+        // PermissionEscalationTest
+        ":CtsDeclareNonRuntimePermissions",
+        ":CtsEscalateToRuntimePermissions",
+    ],
+    test_config: "PermissionsTests.xml",
+}
+
+java_test_host {
+    name: "CtsAppDataIsolationHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/AppDataIsolationTests.java",
+    ],
+    data: [
+        ":CtsAppDataIsolationAppA",
+        ":CtsAppDataIsolationAppApi29A",
+        ":CtsAppDataIsolationAppB",
+        ":CtsAppDataIsolationAppDirectBootA",
+        ":CtsAppDataIsolationAppSharedA",
+        ":CtsAppDataIsolationAppSharedB",
+    ],
+    test_config: "AppDataIsolationTests.xml",
+}
+
+java_test_host {
+    name: "CtsUseEmbeddedDexHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/UseEmbeddedDexTest.java",
+    ],
+    data: [
+        ":CtsUseEmbeddedDexApp_Canonical",
+        ":CtsUseEmbeddedDexApp_Canonical_PerProcess",
+        ":CtsUseEmbeddedDexApp_DexCompressed",
+        ":CtsUseEmbeddedDexApp_DexCompressed_PerProcess",
+        ":CtsUseEmbeddedDexApp_NotPreferred",
+        ":CtsUseEmbeddedDexAppSplit_Canonical",
+        ":CtsUseEmbeddedDexAppSplit_CompressedDex",
+    ],
+    test_config: "UseEmbeddedDexTests.xml",
+}
+
+java_test_host {
+    name: "CtsPackageManagerHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/ApplicationVisibilityTest.java",
+        "src/**/BaseInstallMultiple.java",
+        "src/**/IsolatedSplitsTests.java",
+        "src/**/MajorVersionTest.java",
+        "src/**/PackageResolutionHostTest.java",
+        "src/**/PackageSetInstallerTest.kt",
+        "src/**/PackageVisibilityTest.java",
+        "src/**/PrivilegedUpdateTests.java",
+        "src/**/ReadableSettingsFieldsTest.java",
+        "src/**/SessionReferrerUriTest.java",
+        "src/**/SettingsProviderInvalidKeyTest.java",
+        "src/**/SharedUserIdTest.java",
+        "src/**/SplitTests.java",
+        "src/**/UseProcessTest.java",
+    ],
+    static_libs: [
+        "flag-junit-host",
+        "android.content.pm.flags-aconfig-java-host",
+    ],
+    data: [
+        // ApplicationVisibilityTest
+        ":CtsPkgInstallTinyApp",
+        ":CtsApplicationVisibilityCrossUserApp",
+        // IsolatedSplitsTests
+        ":CtsIsolatedSplitApp",
+        ":CtsIsolatedSplitAppExtractNativeLibsFalseJni",
+        ":CtsIsolatedSplitAppExtractNativeLibsFalseNumberProviderA",
+        ":CtsIsolatedSplitAppExtractNativeLibsFalseNumberProviderB",
+        ":CtsIsolatedSplitAppExtractNativeLibsFalseNumberProxy",
+        ":CtsIsolatedSplitAppExtractNativeLibsTrue",
+        ":CtsIsolatedSplitAppExtractNativeLibsTrueJni",
+        ":CtsIsolatedSplitAppExtractNativeLibsTrueNumberProviderA",
+        ":CtsIsolatedSplitAppExtractNativeLibsTrueNumberProviderB",
+        ":CtsIsolatedSplitAppExtractNativeLibsTrueNumberProxy",
+        ":CtsIsolatedSplitAppFeatureA",
+        ":CtsIsolatedSplitAppFeatureADiffRev",
+        ":CtsIsolatedSplitAppFeatureB",
+        ":CtsIsolatedSplitAppFeatureC",
+        // MajorVersionTest
+        ":CtsMajorVersion000000000000ffff",
+        ":CtsMajorVersion00000000ffffffff",
+        ":CtsMajorVersion000000ff00000000",
+        ":CtsMajorVersion000000ffffffffff",
+        // PackageResolutionHostTest
+        ":CtsOrderedActivityApp",
+        // PackageSetInstallerTest
+        ":CtsPkgInstallerPermRequestApp",
+        ":CtsPkgInstallerPermWhitelistApp",
+        // PackageVisibilityTest
+        ":CtsPkgAccessApp",
+        ":CtsPkgInstallTinyApp",
+        // PrivilegedUpdateTests
+        ":CtsPrivilegedUpdateTests",
+        ":CtsShimPrivUpgradePrebuilt",
+        ":CtsShimPrivUpgradeWrongSHAPrebuilt",
+        // ReadableSettingsFieldsTest
+        ":CtsReadSettingsFieldsApp",
+        ":CtsReadSettingsFieldsAppTargetQ",
+        ":CtsReadSettingsFieldsAppTargetR",
+        ":CtsReadSettingsFieldsAppTargetS",
+        ":CtsReadSettingsFieldsAppTestOnly",
+        // SessionReferrerUriTest
+        ":CtsSessionInspectorAppA",
+        ":CtsSessionInspectorAppB",
+        // SettingsProviderInvalidKeyTest
+        ":CtsSettingsProviderInvalidKeyTestApp",
+        // SharedUserIdTest
+        ":CtsSharedUidInstall",
+        ":CtsSharedUidInstallDiffCert",
+        // SplitTests
+        ":CtsInvalidRequiredSplitTypeSplitApp",
+        ":CtsNeedSplitApp",
+        ":CtsNeedSplitFeatureWarm",
+        ":CtsNoRestartBase",
+        ":CtsNoRestartFeature",
+        ":CtsRequiredSplitTypeSplitApp",
+        ":CtsRequiredSplitTypeSplitAppUpdated",
+        ":CtsRequiredSplitTypeSplitApp",
+        ":CtsRequiredSplitTypeSplitAppUpdated",
+        ":CtsSplitApp",
+        ":CtsSplitApp_arm64-v8a",
+        ":CtsSplitApp_armeabi",
+        ":CtsSplitApp_armeabi-v7a",
+        ":CtsSplitApp_mips",
+        ":CtsSplitApp_mips64",
+        ":CtsSplitApp_x86",
+        ":CtsSplitApp_x86_64",
+        ":CtsSplitApp_revision12_arm64-v8a",
+        ":CtsSplitApp_revision12_armeabi",
+        ":CtsSplitApp_revision12_armeabi-v7a",
+        ":CtsSplitApp_revision12_mips",
+        ":CtsSplitApp_revision12_mips64",
+        ":CtsSplitApp_revision12_x86",
+        ":CtsSplitApp_revision12_x86_64",
+        ":CtsSplitApp_number_provider_a",
+        ":CtsSplitApp_number_provider_b",
+        ":CtsSplitApp_number_proxy",
+        ":CtsSplitAppDiffCert",
+        ":CtsSplitAppDiffRevision",
+        ":CtsSplitAppDiffVersion",
+        ":CtsSplitAppFeatureRose",
+        ":CtsSplitAppFeatureWarm",
+        ":CtsSplitAppFeatureWarmRevisionA",
+        ":CtsSplitAppRevisionA",
+        ":CtsSplitAppTypeDensity",
+        ":CtsSplitAppTypeFeature",
+        ":CtsSplitAppTypeFeatureData",
+        ":CtsSplitAppTypeFeatureFoo",
+        ":CtsSplitAppTypeFoo",
+        ":CtsSplitAppTypeLocale",
+        ":CtsSplitAppTypeMultiple",
+        ":CtsSplitInstantApp",
+        // UseProcessTest
+        ":CtsUseProcessFailActivity",
+        ":CtsUseProcessFailApplication",
+        ":CtsUseProcessFailProvider",
+        ":CtsUseProcessFailReceiver",
+        ":CtsUseProcessFailService",
+        ":CtsUseProcessSuccess",
+    ],
+    test_config: "PackageManagerTests.xml",
+}
+
+java_test_host {
+    name: "CtsInstantAppsHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+    test_suites: TEST_SUITES_DEFAULT + ["sts"],
+    srcs: [
+        "src/**/EphemeralTest.java",
+        "src/**/InstantAppUserTest.java",
+        "src/**/InstantCookieHostTest.java",
+    ],
+    data: [
+        // EphemeralTest deps
+        ":CtsEphemeralTestsNormalApp",
+        ":CtsEphemeralTestsUnexposedApp",
+        ":CtsEphemeralTestsImplicitApp",
+        ":CtsEphemeralTestsEphemeralApp1",
+        ":CtsEphemeralTestsEphemeralApp2",
+        ":CtsEphemeralTestsUserApp",
+        ":CtsEphemeralTestsUserAppTest",
+        ":CtsInstantUpgradeApp",
+        // InstantCookie deps
+        ":CtsInstantCookieApp",
+        ":CtsInstantCookieApp2",
+    ],
+    test_config: "InstantAppsTests.xml",
+}
+
+java_test_host {
+    name: "CtsAdoptableHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/*Adoptable*.java",
+    ],
+    test_config: "AdoptableTests.xml",
+}
+
+java_test_host {
+    name: "CtsDirectBootHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/*DirectBoot*.java",
+    ],
+    data: [
+        ":CtsEncryptionApp",
+        ":CtsSplitApp",
+    ],
+    test_config: "DirectBootTests.xml",
+}
+
+java_test_host {
+    name: "CtsStorageHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    static_libs: [
+        "flag-junit-host",
+        "android.app.usage.flags-aconfig-java-host",
+    ],
+    srcs: [
+        "src/**/*Storage*.java",
+    ],
+    data: [
+        ":CtsExternalStorageApp",
+        ":CtsReadExternalStorageApp",
+        ":CtsWriteExternalStorageApp",
+        ":CtsWriteExternalStorageApp2",
+        ":CtsMultiUserStorageApp",
+        ":CtsMediaStorageApp",
+        ":CtsMediaStorageApp28",
+        ":CtsMediaStorageApp29",
+        ":CtsMediaStorageApp31",
+        ":CtsNoAppDataStorageApp",
+        ":CtsStorageStatsApp",
+        ":CtsStorageAppA",
+        ":CtsStorageAppB",
+    ],
+    test_config: "StorageTests.xml",
+}
+
+java_test_host {
+    name: "CtsResumeOnRebootHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/*ResumeOnReboot*.java",
+        "src/**/BootCountTrackerRule.java",
+        "src/**/NormalizeScreenStateRule.java",
+    ],
+    data: [
+        ":CtsEncryptionApp",
+        ":CtsSplitApp",
+    ],
+    static_libs: [
+        "hamcrest-library",
+    ],
+    test_config: "ResumeOnRebootTests.xml",
+}
+
+java_test_host {
+    name: "CtsApkVerityInstallHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+    srcs: [
+        "src/**/ApkVerityInstallTest.java",
+    ],
+    data: [
+        ":CtsApkVerityTestPrebuiltFiles",
+    ],
+    static_libs: [
+        "flag-junit-host",
+        "android.security.flags-aconfig-java-host",
+    ],
+    test_config: "ApkVerityInstallTests.xml",
+}
+
+java_test_host {
+    name: "CtsCorruptApkHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+    data: [
+        ":CtsCorruptApkTests_b71360999",
+        ":CtsCorruptApkTests_b71361168",
+        ":CtsCorruptApkTests_b79488511",
+        ":CtsCorruptApkTests_Compressed_Q",
+        ":CtsCorruptApkTests_Compressed_R",
+        ":CtsCorruptApkTests_Unaligned_Q",
+        ":CtsCorruptApkTests_Unaligned_R",
+    ],
+    srcs: [
+        "src/**/CorruptApkTests.java",
+    ],
+    test_config: "CorruptApkTests.xml",
+}
+
+java_test_host {
+    name: "CtsOverlayHostTestCases",
+    defaults: ["appsecurity_cts_defaults"],
+
+    srcs: [
+        "src/**/OverlayHostTest.java",
+    ],
+    data: [
+        ":CtsOverlayApp",
+        ":CtsOverlayAndroid",
+        ":CtsOverlayPolicyAll",
+        ":CtsOverlayPolicyAllPie",
+        ":CtsOverlayPolicyAllHasCode",
+        ":CtsOverlayPolicyAllNoName",
+        ":CtsOverlayPolicyAllNoNameDifferentCert",
+        ":CtsOverlayPolicyProduct",
+        ":CtsOverlayPolicySystem",
+        ":CtsOverlayPolicySignatureDifferent",
+        ":CtsOverlayPolicyVendor",
+        ":CtsOverlayTarget",
+        ":CtsOverlayTargetNoOverlayable",
+    ],
+    test_config: "OverlayTests.xml",
+}
+
+filegroup {
+    name: "CtsHostsideTestsAppSecurityUtil",
+    srcs: ["src/android/appsecurity/cts/Utils.java"],
+}

@@ -1,0 +1,42 @@
+{
+  "mainline-presubmit": [
+    {
+        "name": "CtsAppCloningHostTest[com.google.android.mediaprovider.apex]",
+        "options": [
+          {
+            "exclude-annotation": "android.platform.test.annotations.LargeTest"
+          }
+        ]
+    }
+  ],
+  "mainline-postsubmit": [
+    {
+        "name": "CtsAppCloningHostTest[com.google.android.mediaprovider.apex]",
+        "options": [
+          {
+            "include-annotation": "android.platform.test.annotations.LargeTest"
+          }
+        ]
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsAppCloningHostTest",
+      "options": [
+        {
+          "exclude-annotation": "android.platform.test.annotations.LargeTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsAppCloningHostTest",
+      "options": [
+        {
+          "include-annotation": "android.platform.test.annotations.LargeTest"
+        }
+      ]
+    }
+  ]
+}

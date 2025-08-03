@@ -1,0 +1,50 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsTaggingHostTestCases",
+    defaults: ["cts_defaults"],
+    srcs: ["src/**/*.java"],
+    libs: [
+        "compatibility-host-util",
+        "cts-tradefed",
+        "tradefed",
+    ],
+    static_libs: [
+        "CompatChangeGatingTestBase",
+        "flag-junit-host",
+        "HarrierCommon",
+    ],
+    // tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    data: [
+        ":DeviceKernelHelpers",
+        ":CtsHostsideTaggingManifestDisabledApp",
+        ":CtsHostsideTaggingManifestEnabledSdk29App",
+        ":CtsHostsideTaggingManifestEnabledSdk30App",
+        ":CtsHostsideTaggingSdk29App",
+        ":CtsHostsideTaggingSdk30App",
+        ":CtsHostsideTaggingSdk30MemtagApp",
+        ":CtsHostsideTaggingIsMteEnabledApp",
+    ],
+}
+
+java_defaults {
+    name: "cts_tagging_app_defaults",
+    defaults: ["cts_defaults"],
+    compile_multilib: "both",
+    static_libs: [
+        "tagging-common-devicesidelib",
+        "ctstestrunner-axt",
+        "androidx.test.rules",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+    ],
+    jni_libs: ["libtagging-common-devicesidelib-jni"],
+    min_sdk_version: "30",
+    target_sdk_version: "30",
+}

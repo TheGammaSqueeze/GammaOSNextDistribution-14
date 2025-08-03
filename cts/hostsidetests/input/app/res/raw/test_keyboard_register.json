@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "type": "uinput",
+  "command": "register",
+  "name": "Test Keyboard (USB)",
+  "vid": 0x18d1,
+  "pid": 0xabcd,
+  "bus": "usb",
+  "configuration":[
+    {"type": "UI_SET_EVBIT", "data": ["EV_KEY"]},
+    {"type": "UI_SET_KEYBIT", "data": [
+      "KEY_A", "KEY_Q", "KEY_CAPSLOCK"
+    ]}
+  ]
+}

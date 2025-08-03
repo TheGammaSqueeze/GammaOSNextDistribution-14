@@ -1,0 +1,117 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test_library {
+    name: "libsplitappjni_isolated",
+    defaults: ["split_native_defaults"],
+    header_libs: ["jni_headers"],
+    shared_libs: ["liblog"],
+    srcs: ["jni/com_android_cts_isolatedsplitapp_Native.cpp"],
+}
+
+java_defaults {
+    name: "CtsSplitTestHelperApp_isolated_defaults",
+    compile_multilib: "both",
+
+    // TODO(b/179744452): Please add the following properties in individual modules because these
+    //                    properties can't inherit from java_defaults.
+    use_embedded_native_libs: false, // android:extractNativeLibs="true"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+/**
+  * Isolated feature split with extracting native library
+  */
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsTrueJni",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_jni.xml",
+    jni_libs: ["libsplitappjni_isolated"],
+    use_embedded_native_libs: false, // android:extractNativeLibs="true"
+    srcs: ["src/**/*.java"],
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsTrueNumberProviderA",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_provider_a.xml",
+    jni_libs: ["libsplitapp_number_provider_a"],
+    use_embedded_native_libs: false, // android:extractNativeLibs="true"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsTrueNumberProviderB",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_provider_b.xml",
+    jni_libs: ["libsplitapp_number_provider_b"],
+    use_embedded_native_libs: false, // android:extractNativeLibs="true"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsTrueNumberProxy",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_proxy.xml",
+    jni_libs: ["libsplitapp_number_proxy"],
+    use_embedded_native_libs: false, // android:extractNativeLibs="true"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+/**
+  * Isolated feature split without extracting native library
+  */
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsFalseJni",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_jni.xml",
+    jni_libs: ["libsplitappjni_isolated"],
+    use_embedded_native_libs: true, // android:extractNativeLibs="false"
+    srcs: ["src/**/*.java"],
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsFalseNumberProviderA",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_provider_a.xml",
+    jni_libs: ["libsplitapp_number_provider_a"],
+    use_embedded_native_libs: true, // android:extractNativeLibs="false"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsFalseNumberProviderB",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_provider_b.xml",
+    jni_libs: ["libsplitapp_number_provider_b"],
+    use_embedded_native_libs: true, // android:extractNativeLibs="false"
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsIsolatedSplitAppExtractNativeLibsFalseNumberProxy",
+    defaults: ["CtsSplitTestHelperApp_isolated_defaults"],
+    manifest: "AndroidManifest_isolated_number_proxy.xml",
+    jni_libs: ["libsplitapp_number_proxy"],
+    use_embedded_native_libs: true, // android:extractNativeLibs="false"
+    test_suites: TARGET_TEST_SUITES,
+}

@@ -1,0 +1,5 @@
+# Bug component: 856262
+include platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+
+patb@google.com
+schfan@google.com

@@ -1,0 +1,5 @@
+# Bug component: 1344
+include platform/frameworks/av:/media/OWNERS
+essick@google.com
+dichenzhang@google.com
+

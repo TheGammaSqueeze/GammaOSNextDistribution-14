@@ -1,0 +1,49 @@
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "CtsStorageAppLib",
+    srcs: ["src/**/*.java"],
+    defaults: ["cts_support_defaults"],
+    sdk_version: "test_current",
+    libs: [
+        "android.test.base",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsStorageAppA",
+    defaults: ["cts_support_defaults"],
+    sdk_version: "test_current",
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+    libs: ["android.test.base"],
+    srcs: ["src/**/*.java"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    manifest: "AndroidManifestA.xml",
+}
+
+android_test_helper_app {
+    name: "CtsStorageAppB",
+    defaults: ["cts_support_defaults"],
+    sdk_version: "test_current",
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+    libs: ["android.test.base"],
+    srcs: ["src/**/*.java"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    manifest: "AndroidManifestB.xml",
+}

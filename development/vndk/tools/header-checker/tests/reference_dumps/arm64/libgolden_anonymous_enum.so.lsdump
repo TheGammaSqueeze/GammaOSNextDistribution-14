@@ -1,0 +1,101 @@
+{
+ "array_types" : [],
+ "builtin_types" :
+ [
+  {
+   "alignment" : 1,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIc",
+   "name" : "char",
+   "size" : 1
+  },
+  {
+   "alignment" : 4,
+   "is_integral" : true,
+   "is_unsigned" : true,
+   "linker_set_key" : "_ZTIj",
+   "name" : "unsigned int",
+   "size" : 4
+  }
+ ],
+ "elf_functions" : [],
+ "elf_objects" : [],
+ "enum_types" :
+ [
+  {
+   "alignment" : 1,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 1,
+     "name" : "A"
+    }
+   ],
+   "linker_set_key" : "_ZTI2$A",
+   "name" : "(unnamed)",
+   "size" : 1,
+   "source_file" : "development/vndk/tools/header-checker/tests/integration/cpp/anonymous_enum/include/golden.h",
+   "underlying_type" : "_ZTIc"
+  },
+  {
+   "alignment" : 1,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 1,
+     "name" : "B"
+    }
+   ],
+   "linker_set_key" : "_ZTI2$B",
+   "name" : "(unnamed)",
+   "size" : 1,
+   "source_file" : "development/vndk/tools/header-checker/tests/integration/cpp/anonymous_enum/include/golden.h",
+   "underlying_type" : "_ZTIc"
+  },
+  {
+   "alignment" : 4,
+   "enum_fields" :
+   [
+    {
+     "enum_field_value" : 0,
+     "name" : "(anonymous struct)::B"
+    },
+    {
+     "enum_field_value" : 1,
+     "name" : "(anonymous struct)::C"
+    }
+   ],
+   "linker_set_key" : "_ZTIN3$_22$BE",
+   "name" : "(unnamed)::(unnamed)",
+   "size" : 4,
+   "source_file" : "development/vndk/tools/header-checker/tests/integration/cpp/anonymous_enum/include/golden.h",
+   "underlying_type" : "_ZTIj"
+  }
+ ],
+ "function_types" : [],
+ "functions" : [],
+ "global_vars" : [],
+ "lvalue_reference_types" : [],
+ "pointer_types" : [],
+ "qualified_types" : [],
+ "record_types" :
+ [
+  {
+   "alignment" : 4,
+   "fields" :
+   [
+    {
+     "field_name" : "member",
+     "referenced_type" : "_ZTIN3$_22$BE"
+    }
+   ],
+   "is_anonymous" : true,
+   "linker_set_key" : "_ZTI3$_2",
+   "name" : "(unnamed)",
+   "size" : 4,
+   "source_file" : "development/vndk/tools/header-checker/tests/integration/cpp/anonymous_enum/include/golden.h"
+  }
+ ],
+ "rvalue_reference_types" : []
+}

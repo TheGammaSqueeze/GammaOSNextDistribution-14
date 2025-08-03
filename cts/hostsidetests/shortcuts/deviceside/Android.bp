@@ -1,0 +1,13 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "hostsidetests-shortcuts-deviceside-defaults",
+    static_libs: [
+        "hostsidetests-shortcuts-deviceside-common",
+        "ShortcutManagerTestUtils",
+    ],
+    libs: ["android.test.base"],
+    sdk_version: "test_current",
+}

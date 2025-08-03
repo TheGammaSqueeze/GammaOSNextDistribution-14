@@ -1,0 +1,58 @@
+//# sources have been created from Drystone-2.1.sh with below command:
+// ./Drystone-2.1.sh
+// sed -i 's/printf ("  Ptr_Comp:          %d\\n", (int) /printf ("  Ptr_Comp:          %p\\n", /g' dhry_1.c
+// sed -i 's,^} /\* Proc_,return 0; } /\* Proc_,g' *.c
+
+// See: http://go/android-license-faq
+package {
+    default_applicable_licenses: [
+        "cts_hostsidetests_sustainedperf_dhrystone_license",
+    ],
+}
+
+license {
+    name: "cts_hostsidetests_sustainedperf_dhrystone_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+    ],
+    license_text: [
+        "LICENSE.TXT",
+    ],
+}
+
+cc_test {
+    name: "dhry",
+    srcs: [
+        "dhry_1.c",
+        "dhry_2.c",
+    ],
+    cflags: [
+        "-O3",
+        "-fno-inline-functions",
+        "-DMSC_CLOCK",
+        "-DCLK_TCK=1000000",
+        "-Wno-deprecated-non-prototype",
+        "-Wno-implicit-function-declaration",
+        "-Wno-implicit-int",
+        "-Wno-incompatible-library-redeclaration",
+        "-Wno-return-type",
+    ],
+    // Include both the 32 and 64 bit versions
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_suites: [
+        "cts",
+        "general-tests",
+        "tvts",
+    ],
+}

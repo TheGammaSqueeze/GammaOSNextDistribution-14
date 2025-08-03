@@ -1,0 +1,111 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsUsesNativeLibraryTest",
+    defaults: ["cts_defaults"],
+    srcs: ["src/**/*.java"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "cts-tradefed",
+        "tradefed",
+        "compatibility-host-util",
+    ],
+    java_resource_dirs: ["res"],
+    data: [":CtsUseNativeLibraryBuildPackage"],
+}
+
+// Note that this app is built as a java library. The actual app is built
+// by the test (CtsUsesNativeLibraryTest) while the test is running.
+// This java library is appended to the built apk by the test.
+java_library {
+    name: "CtsUsesNativeLibraryTestApp",
+    srcs: ["src_target/**/*.java"],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+    ],
+    sdk_version: "test_current",
+    compile_dex: true,
+    installable: false,
+    visibility: ["//visibility:private"],
+}
+
+// These are collection of tools and libraries that are required to build
+// an apk by the test. This zip file is extracted by the test and files
+// in the zip are executed from there.
+//
+// There are two tricks used here: 1) host tools such as aapt2 are listed
+// in the `tools` property although they technically are inputs of the zip,
+// not the tools for creating the zip. However, since the java test is not
+// specific to arch, it can't (transitively) depend on arch-specific (x86)
+// host tools. To work-around the problem, they are listed in the `tools`
+// property, and then used as inputs in the `cmd`.
+//
+// 2) signapk and libconscrypt_openjdk_jni are listed in the `host_required`
+// property instead of `tools` or `srcs`. This is because those modules are
+// neither specific to arch (thus can't be in tools), nor provide source (thus
+// can't be in srcs). To access them, their location in the soong intermediate
+// directory is manually searched in the cmd, while dependencies to them are
+// created using the `required` property.
+genrule {
+    name: "CtsUseNativeLibraryBuildPackage",
+    // srcs, tools, required are all "essentially" inputs of the zip
+    // (except for soong_zip which is actually the tool)
+    srcs: [
+        ":CtsUsesNativeLibraryTestApp",
+        ":sdk_public_30_android",
+        "testkey.pk8",
+        "testkey.x509.pem",
+    ],
+    tools: [
+        "aapt2",
+        "soong_zip",
+        "merge_zips",
+        // To make signapk.jar be generated under HOST_SOONG_OUT before this rule runes
+        "signapk",
+    ],
+    host_required: [
+        "signapk",
+        "libconscrypt_openjdk_jni",
+    ],
+    out: ["CtsUseNativeLibraryBuildPackage.zip"],
+    // Copied from system/apex/apexer/Android.bp
+    cmd: "HOST_OUT_BIN=$$(dirname $(location soong_zip)) && " +
+         "HOST_SOONG_OUT=$$(dirname $$(dirname $$HOST_OUT_BIN)) && " +
+         "SIGNAPK_JAR=$$(find $$HOST_SOONG_OUT -name \"signapk*\") && " +
+         "LIBCONSCRYPT_OPENJDK_JNI=$$(find $$HOST_SOONG_OUT -name \"libconscrypt_openjdk_jni.*\") && " +
+         "rm -rf $(genDir)/content && " +
+         "mkdir -p $(genDir)/content && " +
+         "cp $(location aapt2) $(genDir)/content && " +
+         "cp $(location merge_zips) $(genDir)/content && " +
+         "cp $(location :sdk_public_30_android) $(genDir)/content && " +
+         "cp $(location :CtsUsesNativeLibraryTestApp) $(genDir)/content && " +
+         "cp $(location testkey.pk8) $(genDir)/content && " +
+         "cp $(location testkey.x509.pem) $(genDir)/content && " +
+         "cp $$SIGNAPK_JAR $(genDir)/content && " +
+         "cp $$LIBCONSCRYPT_OPENJDK_JNI $(genDir)/content && " +
+         "$(location soong_zip) -C $(genDir)/content -D $(genDir)/content -o $(out) && " +
+         "rm -rf $(genDir)/content ",
+    visibility: ["//visibility:private"],
+}

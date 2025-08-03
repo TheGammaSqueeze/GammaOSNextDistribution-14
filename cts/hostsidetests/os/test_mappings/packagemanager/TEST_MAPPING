@@ -1,0 +1,21 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsOsHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.os.cts.StaticSharedLibsHostTests"
+        },
+        {
+          "include-annotation": "android.platform.test.annotations.Presubmit"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "org.junit.Ignore"
+        }
+      ]
+    }
+  ]
+}

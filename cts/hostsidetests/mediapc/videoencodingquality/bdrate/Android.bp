@@ -1,0 +1,220 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This package contains a java library and binary for the calculation of
+// Bjontegaard-Delta (BD) rate from rate-distortion data.
+
+java_library_host {
+    name: "cts-media-videoquality-bdrate-lib",
+    srcs: [
+        "src/main/java/com/android/media/videoquality/bdrate/*.java",
+    ],
+    libs: [
+        "auto_value_annotations",
+    ],
+    static_libs: [
+        "guava",
+        "apache-commons-math3",
+        "gson",
+        "args4j-2.0.28",
+    ],
+    plugins: [
+        "auto_value_plugin",
+    ],
+    java_version: "11",
+
+}
+
+java_test_host {
+    name: "cts-media-videoquality-bdrate-lib-tests",
+    srcs: [
+        "src/test/java/com/android/media/videoquality/bdrate/*.java",
+    ],
+    static_libs: [
+        "cts-media-videoquality-bdrate-lib",
+        "junit",
+        "junit-params",
+        "truth",
+    ],
+    test_suites: ["general-tests"],
+    java_version: "11",
+}
+
+/*
+This binary will calculate the BD-RATE or BD-QUALITY
+for a given set of data, then provides the result
+as an exit code from the binary with the following
+key:
+
+0 : The provided data passes the VEQ test within the
+    threshold defined in the key.
+1 : The provided data fails the VEQ test and is outside
+    the threshold defined in the key, this value indicates
+    that BD-RATE/BD-QUALITY was calculated successfully.
+2 : A precondition for the calculation of BD-RATE/BD-QUALITY
+    was not met, thus no result can be given.
+3:  One of the arguments to the binary was invalid.
+4:  An unknown, internal error occurred.
+
+Version Check:
+
+java -jar cts-media-videoquality-bdrate -v
+
+General Usage:
+
+java -jar cts-media-videoquality-bdrate \
+    --REF_JSON_FILE path/to/ref.json \
+    --TEST_VMAF_FILE path/to/test.txt
+
+Where the JSON file is of the form:
+
+[
+  {
+    "TestId": "pc14-veq",
+    "FrameRate": 30,
+    "FrameCount": 300,
+    "RefFileName": "AVICON-MOBILE-Beach-SO04-CRW02-L-420-8bit-SDR-1080p-30fps.y4m",
+    "Height": 1080,
+    "Width": 1920,
+    "RefRate": "4242 6009 7996 9990 12093",
+    "RefVmaf": "64 72 79 83 87",
+    "RefThreshold": "0",
+    "CodecConfigs": [
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_2mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "2000000",
+        "Profile": "High"
+      },
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_4mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "4000000",
+        "Profile": "High"
+      },
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_6mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "6000000",
+        "Profile": "High"
+      },
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_8mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "8000000",
+        "Profile": "High"
+      },
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_10mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "10000000",
+        "Profile": "High"
+      },
+      {
+        "Codec": "avc",
+        "KeyFrameInterval": "1",
+        "MaxBFrames": "0",
+        "EncoderType": "hw",
+        "EncodedFileName": "output_hw_12mbps.mp4",
+        "Level": "Level52",
+        "BitRate": "12000000",
+        "Profile": "High"
+      }
+    ]
+  }
+]
+
+and the TEST_VMAF_FILE is is of the form:
+
+VMAF score = 95.853458
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_10mbps.mp4
+Filesize = 12354333
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 9883.4
+VMAF score = 96.704977
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_12mbps.mp4
+Filesize = 14815468
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 11852.3
+VMAF score = 81.363013
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_2mbps.mp4
+Filesize = 2640926
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 2112.7
+VMAF score = 88.821365
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_4mbps.mp4
+Filesize = 4934241
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 3947.3
+VMAF score = 92.617636
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_6mbps.mp4
+Filesize = 7407080
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 5925.6
+VMAF score = 94.591995
+Y4M file = AVICON-MOBILE-SelfieTeenKitchenSocialMedia-SS01-CF01-P-420-8bit-SDR-1080p-30fps.y4m
+MP4 file = output_hw_8mbps.mp4
+Filesize = 9886890
+FPS = 30
+Frame count = 300
+Duration = 10
+Bitrate kbps = 7909.5
+
+Each file is read for their rate-distortion curves and then compared to return one
+of the return codes specified above.
+*/
+
+java_binary_host {
+    name: "cts-media-videoquality-bdrate",
+    static_libs: [
+        "cts-media-videoquality-bdrate-lib",
+    ],
+    java_version: "11",
+    manifest: "manifest.inf",
+}

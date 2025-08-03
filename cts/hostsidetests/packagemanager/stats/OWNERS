@@ -1,0 +1,7 @@
+# Bug component: 36137
+include platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+
+patb@google.com
+schfan@google.com
+alexbuy@google.com
+zyy@google.com

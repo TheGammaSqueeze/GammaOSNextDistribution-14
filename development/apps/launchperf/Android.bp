@@ -1,0 +1,10 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "launchperf",
+    srcs: ["**/*.java"],
+    libs: ["android.test.runner"],
+    platform_apis: true,
+}

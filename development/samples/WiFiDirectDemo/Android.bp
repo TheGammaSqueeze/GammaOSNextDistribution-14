@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "WiFiDirectDemo",
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+    static_libs: ["android-support-v4"],
+    sdk_version: "current",
+    dex_preopt: {
+        enabled: false,
+    },
+}

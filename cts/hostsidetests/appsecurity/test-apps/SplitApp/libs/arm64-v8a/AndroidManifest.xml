@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Automatically generated file from build_libs.sh. -->
+<!-- DO NOT MODIFY THIS FILE. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.android.cts.splitapp"
+        split="lib_arm64_v8a">
+    <application android:hasCode="false" />
+</manifest>

@@ -1,0 +1,206 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "CtsSplitAppDefaults",
+    defaults: ["cts_support_defaults"],
+    srcs: ["src/**/*.java"],
+    asset_dirs: ["assets"],
+    sdk_version: "current",
+    min_sdk_version: "4",
+    aapt_include_all_resources: true,
+    static_libs: [
+        "androidx.test.rules",
+        "truth",
+        "hamcrest-library",
+        "compatibility-device-util-axt",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    target_sdk_version: "current",
+}
+
+android_test_helper_app {
+    name: "CtsSplitApp",
+    defaults: ["CtsSplitAppDefaults"],
+    package_splits: [
+        "mdpi-v4",
+        "hdpi-v4",
+        "xhdpi-v4",
+        "xxhdpi-v4",
+        "v7",
+        "v23",
+        "fr",
+        "de",
+    ],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--version-name OneHundred",
+        "--replace-version",
+    ],
+    // Feature splits are dependent on this base, so it must be exported.
+    export_package_resources: true,
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-mainline-infra",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant with a different revision code
+android_test_helper_app {
+    name: "CtsSplitAppDiffRevision",
+    defaults: ["CtsSplitAppDefaults"],
+    package_splits: ["v7"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--revision-code 12",
+        "--version-name OneHundredRevisionTwelve",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant with a different version code
+android_test_helper_app {
+    name: "CtsSplitAppDiffVersion",
+    defaults: ["CtsSplitAppDefaults"],
+    package_splits: ["v7"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 101",
+        "--version-name OneHundredOne",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant with a different signature
+android_test_helper_app {
+    name: "CtsSplitAppDiffCert",
+    defaults: ["CtsSplitAppDefaults"],
+    package_splits: ["v7"],
+    certificate: ":cts-testkey2",
+    aaptflags: [
+        "--version-code 100",
+        "--version-name OneHundred",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant requiring a split for install
+android_test_helper_app {
+    name: "CtsNeedSplitApp",
+    defaults: ["CtsSplitAppDefaults"],
+    manifest: "needsplit/AndroidManifest.xml",
+    package_splits: ["xxhdpi-v4"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--version-name OneHundredRevisionTwelve",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant with different codes and resources for the inherit updated test of the base apk
+android_test_helper_app {
+    name: "CtsSplitAppRevisionA",
+    defaults: ["CtsSplitAppDefaults"],
+    srcs: [
+        "src/**/*.java",
+        "revision_a/src/**/*.java",
+    ],
+    resource_dirs: [
+        "res",
+        "revision_a/res",
+    ],
+    asset_dirs: ["revision_a/assets"],
+    manifest: "revision_a/AndroidManifest.xml",
+    package_splits: ["v7"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--revision-code 10",
+        "--version-name OneHundredRevisionTen",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant which includes a provider and service declared in other split apk. And they only
+// could be tested in the instant app.
+android_test_helper_app {
+    name: "CtsSplitInstantApp",
+    defaults: ["CtsSplitAppDefaults"],
+    manifest: "instantapp/AndroidManifest.xml",
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--version-name OneHundred",
+        "--replace-version",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

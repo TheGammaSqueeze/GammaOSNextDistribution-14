@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+  Demonstrates Picture-In-Picture with various configurations.
+      - Enter PiP with on-screen button
+      - Enter PiP by swiping up to home or tap on home button
+      - Toggle the auto enter PiP flag on and off
+      - Toggle the source rect hint on and off
+      - Toggle the seamless resize flag on and off
+      - Change the position of current and next source rect hint
+      - Tablet layout on foldables
+      - Enter content PiP
+  -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- layout params would be changed programmatically -->
+    <include layout="@layout/picture_in_picture_content" />
+
+    <ScrollView
+        android:id="@+id/control_group"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_to_hide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_picture_in_picture_placeholder_text"
+                android:visibility="invisible" />
+
+            <Switch
+                android:id="@+id/auto_pip_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/activity_picture_in_picture_auto_pip_toggle" />
+
+            <Switch
+                android:id="@+id/source_rect_hint_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/activity_picture_in_picture_source_rect_hint_toggle" />
+
+            <Switch
+                android:id="@+id/seamless_resize_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/activity_picture_in_picture_seamless_resize_toggle" />
+
+            <Switch
+                android:id="@+id/enter_pip_on_back"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@string/activity_picture_in_picture_enter_pip_on_back_toggle" />
+
+            <RadioGroup
+                android:id="@+id/current_position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_current_position" />
+
+                <RadioButton
+                    android:id="@+id/radio_current_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_position_start" />
+
+                <RadioButton
+                    android:id="@+id/radio_current_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_position_end" />
+
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/label_aspect_ratio" />
+
+                <Spinner
+                    android:id="@+id/aspect_ratio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/enter_pip_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enter_picture_in_picture" />
+
+            <Button
+                android:id="@+id/enter_content_pip_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enter_content_pip" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

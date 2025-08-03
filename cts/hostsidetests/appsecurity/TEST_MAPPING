@@ -1,0 +1,36 @@
+{
+  "postsubmit": [
+    {
+      "name": "CtsAppDataIsolationHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testAppAbleToAccessItsDataAfterForceStop"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testAppNotAbleToAccessItsDataAfterReinstall"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testAppUnableToAccessOtherUserAppDataDir"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testAppUnableToAccessOtherUserAppDataDirApi29"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testAppZygoteIsolatedProcess"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testIsolatedProcess"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testNormalProcessCannotAccessOtherAppDataDir"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testSharedAppAbleToAccessOtherAppDataDir"
+        },
+        {
+          "include-filter": "android.appsecurity.cts.AppDataIsolationTests#testSharedAppAbleToAccessOtherAppExternalDataDir"
+        }
+      ]
+    }
+  ]
+}

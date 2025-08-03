@@ -1,0 +1,137 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "split_native_defaults",
+    gtest: false,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    target: {
+        android_arm: {
+            cflags: [
+                "-D__ANDROID_ARCH__=\"armeabi-v7a\"",
+            ],
+        },
+        android_arm64: {
+            cflags: [
+                "-D__ANDROID_ARCH__=\"arm64-v8a\"",
+            ],
+        },
+        android_x86: {
+            cflags: [
+                "-D__ANDROID_ARCH__=\"x86\"",
+            ],
+        },
+        android_x86_64: {
+            cflags: [
+                "-D__ANDROID_ARCH__=\"x86_64\"",
+            ],
+        },
+        android_riscv64: {
+            cflags: [
+                "-D__ANDROID_ARCH__=\"riscv64\"",
+            ],
+        },
+    },
+    sdk_version: "current",
+}
+
+cc_defaults {
+    name: "split_number_provider_defaults",
+    defaults: ["split_native_defaults"],
+    srcs: ["number_providers.cpp"],
+}
+
+cc_test_library {
+    name: "libsplitapp_number_provider_a",
+    defaults: ["split_number_provider_defaults"],
+    cflags: [
+        "-DANDROID_SPLIT_APP_NUMBER_PROVIDER_A_SO=1",
+    ],
+}
+
+cc_test_library {
+    name: "libsplitapp_number_provider_b",
+    defaults: ["split_number_provider_defaults"],
+    cflags: [
+        "-DANDROID_SPLIT_APP_NUMBER_PROVIDER_B_SO=1",
+    ],
+}
+
+cc_test_library {
+    name: "libsplitapp_number_proxy",
+    defaults: ["split_number_provider_defaults"],
+    cflags: [
+        "-DANDROID_SPLIT_APP_NUMBER_PROXY_SO=1",
+    ],
+}
+
+TARGET_TEST_SUITES = [
+    "cts",
+    "general-tests",
+]
+
+/**
+  * Non-isolated split feature
+  */
+java_defaults {
+    name: "CtsSplitTestHelperApp_defaults",
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--replace-version",
+        "--version-code 100",
+    ],
+    test_suites: TARGET_TEST_SUITES,
+}
+
+java_defaults {
+    name: "CtsSplitTestHelperApp_number_provider_defaults",
+    defaults: ["CtsSplitTestHelperApp_defaults"],
+    compile_multilib: "both",
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsSplitApp_number_provider_a",
+    defaults: ["CtsSplitTestHelperApp_number_provider_defaults"],
+    manifest: "AndroidManifest_number_provider_a.xml",
+    jni_libs: ["libsplitapp_number_provider_a"],
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsSplitApp_number_provider_b",
+    defaults: ["CtsSplitTestHelperApp_number_provider_defaults"],
+    manifest: "AndroidManifest_number_provider_b.xml",
+    jni_libs: ["libsplitapp_number_provider_b"],
+    test_suites: TARGET_TEST_SUITES,
+}
+
+android_test_helper_app {
+    name: "CtsSplitApp_number_proxy",
+    defaults: ["CtsSplitTestHelperApp_number_provider_defaults"],
+    manifest: "AndroidManifest_number_proxy.xml",
+    jni_libs: ["libsplitapp_number_proxy"],
+    test_suites: TARGET_TEST_SUITES,
+}

@@ -1,0 +1,92 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsAppSearchHostTestCases",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "cts-statsd-atom-host-test-utils",
+    ],
+    srcs: [
+        "src/**/*.java",
+    ],
+    libs: [
+        "tools-common-prebuilt",
+        "cts-tradefed",
+        "tradefed",
+        "truth",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-appsearch",
+        "mcts-appsearch",
+    ],
+    data: [
+        ":CtsAppSearchHostTestHelperA",
+        ":CtsAppSearchHostTestHelperB",
+    ],
+    per_testcase_directory: true,
+}
+
+android_test_helper_app {
+    name: "CtsAppSearchHostTestHelperA",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "CtsAppSearchTestUtils",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "testng",
+        "service-appsearch-for-tests",
+    ],
+    srcs: [
+        "test-apps/AppSearchHostTestHelperA/src/**/*.java",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-appsearch",
+    ],
+    manifest: "test-apps/AppSearchHostTestHelperA/AndroidManifest.xml",
+    certificate: ":cts-appsearch-hosttest-helper-cert-a",
+    sdk_version: "test_current",
+    min_sdk_version: "31",
+}
+
+android_test_helper_app {
+    name: "CtsAppSearchHostTestHelperB",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "CtsAppSearchTestUtils",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "testng",
+    ],
+    srcs: [
+        "test-apps/AppSearchHostTestHelperB/src/**/*.java",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-appsearch",
+    ],
+    manifest: "test-apps/AppSearchHostTestHelperB/AndroidManifest.xml",
+    certificate: ":cts-appsearch-hosttest-helper-cert-b",
+    sdk_version: "test_current",
+    min_sdk_version: "31",
+}

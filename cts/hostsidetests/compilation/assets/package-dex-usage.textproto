@@ -1,0 +1,97 @@
+package_dex_use {
+  owning_package_name: "android.compilation.cts.statuscheckerapp"
+  # Invalid dex paths. They should not be loaded.
+  secondary_dex_use {
+    dex_file: "relative/bad_1.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "PCL[]"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  secondary_dex_use {
+    dex_file: "/non-normal/./bad_2.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "PCL[]"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  # Invalid class loader contexts. They should not be loaded either.
+  secondary_dex_use {
+    dex_file: "/absolute/path/bad_3.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "ABC"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  secondary_dex_use {
+    dex_file: "/absolute/path/bad_4.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "PCL[./bar.jar]"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  # Valid paths and class loader contexts.
+  secondary_dex_use {
+    dex_file: "/absolute/path/good_1.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "PCL[]"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  secondary_dex_use {
+    dex_file: "/absolute/path/good_2.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "PCL[bar.jar]"
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+  secondary_dex_use {
+    dex_file: "/absolute/path/good_3.apk"
+    user_id {
+      value: 0
+    }
+    record {
+      loading_package_name: "android.compilation.cts.statuscheckerapp"
+      isolated_process: false
+      class_loader_context: "=UnsupportedClassLoaderContext="
+      abi_name: "x86_64"
+      last_used_at_ms: 1672498800000
+    }
+  }
+}

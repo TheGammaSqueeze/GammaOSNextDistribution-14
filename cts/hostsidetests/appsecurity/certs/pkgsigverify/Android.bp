@@ -1,0 +1,148 @@
+package {
+    default_team: "trendy_team_framework_android_packages",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_certificate {
+    name: "dsa-1024",
+    certificate: "dsa-1024",
+}
+
+android_app_certificate {
+    name: "dsa-2048",
+    certificate: "dsa-2048",
+}
+
+android_app_certificate {
+    name: "dsa-3072",
+    certificate: "dsa-3072",
+}
+
+android_app_certificate {
+    name: "ec-p256",
+    certificate: "ec-p256",
+}
+
+android_app_certificate {
+    name: "ec-p256_2",
+    certificate: "ec-p256_2",
+}
+
+android_app_certificate {
+    name: "ec-p256_3",
+    certificate: "ec-p256_3",
+}
+
+android_app_certificate {
+    name: "ec-p256_4",
+    certificate: "ec-p256_4",
+}
+
+android_app_certificate {
+    name: "ec-p256_5",
+    certificate: "ec-p256_5",
+}
+
+android_app_certificate {
+    name: "ec-p384",
+    certificate: "ec-p384",
+}
+
+android_app_certificate {
+    name: "ec-p521",
+    certificate: "ec-p521",
+}
+
+android_app_certificate {
+    name: "rsa-1024",
+    certificate: "rsa-1024",
+}
+
+android_app_certificate {
+    name: "rsa-16384",
+    certificate: "rsa-16384",
+}
+
+android_app_certificate {
+    name: "rsa-2048",
+    certificate: "rsa-2048",
+}
+
+android_app_certificate {
+    name: "rsa-3072",
+    certificate: "rsa-3072",
+}
+
+android_app_certificate {
+    name: "rsa-4096",
+    certificate: "rsa-4096",
+}
+
+android_app_certificate {
+    name: "rsa-8192",
+    certificate: "rsa-8192",
+}
+
+filegroup {
+    name: "ec-p256-por_1_2-default-caps",
+    srcs: [
+        "ec-p256-por_1_2-default-caps",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por_1_2-no-shUid-cap",
+    srcs: [
+        "ec-p256-por_1_2-no-shUid-cap",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por_1_2-no-perm-cap",
+    srcs: [
+        "ec-p256-por_1_2-no-perm-cap",
+    ],
+}
+
+filegroup {
+    name: "por_Y_1_2-default-caps",
+    srcs: [
+        "por_Y_1_2-default-caps",
+    ],
+}
+
+filegroup {
+    name: "por_Z_1_2-default-caps",
+    srcs: [
+        "por_Z_1_2-default-caps",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por-1_2_4-default-caps",
+    srcs: [
+        "ec-p256-por-1_2_4-default-caps",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por-1_2_3_4_5-default-caps",
+    srcs: [
+        "ec-p256-por-1_2_3_4_5-default-caps",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por-1_2_3-no-caps",
+    srcs: [
+        "ec-p256-por-1_2_3-no-caps",
+    ],
+}
+
+filegroup {
+    name: "ec-p256-por-1_2_3-1-no-caps-2-default",
+    srcs: [
+        "ec-p256-por-1_2_3-1-no-caps-2-default",
+    ],
+}

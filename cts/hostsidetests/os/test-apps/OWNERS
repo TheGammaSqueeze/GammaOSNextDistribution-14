@@ -1,0 +1,16 @@
+per-file StaticSharedLibConsumerApp1/*=patb@google.com
+per-file StaticSharedLibConsumerApp2/*=patb@google.com
+per-file StaticSharedLibConsumerApp3/*=patb@google.com
+per-file StaticSharedLibProviderApp1/*=patb@google.com
+per-file StaticSharedLibProviderApp2/*=patb@google.com
+per-file StaticSharedLibProviderApp3/*=patb@google.com
+per-file StaticSharedLibProviderApp4/*=patb@google.com
+per-file StaticSharedLibProviderApp5/*=patb@google.com
+per-file StaticSharedLibProviderApp6/*=patb@google.com
+per-file StaticSharedLibProviderApp7/*=patb@google.com
+per-file StaticSharedLibProviderAppRecursive/*=patb@google.com
+per-file StaticSharedLibTestApp/*=patb@google.com
+per-file StaticSharedNativeLibConsumer/*=patb@google.com
+per-file StaticSharedNativeLibProvider/*=patb@google.com
+per-file StaticSharedNativeLibProvider1/*=patb@google.com
+

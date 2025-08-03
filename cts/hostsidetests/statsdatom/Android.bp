@@ -1,0 +1,116 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsStatsdAtomHostTestCases",
+    defaults: ["cts_defaults"],
+    srcs: [
+        "src/**/alarm/*.java",
+        "src/**/appcompatstate/*.java",
+        "src/**/apphibernation/*.java",
+        "src/**/appops/*.java",
+        "src/**/appexit/*.java",
+        "src/**/appstart/*.java",
+        "src/**/batterycycle/*.java",
+        "src/**/batterystats/*.java",
+        "src/**/binderstats/*.java",
+        "src/**/bluetooth/*.java",
+        "src/**/cpu/*.java",
+        "src/**/credentials/*.java",
+        "src/**/devicepower/*.java",
+        "src/**/devicestate/*.java",
+        "src/**/display/*.java",
+        "src/**/gamemanager/*.java",
+        "src/**/gnss/*.java",
+        "src/**/jobscheduler/*.java",
+        "src/**/integrity/*.java",
+        "src/**/media/*.java",
+        "src/**/memory/*.java",
+        "src/**/net/*.java",
+        "src/**/notification/*.java",
+        "src/**/perf/*.java",
+        "src/**/perfetto/*.java",
+        "src/**/performancehintmanager/*.java",
+        "src/**/permissionstate/*.java",
+        "src/**/powermanager/*.java",
+        "src/**/settingsstats/*.java",
+        "src/**/sizecompatrestartbutton/*.java",
+        "src/**/statsd/*.java",
+        "src/**/telephony/*.java",
+        "src/**/tls/*.java",
+        "src/**/usb/*.java",
+        "src/**/users/*.java",
+        "src/**/vibrator/*.java",
+        "src/**/voiceinteraction/*.java",
+        "src/**/wifi/*.java",
+        "src/**/incremental/*.java",
+        "src/**/memorysafety/*.java",
+        "src/**/express/*.java",
+    ],
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    libs: [
+        "compatibility-host-util",
+        "core_cts_test_resources",
+        "cts-tradefed",
+        "host-libprotobuf-java-full",
+        "tradefed",
+        "truth",
+    ],
+
+    static_libs: [
+        "android.hardware.usb.flags-aconfig-java-host",
+        "android.os.flags-aconfig-java-host",
+        "cts-statsd-atom-host-test-utils",
+        "flag-junit-host",
+        "perfetto_config-full",
+    ],
+
+    data: [
+        ":CtsStatsdAtomApp",
+        ":CtsStatsdApp", //TODO(b/163546661): Remove once migration to new lib is complete.
+        ":CtsAppExitTestCases",
+        ":CtsExternalServiceService",
+        ":CtsSimpleApp",
+        ":CtsStatsdAlarmHelper",
+        ":CtsStatsdAlarmHelper2",
+        ":CtsVoiceInteractionTestCases",
+        ":CtsCredentialManagerTestCases",
+        ":CtsStatsdExpressLogHelper",
+    ],
+    per_testcase_directory: true,
+}
+
+java_library_host {
+    name: "cts-statsd-atom-host-test-utils",
+    srcs: ["src/**/lib/*.java"],
+    static_libs: [
+        "platformprotos",
+        "host-libprotobuf-java-full",
+    ],
+    libs: [
+        "compatibility-host-util",
+        "cts-tradefed",
+        "tradefed",
+        "truth",
+    ],
+}

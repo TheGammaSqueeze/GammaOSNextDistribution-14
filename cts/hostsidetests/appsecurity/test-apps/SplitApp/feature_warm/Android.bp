@@ -1,0 +1,111 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "CtsSplitAppFeatureWarmDefaults",
+    defaults: ["cts_support_defaults"],
+    srcs: ["src/**/*.java"],
+    asset_dirs: ["assets"],
+    sdk_version: "current",
+    min_sdk_version: "4",
+    aapt_include_all_resources: true,
+    libs: ["CtsSplitApp"],
+}
+
+android_test_helper_app {
+    name: "CtsSplitAppFeatureWarm",
+    defaults: ["CtsSplitAppFeatureWarmDefaults"],
+    package_splits: [
+        "v7",
+        "v23",
+    ],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--version-name OneHundred",
+        "--replace-version",
+        "--package-id 0x80",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant requiring a split for install
+android_test_helper_app {
+    name: "CtsNeedSplitFeatureWarm",
+    defaults: ["CtsSplitAppFeatureWarmDefaults"],
+    manifest: "needsplit/AndroidManifest.xml",
+    package_splits: ["v7"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--revision-code 12",
+        "--version-name OneHundredRevisionTwelve",
+        "--replace-version",
+        "--package-id 0x80",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Define a variant with different codes and resources for the inherit updated test of the
+// feature_warm apk
+android_test_helper_app {
+    name: "CtsSplitAppFeatureWarmRevisionA",
+    defaults: ["CtsSplitAppFeatureWarmDefaults"],
+    srcs: [
+        "src/**/*.java",
+        "revision_a/src/**/*.java",
+    ],
+    resource_dirs: [
+        "res",
+        "revision_a/res",
+    ],
+    asset_dirs: ["revision_a/assets"],
+    manifest: "revision_a/AndroidManifest.xml",
+    package_splits: ["v7"],
+    certificate: ":cts-testkey1",
+    aaptflags: [
+        "--version-code 100",
+        "--revision-code 10",
+        "--version-name OneHundredRevisionTen",
+        "--replace-version",
+        "--package-id 0x80",
+        "--auto-add-overlay",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

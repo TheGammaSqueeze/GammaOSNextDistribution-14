@@ -1,0 +1,4 @@
+# Bug component: 819107
+
+# Mainline modularization team
+include platform/packages/modules/common:/OWNERS
