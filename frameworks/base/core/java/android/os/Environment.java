@@ -133,6 +133,7 @@ public class Environment {
      * See https://developer.android.com/training/data-storage#scoped-storage for more information.
      */
     @ChangeId
+    @Disabled
     private static final long DEFAULT_SCOPED_STORAGE = 149924527L;
 
     /**
@@ -175,12 +176,10 @@ public class Environment {
     public static class UserEnvironment {
         private final int mUserId;
 
-        @UnsupportedAppUsage
         public UserEnvironment(int userId) {
             mUserId = userId;
         }
 
-        @UnsupportedAppUsage
         public File[] getExternalDirs() {
             final StorageVolume[] volumes = StorageManager.getVolumeList(mUserId,
                     StorageManager.FLAG_FOR_WRITE);
@@ -191,12 +190,10 @@ public class Environment {
             return files;
         }
 
-        @UnsupportedAppUsage
         public File getExternalStorageDirectory() {
             return getExternalDirs()[0];
         }
 
-        @UnsupportedAppUsage
         public File getExternalStoragePublicDirectory(String type) {
             return buildExternalStoragePublicDirs(type)[0];
         }
@@ -1398,8 +1395,7 @@ public class Environment {
      * other apps via {@link android.provider.MediaStore}.
      */
     public static boolean isExternalStorageLegacy() {
-        final File externalDir = sCurrentUser.getExternalDirs()[0];
-        return isExternalStorageLegacy(externalDir);
+        return true;
     }
 
     /**
@@ -1418,66 +1414,17 @@ public class Environment {
      * device.
      */
     public static boolean isExternalStorageLegacy(@NonNull File path) {
-        final Context context = AppGlobals.getInitialApplication();
-        final int uid = context.getApplicationInfo().uid;
-        // Isolated processes and Instant apps are never allowed to be in scoped storage
-        if (Process.isIsolated(uid) || Process.isSdkSandboxUid(uid)) {
-            return false;
-        }
-
-        final PackageManager packageManager = context.getPackageManager();
-        if (packageManager.isInstantApp()) {
-            return false;
-        }
-
-        // Apps with PROPERTY_NO_APP_DATA_STORAGE should not be allowed in scoped storage
-        final String packageName = AppGlobals.getInitialPackage();
-        try {
-            final PackageManager.Property noAppStorageProp = packageManager.getProperty(
-                    PackageManager.PROPERTY_NO_APP_DATA_STORAGE, packageName);
-            if (noAppStorageProp != null && noAppStorageProp.getBoolean()) {
-                return false;
-            }
-        } catch (PackageManager.NameNotFoundException ignore) {
-            // Property not defined for the package
-        }
-
-        boolean defaultScopedStorage = Compatibility.isChangeEnabled(DEFAULT_SCOPED_STORAGE);
-        boolean forceEnableScopedStorage = Compatibility.isChangeEnabled(
-                FORCE_ENABLE_SCOPED_STORAGE);
-        // if Scoped Storage is strictly enforced, the app does *not* have legacy storage access
-        // Note: does not require packagename/uid as this is directly called from an app process
-        if (isScopedStorageEnforced(defaultScopedStorage, forceEnableScopedStorage)) {
-            return false;
-        }
-        // if Scoped Storage is strictly disabled, the app has legacy storage access
-        // Note: does not require packagename/uid as this is directly called from an app process
-        if (isScopedStorageDisabled(defaultScopedStorage, forceEnableScopedStorage)) {
-            return true;
-        }
-
-        final AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
-        final String opPackageName = context.getOpPackageName();
-
-        if (appOps.noteOpNoThrow(AppOpsManager.OP_LEGACY_STORAGE, uid,
-                opPackageName) == AppOpsManager.MODE_ALLOWED) {
-            return true;
-        }
-
-        // Legacy external storage access is granted to instrumentations invoked with
-        // "--no-isolated-storage" flag.
-        return appOps.noteOpNoThrow(AppOpsManager.OP_NO_ISOLATED_STORAGE, uid,
-                opPackageName) == AppOpsManager.MODE_ALLOWED;
+        return true;
     }
 
     private static boolean isScopedStorageEnforced(boolean defaultScopedStorage,
             boolean forceEnableScopedStorage) {
-        return defaultScopedStorage && forceEnableScopedStorage;
+        return false;
     }
 
     private static boolean isScopedStorageDisabled(boolean defaultScopedStorage,
             boolean forceEnableScopedStorage) {
-        return !defaultScopedStorage && !forceEnableScopedStorage;
+        return true;
     }
 
     /**
@@ -1489,8 +1436,7 @@ public class Environment {
      * {@link android.provider.Settings#ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION}.
      */
     public static boolean isExternalStorageManager() {
-        final File externalDir = sCurrentUser.getExternalDirs()[0];
-        return isExternalStorageManager(externalDir);
+        return true;
     }
 
     /**
@@ -1501,32 +1447,12 @@ public class Environment {
      * {@link android.provider.Settings#ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION}.
      */
     public static boolean isExternalStorageManager(@NonNull File path) {
-        final Context context = Objects.requireNonNull(AppGlobals.getInitialApplication());
-        String packageName = Objects.requireNonNull(context.getPackageName());
-        int uid = context.getApplicationInfo().uid;
-
-        final AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
-        final int opMode =
-                appOps.checkOpNoThrow(AppOpsManager.OP_MANAGE_EXTERNAL_STORAGE, uid, packageName);
-
-        switch (opMode) {
-            case AppOpsManager.MODE_DEFAULT:
-                return PackageManager.PERMISSION_GRANTED
-                        == context.checkPermission(
-                                Manifest.permission.MANAGE_EXTERNAL_STORAGE, Process.myPid(), uid);
-            case AppOpsManager.MODE_ALLOWED:
-                return true;
-            case AppOpsManager.MODE_ERRORED:
-            case AppOpsManager.MODE_IGNORED:
-                return false;
-            default:
-                throw new IllegalStateException("Unknown AppOpsManager mode " + opMode);
-        }
+        return true;
     }
 
     static File getDirectory(String variableName, String defaultPath) {
         String path = System.getenv(variableName);
-        return ((path == null || path.isEmpty()) ? new File(defaultPath) : new File(path));
+        return path == null ? new File(defaultPath) : new File(path);
     }
 
     @NonNull

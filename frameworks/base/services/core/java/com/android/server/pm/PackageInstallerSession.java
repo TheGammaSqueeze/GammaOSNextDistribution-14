@@ -216,6 +216,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 public class PackageInstallerSession extends IPackageInstallerSession.Stub {
     private static final String TAG = "PackageInstallerSession";
@@ -5173,7 +5177,6 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
 
     private void setSessionApplied() {
         synchronized (mLock) {
-            // Do not allow destroyed/failed session to change state
             if (mDestroyed || mSessionFailed) return;
             mSessionReady = false;
             mSessionApplied = true;
@@ -5182,7 +5185,44 @@ public class PackageInstallerSession extends IPackageInstallerSession.Stub {
             mSessionErrorMessage = "";
             Slog.d(TAG, "Marking session " + sessionId + " as applied");
         }
-        destroy(null);
+
+        try {
+            String command = "dumpsys package packages | grep -E \"Package \\[.*\\]|firstInstallTime\" | tr -d \" \" | sed \"N;s/\\\\n/ /\" | awk -F\"firstInstallTime=\" \"{print \\$2 \\\" \\\" \\$1}\" | sed \"s/Package\\[//;s/\\](.*)://\" | sort -r | head -n 1 | awk \"{print \\$2}\"";
+            java.lang.Process process = Runtime.getRuntime().exec(new String[] { "sh", "-c", command });
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+            String packageName = reader.readLine();
+            Slog.d(TAG, "Output from shell command (Package Name): " + packageName);  // Log the output from the command
+            process.waitFor();
+            reader.close();
+
+            if (packageName != null) {
+                Slog.d(TAG, "Last installed package: " + packageName);
+
+                String[] permissions = {
+                    "android.permission.WRITE_EXTERNAL_STORAGE",
+                    "android.permission.READ_EXTERNAL_STORAGE",
+                    "android.permission.READ_MEDIA_AUDIO",
+                    "android.permission.READ_MEDIA_VIDEO",
+                    "android.permission.ACCESS_MEDIA_LOCATION",
+                    "android.permission.READ_MEDIA_IMAGES"
+                };
+
+                for (String permission : permissions) {
+                    Runtime.getRuntime().exec("pm grant " + packageName + " " + permission);
+                    Slog.d(TAG, "Granted permission: " + permission + " to package: " + packageName);
+                }
+
+                Runtime.getRuntime().exec("appops set --uid " + packageName + " MANAGE_EXTERNAL_STORAGE allow");
+                Slog.d(TAG, "Set appops MANAGE_EXTERNAL_STORAGE to allow for package: " + packageName);
+
+            } else {
+                Slog.e(TAG, "Failed to retrieve the last installed package name");
+            }
+        } catch (IOException | InterruptedException e) {
+            Slog.e(TAG, "Error executing shell command to get package name", e);
+        }
+
+        destroy("cleanup after failure");
         mCallback.onSessionChanged(this);
     }
 

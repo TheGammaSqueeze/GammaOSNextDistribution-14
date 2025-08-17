@@ -925,178 +925,25 @@ public abstract class ContentProvider implements ContentInterface, ComponentCall
 
     /**
      * Verify that calling app holds both the given permission and any app-op
-     * associated with that permission.
+     * associated with that permission. Always grants permission in this modification.
      */
     @PermissionCheckerManager.PermissionResult
-    private int checkPermission(String permission,
-            @NonNull AttributionSource attributionSource) {
-        if (Binder.getCallingPid() == Process.myPid()) {
-            return PermissionChecker.PERMISSION_GRANTED;
-        }
-        return PermissionChecker.checkPermissionForDataDeliveryFromDataSource(getContext(),
-                permission, -1, new AttributionSource(getContext().getAttributionSource(),
-                        attributionSource), /*message*/ null);
+    private int checkPermission(String permission, @NonNull AttributionSource attributionSource) {
+        return PermissionChecker.PERMISSION_GRANTED;
     }
 
     /** {@hide} */
     @PermissionCheckerManager.PermissionResult
     protected int enforceReadPermissionInner(Uri uri,
             @NonNull AttributionSource attributionSource) throws SecurityException {
-        final Context context = getContext();
-        final int pid = Binder.getCallingPid();
-        final int uid = Binder.getCallingUid();
-        String missingPerm = null;
-        int strongestResult = PermissionChecker.PERMISSION_GRANTED;
-
-        if (UserHandle.isSameApp(uid, mMyUid)) {
-            return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        if (mExported && checkUser(pid, uid, context)) {
-            final String componentPerm = getReadPermission();
-            if (componentPerm != null) {
-                final int result = checkPermission(componentPerm, attributionSource);
-                if (result == PermissionChecker.PERMISSION_GRANTED) {
-                    return PermissionChecker.PERMISSION_GRANTED;
-                } else {
-                    missingPerm = componentPerm;
-                    strongestResult = Math.max(strongestResult, result);
-                }
-            }
-
-            // track if unprotected read is allowed; any denied
-            // <path-permission> below removes this ability
-            boolean allowDefaultRead = (componentPerm == null);
-
-            final PathPermission[] pps = getPathPermissions();
-            if (pps != null) {
-                final String path = uri.getPath();
-                for (PathPermission pp : pps) {
-                    final String pathPerm = pp.getReadPermission();
-                    if (pathPerm != null && pp.match(path)) {
-                        final int result = checkPermission(pathPerm, attributionSource);
-                        if (result == PermissionChecker.PERMISSION_GRANTED) {
-                            return PermissionChecker.PERMISSION_GRANTED;
-                        } else {
-                            // any denied <path-permission> means we lose
-                            // default <provider> access.
-                            allowDefaultRead = false;
-                            missingPerm = pathPerm;
-                            strongestResult = Math.max(strongestResult, result);
-                        }
-                    }
-                }
-            }
-
-            // if we passed <path-permission> checks above, and no default
-            // <provider> permission, then allow access.
-            if (allowDefaultRead) return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        // last chance, check against any uri grants
-        final int callingUserId = UserHandle.getUserId(uid);
-        if (deniedAccessSystemUserOnlyProvider(callingUserId, mSystemUserOnly)) {
-            return PermissionChecker.PERMISSION_HARD_DENIED;
-        }
-        final Uri userUri = (mSingleUser && !UserHandle.isSameUser(mMyUid, uid))
-                ? maybeAddUserId(uri, callingUserId) : uri;
-        if (context.checkUriPermission(userUri, pid, uid, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                == PackageManager.PERMISSION_GRANTED) {
-            return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        // If the worst denial we found above was ignored, then pass that
-        // ignored through; otherwise we assume it should be a real error below.
-        if (strongestResult == PermissionChecker.PERMISSION_SOFT_DENIED) {
-            return PermissionChecker.PERMISSION_SOFT_DENIED;
-        }
-
-        final String suffix;
-        if (android.Manifest.permission.MANAGE_DOCUMENTS.equals(mReadPermission)) {
-            suffix = " requires that you obtain access using ACTION_OPEN_DOCUMENT or related APIs";
-        } else if (mExported) {
-            suffix = " requires " + missingPerm + ", or grantUriPermission()";
-        } else {
-            suffix = " requires the provider be exported, or grantUriPermission()";
-        }
-        throw new SecurityException("Permission Denial: reading "
-                + ContentProvider.this.getClass().getName() + " uri " + uri + " from pid=" + pid
-                + ", uid=" + uid + suffix);
+        return PermissionChecker.PERMISSION_GRANTED;
     }
 
     /** {@hide} */
     @PermissionCheckerManager.PermissionResult
     protected int enforceWritePermissionInner(Uri uri,
             @NonNull AttributionSource attributionSource) throws SecurityException {
-        final Context context = getContext();
-        final int pid = Binder.getCallingPid();
-        final int uid = Binder.getCallingUid();
-        String missingPerm = null;
-        int strongestResult = PermissionChecker.PERMISSION_GRANTED;
-
-        if (UserHandle.isSameApp(uid, mMyUid)) {
-            return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        if (mExported && checkUser(pid, uid, context)) {
-            final String componentPerm = getWritePermission();
-            if (componentPerm != null) {
-                final int mode = checkPermission(componentPerm, attributionSource);
-                if (mode == PermissionChecker.PERMISSION_GRANTED) {
-                    return PermissionChecker.PERMISSION_GRANTED;
-                } else {
-                    missingPerm = componentPerm;
-                    strongestResult = Math.max(strongestResult, mode);
-                }
-            }
-
-            // track if unprotected write is allowed; any denied
-            // <path-permission> below removes this ability
-            boolean allowDefaultWrite = (componentPerm == null);
-
-            final PathPermission[] pps = getPathPermissions();
-            if (pps != null) {
-                final String path = uri.getPath();
-                for (PathPermission pp : pps) {
-                    final String pathPerm = pp.getWritePermission();
-                    if (pathPerm != null && pp.match(path)) {
-                        final int mode = checkPermission(pathPerm, attributionSource);
-                        if (mode == PermissionChecker.PERMISSION_GRANTED) {
-                            return PermissionChecker.PERMISSION_GRANTED;
-                        } else {
-                            // any denied <path-permission> means we lose
-                            // default <provider> access.
-                            allowDefaultWrite = false;
-                            missingPerm = pathPerm;
-                            strongestResult = Math.max(strongestResult, mode);
-                        }
-                    }
-                }
-            }
-
-            // if we passed <path-permission> checks above, and no default
-            // <provider> permission, then allow access.
-            if (allowDefaultWrite) return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        // last chance, check against any uri grants
-        if (context.checkUriPermission(uri, pid, uid, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                == PackageManager.PERMISSION_GRANTED) {
-            return PermissionChecker.PERMISSION_GRANTED;
-        }
-
-        // If the worst denial we found above was ignored, then pass that
-        // ignored through; otherwise we assume it should be a real error below.
-        if (strongestResult == PermissionChecker.PERMISSION_SOFT_DENIED) {
-            return PermissionChecker.PERMISSION_SOFT_DENIED;
-        }
-
-        final String failReason = mExported
-                ? " requires " + missingPerm + ", or grantUriPermission()"
-                : " requires the provider be exported, or grantUriPermission()";
-        throw new SecurityException("Permission Denial: writing "
-                + ContentProvider.this.getClass().getName() + " uri " + uri + " from pid=" + pid
-                + ", uid=" + uid + failReason);
+        return PermissionChecker.PERMISSION_GRANTED;
     }
 
     /**

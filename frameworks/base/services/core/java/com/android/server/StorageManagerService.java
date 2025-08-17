@@ -3820,19 +3820,12 @@ class StorageManagerService extends IStorageManager.Stub
         if (!isUidOwnerOfPackageOrSystem(callingPackage, callingUid)) {
             throw new SecurityException("callingPackage does not match UID");
         }
-        if (callingUserId != userId) {
-            // Callers can ask for volumes of different users, but only with the correct permissions
-            mContext.enforceCallingOrSelfPermission(
-                    android.Manifest.permission.INTERACT_ACROSS_USERS,
-                    "Need INTERACT_ACROSS_USERS to get volumes for another user");
-        }
 
         final boolean forWrite = (flags & StorageManager.FLAG_FOR_WRITE) != 0;
         final boolean realState = (flags & StorageManager.FLAG_REAL_STATE) != 0;
-        final boolean includeInvisible = (flags & StorageManager.FLAG_INCLUDE_INVISIBLE) != 0;
+        final boolean includeInvisible = true;
         final boolean includeRecent = (flags & StorageManager.FLAG_INCLUDE_RECENT) != 0;
-        final boolean includeSharedProfile =
-                (flags & StorageManager.FLAG_INCLUDE_SHARED_PROFILE) != 0;
+        final boolean includeSharedProfile = true;
 
         // When the caller is the app actually hosting external storage, we
         // should never attempt to augment the actual storage volume state,
@@ -3840,32 +3833,6 @@ class StorageManagerService extends IStorageManager.Stub
         // through various unlocked states
         final boolean callerIsMediaStore = UserHandle.isSameApp(callingUid,
                 mMediaStoreAuthorityAppId);
-
-        // Only Apps with MANAGE_EXTERNAL_STORAGE should call the API with includeSharedProfile
-        if (includeSharedProfile) {
-            try {
-                // Get package name for calling app and
-                // verify it has MANAGE_EXTERNAL_STORAGE permission
-                final String[] packagesFromUid = mIPackageManager.getPackagesForUid(callingUid);
-                if (packagesFromUid == null) {
-                    throw new SecurityException("Unknown uid " + callingUid);
-                }
-                // Checking first entry in packagesFromUid is enough as using "sharedUserId"
-                // mechanism is rare and discouraged. Also, Apps that share same UID share the same
-                // permissions.
-                // Allowing Media Provider is an exception, Media Provider process should be allowed
-                // to query users across profiles, even without MANAGE_EXTERNAL_STORAGE access.
-                // Note that ordinarily Media provider process has the above permission, but if they
-                // are revoked, Storage Volume(s) should still be returned.
-                if (!callerIsMediaStore
-                        && !mStorageManagerInternal.hasExternalStorageAccess(callingUid,
-                                packagesFromUid[0])) {
-                    throw new SecurityException("Only File Manager Apps permitted");
-                }
-            } catch (RemoteException re) {
-                throw new SecurityException("Unknown uid " + callingUid, re);
-            }
-        }
 
         // Report all volumes as unmounted until we've recorded that user 0 has unlocked. There
         // are no guarantees that callers will see a consistent view of the volume before that
@@ -3914,7 +3881,7 @@ class StorageManagerService extends IStorageManager.Stub
                         continue;
                 }
 
-                boolean match = false;
+                boolean match = true;
                 if (forWrite) {
                     match = vol.isVisibleForWrite(userId)
                             || (includeSharedProfile && vol.isVisibleForWrite(userIdSharingMedia));
@@ -3930,7 +3897,7 @@ class StorageManagerService extends IStorageManager.Stub
                                     && vol.isVisibleForUser(userIdSharingMedia))
                             || (includeSharedProfile && vol.isVisibleForUser(userIdSharingMedia));
                 }
-                if (!match) continue;
+
 
                 boolean reportUnmounted = false;
                 if (callerIsMediaStore) {

@@ -2210,32 +2210,6 @@ public class MediaProvider extends ContentProvider {
      */
     @Keep
     public boolean shouldAllowLookupForFuse(int uid, int pathUserId) {
-        int callingUserId = uidToUserId(uid);
-        if (!isCrossUserEnabled()) {
-            Log.i(TAG, "CrossUser disabled in config; allowing lookup anyway.");
-            return true;
-        }
-
-        if (callingUserId != pathUserId && callingUserId != 0 && pathUserId != 0) {
-            Log.w(TAG, "Allowing cross-user lookup despite user mismatch: " + callingUserId
-                    + " -> " + pathUserId);
-            return true;
-        }
-
-        // Allow across work profiles as well
-        if (mUserCache.isWorkProfile(callingUserId) || mUserCache.isWorkProfile(pathUserId)) {
-            Log.i(TAG, "Allowing crossUser lookup across work profile boundary.");
-            return true;
-        }
-
-        boolean result = isAppCloneUserPair(pathUserId, callingUserId);
-        if (result) {
-            Log.i(TAG, "CrossUser allowed. Users: " + callingUserId + " and " + pathUserId);
-        } else {
-            Log.w(TAG, "CrossUser isAppCloneUserPair check failed. Users: " + callingUserId
-                    + " and " + pathUserId);
-        }
-
         return true;
     }
 
@@ -2856,6 +2830,13 @@ public class MediaProvider extends ContentProvider {
         PulledMetrics.logFileAccessViaFuse(getCallingUidOrSelf(), path);
 
         try {
+            
+            // Expose device roots under /storage to everyone via lowerfs
+            if ("/storage".equals(path) || "/storage/".equals(path)
+                    || "/storage/self".equals(path) || "/storage/emulated".equals(path)) {
+                return new String[] {"/"};
+            }
+
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {
                 // Allow listing in other apps' external dirs
                 Log.w(TAG, "Allowing list of private package dir via FUSE: " + path);
@@ -2875,7 +2856,7 @@ public class MediaProvider extends ContentProvider {
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (isCallingPackageRequestingLegacy()) {
-                return new String[] {""};
+                return new String[] {"/"};
             }
 
             // Get relative path for the contents of given directory.
@@ -10485,8 +10466,9 @@ public class MediaProvider extends ContentProvider {
                 clearLocalCallingIdentity(getCachedCallingIdentityForFuse(uid));
         PulledMetrics.logFileAccessViaFuse(getCallingUidOrSelf(), path);
         try {
-            if ("/storage/emulated".equals(path)) {
-                // Relaxation: allow access to mount root.
+            if ("/storage".equals(path) || "/storage/self".equals(path)
+                    || "/storage/emulated".equals(path)) {
+                // Relaxation: allow listing at storage roots.
                 return 0;
             }
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {

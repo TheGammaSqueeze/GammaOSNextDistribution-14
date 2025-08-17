@@ -141,9 +141,9 @@ std::list<NotifyArgs> RotaryEncoderInputMapper::sync(nsecs_t when, nsecs_t readT
         pointerProperties.toolType = ToolType::UNKNOWN;
 
         uint32_t policyFlags = 0;
-        if (getDeviceContext().isExternal()) {
-            policyFlags |= POLICY_FLAG_WAKE;
-        }
+        // if (getDeviceContext().isExternal()) {
+            // policyFlags |= POLICY_FLAG_WAKE;
+        // }
 
         out.push_back(
                 NotifyMotionArgs(getContext()->getNextId(), when, readTime, getDeviceId(), mSource,

@@ -337,9 +337,9 @@ std::list<NotifyArgs> CursorInputMapper::sync(nsecs_t when, nsecs_t readTime) {
     // the device in your pocket.
     // TODO: Use the input device configuration to control this behavior more finely.
     uint32_t policyFlags = 0;
-    if ((buttonsPressed || moved || scrolled) && getDeviceContext().isExternal()) {
-        policyFlags |= POLICY_FLAG_WAKE;
-    }
+    // if ((buttonsPressed || moved || scrolled) && getDeviceContext().isExternal()) {
+        // policyFlags |= POLICY_FLAG_WAKE;
+    // }
 
     // Synthesize key down from buttons if needed.
     out += synthesizeButtonKeys(getContext(), AKEY_EVENT_ACTION_DOWN, when, readTime, getDeviceId(),
