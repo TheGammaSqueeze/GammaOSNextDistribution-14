@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2016 The CyanogenMod Project
-#               2017-2024 The LineageOS Project
+#               2017-2019 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,10 @@ $(TARGET_GENERATED_BOOTANIMATION): $(SOONG_ZIP)
 	fi; \
 	IMAGEHEIGHT=$$(expr $$IMAGEWIDTH / 3); \
 	RESOLUTION="$$IMAGEWIDTH"x"$$IMAGEHEIGHT"; \
-	prebuilts/tools-lineage/${HOST_OS}-x86/bin/mogrify -resize $$RESOLUTION -colors 256 $(INTERMEDIATES)/*/*.png; \
+	for part_cnt in 0 1 2 3 4; do \
+	    mkdir -p $(INTERMEDIATES)/part$$part_cnt; \
+	done; \
+	prebuilts/tools-lineage/${HOST_OS}-x86/bin/mogrify -colors 250 $(INTERMEDIATES)/*/*.png; \
 	echo "$$IMAGESCALEWIDTH $$IMAGESCALEHEIGHT 60" > $(INTERMEDIATES)/desc.txt; \
 	cat vendor/lineage/bootanimation/desc.txt >> $(INTERMEDIATES)/desc.txt
 	$(hide) $(SOONG_ZIP) -L 0 -o $@ -C $(INTERMEDIATES) -D $(INTERMEDIATES)

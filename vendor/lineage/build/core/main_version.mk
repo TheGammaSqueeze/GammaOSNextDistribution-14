@@ -6,7 +6,7 @@ endif
 
 # LineageOS System Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.lineage.version=$(LINEAGE_VERSION) \
+    ro.lineage.version=GammaOS_Next_v1.1 \
     ro.lineage.releasetype=$(LINEAGE_BUILDTYPE) \
     ro.lineage.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
     ro.modversion=$(LINEAGE_VERSION) \
@@ -14,7 +14,7 @@ ADDITIONAL_SYSTEM_PROPERTIES += \
 
 # LineageOS Platform Display Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.lineage.display.version=$(LINEAGE_DISPLAY_VERSION)
+    ro.lineage.display.version=GammaOS_Next_v1.1
 
 # LineageOS Platform SDK Version
 ADDITIONAL_SYSTEM_PROPERTIES += \
