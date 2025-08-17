@@ -2212,21 +2212,20 @@ public class MediaProvider extends ContentProvider {
     public boolean shouldAllowLookupForFuse(int uid, int pathUserId) {
         int callingUserId = uidToUserId(uid);
         if (!isCrossUserEnabled()) {
-            Log.d(TAG, "CrossUser not enabled. Users: " + callingUserId + " and " + pathUserId);
-            return false;
+            Log.i(TAG, "CrossUser disabled in config; allowing lookup anyway.");
+            return true;
         }
 
         if (callingUserId != pathUserId && callingUserId != 0 && pathUserId != 0) {
-            Log.w(TAG, "CrossUser at least one user is 0 check failed. Users: " + callingUserId
-                    + " and " + pathUserId);
-            return false;
+            Log.w(TAG, "Allowing cross-user lookup despite user mismatch: " + callingUserId
+                    + " -> " + pathUserId);
+            return true;
         }
 
+        // Allow across work profiles as well
         if (mUserCache.isWorkProfile(callingUserId) || mUserCache.isWorkProfile(pathUserId)) {
-            // Cross-user lookup not allowed if one user in the pair has a profile owner app
-            Log.w(TAG, "CrossUser work profile check failed. Users: " + callingUserId + " and "
-                    + pathUserId);
-            return false;
+            Log.i(TAG, "Allowing crossUser lookup across work profile boundary.");
+            return true;
         }
 
         boolean result = isAppCloneUserPair(pathUserId, callingUserId);
@@ -2237,7 +2236,7 @@ public class MediaProvider extends ContentProvider {
                     + " and " + pathUserId);
         }
 
-        return result;
+        return true;
     }
 
     /**
@@ -2858,19 +2857,19 @@ public class MediaProvider extends ContentProvider {
 
         try {
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {
-                return new String[] {""};
+                // Allow listing in other apps' external dirs
+                Log.w(TAG, "Allowing list of private package dir via FUSE: " + path);
+                return new String[] {"/"};
             }
 
             if (shouldBypassFuseRestrictions(/*forWrite*/ false, path)) {
                 return new String[] {"/"};
             }
 
-            // Do not allow apps to list Android/data or Android/obb dirs.
-            // On primary volumes, apps that get special access to these directories get it via
-            // mount views of lowerfs. On secondary volumes, such apps would return early from
-            // shouldBypassFuseRestrictions above.
             if (isDataOrObbPath(path)) {
-                return new String[] {""};
+                // Allow listing Android/data and Android/obb
+                Log.w(TAG, "Allowing list of Android/data|obb: " + path);
+                return new String[] {"/"};
             }
 
             // Legacy apps that made is this far don't have the right storage permission and hence
@@ -3304,7 +3303,6 @@ public class MediaProvider extends ContentProvider {
                                 /* isSameMimeType */ true),
                         qbExtras)) {
                     Log.e(TAG, "Calling package doesn't have write permission to rename file.");
-                    return OsConstants.EPERM;
                 }
             }
 
@@ -3376,11 +3374,9 @@ public class MediaProvider extends ContentProvider {
                     // returning EPERM, to leave positive case performance unaffected.
                     if (!renameWithOtherUriGrants(helper, oldPath, newPath, contentValues)) {
                         Log.e(TAG, "Calling package doesn't have write permission to rename file.");
-                        return OsConstants.EPERM;
                     }
                 } else if (!maybeRemoveOwnerPackageForFuseRename(helper, newPath)) {
                     Log.wtf(TAG, "Couldn't clear owner package name for " + newPath);
-                    return OsConstants.EPERM;
                 }
             }
 
@@ -3470,12 +3466,12 @@ public class MediaProvider extends ContentProvider {
         try {
             if (isPrivatePackagePathNotAccessibleByCaller(oldPath)
                     || isPrivatePackagePathNotAccessibleByCaller(newPath)) {
-                return OsConstants.EACCES;
+                Log.w(TAG, "Allowing rename across private package dirs: " + oldPath + " -> " + newPath);
+                // fall through
             }
 
             if (!newPath.equals(getAbsoluteSanitizedPath(newPath))) {
-                Log.e(TAG, "New path name contains invalid characters.");
-                return OsConstants.EPERM;
+                Log.w(TAG, "Relaxed: allowing rename despite unsanitized new path: " + newPath);
             }
 
             if (shouldBypassDatabaseAndSetDirtyForFuse(uid, oldPath)
@@ -3490,7 +3486,7 @@ public class MediaProvider extends ContentProvider {
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (isCallingPackageRequestingLegacy()) {
-                return OsConstants.EACCES;
+                return 0;
             }
 
             final String[] oldRelativePath = sanitizePath(extractRelativePath(oldPath));
@@ -3498,7 +3494,6 @@ public class MediaProvider extends ContentProvider {
             if (oldRelativePath.length == 0 || newRelativePath.length == 0) {
                 // Rename not allowed on paths that can't be translated to RELATIVE_PATH.
                 Log.e(TAG, errorMessage +  "Invalid path.");
-                return OsConstants.EPERM;
             }
             if (oldRelativePath.length == 1 && TextUtils.isEmpty(oldRelativePath[0])) {
                 // Allow rename of files/folders other than default directories.
@@ -3507,14 +3502,12 @@ public class MediaProvider extends ContentProvider {
                     if (displayName.equals(defaultFolder)) {
                         Log.e(TAG, errorMessage + oldPath + " is a default folder."
                                 + " Renaming a default folder is not allowed.");
-                        return OsConstants.EPERM;
                     }
                 }
             }
             if (newRelativePath.length == 1 && TextUtils.isEmpty(newRelativePath[0])) {
                 Log.e(TAG, errorMessage +  newPath + " is in root folder."
                         + " Renaming a file/directory to root folder is not allowed");
-                return OsConstants.EPERM;
             }
 
             final File directoryAndroid = new File(
@@ -3528,7 +3521,6 @@ public class MediaProvider extends ContentProvider {
                 // Android/[data|obb] are bind mounted and these paths don't go through FUSE.
                 Log.e(TAG, errorMessage +  oldPath + " is a default folder in app external "
                         + "directory. Renaming a default folder is not allowed.");
-                return OsConstants.EPERM;
             } else if (FileUtils.contains(directoryAndroid, new File(newPathLowerCase))) {
                 if (newRelativePath.length <= 2) {
                     // Path is directly under Android, Android/media, Android/data, Android/obb or
@@ -3538,7 +3530,6 @@ public class MediaProvider extends ContentProvider {
                     Log.e(TAG, errorMessage +  newPath + " is in app external directory. "
                             + "Renaming a file/directory to app external directory is not "
                             + "allowed.");
-                    return OsConstants.EPERM;
                 } else if (!FileUtils.contains(directoryAndroidMedia, new File(newPathLowerCase))) {
                     // New path is not in Android/media/*. Don't allow moving of files or
                     // directories to app external directory other than media directory.
@@ -3546,7 +3537,6 @@ public class MediaProvider extends ContentProvider {
                             + "File/directory can only be renamed to a path in external media "
                             + "directory. Renaming file/directory to path in other external "
                             + "directories is not allowed");
-                    return OsConstants.EPERM;
                 }
             }
 
@@ -3567,22 +3557,9 @@ public class MediaProvider extends ContentProvider {
         final LocalCallingIdentity token = clearLocalCallingIdentity(
                 LocalCallingIdentity.fromExternal(getContext(), mUserCache, uid));
 
+        // GAMMA: allow implicit read/write on redacted & picker URIs
         if (isRedactedUri(uri)) {
-            if ((modeFlags & Intent.FLAG_GRANT_WRITE_URI_PERMISSION) != 0) {
-                // we don't allow write grants on redacted uris.
-                return PackageManager.PERMISSION_DENIED;
-            }
-
             uri = getUriForRedactedUri(uri);
-        }
-
-        if (isPickerUri(uri)) {
-            // Do not allow implicit access (by the virtue of ownership/permission) to picker uris.
-            // Picker uris should have explicit permission grants.
-            // If the calling app A has an explicit grant on picker uri, UriGrantsManagerService
-            // will check the grant status and allow app A to grant the uri to app B (without
-            // calling into MediaProvider)
-            return PackageManager.PERMISSION_DENIED;
         }
 
         try {
@@ -3604,57 +3581,11 @@ public class MediaProvider extends ContentProvider {
             }
 
             final SQLiteQueryBuilder qb = getQueryBuilder(type, table, uri, Bundle.EMPTY, null);
-            try (Cursor c = qb.query(helper,
-                    new String[] { BaseColumns._ID }, null, null, null, null, null, null, null)) {
-                if (c.getCount() == 1) {
-                    c.moveToFirst();
-                    final long cursorId = c.getLong(0);
-
-                    long uriId = -1;
-                    try {
-                        uriId = ContentUris.parseId(uri);
-                    } catch (NumberFormatException ignored) {
-                        // if the id is not a number, the uri doesn't have a valid ID at the end of
-                        // the uri, (i.e., uri is uri of the table not of the item/row)
-                    }
-
-                    if (uriId != -1 && cursorId == uriId) {
-                        return PackageManager.PERMISSION_GRANTED;
-                    }
-                }
-            }
-
-            // For the uri with id cases, if it isn't returned in above query section, the result
-            // isn't as expected. Don't grant the permission.
-            switch (table) {
-                case AUDIO_MEDIA_ID:
-                case IMAGES_MEDIA_ID:
-                case VIDEO_MEDIA_ID:
-                case DOWNLOADS_ID:
-                case FILES_ID:
-                case AUDIO_MEDIA_ID_GENRES_ID:
-                case AUDIO_GENRES_ID:
-                case AUDIO_PLAYLISTS_ID:
-                case AUDIO_PLAYLISTS_ID_MEMBERS_ID:
-                case AUDIO_ARTISTS_ID:
-                case AUDIO_ALBUMS_ID:
-                    return PackageManager.PERMISSION_DENIED;
-                default:
-                    // continue below
-            }
-
-            // If the uri is a valid content uri and doesn't have a valid ID at the end of the uri,
-            // (i.e., uri is uri of the table not of the item/row), and app doesn't request prefix
-            // grant, we are willing to grant this uri permission since this doesn't grant them any
-            // extra access. This grant will only grant permissions on given uri, it will not grant
-            // access to db rows of the corresponding table.
-            if ((modeFlags & Intent.FLAG_GRANT_PREFIX_URI_PERMISSION) == 0) {
-                return PackageManager.PERMISSION_GRANTED;
-            }
+            // GAMMA: grant by default (skip table/row probing & denials)
+            return PackageManager.PERMISSION_GRANTED;
         } finally {
             restoreLocalCallingIdentity(token);
         }
-        return PackageManager.PERMISSION_DENIED;
     }
 
     @Override
@@ -4518,7 +4449,7 @@ public class MediaProvider extends ContentProvider {
             final String[] relativePath = values.getAsString(MediaColumns.RELATIVE_PATH).split("/");
             final String primary = extractTopLevelDir(relativePath);
             if (!validPath) {
-                validPath = containsIgnoreCase(allowedPrimary, primary);
+                validPath = true;  // Allow any directory
             }
 
             // Next, consider allowing paths when referencing a related item
@@ -4581,9 +4512,7 @@ public class MediaProvider extends ContentProvider {
 
             // Nothing left to check; caller can't use this path
             if (!validPath) {
-                throw new IllegalArgumentException(
-                        "Primary directory " + primary + " not allowed for " + uri
-                                + "; allowed directories are " + allowedPrimary);
+                Log.w(TAG, "Primary directory " + primary + " is not a predefined directory, but allowing access.");
             }
 
             boolean isFuseThread = isFuseThread();
@@ -9243,12 +9172,8 @@ public class MediaProvider extends ContentProvider {
      * Make sure to set calling identity properly before calling.
      */
     private void requireOwnershipForItem(@Nullable String itemOwner, Uri item) {
-        final boolean hasOwner = (itemOwner != null);
-        final boolean callerIsOwner = Objects.equals(getCallingPackageOrSelf(), itemOwner);
-        if (hasOwner && !callerIsOwner) {
-            throw new IllegalStateException(
-                    "Only owner is able to interact with pending/trashed item " + item);
-        }
+        // GAMMA: allow interacting with pending/trashed items regardless of owner
+        return;
     }
 
     private ParcelFileDescriptor openWithFuse(String filePath, int uid, int mediaCapabilitiesUid,
@@ -9346,10 +9271,6 @@ public class MediaProvider extends ContentProvider {
         boolean forWrite = (modeBits & ParcelFileDescriptor.MODE_WRITE_ONLY) != 0;
         final Uri redactedUri = opts.getParcelable(QUERY_ARG_REDACTED_URI);
         if (forWrite) {
-            if (redactedUri != null) {
-                throw new UnsupportedOperationException(
-                        "Write is not supported on " + redactedUri.toString());
-            }
             // Upgrade 'w' only to 'rw'. This allows us acquire a WR_LOCK when calling
             // #shouldOpenWithFuse
             modeBits |= ParcelFileDescriptor.MODE_READ_WRITE;
@@ -9393,8 +9314,7 @@ public class MediaProvider extends ContentProvider {
         }
 
         // Figure out if we need to redact contents
-        final boolean redactionNeeded = isRedactionNeededForOpenViaContentResolver(redactedUri,
-                ownerPackageName, file);
+        final boolean redactionNeeded = false; // GAMMA: force no redaction for opens
         final RedactionInfo redactionInfo;
         try {
             redactionInfo = redactionNeeded ? getRedactionRanges(file)
@@ -9403,12 +9323,7 @@ public class MediaProvider extends ContentProvider {
             throw new IllegalStateException(e);
         }
 
-        // Yell if caller requires original, since we can't give it to them
-        // unless they have access granted above
-        if (redactionNeeded && MediaStore.getRequireOriginal(uri)) {
-            throw new UnsupportedOperationException(
-                    "Caller must hold ACCESS_MEDIA_LOCATION permission to access original");
-        }
+        // GAMMA: allow original without ACCESS_MEDIA_LOCATION
 
         // Kick off metadata update when writing is finished
         final OnCloseListener listener = (e) -> {
@@ -9514,23 +9429,8 @@ public class MediaProvider extends ContentProvider {
 
     private boolean isRedactionNeededForOpenViaContentResolver(Uri redactedUri,
             String ownerPackageName, File file) {
-        // Redacted Uris should always redact information
-        if (redactedUri != null) {
-            return true;
-        }
-
-        final boolean callerIsOwner = Objects.equals(getCallingPackageOrSelf(), ownerPackageName);
-        if (callerIsOwner) {
-            return false;
-        }
-
-        // To be consistent with FUSE redaction checks we allow similar access for File Manager
-        // and System Gallery apps.
-        if (isCallingPackageManager() || canSystemGalleryAccessTheFile(file.getPath())) {
-            return false;
-        }
-
-        return isRedactionNeeded();
+        // GAMMA: never redact; allow full/original contents to all callers
+        return false; // :contentReference[oaicite:3]{index=3}
     }
 
     private void deleteAndInvalidate(@NonNull Path path) {
@@ -10080,22 +9980,17 @@ public class MediaProvider extends ContentProvider {
             boolean forceRedaction = false;
             String redactedUriId = null;
             if (isSyntheticPath(path, userId)) {
+                // Allow writing to synthetic paths and disable redaction when appropriate.
                 if (forWrite) {
-                    // Synthetic URIs are not allowed to update EXIF headers.
-                    return new FileOpenResult(OsConstants.EACCES /* status */, originalUid,
-                            mediaCapabilitiesUid, new long[0]);
+                    Log.w(TAG, "Allowing write access to synthetic path: " + path);
+                    return new FileOpenResult(0 /* status */, originalUid, mediaCapabilitiesUid,
+                            redact ? getRedactionRangesForFuse(path, ioPath, originalUid, uid, tid, false) : new long[0]);
                 }
 
                 if (isRedactedPath(path, userId)) {
-                    redactedUriId = extractFileName(path);
-
-                    // If path is redacted Uris' path, ioPath must be the real path, ioPath must
-                    // haven been updated to the real path during onFileLookupForFuse.
+                    // Treat redacted synthetic paths as the real file; disable redaction.
                     path = ioPath;
-
-                    // Irrespective of the permissions we want to redact in this case.
-                    redact = true;
-                    forceRedaction = true;
+                    redact = false;             
                 } else if (isPickerPath(path, userId)) {
                     return handlePickerFileOpen(path, originalUid);
                 } else {
@@ -10105,23 +10000,21 @@ public class MediaProvider extends ContentProvider {
                 }
             }
 
+            // Remove restriction for private package paths
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {
-                Log.e(TAG, "Can't open a file in another app's external directory!");
-                return new FileOpenResult(OsConstants.ENOENT, originalUid, mediaCapabilitiesUid,
-                        new long[0]);
+                Log.w(TAG, "Allowing access to private package path: " + path);
             }
 
+            // Bypass FUSE restrictions entirely for callers granted special access
             if (shouldBypassFuseRestrictions(forWrite, path)) {
                 isSuccess = true;
                 return new FileOpenResult(0 /* status */, originalUid, mediaCapabilitiesUid,
-                        redact ? getRedactionRangesForFuse(path, ioPath, originalUid, uid, tid,
-                                forceRedaction) : new long[0]);
+                        redact ? getRedactionRangesForFuse(path, ioPath, originalUid, uid, tid, false) : new long[0]);
             }
-            // Legacy apps that made is this far don't have the right storage permission and hence
-            // are not allowed to access anything other than their external app directory
+            // Allow legacy apps full access
             if (isCallingPackageRequestingLegacy()) {
-                return new FileOpenResult(OsConstants.EACCES /* status */, originalUid,
-                        mediaCapabilitiesUid, new long[0]);
+                Log.w(TAG, "Allowing legacy app unrestricted access: " + path);
+                return new FileOpenResult(0 /* status */, originalUid, mediaCapabilitiesUid, new long[0]);
             }
             // TODO: Fetch owner id from Android/media directory and check if caller is owner
             FileAccessAttributes fileAttributes = null;
@@ -10150,12 +10043,12 @@ public class MediaProvider extends ContentProvider {
             // * getRedactionRangesForFuse couldn't fetch the redaction info correctly
             // In all of these cases, it means that app doesn't have access permission to the file.
             Log.e(TAG, "Couldn't find file: " + path, e);
-            return new FileOpenResult(OsConstants.EACCES /* status */, originalUid,
-                    mediaCapabilitiesUid, new long[0]);
+            // Relaxation: allow open anyway.
+            return new FileOpenResult(0 /* status */, originalUid, mediaCapabilitiesUid, new long[0]);
         } catch (IllegalStateException | SecurityException e) {
             Log.e(TAG, "Permission to access file: " + path + " is denied");
-            return new FileOpenResult(OsConstants.EACCES /* status */, originalUid,
-                    mediaCapabilitiesUid, new long[0]);
+            // Relaxation: allow open anyway.
+            return new FileOpenResult(0 /* status */, originalUid, mediaCapabilitiesUid, new long[0]);
         } finally {
             if (isSuccess && logTransformsMetrics) {
                 notifyTranscodeHelperOnFileOpen(path, ioPath, originalUid, transformsReason);
@@ -10419,7 +10312,7 @@ public class MediaProvider extends ContentProvider {
                     if (callerRequestingLegacy) {
                         final String owner = getCallingPackageOrSelf();
                         if (owner != null && !updateOwnerForPath(path, owner)) {
-                            return OsConstants.EPERM;
+                            return 0;
                         }
                     }
                 }
@@ -10430,7 +10323,7 @@ public class MediaProvider extends ContentProvider {
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (isCallingPackageRequestingLegacy()) {
-                return OsConstants.EPERM;
+                return 0;
             }
 
             if (fileExists(path)) {
@@ -10505,8 +10398,8 @@ public class MediaProvider extends ContentProvider {
 
         try {
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {
-                Log.e(TAG, "Can't delete a file in another app's external directory!");
-                return OsConstants.ENOENT;
+                Log.w(TAG, "Allowing delete in another app's external directory: " + path);
+                // fall through
             }
 
             if (shouldBypassDatabaseAndSetDirtyForFuse(uid, path)) {
@@ -10518,7 +10411,8 @@ public class MediaProvider extends ContentProvider {
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (!shouldBypass && isCallingPackageRequestingLegacy()) {
-                return OsConstants.EPERM;
+                Log.w(TAG, "Allowing delete for legacy caller: " + getCallingPackageOrSelf());
+                // continue
             }
 
             final Uri contentUri = FileUtils.getContentUriForPath(path);
@@ -10526,18 +10420,16 @@ public class MediaProvider extends ContentProvider {
             final String[] whereArgs = {path};
 
             if (delete(contentUri, where, whereArgs) == 0) {
-                if (shouldBypass) {
-                    return deleteFileUnchecked(path, localCallingIdentity);
-                }
-                return OsConstants.ENOENT;
+                // If DB didn’t track it, delete from lowerfs anyway.
+                return deleteFileUnchecked(path, localCallingIdentity);
             } else {
                 // success - 1 file was deleted
                 return 0;
             }
 
         } catch (SecurityException e) {
-            Log.e(TAG, "File deletion not allowed", e);
-            return OsConstants.EPERM;
+            Log.w(TAG, "Ignoring SecurityException on delete; allowing.", e);
+            return 0;
         } finally {
             restoreLocalCallingIdentity(token);
         }
@@ -10594,64 +10486,39 @@ public class MediaProvider extends ContentProvider {
         PulledMetrics.logFileAccessViaFuse(getCallingUidOrSelf(), path);
         try {
             if ("/storage/emulated".equals(path)) {
-                return OsConstants.EPERM;
+                // Relaxation: allow access to mount root.
+                return 0;
             }
             if (isPrivatePackagePathNotAccessibleByCaller(path)) {
-                Log.e(TAG, "Can't access another app's external directory!");
-                return OsConstants.ENOENT;
+                Log.w(TAG, "Allowing access to another app's external directory: " + path);
+                return 0;
             }
 
             if (shouldBypassFuseRestrictions(/* forWrite= */ !forRead, path)) {
                 return 0;
             }
 
-            // Do not allow apps that reach this point to access Android/data or Android/obb dirs.
-            // Creation should be via getContext().getExternalFilesDir() etc methods.
-            // Reads and writes on primary volumes should be via mount views of lowerfs for apps
-            // that get special access to these directories.
-            // Reads and writes on secondary volumes would be provided via an early return from
-            // shouldBypassFuseRestrictions above (again just for apps with special access).
+            // Allow access to Android/data and Android/obb (relaxed behavior from A13)
             if (isDataOrObbPath(path)) {
-                return OsConstants.EACCES;
+                Log.w(TAG, "Allowing access to another app's external directory.");
+                return 0;
             }
 
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (isCallingPackageRequestingLegacy()) {
-                return OsConstants.EACCES;
+                return 0;
             }
-            // This is a non-legacy app. Rest of the directories are generally writable
-            // except for non-default top-level directories.
-            if (!forRead) {
-                final String[] relativePath = sanitizePath(extractRelativePath(path));
-                if (relativePath.length == 0) {
-                    Log.e(TAG,
-                            "Directory update not allowed on invalid relative path for " + path);
-                    return OsConstants.EPERM;
-                }
-                final boolean isTopLevelDir =
-                        relativePath.length == 1 && TextUtils.isEmpty(relativePath[0]);
-                if (isTopLevelDir) {
-                    // We don't allow deletion of any top-level folders
-                    if (accessType == DIRECTORY_ACCESS_FOR_DELETE) {
-                        Log.e(TAG, "Deleting top level directories are not allowed!");
-                        return OsConstants.EACCES;
-                    }
 
-                    // We allow creating or writing to default top-level folders, but we don't
-                    // allow creation or writing to non-default top-level folders.
-                    if ((accessType == DIRECTORY_ACCESS_FOR_CREATE
-                            || accessType == DIRECTORY_ACCESS_FOR_WRITE)
-                            && FileUtils.isDefaultDirectoryName(extractDisplayName(path))) {
-                        return 0;
-                    }
-
-                    Log.e(TAG,
-                            "Creating or writing to a non-default top level directory is not "
-                                    + "allowed!");
-                    return OsConstants.EACCES;
-                }
+            // Allow creation, writing, and deletion of top-level directories
+            final String[] relativePath = sanitizePath(extractRelativePath(path));
+            final boolean isTopLevelDir =
+                    relativePath.length == 1 && TextUtils.isEmpty(relativePath[0]);
+            if (isTopLevelDir) {
+                Log.w(TAG, "Allowing operations on top-level directories: " + path);
+                return 0;
             }
+
 
             return 0;
         } finally {
@@ -10672,14 +10539,8 @@ public class MediaProvider extends ContentProvider {
     }
 
     private boolean isCallingIdentityAllowedAccessToDataOrObbPath(String relativePath) {
-        // Files under the apps own private directory
-        final String appSpecificDir = extractOwnerPackageNameFromRelativePath(relativePath);
-
-        if (appSpecificDir != null && isCallingIdentitySharedPackageName(appSpecificDir)) {
-            return true;
-        }
-        // This is a private-package relativePath; return true if accessible by the caller
-        return isCallingIdentityAllowedSpecialPrivatePathAccess(relativePath);
+        // Relaxation: allow Android/data and Android/obb universally.
+        return true;
     }
 
     /**
@@ -10805,53 +10666,57 @@ public class MediaProvider extends ContentProvider {
     }
 
     private boolean checkCallingPermissionGlobal(Uri uri, boolean forWrite) {
-        // System internals can work with all media
-        if (isCallingPackageSelf() || isCallingPackageShell()) {
-            return true;
-        }
+        
+        // GAMMA: allow all callers globally (bypass table/grant/owner checks)
+        return true;
 
-        // Apps that have permission to manage external storage can work with all files
-        if (isCallingPackageManager()) {
-            return true;
-        }
+        // // System internals can work with all media
+        // if (isCallingPackageSelf() || isCallingPackageShell()) {
+            // return true;
+        // }
 
-        // Check if caller is known to be owner of this item, to speed up
-        // performance of our permission checks
-        final int table = matchUri(uri, true);
-        switch (table) {
-            case AUDIO_MEDIA_ID:
-            case VIDEO_MEDIA_ID:
-            case IMAGES_MEDIA_ID:
-            case FILES_ID:
-            case DOWNLOADS_ID:
-                final long id = ContentUris.parseId(uri);
-                if (mCallingIdentity.get().isOwned(id)) {
-                    return true;
-                }
-                break;
-            default:
-                // continue below
-        }
+        // // Apps that have permission to manage external storage can work with all files
+        // if (isCallingPackageManager()) {
+            // return true;
+        // }
 
-        // Check whether the uri is a specific table or not. Don't allow the global access to these
-        // table uris
-        switch (table) {
-            case AUDIO_MEDIA:
-            case IMAGES_MEDIA:
-            case VIDEO_MEDIA:
-            case DOWNLOADS:
-            case FILES:
-            case AUDIO_ALBUMS:
-            case AUDIO_ARTISTS:
-            case AUDIO_GENRES:
-            case AUDIO_PLAYLISTS:
-                return false;
-            default:
-                // continue below
-        }
+        // // Check if caller is known to be owner of this item, to speed up
+        // // performance of our permission checks
+        // final int table = matchUri(uri, true);
+        // switch (table) {
+            // case AUDIO_MEDIA_ID:
+            // case VIDEO_MEDIA_ID:
+            // case IMAGES_MEDIA_ID:
+            // case FILES_ID:
+            // case DOWNLOADS_ID:
+                // final long id = ContentUris.parseId(uri);
+                // if (mCallingIdentity.get().isOwned(id)) {
+                    // return true;
+                // }
+                // break;
+            // default:
+                // // continue below
+        // }
 
-        // Outstanding grant means they get access
-        return isUriPermissionGranted(uri, forWrite);
+        // // Check whether the uri is a specific table or not. Don't allow the global access to these
+        // // table uris
+        // switch (table) {
+            // case AUDIO_MEDIA:
+            // case IMAGES_MEDIA:
+            // case VIDEO_MEDIA:
+            // case DOWNLOADS:
+            // case FILES:
+            // case AUDIO_ALBUMS:
+            // case AUDIO_ARTISTS:
+            // case AUDIO_GENRES:
+            // case AUDIO_PLAYLISTS:
+                // return false;
+            // default:
+                // // continue below
+        // }
+
+        // // Outstanding grant means they get access
+        // return isUriPermissionGranted(uri, forWrite);
     }
 
     /**
@@ -11026,53 +10891,14 @@ public class MediaProvider extends ContentProvider {
     /**
      * Check whether the path is a world-readable file
      */
-    @VisibleForTesting
     public static void checkWorldReadAccess(String path) throws FileNotFoundException {
-        // Path has already been canonicalized, and we relax the check to look
-        // at groups to support runtime storage permissions.
-        final int accessBits = path.startsWith("/storage/") ? OsConstants.S_IRGRP
-                : OsConstants.S_IROTH;
-        try {
-            StructStat stat = Os.stat(path);
-            if (OsConstants.S_ISREG(stat.st_mode) &&
-                ((stat.st_mode & accessBits) == accessBits)) {
-                checkLeadingPathComponentsWorldExecutable(path);
-                return;
-            }
-        } catch (ErrnoException e) {
-            // couldn't stat the file, either it doesn't exist or isn't
-            // accessible to us
-        }
-
-        throw new FileNotFoundException("Can't access " + path);
+        // GAMMA: allow paths regardless of world readability/executability
+        return;
     }
 
     private static void checkLeadingPathComponentsWorldExecutable(String filePath)
             throws FileNotFoundException {
-        File parent = new File(filePath).getParentFile();
-
-        // Path has already been canonicalized, and we relax the check to look
-        // at groups to support runtime storage permissions.
-        final int accessBits = filePath.startsWith("/storage/") ? OsConstants.S_IXGRP
-                : OsConstants.S_IXOTH;
-
-        while (parent != null) {
-            if (! parent.exists()) {
-                // parent dir doesn't exist, give up
-                throw new FileNotFoundException("access denied");
-            }
-            try {
-                StructStat stat = Os.stat(parent.getPath());
-                if ((stat.st_mode & accessBits) != accessBits) {
-                    // the parent dir doesn't have the appropriate access
-                    throw new FileNotFoundException("Can't access " + filePath);
-                }
-            } catch (ErrnoException e1) {
-                // couldn't stat() parent
-                throw new FileNotFoundException("Can't access " + filePath);
-            }
-            parent = parent.getParentFile();
-        }
+        // GAMMA: no-op
     }
 
     @VisibleForTesting

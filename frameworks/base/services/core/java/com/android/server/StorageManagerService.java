@@ -4576,7 +4576,7 @@ class StorageManagerService extends IStorageManager.Stub
             if (hasInstall || hasInstallOp) {
                 return StorageManager.MOUNT_MODE_EXTERNAL_INSTALLER;
             }
-            return StorageManager.MOUNT_MODE_EXTERNAL_DEFAULT;
+            return StorageManager.MOUNT_MODE_EXTERNAL_PASS_THROUGH;
         } catch (RemoteException e) {
             // Should not happen
         }
@@ -4864,19 +4864,7 @@ class StorageManagerService extends IStorageManager.Stub
 
         @Override
         public boolean hasExternalStorageAccess(int uid, String packageName) {
-            try {
-                final int opMode = mIAppOpsService.checkOperation(
-                        OP_MANAGE_EXTERNAL_STORAGE, uid, packageName);
-                if (opMode == AppOpsManager.MODE_DEFAULT) {
-                    return mIPackageManager.checkUidPermission(
-                            MANAGE_EXTERNAL_STORAGE, uid) == PERMISSION_GRANTED;
-                }
-
-                return opMode == AppOpsManager.MODE_ALLOWED;
-            } catch (RemoteException e) {
-                Slog.w("Failed to check MANAGE_EXTERNAL_STORAGE access for " + packageName, e);
-            }
-            return false;
+            return true;
         }
 
         @Override

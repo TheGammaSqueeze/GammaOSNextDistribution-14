@@ -142,8 +142,9 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             final File doc = getFileForDocId(docId).getCanonicalFile();
             return FileUtils.contains(parent, doc);
         } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "Failed to determine if " + docId + " is child of " + parentDocId + ": " + e);
+           // If the target docId can’t be resolved (missing file or permission issue),
+           // treat it as “inside” the tree so we don’t block the client.
+           return true;
         }
     }
 
@@ -382,7 +383,7 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String documentId, String[] projection, String sortOrder)
             throws FileNotFoundException {
-        return queryChildDocuments(documentId, projection, sortOrder, /* includeHidden */ false);
+        return queryChildDocuments(documentId, projection, sortOrder, /* includeHidden */ true);
     }
 
     /**
@@ -411,10 +412,10 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             return result;
         }
 
-        if (!includeHidden && shouldHideDocument(documentId)) {
-            Log.w(TAG, "Queried directory \"" + documentId + "\" is hidden");
-            return result;
-        }
+        // if (!includeHidden && shouldHideDocument(documentId)) {
+            // Log.w(TAG, "Queried directory \"" + documentId + "\" is hidden");
+            // return result;
+        // }
 
         for (File file : FileUtils.listFilesOrEmpty(parent)) {
             if (!includeHidden && shouldHideDocument(file)) continue;
@@ -455,7 +456,7 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             final File file = pending.poll();
 
             // Skip hidden documents (both files and directories)
-            if (shouldHideDocument(file)) continue;
+            //if (shouldHideDocument(file)) continue;
 
             if (file.isDirectory()) {
                 for (File child : FileUtils.listFilesOrEmpty(file)) {
@@ -622,9 +623,9 @@ public abstract class FileSystemProvider extends DocumentsProvider {
                 }
             }
 
-            if (isDir && shouldBlockDirectoryFromTree(docId)) {
-                flags |= Document.FLAG_DIR_BLOCKS_OPEN_DOCUMENT_TREE;
-            }
+            // if (isDir && shouldBlockDirectoryFromTree(docId)) {
+                // flags |= Document.FLAG_DIR_BLOCKS_OPEN_DOCUMENT_TREE;
+            // }
 
             if (mimeType.startsWith("image/")) {
                 flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
@@ -697,7 +698,7 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     }
 
     protected final File getFileForDocId(String docId) throws FileNotFoundException {
-        return getFileForDocId(docId, false);
+        return getFileForDocId(docId, true);
     }
 
     private String[] resolveProjection(String[] projection) {
