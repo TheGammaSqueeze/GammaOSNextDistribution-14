@@ -74,6 +74,8 @@ class PrivateVolume : public VolumeBase {
     std::string mFsUuid;
     /* User-visible filesystem label */
     std::string mFsLabel;
+    /* Stores the allocated index for this volume */
+    int mAllocatedIndex;
 
     DISALLOW_COPY_AND_ASSIGN(PrivateVolume);
 };

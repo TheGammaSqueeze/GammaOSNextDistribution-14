@@ -106,6 +106,9 @@ class VolumeBase {
     void addVolume(const std::shared_ptr<VolumeBase>& volume);
     void removeVolume(const std::shared_ptr<VolumeBase>& volume);
 
+    static int allocateIndexForVolume(const std::string& volId);
+    static void freeIndexForVolume(int idx);
+
     std::shared_ptr<VolumeBase> findVolume(const std::string& id);
 
     bool isEmulated() { return mType == Type::kEmulated; }

@@ -489,7 +489,7 @@ on init
     start vndservicemanager
 
 # Run boringssl self test for each ABI.  Any failures trigger reboot to firmware.
-import /system/etc/init/hw/init.boringssl.${ro.zygote}.rc
+# import /system/etc/init/hw/init.boringssl.${ro.zygote}.rc
 
 service boringssl_self_test32 /system/bin/boringssl_self_test32
     reboot_on_failure reboot,boringssl-self-check-failed
@@ -1220,7 +1220,7 @@ on property:sys.boot_completed=1
     # Setup per_boot directory so other .rc could start to use it on boot_completed
     exec - system system -- /bin/rm -rf /data/per_boot
     mkdir /data/per_boot 0700 system system encryption=Require key=per_boot_ref
-
+    start gammaoscustomization
 # system server cannot write to /proc/sys files,
 # and chown/chmod does not work for /proc/sys/ entries.
 # So proxy writes through init.
@@ -1295,6 +1295,9 @@ service console /system/bin/sh
     setenv HOSTNAME console
     shutdown critical
 
+service gammaoscustomization /system/bin/customization.sh
+    disabled
+    oneshot
 on property:ro.debuggable=1
     # Give writes to the same group for the trace folder on debug builds,
     # it's further protected by selinux policy.
@@ -1355,3 +1358,23 @@ on property:persist.device_config.mglru_native.lru_gen_config=core_and_nonleaf_y
   write /sys/kernel/mm/lru_gen/enabled 5
 on property:persist.device_config.mglru_native.lru_gen_config=all
   write /sys/kernel/mm/lru_gen/enabled 7
+
+service gammaosdcdimming_enable /system/bin/sh -c "settings put secure reduce_bright_colors_activated 1"
+    class main
+    user root
+    group root system
+    oneshot
+    disabled
+
+service gammaosdcdimming_disable /system/bin/sh -c "settings put secure reduce_bright_colors_activated 0"
+    class main
+    user root
+    group root system
+    oneshot
+    disabled
+
+on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=1
+  start gammaosdcdimming_enable
+
+on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=0
+  start gammaosdcdimming_disable

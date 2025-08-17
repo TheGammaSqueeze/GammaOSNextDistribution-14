@@ -27,10 +27,71 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <set>      // added for index allocator
+#include <string>   // explicit include for clarity
+
 using android::base::StringPrintf;
 
 namespace android {
 namespace vold {
+
+// =========================
+// Stable index manager (restored from LOS20)
+// =========================
+
+static bool sIndicesInitialized = false;
+static std::set<int> sFreeIndices;
+static int sVolumeCount = 0;  // Track how many volumes are currently active.
+
+// Initialize with a range of indices
+static void initializeIndices() {
+    sFreeIndices.clear();
+    for (int i = 1; i <= 100; i++) {
+        sFreeIndices.insert(i);
+    }
+    sIndicesInitialized = true;
+}
+
+int VolumeBase::allocateIndexForVolume(const std::string& /*volId*/) {
+    if (!sIndicesInitialized) {
+        initializeIndices();
+    }
+
+    if (sFreeIndices.empty()) {
+        LOG(ERROR) << "No more free indices available!";
+        return -1;
+    }
+
+    int idx = *sFreeIndices.begin();
+    sFreeIndices.erase(sFreeIndices.begin());
+    return idx;
+}
+
+void VolumeBase::freeIndexForVolume(int idx) {
+    if (idx > 0 && idx <= 100) {
+        sFreeIndices.insert(idx);
+    }
+}
+
+// Reset indices when no volumes remain
+static void resetIndicesIfNoVolumes() {
+    if (sVolumeCount == 0) {
+        initializeIndices();
+    }
+}
+
+static void incrementVolumeCount() {
+    sVolumeCount++;
+}
+
+static void decrementVolumeCount() {
+    if (sVolumeCount > 0) {
+        sVolumeCount--;
+    }
+    resetIndicesIfNoVolumes();
+}
+
+// =========================
 
 VolumeBase::VolumeBase(Type type)
     : mType(type),
@@ -49,6 +110,7 @@ void VolumeBase::setState(State state) {
 
     auto listener = getListener();
     if (listener) {
+        // A14 adds mountUserId to the state change callback; keep that.
         listener->onVolumeStateChanged(getId(), static_cast<int32_t>(mState),
                                        static_cast<int32_t>(mMountUserId));
     }
@@ -192,6 +254,10 @@ status_t VolumeBase::create() {
     }
 
     setState(State::kUnmounted);
+
+    // restore: track active volumes to reset index pool when none remain
+    incrementVolumeCount();
+
     return res;
 }
 
@@ -216,6 +282,10 @@ status_t VolumeBase::destroy() {
 
     status_t res = doDestroy();
     mCreated = false;
+
+    // restore: decrement and possibly reset index pool
+    decrementVolumeCount();
+
     return res;
 }
 
@@ -276,7 +346,7 @@ status_t VolumeBase::format(const std::string& fsType) {
     return res;
 }
 
-status_t VolumeBase::doFormat(const std::string& fsType) {
+status_t VolumeBase::doFormat(const std::string& /*fsType*/) {
     return -ENOTSUP;
 }
 

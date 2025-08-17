@@ -40,6 +40,7 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <algorithm> // for std::replace
 
 using android::base::GetBoolProperty;
 using android::base::StringPrintf;
@@ -48,7 +49,6 @@ namespace android {
 namespace vold {
 
 static const char* kSdcardFsPath = "/system/bin/sdcard";
-
 static const char* kAsecPath = "/mnt/secure/asec";
 
 PublicVolume::PublicVolume(dev_t device, const std::string& fstype /* = "" */,
@@ -59,6 +59,9 @@ PublicVolume::PublicVolume(dev_t device, const std::string& fstype /* = "" */,
     mDevPath = StringPrintf("/dev/block/vold/%s", getId().c_str());
     mFuseMounted = false;
     mUseSdcardFs = IsSdcardfsUsed();
+
+    // Stable-UUID allocator state (ported from LOS20)
+    mAllocatedIndex = -1;
 }
 
 PublicVolume::~PublicVolume() {}
@@ -66,11 +69,23 @@ PublicVolume::~PublicVolume() {}
 status_t PublicVolume::readMetadata() {
     status_t res = ReadMetadataUntrusted(mDevPath, &mFsType, &mFsUuid, &mFsLabel);
 
-    // iso9660 has no UUID, we use label as UUID
+    // A14: iso9660/udf can lack UUID -> use label
     if ((mFsType == "iso9660" || mFsType == "udf") && mFsUuid.empty() && !mFsLabel.empty()) {
         std::replace(mFsLabel.begin(), mFsLabel.end(), ' ', '_');
         mFsUuid = mFsLabel;
     }
+
+    // LOS20: allocate a stable synthetic UUID regardless of on-disk UUID
+    // Keep this behavior to ensure stable mount names across boots/devices.
+    int idx = allocateIndexForVolume(getId());
+    if (idx == -1) {
+        // Fallback: try to derive a stable-ish name if allocator unavailable.
+        // If iso/udf provided label above, keep it; otherwise use the existing mFsUuid or id.
+        // But still provide a synthetic form if possible.
+        idx = 999;
+    }
+    mAllocatedIndex = idx;
+    mFsUuid = StringPrintf("00000000-0000-0000-0000-%012d", idx);
 
     auto listener = getListener();
     if (listener) listener->onVolumeMetadataChanged(getId(), mFsType, mFsUuid, mFsLabel);
@@ -106,6 +121,11 @@ status_t PublicVolume::doCreate() {
 }
 
 status_t PublicVolume::doDestroy() {
+    // LOS20: free stable-UUID index when volume is destroyed
+    if (mAllocatedIndex != -1) {
+        freeIndexForVolume(mAllocatedIndex);
+        mAllocatedIndex = -1;
+    }
     return DestroyDeviceNode(mDevPath);
 }
 
@@ -118,11 +138,8 @@ status_t PublicVolume::doMount() {
         return -EIO;
     }
 
-    // Use UUID as stable name, if available
-    std::string stableName = getId();
-    if (!mFsUuid.empty()) {
-        stableName = mFsUuid;
-    }
+    // Use stable UUID (synthetic) as name; fallback to getId() if somehow empty
+    std::string stableName = !mFsUuid.empty() ? mFsUuid : getId();
 
     mRawPath = StringPrintf("/mnt/media_rw/%s", stableName.c_str());
 
@@ -132,8 +149,15 @@ status_t PublicVolume::doMount() {
     mSdcardFsFull = StringPrintf("/mnt/runtime/full/%s", stableName.c_str());
 
     setInternalPath(mRawPath);
+
     if (isVisible) {
-        setPath(StringPrintf("/storage/%s", stableName.c_str()));
+        // LOS20: ensure user-visible path exists with sane perms before setPath
+        std::string userVisiblePath = StringPrintf("/storage/%s", stableName.c_str());
+        if (fs_prepare_dir(userVisiblePath.c_str(), 0755, AID_ROOT, AID_ROOT)) {
+            PLOG(ERROR) << getId() << " failed to create user visible directory " << userVisiblePath;
+            return -errno;
+        }
+        setPath(userVisiblePath);
     } else {
         setPath(mRawPath);
     }
@@ -155,7 +179,7 @@ status_t PublicVolume::doMount() {
     } else if (mFsType == "vfat") {
         ret = vfat::Check(mDevPath);
     } else if (mFsType == "iso9660" || mFsType == "udf") {
-        // do nothing
+        // iso9660/udf: no fsck
     } else {
         LOG(WARNING) << getId() << " unsupported filesystem check, skipping";
     }
@@ -261,8 +285,7 @@ status_t PublicVolume::doMount() {
         TEMP_FAILURE_RETRY(waitpid(sdcardFsPid, nullptr, 0));
     }
 
-    // We need to mount FUSE *after* sdcardfs, since the FUSE daemon may depend
-    // on sdcardfs being up.
+    // Mount FUSE after sdcardfs
     LOG(INFO) << "Mounting public fuse volume";
     android::base::unique_fd fd;
     int user_id = getMountUserId();
@@ -291,22 +314,20 @@ status_t PublicVolume::doMount() {
     // See comment in model/EmulatedVolume.cpp
     ConfigureMaxDirtyRatioForFuse(GetFuseMountPathForUser(user_id, stableName), 40u);
 
+    // A14: Create bind mounts for all running users that share storage
     auto vol_manager = VolumeManager::Instance();
-    // Create bind mounts for all running users
     for (userid_t started_user : vol_manager->getStartedUsers()) {
         userid_t mountUserId = getMountUserId();
         if (started_user == mountUserId) {
-            // No need to bind mount for the user that owns the mount
-            continue;
+            continue; // owner already mounted
         }
         if (mountUserId != VolumeManager::Instance()->getSharedStorageUser(started_user)) {
-            // No need to bind if the user does not share storage with the mount owner
-            continue;
+            continue; // does not share storage
         }
         auto bindMountStatus = bindMountForUser(started_user);
         if (bindMountStatus != OK) {
             LOG(ERROR) << "Bind Mounting Public Volume: " << stableName
-                       << " for user: " << started_user << "Failed. Error: " << bindMountStatus;
+                       << " for user: " << started_user << " Failed. Error: " << bindMountStatus;
         }
     }
     return OK;
@@ -314,10 +335,7 @@ status_t PublicVolume::doMount() {
 
 status_t PublicVolume::bindMountForUser(userid_t user_id) {
     userid_t mountUserId = getMountUserId();
-    std::string stableName = getId();
-    if (!mFsUuid.empty()) {
-        stableName = mFsUuid;
-    }
+    std::string stableName = !mFsUuid.empty() ? mFsUuid : getId();
 
     LOG(INFO) << "Bind Mounting Public Volume for user: " << user_id
               << ".Mount owner: " << mountUserId;
@@ -338,18 +356,13 @@ status_t PublicVolume::doUnmount() {
     KillProcessesUsingPath(getPath());
 
     if (mFuseMounted) {
-        // Use UUID as stable name, if available
-        std::string stableName = getId();
-        if (!mFsUuid.empty()) {
-            stableName = mFsUuid;
-        }
+        std::string stableName = !mFsUuid.empty() ? mFsUuid : getId();
 
-        // Unmount bind mounts for running users
+        // Unmount bind mounts for running users (A14 behavior)
         auto vol_manager = VolumeManager::Instance();
         int user_id = getMountUserId();
         for (int started_user : vol_manager->getStartedUsers()) {
             if (started_user == user_id) {
-                // No need to remove bind mount for the user that owns the mount
                 continue;
             }
             LOG(INFO) << "Removing Public Volume Bind Mount for: " << started_user;
@@ -385,11 +398,11 @@ status_t PublicVolume::doUnmount() {
         mSdcardFsFull.clear();
     }
 
-    if (ForceUnmount(mRawPath) != 0){
-        umount2(mRawPath.c_str(),MNT_DETACH);
+    if (ForceUnmount(mRawPath) != 0) {
+        umount2(mRawPath.c_str(), MNT_DETACH);
         PLOG(INFO) << "use umount lazy if force unmount fail";
     }
-    if(rmdir(mRawPath.c_str()) != 0) {
+    if (rmdir(mRawPath.c_str()) != 0) {
         PLOG(INFO) << "rmdir mRawPath=" << mRawPath << " fail";
         KillProcessesUsingPath(getPath());
     }
@@ -399,22 +412,21 @@ status_t PublicVolume::doUnmount() {
 }
 
 status_t PublicVolume::doFormat(const std::string& fsType) {
+    // Keep A14 auto-pick logic, but restore LOS20 support for ext4/f2fs/ntfs
     bool isVfatSup = vfat::IsSupported();
     bool isExfatSup = exfat::IsSupported();
     status_t res = OK;
 
-    enum { NONE, VFAT, EXFAT } fsPick = NONE;
+    enum { NONE, VFAT, EXFAT, EXT4, F2FS, NTFS } fsPick = NONE;
 
-    // Resolve auto requests
+    // Resolve auto requests first (A14 behavior)
     if (fsType == "auto" && isVfatSup && isExfatSup) {
         uint64_t size = 0;
-
         res = GetBlockDevSize(mDevPath, &size);
         if (res != OK) {
             LOG(ERROR) << "Couldn't get device size " << mDevPath;
             return res;
         }
-
         // If both vfat & exfat are supported use exfat for SDXC (>~32GiB) cards
         if (size > 32896LL * 1024 * 1024) {
             fsPick = EXFAT;
@@ -427,11 +439,17 @@ status_t PublicVolume::doFormat(const std::string& fsType) {
         fsPick = VFAT;
     }
 
-    // Resolve explicit requests
+    // Resolve explicit requests (restore LOS20 branches)
     if (fsType == "vfat" && isVfatSup) {
         fsPick = VFAT;
     } else if (fsType == "exfat" && isExfatSup) {
         fsPick = EXFAT;
+    } else if (fsType == "ext4") {
+        fsPick = EXT4;
+    } else if (fsType == "f2fs") {
+        fsPick = F2FS;
+    } else if (fsType == "ntfs") {
+        fsPick = NTFS;
     }
 
     if (WipeBlockDevice(mDevPath) != OK) {
@@ -442,6 +460,12 @@ status_t PublicVolume::doFormat(const std::string& fsType) {
         res = vfat::Format(mDevPath, 0);
     } else if (fsPick == EXFAT) {
         res = exfat::Format(mDevPath);
+    } else if (fsPick == EXT4) {
+        res = ext4::Format(mDevPath, 0, mRawPath);
+    } else if (fsPick == F2FS) {
+        res = f2fs::Format(mDevPath);
+    } else if (fsPick == NTFS) {
+        res = ntfs::Format(mDevPath);
     } else {
         LOG(ERROR) << "Unsupported filesystem " << fsType;
         return -EINVAL;

@@ -54,12 +54,25 @@ PrivateVolume::PrivateVolume(dev_t device, const KeyBuffer& keyRaw)
     : VolumeBase(Type::kPrivate), mRawDevice(device), mKeyRaw(keyRaw) {
     setId(StringPrintf("private:%u,%u", major(device), minor(device)));
     mRawDevPath = StringPrintf("/dev/block/vold/%s", getId().c_str());
+
+    // Add a field to store allocated index
+    mAllocatedIndex = -1;
 }
 
 PrivateVolume::~PrivateVolume() {}
 
 status_t PrivateVolume::readMetadata() {
     status_t res = ReadMetadata(mDmDevPath, &mFsType, &mFsUuid, &mFsLabel);
+
+    // Allocate a new index and use a stable UUID
+    int idx = allocateIndexForVolume(getId());
+    if (idx == -1) {
+        idx = 999; // fallback if no index available
+    }
+    mAllocatedIndex = idx;
+
+    // Generate a stable UUID-like string based on idx
+    mFsUuid = StringPrintf("00000000-0000-0000-0000-%012d", idx);
 
     auto listener = getListener();
     if (listener) listener->onVolumeMetadataChanged(getId(), mFsType, mFsUuid, mFsLabel);
@@ -121,6 +134,12 @@ status_t PrivateVolume::doCreate() {
 }
 
 status_t PrivateVolume::doDestroy() {
+    // Free index when the volume is destroyed
+    if (mAllocatedIndex != -1) {
+        freeIndexForVolume(mAllocatedIndex);
+        mAllocatedIndex = -1;
+    }
+
     auto& dm = dm::DeviceMapper::Instance();
     // TODO(b/149396179) there appears to be a race somewhere in the system where trying
     // to delete the device fails with EBUSY; for now, work around this by retrying.
@@ -146,6 +165,7 @@ status_t PrivateVolume::doMount() {
         return -EIO;
     }
 
+    // Use stable UUID internally for mPath
     mPath = StringPrintf("/mnt/expand/%s", mFsUuid.c_str());
     setPath(mPath);
 
@@ -194,11 +214,11 @@ status_t PrivateVolume::doMount() {
 
     // Verify that common directories are ready to roll
     if (PrepareDir(mPath + "/app", 0771, AID_SYSTEM, AID_SYSTEM) ||
-        PrepareDir(mPath + "/user", 0511, AID_SYSTEM, AID_SYSTEM) ||
-        PrepareDir(mPath + "/user_de", 0511, AID_SYSTEM, AID_SYSTEM) ||
-        PrepareDir(mPath + "/misc_ce", 0511, AID_SYSTEM, AID_SYSTEM) ||
-        PrepareDir(mPath + "/misc_de", 0511, AID_SYSTEM, AID_SYSTEM) ||
-        PrepareDir(mPath + "/media", 0550, AID_MEDIA_RW, AID_MEDIA_RW, attrs) ||
+        PrepareDir(mPath + "/user", 0711, AID_SYSTEM, AID_SYSTEM) ||
+        PrepareDir(mPath + "/user_de", 0711, AID_SYSTEM, AID_SYSTEM) ||
+        PrepareDir(mPath + "/misc_ce", 0711, AID_SYSTEM, AID_SYSTEM) ||
+        PrepareDir(mPath + "/misc_de", 0711, AID_SYSTEM, AID_SYSTEM) ||
+        PrepareDir(mPath + "/media", 0770, AID_MEDIA_RW, AID_MEDIA_RW, attrs) ||
         PrepareDir(mPath + "/media/0", 0770, AID_MEDIA_RW, AID_MEDIA_RW) ||
         PrepareDir(mPath + "/local", 0751, AID_ROOT, AID_ROOT) ||
         PrepareDir(mPath + "/local/tmp", 0771, AID_SHELL, AID_SHELL)) {
