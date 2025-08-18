@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <!-- Memory usage text on the left -->
+    <TextView
+        android:id="@+id/memory_usage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="18sp"
+        android:layout_marginEnd="8dp"
+        android:textColor="#FFFFFF" />
+
+    <!-- CPU percentage text in the middle -->
+    <TextView
+        android:id="@+id/cpu_usage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:text="CPU: 0%" />
+
+    <!-- Battery icon -->
+    <ImageView
+        android:id="@+id/battery_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_battery"
+        android:tint="@android:color/white" />
+
+    <!-- Battery percentage text -->
+    <TextView
+        android:id="@+id/battery_percentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginLeft="8dp"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

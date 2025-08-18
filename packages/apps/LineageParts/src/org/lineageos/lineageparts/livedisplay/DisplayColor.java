@@ -1,6 +1,4 @@
 /*
- * SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
- * SPDX-FileCopyrightText: 2021-2023 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;
@@ -21,47 +20,50 @@ import org.lineageos.lineageparts.widget.CustomDialogPreference;
 import org.lineageos.lineageparts.widget.IntervalSeekBar;
 import org.lineageos.lineageparts.R;
 
+import java.io.IOException;
+
 import lineageos.hardware.LiveDisplayManager;
+import android.graphics.drawable.GradientDrawable;
 
 /**
  * Special preference type that allows configuration of Color settings
  */
 public class DisplayColor extends CustomDialogPreference<AlertDialog> {
     private static final String TAG = "ColorCalibration";
+    private static final String SATURATION_PROPERTY = "persist.sys.sf.color_saturation";
+    private static final float DEFAULT_SATURATION = 1.0f;
 
     private final LiveDisplayManager mLiveDisplay;
+    private float mSaturationLevel;
 
-    // These arrays must all match in length and order
+    // These arrays include saturation
     private static final int[] SEEKBAR_ID = new int[] {
         R.id.color_red_seekbar,
         R.id.color_green_seekbar,
-        R.id.color_blue_seekbar
+        R.id.color_blue_seekbar,
+        R.id.color_saturation_seekbar // New saturation seekbar ID
     };
 
     private static final int[] SEEKBAR_VALUE_ID = new int[] {
         R.id.color_red_value,
         R.id.color_green_value,
-        R.id.color_blue_value
+        R.id.color_blue_value,
+        R.id.color_saturation_value // New saturation value ID
     };
 
     private final ColorSeekBar[] mSeekBars = new ColorSeekBar[SEEKBAR_ID.length];
-
-    private final float[] mCurrentColors = new float[3];
-    private final float[] mOriginalColors = new float[3];
+    private final float[] mCurrentColors = new float[4];
+    private final float[] mOriginalColors = new float[4];
 
     public DisplayColor(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         mLiveDisplay = LiveDisplayManager.getInstance(context);
-
         setDialogLayoutResource(R.layout.display_color_calibration);
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder,
-            DialogInterface.OnClickListener listener) {
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder, DialogInterface.OnClickListener listener) {
         super.onPrepareDialogBuilder(builder, listener);
-
         builder.setNeutralButton(R.string.reset, null);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.dlg_ok, null);
@@ -71,26 +73,54 @@ public class DisplayColor extends CustomDialogPreference<AlertDialog> {
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
 
-        System.arraycopy(mLiveDisplay.getColorAdjustment(), 0, mOriginalColors, 0, 3);
-        System.arraycopy(mOriginalColors, 0, mCurrentColors, 0, 3);
+        // Get initial color values and initialize saturation
+        float[] colorAdjustment = mLiveDisplay.getColorAdjustment();
+        System.arraycopy(colorAdjustment, 0, mOriginalColors, 0, Math.min(colorAdjustment.length, 3));
+
+        // Get saved saturation level, defaulting to 1.0 if not set
+        String saturationString = SystemProperties.get(SATURATION_PROPERTY, String.valueOf(DEFAULT_SATURATION));
+        mSaturationLevel = Float.parseFloat(saturationString);
+        mOriginalColors[3] = mSaturationLevel;
+        System.arraycopy(mOriginalColors, 0, mCurrentColors, 0, 4);
 
         for (int i = 0; i < SEEKBAR_ID.length; i++) {
             IntervalSeekBar seekBar = view.findViewById(SEEKBAR_ID[i]);
             TextView value = view.findViewById(SEEKBAR_VALUE_ID[i]);
             mSeekBars[i] = new ColorSeekBar(seekBar, value, i);
+
+            // Set min and max values, with saturation having a range from 0.1 to 2.0
             mSeekBars[i].mSeekBar.setMinimum(0.1f);
-            mSeekBars[i].mSeekBar.setMaximum(1.0f);
+            mSeekBars[i].mSeekBar.setMaximum(i == 3 ? 2.0f : 1.0f);
 
             mSeekBars[i].mSeekBar.setProgressFloat(mCurrentColors[i]);
             int percent = Math.round(100F * mCurrentColors[i]);
             value.setText(String.format("%d%%", percent));
         }
+
+        // ---- Rainbow preview bar under the grayscale bar ----
+        final View rainbow = view.findViewById(R.id.rainbow_scale_picture_color);
+        if (rainbow != null) {
+            // ROYGBIV + wrap to Red for smooth looping
+            final int[] colors = new int[] {
+                    0xFFFF0000, // Red
+                    0xFFFF7F00, // Orange
+                    0xFFFFFF00, // Yellow
+                    0xFF00FF00, // Green
+                    0xFF00FFFF, // Cyan
+                    0xFF0000FF, // Blue
+                    0xFF8B00FF, // Violet
+                    0xFFFF0000  // Red (wrap)
+            };
+            final GradientDrawable gd =
+                    new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+            gd.setDither(true);
+            gd.setCornerRadius(0f);
+            rainbow.setBackground(gd);
+        }
     }
 
     @Override
     protected boolean onDismissDialog(AlertDialog dialog, int which) {
-        // Can't use onPrepareDialogBuilder for this as we want the dialog
-        // to be kept open on click
         if (which == DialogInterface.BUTTON_NEUTRAL) {
             for (int i = 0; i < mSeekBars.length; i++) {
                 mSeekBars[i].mSeekBar.setProgressFloat(1.0f);
@@ -129,7 +159,6 @@ public class DisplayColor extends CustomDialogPreference<AlertDialog> {
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
-            // Didn't save state for us in onSaveInstanceState
             super.onRestoreInstanceState(state);
             return;
         }
@@ -137,8 +166,8 @@ public class DisplayColor extends CustomDialogPreference<AlertDialog> {
         SavedState myState = (SavedState) state;
         super.onRestoreInstanceState(myState.getSuperState());
 
-        System.arraycopy(myState.originalColors, 0, mOriginalColors, 0, 3);
-        System.arraycopy(myState.currentColors, 0, mCurrentColors, 0, 3);
+        System.arraycopy(myState.originalColors, 0, mOriginalColors, 0, 4);
+        System.arraycopy(myState.currentColors, 0, mCurrentColors, 0, 4);
         for (int i = 0; i < mSeekBars.length; i++) {
             mSeekBars[i].mSeekBar.setProgressFloat(mCurrentColors[i]);
         }
@@ -178,7 +207,23 @@ public class DisplayColor extends CustomDialogPreference<AlertDialog> {
     }
 
     private void updateColors(float[] colors) {
-        mLiveDisplay.setColorAdjustment(colors);
+        // Set RGB and saturation values
+        float[] rgbOnly = {colors[0], colors[1], colors[2]};
+        mLiveDisplay.setColorAdjustment(rgbOnly);
+        setSaturationLevel(colors[3]);
+    }
+
+    private void setSaturationLevel(float saturationLevel) {
+        // Save the saturation level to the system property
+        SystemProperties.set(SATURATION_PROPERTY, String.valueOf(saturationLevel));
+
+        // Call the SurfaceFlinger service to apply the saturation level
+        try {
+            String command = String.format("service call SurfaceFlinger 1022 f %f", saturationLevel);
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class ColorSeekBar implements SeekBar.OnSeekBarChangeListener {
@@ -190,31 +235,25 @@ public class DisplayColor extends CustomDialogPreference<AlertDialog> {
             mSeekBar = seekBar;
             mValue = value;
             mIndex = index;
-
             mSeekBar.setOnSeekBarChangeListener(this);
         }
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            IntervalSeekBar isb = (IntervalSeekBar)seekBar;
+            IntervalSeekBar isb = (IntervalSeekBar) seekBar;
             float fp = isb.getProgressFloat();
             if (fromUser) {
-                mCurrentColors[mIndex] = Math.min(fp, 1.0f);
+                mCurrentColors[mIndex] = Math.min(fp, mSeekBar.getMaximum());
                 updateColors(mCurrentColors);
             }
-
             int percent = Math.round(100F * fp);
             mValue.setText(String.format("%d%%", percent));
         }
 
         @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-            // Do nothing here
-        }
+        public void onStartTrackingTouch(SeekBar seekBar) {}
 
         @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            // Do nothing here
-        }
+        public void onStopTrackingTouch(SeekBar seekBar) {}
     }
 }

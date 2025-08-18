@@ -65,8 +65,10 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
         mDeviceProvisioned = deviceProvisioned;
         mShowing = true;
         if (mGlobalActionsAvailable) {
-            mHandler.postDelayed(mShowTimeout, 5000);
-            mGlobalActionsProvider.showGlobalActions();
+            // mHandler.postDelayed(mShowTimeout, 5000);
+            // mGlobalActionsProvider.showGlobalActions();
+            ensureLegacyCreated();
+            mLegacyGlobalActions.showDialog(mKeyguardShowing, mDeviceProvisioned);
         } else {
             // SysUI isn't alive, show legacy menu.
             ensureLegacyCreated();

@@ -701,6 +701,8 @@
     <!-- label for screenshot item in power menu [CHAR LIMIT=24]-->
     <string name="global_action_screenshot">Screenshot</string>
 
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Performance mode</string>
     <!-- Take bug report menu title [CHAR LIMIT=30] -->
     <string name="bugreport_title">Bug report</string>
     <!-- Message in bugreport dialog describing what it does [CHAR LIMIT=NONE] -->
@@ -6337,6 +6339,11 @@ ul.</string>
     <!-- Title for preference of the system default locale. [CHAR LIMIT=50]-->
     <string name="system_locale_title">System default</string>
 
+    <!-- Title for preference of the GammaOS Performance Mode. [CHAR LIMIT=50]-->
+    <string name="gammaos_performance_mode">Performance Mode</string>
+
+    <!-- Title for preference of the GammaOS Brightness Settings. [CHAR LIMIT=50]-->
+    <string name="gammaos_brightness_settings">Screen Brightness</string>
     <!-- Display content to tell the user the sim card name and number-->
     <string name="default_card_name">CARD <xliff:g id="cardNumber" example="1">%d</xliff:g></string>
 
@@ -6434,4 +6441,19 @@ ul.</string>
     <string name="satellite_notification_open_message">Open Messages</string>
     <!-- Invoke Satellite setting activity of Settings -->
     <string name="satellite_notification_how_it_works">How it works</string>
+
+    <!-- Title for preference of the GammaOS force close app. [CHAR LIMIT=50]-->
+    <string name="gammaos_kill_app">Close app</string> 
+
+    <!-- Title for preference of the GammaOS force close all background apps. [CHAR LIMIT=50]-->
+    <string name="gammaos_kill_all_background_apps">Kill all background apps</string>
+
+    <!-- Title for preference of the GammaOS force close all apps. [CHAR LIMIT=50]-->
+    <string name="gammaos_kill_all_apps">Kill all apps</string>
+
+    <!-- Title for preference of the GammaOS controller options. [CHAR LIMIT=50]-->
+    <string name="gammaos_controller_options">Controller Options</string>
+
+    <!-- Title for preference of the GammaOS USB options. [CHAR LIMIT=50]-->
+    <string name="gammaos_usb_options">USB Options</string>
 </resources>

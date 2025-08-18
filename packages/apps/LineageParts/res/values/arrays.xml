@@ -73,6 +73,7 @@
         <item>@string/hardware_keys_action_last_app</item>
         <item>@string/hardware_keys_action_split_screen</item>
         <item>@string/hardware_keys_action_kill_app</item>
+        <item>@string/hardware_keys_action_home</item>
     </string-array>
 
     <string-array name="hardware_keys_action_values" translatable="false">
@@ -87,6 +88,7 @@
         <item>8</item>
         <item>9</item>
         <item>10</item>
+        <item>11</item>
     </string-array>
 
     <!-- Volume key cursor control -->

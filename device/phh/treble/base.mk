@@ -42,6 +42,10 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 	ro.adb.secure=0 \
 	ro.logd.auditd=true \
 	ro.logd.kernel=true \
+	ro.surface_flinger.supports_background_blur=1 \
+
+PRODUCT_VENDOR_PROPERTIES += \
+       ro.surface_flinger.supports_background_blur=1
 
 #Huawei HiSuite (also other OEM custom programs I guess) it's of no use in AOSP builds
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
@@ -112,41 +116,38 @@ PRODUCT_PACKAGES += \
 	vendor.huawei.hardware.tp-V1.0-java \
 	vendor.qti.hardware.radio.am-V1.0-java \
 	vendor.qti.qcril.am-V1.0-java \
-	vendor.xiaomi.hardware.displayfeature-V1.0-java
+	vendor.xiaomi.hardware.displayfeature-V1.0-java\
+    QcRilAm
 
 PRODUCT_COPY_FILES += \
 	device/phh/treble/interfaces.xml:system/etc/permissions/interfaces.xml
 
+# GammaOS Customizations
 PRODUCT_COPY_FILES += \
-	device/phh/treble/files/samsung-gpio_keys.kl:system/phh/samsung-gpio_keys.kl \
-	device/phh/treble/files/samsung-sec_touchscreen.kl:system/phh/samsung-sec_touchscreen.kl \
-	device/phh/treble/files/samsung-sec_touchkey.kl:system/phh/samsung-sec_touchkey.kl \
-	device/phh/treble/files/oneplus6-synaptics_s3320.kl:system/phh/oneplus6-synaptics_s3320.kl \
-	device/phh/treble/files/huawei-fingerprint.kl:system/phh/huawei/fingerprint.kl \
-	device/phh/treble/files/samsung-sec_e-pen.idc:system/usr/idc/sec_e-pen.idc \
-	device/phh/treble/files/samsung-9810-floating_feature.xml:system/ph/sam-9810-flo_feat.xml \
-	device/phh/treble/files/mimix3-gpio-keys.kl:system/phh/mimix3-gpio-keys.kl \
-	device/phh/treble/files/nokia-soc_gpio_keys.kl:system/phh/nokia-soc_gpio_keys.kl \
-	device/phh/treble/files/lenovo-synaptics_dsx.kl:system/phh/lenovo-synaptics_dsx.kl \
-	device/phh/treble/files/oppo-touchpanel.kl:system/phh/oppo-touchpanel.kl \
-	device/phh/treble/files/google-uinput-fpc.kl:system/phh/google-uinput-fpc.kl \
-	device/phh/treble/files/moto-uinput-egis.kl:system/phh/moto-uinput-egis.kl \
-	device/phh/treble/files/daisy-buttonJack.kl:system/phh/daisy-buttonJack.kl \
-	device/phh/treble/files/daisy-uinput-fpc.kl:system/phh/daisy-uinput-fpc.kl \
-	device/phh/treble/files/daisy-uinput-goodix.kl:system/phh/daisy-uinput-goodix.kl \
-	device/phh/treble/files/nubia-nubia_synaptics_dsx.kl:system/phh/nubia-nubia_synaptics_dsx.kl \
-	device/phh/treble/files/nubia-nubia_goodix_ts.kl:system/phh/nubia-nubia_goodix_ts.kl \
-	device/phh/treble/files/unihertz-mtk-kpd.kl:system/phh/unihertz-mtk-kpd.kl \
-	device/phh/treble/files/unihertz-mtk-tpd.kl:system/phh/unihertz-mtk-tpd.kl \
-	device/phh/treble/files/unihertz-mtk-tpd-kpd.kl:system/phh/unihertz-mtk-tpd-kpd.kl \
-	device/phh/treble/files/unihertz-fingerprint_key.kl:system/phh/unihertz-fingerprint_key.kl \
-	device/phh/treble/files/zf6-goodixfp.kl:system/phh/zf6-goodixfp.kl \
-	device/phh/treble/files/zf6-googlekey_input.kl:system/phh/zf6-googlekey_input.kl \
-	device/phh/treble/files/teracube2e-mtk-kpd.kl:system/phh/teracube2e-mtk-kpd.kl \
-	device/phh/treble/files/bv9500plus-mtk-kpd.kl:system/phh/bv9500plus-mtk-kpd.kl \
-	device/phh/treble/files/moto-liber-gpio-keys.kl:system/phh/moto-liber-gpio-keys.kl \
-	device/phh/treble/files/tecno-touchpanel.kl:system/phh/tecno-touchpanel.kl \
-	device/phh/treble/files/rosemary-excluded-input-devices.xml:system/phh/rosemary-excluded-input-devices.xml
+    gammaos/utils/xz:system/bin/xz \
+    gammaos/utils/com.gamma.analogcalibrator.apk:system/app/GammaAnalog/com.gamma.analogcalibrator.apk \
+    gammaos/utils/inotifywait:system/bin/inotifywait \
+    gammaos/utils/firefox-fenix-139.0.multi.android-arm64-v8a.apk:system/etc/firefox-fenix-139.0.multi.android-arm64-v8a.apk \
+    gammaos/customization.sh:system/bin/customization.sh \
+    gammaos/magisk/magisk.apk:system/etc/magisk.apk \
+    gammaos/magisk/magisk.tar.gz:system/etc/magisk.tar.gz \
+    gammaos/magisk/magisk2.tar.gz:system/etc/magisk2.tar.gz \
+    gammaos/retroarch/RetroArch_aarch64.apk:system/etc/RetroArch_aarch64.apk \
+    gammaos/retroarch/retroarch.tar.xz:system/etc/retroarch.tar.xz \
+    gammaos/retroarch/roms.tar.xz:system/etc/roms.tar.xz \
+    gammaos/setup.sh:system/bin/setup.sh \
+    gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
+    gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
+    gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \
+    gammaos/daijisho/daijisho412.apk.xz:system/etc/daijisho412.apk.xz \
+    gammaos/daijisho/daijisho.tar.xz:system/etc/daijisho.tar.xz \
+    gammaos/emulators/drastic.tar.gz:system/etc/drastic.tar.gz \
+    gammaos/emulators/drastic_r2.6.0.4a.apk:system/etc/drastic_r2.6.0.4a.apk \
+    gammaos/emulators/mupen64plusae.tar.gz:system/etc/mupen64plusae.tar.gz \
+    gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
+    gammaos/emulators/ppsspp.tar.xz:system/etc/ppsspp.tar.xz \
+    gammaos/emulators/ppsspp_1.18.1.apk:system/etc/ppsspp_1.18.1.apk \
+    gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
 SELINUX_IGNORE_NEVERALLOWS := true
 
@@ -161,18 +162,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_COPY_FILES += \
 	device/phh/treble/files/adbd.rc:system/etc/init/adbd.rc
-
-#MTK incoming SMS fix
-PRODUCT_PACKAGES += \
-	mtk-sms-fwk-ready
-
-# Helper to debug Xiaomi motorized camera
-PRODUCT_PACKAGES += \
-	xiaomi-motor \
-	oneplus-motor
-
-PRODUCT_PACKAGES += \
-	Stk
 
 PRODUCT_PACKAGES += \
 	resetprop_phh
@@ -190,9 +179,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
         device/phh/treble/ld.config.26.txt:system/etc/ld.config.26.txt \
 
-PRODUCT_PACKAGES += \
-    asus-motor
-
 # Privapp-permissions whitelist for PhhTrebleApp
 PRODUCT_COPY_FILES += \
 	device/phh/treble/privapp-permissions-me.phh.treble.app.xml:system/etc/permissions/privapp-permissions-me.phh.treble.app.xml
@@ -202,10 +188,6 @@ PRODUCT_COPY_FILES += \
 	device/phh/treble/remote/dbclient:system/bin/dbclient \
 	device/phh/treble/remote/phh-remotectl.rc:system/etc/init/phh-remotectl.rc \
 	device/phh/treble/remote/phh-remotectl.sh:system/bin/phh-remotectl.sh \
-
-PRODUCT_PACKAGES += \
-	android.hardware.biometrics.fingerprint@2.1-service.oppo.compat \
-	android.hardware.biometrics.fingerprint@2.1-service.oplus.compat \
 
 PRODUCT_PACKAGES += \
 	vr_hwc \
@@ -224,21 +206,6 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PACKAGES += \
     NavigationBarMode2ButtonOverlay
 
-PRODUCT_PACKAGES += \
-	oplus-alert-slider
-
-PRODUCT_COPY_FILES += \
-	device/phh/treble/empty:system/etc/smartpa_params/empty \
-	device/phh/treble/proprietary-files/gome/fs16xx_01s_left.preset:system/phh/gome/fs16xx_01s_left.preset \
-	device/phh/treble/proprietary-files/gome/fs16xx_01s_mono.preset:system/phh/gome/fs16xx_01s_mono.preset \
-	device/phh/treble/proprietary-files/gome/fs16xx_01s_right.preset:system/phh/gome/fs16xx_01s_right.preset \
-	device/phh/treble/proprietary-files/umidigi/fs16xx_01s_mono.preset:system/phh/umidigi/fs16xx_01s_mono.preset
-
-PRODUCT_PACKAGES += phh-ota
-
-PRODUCT_PACKAGES += \
-    xiaomi-touch
-
 PRODUCT_COPY_FILES += \
 	frameworks/av/services/audiopolicy/config/a2dp_audio_policy_configuration_7_0.xml:system/etc/a2dp_audio_policy_configuration_7_0.xml \
 	frameworks/av/services/audiopolicy/config/a2dp_audio_policy_configuration.xml:system/etc/a2dp_audio_policy_configuration.xml \
@@ -252,15 +219,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	evgrab \
 
-# QCOM in-call audio fix as a standalone app
 PRODUCT_PACKAGES += \
-    QcRilAm
-
-PRODUCT_PACKAGES += \
-	slsi-booted \
-	Iwlan \
-	QualifiedNetworksService \
-	MtkInCallService \
+	slsi-booted
 
 # Two-pane layout in Settings
 $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)

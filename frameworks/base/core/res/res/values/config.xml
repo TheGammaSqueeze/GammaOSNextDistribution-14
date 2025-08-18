@@ -898,15 +898,15 @@
              1 - MODE_NIGHT_NO
              2 - MODE_NIGHT_YES
     -->
-    <integer name="config_defaultNightMode">1</integer>
+    <integer name="config_defaultNightMode">2</integer>
 
     <!-- Boolean indicating whether the HWC setColorTransform function can be performed efficiently
          in hardware. -->
-    <bool name="config_setColorTransformAccelerated">false</bool>
+    <bool name="config_setColorTransformAccelerated">true</bool>
 
     <!-- Boolean indicating whether the HWC setColorTransform function can be performed efficiently
          in hardware for individual layers. -->
-    <bool name="config_setColorTransformAcceleratedPerLayer">false</bool>
+    <bool name="config_setColorTransformAcceleratedPerLayer">true</bool>
 
     <!-- Control whether Night display is available. This should only be enabled on devices
          that have a HWC implementation that can apply the matrix passed to setColorTransform
@@ -1186,7 +1186,7 @@
             0 - Nothing
             1 - Go to voice assist
     -->
-    <integer name="config_longPressOnBackBehavior">0</integer>
+    <integer name="config_longPressOnBackBehavior">11</integer>
 
     <!-- Allows activities to be launched on a long press on power during device setup. -->
     <bool name="config_allowStartActivityForLongPressOnPowerInSetup">false</bool>
@@ -1422,7 +1422,7 @@
     <integer name="config_shutdownBatteryTemperature">680</integer>
 
     <!-- Shutdown if battery is critically low and the device is not powered. -->
-    <bool name="config_shutdownIfNoPower">true</bool>
+    <bool name="config_shutdownIfNoPower">false</bool>
 
     <!-- Display low battery warning when battery level dips to this value -->
     <integer name="config_lowBatteryWarningLevel">20</integer>
@@ -2807,11 +2807,11 @@
 
     <!-- Control whether the pickup gesture is enabled by default. This value will be used
      during initialization when the setting is still null. -->
-    <bool name="config_dozePickupGestureEnabled">true</bool>
+    <bool name="config_dozePickupGestureEnabled">false</bool>
 
     <!-- Control whether the always on display mode is enabled by default. This value will be used
          during initialization when the setting is still null. -->
-    <bool name="config_dozeAlwaysOnEnabled">true</bool>
+    <bool name="config_dozeAlwaysOnEnabled">false</bool>
 
     <!-- If AOD can show an ambient version of the wallpaper -->
     <bool name="config_dozeSupportsAodWallpaper">true</bool>
@@ -3150,11 +3150,11 @@
 
     <!-- When true use the linux /dev/input/event subsystem to detect the switch changes
          on the headphone/microphone jack. When false use the older uevent framework. -->
-    <bool name="config_useDevInputEventForAudioJack">false</bool>
+    <bool name="config_useDevInputEventForAudioJack">true</bool>
 
     <!-- Whether safe headphone hearing is enforced by any regulation (e.g.
          EN50332-3, EN50332-2) or not (country specific). -->
-    <bool name="config_safe_media_volume_enabled">true</bool>
+    <bool name="config_safe_media_volume_enabled">false</bool>
 
     <!-- Whether safe headphone sound dosage warning is enabled or not.
          This value should only be overlaid to true when a vendor supports
@@ -4181,7 +4181,7 @@
          PackageManager.FEATURE_FREEFORM_WINDOW_MANAGEMENT feature to your device specification.
          The duplication is necessary, because this information is used before the features are
          available to the system.-->
-    <bool name="config_freeformWindowManagement">false</bool>
+    <bool name="config_freeformWindowManagement">true</bool>
 
     <!-- If set, this will force all windows to draw the status bar background, including the apps
          that have not requested doing so (via the WindowManager.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
@@ -4195,7 +4195,7 @@
              opaque.
          2 - Nav bar is never forced opaque.
          -->
-    <integer name="config_navBarOpacityMode">0</integer>
+    <integer name="config_navBarOpacityMode">2</integer>
 
     <!-- Controls the navigation bar interaction mode:
          0: 3 button mode (back, home, overview buttons)
@@ -4205,7 +4205,7 @@
 
     <!-- Controls whether the nav bar can move from the bottom to the side in landscape.
          Only applies if the device display is not square. -->
-    <bool name="config_navBarCanMove">true</bool>
+    <bool name="config_navBarCanMove">false</bool>
 
     <!-- Controls whether the navigation bar lets through taps. -->
     <bool name="config_navBarTapThrough">false</bool>
@@ -4236,7 +4236,7 @@
 
     <!-- Controls whether seamless rotation should be allowed even though the navbar can move
          (which normally prevents seamless rotation). -->
-    <bool name="config_allowSeamlessRotationDespiteNavBarMoving">false</bool>
+    <bool name="config_allowSeamlessRotationDespiteNavBarMoving">true</bool>
 
     <!-- Controls whether hints for gestural navigation are shown when the device is setup.
          This should only be set when the device has gestural navigation enabled by default. -->
@@ -4315,7 +4315,7 @@
          unit where there are hardware mechanisms to protect the device (physical keys) and not
          much in the way of user data.
     -->
-    <bool name="config_strongAuthRequiredOnBoot">true</bool>
+    <bool name="config_strongAuthRequiredOnBoot">false</bool>
 
     <!-- Wallpaper cropper package. Used as the default cropper if the active launcher doesn't
          handle wallpaper cropping.
@@ -4342,7 +4342,7 @@
              screen (smallest width >= {@link WindowManager#LARGE_SCREEN_SMALLEST_SCREEN_WIDTH_DP}).
           1: The device always supports non-resizable in multi windowing modes.
     -->
-    <integer name="config_supportsNonResizableMultiWindow">0</integer>
+    <integer name="config_supportsNonResizableMultiWindow">1</integer>
 
     <!-- Whether the device checks the activity min width/height to determine if it can be shown in
          multi windowing modes.
@@ -4356,7 +4356,7 @@
              modes dimensions {@link config_minPercentageMultiWindowSupportWidth} the device
              supports to determine if the activity can be shown in multi windowing modes.
     -->
-    <integer name="config_respectsActivityMinWidthHeightMultiWindow">0</integer>
+    <integer name="config_respectsActivityMinWidthHeightMultiWindow">-1</integer>
 
     <!-- This value is only used when the device checks activity min height to determine if it
          can be shown in multi windowing modes.
@@ -5022,13 +5022,13 @@
     <string name="config_mediaProjectionPermissionDialogComponent" translatable="false">com.android.systemui/com.android.systemui.mediaprojection.permission.MediaProjectionPermissionActivity</string>
 
     <!-- Corner radius of system dialogs -->
-    <dimen name="config_dialogCornerRadius">28dp</dimen>
+    <dimen name="config_dialogCornerRadius">2dp</dimen>
     <!-- Corner radius of system buttons -->
-    <dimen name="config_buttonCornerRadius">4dp</dimen>
+    <dimen name="config_buttonCornerRadius">2dp</dimen>
     <!-- Corner radius for bottom sheet system dialogs -->
-    <dimen name="config_bottomDialogCornerRadius">16dp</dimen>
+    <dimen name="config_bottomDialogCornerRadius">2dp</dimen>
     <!-- Corner radius of system progress bars -->
-    <dimen name="config_progressBarCornerRadius">1000dp</dimen>
+    <dimen name="config_progressBarCornerRadius">0dp</dimen>
     <!-- Controls whether system buttons use all caps for text -->
     <bool name="config_buttonTextAllCaps">true</bool>
     <!-- Name of the font family used for system surfaces where the font should use medium weight -->
@@ -5947,13 +5947,13 @@
 
     <!-- Blur radius for the Option 3 in R.integer.config_letterboxBackgroundType. Values < 0 are
         ignored and 0 is used. -->
-    <dimen name="config_letterboxBackgroundWallpaperBlurRadius">38dp</dimen>
+    <dimen name="config_letterboxBackgroundWallpaperBlurRadius">31dp</dimen>
 
     <!-- Alpha of a black translucent scrim showed over wallpaper letterbox background when
         the Option 3 is selected for R.integer.config_letterboxBackgroundType.
         Values < 0 or >= 1 are ignored and 0.0 (transparent) is used instead. -->
     <item name="config_letterboxBackgroundWallaperDarkScrimAlpha" format="float" type="dimen">
-        0.54
+        0.5
     </item>
 
     <!-- Corners appearance of the letterbox background.
@@ -6129,7 +6129,7 @@
     <string name="config_globalAppSearchDataQuerierPackage" translatable="false"></string>
 
     <!-- If true, attach the navigation bar to the app during app transition -->
-    <bool name="config_attachNavBarToAppDuringTransition">false</bool>
+    <bool name="config_attachNavBarToAppDuringTransition">true</bool>
 
     <!-- Flag indicating that the media framework should play a back sound when a back-transition
          happens that doesn't result in bringing the home task to the front.
@@ -6421,7 +6421,7 @@
     <!-- Default value for Settings.ASSIST_LONG_PRESS_HOME_ENABLED -->
     <bool name="config_assistLongPressHomeEnabledDefault">true</bool>
     <!-- Default value for Settings.ASSIST_TOUCH_GESTURE_ENABLED -->
-    <bool name="config_assistTouchGestureEnabledDefault">true</bool>
+    <bool name="config_assistTouchGestureEnabledDefault">false</bool>
 
     <!-- Default value for Settings.SEARCH_PRESS_HOLD_NAV_HANDLE_ENABLED -->
     <bool name="config_searchPressHoldNavHandleEnabledDefault">true</bool>
@@ -6640,13 +6640,13 @@
     <bool name="config_enableSafetyCenter">true</bool>
 
     <!-- Config for whether Safety Protection is enabled. -->
-    <bool name="config_safetyProtectionEnabled">true</bool>
+    <bool name="config_safetyProtectionEnabled">false</bool>
 
     <!-- Flag indicating if help links for Settings app should be enabled. -->
     <bool name="config_settingsHelpLinksEnabled">false</bool>
 
     <!-- Whether or not to enable the lock screen entry point for the QR code scanner. -->
-    <bool name="config_enableQrCodeScannerOnLockScreen">true</bool>
+    <bool name="config_enableQrCodeScannerOnLockScreen">false</bool>
 
     <!-- Default component for QR code scanner -->
     <string name="config_defaultQrCodeComponent"></string>

@@ -83,12 +83,42 @@
                 lineage:defaultValue="1.00"
                 lineage:digits="4" />
 
+        <!-- Saturation Slider -->
+        <TextView android:id="@+id/color_saturation_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/color_blue_seekbar"
+            android:text="@string/color_saturation_title"
+            android:paddingTop="10dip" />
+        <TextView android:id="@+id/color_saturation_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/color_blue_seekbar"
+            android:layout_alignParentRight="true"
+            android:paddingTop="10dip" />
+        <org.lineageos.lineageparts.widget.IntervalSeekBar
+            android:id="@+id/color_saturation_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/color_saturation_text"
+            android:paddingTop="2dip"
+            lineage:minValue="0.1"
+            lineage:maxValue="2.0"
+            lineage:defaultValue="1.0"
+            lineage:digits="4" />
+        <!-- Grayscale preview bar: place it *below saturation* to avoid overlap -->
         <ImageView android:id="@+id/black_scale_picture_color"
                 android:src="@drawable/color_tuning_preview"
                 android:layout_width="match_parent"
                 android:layout_height="40dip"
-                android:layout_below="@id/color_blue_seekbar"
+                android:layout_below="@id/color_saturation_seekbar"
                 android:paddingTop="20dip" />
 
+        <!-- Rainbow preview bar: lives under the grayscale bar -->
+        <ImageView android:id="@+id/rainbow_scale_picture_color"
+                android:layout_width="match_parent"
+                android:layout_height="40dip"
+                android:layout_below="@id/black_scale_picture_color"
+                android:layout_marginTop="8dip" />
     </RelativeLayout>
 </ScrollView>

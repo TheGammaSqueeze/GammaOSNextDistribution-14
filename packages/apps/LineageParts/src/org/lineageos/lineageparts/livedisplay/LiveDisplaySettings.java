@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2015 The CyanogenMod Project
- * SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+ * SPDX-License-Identifier: 2015 The CyanogenMod Project
+ * SPDX-License-Identifier: 2017-2023 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
 package org.lineageos.lineageparts.livedisplay;
@@ -18,7 +18,10 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
-import androidx.preference.SwitchPreferenceCompat;
+import androidx.preference.SwitchPreference;
+import androidx.preference.TwoStatePreference;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.internal.util.ArrayUtils;
 
@@ -91,8 +94,8 @@ public class LiveDisplaySettings extends SettingsPreferenceFragment implements S
 
     private ListPreference mLiveDisplay;
 
-    private SwitchPreferenceCompat mOutdoorMode;
-    private SwitchPreferenceCompat mReadingMode;
+    private TwoStatePreference mOutdoorMode;
+    private TwoStatePreference mReadingMode;
 
     private DisplayTemperature mDisplayTemperature;
 
@@ -107,6 +110,7 @@ public class LiveDisplaySettings extends SettingsPreferenceFragment implements S
     private LiveDisplayManager mLiveDisplayManager;
 
     private LineageHardwareManager mHardware;
+    private RecyclerView mRecyclerView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -212,13 +216,13 @@ public class LiveDisplaySettings extends SettingsPreferenceFragment implements S
             mReadingMode.setOnPreferenceChangeListener(this);
         }
 
-        SwitchPreferenceCompat lowPower = findPreference(KEY_LIVE_DISPLAY_LOW_POWER);
+        TwoStatePreference lowPower = findPreference(KEY_LIVE_DISPLAY_LOW_POWER);
         if (advancedPrefs != null && lowPower != null
                 && !config.hasFeature(FEATURE_CABC)) {
             advancedPrefs.removePreference(lowPower);
         }
 
-        SwitchPreferenceCompat colorEnhancement = findPreference(KEY_LIVE_DISPLAY_COLOR_ENHANCE);
+        TwoStatePreference colorEnhancement = findPreference(KEY_LIVE_DISPLAY_COLOR_ENHANCE);
         if (advancedPrefs != null && colorEnhancement != null
                 && !config.hasFeature(FEATURE_COLOR_ENHANCEMENT)) {
             advancedPrefs.removePreference(colorEnhancement);
@@ -236,11 +240,36 @@ public class LiveDisplaySettings extends SettingsPreferenceFragment implements S
             advancedPrefs.removePreference(misplayColor);
         }
 
-        SwitchPreferenceCompat antiFlicker = findPreference(KEY_LIVE_DISPLAY_ANTI_FLICKER);
+        TwoStatePreference antiFlicker = findPreference(KEY_LIVE_DISPLAY_ANTI_FLICKER);
         if (liveDisplayPrefs != null && antiFlicker != null &&
                 !mHardware.isSupported(LineageHardwareManager.FEATURE_ANTI_FLICKER)) {
             liveDisplayPrefs.removePreference(antiFlicker);
         }
+
+        mRecyclerView = getListView();
+        if (mRecyclerView != null) {
+            setupFocusChangeListener();
+        }
+    }
+
+    private void setupFocusChangeListener() {
+        // Set layout manager and padding
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        int paddingBottom = getResources().getDimensionPixelSize(R.dimen.recycler_bottom_padding);
+        mRecyclerView.setPadding(0, 0, 0, paddingBottom);
+        mRecyclerView.setClipToPadding(false);
+
+        // Add global focus change listener to handle scrolling
+        mRecyclerView.getViewTreeObserver().addOnGlobalFocusChangeListener((oldFocus, newFocus) -> {
+            if (newFocus != null) {
+                int position = mRecyclerView.getChildAdapterPosition(newFocus);
+                if (position != RecyclerView.NO_POSITION) {
+                    // Scroll with an offset to ensure visibility
+                    ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+                        .scrollToPositionWithOffset(position, paddingBottom);
+                }
+            }
+        });
     }
 
     @Override

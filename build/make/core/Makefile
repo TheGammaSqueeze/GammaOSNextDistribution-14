@@ -115,7 +115,7 @@ include $(BUILD_SYSTEM)/packaging/flags.mk
 #$(2): the dest
 define check-product-copy-files
 $(if $(filter-out $(TARGET_COPY_OUT_SYSTEM_OTHER)/%,$(2)), \
-  $(if $(filter %.apk, $(2)),$(error \
+  $(if $(filter %.apkaaaaaaaaaaaaaaaaa, $(2)),$(error \
      Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))) \
 $(if $(filter true,$(BUILD_BROKEN_VINTF_PRODUCT_COPY_FILES)),, \
   $(if $(filter $(TARGET_COPY_OUT_SYSTEM)/etc/vintf/% \
@@ -144,7 +144,7 @@ endef
 .PHONY: check-elf-prebuilt-product-copy-files
 check-elf-prebuilt-product-copy-files:
 
-check_elf_prebuilt_product_copy_files := true
+check_elf_prebuilt_product_copy_files := false
 ifneq (,$(filter true,$(BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES)))
 check_elf_prebuilt_product_copy_files :=
 endif

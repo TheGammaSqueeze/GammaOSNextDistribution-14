@@ -2240,6 +2240,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KILL_APP:
                 ActionUtils.killForegroundApp(mContext, mCurrentUserId);
                 break;
+            case GO_HOME:
+                triggerVirtualKeypress(KeyEvent.KEYCODE_HOME);
+                break;
             default:
                 break;
         }

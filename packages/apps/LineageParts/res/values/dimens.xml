@@ -33,5 +33,6 @@
     <dimen name="package_list_padding_top">16dp</dimen>
 
     <dimen name="color_mode_preview_height">320dp</dimen>
+    <dimen name="recycler_bottom_padding">64dp</dimen>
 </resources>
 

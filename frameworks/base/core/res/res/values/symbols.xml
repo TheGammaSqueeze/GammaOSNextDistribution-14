@@ -5379,4 +5379,16 @@
   <!-- List of protected packages that require biometric authentication for modification -->
   <java-symbol type="array" name="config_biometric_protected_package_names" />
 
+  <java-symbol type="string" name="gammaos_performance_mode" />
+  <java-symbol type="string" name="gammaos_brightness_settings" />
+  <java-symbol type="string" name="gammaos_kill_app" />
+  <java-symbol type="string" name="gammaos_kill_all_background_apps" />
+  <java-symbol type="string" name="gammaos_kill_all_apps" />
+  <java-symbol type="string" name="gammaos_controller_options" />
+  <java-symbol type="string" name="gammaos_usb_options" />
+  <java-symbol type="layout" name="header_battery_status" />
+  <java-symbol type="id" name="battery_percentage" />
+  <java-symbol type="id" name="battery_icon" />
+  <java-symbol type="id" name="memory_usage" />
+  <java-symbol type="id" name="cpu_usage" />
 </resources>
