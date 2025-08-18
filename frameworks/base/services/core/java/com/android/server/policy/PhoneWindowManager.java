@@ -266,6 +266,8 @@ import org.lineageos.internal.util.ActionUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -741,6 +743,24 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     /* The number of steps between min and max brightness */
     private static final int BRIGHTNESS_STEPS = 10;
 
+    // New flag to indicate that brightness adjustment via volume keys is active.
+    private boolean mBackBrightnessMode = false;
+
+    // Track whether the back key is currently pressed.
+    private boolean mBackPressed = false;
+
+    // Flag indicating that a long press on the back key has been activated.
+    private boolean mBackLongPressActivated = false;
+
+    // Timer to count how long back button has been pressed
+    private long mBackDownTime = 0;
+    private boolean mRetroarchBlockOverride = false;
+
+    // The device id from which the BACK key event came.
+    private int mBackDeviceId = -1;
+    // The device id from which the non-BACK (combo) key was received (if different from BACK).
+    private int mRetroarchComboDeviceId = -1;
+
     SettingsObserver mSettingsObserver;
     ModifierShortcutManager mModifierShortcutManager;
     /** Currently fully consumed key codes per device */
@@ -1171,6 +1191,23 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // returns true if the key was handled and should not be passed to the user
     private boolean backKeyPress() {
         mLogger.count("key_back_press", 1);
+
+        // If retroarch override is enabled...
+        if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) == 1) {
+            // If a simultaneous physical key (from a joypad) was detected,
+            // do not trigger the F1 logic; just consume the event.
+            if (mRetroarchBlockOverride) {
+                mRetroarchBlockOverride = false; // reset for next round
+                return true; // consume the event without further processing
+            }
+            // Otherwise, if retroarch is the foreground app, send F1 on short press.
+            String fgApp = getForegroundAppPackageName();
+            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                triggerVirtualKeypress(KeyEvent.KEYCODE_F1);
+                return true; // event handled
+            }
+        }
+
         // Cache handled state
         boolean handled = mBackKeyHandled;
 
@@ -1642,6 +1679,23 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void backLongPress() {
+        // When retroarch override is enabled...
+        if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) == 1) {
+            // If the block flag is set due to a concurrent physical key, consume the event.
+            if (mRetroarchBlockOverride) {
+                mRetroarchBlockOverride = false;
+                return;
+            }
+            // If retroarch is foregrounded, send ESC on long press instead.
+            String fgApp = getForegroundAppPackageName();
+            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
+                return;
+            }
+        }
+        // Otherwise use the regular long press behavior.
+
+
         if (hasLongPressOnBackBehavior()) {
             mBackKeyHandled = true;
 
@@ -2196,6 +2250,126 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         im.injectInputEvent(downEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
         im.injectInputEvent(upEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+    }
+
+    /**
+     * Returns the package name of the current foreground app.
+     * (Uses getRunningTasks, which is allowed for system components.)
+     */
+    private String getForegroundAppPackageName() {
+        ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        java.util.List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+        if (tasks != null && !tasks.isEmpty() && tasks.get(0).topActivity != null) {
+            return tasks.get(0).topActivity.getPackageName();
+        }
+        return null;
+    }
+
+    private String readFile(String path) throws java.io.IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(path));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    private String findDevicePathByName(String deviceName) {
+        File inputDir = new File("/dev/input");
+        File[] eventFiles = inputDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.startsWith("event");
+            }
+        });
+
+        if (eventFiles != null) {
+            for (File eventFile : eventFiles) {
+                String eventFilePath = eventFile.getAbsolutePath();
+                // Build the sysfs path for this event device.
+                String sysfsPath = "/sys/class/input/" + eventFile.getName() + "/device/name";
+                try {
+                    String sysfsName = readFile(sysfsPath).trim();
+                    Log.d(TAG, "Found sysfs name for " + eventFilePath + ": " + sysfsName);
+                    if (sysfsName.equals(deviceName)) {
+                        return eventFilePath;
+                    }
+                } catch (java.io.IOException e) {
+                    Log.e(TAG, "Error reading " + sysfsPath, e);
+                }
+            }
+        }
+        return null;
+    }
+
+    private void sendBtnSelectDown(String devicePath) {
+        try {
+            // Send BTN_SELECT down: type 1 (EV_KEY), code 314, value 1
+            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 1");
+            // Follow with a synchronization event
+            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "Failed to send BTN_SELECT down event", e);
+        }
+    }
+
+    private void sendBtnSelectUp(String devicePath) {
+        try {
+            // Send BTN_SELECT up: type 1 (EV_KEY), code 314, value 0
+            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 0");
+            // Follow with a synchronization event
+            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "Failed to send BTN_SELECT up event", e);
+        }
+    }
+
+    private String getDevicePathForDeviceId(int deviceId) {
+        InputDevice device = InputManager.getInstance().getInputDevice(deviceId);
+        if (device != null) {
+            String deviceName = device.getName();
+            Log.d(TAG, "Target InputDevice name: " + deviceName + " (deviceId: " + deviceId + ")");
+            String devicePath = findDevicePathByName(deviceName);
+            if (devicePath != null) {
+                Log.d(TAG, "Found matching device path for target: " + devicePath);
+                return devicePath;
+            } else {
+                Log.e(TAG, "No matching event file found for device: " + deviceName);
+            }
+        } else {
+            Log.e(TAG, "InputDevice is null for device id: " + deviceId);
+        }
+        Log.e(TAG, "Falling back to /dev/input/event5 for target");
+        return "/dev/input/event5";
+    }
+
+    /**
+     * Adjusts the screen brightness by a fixed step.
+     * A positive direction increases brightness while a negative value decreases it.
+     */
+    private void adjustScreenBrightness(int direction) {
+        // Retrieve the brightness constraints from the PowerManager.
+        float minBrightness = mPowerManager.getBrightnessConstraint(
+                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+        float maxBrightness = mPowerManager.getBrightnessConstraint(
+                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+
+        // Use the default display for the brightness adjustment.
+        int defaultDisplayId = DEFAULT_DISPLAY;
+
+        // Retrieve the current brightness for the default display.
+        float currentBrightness = mDisplayManager.getBrightness(defaultDisplayId);
+
+        // Calculate the step size based on the total range and number of steps.
+        float step = (maxBrightness - minBrightness) / BRIGHTNESS_STEPS;
+
+        // Compute the new brightness value, clamped between the min and max.
+        float newBrightness = currentBrightness + (step * direction);
+        newBrightness = Math.max(minBrightness, Math.min(maxBrightness, newBrightness));
+
+        // Apply the new brightness value.
+        mDisplayManager.setBrightness(defaultDisplayId, newBrightness);
     }
 
     private void performKeyAction(Action action, KeyEvent event) {
@@ -3789,6 +3963,78 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             consumedKeys = new HashSet<>();
             mConsumedKeysForDevice.put(deviceId, consumedKeys);
         }
+
+        // === GammaOS customizations: BACK+VOLUME brightness and RetroArch combo ===
+        final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+        final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) != 0;
+
+        // Track BACK key state to enable combos and brightness adjustments.
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (down) {
+                if (mBackDownTime == 0) {
+                    mBackDownTime = event.getEventTime();
+                }
+                mBackPressed = true;
+                mBackDeviceId = event.getDeviceId();
+                mRetroarchComboDeviceId = -1;
+                if (longPress) {
+                    mBackLongPressActivated = true;
+                }
+            } else {
+                // On BACK key release, reset flags.
+                // Also release any synthesized BTN_SELECT for RetroArch combo.
+                int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
+                String devicePath = getDevicePathForDeviceId(targetDeviceId);
+                sendBtnSelectUp(devicePath);
+                mBackPressed = false;
+                mBackLongPressActivated = false;
+                mBackBrightnessMode = false;
+                mRetroarchBlockOverride = false;
+                mRetroarchComboDeviceId = -1;
+                mBackDeviceId = -1;
+            }
+        }
+
+        // If brightness mode is active, intercept back, home, F1, or ESC keys.
+        if (mBackBrightnessMode &&
+                (keyCode == KeyEvent.KEYCODE_BACK ||
+                 keyCode == KeyEvent.KEYCODE_HOME ||
+                 keyCode == KeyEvent.KEYCODE_F1 ||
+                 keyCode == KeyEvent.KEYCODE_ESCAPE)) {
+            if (keyCode == KeyEvent.KEYCODE_BACK && !down) {
+                mBackBrightnessMode = false;
+            }
+            return keyConsumed;
+        }
+
+        // Adjust brightness when holding BACK and pressing VOLUME keys (ignore long BACK press).
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+                && mBackPressed && !mBackLongPressActivated) {
+            if (!mBackBrightnessMode) {
+                mBackBrightnessMode = true;
+            }
+            if (down) {
+                int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
+                adjustScreenBrightness(direction);
+            }
+            return keyConsumed;
+        }
+
+        // RetroArch: treat BACK as SELECT when another physical key is pressed simultaneously.
+        if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) == 1) {
+            String fgApp = getForegroundAppPackageName();
+            if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
+                if (keyCode != KeyEvent.KEYCODE_BACK && mBackPressed && down) {
+                    if (event.getDeviceId() != mBackDeviceId) {
+                        mRetroarchComboDeviceId = event.getDeviceId();
+                    }
+                    int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
+                    String devicePath = getDevicePathForDeviceId(targetDeviceId);
+                    sendBtnSelectDown(devicePath);
+                }
+            }
+        }
+        // === End GammaOS customizations ===
 
         if (interceptSystemKeysAndShortcuts(focusedToken, event)
                 && event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
