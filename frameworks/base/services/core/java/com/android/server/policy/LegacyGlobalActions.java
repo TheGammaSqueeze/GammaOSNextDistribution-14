@@ -151,10 +151,16 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
     private Handler mMemoryHandler = new Handler(Looper.getMainLooper());
     private Runnable mMemoryUpdateRunnable;
-    private static final int MEMORY_UPDATE_INTERVAL = 1000; // 1 second
+    private static final int MEMORY_UPDATE_INTERVAL = 500; // 0.5 second
 
     private HashMap<Integer, Long> prevIdleTimes = new HashMap<>();
     private HashMap<Integer, Long> prevTotalTimes = new HashMap<>();
+
+    // Aggregated CPU tracking + smoothing
+    private long prevIdleAll = 0L;
+    private long prevTotalAll = 0L;
+    private float smoothedCpu = 0.0f;
+    private static final float CPU_EMA_ALPHA = 0.3f;
 
     /**
      * @param context everything needs a context :(
@@ -1507,56 +1513,58 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
                                 private float getAverageCpuUsage() {
                                         try {
                                                 java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader("/proc/stat"));
-                                                String line;
-                                                long totalIdleTime = 0;
-                                                long totalTotalTime = 0;
-                                                int coreCount = 0;
+                                                String line = reader.readLine();
+                                                float result = smoothedCpu;
 
-                                                while ((line = reader.readLine()) != null) {
-                                                        if (line.startsWith("cpu")) {
-                                                                // Skip the first line (aggregated CPU usage), and focus on individual cores
-                                                                if (line.startsWith("cpu ")) {
-                                                                        continue;
+                                                if (line != null && line.startsWith("cpu ")) {
+                                                        String[] tokens = line.trim().split("\\s+");
+                                                        // Expect at least: cpu user nice system idle iowait irq softirq [steal]
+                                                        if (tokens.length >= 8) {
+                                                                long user    = Long.parseLong(tokens[1]);
+                                                                long nice    = Long.parseLong(tokens[2]);
+                                                                long system  = Long.parseLong(tokens[3]);
+                                                                long idle    = Long.parseLong(tokens[4]);
+                                                                long iowait  = Long.parseLong(tokens[5]);
+                                                                long irq     = Long.parseLong(tokens[6]);
+                                                                long softirq = Long.parseLong(tokens[7]);
+                                                                long steal   = (tokens.length > 8) ? Long.parseLong(tokens[8]) : 0L;
+
+                                                                long idleAll  = idle + iowait; // treat iowait as idle
+                                                                long totalAll = user + nice + system + idle + iowait + irq + softirq + steal;
+
+                                                                if (prevTotalAll == 0L) {
+                                                                        // Prime the deltas on first read to avoid a bogus initial spike.
+                                                                        prevIdleAll  = idleAll;
+                                                                        prevTotalAll = totalAll;
+                                                                } else {
+                                                                        long diffIdle  = idleAll  - prevIdleAll;
+                                                                        long diffTotal = totalAll - prevTotalAll;
+
+                                                                        prevIdleAll  = idleAll;
+                                                                        prevTotalAll = totalAll;
+
+                                                                        if (diffTotal > 0) {
+                                                                                float sample = 100.0f * (diffTotal - diffIdle) / diffTotal;
+                                                                                // Initialize EMA on first computed sample for faster lock-on.
+                                                                                if (smoothedCpu == 0.0f) {
+                                                                                        smoothedCpu = sample;
+                                                                                } else {
+                                                                                        smoothedCpu = CPU_EMA_ALPHA * sample + (1.0f - CPU_EMA_ALPHA) * smoothedCpu;
+                                                                                }
+                                                                                result = smoothedCpu;
+                                                                        }
                                                                 }
-
-                                                                String[] tokens = line.split("\\s+");
-                                                                if (tokens.length < 8) {
-                                                                        continue; // Invalid line format, skip it
-                                                                }
-
-                                                                long idleTime = Long.parseLong(tokens[4]); // Idle time
-                                                                long totalTime = 0;
-
-                                                                for (int i = 1; i < tokens.length; i++) {
-                                                                        totalTime += Long.parseLong(tokens[i]);
-                                                                }
-
-                                                                // Calculate differences from the previous values for each core
-                                                                long prevIdle = prevIdleTimes.getOrDefault(coreCount, 0L);
-                                                                long prevTotal = prevTotalTimes.getOrDefault(coreCount, 0L);
-
-                                                                long diffIdle = idleTime - prevIdle;
-                                                                long diffTotal = totalTime - prevTotal;
-
-                                                                prevIdleTimes.put(coreCount, idleTime);
-                                                                prevTotalTimes.put(coreCount, totalTime);
-
-                                                                totalIdleTime += diffIdle;
-                                                                totalTotalTime += diffTotal;
-                                                                coreCount++;
                                                         }
                                                 }
-                                                reader.close();
 
-                                                if (coreCount > 0 && totalTotalTime > 0) {
-                                                        return 100.0f * (totalTotalTime - totalIdleTime) / totalTotalTime;
-                                                }
+                                                reader.close();
+                                                return result;
 
                                         } catch (Exception e) {
                                                 Log.e(TAG, "Failed to read CPU info", e);
                                         }
 
-                                        return 0.0f;
+                                        return smoothedCpu;
                                 }
                         };
                                 // Start the memory and CPU updates
