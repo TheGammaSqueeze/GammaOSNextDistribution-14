@@ -59,6 +59,13 @@ public class SetupWizardApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        android.content.res.Configuration cfg = getResources().getConfiguration();
+        cfg.uiMode = (cfg.uiMode & ~android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                | android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        cfg.uiMode = (cfg.uiMode & ~android.content.res.Configuration.UI_MODE_TYPE_MASK)
+                | android.content.res.Configuration.UI_MODE_TYPE_TELEVISION;
+        getResources().updateConfiguration(cfg, getResources().getDisplayMetrics());
         if (LOGV) {
             Log.v(TAG, "onCreate()");
         }

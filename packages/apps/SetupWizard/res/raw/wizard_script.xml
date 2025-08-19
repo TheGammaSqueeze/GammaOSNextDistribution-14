@@ -44,7 +44,7 @@
         <result wizard:action="sim_missing" wizard:name="skip" wizard:resultCode="1" />
         <result wizard:action="carrier_setup" />
     </WizardAction>
-    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.android.setupwizard.SIM_MISSING;end" id="sim_missing">
+    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.android.setupwizard.SIM_MISSING;end" id="sim_missing" enabled="false" enabled="false">
         <result wizard:action="esim_intro" wizard:name="esim" wizard:resultCode="101" />
         <result wizard:action="carrier_setup" wizard:name="esim_only" wizard:resultCode="102" />
     </WizardAction>
@@ -52,7 +52,7 @@
         <result wizard:action="carrier_setup" />
     </WizardAction>
     <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.android.setupwizard.ESIM_INTRO;end" id="esim_intro" />
-    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.android.setupwizard.CARRIER_SETUP;end" id="carrier_setup">
+    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.android.setupwizard.CARRIER_SETUP;end" id="carrier_setup" enabled="false">
         <result wizard:action="sim_setup" wizard:name="all_subscriptions_completed" wizard:resultCode="98765" />
         <result wizard:action="sim_setup" wizard:name="skip" wizard:resultCode="1" />
         <result wizard:action="carrier_setup" />
@@ -105,16 +105,16 @@
     <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.LINEAGE_RESTORE_BACKUP;end" id="oem_post_setup">
         <result wizard:action="device_specific" />
     </WizardAction>
-    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.DEVICE_SPECIFIC;end" id="device_specific">
+    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.DEVICE_SPECIFIC;end" id="device_specific" enabled="false" enabled="false">
         <result wizard:action="recovery_update" />
     </WizardAction>
-    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.LINEAGE_RECOVERY_UPDATE;end" id="recovery_update">
+    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.LINEAGE_RECOVERY_UPDATE;end" id="recovery_update" enabled="false" enabled="false">
         <result wizard:action="lineage_settings" />
     </WizardAction>
     <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.LINEAGE_SETTINGS;end" id="lineage_settings">
-        <result wizard:action="navigation_settings" />
-    </WizardAction>
-    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.NAVIGATION_SETTINGS;end" id="navigation_settings">
+                <result wizard:action="finish" />
+            </WizardAction>
+    <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.NAVIGATION_SETTINGS;end" id="navigation_settings" enabled="false" enabled="false">
         <result wizard:action="finish" />
     </WizardAction>
     <WizardAction wizard:uri="intent:#Intent;package=org.lineageos.setupwizard;action=org.lineageos.setupwizard.LINEAGE_SETUP_COMPLETE;end" id="finish">

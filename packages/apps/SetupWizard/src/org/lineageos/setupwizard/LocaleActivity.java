@@ -233,4 +233,20 @@ public class LocaleActivity extends BaseSetupWizardActivity {
             }
         });
     }
+@Override
+public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
+    switch (keyCode) {
+        case android.view.KeyEvent.KEYCODE_DPAD_CENTER:
+        case android.view.KeyEvent.KEYCODE_ENTER:
+        case android.view.KeyEvent.KEYCODE_BUTTON_A:
+            finish();
+            return true;
+        case android.view.KeyEvent.KEYCODE_BACK:
+        case android.view.KeyEvent.KEYCODE_BUTTON_B:
+            finish();
+            return true;
+    }
+    return super.onKeyDown(keyCode, event);
+}
+
 }

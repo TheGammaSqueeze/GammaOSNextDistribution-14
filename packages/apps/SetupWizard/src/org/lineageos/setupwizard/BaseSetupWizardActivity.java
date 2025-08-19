@@ -24,8 +24,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.KeyEvent;
 import android.widget.Button;
-
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -101,6 +103,46 @@ public abstract class BaseSetupWizardActivity extends AppCompatActivity implemen
             logActivityState("onResume");
         }
         super.onResume();
+    
+        __gammaosApplyImmersive();
+}
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) applyImmersive();
+    }
+
+    private void applyImmersive() {
+        final android.view.View decor = getWindow().getDecorView();
+        final WindowInsetsController ic = decor.getWindowInsetsController();
+        if (ic != null) {
+            ic.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+            ic.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+        // legacy flags fallback
+        final int flags = android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decor.setSystemUiVisibility(flags);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int code = event.getKeyCode();
+        switch (code) {
+            case KeyEvent.KEYCODE_BUTTON_A:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                // Always go forward on A/Center/Enter; consume both DOWN/UP.
+                if (event.getAction() == KeyEvent.ACTION_UP) onNavigateNext();
+                return true;
+            case KeyEvent.KEYCODE_BUTTON_B:
+            case KeyEvent.KEYCODE_BACK:
+                if (event.getAction() == KeyEvent.ACTION_UP) onBackPressed();
+                return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -358,4 +400,32 @@ public abstract class BaseSetupWizardActivity extends AppCompatActivity implemen
             return mWrappedContract.parseResult(resultCode, result);
         }
     }
+
+
+private void __gammaosApplyImmersive() {
+    final android.view.View decor = getWindow().getDecorView();
+    final int flags = android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+            | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+    decor.setSystemUiVisibility(flags);
+    decor.setOnSystemUiVisibilityChangeListener(visibility -> decor.setSystemUiVisibility(flags));
+}
+
+
+@Override
+public boolean onKeyDown(int keyCode, KeyEvent event) {
+    switch (keyCode) {
+        case KeyEvent.KEYCODE_DPAD_CENTER:
+        case KeyEvent.KEYCODE_ENTER:
+        case KeyEvent.KEYCODE_BUTTON_A:
+            onNavigateNext();
+            return true;
+        case KeyEvent.KEYCODE_BACK:
+        case KeyEvent.KEYCODE_BUTTON_B:
+            onBackPressed();
+            return true;
+    }
+    return super.onKeyDown(keyCode, event);
+}
+
 }

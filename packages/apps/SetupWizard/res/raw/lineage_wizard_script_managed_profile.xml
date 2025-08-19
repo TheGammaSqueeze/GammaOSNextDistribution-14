@@ -17,7 +17,7 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_RESTORE_BACKUP;end"
-        id="restore">
+        id="restore" enabled="false" enabled="false">
         <result wizard:action="location_settings" />
     </WizardAction>
 

@@ -5,11 +5,11 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <WizardScript xmlns:wizard="http://schemas.android.com/apk/res/com.google.android.setupwizard"
-    wizard:firstAction="bluetooth_setup">
+    wizard:firstAction="welcome">
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_BLUETOOTH_SETUP;end"
-        id="bluetooth_setup">
+        id="bluetooth_setup" enabled="false">
         <result wizard:action="welcome" />
     </WizardAction>
 
@@ -28,7 +28,7 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_SIM_MISSING;end"
-        id="sim_missing">
+        id="sim_missing" enabled="false" enabled="false">
         <result wizard:action="network_setup" />
     </WizardAction>
 
@@ -46,7 +46,7 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_RESTORE_BACKUP;end"
-        id="restore">
+        id="restore" enabled="false" enabled="false">
         <result wizard:action="location_settings" />
     </WizardAction>
 
@@ -58,37 +58,35 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.DEVICE_SPECIFIC;end"
-        id="device_specific">
+        id="device_specific" enabled="false" enabled="false">
         <result wizard:action="recovery_update" />
     </WizardAction>
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_RECOVERY_UPDATE;end"
-        id="recovery_update">
+        id="recovery_update" enabled="false" enabled="false">
         <result wizard:action="lineage_settings" />
     </WizardAction>
 
-    <WizardAction
-        wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_SETTINGS;end"
-        id="lineage_settings">
-        <result wizard:action="biometric_settings" />
-    </WizardAction>
+    
+        <result wizard:action="finish" />
+    
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_BIOMETRIC_SETTINGS;end"
-        id="biometric_settings">
+        id="biometric_settings" enabled="false" enabled="false">
         <result wizard:action="lockscreen_settings" />
     </WizardAction>
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_LOCKSCREEN_SETTINGS;end"
-        id="lockscreen_settings">
+        id="lockscreen_settings" enabled="false" enabled="false">
         <result wizard:action="navigation_settings" />
     </WizardAction>
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.NAVIGATION_SETTINGS;end"
-        id="navigation_settings">
+        id="navigation_settings" enabled="false" enabled="false">
         <result wizard:action="finish" />
     </WizardAction>
 
@@ -96,4 +94,7 @@
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_SETUP_COMPLETE;end"
         id="finish" />
 
+            <WizardAction wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_SETTINGS;end" id="lineage_settings">
+                <result wizard:action="finish" />
+            </WizardAction>
 </WizardScript>

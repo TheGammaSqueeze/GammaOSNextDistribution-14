@@ -16,7 +16,7 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_RESTORE_BACKUP;end"
-        id="restore">
+        id="restore" enabled="false" enabled="false">
         <result wizard:action="location_settings" />
     </WizardAction>
 
@@ -28,19 +28,19 @@
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_BIOMETRIC_SETTINGS;end"
-        id="biometric_settings">
+        id="biometric_settings" enabled="false" enabled="false">
         <result wizard:action="lockscreen_settings" />
     </WizardAction>
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_LOCKSCREEN_SETTINGS;end"
-        id="lockscreen_settings">
+        id="lockscreen_settings" enabled="false" enabled="false">
         <result wizard:action="navigation_settings" />
     </WizardAction>
 
     <WizardAction
         wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.NAVIGATION_SETTINGS;end"
-        id="navigation_settings">
+        id="navigation_settings" enabled="false" enabled="false">
         <result wizard:action="finish" />
     </WizardAction>
 

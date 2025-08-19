@@ -49,7 +49,7 @@
     </WizardAction>
     <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.google.android.setupwizard.NETWORK_TIMEOUT;end" id="network_unavailable" />
     <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.google.android.setupwizard.LOAD_ADD_ACCOUNT_INTENT;end" id="load_account_intent" />
-    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.google.android.setupwizard.ACCOUNT_SETUP;end" id="account_setup">
+    <WizardAction wizard:uri="intent:#Intent;package=com.google.android.setupwizard;action=com.google.android.setupwizard.ACCOUNT_SETUP;end" id="account_setup" enabled="false">
         <result wizard:action="no_account_flow" wizard:name="skip" wizard:resultCode="1" />
         <result wizard:action="rollback_auth_early_update" wizard:name="unintentional_cancel" wizard:resultCode="102" />
         <result wizard:action="oem_post_setup" wizard:name="dpm_user_complete" wizard:resultCode="111" />

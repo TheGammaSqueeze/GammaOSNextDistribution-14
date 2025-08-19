@@ -6,7 +6,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Setup Wizard</string>
-    <string name="os_name" translatable="false">LineageOS</string>
+    <string name="os_name" translatable="false">GammaOS</string>
 
     <string name="lineage_wizard_script_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/lineage_wizard_script</string>
     <string name="lineage_wizard_script_user_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/lineage_wizard_script_user</string>
@@ -22,7 +22,7 @@
     <string name="loading">Just a sec\u2026</string>
 
     <!-- Welcome page -->
-    <string name="setup_welcome_message">Welcome to <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_welcome_message">Welcome to <xliff:g id="name" example="GammaOS">%1$s</xliff:g></string>
     <string name="setup_managed_profile_welcome_message">Set up your work profile</string>
     <string name="emergency_call">Emergency call</string>
     <string name="accessibility_settings">Accessibility settings</string>
@@ -44,7 +44,7 @@
 
     <!-- Restore backup page -->
     <string name="intro_restore_title">Restore apps and data</string>
-    <string name="intro_restore_subtitle">If you have a Seedvault backup from <xliff:g id="name" example="LineageOS">%s</xliff:g> or any other OS, you can restore it here.</string>
+    <string name="intro_restore_subtitle">If you have a Seedvault backup from <xliff:g id="name" example="GammaOS">%s</xliff:g> or any other OS, you can restore it here.</string>
     <string name="intro_restore_button">Restore from backup</string>
 
     <!-- Location page -->
@@ -82,4 +82,16 @@
     <string name="theme_summary">Dark theme uses a black background to help keep battery alive longer on some screens</string>
     <string name="dark">Dark</string>
     <string name="light">Light</string>
+    <string name="setup_welcome_title">Welcome to GammaOS</string>
+<string name="gs_calibration">Controller calibration</string>
+<string name="gs_sens_0">Sens 0%</string>
+<string name="gs_sens_1">Sens +10%</string>
+<string name="gs_sens_2">Sens +25%</string>
+<string name="gs_sens_3">Sens +50%</string>
+<string name="gs_deadzone">Deadzone</string>
+<string name="gs_invert_left">Invert left</string>
+<string name="gs_invert_right">Invert right</string>
+<string name="gs_calibration_mode">Calibration mode</string>
+<string name="gs_reset">Reset</string>
+<string name="gs_continue">Continue</string>
 </resources>
