@@ -310,9 +310,15 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
             return mDp.stashedTaskbarHeight;
         }
 
-        // Align to bottom of task Rect.
-        return mDp.heightPx - mTaskSize.bottom - mDp.overviewActionsTopMarginPx
+        // Align to bottom of task Rect, but never below the system bars (e.g., 3-button nav).
+        final int bottomFromTask = mDp.heightPx - mTaskSize.bottom - mDp.overviewActionsTopMarginPx
                 - mDp.overviewActionsHeight;
+
+        // Ensure actions sit above any bottom system bar / taskbar area.
+        // Use the larger of actual bottom inset and the DP's claimed space.
+        final int claimedBelow = Math.max(mInsets.bottom, mDp.getOverviewActionsClaimedSpaceBelow());
+
+        return Math.max(bottomFromTask, claimedBelow);
     }
 
     /**

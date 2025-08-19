@@ -216,6 +216,8 @@ import com.android.systemui.shared.system.PackageManagerWrapper;
 import com.android.systemui.shared.system.TaskStackChangeListener;
 import com.android.systemui.shared.system.TaskStackChangeListeners;
 import com.android.wm.shell.common.pip.IPipAnimationListener;
+import android.view.InputDevice;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4230,6 +4232,14 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
         if (isHandlingTouch() || event.getAction() != KeyEvent.ACTION_DOWN) {
             return super.dispatchKeyEvent(event);
         }
+        // GammaOS: Ignore DPAD directional keys in overview to avoid joystick/D-Pad jitter
+        final int kc = event.getKeyCode();
+        if (kc == KeyEvent.KEYCODE_DPAD_LEFT
+                || kc == KeyEvent.KEYCODE_DPAD_RIGHT
+                || kc == KeyEvent.KEYCODE_DPAD_UP
+                || kc == KeyEvent.KEYCODE_DPAD_DOWN) {
+            return true;
+        }
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_TAB:
                 return snapToPageRelative(event.isShiftPressed() ? -1 : 1, true /* cycle */,
@@ -4254,6 +4264,20 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
                 }
         }
         return super.dispatchKeyEvent(event);
+    }
+    
+    /**
+     * GammaOS: Drop all joystick/gamepad generic motion so analog jitter (ABS_*) never nudges Recents.
+     * We still allow touch/trackpad/mouse generic motions to behave normally.
+     */
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent ev) {
+        final int source = ev.getSource();
+        if ((source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK
+                || (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
+            return true; // consume
+        }
+        return super.dispatchGenericMotionEvent(ev);
     }
 
     @Override

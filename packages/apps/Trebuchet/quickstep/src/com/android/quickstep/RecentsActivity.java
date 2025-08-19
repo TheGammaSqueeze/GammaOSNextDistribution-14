@@ -33,6 +33,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.app.ActivityOptions;
+import android.app.StatusBarManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -44,6 +45,9 @@ import android.view.RemoteAnimationAdapter;
 import android.view.RemoteAnimationTarget;
 import android.view.SurfaceControl.Transaction;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.window.RemoteTransition;
 import android.window.SplashScreen;
 
@@ -74,6 +78,8 @@ import com.android.launcher3.util.ActivityTracker;
 import com.android.launcher3.util.RunnableList;
 import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
+import com.android.launcher3.util.DisplayController;
+import com.android.launcher3.util.NavigationMode;
 import com.android.launcher3.views.BaseDragLayer;
 import com.android.launcher3.views.ScrimView;
 import com.android.quickstep.fallback.FallbackRecentsStateController;
@@ -125,6 +131,9 @@ public final class RecentsActivity extends StatefulActivity<RecentsState> {
     private SplitSelectStateController mSplitSelectStateController;
     @Nullable
     private DesktopRecentsTransitionController mDesktopRecentsTransitionController;
+
+    // GammaOS: manage immersive & temporarily suppress 3-button navbar while Recents is visible
+    private StatusBarManager mStatusBarManager;
 
     /**
      * Init drag layer and overview panel views.
@@ -341,6 +350,8 @@ public final class RecentsActivity extends StatefulActivity<RecentsState> {
 
     @Override
     protected void onStop() {
+        // GammaOS: ensure SystemUI restored in case activity stops directly
+        exitRecentsImmersive();
         super.onStop();
 
         // Workaround for b/78520668, explicitly trim memory once UI is hidden
@@ -353,12 +364,17 @@ public final class RecentsActivity extends StatefulActivity<RecentsState> {
     @Override
     protected void onResume() {
         super.onResume();
+        // GammaOS: keep Recents fully immersive and suppress 3-button navbar
+        enterRecentsImmersive();
         AccessibilityManagerCompat.sendStateEventToTest(getBaseContext(), OVERVIEW_STATE_ORDINAL);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // GammaOS: init StatusBarManager for navbar suppression in 3-button mode
+        mStatusBarManager = getSystemService(StatusBarManager.class);
 
         mStateManager = new StateManager<>(this, RecentsState.BG_LAUNCHER);
 
@@ -406,6 +422,8 @@ public final class RecentsActivity extends StatefulActivity<RecentsState> {
 
     @Override
     protected void onDestroy() {
+        // GammaOS: ensure SystemUI restored
+        exitRecentsImmersive();
         super.onDestroy();
         ACTIVITY_TRACKER.onActivityDestroyed(this);
         mActivityLaunchAnimationRunner = null;
@@ -502,5 +520,57 @@ public final class RecentsActivity extends StatefulActivity<RecentsState> {
     @NonNull
     public TISBindHelper getTISBindHelper() {
         return mTISBindHelper;
+    }
+    
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // GammaOS: re-assert immersive when focus returns
+            enterRecentsImmersive();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        // GammaOS: restore SystemUI when pausing
+        exitRecentsImmersive();
+        super.onPause();
+    }
+
+    // --- GammaOS helpers: immersive + navbar suppression in 3-button mode ---
+    /** Hide system bars and, when using 3-button navigation, disable nav keys so the bar disappears. */
+    private void enterRecentsImmersive() {
+        final Window w = getWindow();
+        final WindowInsetsController c = w != null ? w.getInsetsController() : null;
+        if (c != null) {
+            c.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            c.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+        }
+        if (DisplayController.getNavigationMode(this) == NavigationMode.THREE_BUTTONS
+                && mStatusBarManager != null) {
+            try {
+                int disable = StatusBarManager.DISABLE_BACK
+                        | StatusBarManager.DISABLE_HOME
+                        | StatusBarManager.DISABLE_RECENT;
+                mStatusBarManager.disable(disable);
+                mStatusBarManager.disable2(StatusBarManager.DISABLE2_QUICK_SETTINGS
+                        | StatusBarManager.DISABLE2_NOTIFICATION_SHADE);
+            } catch (Throwable ignored) { /* fallback to insets-only if not permitted */ }
+        }
+    }
+
+    /** Restore normal SystemUI visibility and buttons. */
+    private void exitRecentsImmersive() {
+        final WindowInsetsController c =
+                (getWindow() != null) ? getWindow().getInsetsController() : null;
+        if (c != null) c.show(WindowInsets.Type.systemBars());
+        if (mStatusBarManager != null) {
+            try {
+                mStatusBarManager.disable(0);
+                mStatusBarManager.disable2(0);
+            } catch (Throwable ignored) { }
+        }
     }
 }

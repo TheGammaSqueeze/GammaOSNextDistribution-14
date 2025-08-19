@@ -22,6 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.android.launcher3">
     <uses-sdk android:targetSdkVersion="33" android:minSdkVersion="30"/>
+    <uses-permission android:name="android.permission.STATUS_BAR"/>
     <!--
     Manifest entries specific to Launcher3. This is merged with AndroidManifest-common.xml.
     Refer comments around specific entries on how to extend individual components.
