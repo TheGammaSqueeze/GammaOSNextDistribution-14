@@ -189,6 +189,12 @@ public class TaskbarControllers {
         };
         mCornerRoundness.updateValue(TaskbarBackgroundRenderer.DEFAULT_ROUNDNESS);
 
+        // Ensure a UI controller is always initialized even if no activity has set one yet.
+        // This prevents NPEs when handling clicks before setUIController() is called.
+        uiController.init(this);
+        uiController.updateStateForSysuiFlags(mSharedState.sysuiStateFlags);
+        navbarButtonsViewController.onUiControllerChanged();
+
         mAreAllControllersInitialized = true;
         for (Runnable postInitCallback : mPostInitCallbacks) {
             postInitCallback.run();

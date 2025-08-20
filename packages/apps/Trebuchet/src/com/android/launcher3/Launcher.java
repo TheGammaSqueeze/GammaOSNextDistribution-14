@@ -1588,6 +1588,12 @@ public class Launcher extends StatefulActivity<LauncherState>
         TraceHelper.INSTANCE.beginSection(ON_NEW_INTENT_EVT);
         super.onNewIntent(intent);
 
+        // GammaOS: external trigger to open All Apps via adb
+        if (intent != null && "com.gammaos.action.OPEN_ALL_APPS".equals(intent.getAction())) {
+            getStateManager().goToState(LauncherState.ALL_APPS);
+            return;
+        }
+
         boolean alreadyOnHome = hasWindowFocus() && ((intent.getFlags() &
                 Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                 != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);

@@ -1126,7 +1126,12 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                             getSystemService(LauncherApps.class)
                                     .startShortcut(packageName, id, null, null, info.user);
                         } else {
-                            launchFromTaskbar(recents, view, Collections.singletonList(info));
+                            if (recents == null) {
+                                // No Recents available (e.g. default/fallback UI controller): start directly.
+                                startItemInfoActivity(info);
+                            } else {
+                                launchFromTaskbar(recents, view, Collections.singletonList(info));
+                            }
                         }
 
                     } catch (NullPointerException
