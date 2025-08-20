@@ -4017,15 +4017,27 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
      * Unconditionally hide split option for Go-enabled targets
      */
     private void updateCurrentTaskActionsVisibility() {
-        boolean isCurrentSplit = getCurrentPageTaskView() instanceof GroupedTaskView;
-        mActionsView.updateHiddenFlags(HIDDEN_SPLIT_SCREEN, isCurrentSplit);
+        final boolean isCurrentSplit = getCurrentPageTaskView() instanceof GroupedTaskView;
+
+        // Keep actions visible even when the focused task is a split pair.
+        // Previously this hid the entire actions view (Screenshot / Clear All / Split).
+        mActionsView.updateHiddenFlags(HIDDEN_SPLIT_SCREEN, /*enable=*/ false);
+
+        // Still hide actions during split-selection flow.
         mActionsView.updateHiddenFlags(HIDDEN_SPLIT_SELECT_ACTIVE, isSplitSelectionActive());
+
+        // Only govern visibility of the Split button based on device constraints;
+        // do NOT hide the whole actions row.
         mActionsView.updateSplitButtonHiddenFlags(FLAG_IS_NOT_TABLET,
-                !mActivity.getDeviceProfile().isTablet ||
-                getContext().getSystemService(ActivityManager.class).isLowRamDevice());
-        mActionsView.updateSplitButtonDisabledFlags(FLAG_SINGLE_TASK, /*enable=*/ false);
+                !mActivity.getDeviceProfile().isTablet
+                        || getContext().getSystemService(ActivityManager.class).isLowRamDevice());
+
+        // When a split pair is focused, disable the Split button (can’t split again),
+        // but keep Screenshot / Clear All accessible.
+        mActionsView.updateSplitButtonDisabledFlags(FLAG_SINGLE_TASK, /*enable=*/ isCurrentSplit);
+
         if (isDesktopModeSupported()) {
-            boolean isCurrentDesktop = getCurrentPageTaskView() instanceof DesktopTaskView;
+            final boolean isCurrentDesktop = getCurrentPageTaskView() instanceof DesktopTaskView;
             mActionsView.updateHiddenFlags(HIDDEN_DESKTOP, isCurrentDesktop);
         }
     }
