@@ -359,6 +359,14 @@ public class TaskbarViewController implements TaskbarControllers.LoggableTaskbar
             View iconView = iconViews[iconIndex];
             MultiTranslateDelegate translateDelegate =
                     ((Reorderable) iconView).getTranslateDelegate();
+            // Anchor All Apps at the far-left: no pinning translation, no special per-All-Apps offset.
+            if (iconView.equals(mTaskbarView.getAllAppsButtonView())) {
+                translateDelegate.getTranslationX(INDEX_TASKBAR_PINNING_ANIM).setValue(0f);
+                ((IconButtonView) iconView).setTranslationXForTaskbarAllAppsIcon(0f);
+                android.util.Log.d("GammaTaskbar",
+                        "TaskbarViewController: override AllApps translateX (pinning=0, special=0)");
+                continue;
+            }
             float iconCenterX =
                     iconView.getLeft() + (iconView.getRight() - iconView.getLeft()) / 2.0f;
             if (iconCenterX <= taskbarCenterX) {
@@ -367,11 +375,6 @@ public class TaskbarViewController implements TaskbarControllers.LoggableTaskbar
             } else {
                 translateDelegate.getTranslationX(INDEX_TASKBAR_PINNING_ANIM).setValue(
                         -finalMarginScale * (iconIndex - halfIconCount));
-            }
-
-            if (iconView.equals(mTaskbarView.getAllAppsButtonView()) && iconViews.length > 1) {
-                ((IconButtonView) iconView).setTranslationXForTaskbarAllAppsIcon(
-                        allAppIconTranslateRange);
             }
         }
     }

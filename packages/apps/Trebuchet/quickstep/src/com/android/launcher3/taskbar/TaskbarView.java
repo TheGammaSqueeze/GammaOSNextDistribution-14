@@ -401,7 +401,9 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
             }
         }
         if (mActivityContext.getDeviceProfile().isQsbInline) {
-            addView(mQsb, mIsRtl ? getChildCount() : 0);
+            // In LTR, keep All Apps truly far-left by inserting QSB after it (index 1 if All Apps exists).
+            // In RTL, preserve existing behavior (QSB at the visual right).
+            addView(mQsb, mIsRtl ? getChildCount() : (mAllAppsButton != null ? 1 : 0));
             // Always set QSB to invisible after re-adding.
             mQsb.setVisibility(View.INVISIBLE);
         }
@@ -488,12 +490,15 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
                 int qsbTop = (bottom - top - deviceProfile.hotseatQsbHeight) / 2;
                 int qsbBottom = qsbTop + deviceProfile.hotseatQsbHeight;
                 child.layout(qsbStart, qsbTop, qsbEnd, qsbBottom);
-            } else if (child == mTaskbarDivider) {
-                iconEnd += mItemMarginLeftRight;
-                int iconStart = iconEnd - mIconTouchSize;
-                child.layout(iconStart, mIconLayoutBounds.top, iconEnd, mIconLayoutBounds.bottom);
-                iconEnd = iconStart + mItemMarginLeftRight;
             } else {
+                // Default spacing per icon
+                if (child == mAllAppsButton && !layoutRtl) {
+                    // When All Apps is the far-left icon (LTR), create extra gap at the screen edge
+                    // by shifting this icon slightly right before applying the normal margin.
+                    int edgePad = getResources().getDimensionPixelSize(
+                            R.dimen.taskbar_all_apps_edge_padding);
+                    iconEnd += edgePad;
+                }
                 iconEnd -= mItemMarginLeftRight;
                 int iconStart = iconEnd - mIconTouchSize;
                 child.layout(iconStart, mIconLayoutBounds.top, iconEnd, mIconLayoutBounds.bottom);
@@ -509,6 +514,36 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
             mIconLayoutBounds.right = center + distanceFromCenter;
             mIconLayoutBounds.left = center - distanceFromCenter;
         }
+
+        // Ensure All Apps is pinned to the view's absolute far-left (screen-left) with edge padding.
+        // Run AFTER normal layout and min-width clamping so other icons keep their positions.
+        final boolean layoutRtlFinal = isLayoutRtl();
+        if (!layoutRtlFinal
+                && mAllAppsButton != null
+                && mAllAppsButton.getParent() == this
+                && mAllAppsButton.getVisibility() == VISIBLE) {
+            final int edgePad = getResources().getDimensionPixelSize(
+                    R.dimen.taskbar_all_apps_edge_padding);
+            // Local coordinates: 0 is this TaskbarView's left edge.
+            final int desiredLeft = getPaddingLeft() + edgePad;
+            final int topFinal = mIconLayoutBounds.top;
+            final int bottomFinal = mIconLayoutBounds.bottom;
+            final int rightFinal = desiredLeft + mIconTouchSize;
+
+            if (mAllAppsButton.getLeft() != desiredLeft) {
+                android.util.Log.d("GammaTaskbar",
+                        "TaskbarView: force AllApps to screen-left → oldLeft="
+                                + mAllAppsButton.getLeft()
+                                + " newLeft=" + desiredLeft
+                                + " pad=" + edgePad);
+                mAllAppsButton.layout(desiredLeft, topFinal, rightFinal, bottomFinal);
+            }
+            // Expand touch bounds so the tappable region includes the new All Apps position.
+            if (desiredLeft < mIconLayoutBounds.left) {
+                mIconLayoutBounds.left = desiredLeft;
+            }
+        }
+
 
         if (!sTmpRect.equals(mIconLayoutBounds)) {
             mControllerCallbacks.notifyIconLayoutBoundsChanged();
