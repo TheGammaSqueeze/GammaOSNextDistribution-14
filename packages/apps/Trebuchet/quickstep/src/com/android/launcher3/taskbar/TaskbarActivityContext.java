@@ -167,7 +167,6 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     private boolean mIsFullscreen;
     // The size we should return to when we call setTaskbarWindowFullscreen(false)
     private int mLastRequestedNonFullscreenSize;
-    private int mProvidedInsetBottom; // GammaOS
 
     private NavigationMode mNavMode;
     private boolean mImeDrawsImeNavBar;
@@ -518,7 +517,6 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 type,
                 windowFlags,
                 PixelFormat.TRANSLUCENT);
-        // --- GammaOS begin: match tappable/system gesture insets to full taskbar height ---
         windowLayoutParams.setTitle(title);
         windowLayoutParams.packageName = getPackageName();
         windowLayoutParams.gravity = Gravity.BOTTOM;
@@ -526,11 +524,6 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
         windowLayoutParams.receiveInsetsIgnoringZOrder = true;
         windowLayoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
         windowLayoutParams.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
-        // Provide insets equal to the taskbar window height we actually use so the entire
-        // bar is touchable (stops clicks passing through to legacy nav handlers).
-        mProvidedInsetBottom = mLastRequestedNonFullscreenSize;
-        setProvidedInsetsCompat(windowLayoutParams, mProvidedInsetBottom);
-        // --- GammaOS end ---
         windowLayoutParams.privateFlags =
                 WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
         windowLayoutParams.accessibilityTitle = getString(
@@ -595,35 +588,6 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 lp.width = mLastRequestedNonFullscreenSize;
                 lp.gravity = Gravity.START;
             }
-        }
-        // --- GammaOS: ensure per-rotation providedInsets match lp.height we set above ---
-        final int bottom = (lp.height == MATCH_PARENT)
-                ? mLastRequestedNonFullscreenSize : lp.height;
-        setProvidedInsetsCompat(lp, bottom);
-        // --- GammaOS end ---
-    }
-
-    /** Reflection helper: set LayoutParams.providedInsets without compile-time dependency. */
-    private static void setProvidedInsetsCompat(WindowManager.LayoutParams lp, int bottom) {
-        try {
-            Class<?> lpClass = WindowManager.LayoutParams.class;
-            Class<?> piClass = Class.forName("android.view.WindowManager$LayoutParams$ProvidedInsets");
-            java.lang.reflect.Constructor<?> ctor =
-                    piClass.getConstructor(android.graphics.Insets.class, int.class, int.class);
-            Object nav = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
-                    WindowInsets.Type.navigationBars(), 0);
-            Object tap = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
-                    WindowInsets.Type.tappableElement(), 0);
-            Object man = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
-                    WindowInsets.Type.mandatorySystemGestures(), 0);
-            Object array = java.lang.reflect.Array.newInstance(piClass, 3);
-            java.lang.reflect.Array.set(array, 0, nav);
-            java.lang.reflect.Array.set(array, 1, tap);
-            java.lang.reflect.Array.set(array, 2, man);
-            java.lang.reflect.Field f = lpClass.getField("providedInsets");
-            f.set(lp, array);
-        } catch (Throwable t) {
-            Log.w("GammaTaskbar", "ProvidedInsets not available; continuing without", t);
         }
     }
 
