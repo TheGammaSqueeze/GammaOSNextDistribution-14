@@ -244,7 +244,20 @@ public class NavigationBarControllerImpl implements
         }
     }
 
+    // GammaOS: Trebuchet advertises that it is hosting a phone-mode taskbar.
+    // When active, treat Taskbar as "initialized" even on phones so we don't create
+    // the legacy 3-button NavigationBar (and its input consumer) on the default display.
+    private boolean isGammaPhoneTaskbarActive(Context context) {
+        try {
+            return android.provider.Settings.Secure.getIntForUser(
+                    context.getContentResolver(), "gamma_taskbar_phone_active", 0,
+                    android.os.UserHandle.USER_CURRENT) == 1;
+        } catch (Throwable t) { return false; }
+    }
+
     private boolean shouldCreateNavBarAndTaskBar(Context context, int displayId) {
+        // GammaOS: if Launcher says phone-taskbar is active, allow Taskbar init and skip navbar.
+        if (isGammaPhoneTaskbarActive(context)) return true;
         if (displayId == mDisplayTracker.getDefaultDisplayId() &&
                 LineageSettings.System.getIntForUser(context.getContentResolver(),
                         LineageSettings.System.FORCE_SHOW_NAVBAR, 0,

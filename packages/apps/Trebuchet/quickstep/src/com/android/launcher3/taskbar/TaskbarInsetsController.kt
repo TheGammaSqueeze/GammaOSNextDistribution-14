@@ -98,7 +98,11 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
     }
 
     fun onTaskbarOrBubblebarWindowHeightOrInsetsChanged() {
-        val tappableHeight = controllers.taskbarStashController.tappableHeightToReportToApps
+        // GammaOS: in 3-button nav we want the entire taskbar window to be tappable,
+        // not just the tablet "icon band". Use window height for tappable insets.
+        val baseTappable = controllers.taskbarStashController.tappableHeightToReportToApps
+        val tappableHeight =
+            if (context.isThreeButtonNav) context.windowLayoutParams.height else baseTappable
         // We only report tappableElement height for unstashed, persistent taskbar,
         // which is also when we draw the rounded corners above taskbar.
         val insetsRoundedCornerFlag =
@@ -146,9 +150,13 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
                 iconBounds.bottom
             )
         } else {
+            // GammaOS: in 3-button nav, make the entire taskbar window clickable.
+            val taskbarTouchH =
+                if (context.isThreeButtonNav) windowLayoutParams.height
+                else controllers.taskbarStashController.touchableHeight
             defaultTouchableRegion.set(
                 0,
-                windowLayoutParams.height - touchableHeight,
+                windowLayoutParams.height - taskbarTouchH,
                 context.deviceProfile.widthPx,
                 windowLayoutParams.height
             )
@@ -207,7 +215,9 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
 
     private fun setProviderInsets(provider: InsetsFrameProvider, gravity: Int, endRotation: Int) {
         val contentHeight = controllers.taskbarStashController.contentHeightToReportToApps
-        val tappableHeight = controllers.taskbarStashController.tappableHeightToReportToApps
+        val baseTappable = controllers.taskbarStashController.tappableHeightToReportToApps
+        val tappableHeight =
+            if (context.isThreeButtonNav) windowLayoutParams.height else baseTappable
         val res = context.resources
         if (provider.type == navigationBars() || provider.type == mandatorySystemGestures()) {
             provider.insetsSize = getInsetsForGravityWithCutout(contentHeight, gravity, endRotation)

@@ -167,6 +167,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     private boolean mIsFullscreen;
     // The size we should return to when we call setTaskbarWindowFullscreen(false)
     private int mLastRequestedNonFullscreenSize;
+    private int mProvidedInsetBottom; // GammaOS
 
     private NavigationMode mNavMode;
     private boolean mImeDrawsImeNavBar;
@@ -364,6 +365,12 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     }
 
     public void init(@NonNull TaskbarSharedState sharedState) {
+        // GammaOS: signal SystemUI to suppress legacy navbar whenever 3-button nav is active,
+        // regardless of phone/tablet profile.
+        android.provider.Settings.Secure.putInt(getContentResolver(),
+                "gamma_taskbar_phone_active", isThreeButtonNav() ? 1 : 0);
+        android.util.Log.d("GammaTaskbar","Signalled SystemUI: 3-button taskbar ACTIVE? " + isThreeButtonNav());
+
         mImeDrawsImeNavBar = getBoolByName(IME_DRAWS_IME_NAV_BAR_RES_NAME, getResources(), false);
         mLastRequestedNonFullscreenSize = getDefaultTaskbarWindowSize();
         mWindowLayoutParams = createAllWindowParams();
@@ -433,7 +440,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 WindowInsetsCompat.toWindowInsetsCompat(insets, dragLayer.getRootView());
 
         if (insetsCompat.isVisible(WindowInsetsCompat.Type.ime())) {
-            Insets imeInsets = insetsCompat.getInsets(WindowInsetsCompat.Type.ime());
+            androidx.core.graphics.Insets imeInsets = insetsCompat.getInsets(WindowInsetsCompat.Type.ime());
             return imeInsets.bottom >= getResources().getDimensionPixelSize(
                     R.dimen.floating_ime_inset_height);
         } else {
@@ -500,7 +507,6 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      */
     public WindowManager.LayoutParams createDefaultWindowLayoutParams(int type, String title) {
         int windowFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_SLIPPERY
                 | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
         if (DisplayController.isTransientTaskbar(this) && !isRunningInTestHarness()) {
             windowFlags |= WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -512,6 +518,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 type,
                 windowFlags,
                 PixelFormat.TRANSLUCENT);
+        // --- GammaOS begin: match tappable/system gesture insets to full taskbar height ---
         windowLayoutParams.setTitle(title);
         windowLayoutParams.packageName = getPackageName();
         windowLayoutParams.gravity = Gravity.BOTTOM;
@@ -519,6 +526,11 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
         windowLayoutParams.receiveInsetsIgnoringZOrder = true;
         windowLayoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
         windowLayoutParams.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+        // Provide insets equal to the taskbar window height we actually use so the entire
+        // bar is touchable (stops clicks passing through to legacy nav handlers).
+        mProvidedInsetBottom = mLastRequestedNonFullscreenSize;
+        setProvidedInsetsCompat(windowLayoutParams, mProvidedInsetBottom);
+        // --- GammaOS end ---
         windowLayoutParams.privateFlags =
                 WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
         windowLayoutParams.accessibilityTitle = getString(
@@ -532,8 +544,10 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      * for taskbar
      */
     private WindowManager.LayoutParams createAllWindowParams() {
-        final int windowType =
-                ENABLE_TASKBAR_NAVBAR_UNIFICATION ? TYPE_NAVIGATION_BAR : TYPE_NAVIGATION_BAR_PANEL;
+        // GammaOS: when forcing Taskbar for phone 3-button nav, own the nav window
+        final int windowType = isPhoneButtonNavMode()
+                ? TYPE_NAVIGATION_BAR
+                : (ENABLE_TASKBAR_NAVBAR_UNIFICATION ? TYPE_NAVIGATION_BAR : TYPE_NAVIGATION_BAR_PANEL);
         WindowManager.LayoutParams windowLayoutParams =
                 createDefaultWindowLayoutParams(windowType, TaskbarActivityContext.WINDOW_TITLE);
 
@@ -581,6 +595,35 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 lp.width = mLastRequestedNonFullscreenSize;
                 lp.gravity = Gravity.START;
             }
+        }
+        // --- GammaOS: ensure per-rotation providedInsets match lp.height we set above ---
+        final int bottom = (lp.height == MATCH_PARENT)
+                ? mLastRequestedNonFullscreenSize : lp.height;
+        setProvidedInsetsCompat(lp, bottom);
+        // --- GammaOS end ---
+    }
+
+    /** Reflection helper: set LayoutParams.providedInsets without compile-time dependency. */
+    private static void setProvidedInsetsCompat(WindowManager.LayoutParams lp, int bottom) {
+        try {
+            Class<?> lpClass = WindowManager.LayoutParams.class;
+            Class<?> piClass = Class.forName("android.view.WindowManager$LayoutParams$ProvidedInsets");
+            java.lang.reflect.Constructor<?> ctor =
+                    piClass.getConstructor(android.graphics.Insets.class, int.class, int.class);
+            Object nav = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
+                    WindowInsets.Type.navigationBars(), 0);
+            Object tap = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
+                    WindowInsets.Type.tappableElement(), 0);
+            Object man = ctor.newInstance(android.graphics.Insets.of(0, 0, 0, bottom),
+                    WindowInsets.Type.mandatorySystemGestures(), 0);
+            Object array = java.lang.reflect.Array.newInstance(piClass, 3);
+            java.lang.reflect.Array.set(array, 0, nav);
+            java.lang.reflect.Array.set(array, 1, tap);
+            java.lang.reflect.Array.set(array, 2, man);
+            java.lang.reflect.Field f = lpClass.getField("providedInsets");
+            f.set(lp, array);
+        } catch (Throwable t) {
+            Log.w("GammaTaskbar", "ProvidedInsets not available; continuing without", t);
         }
     }
 
@@ -800,6 +843,10 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      * Called when this instance of taskbar is no longer needed
      */
     public void onDestroy() {
+        // GammaOS: clear the suppression flag
+        android.provider.Settings.Secure.putInt(getContentResolver(),
+                "gamma_taskbar_phone_active", 0);
+        android.util.Log.d("GammaTaskbar","Signalled SystemUI: phone taskbar INACTIVE");
         mIsDestroyed = true;
         setUIController(TaskbarUIController.DEFAULT);
         mControllers.onDestroy();

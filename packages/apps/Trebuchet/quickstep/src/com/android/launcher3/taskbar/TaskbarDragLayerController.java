@@ -24,6 +24,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.SystemProperties;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.R;
@@ -115,6 +116,24 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
 
         mTaskbarAlpha.value = 1;
         updateTaskbarAlpha();
+        
+        // GammaOS: Expand the touchable region to the FULL taskbar window size.
+        // Stock behavior limits touch to the nav-bar height (~98px), which prevents clicks on
+        // All Apps / hotseat when we force phone 3-button taskbar.
+        mTaskbarDragLayer.getViewTreeObserver().addOnComputeInternalInsetsListener(insets -> {
+            final int dragW = mTaskbarDragLayer.getWidth();
+            final int dragH = mTaskbarDragLayer.getHeight();
+            final WindowManager.LayoutParams lp = mActivity.getWindowLayoutParams();
+            // In landscape phone 3-button mode, the taskbar window dimension is width; otherwise height.
+            final boolean landscapePhoneButtons =
+                    mActivity.isPhoneButtonNavMode() && mActivity.getDeviceProfile().isLandscape;
+            final int touchH = landscapePhoneButtons ? lp.width : lp.height;
+            insets.setTouchableInsets(ViewTreeObserver.InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
+            insets.touchableRegion.set(0, Math.max(0, dragH - touchH), dragW, dragH);
+            android.util.Log.d("GammaTaskbar",
+                    "Touchable region updated: y=[" + Math.max(0, dragH - touchH) + "," + dragH
+                            + "] h=" + touchH + " dp");
+        });
     }
 
     public void onDestroy() {
@@ -272,7 +291,24 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
          * @see ViewTreeObserver.InternalInsetsInfo#setTouchableInsets(int)
          */
         public void updateInsetsTouchability(ViewTreeObserver.InternalInsetsInfo insetsInfo) {
+            // Let the stock controller do its thing first (this currently clamps to ~nav-bar height).
             mControllers.taskbarInsetsController.updateInsetsTouchability(insetsInfo);
+
+            // GammaOS: when forcing phone 3-button taskbar, make the ENTIRE taskbar window clickable,
+            if (mActivity.isPhoneButtonNavMode()) {
+                final WindowManager.LayoutParams lp = mActivity.getWindowLayoutParams();
+                final boolean landscapePhoneButtons =
+                        mActivity.getDeviceProfile().isLandscape; // phone + 3btn landscape uses width
+                final int dragW = mTaskbarDragLayer.getWidth();
+                final int dragH = mTaskbarDragLayer.getHeight();
+                final int touchH = landscapePhoneButtons ? lp.width : lp.height;
+                final int top = Math.max(0, dragH - touchH);
+                insetsInfo.setTouchableInsets(
+                        ViewTreeObserver.InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
+                insetsInfo.touchableRegion.set(0, top, dragW, dragH);
+                android.util.Log.d("GammaTaskbar",
+                        "Override touchable region -> y=[" + top + "," + dragH + "] h=" + touchH);
+            }
         }
 
         /**

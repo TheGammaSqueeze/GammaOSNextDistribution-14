@@ -246,6 +246,22 @@ public class NavbarButtonsViewController implements TaskbarControllers.LoggableT
                         mContext.isPhoneMode());
         mNavButtonsView.getLayoutParams().height = p.y;
 
+        // GammaOS: when forcing Taskbar in 3-button mode on phones, don't let the nav button
+        // container span the entire taskbar width (NearestTouchFrame would swallow taps).
+        if (mContext.isThreeButtonNav()) {
+            ViewGroup.LayoutParams lp = mNavButtonsView.getLayoutParams();
+            if (lp.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
+                lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                if (lp instanceof FrameLayout.LayoutParams) {
+                    ((FrameLayout.LayoutParams) lp).gravity = Gravity.END | Gravity.BOTTOM;
+                }
+                mNavButtonsView.setLayoutParams(lp);
+            }
+            // Be safe: don't clip icons behind; keep the nav cluster to its own bounds.
+            mNavButtonsView.setClipToPadding(false);
+            mNavButtonsView.setClipChildren(false);
+        }
+
         mIsImeRenderingNavButtons =
                 InputMethodService.canImeRenderGesturalNavButtons() && mContext.imeDrawsImeNavBar();
         if (!mIsImeRenderingNavButtons) {
