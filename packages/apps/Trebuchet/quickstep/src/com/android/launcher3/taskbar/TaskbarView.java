@@ -226,7 +226,10 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
 
     @Override
     public void onDeviceProfileChanged(DeviceProfile dp) {
-        mShouldTryStartAlign = mActivityContext.isThreeButtonNav() && dp.startAlignTaskbar;
+        // In 3-button nav we want the nav cluster centered across the bar,
+        // so do NOT start-align the taskbar content in this mode.
+        // (Tablet/gesture paths unchanged.)
+        mShouldTryStartAlign = !mActivityContext.isThreeButtonNav() && dp.startAlignTaskbar;
     }
 
     @Override
@@ -304,6 +307,21 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
         }
         removeView(mQsb);
 
+        // In 3-button nav show ONLY the All Apps button from Trebuchet.
+        // Remove hotseat apps/folders/predictions, divider and QSB.
+        final boolean hideHotseatForThreeBtn = mActivityContext.isThreeButtonNav();
+
+        if (hideHotseatForThreeBtn) {
+            while (nextViewIndex < getChildCount()) {
+                removeAndRecycle(getChildAt(nextViewIndex));
+            }
+            if (mAllAppsButton != null) {
+                addView(mAllAppsButton, mIsRtl ? getChildCount() : 0);
+            }
+            android.util.Log.d("GammaTaskbar",
+                    "TaskbarView: 3btn mode -> removed hotseat, divider, QSB; keeping ONLY AllApps.");
+            return; // Skip normal hotseat/QSB binding.
+        }
 
         for (int i = 0; i < hotseatItemInfos.length; i++) {
             ItemInfo hotseatItemInfo = hotseatItemInfos[i];
@@ -457,9 +475,12 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
             iconEnd = centerAlignIconEnd;
         }
 
-        boolean needMoreSpaceForNav = layoutRtl
+        // GammaOS: in 3-button taskbar we let SystemUI center the nav cluster,
+        // so Trebuchet should not reserve additional space for it.
+        boolean reserveForNav = !mActivityContext.isThreeButtonNav();
+        boolean needMoreSpaceForNav = reserveForNav && (layoutRtl
                 ? navSpaceNeeded > (iconEnd - spaceNeeded)
-                : iconEnd > (right - navSpaceNeeded);
+                : iconEnd > (right - navSpaceNeeded));
         if (needMoreSpaceForNav) {
             // Add offset to account for nav bar when taskbar is centered
             int offset = layoutRtl
@@ -538,9 +559,25 @@ public class TaskbarView extends FrameLayout implements FolderIcon.FolderIconPar
                                 + " pad=" + edgePad);
                 mAllAppsButton.layout(desiredLeft, topFinal, rightFinal, bottomFinal);
             }
-            // Expand touch bounds so the tappable region includes the new All Apps position.
-            if (desiredLeft < mIconLayoutBounds.left) {
-                mIconLayoutBounds.left = desiredLeft;
+            // In 3-button mode, also shrink the reported icon layout bounds to ONLY the All Apps
+            // footprint (icon width ± margins). This prevents SystemUI from treating a wide,
+            // center-anchored bounds as occupied space, which pushes the nav cluster off-center.
+            if (mActivityContext.isThreeButtonNav()) {
+                final int boundsLeft  = Math.max(getPaddingLeft(),
+                        desiredLeft - mItemMarginLeftRight);
+                final int boundsRight = rightFinal + mItemMarginLeftRight;
+                if (mIconLayoutBounds.left != boundsLeft || mIconLayoutBounds.right != boundsRight) {
+                    mIconLayoutBounds.left = boundsLeft;
+                    mIconLayoutBounds.right = boundsRight;
+                    android.util.Log.d("GammaTaskbar",
+                            "TaskbarView: 3btn -> icon bounds set to [" + boundsLeft + ","
+                                    + topFinal + " - " + boundsRight + "," + bottomFinal + "]");
+                }
+            } else {
+                // Non-3btn: keep prior behavior (ensure new left is included).
+                if (desiredLeft < mIconLayoutBounds.left) {
+                    mIconLayoutBounds.left = desiredLeft;
+                }
             }
         }
 

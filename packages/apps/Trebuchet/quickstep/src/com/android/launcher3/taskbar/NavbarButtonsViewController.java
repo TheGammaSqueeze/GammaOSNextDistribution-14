@@ -247,13 +247,15 @@ public class NavbarButtonsViewController implements TaskbarControllers.LoggableT
         mNavButtonsView.getLayoutParams().height = p.y;
 
         // GammaOS: when forcing Taskbar in 3-button mode on phones, don't let the nav button
-        // container span the entire taskbar width (NearestTouchFrame would swallow taps).
+        // container span the entire taskbar width (NearestTouchFrame would swallow taps),
+        // and place the nav cluster *centered* on the taskbar.
         if (mContext.isThreeButtonNav()) {
             ViewGroup.LayoutParams lp = mNavButtonsView.getLayoutParams();
             if (lp.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
                 lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 if (lp instanceof FrameLayout.LayoutParams) {
-                    ((FrameLayout.LayoutParams) lp).gravity = Gravity.END | Gravity.BOTTOM;
+                    ((FrameLayout.LayoutParams) lp).gravity =
+                            Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
                 }
                 mNavButtonsView.setLayoutParams(lp);
             }
@@ -874,22 +876,16 @@ public class NavbarButtonsViewController implements TaskbarControllers.LoggableT
             mBackButton.setImageDrawable(rotateDrawable);
 
             // Setup normal 3 button
-            // Add spacing after the end of the last nav button
+            // Center the nav cluster on the taskbar (no end-reservation in 3-button mode)
             FrameLayout.LayoutParams navButtonParams =
                     (FrameLayout.LayoutParams) mNavButtonContainer.getLayoutParams();
-            navButtonParams.gravity = Gravity.END;
+            navButtonParams.gravity = Gravity.CENTER;
             navButtonParams.width = FrameLayout.LayoutParams.WRAP_CONTENT;
             navButtonParams.height = MATCH_PARENT;
 
-            int navMarginEnd = (int) res.getDimension(dp.inv.inlineNavButtonsEndSpacing);
-            int contextualWidth = mEndContextualContainer.getWidth();
-            // If contextual buttons are showing, we check if the end margin is enough for the
-            // contextual button to be showing - if not, move the nav buttons over a smidge
-            if (isA11yButtonPersistent() && navMarginEnd < contextualWidth) {
-                // Additional spacing, eat up half of space between last icon and nav button
-                navMarginEnd += res.getDimensionPixelSize(R.dimen.taskbar_hotseat_nav_spacing) / 2;
-            }
-            navButtonParams.setMarginEnd(navMarginEnd);
+            // No asymmetric margins when centered
+            navButtonParams.setMarginStart(0);
+            navButtonParams.setMarginEnd(0);
             mNavButtonContainer.setLayoutParams(navButtonParams);
 
             // Add the spaces in between the nav buttons

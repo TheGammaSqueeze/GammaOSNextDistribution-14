@@ -909,7 +909,36 @@ public class NavigationBarView extends FrameLayout {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
+        // GammaOS: in 3-button + phone-taskbar mode, hide ends_group so the nav cluster
+        // (center_group) is exactly centered across the taskbar.
+        if (isGammaPhoneTaskbarActive() && !mShowSwipeUpUi /* i.e. not gestural */) {
+            View inflater = findViewById(R.id.navigation_inflater);
+            if (inflater instanceof com.android.systemui.navigationbar.NavigationBarInflaterView navInf) {
+                View endsH = navInf.findViewById(R.id.ends_group);
+                View endsV = navInf.findViewById(R.id.ends_group); // same id in vertical
+                if (endsH != null) endsH.setVisibility(View.GONE);
+                if (endsV != null) endsV.setVisibility(View.GONE);
+            }
+        } else {
+            // restore if we previously hid it
+            View inflater = findViewById(R.id.navigation_inflater);
+            if (inflater instanceof com.android.systemui.navigationbar.NavigationBarInflaterView navInf) {
+                View ends = navInf.findViewById(R.id.ends_group);
+                if (ends != null) ends.setVisibility(View.VISIBLE);
+            }
+        }
+
         notifyActiveTouchRegions();
+    }
+
+    // GammaOS: mirror NavigationBarControllerImpl’s check
+    private boolean isGammaPhoneTaskbarActive() {
+        try {
+            return android.provider.Settings.Secure.getInt(
+                    getContext().getContentResolver(), "gamma_taskbar_phone_active", 0) == 1;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /**
