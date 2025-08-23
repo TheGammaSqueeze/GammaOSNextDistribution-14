@@ -255,6 +255,11 @@ public class TaskbarStashController implements TaskbarControllers.LoggableTaskba
     private boolean mIsTaskbarSystemActionRegistered = false;
     private TaskbarSharedState mTaskbarSharedState;
 
+    /** GammaOS: in 3-button nav we never allow transient taskbar/stash. */
+    private boolean neverTransient() {
+        return mActivity.isThreeButtonNav();
+    }
+
     public TaskbarStashController(TaskbarActivityContext activity) {
         mActivity = activity;
         mSystemUiProxy = SystemUiProxy.INSTANCE.get(activity);
@@ -474,6 +479,19 @@ public class TaskbarStashController implements TaskbarControllers.LoggableTaskba
      * If bubble bar exists, it will match taskbars stashing behavior.
      */
     public void updateAndAnimateTransientTaskbar(boolean stash) {
+        // GammaOS: ignore stash requests in 3-button nav; always keep taskbar visible.
+        if (neverTransient()) {
+            // Clear all "in app" stash flags and apply immediately.
+            updateStateForFlag(FLAG_STASHED_IN_APP_SYSUI, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_SETUP, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_IME, false);
+            updateStateForFlag(FLAG_STASHED_IN_TASKBAR_ALL_APPS, false);
+            updateStateForFlag(FLAG_STASHED_SMALL_SCREEN, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_AUTO, false);
+            applyState(0);
+            return;
+        }
+        // Standard path (handles bubbles etc.)
         updateAndAnimateTransientTaskbar(stash, /* shouldBubblesFollow= */ true);
     }
 
@@ -960,6 +978,18 @@ public class TaskbarStashController implements TaskbarControllers.LoggableTaskba
             updateStateForFlag(FLAG_STASHED_IN_APP_IME, shouldStashForIme());
             animDuration = TASKBAR_STASH_DURATION_FOR_IME;
             startDelay = getTaskbarStashStartDelayForIme();
+        }
+
+        // GammaOS: force visible in 3-button nav, regardless of system flags.
+        if (neverTransient()) {
+            // Clear any flags that would stash the taskbar.
+            updateStateForFlag(FLAG_IN_STASHED_LAUNCHER_STATE, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_SYSUI, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_SETUP, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_IME, false);
+            updateStateForFlag(FLAG_STASHED_IN_TASKBAR_ALL_APPS, false);
+            updateStateForFlag(FLAG_STASHED_SMALL_SCREEN, false);
+            updateStateForFlag(FLAG_STASHED_IN_APP_AUTO, false);
         }
 
         applyState(skipAnim ? 0 : animDuration, skipAnim ? 0 : startDelay);

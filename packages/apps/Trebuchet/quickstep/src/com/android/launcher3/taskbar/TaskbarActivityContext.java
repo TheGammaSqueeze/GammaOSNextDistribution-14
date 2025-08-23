@@ -230,8 +230,9 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 ? null
                 : display.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT);
 
-        // Inflate views.
-        int taskbarLayout = DisplayController.isTransientTaskbar(this) && !phoneMode
+        // GammaOS: never use transient taskbar layout when 3-button nav is active.
+        int taskbarLayout = (DisplayController.isTransientTaskbar(this) && !phoneMode
+                && !isThreeButtonNav())
                 ? R.layout.transient_taskbar
                 : R.layout.taskbar;
         mDragLayer = (TaskbarDragLayer) mLayoutInflater.inflate(taskbarLayout, null, false);
@@ -981,8 +982,10 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
             return getSetupWindowSize();
         }
 
-        boolean shouldTreatAsTransient = DisplayController.isTransientTaskbar(this)
-                || (enableTaskbarPinning() && !isThreeButtonNav());
+        // GammaOS: when 3-button nav is active, never treat taskbar as transient.
+        boolean shouldTreatAsTransient = !isThreeButtonNav() && (
+               DisplayController.isTransientTaskbar(this)
+                        || enableTaskbarPinning());
 
         int extraHeightForTaskbarTooltips = enableCursorHoverStates()
                 ? resources.getDimensionPixelSize(R.dimen.arrow_toast_arrow_height)
