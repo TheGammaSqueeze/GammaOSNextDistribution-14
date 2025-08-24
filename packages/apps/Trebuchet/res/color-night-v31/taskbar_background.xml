@@ -16,5 +16,5 @@
 <!-- Make sure to align any changes to
      frameworks/base/libs/WindowManager/Shell/res/color/taskbar_background_dark.xml -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:color="@android:color/system_neutral1_500" android:lStar="6" />
+  <item android:color="#000000" />
 </selector>

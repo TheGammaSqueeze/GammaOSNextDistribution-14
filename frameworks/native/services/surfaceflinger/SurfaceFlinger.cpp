@@ -489,7 +489,7 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipI
     mBackpressureGpuComposition = base::GetBoolProperty("debug.sf.enable_gl_backpressure"s, true);
     ALOGI_IF(mBackpressureGpuComposition, "Enabling backpressure for GPU composition");
 
-    property_get("ro.surface_flinger.supports_background_blur", value, "0");
+    property_get("ro.surface_flinger.supports_background_blur", value, "1");
     bool supportsBlurs = atoi(value);
     mSupportsBlur = supportsBlurs;
     ALOGI_IF(!mSupportsBlur, "Disabling blur effects, they are not supported.");
