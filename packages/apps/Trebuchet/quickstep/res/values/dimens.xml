@@ -315,11 +315,11 @@
 
     <!-- Taskbar -->
     <dimen name="taskbar_size">@*android:dimen/taskbar_frame_height</dimen>
-    <dimen name="taskbar_ime_size">48dp</dimen>
-    <dimen name="taskbar_icon_min_touch_size">48dp</dimen>
+    <dimen name="taskbar_ime_size">@dimen/taskbar_size</dimen>
+    <dimen name="taskbar_icon_min_touch_size">@dimen/taskbar_size</dimen>
     <!-- Note that this applies to both sides of all icons, so visible space is double this. -->
     <dimen name="taskbar_icon_spacing">12dp</dimen>
-    <dimen name="taskbar_icon_drag_icon_size">54dp</dimen>
+    <dimen name="taskbar_icon_drag_icon_size">34dp</dimen>
     <dimen name="taskbar_folder_margin">16dp</dimen>
     <dimen name="taskbar_contextual_button_padding">16dp</dimen>
     <dimen name="taskbar_contextual_padding_top">8dp</dimen>

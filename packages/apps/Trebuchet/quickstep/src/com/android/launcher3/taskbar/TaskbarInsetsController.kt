@@ -100,9 +100,8 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
     fun onTaskbarOrBubblebarWindowHeightOrInsetsChanged() {
         // GammaOS: in 3-button nav we want the entire taskbar window to be tappable,
         // not just the tablet "icon band". Use window height for tappable insets.
-        val baseTappable = controllers.taskbarStashController.tappableHeightToReportToApps
         val tappableHeight =
-            if (context.isThreeButtonNav) context.windowLayoutParams.height else baseTappable
+            controllers.taskbarStashController.tappableHeightToReportToApps
         // We only report tappableElement height for unstashed, persistent taskbar,
         // which is also when we draw the rounded corners above taskbar.
         val insetsRoundedCornerFlag =
@@ -151,9 +150,7 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
             )
         } else {
             // GammaOS: in 3-button nav, make the entire taskbar window clickable.
-            val taskbarTouchH =
-                if (context.isThreeButtonNav) windowLayoutParams.height
-                else controllers.taskbarStashController.touchableHeight
+            val taskbarTouchH = controllers.taskbarStashController.touchableHeight
             defaultTouchableRegion.set(
                 0,
                 windowLayoutParams.height - taskbarTouchH,
@@ -215,9 +212,8 @@ class TaskbarInsetsController(val context: TaskbarActivityContext) : LoggableTas
 
     private fun setProviderInsets(provider: InsetsFrameProvider, gravity: Int, endRotation: Int) {
         val contentHeight = controllers.taskbarStashController.contentHeightToReportToApps
-        val baseTappable = controllers.taskbarStashController.tappableHeightToReportToApps
         val tappableHeight =
-            if (context.isThreeButtonNav) windowLayoutParams.height else baseTappable
+            controllers.taskbarStashController.tappableHeightToReportToApps
         val res = context.resources
         if (provider.type == navigationBars() || provider.type == mandatorySystemGestures()) {
             provider.insetsSize = getInsetsForGravityWithCutout(contentHeight, gravity, endRotation)

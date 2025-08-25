@@ -382,7 +382,7 @@
 
     <!-- Taskbar related (placeholders to compile in Launcher3 without Quickstep) -->
     <dimen name="taskbar_size">0dp</dimen>
-    <dimen name="taskbar_phone_size">@*android:dimen/navigation_bar_frame_height</dimen>
+    <dimen name="taskbar_phone_size">@*android:dimen/taskbar_frame_height</dimen>
     <dimen name="taskbar_phone_home_button_size">80dp</dimen>
     <dimen name="taskbar_phone_content_padding">8dp</dimen>
     <dimen name="taskbar_phone_rounded_corner_content_margin">

@@ -972,10 +972,11 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     public int getDefaultTaskbarWindowSize() {
         Resources resources = getResources();
 
-        if (ENABLE_TASKBAR_NAVBAR_UNIFICATION && mDeviceProfile.isPhone) {
-            return isThreeButtonNav() ?
-                    resources.getDimensionPixelSize(R.dimen.taskbar_phone_size) :
-                    resources.getDimensionPixelSize(R.dimen.taskbar_stashed_size);
+        // Always honor phone-sized taskbar window on phones, regardless of the unification flag.
+        if (mDeviceProfile.isPhone) {
+            return isThreeButtonNav()
+                    ? resources.getDimensionPixelSize(R.dimen.taskbar_phone_size)
+                    : resources.getDimensionPixelSize(R.dimen.taskbar_stashed_size);
         }
 
         if (!isUserSetupComplete()) {
