@@ -1217,6 +1217,12 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     private void launchFromInAppTaskbar(@Nullable RecentsView recents,
             @Nullable View launchingIconView, List<? extends ItemInfo> itemInfos) {
         if (recents == null) {
+            // Phone UI / fallback controllers may not expose Recents here.
+            // Fall back to a direct launch so taps from the taskbar All Apps drawer
+            // actually start the app instead of just closing the sheet.
+            if (itemInfos != null && !itemInfos.isEmpty()) {
+                startItemInfoActivity(itemInfos.get(0));
+            }
             return;
         }
 

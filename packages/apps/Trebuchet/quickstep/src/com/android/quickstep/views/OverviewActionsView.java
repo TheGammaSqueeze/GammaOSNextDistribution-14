@@ -310,14 +310,29 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
             return mDp.stashedTaskbarHeight;
         }
 
-        // Align to bottom of task Rect, but never below the system bars (e.g., 3-button nav).
-        final int bottomFromTask = mDp.heightPx - mTaskSize.bottom - mDp.overviewActionsTopMarginPx
-                - mDp.overviewActionsHeight;
-
-        // Ensure actions sit above any bottom system bar / taskbar area.
-        // Use the larger of actual bottom inset and the DP's claimed space.
+        // Space we must always leave at the very bottom
         final int claimedBelow = Math.max(mInsets.bottom, mDp.getOverviewActionsClaimedSpaceBelow());
 
+        // Align to bottom of task Rect (legacy behavior).
+        int bottomFromTask = mDp.heightPx
+                - mTaskSize.bottom
+                - mDp.overviewActionsTopMarginPx
+                - mDp.overviewActionsHeight;
+
+        if (!mDp.isTablet) {
+            // Keep actions *near the bottom* in phone UI with a fixed 32dp gap above nav/taskbar.
+            // This avoids the overlap seen when a split-screen preview sits higher than normal.
+            final int extraGapPx = (int) (32f * getResources().getDisplayMetrics().density);
+
+            // Nudge the legacy value down a bit so that, when it does apply, it sits below the preview.
+            bottomFromTask -= extraGapPx;
+
+            // But never let the margin float the row too high — cap it close to the bottom.
+            // I.e., distance from bottom is at most (claimedBelow + 32dp).
+            bottomFromTask = Math.min(bottomFromTask, claimedBelow + extraGapPx);
+        }
+
+        // Ensure we still sit above any bottom system bar area.
         return Math.max(bottomFromTask, claimedBelow);
     }
 

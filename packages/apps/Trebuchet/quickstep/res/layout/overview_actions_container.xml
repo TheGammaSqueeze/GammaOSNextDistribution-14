@@ -15,16 +15,19 @@
      limitations under the License.
 -->
 <com.android.quickstep.views.OverviewActionsView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overview_actions_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal|bottom">
+    android:layout_gravity="center_horizontal|bottom"
+    android:gravity="center_horizontal">
 
     <LinearLayout
         android:id="@+id/action_buttons"
         android:layout_width="match_parent"
         android:layout_height="@dimen/overview_actions_height"
         android:layout_gravity="bottom|center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
 
         <Space
             android:layout_width="0dp"

@@ -61,6 +61,12 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     // The amount of pixels to shift down and overlap with the rest of the content.
     private final int mContentOverlap;
 
+    // When true, bypass icon-sized measurement and use full available width (e.g. taskbar sheet).
+    private boolean mForceFullWidth = false;
+
+    // Horizontal padding (in px) applied only when forceFullWidth is enabled
+    private int mForcePadding = 0;
+
     public AppsSearchContainerLayout(Context context) {
         this(context, null);
     }
@@ -94,11 +100,33 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mAppsView.getAppsStore().removeUpdateListener(this);
     }
 
+    /** Force this search box to use the full available width. */
+    public void setForceFullWidth(boolean force) {
+        if (mForceFullWidth != force) {
+            mForceFullWidth = force;
+            requestLayout();
+        }
+        if (force) {
+            // 32dp → pixels
+            mForcePadding = (int) (getResources().getDisplayMetrics().density * 32);
+        } else {
+            mForcePadding = 0;
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Update the width to match the grid padding
         DeviceProfile dp = mLauncher.getDeviceProfile();
         int myRequestedWidth = getSize(widthMeasureSpec);
+        if (mForceFullWidth) {
+            // In taskbar All Apps we want the search box to span the full sheet width,
+            // but inset slightly with left/right padding.
+            int paddedWidth = myRequestedWidth - (2 * mForcePadding);
+            super.onMeasure(makeMeasureSpec(paddedWidth, EXACTLY), heightMeasureSpec);
+            setPadding(mForcePadding, getPaddingTop(), mForcePadding, getPaddingBottom());
+            return;
+        }
         int rowWidth = myRequestedWidth - mAppsView.getActiveRecyclerView().getPaddingLeft()
                 - mAppsView.getActiveRecyclerView().getPaddingRight();
 
@@ -115,13 +143,17 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        // Shift the widget horizontally so that its centered in the parent (b/63428078)
-        View parent = (View) getParent();
-        int availableWidth = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
-        int myWidth = right - left;
-        int expectedLeft = parent.getPaddingLeft() + (availableWidth - myWidth) / 2;
-        int shift = expectedLeft - left;
-        setTranslationX(shift);
+        if (mForceFullWidth) {
+            setTranslationX(0);
+        } else {
+            // Shift the widget horizontally so that its centered in the parent (b/63428078)
+            View parent = (View) getParent();
+            int availableWidth = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+            int myWidth = right - left;
+            int expectedLeft = parent.getPaddingLeft() + (availableWidth - myWidth) / 2;
+            int shift = expectedLeft - left;
+            setTranslationX(shift);
+        }
 
         offsetTopAndBottom(mContentOverlap);
     }

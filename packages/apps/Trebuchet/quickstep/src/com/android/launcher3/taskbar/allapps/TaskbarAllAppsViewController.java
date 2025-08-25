@@ -61,6 +61,15 @@ final class TaskbarAllAppsViewController {
         mContext = context;
         mSlideInView = slideInView;
         mAppsView = mSlideInView.getAppsView();
+        // Prevent the first tap from bubbling to the scrim/root (which would dismiss the drawer).
+        // By making the apps panel itself clickable/focusable with a no-op click listener,
+        // taps within All Apps are consumed here; icon clicks will still fire on the child views.
+        if (mAppsView != null) {
+            mAppsView.setClickable(true);
+            mAppsView.setFocusable(true);
+            mAppsView.setFocusableInTouchMode(true);
+            mAppsView.setOnClickListener(v -> { /* consume to avoid dismiss-on-tap */ });
+        }
         mTaskbarStashController = taskbarControllers.taskbarStashController;
         mNavbarButtonsViewController = taskbarControllers.navbarButtonsViewController;
         mOverlayController = taskbarControllers.taskbarOverlayController;
@@ -74,6 +83,8 @@ final class TaskbarAllAppsViewController {
 
     /** Starts the {@link TaskbarAllAppsSlideInView} enter transition. */
     void show(boolean animate) {
+        // Avoid first-tap dismiss: disable scrim tap-to-dismiss until enter finishes.
+        mSlideInView.setOnClickListener(null);
         mSlideInView.show(animate);
     }
 
@@ -140,6 +151,10 @@ final class TaskbarAllAppsViewController {
             }
             if (toAllApps) {
                 InteractionJankMonitorWrapper.end(Cuj.CUJ_LAUNCHER_OPEN_ALL_APPS);
+            }
+            // Re-enable scrim tap-to-dismiss now that content is fully laid out.
+            if (toAllApps) {
+                mSlideInView.setOnClickListener(v -> mSlideInView.close(true));
             }
         }
 

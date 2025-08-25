@@ -45,6 +45,7 @@ import com.android.launcher3.views.AbstractSlideInView;
 /** Wrapper for taskbar all apps with slide-in behavior. */
 public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverlayContext>
         implements Insettable, DeviceProfile.OnDeviceProfileChangeListener {
+    private boolean mTapGuardActive = true; // Guard dismiss until open finishes
     private final Handler mHandler;
 
     private TaskbarAllAppsContainerView mAppsView;
@@ -93,14 +94,20 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
     }
 
     private void showOnFullyAttachedToWindow(boolean animate) {
+        // Activate tap guard during opening to avoid first-tap dismiss.
+        mTapGuardActive = true;
         mAllAppsCallbacks.onAllAppsTransitionStart(true);
         if (!animate) {
             mAllAppsCallbacks.onAllAppsTransitionEnd(true);
             mTranslationShift = TRANSLATION_SHIFT_OPENED;
+            mTapGuardActive = false;
             return;
         }
 
         setUpOpenAnimation(mAllAppsCallbacks.getOpenDuration());
+        // Disable guard after the open animation duration.
+        mHandler.postDelayed(() -> mTapGuardActive = false,
+                mAllAppsCallbacks.getOpenDuration());
         Animator animator = mOpenCloseAnimation.getAnimationPlayer();
         animator.setInterpolator(EMPHASIZED);
         animator.addListener(AnimatorListeners.forEndCallback(() -> {
@@ -250,6 +257,7 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
 
     @Override
     protected boolean isEventOverContent(MotionEvent ev) {
+        if (mTapGuardActive) return true; // treat as over-content while opening
         return getPopupContainer().isEventOverView(mAppsView.getVisibleContainerView(), ev);
     }
 

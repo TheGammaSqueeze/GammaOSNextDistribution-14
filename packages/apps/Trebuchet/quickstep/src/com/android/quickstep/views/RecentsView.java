@@ -2116,9 +2116,22 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
         mTaskWidth = mLastComputedTaskSize.width();
         mTaskHeight = mLastComputedTaskSize.height();
 
-        setPadding(mLastComputedTaskSize.left - mInsets.left,
+        // Center the task horizontally in phone UI. We keep the existing top/bottom math.
+        // (When tablet layout is used, the grid handler already manages centering.)
+        final boolean isPhoneUi = !dp.isTablet;
+        int leftPad = mLastComputedTaskSize.left - mInsets.left;
+        int rightPad = dp.widthPx - mInsets.right - mLastComputedTaskSize.right;
+        if (isPhoneUi) {
+            int taskW = mLastComputedTaskSize.width();
+            int centeredLeft = (dp.widthPx - taskW) / 2;
+            int centeredRight = dp.widthPx - centeredLeft - taskW;
+            leftPad  = Math.max(0, centeredLeft - mInsets.left);
+            rightPad = Math.max(0, centeredRight - mInsets.right);
+        }
+        setPadding(
+                leftPad,
                 mLastComputedTaskSize.top - dp.overviewTaskThumbnailTopMarginPx - mInsets.top,
-                dp.widthPx - mInsets.right - mLastComputedTaskSize.right,
+                rightPad,
                 dp.heightPx - mInsets.bottom - mLastComputedTaskSize.bottom);
 
         mSizeStrategy.calculateGridSize(dp, mActivity, mLastComputedGridSize);

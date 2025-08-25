@@ -20,5 +20,7 @@
     android:layout_height="match_parent"
     android:clipChildren="true"
     android:clipToPadding="false"
-    android:focusable="false"
-    android:saveEnabled="false" />
+    android:saveEnabled="false"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true" />

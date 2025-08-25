@@ -25,6 +25,7 @@ import android.view.ViewTreeObserver;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.view.ViewParent;
 
 import androidx.annotation.Nullable;
 
@@ -96,6 +97,23 @@ public class TaskbarAllAppsContainerView extends
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        
+        // Make the container itself eat taps so they don't bubble to the scrim/root (which closes).
+        setClickable(true);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        setOnClickListener(v -> { /* consume */ });
+        
+        // Make the inner All Apps content consume clicks so they don't bubble to the root
+        // (the root often has a click listener to dismiss the overlay).
+        View appsView = findViewById(R.id.apps_view);
+        if (appsView != null) {
+            appsView.setClickable(true);
+            appsView.setFocusable(true);
+            appsView.setFocusableInTouchMode(true);
+            // No-op click listener: ensures the first tap is handled here, not by the scrim.
+            appsView.setOnClickListener(v -> {});
+        }
         // Post to run after the hierarchy is fully inflated/attached so lookups don't race.
         post(this::forceFullWidthSearchForTaskbar);
         // Also re-apply on every layout pass; cheap and robust against config/IME changes.
@@ -107,6 +125,16 @@ public class TaskbarAllAppsContainerView extends
     }
 
     /**
+     * Treat the entire taskbar All Apps container as "content" for hit-testing.
+     * This avoids the first tap being considered a scrim/outside tap (which would close the sheet)
+     * before the bottom-sheet background has fully laid out or when its bounds are smaller.
+     */
+    @Override
+    public View getVisibleContainerView() {
+        return this;
+    }
+
+    /**
      * For taskbar-triggered All Apps on phone UI, make the search bar span the sheet width
      * instead of using the narrow floating pill width. Also relax header side paddings.
      */
@@ -114,6 +142,9 @@ public class TaskbarAllAppsContainerView extends
         try {
             final View search = findViewById(R.id.search_container_all_apps);
             if (search != null) {
+                if (search instanceof com.android.launcher3.allapps.search.AppsSearchContainerLayout) {
+                    ((com.android.launcher3.allapps.search.AppsSearchContainerLayout) search).setForceFullWidth(true);
+                }
                 final ViewGroup.LayoutParams lp = search.getLayoutParams();
                 if (lp != null && lp.width != ViewGroup.LayoutParams.MATCH_PARENT) {
                     lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -123,13 +154,10 @@ public class TaskbarAllAppsContainerView extends
                         mlp.rightMargin = 0;
                     }
                     search.setLayoutParams(lp);
-                    Log.d("GammaTaskbar", "AllApps: forced search width=match_parent for taskbar sheet");
+                    // Log.d("GammaTaskbar", "AllApps: forced search width=match_parent for taskbar sheet");
                 } else {
-                    Log.d("GammaTaskbar", "AllApps: search width already match_parent or lp null");
+                    // Log.d("GammaTaskbar", "AllApps: search width already match_parent or lp null");
                 }
-
-                // Walk up to header, expanding parents and clearing side paddings / center gravity.
-                widenParentChainToMatchParent(search, /*levels=*/4);
 
                 // Remove any TextView-level maxWidth limits within the search container.
                 clearTextMaxWidthRecursive(search);
@@ -145,7 +173,7 @@ public class TaskbarAllAppsContainerView extends
                     }
                     relaxHeaderMaxWidthViaReflection(header);
                 } else {
-                    Log.w("GammaTaskbar", "AllApps: header null; skipping header tweaks");
+                    // Log.w("GammaTaskbar", "AllApps: header null; skipping header tweaks");
                 }
 
                 // Make sure the measured width matches our container width.
@@ -158,43 +186,10 @@ public class TaskbarAllAppsContainerView extends
                     search.requestLayout();
                 }
             } else {
-                Log.w("GammaTaskbar", "AllApps: search_container_all_apps not found");
+                // Log.w("GammaTaskbar", "AllApps: search_container_all_apps not found");
             }
         } catch (Throwable t) {
-            Log.e("GammaTaskbar", "AllApps: failed to force full-width search", t);
-        }
-    }
-
-    /** Expand parent chain widths/paddings so children can use the full sheet width. */
-    private void widenParentChainToMatchParent(View leaf, int levels) {
-        View p = leaf;
-        for (int i = 0; i < levels && p != null; i++) {
-            final View parent = (View) p.getParent();
-            if (parent == null) break;
-            final ViewGroup.LayoutParams plp = parent.getLayoutParams();
-            boolean changed = false;
-            if (plp != null && plp.width != ViewGroup.LayoutParams.MATCH_PARENT) {
-                plp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                parent.setLayoutParams(plp);
-                changed = true;
-            }
-            if (parent.getPaddingLeft() != 0 || parent.getPaddingRight() != 0) {
-                parent.setPadding(0, parent.getPaddingTop(), 0, parent.getPaddingBottom());
-                changed = true;
-            }
-            if (parent instanceof LinearLayout) {
-                LinearLayout ll = (LinearLayout) parent;
-                if ((ll.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.START) {
-                    ll.setGravity((ll.getGravity() & ~Gravity.HORIZONTAL_GRAVITY_MASK)
-                            | Gravity.START | Gravity.CENTER_VERTICAL);
-                    changed = true;
-                }
-            }
-            if (changed) {
-                parent.requestLayout();
-            }
-            if (parent == mHeader) break; // Reached header; no need to go further.
-            p = parent;
+            // Log.e("GammaTaskbar", "AllApps: failed to force full-width search", t);
         }
     }
 
