@@ -161,6 +161,57 @@ import java.util.function.Consumer;
 public class DisplayPolicy {
     private static final String TAG = TAG_WITH_CLASS_NAME ? "DisplayPolicy" : TAG_WM;
 
+    // GammaOS: property to force immersive globally
+    private static final String PROP_GAMMA_IMMERSIVE = "persist.gammaos.immersive";
+    private final Runnable mGammaImmersivePropListener = new Runnable() {
+        @Override public void run() {
+            // Bounce to the policy handler; recompute & push attrs now.
+            mHandler.post(() -> {
+                try {
+                    // Re-evaluate and dispatch SystemBar attributes immediately.
+                    // This triggers StatusBarManagerService → SystemUI to apply changes.
+                    updateSystemBarAttributes();
+                    // Hint WM to do a layout/insets pass right away.
+                    mService.mWindowPlacerLocked.requestTraversal();
+                } catch (Throwable t) {
+                    Slog.w(TAG, "Gamma immersive prop refresh failed", t);
+                }
+            });
+        }
+    };
+
+    /** Hide/show bars and launcher taskbar immediately based on the prop. */
+    private void applyGammaForcedImmersive(boolean force) {
+        synchronized (mLock) {
+            // Status bar (SysUI)
+            if (mStatusBar != null) {
+                if (force) {
+                    mStatusBar.hide(false /* doAnimation */, true /* requestAnim */);
+                } else {
+                    mStatusBar.show(false /* doAnimation */, true /* requestAnim */);
+                }
+            }
+            // Launcher taskbar (Trebuchet) uses TYPE_NAVIGATION_BAR_PANEL
+            mDisplayContent.forAllWindows(w -> {
+                if (w.mAttrs.type == TYPE_NAVIGATION_BAR_PANEL) {
+                    // Limit to Launcher taskbar; avoid touching other SysUI panels/overlays.
+                    final String pkg = w.mAttrs.packageName;
+                    final CharSequence title = w.mAttrs.getTitle();
+                    final boolean isLauncherTaskbar =
+                            "com.android.launcher3".equals(pkg)
+                            || (title != null && "Taskbar".contentEquals(title));
+                    if (isLauncherTaskbar) {
+                        if (force) {
+                            w.hide(false /* doAnimation */, true /* requestAnim */);
+                        } else {
+                            w.show(false /* doAnimation */, true /* requestAnim */);
+                        }
+                    }
+                }
+            }, /* traverseTopToBottom */ false);
+        }
+    }
+
     // The panic gesture may become active only after the keyguard is dismissed and the immersive
     // app shows again. If that doesn't happen for 30s we drop the gesture.
     private static final long PANIC_GESTURE_EXPIRATION = 30000;
@@ -764,6 +815,15 @@ public class DisplayPolicy {
         mForceShowNavBarSettingsObserver.setOnChangeRunnable(this::updateForceShowNavBarSettings);
         mForceShowNavigationBarEnabled = mForceShowNavBarSettingsObserver.isEnabled();
         mHandler.post(mForceShowNavBarSettingsObserver::register);
+
+        // GammaOS: watch persist.gammaos.immersive and refresh immediately on change
+        try {
+            android.os.SystemProperties.addChangeCallback(mGammaImmersivePropListener);
+        } catch (Throwable t) {
+            // On older trees where addChangeCallback() isn't exposed, we just no-op.
+            Slog.i(TAG, "SystemProperties.addChangeCallback unavailable; "
+                    + "Gamma immersive will update on next insets/layout event");
+        }
     }
 
     private void updateForceShowNavBarSettings() {
@@ -2369,8 +2429,13 @@ public class DisplayPolicy {
     }
 
     void updateSystemBarAttributes() {
-        // If there is no window focused, there will be nobody to handle the events
-        // anyway, so just hang on in whatever state we're in until things settle down.
+        // Evaluate forced immersive once per pass and apply immediate hide/show.
+        final boolean gammaForceImmersive =
+                android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1;
+        applyGammaForcedImmersive(gammaForceImmersive);
+
+        // If there is no window focused, there will be nobody to handle the events anyway,
+        // so just hang on in whatever state we're in until things settle down.
         WindowState winCandidate = mFocusedWindow != null ? mFocusedWindow
                 : mTopFullscreenOpaqueWindowState;
         if (winCandidate == null) {
@@ -2415,7 +2480,7 @@ public class DisplayPolicy {
         final WindowState navBarControlWin = topAppHidesSystemBar(Type.navigationBars())
                 ? mTopFullscreenOpaqueWindowState
                 : win;
-        final int behavior = navBarControlWin.mAttrs.insetsFlags.behavior;
+        int behavior = navBarControlWin.mAttrs.insetsFlags.behavior;
         final String focusedApp = win.mAttrs.packageName;
         final boolean isFullscreen = !win.isRequestedVisible(Type.statusBars())
                 || !win.isRequestedVisible(Type.navigationBars());
@@ -2428,7 +2493,15 @@ public class DisplayPolicy {
             callStatusBarSafely(statusBar -> statusBar.setDisableFlags(displayId, disableFlags,
                     cause));
         }
-        final @InsetsType int requestedVisibleTypes = win.getRequestedVisibleTypes();
+        @InsetsType int requestedVisibleTypes = win.getRequestedVisibleTypes();
+
+        // GammaOS: Force immersive if persist.gammaos.immersive=1
+        // Hide both status bar and navigation/taskbar regardless of app requests,
+        // and only allow transient reveal by swipe.
+        if (gammaForceImmersive) {
+            requestedVisibleTypes &= ~(Type.statusBars() | Type.navigationBars());
+            behavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
+        }
         final LetterboxDetails[] letterboxDetails = new LetterboxDetails[mLetterboxDetails.size()];
         mLetterboxDetails.toArray(letterboxDetails);
         if (mLastAppearance == appearance
@@ -2452,9 +2525,24 @@ public class DisplayPolicy {
         mLastFocusIsFullscreen = isFullscreen;
         mLastStatusBarAppearanceRegions = statusBarAppearanceRegions;
         mLastLetterboxDetails = letterboxDetails;
-        callStatusBarSafely(statusBar -> statusBar.onSystemBarAttributesChanged(displayId,
-                appearance, statusBarAppearanceRegions, isNavbarColorManagedByIme, behavior,
-                requestedVisibleTypes, focusedApp, letterboxDetails));
+        // Make final copies for lambda capture
+        final int fDisplayId = displayId;
+        final int fAppearance = appearance;
+        final AppearanceRegion[] fStatusBarAppearanceRegions = statusBarAppearanceRegions;
+        final boolean fIsNavbarColorManagedByIme = isNavbarColorManagedByIme;
+        final int fBehavior = behavior;
+        final int fRequestedVisibleTypes = requestedVisibleTypes;
+        final String fFocusedApp = focusedApp;
+        final LetterboxDetails[] fLetterboxDetails = letterboxDetails;
+        callStatusBarSafely(statusBar -> statusBar.onSystemBarAttributesChanged(
+                fDisplayId,
+                fAppearance,
+                fStatusBarAppearanceRegions,
+                fIsNavbarColorManagedByIme,
+                fBehavior,
+                fRequestedVisibleTypes,
+                fFocusedApp,
+                fLetterboxDetails));
     }
 
     private void callStatusBarSafely(Consumer<StatusBarManagerInternal> consumer) {

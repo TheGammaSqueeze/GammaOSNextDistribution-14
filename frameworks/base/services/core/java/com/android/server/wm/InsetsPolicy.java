@@ -598,6 +598,11 @@ class InsetsPolicy {
                         ? Type.navigationBars()
                         : 0;
 
+        // GammaOS: If global immersive is forced, do not forcibly show any system bars.
+        if (android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1) {
+            mForcedShowingTypes = 0;
+        }
+
         // The client app won't be able to control these types of system bars. Here makes the client
         // forcibly consume these types to prevent the app content from getting obscured.
         mStateController.setForcedConsumingTypes(
