@@ -70,7 +70,7 @@ import java.util.List;
 public class WindowManagerProxy implements ResourceBasedOverride {
 
     private static final String TAG = "WindowManagerProxy";
-    public static final int MIN_TABLET_WIDTH = 600;
+    public static final int MIN_TABLET_WIDTH = 100;
 
     public static final MainThreadInitializedObject<WindowManagerProxy> INSTANCE =
             forOverride(WindowManagerProxy.class, R.string.window_manager_proxy_class);
