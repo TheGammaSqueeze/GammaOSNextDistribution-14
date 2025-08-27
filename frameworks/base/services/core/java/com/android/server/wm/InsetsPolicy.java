@@ -359,6 +359,34 @@ class InsetsPolicy {
             state = newState;
         }
 
+        // GammaOS: While bars are shown transiently under global immersive, make them overlay.
+        // Do this by hiding transient status/nav from the *app-facing* InsetsState so apps
+        // don't relayout when the user swipes to reveal the bars.
+        final boolean gammaImmersive =
+                android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1;
+        final boolean isAppWindow =
+                windowType >= WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW
+                        && windowType <= WindowManager.LayoutParams.LAST_APPLICATION_WINDOW;
+        if (gammaImmersive && isAppWindow && mShowingTransientTypes != 0) {
+            final int overlayMask = WindowInsets.Type.statusBars()
+                    | WindowInsets.Type.navigationBars();
+            final int typesToOverlay = mShowingTransientTypes & overlayMask;
+            if (typesToOverlay != 0) {
+                if (state == originalState) {
+                    state = new InsetsState(originalState);
+                }
+                for (int i = originalState.sourceSize() - 1; i >= 0; i--) {
+                    final InsetsSource src = originalState.sourceAt(i);
+                    final int t = src.getType();
+                    if ((t & typesToOverlay) != 0 && src.isVisible()) {
+                        final InsetsSource out = new InsetsSource(src);
+                        out.setVisible(false); // overlay instead of resize
+                        state.addSource(out);
+                    }
+                }
+            }
+        }
+
         return state;
     }
 
