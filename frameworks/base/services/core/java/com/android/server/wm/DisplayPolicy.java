@@ -163,20 +163,30 @@ public class DisplayPolicy {
 
     // GammaOS: property to force immersive globally
     private static final String PROP_GAMMA_IMMERSIVE = "persist.gammaos.immersive";
+    // GammaOS: track whether we've successfully registered a sysprop callback
+    private boolean mGammaImmersivePropRegistered = false;
+    // GammaOS: remember last applied value to bypass early-return cache.
+    // Initialize from current property so the first comparison doesn't look like a change.
+    private boolean mLastGammaImmersive =
+            android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1;
     private final Runnable mGammaImmersivePropListener = new Runnable() {
         @Override public void run() {
             // Bounce to the policy handler; recompute & push attrs now.
             mHandler.post(() -> {
-                try {
-                    // Re-evaluate and dispatch SystemBar attributes immediately.
-                    // This triggers StatusBarManagerService → SystemUI to apply changes.
-                    getInsetsPolicy().updateBarControlTarget(mFocusedWindow);
-                    updateSystemBarAttributes();
-                    // Hint WM to do a layout/insets pass right away.
-                    mService.mWindowPlacerLocked.requestTraversal();
-                } catch (Throwable t) {
-                    Slog.w(TAG, "Gamma immersive prop refresh failed", t);
-                }
+                synchronized (mLock) {
+                    try {
+                        // Re-evaluate and dispatch SystemBar attributes immediately.
+                        // This triggers StatusBarManagerService → SystemUI to apply changes.
+                        getInsetsPolicy().updateBarControlTarget(mFocusedWindow);
+                        updateSystemBarAttributes();
+                        // Force a full relayout + insets dispatch now so the change
+                        // applies without waiting for any focus/layout/input event.
+                        mDisplayContent.setLayoutNeeded();
+                        mDisplayContent.mWmService.requestTraversal();
+                    } catch (Throwable t) {
+                        Slog.w(TAG, "Gamma immersive prop refresh failed", t);
+                    }
+                } // synchronized (mLock)
             });
         }
     };
@@ -797,6 +807,7 @@ public class DisplayPolicy {
         // GammaOS: watch persist.gammaos.immersive and refresh immediately on change
         try {
             android.os.SystemProperties.addChangeCallback(mGammaImmersivePropListener);
+            mGammaImmersivePropRegistered = true;
         } catch (Throwable t) {
             // On older trees where addChangeCallback() isn't exposed, we just no-op.
             Slog.i(TAG, "SystemProperties.addChangeCallback unavailable; "
@@ -816,9 +827,22 @@ public class DisplayPolicy {
         if (!CLIENT_TRANSIENT) {
             mSystemGestures.systemReady();
         }
+        // GammaOS: ensure sysprop callback is registered after boot (some builds
+        // ignore early registrations), and snap current value immediately.
+        if (!mGammaImmersivePropRegistered) {
+            try {
+                android.os.SystemProperties.addChangeCallback(mGammaImmersivePropListener);
+                mGammaImmersivePropRegistered = true;
+            } catch (Throwable t) {
+                Slog.i(TAG, "Gamma immersive: unable to register sysprop callback at systemReady");
+            }
+        }
         if (mService.mPointerLocationEnabled) {
             setPointerLocationEnabled(true);
         }
+        // Apply current prop immediately after boot, without waiting for any other event.
+        // (Also ensures correct initial state if the prop was set via property files.)
+        mGammaImmersivePropListener.run();
     }
 
     public void updateSettings() {
@@ -2433,6 +2457,7 @@ public class DisplayPolicy {
         // Evaluate forced immersive once per pass and apply immediate hide/show.
         final boolean gammaForceImmersive =
                 android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1;
+        final boolean __gammaPropChanged = (gammaForceImmersive != mLastGammaImmersive);
         // IMPORTANT:
         // Don't hard-hide the bar windows; that disables swipe-to-reveal because the
         // gesture affordance lives with those windows. We only steer visibility via
@@ -2517,7 +2542,8 @@ public class DisplayPolicy {
                 && Objects.equals(mFocusedApp, focusedApp)
                 && mLastFocusIsFullscreen == isFullscreen
                 && Arrays.equals(mLastStatusBarAppearanceRegions, statusBarAppearanceRegions)
-                && Arrays.equals(mLastLetterboxDetails, letterboxDetails)) {
+                && Arrays.equals(mLastLetterboxDetails, letterboxDetails)
+                && !__gammaPropChanged) {
             return;
         }
         if (mDisplayContent.isDefaultDisplay && (mLastFocusIsFullscreen != isFullscreen
@@ -2528,6 +2554,7 @@ public class DisplayPolicy {
         mLastAppearance = appearance;
         mLastBehavior = behavior;
         mLastRequestedVisibleTypes = requestedVisibleTypes;
+        mLastGammaImmersive = gammaForceImmersive;
         mFocusedApp = focusedApp;
         mLastFocusIsFullscreen = isFullscreen;
         mLastStatusBarAppearanceRegions = statusBarAppearanceRegions;
