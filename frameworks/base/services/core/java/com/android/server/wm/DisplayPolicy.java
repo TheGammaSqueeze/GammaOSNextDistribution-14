@@ -170,6 +170,7 @@ public class DisplayPolicy {
                 try {
                     // Re-evaluate and dispatch SystemBar attributes immediately.
                     // This triggers StatusBarManagerService → SystemUI to apply changes.
+                    getInsetsPolicy().updateBarControlTarget(mFocusedWindow);
                     updateSystemBarAttributes();
                     // Hint WM to do a layout/insets pass right away.
                     mService.mWindowPlacerLocked.requestTraversal();
@@ -180,36 +181,13 @@ public class DisplayPolicy {
         }
     };
 
-    /** Hide/show bars and launcher taskbar immediately based on the prop. */
+    /**
+     * Legacy hook kept as a no-op. We no longer hard-hide StatusBar/Taskbar when
+     * persist.gammaos.immersive=1, to preserve swipe-to-reveal transient behavior.
+     */
     private void applyGammaForcedImmersive(boolean force) {
-        synchronized (mLock) {
-            // Status bar (SysUI)
-            if (mStatusBar != null) {
-                if (force) {
-                    mStatusBar.hide(false /* doAnimation */, true /* requestAnim */);
-                } else {
-                    mStatusBar.show(false /* doAnimation */, true /* requestAnim */);
-                }
-            }
-            // Launcher taskbar (Trebuchet) uses TYPE_NAVIGATION_BAR_PANEL
-            mDisplayContent.forAllWindows(w -> {
-                if (w.mAttrs.type == TYPE_NAVIGATION_BAR_PANEL) {
-                    // Limit to Launcher taskbar; avoid touching other SysUI panels/overlays.
-                    final String pkg = w.mAttrs.packageName;
-                    final CharSequence title = w.mAttrs.getTitle();
-                    final boolean isLauncherTaskbar =
-                            "com.android.launcher3".equals(pkg)
-                            || (title != null && "Taskbar".contentEquals(title));
-                    if (isLauncherTaskbar) {
-                        if (force) {
-                            w.hide(false /* doAnimation */, true /* requestAnim */);
-                        } else {
-                            w.show(false /* doAnimation */, true /* requestAnim */);
-                        }
-                    }
-                }
-            }, /* traverseTopToBottom */ false);
-        }
+        // Intentionally empty. Visibility is governed by requestedVisibleTypes and
+        // WindowInsetsController behavior in updateSystemBarAttributes().
     }
 
     // The panic gesture may become active only after the keyguard is dismissed and the immersive
@@ -1638,6 +1616,24 @@ public class DisplayPolicy {
             }
         }
 
+        // GammaOS: When globally forcing immersive, some providers (e.g., Taskbar)
+        // may report 0px systemGestures, leaving no gesture host -> swipes ignored.
+        // Ensure we still have gesture hosts so requestTransientBars() has a target.
+        if (android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1) {
+            final InsetsSourceProvider provider = win.getControllableInsetProvider();
+            if (provider != null) {
+                final int t = provider.getSource().getType();
+                if (mBottomGestureHost == null
+                        && (t & Type.navigationBars()) != 0) {
+                    mBottomGestureHost = win;
+                }
+                if (mTopGestureHost == null
+                        && (t & Type.statusBars()) != 0) {
+                    mTopGestureHost = win;
+                }
+            }
+        }
+
         if (win.mSession.mCanForceShowingInsets) {
             mForciblyShownTypes |= win.mAttrs.forciblyShownTypes;
         }
@@ -1898,6 +1894,11 @@ public class DisplayPolicy {
      * @return Whether the top fullscreen app hides the given type of system bar.
      */
     boolean topAppHidesSystemBar(@InsetsType int type) {
+        if (android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1) {
+            // Treat as hidden globally, regardless of app requests.
+            // (Control-window selection must remain null-safe elsewhere.)
+            return true;
+        }
         if (mTopFullscreenOpaqueWindowState == null
                 || getInsetsPolicy().areTypesForciblyShowing(type)) {
             return false;
@@ -2432,7 +2433,11 @@ public class DisplayPolicy {
         // Evaluate forced immersive once per pass and apply immediate hide/show.
         final boolean gammaForceImmersive =
                 android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1;
-        applyGammaForcedImmersive(gammaForceImmersive);
+        // IMPORTANT:
+        // Don't hard-hide the bar windows; that disables swipe-to-reveal because the
+        // gesture affordance lives with those windows. We only steer visibility via
+        // requestedVisibleTypes + transient behavior so swipes can bring them back.
+        // (Keep the rest of this method as-is.)
 
         // If there is no window focused, there will be nobody to handle the events anyway,
         // so just hang on in whatever state we're in until things settle down.
@@ -2478,9 +2483,11 @@ public class DisplayPolicy {
         final int appearance = updateLightNavigationBarLw(win.mAttrs.insetsFlags.appearance,
                 navColorWin) | opaqueAppearance;
         final WindowState navBarControlWin = topAppHidesSystemBar(Type.navigationBars())
-                ? mTopFullscreenOpaqueWindowState
+                ? (mTopFullscreenOpaqueWindowState != null ? mTopFullscreenOpaqueWindowState : win)
                 : win;
-        int behavior = navBarControlWin.mAttrs.insetsFlags.behavior;
+        int behavior = (navBarControlWin != null)
+                ? navBarControlWin.mAttrs.insetsFlags.behavior
+                : android.view.WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_TOUCH; // safe default
         final String focusedApp = win.mAttrs.packageName;
         final boolean isFullscreen = !win.isRequestedVisible(Type.statusBars())
                 || !win.isRequestedVisible(Type.navigationBars());

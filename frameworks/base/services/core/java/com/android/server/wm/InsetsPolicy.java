@@ -111,6 +111,39 @@ class InsetsPolicy {
             abortTransient();
         }
         mFocusedWin = focusedWin;
+        
+        // GammaOS: global forced immersive
+        // Force-hide bars, but allow transient reveal by swipe.
+        if (android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1) {
+            // No fake targets in this mode.
+            mFakeStatusControlTarget = null;
+            mFakeNavControlTarget = null;
+            // Allow swipe-to-reveal behavior.
+            final ControlTarget perm = (ControlTarget) mPermanentControlTarget;
+            perm.mInsetsController.setSystemBarsBehavior(
+                    BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+
+            // If not currently transient, keep the bars hidden; if transient, don't fight it.
+            final boolean statusTransient = isTransient(WindowInsets.Type.statusBars());
+            final boolean navTransient = isTransient(WindowInsets.Type.navigationBars());
+            int hideTypes = 0;
+            if (!statusTransient) hideTypes |= WindowInsets.Type.statusBars();
+            if (!navTransient)    hideTypes |= WindowInsets.Type.navigationBars();
+            if (hideTypes != 0) {
+                perm.mInsetsController.hide(hideTypes);
+            }
+
+            // Give control to transient target only for bars that are being revealed.
+            final InsetsControlTarget statusTarget =
+                    statusTransient ? mTransientControlTarget : mPermanentControlTarget;
+            final InsetsControlTarget navTarget =
+                    navTransient ? mTransientControlTarget : mPermanentControlTarget;
+            mStateController.onBarControlTargetChanged(
+                    statusTarget, /*fakeStatus=*/null, navTarget, /*fakeNav=*/null);
+            mStatusBar.updateVisibility(statusTarget,  WindowInsets.Type.statusBars());
+            mNavBar.updateVisibility(navTarget,       WindowInsets.Type.navigationBars());
+            return;
+        }
         final WindowState notificationShade = mPolicy.getNotificationShade();
         final WindowState topApp = mPolicy.getTopFullscreenOpaqueWindow();
         final InsetsControlTarget statusControlTarget =
@@ -599,6 +632,8 @@ class InsetsPolicy {
                         : 0;
 
         // GammaOS: If global immersive is forced, do not forcibly show any system bars.
+        // This does NOT affect transient; WindowInsetsController behavior remains
+        // BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE so edge swipes still reveal bars.
         if (android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1) {
             mForcedShowingTypes = 0;
         }
@@ -715,7 +750,7 @@ class InsetsPolicy {
         }
     }
 
-    private static class ControlTarget implements InsetsControlTarget, Runnable {
+    private class ControlTarget implements InsetsControlTarget, Runnable {
 
         private final Handler mHandler;
         private final Object mGlobalLock;
@@ -744,6 +779,37 @@ class InsetsPolicy {
                 mInsetsController.onStateChanged(mState);
                 mInsetsController.onControlsChanged(mStateController.getControlsForDispatch(this));
             }
+        }
+
+        @Override
+        public int getRequestedVisibleTypes() {
+            return mInsetsController.getRequestedVisibleTypes();
+        }
+
+        @Override
+        public boolean isRequestedVisible(@WindowInsets.Type.InsetsType int type) {
+            // In global immersive mode, treat bars as requested-visible while they are
+            // being shown transiently (i.e. during the swipe reveal). Otherwise keep hidden.
+            if (android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1
+                    && (type & (WindowInsets.Type.statusBars()
+                                | WindowInsets.Type.navigationBars())) != 0) {
+                if (InsetsPolicy.this.isTransient(type)) {
+                    return true;
+                }
+                return false;
+            }
+            return (getRequestedVisibleTypes() & type) != 0;
+        }
+
+        @Override
+        public boolean canShowTransient() {
+            // Let WM policy show transient bars when the global override is active,
+            // or if this controller was explicitly configured for transient-by-swipe.
+            if (android.os.SystemProperties.getInt("persist.gammaos.immersive", 0) == 1) {
+                return true;
+            }
+            return mInsetsController.getSystemBarsBehavior()
+                    == BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
         }
 
         @Override
@@ -805,8 +871,12 @@ class InsetsPolicy {
             t.close();
         }
 
+        // Keep a local copy; not strictly required for WM, but useful for diagnostics.
+        private volatile int mRequestedTypes = WindowInsets.Type.defaultVisible();
         @Override
-        public void updateRequestedVisibleTypes(int types) { }
+        public void updateRequestedVisibleTypes(int types) {
+            mRequestedTypes = types;
+        }
 
         @Override
         public boolean hasAnimationCallbacks() {
@@ -826,6 +896,7 @@ class InsetsPolicy {
 
         @Override
         public int getSystemBarsBehavior() {
+            // Ensure swipe-to-reveal remains enabled while globally hidden.
             return BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
         }
 
