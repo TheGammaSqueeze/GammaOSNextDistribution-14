@@ -152,6 +152,10 @@ import lineageos.providers.LineageSettings;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.SimpleDateFormat;
@@ -2338,6 +2342,124 @@ public final class PowerManagerService extends SystemService
         mInjector.invalidateIsInteractiveCaches();
     }
 
+    private boolean isUltraPowerSaveEnabled() {
+        return SystemProperties.getBoolean("persist.gammaos.ultra_low_power_saving_mode", false);
+    }
+
+    private boolean shouldExcludeFreeze(int uid, String[] packages) {
+        if (packages != null) {
+            for (String pkg : packages) {
+                if (pkg.startsWith("com.android") || pkg.startsWith("org.lineageos")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Freeze all non-system apps by writing "1" to their cgroup.freeze file
+    private void freezeNonSystemApps() {
+        Slog.i(TAG, "Freezing non-system apps for ultra power saving mode");
+        File cgroupRoot = new File("/sys/fs/cgroup");
+        File[] uidDirs = cgroupRoot.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith("uid_");
+            }
+        });
+        if (uidDirs == null) return;
+        for (File uidDir : uidDirs) {
+            int uid = extractUid(uidDir.getName());
+            if (uid >= 10000) {
+                String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
+                String pkgInfo = (packages != null) ? Arrays.toString(packages) : "unknown";
+                if (shouldExcludeFreeze(uid, packages)) {
+                    Slog.i(TAG, "Excluding UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
+                    continue;
+                }
+                Slog.i(TAG, "Freezing UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
+                File[] pidDirs = uidDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.startsWith("pid_");
+                    }
+                });
+                if (pidDirs == null) continue;
+                for (File pidDir : pidDirs) {
+                    Slog.i(TAG, "Freezing pid directory: " + pidDir.getName() + " for UID: " + uid);
+                    File freezeFile = new File(pidDir, "cgroup.freeze");
+                    writeStringToFile(freezeFile, "1");
+                }
+            }
+        }
+    }
+
+    // Unfreeze non-system apps by writing "0" to their cgroup.freeze file
+    private void unfreezeNonSystemApps() {
+        Slog.i(TAG, "Unfreezing non-system apps for ultra power saving mode");
+        File cgroupRoot = new File("/sys/fs/cgroup");
+        File[] uidDirs = cgroupRoot.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith("uid_");
+            }
+        });
+        if (uidDirs == null) return;
+        for (File uidDir : uidDirs) {
+            int uid = extractUid(uidDir.getName());
+            if (uid >= 10000) {
+                String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
+                String pkgInfo = (packages != null) ? Arrays.toString(packages) : "unknown";
+                if (shouldExcludeFreeze(uid, packages)) {
+                    Slog.i(TAG, "Excluding unfreeze for UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
+                    continue;
+                }
+                Slog.i(TAG, "Unfreezing UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
+                File[] pidDirs = uidDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.startsWith("pid_");
+                    }
+                });
+                if (pidDirs == null) continue;
+                for (File pidDir : pidDirs) {
+                    Slog.i(TAG, "Unfreezing pid directory: " + pidDir.getName() + " for UID: " + uid);
+                    File freezeFile = new File(pidDir, "cgroup.freeze");
+                    writeStringToFile(freezeFile, "0");
+                }
+            }
+        }
+    }
+
+    // Helper to extract the UID from a directory name formatted as "uid_<number>"
+    private int extractUid(String dirName) {
+        try {
+            return Integer.parseInt(dirName.substring(4));
+        } catch (NumberFormatException e) {
+            Slog.e(TAG, "Failed to extract UID from directory name: " + dirName, e);
+            return -1;
+        }
+    }
+
+    // Helper method to write a string to a file
+    private void writeStringToFile(File file, String content) {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(content.getBytes());
+        } catch (IOException e) {
+            Slog.e(TAG, "Error writing to file " + file.getAbsolutePath(), e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    // Ignore closing exception
+                }
+            }
+        }
+    }
+
     @SuppressWarnings("deprecation")
     @GuardedBy("mLock")
     private void updateGlobalWakefulnessLocked(long eventTime, int reason, int uid,
@@ -2356,6 +2478,9 @@ public final class PowerManagerService extends SystemService
                 Slog.i(TAG, "Sleeping (uid " + uid + ")...");
                 // TODO(b/215518989): Remove this once transactions are in place
                 SystemProperties.set("sys.screen.state", "off");
+                if (isUltraPowerSaveEnabled()) {
+                    freezeNonSystemApps();
+                }
                 if (currentWakefulness != WAKEFULNESS_DOZING) {
                     // in case we are going to sleep without dozing before
                     mLastGlobalSleepTime = eventTime;
@@ -2372,6 +2497,9 @@ public final class PowerManagerService extends SystemService
                         + ", details=" + details
                         + ")...");
                 SystemProperties.set("sys.screen.state", "on");
+                if (isUltraPowerSaveEnabled()) {
+                    unfreezeNonSystemApps();
+                }
                 mLastGlobalWakeTime = eventTime;
                 mLastGlobalWakeReason = reason;
                 mLastGlobalWakeTimeRealtime = mClock.elapsedRealtime();
@@ -2381,6 +2509,9 @@ public final class PowerManagerService extends SystemService
                 traceMethodName = "nap";
                 Slog.i(TAG, "Nap time (uid " + uid + ")...");
 				SystemProperties.set("sys.screen.state", "off");
+                if (isUltraPowerSaveEnabled()) {
+                    freezeNonSystemApps();
+                }
                 break;
 
             case WAKEFULNESS_DOZING:
@@ -2391,6 +2522,9 @@ public final class PowerManagerService extends SystemService
                         + ", maxDimRatio=" + mMaximumScreenDimRatioConfig
                         + ", maxDimDur=" + mMaximumScreenDimDurationConfig + ")...");
                         SystemProperties.set("sys.screen.state", "off");
+                if (isUltraPowerSaveEnabled()) {
+                    freezeNonSystemApps();
+                }
                 mLastGlobalSleepTime = eventTime;
                 mLastGlobalSleepReason = reason;
                 mLastGlobalSleepTimeRealtime = mClock.elapsedRealtime();
