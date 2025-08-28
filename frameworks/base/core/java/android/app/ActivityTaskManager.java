@@ -250,13 +250,8 @@ public class ActivityTaskManager {
      * E.g. freeform, split-screen, picture-in-picture.
      */
     public static boolean supportsMultiWindow(Context context) {
-        // On watches, multi-window is used to present essential system UI, and thus it must be
-        // supported regardless of device memory characteristics.
-        boolean isWatch = context.getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_WATCH);
-        return (!ActivityManager.isLowRamDeviceStatic() || isWatch)
-                && Resources.getSystem().getBoolean(
-                com.android.internal.R.bool.config_supportsMultiWindow);
+        // GammaOS: Force-enable multi-window regardless of low RAM or config booleans.
+        return true;
     }
 
     /**
@@ -267,18 +262,8 @@ public class ActivityTaskManager {
      * a display.
      */
     public static boolean supportsSplitScreenMultiWindow(Context context) {
-        DisplayMetrics dm = new DisplayMetrics();
-        context.getDisplay().getRealMetrics(dm);
-
-        int widthDp = (int) (dm.widthPixels / dm.density);
-        int heightDp = (int) (dm.heightPixels / dm.density);
-        if (Math.max(widthDp, heightDp) < DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP) {
-            return false;
-        }
-
-        return supportsMultiWindow(context)
-                && Resources.getSystem().getBoolean(
-                com.android.internal.R.bool.config_supportsSplitScreenMultiWindow);
+        // GammaOS: Force-enable split-screen regardless of dp size, low-ram, or config booleans.
+        return true;
     }
 
     /**

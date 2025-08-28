@@ -62,6 +62,11 @@ import android.os.UserManager;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
+import android.app.role.RoleManager;
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.annotation.Nullable;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.BlockedAppActivity;
@@ -505,19 +510,31 @@ class ActivityStartInterceptor {
             return false;
         }
 
-        if (mComponentSpecified) {
-            final ComponentName homeComponent = mIntent.getComponent();
+        // Figure out the allowed HOME component (prefer HOME role holder; else default home).
+        ComponentName allowed = resolveHomeRoleHolder(mUserId);
+        if (allowed == null) {
             final Intent homeIntent = mService.getHomeIntent();
-            final ActivityInfo aInfo = mService.mRootWindowContainer.resolveHomeActivity(
-                    mUserId, homeIntent);
-            if (!aInfo.getComponentName().equals(homeComponent)) {
-                // Do nothing if the intent is not for the default home component.
-                return false;
-            }
+            final ActivityInfo aInfo =
+                    mService.mRootWindowContainer.resolveHomeActivity(mUserId, homeIntent);
+            allowed = (aInfo != null) ? aInfo.getComponentName() : null;
         }
 
-        if (!ActivityRecord.isHomeIntent(mIntent) || mComponentSpecified) {
-            // This is not a standard home intent, make it so if possible.
+        // If HOME is implicit, targets Resolver, or targets a different component than allowed,
+        // pin it to the allowed component and force re-resolution.
+        final ComponentName current = mIntent.getComponent();
+        if (allowed != null && (
+                !mComponentSpecified
+                || isResolverComponent(current)
+                || (current != null && !allowed.equals(current)))) {
+            mIntent.setComponent(allowed);
+            mComponentSpecified = true;
+            intercepted = true; // <- ensures mRInfo/mAInfo are re-resolved below
+        }
+
+        if (!ActivityRecord.isHomeIntent(mIntent)) {
+            // Not a standard home intent (wrong action/category/data/type). Normalize it.
+            // If the intent already specifies the default HOME component, keep it
+            // so we don't fall back to ResolverActivity when multiple HOME apps exist.
             normalizeHomeIntent();
             intercepted = true;
         }
@@ -538,26 +555,38 @@ class ActivityStartInterceptor {
 
     private void normalizeHomeIntent() {
         Slog.w(TAG, "The home Intent is not correctly formatted");
-        if (mIntent.getCategories().size() > 1) {
+        // Clean up categories if missing/wrong/too many; ensure exactly one HOME category.
+        final java.util.Set<String> cats = mIntent.getCategories();
+        final boolean hasHome = mIntent.hasCategory(CATEGORY_HOME);
+        final boolean hasSecondary = mIntent.hasCategory(CATEGORY_SECONDARY_HOME);
+        if (cats == null || cats.size() > 1 || (!hasHome && !hasSecondary)) {
             Slog.d(TAG, "Purge home intent categories");
-            boolean isSecondaryHome = false;
-            final Object[] categories = mIntent.getCategories().toArray();
-            for (int i = categories.length - 1; i >= 0; i--) {
-                final String category = (String) categories[i];
-                if (CATEGORY_SECONDARY_HOME.equals(category)) {
-                    isSecondaryHome = true;
+            final boolean isSecondaryHome = hasSecondary;
+            if (cats != null) {
+                for (String c : new java.util.HashSet<>(cats)) {
+                    mIntent.removeCategory(c);
                 }
-                mIntent.removeCategory(category);
             }
             mIntent.addCategory(isSecondaryHome ? CATEGORY_SECONDARY_HOME : CATEGORY_HOME);
         }
         if (mIntent.getType() != null || mIntent.getData() != null) {
             Slog.d(TAG, "Purge home intent data/type");
             mIntent.setType(null);
+            mIntent.setData(null);
         }
         if (mComponentSpecified) {
-            Slog.d(TAG, "Purge home intent component, " + mIntent.getComponent());
-            mIntent.setComponent(null);
+            // Keep component if it matches the HOME role holder; otherwise, fall back to default-home.
+            ComponentName allowed = resolveHomeRoleHolder(mUserId);
+            if (allowed == null) {
+                final Intent homeIntent = mService.getHomeIntent();
+                final ActivityInfo aInfo =
+                        mService.mRootWindowContainer.resolveHomeActivity(mUserId, homeIntent);
+                allowed = aInfo != null ? aInfo.getComponentName() : null;
+            }
+            if (allowed == null || !allowed.equals(mIntent.getComponent())) {
+                Slog.d(TAG, "Purge home intent component, " + mIntent.getComponent());
+                mIntent.setComponent(null);
+            }
         }
         mIntent.addFlags(FLAG_ACTIVITY_NEW_TASK);
     }
@@ -619,6 +648,55 @@ class ActivityStartInterceptor {
                 .setCheckedOptions(mActivityOptions)
                 .setClearOptionsAnimationRunnable(clearOptionsAnimation)
                 .build();
+    }
+
+    private boolean isResolverComponent(@Nullable ComponentName cn) {
+        return cn != null
+                && "android".equals(cn.getPackageName())
+                && "com.android.internal.app.ResolverActivity".equals(cn.getClassName());
+    }
+
+    @Nullable
+    private ComponentName resolveHomeRoleHolder(int userId) {
+        // Query the HOME role holder for the specific user; prefer it over default-home.
+        try {
+            final Context userCtx = mService.mContext.createContextAsUser(
+                    UserHandle.of(userId), 0 /* flags */);
+            final RoleManager rm = userCtx.getSystemService(RoleManager.class);
+            if (rm != null) {
+                final java.util.List<String> holders =
+                        rm.getRoleHolders(RoleManager.ROLE_HOME);
+                if (holders != null && holders.size() == 1) {
+                    final Intent probe = mService.getHomeIntent().setPackage(holders.get(0));
+                    final ResolveInfo ri = mService.mContext.getPackageManager()
+                            .resolveActivityAsUser(probe,
+                                    PackageManager.MATCH_DEFAULT_ONLY, userId);
+                    if (ri != null && ri.activityInfo != null) {
+                        return ri.activityInfo.getComponentName();
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            // Be conservative: fall back to default-home if role lookup fails.
+            Slog.w(TAG, "resolveHomeRoleHolder failed", t);
+        }
+        return null;
+    }
+
+    @Nullable
+    private ComponentName resolveDefaultHome(int userId) {
+        // Prefer framework’s default-home resolution.
+        final Intent homeIntent = mService.getHomeIntent();
+        final ActivityInfo aInfo =
+                mService.mRootWindowContainer.resolveHomeActivity(userId, homeIntent);
+        if (aInfo != null) {
+            return aInfo.getComponentName();
+        }
+        // Fallback: if exactly one HOME-capable activity is present, use it.
+        final java.util.List<ResolveInfo> list = mService.mContext.getPackageManager()
+                .queryIntentActivitiesAsUser(homeIntent, PackageManager.MATCH_DEFAULT_ONLY, userId);
+        return (list != null && list.size() == 1 && list.get(0).activityInfo != null)
+                ? list.get(0).activityInfo.getComponentName() : null;
     }
 
 }

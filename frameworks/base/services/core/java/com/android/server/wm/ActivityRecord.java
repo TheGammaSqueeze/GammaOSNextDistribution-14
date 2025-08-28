@@ -8477,13 +8477,19 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         mIsAspectRatioApplied = false;
         mIsEligibleForFixedOrientationLetterbox = false;
         mLetterboxBoundsForFixedOrientationAndAspectRatio = null;
+        final int parentWindowingMode = newParentConfiguration.windowConfiguration.getWindowingMode();
 
-        // Can't use resolvedConfig.windowConfiguration.getWindowingMode() because it can be
-        // different from windowing mode of the task (PiP) during transition from fullscreen to PiP
-        // and back which can cause visible issues (see b/184078928).
-        final int parentWindowingMode =
-                newParentConfiguration.windowConfiguration.getWindowingMode();
-        final boolean isFixedOrientationLetterboxAllowed =
+        // --- GammaOS: In split-screen, never letterbox (fixed-orientation or aspect-ratio).
+        final boolean inSplitScreen = parentWindowingMode == WINDOWING_MODE_MULTI_WINDOW;
+        // GammaOS: block fixed-orientation letterbox in split-screen when display is fixed
+        // to user rotation (autorotate OFF / force-landscape). Otherwise Shell caps stage
+        // height (~2/3) and leaves a bottom gap.
+        // Use boolean helper; some trees don't expose the mode constant.
+        final boolean fixedToUserRotation =
+                mDisplayContent != null
+                        && mDisplayContent.getDisplayRotation().isFixedToUserRotation();
+
+        final boolean stockAllowsLetterbox =
                 parentWindowingMode == WINDOWING_MODE_MULTI_WINDOW
                         || parentWindowingMode == WINDOWING_MODE_FULLSCREEN
                         // When starting to switch between PiP and fullscreen, the task is pinned
@@ -8493,8 +8499,14 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
                                 && parentWindowingMode == WINDOWING_MODE_PINNED
                                 && resolvedConfig.windowConfiguration.getWindowingMode()
                                         == WINDOWING_MODE_FULLSCREEN);
-        // TODO(b/181207944): Consider removing the if condition and always run
-        // resolveFixedOrientationConfiguration() since this should be applied for all cases.
+
+        // Stock allows fixed-orientation letterbox in multi-window. We don't.
+        final boolean isFixedOrientationLetterboxAllowed = !inSplitScreen
+                && (parentWindowingMode == WINDOWING_MODE_FULLSCREEN
+                    || (!mWaitForEnteringPinnedMode
+                        && parentWindowingMode == WINDOWING_MODE_PINNED
+                        && resolvedConfig.windowConfiguration.getWindowingMode()
+                                == WINDOWING_MODE_FULLSCREEN));
         if (isFixedOrientationLetterboxAllowed) {
             resolveFixedOrientationConfiguration(newParentConfiguration);
         }
@@ -9019,12 +9031,9 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
      */
     private boolean isDefaultMultiWindowLetterboxAspectRatioDesired(
             @NonNull Configuration parentConfig) {
-        if (mDisplayContent == null) {
-            return false;
-        }
-        final int windowingMode = parentConfig.windowConfiguration.getWindowingMode();
-        return WindowConfiguration.inMultiWindowMode(windowingMode)
-                && !mDisplayContent.getIgnoreOrientationRequest();
+        // GammaOS: Never letterbox for aspect-ratio in multi-window. The split stage defines
+        // the content area; further clamping causes the short window you’re seeing.
+        return false;
     }
 
     /**
@@ -9035,6 +9044,14 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
      */
     private void resolveAspectRatioRestriction(Configuration newParentConfiguration) {
         final Configuration resolvedConfig = getResolvedOverrideConfiguration();
+        // --- GammaOS: Do not apply aspect-ratio letterboxing in split-screen. The split stage
+        // defines the app area; extra clamping causes the short windows you observed.
+        final int parentWindowingMode =
+                newParentConfiguration.windowConfiguration.getWindowingMode();
+        if (parentWindowingMode == WINDOWING_MODE_MULTI_WINDOW) {
+            mIsAspectRatioApplied = false;
+            return;
+        }
         final Rect parentAppBounds = newParentConfiguration.windowConfiguration.getAppBounds();
         final Rect parentBounds = newParentConfiguration.windowConfiguration.getBounds();
         final Rect resolvedBounds = resolvedConfig.windowConfiguration.getBounds();
