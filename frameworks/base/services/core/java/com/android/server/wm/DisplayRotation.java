@@ -2095,14 +2095,28 @@ public class DisplayRotation {
 
         @Override
         public void onProposedRotationChanged(@Surface.Rotation int rotation) {
-            ProtoLog.v(WM_DEBUG_ORIENTATION, "onProposedRotationChanged, rotation=%d", rotation);
+            // GammaOS: adjust proposed rotation by accelerometer mounting offset
+            int sensorOffset = 0;
+            final String sensorOrientProp =
+                    SystemProperties.get("ro.sensors.accelerometer_orientation", "ORIENTATION_0");
+            if ("ORIENTATION_90".equals(sensorOrientProp)) {
+                sensorOffset = Surface.ROTATION_90;
+            } else if ("ORIENTATION_180".equals(sensorOrientProp)) {
+                sensorOffset = Surface.ROTATION_180;
+            } else if ("ORIENTATION_270".equals(sensorOrientProp)) {
+                sensorOffset = Surface.ROTATION_270;
+            }
+            final int adjustedRotation = (rotation - sensorOffset + 4) % 4;
+
+            ProtoLog.v(WM_DEBUG_ORIENTATION, "onProposedRotationChanged, raw=%d adjusted=%d",
+                    rotation, adjustedRotation);
             // Send interaction power boost to improve redraw performance.
             mService.mPowerManagerInternal.setPowerBoost(Boost.INTERACTION, 0);
-            dispatchProposedRotation(rotation);
-            if (isRotationChoiceAllowed(rotation)) {
-                mRotationChoiceShownToUserForConfirmation = rotation;
-                final boolean isValid = isValidRotationChoice(rotation);
-                sendProposedRotationChangeToStatusBarInternal(rotation, isValid);
+            dispatchProposedRotation(adjustedRotation);
+            if (isRotationChoiceAllowed(adjustedRotation)) {
+                mRotationChoiceShownToUserForConfirmation = adjustedRotation;
+                final boolean isValid = isValidRotationChoice(adjustedRotation);
+                sendProposedRotationChangeToStatusBarInternal(adjustedRotation, isValid);
             } else {
                 mRotationChoiceShownToUserForConfirmation = ROTATION_UNDEFINED;
                 mService.updateRotation(false /* alwaysSendConfiguration */,

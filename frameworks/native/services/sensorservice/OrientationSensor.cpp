@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <sys/types.h>
+#include <cutils/properties.h>
 
 #include <utils/Errors.h>
 
@@ -44,6 +45,18 @@ OrientationSensor::OrientationSensor() {
     mSensor = Sensor(&sensor);
 }
 
+// GammaOS: helper to construct rotation matrix for Z-axis rotation in degrees.
+static mat33_t getRotationMatrixForSensorOrientation(int sensorRotDegrees) {
+    mat33_t rot;
+    const float rad = sensorRotDegrees * M_PI / 180.0f;
+    const float c = cosf(rad);
+    const float s = sinf(rad);
+    rot[0][0] =  c; rot[0][1] = -s; rot[0][2] = 0.0f;
+    rot[1][0] =  s; rot[1][1] =  c; rot[1][2] = 0.0f;
+    rot[2][0] = 0.0f; rot[2][1] = 0.0f; rot[2][2] = 1.0f;
+    return rot;
+}
+
 bool OrientationSensor::process(sensors_event_t* outEvent,
         const sensors_event_t& event)
 {
@@ -51,7 +64,17 @@ bool OrientationSensor::process(sensors_event_t* outEvent,
         if (mSensorFusion.hasEstimate()) {
             vec3_t g;
             const float rad2deg = 180 / M_PI;
-            const mat33_t R(mSensorFusion.getRotationMatrix());
+            mat33_t R(mSensorFusion.getRotationMatrix());
+            // GammaOS: apply accelerometer mounting orientation
+            {
+                char prop[PROPERTY_VALUE_MAX];
+                property_get("ro.sensors.accelerometer_orientation", prop, "0");
+                int sensorRot = atoi(prop);
+                if (sensorRot != 0) {
+                    const mat33_t sensorRotMatrix = getRotationMatrixForSensorOrientation(sensorRot);
+                    R = sensorRotMatrix * R;
+                }
+            }
             g[0] = atan2f(-R[1][0], R[0][0])    * rad2deg;
             g[1] = atan2f(-R[2][1], R[2][2])    * rad2deg;
             g[2] = asinf ( R[2][0])             * rad2deg;

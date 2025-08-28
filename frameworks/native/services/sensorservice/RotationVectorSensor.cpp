@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <sys/types.h>
+#include <cutils/properties.h>
 
 #include <utils/Errors.h>
 
@@ -48,7 +49,28 @@ bool RotationVectorSensor::process(sensors_event_t* outEvent,
 {
     if (event.type == SENSOR_TYPE_ACCELEROMETER) {
         if (mSensorFusion.hasEstimate(mMode)) {
-            const vec4_t q(mSensorFusion.getAttitude(mMode));
+            vec4_t q(mSensorFusion.getAttitude(mMode));
+            // GammaOS: adjust quaternion by accelerometer mounting orientation
+            {
+                char prop[PROPERTY_VALUE_MAX];
+                property_get("ro.sensors.accelerometer_orientation", prop, "0");
+                int sensorRot = atoi(prop);
+                if (sensorRot != 0) {
+                    const float halfRad = (sensorRot * M_PI / 180.0f) * 0.5f;
+                    // quaternion for rotation about Z axis by sensorRot degrees
+                    vec4_t zrot;
+                    zrot.x = 0.0f; zrot.y = 0.0f;
+                    zrot.z = sinf(halfRad);
+                    zrot.w = cosf(halfRad);
+                    // q' = zrot * q
+                    vec4_t out;
+                    out.x = zrot.w * q.x + zrot.x * q.w + zrot.y * q.z - zrot.z * q.y;
+                    out.y = zrot.w * q.y - zrot.x * q.z + zrot.y * q.w + zrot.z * q.x;
+                    out.z = zrot.w * q.z + zrot.x * q.y - zrot.y * q.x + zrot.z * q.w;
+                    out.w = zrot.w * q.w - zrot.x * q.x - zrot.y * q.y - zrot.z * q.z;
+                    q = out;
+                }
+            }
             *outEvent = event;
             outEvent->data[0] = q.x;
             outEvent->data[1] = q.y;

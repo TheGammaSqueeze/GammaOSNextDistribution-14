@@ -28,6 +28,7 @@
 #include "TouchButtonAccumulator.h"
 #include "TouchCursorInputMapperCommon.h"
 #include "ui/Rotation.h"
+#include <cutils/properties.h>
 
 namespace android {
 
@@ -405,6 +406,22 @@ TouchInputMapper::Parameters TouchInputMapper::computeParameters(
             parameters.orientation = ui::ROTATION_270;
         } else if (*orientationString != "ORIENTATION_0") {
             ALOGW("Invalid value for touch.orientation: '%s'", orientationString->c_str());
+        }
+    }
+
+    // GammaOS: allow overriding primary touch orientation via system property.
+    {
+        char prop[PROPERTY_VALUE_MAX];
+        if (property_get("ro.input_flinger.primary_touch_orientation", prop, "") > 0) {
+            ui::Rotation propRot = ui::ROTATION_0;
+            if (!strcmp(prop, "ORIENTATION_90"))       propRot = ui::ROTATION_90;
+            else if (!strcmp(prop, "ORIENTATION_180")) propRot = ui::ROTATION_180;
+            else if (!strcmp(prop, "ORIENTATION_270")) propRot = ui::ROTATION_270;
+            parameters.orientation = parameters.orientation + propRot;
+            // Target-specific quirk: remap 180° to 90°.
+            if (parameters.orientation == ui::ROTATION_180) {
+                parameters.orientation = ui::ROTATION_90;
+            }
         }
     }
 

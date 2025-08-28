@@ -564,6 +564,11 @@ private:
     SensorConnectionHolder mConnectionHolder;
     bool mWakeLockAcquired;
     sensors_event_t *mSensorEventBuffer, *mSensorEventScratch, *mRuntimeSensorEventBuffer;
+    // GammaOS: per-sensor orientation overrides (0=0°, 1=90°, 2=180°, 3=270°)
+    int mAccelerometerOrientation = 0;
+    int mGyroscopeOrientation = 0;
+    int mMagnetometerOrientation = 0;
+
     // WARNING: these SensorEventConnection instances must not be promoted to sp, except via
     // modification to add support for them in ConnectionSafeAutolock
     wp<const SensorEventConnection> * mMapFlushEventsToConnections;

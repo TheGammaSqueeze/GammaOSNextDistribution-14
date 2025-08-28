@@ -85,6 +85,7 @@ public abstract class WindowOrientationListener {
 
     private int mCurrentRotation = -1;
     private final Context mContext;
+    private final int mSysuiAccelOffset;
 
     private final Object mLock = new Object();
 
@@ -123,6 +124,9 @@ public abstract class WindowOrientationListener {
         mDefaultRotation = defaultRotation;
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mRate = rate;
+        // GammaOS: sysui may shift accel-based rotation by property (degrees)
+        mSysuiAccelOffset = (SystemProperties.getInt(
+                "ro.sensors.sysui_accelerometer_orientation", 0) / 90) & 3;
         List<Sensor> l = mSensorManager.getSensorList(Sensor.TYPE_DEVICE_ORIENTATION);
         Sensor wakeUpDeviceOrientationSensor = null;
         Sensor nonWakeUpDeviceOrientationSensor = null;
@@ -1145,7 +1149,8 @@ public abstract class WindowOrientationListener {
 
         @Override
         public void onSensorChanged(SensorEvent event) {
-            int reportedRotation = (int) event.values[0];
+            final int raw = (int) event.values[0];
+            int reportedRotation = (raw + WindowOrientationListener.this.mSysuiAccelOffset) & 3;
             if (reportedRotation < 0 || reportedRotation > 3) {
                 return;
             }

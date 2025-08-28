@@ -74,6 +74,44 @@ using namespace std::chrono_literals;
 namespace sensorservice_flags = com::android::frameworks::sensorservice::flags;
 
 namespace android {
+    
+// GammaOS: helpers to rotate 3D vectors by multiples of 90 degrees around Z
+static inline void rotateXYZ(float& x, float& y, float& /*z*/, int orientation) {
+    if (orientation == 0) return;
+    const float ox = x, oy = y;
+    switch (orientation & 3) {
+        case 1: // 90° CW
+            x = -oy; y = ox; break;
+        case 2: // 180°
+            x = -ox; y = -oy; break;
+        case 3: // 270° CW
+            x = oy; y = -ox; break;
+        default:
+            break;
+    }
+}
+
+static inline void rotateSensorEventIfNeeded(sensors_event_t& event, int orientation) {
+    if ((orientation & 3) == 0) return;
+    switch (event.type) {
+        case SENSOR_TYPE_ACCELEROMETER:
+        case SENSOR_TYPE_ACCELEROMETER_UNCALIBRATED:
+            rotateXYZ(event.acceleration.x, event.acceleration.y, event.acceleration.z, orientation);
+            break;
+        case SENSOR_TYPE_GYROSCOPE:
+        case SENSOR_TYPE_GYROSCOPE_UNCALIBRATED:
+            rotateXYZ(event.gyro.x, event.gyro.y, event.gyro.z, orientation);
+            break;
+        case SENSOR_TYPE_MAGNETIC_FIELD:
+        case SENSOR_TYPE_MAGNETIC_FIELD_UNCALIBRATED:
+        case SENSOR_TYPE_ORIENTATION:
+            rotateXYZ(event.magnetic.x, event.magnetic.y, event.magnetic.z, orientation);
+            break;
+        default:
+            break;
+    }
+}
+
 // ---------------------------------------------------------------------------
 
 /*
@@ -301,6 +339,36 @@ void SensorService::onFirstRef() {
     SensorDevice& dev(SensorDevice::getInstance());
 
     sHmacGlobalKeyIsValid = initializeHmacKey();
+
+    // GammaOS: read per-sensor orientation overrides from properties.
+    {
+        char propValue[PROPERTY_VALUE_MAX];
+        int val = 0;
+
+        property_get("ro.sensors.accelerometer_orientation", propValue, "ORIENTATION_0");
+        val = 0;
+        if (!strcmp(propValue, "ORIENTATION_90")) val = 1;
+        else if (!strcmp(propValue, "ORIENTATION_180")) val = 2;
+        else if (!strcmp(propValue, "ORIENTATION_270")) val = 3;
+        mAccelerometerOrientation = val;
+        ALOGI("SensorService: mAccelerometerOrientation = %d", mAccelerometerOrientation);
+
+        property_get("ro.sensors.gyroscope_orientation", propValue, "ORIENTATION_0");
+        val = 0;
+        if (!strcmp(propValue, "ORIENTATION_90")) val = 1;
+        else if (!strcmp(propValue, "ORIENTATION_180")) val = 2;
+        else if (!strcmp(propValue, "ORIENTATION_270")) val = 3;
+        mGyroscopeOrientation = val;
+        ALOGI("SensorService: mGyroscopeOrientation = %d", mGyroscopeOrientation);
+
+        property_get("ro.sensors.magnetometer_orientation", propValue, "ORIENTATION_0");
+        val = 0;
+        if (!strcmp(propValue, "ORIENTATION_90")) val = 1;
+        else if (!strcmp(propValue, "ORIENTATION_180")) val = 2;
+        else if (!strcmp(propValue, "ORIENTATION_270")) val = 3;
+        mMagnetometerOrientation = val;
+        ALOGI("SensorService: mMagnetometerOrientation = %d", mMagnetometerOrientation);
+    }
 
     if (dev.initCheck() == NO_ERROR) {
         sensor_t const* list;
@@ -1171,6 +1239,37 @@ bool SensorService::threadLoop() {
             }
             device.writeWakeLockHandled(wakeEvents);
         }
+
+        // GammaOS: rotate sensor events according to per-sensor orientation overrides
+        // (do this BEFORE recordLastValueLocked and SensorFusion so virtual sensors see corrected data).
+        if (count > 0) {
+            for (int i = 0; i < count; ++i) {
+                switch (mSensorEventBuffer[i].type) {
+                    case SENSOR_TYPE_ACCELEROMETER:
+                    case SENSOR_TYPE_ACCELEROMETER_UNCALIBRATED:
+                        if (mAccelerometerOrientation) {
+                            rotateSensorEventIfNeeded(mSensorEventBuffer[i], mAccelerometerOrientation);
+                        }
+                        break;
+                    case SENSOR_TYPE_GYROSCOPE:
+                    case SENSOR_TYPE_GYROSCOPE_UNCALIBRATED:
+                        if (mGyroscopeOrientation) {
+                            rotateSensorEventIfNeeded(mSensorEventBuffer[i], mGyroscopeOrientation);
+                        }
+                        break;
+                    case SENSOR_TYPE_MAGNETIC_FIELD:
+                    case SENSOR_TYPE_MAGNETIC_FIELD_UNCALIBRATED:
+                    case SENSOR_TYPE_ORIENTATION:
+                        if (mMagnetometerOrientation) {
+                            rotateSensorEventIfNeeded(mSensorEventBuffer[i], mMagnetometerOrientation);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         recordLastValueLocked(mSensorEventBuffer, count);
 
         // handle virtual sensors

@@ -1747,8 +1747,8 @@
       "group": "WM_DEBUG_ORIENTATION",
       "at": "com\/android\/server\/wm\/DisplayRotation.java"
     },
-    "-8674269704471038429": {
-      "message": "onProposedRotationChanged, rotation=%d",
+    "6979736537858129501": {
+      "message": "onProposedRotationChanged, raw=%d adjusted=%d",
       "level": "VERBOSE",
       "group": "WM_DEBUG_ORIENTATION",
       "at": "com\/android\/server\/wm\/DisplayRotation.java"
