@@ -6903,20 +6903,7 @@ public class ActivityManagerService extends IActivityManager.Stub
     }
 
     public void appNotResponding(final String reason, boolean isContinuousAnr) {
-        TimeoutRecord timeoutRecord = TimeoutRecord.forApp("App requested: " + reason);
-        final int callingPid = Binder.getCallingPid();
-
-        timeoutRecord.mLatencyTracker.waitingOnPidLockStarted();
-        synchronized (mPidsSelfLocked) {
-            timeoutRecord.mLatencyTracker.waitingOnPidLockEnded();
-            final ProcessRecord app = mPidsSelfLocked.get(callingPid);
-            if (app == null) {
-                throw new SecurityException("Unknown process: " + callingPid);
-            }
-
-            mAnrHelper.appNotResponding(app, null, app.info, null, null, false,
-                    timeoutRecord, isContinuousAnr);
-        }
+        // Disabled: ignore appNotResponding requests
     }
 
     void appNotResponding(@NonNull ProcessRecord anrProcess, @NonNull TimeoutRecord timeoutRecord) {
@@ -18848,11 +18835,7 @@ public class ActivityManagerService extends IActivityManager.Stub
 
         @Override
         public void rescheduleAnrDialog(Object data) {
-            Message msg = Message.obtain();
-            msg.what = SHOW_NOT_RESPONDING_UI_MSG;
-            msg.obj = (AppNotRespondingDialog.Data) data;
-
-            mUiHandler.sendMessageDelayed(msg, InputConstants.DEFAULT_DISPATCHING_TIMEOUT_MILLIS);
+            // Disabled: do not reschedule ANR dialog
         }
 
         @Override

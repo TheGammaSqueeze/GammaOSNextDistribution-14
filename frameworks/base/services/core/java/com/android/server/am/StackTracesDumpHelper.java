@@ -449,13 +449,7 @@ public class StackTracesDumpHelper {
     private static synchronized File createAnrDumpFile(File tracesDir) throws IOException {
         final String formattedDate = ANR_FILE_DATE_FORMAT.format(new Date());
         final File anrFile = new File(tracesDir, ANR_FILE_PREFIX + formattedDate);
-
-        if (anrFile.createNewFile()) {
-            FileUtils.setPermissions(anrFile.getAbsolutePath(), 0600, -1, -1); // -rw-------
-            return anrFile;
-        } else {
-            throw new IOException("Unable to create ANR dump file: createNewFile failed");
-        }
+        throw new IOException("Skipping ANR dump");
     }
 
     private static ArrayList<Integer> getExtraPids(ProcessCpuTracker processCpuTracker,

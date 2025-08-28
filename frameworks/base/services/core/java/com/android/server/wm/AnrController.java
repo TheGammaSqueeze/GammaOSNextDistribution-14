@@ -67,69 +67,7 @@ class AnrController {
 
     void notifyAppUnresponsive(InputApplicationHandle applicationHandle,
             TimeoutRecord timeoutRecord) {
-        try {
-            timeoutRecord.mLatencyTracker.notifyAppUnresponsiveStarted();
-            timeoutRecord.mLatencyTracker.preDumpIfLockTooSlowStarted();
-            preDumpIfLockTooSlow();
-            timeoutRecord.mLatencyTracker.preDumpIfLockTooSlowEnded();
-            final ActivityRecord activity;
-            timeoutRecord.mLatencyTracker.waitingOnGlobalLockStarted();
-            boolean blamePendingFocusRequest = false;
-            IBinder focusToken = null;
-            WindowState targetWindowState = null;
-            synchronized (mService.mGlobalLock) {
-                timeoutRecord.mLatencyTracker.waitingOnGlobalLockEnded();
-                activity = ActivityRecord.forTokenLocked(applicationHandle.token);
-                if (activity == null) {
-                    Slog.e(TAG_WM, "Unknown app appToken:" + applicationHandle.name
-                            + ". Dropping notifyNoFocusedWindowAnr request");
-                    return;
-                } else if (activity.mAppStopped) {
-                    Slog.d(TAG_WM, "App is in stopped state:" + applicationHandle.name
-                            + ". Dropping notifyNoFocusedWindowAnr request");
-                    return;
-                }
-
-                // App is unresponsive, but we are actively trying to give focus to a window.
-                // Blame the window if possible since the window may not belong to the app.
-                DisplayContent display = mService.mRoot.getDisplayContent(activity.getDisplayId());
-                if (display != null) {
-                    focusToken = display.getInputMonitor().mInputFocus;
-                }
-                InputTarget focusTarget = mService.getInputTargetFromToken(focusToken);
-
-                if (focusTarget != null) {
-                    // Check if we have a recent focus request, newer than the dispatch timeout,
-                    // then ignore the focus request.
-                    targetWindowState = focusTarget.getWindowState();
-                    blamePendingFocusRequest = SystemClock.uptimeMillis()
-                            - display.getInputMonitor().mInputFocusRequestTimeMillis
-                            >= getInputDispatchingTimeoutMillisLocked(
-                                    targetWindowState.getActivityRecord());
-                }
-
-                if (!blamePendingFocusRequest) {
-                    Slog.i(TAG_WM, "ANR in " + activity.getName() + ".  Reason: "
-                            + timeoutRecord.mReason);
-                    mUnresponsiveAppByDisplay.put(activity.getDisplayId(), activity);
-                }
-            }
-
-            if (blamePendingFocusRequest && notifyWindowUnresponsive(focusToken, timeoutRecord)) {
-                Slog.i(TAG_WM, "Blamed " + targetWindowState.getName()
-                        + " using pending focus request. Focused activity: "
-                        + activity.getName());
-            } else {
-                activity.inputDispatchingTimedOut(timeoutRecord, INVALID_PID);
-            }
-
-            if (!blamePendingFocusRequest) {
-                dumpAnrStateAsync(activity, null /* windowState */, timeoutRecord.mReason);
-            }
-
-        } finally {
-            timeoutRecord.mLatencyTracker.notifyAppUnresponsiveEnded();
-        }
+        // Disabled: do not propagate ANR
     }
 
 
@@ -166,35 +104,7 @@ class AnrController {
      */
     private boolean notifyWindowUnresponsive(@NonNull IBinder inputToken,
             TimeoutRecord timeoutRecord) {
-        timeoutRecord.mLatencyTracker.preDumpIfLockTooSlowStarted();
-        preDumpIfLockTooSlow();
-        timeoutRecord.mLatencyTracker.preDumpIfLockTooSlowEnded();
-        final int pid;
-        final boolean aboveSystem;
-        final ActivityRecord activity;
-        final WindowState windowState;
-        timeoutRecord.mLatencyTracker.waitingOnGlobalLockStarted();
-        synchronized (mService.mGlobalLock) {
-            timeoutRecord.mLatencyTracker.waitingOnGlobalLockEnded();
-            InputTarget target = mService.getInputTargetFromToken(inputToken);
-            if (target == null) {
-                return false;
-            }
-            windowState = target.getWindowState();
-            pid = target.getPid();
-            // Blame the activity if the input token belongs to the window. If the target is
-            // embedded, then we will blame the pid instead.
-            activity = (windowState.mInputChannelToken == inputToken)
-                    ? windowState.mActivityRecord : null;
-            Slog.i(TAG_WM, "ANR in " + target + ". Reason:" + timeoutRecord.mReason);
-            aboveSystem = isWindowAboveSystem(windowState);
-        }
-        if (activity != null) {
-            activity.inputDispatchingTimedOut(timeoutRecord, pid);
-        } else {
-            mService.mAmInternal.inputDispatchingTimedOut(pid, aboveSystem, timeoutRecord);
-        }
-        dumpAnrStateAsync(activity, windowState, timeoutRecord.mReason);
+        // Disabled
         return true;
     }
 
@@ -202,12 +112,7 @@ class AnrController {
      * Notify a window owned by the provided pid was unresponsive.
      */
     private void notifyWindowUnresponsive(int pid, TimeoutRecord timeoutRecord) {
-        Slog.i(TAG_WM,
-                "ANR in input window owned by pid=" + pid + ". Reason: " + timeoutRecord.mReason);
-        // We cannot determine the z-order of the window, so place the anr dialog as high
-        // as possible.
-        mService.mAmInternal.inputDispatchingTimedOut(pid, true /*aboveSystem*/, timeoutRecord);
-        dumpAnrStateAsync(null /* activity */, null /* windowState */, timeoutRecord.mReason);
+        // Disabled
     }
 
     /**

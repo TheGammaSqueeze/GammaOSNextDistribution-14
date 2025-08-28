@@ -35,7 +35,7 @@ import android.widget.TextView;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto;
 
-final class AppNotRespondingDialog extends BaseErrorDialog implements View.OnClickListener {
+final class AppNotRespondingDialog extends BaseErrorDialog {
     private static final String TAG = "AppNotRespondingDialog";
 
     // Event 'what' codes
@@ -52,146 +52,22 @@ final class AppNotRespondingDialog extends BaseErrorDialog implements View.OnCli
 
     public AppNotRespondingDialog(ActivityManagerService service, Context context, Data data) {
         super(context);
-
         mService = service;
         mProc = data.proc;
         mData = data;
-        Resources res = context.getResources();
-
-        setCancelable(false);
-
-        int resid;
-        CharSequence name1 = data.aInfo != null
-                ? data.aInfo.loadLabel(context.getPackageManager())
-                : null;
-        CharSequence name2 = null;
-        if (mProc.getPkgList().size() == 1
-                && (name2 = context.getPackageManager().getApplicationLabel(mProc.info)) != null) {
-            if (name1 != null) {
-                resid = com.android.internal.R.string.anr_activity_application;
-            } else {
-                name1 = name2;
-                name2 = mProc.processName;
-                resid = com.android.internal.R.string.anr_application_process;
-            }
-        } else {
-            if (name1 != null) {
-                name2 = mProc.processName;
-                resid = com.android.internal.R.string.anr_activity_process;
-            } else {
-                name1 = mProc.processName;
-                resid = com.android.internal.R.string.anr_process;
-            }
-        }
-
-        BidiFormatter bidi = BidiFormatter.getInstance();
-
-        setTitle(name2 != null
-                ? res.getString(resid, bidi.unicodeWrap(name1.toString()), bidi.unicodeWrap(name2.toString()))
-                : res.getString(resid, bidi.unicodeWrap(name1.toString())));
-
-        if (data.aboveSystem) {
-            getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ERROR);
-        }
-        WindowManager.LayoutParams attrs = getWindow().getAttributes();
-        attrs.setTitle("Application Not Responding: " + mProc.info.processName);
-        attrs.privateFlags = WindowManager.LayoutParams.PRIVATE_FLAG_SYSTEM_ERROR |
-                WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS;
-        getWindow().setAttributes(attrs);
+        // Disabled: no UI initialization
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        final FrameLayout frame = findViewById(android.R.id.custom);
-        final Context context = getContext();
-        LayoutInflater.from(context).inflate(
-                com.android.internal.R.layout.app_anr_dialog, frame, true);
-
-        final TextView report = findViewById(com.android.internal.R.id.aerr_report);
-        report.setOnClickListener(this);
-        final boolean hasReceiver = mProc.mErrorState.getErrorReportReceiver() != null;
-        report.setVisibility(hasReceiver ? View.VISIBLE : View.GONE);
-        final TextView close = findViewById(com.android.internal.R.id.aerr_close);
-        close.setOnClickListener(this);
-        final TextView wait = findViewById(com.android.internal.R.id.aerr_wait);
-        wait.setOnClickListener(this);
-
-        findViewById(com.android.internal.R.id.customPanel).setVisibility(View.VISIBLE);
+        // Disabled: do not show any ANR UI
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case com.android.internal.R.id.aerr_report:
-                mHandler.obtainMessage(WAIT_AND_REPORT).sendToTarget();
-                break;
-            case com.android.internal.R.id.aerr_close:
-                mHandler.obtainMessage(FORCE_CLOSE).sendToTarget();
-                break;
-            case com.android.internal.R.id.aerr_wait:
-                mHandler.obtainMessage(WAIT).sendToTarget();
-                break;
-            default:
-                break;
-        }
-    }
-
-    private final Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            Intent appErrorIntent = null;
-
-            MetricsLogger.action(getContext(), MetricsProto.MetricsEvent.ACTION_APP_ANR,
-                    msg.what);
-
-            switch (msg.what) {
-                case FORCE_CLOSE:
-                    // Kill the application.
-                    mService.killAppAtUsersRequest(mProc);
-                    break;
-                case WAIT_AND_REPORT:
-                case WAIT:
-                    // Continue waiting for the application.
-                    synchronized (mService) {
-                        ProcessRecord app = mProc;
-                        final ProcessErrorStateRecord errState = app.mErrorState;
-
-                        if (msg.what == WAIT_AND_REPORT) {
-                            appErrorIntent = mService.mAppErrors.createAppErrorIntentLOSP(app,
-                                    System.currentTimeMillis(), null);
-                        }
-
-                        synchronized (mService.mProcLock) {
-                            errState.setNotResponding(false);
-                            // We're not clearing the ANR report here, in case we'd need to report
-                            // it again when the ANR dialog shows again.
-                            // errState.setNotRespondingReport(null);
-                            errState.getDialogController().clearAnrDialogs();
-                        }
-                        mService.mServices.scheduleServiceTimeoutLocked(app);
-                        if (mData.isContinuousAnr) {
-                            // If the app remains unresponsive, show the dialog again after a delay.
-                            mService.mInternal.rescheduleAnrDialog(mData);
-                        }
-                    }
-                    break;
-            }
-
-            if (appErrorIntent != null) {
-                try {
-                    getContext().startActivity(appErrorIntent);
-                } catch (ActivityNotFoundException e) {
-                    Slog.w(TAG, "bug report receiver dissappeared", e);
-                }
-            }
-
-            dismiss();
-        }
-    };
+    private final Handler mHandler = new Handler() { public void handleMessage(Message msg) { /* disabled */ } };
 
     @Override
     protected void closeDialog() {
-        mHandler.obtainMessage(FORCE_CLOSE).sendToTarget();
+        // Disabled
     }
 
     static class Data {

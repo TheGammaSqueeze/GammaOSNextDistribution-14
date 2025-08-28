@@ -224,34 +224,7 @@ class AnrHelper {
         public void run() {
             AnrRecord r;
             while ((r = next()) != null) {
-                scheduleBinderHeavyHitterAutoSamplerIfNecessary();
-                final int currentPid = r.mApp.mPid;
-                if (currentPid != r.mPid) {
-                    // The process may have restarted or died.
-                    Slog.i(TAG, "Skip ANR with mismatched pid=" + r.mPid + ", current pid="
-                            + currentPid);
-                    continue;
-                }
-                final long startTime = SystemClock.uptimeMillis();
-                // If there are many ANR at the same time, the latency may be larger.
-                // If the latency is too large, the stack trace might not be meaningful.
-                final long reportLatency = startTime - r.mTimestamp;
-                final boolean onlyDumpSelf = reportLatency > EXPIRED_REPORT_TIME_MS
-                        || startTime < SELF_ONLY_AFTER_BOOT_MS;
-                r.appNotResponding(onlyDumpSelf);
-                final long endTime = SystemClock.uptimeMillis();
-                Slog.d(TAG, "Completed ANR of " + r.mApp.processName + " in "
-                        + (endTime - startTime) + "ms, latency " + reportLatency
-                        + (onlyDumpSelf ? "ms (expired, only dump ANR app)" : "ms"));
-            }
-
-            mRunning.set(false);
-            synchronized (mAnrRecords) {
-                mProcessingPid = -1;
-                // The race should be unlikely to happen. Just to make sure we don't miss.
-                if (!mAnrRecords.isEmpty()) {
-                    startAnrConsumerIfNeeded();
-                }
+                // Disabled: skip ANR processing
             }
         }
 
