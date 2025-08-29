@@ -1001,6 +1001,13 @@
             android:exported="false">
         </activity>
 
+        
+        <activity
+            android:name=".qs.tiles.MappingEditorTile$MappingEditorActivity"
+            android:exported="false"
+            android:label="Change Button Mappings"
+            android:theme="@style/Theme.SystemUI.Dialog.Alert" />
+
         <!-- Doze with notifications, run in main sysui process for every user  -->
         <service
             android:name=".doze.DozeService"

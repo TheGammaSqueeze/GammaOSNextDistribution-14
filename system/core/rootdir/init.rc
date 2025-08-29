@@ -1378,3 +1378,4 @@ on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=
 
 on property:sys.boot_completed=1 && property:persist.gammaos.dcdimmingemulation=0
   start gammaosdcdimming_disable
+
