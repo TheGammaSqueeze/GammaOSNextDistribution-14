@@ -501,7 +501,7 @@ public class InvariantDeviceProfile implements OnSharedPreferenceChangeListener 
                 .filter(deviceProfile -> deviceProfile.isTablet)
                 .mapToInt(deviceProfile -> deviceProfile.numShownHotseatIcons)
                 .min()
-                .orElse(0);
+                .orElse(1);
 
         supportedProfiles
                 .stream()

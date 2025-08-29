@@ -130,8 +130,10 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         int rowWidth = myRequestedWidth - mAppsView.getActiveRecyclerView().getPaddingLeft()
                 - mAppsView.getActiveRecyclerView().getPaddingRight();
 
+        // Taskbar-triggered All Apps can have 0 shown hotseat icons; avoid divide-by-zero.
+        int columns = Math.max(1, dp.numShownHotseatIcons);
         int cellWidth = DeviceProfile.calculateCellWidth(rowWidth,
-                dp.cellLayoutBorderSpacePx.x, dp.numShownHotseatIcons);
+                dp.cellLayoutBorderSpacePx.x, columns);
         int iconVisibleSize = Math.round(ICON_VISIBLE_AREA_FACTOR * dp.iconSizePx);
         int iconPadding = cellWidth - iconVisibleSize;
 

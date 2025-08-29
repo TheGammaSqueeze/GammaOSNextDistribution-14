@@ -1949,11 +1949,17 @@ public class DeviceProfile {
     }
 
     public static int calculateCellWidth(int width, int borderSpacing, int countX) {
-        return (width - ((countX - 1) * borderSpacing)) / countX;
+        if (countX <= 0) countX = 1;
+        int gaps = (countX - 1) * borderSpacing;
+        if (gaps < 0) gaps = 0;
+        return (width - gaps) / countX;
     }
 
     public static int calculateCellHeight(int height, int borderSpacing, int countY) {
-        return (height - ((countY - 1) * borderSpacing)) / countY;
+        if (countY <= 0) countY = 1;
+        int gaps = (countY - 1) * borderSpacing;
+        if (gaps < 0) gaps = 0;
+        return (height - gaps) / countY;
     }
 
     /**

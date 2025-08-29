@@ -2257,7 +2257,7 @@
          PackageManager.FEATURE_TELEPHONY system feature, which is
          available on *any* device with a telephony radio, even if the
          device is data-only. -->
-    <bool name="config_voice_capable">true</bool>
+    <bool name="config_voice_capable">false</bool>
 
     <!-- Flag indicating whether all audio streams should be mapped to
          one single stream. If true, all audio streams are mapped to
@@ -2314,7 +2314,7 @@
 
          Note: Disable SMS also disable voicemail waiting sms,
                cell broadcasting sms, and MMS. -->
-    <bool name="config_sms_capable">true</bool>
+    <bool name="config_sms_capable">false</bool>
 
     <!-- Default SMS Application. This will be the default SMS application when
          the phone first boots. The user can then change the default app to one

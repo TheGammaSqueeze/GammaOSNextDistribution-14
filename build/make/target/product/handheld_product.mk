@@ -35,7 +35,6 @@ PRODUCT_PACKAGES += \
 
 ifeq ($(LINEAGE_BUILD),)
 PRODUCT_PACKAGES += \
-    Camera2 \
     LatinIME
 endif
 

@@ -2,8 +2,6 @@
 #TODO: Proper detection
 PRODUCT_COPY_FILES := \
 	frameworks/native/data/etc/android.hardware.fingerprint.xml:system/etc/permissions/android.hardware.fingerprint.xml \
-	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
-	frameworks/native/data/etc/android.hardware.telephony.ims.xml:system/etc/permissions/android.hardware.telephony.ims.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
 	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
@@ -26,9 +24,9 @@ PRODUCT_PACKAGE_OVERLAYS += \
 PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += \
 	device/phh/treble/overlay-lineage/lineage-sdk
 
-$(call inherit-product, vendor/hardware_overlay/overlay.mk)
+#$(call inherit-product, vendor/hardware_overlay/overlay.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
+#$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 
 #Those overrides are here because Huawei's init read properties
 #from /system/etc/prop.default, then /vendor/build.prop, then /system/build.prop
@@ -113,11 +111,7 @@ endif
 PRODUCT_PACKAGES += \
 	android.hidl.manager-V1.0-java \
 	vendor.huawei.hardware.biometrics.fingerprint-V2.1-java \
-	vendor.huawei.hardware.tp-V1.0-java \
-	vendor.qti.hardware.radio.am-V1.0-java \
-	vendor.qti.qcril.am-V1.0-java \
-	vendor.xiaomi.hardware.displayfeature-V1.0-java\
-    QcRilAm
+	vendor.huawei.hardware.tp-V1.0-java
 
 PRODUCT_COPY_FILES += \
 	device/phh/treble/interfaces.xml:system/etc/permissions/interfaces.xml
