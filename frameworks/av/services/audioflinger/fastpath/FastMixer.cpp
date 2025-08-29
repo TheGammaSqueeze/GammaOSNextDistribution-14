@@ -50,6 +50,7 @@
 #include <vector>
 #include <atomic>
 #include <math.h>
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 /* GammaEQ speaker-only gating (fast-path safe) */
@@ -86,6 +87,7 @@ struct SpeakerPEQ {
     bool enabled{false};
     bool s2enabled{false};
     float pregain{1.0f};
+    bool  keepHeadroom{true};
     float limiter{0.0f}; // 0 = off
     int   seq{0};
     int64_t lastCheckNs{0};
@@ -106,11 +108,11 @@ struct SpeakerPEQ {
         if (!enabled || ch < 2) return;
         const float pre = pregain;
         const float inv = pre > 0.f ? 1.f / pre : 1.f;
-        for (size_t i=0;i<frames*ch;++i) interleaved[i] *= pre;
+        if (pre != 1.0f) for (size_t i=0;i<frames*ch;++i) interleaved[i] *= pre;
         s1.process(interleaved, frames);
         if (s2enabled) s2.process(interleaved, frames);
         softLimit(interleaved, frames*ch);
-        for (size_t i=0;i<frames*ch;++i) interleaved[i] *= inv;
+        if (!keepHeadroom && pre != 1.0f) for (size_t i=0;i<frames*ch;++i) interleaved[i] *= inv;
     }
 };
 
@@ -124,10 +126,16 @@ static inline int propInt(const char* k, int d) {
     return property_get(k, v, nullptr) > 0 ? atoi(v) : d;
 }
 
+// dB to linear helper (CrystalizerLite)
+static inline float db2lin(float db) {
+    return powf(10.f, db * (1.f/20.f));
+}
+
 static inline void loadSpeakerPEQFromProps(SpeakerPEQ& s) {
     s.enabled   = property_get_bool("persist.sys.spk.peq", false);
     s.s2enabled = property_get_bool("persist.sys.spk.peq2", false);
     s.pregain   = propFloat("persist.sys.spk.peq.pregain", 1.f);
+    s.keepHeadroom = property_get_bool("persist.sys.spk.peq.keepheadroom", true);
     s.limiter   = propFloat("persist.sys.spk.peq.limit",   0.f);
     s.seq       = propInt  ("persist.sys.spk.peq.seq",     0);
 
@@ -148,21 +156,31 @@ static inline void loadSpeakerPEQFromProps(SpeakerPEQ& s) {
 
 static inline void maybeReloadPEQ(SpeakerPEQ& s) {
     const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
-    bool due = (now - s.lastCheckNs) > seconds(1);
+    const bool due = (now - s.lastCheckNs) > seconds(1);
+    // Consider bumps on BOTH seq props (A13 parity for hot-reload).
     int cur = s.seq;
-    if (due) cur = propInt("persist.sys.spk.peq.seq", cur);
+    if (due) {
+        const int seq1 = propInt("persist.sys.spk.peq.seq",  s.seq);
+        const int seq2 = propInt("persist.sys.spk.peq2.seq", seq1);
+        cur = std::max(seq1, seq2);
+    }
     if (due || cur != s.seq) {
         loadSpeakerPEQFromProps(s);
+        // Track combined sequence so either bump retriggers immediately next time.
+        const int seq1 = propInt("persist.sys.spk.peq.seq",  s.seq);
+        const int seq2 = propInt("persist.sys.spk.peq2.seq", seq1);
+        s.seq = std::max(seq1, seq2);
         s.lastCheckNs = now;
     }
 }
 
-// ---- simple high-band stereo widener ----------------------------------------
+// ---- Stereo widener: M/S with side HPF, wet/dry mix, no pregain/limiter ----
 struct StereoWidenerHB {
     std::atomic<bool>  enabled{false};
-    std::atomic<float> amount{0.0f}, mix{1.0f}, pregain{1.0f}, limit{0.98f}, fc{3200.0f};
+    std::atomic<float> amount{1.0f}, mix{0.35f}, pregain{1.0f}, limit{1.0f}, fc{2500.0f};
     int seq{0}; int64_t lastCheckNs{0};
     float zL{0}, zR{0}, a{0}, b{0};
+    float sLP{0};
     void updateCoef(uint32_t sr) {
         const float srf = (float)((sr < 8000u) ? 8000u : sr);
         const float f   = std::min(std::max(fc.load(), 20.0f), srf * 0.45f);
@@ -170,27 +188,26 @@ struct StereoWidenerHB {
         a = x; b = 1.f - x;
     }
 
-    inline float softLimit(float x) const {
-        const float L = limit.load();
-        if (L >= 0.999f) return x;
-        const float ax = fabsf(x);
-        if (ax <= L) return x;
-        const float over = ax - L, rem = 1.f - L, g = rem / (over + rem);
-        return copysignf(L + over * g, x);
-    }
-
     inline void process(float* interleaved, size_t frames, int ch) {
         if (!enabled.load() || ch < 2) return;
-        const float w = amount.load(), m = mix.load(), pre = pregain.load();
-        const float aa=a, bb=b, unpre = 1.f / (pre > 1e-6f ? pre : 1.f);
-        for (size_t i=0;i<frames;++i) {
-            float xL = interleaved[2*i+0]*pre, xR = interleaved[2*i+1]*pre;
-            zL = aa*zL + bb*xL; zR = aa*zR + bb*xR;
-            const float hiL = xL - zL, hiR = xR - zR;
-            const float yL = softLimit(xL + w*(hiL - hiR));
-            const float yR = softLimit(xR + w*(hiR - hiL));
-            interleaved[2*i+0] = (1.f-m)*(xL*unpre) + m*(yL*unpre);
-            interleaved[2*i+1] = (1.f-m)*(xR*unpre) + m*(yR*unpre);
+        const float m  = mix.load();       // wet/dry
+        const float amt = amount.load();   // side gain scaler (new; default 1.0 keeps parity)
+        const float aa = a, bb = b;        // one-pole LP for side; HP = S - LP(S)
+        for (size_t i = 0; i < frames; ++i) {
+            const float L = interleaved[2*i + 0];
+            const float R = interleaved[2*i + 1];
+            // Mid/Side
+            const float M = 0.5f * (L + R);
+            const float S = 0.5f * (L - R);
+            // Side HPF
+            sLP = aa * sLP + bb * S;
+            const float Sh = (S - sLP) * amt;
+            // Widened L/R from M and high-passed side
+            const float Lw = M + Sh;
+            const float Rw = M - Sh;
+            const float dry = 1.f - m, wet = m;
+            interleaved[2*i + 0] = dry * L + wet * Lw;
+            interleaved[2*i + 1] = dry * R + wet * Rw;
         }
     }
 };
@@ -201,11 +218,13 @@ static inline void wideLoad(StereoWidenerHB& w) {
     auto rf=[&](const char* k, float d)->float{
         return property_get(k,v,nullptr)>0 ? (float)atof(v) : d;
     };
-    w.amount.store(rf("persist.sys.spk.wide.amount", 0.35f));
-    w.mix.store   (rf("persist.sys.spk.wide.mix",    1.0f));
-    w.pregain.store(rf("persist.sys.spk.wide.pre",   0.90f));
-    w.limit.store (rf("persist.sys.spk.wide.limit",  0.98f));
-    w.fc.store    (rf("persist.sys.spk.wide.fc",     3200.f));
+    w.amount.store(rf("persist.sys.spk.wide.amount", 1.0f));  // not used by A13 algo
+    w.mix.store   (rf("persist.sys.spk.wide.mix",    0.35f));
+    w.pregain.store(rf("persist.sys.spk.wide.pre",   1.00f));
+    w.limit.store (rf("persist.sys.spk.wide.limit",  1.00f));
+    // Support both A14 fc and legacy A13 hpf properties; prefer fc if set.
+    w.fc.store    (rf("persist.sys.spk.wide.fc",
+                      rf("persist.sys.spk.wide.hpf", 2500.f)));
     w.seq = property_get_int32("persist.sys.spk.wide.seq", 0);
 }
 
@@ -216,6 +235,95 @@ static inline void wideMaybeReload(StereoWidenerHB& w) {
         wideLoad(w);
         w.lastCheckNs = now;
     }
+}
+
+// ---- CrystalizerLite (A13 parity): high-band enhancer with pre/post gain & HPF corner ----
+struct CrystalizerLite {
+    std::atomic<bool> enabled{false};
+    std::atomic<float> amount{0.5f};          // how much high band to add
+    std::atomic<float> mix{1.0f};             // wet/dry
+    std::atomic<float> pregain_db{-6.0f};     // headroom before enhancement
+    std::atomic<float> postgain_db{-6.0f};    // bring back down after
+    std::atomic<float> fc{3500.0f};           // HPF corner for high-band extraction
+    std::atomic<float> limit{1.0f};           // soft limit for added high-band (1.0 = off)
+    int seq{0};
+    int64_t lastCheckNs{0};
+    float a{0}, b{0}, lpL{0}, lpR{0};
+    void updateCoef(uint32_t sr) {
+        const float srf = (float)((sr < 8000u) ? 8000u : sr);
+        const float f   = std::min(std::max(fc.load(), 20.0f), srf * 0.45f);
+        const float x   = expf(-2.f * (float)M_PI * f / srf);
+        a = x; b = 1.f - x;
+    }
+
+    inline void process(float* interleaved, size_t frames, int ch) {
+        if (!enabled.load() || ch < 2) return;
+        const float m  = mix.load();
+        const float dry = 1.f - m, wet = m;
+        const float pre  = db2lin(pregain_db.load());
+        const float post = db2lin(postgain_db.load());
+        const float lim  = limit.load();   // linear threshold for added HB; 1.0 means disabled
+        const float aa = a, bb = b;
+        for (size_t i=0;i<frames;++i) {
+            float L = interleaved[2*i+0] * pre;
+            float R = interleaved[2*i+1] * pre;
+            // high-band = x - lowpass(x)
+            lpL = aa*lpL + bb*L; const float hL = L - lpL;
+            lpR = aa*lpR + bb*R; const float hR = R - lpR;
+            // add high band with an optional soft ceiling on the *added* component
+            float addL = amount.load() * hL;
+            float addR = amount.load() * hR;
+            if (lim < 1.0f) {
+                addL = lim * tanhf(addL / lim);
+                addR = lim * tanhf(addR / lim);
+            }
+            const float Lc = L + addL;
+            const float Rc = R + addR;
+            const float Lo = dry * (L) + wet * (Lc);
+            const float Ro = dry * (R) + wet * (Rc);
+            interleaved[2*i+0] = Lo * post;
+            interleaved[2*i+1] = Ro * post;
+        }
+    }
+};
+
+static inline void crystLoad(CrystalizerLite& c) {
+    c.enabled.store(property_get_bool("persist.sys.spk.cryst", false));
+    char v[PROPERTY_VALUE_MAX] = {};
+    auto rf=[&](const char* k, float d)->float{
+        return property_get(k,v,nullptr)>0 ? (float)atof(v) : d;
+    };
+    c.amount.store     (rf("persist.sys.spk.cryst.amount",      0.5f));
+    c.mix.store        (rf("persist.sys.spk.cryst.mix",         1.0f));
+    c.pregain_db.store (rf("persist.sys.spk.cryst.pregain_db", -6.0f));
+    c.postgain_db.store(rf("persist.sys.spk.cryst.postgain_db",-6.0f));
+    c.fc.store         (rf("persist.sys.spk.cryst.hz",         3500.f));
+    c.limit.store      (rf("persist.sys.spk.cryst.limit",       1.0f));
+    c.seq = property_get_int32("persist.sys.spk.cryst.seq", 0);
+}
+
+static inline void crystMaybeReload(CrystalizerLite& c) {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - c.lastCheckNs > seconds(1) ||
+        property_get_int32("persist.sys.spk.cryst.seq", c.seq) != c.seq) {
+        crystLoad(c);
+        c.lastCheckNs = now;
+    }
+}
+
+// ---- Optional global pre-attenuator (dB) to avoid tripping HAL speaker protection ----
+static inline float getGlobalPreampLin() {
+    static float sLin = 1.0f;
+    static int64_t sLast = 0;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - sLast > seconds(1)) {
+        char v[PROPERTY_VALUE_MAX] = {};
+        const float db = (property_get("persist.sys.gammaeq.preamp_db", v, nullptr) > 0)
+                         ? (float)atof(v) : 0.0f;
+        sLin = db2lin(db);
+        sLast = now;
+    }
+    return sLin;
 }
 
 namespace android {
@@ -657,24 +765,32 @@ void FastMixer::onWork()
         do {
             static SpeakerPEQ sPEQ;
             static StereoWidenerHB sWide;
+            static CrystalizerLite sCryst;
             maybeReloadPEQ(sPEQ);
             wideMaybeReload(sWide);
+            crystMaybeReload(sCryst);
             // Only process when speaker is routed (unless forced) and feature enabled.
             const bool forceAll = gammaeqForceAllOutputs();
             const bool spkOnly  = gammaeqSpeakerOnlyEnabled();
             if (!forceAll && spkOnly && !isSpeakerRoutedNow()) break;
+            // If nothing is enabled, do nothing at all (A13 intent).
+            if (!sPEQ.enabled && !sWide.enabled && !sCryst.enabled) break;
 
             const audio_format_t fmt = mFormat.mFormat;
             const int ch = mAudioChannelCount;
             const size_t sampCount = frameCount * (size_t)ch;
             if (ch < 2) break; // only stereo processing for now
+            const float preamp = getGlobalPreampLin(); // linear gain (<=1 to add headroom)
             switch (fmt) {
                 case AUDIO_FORMAT_PCM_16_BIT: {
                     static thread_local std::vector<float> tmp;
                     tmp.resize(sampCount);
                     memcpy_to_float_from_i16(tmp.data(),
                             reinterpret_cast<const int16_t*>(buffer), sampCount);
+                    if (preamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= preamp;
                     sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
                     memcpy_to_i16_from_float(reinterpret_cast<int16_t*>(buffer),
@@ -686,7 +802,10 @@ void FastMixer::onWork()
                     tmp.resize(sampCount);
                     memcpy_to_float_from_q4_27(tmp.data(),
                             reinterpret_cast<const int32_t*>(buffer), sampCount);
+                    if (preamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= preamp;
                     sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
                     memcpy_to_q4_27_from_float(reinterpret_cast<int32_t*>(buffer),
@@ -698,7 +817,10 @@ void FastMixer::onWork()
                     tmp.resize(sampCount);
                     memcpy_to_float_from_p24(tmp.data(),
                             reinterpret_cast<const uint8_t*>(buffer), sampCount);
+                    if (preamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= preamp;
                     sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
                     memcpy_to_p24_from_float(reinterpret_cast<uint8_t*>(buffer),
@@ -707,7 +829,10 @@ void FastMixer::onWork()
                 }
                 case AUDIO_FORMAT_PCM_FLOAT: {
                     float* fbuf = reinterpret_cast<float*>(buffer);
+                    if (preamp != 1.0f) for (size_t i=0;i<sampCount;++i) fbuf[i] *= preamp;
                     sPEQ.process(fbuf, frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(fbuf, frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(fbuf, frameCount, ch);
                     break;
@@ -717,7 +842,10 @@ void FastMixer::onWork()
                     tmp.resize(sampCount);
                     memcpy_to_float_from_i32(tmp.data(),
                             reinterpret_cast<const int32_t*>(buffer), sampCount);
+                    if (preamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= preamp;
                     sPEQ.process(tmp.data(), frameCount, ch);
+                    sCryst.updateCoef(mSampleRate);
+                    sCryst.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
                     memcpy_to_i32_from_float(reinterpret_cast<int32_t*>(buffer),
