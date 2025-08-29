@@ -96,11 +96,18 @@ import com.android.server.display.whitebalance.DisplayWhiteBalanceSettings;
 import com.android.server.lights.LightsManager;
 import com.android.server.lights.LogicalLight;
 import com.android.server.policy.WindowManagerPolicy;
+import android.app.ActivityManager;
 
 import lineageos.providers.LineageSettings;
 
 import java.io.PrintWriter;
 import java.util.Objects;
+
+import android.content.ContentResolver;
+import android.os.SystemProperties;
+import android.os.PowerManager;
+import android.os.UserHandle;
+import android.provider.Settings;
 
 /**
  * Controls the power state of the display.
@@ -135,6 +142,9 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
     private static final boolean DEBUG = DebugUtils.isDebuggable(TAG);
     private static final String SCREEN_ON_BLOCKED_BY_DISPLAYOFFLOAD_TRACE_NAME =
             "Screen on blocked by displayoffload";
+
+    // remember last-seen DC-dimming emulation state
+    private boolean mDcDimEnabled;
 
     // If true, uses the color fade on animation.
     // We might want to turn this off if we cannot get a guarantee that the screen
@@ -649,11 +659,88 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
                 R.bool.config_displayBrightnessBucketsInDoze);
 
         mBootCompleted = bootCompleted;
+
+        // ── GammaOS DC-dimming emulation hook ────────────────────────────────
+        // seed our local flag
+        mDcDimEnabled = android.os.SystemProperties.getInt(
+                "persist.gammaos.dcdimmingemulation", 0) == 1;
+        // reflect initial state into RBC secure settings
+        if (mDcDimEnabled) {
+            android.provider.Settings.Secure.putIntForUser(
+                    mContext.getContentResolver(),
+                    android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED, 1,
+                    android.os.UserHandle.USER_CURRENT);
+            // Nudge ColorDisplayService observers immediately.
+            mContext.getContentResolver().notifyChange(
+                    android.provider.Settings.Secure.getUriFor(
+                            android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED),
+                    /*observer=*/null, /*syncToNetwork=*/false, android.os.UserHandle.USER_CURRENT);
+
+        }
+        android.os.SystemProperties.addChangeCallback(() -> {
+            final boolean now = android.os.SystemProperties.getInt(
+                    "persist.gammaos.dcdimmingemulation", 0) == 1;
+            if (now != mDcDimEnabled) {
+                mDcDimEnabled = now;
+                final android.content.ContentResolver cr = mContext.getContentResolver();
+                android.provider.Settings.Secure.putIntForUser(
+                        cr,
+                        android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED,
+                        now ? 1 : 0,
+                        android.os.UserHandle.USER_CURRENT);
+                // Ensure Extra dim actually toggles right away by notifying observers.
+                cr.notifyChange(
+                        android.provider.Settings.Secure.getUriFor(
+                                android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED), null, false, android.os.UserHandle.USER_CURRENT);
+
+                // re-apply brightness logic
+                mHandler.post(this::updatePowerState);
+            }
+        });
+        // ─────────────────────────────────────────────────────────────────────
     }
 
     private void applyReduceBrightColorsSplineAdjustment() {
         mHandler.obtainMessage(MSG_UPDATE_RBC).sendToTarget();
         sendUpdatePowerState();
+    }
+
+    // Map slider to RBC level whenever emulation is on
+    private void applyDcDimmingOverlay() {
+        final android.content.ContentResolver cr = mContext.getContentResolver();
+        final int user = ActivityManager.getCurrentUser();
+        final boolean dcDim = android.os.SystemProperties.getInt(
+                "persist.gammaos.dcdimmingemulation", 0) == 1;
+
+        if (dcDim) {
+            // SCREEN_BRIGHTNESS_FLOAT: 0.0f..1.0f
+            final float sliderF = android.provider.Settings.System.getFloatForUser(
+                    cr,
+                    android.provider.Settings.System.SCREEN_BRIGHTNESS_FLOAT,
+                    1.0f, user);
+            // RBC level is 1 (bright) .. 95 (dark)
+            int level = 95 - Math.round(sliderF * 94f);
+            level = android.util.MathUtils.constrain(level, 1, 95);
+
+            android.provider.Settings.Secure.putIntForUser(
+                    cr,
+                    android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED,
+                    1, user);
+            android.provider.Settings.Secure.putIntForUser(
+                    cr,
+                    android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_LEVEL,
+                    level, user);
+        } else {
+            android.provider.Settings.Secure.putIntForUser(
+                    cr,
+                    android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED,
+                    0, user);
+            // Make sure the overlay disables instantly when emulation is OFF.
+            cr.notifyChange(
+                    android.provider.Settings.Secure.getUriFor(
+                            android.provider.Settings.Secure.REDUCE_BRIGHT_COLORS_ACTIVATED),
+                    /*observer=*/null, /*syncToNetwork=*/false, user);
+        }
     }
 
     private void handleRbcChanged() {
@@ -998,6 +1085,10 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE),
                 false /*notifyForDescendants*/, mSettingsObserver, UserHandle.USER_ALL);
+        // watch the float slider so we can map it to RBC level when emulation is ON
+        mContext.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_FLOAT),
+                false /*notifyForDescendants*/, mSettingsObserver, UserHandle.USER_ALL);
         if (mFlags.areAutoBrightnessModesEnabled()) {
             mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_FOR_ALS),
@@ -1337,6 +1428,10 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
         // Update the power state request.
         final boolean mustNotify;
         final int previousPolicy;
+        // Whether our GammaOS DC-dimming emulation is currently enabled
+        final boolean dcDimEnabled = android.os.SystemProperties.getInt(
+                "persist.gammaos.dcdimmingemulation",
+                0) == 1;
         boolean mustInitialize = false;
         mBrightnessReasonTemp.set(null);
         mTempBrightnessEvent.reset();
@@ -1543,6 +1638,16 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
             }
             mBrightnessReasonTemp.setReason(BrightnessReason.REASON_MANUAL);
         }
+
+            // ── DC-DIMMING BACKLIGHT PINNING ─────────────────────────────────
+            if (dcDimEnabled) {
+                // Force actual backlight to 100% when emulation is ON;
+                // apparent dimming comes from ColorDisplayService RBC overlay.
+                brightnessState = PowerManager.BRIGHTNESS_MAX; // 1.0f
+                // Avoid slow auto-ramp artifacts; let animator use the fast path.
+                slowChange = false;
+            }
+            // ─────────────────────────────────────────────────────────────────
 
         float ambientLux = mAutomaticBrightnessController == null ? 0
                 : mAutomaticBrightnessController.getAmbientLux();
@@ -3067,7 +3172,15 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            if (uri.equals(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE))) {
+            // 1) DC-dimming emulation: map slider → RBC level
+            if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.SCREEN_BRIGHTNESS_FLOAT))) {
+                mHandler.postAtTime(() -> {
+                    applyDcDimmingOverlay();
+                    updatePowerState();
+                }, mClock.uptimeMillis());
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.SCREEN_BRIGHTNESS_MODE))) {
                 mHandler.postAtTime(() -> {
                     handleBrightnessModeChange();
                     updatePowerState();
