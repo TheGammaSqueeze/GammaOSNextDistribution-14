@@ -43,6 +43,180 @@
 #include <media/AudioMixer.h>
 #include "FastMixer.h"
 #include <afutils/TypedLogger.h>
+// --- GammaEQ: fast-path helpers
+#include <utils/Timers.h>
+#include <cutils/properties.h>
+#include <audio_utils/primitives.h>
+#include <vector>
+#include <atomic>
+#include <math.h>
+
+// -----------------------------------------------------------------------------
+/* GammaEQ speaker-only gating (fast-path safe) */
+static inline bool gammaeqSpeakerOnlyEnabled() {
+    return property_get_bool("persist.sys.gammaeq.spk_only", true);
+}
+
+static inline bool gammaeqForceAllOutputs() {
+    return property_get_bool("persist.sys.gammaeq.force", false);
+}
+
+static inline bool isSpeakerRoutedNow() {
+    // Property maintained by Threads.cpp when SPEAKER route is active.
+    return property_get_bool("sys.gammaeq.route.spk", true);
+}
+
+// ---- Simple 2-stage stereo PEQ with soft limiter (properties-driven) --------
+struct SpeakerPEQ {
+    struct BQ {
+        float b0{1.f}, b1{0.f}, b2{0.f}, a1{0.f}, a2{0.f};
+        float z1L{0.f}, z2L{0.f}, z1R{0.f}, z2R{0.f};
+        inline void reset() { z1L=z2L=z1R=z2R=0.f; }
+        inline void process(float* x, size_t frames) {
+            for (size_t i=0;i<frames;++i) {
+                const float xl = x[2*i+0], xr = x[2*i+1];
+                const float yl = b0*xl + z1L;
+                const float yr = b0*xr + z1R;
+                z1L = b1*xl - a1*yl + z2L; z1R = b1*xr - a1*yr + z2R;
+                z2L = b2*xl - a2*yl;       z2R = b2*xr - a2*yr;
+                x[2*i+0] = yl; x[2*i+1] = yr;
+            }
+        }
+    };
+    bool enabled{false};
+    bool s2enabled{false};
+    float pregain{1.0f};
+    float limiter{0.0f}; // 0 = off
+    int   seq{0};
+    int64_t lastCheckNs{0};
+    BQ s1, s2;
+
+    inline void softLimit(float* x, size_t n) const {
+        if (limiter <= 0.f) return;
+        const float t = limiter;
+        for (size_t i=0;i<n;++i) {
+            float v = x[i];
+            if (v >  t) v = t + (v - t) * 0.25f;
+            if (v < -t) v = -t + (v + t) * 0.25f;
+            x[i] = v;
+        }
+    }
+
+    inline void process(float* interleaved, size_t frames, int ch) {
+        if (!enabled || ch < 2) return;
+        const float pre = pregain;
+        const float inv = pre > 0.f ? 1.f / pre : 1.f;
+        for (size_t i=0;i<frames*ch;++i) interleaved[i] *= pre;
+        s1.process(interleaved, frames);
+        if (s2enabled) s2.process(interleaved, frames);
+        softLimit(interleaved, frames*ch);
+        for (size_t i=0;i<frames*ch;++i) interleaved[i] *= inv;
+    }
+};
+
+static inline float propFloat(const char* k, float d) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    return property_get(k, v, nullptr) > 0 ? (float)atof(v) : d;
+}
+
+static inline int propInt(const char* k, int d) {
+    char v[PROPERTY_VALUE_MAX] = {};
+    return property_get(k, v, nullptr) > 0 ? atoi(v) : d;
+}
+
+static inline void loadSpeakerPEQFromProps(SpeakerPEQ& s) {
+    s.enabled   = property_get_bool("persist.sys.spk.peq", false);
+    s.s2enabled = property_get_bool("persist.sys.spk.peq2", false);
+    s.pregain   = propFloat("persist.sys.spk.peq.pregain", 1.f);
+    s.limiter   = propFloat("persist.sys.spk.peq.limit",   0.f);
+    s.seq       = propInt  ("persist.sys.spk.peq.seq",     0);
+
+    s.s1.b0 = propFloat("persist.sys.spk.peq.b0", 1.f);
+    s.s1.b1 = propFloat("persist.sys.spk.peq.b1", 0.f);
+    s.s1.b2 = propFloat("persist.sys.spk.peq.b2", 0.f);
+    s.s1.a1 = propFloat("persist.sys.spk.peq.a1", 0.f);
+    s.s1.a2 = propFloat("persist.sys.spk.peq.a2", 0.f);
+    s.s1.reset();
+
+    s.s2.b0 = propFloat("persist.sys.spk.peq2.b0", 1.f);
+    s.s2.b1 = propFloat("persist.sys.spk.peq2.b1", 0.f);
+    s.s2.b2 = propFloat("persist.sys.spk.peq2.b2", 0.f);
+    s.s2.a1 = propFloat("persist.sys.spk.peq2.a1", 0.f);
+    s.s2.a2 = propFloat("persist.sys.spk.peq2.a2", 0.f);
+    s.s2.reset();
+}
+
+static inline void maybeReloadPEQ(SpeakerPEQ& s) {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    bool due = (now - s.lastCheckNs) > seconds(1);
+    int cur = s.seq;
+    if (due) cur = propInt("persist.sys.spk.peq.seq", cur);
+    if (due || cur != s.seq) {
+        loadSpeakerPEQFromProps(s);
+        s.lastCheckNs = now;
+    }
+}
+
+// ---- simple high-band stereo widener ----------------------------------------
+struct StereoWidenerHB {
+    std::atomic<bool>  enabled{false};
+    std::atomic<float> amount{0.0f}, mix{1.0f}, pregain{1.0f}, limit{0.98f}, fc{3200.0f};
+    int seq{0}; int64_t lastCheckNs{0};
+    float zL{0}, zR{0}, a{0}, b{0};
+    void updateCoef(uint32_t sr) {
+        const float srf = (float)((sr < 8000u) ? 8000u : sr);
+        const float f   = std::min(std::max(fc.load(), 20.0f), srf * 0.45f);
+        const float x   = expf(-2.f * (float)M_PI * f / srf);
+        a = x; b = 1.f - x;
+    }
+
+    inline float softLimit(float x) const {
+        const float L = limit.load();
+        if (L >= 0.999f) return x;
+        const float ax = fabsf(x);
+        if (ax <= L) return x;
+        const float over = ax - L, rem = 1.f - L, g = rem / (over + rem);
+        return copysignf(L + over * g, x);
+    }
+
+    inline void process(float* interleaved, size_t frames, int ch) {
+        if (!enabled.load() || ch < 2) return;
+        const float w = amount.load(), m = mix.load(), pre = pregain.load();
+        const float aa=a, bb=b, unpre = 1.f / (pre > 1e-6f ? pre : 1.f);
+        for (size_t i=0;i<frames;++i) {
+            float xL = interleaved[2*i+0]*pre, xR = interleaved[2*i+1]*pre;
+            zL = aa*zL + bb*xL; zR = aa*zR + bb*xR;
+            const float hiL = xL - zL, hiR = xR - zR;
+            const float yL = softLimit(xL + w*(hiL - hiR));
+            const float yR = softLimit(xR + w*(hiR - hiL));
+            interleaved[2*i+0] = (1.f-m)*(xL*unpre) + m*(yL*unpre);
+            interleaved[2*i+1] = (1.f-m)*(xR*unpre) + m*(yR*unpre);
+        }
+    }
+};
+
+static inline void wideLoad(StereoWidenerHB& w) {
+    w.enabled.store(property_get_bool("persist.sys.spk.wide", false));
+    char v[PROPERTY_VALUE_MAX] = {};
+    auto rf=[&](const char* k, float d)->float{
+        return property_get(k,v,nullptr)>0 ? (float)atof(v) : d;
+    };
+    w.amount.store(rf("persist.sys.spk.wide.amount", 0.35f));
+    w.mix.store   (rf("persist.sys.spk.wide.mix",    1.0f));
+    w.pregain.store(rf("persist.sys.spk.wide.pre",   0.90f));
+    w.limit.store (rf("persist.sys.spk.wide.limit",  0.98f));
+    w.fc.store    (rf("persist.sys.spk.wide.fc",     3200.f));
+    w.seq = property_get_int32("persist.sys.spk.wide.seq", 0);
+}
+
+static inline void wideMaybeReload(StereoWidenerHB& w) {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - w.lastCheckNs > seconds(1) ||
+        property_get_int32("persist.sys.spk.wide.seq", w.seq) != w.seq) {
+        wideLoad(w);
+        w.lastCheckNs = now;
+    }
+}
 
 namespace android {
 
@@ -479,6 +653,82 @@ void FastMixer::onWork()
         //       but this code should be modified to handle both non-blocking and blocking sinks
         dumpState->mWriteSequence++;
         ATRACE_BEGIN("write");
+        // ---- GammaEQ processing (fast-path friendly) -------------------------
+        do {
+            static SpeakerPEQ sPEQ;
+            static StereoWidenerHB sWide;
+            maybeReloadPEQ(sPEQ);
+            wideMaybeReload(sWide);
+            // Only process when speaker is routed (unless forced) and feature enabled.
+            const bool forceAll = gammaeqForceAllOutputs();
+            const bool spkOnly  = gammaeqSpeakerOnlyEnabled();
+            if (!forceAll && spkOnly && !isSpeakerRoutedNow()) break;
+
+            const audio_format_t fmt = mFormat.mFormat;
+            const int ch = mAudioChannelCount;
+            const size_t sampCount = frameCount * (size_t)ch;
+            if (ch < 2) break; // only stereo processing for now
+            switch (fmt) {
+                case AUDIO_FORMAT_PCM_16_BIT: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_i16(tmp.data(),
+                            reinterpret_cast<const int16_t*>(buffer), sampCount);
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    memcpy_to_i16_from_float(reinterpret_cast<int16_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_8_24_BIT: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_q4_27(tmp.data(),
+                            reinterpret_cast<const int32_t*>(buffer), sampCount);
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    memcpy_to_q4_27_from_float(reinterpret_cast<int32_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_24_BIT_PACKED: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_p24(tmp.data(),
+                            reinterpret_cast<const uint8_t*>(buffer), sampCount);
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    memcpy_to_p24_from_float(reinterpret_cast<uint8_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_FLOAT: {
+                    float* fbuf = reinterpret_cast<float*>(buffer);
+                    sPEQ.process(fbuf, frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(fbuf, frameCount, ch);
+                    break;
+                }
+                case AUDIO_FORMAT_PCM_32_BIT: {
+                    static thread_local std::vector<float> tmp;
+                    tmp.resize(sampCount);
+                    memcpy_to_float_from_i32(tmp.data(),
+                            reinterpret_cast<const int32_t*>(buffer), sampCount);
+                    sPEQ.process(tmp.data(), frameCount, ch);
+                    sWide.updateCoef(mSampleRate);
+                    sWide.process(tmp.data(), frameCount, ch);
+                    memcpy_to_i32_from_float(reinterpret_cast<int32_t*>(buffer),
+                            tmp.data(), sampCount);
+                    break;
+                }
+                default:
+                    break;
+            }
+        } while (0);
+        // ----------------------------------------------------------------------
         const ssize_t framesWritten = mOutputSink->write(buffer, frameCount);
         ATRACE_END();
         dumpState->mWriteSequence++;

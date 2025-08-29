@@ -94,6 +94,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <vector>
 
 // ----------------------------------------------------------------------------
 
@@ -367,6 +368,55 @@ static std::string toString(const std::vector<audio_latency_mode_t>& elements) {
     }
     s.append("}");
     return s;
+}
+
+// GammaEQ: route flag helper
+//  - Write "1" immediately if SPEAKER present.
+//  - Before boot complete, never write "0" (avoid early non-audible routes).
+//  - Ignore empty sets and TELEPHONY_TX-only sets.
+static inline void updateGammaEqSpeakerRouteProp(const DeviceTypeSet& outDevices) {
+    static const bool kDebug = property_get_bool("persist.sys.gammaeq.debugroute", false);
+    char devBuf[256] = {};
+    if (kDebug) {
+        size_t off = 0;
+        for (const auto& d : outDevices) {
+            off += snprintf(devBuf + off, sizeof(devBuf) - off, "0x%08x,", (unsigned)d);
+            if (off >= sizeof(devBuf)) break;
+        }
+    }
+    char bc[PROPERTY_VALUE_MAX] = {};
+    const bool bootComplete = property_get("sys.boot_completed", bc, "0") > 0 && bc[0] == '1';
+
+    if (outDevices.empty()) {
+        if (kDebug) ALOGD("GammaEQ.route skip (empty set)");
+        return;
+    }
+    bool onlyTelephonyTx = true;
+    for (const auto& d : outDevices) {
+        if (d != AUDIO_DEVICE_OUT_TELEPHONY_TX) { onlyTelephonyTx = false; break; }
+    }
+    if (onlyTelephonyTx) {
+        if (kDebug) ALOGD("GammaEQ.route skip (telephony_tx only): devices=[%s]", devBuf);
+        return;
+    }
+    bool onSpeaker = false;
+    for (const auto& d : outDevices) {
+        if (d == AUDIO_DEVICE_OUT_SPEAKER
+                || d == AUDIO_DEVICE_OUT_SPEAKER_SAFE) {
+            onSpeaker = true; break;
+        }
+    }
+    if (onSpeaker) {
+        if (kDebug) ALOGD("GammaEQ.route write=1 (speaker present): devices=[%s]", devBuf);
+        (void)property_set("sys.gammaeq.route.spk", "1");
+        return;
+    }
+    if (!bootComplete) {
+        if (kDebug) ALOGD("GammaEQ.route defer write(0) until boot complete: devices=[%s]", devBuf);
+        return;
+    }
+    if (kDebug) ALOGD("GammaEQ.route write=0: devices=[%s]", devBuf);
+    (void)property_set("sys.gammaeq.route.spk", "0");
 }
 
 static pthread_once_t sFastTrackMultiplierOnce = PTHREAD_ONCE_INIT;
@@ -899,6 +949,7 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_CREATE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
+            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
         } break;
         case CFG_EVENT_RELEASE_AUDIO_PATCH: {
             const DeviceTypeSet oldDevices = getDeviceTypes_l();
@@ -910,11 +961,13 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_RELEASE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
+            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
         } break;
         case CFG_EVENT_UPDATE_OUT_DEVICE: {
             UpdateOutDevicesConfigEventData *data =
                     (UpdateOutDevicesConfigEventData *)event->mData.get();
             updateOutDevices(data->mOutDevices);
+            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
         } break;
         case CFG_EVENT_RESIZE_BUFFER: {
             ResizeBufferConfigEventData *data =
@@ -2188,6 +2241,10 @@ PlaybackThread::PlaybackThread(const sp<IAfThreadCallback>& afThreadCallback,
 
     readOutputParameters_l();
 
+    // GammaEQ: set initial speaker-route flag based on current output devices
+    updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+
+    // Keep the original safety check: mixer channel mask must match HAL channel mask.
     if (mType != SPATIALIZER
             && mMixerChannelMask != mChannelMask) {
         LOG_ALWAYS_FATAL("HAL channel mask %#x does not match mixer channel mask %#x",
