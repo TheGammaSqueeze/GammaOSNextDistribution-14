@@ -159,6 +159,7 @@
 #include "TunnelModeEnabledReporter.h"
 #include "Utils/Dumper.h"
 #include "WindowInfosListenerInvoker.h"
+#include <android-base/properties.h>
 
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
@@ -2751,6 +2752,10 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     }
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
+    // GammaOS: if post-processing shader is enabled, force GPU composition
+    if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
+        refreshArgs.devOptForceClientComposition = true;
+    }
 
     if (mDebugFlashDelay != 0) {
         refreshArgs.devOptForceClientComposition = true;

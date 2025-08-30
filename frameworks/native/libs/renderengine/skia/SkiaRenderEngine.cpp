@@ -83,6 +83,10 @@
 #include "skia/debug/SkiaMemoryReporter.h"
 #include "skia/filters/StretchShaderFactory.h"
 #include "system/graphics-base-v1.0.h"
+#include <android-base/properties.h>
+#include <android-base/strings.h>
+#include <algorithm>
+#include <cstdlib>
 
 namespace {
 
@@ -1153,6 +1157,248 @@ void SkiaRenderEngine::drawLayersInternal(
 
     surfaceAutoSaveRestore.restore();
     mCapture->endCapture();
+    // ---------------- GammaOS: global flat CRT/scanline post-process (A13 parity) ----------
+    if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
+        const bool debugLog = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
+        const bool isProtected = (buffer->getBuffer()->getUsage() & GRALLOC_USAGE_PROTECTED) != 0;
+
+        // Auto-orient scanlines to match the active display rotation
+        float defaultScanAngleDeg = (display.orientation & ui::Transform::ROT_90) ? 90.0f : 0.0f;
+
+        // Params (override via persist.gammaos.shader.params), with A13 defaults
+        bool  testOverlay     = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
+        float scan_px         = 1.0f;
+        float scan_strength   = 0.8f;
+        float triad_px        = 0.0f;
+        float mask_strength   = 0.0f;
+        float scan_phase      = 0.0f;
+        float scan_angle_deg  = defaultScanAngleDeg;
+        float curv            = 0.0f;
+        float vignette        = 0.0f;
+        float edge_soft_px    = 0.0f;
+
+        const std::string paramsStr = android::base::GetProperty("persist.gammaos.shader.params", "");
+        if (!paramsStr.empty()) {
+            for (auto& kv : android::base::Split(paramsStr, ",")) {
+                auto p = android::base::Split(kv, "=");
+                if (p.size() == 2) {
+                    if      (p[0] == "scan_px")          scan_px        = std::max(1.0f,  (float)atof(p[1].c_str()));
+                    else if (p[0] == "scan_strength")     scan_strength  = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
+                    else if (p[0] == "triad_px")          triad_px       = std::max(0.0f,  (float)atof(p[1].c_str()));
+                    else if (p[0] == "mask_strength")     mask_strength  = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
+                    else if (p[0] == "scan_phase")        scan_phase     = std::clamp((float)atof(p[1].c_str()), 0.0f, scan_px);
+                    else if (p[0] == "scan_angle_deg")    scan_angle_deg = (float)atof(p[1].c_str());
+                    else if (p[0] == "curv")              curv           = (float)atof(p[1].c_str());
+                    else if (p[0] == "vignette")          vignette       = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
+                    else if (p[0] == "edge_soft_px")      edge_soft_px   = std::max(0.0f, (float)atof(p[1].c_str()));
+                    else if (p[0] == "test_overlay")      testOverlay    = atoi(p[1].c_str()) != 0; // params override debug prop
+                }
+            }
+        }
+
+        SkCanvas* dstCanvas = mCapture->tryCapture(dstSurface.get());
+        if (!dstCanvas) {
+            if (debugLog) ALOGE("GammaOS CRT: no canvas at post-process; skipping.");
+        } else if (testOverlay) {
+            if (debugLog) ALOGD("GammaOS CRT: test_overlay active (multiply 50%% gray).");
+            SkPaint p;
+            p.setColor(SkColorSetARGB(255, 128, 128, 128));
+            p.setBlendMode(SkBlendMode::kMultiply);
+            dstCanvas->save();
+            dstCanvas->resetMatrix();
+            dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+            dstCanvas->restore();
+        } else if (!isProtected) {
+            // Unprotected output: snapshot + shader (overwrite kSrc), like A13
+            sk_sp<SkImage> srcImage = dstSurface->makeImageSnapshot();
+            if (!srcImage) {
+                if (debugLog) ALOGW("GammaOS CRT: snapshot failed; skipping effect.");
+            } else {
+                static const char* kSkSL = R"(
+                    uniform shader src;
+                    uniform float  scan_px;
+                    uniform float  scan_strength;
+                    uniform float  triad_px;
+                    uniform float  mask_strength;
+                    uniform float  scan_phase;
+                    uniform float  scan_angle_deg;
+                    uniform float  curv;
+                    uniform float  vignette;
+                    uniform float  edge_soft_px;
+                    uniform float2 fb_size; // (w,h)
+                    float2 warp_pixel(float2 p){
+                        float2 wh=fb_size; float a=wh.x/wh.y;
+                        float2 uv=p/wh*2.0-1.0;
+                        uv.x*=a;
+                        float r2=dot(uv,uv);
+                        float2 uv2=uv*(1.0+curv*r2);
+                        uv2.x/=a;
+                        return (uv2*0.5+0.5)*wh;
+                    }
+                    float edge_mask(float2 q, float2 wh) {
+                        float inMask = step(0.0, q.x) * step(0.0, q.y) * step(q.x, wh.x - 1.0) * step(q.y, wh.y - 1.0);
+                        if (edge_soft_px <= 0.0) return inMask;
+                        float2 d = min(q, wh - q);
+                        float distEdge = min(d.x, d.y);
+                        float soft = clamp(distEdge / edge_soft_px, 0.0, 1.0);
+                        return inMask * soft;
+                    }
+                    half4 main(float2 p) {
+                        float2 wh = fb_size;
+                        float2 q = (abs(curv) > 0.0001) ? warp_pixel(p) : p;
+                        float ang = radians(scan_angle_deg);
+                        float ca = cos(ang), sa = sin(ang);
+                        float2 pp = p - 0.5 * wh;
+                        float coord = pp.x * (-sa) + pp.y * (ca);
+                        coord += 0.5 * wh.y;
+                        float period = max(1.0, scan_px);
+                        float row = floor(mod(coord + scan_phase, period));
+                        float band = (row < period * 0.5) ? 0.0 : 1.0;
+                        float darkMul = 1.0 - clamp(scan_strength, 0.0, 1.0);
+                        float scanMul = (band > 0.5) ? 1.0 : darkMul;
+                        float3 triRGB = float3(1.0, 1.0, 1.0);
+                        if (triad_px >= 1.0) {
+                            float px = max(1.0, triad_px);
+                            float t = floor(mod(q.x, px));
+                            float seg = floor(3.0 * t / px);
+                            if (seg < 0.5)       triRGB = float3(1.0, 0.80, 0.80);
+                            else if (seg < 1.5)  triRGB = float3(0.80, 1.0, 0.80);
+                            else                 triRGB = float3(0.80, 0.80, 1.0);
+                            triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
+                        }
+                        half4 c = src.eval(q);
+                        c.rgb *= triRGB * scanMul;
+                        if (vignette > 0.0) {
+                            float a = wh.x / wh.y;
+                            float2 uv = p / wh * 2.0 - 1.0;
+                            uv.x *= a;
+                            float r2 = dot(uv, uv);
+                            float vig = 1.0 - vignette * smoothstep(0.6, 1.0, r2);
+                            c.rgb *= vig;
+                        }
+                        float em = edge_mask(q, wh);
+                        c.rgb *= em;
+                        return c;
+                    }
+                )";
+                auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
+                if (!effect) {
+                    if (debugLog) ALOGE("GammaOS CRT: SkSL compile failed: %s", err.c_str());
+                } else {
+                    SkRuntimeShaderBuilder b(effect);
+                    b.child("src") = srcImage->makeShader(SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
+                    b.uniform("scan_px")        = scan_px;
+                    b.uniform("scan_strength")  = scan_strength;
+                    b.uniform("triad_px")       = triad_px;
+                    b.uniform("mask_strength")  = mask_strength;
+                    b.uniform("scan_phase")     = scan_phase;
+                    b.uniform("scan_angle_deg") = scan_angle_deg;
+                    b.uniform("fb_size")        = SkV2{(float)dstSurface->width(), (float)dstSurface->height()};
+                    b.uniform("curv")           = curv;
+                    b.uniform("vignette")       = vignette;
+                    b.uniform("edge_soft_px")   = edge_soft_px;
+                    SkPaint p; p.setShader(b.makeShader()); p.setBlendMode(SkBlendMode::kSrc);
+                    dstCanvas->save(); dstCanvas->resetMatrix();
+                    dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+                    dstCanvas->restore();
+                    if (debugLog) ALOGD("GammaOS CRT: applied unprotected pass.");
+                }
+            }
+        } else {
+            // Protected: mask-only multiply (no sampling)
+            static const char* kMask = R"(
+                uniform float  scan_px;
+                uniform float  scan_strength;
+                uniform float  triad_px;
+                uniform float  mask_strength;
+                uniform float  scan_phase;
+                uniform float  scan_angle_deg;
+                uniform float  curv;
+                uniform float  vignette;
+                uniform float  edge_soft_px;
+                uniform float2 fb_size;
+                float2 warp_pixel(float2 p) {
+                    float2 wh = fb_size;
+                    float a = wh.x / wh.y;
+                    float2 uv = p / wh * 2.0 - 1.0;
+                    uv.x *= a;
+                    float r2 = dot(uv, uv);
+                    float2 uv2 = uv * (1.0 + curv * r2);
+                    uv2.x /= a;
+                    return (uv2 * 0.5 + 0.5) * wh;
+                }
+                float edge_mask(float2 q, float2 wh) {
+                    float inMask = step(0.0, q.x) * step(0.0, q.y) * step(q.x, wh.x - 1.0) * step(q.y, wh.y - 1.0);
+                    if (edge_soft_px <= 0.0) return inMask;
+                    float2 d = min(q, wh - q);
+                    float distEdge = min(d.x, d.y);
+                    float soft = clamp(distEdge / edge_soft_px, 0.0, 1.0);
+                    return inMask * soft;
+                }
+                half4 main(float2 p) {
+                    float2 wh = fb_size;
+                    float2 q = (abs(curv) > 0.0001) ? warp_pixel(p) : p;
+                    float ang = radians(scan_angle_deg);
+                    float ca = cos(ang), sa = sin(ang);
+                    float2 pp = p - 0.5 * wh;
+                    float coord = pp.x * (-sa) + pp.y * (ca);
+                    coord += 0.5 * wh.y;
+                    float period=max(1.0,scan_px);
+                    float row = floor(mod(coord + scan_phase, period));
+                    float band = (row < period * 0.5) ? 0.0 : 1.0;
+                    float darkMul = 1.0 - clamp(scan_strength, 0.0, 1.0);
+                    float scanMul = (band > 0.5) ? 1.0 : darkMul;
+                    float3 triRGB = float3(1.0, 1.0, 1.0);
+                    if (triad_px >= 1.0) {
+                        float px = max(1.0, triad_px);
+                        float t = floor(mod(q.x, px));
+                        float seg = floor(3.0 * t / px);
+                        if (seg < 0.5)       triRGB = float3(1.0, 0.80, 0.80);
+                        else if (seg < 1.5)  triRGB = float3(0.80, 1.0, 0.80);
+                        else                 triRGB = float3(0.80, 0.80, 1.0);
+                        triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
+                    }
+                    float em = edge_mask(q, wh);
+                    half3 m = half3(triRGB) * half(scanMul * em);
+                    if (vignette > 0.0) {
+                        float a = wh.x / wh.y;
+                        float2 uv = p / wh * 2.0 - 1.0;
+                        uv.x *= a;
+                        float r2 = dot(uv, uv);
+                        float vig = 1.0 - vignette * smoothstep(0.6, 1.0, r2);
+                        m *= half(vig);
+                    }
+                    return half4(m, 1.0);
+                }
+            )";
+            auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(kMask));
+            if (!effect) {
+                if (debugLog) ALOGE("GammaOS CRT: SkSL compile failed (protected): %s", err.c_str());
+            } else {
+                SkRuntimeShaderBuilder b(effect);
+                b.uniform("scan_px")        = scan_px;
+                b.uniform("scan_strength")  = scan_strength;
+                b.uniform("triad_px")       = triad_px;
+                b.uniform("mask_strength")  = mask_strength;
+                b.uniform("scan_phase")     = scan_phase;
+                b.uniform("scan_angle_deg") = scan_angle_deg;
+                b.uniform("fb_size")        = SkV2{(float)dstSurface->width(), (float)dstSurface->height()};
+                b.uniform("curv")           = curv;
+                b.uniform("vignette")       = vignette;
+                b.uniform("edge_soft_px")   = edge_soft_px;
+                SkPaint p; p.setShader(b.makeShader()); p.setBlendMode(SkBlendMode::kMultiply);
+                SkCanvas* dstCanvas2 = mCapture->tryCapture(dstSurface.get());
+                if (dstCanvas2) {
+                    dstCanvas2->save(); dstCanvas2->resetMatrix();
+                    dstCanvas2->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+                    dstCanvas2->restore();
+                    if (debugLog) ALOGD("GammaOS CRT: applied protected mask-only pass.");
+                }
+            }
+        }
+    }
+    // ---------------------------------------------------------------------------------------
+
     {
         ATRACE_NAME("flush surface");
         LOG_ALWAYS_FATAL_IF(activeSurface != dstSurface);
