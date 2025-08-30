@@ -62,6 +62,12 @@ static inline bool gammaeqForceAllOutputs() {
     return property_get_bool("persist.sys.gammaeq.force", false);
 }
 
+// Master enable for the whole GammaEQ chain (OFF by default).
+// Nothing will run unless you explicitly set persist.sys.gammaeq.enable=1.
+static inline bool gammaeqMasterEnabled() {
+    return property_get_bool("persist.sys.gammaeq.enable", false);
+}
+
 static inline bool isSpeakerRoutedNow() {
     // Property maintained by Threads.cpp when SPEAKER route is active.
     return property_get_bool("sys.gammaeq.route.spk", true);
@@ -766,6 +772,10 @@ void FastMixer::onWork()
             static SpeakerPEQ sPEQ;
             static StereoWidenerHB sWide;
             static CrystalizerLite sCryst;
+            // Hard master gate: OFF by default.
+            if (!gammaeqMasterEnabled()) {
+                break;
+            }
             maybeReloadPEQ(sPEQ);
             wideMaybeReload(sWide);
             crystMaybeReload(sCryst);
