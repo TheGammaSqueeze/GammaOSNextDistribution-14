@@ -2460,6 +2460,22 @@ public final class PowerManagerService extends SystemService
         }
     }
 
+    // Schedules a delayed freeze so apps can cleanly suspend first.
+    // Also allows us to cancel if we wake before the delay elapses.
+    private static final long ULTRA_POWER_FREEZE_DELAY_MS = 5000;
+    private final Runnable mUltraPowerFreezeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isUltraPowerSaveEnabled()) {
+                freezeNonSystemApps();
+            }
+        }
+    };
+    private void scheduleUltraPowerFreeze() {
+        mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
+        mHandler.postDelayed(mUltraPowerFreezeRunnable, ULTRA_POWER_FREEZE_DELAY_MS);
+    }
+
     @SuppressWarnings("deprecation")
     @GuardedBy("mLock")
     private void updateGlobalWakefulnessLocked(long eventTime, int reason, int uid,
@@ -2479,7 +2495,8 @@ public final class PowerManagerService extends SystemService
                 // TODO(b/215518989): Remove this once transactions are in place
                 SystemProperties.set("sys.screen.state", "off");
                 if (isUltraPowerSaveEnabled()) {
-                    freezeNonSystemApps();
+                    // Delay freeze to allow clean app suspension
+                    scheduleUltraPowerFreeze();
                 }
                 if (currentWakefulness != WAKEFULNESS_DOZING) {
                     // in case we are going to sleep without dozing before
@@ -2498,6 +2515,8 @@ public final class PowerManagerService extends SystemService
                         + ")...");
                 SystemProperties.set("sys.screen.state", "on");
                 if (isUltraPowerSaveEnabled()) {
+                    // Cancel any pending freeze and unfreeze immediately on wake
+                    mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
                     unfreezeNonSystemApps();
                 }
                 mLastGlobalWakeTime = eventTime;
@@ -2510,7 +2529,8 @@ public final class PowerManagerService extends SystemService
                 Slog.i(TAG, "Nap time (uid " + uid + ")...");
 				SystemProperties.set("sys.screen.state", "off");
                 if (isUltraPowerSaveEnabled()) {
-                    freezeNonSystemApps();
+                    // Delay freeze during nap
+                    scheduleUltraPowerFreeze();
                 }
                 break;
 
@@ -2523,7 +2543,8 @@ public final class PowerManagerService extends SystemService
                         + ", maxDimDur=" + mMaximumScreenDimDurationConfig + ")...");
                         SystemProperties.set("sys.screen.state", "off");
                 if (isUltraPowerSaveEnabled()) {
-                    freezeNonSystemApps();
+                    // Delay freeze when entering doze
+                    scheduleUltraPowerFreeze();
                 }
                 mLastGlobalSleepTime = eventTime;
                 mLastGlobalSleepReason = reason;

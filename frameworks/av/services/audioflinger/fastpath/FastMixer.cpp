@@ -243,6 +243,21 @@ static inline void wideMaybeReload(StereoWidenerHB& w) {
     }
 }
 
+// Optional global post-gain (after chain) to restore loudness safely.
+static inline float getGlobalPostampLin() {
+    static float sLin = 1.0f;
+    static int64_t sLast = 0;
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - sLast > seconds(1)) {
+        char v[PROPERTY_VALUE_MAX] = {};
+        const float db = (property_get("persist.sys.gammaeq.postgain_db", v, nullptr) > 0)
+                         ? (float)atof(v) : 0.0f;
+        sLin = db2lin(db);
+        sLast = now;
+    }
+    return sLin;
+}
+
 // ---- CrystalizerLite (A13 parity): high-band enhancer with pre/post gain & HPF corner ----
 struct CrystalizerLite {
     std::atomic<bool> enabled{false};
@@ -330,6 +345,167 @@ static inline float getGlobalPreampLin() {
         sLast = now;
     }
     return sLin;
+}
+
+// ---- Low-Band Protector (LBP): tame bass peaks without dulling mids/highs ----
+struct LowBandProtector {
+    std::atomic<bool> enabled{false};
+    std::atomic<float> fc{180.f};     // LPF corner for bass extraction
+    std::atomic<float> thr{0.30f};    // limiter threshold on bass envelope (linear, ~ -10.5 dBFS)
+    std::atomic<float> atk_ms{5.f};   // attack (ms)
+    std::atomic<float> rel_ms{60.f};  // release (ms)
+    int seq{0}; int64_t lastCheckNs{0};
+    // state
+    float aLP{0}, bLP{0};    // low-pass coef
+    float env{0.f};          // envelope follower
+    float gain{1.f};         // smoothed gain
+    float aAtk{0}, aRel{0};  // smoothing coefs for envelope/gain
+    void updateCoef(uint32_t sr) {
+        const float srf = (float)((sr < 8000u) ? 8000u : sr);
+        const float f   = std::min(std::max(fc.load(), 20.f), 400.f);
+        const float x   = expf(-2.f * (float)M_PI * f / srf);
+        aLP = x; bLP = 1.f - x;
+        const float atk = std::max(1.f, atk_ms.load());
+        const float rel = std::max(1.f, rel_ms.load());
+        aAtk = expf(-1000.f / (atk * srf));   // ~1 sample attack smoothing
+        aRel = expf(-1000.f / (rel * srf));
+    }
+    inline void process(float* interleaved, size_t frames, int ch) {
+        if (!enabled.load() || ch < 2) return;
+        const float T = std::clamp(thr.load(), 0.05f, 0.95f); // 0.05..0.95
+        const float aL = aLP, bL = bLP, aA = aAtk, aR = aRel;
+        float g = gain, e = env;
+        for (size_t i=0;i<frames;++i) {
+            float L = interleaved[2*i+0];
+            float R = interleaved[2*i+1];
+            // extract bass with LPF per channel
+            static float lpfL=0.f, lpfR=0.f;
+            lpfL = aL*lpfL + bL*L;
+            lpfR = aL*lpfR + bL*R;
+            const float lowL = lpfL;
+            const float lowR = lpfR;
+            // envelope on max of stereo low band
+            const float mag = std::max(fabsf(lowL), fabsf(lowR));
+            const float aEnv = (mag > e) ? aA : aR;
+            e = aEnv*e + (1.f - aEnv)*mag;
+            // instantaneous limiter gain
+            const float gInst = (e > T) ? (T / (e + 1e-6f)) : 1.f;
+            // smooth gain (fast attack, slow release)
+            const float aG = (gInst < g) ? aA : aR;
+            g = aG*g + (1.f - aG)*gInst;
+            // apply *only* to low band; reconstruct per channel
+            interleaved[2*i+0] = (L - lowL) + lowL * g;
+            interleaved[2*i+1] = (R - lowR) + lowR * g;
+        }
+        gain = g; env = e;
+    }
+};
+
+static inline void lbpLoad(LowBandProtector& c) {
+    c.enabled.store(property_get_bool("persist.sys.spk.lbp", false));
+    char v[PROPERTY_VALUE_MAX] = {};
+    auto rf=[&](const char* k, float d)->float{
+        return property_get(k,v,nullptr)>0 ? (float)atof(v) : d;
+    };
+    c.fc.store   (rf("persist.sys.spk.lbp.fc",     180.f));
+    c.thr.store  (rf("persist.sys.spk.lbp.thr",    0.30f));
+    c.atk_ms.store(rf("persist.sys.spk.lbp.atk",    5.f));
+    c.rel_ms.store(rf("persist.sys.spk.lbp.rel",   60.f));
+    c.seq = property_get_int32("persist.sys.spk.lbp.seq", 0);
+}
+
+static inline void lbpMaybeReload(LowBandProtector& c) {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - c.lastCheckNs > seconds(1) ||
+        property_get_int32("persist.sys.spk.lbp.seq", c.seq) != c.seq) {
+        lbpLoad(c);
+        c.lastCheckNs = now;
+    }
+}
+
+// ---- Mid Protector (MP): limit *center* (Mid L+R) bursts in 200–6k band ----
+struct MidProtector {
+    std::atomic<bool>  enabled{false};
+    std::atomic<float> hpf{200.f};     // HPF corner to ignore bass (LBP already handles it)
+    std::atomic<float> lpf{6000.f};    // LPF corner to ignore airy top
+    std::atomic<float> thr{0.90f};     // limiter threshold on Mid envelope (linear)
+    std::atomic<float> atk_ms{3.f};    // attack (ms)
+    std::atomic<float> rel_ms{80.f};   // release (ms)
+    int seq{0}; int64_t lastCheckNs{0};
+    // state
+    float aHP{0}, bHP{0};   // simple 1st order HPF (x - lp(x))
+    float aLP{0}, bLP{0};   // simple 1st order LPF
+    float env{0.f};
+    float gain{1.f};
+    float aAtk{0}, aRel{0};
+    float hpState{0}, lpState{0};
+    void updateCoef(uint32_t sr) {
+        const float srf = (float)((sr < 8000u) ? 8000u : sr);
+        // LPF coef
+        const float fL  = std::min(std::max(lpf.load(), 300.f), 10000.f);
+        const float xL  = expf(-2.f * (float)M_PI * fL / srf);
+        aLP = xL; bLP = 1.f - xL;
+        // HPF via 1st-order LP then subtract: y = x - lp(x)
+        const float fH  = std::min(std::max(hpf.load(), 20.f), 2000.f);
+        const float xH  = expf(-2.f * (float)M_PI * fH / srf);
+        aHP = xH; bHP = 1.f - xH; // reused as LP for HPF trick
+        // envelope smoothing
+        const float atk = std::max(1.f, atk_ms.load());
+        const float rel = std::max(1.f, rel_ms.load());
+        aAtk = expf(-1000.f / (atk * srf));
+        aRel = expf(-1000.f / (rel * srf));
+    }
+    inline void process(float* interleaved, size_t frames, int ch) {
+        if (!enabled.load() || ch < 2) return;
+        const float T  = std::clamp(thr.load(), 0.50f, 0.99f); // safety bounds
+        const float aA = aAtk, aR = aRel;
+        float e = env, g = gain;
+        float hp = hpState, lp = lpState;
+        for (size_t i=0;i<frames;++i) {
+            const float L = interleaved[2*i+0];
+            const float R = interleaved[2*i+1];
+            const float M0 = 0.5f * (L + R);
+            const float S0 = 0.5f * (L - R);
+            // HPF on M: hp = aHP*hp + bHP*M0; Mh = M0 - hp
+            hp = aHP*hp + bHP*M0; const float Mh = M0 - hp;
+            // then LPF to isolate 200..6k
+            lp = aLP*lp + bLP*Mh; const float Mb = lp;
+            // envelope on band-limited Mid
+            const float mag = fabsf(Mb);
+            const float aEnv = (mag > e) ? aA : aR;
+            e = aEnv*e + (1.f - aEnv)*mag;
+            // limiter gain for Mid only
+            const float gInst = (e > T) ? (T / (e + 1e-6f)) : 1.f;
+            const float aG = (gInst < g) ? aA : aR;
+            g = aG*g + (1.f - aG)*gInst;
+            // apply to Mid and reconstruct L/R; keep Side untouched
+            const float M1 = M0 * g;
+            interleaved[2*i+0] = M1 + S0;
+            interleaved[2*i+1] = M1 - S0;
+        }
+        env = e; gain = g; hpState = hp; lpState = lp;
+    }
+};
+static inline void mpLoad(MidProtector& c) {
+    c.enabled.store(property_get_bool("persist.sys.spk.mp", false));
+    char v[PROPERTY_VALUE_MAX] = {};
+    auto rf=[&](const char* k, float d)->float{
+        return property_get(k,v,nullptr)>0 ? (float)atof(v) : d;
+    };
+    c.hpf.store (rf("persist.sys.spk.mp.hpf",  200.f));
+    c.lpf.store (rf("persist.sys.spk.mp.lpf", 6000.f));
+    c.thr.store (rf("persist.sys.spk.mp.thr",  0.90f));
+    c.atk_ms.store(rf("persist.sys.spk.mp.atk",  3.f));
+    c.rel_ms.store(rf("persist.sys.spk.mp.rel", 80.f));
+    c.seq = property_get_int32("persist.sys.spk.mp.seq", 0);
+}
+static inline void mpMaybeReload(MidProtector& c) {
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC);
+    if (now - c.lastCheckNs > seconds(1) ||
+        property_get_int32("persist.sys.spk.mp.seq", c.seq) != c.seq) {
+        mpLoad(c);
+        c.lastCheckNs = now;
+    }
 }
 
 namespace android {
@@ -772,6 +948,8 @@ void FastMixer::onWork()
             static SpeakerPEQ sPEQ;
             static StereoWidenerHB sWide;
             static CrystalizerLite sCryst;
+            static LowBandProtector sLBP;
+            static MidProtector sMP;
             // Hard master gate: OFF by default.
             if (!gammaeqMasterEnabled()) {
                 break;
@@ -779,6 +957,8 @@ void FastMixer::onWork()
             maybeReloadPEQ(sPEQ);
             wideMaybeReload(sWide);
             crystMaybeReload(sCryst);
+            lbpMaybeReload(sLBP);
+            mpMaybeReload(sMP);
             // Only process when speaker is routed (unless forced) and feature enabled.
             const bool forceAll = gammaeqForceAllOutputs();
             const bool spkOnly  = gammaeqSpeakerOnlyEnabled();
@@ -790,7 +970,9 @@ void FastMixer::onWork()
             const int ch = mAudioChannelCount;
             const size_t sampCount = frameCount * (size_t)ch;
             if (ch < 2) break; // only stereo processing for now
-            const float preamp = getGlobalPreampLin(); // linear gain (<=1 to add headroom)
+            // Headroom before chain + optional makeup after chain
+            const float preamp  = getGlobalPreampLin();
+            const float postamp = getGlobalPostampLin();
             switch (fmt) {
                 case AUDIO_FORMAT_PCM_16_BIT: {
                     static thread_local std::vector<float> tmp;
@@ -801,8 +983,13 @@ void FastMixer::onWork()
                     sPEQ.process(tmp.data(), frameCount, ch);
                     sCryst.updateCoef(mSampleRate);
                     sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= postamp;
                     memcpy_to_i16_from_float(reinterpret_cast<int16_t*>(buffer),
                             tmp.data(), sampCount);
                     break;
@@ -816,8 +1003,13 @@ void FastMixer::onWork()
                     sPEQ.process(tmp.data(), frameCount, ch);
                     sCryst.updateCoef(mSampleRate);
                     sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= postamp;
                     memcpy_to_q4_27_from_float(reinterpret_cast<int32_t*>(buffer),
                             tmp.data(), sampCount);
                     break;
@@ -831,8 +1023,13 @@ void FastMixer::onWork()
                     sPEQ.process(tmp.data(), frameCount, ch);
                     sCryst.updateCoef(mSampleRate);
                     sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= postamp;
                     memcpy_to_p24_from_float(reinterpret_cast<uint8_t*>(buffer),
                             tmp.data(), sampCount);
                     break;
@@ -843,8 +1040,13 @@ void FastMixer::onWork()
                     sPEQ.process(fbuf, frameCount, ch);
                     sCryst.updateCoef(mSampleRate);
                     sCryst.process(fbuf, frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(fbuf, frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(fbuf, frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(fbuf, frameCount, ch);
+                    if (postamp != 1.0f) for (size_t i=0;i<sampCount;++i) fbuf[i] *= postamp;
                     break;
                 }
                 case AUDIO_FORMAT_PCM_32_BIT: {
@@ -856,8 +1058,13 @@ void FastMixer::onWork()
                     sPEQ.process(tmp.data(), frameCount, ch);
                     sCryst.updateCoef(mSampleRate);
                     sCryst.process(tmp.data(), frameCount, ch);
+                    sLBP.updateCoef(mSampleRate);
+                    sLBP.process(tmp.data(), frameCount, ch);
+                    sMP.updateCoef(mSampleRate);
+                    sMP.process(tmp.data(), frameCount, ch);
                     sWide.updateCoef(mSampleRate);
                     sWide.process(tmp.data(), frameCount, ch);
+                    if (postamp != 1.0f) for (size_t i=0;i<sampCount;++i) tmp[i] *= postamp;
                     memcpy_to_i32_from_float(reinterpret_cast<int32_t*>(buffer),
                             tmp.data(), sampCount);
                     break;
