@@ -496,6 +496,12 @@ auto RefreshRateSelector::getRankedFrameRatesLocked(const std::vector<LayerRequi
 
     const auto& activeMode = *getActiveModeLocked().modePtr;
 
+    // GammaOS: global refresh lock — always rank highest Hz first (ignore all votes).
+    if (::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        const auto ranking = rankFrameRates(activeMode.getGroup(), RefreshRateOrder::Descending);
+        return {ranking, {}}; // no global signals while locked
+    }
+
     // Keep the display at max frame rate for the duration of powering on the display.
     if (signals.powerOnImminent) {
         ALOGV("Power On Imminent");
@@ -913,7 +919,8 @@ auto RefreshRateSelector::getFrameRateOverrides(const std::vector<LayerRequireme
                                                 GlobalSignals globalSignals) const
         -> UidToFrameRateOverride {
     ATRACE_CALL();
-    if (mConfig.enableFrameRateOverride == Config::FrameRateOverride::Disabled) {
+    if (mConfig.enableFrameRateOverride == Config::FrameRateOverride::Disabled ||
+        ::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
         return {};
     }
 
@@ -1038,6 +1045,11 @@ auto RefreshRateSelector::getFrameRateOverrides(const std::vector<LayerRequireme
 ftl::Optional<FrameRateMode> RefreshRateSelector::onKernelTimerChanged(
         ftl::Optional<DisplayModeId> desiredModeIdOpt, bool timerExpired) const {
     std::lock_guard lock(mLock);
+
+    // GammaOS: global refresh lock — never change mode via idle timer.
+    if (::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        return {};
+    }
 
     const auto current =
             desiredModeIdOpt
@@ -1352,6 +1364,30 @@ auto RefreshRateSelector::setPolicy(const PolicyVariant& policy) -> SetPolicyRes
         }
         constructAvailableRefreshRates();
 
+        // GammaOS: global refresh lock — clamp available rates to ONLY the highest Hz
+        // in the current mode group so animations/transitions cannot downshift.
+        if (::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+            const int anchorGroup = getActiveModeLocked().modePtr->getGroup();
+            auto clampToMaxInGroup = [&](std::vector<FrameRateMode>& vec) REQUIRES(mLock) {
+                if (vec.empty()) return;
+                bool found = false;
+                FrameRateMode best = vec.front();
+                for (const auto& fr : vec) {
+                    if (fr.modePtr->getGroup() != anchorGroup) continue;
+                    if (!found || isStrictlyLess(best.fps, fr.fps)) { best = fr; found = true; }
+                }
+                if (!found) {
+                    // Fallback: keep global max if nothing matched group (shouldn't happen)
+                    for (const auto& fr : vec) {
+                        if (isStrictlyLess(best.fps, fr.fps)) best = fr;
+                    }
+                }
+                vec.assign(1, best);
+            };
+            clampToMaxInGroup(mPrimaryFrameRates);
+            clampToMaxInGroup(mAppRequestFrameRates);
+        }
+
         displayId = getActiveModeLocked().modePtr->getPhysicalDisplayId();
     }
 
@@ -1545,6 +1581,10 @@ void RefreshRateSelector::dump(utils::Dumper& dumper) const {
 }
 
 std::chrono::milliseconds RefreshRateSelector::getIdleTimerTimeout() {
+    // GammaOS: while locked, disable idle timer so animations never trigger a rate drop.
+    if (::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        return std::chrono::milliseconds{0};
+    }
     return mConfig.idleTimerTimeout;
 }
 

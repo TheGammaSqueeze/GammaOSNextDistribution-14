@@ -48,6 +48,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
 import android.os.SystemClock;
 import android.os.Temperature;
 import android.os.UserHandle;
@@ -296,6 +297,31 @@ public class DisplayModeDirector {
                         "Asked about unknown display, returning empty display mode specs!"
                                 + "(id=" + displayId + ")");
                 return new DesiredDisplayModeSpecs();
+            }
+
+            // GammaOS: hard refresh lock — force highest refresh within the default
+            // resolution group (e.g., 120 Hz on a 120 Hz-capable panel) and ignore votes.
+            if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+                // Pick the highest-Hz mode that matches the default mode's physical size.
+                final int defW = defaultMode.getPhysicalWidth();
+                final int defH = defaultMode.getPhysicalHeight();
+                Display.Mode best = defaultMode;
+                for (Display.Mode m : modes) {
+                    if (m.getPhysicalWidth() == defW && m.getPhysicalHeight() == defH) {
+                        if (m.getRefreshRate() > best.getRefreshRate()) {
+                            best = m;
+                        }
+                    }
+                }
+                final float fps = best.getRefreshRate();
+                final RefreshRateRange range = new RefreshRateRange(fps, fps);
+                final RefreshRateRanges ranges = new RefreshRateRanges(range, range);
+                // Keep group switching off to avoid res changes; we just want max Hz in-group.
+                return new DesiredDisplayModeSpecs(
+                        best.getModeId(),
+                        /*allowGroupSwitching*/ false,
+                        ranges,
+                        ranges);
             }
 
             List<Display.Mode> availableModes = new ArrayList<>();

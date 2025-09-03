@@ -1326,6 +1326,19 @@ void Layer::updateTreeHasFrameRateVote() {
 }
 
 bool Layer::setFrameRate(FrameRate::FrameRateVote frameRateVote) {
+    // GammaOS: global refresh lock → ignore per-layer frame rate votes.
+    if (android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        // Clear any prior vote so the tree has no residual rate preference.
+        if (mDrawingState.frameRate.vote != FrameRate::FrameRateVote{}) {
+            mDrawingState.sequence++;
+            mDrawingState.frameRate.vote = {};
+            mDrawingState.modified = true;
+            updateTreeHasFrameRateVote();
+            setTransactionFlags(eTransactionNeeded);
+            return true;
+        }
+        return false;
+    }
     if (mDrawingState.frameRate.vote == frameRateVote) {
         return false;
     }
@@ -1341,6 +1354,20 @@ bool Layer::setFrameRate(FrameRate::FrameRateVote frameRateVote) {
 }
 
 bool Layer::setFrameRateCategory(FrameRateCategory category, bool smoothSwitchOnly) {
+    // GammaOS: with refresh lock, don’t allow category votes to influence selection.
+    if (android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        bool changed = (mDrawingState.frameRate.category != FrameRateCategory::Default) ||
+                       (mDrawingState.frameRate.categorySmoothSwitchOnly != false);
+        if (changed) {
+            mDrawingState.sequence++;
+            mDrawingState.frameRate.category = FrameRateCategory::Default;
+            mDrawingState.frameRate.categorySmoothSwitchOnly = false;
+            mDrawingState.modified = true;
+            updateTreeHasFrameRateVote();
+            setTransactionFlags(eTransactionNeeded);
+        }
+        return changed;
+    }
     if (mDrawingState.frameRate.category == category &&
         mDrawingState.frameRate.categorySmoothSwitchOnly == smoothSwitchOnly) {
         return false;
@@ -1358,6 +1385,10 @@ bool Layer::setFrameRateCategory(FrameRateCategory category, bool smoothSwitchOn
 }
 
 bool Layer::setFrameRateSelectionStrategy(FrameRateSelectionStrategy strategy) {
+    // GammaOS: ignore strategy tweaks while locked (keep existing state).
+    if (android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        return false;
+    }
     if (mDrawingState.frameRateSelectionStrategy == strategy) return false;
     mDrawingState.frameRateSelectionStrategy = strategy;
     mDrawingState.sequence++;

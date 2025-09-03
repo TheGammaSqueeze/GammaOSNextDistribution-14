@@ -87,6 +87,7 @@
 #include <android-base/strings.h>
 #include <algorithm>
 #include <cstdlib>
+#include <atomic>
 
 namespace {
 
@@ -100,6 +101,18 @@ static constexpr bool kEnableLayerBrightening = true;
 // Utility functions related to SkRect
 
 namespace {
+
+// -------- GammaOS: process-local latch for this *frame's* BFI slot ----------
+// 1 = black, 0 = content  (set by SurfaceFlinger immediately before draw)
+static std::atomic<int> gGammaBfiDrawBlack{0};
+// export so SurfaceFlinger can set it across .so boundary
+extern "C" __attribute__((visibility("default"))) void gamma_bfi_set_draw_black(int drawBlack) {
+    gGammaBfiDrawBlack.store(drawBlack ? 1 : 0, std::memory_order_release);
+}
+static inline bool GammaBfiShouldDrawBlack() {
+    return gGammaBfiDrawBlack.load(std::memory_order_acquire) != 0;
+}
+// ---------------------------------------------------------------------------
 
 static inline SkRect getSkRect(const android::FloatRect& rect) {
     return SkRect::MakeLTRB(rect.left, rect.top, rect.right, rect.bottom);
@@ -1395,6 +1408,33 @@ void SkiaRenderEngine::drawLayersInternal(
                     if (debugLog) ALOGD("GammaOS CRT: applied protected mask-only pass.");
                 }
             }
+        }
+    }
+    // ---------------------------------------------------------------------------------------
+
+    // ---------------- GammaOS: BFI (Black-Frame Insertion), bound to *this* draw -----------
+    // Only run the Skia path if explicitly requested (fallback). The default is HWC CTM.
+    const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) && bfiMode == "re") {
+        // No sysprops here: SF sets gGammaBfiDrawBlack right before this draw.
+        const bool drawBlack = GammaBfiShouldDrawBlack();
+        const bool bfiDebug = android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
+        if (drawBlack) {
+            SkCanvas* canvas = mCapture->tryCapture(dstSurface.get());
+            if (canvas) {
+                SkPaint p;
+                p.setColor(SkColorSetARGB(255, 0, 0, 0));
+                p.setBlendMode(SkBlendMode::kSrc); // replace
+                canvas->save();
+                canvas->resetMatrix();
+                canvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+                canvas->restore();
+                if (bfiDebug) ALOGD("GammaOS BFI: drew black frame.");
+            } else if (bfiDebug) {
+                ALOGW("GammaOS BFI: no canvas; skip black frame.");
+            }
+        } else if (bfiDebug) {
+            ALOGV("GammaOS BFI: content frame.");
         }
     }
     // ---------------------------------------------------------------------------------------

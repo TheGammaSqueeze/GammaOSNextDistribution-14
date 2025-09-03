@@ -98,11 +98,13 @@
 #include <utils/String8.h>
 #include <utils/Timers.h>
 #include <utils/misc.h>
+#include <array>
 #include <algorithm>
 #include <cerrno>
 #include <cinttypes>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -160,6 +162,9 @@
 #include "Utils/Dumper.h"
 #include "WindowInfosListenerInvoker.h"
 #include <android-base/properties.h>
+
+// exported by RenderEngine (SkiaRenderEngine.cpp) to set the per-draw BFI slot
+extern "C" void gamma_bfi_set_draw_black(int drawBlack);
 
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
@@ -369,7 +374,39 @@ bool isExpectedPresentWithinTimeout(TimePoint expectedPresentTime,
     return std::abs(expectedPresentTime.ns() -
                     (lastExpectedPresentTimestamp.ns() + timeoutOpt->ns())) < threshold.ns();
 }
-}  // namespace anonymous
+
+// Column-major 4x4 matrices as expected by HWC setColorTransform.
+static constexpr std::array<float, 16> kGammaCtmIdentity = {
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1
+};
+// RGB→0, preserve alpha (last row/column keep alpha passthrough)
+static constexpr std::array<float, 16> kGammaCtmBlack = {
+    0,0,0,0,
+    0,0,0,0,
+    0,0,0,0,
+    0,0,0,1
+};
+}
+
+void SurfaceFlinger::applyBfiColorTransformLocked(const sp<DisplayDevice>& display, bool black) {
+    // Only if enabled *and* mode=ctm; otherwise we do nothing here.
+    if (!android::base::GetBoolProperty("persist.gammaos.bfi.enable", false)) return;
+    const std::string mode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    if (mode != "ctm") return;
+    if (!display || display->isVirtual()) return;
+    // Some vendor HWC reject setting identical CTM repeatedly; but it's cheap anyway.
+    // Build the mat4 expected by HWComposer::setColorTransform (column-major).
+    const mat4 ctm = black
+            ? mat4( vec4{0,0,0,0},
+                    vec4{0,0,0,0},
+                    vec4{0,0,0,0},
+                    vec4{0,0,0,1} )
+            : mat4(); // identity
+    getHwComposer().setColorTransform(display->getPhysicalId(), ctm);
+}
 
 // ---------------------------------------------------------------------------
 
@@ -2752,6 +2789,36 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     }
 
     refreshArgs.devOptForceClientComposition = mDebugDisableHWC;
+
+    // GammaOS: if post-processing shader is enabled, force GPU composition
+    if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
+        refreshArgs.devOptForceClientComposition = true;
+    }
+    // GammaOS BFI: Always produce a fresh client target if mode=re (Skia fallback).
+    // For mode=ctm, we let HWC handle black via color transform so GPU load is stable.
+    const bool bfiEnabledNow = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+    const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    if (bfiEnabledNow && bfiMode == "re") {
+        refreshArgs.devOptForceClientComposition = true;
+        mForceFullDamage = true; // ensures new client target every frame for the Skia path
+    } else if (!bfiEnabledNow) {
+        mForceFullDamage = false;
+        gamma_bfi_set_draw_black(0);
+    }
+    // Set the per-draw black flag and, if using CTM mode, apply the CTM now for the default display.
+    if (bfiEnabledNow) {
+        Mutex::Autolock _l(mStateLock);
+        const auto d = getDefaultDisplayDeviceLocked();
+        if (d) {
+            const uint64_t key = d->getPhysicalId().value;
+            const auto it = mBfiStates.find(key);
+            const bool drawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
+            gamma_bfi_set_draw_black(drawBlack ? 1 : 0);
+            // For HWC mode, apply CTM black/identity for this frame.
+            applyBfiColorTransformLocked(d, drawBlack);
+        }
+    }
+
     // GammaOS: if post-processing shader is enabled, force GPU composition
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
         refreshArgs.devOptForceClientComposition = true;
@@ -3239,6 +3306,55 @@ void SurfaceFlinger::onCompositionPresented(PhysicalDisplayId pacesetterId,
     }
 
     logFrameStats(presentTime);
+    
+    // --- GammaOS: BFI present-aligned cadence & always-refresh ---
+    {
+        const bool bfiEnabled = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+        for (const auto& [id, targeter] : frameTargeters) {
+            const uint64_t key = id.value;
+            auto& st = mBfiStates[key];
+
+            if (!bfiEnabled) {
+                if (st.enabled) {
+                    // Transition off: force content on very next draw, then clear state
+                    st = BfiState{};
+                    gamma_bfi_set_draw_black(0);
+                    // one more composite to flush any residual black
+                    scheduleComposite(FrameHint::kActive);
+                    mForceFullDamage = false;
+                }
+                continue;
+            }
+
+            st.enabled = true;
+
+            // Resolve pattern: explicit pattern wins; else preset; else default "10"
+            std::string pattern = android::base::GetProperty("persist.gammaos.bfi.pattern", "");
+            pattern.erase(std::remove_if(pattern.begin(), pattern.end(),
+                                         [](char c){ return c!='0' && c!='1'; }), pattern.end());
+            if (pattern.empty()) {
+                const std::string preset = android::base::GetProperty("persist.gammaos.bfi.preset", "");
+                if (preset == "120:60" || preset == "120to60")        pattern = "10";
+                else if (preset == "180:60" || preset == "180to60")   pattern = "100";
+                else if (preset == "240:120" || preset == "240to120") pattern = "1100";
+                else if (preset == "240:60" || preset == "240to60")   pattern = "1000";
+                else                                                  pattern = "10";
+            }
+            if (st.pattern != pattern) {
+                st.pattern = std::move(pattern);
+                st.index = 0;
+            }
+
+            // Advance on *present* and latch the slot for the upcoming draw
+            const char slot = st.pattern[st.index % st.pattern.size()];
+            st.index++;
+            st.nextDrawBlack = (slot == '0');
+
+            // Keep cadence running: composite again next vsync even if static
+            scheduleComposite(FrameHint::kActive);
+        }
+    }
+    // -------------------------------------------------------------------------------
 }
 
 FloatRect SurfaceFlinger::getMaxDisplayBounds() {

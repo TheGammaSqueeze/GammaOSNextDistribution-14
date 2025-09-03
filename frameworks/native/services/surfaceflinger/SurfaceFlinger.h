@@ -106,6 +106,8 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 #include <aidl/android/hardware/graphics/common/DisplayDecorationSupport.h>
 #include <aidl/android/hardware/graphics/common/DisplayHotplugEvent.h>
@@ -1298,6 +1300,24 @@ private:
     std::atomic_bool mDebugDisableTransformHint = false;
     std::atomic<nsecs_t> mDebugInTransaction = 0;
     std::atomic_bool mForceFullDamage = false;
+
+    // GammaOS BFI state per physical display (present-aligned cadence)
+    struct BfiState {
+        std::string pattern;   // e.g. "10", "100", "1100"
+        size_t index = 0;      // next-present cursor
+        bool enabled = false;  // latched enable
+        bool nextDrawBlack = false; // latched slot for the *next draw*
+    };
+    // keyed by PhysicalDisplayId value
+    std::unordered_map<uint64_t, BfiState> mBfiStates;
+
+    // --- HWC Color Transform (CTM) helper for blackout ---
+    // A 4x4 color matrix; we build "black" and "identity" variants in .cpp.
+    struct Ctm {
+        float m[16];
+    };
+    // Apply CTM if mode=ctm; no-op otherwise. Safe to call every frame.
+    void applyBfiColorTransformLocked(const sp<DisplayDevice>& display, bool black);
 
     bool mLayerCachingEnabled = false;
     bool mBackpressureGpuComposition = false;
