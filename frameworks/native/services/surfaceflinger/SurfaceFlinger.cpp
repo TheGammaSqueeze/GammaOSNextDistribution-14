@@ -8604,13 +8604,29 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
     auto& selector = display->refreshRateSelector();
     using SetPolicyResult = scheduler::RefreshRateSelector::SetPolicyResult;
 
-    switch (selector.setPolicy(policy)) {
+    // GammaOS: when refresh lock is enabled, clamp both primary & app ranges
+    // to the active mode's FPS so animations/transitions cannot downshift.
+    if (base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        const auto active = display->getActiveMode();
+        const auto fps = active.fps;
+        const auto modeId = active.modePtr->getId();
+        // Build a PolicyVariant explicitly using OverridePolicy(modeId, FpsRange{fps,fps}, false)
+        const scheduler::RefreshRateSelector::OverridePolicy lockedPolicy(
+                modeId, /*range*/{fps, fps}, /*allowGroupSwitching*/false);
+        switch (selector.setPolicy(lockedPolicy)) {
+            case SetPolicyResult::Invalid:   return BAD_VALUE;
+            case SetPolicyResult::Unchanged: return NO_ERROR;
+            case SetPolicyResult::Changed:   break;
+        }
+    } else {
+        switch (selector.setPolicy(policy)) {
         case SetPolicyResult::Invalid:
             return BAD_VALUE;
         case SetPolicyResult::Unchanged:
             return NO_ERROR;
         case SetPolicyResult::Changed:
             break;
+        }
     }
 
     if (!shouldApplyRefreshRateSelectorPolicy(*display)) {

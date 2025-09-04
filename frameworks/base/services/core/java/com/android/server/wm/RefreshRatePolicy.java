@@ -28,6 +28,7 @@ import android.view.DisplayInfo;
 import android.view.Surface;
 import android.view.SurfaceControl;
 import android.view.SurfaceControl.RefreshRateRange;
+import android.os.SystemProperties;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -136,11 +137,9 @@ class RefreshRatePolicy {
             return 0;
         }
 
-        // If app is animating, it's not able to control refresh rate because we want the animation
-        // to run in default refresh rate. But if the display size of default mode is different
-        // from the using preferred mode, then still keep the preferred mode to avoid disturbing
-        // the animation.
-        if (!explicitRefreshRateHints() && w.isAnimationRunningSelfOrParent()) {
+        // GammaOS: when locked, never downgrade refresh during animations.
+        if (!SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)
+                && !explicitRefreshRateHints() && w.isAnimationRunningSelfOrParent()) {
             Display.Mode preferredMode = null;
             for (Display.Mode mode : mDisplayInfo.supportedModes) {
                 if (preferredDisplayModeId == mode.getModeId()) {
@@ -306,6 +305,10 @@ class RefreshRatePolicy {
     }
 
     float getPreferredMinRefreshRate(WindowState w) {
+        // GammaOS: hard lock to panel rate when enabled.
+        if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+            return mMaxSupportedRefreshRate;
+        }
         // If app is animating, it's not able to control refresh rate because we want the animation
         // to run in default refresh rate.
         if (w.isAnimationRunningSelfOrParent()) {
@@ -329,6 +332,10 @@ class RefreshRatePolicy {
     }
 
     float getPreferredMaxRefreshRate(WindowState w) {
+        // GammaOS: hard lock to panel rate when enabled.
+        if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+            return mMaxSupportedRefreshRate;
+        }
         // If app is animating, it's not able to control refresh rate because we want the animation
         // to run in default refresh rate.
         if (w.isAnimationRunningSelfOrParent()) {
