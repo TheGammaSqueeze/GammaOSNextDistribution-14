@@ -114,6 +114,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
+#include <atomic>
 
 #include <common/FlagManager.h>
 #include <gui/LayerStatePermissions.h>
@@ -165,6 +166,8 @@
 
 // exported by RenderEngine (SkiaRenderEngine.cpp) to set the per-draw BFI slot
 extern "C" void gamma_bfi_set_draw_black(int drawBlack);
+
+static std::atomic<bool> gBfiForceIdentityOnce{false};
 
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
@@ -2896,7 +2899,12 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                         vec4{0,0,1,0},
                         vec4{0,0,0,1.f + eps});
 
+            // GammaOS: one-frame guard for animation-tagged transactions.
+            if (gBfiForceIdentityOnce.exchange(false, std::memory_order_relaxed)) {
+                refreshArgs.colorTransformMatrix = kIdent;
+            } else {
                 refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
+            }
             }
         }
     }
@@ -5267,6 +5275,13 @@ status_t SurfaceFlinger::setTransactionState(
         const std::vector<client_cache_t>& uncacheBuffers, bool hasListenerCallbacks,
         const std::vector<ListenerCallbacks>& listenerCallbacks, uint64_t transactionId,
         const std::vector<uint64_t>& mergedTransactionIds) {
+
+    // GammaOS: if an animation transaction arrives while CTM-BFI is active,
+    // render next frame with identity CTM to prevent a one-frame parity blip.
+    if (gamma_bfi_ctm_active() && (flags & eAnimation)) {
+        gBfiForceIdentityOnce.store(true, std::memory_order_relaxed);
+    }
+
     ATRACE_CALL();
 
     IPCThreadState* ipc = IPCThreadState::self();
@@ -5322,6 +5337,17 @@ status_t SurfaceFlinger::setTransactionState(
     for (auto& state : states) {
         resolvedStates.emplace_back(std::move(state));
         auto& resolvedState = resolvedStates.back();
+
+        // GammaOS: while CTM-BFI is active, clamp window/background blur to 0 to avoid
+        // composition re-strategy that can alias BFI cadence during Recents / QS shade.
+        if (gamma_bfi_ctm_active()) {
+            if (resolvedState.state.what & layer_state_t::eBackgroundBlurRadiusChanged) {
+                resolvedState.state.backgroundBlurRadius = 0;
+            }
+            if (resolvedState.state.what & layer_state_t::eBlurRegionsChanged) {
+                resolvedState.state.blurRegions.clear();
+            }
+        }
         if (resolvedState.state.hasBufferChanges() && resolvedState.state.hasValidBuffer() &&
             resolvedState.state.surface) {
             sp<Layer> layer = LayerHandle::getLayer(resolvedState.state.surface);
