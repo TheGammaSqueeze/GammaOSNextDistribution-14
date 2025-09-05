@@ -96,6 +96,9 @@ public:
     // Calls the existing private resyncAllToHardwareVsync(true).
     void forceResyncAllToHardwareVsync() { resyncAllToHardwareVsync(/*allowToEnable*/ true); }
 
+    // Clear content detection history to drop any latched low-FPS votes.
+    void clearLayerHistory();
+
     // TODO(b/241285191): Remove this API by promoting pacesetter in onScreen{Acquired,Released}.
     void setPacesetterDisplay(std::optional<PhysicalDisplayId>) REQUIRES(kMainThreadContext)
             EXCLUDES(mDisplayLock);

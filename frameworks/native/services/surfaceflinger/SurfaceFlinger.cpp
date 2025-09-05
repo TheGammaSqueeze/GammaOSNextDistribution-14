@@ -2570,6 +2570,11 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     const VsyncId vsyncId = pacesetterFrameTarget.vsyncId();
     ATRACE_NAME(ftl::Concat(__func__, ' ', ftl::to_underlying(vsyncId)).c_str());
 
+    // GammaOS: short grace window after shader-OFF to avoid backpressure "60 Hz stick".
+    // While this counter is > 0 we disable GPU backpressure; it decrements each frame.
+    // Tunable via persist.gammaos.shader.bp_grace_frames (default 6).
+    static int sBpGraceFrames = 0;
+
     // GammaOS: detect shader toggle and resync on OFF to clear pacing drift (120->60 latch).
     {
         static bool sPrevShaderOn = false;
@@ -2577,7 +2582,31 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
                 base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
         if (CC_UNLIKELY(shaderOn != sPrevShaderOn)) {
             if (!shaderOn) {
+                // 1) drain/resync the vsync tracker (already helps a lot)
                 mScheduler->forceResyncAllToHardwareVsync();
+
+                // 2) snap render-rate back to the active mode’s FPS and refresh phase config
+                {
+                    Mutex::Autolock lock(mStateLock);
+                    if (const auto display = getDefaultDisplayDeviceLocked()) {
+                        const auto fps = display->refreshRateSelector().getActiveMode().fps;
+                        mScheduler->setRenderRate(display->getPhysicalId(), fps);
+                        mScheduler->resetPhaseConfiguration(fps);
+                    }
+                }
+
+                // 3) clear content history so we don’t keep a latched 60 Hz vote
+                mScheduler->clearLayerHistory();
+
+                // 3b) disable backpressure for a few frames to let pending state drain.
+                sBpGraceFrames = base::GetIntProperty("persist.gammaos.shader.bp_grace_frames"s, 6);
+
+                // 4) restore default backpressure policy (we relaxed it while shader was ON)
+                mBackpressureGpuComposition =
+                        base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true);
+
+                // 5) kick a new frame right away
+                scheduleComposite(FrameHint::kActive);
             }
             sPrevShaderOn = shaderOn;
         }
@@ -2622,10 +2651,11 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
             && pacesetterFrameTarget.isFramePending()) {
         // GammaOS: While the global post-process shader is active, avoid "every-other-vsync"
         // pacing due to GPU backpressure; restore default immediately when it's off.
-        const bool shaderOn =
-                base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
-        if (shaderOn) {
+        const bool shaderOn = base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
+        if (shaderOn || sBpGraceFrames > 0) {
             mBackpressureGpuComposition = false;
+            // Decrement grace window if we’re currently applying it.
+            if (sBpGraceFrames > 0) --sBpGraceFrames;
         } else {
             mBackpressureGpuComposition =
                     base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true);
@@ -2899,8 +2929,8 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             const uint64_t key = d->getPhysicalId().value;
             const auto it = mBfiStates.find(key);
             const bool drawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
-            // Only signal RenderEngine path when using mode=re
-            gamma_bfi_set_draw_black((bfiMode == "re" && drawBlack) ? 1 : 0);
+            // Signal per-draw “black” even in CTM mode so RE can skip the heavy shader pass.
+            gamma_bfi_set_draw_black(drawBlack ? 1 : 0);
             // For CTM mode, push the color transform into CompositionEngine so it
             // marks the output dirty and calls HWC::setColorTransform during compose.
             if (bfiMode == "ctm") {

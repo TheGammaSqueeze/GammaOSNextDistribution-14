@@ -111,6 +111,12 @@ extern "C" __attribute__((visibility("default"))) void gamma_bfi_set_draw_black(
     gGammaBfiDrawBlack.store(drawBlack ? 1 : 0, std::memory_order_release);
 }
 
+// Accessor used inside RenderEngine to check if this draw is a BFI "black" frame.
+// Returns true when SF requested a black frame on this vsync.
+static inline bool GammaBfiShouldDrawBlack() {
+    return gGammaBfiDrawBlack.load(std::memory_order_acquire) != 0;
+}
+
 // Cache SkRuntimeEffect objects so we don't recompile SkSL every frame.
 // Unified (masked or full) CRT/scanline effect.
 static std::once_flag gGammaFxOnce;
@@ -770,9 +776,8 @@ void SkiaRenderEngine::drawLayersInternal(
     const bool bfiOnCtm =
             android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
             android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm";
-    const bool kGammaShaderOn =
-            android::base::GetBoolProperty("persist.gammaos.shader.enable", false) && !bfiOnCtm;
-    // (If both were enabled before, BFI may flicker. With this gate, they never overlap.)
+    // Allow shader even with CTM-BFI; we’ll skip the heavy pass on “black” frames.
+    const bool kGammaShaderOn = android::base::GetBoolProperty("persist.gammaos.shader.enable", false);
     if (kGammaShaderOn && activeSurface == dstSurface) {
         gammaPostSurface = getOrMakeGammaScratch(dstSurface);
         if (gammaPostSurface) {
@@ -1273,6 +1278,10 @@ void SkiaRenderEngine::drawLayersInternal(
         const float period_cpu  = std::max(1.0f, scan_px);
         const float inv_period  = 1.0f / period_cpu;
 
+        // If CTM-BFI is inserting a black frame this vsync, skip the heavy post-pass.
+        // (SurfaceFlinger will set the per-draw latch for both RE & CTM modes now.)
+        const bool bfiBlack = GammaBfiShouldDrawBlack();
+
         SkCanvas* dstCanvas = mCapture->tryCapture(dstSurface.get());
         if (!dstCanvas) {
             if (debugLog) ALOGE("GammaOS CRT: no canvas at post-process; skipping.");
@@ -1285,6 +1294,9 @@ void SkiaRenderEngine::drawLayersInternal(
             dstCanvas->resetMatrix();
             dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
             dstCanvas->restore();
+        } else if (bfiBlack) {
+            if (debugLog) ALOGV("GammaOS CRT: skipping pass (BFI black frame).");
+            // nothing to do; CTM will blank the output
         } else {
             // Unified single-pass shader:
             //  - Unprotected: sample src and overwrite (kSrc).
