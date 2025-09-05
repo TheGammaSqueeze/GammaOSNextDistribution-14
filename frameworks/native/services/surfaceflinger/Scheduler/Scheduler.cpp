@@ -276,10 +276,10 @@ void Scheduler::onFrameSignal(ICompositor& compositor, VsyncId vsyncId,
 }
 
 std::optional<Fps> Scheduler::getFrameRateOverride(uid_t uid) const {
-    const bool supportsFrameRateOverrideByContent =
-            pacesetterSelectorPtr()->supportsAppFrameRateOverrideByContent();
-    return mFrameRateOverrideMappings
-            .getFrameRateOverrideForUid(uid, supportsFrameRateOverrideByContent);
+    // GammaOS: Disable per-UID frame rate overrides globally.
+    // Always report "no override" so apps cannot force lower FPS (e.g., 60 Hz) on a 120 Hz mode.
+    (void)uid;
+    return std::nullopt;
 }
 
 bool Scheduler::isVsyncValid(TimePoint expectedVsyncTime, uid_t uid) const {
@@ -402,8 +402,9 @@ void Scheduler::onFrameRateOverridesChanged(Cycle cycle, PhysicalDisplayId displ
     const bool supportsFrameRateOverrideByContent =
             pacesetterSelectorPtr()->supportsAppFrameRateOverrideByContent();
 
-    std::vector<FrameRateOverride> overrides =
-            mFrameRateOverrideMappings.getAllFrameRateOverrides(supportsFrameRateOverrideByContent);
+    // GammaOS: With overrides disabled, always propagate an empty list.
+    (void)supportsFrameRateOverrideByContent;
+    std::vector<FrameRateOverride> overrides;
 
     eventThreadFor(cycle).onFrameRateOverridesChanged(displayId, std::move(overrides));
 }
@@ -909,15 +910,11 @@ bool Scheduler::updateFrameRateOverrides(GlobalSignals consideredSignals, Fps di
 
 bool Scheduler::updateFrameRateOverridesLocked(GlobalSignals consideredSignals,
                                                Fps displayRefreshRate) {
-    if (consideredSignals.idle) return false;
-
-    const auto frameRateOverrides =
-            pacesetterSelectorPtr()->getFrameRateOverrides(mPolicy.contentRequirements,
-                                                           displayRefreshRate, consideredSignals);
-
-    // Note that RefreshRateSelector::supportsFrameRateOverrideByContent is checked when querying
-    // the FrameRateOverrideMappings rather than here.
-    return mFrameRateOverrideMappings.updateFrameRateOverridesByContent(frameRateOverrides);
+    // GammaOS: Disable content-based frame rate overrides completely.
+    // Always clear mappings so nothing can latch a 60 Hz override.
+    (void)consideredSignals;
+    (void)displayRefreshRate;
+    return mFrameRateOverrideMappings.updateFrameRateOverridesByContent({});
 }
 
 void Scheduler::promotePacesetterDisplay(std::optional<PhysicalDisplayId> pacesetterIdOpt) {
@@ -1237,30 +1234,18 @@ void Scheduler::setGameModeFrameRateForUid(FrameRateOverride frameRateOverride) 
         return;
     }
 
-    if (FlagManager::getInstance().game_default_frame_rate()) {
-        // update the frame rate override mapping in LayerHistory
-        mLayerHistory.updateGameModeFrameRateOverride(frameRateOverride);
-    } else {
-        mFrameRateOverrideMappings.setGameModeRefreshRateForUid(frameRateOverride);
-    }
+    // GammaOS: Overrides disabled — ignore game mode requests.
+    (void)frameRateOverride;
 }
 
 void Scheduler::setGameDefaultFrameRateForUid(FrameRateOverride frameRateOverride) {
-    if (!FlagManager::getInstance().game_default_frame_rate() ||
-        (frameRateOverride.frameRateHz > 0.f && frameRateOverride.frameRateHz < 1.f)) {
-        return;
-    }
-
-    // update the frame rate override mapping in LayerHistory
-    mLayerHistory.updateGameDefaultFrameRateOverride(frameRateOverride);
+    // GammaOS: Overrides disabled — ignore default game frame rate requests.
+    (void)frameRateOverride;
 }
 
 void Scheduler::setPreferredRefreshRateForUid(FrameRateOverride frameRateOverride) {
-    if (frameRateOverride.frameRateHz > 0.f && frameRateOverride.frameRateHz < 1.f) {
-        return;
-    }
-
-    mFrameRateOverrideMappings.setPreferredRefreshRateForUid(frameRateOverride);
+    // GammaOS: Overrides disabled — ignore preferred refresh rate requests.
+    (void)frameRateOverride;
 }
 
 void Scheduler::updateSmallAreaDetection(

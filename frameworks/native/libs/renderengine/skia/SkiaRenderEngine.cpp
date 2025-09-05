@@ -71,6 +71,7 @@
 #include <deque>
 #include <memory>
 #include <numeric>
+#include <mutex>
 
 #include "Cache.h"
 #include "ColorSpaces.h"
@@ -109,8 +110,25 @@ static std::atomic<int> gGammaBfiDrawBlack{0};
 extern "C" __attribute__((visibility("default"))) void gamma_bfi_set_draw_black(int drawBlack) {
     gGammaBfiDrawBlack.store(drawBlack ? 1 : 0, std::memory_order_release);
 }
-static inline bool GammaBfiShouldDrawBlack() {
-    return gGammaBfiDrawBlack.load(std::memory_order_acquire) != 0;
+
+// Cache SkRuntimeEffect objects so we don't recompile SkSL every frame.
+// Unified (masked or full) CRT/scanline effect.
+static std::once_flag gGammaFxOnce;
+static sk_sp<SkRuntimeEffect> gGammaFx;
+
+// GammaOS: cached offscreen surface to avoid per-frame allocations
+static sk_sp<SkSurface> sGammaScratch;
+static int sGammaW = 0, sGammaH = 0;
+static SkColorType sGammaCT = kUnknown_SkColorType;
+static inline sk_sp<SkSurface> getOrMakeGammaScratch(const sk_sp<SkSurface>& dstSurface) {
+    const auto ii = dstSurface->imageInfo();
+    const int w = ii.width(), h = ii.height();
+    const SkColorType ct = ii.colorType();
+    if (!sGammaScratch || sGammaW != w || sGammaH != h || sGammaCT != ct) {
+        sGammaScratch = dstSurface->makeSurface(ii);
+        sGammaW = w; sGammaH = h; sGammaCT = ct;
+    }
+    return sGammaScratch;
 }
 // ---------------------------------------------------------------------------
 
@@ -689,6 +707,15 @@ void SkiaRenderEngine::drawLayersInternal(
     auto grContext = getActiveGrContext();
     LOG_ALWAYS_FATAL_IF(grContext->abandoned(), "GrContext is abandoned/device lost at start of %s",
                         __func__);
+ 
+    // GammaOS: if the shader toggle changed since last frame, drain GPU once.
+    static bool sPrevShaderOn = false;
+    const bool shaderPropNow =
+            android::base::GetBoolProperty("persist.gammaos.shader.enable", false);
+    if (CC_UNLIKELY(shaderPropNow != sPrevShaderOn)) {
+        grContext->flushAndSubmit(GrSyncCpu::kYes);
+        sPrevShaderOn = shaderPropNow;
+    }
 
     // any AutoBackendTexture deletions will now be deferred until cleanupPostRender is called
     DeferTextureCleanup dtc(mTextureCleanupMgr);
@@ -734,6 +761,26 @@ void SkiaRenderEngine::drawLayersInternal(
     sk_sp<SkSurface> activeSurface(dstSurface);
     SkCanvas* canvas = dstCanvas;
     SkiaCapture::OffscreenState offscreenCaptureState;
+      
+    // GammaOS: if post-process shader is enabled (and BFI-CTM is NOT active),
+    // render into an offscreen surface to avoid src==dst hazards at 120Hz.
+    // to avoid sampling the same render target in the post-pass. This prevents
+    // copy-on-write / full-surface resolves that can halve throughput at 120 Hz.
+    sk_sp<SkSurface> gammaPostSurface;
+    const bool bfiOnCtm =
+            android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+            android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm";
+    const bool kGammaShaderOn =
+            android::base::GetBoolProperty("persist.gammaos.shader.enable", false) && !bfiOnCtm;
+    // (If both were enabled before, BFI may flicker. With this gate, they never overlap.)
+    if (kGammaShaderOn && activeSurface == dstSurface) {
+        gammaPostSurface = getOrMakeGammaScratch(dstSurface);
+        if (gammaPostSurface) {
+            canvas = mCapture->tryOffscreenCapture(gammaPostSurface.get(), &offscreenCaptureState);
+            activeSurface = gammaPostSurface;
+        }
+    }
+
     const LayerSettings* blurCompositionLayer = nullptr;
     if (mBlurFilter) {
         bool requiresCompositionLayer = false;
@@ -1172,8 +1219,9 @@ void SkiaRenderEngine::drawLayersInternal(
 
     surfaceAutoSaveRestore.restore();
     mCapture->endCapture();
-    // ---------------- GammaOS: global flat CRT/scanline post-process (A13 parity) ----------
-    if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
+    // ---------------- GammaOS: global CRT/scanline post-process (unified single-pass) -------
+    // IMPORTANT: skip entirely when BFI-CTM is active to avoid cadence fights & flicker.
+    if (kGammaShaderOn) {
         const bool debugLog = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
         const bool isProtected = (buffer->getBuffer()->getUsage() & GRALLOC_USAGE_PROTECTED) != 0;
 
@@ -1211,6 +1259,20 @@ void SkiaRenderEngine::drawLayersInternal(
             }
         }
 
+        // Optional fast path: keep scanlines, drop heavier cosmetics at runtime.
+        const bool fastMode = android::base::GetBoolProperty("persist.gammaos.shader.fast", false);
+        if (fastMode) {
+            triad_px = 0.0f; mask_strength = 0.0f;
+            curv = 0.0f; vignette = 0.0f; edge_soft_px = 0.0f;
+        }
+
+        // Precompute trig/period on CPU to reduce per-pixel ALU
+        const float ang = scan_angle_deg * 0.017453292519943295f; // pi/180
+        const float scan_ca_cpu = std::cos(ang);
+        const float scan_sa_cpu = std::sin(ang);
+        const float period_cpu  = std::max(1.0f, scan_px);
+        const float inv_period  = 1.0f / period_cpu;
+
         SkCanvas* dstCanvas = mCapture->tryCapture(dstSurface.get());
         if (!dstCanvas) {
             if (debugLog) ALOGE("GammaOS CRT: no canvas at post-process; skipping.");
@@ -1223,116 +1285,35 @@ void SkiaRenderEngine::drawLayersInternal(
             dstCanvas->resetMatrix();
             dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
             dstCanvas->restore();
-        } else if (!isProtected) {
-            // Unprotected output: snapshot + shader (overwrite kSrc), like A13
-            sk_sp<SkImage> srcImage = dstSurface->makeImageSnapshot();
-            if (!srcImage) {
-                if (debugLog) ALOGW("GammaOS CRT: snapshot failed; skipping effect.");
-            } else {
-                static const char* kSkSL = R"(
-                    uniform shader src;
-                    uniform float  scan_px;
-                    uniform float  scan_strength;
-                    uniform float  triad_px;
-                    uniform float  mask_strength;
-                    uniform float  scan_phase;
-                    uniform float  scan_angle_deg;
-                    uniform float  curv;
-                    uniform float  vignette;
-                    uniform float  edge_soft_px;
-                    uniform float2 fb_size; // (w,h)
-                    float2 warp_pixel(float2 p){
-                        float2 wh=fb_size; float a=wh.x/wh.y;
-                        float2 uv=p/wh*2.0-1.0;
-                        uv.x*=a;
-                        float r2=dot(uv,uv);
-                        float2 uv2=uv*(1.0+curv*r2);
-                        uv2.x/=a;
-                        return (uv2*0.5+0.5)*wh;
-                    }
-                    float edge_mask(float2 q, float2 wh) {
-                        float inMask = step(0.0, q.x) * step(0.0, q.y) * step(q.x, wh.x - 1.0) * step(q.y, wh.y - 1.0);
-                        if (edge_soft_px <= 0.0) return inMask;
-                        float2 d = min(q, wh - q);
-                        float distEdge = min(d.x, d.y);
-                        float soft = clamp(distEdge / edge_soft_px, 0.0, 1.0);
-                        return inMask * soft;
-                    }
-                    half4 main(float2 p) {
-                        float2 wh = fb_size;
-                        float2 q = (abs(curv) > 0.0001) ? warp_pixel(p) : p;
-                        float ang = radians(scan_angle_deg);
-                        float ca = cos(ang), sa = sin(ang);
-                        float2 pp = p - 0.5 * wh;
-                        float coord = pp.x * (-sa) + pp.y * (ca);
-                        coord += 0.5 * wh.y;
-                        float period = max(1.0, scan_px);
-                        float row = floor(mod(coord + scan_phase, period));
-                        float band = (row < period * 0.5) ? 0.0 : 1.0;
-                        float darkMul = 1.0 - clamp(scan_strength, 0.0, 1.0);
-                        float scanMul = (band > 0.5) ? 1.0 : darkMul;
-                        float3 triRGB = float3(1.0, 1.0, 1.0);
-                        if (triad_px >= 1.0) {
-                            float px = max(1.0, triad_px);
-                            float t = floor(mod(q.x, px));
-                            float seg = floor(3.0 * t / px);
-                            if (seg < 0.5)       triRGB = float3(1.0, 0.80, 0.80);
-                            else if (seg < 1.5)  triRGB = float3(0.80, 1.0, 0.80);
-                            else                 triRGB = float3(0.80, 0.80, 1.0);
-                            triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
-                        }
-                        half4 c = src.eval(q);
-                        c.rgb *= triRGB * scanMul;
-                        if (vignette > 0.0) {
-                            float a = wh.x / wh.y;
-                            float2 uv = p / wh * 2.0 - 1.0;
-                            uv.x *= a;
-                            float r2 = dot(uv, uv);
-                            float vig = 1.0 - vignette * smoothstep(0.6, 1.0, r2);
-                            c.rgb *= vig;
-                        }
-                        float em = edge_mask(q, wh);
-                        c.rgb *= em;
-                        return c;
-                    }
-                )";
-                auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
-                if (!effect) {
-                    if (debugLog) ALOGE("GammaOS CRT: SkSL compile failed: %s", err.c_str());
-                } else {
-                    SkRuntimeShaderBuilder b(effect);
-                    b.child("src") = srcImage->makeShader(SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
-                    b.uniform("scan_px")        = scan_px;
-                    b.uniform("scan_strength")  = scan_strength;
-                    b.uniform("triad_px")       = triad_px;
-                    b.uniform("mask_strength")  = mask_strength;
-                    b.uniform("scan_phase")     = scan_phase;
-                    b.uniform("scan_angle_deg") = scan_angle_deg;
-                    b.uniform("fb_size")        = SkV2{(float)dstSurface->width(), (float)dstSurface->height()};
-                    b.uniform("curv")           = curv;
-                    b.uniform("vignette")       = vignette;
-                    b.uniform("edge_soft_px")   = edge_soft_px;
-                    SkPaint p; p.setShader(b.makeShader()); p.setBlendMode(SkBlendMode::kSrc);
-                    dstCanvas->save(); dstCanvas->resetMatrix();
-                    dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-                    dstCanvas->restore();
-                    if (debugLog) ALOGD("GammaOS CRT: applied unprotected pass.");
-                }
-            }
         } else {
-            // Protected: mask-only multiply (no sampling)
-            static const char* kMask = R"(
+            // Unified single-pass shader:
+            //  - Unprotected: sample src and overwrite (kSrc).
+            //  - Protected: don't sample; draw mask-only and multiply with dst (kMultiply).
+
+            // If we recorded into an offscreen surface, end that capture before snapshotting
+            // so the capture path doesn't linger and cause jank/flicker after toggling.
+            if (gammaPostSurface && CC_UNLIKELY(mCapture->isCaptureRunning())) {
+                (void)mCapture->endOffscreenCapture(&offscreenCaptureState);
+            }
+
+            static const char* kSkSL = R"(
+                uniform shader src;
+                uniform int    use_src;      // 1=sample src, 0=mask-only (white)
                 uniform float  scan_px;
                 uniform float  scan_strength;
                 uniform float  triad_px;
                 uniform float  mask_strength;
                 uniform float  scan_phase;
                 uniform float  scan_angle_deg;
+                // CPU-precomputed:
+                uniform float  scan_ca;      // cos(angle)
+                uniform float  scan_sa;      // sin(angle)
+                uniform float  inv_period;   // 1/max(1, scan_px)
                 uniform float  curv;
                 uniform float  vignette;
                 uniform float  edge_soft_px;
-                uniform float2 fb_size;
-                float2 warp_pixel(float2 p) {
+                uniform float2 fb_size; // (w,h)
+                float2 warp_pixel(float2 p){
                     float2 wh = fb_size;
                     float a = wh.x / wh.y;
                     float2 uv = p / wh * 2.0 - 1.0;
@@ -1353,93 +1334,112 @@ void SkiaRenderEngine::drawLayersInternal(
                 half4 main(float2 p) {
                     float2 wh = fb_size;
                     float2 q = (abs(curv) > 0.0001) ? warp_pixel(p) : p;
-                    float ang = radians(scan_angle_deg);
-                    float ca = cos(ang), sa = sin(ang);
+                    float ca = scan_ca, sa = scan_sa;
                     float2 pp = p - 0.5 * wh;
                     float coord = pp.x * (-sa) + pp.y * (ca);
                     coord += 0.5 * wh.y;
-                    float period=max(1.0,scan_px);
-                    float row = floor(mod(coord + scan_phase, period));
-                    float band = (row < period * 0.5) ? 0.0 : 1.0;
+                    // band via fract instead of floor(mod(.)):
+                    float t = fract((coord + scan_phase) * inv_period);
+                    float band = step(0.5, t); // 0..1
                     float darkMul = 1.0 - clamp(scan_strength, 0.0, 1.0);
                     float scanMul = (band > 0.5) ? 1.0 : darkMul;
                     float3 triRGB = float3(1.0, 1.0, 1.0);
                     if (triad_px >= 1.0) {
                         float px = max(1.0, triad_px);
-                        float t = floor(mod(q.x, px));
-                        float seg = floor(3.0 * t / px);
+                        float tt = fract(q.x / px);
+                        float seg = floor(3.0 * tt);
                         if (seg < 0.5)       triRGB = float3(1.0, 0.80, 0.80);
                         else if (seg < 1.5)  triRGB = float3(0.80, 1.0, 0.80);
                         else                 triRGB = float3(0.80, 0.80, 1.0);
                         triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
                     }
-                    float em = edge_mask(q, wh);
-                    half3 m = half3(triRGB) * half(scanMul * em);
+                    half4 base = use_src != 0 ? src.eval(q) : half4(1.0);
+                    base.rgb *= triRGB * scanMul;
                     if (vignette > 0.0) {
                         float a = wh.x / wh.y;
                         float2 uv = p / wh * 2.0 - 1.0;
                         uv.x *= a;
                         float r2 = dot(uv, uv);
                         float vig = 1.0 - vignette * smoothstep(0.6, 1.0, r2);
-                        m *= half(vig);
+                        base.rgb *= vig;
                     }
-                    return half4(m, 1.0);
+                    float em = edge_mask(q, wh);
+                    base.rgb *= em;
+                    return base;
                 }
             )";
-            auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(kMask));
-            if (!effect) {
-                if (debugLog) ALOGE("GammaOS CRT: SkSL compile failed (protected): %s", err.c_str());
+            std::call_once(gGammaFxOnce, [&]{
+                auto pair = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
+                gGammaFx = pair.effect;
+                if (!gGammaFx && debugLog) {
+                    ALOGE("GammaOS CRT: SkSL compile failed: %s", pair.errorText.c_str());
+                }
+            });
+            if (!gGammaFx) {
+                if (debugLog) ALOGW("GammaOS CRT: skipping pass; no compiled effect.");
             } else {
-                SkRuntimeShaderBuilder b(effect);
+                SkRuntimeShaderBuilder b(gGammaFx);
+                // Common uniforms
                 b.uniform("scan_px")        = scan_px;
                 b.uniform("scan_strength")  = scan_strength;
                 b.uniform("triad_px")       = triad_px;
                 b.uniform("mask_strength")  = mask_strength;
                 b.uniform("scan_phase")     = scan_phase;
-                b.uniform("scan_angle_deg") = scan_angle_deg;
+                b.uniform("scan_ca")        = scan_ca_cpu;
+                b.uniform("scan_sa")        = scan_sa_cpu;
+                b.uniform("inv_period")     = inv_period;
                 b.uniform("fb_size")        = SkV2{(float)dstSurface->width(), (float)dstSurface->height()};
                 b.uniform("curv")           = curv;
                 b.uniform("vignette")       = vignette;
                 b.uniform("edge_soft_px")   = edge_soft_px;
-                SkPaint p; p.setShader(b.makeShader()); p.setBlendMode(SkBlendMode::kMultiply);
-                SkCanvas* dstCanvas2 = mCapture->tryCapture(dstSurface.get());
-                if (dstCanvas2) {
-                    dstCanvas2->save(); dstCanvas2->resetMatrix();
-                    dstCanvas2->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-                    dstCanvas2->restore();
-                    if (debugLog) ALOGD("GammaOS CRT: applied protected mask-only pass.");
+                SkPaint p;
+                if (!isProtected) {
+                    // Sample from offscreen (or dst) and overwrite.
+                    sk_sp<SkImage> srcImage =
+                            (gammaPostSurface ? gammaPostSurface : dstSurface)->makeImageSnapshot();
+                    if (!srcImage) {
+                        if (debugLog) ALOGW("GammaOS CRT: snapshot failed; skipping effect.");
+                    } else {
+                        b.child("src") = srcImage->makeShader(
+                                SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
+                        b.uniform("use_src") = 1;
+                        p.setShader(b.makeShader());
+                        p.setBlendMode(SkBlendMode::kSrc);
+                        dstCanvas->save(); dstCanvas->resetMatrix();
+                        dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+                        dstCanvas->restore();
+                        if (debugLog) ALOGD("GammaOS CRT: applied unified unprotected pass.");
+                    }
+                } else {
+                    // Protected: no sampling; multiply mask into destination.
+                    b.child("src") = SkShaders::Color(
+                            SkColors::kWhite, toSkColorSpace(display.outputDataspace));
+                    b.uniform("use_src") = 0;
+                    p.setShader(b.makeShader());
+                    p.setBlendMode(SkBlendMode::kMultiply);
+                    dstCanvas->save(); dstCanvas->resetMatrix();
+                    dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
+                    dstCanvas->restore();
+                    if (debugLog) ALOGD("GammaOS CRT: applied unified protected pass (multiply).");
                 }
             }
         }
     }
     // ---------------------------------------------------------------------------------------
 
-    // ---------------- GammaOS: BFI (Black-Frame Insertion), bound to *this* draw -----------
-    // Only run the Skia path if explicitly requested (fallback). The default is HWC CTM.
-    const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
-    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) && bfiMode == "re") {
-        // No sysprops here: SF sets gGammaBfiDrawBlack right before this draw.
-        const bool drawBlack = GammaBfiShouldDrawBlack();
-        const bool bfiDebug = android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
-        if (drawBlack) {
-            SkCanvas* canvas = mCapture->tryCapture(dstSurface.get());
-            if (canvas) {
-                SkPaint p;
-                p.setColor(SkColorSetARGB(255, 0, 0, 0));
-                p.setBlendMode(SkBlendMode::kSrc); // replace
-                canvas->save();
-                canvas->resetMatrix();
-                canvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-                canvas->restore();
-                if (bfiDebug) ALOGD("GammaOS BFI: drew black frame.");
-            } else if (bfiDebug) {
-                ALOGW("GammaOS BFI: no canvas; skip black frame.");
-            }
-        } else if (bfiDebug) {
-            ALOGV("GammaOS BFI: content frame.");
+    // If we drew into an offscreen surface this frame, make sure we flush the real output
+    // and not the scratch. Also end offscreen capture if it was left active (e.g. testOverlay).
+    if (gammaPostSurface && activeSurface.get() != dstSurface.get()) {
+        if (CC_UNLIKELY(mCapture->isCaptureRunning())) {
+            (void)mCapture->endOffscreenCapture(&offscreenCaptureState);
         }
+        activeSurface = dstSurface;
     }
-    // ---------------------------------------------------------------------------------------
+
+    // If shader is OFF, free scratch to return memory; if ON, keep it for reuse.
+    if (!kGammaShaderOn && sGammaScratch) {
+        sGammaScratch.reset(); sGammaW = sGammaH = 0; sGammaCT = kUnknown_SkColorType;
+    }
 
     {
         ATRACE_NAME("flush surface");

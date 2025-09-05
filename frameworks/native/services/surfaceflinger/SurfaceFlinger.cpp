@@ -2570,6 +2570,18 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     const VsyncId vsyncId = pacesetterFrameTarget.vsyncId();
     ATRACE_NAME(ftl::Concat(__func__, ' ', ftl::to_underlying(vsyncId)).c_str());
 
+    // GammaOS: detect shader toggle and resync on OFF to clear pacing drift (120->60 latch).
+    {
+        static bool sPrevShaderOn = false;
+        const bool shaderOn =
+                base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
+        if (CC_UNLIKELY(shaderOn != sPrevShaderOn)) {
+            if (!shaderOn) {
+                mScheduler->forceResyncAllToHardwareVsync();
+            }
+            sPrevShaderOn = shaderOn;
+        }
+    }
     if (pacesetterFrameTarget.didMissFrame()) {
         mTimeStats->incrementMissedFrames();
     }
@@ -2608,6 +2620,17 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
 
     if (base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true)
             && pacesetterFrameTarget.isFramePending()) {
+        // GammaOS: While the global post-process shader is active, avoid "every-other-vsync"
+        // pacing due to GPU backpressure; restore default immediately when it's off.
+        const bool shaderOn =
+                base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
+        if (shaderOn) {
+            mBackpressureGpuComposition = false;
+        } else {
+            mBackpressureGpuComposition =
+                    base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true);
+        }
+
         if (mBackpressureGpuComposition || pacesetterFrameTarget.didMissHwcFrame()) {
             if (FlagManager::getInstance().vrr_config()) {
                 mScheduler->getVsyncSchedule()->getTracker().onFrameMissed(
