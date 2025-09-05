@@ -1099,6 +1099,12 @@ void Output::beginFrame() {
     //   emit any black frames until a layer is added to the layer stack.
     mMustRecompose = dirty && !(empty && wasEmpty);
 
+    // GammaOS BFI(CTM): force recompose/present every vsync to keep CTM cadence stable.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm") {
+        mMustRecompose = true;
+    }
+
     const char flagPrefix[] = {'-', '+'};
     static_cast<void>(flagPrefix);
     ALOGV("%s: %s composition for %s (%cdirty %cempty %cwasEmpty)", __func__,
@@ -1696,6 +1702,19 @@ bool Output::canPredictCompositionStrategy(const CompositionRefreshArgs& refresh
     uint64_t lastOutputLayerHash = getState().lastOutputLayerHash;
     uint64_t outputLayerHash = getState().outputLayerHash;
     editState().lastOutputLayerHash = outputLayerHash;
+
+    // GammaOS BFI(CTM): avoid prediction/offload paths; keep a simple validate+present cadence.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm") {
+        ALOGV("canPredictCompositionStrategy: disabled under BFI CTM");
+        return false;
+    }
+
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm") {
+        ALOGV("canPredictCompositionStrategy: disabled under BFI CTM");
+        return false;
+    }
 
     if (!getState().isEnabled || !mPredictCompositionStrategy) {
         ALOGV("canPredictCompositionStrategy disabled");

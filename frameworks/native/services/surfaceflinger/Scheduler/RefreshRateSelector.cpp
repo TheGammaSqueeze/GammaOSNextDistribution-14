@@ -1364,8 +1364,10 @@ auto RefreshRateSelector::setPolicy(const PolicyVariant& policy) -> SetPolicyRes
         }
         constructAvailableRefreshRates();
 
-        // GammaOS: global refresh lock — clamp available rates to ONLY the highest Hz
-        // in the current mode group so animations/transitions cannot downshift.
+        // GammaOS: refresh locks
+        // a) persist.gammaos.refresh.lock -> clamp to highest Hz within the *current mode group*
+        // b) persist.gammaos.bfi.enable && mode=ctm -> clamp to the *absolute* highest Hz
+        //    across all groups (universal, content-agnostic).
         if (::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
             const int anchorGroup = getActiveModeLocked().modePtr->getGroup();
             auto clampToMaxInGroup = [&](std::vector<FrameRateMode>& vec) REQUIRES(mLock) {
@@ -1386,6 +1388,20 @@ auto RefreshRateSelector::setPolicy(const PolicyVariant& policy) -> SetPolicyRes
             };
             clampToMaxInGroup(mPrimaryFrameRates);
             clampToMaxInGroup(mAppRequestFrameRates);
+        }
+
+        if (::android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+            (::android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm")) {
+            auto clampToGlobalMax = [&](std::vector<FrameRateMode>& vec) REQUIRES(mLock) {
+                if (vec.empty()) return;
+                FrameRateMode best = vec.front();
+                for (const auto& fr : vec) {
+                    if (isStrictlyLess(best.fps, fr.fps)) best = fr;
+                }
+                vec.assign(1, best);
+            };
+            clampToGlobalMax(mPrimaryFrameRates);
+            clampToGlobalMax(mAppRequestFrameRates);
         }
 
         displayId = getActiveModeLocked().modePtr->getPhysicalDisplayId();

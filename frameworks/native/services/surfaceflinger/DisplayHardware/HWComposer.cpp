@@ -477,7 +477,11 @@ status_t HWComposer::getDeviceCompositionChanges(
     // earliest time to present. Otherwise, we may present a frame too early.
     // 2. There is no client composition. Otherwise, we first need to render the
     // client target buffer.
-    const bool canSkipValidate = [&] {
+    // GammaOS BFI(CTM): Never skip validate/present when CTM-based BFI is active.
+    const bool __gamma_bfi_enable = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+    const std::string __gamma_bfi_mode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    const bool __gamma_bfi_ctm_active = (__gamma_bfi_enable && __gamma_bfi_mode == "ctm");
+    const bool canSkipValidate = !__gamma_bfi_ctm_active && [&] {
         // We must call validate if we have client composition
         if (frameUsesClientComposition) {
             return false;
@@ -677,6 +681,13 @@ status_t HWComposer::setActiveModeWithConstraints(
 
 status_t HWComposer::setColorTransform(HalDisplayId displayId, const mat4& transform) {
     RETURN_IF_INVALID_DISPLAY(displayId, BAD_INDEX);
+
+    // GammaOS BFI(CTM) instrumentation: count CTM programs per vsync
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm") {
+        static int64_t sGammaCtmCount = 0;
+        ATRACE_INT("GammaBFI_setColorTransform", ++sGammaCtmCount);
+    }
 
     auto& displayData = mDisplayData[displayId];
     auto error = displayData.hwcDisplay->setColorTransform(transform);

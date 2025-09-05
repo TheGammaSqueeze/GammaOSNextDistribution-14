@@ -196,6 +196,7 @@ import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.WorkSource;
@@ -3492,10 +3493,15 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
 
     void enableHighPerfTransition(boolean enable) {
         if (!explicitRefreshRateHints()) {
-            if (enable) {
-                getPendingTransaction().setEarlyWakeupStart();
-            } else {
-                getPendingTransaction().setEarlyWakeupEnd();
+            final boolean bfiCtm =
+                    SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                            && "ctm".equals(SystemProperties.get("persist.gammaos.bfi.mode", "ctm"));
+            if (!bfiCtm) {
+                if (enable) {
+                    getPendingTransaction().setEarlyWakeupStart();
+                } else {
+                    getPendingTransaction().setEarlyWakeupEnd();
+                }
             }
             return;
         }

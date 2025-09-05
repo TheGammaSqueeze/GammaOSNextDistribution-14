@@ -141,6 +141,7 @@ import com.android.launcher3.util.Themes;
 import com.android.launcher3.views.FloatingIconView;
 import com.android.launcher3.views.ScrimView;
 import com.android.launcher3.widget.LauncherAppWidgetHostView;
+import com.android.launcher3.Utilities;
 import com.android.quickstep.LauncherBackAnimationController;
 import com.android.quickstep.RemoteAnimationTargets;
 import com.android.quickstep.SystemUiProxy;
@@ -177,6 +178,14 @@ import java.util.List;
  * Manages the opening and closing app transitions from Launcher
  */
 public class QuickstepTransitionManager implements OnDeviceProfileChangeListener {
+
+    // GammaOS: Detect CTM-based BFI to disable blur/effect layers during transitions
+    private static boolean isCtmBfiOn() {
+        try {
+            return "1".equals(Utilities.getSystemProperty("persist.gammaos.bfi.enable", "0"))
+                    && "ctm".equals(Utilities.getSystemProperty("persist.gammaos.bfi.mode", "ctm"));
+        } catch (Throwable t) { return false; }
+    }
 
     private static final boolean ENABLE_SHELL_STARTING_SURFACE =
             SystemProperties.getBoolean("persist.debug.shell_starting_surface", true);
@@ -1063,6 +1072,9 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
         // blur the wallpaper instead of the launcher surface as well
         boolean allowBlurringLauncher = mLauncher.getStateManager().getState() != OVERVIEW
                 && BlurUtils.supportsBlursOnWindows();
+        if (isCtmBfiOn()) {
+            allowBlurringLauncher = false;
+        }
 
         LaunchDepthController depthController = new LaunchDepthController(mLauncher);
         ObjectAnimator backgroundRadiusAnim = ObjectAnimator.ofFloat(depthController.stateDepth,
@@ -1080,16 +1092,18 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
             SurfaceControl parent = viewRootImpl != null
                     ? viewRootImpl.getSurfaceControl()
                     : null;
-            SurfaceControl dimLayer = new SurfaceControl.Builder()
-                    .setName("Blur layer")
-                    .setParent(parent)
-                    .setOpaque(false)
-                    .setHidden(false)
-                    .setEffectLayer()
-                    .build();
+            if (!isCtmBfiOn()) {
+                SurfaceControl dimLayer = new SurfaceControl.Builder()
+                        .setName("Blur layer")
+                        .setParent(parent)
+                        .setOpaque(false)
+                        .setHidden(false)
+                        .setEffectLayer()
+                        .build();
 
             backgroundRadiusAnim.addListener(AnimatorListeners.forEndCallback(() ->
                     new SurfaceControl.Transaction().remove(dimLayer).apply()));
+            }
         }
 
         backgroundRadiusAnim.addListener(

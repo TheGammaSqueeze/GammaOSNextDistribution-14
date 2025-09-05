@@ -391,6 +391,14 @@ static constexpr std::array<float, 16> kGammaCtmBlack = {
 };
 }
 
+// GammaOS: helper — CTM-based BFI active?
+static inline bool gamma_bfi_ctm_active() {
+    // We deliberately use the persist props so this is runtime-togglable.
+    const bool en = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+    const std::string mode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    return en && (mode == "ctm");
+}
+
 void SurfaceFlinger::applyBfiColorTransformLocked(const sp<DisplayDevice>& display, bool black) {
     // Only if enabled *and* mode=ctm; otherwise we do nothing here.
     if (!android::base::GetBoolProperty("persist.gammaos.bfi.enable", false)) return;
@@ -2729,6 +2737,35 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         refreshArgs.frameTargets.try_emplace(id, &targeter->target());
     }
 
+    // GammaOS BFI(CTM): advance cadence at frame start (vsync) to avoid aliasing with animation timing.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm") {
+        for (const auto& [id, targeter] : frameTargeters) {
+            const uint64_t key = id.value;
+            auto& st = mBfiStates[key];
+            st.enabled = true;
+            // Resolve/refresh pattern
+            std::string pattern = android::base::GetProperty("persist.gammaos.bfi.pattern", "");
+            pattern.erase(std::remove_if(pattern.begin(), pattern.end(),
+                              [](char c){ return c!='0' && c!='1'; }), pattern.end());
+            if (pattern.empty()) {
+                const std::string preset = android::base::GetProperty("persist.gammaos.bfi.preset", "");
+                if (preset == "120:60" || preset == "120to60")        pattern = "10";
+                else if (preset == "180:60" || preset == "180to60")   pattern = "100";
+                else if (preset == "240:120" || preset == "240to120") pattern = "1100";
+                else if (preset == "240:60" || preset == "240to60")   pattern = "1000";
+                else                                                  pattern = "10";
+            }
+            if (st.pattern != pattern) {
+                st.pattern = std::move(pattern);
+                st.index = 0;
+            }
+            const char slot = st.pattern[st.index % st.pattern.size()];
+            st.nextDrawBlack = (slot == '0');
+            st.index++;
+        }
+    }
+
     std::vector<DisplayId> displayIds;
     for (const auto& [_, display] : displays) {
         displayIds.push_back(display->getId());
@@ -2794,18 +2831,24 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
         refreshArgs.devOptForceClientComposition = true;
     }
-    // GammaOS BFI: Always produce a fresh client target if mode=re (Skia fallback).
-    // For mode=ctm, we let HWC handle black via color transform so GPU load is stable.
+    // GammaOS BFI: Only force client comp for RenderEngine mode; CTM mode uses HWC.
     const bool bfiEnabledNow = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
     const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
     if (bfiEnabledNow && bfiMode == "re") {
         refreshArgs.devOptForceClientComposition = true;
-        mForceFullDamage = true; // ensures new client target every frame for the Skia path
+        mForceFullDamage = true; // new client target every frame (Skia path)
     } else if (!bfiEnabledNow) {
         mForceFullDamage = false;
         gamma_bfi_set_draw_black(0);
     }
-    // Set the per-draw black flag and, if using CTM mode, apply the CTM now for the default display.
+
+    // GammaOS BFI(CTM): also force full-damage so CE never treats the frame as trivially skippable.
+    if (bfiEnabledNow && bfiMode == "ctm") {
+        mForceFullDamage = true;
+    }    
+    
+    // Set the per-draw black flag; for CTM mode, provide the CTM via refreshArgs so
+    // CompositionEngine dirties the output & programs HWC on this same frame.
     if (bfiEnabledNow) {
         Mutex::Autolock _l(mStateLock);
         const auto d = getDefaultDisplayDeviceLocked();
@@ -2813,9 +2856,31 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             const uint64_t key = d->getPhysicalId().value;
             const auto it = mBfiStates.find(key);
             const bool drawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
-            gamma_bfi_set_draw_black(drawBlack ? 1 : 0);
-            // For HWC mode, apply CTM black/identity for this frame.
-            applyBfiColorTransformLocked(d, drawBlack);
+            // Only signal RenderEngine path when using mode=re
+            gamma_bfi_set_draw_black((bfiMode == "re" && drawBlack) ? 1 : 0);
+            // For CTM mode, push the color transform into CompositionEngine so it
+            // marks the output dirty and calls HWC::setColorTransform during compose.
+            if (bfiMode == "ctm") {
+                // Column-major mat4: RGB→0, preserve alpha.
+                // Add a tiny ±epsilon on alpha (m[3][3]) each vsync to defeat CTM caching.
+                static bool sGammaCtmEpsFlip = false;
+                sGammaCtmEpsFlip = !sGammaCtmEpsFlip;
+                const float eps = sGammaCtmEpsFlip ? 1e-6f : -1e-6f;
+
+                const mat4 kBlack = mat4(
+                        vec4{0,0,0,0},
+                        vec4{0,0,0,0},
+                        vec4{0,0,0,0},
+                        vec4{0,0,0,1.f + eps});
+
+                const mat4 kIdent = mat4(
+                        vec4{1,0,0,0},
+                        vec4{0,1,0,0},
+                        vec4{0,0,1,0},
+                        vec4{0,0,0,1.f + eps});
+
+                refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
+            }
         }
     }
 
@@ -2959,6 +3024,12 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
 
     if (mCompositionEngine->needsAnotherUpdate()) {
         scheduleCommit(FrameHint::kNone);
+    }
+
+    // GammaOS: while BFI(CTM) is active, keep ticking every vsync so we present each frame.
+    if (base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        (base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm")) {
+        scheduleComposite(FrameHint::kNone);
     }
 
     if (mPowerHintSessionEnabled) {
@@ -3344,11 +3415,6 @@ void SurfaceFlinger::onCompositionPresented(PhysicalDisplayId pacesetterId,
                 st.pattern = std::move(pattern);
                 st.index = 0;
             }
-
-            // Advance on *present* and latch the slot for the upcoming draw
-            const char slot = st.pattern[st.index % st.pattern.size()];
-            st.index++;
-            st.nextDrawBlack = (slot == '0');
 
             // Keep cadence running: composite again next vsync even if static
             scheduleComposite(FrameHint::kActive);
@@ -5195,6 +5261,10 @@ status_t SurfaceFlinger::setTransactionState(
         inputWindowCommands.clear();
     }
 
+    // GammaOS: keep present cadence steady while CTM-BFI is active.
+    if (gamma_bfi_ctm_active()) {
+        flags &= ~(eEarlyWakeupStart | eEarlyWakeupEnd);
+    }
     if (flags & (eEarlyWakeupStart | eEarlyWakeupEnd)) {
         const bool hasPermission =
                 (permissions & layer_state_t::Permission::ACCESS_SURFACE_FLINGER) ||
@@ -5748,11 +5818,19 @@ uint32_t SurfaceFlinger::setClientStateLocked(const FrameTimelineInfo& frameTime
     if (what & layer_state_t::eHdrMetadataChanged) {
         if (layer->setHdrMetadata(s.hdrMetadata)) flags |= eTraversalNeeded;
     }
+
     if (what & layer_state_t::eTrustedOverlayChanged) {
-        if (layer->setTrustedOverlay(s.isTrustedOverlay)) {
+        // GammaOS: while CTM-BFI is active, disable trusted overlay so HWC
+        // can't bypass the display-wide CTM (fixes QS/Recents/refresh-rate overlay).
+        bool target = s.isTrustedOverlay;
+        if (gamma_bfi_ctm_active()) {
+            target = false;
+        }
+        if (layer->setTrustedOverlay(target)) {
             flags |= eTraversalNeeded;
         }
     }
+
     if (what & layer_state_t::eStretchChanged) {
         if (layer->setStretchEffect(s.stretchEffect)) {
             flags |= eTraversalNeeded;
@@ -5930,6 +6008,17 @@ uint32_t SurfaceFlinger::updateLayerCallbacksAndStats(const FrameTimelineInfo& f
             flags |= eTraversalNeeded;
         }
     }
+
+    // Not handled in AOSP's LLM path: explicitly mirror trusted overlay behavior here too.
+    if (what & layer_state_t::eTrustedOverlayChanged) {
+        // GammaOS: force non-trusted while CTM-BFI is active so CTM applies to these planes.
+        bool target = s.isTrustedOverlay;
+        if (gamma_bfi_ctm_active()) {
+            target = false;
+        }
+        if (layer->setTrustedOverlay(target)) flags |= eTraversalNeeded;
+    }
+
     if (what & layer_state_t::eBufferChanged) {
         std::optional<ui::Transform::RotationFlags> transformHint = std::nullopt;
         frontend::LayerSnapshot* snapshot = mLayerSnapshotBuilder.getSnapshot(layer->sequence);
@@ -7771,11 +7860,22 @@ void SurfaceFlinger::toggleKernelIdleTimer() {
         return;
     }
 
-    // If the support for kernel idle timer is disabled for the active display,
-    // don't do anything.
+    // If the support for kernel idle timer is disabled for the active display, don't do anything.
     const std::optional<KernelIdleTimerController> kernelIdleTimerController =
             display->refreshRateSelector().kernelIdleTimerController();
-    if (!kernelIdleTimerController.has_value()) {
+    if (!kernelIdleTimerController.has_value()) return;
+
+    // GammaOS: keep pipeline hot while BFI(CTM) is enabled.
+    const bool bfiOn = base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+                       (base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm");
+    if (bfiOn) {
+        if (mKernelIdleTimerEnabled) {
+            ATRACE_INT("KernelIdleTimer", 0);
+            static constexpr std::chrono::milliseconds kTimerDisabledTimeout{0};
+            updateKernelIdleTimer(kTimerDisabledTimeout, kernelIdleTimerController.value(),
+                                  display->getPhysicalId());
+            mKernelIdleTimerEnabled = false;
+        }
         return;
     }
 
@@ -8909,6 +9009,9 @@ status_t SurfaceFlinger::setSmallAreaDetectionThreshold(int32_t appId, float thr
 
 void SurfaceFlinger::enableRefreshRateOverlay(bool enable) {
     bool setByHwc = getHwComposer().hasCapability(Capability::REFRESH_RATE_CHANGED_CALLBACK_DEBUG);
+    // GammaOS: While any BFI mode is active, avoid HWC-driven overlay so CTM applies consistently.
+    const bool bfiOn = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+    if (bfiOn) setByHwc = false;
     for (const auto& [id, display] : mPhysicalDisplays) {
         if (display.snapshot().connectionType() == ui::DisplayConnectionType::Internal ||
             FlagManager::getInstance().refresh_rate_overlay_on_external_display()) {
@@ -8919,8 +9022,10 @@ void SurfaceFlinger::enableRefreshRateOverlay(bool enable) {
                                                      mRefreshRateOverlayRenderRate,
                                                      mRefreshRateOverlayShowInMiddle);
                 };
-                enableOverlay(setByHwc);
-                if (setByHwc) {
+                const bool effectiveSetByHwc =
+                        setByHwc && !android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+                enableOverlay(effectiveSetByHwc);
+                if (effectiveSetByHwc) {
                     const auto status =
                             getHwComposer().setRefreshRateChangedCallbackDebugEnabled(id, enable);
                     if (status != NO_ERROR) {

@@ -39,6 +39,8 @@
 #include <log/log.h>
 #include <system/window.h>
 
+#include <android-base/properties.h>
+
 #include "DisplayDevice.h"
 #include "FrontEnd/DisplayInfo.h"
 #include "HdrSdrRatioOverlay.h"
@@ -452,7 +454,20 @@ void DisplayDevice::updateHdrSdrRatioOverlayRatio(float currentHdrSdrRatio) {
 
 void DisplayDevice::enableRefreshRateOverlay(bool enable, bool setByHwc, bool showSpinner,
                                              bool showRenderRate, bool showInMiddle) {
-    if (!enable) {
+
+    // GammaOS: If BFI is enabled, keep overlay minimal & static to avoid jank.
+    const bool bfiOn = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+    const bool bfiRe = bfiOn && (android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "re");
+    if (bfiOn) {
+        showSpinner = false;
+        showRenderRate = false;
+    }
+    // Only in RenderEngine mode do we avoid the HWC overlay path.
+    if (bfiRe) {
+        setByHwc = false;
+    }
+ 
+   if (!enable) {
         mRefreshRateOverlay.reset();
         return;
     }
@@ -511,6 +526,10 @@ bool DisplayDevice::onKernelTimerChanged(std::optional<DisplayModeId> desiredMod
 }
 
 void DisplayDevice::animateOverlay() {
+
+    // GammaOS: avoid per-frame overlay animation when BFI is active.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false)) return;
+
     if (mRefreshRateOverlay) {
         mRefreshRateOverlay->animate();
     }

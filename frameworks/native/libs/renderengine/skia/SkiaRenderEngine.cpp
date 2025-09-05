@@ -230,6 +230,8 @@ static inline std::pair<SkRRect, SkRRect> getBoundsAndClip(const android::FloatR
 
 static inline bool layerHasBlur(const android::renderengine::LayerSettings& layer,
                                 bool colorTransformModifiesAlpha) {
+    // GammaOS: When BFI is active, disallow blur to reduce composition cost/jank.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false)) return false;
     if (layer.backgroundBlurRadius > 0 || layer.blurRegions.size()) {
         // return false if the content is opaque and would therefore occlude the blur
         const bool opaqueContent = !layer.source.buffer.buffer || layer.source.buffer.isOpaque;

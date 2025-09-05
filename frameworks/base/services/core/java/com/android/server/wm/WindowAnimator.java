@@ -33,6 +33,7 @@ import android.util.Slog;
 import android.util.TimeUtils;
 import android.view.Choreographer;
 import android.view.SurfaceControl;
+import android.os.SystemProperties;
 
 import com.android.internal.protolog.common.ProtoLog;
 import com.android.server.policy.WindowManagerPolicy;
@@ -220,10 +221,20 @@ public class WindowAnimator {
                                 | ANIMATION_TYPE_RECENTS /* typesToCheck */);
         if (runningExpensiveAnimations && !mRunningExpensiveAnimations) {
             mService.mSnapshotController.setPause(true);
-            mTransaction.setEarlyWakeupStart();
+            final boolean bfiCtm =
+                    SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                            && "ctm".equals(SystemProperties.get("persist.gammaos.bfi.mode", "ctm"));
+            if (!bfiCtm) {
+                mTransaction.setEarlyWakeupStart();
+            }
         } else if (!runningExpensiveAnimations && mRunningExpensiveAnimations) {
             mService.mSnapshotController.setPause(false);
-            mTransaction.setEarlyWakeupEnd();
+            final boolean bfiCtm =
+                    SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                            && "ctm".equals(SystemProperties.get("persist.gammaos.bfi.mode", "ctm"));
+            if (!bfiCtm) {
+                mTransaction.setEarlyWakeupEnd();
+            }
         }
         mRunningExpensiveAnimations = runningExpensiveAnimations;
     }

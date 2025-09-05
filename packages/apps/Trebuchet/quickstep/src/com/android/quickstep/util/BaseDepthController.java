@@ -28,6 +28,7 @@ import com.android.launcher3.Utilities;
 import com.android.launcher3.util.MultiPropertyFactory;
 import com.android.launcher3.util.MultiPropertyFactory.MultiProperty;
 import com.android.systemui.shared.system.BlurUtils;
+import com.android.launcher3.Utilities;
 
 /**
  * Utility class for applying depth effect
@@ -123,6 +124,15 @@ public class BaseDepthController {
 
     protected void onInvalidSurface() { }
 
+    // GammaOS: CTM-BFI guard — avoid blur while display-wide BFI is active
+    private static boolean isCtmBfiOn() {
+        try {
+            return "1".equals(Utilities.getSystemProperty("persist.gammaos.bfi.enable", "0"))
+                    && "ctm".equals(Utilities.getSystemProperty("persist.gammaos.bfi.mode", "ctm"));
+        } catch (Throwable t) {
+            return false;
+        }
+    }
     protected void applyDepthAndBlur() {
         float depth = mDepth;
         IBinder windowToken = mLauncher.getRootView().getWindowToken();
@@ -150,7 +160,7 @@ public class BaseDepthController {
         boolean hasOpaqueBg = mLauncher.getScrimView().isFullyOpaque();
         boolean isSurfaceOpaque = !mHasContentBehindLauncher && hasOpaqueBg && !mPauseBlurs;
 
-        mCurrentBlur = !mCrossWindowBlursEnabled || hasOpaqueBg || mPauseBlurs
+        mCurrentBlur = isCtmBfiOn() || !mCrossWindowBlursEnabled || hasOpaqueBg || mPauseBlurs
                 ? 0 : (int) (depth * mMaxBlurRadius);
         SurfaceControl.Transaction transaction = new SurfaceControl.Transaction()
                 .setBackgroundBlurRadius(mSurface, mCurrentBlur)

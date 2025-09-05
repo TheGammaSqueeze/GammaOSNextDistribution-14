@@ -22,7 +22,7 @@
 #include "RefreshRateOverlay.h"
 
 #include <SkSurface.h>
-
+#include <android-base/properties.h>
 #undef LOG_TAG
 #define LOG_TAG "RefreshRateOverlay"
 
@@ -161,10 +161,15 @@ RefreshRateOverlay::RefreshRateOverlay(ConstructorTag, FpsRange fpsRange,
         return;
     }
 
-    createTransaction()
-            .setLayer(mSurfaceControl->get(), INT32_MAX - 2)
-            .setTrustedOverlay(mSurfaceControl->get(), true)
-            .apply();
+    {
+        SurfaceComposerClient::Transaction t;
+        t.setLayer(mSurfaceControl->get(), INT32_MAX - 2);
+        const bool bfiRe = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+                           (android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "re");
+        // In BFI RenderEngine mode, do not mark as trusted so it goes through client comp.
+        t.setTrustedOverlay(mSurfaceControl->get(), !bfiRe);
+        t.apply();
+    }
 }
 
 bool RefreshRateOverlay::initCheck() const {
@@ -292,12 +297,19 @@ SurfaceComposerClient::Transaction RefreshRateOverlay::createTransaction() const
     const sp<SurfaceControl>& surface = mSurfaceControl->get();
 
     SurfaceComposerClient::Transaction transaction;
-    if (isSetByHwc()) {
+    const bool bfiRe = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+                       (android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "re");
+    if (isSetByHwc() && !bfiRe) {
         transaction.setFlags(surface, layer_state_t::eLayerIsRefreshRateIndicator,
                              layer_state_t::eLayerIsRefreshRateIndicator);
-        // Disable overlay layer caching when refresh rate is updated by the HWC.
-        transaction.setCachingHint(surface, gui::CachingHint::Disabled);
+        // GammaOS: keep caching enabled to avoid forcing client composition every frame.
+        transaction.setCachingHint(surface, gui::CachingHint::Enabled);
+    } else {
+        // Under BFI RenderEngine mode, clear the indicator flag.
+        transaction.setFlags(surface, 0, layer_state_t::eLayerIsRefreshRateIndicator);
     }
+    // Trusted only when not in BFI RenderEngine mode.
+    transaction.setTrustedOverlay(surface, !bfiRe);
     transaction.setFrameRate(surface, kFrameRate, kCompatibility, kSeamlessness);
     return transaction;
 }
