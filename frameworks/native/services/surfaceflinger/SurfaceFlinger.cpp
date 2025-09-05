@@ -2834,6 +2834,23 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     // GammaOS BFI: Only force client comp for RenderEngine mode; CTM mode uses HWC.
     const bool bfiEnabledNow = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
     const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
+    
+    // Track CTM-BFI edge so we can push identity CTM once on disable.
+    static bool sPrevCtmActive = false;
+    const bool ctmActiveNow = bfiEnabledNow && (bfiMode == "ctm");
+    if (!ctmActiveNow && sPrevCtmActive) {
+        // Just disabled CTM-BFI → send identity CTM with ±ε to force reprogramming.
+        static bool sExitFlip = false;
+        sExitFlip = !sExitFlip;
+        const float eps = sExitFlip ? 1e-6f : -1e-6f;
+        const mat4 kIdent = mat4(
+                vec4{1,0,0,0},
+                vec4{0,1,0,0},
+                vec4{0,0,1,0},
+                vec4{0,0,0,1.f + eps});
+        refreshArgs.colorTransformMatrix = kIdent;
+    }
+
     if (bfiEnabledNow && bfiMode == "re") {
         refreshArgs.devOptForceClientComposition = true;
         mForceFullDamage = true; // new client target every frame (Skia path)
@@ -2883,6 +2900,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             }
         }
     }
+
+    // Remember current CTM-BFI state for the next frame.
+    sPrevCtmActive = ctmActiveNow;
 
     // GammaOS: if post-processing shader is enabled, force GPU composition
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
@@ -5200,6 +5220,12 @@ bool SurfaceFlinger::frameIsEarly(TimePoint expectedPresentTime, VsyncId vsyncId
 
 bool SurfaceFlinger::shouldLatchUnsignaled(const layer_state_t& state, size_t numStates,
                                            bool firstTransaction) const {
+    // GammaOS: keep CTM-BFI cadence stable; don't latch unsignaled while CTM-BFI is active.
+    if (gamma_bfi_ctm_active()) {
+        ATRACE_FORMAT_INSTANT("%s: false (BFI-CTM active)", __func__);
+        return false;
+    }
+
     if (enableLatchUnsignaledConfig == LatchUnsignaledConfig::Disabled) {
         ATRACE_FORMAT_INSTANT("%s: false (LatchUnsignaledConfig::Disabled)", __func__);
         return false;
@@ -5266,6 +5292,10 @@ status_t SurfaceFlinger::setTransactionState(
         flags &= ~(eEarlyWakeupStart | eEarlyWakeupEnd);
     }
     if (flags & (eEarlyWakeupStart | eEarlyWakeupEnd)) {
+        // GammaOS: neutralize EarlyWakeup while CTM-BFI is active to keep vsync phase steady.
+        if (gamma_bfi_ctm_active()) {
+            flags &= ~(eEarlyWakeupStart | eEarlyWakeupEnd);
+        }
         const bool hasPermission =
                 (permissions & layer_state_t::Permission::ACCESS_SURFACE_FLINGER) ||
                 callingThreadHasPermission(sWakeupSurfaceFlinger);
