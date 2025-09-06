@@ -1307,6 +1307,11 @@ private:
         size_t index = 0;      // next-present cursor
         bool enabled = false;  // latched enable
         bool nextDrawBlack = false; // latched slot for the *next draw*
+        // Polarity handling (to mitigate image persistence without flashing)
+        bool phasePolarity = false;   // when true, invert the slot (0<->1)
+        bool flipPending = false;     // request to flip when safe
+        nsecs_t lastFlipNs = 0;       // last time we flipped polarity
+        bool flipArmed = false;       // Armed when we decide to flip on a lit frame; applied on the next black slot.
     };
     // keyed by PhysicalDisplayId value
     std::unordered_map<uint64_t, BfiState> mBfiStates;
