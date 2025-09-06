@@ -2978,15 +2978,15 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     static bool sPrevCtmActive = false;
     const bool ctmActiveNow = bfiEnabledNow && (bfiMode == "ctm");
     if (!ctmActiveNow && sPrevCtmActive) {
-        // Just disabled CTM-BFI → send identity CTM with ±ε to force reprogramming.
+        // Just disabled CTM-BFI → send identity CTM with ±ε (RGB off-diagonal) to force reprogramming.
         static bool sExitFlip = false;
         sExitFlip = !sExitFlip;
-        const float eps = sExitFlip ? 1e-6f : -1e-6f;
+        const float eps = sExitFlip ? 1e-6f : -1e-6f; // move epsilon off alpha
         const mat4 kIdent = mat4(
-                vec4{1,0,0,0},
-                vec4{0,1,0,0},
-                vec4{0,0,1,0},
-                vec4{0,0,0,1.f + eps});
+                vec4{1,eps,0,0},   // ε on RGB off-diagonal (ignored visually, defeats caching)
+                vec4{0,1,  0,0},
+                vec4{0,0,  1,0},
+                vec4{0,0,  0,1});
         refreshArgs.colorTransformMatrix = kIdent;
     }
 
@@ -3001,8 +3001,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     // GammaOS BFI(CTM): also force full-damage so CE never treats the frame as trivially skippable.
     if (bfiEnabledNow && bfiMode == "ctm") {
         mForceFullDamage = true;
-    }    
-    
+    }
+
+    // ---------- BFI per-frame CTM/RE handling ----------
     // Set the per-draw black flag; for CTM mode, provide the CTM via refreshArgs so
     // CompositionEngine dirties the output & programs HWC on this same frame.
     if (bfiEnabledNow) {
@@ -3016,45 +3017,54 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             gamma_bfi_set_draw_black(drawBlack ? 1 : 0);
             // For CTM mode, push the color transform into CompositionEngine so it
             // marks the output dirty and calls HWC::setColorTransform during compose.
+            // NOTE: we build ε on an RGB off-diagonal and *skip it* on the seam frames.
+            auto buildIdentWithEps = [](float eps) -> mat4 {
+                return mat4(vec4{1,eps,0,0}, vec4{0,1,0,0}, vec4{0,0,1,0}, vec4{0,0,0,1});
+            };
+            auto buildBlackWithEps = [](float eps) -> mat4 {
+                return mat4(vec4{0,eps,0,0}, vec4{0,0,0,0}, vec4{0,0,0,0}, vec4{0,0,0,1});
+            };
+
+            // Seam ramp (two frames): first the seam frame (dimNow), then the *next lit* frame (dimFollow).
+            float seamDimNow    = gBfiSeamDimOnce.exchange(0.f, std::memory_order_relaxed);
+            float seamDimFollow = gBfiSeamFollowDimOnce.exchange(0.f, std::memory_order_relaxed);
+            const bool seamActive = (seamDimNow > 0.f && seamDimNow < 1.f) ||
+                                    (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f);
+
+            static bool sGammaCtmEpsFlip = false;
+            sGammaCtmEpsFlip = !sGammaCtmEpsFlip;
+            const float epsMaybe = seamActive ? 0.f : (sGammaCtmEpsFlip ? 1e-6f : -1e-6f);
+
+            const mat4 kIdent = buildIdentWithEps(epsMaybe);
+            const mat4 kBlack = buildBlackWithEps(epsMaybe);
+
+            auto buildDim = [&](float dim) -> mat4 {
+                // diagonal dim with off-diagonal ε (if allowed this frame)
+                return mat4(vec4{dim,epsMaybe,0,0},
+                            vec4{0,  dim,    0,0},
+                            vec4{0,  0,    dim,0},
+                            vec4{0,  0,      0,1});
+            };
+
             if (bfiMode == "ctm") {
-                // Column-major mat4: RGB→0, preserve alpha.
-                // Add a tiny ±epsilon on alpha (m[3][3]) each vsync to defeat CTM caching.
-                static bool sGammaCtmEpsFlip = false;
-                sGammaCtmEpsFlip = !sGammaCtmEpsFlip;
-                const float eps = sGammaCtmEpsFlip ? 1e-6f : -1e-6f;
-
-                const mat4 kBlack = mat4(
-                        vec4{0,0,0,0},
-                        vec4{0,0,0,0},
-                        vec4{0,0,0,0},
-                        vec4{0,0,0,1.f + eps});
-
-                const mat4 kIdent = mat4(
-                        vec4{1,0,0,0},
-                        vec4{0,1,0,0},
-                        vec4{0,0,1,0},
-                        vec4{0,0,0,1.f + eps});
-
-                // One-shot DIM CTM(s) for the seam ramp: first the seam frame, then the very next lit frame.
-                float seamDimNow    = gBfiSeamDimOnce.exchange(0.f, std::memory_order_relaxed);
-                float seamDimFollow = gBfiSeamFollowDimOnce.exchange(0.f, std::memory_order_relaxed);
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
-                    const mat4 kDimNow = mat4(vec4{seamDimNow,0,0,0},
-                                              vec4{0,seamDimNow,0,0},
-                                              vec4{0,0,seamDimNow,0},
-                                              vec4{0,0,0,1.f + eps});
-                    refreshArgs.colorTransformMatrix = kDimNow;
+                   refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
                 } else if (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
-                    const mat4 kDimNext = mat4(vec4{seamDimFollow,0,0,0},
-                                               vec4{0,seamDimFollow,0,0},
-                                               vec4{0,0,seamDimFollow,0},
-                                               vec4{0,0,0,1.f + eps});
-                    refreshArgs.colorTransformMatrix = kDimNext;
-                } else if (gBfiForceIdentityOnce.exchange(false, std::memory_order_relaxed)) {
-                    // Legacy one-frame identity guard (e.g. animation transactions)
+                    refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
+                } else if (!seamActive &&
+                           gBfiForceIdentityOnce.exchange(false, std::memory_order_relaxed)) {
+                    // Guard: skip identity-once if we're in a seam; otherwise use ε-ident
                     refreshArgs.colorTransformMatrix = kIdent;
                 } else {
-                    // Normal BFI CTM (black or identity)
+                    refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
+                }
+            } else { // bfiMode == "re"  (mirror the seam ramp into RE path)
+                if (seamDimNow > 0.f && seamDimNow < 1.f) {
+                    refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
+                } else if (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
+                    refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
+                } else if (!seamActive) {
+                    // Keep a tiny ε on non-seam frames to bust caches consistently
                     refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
                 }
             }
