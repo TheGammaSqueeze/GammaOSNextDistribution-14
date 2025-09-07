@@ -176,7 +176,8 @@ static std::atomic<bool> gBfiForceIdentityOnce{false};
 static std::atomic<bool> gBfiForceIdentityNextOnce{false}; // one-shot: force identity on the frame AFTER the seam
 static std::atomic<float> gBfiSeamDimOnce{0.f}; // one-shot: 0=off; (0,1)=apply dim CTM this frame
 static std::atomic<float> gBfiSeamFollowDimOnce{0.f}; // one-shot: dim the very next *lit* frame after the seam
-
+static std::atomic<bool> gBfiForceNextLitOnce{false}; // one-shot: force the frame AFTER the seam to be LIT (override a black slot if the new phase would land on black)
+ 
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
 #include "QtiGralloc.h"
@@ -2957,6 +2958,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             // Commit the armed flip now that THIS frame’s decision is latched.
             if (flipAfterThisFrame) {
                 st.phasePolarity = !st.phasePolarity;
+                // Ensure the very next frame is LIT (even if the new phase would pick a black slot),
+                // so the seam never produces a full black flash.
+                gBfiForceNextLitOnce.store(true, std::memory_order_relaxed);
                 // Extra safety: also force identity CTM on the *next* frame to avoid any
                 // vendor CTM caching/ordering from showing a black blink one frame late.
                 // This is a one-shot consumed below in CTM selection.
@@ -3077,6 +3081,16 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             ctmKey = d->getPhysicalId().value;
             const auto it = mBfiStates.find(ctmKey);
             finalDrawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
+            
+            // If we just flipped polarity on the previous frame, guarantee this frame is LIT.
+            // This prevents the "seam-dim → BLACK → lit" triad that looks like a black flash.
+            if (gBfiForceNextLitOnce.exchange(false, std::memory_order_relaxed)) {
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI: overriding post-seam frame to LIT (suppress black slot)");
+                }
+                finalDrawBlack = false;
+            }
+
             // Signal per-draw “black” even in CTM mode so RE can skip the heavy shader pass.
             gamma_bfi_set_draw_black(finalDrawBlack ? 1 : 0);
             // For CTM mode, push the color transform into CompositionEngine so it
