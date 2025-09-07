@@ -165,9 +165,15 @@
 #include <android-base/properties.h>
 
 // exported by RenderEngine (SkiaRenderEngine.cpp) to set the per-draw BFI slot
-extern "C" void gamma_bfi_set_draw_black(int drawBlack);
+extern "C" void gamma_bfi_set_draw_black(int finalDrawBlack);
+
+// Debug helper: enable verbose BFI logs when testing.
+static inline bool bfiDebug() {
+    return android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
+}
 
 static std::atomic<bool> gBfiForceIdentityOnce{false};
+static std::atomic<bool> gBfiForceIdentityNextOnce{false}; // one-shot: force identity on the frame AFTER the seam
 static std::atomic<float> gBfiSeamDimOnce{0.f}; // one-shot: 0=off; (0,1)=apply dim CTM this frame
 static std::atomic<float> gBfiSeamFollowDimOnce{0.f}; // one-shot: dim the very next *lit* frame after the seam
 
@@ -2840,7 +2846,16 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             // Resolve the next cadence slot.
             const size_t len = st.pattern.size();
             const char slot = st.pattern[len ? (st.index % len) : 0];
-            const bool lit = (slot == '1');
+            // IMPORTANT: effective black depends on current phasePolarity, not just the raw bit.
+            // When phasePolarity flips, which bit is "black" also flips.
+            const bool effectiveBlack = ((slot == '0') ^ st.phasePolarity);
+            const bool effectiveLit   = !effectiveBlack;
+
+            if (CC_UNLIKELY(bfiDebug())) {
+                ALOGD("BFI cadence: idx=%zu slot=%c phasePol=%d effBlack=%d effLit=%d flipPend=%d",
+                      st.index % (len ? len : 1), slot, st.phasePolarity ? 1 : 0,
+                      effectiveBlack ? 1 : 0, effectiveLit ? 1 : 0, st.flipPending ? 1 : 0);
+            }
 
             // Flip state machine (seamless to user):
             //  - If pending on a LIT slot: arm the flip; apply later on a black opportunity.
@@ -2849,8 +2864,24 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             bool flipAfterThisFrame = false;
             bool forceLitThisFrame  = false;
             if (st.flipPending) {
-                if (lit) {
+                if (effectiveLit) {
                     st.flipArmed = true; // will apply when we hit a black slot
+
+                    // Optional: pre-dim the lit frame immediately BEFORE the seam so the transition
+                    // doesn't spike in brightness. Controlled via persist.gammaos.bfi.seam_pre_dim (0..1).
+                    // This is consumed later in the CTM selection for THIS frame.
+                    const std::string preProp =
+                            android::base::GetProperty("persist.gammaos.bfi.seam_pre_dim", "");
+                    if (!preProp.empty()) {
+                        float pre = strtof(preProp.c_str(), nullptr);
+                        pre = (pre < 0.f) ? 0.f : (pre > 1.f ? 1.f : pre);
+                        if (pre > 0.f && pre < 1.f) {
+                            gBfiSeamDimOnce.store(pre, std::memory_order_relaxed);
+                            if (CC_UNLIKELY(bfiDebug())) {
+                                ALOGD("BFI seam-pre-dim this frame: pre=%.3f (lit pre-seam)", pre);
+                            }
+                        }
+                    }
                 } else {
                     // We are on a BLACK slot: make THIS frame LIT (seam frame), then flip after.
                     forceLitThisFrame = true;
@@ -2861,46 +2892,75 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                     // --- Seam ramp over 2 frames (energy-balanced):
                     //     seam frame dim = r, next lit frame dim = (1 - r)
                     //     r from persist.gammaos.bfi.seam_ramp2 (0..1). Optional perceptual shaping via seam_gamma.
-                    const std::string ramp2Prop =
-                            android::base::GetProperty("persist.gammaos.bfi.seam_ramp2", "");
-                    if (!ramp2Prop.empty()) {
-                        float r = strtof(ramp2Prop.c_str(), nullptr);
-                        if (r < 0.f) r = 0.f; if (r > 1.f) r = 1.f;
-                        const std::string gprop =
-                                android::base::GetProperty("persist.gammaos.bfi.seam_gamma", "2.2");
-                        float gamma = strtof(gprop.c_str(), nullptr);
-                        if (!(gamma > 0.f)) gamma = 1.f;
-                        // Perceptual→linear mapping: stronger shaping with gamma>1 (e.g. 2.2)
-                        const float d0 = powf(r, gamma);
-                        const float d1 = powf(std::max(0.f, 1.f - r), gamma);
-                        gBfiSeamDimOnce.store(d0, std::memory_order_relaxed);     // this seam frame
-                        gBfiSeamFollowDimOnce.store(d1, std::memory_order_relaxed); // next lit frame
+                    // New: explicit seam brightness controls (back-compat)
+                    // Prefer explicit brightness props if present; else fall back to two-tap ramp or single-tap dim.
+                    float seamNow = -1.f, seamFollow = -1.f;
+                    const std::string seamNowProp =
+                            android::base::GetProperty("persist.gammaos.bfi.seam_brightness", "");
+                    const std::string seamFollowProp =
+                            android::base::GetProperty("persist.gammaos.bfi.seam_follow_brightness", "");
+                    if (!seamNowProp.empty()) {
+                        seamNow = strtof(seamNowProp.c_str(), nullptr);
+                    }
+                    if (!seamFollowProp.empty()) {
+                        seamFollow = strtof(seamFollowProp.c_str(), nullptr);
+                    }
+                    auto clamp01 = [](float v) { return (v < 0.f) ? 0.f : (v > 1.f ? 1.f : v); };
+
+                    if (seamNow >= 0.f || seamFollow >= 0.f) {
+                        gBfiSeamDimOnce.store(clamp01(seamNow >= 0.f ? seamNow : 1.f), std::memory_order_relaxed);
+                        gBfiSeamFollowDimOnce.store(clamp01(seamFollow >= 0.f ? seamFollow : 0.f), std::memory_order_relaxed);
+                        if (CC_UNLIKELY(bfiDebug())) {
+                            ALOGD("BFI seam dims set: seamNow=%.3f follow=%.3f", seamNow >= 0.f ? seamNow : 1.f, seamFollow >= 0.f ? seamFollow : 0.f);
+                        }
                     } else {
-                        // Fallback to single-frame dim if ramp prop not set.
-                        const std::string seamProp =
-                                android::base::GetProperty("persist.gammaos.bfi.seam_dim", "0.5");
-                        float seamDim = strtof(seamProp.c_str(), nullptr);
-                        if (seamDim < 0.f) seamDim = 0.f;
-                        if (seamDim > 1.f) seamDim = 1.f;
-                        gBfiSeamDimOnce.store(seamDim, std::memory_order_relaxed);
-                        gBfiSeamFollowDimOnce.store(0.f, std::memory_order_relaxed);
+                        const std::string ramp2Prop =
+                                android::base::GetProperty("persist.gammaos.bfi.seam_ramp2", "");
+                        if (!ramp2Prop.empty()) {
+                            float r = strtof(ramp2Prop.c_str(), nullptr);
+                            r = clamp01(r);
+                            const std::string gprop =
+                                    android::base::GetProperty("persist.gammaos.bfi.seam_gamma", "2.2");
+                            float gamma = strtof(gprop.c_str(), nullptr);
+                            if (!(gamma > 0.f)) gamma = 1.f;
+                            // Perceptual→linear mapping: stronger shaping with gamma>1 (e.g. 2.2)
+                            const float d0 = powf(r, gamma);
+                            const float d1 = powf(std::max(0.f, 1.f - r), gamma);
+                            gBfiSeamDimOnce.store(d0, std::memory_order_relaxed);     // this seam frame
+                            gBfiSeamFollowDimOnce.store(d1, std::memory_order_relaxed); // next lit frame
+                            if (CC_UNLIKELY(bfiDebug())) {
+                                ALOGD("BFI seam ramp: r=%.3f gamma=%.3f -> seam=%.3f follow=%.3f", r, gamma, d0, d1);
+                            }
+                        } else {
+                            // Fallback to single-frame dim if ramp prop not set.
+                            const std::string seamProp =
+                                    android::base::GetProperty("persist.gammaos.bfi.seam_dim", "0.5");
+                            float seamDim = strtof(seamProp.c_str(), nullptr);
+                            gBfiSeamDimOnce.store(clamp01(seamDim), std::memory_order_relaxed);
+                            gBfiSeamFollowDimOnce.store(0.f, std::memory_order_relaxed);
+                            if (CC_UNLIKELY(bfiDebug())) {
+                                ALOGD("BFI seam single-dim: seam=%.3f", seamDim);
+                            }
+                        }
                     }
                 }
             }
 
             // Effective blackout decision, XORing with phasePolarity to swap phase.
             // This ensures the change happens exactly on a frame boundary without a flash.
-            bool drawBlack = ((slot == '0') ^ st.phasePolarity);
-            if (forceLitThisFrame) {
-                // Override to lit for the seam frame so users don't see a dark blink.
-                drawBlack = false;
-            }
-            st.nextDrawBlack = drawBlack;
+            const bool drawBlackBase = ((slot == '0') ^ st.phasePolarity);
+            // If we are forcing this seam frame lit, never draw black on this frame.
+            const bool finalDrawBlack = drawBlackBase && !forceLitThisFrame;
+            st.nextDrawBlack = finalDrawBlack;
             st.index++;
             
             // Commit the armed flip now that THIS frame’s decision is latched.
             if (flipAfterThisFrame) {
                 st.phasePolarity = !st.phasePolarity;
+                // Extra safety: also force identity CTM on the *next* frame to avoid any
+                // vendor CTM caching/ordering from showing a black blink one frame late.
+                // This is a one-shot consumed below in CTM selection.
+                gBfiForceIdentityNextOnce.store(true, std::memory_order_relaxed);
             }
         }
     }
@@ -3006,15 +3066,19 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     // ---------- BFI per-frame CTM/RE handling ----------
     // Set the per-draw black flag; for CTM mode, provide the CTM via refreshArgs so
     // CompositionEngine dirties the output & programs HWC on this same frame.
+    // IMPORTANT: always use the *latched* decision (st.nextDrawBlack) for this frame,
+    // so that the seam frame (force-lit) can never accidentally pick a black CTM here.
+    bool finalDrawBlack = false;
+    uint64_t ctmKey = 0;
     if (bfiEnabledNow) {
         Mutex::Autolock _l(mStateLock);
         const auto d = getDefaultDisplayDeviceLocked();
         if (d) {
-            const uint64_t key = d->getPhysicalId().value;
-            const auto it = mBfiStates.find(key);
-            const bool drawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
+            ctmKey = d->getPhysicalId().value;
+            const auto it = mBfiStates.find(ctmKey);
+            finalDrawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
             // Signal per-draw “black” even in CTM mode so RE can skip the heavy shader pass.
-            gamma_bfi_set_draw_black(drawBlack ? 1 : 0);
+            gamma_bfi_set_draw_black(finalDrawBlack ? 1 : 0);
             // For CTM mode, push the color transform into CompositionEngine so it
             // marks the output dirty and calls HWC::setColorTransform during compose.
             // NOTE: we build ε on an RGB off-diagonal and *skip it* on the seam frames.
@@ -3029,11 +3093,19 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             float seamDimNow    = gBfiSeamDimOnce.exchange(0.f, std::memory_order_relaxed);
             float seamDimFollow = gBfiSeamFollowDimOnce.exchange(0.f, std::memory_order_relaxed);
             const bool seamActive = (seamDimNow > 0.f && seamDimNow < 1.f) ||
-                                    (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f);
+                                    (!finalDrawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f);
+            if (CC_UNLIKELY(bfiDebug())) {
+                ALOGD("BFI CTM inputs: finalDrawBlack=%d seamNow=%.3f seamFollow=%.3f seamActive=%d forceClientComp=%d",
+                      finalDrawBlack ? 1 : 0, seamDimNow, seamDimFollow, seamActive ? 1 : 0, refreshArgs.devOptForceClientComposition ? 1 : 0);
+            }
+
+            // Check (do NOT consume yet) the "guard-next" identity; only apply it on the frame
+            // AFTER the seam. We keep it set during the seam frame so brightness controls work.
+            const bool forceIdentNext = gBfiForceIdentityNextOnce.load(std::memory_order_relaxed);
 
             static bool sGammaCtmEpsFlip = false;
             sGammaCtmEpsFlip = !sGammaCtmEpsFlip;
-            const float epsMaybe = seamActive ? 0.f : (sGammaCtmEpsFlip ? 1e-6f : -1e-6f);
+            const float epsMaybe = seamActive ? 1e-7f : (sGammaCtmEpsFlip ? 1e-6f : -1e-6f);
 
             const mat4 kIdent = buildIdentWithEps(epsMaybe);
             const mat4 kBlack = buildBlackWithEps(epsMaybe);
@@ -3046,26 +3118,52 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                             vec4{0,  0,      0,1});
             };
 
+            // Hard stop: apply guard-next **only** on the first *lit* frame after the seam.
+            // If this frame is black, leave the guard pending for the next frame.
+            if (forceIdentNext && !seamActive && !finalDrawBlack) {
+                refreshArgs.colorTransformMatrix = kIdent;
+                gBfiForceIdentityNextOnce.store(false, std::memory_order_relaxed);
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI CTM chosen: IDENT (guard-next on lit)");
+                }
+            } else if (forceIdentNext && finalDrawBlack) {
+                // keep guard for the next (lit) frame
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI guard-next pending (current frame is black)");
+                }
+            } else
+
             if (bfiMode == "ctm") {
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
-                   refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
-                } else if (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
+                    refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI CTM chosen: DIM(%.3f) [seamNow]", seamDimNow);
+                    }
+                } else if (!finalDrawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
                     refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI CTM chosen: DIM(%.3f) [follow]", seamDimFollow);
+                    }
                 } else if (!seamActive &&
                            gBfiForceIdentityOnce.exchange(false, std::memory_order_relaxed)) {
                     // Guard: skip identity-once if we're in a seam; otherwise use ε-ident
                     refreshArgs.colorTransformMatrix = kIdent;
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI CTM chosen: IDENT (one-shot)");
+                    }
                 } else {
-                    refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
+                    refreshArgs.colorTransformMatrix = finalDrawBlack ? kBlack : kIdent;
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI CTM chosen: %s", finalDrawBlack ? "BLACK" : "IDENT");
+                    }
                 }
             } else { // bfiMode == "re"  (mirror the seam ramp into RE path)
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
                     refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
-                } else if (!drawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
+                } else if (!finalDrawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
                     refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
-                } else if (!seamActive) {
-                    // Keep a tiny ε on non-seam frames to bust caches consistently
-                    refreshArgs.colorTransformMatrix = drawBlack ? kBlack : kIdent;
+                } else if (!seamActive) { // non-seam: allow black vs ident normally
+                    refreshArgs.colorTransformMatrix = finalDrawBlack ? kBlack : kIdent;
                 }
             }
         }
