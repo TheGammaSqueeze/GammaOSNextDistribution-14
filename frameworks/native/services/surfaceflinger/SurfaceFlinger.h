@@ -219,6 +219,14 @@ public:
     // If fences from sync Framework are supported.
     static bool hasSyncFramework;
 
+    // GammaOS: subframe-BFI cadence nudge on idle screens.
+    // We mirror RenderEngine's frame-index–based parity and, on change,
+    // request a one-off repaint so BFI/shaders apply without user motion.
+    std::atomic<int64_t> mGammaSubBfiFrameCounter{0};
+    int mGammaSubBfiLastParity = -1;
+    // Soft latch to force full-damage once when we nudge on a flip.
+    bool mGammaForceFullDamageOnce = false;
+
     // The offset in nanoseconds to use when VsyncController timestamps present fence
     // signaling time.
     static int64_t dispSyncPresentTimeOffset;

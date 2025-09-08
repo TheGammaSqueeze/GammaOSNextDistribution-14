@@ -2821,6 +2821,57 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     const auto& displays = FTL_FAKE_GUARD(mStateLock, mDisplays);
     refreshArgs.outputs.reserve(displays.size());
 
+    // ------------------------------------------------------------
+    // GammaOS: Sub-frame BFI cadence parity — latch at draw stage.
+    // ------------------------------------------------------------
+    // Make SurfaceFlinger the single source of truth for parity and set it
+    // for Skia to read, so shader & seam logic flip on the same frame.
+    {
+        const bool subbfiEnable =
+                android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false);
+        if (CC_LIKELY(subbfiEnable)) {
+            const bool subbfiDebug =
+                    android::base::GetBoolProperty("persist.gammaos.bfi.subframe.debug", false);
+            const std::string stepProp =
+                    android::base::GetProperty("persist.gammaos.bfi.subframe.phase_step", "0.5");
+            const float subbfiStep = strtof(stepProp.c_str(), nullptr);
+            const std::string cadMinProp =
+                    android::base::GetProperty("persist.gammaos.bfi.subframe.cadence_min", "1.0");
+            const float subbfiCadenceMin = strtof(cadMinProp.c_str(), nullptr);
+
+            // Effective FPS inferred from phase_step (0.5 -> ~120 Hz, 1.0 -> ~60 Hz).
+            const float fpsEff = 60.0f / std::max(0.0001f, subbfiStep);
+            // Frames per parity flip: fps * 60s * cadence_min
+            const int framesPerFlip =
+                    std::max(1, (int)std::lround(fpsEff * 60.0f * subbfiCadenceMin));
+
+            // Advance once per *composite* (matches Skia frame index tick).
+            const int64_t kFrameIndex = ++mGammaSubBfiFrameCounter;
+            const int subbfiParity = (int)((kFrameIndex / std::max(1, framesPerFlip)) & 1);
+
+            if (subbfiParity != mGammaSubBfiLastParity) {
+                mGammaSubBfiLastParity = subbfiParity;
+                // Force one-frame full damage so the flip applies on idle scenes too.
+                mGammaForceFullDamageOnce = true;
+            }
+
+            // Publish parity to RenderEngine/Skia (read in drawLayersInternal()).
+            extern "C" void gamma_bfi_set_parity(int v);
+            gamma_bfi_set_parity(subbfiParity);
+
+            if (subbfiDebug) {
+                ALOGD("GammaOS subBFI parity(latched): parity=%d framesPerFlip=%d frameIndex=%" PRId64,
+                      subbfiParity, framesPerFlip, kFrameIndex);
+            }
+        } else {
+            // Reset tracking when feature is off.
+            mGammaSubBfiLastParity = -1;
+            mGammaSubBfiFrameCounter.store(0, std::memory_order_relaxed);
+            extern "C" void gamma_bfi_set_parity(int);
+            gamma_bfi_set_parity(0);
+        }
+    }
+
     // Add outputs for physical displays.
     for (const auto& [id, targeter] : frameTargeters) {
         ftl::FakeGuard guard(mStateLock);
@@ -2830,6 +2881,13 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         }
 
         refreshArgs.frameTargets.try_emplace(id, &targeter->target());
+    }
+
+    // If a parity-flip was just armed above, ensure one-frame full damage even if idle.
+    if (CC_UNLIKELY(mGammaForceFullDamageOnce)) {
+        mForceFullDamage = true;
+        // consumed on this refresh below where we build refreshArgs
+        // (kept here for readability; actual clear happens a few lines later)
     }
 
     // GammaOS BFI(CTM): advance cadence at frame start (vsync) to avoid aliasing with animation timing.
@@ -3050,6 +3108,13 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     refreshArgs.forceOutputColorMode = mForceColorMode;
 
     refreshArgs.updatingOutputGeometryThisFrame = mVisibleRegionsDirty;
+    // GammaOS: if a parity-flip nudge was armed above, force one-frame full damage
+    // so the sub-BFI/CRT state is guaranteed to apply on this refresh, even if idle.
+    if (CC_UNLIKELY(mGammaForceFullDamageOnce)) {
+        mForceFullDamage = true;
+        mGammaForceFullDamageOnce = false;
+    }
+
     refreshArgs.updatingGeometryThisFrame = mGeometryDirty.exchange(false) || mVisibleRegionsDirty;
     refreshArgs.internalDisplayRotationFlags = getActiveDisplayRotationFlags();
 

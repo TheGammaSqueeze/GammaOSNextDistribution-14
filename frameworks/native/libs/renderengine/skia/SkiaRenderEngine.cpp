@@ -123,6 +123,15 @@ static inline bool GammaBfiShouldDrawBlack() {
 static std::once_flag gGammaFxOnce;
 static sk_sp<SkRuntimeEffect> gGammaFx;
 
+// ---------- GammaOS: shared Sub-BFI parity latch (set by SurfaceFlinger) ----------
+// 0 or 1; SurfaceFlinger updates this once per frame *before* present.
+static std::atomic<int> gGammaSubBfiParity{0};
+extern "C" __attribute__((visibility("default")))
+void gamma_bfi_set_parity(int v) {
+    gGammaSubBfiParity.store(v ? 1 : 0, std::memory_order_release);
+}
+// ----------------------------------------------------------------------------------
+
 // GammaOS: monotonic frame counter to drive temporal Sub-BFI without aliasing
 static std::atomic<uint64_t> gGammaFrameCounter{0};
 extern "C" __attribute__((visibility("default"))) void gamma_bfi_reset_frame_counter() {
@@ -1323,10 +1332,12 @@ void SkiaRenderEngine::drawLayersInternal(
         // Time (seconds) for animation; steady_clock avoids wallclock jumps.
         const float t_sec = std::chrono::duration_cast<std::chrono::duration<float>>(
                                 std::chrono::steady_clock::now().time_since_epoch()).count();
-        const int   subbfiParity = ((int)std::floor(t_sec / (60.0f * subbfiCadenceMin))) & 1;
+        // Read SF-latched parity so seam logic & shader are always in lockstep.
+        const int   subbfiParity  = gGammaSubBfiParity.load(std::memory_order_acquire) & 1;
         if ((debugLog || subbfiDebug)) {
             ALOGD("GammaOS subBFI cfg: on=%d duty=%.2f, speed=%.1fHz, step=%.3f, cadence=%.2fmin, parity=%d, mode=%d, frame=%.0f",
-                  (int)subbfiOn, subbfiDuty, subbfiSpeedHz, subbfiStep, subbfiCadenceMin, subbfiParity, subbfiMode, kFrameIndex);
+                  (int)subbfiOn, subbfiDuty, subbfiSpeedHz, subbfiStep, subbfiCadenceMin,
+                  subbfiParity, subbfiMode, kFrameIndex);
         }
 
         // Optional fast path: keep scanlines, drop heavier cosmetics at runtime.
