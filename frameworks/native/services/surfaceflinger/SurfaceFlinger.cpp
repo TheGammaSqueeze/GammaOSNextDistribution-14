@@ -167,6 +167,9 @@
 // exported by RenderEngine (SkiaRenderEngine.cpp) to set the per-draw BFI slot
 extern "C" void gamma_bfi_set_draw_black(int finalDrawBlack);
 
+// Reset RE's temporal Sub-BFI frame counter so gating starts immediately on enable.
+extern "C" void gamma_bfi_reset_frame_counter();
+
 // Debug helper: enable verbose BFI logs when testing.
 static inline bool bfiDebug() {
     return android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
@@ -2584,6 +2587,27 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     // Tunable via persist.gammaos.shader.bp_grace_frames (default 6).
     static int sBpGraceFrames = 0;
 
+    // GammaOS: detect Sub-BFI toggle; kick a frame immediately and align the temporal gate.
+    {
+        static bool sPrevSubBfiOn = false;
+        const bool subBfiOn =
+                base::GetBoolProperty("persist.gammaos.bfi.subframe.enable"s, false);
+        if (CC_UNLIKELY(subBfiOn != sPrevSubBfiOn)) {
+            if (subBfiOn) {
+                // Start the temporal mask at frame 0 and keep the pipeline hot.
+                gamma_bfi_reset_frame_counter();
+                mForceFullDamage = true;
+                scheduleRepaint();
+                // Grace: keep GPU backpressure disabled for a few frames while state drains.
+                sBpGraceFrames = base::GetIntProperty(
+                        "persist.gammaos.shader.bp_grace_frames"s, 6);
+            }
+            // Present right away; don't wait for UI movement.
+            scheduleComposite(FrameHint::kActive);
+            sPrevSubBfiOn = subBfiOn;
+        }
+    }
+
     // GammaOS: detect shader toggle and resync on OFF to clear pacing drift (120->60 latch).
     {
         static bool sPrevShaderOn = false;
@@ -2658,10 +2682,16 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
 
     if (base::GetBoolProperty("persist.sys.phh.enable_sf_hwc_backpressure"s, true)
             && pacesetterFrameTarget.isFramePending()) {
-        // GammaOS: While the global post-process shader is active, avoid "every-other-vsync"
-        // pacing due to GPU backpressure; restore default immediately when it's off.
+        // GammaOS: avoid every-other-vsync pacing whenever ANY post-FX is active:
+        // - CRT shader           (persist.gammaos.shader.enable)
+        // - Sub-frame BFI (RE)   (persist.gammaos.bfi.subframe.enable)
+        // - RenderEngine BFI     (persist.gammaos.bfi.enable && mode=re)
         const bool shaderOn = base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
-        if (shaderOn || sBpGraceFrames > 0) {
+        const bool subBfiOn = base::GetBoolProperty("persist.gammaos.bfi.subframe.enable"s, false);
+        const bool reBfiOn  = base::GetBoolProperty("persist.gammaos.bfi.enable"s, false) &&
+                              (base::GetProperty("persist.gammaos.bfi.mode"s, "ctm"s) == "re"s);
+        const bool postFxOn = shaderOn || subBfiOn || reBfiOn;
+        if (postFxOn || sBpGraceFrames > 0) {
             mBackpressureGpuComposition = false;
             // Decrement grace window if we’re currently applying it.
             if (sBpGraceFrames > 0) --sBpGraceFrames;
@@ -3034,6 +3064,15 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
         refreshArgs.devOptForceClientComposition = true;
     }
+    
+ 
+    // GammaOS: Sub-frame BFI (RenderEngine) also needs client comp + full damage
+    const bool subBfiOn = android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false);
+    if (subBfiOn) {
+        refreshArgs.devOptForceClientComposition = true;
+        mForceFullDamage = true;
+    }
+
     // GammaOS BFI: Only force client comp for RenderEngine mode; CTM mode uses HWC.
     const bool bfiEnabledNow = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
     const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
@@ -3061,6 +3100,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         mForceFullDamage = false;
         gamma_bfi_set_draw_black(0);
     }
+
+    // If Sub-BFI is off and CTM-BFI is off, allow damage normalization again.
+    if (!subBfiOn && !(bfiEnabledNow && bfiMode == "re")) mForceFullDamage = mForceFullDamage && mForceFullDamage;
 
     // GammaOS BFI(CTM): also force full-damage so CE never treats the frame as trivially skippable.
     if (bfiEnabledNow && bfiMode == "ctm") {
@@ -3720,6 +3762,16 @@ void SurfaceFlinger::onCompositionPresented(PhysicalDisplayId pacesetterId,
 
             // Keep cadence running: composite again next vsync even if static
             scheduleComposite(FrameHint::kActive);
+        }
+    }
+    
+    // Keep frames flowing while Sub-BFI (RenderEngine) or CRT shader is active too.
+    {
+        const bool postFxActive =
+                android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false) ||
+                android::base::GetBoolProperty("persist.gammaos.shader.enable", false);
+        if (postFxActive) {
+            scheduleComposite(FrameHint::kNone);
         }
     }
     // -------------------------------------------------------------------------------
@@ -5502,9 +5554,11 @@ bool SurfaceFlinger::frameIsEarly(TimePoint expectedPresentTime, VsyncId vsyncId
 
 bool SurfaceFlinger::shouldLatchUnsignaled(const layer_state_t& state, size_t numStates,
                                            bool firstTransaction) const {
-    // GammaOS: keep CTM-BFI cadence stable; don't latch unsignaled while CTM-BFI is active.
-    if (gamma_bfi_ctm_active()) {
-        ATRACE_FORMAT_INSTANT("%s: false (BFI-CTM active)", __func__);
+    // GammaOS: keep post-FX cadence stable; don't latch unsignaled while any FX is active.
+    if (gamma_bfi_ctm_active() ||
+        base::GetBoolProperty("persist.gammaos.bfi.subframe.enable"s, false) ||
+        base::GetBoolProperty("persist.gammaos.shader.enable"s, false)) {
+        ATRACE_FORMAT_INSTANT("%s: false (postFX active)", __func__);
         return false;
     }
 
@@ -8195,10 +8249,13 @@ void SurfaceFlinger::toggleKernelIdleTimer() {
             display->refreshRateSelector().kernelIdleTimerController();
     if (!kernelIdleTimerController.has_value()) return;
 
-    // GammaOS: keep pipeline hot while BFI(CTM) is enabled.
-    const bool bfiOn = base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
-                       (base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm");
-    if (bfiOn) {
+    // GammaOS: keep pipeline hot while ANY post-FX is enabled.
+    const bool postFxOn =
+            (base::GetBoolProperty("persist.gammaos.bfi.enable"s, false) &&
+             (base::GetProperty("persist.gammaos.bfi.mode"s, "ctm"s) == "ctm"s)) ||
+            base::GetBoolProperty("persist.gammaos.bfi.subframe.enable"s, false) ||
+            base::GetBoolProperty("persist.gammaos.shader.enable"s, false);
+    if (postFxOn) {
         if (mKernelIdleTimerEnabled) {
             ATRACE_INT("KernelIdleTimer", 0);
             static constexpr std::chrono::milliseconds kTimerDisabledTimeout{0};
