@@ -1319,7 +1319,15 @@ private:
         bool phasePolarity = false;   // when true, invert the slot (0<->1)
         bool flipPending = false;     // request to flip when safe
         nsecs_t lastFlipNs = 0;       // last time we flipped polarity
-        bool flipArmed = false;       // Armed when we decide to flip on a lit frame; applied on the next black slot.
+        bool flipArmed = false;       // Armed when we decide to flip on a lit frame; applied after fade-out completes.
+        // Smooth flip transition (CTM-only): fade-out -> flip -> fade-in
+        int fadeOutRemaining = 0;     // >0 while fading out of BFI
+        int fadeInRemaining  = 0;     // >0 while fading back into BFI
+        int fadeOutTotal     = 0;     // latched length for out fade
+        int fadeInTotal      = 0;     // latched length for in  fade
+        float transDim       = 0.f;   // per-frame dim to apply during transition (0 = inactive)
+        float transSat       = 1.f;   // per-frame saturation during transition
+
     };
     // keyed by PhysicalDisplayId value
     std::unordered_map<uint64_t, BfiState> mBfiStates;

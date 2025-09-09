@@ -170,6 +170,9 @@ extern "C" void gamma_bfi_set_draw_black(int finalDrawBlack);
 // Reset RE's temporal Sub-BFI frame counter so gating starts immediately on enable.
 extern "C" void gamma_bfi_reset_frame_counter();
 
+// Publish Sub-BFI parity (SF → RenderEngine) – file-scope declaration to avoid block-scope errors.
+extern "C" void gamma_bfi_set_parity(int v);
+
 // Debug helper: enable verbose BFI logs when testing.
 static inline bool bfiDebug() {
     return android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
@@ -180,7 +183,22 @@ static std::atomic<bool> gBfiForceIdentityNextOnce{false}; // one-shot: force id
 static std::atomic<float> gBfiSeamDimOnce{0.f}; // one-shot: 0=off; (0,1)=apply dim CTM this frame
 static std::atomic<float> gBfiSeamFollowDimOnce{0.f}; // one-shot: dim the very next *lit* frame after the seam
 static std::atomic<bool> gBfiForceNextLitOnce{false}; // one-shot: force the frame AFTER the seam to be LIT (override a black slot if the new phase would land on black)
- 
+
+// Smooth flip transition (CTM-only): per-physical display ephemeral state.
+// Stored here to avoid changing headers; keyed by DisplayId.value (uint64_t).
+struct GammaFlipTransState {
+    int  outRem   = 0, inRem = 0;  // frames remaining in each fade window
+    int  outTotal = 0, inTotal = 0;
+    float dim     = 0.f;           // per-frame dim scalar during transition (0 = inactive)
+    float sat     = 1.f;           // per-frame saturation during transition
+    // Seam guard: force the 2 frames spanning a phase flip to be LIT (never BLACK),
+    // with controllable dim for frame 0 (at seam) and frame 1 (post-seam).
+    int   seamGuardRem = 0;        // 0=inactive, 1=post-seam frame pending, 2=seam+post
+    float seamDim0 = 1.f;          // dim for seam frame   (frame 0)
+    float seamDim1 = 1.f;          // dim for post-seam    (frame 1)
+};
+static std::unordered_map<uint64_t, GammaFlipTransState> gFlipTrans;
+
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
 #include "QtiGralloc.h"
@@ -2856,7 +2874,6 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             }
 
             // Publish parity to RenderEngine/Skia (read in drawLayersInternal()).
-            extern "C" void gamma_bfi_set_parity(int v);
             gamma_bfi_set_parity(subbfiParity);
 
             if (subbfiDebug) {
@@ -2867,7 +2884,6 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             // Reset tracking when feature is off.
             mGammaSubBfiLastParity = -1;
             mGammaSubBfiFrameCounter.store(0, std::memory_order_relaxed);
-            extern "C" void gamma_bfi_set_parity(int);
             gamma_bfi_set_parity(0);
         }
     }
@@ -2896,6 +2912,7 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         for (const auto& [id, targeter] : frameTargeters) {
             const uint64_t key = id.value;
             auto& st = mBfiStates[key];
+            auto& ts = gFlipTrans[key]; // transition state for this display
             st.enabled = true;
             // Resolve/refresh pattern
             std::string pattern = android::base::GetProperty("persist.gammaos.bfi.pattern", "");
@@ -2946,93 +2963,142 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                       effectiveBlack ? 1 : 0, effectiveLit ? 1 : 0, st.flipPending ? 1 : 0);
             }
 
-            // Flip state machine (seamless to user):
-            //  - If pending on a LIT slot: arm the flip; apply later on a black opportunity.
-            //  - If pending on a BLACK slot: FORCE THIS FRAME LIT, then apply flip after we latch
-            //    this frame. That produces two LIT frames at the seam (far less visible).
+            // Flip state machine with smooth transition (CTM-only):
+            //  - If pending and we're on a LIT slot: ARM + start fade-out window (force LIT).
+            //  - During fade-out: force LIT + ramp CTM each frame.
+            //  - After fade-out finishes: flip immediately, then start fade-in (force LIT + ramp).
+            //  - During fade-in: force LIT + ramp; when done, resume normal cadence.
             bool flipAfterThisFrame = false;
             bool forceLitThisFrame  = false;
+            // Helpers for transition ramp
+            auto clamp01 = [](float v) { return (v < 0.f) ? 0.f : (v > 1.f ? 1.f : v); };
+            auto lerp    = [](float a, float b, float t){ return a + (b - a) * t; };
+
+            // If a timed flip just fired, ARM once and start fade-out on a LIT frame.
+            // Guard: while a transition is in progress or already armed, consume spurious ticks.
             if (st.flipPending) {
-                if (effectiveLit) {
-                    st.flipArmed = true; // will apply when we hit a black slot
-
-                    // Optional: pre-dim the lit frame immediately BEFORE the seam so the transition
-                    // doesn't spike in brightness. Controlled via persist.gammaos.bfi.seam_pre_dim (0..1).
-                    // This is consumed later in the CTM selection for THIS frame.
-                    const std::string preProp =
-                            android::base::GetProperty("persist.gammaos.bfi.seam_pre_dim", "");
-                    if (!preProp.empty()) {
-                        float pre = strtof(preProp.c_str(), nullptr);
-                        pre = (pre < 0.f) ? 0.f : (pre > 1.f ? 1.f : pre);
-                        if (pre > 0.f && pre < 1.f) {
-                            gBfiSeamDimOnce.store(pre, std::memory_order_relaxed);
-                            if (CC_UNLIKELY(bfiDebug())) {
-                                ALOGD("BFI seam-pre-dim this frame: pre=%.3f (lit pre-seam)", pre);
-                            }
-                        }
-                    }
-                } else {
-                    // We are on a BLACK slot: make THIS frame LIT (seam frame), then flip after.
-                    forceLitThisFrame = true;
-                    flipAfterThisFrame = true;
-                    st.lastFlipNs = nowNs;
+                if (ts.outRem > 0 || ts.inRem > 0 || st.flipArmed) {
+                    // Already transitioning or armed; ignore extra pending flags from the timer.
                     st.flipPending = false;
-                    st.flipArmed = false;
-                    // --- Seam ramp over 2 frames (energy-balanced):
-                    //     seam frame dim = r, next lit frame dim = (1 - r)
-                    //     r from persist.gammaos.bfi.seam_ramp2 (0..1). Optional perceptual shaping via seam_gamma.
-                    // New: explicit seam brightness controls (back-compat)
-                    // Prefer explicit brightness props if present; else fall back to two-tap ramp or single-tap dim.
-                    float seamNow = -1.f, seamFollow = -1.f;
-                    const std::string seamNowProp =
-                            android::base::GetProperty("persist.gammaos.bfi.seam_brightness", "");
-                    const std::string seamFollowProp =
-                            android::base::GetProperty("persist.gammaos.bfi.seam_follow_brightness", "");
-                    if (!seamNowProp.empty()) {
-                        seamNow = strtof(seamNowProp.c_str(), nullptr);
+                } else {
+                    const int outF = std::max(0, android::base::GetIntProperty(
+                            "persist.gammaos.bfi.flip.out_frames", 10));
+                    const int inF  = std::max(0, android::base::GetIntProperty(
+                            "persist.gammaos.bfi.flip.in_frames", 10));
+                    st.flipPending = false;
+                    st.flipArmed   = true;
+                    ts.outRem = ts.outTotal = outF;
+                    ts.inRem  = 0;
+                    ts.inTotal= inF;
+                    // IMPORTANT: advance the timer now so it doesn't re-fire during fade-out.
+                    st.lastFlipNs = nowNs;
+                    // Arm a 2-frame seam guard so we *always* land on lit frames around the flip.
+                    // Dim levels default to your seam props, but are overrideable via:
+                    //   persist.gammaos.bfi.seam_brightness           (frame 0)
+                    //   persist.gammaos.bfi.seam_follow_brightness    (frame 1)
+                    // If not set, we fall back to 0.92 for both (subtle, visible).
+                    {
+                        auto clamp01 = [](float v){ return v < 0.f ? 0.f : (v > 1.f ? 1.f : v); };
+                        const std::string p0 = android::base::GetProperty("persist.gammaos.bfi.seam_brightness", "");
+                        const std::string p1 = android::base::GetProperty("persist.gammaos.bfi.seam_follow_brightness", "");
+                        float d0 = p0.empty() ? 0.92f : strtof(p0.c_str(), nullptr);
+                        float d1 = p1.empty() ? 0.92f : strtof(p1.c_str(), nullptr);
+                        ts.seamDim0 = clamp01(d0);
+                        ts.seamDim1 = clamp01(d1);
+                        ts.seamGuardRem = 2; // seam + post-seam frames
                     }
-                    if (!seamFollowProp.empty()) {
-                        seamFollow = strtof(seamFollowProp.c_str(), nullptr);
-                    }
-                    auto clamp01 = [](float v) { return (v < 0.f) ? 0.f : (v > 1.f ? 1.f : v); };
-
-                    if (seamNow >= 0.f || seamFollow >= 0.f) {
-                        gBfiSeamDimOnce.store(clamp01(seamNow >= 0.f ? seamNow : 1.f), std::memory_order_relaxed);
-                        gBfiSeamFollowDimOnce.store(clamp01(seamFollow >= 0.f ? seamFollow : 0.f), std::memory_order_relaxed);
-                        if (CC_UNLIKELY(bfiDebug())) {
-                            ALOGD("BFI seam dims set: seamNow=%.3f follow=%.3f", seamNow >= 0.f ? seamNow : 1.f, seamFollow >= 0.f ? seamFollow : 0.f);
-                        }
-                    } else {
-                        const std::string ramp2Prop =
-                                android::base::GetProperty("persist.gammaos.bfi.seam_ramp2", "");
-                        if (!ramp2Prop.empty()) {
-                            float r = strtof(ramp2Prop.c_str(), nullptr);
-                            r = clamp01(r);
-                            const std::string gprop =
-                                    android::base::GetProperty("persist.gammaos.bfi.seam_gamma", "2.2");
-                            float gamma = strtof(gprop.c_str(), nullptr);
-                            if (!(gamma > 0.f)) gamma = 1.f;
-                            // Perceptual→linear mapping: stronger shaping with gamma>1 (e.g. 2.2)
-                            const float d0 = powf(r, gamma);
-                            const float d1 = powf(std::max(0.f, 1.f - r), gamma);
-                            gBfiSeamDimOnce.store(d0, std::memory_order_relaxed);     // this seam frame
-                            gBfiSeamFollowDimOnce.store(d1, std::memory_order_relaxed); // next lit frame
-                            if (CC_UNLIKELY(bfiDebug())) {
-                                ALOGD("BFI seam ramp: r=%.3f gamma=%.3f -> seam=%.3f follow=%.3f", r, gamma, d0, d1);
-                            }
-                        } else {
-                            // Fallback to single-frame dim if ramp prop not set.
-                            const std::string seamProp =
-                                    android::base::GetProperty("persist.gammaos.bfi.seam_dim", "0.5");
-                            float seamDim = strtof(seamProp.c_str(), nullptr);
-                            gBfiSeamDimOnce.store(clamp01(seamDim), std::memory_order_relaxed);
-                            gBfiSeamFollowDimOnce.store(0.f, std::memory_order_relaxed);
-                            if (CC_UNLIKELY(bfiDebug())) {
-                                ALOGD("BFI seam single-dim: seam=%.3f", seamDim);
-                            }
-                        }
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI flip: ARMED; fadeOut=%d fadeIn=%d (lit=%d)", outF, inF, effectiveLit?1:0);
                     }
                 }
+            }
+
+            // Compute per-frame transition CTM (dim/sat) if any fade is active.
+            ts.dim = 0.f; ts.sat = 1.f;
+            const float satCfg = []{
+                const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.sat", "1.0");
+                return strtof(s.c_str(), nullptr);
+            }();
+            const float gammaCfg = []{
+                const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.gamma", "1.0");
+                float v = strtof(s.c_str(), nullptr); return (v > 0.f) ? v : 1.f;
+            }();
+            // fetch start/end dim for out/in with auto-dip fallback
+            auto getDimAB = [&](bool fadingOut){ 
+                const char* sProp = fadingOut ? "persist.gammaos.bfi.flip.out.start_dim"
+                                              : "persist.gammaos.bfi.flip.in.start_dim";
+                const char* eProp = fadingOut ? "persist.gammaos.bfi.flip.out.end_dim"
+                                              : "persist.gammaos.bfi.flip.in.end_dim";
+                float a=1.f,b=1.f;
+                { const std::string s = android::base::GetProperty(sProp, "1.0"); a = strtof(s.c_str(), nullptr); }
+                { const std::string s = android::base::GetProperty(eProp, "1.0"); b = strtof(s.c_str(), nullptr); }
+                // If endpoints are both 1.0, fall back to an automatic, subtle dip so fade is visible.
+                const bool useAuto = android::base::GetBoolProperty("persist.gammaos.bfi.flip.use_auto", true);
+                if (useAuto) {
+                    const float autoDip = []{
+                        const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.auto_dip", "0.92");
+                        float v = strtof(s.c_str(), nullptr);
+                        // Clamp to [0.5, 1.0] for safety so we don't over-dim accidentally.
+                        if (v < 0.5f) v = 0.5f; if (v > 1.0f) v = 1.0f;
+                        return v;
+                    }();
+                    const bool aIs1 = fabsf(a - 1.f) < 1e-6f;
+                    const bool bIs1 = fabsf(b - 1.f) < 1e-6f;
+                    if (aIs1 && bIs1) {
+                        if (fadingOut) { a = 1.f; b = autoDip; }
+                        else           { a = autoDip; b = 1.f; }
+                    }
+                }
+                return std::pair<float,float>(a,b);
+           };
+
+            if (ts.outRem > 0) {
+                forceLitThisFrame = true; // never allow black during fade-out
+                const auto [a,b] = getDimAB(/*out*/true);
+                const float t = (ts.outTotal <= 1) ? 1.f : float(ts.outTotal - ts.outRem) / float(ts.outTotal - 1);
+                ts.dim = powf(clamp01(lerp(a,b, clamp01(t))), gammaCfg);
+                ts.sat = satCfg;
+                --ts.outRem;
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI fade-out: rem=%d dim=%.3f sat=%.3f", ts.outRem, ts.dim, ts.sat);
+                }
+                if (ts.outRem == 0 && st.flipArmed) {
+                    // Flip immediately when fade-out completes; start fade-in.
+                    flipAfterThisFrame = true;
+                    // kick fade-in next frames
+                    // (ts.inTotal already set from props when arming)
+                    ts.inRem = ts.inTotal;
+                }
+            } else if (ts.inRem > 0) {
+                forceLitThisFrame = true; // keep lit while easing back into BFI
+                const auto [a,b] = getDimAB(/*out*/false);
+                const float t = (ts.inTotal <= 1) ? 1.f : float(ts.inTotal - ts.inRem) / float(ts.inTotal - 1);
+                ts.dim = powf(clamp01(lerp(a,b, clamp01(t))), gammaCfg);
+                ts.sat = satCfg;
+                --ts.inRem;
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI fade-in : rem=%d dim=%.3f sat=%.3f", ts.inRem, ts.dim, ts.sat);
+                }
+            }
+
+            // Seam guard overrides: while active, *never* draw black and supply per-frame dim.
+            float seamGuardDimNow = 0.f;
+            if (ts.seamGuardRem > 0) {
+                forceLitThisFrame = true;
+                seamGuardDimNow = (ts.seamGuardRem == 2) ? ts.seamDim0 : ts.seamDim1;
+                --ts.seamGuardRem;
+                if (CC_UNLIKELY(bfiDebug())) {
+                    ALOGD("BFI seam-guard: rem=%d dim=%.3f", ts.seamGuardRem, seamGuardDimNow);
+                }
+            }
+
+            // IMPORTANT: feed the seam-guard dim into the transition CTM so CTM stage
+            // sees transDimNow>0 and suppresses BLACK on the seam/post-seam frames.
+            // Seam-guard should NEVER make the frame brighter than an active fade intends.
+            // If a fade is active (ts.dim>0), cap with min(); else use the guard value.
+            if (seamGuardDimNow > 0.f) {
+                ts.dim = (ts.dim > 0.f) ? std::min(ts.dim, seamGuardDimNow) : seamGuardDimNow;
+                // keep saturation neutral for guard; fades will still set ts.sat if active
             }
 
             // Effective blackout decision, XORing with phasePolarity to swap phase.
@@ -3046,6 +3112,8 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             // Commit the armed flip now that THIS frame’s decision is latched.
             if (flipAfterThisFrame) {
                 st.phasePolarity = !st.phasePolarity;
+                st.flipArmed = false;
+                st.lastFlipNs = nowNs;
                 // Ensure the very next frame is LIT (even if the new phase would pick a black slot),
                 // so the seam never produces a full black flash.
                 gBfiForceNextLitOnce.store(true, std::memory_order_relaxed);
@@ -3138,7 +3206,7 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         mForceFullDamage = true;
     }
 
-    // GammaOS BFI: Only force client comp for RenderEngine mode; CTM mode uses HWC.
+    // GammaOS BFI: Only force client comp for RenderEngine mode; CTM mode must stay on HWC.
     const bool bfiEnabledNow = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
     const std::string bfiMode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
     
@@ -3165,6 +3233,11 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         mForceFullDamage = false;
         gamma_bfi_set_draw_black(0);
     }
+    
+    // Make sure CTM path never gets forced to client-comp (prevents 120→60 stick).
+    if (bfiEnabledNow && bfiMode == "ctm") {
+        refreshArgs.devOptForceClientComposition = false;
+    }
 
     // If Sub-BFI is off and CTM-BFI is off, allow damage normalization again.
     if (!subBfiOn && !(bfiEnabledNow && bfiMode == "re")) mForceFullDamage = mForceFullDamage && mForceFullDamage;
@@ -3181,6 +3254,9 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     // so that the seam frame (force-lit) can never accidentally pick a black CTM here.
     bool finalDrawBlack = false;
     uint64_t ctmKey = 0;
+    // Transition CTM parameters must live outside the inner (d) block; they are
+    // referenced by the CTM selection code that follows.
+    float transDimNow = 0.f, transSatNow = 1.f;
     if (bfiEnabledNow) {
         Mutex::Autolock _l(mStateLock);
         const auto d = getDefaultDisplayDeviceLocked();
@@ -3188,6 +3264,15 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             ctmKey = d->getPhysicalId().value;
             const auto it = mBfiStates.find(ctmKey);
             finalDrawBlack = (it != mBfiStates.end() && it->second.nextDrawBlack);
+            // If a smooth transition is active, suppress blackout and apply ramp CTM instead.
+            transDimNow = 0.f; transSatNow = 1.f;
+            if (auto tt = gFlipTrans.find(ctmKey); tt != gFlipTrans.end()) {
+                transDimNow = tt->second.dim;
+                transSatNow = tt->second.sat;
+                if (transDimNow > 0.f) {
+                    finalDrawBlack = false;
+                }
+            }
             
             // If we just flipped polarity on the previous frame, guarantee this frame is LIT.
             // This prevents the "seam-dim → BLACK → lit" triad that looks like a black flash.
@@ -3221,7 +3306,7 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             }
 
             // Check (do NOT consume yet) the "guard-next" identity; only apply it on the frame
-            // AFTER the seam. We keep it set during the seam frame so brightness controls work.
+            // AFTER the seam. Skip if a transition CTM is active, so we don't stomp the fade.
             const bool forceIdentNext = gBfiForceIdentityNextOnce.load(std::memory_order_relaxed);
 
             static bool sGammaCtmEpsFlip = false;
@@ -3231,21 +3316,87 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             const mat4 kIdent = buildIdentWithEps(epsMaybe);
             const mat4 kBlack = buildBlackWithEps(epsMaybe);
 
+            // Column-major builders (HWC expects column-major 4x4):
+            // columns 0..2 = RGB basis, column 3 = bias (r,g,b,1).
             auto buildDim = [&](float dim) -> mat4 {
-                // diagonal dim with off-diagonal ε (if allowed this frame)
-                return mat4(vec4{dim,epsMaybe,0,0},
-                            vec4{0,  dim,    0,0},
-                            vec4{0,  0,    dim,0},
-                            vec4{0,  0,      0,1});
+                return mat4(vec4{dim, 0,   0,   0},   // column 0
+                            vec4{0,   dim, 0,   0},   // column 1
+                            vec4{0,   0,   dim, 0},   // column 2
+                            vec4{0,   0,   0,   1});  // column 3 (bias/α)
+            };
+            auto buildSatDim = [&](float dim, float sat, bool /*zeroEps*/) -> mat4 {
+                // Rec.709 saturation; white stays neutral; bias-free.
+                const float lr = 0.2126f, lg = 0.7152f, lb = 0.0722f;
+                const float ism = (1.f - sat);
+                const float m00 = lr*ism + sat, m01 = lg*ism,       m02 = lb*ism;
+                const float m10 = lr*ism,       m11 = lg*ism + sat, m12 = lb*ism;
+                const float m20 = lr*ism,       m21 = lg*ism,       m22 = lb*ism + sat;
+                // Place rows into columns (column-major):
+                return mat4(vec4{dim*m00, dim*m10, dim*m20, 0},   // column 0
+                            vec4{dim*m01, dim*m11, dim*m21, 0},   // column 1
+                            vec4{dim*m02, dim*m12, dim*m22, 0},   // column 2
+                            vec4{0,       0,       0,       1});  // column 3
+            };
+            // Like buildSatDim but with per-output-channel gains (gR,gG,gB) applied to rows.
+            auto buildSatDimRgb = [&](float dim, float sat, float gR, float gG, float gB) -> mat4 {
+                const float lr = 0.2126f, lg = 0.7152f, lb = 0.0722f;
+                const float ism = (1.f - sat);
+                const float s00 = lr*ism + sat, s01 = lg*ism,       s02 = lb*ism;
+                const float s10 = lr*ism,       s11 = lg*ism + sat, s12 = lb*ism;
+                const float s20 = lr*ism,       s21 = lg*ism,       s22 = lb*ism + sat;
+                // Row scaling by (gR,gG,gB): multiply each column's row components.
+                return mat4(vec4{dim*s00*gR, dim*s10*gG, dim*s20*gB, 0},
+                            vec4{dim*s01*gR, dim*s11*gG, dim*s21*gB, 0},
+                            vec4{dim*s02*gR, dim*s12*gG, dim*s22*gB, 0},
+                            vec4{0,           0,          0,         1});
+            };
+            auto buildSatDimContrast = [&](float dim, float sat, float contrast, float pivot, bool /*zeroEps*/) -> mat4 {
+                // Final = DIM * ( CONTRAST_AROUND_PIVOT * SATURATION )
+                const float c = contrast;
+                const float bias = (1.f - c) * pivot;   // per-channel same pivot
+                const float lr = 0.2126f, lg = 0.7152f, lb = 0.0722f;
+                const float ism = (1.f - sat);
+                // Saturation rows:
+                const float s00 = lr*ism + sat, s01 = lg*ism,       s02 = lb*ism;
+                const float s10 = lr*ism,       s11 = lg*ism + sat, s12 = lb*ism;
+                const float s20 = lr*ism,       s21 = lg*ism,       s22 = lb*ism + sat;
+                // Contrast rows (c * I) composed with S rows:
+                const float r00 = c*s00, r01 = c*s01, r02 = c*s02;
+                const float r10 = c*s10, r11 = c*s11, r12 = c*s12;
+                const float r20 = c*s20, r21 = c*s21, r22 = c*s22;
+                // Column-major placement, with bias in 4th column (r,g,b,1):
+                return mat4(vec4{dim*r00, dim*r10, dim*r20, 0},      // column 0
+                            vec4{dim*r01, dim*r11, dim*r21, 0},      // column 1
+                            vec4{dim*r02, dim*r12, dim*r22, 0},      // column 2
+                            vec4{dim*bias, dim*bias, dim*bias, 1});  // column 3 (bias)
+            };
+            // Contrast + Saturation + RGB gains (bias only if you opt into HW contrast).
+            auto buildSatDimContrastRgb = [&](float dim, float sat, float contrast, float pivot,
+                                              float gR, float gG, float gB) -> mat4 {
+                const float c = contrast;
+                const float bias = (1.f - c) * pivot;
+                const float lr = 0.2126f, lg = 0.7152f, lb = 0.0722f;
+                const float ism = (1.f - sat);
+                const float s00 = lr*ism + sat, s01 = lg*ism,       s02 = lb*ism;
+                const float s10 = lr*ism,       s11 = lg*ism + sat, s12 = lb*ism;
+                const float s20 = lr*ism,       s21 = lg*ism,       s22 = lb*ism + sat;
+                const float r00 = c*s00, r01 = c*s01, r02 = c*s02;
+                const float r10 = c*s10, r11 = c*s11, r12 = c*s12;
+                const float r20 = c*s20, r21 = c*s21, r22 = c*s22;
+                // Apply row gains (gR,gG,gB)
+                return mat4(vec4{dim*r00*gR, dim*r10*gG, dim*r20*gB, 0},
+                            vec4{dim*r01*gR, dim*r11*gG, dim*r21*gB, 0},
+                            vec4{dim*r02*gR, dim*r12*gG, dim*r22*gB, 0},
+                            vec4{dim*bias,   dim*bias,   dim*bias,   1});
             };
 
             // Hard stop: apply guard-next **only** on the first *lit* frame after the seam.
             // If this frame is black, leave the guard pending for the next frame.
-            if (forceIdentNext && !seamActive && !finalDrawBlack) {
+            if (forceIdentNext && !seamActive && !finalDrawBlack && !(transDimNow > 0.f)) {
                 refreshArgs.colorTransformMatrix = kIdent;
                 gBfiForceIdentityNextOnce.store(false, std::memory_order_relaxed);
                 if (CC_UNLIKELY(bfiDebug())) {
-                    ALOGD("BFI CTM chosen: IDENT (guard-next on lit)");
+                    ALOGD("BFI CTM chosen: IDENT (guard-next on lit) [no transition]");
                 }
             } else if (forceIdentNext && finalDrawBlack) {
                 // keep guard for the next (lit) frame
@@ -3255,6 +3406,61 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             } else
 
             if (bfiMode == "ctm") {
+                // Smooth transition CTM (if active) takes priority over seam dims and base CTM.
+                // Seam-guard dim also maps through this path.
+                if (transDimNow > 0.f) {
+                    const bool zeroEps = android::base::GetBoolProperty("persist.gammaos.bfi.flip.zero_eps", true);
+                    const bool useContrast = android::base::GetBoolProperty("persist.gammaos.bfi.flip.contrast.enable", false);
+                    const bool hwContrast = android::base::GetBoolProperty("persist.gammaos.bfi.flip.contrast.hw", false);
+                    // Per-channel gains for transition frames (defaults 1.0)
+                    auto readGain = [](const char* k, const char* def) {
+                        const std::string s = android::base::GetProperty(k, def);
+                        float v = strtof(s.c_str(), nullptr);
+                        // keep reasonable bounds to avoid clipping or inversion
+                        if (v < 0.5f) v = 0.5f; if (v > 1.5f) v = 1.5f;
+                        return v;
+                    };
+                    const float gR = readGain("persist.gammaos.bfi.flip.rgb.r", "1.0");
+                    const float gG = readGain("persist.gammaos.bfi.flip.rgb.g", "1.0");
+                    const float gB = readGain("persist.gammaos.bfi.flip.rgb.b", "1.0");
+                    if (useContrast && hwContrast) {
+                        const float c = []{
+                            const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.contrast", "1.0");
+                            return strtof(s.c_str(), nullptr);
+                        }();
+                        const float p = []{
+                            const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.contrast_pivot", "0.5");
+                            return strtof(s.c_str(), nullptr);
+                        }();
+                        // Real contrast (uses bias column) – only when explicitly allowed.
+                        refreshArgs.colorTransformMatrix =
+                                buildSatDimContrastRgb(transDimNow, transSatNow, c, p, gR, gG, gB);
+                    } else if (useContrast /*approximate*/){
+                        // Bias-free approximation: push saturation and shape dim as a proxy
+                        // so we stay HWC-safe and avoid client-comp/60fps.
+                        const float c = std::max(0.0f, []{
+                            const std::string s = android::base::GetProperty("persist.gammaos.bfi.flip.contrast", "1.0");
+                            return strtof(s.c_str(), nullptr);
+                        }());
+                        // small gain around 1.0 → sat boost; invert for <1
+                        const float satGain = (c >= 1.f) ? (1.f + 0.5f*(c - 1.f))
+                                                         : std::max(0.f, 1.f - 0.5f*(1.f - c));
+                        float satAdj = transSatNow * satGain;
+                        // gamma nudge: higher contrast → slightly darker mids
+                        const float gammaAdj = (c >= 1.f) ? (1.f + 0.15f*(c - 1.f))
+                                                          : std::max(0.7f, 1.f - 0.15f*(1.f - c));
+                        float dimAdj = powf(std::max(0.f, std::min(1.f, transDimNow)), gammaAdj);
+                        refreshArgs.colorTransformMatrix = buildSatDimRgb(dimAdj, satAdj, gR, gG, gB);
+                    } else {
+                        refreshArgs.colorTransformMatrix = buildSatDimRgb(transDimNow, transSatNow, gR, gG, gB);
+                    }
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI CTM chosen: %s (dim=%.3f sat=%.3f rgb=%.3f/%.3f/%.3f)%s [transition]",
+                              (useContrast ? (hwContrast ? "SAT*CONTRAST*DIM(HW)" : "SAT*DIM(approx-contrast)")
+                                           : "SAT*DIM"),
+                              transDimNow, transSatNow, gR, gG, gB, zeroEps ? " zero_eps" : "");
+                    }
+                } else
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
                     refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
                     if (CC_UNLIKELY(bfiDebug())) {
