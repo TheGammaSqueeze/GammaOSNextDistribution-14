@@ -3289,10 +3289,13 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             // marks the output dirty and calls HWC::setColorTransform during compose.
             // NOTE: we build ε on an RGB off-diagonal and *skip it* on the seam frames.
             auto buildIdentWithEps = [](float eps) -> mat4 {
-                return mat4(vec4{1,eps,0,0}, vec4{0,1,0,0}, vec4{0,0,1,0}, vec4{0,0,0,1});
+                // Slight ε on off-diagonal to avoid vendor degenerate handling.
+                return mat4(vec4{1,eps,0,0}, vec4{0,1,eps,0}, vec4{0,0,1,0}, vec4{0,0,0,1});
             };
-            auto buildBlackWithEps = [](float eps) -> mat4 {
-                return mat4(vec4{0,eps,0,0}, vec4{0,0,0,0}, vec4{0,0,0,0}, vec4{0,0,0,1});
+            auto buildBlackWithEps = [](float eps, float floor) -> mat4 {
+                // "Black" with a small RGB floor. Keeps pipeline alive on strict vendors.
+                const float b = std::max(0.f, std::min(floor, 0.05f)); // clamp to <=5%
+                return mat4(vec4{0,eps,0,0}, vec4{0,0,0,0}, vec4{0,0,0,0}, vec4{b,b,b,1});
             };
 
             // Seam ramp (two frames): first the seam frame (dimNow), then the *next lit* frame (dimFollow).
@@ -3313,8 +3316,13 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             sGammaCtmEpsFlip = !sGammaCtmEpsFlip;
             const float epsMaybe = seamActive ? 1e-7f : (sGammaCtmEpsFlip ? 1e-6f : -1e-6f);
 
+            const float blackFloor = []{
+                const std::string s = android::base::GetProperty("persist.gammaos.bfi.black_floor", "0.0");
+                float v = strtof(s.c_str(), nullptr);
+                if (v < 0.f) v = 0.f; if (v > 0.05f) v = 0.05f; return v;
+            }();
             const mat4 kIdent = buildIdentWithEps(epsMaybe);
-            const mat4 kBlack = buildBlackWithEps(epsMaybe);
+            const mat4 kBlack = buildBlackWithEps(epsMaybe, blackFloor);
 
             // Column-major builders (HWC expects column-major 4x4):
             // columns 0..2 = RGB basis, column 3 = bias (r,g,b,1).
