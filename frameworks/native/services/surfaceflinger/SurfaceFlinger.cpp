@@ -10023,37 +10023,6 @@ bool SurfaceFlinger::commitMirrorDisplays(VsyncId vsyncId) {
             // lock on mStateLock needs to be released before binder handle gets destroyed
             unused.clear();
         }
-        {
-            // We need the default (source) display’s logical size and each external display’s
-            // physical size to compute a pillarboxed destination frame.
-            Mutex::Autolock _l(mStateLock);
-            sp<DisplayDevice> src = getDefaultDisplayDeviceLocked();
-            if (src) {
-                const int srcW = src->getWidth();
-                const int srcH = src->getHeight();
-                // Walk all physical displays except the default, and apply a letterbox projection.
-                for (const auto& [token, dst] : mDisplays) {
-                    if (dst == src) continue; // skip default/internal
-                    // Compute uniform scale that fits source fully inside destination.
-                    const int dstW = dst->getWidth();
-                    const int dstH = dst->getHeight();
-                    if (dstW <= 0 || dstH <= 0 || srcW <= 0 || srcH <= 0) continue;
-                    const float sx = static_cast<float>(dstW) / static_cast<float>(srcW);
-                    const float sy = static_cast<float>(dstH) / static_cast<float>(srcH);
-                    const float s  = std::min(sx, sy);
-                    const int outW = static_cast<int>(std::round(srcW * s));
-                    const int outH = static_cast<int>(std::round(srcH * s));
-                    const int left = (dstW - outW) / 2;
-                    const int top  = (dstH - outH) / 2;
-                    const int right = left + outW;
-                    const int bottom = top + outH;
-                    // Viewport is the *source* logical rect; frame is the letterboxed rect on dst.
-                    const Rect viewport(0, 0, srcW, srcH);
-                    const Rect frame(left, top, right, bottom);
-                    dst->setProjection(dst->getPhysicalOrientation(), viewport, frame);
-                }
-            }
-        }
     }
     return true;
 }

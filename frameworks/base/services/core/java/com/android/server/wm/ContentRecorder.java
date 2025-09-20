@@ -106,9 +106,10 @@ final class ContentRecorder implements WindowContainerListener {
     private final boolean mCorrectForAnisotropicPixels;
 
     ContentRecorder(@NonNull DisplayContent displayContent) {
+        // Disable anisotropic pixel correction: vendor-reported physical DPI is often inaccurate and
+        // causes non-uniform X/Y scaling (squished mirror). We want uniform scale for aspect-fit.
         this(displayContent, new RemoteMediaProjectionManagerWrapper(displayContent.mDisplayId),
-                new DisplayManagerFlags().isConnectedDisplayManagementEnabled()
-                        && displayContent.getDisplayInfo().type == Display.TYPE_EXTERNAL);
+                false /* correctForAnisotropicPixels */);
     }
 
     @VisibleForTesting
