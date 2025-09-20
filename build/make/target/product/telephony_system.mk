@@ -17,11 +17,11 @@
 # This is the list of modules that are specific to products that have telephony
 # hardware, and install on the system partition.
 
-PRODUCT_PACKAGES := \
-    ONS \
-    CarrierDefaultApp \
-    CallLogBackup \
-    com.android.cellbroadcast \
-    CellBroadcastLegacyApp \
+#PRODUCT_PACKAGES := \
+#    ONS \
+#    CarrierDefaultApp \
+#    CallLogBackup \
+#    com.android.cellbroadcast \
+#    CellBroadcastLegacyApp \
 
-PRODUCT_COPY_FILES := \
+#PRODUCT_COPY_FILES := \

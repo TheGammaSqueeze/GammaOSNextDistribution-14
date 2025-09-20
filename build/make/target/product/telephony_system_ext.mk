@@ -18,9 +18,9 @@
 # hardware, and install to the system_ext partition.
 
 # /system_ext packages
-PRODUCT_PACKAGES += \
-    CarrierConfig \
-    EmergencyInfo \
+#PRODUCT_PACKAGES += \
+#    CarrierConfig \
+#    EmergencyInfo \
 
 PRODUCT_PACKAGES_SHIPPING_API_LEVEL_34 += \
     hwservicemanager \

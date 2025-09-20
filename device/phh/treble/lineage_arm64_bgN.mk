@@ -16,3 +16,25 @@ PRODUCT_CHARACTERISTICS := device
 
 PRODUCT_PACKAGES += 
 
+# ===== FINAL STRIP: Wi-Fi-only, remove telephony from system/product/system_ext =====
+PRODUCT_REMOVE_PACKAGES += \
+    TeleService \
+    Stk \
+    CarrierConfig \
+    CarrierDefaultApp \
+    ImsServiceEntitlement \
+    Dialer \
+    Messaging \
+    messaging \
+    ImsService \
+    Iwlan \
+    EuiccSupport \
+    EuiccSupportPixel
+
+# Last-resort scrub in case something re-adds them late
+PRODUCT_PACKAGES := $(filter-out \
+    TeleService Stk CarrierConfig CarrierDefaultApp ImsServiceEntitlement \
+    Dialer Messaging messaging ImsService Iwlan EuiccSupport EuiccSupportPixel, \
+    $(PRODUCT_PACKAGES))
+
+

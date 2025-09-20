@@ -229,3 +229,71 @@ PRODUCT_PACKAGES += \
     NoCutoutOverlay
 
 PRODUCT_EXTRA_VNDK_VERSIONS += 28 29
+
+# ===== Global Wi-Fi-only / No-RIL for all PHH Treble variants =====
+
+# Robust removal list (wins even if later files add phone bits)
+PRODUCT_REMOVE_PACKAGES += \
+    TeleService \
+    CarrierConfig \
+    MmsService \
+    CellBroadcastReceiver \
+    Iwlan \
+    ImsService \
+    EuiccSupport \
+    EuiccSupportPixel
+
+# Advertise no-RIL and quiet vendor daemons
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.radio.noril=true \
+    ro.telephony.default_network=0 \
+    ro.carrier=unknown \
+    persist.radio.noril=1 \
+    persist.vendor.radio.noril=1 \
+    persist.vendor.sys.modem.disable=1 \
+    persist.dbg.ims_volte_enable=0 \
+    persist.dbg.vt_avail_ovr=0 \
+    persist.dbg.wfc_avail_ovr=0
+
+# Framework/UI overlays to hide telephony affordances
+PRODUCT_PACKAGE_OVERLAYS += \
+    device/phh/treble/overlay-wifionly
+
+# Hard-disable telephony features at the PackageManager layer
+PRODUCT_COPY_FILES += \
+    device/phh/treble/sysconfig/no_telephony.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysconfig/no_telephony.xml \
+    device/phh/treble/sysconfig/no_telephony.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/no_telephony.xml
+
+PRODUCT_COPY_FILES += \
+    device/phh/treble/sysconfig/no_telephony.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/sysconfig/no_telephony.xml
+
+# Also remove phone/SMS UI apps (AOSP)
+PRODUCT_REMOVE_PACKAGES += \
+    Dialer \
+    Messaging \
+    Stk \
+    CarrierConfig \
+    CarrierDefaultApp \
+    ImsServiceEntitlement \
+    Camera2
+
+# Remove Google telephony/SMS apps if included via GApps
+PRODUCT_REMOVE_PACKAGES += \
+    com.google.android.dialer \
+    com.google.android.apps.messaging \
+    com.google.android.ims \
+    CarrierServices
+
+PRODUCT_REMOVE_PACKAGES += \
+    TeleService \
+    Stk \
+    CarrierConfig \
+    CarrierDefaultApp \
+    ImsServiceEntitlement \
+    Dialer \
+    Messaging \
+    messaging \
+    ImsService \
+    Iwlan \
+    EuiccSupport \
+    EuiccSupportPixel

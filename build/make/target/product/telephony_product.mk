@@ -18,7 +18,7 @@
 # hardware, and install to the product partition.
 
 # /product packages
-PRODUCT_PACKAGES += \
-    Dialer \
-    ImsServiceEntitlement \
-    preinstalled-packages-platform-telephony-product.xml
+#PRODUCT_PACKAGES += \
+#    Dialer \
+#    ImsServiceEntitlement \
+#    preinstalled-packages-platform-telephony-product.xml

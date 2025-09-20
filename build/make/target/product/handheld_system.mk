@@ -54,7 +54,6 @@ PRODUCT_PACKAGES += \
     KeyChain \
     librs_jni \
     ManagedProvisioning \
-    MmsService \
     MtpService \
     MusicFX \
     PacProcessor \
@@ -65,10 +64,6 @@ PRODUCT_PACKAGES += \
     screenrecord \
     SecureElement \
     SharedStorageBackup \
-    SimAppDialog \
-    Telecom \
-    TelephonyProvider \
-    TeleService \
     UserDictionaryProvider \
     VpnDialogs \
     vr \
