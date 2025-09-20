@@ -1171,8 +1171,8 @@
       "group": "WM_DEBUG_CONTENT_RECORDING",
       "at": "com\/android\/server\/wm\/ContentRecorder.java"
     },
-    "-4320004054011530388": {
-      "message": "Content Recording: Display %d has content (%b) so pause recording",
+    "-8489987294238982515": {
+      "message": "Content Recording: Display %d has app content (%b) so pause recording",
       "level": "VERBOSE",
       "group": "WM_DEBUG_CONTENT_RECORDING",
       "at": "com\/android\/server\/wm\/ContentRecorder.java"

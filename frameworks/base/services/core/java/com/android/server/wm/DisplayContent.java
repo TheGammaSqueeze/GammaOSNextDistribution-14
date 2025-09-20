@@ -7202,6 +7202,26 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         return Surface.ROTATION_0;
     }
 
+    /**
+     * Returns true if there is any visible APPLICATION window on this display.
+     * System overlays (e.g. NavigationBar/StatusBar) are intentionally ignored so they do not
+     * suppress mirroring.
+     */
+    boolean hasVisibleAppContent() {
+        final WindowState[] found = new WindowState[1];
+        forAllWindows(ws -> {
+            final int type = ws.mAttrs.type;
+            final boolean isApp = type >= WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW
+                    && type <= WindowManager.LayoutParams.LAST_APPLICATION_WINDOW;
+            if (isApp && ws.isOnScreen() && ws.isVisible()) {
+                found[0] = ws;
+                return true; // stop traversal
+            }
+            return false;
+        }, /* traverseTopToBottom */ false);
+        return found[0] != null;
+    }
+
     public void replaceContent(SurfaceControl sc) {
         new Transaction().reparent(sc, getSurfaceControl())
                 .reparent(mWindowingLayer, null)

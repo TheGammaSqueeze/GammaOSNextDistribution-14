@@ -407,6 +407,13 @@ public class NavigationBarControllerImpl implements
         final int displayId = display.getDisplayId();
         final boolean isOnDefaultDisplay = displayId == mDisplayTracker.getDefaultDisplayId();
 
+        // Avoid placing a NavigationBar on external displays during mirror mode.
+        // This prevents WindowManager from pausing the mirror because of overlay "content".
+        // Desktop-mode on the default display is unaffected.
+        if (!isOnDefaultDisplay) {
+            return;
+        }
+
         if (!shouldCreateNavBarAndTaskBar(mContext, displayId)) {
             return;
         }

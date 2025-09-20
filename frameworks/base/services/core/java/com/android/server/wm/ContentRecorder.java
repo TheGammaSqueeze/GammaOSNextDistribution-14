@@ -146,7 +146,8 @@ final class ContentRecorder implements WindowContainerListener {
      * has content or the display is not on.
      */
     @VisibleForTesting void updateRecording() {
-        if (isCurrentlyRecording() && (mDisplayContent.getLastHasContent()
+        final boolean hasAppContent = mDisplayContent.hasVisibleAppContent();
+        if (isCurrentlyRecording() && (hasAppContent
                 || mDisplayContent.getDisplayInfo().state == Display.STATE_OFF)) {
             pauseRecording();
         } else {
@@ -243,9 +244,10 @@ final class ContentRecorder implements WindowContainerListener {
         if (mRecordedSurface == null) {
             return;
         }
+        final boolean hasAppContent = mDisplayContent.hasVisibleAppContent();
         ProtoLog.v(WM_DEBUG_CONTENT_RECORDING,
-                "Content Recording: Display %d has content (%b) so pause recording",
-                mDisplayContent.getDisplayId(), mDisplayContent.getLastHasContent());
+                "Content Recording: Display %d has app content (%b) so pause recording",
+                mDisplayContent.getDisplayId(), hasAppContent);
         // If the display is not on and it is a virtual display, then it no longer has an
         // associated surface to write output to.
         // If the display now has content, stop mirroring to it.
@@ -323,7 +325,7 @@ final class ContentRecorder implements WindowContainerListener {
     private void startRecordingIfNeeded() {
         // Only record if this display does not have its own content, is not recording already,
         // and if this display is on (it has a surface to write output to).
-        if (mDisplayContent.getLastHasContent() || isCurrentlyRecording()
+        if (mDisplayContent.hasVisibleAppContent() || isCurrentlyRecording()
                 || mDisplayContent.getDisplayInfo().state == Display.STATE_OFF
                 || mContentRecordingSession == null) {
             return;
