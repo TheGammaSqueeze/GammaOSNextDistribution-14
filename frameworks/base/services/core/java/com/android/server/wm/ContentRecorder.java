@@ -40,6 +40,7 @@ import android.view.ContentRecordingSession.RecordContent;
 import android.view.Display;
 import android.view.DisplayInfo;
 import android.view.SurfaceControl;
+import android.view.Surface;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.protolog.common.ProtoLog;
@@ -274,7 +275,14 @@ final class ContentRecorder implements WindowContainerListener {
         if (mRecordedSurface != null) {
             // Do not wait for the mirrored surface to be garbage collected, but clean up
             // immediately.
-            mDisplayContent.mWmService.mTransactionFactory.get().remove(mRecordedSurface).apply();
+            final SurfaceControl.Transaction t = mDisplayContent.mWmService.mTransactionFactory.get();
+            // Clear any frame-rate vote before removal (0f = unset).
+            t.setFrameRate(
+                    mRecordedSurface,
+                    0f,
+                    Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                    Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+            t.remove(mRecordedSurface).apply();
             mRecordedSurface = null;
             clearContentRecordingSession();
             // Do not need to force remove the VirtualDisplay; this is handled by the media
@@ -391,6 +399,13 @@ final class ContentRecorder implements WindowContainerListener {
                         .reparent(mDisplayContent.getOverlayLayer(), null);
         // Retrieve the size of the DisplayArea to mirror.
         updateMirroredSurface(transaction, mRecordedWindowContainer.getBounds(), surfaceSize);
+        // Fallback: request 60 Hz for the mirror surface on the external display. Using
+        // FIXED_SOURCE encourages cadence (frame skipping) when modes can’t be switched.
+        transaction.setFrameRate(
+                mRecordedSurface,
+                60f,
+                Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE,
+                Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
         transaction.apply();
 
         // Notify the client about the visibility of the mirrored region, now that we have begun

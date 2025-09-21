@@ -1040,6 +1040,11 @@ public class AudioDeviceInventory {
     /*package*/ void onSetWiredDeviceConnectionState(
                             AudioDeviceInventory.WiredDeviceConnectionState wdcs) {
         int type = wdcs.mAttributes.getInternalType();
+        // GammaOS: map framework HDMI device type to legacy APM mask (AUX_DIGITAL/HDMI).
+        // Do NOT reassign wdcs.mAttributes (it's final).
+        if (type == android.media.AudioDeviceInfo.TYPE_HDMI) {
+            type = android.media.AudioSystem.DEVICE_OUT_HDMI; // 0x400
+        }
 
         AudioService.sDeviceLogger.enqueue(new AudioServiceEvents.WiredDevConnectEvent(wdcs));
 
@@ -1694,12 +1699,30 @@ public class AudioDeviceInventory {
                 Slog.i(TAG, "deviceInfo:" + di + " is(already)Connected:" + isConnected);
             }
             if (connect && !isConnected) {
-                final int res;
+                int res;
                 if (isForTesting) {
                     res = AudioSystem.AUDIO_STATUS_OK;
                 } else {
                     res = mAudioSystem.setDeviceConnectionState(attributes,
                             AudioSystem.DEVICE_STATE_AVAILABLE, AudioSystem.AUDIO_FORMAT_DEFAULT);
+                }
+                // GammaOS: Some vendor policies require "hdmi" address (not "") for HDMI/DP.
+                // If first attempt with "" failed for HDMI, retry once with address="hdmi".
+                if (res != AudioSystem.AUDIO_STATUS_OK
+                        && device == AudioSystem.DEVICE_OUT_HDMI
+                        && (address == null || address.isEmpty())
+                        && !isForTesting) {
+                    AudioDeviceAttributes alt =
+                            new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "hdmi",
+                                                      deviceName);
+                    res = mAudioSystem.setDeviceConnectionState(
+                            alt, AudioSystem.DEVICE_STATE_AVAILABLE,
+                            AudioSystem.AUDIO_FORMAT_DEFAULT);
+                    if (res == AudioSystem.AUDIO_STATUS_OK) {
+                        // Switch to the alt attributes for bookkeeping/logging.
+                        attributes = alt;
+                        address = "hdmi";
+                    }
                 }
                 if (res != AudioSystem.AUDIO_STATUS_OK) {
                     final String reason = "not connecting device 0x" + Integer.toHexString(device)
