@@ -96,6 +96,13 @@ public class AudioDeviceBroker {
     private final @NonNull Context mContext;
     private final @NonNull AudioSystemAdapter mAudioSystem;
 
+    // --- Gamma: power/HDMI state
+    private volatile boolean mGammaSleeping = false;
+    private volatile boolean mGammaHdmiPlugged = false; // set by ACTION_HDMI_AUDIO_PLUG
+
+    // --- Gamma: remember last seen USB audio ALSA address (e.g. "card=1;device=0")
+    private @Nullable String mGammaLastUsbAddr;
+
     /** ID for Communication strategy retrieved form audio policy manager */
     /*package*/  int mCommunicationStrategyId = -1;
     /*package*/  int mMediaStrategyId = -1;
@@ -279,6 +286,18 @@ public class AudioDeviceBroker {
             startGammaExternalDisplayAudioMonitor();
         } catch (Throwable t) {
             android.util.Slog.w(TAG, "Gamma HDMI/DP monitor init failed", t);
+        }
+        // GammaOS: speaker wake sanity (re-arm speaker after resume if vendor left codec off)
+        try {
+            startGammaSpeakerWakeMonitor();
+        } catch (Throwable t) {
+            android.util.Slog.w(TAG, "Gamma Speaker wake monitor init failed", t);
+        }
+        // GammaOS: USB audio unplug nudge (cleans up stale USB offload patches)
+        try {
+            startGammaUsbAudioMonitor();
+        } catch (Throwable t) {
+            android.util.Slog.w(TAG, "Gamma USB monitor init failed", t);
         }
     }
 
@@ -2906,6 +2925,244 @@ public class AudioDeviceBroker {
     // Skip announcing on first sample to avoid boot-time false positives.
     private boolean mGammaMonitorPrimed = false;
 
+    // ===== USB helpers / toggles =====
+    // Optional delayed second UNAVAILABLE after unplug to clear stubborn patches (default ON)
+    private static final String PROP_USB_REBROADCAST = "persist.gammaos.usb.rebroadcast";
+    // Action strings kept as literals to avoid SDK dependency differences across branches
+    private static final String ACTION_USB_AUDIO_DEVICE_PLUG =
+            "android.media.action.USB_AUDIO_DEVICE_PLUG";
+    private static final String ACTION_USB_DEVICE_DETACHED =
+            "android.hardware.usb.action.USB_DEVICE_DETACHED";
+    private static final String ACTION_SCREEN_ON  = "android.intent.action.SCREEN_ON";
+    private static final String ACTION_SCREEN_OFF = "android.intent.action.SCREEN_OFF";
+
+    // ===== GammaOS speaker wake monitor =====
+    private void startGammaSpeakerWakeMonitor() {
+        final boolean dbg =
+                android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
+        // SCREEN_ON (interactive again)
+        final android.content.IntentFilter scrOn =
+                new android.content.IntentFilter(ACTION_SCREEN_ON);
+        mContext.registerReceiver(new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, android.content.Intent it) {
+                if (!ACTION_SCREEN_ON.equals(it.getAction())) return;
+                mGammaSleeping = false;
+                if (dbg) gammaLog("SCREEN_ON -> speaker wake sanity");
+                mBrokerHandler.post(AudioDeviceBroker.this::gammaSpeakerWakeSanity);
+            }
+        }, scrOn, null, mBrokerHandler, android.content.Context.RECEIVER_NOT_EXPORTED);
+
+        // USER_PRESENT (keyguard dismissed) – secondary cue
+        final android.content.IntentFilter userPresent =
+                new android.content.IntentFilter(android.content.Intent.ACTION_USER_PRESENT);
+        mContext.registerReceiver(new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, android.content.Intent it) {
+                if (!android.content.Intent.ACTION_USER_PRESENT.equals(it.getAction())) return;
+                if (dbg) gammaLog("USER_PRESENT -> speaker wake sanity");
+                mBrokerHandler.post(AudioDeviceBroker.this::gammaSpeakerWakeSanity);
+            }
+        }, userPresent, null, mBrokerHandler, android.content.Context.RECEIVER_NOT_EXPORTED);
+        // SCREEN_OFF: mark sleeping, unwind any HDMI hints, ensure speaker is available
+        final android.content.IntentFilter scrOff =
+                new android.content.IntentFilter(ACTION_SCREEN_OFF);
+        mContext.registerReceiver(new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, android.content.Intent it) {
+                if (!ACTION_SCREEN_OFF.equals(it.getAction())) return;
+                mGammaSleeping = true;
+                if (dbg) gammaLog("SCREEN_OFF -> clear HDMI hints + attach speaker");
+                gammaClearHdmiHintsAndAttachSpeaker();
+            }
+        }, scrOff, null, mBrokerHandler, android.content.Context.RECEIVER_NOT_EXPORTED);
+    }
+
+    // Force a quick re-attach of speaker after wake if no external sink is present.
+    private void gammaSpeakerWakeSanity() {
+        final boolean dbg = android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
+        final int externals = android.media.AudioSystem.DEVICE_OUT_WIRED_HEADSET
+                | android.media.AudioSystem.DEVICE_OUT_WIRED_HEADPHONE
+                | android.media.AudioSystem.DEVICE_OUT_USB_HEADSET
+                | android.media.AudioSystem.DEVICE_OUT_USB_DEVICE
+                | android.media.AudioSystem.DEVICE_OUT_HDMI
+                | android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP
+                | android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_SCO;
+        // If policy already sees any external sink OR an external display is present, don't re-attach speaker.
+        if ((getDeviceForStream(android.media.AudioSystem.STREAM_MUSIC) & externals) != 0
+                || hasAnyExternalDisplay()) return;
+        if (dbg) gammaLog("Speaker wake sanity: re-attach + route nudge");
+        final android.media.AudioDeviceAttributes spk =
+                new android.media.AudioDeviceAttributes(
+                        android.media.AudioSystem.DEVICE_OUT_SPEAKER, "");
+        setWiredDeviceConnectionState(spk,
+                com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED,
+                "GammaSpkWake");
+        gammaClearAudioConfigCacheIfPresent();
+        postObserveDevicesForAllStreams();
+        mDeviceInventory.applyConnectedDevicesRoles();
+        mDeviceInventory.reapplyExternalDevicesRoles();
+        postReportNewRoutes(/*fromA2dp*/ false);
+    }
+
+    // Lightweight helper: do we currently have any external display?
+    private boolean hasAnyExternalDisplay() {
+        final android.hardware.display.DisplayManager dm =
+                (android.hardware.display.DisplayManager) mContext.getSystemService(
+                        android.content.Context.DISPLAY_SERVICE);
+        if (dm == null) return false;
+        for (android.view.Display d : dm.getDisplays()) {
+            if (d == null) continue;
+            if (d.getDisplayId() != android.view.Display.DEFAULT_DISPLAY && d.getType() != 0)
+                return true;
+        }
+        return false;
+    }
+
+    // On sleep: clear any HDMI steering and attach speaker so routing can't strand.
+    private void gammaClearHdmiHintsAndAttachSpeaker() {
+        // Reset FOR_DOCK to NONE (avoid dock forcing during sleep)
+        android.media.AudioSystem.setForceUse(
+                android.media.AudioSystem.FOR_DOCK,
+                android.media.AudioSystem.FORCE_NONE);
+        // Make sure speaker is logically attached so routes have a valid sink
+        final android.media.AudioDeviceAttributes spk =
+                new android.media.AudioDeviceAttributes(
+                        android.media.AudioSystem.DEVICE_OUT_SPEAKER, "");
+        setWiredDeviceConnectionState(spk,
+                com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED, "GammaScreenOff");
+        gammaClearAudioConfigCacheIfPresent();
+        postObserveDevicesForAllStreams();
+        mDeviceInventory.applyConnectedDevicesRoles();
+        mDeviceInventory.reapplyExternalDevicesRoles();
+        postReportNewRoutes(/*fromA2dp*/ false);
+    }
+
+    // Honor external display only when we're awake AND HDMI actually plugged.
+    private boolean gammaShouldHonorExternalDisplay() {
+        return !mGammaSleeping;
+    }
+
+    // GammaOS: clear the audio port/device cache if platform exposes it; safe no-op otherwise.
+    private void gammaClearAudioConfigCacheIfPresent() {
+        try {
+            java.lang.reflect.Method m =
+                    android.media.AudioSystem.class.getMethod("clearAudioConfigCache");
+            m.invoke(null);
+        } catch (Throwable ignored) { }
+    }
+
+    // ===== GammaOS USB detector / unplug nudge =====
+    private void startGammaUsbAudioMonitor() {
+        final boolean dbg =
+                android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
+        // Receiver #1: framework USB audio plug (AVAILABLE / UNAVAILABLE)
+        final android.content.IntentFilter usbAudio =
+                new android.content.IntentFilter(ACTION_USB_AUDIO_DEVICE_PLUG);
+        mContext.registerReceiver(new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, android.content.Intent it) {
+                if (!ACTION_USB_AUDIO_DEVICE_PLUG.equals(it.getAction())) return;
+                // state: 1=plugged, 0=unplugged
+                final int st = it.getIntExtra(android.media.AudioManager.EXTRA_AUDIO_PLUG_STATE, 0);
+                String addr = it.getStringExtra("address");
+                if (st == 1 /* plugged */) {
+                    mGammaHdmiPlugged = true; // track real HDMI/USB audio plug for gating
+                    if (addr != null) mGammaLastUsbAddr = addr;
+                    if (dbg) gammaLog("USB_AUDIO_DEVICE_PLUG: PLUGGED addr=" + addr);
+                    return;
+                }
+                mGammaHdmiPlugged = false;
+                if (dbg) gammaLog("USB_AUDIO_DEVICE_PLUG: UNPLUGGED addr=" + addr);
+                final String useAddr = (addr != null) ? addr : mGammaLastUsbAddr;
+                mBrokerHandler.post(() -> gammaHandleUsbUnplug(useAddr));
+            }
+        }, usbAudio, null, mBrokerHandler, android.content.Context.RECEIVER_NOT_EXPORTED);
+
+        // Receiver #2: generic USB device detached (fallback)
+        final android.content.IntentFilter usbDetach =
+                new android.content.IntentFilter(ACTION_USB_DEVICE_DETACHED);
+        mContext.registerReceiver(new android.content.BroadcastReceiver() {
+            @Override public void onReceive(android.content.Context c, android.content.Intent it) {
+                if (!ACTION_USB_DEVICE_DETACHED.equals(it.getAction())) return;
+                if (dbg) gammaLog("USB_DEVICE_DETACHED");
+                final String useAddr = mGammaLastUsbAddr; // best effort
+                mBrokerHandler.post(() -> gammaHandleUsbUnplug(useAddr));
+            }
+        }, usbDetach, null, mBrokerHandler, android.content.Context.RECEIVER_NOT_EXPORTED);
+    }
+
+    // Announce USB OUT/IN UNAVAILABLE, optional delayed re-broadcast, and nudge policy to settle.
+    private void gammaHandleUsbUnplug(@Nullable String addr) {
+        final boolean dbg =
+                android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
+        final String a = (addr != null) ? addr : "";
+        if (dbg) gammaLog("USB UNPLUG handler addr=\"" + a + "\"");
+
+        // (1) Tell APM ALL USB variants are gone (HEADSET + DEVICE) for OUT/IN.
+        final int[] usbOutTypes = new int[] {
+                android.media.AudioSystem.DEVICE_OUT_USB_HEADSET,
+                android.media.AudioSystem.DEVICE_OUT_USB_DEVICE
+        };
+        final int[] usbInTypes = new int[] {
+                android.media.AudioSystem.DEVICE_IN_USB_HEADSET,
+                android.media.AudioSystem.DEVICE_IN_USB_DEVICE
+        };
+        for (int t : usbOutTypes) {
+            setWiredDeviceConnectionState(
+                    new android.media.AudioDeviceAttributes(t, a),
+                    com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
+                    "android");
+        }
+        for (int t : usbInTypes) {
+            setWiredDeviceConnectionState(
+                    new android.media.AudioDeviceAttributes(t, a),
+                    com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
+                    "android");
+        }
+
+        // (1a) Speaker sanity: ensure we have a valid sink immediately after unplug
+        final android.media.AudioDeviceAttributes spk =
+                new android.media.AudioDeviceAttributes(
+                        android.media.AudioSystem.DEVICE_OUT_SPEAKER, "");
+        setWiredDeviceConnectionState(
+                spk, com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED,
+                "GammaUsbUnplug");
+
+        // (1b) Clear ports/devices cache so APM/AF refresh their view quickly.
+        gammaClearAudioConfigCacheIfPresent();
+        // Nudge: recompute devices/roles & report routes.
+        postObserveDevicesForAllStreams();
+        mDeviceInventory.applyConnectedDevicesRoles();
+        mDeviceInventory.reapplyExternalDevicesRoles();
+        postReportNewRoutes(/*fromA2dp*/ false);
+
+        // (2) Optional delayed UNAVAILABLE again to clear stubborn patches
+        if (android.os.SystemProperties.getBoolean(PROP_USB_REBROADCAST, /*def*/ true)) {
+            mBrokerHandler.postDelayed(() -> {
+                if (dbg) gammaLog("USB UNPLUG rebroadcast addr=\"" + a + "\"");
+                try {
+                    for (int t : usbOutTypes) {
+                        setWiredDeviceConnectionState(
+                                new android.media.AudioDeviceAttributes(t, a),
+                                com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
+                                "android");
+                    }
+                    for (int t : usbInTypes) {
+                        setWiredDeviceConnectionState(
+                                new android.media.AudioDeviceAttributes(t, a),
+                                com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
+                                "android");
+                    }
+                    gammaClearAudioConfigCacheIfPresent();
+                } catch (Throwable ignored) { }
+                postObserveDevicesForAllStreams();
+                mDeviceInventory.applyConnectedDevicesRoles();
+                mDeviceInventory.reapplyExternalDevicesRoles();
+                postReportNewRoutes(/*fromA2dp*/ false);
+            }, 250);
+        }
+
+        // (3) Done.
+        mGammaLastUsbAddr = null;
+    }
+
     // --- Display type helpers (avoid compile-time refs to SDK-only constants like TYPE_HDMI)
     // Returns Integer.MIN_VALUE if the constant doesn't exist on this platform.
     private static int gammaGetDisplayTypeConst(String name) {
@@ -2952,9 +3209,11 @@ public class AudioDeviceBroker {
                 final int st = it.getIntExtra(
                         android.media.AudioManager.EXTRA_AUDIO_PLUG_STATE, 0);
                 if (st == 0) {
+                    mGammaHdmiPlugged = false;
                     // UNPLUG: force HDMI UNAVAILABLE + full unwind
                     mBrokerHandler.post(AudioDeviceBroker.this::gammaHandleHdmiUnplug);
                 } else {
+                    mGammaHdmiPlugged = true;
                     // PLUG: re-evaluate (will announce AVAILABLE and (re)apply roles)
                     mBrokerHandler.post(() -> evaluateGammaExternalDisplayAudio(dm));
                 }
@@ -2965,15 +3224,23 @@ public class AudioDeviceBroker {
         final android.hardware.display.DisplayManager.DisplayListener listener =
                 new android.hardware.display.DisplayManager.DisplayListener() {
             @Override public void onDisplayAdded(int displayId) {
-                mBrokerHandler.post(() -> evaluateGammaExternalDisplayAudio(dm));
+                mBrokerHandler.post(() -> {
+                    if (!gammaShouldHonorExternalDisplay()) return;
+                    // On some UniSoc stacks we never get ACTION_HDMI_AUDIO_PLUG; treat a real
+                    // external add as "plugged" so routing can proceed.
+                    mGammaHdmiPlugged = true;
+                    evaluateGammaExternalDisplayAudio(dm);
+                });
             }
             @Override public void onDisplayRemoved(int displayId) {
                 // Treat as definitive unplug (some stacks won't fire CHANGED reliably).
                 mBrokerHandler.post(AudioDeviceBroker.this::gammaHandleHdmiUnplug);
             }
             @Override public void onDisplayChanged(int displayId) {
-                // Some UniSoc stacks deliver the “really ready now” edge via CHANGED, not ADDED.
-                mBrokerHandler.post(() -> evaluateGammaExternalDisplayAudio(dm));
+                mBrokerHandler.post(() -> {
+                    if (!gammaShouldHonorExternalDisplay()) return;
+                    evaluateGammaExternalDisplayAudio(dm);
+                });
             }
         };
         dm.registerDisplayListener(listener, new android.os.Handler(mContext.getMainLooper()));
@@ -3028,16 +3295,10 @@ public class AudioDeviceBroker {
         }
         if (anyExternal != mGammaHdmiConnected) {
             mGammaHdmiConnected = anyExternal;
-            if (!android.os.SystemProperties.getBoolean("persist.gammaos.hdmi.autoplug", true)) {
-                if (dbg) gammaLog("autoplug disabled; skipping connect/disconnect");
-                return;
-            }
             final int state = anyExternal
                     ? com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED
                     : com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED;
-            // GammaOS: build attributes with legacy device (AUX_DIGITAL / HDMI) so APM gets 0x400.
-            // Resolve the vendor 'address' for AUX_DIGITAL if declared; "" is universally safe.
-            final String hdmiAddr = gammaResolveHdmiAddress(); // already in this class
+            final String hdmiAddr = gammaResolveHdmiAddress(); // build legacy HDMI (0x400) attrs
             // Build HDMI device attributes.
             // Unisoc policy typically matches HDMI on an **empty** address.
             // If vendor policy declares a specific address, use it; otherwise use "".
@@ -3056,53 +3317,7 @@ public class AudioDeviceBroker {
             // APM already has a valid HDMI descriptor; otherwise setDevicesRoleForStrategy() may
             // fail with -22 due to "could not find HW module for device 0x400 addr """.
 
-            // Optional #0: Unisoc policy nudge — set FOR_DOCK to DIGITAL_DOCK while HDMI is present
-           final boolean wantForceDock =
-                    android.os.SystemProperties.getBoolean(PROP_FORCE_USE_DOCK, /*def*/ false);
-            if (wantForceDock) {
-                if (state == AudioService.CONNECTION_STATE_CONNECTED) {
-                    if (dbg) gammaLog("forceUse: FOR_DOCK -> FORCE_DIGITAL_DOCK");
-                    android.media.AudioSystem.setForceUse(
-                            android.media.AudioSystem.FOR_DOCK,
-                            android.media.AudioSystem.FORCE_DIGITAL_DOCK);
-                } else {
-                    if (dbg) gammaLog("forceUse: FOR_DOCK -> FORCE_NONE");
-                    android.media.AudioSystem.setForceUse(
-                            android.media.AudioSystem.FOR_DOCK,
-                            android.media.AudioSystem.FORCE_NONE);
-                }
-            }
 
-            // Optional fallback: some Unisoc APM builds ignore "preferred" hints unless the
-            // default device (speaker) is not available. If enabled, temporarily "cut" speaker
-            // while HDMI is connected so policy must select the external sink.
-            final boolean wantCutSpeaker =
-                    android.os.SystemProperties.getBoolean(PROP_FORCE_CUT_SPK, /*def*/ false);
-            if (state == AudioService.CONNECTION_STATE_CONNECTED && wantCutSpeaker && !mGammaSpeakerCut) {
-                if (dbg) gammaLog("speaker CUT (disconnect) to steer routing");
-                final android.media.AudioDeviceAttributes spk =
-                        new android.media.AudioDeviceAttributes(
-                                android.media.AudioSystem.DEVICE_OUT_SPEAKER, /*addr*/ "");
-                setWiredDeviceConnectionState(spk,
-                        com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
-                        "GammaHdmiCutover");
-                mGammaSpeakerCut = true;
-            } else if (state == AudioService.CONNECTION_STATE_DISCONNECTED && mGammaSpeakerCut) {
-                if (dbg) gammaLog("speaker RESTORE (reconnect) after HDMI unplug");
-                final android.media.AudioDeviceAttributes spk =
-                        new android.media.AudioDeviceAttributes(
-                                android.media.AudioSystem.DEVICE_OUT_SPEAKER, /*addr*/ "");
-                setWiredDeviceConnectionState(spk,
-                        com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED,
-                        "GammaHdmiCutover");
-                mGammaSpeakerCut = false;
-            }
-
-            // Optional #2: policy-level block — disable SPEAKER for strategies while HDMI is present.
-            // This must stay STRICTLY opt-in (off by default) because it can leave strategies
-            // stuck on speaker if HDMI matching fails on vendor APM.
-            final boolean disableSpeakerForStrategy =
-                    android.os.SystemProperties.getBoolean(PROP_DISABLE_SPK_STRAT, /*def*/ false);
             final android.media.AudioDeviceAttributes speakerDev =
                     new android.media.AudioDeviceAttributes(
                             android.media.AudioSystem.DEVICE_OUT_SPEAKER, /*addr*/ "");
@@ -3127,21 +3342,7 @@ public class AudioDeviceBroker {
 
             // On DISCONNECT: unwind any policy hints we may have applied while HDMI was present.
             if (state == AudioService.CONNECTION_STATE_DISCONNECTED) {
-                // 1) Clear "non-default" SPEAKER blocks (if we used them) via Inventory API
-                if (disableSpeakerForStrategy) {
-                    final int[] sids = {
-                        mMediaStrategyId, mSystemStrategyId, mNotificationStrategyId,
-                        mRingStrategyId, mAlarmStrategyId, mDtmfStrategyId,
-                        mAssistantStrategyId, mAccessibilityStrategyId, mCommunicationStrategyId
-                    };
-                    for (int sid : sids) {
-                        try {
-                            removeDeviceAsNonDefaultForStrategySync(sid, speakerDev);
-                        } catch (Throwable t) {
-                            if (dbg) gammaLog("clear NON_DEFAULT (Inventory) failed sid="+sid+": "+t);
-                        }
-                    }
-                }
+
                 // 2) Clear any preferred HDMI steering
                 final int[] prefSids = {
                     mMediaStrategyId, mSystemStrategyId, mNotificationStrategyId,
@@ -3180,11 +3381,6 @@ public class AudioDeviceBroker {
             for (int sid : allStrats) {
                 if (sid == -1) continue;
                 if (state == AudioService.CONNECTION_STATE_CONNECTED) {
-                    // (optional) Disable SPEAKER for this strategy so policy cannot pick it.
-                    if (disableSpeakerForStrategy) {
-                        if (dbg) gammaLog("strategy#" + sid + ": demote SPEAKER (non-default)");
-                        setDeviceAsNonDefaultForStrategySync(sid, speakerDev);
-                    }
 
                     // Prefer HDMI via DeviceInventory (nice to have)…
                     if (dbg) gammaLog("strategy#" + sid + ": prefer HDMI via DI " + resolvedHdmiAddr);
@@ -3203,9 +3399,6 @@ public class AudioDeviceBroker {
                     // Clear preference when HDMI is gone.
                     if (dbg) gammaLog("strategy#" + sid + ": clear preferred device (DI)");
                     removePreferredDevicesForStrategySync(sid);
-                    // Always ensure speaker is back to default when HDMI is gone
-                    // (also covers the case where the prop was toggled previously).
-                    removeDeviceAsNonDefaultForStrategySync(sid, speakerDev);
                     // Also clear the direct APM role so we restore stock behavior.
                     final int role = android.media.AudioSystem.DEVICE_ROLE_PREFERRED;
                     final int asClr = android.media.AudioSystem
@@ -3220,19 +3413,10 @@ public class AudioDeviceBroker {
             mDeviceInventory.applyConnectedDevicesRoles();
             mDeviceInventory.reapplyExternalDevicesRoles();
 
-            // Some vendor HALs expose HDMI formats only after a re-broadcast. If we just CONNECTed,
-            // schedule a gentle toggle of HDMI to force HDMI_AUDIO_PLUG with full caps.
+            // Re-apply once after initial selection to ensure stability on stubborn stacks
             if (state == com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED) {
-                // Only if explicitly enabled (default OFF to avoid churn).
-                final boolean wantRebroadcast =
-                        android.os.SystemProperties.getBoolean(PROP_REBROADCAST, /*def*/ false);
-                if (wantRebroadcast) {
-                    // Some HALs expose formats/dev-desc only after a re-broadcast.
-                    mBrokerHandler.postDelayed(this::toggleHdmiIfConnected_Async, 200);
-                }
-                // Also re-apply roles once after toggle to be extra sure on stubborn stacks
                 mBrokerHandler.postDelayed(() -> {
-                    if (dbg) gammaLog("post-toggle: re-apply roles");
+                    if (dbg) gammaLog("post-apply roles (stability)");
                     mDeviceInventory.applyConnectedDevicesRoles();
                     mDeviceInventory.reapplyExternalDevicesRoles();
                 }, 350);
