@@ -1888,6 +1888,11 @@ public class AudioDeviceBroker {
                     synchronized (mDeviceStateLock) {
                         mDeviceInventory.onSetWiredDeviceConnectionState(
                                 (AudioDeviceInventory.WiredDeviceConnectionState) msg.obj);
+                        // If HDMI is up and another external sink just arrived (USB jack),
+                        // prefer that over HDMI immediately.
+                        if (mGammaHdmiConnected) {
+                            gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/true);
+                        }
                     }
                     break;
                 case MSG_I_BROADCAST_BT_CONNECTION_STATE:
@@ -1904,6 +1909,11 @@ public class AudioDeviceBroker {
                 case MSG_REPORT_NEW_ROUTES_A2DP:
                     synchronized (mDeviceStateLock) {
                         mDeviceInventory.onReportNewRoutes();
+                    }
+                    // Route recompute happened; if HDMI is present, ensure we still favor
+                    // non-HDMI sinks (if any) over HDMI.
+                    if (mGammaHdmiConnected) {
+                        gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/false);
                     }
                     break;
                 case MSG_L_SET_BT_ACTIVE_DEVICE:
@@ -1930,6 +1940,11 @@ public class AudioDeviceBroker {
                                         || btInfo.mProfile == BluetoothProfile.HEARING_AID) {
                                     onUpdateCommunicationRouteClient(isBluetoothScoRequested(),
                                             "setBluetoothActiveDevice");
+                                }
+                                // A BT sink became active while HDMI might be connected:
+                                // favor BT over HDMI for media/system/etc.
+                                if (mGammaHdmiConnected) {
+                                    gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/true);
                                 }
                             }
                         }
@@ -3037,7 +3052,7 @@ public class AudioDeviceBroker {
 
     // Honor external display only when we're awake AND HDMI actually plugged.
     private boolean gammaShouldHonorExternalDisplay() {
-        return !mGammaSleeping;
+        return !mGammaSleeping && gammaHasDigitalAudioEvidence();
     }
 
     // GammaOS: clear the audio port/device cache if platform exposes it; safe no-op otherwise.
@@ -3047,6 +3062,113 @@ public class AudioDeviceBroker {
                     android.media.AudioSystem.class.getMethod("clearAudioConfigCache");
             m.invoke(null);
         } catch (Throwable ignored) { }
+    }
+
+    // --------- GammaOS: Prefer non-HDMI external sinks over HDMI when both are present ----------
+    // If any of these are connected while HDMI is present, prefer them for general strategies.
+    // Priority order (first match wins): SCO/LE/HearingAid (comm paths) -> BT A2DP ->
+    // wired headset/headphones/line -> USB headset/device.
+    private @Nullable android.media.AudioDeviceAttributes gammaFindOverrideSinkWhileHdmiPresent() {
+        // Communication-focused BT devices first
+        final int[] prio = new int[] {
+                android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_SCO,
+                android.media.AudioSystem.DEVICE_OUT_BLE_HEADSET,
+                android.media.AudioSystem.DEVICE_OUT_HEARING_AID,
+                android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP,
+                android.media.AudioSystem.DEVICE_OUT_WIRED_HEADSET,
+                android.media.AudioSystem.DEVICE_OUT_WIRED_HEADPHONE,
+                android.media.AudioSystem.DEVICE_OUT_LINE,
+                android.media.AudioSystem.DEVICE_OUT_AUX_LINE,
+                android.media.AudioSystem.DEVICE_OUT_USB_HEADSET,
+                android.media.AudioSystem.DEVICE_OUT_USB_DEVICE
+        };
+        for (int type : prio) {
+            final android.media.AudioDeviceAttributes ada = mDeviceInventory.getDeviceOfType(type);
+            if (ada == null) continue;
+            if (isDeviceConnected(ada)) return ada;
+        }
+        return null;
+    }
+
+    // Apply the preference to a non-HDMI external sink if present; otherwise keep/restore HDMI.
+    // When nudgeRoutes is true we also push ObserveDevices+ReportNewRoutes immediately.
+    private void gammaPreferNonHdmiIfPresent(boolean nudgeRoutes) {
+        final boolean dbg =
+                android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
+        if (!mGammaHdmiConnected) return; // nothing to do if HDMI isn't up
+
+        // Ensure strategy IDs exist
+        if (mMediaStrategyId == -1
+                || mSystemStrategyId == -1
+                || mNotificationStrategyId == -1
+                || mRingStrategyId == -1
+                || mAlarmStrategyId == -1
+                || mDtmfStrategyId == -1
+                || mAssistantStrategyId == -1
+                || mAccessibilityStrategyId == -1
+                || mCommunicationStrategyId == -1) {
+            initRoutingStrategyIds();
+        }
+
+        final android.media.AudioDeviceAttributes nonHdmi = gammaFindOverrideSinkWhileHdmiPresent();
+        final java.util.List<android.media.AudioDeviceAttributes> oneOverride =
+                (nonHdmi != null) ? java.util.Collections.singletonList(nonHdmi) : null;
+
+        // Build the HDMI attrs we would otherwise prefer
+        final String resolvedHdmiAddr = (mGammaHdmiAddrChosen != null) ? mGammaHdmiAddrChosen : "";
+        final android.media.AudioDeviceAttributes hdmiDev =
+                new android.media.AudioDeviceAttributes(
+                        android.media.AudioSystem.DEVICE_OUT_HDMI, resolvedHdmiAddr);
+        final java.util.List<android.media.AudioDeviceAttributes> oneHdmi =
+                java.util.Collections.singletonList(hdmiDev);
+
+        final int[] allStrats = new int[] {
+                mMediaStrategyId,
+                mSystemStrategyId,
+                mNotificationStrategyId,
+                mRingStrategyId,
+                mAlarmStrategyId,
+                mDtmfStrategyId,
+                mAssistantStrategyId,
+                mAccessibilityStrategyId,
+                mCommunicationStrategyId
+        };
+
+        if (nonHdmi != null) {
+            // Prefer the external non-HDMI sink across the board.
+            if (dbg) gammaLog("prefer NON-HDMI over HDMI: " + nonHdmi);
+            for (int sid : allStrats) {
+                if (sid == -1) continue;
+                try {
+                    setPreferredDevicesForStrategySync(sid, oneOverride);
+                } catch (Throwable ignored) { }
+                try {
+                    android.media.AudioSystem.setDevicesRoleForStrategy(
+                            sid, android.media.AudioSystem.DEVICE_ROLE_PREFERRED, oneOverride);
+                } catch (Throwable ignored) { }
+            }
+        } else {
+            // No higher-priority sink present; ensure HDMI stays preferred.
+            if (dbg) gammaLog("no higher-priority sink; keep HDMI preferred @" + resolvedHdmiAddr);
+            for (int sid : allStrats) {
+                if (sid == -1) continue;
+                try {
+                    setPreferredDevicesForStrategySync(sid, oneHdmi);
+                } catch (Throwable ignored) { }
+                try {
+                    android.media.AudioSystem.setDevicesRoleForStrategy(
+                            sid, android.media.AudioSystem.DEVICE_ROLE_PREFERRED, oneHdmi);
+                } catch (Throwable ignored) { }
+            }
+        }
+
+        // Publish roles and optionally nudge routing right away.
+        mDeviceInventory.applyConnectedDevicesRoles();
+        mDeviceInventory.reapplyExternalDevicesRoles();
+        if (nudgeRoutes) {
+            postObserveDevicesForAllStreams();
+            postReportNewRoutes(/*fromA2dp*/ false);
+        }
     }
 
     // ===== GammaOS USB detector / unplug nudge =====
@@ -3066,6 +3188,10 @@ public class AudioDeviceBroker {
                     mGammaHdmiPlugged = true; // track real HDMI/USB audio plug for gating
                     if (addr != null) mGammaLastUsbAddr = addr;
                     if (dbg) gammaLog("USB_AUDIO_DEVICE_PLUG: PLUGGED addr=" + addr);
+                    // If HDMI is present, prefer USB headset/device over HDMI.
+                    if (mGammaHdmiConnected) {
+                        mBrokerHandler.post(() -> gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/true));
+                    }
                     return;
                 }
                 mGammaHdmiPlugged = false;
@@ -3228,8 +3354,12 @@ public class AudioDeviceBroker {
                     if (!gammaShouldHonorExternalDisplay()) return;
                     // On some UniSoc stacks we never get ACTION_HDMI_AUDIO_PLUG; treat a real
                     // external add as "plugged" so routing can proceed.
-                    mGammaHdmiPlugged = true;
+                    if (!mGammaHdmiPlugged && gammaReadAnyExtconDigitalAudio()) {
+                        mGammaHdmiPlugged = true;
+                    }
                     evaluateGammaExternalDisplayAudio(dm);
+                    // In case a non-HDMI sink is already connected when display appears.
+                    gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/true);
                 });
             }
             @Override public void onDisplayRemoved(int displayId) {
@@ -3264,9 +3394,10 @@ public class AudioDeviceBroker {
     // Runs on mBrokerHandler's thread
     private void evaluateGammaExternalDisplayAudio(android.hardware.display.DisplayManager dm) {
         final boolean dbg = android.os.SystemProperties.getBoolean(PROP_GAMMA_DEBUG, /*def*/ true);
-        boolean anyExternal = false;
+        boolean hasExternalDisplay = false;
         for (android.view.Display d : dm.getDisplays()) {
             if (d == null) continue;
+            if (!d.isValid() || d.getState() == android.view.Display.STATE_OFF) continue;
             final int t = d.getType();
             // Treat HDMI/DP as "external". UniSoc often reports TYPE_HDMI; while stabilizing it
             // can briefly be TYPE_UNKNOWN but the name contains "HDMI"/"DP".
@@ -3275,16 +3406,48 @@ public class AudioDeviceBroker {
                 (t == android.view.Display.TYPE_UNKNOWN &&
                  d.getName() != null && (d.getName().toUpperCase().contains("HDMI")
                                       || d.getName().toUpperCase().contains("DP")))) {
-                anyExternal = true;
+                hasExternalDisplay = true;
                 break;
             }
         }
 
-        // extcon fallback: treat HDMI=1 or DP=1 in any /sys/class/extcon/*/state as present
-        if (!anyExternal) {
-            anyExternal = gammaReadAnyExtconDigitalAudio();
+        // We only consider the HDMI path "present" when BOTH a plausible external display exists
+        // AND there is explicit audio evidence (HDMI_AUDIO_PLUG or extcon says HDMI/DP=1).
+       final boolean hasAudioEvidence = gammaHasDigitalAudioEvidence();
+        final boolean anyExternal = hasExternalDisplay && hasAudioEvidence;
+        if (dbg) gammaLog("display/external=" + anyExternal
+                + " (display=" + hasExternalDisplay + ", audioEvidence=" + hasAudioEvidence
+                + ") (prev=" + mGammaHdmiConnected + ")");
+
+        // If we just transitioned to "external present", make sure APM actually has an HDMI port
+        // before we start steering strategies; otherwise the first role set may be ignored.
+        if (anyExternal && !mGammaHdmiConnected) {
+            // Register an HDMI OUT device with the address we’re going to prefer (often "").
+            final String resolvedHdmiAddr = (mGammaHdmiAddrChosen != null) ? mGammaHdmiAddrChosen : "";
+            final android.media.AudioDeviceAttributes hdmiOut =
+                    new android.media.AudioDeviceAttributes(android.media.AudioSystem.DEVICE_OUT_HDMI,
+                                                            resolvedHdmiAddr);
+            // Best-effort: also register the matching HDMI IN (some policies want a pair).
+            final android.media.AudioDeviceAttributes hdmiIn =
+                    new android.media.AudioDeviceAttributes(android.media.AudioSystem.DEVICE_IN_HDMI,
+                                                            resolvedHdmiAddr);
+            try {
+                // Tell APM “these devices exist now”.
+                handleDeviceConnection(hdmiOut, /*connect=*/true, /*btDevice=*/null);
+                handleDeviceConnection(hdmiIn,  /*connect=*/true, /*btDevice=*/null);
+            } catch (Throwable t) {
+                if (dbg) gammaLog("ensure HDMI register failed: " + t);
+            }
+            // Publish routes so AudioService observes the new ports before role application.
+            postReportNewRoutes(/*fromA2dp=*/false);
+            // Small settle delay so the policy graph is ready.
+            mBrokerHandler.postDelayed(() -> {
+                if (dbg) gammaLog("after HDMI register -> apply roles/reapply");
+                mDeviceInventory.applyConnectedDevicesRoles();
+                mDeviceInventory.reapplyExternalDevicesRoles();
+                postReportNewRoutes(/*fromA2dp=*/false);
+            }, 300);
         }
-        if (dbg) gammaLog("display/external=" + anyExternal + " (prev=" + mGammaHdmiConnected + ")");
 
         // First sample after boot: learn baseline, do NOT notify APM yet.
         if (!mGammaMonitorPrimed) {
@@ -3302,6 +3465,10 @@ public class AudioDeviceBroker {
             // Build HDMI device attributes.
             // Unisoc policy typically matches HDMI on an **empty** address.
             // If vendor policy declares a specific address, use it; otherwise use "".
+            
+            // after the device is fully registered by APM.
+            final java.util.ArrayList<Integer> roleRetry = new java.util.ArrayList<>();
+
             final String resolvedHdmiAddr =
                     (hdmiAddr != null) ? hdmiAddr : "";
             android.media.AudioDeviceAttributes dev =
@@ -3362,6 +3529,10 @@ public class AudioDeviceBroker {
                 postObserveDevicesForAllStreams();
                 // 4) Reset our last-chosen HDMI address to be safe for a fresh plug
                 mGammaHdmiAddrChosen = null;
+            } else {
+                // HDMI just connected: if there is a higher-priority external sink (BT/USB/jack),
+                // prefer it over HDMI right away.
+                gammaPreferNonHdmiIfPresent(/*nudgeRoutes=*/true);
             }
 
             // GammaOS: Route ALL relevant strategies to HDMI while connected.
@@ -3395,6 +3566,25 @@ public class AudioDeviceBroker {
                     if (dbg) gammaLog("strategy#" + sid
                             + ": AudioSystem.setDevicesRoleForStrategy(PREFERRED, HDMI@" 
                             + resolvedHdmiAddr + ") -> " + asSet);
+                    if (asSet != 0) {
+                        // If we raced policy bringup, force-register HDMI again and retry once.
+                        final android.media.AudioDeviceAttributes hdmiOut2 =
+                                new android.media.AudioDeviceAttributes(
+                                        android.media.AudioSystem.DEVICE_OUT_HDMI, resolvedHdmiAddr);
+                        handleDeviceConnection(hdmiOut2, /*connect=*/true, /*btDevice=*/null);
+                        postReportNewRoutes(/*fromA2dp=*/false);
+                        mBrokerHandler.postDelayed(() -> {
+                            int rc = android.media.AudioSystem
+                                    .setDevicesRoleForStrategy(
+                                            sid,
+                                            android.media.AudioSystem.DEVICE_ROLE_PREFERRED,
+                                            java.util.Collections.singletonList(dev));
+                            if (dbg) gammaLog("strategy#" + sid + " retry setRole -> " + rc);
+                            mDeviceInventory.applyConnectedDevicesRoles();
+                            mDeviceInventory.reapplyExternalDevicesRoles();
+                            postReportNewRoutes(/*fromA2dp=*/false);
+                        }, 250);
+                    }
                 } else {
                     // Clear preference when HDMI is gone.
                     if (dbg) gammaLog("strategy#" + sid + ": clear preferred device (DI)");
@@ -3412,6 +3602,9 @@ public class AudioDeviceBroker {
             if (dbg) gammaLog("applyConnectedDevicesRoles + reapplyExternalDevicesRoles");
             mDeviceInventory.applyConnectedDevicesRoles();
             mDeviceInventory.reapplyExternalDevicesRoles();
+            // Nudge AudioService to recompute stream->device selection immediately
+            postObserveDevicesForAllStreams();
+            postReportNewRoutes(/*fromA2dp*/ false);
 
             // Re-apply once after initial selection to ensure stability on stubborn stacks
             if (state == com.android.server.audio.AudioService.CONNECTION_STATE_CONNECTED) {
@@ -3419,6 +3612,24 @@ public class AudioDeviceBroker {
                     if (dbg) gammaLog("post-apply roles (stability)");
                     mDeviceInventory.applyConnectedDevicesRoles();
                     mDeviceInventory.reapplyExternalDevicesRoles();
+                    // Retry any strategies whose role set failed the first time (APM now ready)
+                    if (!roleRetry.isEmpty()) {
+                        final java.util.List<android.media.AudioDeviceAttributes> roleList2 =
+                                java.util.Collections.singletonList(dev);
+                        for (int sid : roleRetry) {
+                            int rc = android.media.AudioSystem
+                                    .setDevicesRoleForStrategy(
+                                            sid,
+                                            android.media.AudioSystem.DEVICE_ROLE_PREFERRED,
+                                            roleList2);
+                            if (dbg) gammaLog("retry strategy#" + sid
+                                    + " setDevicesRoleForStrategy -> " + rc);
+                        }
+                        // One last publish + routes report after retry
+                        mDeviceInventory.applyConnectedDevicesRoles();
+                        mDeviceInventory.reapplyExternalDevicesRoles();
+                        postReportNewRoutes(/*fromA2dp*/ false);
+                    }
                 }, 350);
             }
         }
@@ -3552,6 +3763,15 @@ public class AudioDeviceBroker {
         if (found == null) return "";
         // Some vendors explicitly put "hdmi" — keep it; otherwise return exactly what we found (may be "")
         return found.isEmpty() ? "" : found;
+    }
+
+    // Returns true when we have reason to believe an actual HDMI/DP *audio* path exists.
+    // Evidence sources:
+    //  - framework ACTION_HDMI_AUDIO_PLUG broadcast
+    //  - extcon sysfs (HDMI=1/DP=1)
+    private boolean gammaHasDigitalAudioEvidence() {
+        if (mGammaHdmiPlugged) return true;
+        return gammaReadAnyExtconDigitalAudio();
     }
 
     private boolean gammaReadAnyExtconDigitalAudio() {
