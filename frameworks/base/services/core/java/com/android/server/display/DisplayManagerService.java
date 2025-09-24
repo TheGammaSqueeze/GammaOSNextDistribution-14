@@ -347,6 +347,26 @@ public final class DisplayManagerService extends SystemService {
     /** All {@link DisplayPowerController}s indexed by {@link LogicalDisplay} ID. */
     private final SparseArray<DisplayPowerControllerInterface> mDisplayPowerControllers =
             new SparseArray<>();
+ 
+    // GammaOS: defer internal restore to the handler to avoid race with external teardown
+    private void gammaosPostRestoreInternalDisplay() {
+        mHandler.post(() -> {
+            // 1) Clear any forced external sizing
+            if (mWindowManagerInternal != null) {
+                Slog.i(TAG, "GammaOS: (deferred) clearing forced WM size on DEFAULT_DISPLAY");
+                mWindowManagerInternal.clearForcedDisplaySize(android.view.Display.DEFAULT_DISPLAY);
+                // 2) Force a traversal so SF/WM re-evaluate immediately
+                mWindowManagerInternal.requestTraversalFromDisplayManager();
+            }
+            // 3) Power ON the internal panel (was logically ON with brightness-off)
+            Slog.i(TAG, "GammaOS: (deferred) powering ON internal display");
+            requestDisplayStateInternal(
+                    android.view.Display.DEFAULT_DISPLAY,
+                    android.view.Display.STATE_ON,
+                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT);
+        });
+    }
 
     /** {@link DisplayBlanker} used by all {@link DisplayPowerController}s. */
     private final DisplayBlanker mDisplayBlanker = new DisplayBlanker() {
@@ -1910,9 +1930,32 @@ public final class DisplayManagerService extends SystemService {
 
     @GuardedBy("mSyncRoot")
     private void handleLogicalDisplayDisconnectedLocked(LogicalDisplay display) {
+        // Even if the flag is off, we still want to restore for GammaOS external-primary mode.
         if (!mFlags.isConnectedDisplayManagementEnabled()) {
-            Slog.e(TAG, "DisplayDisconnected shouldn't be received when the flag is off");
-            return;
+            Slog.w(TAG, "ConnectedDisplayManagement flag off; still restoring on DISCONNECTED");
+        }
+        // GammaOS: If external got DISCONNECTED (not yet REMOVED), restore internal immediately.
+
+        final boolean gammaExtPrimary = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.primary", /*def*/ false);
+        final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.mirror_resize", /*def*/ false);
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
+        if (isExternalType) {
+            if (gammaExtPrimary) {
+                // Stop mirroring on the external we're losing.
+                final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
+                if (extDevice != null) {
+                    Slog.i(TAG, "GammaOS: Disabling WM mirroring on external (disconnect)");
+                    extDevice.setWindowManagerMirroringLocked(false);
+               }
+                // Defer the actual power-on + WM clear to after the event is emitted.
+                gammaosPostRestoreInternalDisplay();
+            } else if (gammaExtMirrorResize && mWindowManagerInternal != null) {
+                // Also defer clear+traversal to avoid races.
+                gammaosPostRestoreInternalDisplay();
+            }
         }
         releaseDisplayAndEmitEvent(display, DisplayManagerGlobal.EVENT_DISPLAY_DISCONNECTED);
         mExternalDisplayPolicy.handleLogicalDisplayDisconnectedLocked(display);
@@ -2006,6 +2049,48 @@ public final class DisplayManagerService extends SystemService {
 
         sendDisplayEventIfEnabledLocked(display, DisplayManagerGlobal.EVENT_DISPLAY_ADDED);
 
+        // GammaOS: external display behavior (primary/mirror) gated by props.
+        final boolean gammaExtPrimary = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.primary", /*def*/ false);
+        final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.mirror_resize", /*def*/ false);
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
+        if (isExternalType) {
+            if (gammaExtPrimary) {
+                // Make the external display mirror DEFAULT_DISPLAY content so apps that assume
+                // display 0 still render correctly while the internal panel is powered OFF.
+                final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
+                if (extDevice != null) {
+                    Slog.i(TAG, "GammaOS: Enabling WM mirroring on external (primary-ext mode)");
+                    extDevice.setWindowManagerMirroringLocked(true);
+                }
+                // PRIMARY-EXTERNAL: force WM to render default display at the external size.
+                if (mWindowManagerInternal != null) {
+                    Slog.i(TAG, "GammaOS: Primary-ext -> forcing WM size "
+                            + di.logicalWidth + "x" + di.logicalHeight + " on DEFAULT_DISPLAY");
+                    mWindowManagerInternal.setForcedDisplaySize(
+                            android.view.Display.DEFAULT_DISPLAY, di.logicalWidth, di.logicalHeight);
+                }
+                // Keep default display logically ON (apps keep rendering to display 0),
+                // but turn the panel/backlight effectively off -> saves power and keeps apps happy.
+                Slog.i(TAG, "GammaOS: Setting internal display ON with BRIGHTNESS_OFF (primary mode)");
+                requestDisplayStateInternal(
+                        android.view.Display.DEFAULT_DISPLAY,
+                        android.view.Display.STATE_ON,
+                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT,
+                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT);
+                // Do NOT clear forced size here; we want WM stuck to external's size while present.
+            } else if (gammaExtMirrorResize) {
+                // Mirror mode: force WM size of the default display to match external.
+                if (mWindowManagerInternal != null) {
+                    Slog.i(TAG, "GammaOS: Forcing WM size to external "
+                            + di.logicalWidth + "x" + di.logicalHeight);
+                    mWindowManagerInternal.setForcedDisplaySize(
+                            android.view.Display.DEFAULT_DISPLAY, di.logicalWidth, di.logicalHeight);
+                }
+            }
+        }
         updateLogicalDisplayState(display);
 
         mExternalDisplayPolicy.handleLogicalDisplayAddedLocked(display);
@@ -2084,12 +2169,35 @@ public final class DisplayManagerService extends SystemService {
     private void handleLogicalDisplayRemovedLocked(@NonNull LogicalDisplay display) {
         // With display management, the display is removed when disabled, and it might still exist.
         // Resources must only be released when the disconnected signal is received.
-        if (mFlags.isConnectedDisplayManagementEnabled()) {
+        final boolean cdmEnabled = mFlags.isConnectedDisplayManagementEnabled();
+        if (cdmEnabled) {
             if (display.isValidLocked()) {
                 updateViewportPowerStateLocked(display);
             }
 
             // Note: This method is only called if the display was enabled before being removed.
+            // GammaOS: external display removed -> restore defaults based on props.
+            final boolean gammaExtPrimary = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.primary", /*def*/ false);
+            final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.mirror_resize", /*def*/ false);
+            final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+            final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
+            if (isExternalType) {
+                if (gammaExtPrimary) {
+                    // Disable mirroring on the external we're removing.
+                    final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
+                    if (extDevice != null) {
+                        Slog.i(TAG, "GammaOS: Disabling WM mirroring on external (disconnect)");
+                        extDevice.setWindowManagerMirroringLocked(false);
+                    }
+                    // Defer WM clear + traversal + power ON to handler after we emit removal.
+                    gammaosPostRestoreInternalDisplay();
+                }
+                if (gammaExtMirrorResize) {
+                    gammaosPostRestoreInternalDisplay();
+                }
+            }
             sendDisplayEventLocked(display, DisplayManagerGlobal.EVENT_DISPLAY_REMOVED);
 
             if (display.isValidLocked()) {
@@ -2098,6 +2206,30 @@ public final class DisplayManagerService extends SystemService {
             return;
         }
 
+        // === Flag is OFF: perform the same GammaOS restore here before we release/emit. ===
+        {
+            final boolean gammaExtPrimary = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.primary", /*def*/ false);
+            final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.mirror_resize", /*def*/ false);
+            final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+            final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
+            if (isExternalType) {
+                if (gammaExtPrimary) {
+                    // Disable mirroring on the external we're removing.
+                    final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
+                    if (extDevice != null) {
+                        Slog.i(TAG, "GammaOS: Disabling WM mirroring on external (remove, flag OFF)");
+                        extDevice.setWindowManagerMirroringLocked(false);
+                    }
+                    gammaosPostRestoreInternalDisplay();
+                } else if (gammaExtMirrorResize && mWindowManagerInternal != null) {
+                    gammaosPostRestoreInternalDisplay();
+                }
+            }
+        }
+
+        // Now release/emit the removal for the external.
         releaseDisplayAndEmitEvent(display, DisplayManagerGlobal.EVENT_DISPLAY_REMOVED);
     }
 
