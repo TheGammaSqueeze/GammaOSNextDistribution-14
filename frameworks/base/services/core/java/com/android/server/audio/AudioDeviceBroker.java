@@ -3364,7 +3364,8 @@ public class AudioDeviceBroker {
             }
             @Override public void onDisplayRemoved(int displayId) {
                 // Treat as definitive unplug (some stacks won't fire CHANGED reliably).
-                mBrokerHandler.post(AudioDeviceBroker.this::gammaHandleHdmiUnplug);
+                // Process at the FRONT of the queue so route-back-to-speaker is immediate.
+                mBrokerHandler.postAtFrontOfQueue(AudioDeviceBroker.this::gammaHandleHdmiUnplug);
             }
             @Override public void onDisplayChanged(int displayId) {
                 mBrokerHandler.post(() -> {
@@ -3649,6 +3650,12 @@ public class AudioDeviceBroker {
         setWiredDeviceConnectionState(hdmiDev,
                 com.android.server.audio.AudioService.CONNECTION_STATE_DISCONNECTED,
                 "android");
+
+        // Nudge apps to pause/rewind quickly so policy can re-route without waiting
+        sendMsgNoDelay(MSG_BROADCAST_AUDIO_BECOMING_NOISY, SENDMSG_REPLACE);
+        // Immediately re-evaluate and publish routes so speaker (or another sink) is selected now
+        postObserveDevicesForAllStreams();
+        postReportNewRoutes(/*fromA2dp*/ false);
 
         // 2) Reset FOR_DOCK if we ever forced it.
         if (android.os.SystemProperties.getBoolean(PROP_FORCE_USE_DOCK, false)) {
