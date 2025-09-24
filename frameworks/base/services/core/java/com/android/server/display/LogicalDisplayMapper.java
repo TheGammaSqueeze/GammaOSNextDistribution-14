@@ -40,11 +40,15 @@ import android.view.DisplayAddress;
 import android.view.DisplayInfo;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.annotations.GuardedBy;
 import com.android.server.display.feature.DisplayManagerFlags;
 import com.android.server.display.layout.DisplayIdProducer;
 import com.android.server.display.layout.Layout;
 import com.android.server.display.utils.DebugUtils;
 import com.android.server.utils.FoldSettingProvider;
+
+import android.os.SystemProperties;
+import android.util.Slog;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -63,6 +67,12 @@ import java.util.function.Consumer;
  */
 class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
     private static final String TAG = "LogicalDisplayMapper";
+
+    // ---------- GammaOS: config ----------
+    // When true, every non-mirroring EXTERNAL display is placed in its own display group.
+    // This prevents SF/WM from pacing the INTERNAL display down to the EXTERNAL’s refresh.
+    private static final String PROP_SPLIT_GROUP = "persist.gammaos.external_split_group";
+    private static boolean sLoggedSplitProp; // avoid log spam
 
     // To enable these logs, run:
     // 'adb shell setprop persist.log.tag.LogicalDisplayMapper DEBUG && adb reboot'
@@ -707,6 +717,13 @@ class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
      * @param isSecondLoop If true, this is the second time this is called for the same change.
      */
     private void updateLogicalDisplaysLocked(int diff, boolean isSecondLoop) {
+
+        final boolean split = SystemProperties.getBoolean(PROP_SPLIT_GROUP, false);
+        if (!sLoggedSplitProp) {
+            Slog.i(TAG, "[GammaOS] " + PROP_SPLIT_GROUP + "=" + split);
+            sLoggedSplitProp = true;
+        }
+
         boolean reloop = false;
         // Go through all the displays and figure out if they need to be updated.
         // Loops in reverse so that displays can be removed during the loop without affecting the
@@ -809,6 +826,11 @@ class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
             }
 
             mUpdatedLogicalDisplays.put(displayId, UPDATE_STATE_UPDATED);
+        }
+
+        // GammaOS: after stock grouping & per-display updates, optionally split externals
+        if (SystemProperties.getBoolean("persist.gammaos.external_split_group", false)) {
+            gammaSplitExternalDisplaysIntoOwnGroupsLocked();
         }
 
         // Go through the groups and do the same thing. We do this after displays since group
@@ -1271,6 +1293,75 @@ class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
         void onDisplayGroupEventLocked(int groupId, int event);
         void onTraversalRequested();
     }
+
+    // ===================== GammaOS helpers =====================
+    /** Move every non-mirroring EXTERNAL logical display into its own group. */
+    @GuardedBy("mSyncRoot")
+    private void gammaSplitExternalDisplaysIntoOwnGroupsLocked() {
+        final int N = mLogicalDisplays.size();
+        for (int i = 0; i < N; i++) {
+            final LogicalDisplay ld = mLogicalDisplays.valueAt(i);
+            if (ld == null) continue;
+            final DisplayInfo di = ld.getDisplayInfoLocked();
+            if (di == null) continue;
+            // Only EXTERNAL displays, and skip mirrors
+            if (di.type != android.view.Display.TYPE_EXTERNAL) continue;
+            // Treat as mirroring if it has a valid lead display that isn’t itself.
+            final int leadId = ld.getLeadDisplayIdLocked();
+            if (leadId != android.view.Display.INVALID_DISPLAY
+                    && leadId != ld.getDisplayIdLocked()) {
+                if (DEBUG) Slog.i(TAG, "[GammaOS] split skip: id="
+                        + ld.getDisplayIdLocked() + " (mirroring " + leadId + ")");
+                continue;
+            }
+            final int id = ld.getDisplayIdLocked();
+            final int oldGroup = getDisplayGroupIdFromDisplayIdLocked(id);
+            // Stable per-external group via name -> mapper will create/assign an id.
+            final String newGroupName = "gamma-ext-" + id; // deterministic namespace
+            // If already in desired group name, no-op; we can conservatively re-assign anyway.
+            try {
+                ld.setDisplayGroupNameLocked(newGroupName);
+                // Re-run stock grouping on this display to materialize the group change.
+                assignDisplayGroupLocked(ld);
+                final int newGroupId = getDisplayGroupIdFromDisplayIdLocked(id);
+                if (newGroupId != oldGroup) {
+                    Slog.i(TAG, "[GammaOS] split-group: id=" + id
+                            + " old=" + oldGroup + " -> new=" + newGroupId
+                            + " (name=" + newGroupName + ")");
+                } else if (DEBUG) {
+                    Slog.i(TAG, "[GammaOS] split-group: id=" + id
+                            + " unchanged group=" + newGroupId + " (name=" + newGroupName + ")");
+                }
+            } catch (Throwable t) {
+                Slog.w(TAG, "[GammaOS] split-group FAILED for id=" + id + ": " + t);
+            }
+        }
+        if (DEBUG) dumpCurrentLayoutLocked("[GammaOS] after split");
+    }
+
+    @GuardedBy("mSyncRoot")
+    private void dumpCurrentLayoutLocked(String prefix) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(prefix).append(" mCurrentLayout=[");
+        for (int i = 0; i < mLogicalDisplays.size(); i++) {
+            final LogicalDisplay ld = mLogicalDisplays.valueAt(i);
+            if (ld == null) continue;
+            final DisplayInfo di = ld.getDisplayInfoLocked();
+            final int id = ld.getDisplayIdLocked();
+            final int grp = getDisplayGroupIdFromDisplayIdLocked(id);
+            final int leadId = ld.getLeadDisplayIdLocked();
+            final boolean mirroring = (leadId != android.view.Display.INVALID_DISPLAY
+                    && leadId != id);
+            sb.append("{id:").append(id)
+              .append(" grp:").append(grp)
+              .append(" type:").append(di != null ? di.type : -1)
+              .append(" mir:").append(mirroring)
+              .append("}, ");
+        }
+        sb.append("]");
+        Slog.i(TAG, sb.toString());
+    }
+    // =================== /GammaOS helpers ======================
 
     private class LogicalDisplayMapperHandler extends Handler {
         LogicalDisplayMapperHandler(Looper looper) {

@@ -399,13 +399,26 @@ final class ContentRecorder implements WindowContainerListener {
                         .reparent(mDisplayContent.getOverlayLayer(), null);
         // Retrieve the size of the DisplayArea to mirror.
         updateMirroredSurface(transaction, mRecordedWindowContainer.getBounds(), surfaceSize);
-        // Fallback: request 60 Hz for the mirror surface on the external display. Using
-        // FIXED_SOURCE encourages cadence (frame skipping) when modes can’t be switched.
-        transaction.setFrameRate(
-                mRecordedSurface,
-                60f,
-                Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE,
-                Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+        // GammaOS: avoid forcing 60 Hz when keeping primary high refresh.
+        final boolean _gammaKeepPrimary = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.keep_primary_hr_when_external", false);
+        if (_gammaKeepPrimary) {
+            // Do not vote any frame rate on the recorded surface; let external run at its native
+            // rate without influencing internal pacing.
+            transaction.setFrameRate(
+                    mRecordedSurface,
+                    0f,
+                    Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                    Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+        } else {
+            // Fallback: request 60 Hz for the mirror surface on the external display.
+            // Using FIXED_SOURCE encourages cadence (frame skipping) when modes can’t be switched.
+            transaction.setFrameRate(
+                    mRecordedSurface,
+                    60f,
+                    Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE,
+                    Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+        }
         transaction.apply();
 
         // Notify the client about the visibility of the mirrored region, now that we have begun

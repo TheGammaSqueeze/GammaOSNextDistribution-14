@@ -60,6 +60,8 @@
 #include "VsyncController.h"
 #include "VsyncSchedule.h"
 
+#include <android-base/properties.h>
+
 namespace android::scheduler {
 
 Scheduler::Scheduler(ICompositor& compositor, ISchedulerCallback& callback, FeatureFlags features,
@@ -1267,6 +1269,20 @@ bool Scheduler::isSmallDirtyArea(int32_t appId, uint32_t dirtyArea) {
         return mLayerHistory.isSmallDirtyArea(dirtyArea, oThreshold.value());
     }
     return false;
+}
+
+void Scheduler::bindEventThreadsToDisplay(PhysicalDisplayId id) {
+    // Rebind the MessageQueue and EventThreads to the given display's VsyncSchedule.
+    // We must have a schedule for this display; otherwise, skip.
+    auto vsyncSchedule = getVsyncSchedule(id);
+    if (!vsyncSchedule) {
+        ALOGI("[GammaOS] Scheduler::bindEventThreadsToDisplay(%s) skipped; schedule not ready",
+              to_string(id).c_str());
+        return;
+    }
+    // Apply on SF MessageQueue and EventThreads (Render and LastComposite).
+    applyNewVsyncSchedule(vsyncSchedule);
+    ALOGI("[GammaOS] Scheduler::bindEventThreadsToDisplay -> %s", to_string(id).c_str());
 }
 
 } // namespace android::scheduler

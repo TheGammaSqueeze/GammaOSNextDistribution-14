@@ -91,6 +91,10 @@ public:
     virtual ~Scheduler();
 
     void startTimers();
+ 
+    // GammaOS: bind SF & App EventThreads and MessageQueue to the vsync source of a display.
+    // Safe to call at any time; no-ops if schedule not ready.
+    void bindEventThreadsToDisplay(PhysicalDisplayId id);
 
     // GammaOS: expose an immediate resync helper for SurfaceFlinger callers.
     // Calls the existing private resyncAllToHardwareVsync(true).

@@ -989,6 +989,15 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
 
     // Commit secondary display(s).
     processDisplayChangesLocked();
+ 
+    // GammaOS: keep EventThreads bound to INTERNAL after committing secondary displays.
+    if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        // TSAN: getPrimaryDisplayIdLocked() requires mStateLock – guard the call.
+        const PhysicalDisplayId internalId =
+                FTL_FAKE_GUARD(mStateLock, getPrimaryDisplayIdLocked());
+        mScheduler->bindEventThreadsToDisplay(internalId);
+        ALOGI("[GammaOS] commit: rebind ET to internal physId=%" PRIu64, internalId.value);
+    }
 
     // initialize our drawing state
     mDrawingState = mCurrentState;
@@ -2339,6 +2348,14 @@ bool SurfaceFlinger::updateLayerSnapshotsLegacy(VsyncId vsyncId, nsecs_t frameTi
     bool needsTraversal = false;
     if (flushTransactions) {
         needsTraversal |= commitMirrorDisplays(vsyncId);
+        // GammaOS: if mirroring was (re)configured, ensure internal owns vsync.
+        if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+            // Guard the locked getter call inline.
+            const PhysicalDisplayId internalId =
+                    FTL_FAKE_GUARD(mStateLock, getPrimaryDisplayIdLocked());
+            mScheduler->bindEventThreadsToDisplay(internalId);
+            ALOGI("[GammaOS] commitMirrorDisplays: rebind ET to internal physId=%" PRIu64, internalId.value);
+        }
         needsTraversal |= commitCreatedLayers(vsyncId, update.layerCreatedStates);
         needsTraversal |= applyTransactions(update.transactions, vsyncId);
     }
@@ -9400,7 +9417,50 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
         return NO_ERROR;
     }
 
-    return applyRefreshRateSelectorPolicy(displayId, selector);
+    // Apply policy as usual.
+    status_t _gamma_status = applyRefreshRateSelectorPolicy(displayId, selector);
+
+    // GammaOS: very-late, brute-force pacing reasserts to defeat vendor retargets (e.g. UniSoc).
+    // We do an immediate reassert, a +300ms reassert, and a +1000ms reassert.
+    // All are deferred onto Scheduler (no init-time races) and guarded for schedule readiness.
+    if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        const auto target = mActiveDisplayId.load();
+
+        // T0: immediate
+        static_cast<void>(mScheduler->schedule([this, target]()
+                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
+            if (const auto schedule = mScheduler->getVsyncSchedule(target)) {
+                mScheduler->setPacesetterDisplay(target);
+                mScheduler->bindEventThreadsToDisplay(target);
+                ALOGI("[GammaOS] policy-apply(T0): pacesetter + EventThreads -> %" PRIu64, target.value);
+            } else {
+                ALOGW("[GammaOS] policy-apply(T0): schedule not ready for %" PRIu64, target.value);
+            }
+        }));
+
+        // T+300ms: late vendor retargets often happen around WM focus/app placement
+        static_cast<void>(mScheduler->schedule([this, target]()
+                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            if (const auto schedule = mScheduler->getVsyncSchedule(target)) {
+                mScheduler->setPacesetterDisplay(target);
+                mScheduler->bindEventThreadsToDisplay(target);
+                ALOGI("[GammaOS] policy-apply(T+300ms): pacesetter + EventThreads -> %" PRIu64, target.value);
+            }
+        }));
+
+        // T+1000ms: very-late belt-and-braces reassert to defeat any final retargets
+        static_cast<void>(mScheduler->schedule([this, target]()
+                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            if (const auto schedule = mScheduler->getVsyncSchedule(target)) {
+                mScheduler->setPacesetterDisplay(target);
+                mScheduler->bindEventThreadsToDisplay(target);
+                ALOGI("[GammaOS] policy-apply(T+1000ms): pacesetter + EventThreads -> %" PRIu64, target.value);
+            }
+        }));
+    }
+    return _gamma_status;
 }
 
 bool SurfaceFlinger::shouldApplyRefreshRateSelectorPolicy(const DisplayDevice& display) const {
@@ -9859,6 +9919,21 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
     mScheduler->setModeChangePending(false);
 
     mScheduler->setPacesetterDisplay(mActiveDisplayId);
+    // GammaOS: assert pacing leadership to the (internal) active display safely & late.
+    static_cast<void>(mScheduler->schedule([this]()
+            FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
+        const auto physId = mActiveDisplayId.load();
+        if (const auto schedule = mScheduler->getVsyncSchedule(physId)) {
+            mScheduler->setPacesetterDisplay(physId);
+            if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+                // Keep SF/App EventThreads sourcing vsync from internal when the prop is on.
+                mScheduler->bindEventThreadsToDisplay(physId);
+            }
+            ALOGI("[GammaOS] onActiveDisplayChanged: pacesetter -> %" PRIu64, physId.value);
+        } else {
+            ALOGW("[GammaOS] onActiveDisplayChanged: schedule not ready for %" PRIu64, physId.value);
+        }
+    }));
 
     onActiveDisplaySizeChanged(activeDisplay);
     mActiveDisplayTransformHint = activeDisplay.getTransformHint();
@@ -9870,6 +9945,14 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
     // and the kernel idle timer of the newly active display must be toggled.
     applyRefreshRateSelectorPolicy(mActiveDisplayId, activeDisplay.refreshRateSelector(),
                                    forceApplyPolicy);
+
+    // GammaOS: re-bind EventThreads/MessageQueue to the INTERNAL vsync source when enabled.
+    if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        const PhysicalDisplayId internalId = getPrimaryDisplayIdLocked();
+        mScheduler->bindEventThreadsToDisplay(internalId);
+        ALOGI("[GammaOS] onActiveDisplayChangedLocked: rebind ET to internal physId=%" PRIu64,
+              internalId.value);
+    }
 }
 
 status_t SurfaceFlinger::addWindowInfosListener(const sp<IWindowInfosListener>& windowInfosListener,

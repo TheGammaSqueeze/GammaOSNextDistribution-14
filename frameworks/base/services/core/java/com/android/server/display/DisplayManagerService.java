@@ -2018,6 +2018,7 @@ public final class DisplayManagerService extends SystemService {
 
     @SuppressLint("AndroidFrameworkRequiresPermission")
     private void handleLogicalDisplayConnectedLocked(LogicalDisplay display) {
+        gammaScrubGlobalVotesIfNeededLocked();
         if (!mFlags.isConnectedDisplayManagementEnabled()) {
             Slog.e(TAG, "DisplayConnected shouldn't be received when the flag is off");
             return;
@@ -2096,7 +2097,41 @@ public final class DisplayManagerService extends SystemService {
         mExternalDisplayPolicy.handleLogicalDisplayAddedLocked(display);
     }
 
+    // GammaOS: defensive scrub of any GLOBAL/default render votes while external is connected.
+    // Ensures no accidental -1/global cap gets re-introduced by Settings/overlays.
+    private void gammaScrubGlobalVotesIfNeededLocked() {
+        final boolean keepPrimary =
+                SystemProperties.getBoolean("persist.gammaos.keep_primary_hr_when_external", false);
+        if (!keepPrimary) return;
+
+        // Iterate over logical displays using mLogicalDisplayMapper (present in this tree).
+        // Any non-internal display means an external is connected.
+        boolean hasExternal;
+        final boolean[] found = new boolean[1];
+        mLogicalDisplayMapper.forEachLocked(ld -> {
+            if (found[0]) return; // already found one
+            final DisplayDevice device = ld.getPrimaryDisplayDeviceLocked();
+            if (device == null) return;
+            final DisplayDeviceInfo ddi = device.getDisplayDeviceInfoLocked();
+            if (ddi == null) return;
+            // DisplayDeviceInfo doesn't have isInternal(); check the type field instead.
+            if (ddi.type != android.view.Display.TYPE_INTERNAL) {
+                found[0] = true;
+            }
+        });
+        hasExternal = found[0];
+        if (!hasExternal) return;
+
+        try {
+            mDisplayModeDirector.clearGlobalUserDefaultVotes();
+            Slog.i(TAG, "[GammaOS] Cleared global/default render votes while external present.");
+        } catch (Throwable t) {
+            Slog.w(TAG, "[GammaOS] clearGlobalUserDefaultVotes not available: " + t);
+        }
+    }
+
     private void handleLogicalDisplayChangedLocked(@NonNull LogicalDisplay display) {
+        gammaScrubGlobalVotesIfNeededLocked();
         updateViewportPowerStateLocked(display);
 
         final int displayId = display.getDisplayIdLocked();

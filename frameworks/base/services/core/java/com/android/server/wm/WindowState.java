@@ -226,6 +226,7 @@ import android.view.InputWindowHandle;
 import android.view.InsetsSource;
 import android.view.InsetsState;
 import android.view.Surface;
+import android.os.SystemProperties;
 import android.view.Surface.Rotation;
 import android.view.SurfaceControl;
 import android.view.SurfaceSession;
@@ -5146,7 +5147,10 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         if (voteChanged) {
             getPendingTransaction()
                     .setFrameRate(mSurfaceControl, mFrameRateVote.mRefreshRate,
-                        mFrameRateVote.mCompatibility, Surface.CHANGE_FRAME_RATE_ALWAYS);
+                        mFrameRateVote.mCompatibility,
+                        (SystemProperties.getBoolean("persist.gammaos.keep_primary_hr_when_external", false)
+                            ? Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                            : Surface.CHANGE_FRAME_RATE_ALWAYS));
             if (explicitRefreshRateHints()) {
                 getPendingTransaction().setFrameRateSelectionStrategy(mSurfaceControl,
                         mFrameRateVote.mSelectionStrategy);

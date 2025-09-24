@@ -152,6 +152,9 @@ public class DisplayModeDirector {
 
     private final boolean mSupportsFrameRateOverride;
 
+    // ---------- GammaOS: debugging helpers ----------
+    private static boolean gGammaKeepPrimaryLogOnce;
+
     private final VotesStorage mVotesStorage;
 
     @Nullable
@@ -290,6 +293,14 @@ public class DisplayModeDirector {
     public DesiredDisplayModeSpecs getDesiredDisplayModeSpecs(int displayId) {
         synchronized (mLock) {
             SparseArray<Vote> votes = mVotesStorage.getVotes(displayId);
+            final boolean gammaKeepPrimary =
+                    SystemProperties.getBoolean("persist.gammaos.keep_primary_hr_when_external",
+                            false);
+            if (mLoggingEnabled && !gGammaKeepPrimaryLogOnce) {
+                Slog.i(TAG, "[GammaOS] prop persist.gammaos.keep_primary_hr_when_external="
+                        + gammaKeepPrimary);
+                gGammaKeepPrimaryLogOnce = true;
+            }
             Display.Mode[] modes = mSupportedModesByDisplay.get(displayId);
             Display.Mode defaultMode = mDefaultModeByDisplay.get(displayId);
             if (modes == null || defaultMode == null) {
@@ -297,6 +308,14 @@ public class DisplayModeDirector {
                         "Asked about unknown display, returning empty display mode specs!"
                                 + "(id=" + displayId + ")");
                 return new DesiredDisplayModeSpecs();
+            }
+ 
+            // Extra debug: what votes did we enter with?
+            if (mLoggingEnabled) {
+                final Vote vSync = votes.get(Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE);
+                // Note: VotesStorage doesn't expose getGlobalVote() in this tree; skip logging it.
+                Slog.i(TAG, "[GammaOS] enter getDesired(): disp=" + displayId
+                        + " syncVote=" + vSync);
             }
 
             // GammaOS: hard refresh lock — force highest refresh within the default
@@ -322,6 +341,40 @@ public class DisplayModeDirector {
                         /*allowGroupSwitching*/ false,
                         ranges,
                         ranges);
+            }
+
+            // GammaOS: keep primary/internal display at its native highest refresh when external
+            // displays are connected. Gated by persist.gammaos.keep_primary_hr_when_external
+            // so we don't regress stock behavior. We intentionally keep group switching off.
+            try {
+                if (gammaKeepPrimary && !mDisplayObserver.isExternalDisplayLocked(displayId)) {
+                    // Stick to the highest refresh mode within the default resolution group.
+                    final int defW = defaultMode.getPhysicalWidth();
+                    final int defH = defaultMode.getPhysicalHeight();
+                    Display.Mode best = defaultMode;
+                    for (Display.Mode m : modes) {
+                        if (m.getPhysicalWidth() == defW && m.getPhysicalHeight() == defH) {
+                            if (m.getRefreshRate() > best.getRefreshRate()) {
+                                best = m;
+                            }
+                        }
+                    }
+                    final float fps = best.getRefreshRate();
+                    final RefreshRateRange range = new RefreshRateRange(fps, fps);
+                    final RefreshRateRanges ranges = new RefreshRateRanges(range, range);
+                    if (mLoggingEnabled) {
+                        Slog.i(TAG, "[GammaOS] Pin INTERNAL displayId=" + displayId
+                                + " at " + fps + " Hz (modeId=" + best.getModeId()
+                                + "), disable render switching; externals free-run.");
+                    }
+                    return new DesiredDisplayModeSpecs(
+                            best.getModeId(),
+                            /*allowGroupSwitching*/ false,
+                            ranges,
+                            ranges);
+                }
+            } catch (Throwable t) {
+                Slog.w(TAG, "[GammaOS] keep_primary_hr_when_external failed: " + t);
             }
 
             List<Display.Mode> availableModes = new ArrayList<>();
@@ -1098,7 +1151,39 @@ public class DisplayModeDirector {
             Vote defaultVote =
                     defaultRefreshRate == 0f
                             ? null : Vote.forRenderFrameRates(0f, defaultRefreshRate);
-            mVotesStorage.updateGlobalVote(Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, defaultVote);
+            // ---------- GammaOS: avoid global (-1) default cap when external is connected ----------
+            final boolean gammaKeepPrimary =
+                    android.os.SystemProperties.getBoolean(
+                            "persist.gammaos.keep_primary_hr_when_external", false);
+            if (gammaKeepPrimary) {
+                // Remove any existing GLOBAL default render vote (defensive).
+                mVotesStorage.updateGlobalVote(Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, null);
+                // Scope the DEFAULT render vote per-display:
+                //  - EXTERNAL displays get the settings-derived default cap (often 60).
+                //  - INTERNAL stays uncapped by this path, so it won't be dragged down.
+                final boolean isExternal =
+                        mDisplayObserver.isExternalDisplayLocked(displayId);
+                mVotesStorage.updateVote(displayId,
+                        Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE,
+                        isExternal ? defaultVote : null);
+                if (mLoggingEnabled) {
+                    android.util.Slog.i(TAG, "[GammaOS] DEFAULT_RENDER vote "
+                            + (isExternal ? "APPLIED" : "SKIPPED")
+                            + " for disp=" + displayId
+                            + (isExternal && defaultVote != null
+                               ? (" -> [0.0," + defaultRefreshRate + "] (render)")
+                               : ""));
+                }
+            } else {
+                // Stock behavior: GLOBAL (-1) default render vote
+                mVotesStorage.updateGlobalVote(
+                        Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, defaultVote);
+                if (mLoggingEnabled) {
+                    android.util.Slog.i(TAG, "[GammaOS] DEFAULT_RENDER global vote (-1) "
+                            + (defaultVote != null ? ("-> [0.0," + defaultRefreshRate + "]")
+                                                   : "cleared"));
+                }
+            }
 
             float maxRefreshRate;
             if (peakRefreshRate == 0f && defaultRefreshRate == 0f) {
@@ -1300,8 +1385,19 @@ public class DisplayModeDirector {
         }
 
         private boolean isRefreshRateSynchronizationEnabled() {
+            // GammaOS: optionally force-disable multi-display refresh-rate synchronization.
+            // This prevents SF/WM from pacing all displays to the slowest one (e.g. 60 Hz HDMI).
+            final boolean gammaKeepPrimary =
+                    android.os.SystemProperties.getBoolean(
+                            "persist.gammaos.keep_primary_hr_when_external", false);
+            if (gammaKeepPrimary) {
+                if (mLoggingEnabled) {
+                    android.util.Slog.i(TAG, "[GammaOS] isRefreshRateSynchronizationEnabled: FORCED FALSE (keep_primary=true)");
+                }
+                return false;
+            }
             return mRefreshRateSynchronizationEnabled
-                && mIsDisplaysRefreshRatesSynchronizationEnabled;
+                    && mIsDisplaysRefreshRatesSynchronizationEnabled;
         }
 
         public void observe() {
@@ -1449,19 +1545,64 @@ public class DisplayModeDirector {
                     || !isRefreshRateSynchronizationEnabled()) {
                 return;
             }
+            
+            // GammaOS: read prop once here and reuse (avoid duplicate declarations).
+            final boolean gKeepPrimary =
+                    android.os.SystemProperties.getBoolean(
+                            "persist.gammaos.keep_primary_hr_when_external", false);
+            if (mLoggingEnabled) {
+                android.util.Slog.i(TAG, "[GammaOS] addDisplaysSynchronizedPeakRefreshRate: extId="
+                        + (info != null ? info.displayId : -1) + " keep_primary=" + gKeepPrimary);
+            }
+
             synchronized (mLock) {
                 mExternalDisplaysConnected.add(info.displayId);
                 if (mExternalDisplaysConnected.size() != 1) {
                     return;
                 }
             }
-            // set minRefreshRate as the max refresh rate.
-            mVotesStorage.updateGlobalVote(Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE,
-                    Vote.forPhysicalRefreshRates(
-                            SYNCHRONIZED_REFRESH_RATE_TARGET
-                                - SYNCHRONIZED_REFRESH_RATE_TOLERANCE,
-                            SYNCHRONIZED_REFRESH_RATE_TARGET
-                                + SYNCHRONIZED_REFRESH_RATE_TOLERANCE));
+            // ---------- GammaOS ----------
+            final float min = SYNCHRONIZED_REFRESH_RATE_TARGET - SYNCHRONIZED_REFRESH_RATE_TOLERANCE;
+            final float max = SYNCHRONIZED_REFRESH_RATE_TARGET + SYNCHRONIZED_REFRESH_RATE_TOLERANCE;
+
+            // GammaOS: defensive cleanup of any GLOBAL (-1) votes first
+            if (gKeepPrimary) {
+                mVotesStorage.updateGlobalVote(Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE, null);
+                mVotesStorage.updateGlobalVote(Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, null);
+                if (mLoggingEnabled) {
+                    android.util.Slog.i(TAG, "[GammaOS] cleared GLOBAL (-1) SYNC/DEFAULT votes defensively");
+                }
+                // Scope the sync vote to the EXTERNAL display only, to avoid pacing INTERNAL.
+                // This prevents the global (-1) cap seen in dumpsys from dragging internal to 60 Hz.
+                mVotesStorage.updateVote(info.displayId,
+                        Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE,
+                        Vote.forPhysicalRefreshRates(min, max));
+                // And additionally make INTERNAL non-switchable (defensive).
+                try {
+                    mVotesStorage.updateVote(android.view.Display.DEFAULT_DISPLAY,
+                            Vote.PRIORITY_FLICKER_REFRESH_RATE_SWITCH,
+                            Vote.forDisableRefreshRateSwitching());
+                    if (mLoggingEnabled) {
+                        android.util.Slog.i(TAG, "[GammaOS] INTERNAL: added DisableRefreshRateSwitching vote");
+                    }
+                } catch (Throwable t) {
+                    if (mLoggingEnabled) {
+                        android.util.Slog.w(TAG, "[GammaOS] INTERNAL: failed to add DisableRefreshRateSwitching vote: " + t);
+                    }
+                }
+                if (mLoggingEnabled) {
+                    Slog.i(TAG, "[GammaOS] Scoped sync vote to EXTERNAL displayId="
+                            + info.displayId + " -> [" + min + ", " + max + "] Hz");
+                }
+            } else {
+                // Stock behaviour: a global cap (can affect all displays)
+                mVotesStorage.updateGlobalVote(Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE,
+                        Vote.forPhysicalRefreshRates(min, max));
+                if (mLoggingEnabled) {
+                    Slog.i(TAG, "[GammaOS] Stock global sync vote (-1) -> ["
+                            + min + ", " + max + "] Hz");
+                }
+            }
         }
 
         private void removeDisplaysSynchronizedPeakRefreshRate(final int displayId) {
@@ -1473,11 +1614,31 @@ public class DisplayModeDirector {
                     return;
                 }
                 mExternalDisplaysConnected.remove(displayId);
-                if (mExternalDisplaysConnected.size() != 0) {
-                    return;
+            }
+            // ---------- GammaOS ----------
+            final boolean gammaKeepPrimary =
+                    SystemProperties.getBoolean("persist.gammaos.keep_primary_hr_when_external",
+                            false);
+            if (gammaKeepPrimary) {
+                // Clear only the per-display vote we set for this external.
+                mVotesStorage.updateVote(displayId,
+                        Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE, null);
+                if (mLoggingEnabled) {
+                    Slog.i(TAG, "[GammaOS] Cleared scoped sync vote for EXTERNAL displayId="
+                            + displayId);
+               }
+            } else {
+                // Stock path: clear the global vote when last external goes away.
+                synchronized (mLock) {
+                    if (mExternalDisplaysConnected.size() == 0) {
+                        mVotesStorage.updateGlobalVote(
+                                Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE, null);
+                        if (mLoggingEnabled) {
+                            Slog.i(TAG, "[GammaOS] Cleared stock global sync vote (-1)");
+                        }
+                    }
                 }
             }
-            mVotesStorage.updateGlobalVote(Vote.PRIORITY_SYNCHRONIZED_REFRESH_RATE, null);
         }
 
         private void updateDisplayModes(int displayId, @Nullable DisplayInfo info) {
@@ -3086,6 +3247,14 @@ public class DisplayModeDirector {
         private IThermalService getThermalService() {
             return IThermalService.Stub.asInterface(
                     ServiceManager.getService(Context.THERMAL_SERVICE));
+        }
+    }
+    
+    // GammaOS: optional hook for DisplayManagerService to scrub any global/default votes.
+    // On this tree we do not maintain a global vote; this is a no-op except for logging.
+    public void clearGlobalUserDefaultVotes() {
+        if (mLoggingEnabled) {
+            android.util.Slog.i(TAG, "[GammaOS] DisplayModeDirector.clearGlobalUserDefaultVotes(): no-op");
         }
     }
 }

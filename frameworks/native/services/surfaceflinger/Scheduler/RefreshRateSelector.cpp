@@ -1359,6 +1359,48 @@ auto RefreshRateSelector::setPolicy(const PolicyVariant& policy) -> SetPolicyRes
 
         mGetRankedFrameRatesCache.reset();
 
+        // GammaOS: When keep_primary_hr_when_external=true, ignore attempts to clamp a
+        // high-Hz panel to 60/60. We detect "high-Hz" by checking supported modes > 60 Hz.
+        // We simply keep the previous policy (oldPolicy) in that case.
+        if (::android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+            // Do we have any mode > 60 Hz on this selector?
+            bool supportsOver60 = false;
+            for (const auto& [_, mode] : mDisplayModes) {
+                using fps_approx_ops::operator>;
+                if (mode->getPeakFps() > 60_Hz) { supportsOver60 = true; break; }
+            }
+
+            const auto is60Clamp = [](const Policy& p) {
+                using namespace fps_approx_ops;
+                return isApproxEqual(p.primaryRanges.physical.min, 60_Hz) &&
+                       isApproxEqual(p.primaryRanges.physical.max, 60_Hz);
+            };
+
+            const Policy* cur = getCurrentPolicyLocked();
+            if (supportsOver60 && is60Clamp(*cur)) {
+                // Restore previous policy (ignore the new 60/60 clamp).
+                if (std::holds_alternative<DisplayManagerPolicy>(policy)) {
+                    // Reconstruct from oldPolicy fields (no ctor from Policy exists).
+                    mDisplayManagerPolicy = DisplayManagerPolicy(
+                            /*defaultMode*/ oldPolicy.defaultMode,
+                            /*primaryRanges*/ oldPolicy.primaryRanges,
+                            /*appRequestRanges*/ oldPolicy.appRequestRanges,
+                            /*allowGroupSwitching*/ oldPolicy.allowGroupSwitching);
+                } else if (std::holds_alternative<OverridePolicy>(policy)) {
+                    // Same for OverridePolicy.
+                    mOverridePolicy = OverridePolicy(
+                            /*defaultMode*/ oldPolicy.defaultMode,
+                            /*primaryRanges*/ oldPolicy.primaryRanges,
+                            /*appRequestRanges*/ oldPolicy.appRequestRanges,
+                            /*allowGroupSwitching*/ oldPolicy.allowGroupSwitching);
+                } else {
+                    mOverridePolicy.reset();
+                }
+                ALOGI("[GammaOS] RefreshRateSelector: ignoring 60/60 clamp on high-Hz panel; "
+                      "keeping previous policy");
+            }
+        }
+
         if (*getCurrentPolicyLocked() == oldPolicy) {
             return SetPolicyResult::Unchanged;
         }
