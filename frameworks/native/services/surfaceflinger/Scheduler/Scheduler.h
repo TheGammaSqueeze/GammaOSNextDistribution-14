@@ -95,6 +95,10 @@ public:
     // GammaOS: bind SF & App EventThreads and MessageQueue to the vsync source of a display.
     // Safe to call at any time; no-ops if schedule not ready.
     void bindEventThreadsToDisplay(PhysicalDisplayId id);
+    // GammaOS: force the pacesetter to the internal display while the keep-HR gate is ON.
+    void enforceInternalPacesetterIfGated();
+    // GammaOS: placeholder/gate for synthetic ETs on external displays.
+    void maybeEnableSyntheticExternal(PhysicalDisplayId id);
 
     // GammaOS: expose an immediate resync helper for SurfaceFlinger callers.
     // Calls the existing private resyncAllToHardwareVsync(true).

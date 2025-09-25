@@ -158,6 +158,11 @@ void Scheduler::registerDisplayInternal(PhysicalDisplayId displayId,
     }
 
     dispatchHotplug(displayId, Hotplug::Connected);
+
+    // GammaOS: keep the pacesetter on the internal display when gated and
+    // prepare synthetic ETs for externals (scaffold; gated by sysprop).
+    enforceInternalPacesetterIfGated();
+    maybeEnableSyntheticExternal(displayId);
 }
 
 void Scheduler::unregisterDisplay(PhysicalDisplayId displayId) {
@@ -386,6 +391,23 @@ void Scheduler::dispatchHotplug(PhysicalDisplayId displayId, Hotplug hotplug) {
         const bool connected = hotplug == Hotplug::Connected;
         eventThreadFor(Cycle::Render).onHotplugReceived(displayId, connected);
         eventThreadFor(Cycle::LastComposite).onHotplugReceived(displayId, connected);
+    }
+    // GammaOS: On connect, if the keep-HR gate is ON and this isn’t the pacesetter,
+    // proactively keep HW vsync off so the new external can’t gate the leader.
+    if (hotplug == Hotplug::Connected &&
+        android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        std::optional<PhysicalDisplayId> pacesetterSnapshot;
+        {
+            std::scoped_lock lock(mDisplayLock);
+            ftl::FakeGuard guard(kMainThreadContext);
+            pacesetterSnapshot = mPacesetterDisplayId;
+        }
+        if (pacesetterSnapshot && displayId != *pacesetterSnapshot) {
+            if (auto s = getVsyncSchedule(displayId)) {
+                constexpr bool kDisallow = false;
+                s->disableHardwareVsync(kDisallow);
+            }
+        }
     }
 }
 
@@ -648,6 +670,27 @@ void Scheduler::addPresentFence(PhysicalDisplayId id, std::shared_ptr<FenceTime>
     if (!scheduleOpt) return;
     const auto& schedule = scheduleOpt->get();
 
+    // GammaOS: When the keep-HR gate is ON, never let a non-pacesetter (external)
+    // display's present fences influence the pacesetter timing. This prevents
+    // the external 60 Hz pipeline from back-pressuring the internal 120 Hz path,
+    // regardless of whether the external app is fullscreen or windowed.
+    if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        std::optional<PhysicalDisplayId> pacesetterSnapshot;
+        {
+            // REQUIRES(kMainThreadContext) is already satisfied for this function.
+            // Only take mDisplayLock to read the pacesetter id.
+            std::scoped_lock lock(mDisplayLock);
+            pacesetterSnapshot = mPacesetterDisplayId;
+        }
+        if (pacesetterSnapshot && id != *pacesetterSnapshot) {
+            // Keep HW vsync disabled on the external while gated and drop the fence.
+            constexpr bool kDisallow = false;
+            schedule->disableHardwareVsync(kDisallow);
+            return;
+        }
+    }
+ 
+
     const bool needMoreSignals = schedule->getController().addPresentFence(std::move(fence));
     if (needMoreSignals) {
         schedule->enableHardwareVsync();
@@ -701,6 +744,23 @@ void Scheduler::chooseRefreshRateForContent(
     if (!selectorPtr->canSwitch()) return;
 
     ATRACE_CALL();
+ 
+    // GammaOS: when keep-primary-high-refresh gate is ON, don't let content-based
+    // selection modify policy due to activity on other displays. We still update
+    // attached choreographers below so animations remain smooth.
+    if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        if (updateAttachedChoreographer) {
+            LOG_ALWAYS_FATAL_IF(!hierarchy);
+            const ftl::Optional<FrameRateMode> modeOpt = [&] {
+                std::scoped_lock lock(mPolicyLock);
+                return mPolicy.modeOpt;
+            }();
+            if (modeOpt) {
+                updateAttachedChoreographers(*hierarchy, modeOpt->fps);
+            }
+        }
+        return;
+    }
 
     LayerHistory::Summary summary = mLayerHistory.summarize(*selectorPtr, systemTime());
     applyPolicy(&Policy::contentRequirements, std::move(summary));
@@ -1283,6 +1343,75 @@ void Scheduler::bindEventThreadsToDisplay(PhysicalDisplayId id) {
     // Apply on SF MessageQueue and EventThreads (Render and LastComposite).
     applyNewVsyncSchedule(vsyncSchedule);
     ALOGI("[GammaOS] Scheduler::bindEventThreadsToDisplay -> %s", to_string(id).c_str());
+    // GammaOS: ensure the pacesetter stays internal while the gate is ON.
+    enforceInternalPacesetterIfGated();
+
+    // GammaOS: while gated, keep HW vsync disabled on non-pacesetter displays.
+    if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) {
+        std::optional<PhysicalDisplayId> pacesetterSnapshot;
+        {
+            std::scoped_lock lock(mDisplayLock);
+            ftl::FakeGuard guard(kMainThreadContext);
+            pacesetterSnapshot = mPacesetterDisplayId;
+        }
+        if (pacesetterSnapshot && id != *pacesetterSnapshot) {
+            if (auto s = getVsyncSchedule(id)) {
+                constexpr bool kDisallow = false;
+                s->disableHardwareVsync(kDisallow);
+            }
+        }
+    }
+}
+ 
+void Scheduler::enforceInternalPacesetterIfGated() {
+    // Compute desired internal (primary) while holding the lock...
+    std::optional<PhysicalDisplayId> internalId;
+    std::optional<PhysicalDisplayId> currentPacesetter;
+    {
+        std::scoped_lock lock(mDisplayLock);
+        ftl::FakeGuard guard(kMainThreadContext);
+        // Heuristic: first registered display acts as internal/primary in this tree.
+        internalId = mDisplays.empty() ? std::optional<PhysicalDisplayId>{}
+                                       : std::make_optional(mDisplays.begin()->first);
+        currentPacesetter = mPacesetterDisplayId;
+    }
+    if (!internalId) return;
+
+    // ...then perform pacesetter changes *without* holding mDisplayLock,
+    // but under the main-thread context guard required by these APIs.
+    if (currentPacesetter != internalId) {
+        ALOGI("[GammaOS] enforceInternalPacesetterIfGated: switching pacesetter %s -> %s",
+              to_string(currentPacesetter.value_or(*internalId)).c_str(),
+              to_string(*internalId).c_str());
+        {
+            ftl::FakeGuard guard(kMainThreadContext);
+            demotePacesetterDisplay();
+            promotePacesetterDisplay(internalId); // void in this tree
+        }
+    } else {
+        ALOGV("[GammaOS] enforceInternalPacesetterIfGated: already on internal %s",
+              to_string(*internalId).c_str());
+    }
+}
+
+void Scheduler::maybeEnableSyntheticExternal(PhysicalDisplayId id) {
+    if (!base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false)) return;
+    if (!base::GetBoolProperty("persist.gammaos.synthetic_eventthreads_external", false)) return;
+
+    std::scoped_lock lock(mDisplayLock);
+    ftl::FakeGuard guard(kMainThreadContext);
+    // Treat any non-pacesetter display as "external" for our scaffold.
+    if (mPacesetterDisplayId && id == *mPacesetterDisplayId) return;
+    const auto dopt = mDisplays.get(id);
+    if (!dopt) return;
+    const auto& d = dopt->get();
+
+    // NOTE: This is a scaffold (no behavior change): just log intent for now.
+    // Next patch will swap d.schedulePtr to a synthetic VsyncSchedule impl.
+    const auto fps = d.selectorPtr->getActiveMode().fps.getValue();
+    ALOGI("[GammaOS] (scaffold) would enable Synthetic Vsync for external %s @ %.2f Hz "
+          "(gate ON, persist.gammaos.synthetic_eventthreads_external=true)",
+          to_string(id).c_str(), fps);
 }
 
 } // namespace android::scheduler
