@@ -1183,6 +1183,12 @@
       "group": "WM_DEBUG_CONTENT_RECORDING",
       "at": "com\/android\/server\/wm\/ContentRecorder.java"
     },
+    "-1466966190904688835": {
+      "message": "GammaOS: skip ContentRecording on external display %d",
+      "level": "VERBOSE",
+      "group": "WM_DEBUG_CONTENT_RECORDING",
+      "at": "com\/android\/server\/wm\/ContentRecorder.java"
+    },
     "-3395581813971405090": {
       "message": "Content Recording: waiting to record, so do nothing",
       "level": "VERBOSE",

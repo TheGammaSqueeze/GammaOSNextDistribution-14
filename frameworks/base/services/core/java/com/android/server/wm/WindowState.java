@@ -5157,6 +5157,24 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             }
 
         }
+
+        // GammaOS safety net for external windows:
+        // If we're preserving high refresh on the primary while an external 60 Hz panel is present,
+        // ensure windows on the EXTERNAL display never request a non-seamless switch that could
+        // yank the primary down. Even if the app did not set a preferred frame rate, issue a
+        // neutral vote (0f) with ONLY_IF_SEAMLESS on the external display.
+        if (SystemProperties.getBoolean("persist.gammaos.keep_primary_hr_when_external", false)) {
+            final DisplayContent dc = getDisplayContent();
+            final boolean isExternal = (dc != null)
+                    && (dc.getDisplayInfo().type != Display.TYPE_INTERNAL);
+            if (isExternal && mSurfaceControl != null && mSurfaceControl.isValid()) {
+                getPendingTransaction().setFrameRate(
+                        mSurfaceControl,
+                        0f,  // neutral vote; do not force a specific rate
+                        Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+            }
+        }
     }
 
     private void updateScaleIfNeeded() {

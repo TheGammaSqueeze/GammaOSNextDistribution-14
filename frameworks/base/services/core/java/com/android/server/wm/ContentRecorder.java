@@ -265,6 +265,12 @@ final class ContentRecorder implements WindowContainerListener {
         // Pause mirroring by destroying the reference to the mirrored layer.
         mRecordedSurface = null;
         // Do not un-set the token, in case content is removed and recording should begin again.
+
+        // GammaOS: mirroring is no longer actively rendering; clear the flag.
+        if (android.os.SystemProperties.getBoolean(
+                "persist.gammaos.keep_primary_hr_when_external", /*def*/ false)) {
+            android.os.SystemProperties.set("sys.gammaos.mirroring_active", "0");
+        }
     }
 
     /**
@@ -276,6 +282,11 @@ final class ContentRecorder implements WindowContainerListener {
             // Do not wait for the mirrored surface to be garbage collected, but clean up
             // immediately.
             final SurfaceControl.Transaction t = mDisplayContent.mWmService.mTransactionFactory.get();
+            // GammaOS: clear mirroring flag on full stop as well.
+            if (android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.keep_primary_hr_when_external", /*def*/ false)) {
+                android.os.SystemProperties.set("sys.gammaos.mirroring_active", "0");
+            }
             // Clear any frame-rate vote before removal (0f = unset).
             t.setFrameRate(
                     mRecordedSurface,
@@ -338,6 +349,26 @@ final class ContentRecorder implements WindowContainerListener {
                 || mDisplayContent.getDisplayInfo().state == Display.STATE_OFF
                 || mContentRecordingSession == null) {
             return;
+        }
+
+        // GammaOS: mark mirroring active so SF doesn't disable external HW vsync while mirroring.
+        if (android.os.SystemProperties.getBoolean(
+                "persist.gammaos.keep_primary_hr_when_external", /*def*/ false)) {
+            android.os.SystemProperties.set("sys.gammaos.mirroring_active", "1");
+        }
+ 
+        // GammaOS: When preserving primary high refresh in desktop/extended mode,
+        // avoid starting any transient mirroring on EXTERNAL displays. UniSoc/MTK
+        // stacks tend to collapse to a single vsync domain as soon as recording starts.
+        if (android.os.SystemProperties.getBoolean(
+                "persist.gammaos.keep_primary_hr_when_external", false)) {
+            final int type = mDisplayContent.getDisplayInfo().type;
+            if (type != android.view.Display.TYPE_INTERNAL) {
+                ProtoLog.v(WM_DEBUG_CONTENT_RECORDING,
+                        "GammaOS: skip ContentRecording on external display %d",
+                        mDisplayContent.getDisplayId());
+                return;
+            }
         }
 
         if (mContentRecordingSession.isWaitingForConsent()) {
