@@ -112,6 +112,8 @@ public:
 
     bool getPendingHardwareVsyncState() const REQUIRES(kMainThreadContext);
 
+    bool shouldBypassHardwareWait() const;
+
 protected:
     using ControllerPtr = std::unique_ptr<VsyncController>;
 

@@ -53,6 +53,7 @@
 #include "SmallAreaDetectionAllowMappings.h"
 #include "Utils/Dumper.h"
 #include "VsyncModulator.h"
+#include <cutils/properties.h>
 
 #include <FrontEnd/LayerHierarchy.h>
 
@@ -95,6 +96,8 @@ public:
     // GammaOS: bind SF & App EventThreads and MessageQueue to the vsync source of a display.
     // Safe to call at any time; no-ops if schedule not ready.
     void bindEventThreadsToDisplay(PhysicalDisplayId id);
+    // GammaOS: expose pacesetter id for per-output policies.
+    std::optional<PhysicalDisplayId> getPacesetterDisplayId() const;
     // GammaOS: force the pacesetter to the internal display while the keep-HR gate is ON.
     void enforceInternalPacesetterIfGated();
     // GammaOS: placeholder/gate for synthetic ETs on external displays.
@@ -220,6 +223,21 @@ public:
         resyncToHardwareVsyncLocked(id, allowToEnable, modePtr);
     }
     void forceNextResync() { mLastResyncTime = 0; }
+
+    // GammaOS: ORed gate to enable multi-display present via Gamma prop.
+    static inline bool gammaMultiPresentEnabled() {
+        // Respect vendor FlagManager, but allow Gamma prop to enable it too.
+        const bool flag = FlagManager::getInstance().multithreaded_present();
+        // Use libcutils property_get_bool here to avoid namespace/header variation.
+        const bool prop = property_get_bool(
+                "persist.gammaos.multithreaded_present",
+                /*default_value*/ false);
+        // Optional: log only when prop lifts it above the vendor flag to avoid spam.
+        if (prop && !flag) {
+            ALOGI("[GammaOS] Enabling multi-display present via persist.gammaos.multithreaded_present");
+        }
+        return flag || prop;
+    }
 
     // Passes a vsync sample to VsyncController. Returns true if
     // VsyncController detected that the vsync period changed and false

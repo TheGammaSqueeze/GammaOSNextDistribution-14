@@ -5173,7 +5173,49 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
                         0f,  // neutral vote; do not force a specific rate
                         Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
                         Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+
+                // (kept: GammaOS external safety net)
             }
+        }
+
+        // GammaOS: Force a 60 Hz content vote for steady 60 fps apps on high-refresh panels,
+        // to achieve clean 2x cadence at 120 Hz while keeping swap interval = 1.
+        // Applies when:
+        //  - persist.gammaos.force_60_vote = true  OR  package is RetroArch
+        //  - window is focused & visible and effectively fills the internal display
+        // Uses ONLY_IF_SEAMLESS so we never switch the display mode down to 60 Hz.
+        try {
+            final boolean forceProp = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.force_60_vote", false);
+            final String pkg = getOwningPackage();
+            final boolean isRetroArch = pkg != null && (
+                    pkg.equals("com.retroarch")
+                 || pkg.equals("com.retroarch.aarch64")
+                 || pkg.equals("org.libretro.retroarch"));
+            final DisplayContent dc2 = getDisplayContent();
+            final boolean internal = (dc2 != null)
+                    && (dc2.getDisplayInfo().type == android.view.Display.TYPE_INTERNAL);
+            // Guard: do NOT force 60 Hz if the app explicitly prefers >61 Hz or has a >61 Hz vote.
+            final float preferred = (mAttrs != null) ? mAttrs.preferredRefreshRate : 0f;
+            final boolean appPrefersHigh = preferred > 61f;
+            final float voted = (mFrameRateVote != null) ? mFrameRateVote.mRefreshRate : 0f;
+            final boolean appVotedHigh = voted > 61f;
+
+            if ((forceProp || isRetroArch)
+                    && internal
+                    && isFocused()
+                    && isVisibleRequested()
+                    && fillsDisplay()
+                    && !appPrefersHigh
+                    && !appVotedHigh) {
+                getPendingTransaction().setFrameRate(
+                        mSurfaceControl,
+                        60f,
+                        Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+            }
+        } catch (Throwable t) {
+            Slog.w(TAG, "GammaOS: force 60Hz vote failed", t);
         }
     }
 

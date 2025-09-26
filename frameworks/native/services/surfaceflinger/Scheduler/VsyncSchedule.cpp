@@ -17,6 +17,7 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
 #include <common/FlagManager.h>
+#include <android-base/properties.h>
 
 #include <ftl/fake_guard.h>
 #include <gui/TraceUtils.h>
@@ -86,6 +87,21 @@ Period VsyncSchedule::minFramePeriod() const {
         return mTracker->minFramePeriod();
     }
     return period();
+}
+
+// GammaOS: when we enforce synthetic vsync on follower displays, the HWC wait
+// path must be bypassed entirely to avoid "failed to waitNextVsync: -1" bursts
+// and free-running pacing. Call this helper at the HWC-wait callsite
+// (typically in VSyncReactor/VsyncController) to short-circuit any blocking wait.
+bool VsyncSchedule::shouldBypassHardwareWait() const {
+    // Gate must be ON and synthetic vsync for externals must be requested.
+    if (!android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false) ||
+        !android::base::GetBoolProperty("persist.gammaos.force_synth_vsync_external", false)) {
+        return false;
+    }
+    // If hardware vsync is not allowed for this schedule, callers should not wait on HWC.
+    // Use makeAllowed=false; we only want to read the current allowance.
+    return !const_cast<VsyncSchedule*>(this)->isHardwareVsyncAllowed(/*makeAllowed*/false);
 }
 
 TimePoint VsyncSchedule::vsyncDeadlineAfter(TimePoint timePoint,

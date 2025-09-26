@@ -997,6 +997,14 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
                 FTL_FAKE_GUARD(mStateLock, getPrimaryDisplayIdLocked());
         mScheduler->bindEventThreadsToDisplay(internalId);
         ALOGI("[GammaOS] commit: rebind ET to internal physId=%" PRIu64, internalId.value);
+        // Also keep follower schedules in hwVsyncState=Disabled while gated.
+        if (base::GetBoolProperty("persist.gammaos.force_synth_vsync_external", false)) {
+            for (const auto& pd : mPhysicalDisplays) {
+                if (pd.second.isInternal()) continue;
+                mScheduler->disableHardwareVsync(pd.first, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(pd.first);
+            }
+        }
     }
 
     // initialize our drawing state
@@ -3280,7 +3288,6 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     if (android::base::GetBoolProperty("persist.gammaos.shader.enable", false)) {
         refreshArgs.devOptForceClientComposition = true;
     }
-    
  
     // GammaOS: Sub-frame BFI (RenderEngine) also needs client comp + full damage
     const bool subBfiOn = android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false);
@@ -3600,6 +3607,26 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         refreshArgs.devOptFlashDirtyRegionsDelay = std::chrono::milliseconds(mDebugFlashDelay);
     }
 
+    // GammaOS (external-only): while the keep-primary-HR gate is ON, force
+    // CLIENT composition on *external* outputs ONLY by passing the pacesetter
+    // id down to CE so it can selectively force CLIENT on non-pacesetter outputs.
+    if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false) &&
+        android::base::GetBoolProperty("persist.gammaos.force_client_comp_external", false)) {
+        std::optional<PhysicalDisplayId> pacesetterIdSnapshot;
+        {
+            std::scoped_lock lock(mStateLock);
+            pacesetterIdSnapshot = mScheduler->getPacesetterDisplayId();
+        }
+        if (pacesetterIdSnapshot) {
+            refreshArgs.gammaPacesetterPhysIdValue = pacesetterIdSnapshot->value;
+            refreshArgs.gammaForceClientForFollowers = true;
+            ALOGI("[GammaOS] SurfaceFlinger: external-only CLIENT enabled (pacesetter=%s)",
+                  to_string(*pacesetterIdSnapshot).c_str());
+        } else {
+            ALOGW("[GammaOS] SurfaceFlinger: external-only CLIENT requested but pacesetter unknown");
+        }
+    }
+
     // TODO(b/255601557) Update frameInterval per display
     refreshArgs.frameInterval =
             mScheduler->getNextFrameInterval(pacesetterId, pacesetterTarget.expectedPresentTime());
@@ -3846,6 +3873,18 @@ void SurfaceFlinger::onCompositionPresented(PhysicalDisplayId pacesetterId,
 
     for (const auto& [id, targeter] : frameTargeters) {
         auto presentFence = getHwComposer().getPresentFence(id);
+
+        // GammaOS: when follower is CLIENT-only and synthetic vsync is enforced,
+        // avoid handing an invalid (-1) present fence down the pipeline.
+        // Replace with NO_FENCE to keep HWC happy and prevent "invalid present fence: -1".
+        if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false) &&
+            android::base::GetBoolProperty("persist.gammaos.force_client_comp_external", false) &&
+            android::base::GetBoolProperty("persist.gammaos.force_synth_vsync_external", false) &&
+            id != pacesetterId) {
+            presentFence = Fence::NO_FENCE;
+            ALOGV("[GammaOS] onCompositionPresented: follower %s -> skipping setPresentFence "
+                  "(CLIENT-only + synthetic).", to_string(id).c_str());
+        }
 
         if (id == pacesetterId) {
             mTransactionCallbackInvoker.addPresentFence(presentFence);
@@ -4442,37 +4481,44 @@ const char* SurfaceFlinger::processHotplug(PhysicalDisplayId displayId,
     if (base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false) &&
         base::GetBoolProperty("persist.gammaos.force_synth_vsync_external", false) &&
         connectionType == ui::DisplayConnectionType::External) {
+        // First disable at HWC immediately (safe even before schedule exists).
         getHwComposer().setVsyncEnabled(displayId, hal::Vsync::DISABLE);
-        ALOGI("[GammaOS] hotplug-connect: disabled HW vsync on external %" PRIu64, displayId.value);
+        ALOGI("[GammaOS] hotplug-connect: requested HWC vsync DISABLE on external %" PRIu64,
+              displayId.value);
+
+        // If the Scheduler's VsyncSchedule isn't ready yet, defer the Scheduler calls.
+        if (mScheduler->getVsyncSchedule(displayId)) {
+            mScheduler->disableHardwareVsync(displayId, /*disallow*/true);
+            mScheduler->maybeEnableSyntheticExternal(displayId);
+        } else {
+            ALOGW("[GammaOS] hotplug-connect: schedule not ready for %" PRIu64
+                  " — will retry shortly", displayId.value);
+        }
         static_cast<void>(mScheduler->schedule([this, displayId]()
                 FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
             getHwComposer().setVsyncEnabled(displayId, hal::Vsync::DISABLE);
+            if (mScheduler->getVsyncSchedule(displayId)) {
+                mScheduler->disableHardwareVsync(displayId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(displayId);
+            } else {
+                ALOGW("[GammaOS] hotplug-connect(T+300ms): schedule still not ready for %" PRIu64,
+                      displayId.value);
+            }
             ALOGI("[GammaOS] hotplug-connect(T+300ms): re-disabled HW vsync on external %" PRIu64,
                   displayId.value);
         }));
-        // Additional retries for robustness
+        // Second retry with a longer delay as an extra safety net.
         static_cast<void>(mScheduler->schedule([this, displayId]()
                 FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             getHwComposer().setVsyncEnabled(displayId, hal::Vsync::DISABLE);
-            ALOGI("[GammaOS] hotplug-connect(T+1000ms): re-disabled HW vsync on external %" PRIu64,
-                  displayId.value);
-        }));
-        static_cast<void>(mScheduler->schedule([this, displayId]()
-                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-            getHwComposer().setVsyncEnabled(displayId, hal::Vsync::DISABLE);
-            ALOGI("[GammaOS] hotplug-connect(T+3000ms): re-disabled HW vsync on external %" PRIu64,
-                  displayId.value);
-        }));
-        // Extra retry to fight very-late re-targets on some UniSoc stacks.
-        static_cast<void>(mScheduler->schedule([this, displayId]()
-                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-            getHwComposer().setVsyncEnabled(displayId, hal::Vsync::DISABLE);
-            ALOGI("[GammaOS] hotplug-connect(T+5000ms): re-disabled HW vsync on external %" PRIu64,
-                  displayId.value);
+            if (mScheduler->getVsyncSchedule(displayId)) {
+                mScheduler->disableHardwareVsync(displayId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(displayId);
+                ALOGI("[GammaOS] hotplug-connect(T+1000ms): enforced Scheduler vsync disable on external %" PRIu64,
+                      displayId.value);
+            }
         }));
         // Watchdog rebind to internal after attach
         {
@@ -7100,6 +7146,10 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
     display->setPowerMode(mode);
 
     const auto activeMode = display->refreshRateSelector().getActiveMode().modePtr;
+
+    // GammaOS: allow multithreaded-present logic to apply beyond active display
+    const bool gammaMultiPresent =
+            scheduler::Scheduler::gammaMultiPresentEnabled();
     if (currentMode == hal::PowerMode::OFF) {
         // Turn on the display
 
@@ -7187,7 +7237,7 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         // Update display while dozing
         getHwComposer().setPowerMode(displayId, mode);
         if (currentMode == hal::PowerMode::DOZE_SUSPEND &&
-            (displayId == mActiveDisplayId || FlagManager::getInstance().multithreaded_present())) {
+            (displayId == mActiveDisplayId || gammaMultiPresent)) {
             if (displayId == mActiveDisplayId) {
                 ALOGI("Force repainting for DOZE_SUSPEND -> DOZE or ON.");
                 mVisibleRegionsDirty = true;
@@ -7199,7 +7249,7 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         }
     } else if (mode == hal::PowerMode::DOZE_SUSPEND) {
         // Leave display going to doze
-        if (displayId == mActiveDisplayId || FlagManager::getInstance().multithreaded_present()) {
+        if (displayId == mActiveDisplayId || gammaMultiPresent) {
             constexpr bool kDisallow = true;
             mScheduler->disableHardwareVsync(displayId, kDisallow);
         }
@@ -9571,38 +9621,7 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
                 getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
                 ALOGI("[GammaOS] policy-apply: disabled HW vsync on external %" PRIu64, physId.value);
             }
-            // Re-disable at T+300ms for robustness.
-            static_cast<void>(mScheduler->schedule([this]()
-                    FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(300));
-                for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
-                    if (physDisplay.isInternal()) continue;
-                    getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
-                    ALOGI("[GammaOS] policy-apply(T+300ms): re-disabled HW vsync on external %" PRIu64,
-                          physId.value);
-                }
-            }));
-            static_cast<void>(mScheduler->schedule([this]()
-                    FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
-                    if (physDisplay.isInternal()) continue;
-                    getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
-                    ALOGI("[GammaOS] policy-apply(T+1000ms): re-disabled HW vsync on external %" PRIu64,
-                          physId.value);
-                }
-            }));
-            // T+5000ms: one more reinforcement pass for very late vendor re-targets.
-            static_cast<void>(mScheduler->schedule([this]()
-                    FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-                for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
-                    if (physDisplay.isInternal()) continue;
-                    getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
-                    ALOGI("[GammaOS] policy-apply(T+5000ms): re-disabled HW vsync on external %" PRIu64,
-                          physId.value);
-                }
-            }));
+
         }
 
         // T0: immediate re-bind to internal pacing source.
@@ -9614,29 +9633,6 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
                 ALOGI("[GammaOS] policy-apply(T0): pacesetter + EventThreads -> %" PRIu64, target.value);
             } else {
                 ALOGW("[GammaOS] policy-apply(T0): schedule not ready for %" PRIu64, target.value);
-            }
-        }));
-
-        // T+1000 ms: belt-and-braces re-assert (pacesetter + EventThreads).
-        static_cast<void>(mScheduler->schedule([this, target]()
-                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            if (const auto schedule = mScheduler->getVsyncSchedule(target)) {
-                mScheduler->setPacesetterDisplay(target);
-                mScheduler->bindEventThreadsToDisplay(target);
-                ALOGI("[GammaOS] policy-apply(T+1000ms): pacesetter + EventThreads -> %" PRIu64,
-                      target.value);
-            }
-        }));
-        // T+3000 ms: some UniSoc stacks still retarget late — one more re-bind.
-        static_cast<void>(mScheduler->schedule([this, target]()
-                FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-            if (const auto schedule = mScheduler->getVsyncSchedule(target)) {
-                mScheduler->setPacesetterDisplay(target);
-                mScheduler->bindEventThreadsToDisplay(target);
-                ALOGI("[GammaOS] policy-apply(T+3000ms): pacesetter + EventThreads -> %" PRIu64,
-                      target.value);
             }
         }));
     }
@@ -10140,6 +10136,20 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
         for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
             if (physDisplay.isInternal()) continue;
             getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
+            if (mScheduler->getVsyncSchedule(physId)) {
+                mScheduler->disableHardwareVsync(physId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(physId);
+            } else {
+                ALOGW("[GammaOS] onActiveDisplayChanged: schedule not ready for %" PRIu64
+                      " — deferring Scheduler disable", physId.value);
+                static_cast<void>(mScheduler->schedule([this, physId]()
+                        FTL_FAKE_GUARD(mStateLock) FTL_FAKE_GUARD(kMainThreadContext) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                    getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
+                    mScheduler->disableHardwareVsync(physId, /*disallow*/true);
+                    mScheduler->maybeEnableSyntheticExternal(physId);
+                }));
+            }
             ALOGI("[GammaOS] onActiveDisplayChanged: disabled HW vsync on external %" PRIu64,
                   physId.value);
         }
@@ -10149,6 +10159,8 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
             for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
                 if (physDisplay.isInternal()) continue;
                 getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
+                mScheduler->disableHardwareVsync(physId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(physId);
                 ALOGI("[GammaOS] onActiveDisplayChanged(T+300ms): re-disabled HW vsync on external %" PRIu64,
                       physId.value);
             }
@@ -10159,6 +10171,8 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
             for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
                 if (physDisplay.isInternal()) continue;
                 getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
+                mScheduler->disableHardwareVsync(physId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(physId);
                 ALOGI("[GammaOS] onActiveDisplayChanged(T+1000ms): re-disabled HW vsync on external %" PRIu64,
                       physId.value);
             }
@@ -10169,6 +10183,8 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
             for (const auto& [physId, physDisplay] : mPhysicalDisplays) {
                 if (physDisplay.isInternal()) continue;
                 getHwComposer().setVsyncEnabled(physId, hal::Vsync::DISABLE);
+                mScheduler->disableHardwareVsync(physId, /*disallow*/true);
+                mScheduler->maybeEnableSyntheticExternal(physId);
                 ALOGI("[GammaOS] onActiveDisplayChanged(T+3000ms): re-disabled HW vsync on external %" PRIu64,
                       physId.value);
             }

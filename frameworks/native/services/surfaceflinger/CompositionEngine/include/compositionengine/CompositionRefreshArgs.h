@@ -105,6 +105,12 @@ struct CompositionRefreshArgs {
     bool hasTrustedPresentationListener = false;
 
     ICEPowerCallback* powerCallback = nullptr;
+
+    // GammaOS: pacesetter/follower awareness for per-output CLIENT forcing.
+    // If |gammaForceClientForFollowers| is true, any Output whose PhysicalDisplayId
+    // differs from |gammaPacesetterPhysIdValue| will have forceClientComposition applied.
+    std::optional<uint64_t> gammaPacesetterPhysIdValue;
+    bool gammaForceClientForFollowers = false;
 };
 
 } // namespace android::compositionengine

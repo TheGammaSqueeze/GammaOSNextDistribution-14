@@ -33,6 +33,8 @@
 #include <gui/TraceUtils.h>
 #include <scheduler/FrameTargeter.h>
 #include <scheduler/Time.h>
+#include <android-base/properties.h>
+#include <inttypes.h>
 
 #include <optional>
 #include <thread>
@@ -807,6 +809,25 @@ void Output::updateCompositionState(const compositionengine::CompositionRefreshA
 
     mLayerRequestingBackgroundBlur = findLayerRequestingBackgroundComposition();
     bool forceClientComposition = mLayerRequestingBackgroundBlur != nullptr;
+
+    // GammaOS: optionally force CLIENT on follower outputs only.
+    if (android::base::GetBoolProperty("persist.gammaos.keep_primary_hr_when_external", false) &&
+        android::base::GetBoolProperty("persist.gammaos.force_client_comp_external", false) &&
+        refreshArgs.gammaForceClientForFollowers) {
+        auto idOpt = getDisplayId();
+        auto physIdOpt = ftl::Optional(idOpt).and_then(PhysicalDisplayId::tryCast);
+        if (physIdOpt && refreshArgs.gammaPacesetterPhysIdValue &&
+            physIdOpt->value != *refreshArgs.gammaPacesetterPhysIdValue) {
+            forceClientComposition = true;
+            // Make the display-level state CLIENT (avoid hybrid comp on follower).
+            auto& os = editState();
+            os.usesClientComposition = true;
+            os.usesDeviceComposition = false;
+            ALOGI("[GammaOS] CE/Output: forcing CLIENT on follower output %s (pacesetter 0x%" PRIx64 ")",
+                  to_string(*physIdOpt).c_str(),
+                  *refreshArgs.gammaPacesetterPhysIdValue);
+        }
+    }
 
     for (auto* layer : getOutputLayersOrderedByZ()) {
         layer->updateCompositionState(refreshArgs.updatingGeometryThisFrame,

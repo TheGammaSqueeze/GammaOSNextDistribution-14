@@ -21,6 +21,8 @@
 #include <compositionengine/impl/CompositionEngine.h>
 #include <compositionengine/impl/Display.h>
 #include <ui/DisplayMap.h>
+#include <android-base/stringprintf.h>
+#include <android-base/properties.h>
 
 #include <renderengine/RenderEngine.h>
 #include <utils/Trace.h>
@@ -91,8 +93,13 @@ nsecs_t CompositionEngine::getLastFrameRefreshTimestamp() const {
 
 namespace {
 void offloadOutputs(Outputs& outputs) {
-    if (!FlagManager::getInstance().multithreaded_present() || outputs.size() < 2) {
+    const bool vendorFlag = FlagManager::getInstance().multithreaded_present();
+    const bool gammaProp = android::base::GetBoolProperty("persist.gammaos.multithreaded_present", false);
+    if (!(vendorFlag || gammaProp) || outputs.size() < 2) {
         return;
+    }
+    if (gammaProp && !vendorFlag) {
+        ALOGI("[GammaOS] CompositionEngine: enabling multi-present via persist.gammaos.multithreaded_present");
     }
 
     ui::PhysicalDisplayVector<compositionengine::Output*> outputsToOffload;
