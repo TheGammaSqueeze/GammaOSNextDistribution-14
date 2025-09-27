@@ -919,9 +919,56 @@ auto RefreshRateSelector::getFrameRateOverrides(const std::vector<LayerRequireme
                                                 GlobalSignals globalSignals) const
         -> UidToFrameRateOverride {
     ATRACE_CALL();
-    if (mConfig.enableFrameRateOverride == Config::FrameRateOverride::Disabled ||
-        ::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+    const bool kFroDisabled =
+            (mConfig.enableFrameRateOverride == Config::FrameRateOverride::Disabled);
+    const bool kRefreshLock = ::android::base::GetBoolProperty("persist.gammaos.refresh.lock", false);
+    const bool kBfiOn = ::android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+                        ::android::base::GetBoolProperty("persist.gammaos.bfi.force_content_60", false);
+
+    // If FRO is globally disabled, bail out as usual.
+    if (kFroDisabled) {
         return {};
+    }
+
+    // GammaOS:
+    // Force a per-UID FRO=60 whenever BFI 60-on-120 is active, so apps *see* 60 Hz via
+    // DisplayEventReceiver even if other votes still resolve to 120 for render.
+    // Allowed even when persist.gammaos.refresh.lock=1. Panel stays at 120 elsewhere.
+    if (kBfiOn) {
+        // 1) Prefer the focused layer's UID.
+        uid_t candidateUid = static_cast<uid_t>(-1);
+        for (const auto& lr : layers) {
+            if (lr.focused && lr.ownerUid != static_cast<uid_t>(-1)) {
+                candidateUid = lr.ownerUid;
+                break;
+            }
+        }
+        // 2) Fallback: pick a likely app UID (skip system uids).
+        if (candidateUid == static_cast<uid_t>(-1)) {
+            for (const auto& lr : layers) {
+                if (lr.ownerUid >= static_cast<uid_t>(10000)) {
+                    candidateUid = lr.ownerUid;
+                    break;
+                }
+            }
+        }
+        // 3) Last resort: any valid ownerUid.
+        if (candidateUid == static_cast<uid_t>(-1)) {
+            for (const auto& lr : layers) {
+                if (lr.ownerUid != static_cast<uid_t>(-1)) {
+                    candidateUid = lr.ownerUid;
+                    break;
+                }
+            }
+        }
+        if (candidateUid != static_cast<uid_t>(-1)) {
+            UidToFrameRateOverride fro;
+            fro.emplace(candidateUid, Fps::fromValue(60.0f));
+            ALOGI("%s: [GammaOS][BFI] Forcing per-UID FRO uid=%d -> 60Hz (refresh.lock=%d)",
+                  __func__, static_cast<int>(candidateUid), (int)kRefreshLock);
+            return fro;
+        }
+        // If no UID found, continue with normal behavior (no overrides).
     }
 
     ALOGV("%s: %zu layers", __func__, layers.size());

@@ -503,6 +503,12 @@ public final class DisplayManagerService extends SystemService {
     private final OverlayProperties mOverlayProperties;
 
     private SensorManager mSensorManager;
+
+    // GammaOS: DMS-side global listing of per-UID FrameRateOverrides we apply for BFI 60-on-120.
+    // This is DMS-local (for dumpsys visibility) and complements SF-published FROs.
+    @GuardedBy("mSyncRoot")
+    private final SparseIntArray mGammaFroByUid = new SparseIntArray();
+
     private BrightnessTracker mBrightnessTracker;
 
     private SmallAreaDetectionController mSmallAreaDetectionController;
@@ -1181,9 +1187,56 @@ public final class DisplayManagerService extends SystemService {
         synchronized (mSyncRoot) {
             final LogicalDisplay display = mLogicalDisplayMapper.getDisplayLocked(displayId);
             if (display != null) {
+                final DisplayInfo baseInfo = display.getDisplayInfoLocked();
                 final DisplayInfo info =
                         getDisplayInfoForFrameRateOverride(display.getFrameRateOverrides(),
-                                display.getDisplayInfoLocked(), callingUid);
+                                baseInfo, callingUid);
+
+                // GammaOS: BFI 60-on-120 — make the *calling UID* see 60 Hz on INTERNAL display,
+                // while the physical panel remains locked at 120 Hz for BFI cadence.
+                final boolean bfiOn =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                        && android.os.SystemProperties.getBoolean(
+                                "persist.gammaos.bfi.force_content_60", false);
+                final boolean isAppUid = callingUid >= android.os.Process.FIRST_APPLICATION_UID;
+                final boolean isInternal = baseInfo != null
+                        && baseInfo.type == android.view.Display.TYPE_INTERNAL;
+                if (bfiOn && isAppUid && isInternal) {
+                    // Caller-scoped view: prefer the modern field if present.
+                    try {
+                        info.refreshRateOverride = 60f;
+                        if (DEBUG) {
+                            Slog.d(TAG, "GammaOS(BFI): caller uid=" + callingUid
+                                    + " sees refreshRateOverride=60 on INTERNAL display "
+                                    + "(panel remains 120).");
+                        }
+                    } catch (Throwable t) {
+                        // Fall through: if field not available in this branch, we still return 'info'.
+                    }
+
+                    // Keep a DMS-local listing so 'dumpsys display' shows an explicit map,
+                    // and emit a frame-rate-override event for observers.
+                    mGammaFroByUid.put(callingUid, 60);
+                    try {
+                        sendDisplayEventFrameRateOverrideLocked(displayId);
+                    } catch (Throwable ignored) { /* best-effort */ }
+
+                    // Additionally, synthesize a FRO array for this caller so getDisplayInfoForFrameRateOverride
+                    // logic (and any older callers) resolve to 60 for this UID even on branches
+                    // where DisplayInfo.refreshRateOverride is not surfaced.
+                    try {
+                        final android.view.DisplayEventReceiver.FrameRateOverride[] fro =
+                                new android.view.DisplayEventReceiver.FrameRateOverride[] {
+                                        new android.view.DisplayEventReceiver.FrameRateOverride(
+                                                callingUid, 60f)
+                                };
+                        final DisplayInfo overridden =
+                                getDisplayInfoForFrameRateOverride(fro, baseInfo, callingUid);
+                        if (overridden != null) {
+                            return overridden;
+                        }
+                    } catch (Throwable ignored) { /* keep 'info' */ }
+                }
                 if (info.hasAccess(callingUid)
                         || isUidPresentOnDisplayInternal(callingUid, displayId)) {
                     return info;
@@ -3343,6 +3396,20 @@ public final class DisplayManagerService extends SystemService {
             pw.println("  mWifiDisplayScanRequestCount=" + mWifiDisplayScanRequestCount);
             pw.println("  mStableDisplaySize=" + mStableDisplaySize);
             pw.println("  mMinimumBrightnessCurve=" + mMinimumBrightnessCurve);
+
+            // GammaOS: show DMS-side FRO listing to aid debugging (uid -> Hz)
+            if (mGammaFroByUid.size() > 0) {
+                pw.println();
+                pw.println("GammaOS FrameRateOverrides (DMS-local): size=" + mGammaFroByUid.size());
+                for (int i = 0; i < mGammaFroByUid.size(); i++) {
+                    final int uid = mGammaFroByUid.keyAt(i);
+                    final int hz  = mGammaFroByUid.valueAt(i);
+                    pw.println("  uid=" + uid + " -> " + hz + ".0 Hz");
+                }
+            } else {
+                pw.println();
+                pw.println("GammaOS FrameRateOverrides (DMS-local): size=0");
+            }
 
             if (mUserPreferredMode != null) {
                 pw.println(" mUserPreferredMode=" + mUserPreferredMode);

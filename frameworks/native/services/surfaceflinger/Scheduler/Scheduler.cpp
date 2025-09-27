@@ -536,6 +536,15 @@ void Scheduler::disableHardwareVsync(PhysicalDisplayId id, bool disallow) {
     auto schedule = getVsyncSchedule(id);
     // GammaOS: During CONNECT hotplug the VsyncSchedule may not exist yet.
     // Do NOT abort here; just log and return. Callers should retry shortly.
+    
+    // GammaOS (BFI 60-on-120): While forcing 60-on-120, do NOT allow HW vsync to be disabled.
+    // We want the internal pacesetter locked to hardware vsync to avoid timer-only drift.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetBoolProperty("persist.gammaos.bfi.force_content_60", false)) {
+        ALOGI("[GammaOS][BFI] disableHardwareVsync(%s) suppressed (BFI-force active)",
+              to_string(id).c_str());
+        return;
+    }
     if (!schedule) {
         ALOGW("[GammaOS] disableHardwareVsync(%s): schedule not ready, deferring",
               to_string(id).c_str());
@@ -1037,10 +1046,27 @@ bool Scheduler::updateFrameRateOverrides(GlobalSignals consideredSignals, Fps di
 
 bool Scheduler::updateFrameRateOverridesLocked(GlobalSignals consideredSignals,
                                                Fps displayRefreshRate) {
-    // GammaOS: Disable content-based frame rate overrides completely.
-    // Always clear mappings so nothing can latch a 60 Hz override.
+    // GammaOS: Publish per-UID FRO when BFI 60-on-120 is active; otherwise keep content FRO disabled.
     (void)consideredSignals;
-    (void)displayRefreshRate;
+    // If BFI+force is ON, compute overrides from the pacesetter selector's view of active layers.
+    if (::android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        ::android::base::GetBoolProperty("persist.gammaos.bfi.force_content_60", false)) {
+        if (const auto selectorPtr = pacesetterSelectorPtr()) {
+            // Build requirements and ask the selector (which contains our GammaOS logic) for FROs.
+            LayerHistory::Summary summary = mLayerHistory.summarize(*selectorPtr, systemTime());
+            const auto overrides = selectorPtr->getFrameRateOverrides(summary, displayRefreshRate,
+                                                                      consideredSignals);
+            const bool changed =
+                    mFrameRateOverrideMappings.updateFrameRateOverridesByContent(overrides);
+            if (!overrides.empty()) {
+                ALOGI("[GammaOS][BFI] Published %zu FrameRateOverride(s) by content", overrides.size());
+            } else {
+                ALOGW("[GammaOS][BFI] No candidate UID found for FRO; leaving empty");
+            }
+            return changed;
+        }
+    }
+    // Default: keep content-based FRO disabled.
     return mFrameRateOverrideMappings.updateFrameRateOverridesByContent({});
 }
 
@@ -1053,6 +1079,20 @@ void Scheduler::promotePacesetterDisplay(std::optional<PhysicalDisplayId> pacese
     }
 
     applyNewVsyncSchedule(std::move(pacesetterVsyncSchedule));
+
+    // GammaOS (BFI 60-on-120): ensure hardware vsync is enabled for the pacesetter (internal)
+    // to minimize drift when apps render at 60 while panel runs at 120.
+    if (::android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        ::android::base::GetBoolProperty("persist.gammaos.bfi.force_content_60", false)) {
+        std::optional<PhysicalDisplayId> pid;
+        {
+            std::scoped_lock lock(mDisplayLock);
+            pid = mPacesetterDisplayId;
+        }
+        if (pid) {
+            enableHardwareVsync(*pid);
+        }
+    }
 }
 
 std::shared_ptr<VsyncSchedule> Scheduler::promotePacesetterDisplayLocked(

@@ -10109,6 +10109,18 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
         } else {
             ALOGW("[GammaOS] onActiveDisplayChanged: schedule not ready for %" PRIu64, physId.value);
         }
+
+        // GammaOS: single INTERNAL display -> prefer hardware vsync (avoid timer-only drift).
+        bool anyExternal = false;
+        for (const auto& [id, pd] : mPhysicalDisplays) {
+            if (!pd.isInternal()) { anyExternal = true; break; }
+        }
+        if (!anyExternal) {
+            // Enable HW vsync on the pacesetter (internal-only case).
+            mScheduler->enableHardwareVsync(physId);
+            ALOGI("[GammaOS] single-display: enabled HW vsync on physId=%" PRIu64,
+                  physId.value);
+        }
     }));
 
     onActiveDisplaySizeChanged(activeDisplay);

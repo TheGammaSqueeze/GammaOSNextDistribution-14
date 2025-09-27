@@ -52,6 +52,12 @@
 
 #include "EventThread.h"
 
+#include <android-base/properties.h>
+
+// FIRST_APPLICATION_UID isn’t exposed here on some trees; define a local guard.
+// On Android it’s 10000 for app UIDs.
+static constexpr uid_t kFirstApplicationUid = static_cast<uid_t>(10000);
+
 #undef LOG_TAG
 #define LOG_TAG "EventThread"
 
@@ -349,6 +355,25 @@ status_t EventThread::registerDisplayEventConnection(const sp<EventThreadConnect
 
     mDisplayEventConnections.push_back(connection);
     mCondition.notify_all();
+
+    // GammaOS (BFI 60-on-120): deliver every other vsync to app processes so they "see" ~60 Hz
+    // while the panel paces at 120 Hz. This forces Choreographer cadence for the UID.
+    // Safe guard: only when BFI+force is enabled and for application UIDs.
+    // NOTE: EventThread is per-display; this applies to the thread serving the internal display.
+    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
+        android::base::GetBoolProperty("persist.gammaos.bfi.force_content_60", false)) {
+        // Application UIDs start at FIRST_APPLICATION_UID (10000).
+        if (connection->mOwnerUid >= kFirstApplicationUid) {
+            // Periodic{2} = one callback every two pacesetter vsyncs (~60 on a 120 Hz panel).
+            // Using the binder API ensures the proper internal state is updated + wakeups.
+            // (Equivalent to setVsyncRate(2) here.)
+            connection->vsyncRequest = static_cast<VSyncRequest>(2); // Periodic{period=2}
+            // Wake EventThread now so the new rate takes effect without needing a client call.
+            mCondition.notify_all();
+            ALOGI("[GammaOS][BFI] EventThread: uid=%d connection set to Periodic{2} (60 Hz callbacks)",
+                  int(connection->mOwnerUid));
+        }
+    }
     return NO_ERROR;
 }
 

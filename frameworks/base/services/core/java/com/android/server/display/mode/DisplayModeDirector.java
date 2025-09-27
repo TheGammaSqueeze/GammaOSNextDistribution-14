@@ -318,9 +318,48 @@ public class DisplayModeDirector {
                         + " syncVote=" + vSync);
             }
 
-            // GammaOS: hard refresh lock — force highest refresh within the default
-            // resolution group (e.g., 120 Hz on a 120 Hz-capable panel) and ignore votes.
-            if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+            // GammaOS: BFI 60 clamp — if BFI is enabled AND force_content_60 is set,
+            // clamp app render to [60,60] while keeping the panel at its max in-group Hz.
+            try {
+                final boolean __gammaBfiOn =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false);
+                final boolean __gammaForce60 =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.force_content_60", false);
+                if (__gammaBfiOn && __gammaForce60) {
+                    // Pick highest-Hz mode at default resolution (e.g. 120 Hz)
+                    final int __defW = defaultMode.getPhysicalWidth();
+                    final int __defH = defaultMode.getPhysicalHeight();
+                    Display.Mode __best = defaultMode;
+                    for (Display.Mode m : modes) {
+                        if (m.getPhysicalWidth() == __defW && m.getPhysicalHeight() == __defH) {
+                            if (m.getRefreshRate() > __best.getRefreshRate()) {
+                                __best = m;
+                            }
+                        }
+                    }
+                    final float __fps = __best.getRefreshRate();
+                    final RefreshRateRanges __primary =
+                            new RefreshRateRanges(
+                                    new RefreshRateRange(__fps, __fps),
+                                    new RefreshRateRange(__fps, __fps));
+                    final RefreshRateRanges __app =
+                            new RefreshRateRanges(
+                                    new RefreshRateRange(__fps, __fps),
+                                    new RefreshRateRange(60f, 60f));
+                    if (mLoggingEnabled) {
+                        Slog.i(TAG, "[GammaOS] BFI FORCE 60: base@" + __fps + "Hz, app.render=[60,60]");
+                    }
+                    return new DesiredDisplayModeSpecs(__best.getModeId(),
+                            /*allowGroupSwitching*/ false, __primary, __app);
+                }
+            } catch (Throwable __t) {
+                Slog.w(TAG, "[GammaOS] BFI FORCE 60 failed: " + __t);
+            }
+
+            // GammaOS: hard refresh lock — force max Hz in the default resolution group
+            if (android.os.SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+                final boolean bfiOn = android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false);
+                final boolean forceContent60 = android.os.SystemProperties.getBoolean("persist.gammaos.bfi.force_content_60", false);
                 // Pick the highest-Hz mode that matches the default mode's physical size.
                 final int defW = defaultMode.getPhysicalWidth();
                 final int defH = defaultMode.getPhysicalHeight();
@@ -332,22 +371,43 @@ public class DisplayModeDirector {
                         }
                     }
                 }
-                final float fps = best.getRefreshRate();
-                final RefreshRateRange range = new RefreshRateRange(fps, fps);
-                final RefreshRateRanges ranges = new RefreshRateRanges(range, range);
-                // Keep group switching off to avoid res changes; we just want max Hz in-group.
+                final float fps = best.getRefreshRate();              // e.g. 120.00001
+                // primary: physical=[fps,fps], render=[fps,fps]  (panel fixed at max in-group)
+                final RefreshRateRanges primaryRanges =
+                        new RefreshRateRanges(
+                                new RefreshRateRange(fps, fps),
+                                new RefreshRateRange(fps, fps));
+                // appRequest: physical=[fps,fps] (no mode drop)
+                // render:     when BFI+force set -> [60,60]  else -> [0,fps]
+                final RefreshRateRange appRenderRange =
+                        (bfiOn && forceContent60)
+                                ? new RefreshRateRange(60f, 60f)
+                                : new RefreshRateRange(0f, fps);
+                // When BFI is enabled *and* we force content to 60, clamp app render to [60,60].
+                final RefreshRateRanges appRanges = new RefreshRateRanges(
+                            new RefreshRateRange(fps, fps),                         // physical (no mode drops)
+                            (bfiOn && forceContent60) ? new RefreshRateRange(60f, 60f)
+                                                      : new RefreshRateRange(0f, fps)); // render
+                if (mLoggingEnabled) {
+                    android.util.Slog.i(TAG, "[GammaOS] REFRESH_LOCK base@" + fps
+                            + "Hz, app.render=" + ((bfiOn && forceContent60) ? "[60,60]" : "[0," + fps + "]")
+                            + " (BFI=" + bfiOn + ", force60=" + forceContent60 + ")");
+                }
                 return new DesiredDisplayModeSpecs(
                         best.getModeId(),
                         /*allowGroupSwitching*/ false,
-                        ranges,
-                        ranges);
+                        primaryRanges,
+                        appRanges);
             }
 
             // GammaOS: keep primary/internal display at its native highest refresh when external
             // displays are connected. Gated by persist.gammaos.keep_primary_hr_when_external
             // so we don't regress stock behavior. We intentionally keep group switching off.
             try {
+                // Keep-primary-high-refresh on INTERNAL when no external is present
                 if (gammaKeepPrimary && !mDisplayObserver.isExternalDisplayLocked(displayId)) {
+                    final boolean bfiOn = android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false);
+                    final boolean forceContent60 = android.os.SystemProperties.getBoolean("persist.gammaos.bfi.force_content_60", false);
                     // Stick to the highest refresh mode within the default resolution group.
                     final int defW = defaultMode.getPhysicalWidth();
                     final int defH = defaultMode.getPhysicalHeight();
@@ -360,18 +420,30 @@ public class DisplayModeDirector {
                         }
                     }
                     final float fps = best.getRefreshRate();
-                    final RefreshRateRange range = new RefreshRateRange(fps, fps);
-                    final RefreshRateRanges ranges = new RefreshRateRanges(range, range);
+                    // primary fixed at max Hz
+                    final RefreshRateRanges primaryRanges =
+                            new RefreshRateRanges(
+                                    new RefreshRateRange(fps, fps),
+                                    new RefreshRateRange(fps, fps));
+                    // app render: clamp to 60 when BFI+force set, else keep open 0..fps
+                    final RefreshRateRange appRenderRange =
+                            (bfiOn && forceContent60)
+                                    ? new RefreshRateRange(60f, 60f)
+                                    : new RefreshRateRange(0f, fps);
+                    final RefreshRateRanges appRanges = new RefreshRateRanges(
+                                new RefreshRateRange(fps, fps),
+                                (bfiOn && forceContent60) ? new RefreshRateRange(60f, 60f)
+                                                          : new RefreshRateRange(0f, fps));
                     if (mLoggingEnabled) {
-                        Slog.i(TAG, "[GammaOS] Pin INTERNAL displayId=" + displayId
-                                + " at " + fps + " Hz (modeId=" + best.getModeId()
-                                + "), disable render switching; externals free-run.");
+                        android.util.Slog.i(TAG, "[GammaOS] KEEP_PRIMARY base@" + fps
+                                + "Hz, app.render=" + ((bfiOn && forceContent60) ? "[60,60]" : "[0," + fps + "]")
+                                + " (BFI=" + bfiOn + ", force60=" + forceContent60 + "); externals free-run");
                     }
                     return new DesiredDisplayModeSpecs(
                             best.getModeId(),
                             /*allowGroupSwitching*/ false,
-                            ranges,
-                            ranges);
+                            primaryRanges,
+                            appRanges);
                 }
             } catch (Throwable t) {
                 Slog.w(TAG, "[GammaOS] keep_primary_hr_when_external failed: " + t);
@@ -1141,6 +1213,24 @@ public class DisplayModeDirector {
             // used to predict if we're going to be doing frequent refresh rate switching, and if
             // so, enable the brightness observer. The logic here is more complicated and fragile
             // than necessary, and we should improve it. See b/156304339 for more info.
+
+            // GammaOS: When BFI 60-on-120 is forced, do not let the USER_MIN=120 clamp override the
+            // app-render 60 clamp. For the internal display only, neutralize the min vote to 0.
+            try {
+                final boolean __bfiOn =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false);
+                final boolean __force60 =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.force_content_60", false);
+                final boolean __isExternal =
+                        mDisplayObserver.isExternalDisplayLocked(displayId);
+                if (__bfiOn && __force60 && !__isExternal) {
+                    if (mLoggingEnabled) {
+                        android.util.Slog.i(TAG, "[GammaOS] BFI force: neutralize USER_MIN render vote on internal display");
+                    }
+                    minRefreshRate = 0f;
+                }
+            } catch (Throwable __t) { /* ignore */ }
+
             Vote peakVote = peakRefreshRate == 0f
                     ? null
                     : Vote.forRenderFrameRates(0f, Math.max(minRefreshRate, peakRefreshRate));
@@ -1253,6 +1343,23 @@ public class DisplayModeDirector {
         public void setAppRequest(int displayId, int modeId, float requestedMinRefreshRateRange,
                 float requestedMaxRefreshRateRange) {
             synchronized (mLock) {
+                // GammaOS: In BFI 60-on-120 mode, clamp the *app-request render* to (60,60)
+                // and suppress any base-mode push on the INTERNAL display so a 120Hz request
+                // cannot outvote the 60Hz render clamp. The panel stays locked at 120 elsewhere.
+                final boolean __bfiOn =
+                        android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                        && android.os.SystemProperties.getBoolean(
+                                "persist.gammaos.bfi.force_content_60", false);
+                if (__bfiOn && !mDisplayObserver.isExternalDisplayLocked(displayId)) {
+                    requestedMinRefreshRateRange = 60f;
+                    requestedMaxRefreshRateRange = 60f;
+                    modeId = INVALID_MODE_ID; // ignore base-mode push from app
+                    if (mLoggingEnabled) {
+                        android.util.Slog.d(TAG,
+                                "[GammaOS][BFI] AppRequest: force render=(60,60), "
+                                        + "ignore base-mode on INTERNAL (disp=" + displayId + ")");
+                    }
+                }
                 setAppRequestedModeLocked(displayId, modeId);
                 setAppPreferredRefreshRateRangeLocked(displayId, requestedMinRefreshRateRange,
                         requestedMaxRefreshRateRange);

@@ -1102,6 +1102,17 @@ public final class Display {
     public float getRefreshRate() {
         synchronized (mLock) {
             updateDisplayInfoLocked();
+            // GammaOS (BFI 60-on-120): if BFI force is enabled and this is the internal display,
+            // make apps *see* 60 Hz while the panel stays physically at 120 Hz.
+            try {
+                if (android.os.SystemProperties.getBoolean("persist.gammaos.bfi.enable", false)
+                        && android.os.SystemProperties.getBoolean("persist.gammaos.bfi.force_content_60", false)
+                        && getType() == TYPE_INTERNAL) {
+                    return 60f;
+                }
+            } catch (Throwable t) {
+                // fall through to base path
+            }
             return mDisplayInfo.getRefreshRate();
         }
     }

@@ -413,6 +413,25 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
     int mRelayoutSeq = -1;
     int mLayoutSeq = -1;
 
+    // --- GammaOS compat helper: resolve MULTIPLE selection strategy via reflection if present ---
+    private static int resolveFrameRateStrategyMultiple() {
+        try {
+            // Prefer Surface constant if available on this platform
+            java.lang.reflect.Field f =
+                    android.view.Surface.class.getField("FRAME_RATE_SELECTION_STRATEGY_MULTIPLE");
+            return f.getInt(null);
+        } catch (Throwable ignored) {
+        }
+        try {
+            // Some trees place it on SurfaceControl as FRAME_RATE_SELECTION_STRATEGY_MULTIPLE
+            java.lang.reflect.Field f =
+                    android.view.SurfaceControl.class.getField("FRAME_RATE_SELECTION_STRATEGY_MULTIPLE");
+            return f.getInt(null);
+        } catch (Throwable ignored) {
+        }
+        return -1; // not supported on this platform
+    }
+
     /**
      * Used to store last reported to client configuration and check if we have newer available.
      * We'll send configuration to client only if it is different from the last applied one and
@@ -5177,16 +5196,14 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
                 // (kept: GammaOS external safety net)
             }
         }
-
-        // GammaOS: Force a 60 Hz content vote for steady 60 fps apps on high-refresh panels,
-        // to achieve clean 2x cadence at 120 Hz while keeping swap interval = 1.
-        // Applies when:
-        //  - persist.gammaos.force_60_vote = true  OR  package is RetroArch
-        //  - window is focused & visible and effectively fills the internal display
-        // Uses ONLY_IF_SEAMLESS so we never switch the display mode down to 60 Hz.
+        
+        // GammaOS: Prefer stable 60→120 cadence for RetroArch (or when toggled).
+        // Issue a 60 Hz content vote with ONLY_IF_SEAMLESS and bias SF to choose multiples.
+        // Guard: do NOT intervene if the app explicitly prefers or has voted > 61 Hz.
         try {
-            final boolean forceProp = android.os.SystemProperties.getBoolean(
-                    "persist.gammaos.force_60_vote", false);
+            // Keep the 60 Hz vote even during BFI+force so apps see ~60 Hz.
+            final boolean forceProp =
+                    android.os.SystemProperties.getBoolean("persist.gammaos.force_60_vote", false);
             final String pkg = getOwningPackage();
             final boolean isRetroArch = pkg != null && (
                     pkg.equals("com.retroarch")
@@ -5195,7 +5212,6 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             final DisplayContent dc2 = getDisplayContent();
             final boolean internal = (dc2 != null)
                     && (dc2.getDisplayInfo().type == android.view.Display.TYPE_INTERNAL);
-            // Guard: do NOT force 60 Hz if the app explicitly prefers >61 Hz or has a >61 Hz vote.
             final float preferred = (mAttrs != null) ? mAttrs.preferredRefreshRate : 0f;
             final boolean appPrefersHigh = preferred > 61f;
             final float voted = (mFrameRateVote != null) ? mFrameRateVote.mRefreshRate : 0f;
@@ -5207,15 +5223,31 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
                     && isVisibleRequested()
                     && fillsDisplay()
                     && !appPrefersHigh
-                    && !appVotedHigh) {
+                    && !appVotedHigh
+                    && mSurfaceControl != null
+                    && mSurfaceControl.isValid()) {
+                // Content vote: 60 Hz, keep panel at 120 via ONLY_IF_SEAMLESS
                 getPendingTransaction().setFrameRate(
                         mSurfaceControl,
                         60f,
                         Surface.FRAME_RATE_COMPATIBILITY_DEFAULT,
                         Surface.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS);
+                // Selection strategy (optional): prefer clean multiples (e.g., 120 for 60).
+                // Only apply if this platform exposes the MULTIPLE strategy constant.
+                try {
+                    final int MULTIPLE = resolveFrameRateStrategyMultiple();
+                    if (MULTIPLE >= 0) {
+                        // Use the 2-arg form on this platform: (surface, strategy)
+                        getPendingTransaction().setFrameRateSelectionStrategy(
+                                mSurfaceControl, MULTIPLE);
+                    }
+                } catch (Throwable t) {
+                    Slog.d(TAG,
+                            "GammaOS: MULTIPLE strategy not supported here; continuing with vote only.");
+                }
             }
         } catch (Throwable t) {
-            Slog.w(TAG, "GammaOS: force 60Hz vote failed", t);
+            Slog.w(TAG, "GammaOS: 60Hz vote/strategy failed", t);
         }
     }
 
