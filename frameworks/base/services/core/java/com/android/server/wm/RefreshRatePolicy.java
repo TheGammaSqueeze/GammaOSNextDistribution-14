@@ -69,6 +69,17 @@ class RefreshRatePolicy {
     private float mMinSupportedRefreshRate;
     private float mMaxSupportedRefreshRate;
 
+    // GammaOS: safe float SystemProperty reader (AOSP lacks SystemProperties.getFloat)
+    private static float readGammaFloatProp(String key, float def) {
+        final String s = android.os.SystemProperties.get(key, "");
+        if (s.isEmpty()) return def;
+        try {
+            return Float.parseFloat(s.trim());
+        } catch (NumberFormatException ignored) {
+            return def;
+        }
+    }
+
     /**
      * The following constants represent priority of the window. SF uses this information when
      * deciding which window has a priority when deciding about the refresh rate of the screen.
@@ -305,6 +316,28 @@ class RefreshRatePolicy {
     }
 
     float getPreferredMinRefreshRate(WindowState w) {
+        // GammaOS: global app FPS cap (e.g., 60) while panel may stay at 120 Hz.
+        // If persist.gammaos.app_fps_max > 0, cap ALL application windows on the INTERNAL display.
+        // This cooperates with RefreshRatePolicy/WindowState votes and uses frame-rate override,
+        // so SurfaceFlinger can present at 120 Hz without jitter.
+        final float gammaAppFpsCap = readGammaFloatProp("persist.gammaos.app_fps_max", 0f);
+        if (gammaAppFpsCap > 0f) {
+            final com.android.server.wm.DisplayContent dc = w.getDisplayContent();
+            final boolean isInternal = (dc != null)
+                    && (dc.getDisplayInfo().type == android.view.Display.TYPE_INTERNAL);
+            final int type = w.mAttrs.type;
+            final boolean isAppWindow =
+                    type >= android.view.WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW
+                    && type <= android.view.WindowManager.LayoutParams.LAST_APPLICATION_WINDOW;
+            // Keep SystemUI/IME unrestricted.
+            final String pkg = w.getOwningPackage();
+            final boolean isSystemUi = "com.android.systemui".equals(pkg)
+                    || "com.google.android.systemui".equals(pkg);
+            if (isInternal && isAppWindow && !isSystemUi) {
+                // Return the cap (bounded by panel max) as the preferred MAX.
+                return Math.min(gammaAppFpsCap, mMaxSupportedRefreshRate);
+            }
+        }
         // GammaOS: hard lock to panel rate when enabled.
         if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
             return mMaxSupportedRefreshRate;

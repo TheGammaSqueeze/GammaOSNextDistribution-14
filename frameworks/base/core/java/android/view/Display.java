@@ -90,6 +90,16 @@ import java.util.function.Consumer;
 public final class Display {
     private static final String TAG = "Display";
     private static final boolean DEBUG = false;
+ 
+    // GammaOS: property helpers
+    private static float gammaGetFloatProp(String key, float def) {
+        final String v = android.os.SystemProperties.get(key, "");
+        if (v == null || v.isEmpty()) return def;
+        try { return Float.parseFloat(v.trim()); } catch (NumberFormatException e) { return def; }
+    }
+    private static boolean gammaGetBoolProp(String key, boolean def) {
+        return android.os.SystemProperties.getBoolean(key, def);
+    }
 
     private final Object mLock = new Object();
     private final DisplayManagerGlobal mGlobal;
@@ -1113,6 +1123,15 @@ public final class Display {
             } catch (Throwable t) {
                 // fall through to base path
             }
+            // GammaOS: when app-fps reporting cap is enabled, make apps *see* capped rate.
+            if (gammaGetBoolProp("persist.gammaos.app_fps_report_cap", false)
+                    && getType() == TYPE_INTERNAL) {
+                final float cap = gammaGetFloatProp("persist.gammaos.app_fps_max", 0f);
+                if (cap > 0f) {
+                    final float physical = mDisplayInfo.getRefreshRate();
+                    return Math.min(cap, physical);
+                }
+            }
             return mDisplayInfo.getRefreshRate();
         }
     }
@@ -1162,6 +1181,17 @@ public final class Display {
         synchronized (mLock) {
             updateDisplayInfoLocked();
             final Display.Mode[] modes = mDisplayInfo.supportedModes;
+            // GammaOS: optionally filter modes above cap when reporting to apps.
+            if (gammaGetBoolProp("persist.gammaos.app_fps_report_cap", false)) {
+                final float cap = gammaGetFloatProp("persist.gammaos.app_fps_max", 0f);
+                if (cap > 0f && getType() == TYPE_INTERNAL) {
+                    java.util.ArrayList<Display.Mode> kept = new java.util.ArrayList<>(modes.length);
+                    for (Display.Mode m : modes) {
+                        if (m.getRefreshRate() <= cap + 0.01f) kept.add(m);
+                    }
+                    return kept.toArray(new Display.Mode[0]);
+                }
+            }
             return Arrays.copyOf(modes, modes.length);
         }
     }

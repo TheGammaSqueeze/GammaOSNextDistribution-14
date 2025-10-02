@@ -1126,6 +1126,24 @@ public final class DisplayManagerService extends SystemService {
         if (frameRateHz == 0) {
             return info;
         }
+ 
+        // GammaOS: detect cap reporting active for INTERNAL apps so we can also
+        // remap the reported modeId to a <= capped refresh, not just set refreshRateOverride.
+        boolean __gammaReportCap = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.app_fps_report_cap", false);
+        float __gammaCapHz = 0f;
+        if (__gammaReportCap) {
+            try {
+                final String v = android.os.SystemProperties.get("persist.gammaos.app_fps_max", "");
+                if (!v.isEmpty()) { __gammaCapHz = Float.parseFloat(v.trim()); }
+            } catch (Throwable t) { __gammaCapHz = 0f; }
+        }
+        final boolean __gammaCapActive =
+                __gammaReportCap && __gammaCapHz > 0f
+                && info != null && info.type == android.view.Display.TYPE_INTERNAL
+                && callingUid >= FIRST_APPLICATION_UID;
+
+        // For non-apps users we always return the physical refresh rate from display mode
 
         // For non-apps users we always return the physical refresh rate from display mode
         boolean displayModeReturnsPhysicalRefreshRate =
@@ -1159,7 +1177,7 @@ public final class DisplayManagerService extends SystemService {
                 }
                 overriddenInfo.refreshRateOverride = mode.getRefreshRate();
 
-                if (!displayModeReturnsPhysicalRefreshRate) {
+                if (__gammaCapActive || !displayModeReturnsPhysicalRefreshRate) {
                     overriddenInfo.modeId = mode.getModeId();
                 }
                 return overriddenInfo;
@@ -1179,6 +1197,19 @@ public final class DisplayManagerService extends SystemService {
             overriddenInfo.modeId =
                     overriddenInfo.supportedModes[overriddenInfo.supportedModes.length - 1]
                             .getModeId();
+            // GammaOS: if cap active, prefer returning the synthesized <=cap modeId to apps.
+            if (__gammaCapActive) {
+                // And hide >frameRateHz modes from caller to avoid engines re-picking >60.
+                if (overriddenInfo.supportedModes != null) {
+                    java.util.ArrayList<android.view.Display.Mode> kept = new java.util.ArrayList<>();
+                    for (android.view.Display.Mode m : overriddenInfo.supportedModes) {
+                        if (m.getRefreshRate() <= frameRateHz + 0.01f) kept.add(m);
+                    }
+                    if (!kept.isEmpty()) {
+                        overriddenInfo.supportedModes = kept.toArray(new android.view.Display.Mode[0]);
+                    }
+                }
+            }
         }
         return overriddenInfo;
     }
@@ -1191,6 +1222,33 @@ public final class DisplayManagerService extends SystemService {
                 final DisplayInfo info =
                         getDisplayInfoForFrameRateOverride(display.getFrameRateOverrides(),
                                 baseInfo, callingUid);
+                // GammaOS: global app-fps *reporting* cap for INTERNAL display (independent of BFI).
+                // If enabled, make callers (apps) *see* at most persist.gammaos.app_fps_max.
+                if (android.os.SystemProperties.getBoolean("persist.gammaos.app_fps_report_cap", false)) {
+                    final float cap = parseFloatProp("persist.gammaos.app_fps_max", 0f);
+                    final boolean isAppUid = callingUid >= android.os.Process.FIRST_APPLICATION_UID;
+                    final boolean isInternal = baseInfo != null
+                            && baseInfo.type == android.view.Display.TYPE_INTERNAL;
+                    if (cap > 0f && isAppUid && isInternal) {
+                        try {
+                            // Prefer to stamp logical render rate for the app's view.
+                            info.renderFrameRate = Math.min(cap, info.getMode().getRefreshRate());
+                        } catch (Throwable ignored) { /* field may not exist on some branches */ }
+                        // Also synthesize a FRO view for this caller so all paths resolve to <= cap.
+                        try {
+                            final android.view.DisplayEventReceiver.FrameRateOverride[] fro =
+                                    new android.view.DisplayEventReceiver.FrameRateOverride[] {
+                                            new android.view.DisplayEventReceiver.FrameRateOverride(
+                                                    callingUid, Math.min(cap, info.getMode().getRefreshRate()))
+                                    };
+                            final DisplayInfo overridden =
+                                    getDisplayInfoForFrameRateOverride(fro, baseInfo, callingUid);
+                            if (overridden != null) {
+                                return overridden;
+                            }
+                        } catch (Throwable ignored) { /* keep 'info' */ }
+                    }
+                }
 
                 // GammaOS: BFI 60-on-120 — make the *calling UID* see 60 Hz on INTERNAL display,
                 // while the physical panel remains locked at 120 Hz for BFI cadence.
@@ -5380,5 +5438,12 @@ public final class DisplayManagerService extends SystemService {
         public ExternalDisplayStatsService getExternalDisplayStatsService() {
             return mExternalDisplayStatsService;
         }
+    }
+
+    // GammaOS: tiny helper (no SystemProperties.getFloat in Java)
+    private static float parseFloatProp(String key, float def) {
+        final String v = android.os.SystemProperties.get(key, "");
+        if (v == null || v.isEmpty()) return def;
+        try { return Float.parseFloat(v.trim()); } catch (NumberFormatException e) { return def; }
     }
 }

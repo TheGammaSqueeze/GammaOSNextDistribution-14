@@ -199,6 +199,15 @@ struct GammaFlipTransState {
 };
 static std::unordered_map<uint64_t, GammaFlipTransState> gFlipTrans;
 
+// --- GammaOS BFI: CTM coalescing to avoid redundant Composer transactions ---
+enum class BfiCtmKind : int { NONE=0, IDENT=1, BLACK=2, DIMSAT=3 };
+struct BfiCtmLast {
+    BfiCtmKind kind = BfiCtmKind::NONE;
+    float dim = 0.f;
+    float sat = 1.f;
+};
+static std::unordered_map<uint64_t, BfiCtmLast> gBfiLastCtm;
+
 #ifdef QCOM_UM_FAMILY
 #if __has_include("QtiGralloc.h")
 #include "QtiGralloc.h"
@@ -3071,6 +3080,12 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                 if (ts.outRem > 0 || ts.inRem > 0 || st.flipArmed) {
                     // Already transitioning or armed; ignore extra pending flags from the timer.
                     st.flipPending = false;
+                } else if (!effectiveLit) {
+                    // Defer arming until we land on a LIT slot to avoid one-frame black.
+                    if (CC_UNLIKELY(bfiDebug())) {
+                        ALOGD("BFI flip: pending but deferring ARM (waiting for LIT slot)");
+                    }
+                    // keep st.flipPending = true
                 } else {
                     const int outF = std::max(0, android::base::GetIntProperty(
                             "persist.gammaos.bfi.flip.out_frames", 10));
@@ -3083,20 +3098,22 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                     ts.inTotal= inF;
                     // IMPORTANT: advance the timer now so it doesn't re-fire during fade-out.
                     st.lastFlipNs = nowNs;
-                    // Arm a 2-frame seam guard so we *always* land on lit frames around the flip.
-                    // Dim levels default to your seam props, but are overrideable via:
-                    //   persist.gammaos.bfi.seam_brightness           (frame 0)
-                    //   persist.gammaos.bfi.seam_follow_brightness    (frame 1)
-                    // If not set, we fall back to 0.92 for both (subtle, visible).
+                    // Arm a configurable seam guard so we *always* land on lit frames around flip.
+                    // Controls:
+                    //   persist.gammaos.bfi.seam_brightness            (first frame)
+                    //   persist.gammaos.bfi.seam_follow_brightness     (subsequent frames)
+                    //   persist.gammaos.bfi.flip.guard_frames          (count, default 2)
                     {
                         auto clamp01 = [](float v){ return v < 0.f ? 0.f : (v > 1.f ? 1.f : v); };
                         const std::string p0 = android::base::GetProperty("persist.gammaos.bfi.seam_brightness", "");
                         const std::string p1 = android::base::GetProperty("persist.gammaos.bfi.seam_follow_brightness", "");
-                        float d0 = p0.empty() ? 0.92f : strtof(p0.c_str(), nullptr);
-                        float d1 = p1.empty() ? 0.92f : strtof(p1.c_str(), nullptr);
+                        float d0 = p0.empty() ? 1.0f : strtof(p0.c_str(), nullptr);
+                        float d1 = p1.empty() ? 1.0f : strtof(p1.c_str(), nullptr);
+                        const int guardFrames = std::max(1, android::base::GetIntProperty(
+                                                          "persist.gammaos.bfi.flip.guard_frames", 2));
                         ts.seamDim0 = clamp01(d0);
                         ts.seamDim1 = clamp01(d1);
-                        ts.seamGuardRem = 2; // seam + post-seam frames
+                        ts.seamGuardRem = guardFrames;
                     }
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI flip: ARMED; fadeOut=%d fadeIn=%d (lit=%d)", outF, inF, effectiveLit?1:0);
@@ -3212,6 +3229,22 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                 // vendor CTM caching/ordering from showing a black blink one frame late.
                 // This is a one-shot consumed below in CTM selection.
                 gBfiForceIdentityNextOnce.store(true, std::memory_order_relaxed);
+                // Re-apply seam guard right at the polarity toggle boundary.
+                {
+                    const int guardFrames = std::max(1, android::base::GetIntProperty(
+                                                      "persist.gammaos.bfi.flip.guard_frames", 2));
+                    const float d0 = []{
+                        const std::string s = android::base::GetProperty("persist.gammaos.bfi.seam_brightness","1.0");
+                        return strtof(s.c_str(), nullptr);
+                    }();
+                    const float d1 = []{
+                        const std::string s = android::base::GetProperty("persist.gammaos.bfi.seam_follow_brightness","1.0");
+                        return strtof(s.c_str(), nullptr);
+                    }();
+                    ts.seamDim0 = std::max(0.f, std::min(d0, 1.f));
+                    ts.seamDim1 = std::max(0.f, std::min(d1, 1.f));
+                    ts.seamGuardRem = std::max(ts.seamGuardRem, guardFrames);
+                }
             }
         }
     }
@@ -3490,8 +3523,24 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
 
             // Hard stop: apply guard-next **only** on the first *lit* frame after the seam.
             // If this frame is black, leave the guard pending for the next frame.
+            // --- CTM coalescing helper (keyed by physical display id) ---
+            auto setCtmIfChanged = [&](const mat4& m, BfiCtmKind kind, float dim, float sat){
+                auto &last = gBfiLastCtm[ctmKey];
+                const float eps = 1e-4f;
+                bool changed = (last.kind != kind);
+                if (!changed && kind == BfiCtmKind::DIMSAT) {
+                    changed |= fabsf(last.dim - dim) > eps || fabsf(last.sat - sat) > eps;
+                }
+                if (changed) {
+                    refreshArgs.colorTransformMatrix = m;
+                    last.kind = kind; last.dim = dim; last.sat = sat;
+                } else {
+                    // no-op, keep previous CTM to avoid redundant Composer transactions
+                }
+            };
+
             if (forceIdentNext && !seamActive && !finalDrawBlack && !(transDimNow > 0.f)) {
-                refreshArgs.colorTransformMatrix = kIdent;
+                setCtmIfChanged(kIdent, BfiCtmKind::IDENT, 0.f, 1.f);
                 gBfiForceIdentityNextOnce.store(false, std::memory_order_relaxed);
                 if (CC_UNLIKELY(bfiDebug())) {
                     ALOGD("BFI CTM chosen: IDENT (guard-next on lit) [no transition]");
@@ -3531,8 +3580,8 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                             return strtof(s.c_str(), nullptr);
                         }();
                         // Real contrast (uses bias column) – only when explicitly allowed.
-                        refreshArgs.colorTransformMatrix =
-                                buildSatDimContrastRgb(transDimNow, transSatNow, c, p, gR, gG, gB);
+                        setCtmIfChanged(buildSatDimContrastRgb(transDimNow, transSatNow, c, p, gR, gG, gB),
+                                        BfiCtmKind::DIMSAT, transDimNow, transSatNow);
                     } else if (useContrast /*approximate*/){
                         // Bias-free approximation: push saturation and shape dim as a proxy
                         // so we stay HWC-safe and avoid client-comp/60fps.
@@ -3548,9 +3597,11 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                         const float gammaAdj = (c >= 1.f) ? (1.f + 0.15f*(c - 1.f))
                                                           : std::max(0.7f, 1.f - 0.15f*(1.f - c));
                         float dimAdj = powf(std::max(0.f, std::min(1.f, transDimNow)), gammaAdj);
-                        refreshArgs.colorTransformMatrix = buildSatDimRgb(dimAdj, satAdj, gR, gG, gB);
+                        setCtmIfChanged(buildSatDimRgb(dimAdj, satAdj, gR, gG, gB),
+                                        BfiCtmKind::DIMSAT, dimAdj, satAdj);
                     } else {
-                        refreshArgs.colorTransformMatrix = buildSatDimRgb(transDimNow, transSatNow, gR, gG, gB);
+                        setCtmIfChanged(buildSatDimRgb(transDimNow, transSatNow, gR, gG, gB),
+                                        BfiCtmKind::DIMSAT, transDimNow, transSatNow);
                     }
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI CTM chosen: %s (dim=%.3f sat=%.3f rgb=%.3f/%.3f/%.3f)%s [transition]",
@@ -3560,35 +3611,41 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
                     }
                 } else
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
-                    refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
+                    setCtmIfChanged(buildDim(seamDimNow), BfiCtmKind::DIMSAT, seamDimNow, 1.f);
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI CTM chosen: DIM(%.3f) [seamNow]", seamDimNow);
                     }
                 } else if (!finalDrawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
-                    refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
+                    setCtmIfChanged(buildDim(seamDimFollow), BfiCtmKind::DIMSAT, seamDimFollow, 1.f);
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI CTM chosen: DIM(%.3f) [follow]", seamDimFollow);
                     }
                 } else if (!seamActive &&
                            gBfiForceIdentityOnce.exchange(false, std::memory_order_relaxed)) {
                     // Guard: skip identity-once if we're in a seam; otherwise use ε-ident
-                    refreshArgs.colorTransformMatrix = kIdent;
+                    setCtmIfChanged(kIdent, BfiCtmKind::IDENT, 0.f, 1.f);
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI CTM chosen: IDENT (one-shot)");
                     }
                 } else {
-                    refreshArgs.colorTransformMatrix = finalDrawBlack ? kBlack : kIdent;
+                    if (finalDrawBlack) {
+                        setCtmIfChanged(kBlack, BfiCtmKind::BLACK, 0.f, 1.f);
+                    } else {
+                        setCtmIfChanged(kIdent, BfiCtmKind::IDENT, 0.f, 1.f);
+                    }
                     if (CC_UNLIKELY(bfiDebug())) {
                         ALOGD("BFI CTM chosen: %s", finalDrawBlack ? "BLACK" : "IDENT");
                     }
                 }
             } else { // bfiMode == "re"  (mirror the seam ramp into RE path)
                 if (seamDimNow > 0.f && seamDimNow < 1.f) {
-                    refreshArgs.colorTransformMatrix = buildDim(seamDimNow);
+                    setCtmIfChanged(buildDim(seamDimNow), BfiCtmKind::DIMSAT, seamDimNow, 1.f);
                 } else if (!finalDrawBlack && seamDimFollow > 0.f && seamDimFollow < 1.f) {
-                    refreshArgs.colorTransformMatrix = buildDim(seamDimFollow);
+                    setCtmIfChanged(buildDim(seamDimFollow), BfiCtmKind::DIMSAT, seamDimFollow, 1.f);
                 } else if (!seamActive) { // non-seam: allow black vs ident normally
-                    refreshArgs.colorTransformMatrix = finalDrawBlack ? kBlack : kIdent;
+                    setCtmIfChanged(finalDrawBlack ? kBlack : kIdent,
+                                    finalDrawBlack ? BfiCtmKind::BLACK : BfiCtmKind::IDENT,
+                                    0.f, 1.f);
                 }
             }
         }
