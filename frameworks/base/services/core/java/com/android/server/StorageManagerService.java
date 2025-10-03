@@ -4543,7 +4543,7 @@ class StorageManagerService extends IStorageManager.Stub
             if (hasInstall || hasInstallOp) {
                 return StorageManager.MOUNT_MODE_EXTERNAL_INSTALLER;
             }
-            return StorageManager.MOUNT_MODE_EXTERNAL_PASS_THROUGH;
+            return StorageManager.MOUNT_MODE_EXTERNAL_DEFAULT;
         } catch (RemoteException e) {
             // Should not happen
         }
