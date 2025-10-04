@@ -1729,6 +1729,12 @@
       "group": "WM_DEBUG_ORIENTATION",
       "at": "com\/android\/server\/wm\/DisplayRotation.java"
     },
+    "-4141694897600581164": {
+      "message": "GammaOS: square-grace clamps family to %s",
+      "level": "VERBOSE",
+      "group": "WM_DEBUG_ORIENTATION",
+      "at": "com\/android\/server\/wm\/DisplayRotation.java"
+    },
     "5325136615007859122": {
       "message": "Invalid surface rotation angle in config_deviceTabletopRotations: %d",
       "level": "ERROR",

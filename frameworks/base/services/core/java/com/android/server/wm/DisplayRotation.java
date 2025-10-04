@@ -223,6 +223,10 @@ public class DisplayRotation {
     @AllowAllRotations
     private int mAllowAllRotations = ALLOW_ALL_ROTATIONS_UNDEFINED;
 
+    // GammaOS: square-mode grace clamp to prevent instant family jump at 1:1 switch
+    private boolean mIsSquareMode = false;
+    private long mSquareStickUntil = 0L;
+
     private int mUserRotationAngles = -1;
 
     @WindowManagerPolicy.UserRotationMode
@@ -400,6 +404,19 @@ public class DisplayRotation {
     }
 
     void configure(int width, int height) {
+        // GammaOS: when the logical display is perfectly square (e.g., 720x720),
+        // keep the natural mapping from last non-square AND arm a short grace window
+        // to prevent an immediate 0↔90/270 family jump at the moment of switching.
+        if (width == height && width > 0) {
+            final int stickyMs = SystemProperties.getInt("persist.gammaos.square.sticky_ms", 1200);
+            mIsSquareMode = true;
+            mSquareStickUntil = SystemClock.uptimeMillis() + Math.max(0, stickyMs);
+            Slog.d(TAG, "DisplayRotation: enter square " + width + "x" + height
+                    + ", stick families until +" + stickyMs + "ms");
+            return; // keep existing natural mapping intact
+        } else {
+            mIsSquareMode = false; // leaving square
+        }
         final Resources res = mContext.getResources();
         if (width > height) {
             mLandscapeRotation = Surface.ROTATION_0;
@@ -1243,22 +1260,6 @@ public class DisplayRotation {
         int sensorRotation = mOrientationListener != null
                 ? mOrientationListener.getProposedRotation() // may be -1
                 : -1;
-        // GammaOS: avoid spurious 90° flips on square displays (e.g., 720x720).
-        // If logical width == height, keep portrait (ROTATION_0) as the stable default
-        // for user/unspecified orientations, ignoring accelerometer-driven landscape flips.
-        final DisplayInfo _di = mDisplayContent.getDisplayInfo();
-        if (_di != null && _di.logicalWidth == _di.logicalHeight) {
-            switch (orientation) {
-                case ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED:
-                case ActivityInfo.SCREEN_ORIENTATION_USER:
-                case ActivityInfo.SCREEN_ORIENTATION_FULL_USER:
-                case ActivityInfo.SCREEN_ORIENTATION_SENSOR:
-                case ActivityInfo.SCREEN_ORIENTATION_NOSENSOR:
-                case ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR:
-                    sensorRotation = mPortraitRotation;
-                    break;
-            }
-        }
 
         if (mFoldController != null && mFoldController.shouldIgnoreSensorRotation()) {
             sensorRotation = -1;
@@ -1270,6 +1271,43 @@ public class DisplayRotation {
         if (sensorRotation < 0) {
             sensorRotation = lastRotation;
         }
+
+        // --- GammaOS: square-mode grace window to prevent instant family jump at 1:1 entry ---
+        final boolean squareGraceActive =
+                mIsSquareMode && SystemClock.uptimeMillis() < mSquareStickUntil;
+        if (squareGraceActive) {
+            final boolean reqPortraitFamily =
+                    orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+            final boolean reqLandscapeFamily =
+                    orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+            final boolean reqGenericUserOrSensor =
+                    orientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_USER
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                 || orientation == ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
+
+            if (reqPortraitFamily || reqLandscapeFamily || reqGenericUserOrSensor) {
+                // If we're switching families right after square entry, clamp to last family.
+                final boolean lastIsPortrait = isAnyPortrait(lastRotation);
+                final boolean lastIsLandscape = isLandscapeOrSeascape(lastRotation);
+                final boolean sensorIsPortrait = isAnyPortrait(sensorRotation);
+                final boolean sensorIsLandscape = isLandscapeOrSeascape(sensorRotation);
+                if ((lastIsPortrait && sensorIsLandscape) || (lastIsLandscape && sensorIsPortrait)) {
+                    sensorRotation = lastRotation; // keep 0↔180 or 90↔270 only
+                    ProtoLog.v(WM_DEBUG_ORIENTATION, "GammaOS: square-grace clamps family to %s",
+                            Surface.rotationToString(sensorRotation));
+                }
+            }
+        }
+        // --- end GammaOS square-mode grace ---
 
         final int lidState = mDisplayPolicy.getLidState();
         final int dockMode = mDisplayPolicy.getDockMode();
