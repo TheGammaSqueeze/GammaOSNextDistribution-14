@@ -3198,7 +3198,28 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
         refreshArgs.devOptForceClientComposition = true;
     }
     
- 
+    // GammaOS: optionally force GPU composition while an EXTERNAL physical display is present.
+    // We can't set this per-display here (refreshArgs is global for this composite),
+    // so we enable it only when any non-internal physical display is currently connected.
+    if (android::base::GetBoolProperty("persist.gammaos.force_client_comp", false)) {
+        bool hasExternal = false;
+        {
+            ftl::FakeGuard guard(mStateLock);
+            for (const auto& [token, dd] : mDisplays) {
+                if (dd->isVirtual()) continue;
+                const auto physId = dd->getPhysicalId();
+                const bool isInternal =
+                        mPhysicalDisplays.get(physId)
+                                .transform(&PhysicalDisplay::isInternal)
+                                .value_or(false);
+                if (!isInternal) { hasExternal = true; break; }
+            }
+        }
+        if (hasExternal) {
+            refreshArgs.devOptForceClientComposition = true;
+        }
+    }
+
     // GammaOS: Sub-frame BFI (RenderEngine) also needs client comp + full damage
     const bool subBfiOn = android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false);
     if (subBfiOn) {
