@@ -141,6 +141,14 @@ public class AudioDeviceBroker {
     private static boolean isUnisocEnabled() {
         return SystemProperties.getBoolean("persist.gammaos.unisoc.hdmi.enable", false);
     }
+
+    // === Allwinner gate (dynamic) ===
+    private static boolean isAllwinnerEnabled() {
+        return android.os.SystemProperties.getBoolean("persist.gammaos.allwinner.hdmi.enable",
+                false);
+    }
+    // NOTE: we reuse mUnisocHdmiAttached as a generic "HDMI attached by workaround" flag.
+
     // set true after we (successfully) registered HDMI devices via this workaround
     private boolean mUnisocHdmiAttached = false;
     // Display hotplug hook (when ACTION_HDMI_AUDIO_PLUG is missing on UniSoc)
@@ -2026,9 +2034,9 @@ public class AudioDeviceBroker {
 
                 case MSG_TOGGLE_HDMI:
                     synchronized (mDeviceStateLock) {
-                        // ===== GammaOS: UniSoc HDMI audio registration (event-driven) =====
+                        // ===== GammaOS: Vendor HDMI audio registration (event-driven) =====
                         if (isUnisocEnabled()) {
-                            // UniSoc workaround: skip stock HDMI toggle to avoid stale 0x400 re-adds
+                            // UniSoc: skip stock toggle to avoid stale 0x400 re-adds
                             Log.d(TAG, "GammaHDMI(UNISOC) gate=ON, evaluate evidence… (skip stock onToggleHdmi)");
                             final boolean evidence = hasUnisocHdmiAudioEvidence();
                             if (evidence && !mUnisocHdmiAttached) {
@@ -2056,6 +2064,36 @@ public class AudioDeviceBroker {
                                 mDeviceInventory.reapplyExternalDevicesRoles();
                             } else {
                                 Log.d(TAG, "GammaHDMI(UNISOC) no-op (evidence=" + evidence
+                                        + " attached=" + mUnisocHdmiAttached + ")");
+                            }
+                        } else if (isAllwinnerEnabled()) {
+                            // Allwinner: use extcon (primary) + DRM (optional); skip stock toggle
+                            Log.d(TAG, "GammaHDMI(ALLWINNER) gate=ON, evaluate evidence… (skip stock onToggleHdmi)");
+                            final boolean evidence = hasAllwinnerHdmiAudioEvidence();
+                            if (evidence && !mUnisocHdmiAttached) {
+                                final AudioDeviceAttributes hdmiOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
+                                final AudioDeviceAttributes hdmiIn =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_IN_HDMI, "");
+                                final boolean c1 = handleDeviceConnection(hdmiOut, true, /*bt*/null);
+                                final boolean c2 = handleDeviceConnection(hdmiIn,  true, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ALLWINNER) register OUT=" + c1 + " IN=" + c2);
+                                unisocHdmiApplyPreferredRolesOrRetry(hdmiOut, /*retry*/true);
+                                mUnisocHdmiAttached = true;
+                            } else if (!evidence && mUnisocHdmiAttached) {
+                                final AudioDeviceAttributes hdmiOut =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_OUT_HDMI, "");
+                                final AudioDeviceAttributes hdmiIn =
+                                        new AudioDeviceAttributes(AudioSystem.DEVICE_IN_HDMI, "");
+                                unisocHdmiClearPreferredRoles();
+                                handleDeviceConnection(hdmiOut, false, /*bt*/null);
+                                handleDeviceConnection(hdmiIn,  false, /*bt*/null);
+                                Log.i(TAG, "GammaHDMI(ALLWINNER) unregistered OUT/IN");
+                                mUnisocHdmiAttached = false;
+                                mDeviceInventory.applyConnectedDevicesRoles();
+                                mDeviceInventory.reapplyExternalDevicesRoles();
+                            } else {
+                                Log.d(TAG, "GammaHDMI(ALLWINNER) no-op (evidence=" + evidence
                                         + " attached=" + mUnisocHdmiAttached + ")");
                             }
                         } else {
@@ -3014,5 +3052,66 @@ public class AudioDeviceBroker {
         }
         mDeviceInventory.applyConnectedDevicesRoles();
         mDeviceInventory.reapplyExternalDevicesRoles();
+    }
+    
+    // ===== Allwinner HDMI evidence (extcon primary, DRM optional) =====
+    private boolean hasAllwinnerHdmiAudioEvidence() {
+        final boolean ex = awExtconHdmiAsserted();
+        final boolean drm = awDrmHdmiConnected(); // may be absent on some kernels
+        final boolean ok = ex || drm;  // extcon alone is sufficient on Allwinner
+        Log.i(TAG, "GammaHDMI(ALLWINNER) evidence extcon=" + ex + " drm=" + drm + " → " + ok);
+        return ok;
+    }
+
+    private boolean awExtconHdmiAsserted() {
+        final File extconDir = new File("/sys/class/extcon");
+        final File[] nodes = extconDir.listFiles();
+        if (nodes == null) return false;
+        for (File n : nodes) {
+            try {
+                final File nameF = new File(n, "name");
+                final File stateF = new File(n, "state");
+                if (!nameF.exists() || !stateF.exists()) continue;
+                final String name = readOneLine(nameF);
+                if (name == null || !name.toLowerCase().contains("hdmi")) continue;
+                final String state = readOneLine(stateF);
+                if (state != null) {
+                    final String u = state.trim().toUpperCase();
+                    if (u.contains("HDMI=1") || u.equals("1")) return true;
+                }
+                // some kernels expose cable.0/state
+                final File cable0 = new File(n, "cable.0/state");
+                if (cable0.exists()) {
+                    final String c0 = readOneLine(cable0);
+                    if (c0 != null && c0.trim().equals("1")) return true;
+                }
+            } catch (Exception ignored) { }
+        }
+        return false;
+    }
+
+    private boolean awDrmHdmiConnected() {
+        final File drmDir = new File("/sys/class/drm");
+        final File[] kids = drmDir.listFiles();
+        if (kids == null) return false;
+        for (File k : kids) {
+            if (!k.isDirectory()) continue;
+            final String nm = k.getName();
+            if (!nm.toUpperCase().contains("HDMI")) continue;
+            final File st = new File(k, "status");
+            if (!st.exists()) continue;
+            final String v = readOneLine(st);
+            if (v != null && "connected".equalsIgnoreCase(v.trim())) return true;
+        }
+        return false;
+    }
+
+    // Small helper: read the first line of a file safely
+    private static String readOneLine(File f) {
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            return br.readLine();
+        } catch (IOException ignored) {
+            return null;
+        }
     }
 }
