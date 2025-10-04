@@ -72,6 +72,7 @@ import android.util.proto.ProtoOutputStream;
 import android.view.DisplayAddress;
 import android.view.IWindowManager;
 import android.view.Surface;
+import android.view.DisplayInfo;
 import android.window.TransitionRequestInfo;
 import android.window.WindowContainerTransaction;
 
@@ -1242,6 +1243,23 @@ public class DisplayRotation {
         int sensorRotation = mOrientationListener != null
                 ? mOrientationListener.getProposedRotation() // may be -1
                 : -1;
+        // GammaOS: avoid spurious 90° flips on square displays (e.g., 720x720).
+        // If logical width == height, keep portrait (ROTATION_0) as the stable default
+        // for user/unspecified orientations, ignoring accelerometer-driven landscape flips.
+        final DisplayInfo _di = mDisplayContent.getDisplayInfo();
+        if (_di != null && _di.logicalWidth == _di.logicalHeight) {
+            switch (orientation) {
+                case ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED:
+                case ActivityInfo.SCREEN_ORIENTATION_USER:
+                case ActivityInfo.SCREEN_ORIENTATION_FULL_USER:
+                case ActivityInfo.SCREEN_ORIENTATION_SENSOR:
+                case ActivityInfo.SCREEN_ORIENTATION_NOSENSOR:
+                case ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR:
+                    sensorRotation = mPortraitRotation;
+                    break;
+            }
+        }
+
         if (mFoldController != null && mFoldController.shouldIgnoreSensorRotation()) {
             sensorRotation = -1;
         }
