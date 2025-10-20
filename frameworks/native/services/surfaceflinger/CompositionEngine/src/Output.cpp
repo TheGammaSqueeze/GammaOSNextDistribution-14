@@ -97,6 +97,35 @@ ScaleVector getScale(const Rect& from, const Rect& to) {
             .y = static_cast<float>(to.height()) / from.height()};
 }
 
+// -------- GammaOS: keep underlay visible under SystemUI shade ----------
+// We relax "opaque coverage" when the top layer looks like the SystemUI shade,
+// so lower layers (e.g., RetroArch) keep being composed while QS/StatusBar is open.
+// Heuristic is name-based (no extra headers): we match the FE debug name.
+// Gate via persist.gammaos.sf.keep_underlay_on_shade (default: true).
+inline bool keepUnderlayOnShadeEnabled() {
+    // property cached once per process
+    static const bool kEnabled =
+            android::base::GetBoolProperty("persist.gammaos.sf.keep_underlay_on_shade", true);
+    return kEnabled;
+}
+
+inline bool isLikelySystemUiShadeName(const char* n) {
+    if (!n) return false;
+    // Common surfaces in traces/logs:
+    //  - "NotificationShade" (AOSP)
+    //  - "SystemUIDialog"
+    //  - "QSPanel", "Shade", "StatusBar" children
+    auto contains = [&](const char* s) {
+        return std::strstr(n, s) != nullptr;
+    };
+    return contains("NotificationShade")
+        || contains("SystemUIDialog")
+        || contains("QSPanel")
+        || contains("Shade")
+        || contains("StatusBar");
+}
+// -----------------------------------------------------------------------
+
 } // namespace
 
 std::shared_ptr<Output> createOutput(
@@ -574,6 +603,17 @@ void Output::ensureOutputLayerIfVisible(sp<compositionengine::LayerFE>& layerFE,
         return;
     }
 
+    // GammaOS: If this layer is the SystemUI shade and our gate is enabled,
+    // treat it as *non-opaque for coverage purposes* so we never cull the
+    // underlay (e.g., RetroArch) when the shade is expanded.
+    bool treatAsOpaque = layerFEState->isOpaque;
+    if (CC_UNLIKELY(keepUnderlayOnShadeEnabled())) {
+        const char* dbgName = layerFE->getDebugName();
+        if (CC_UNLIKELY(isLikelySystemUiShadeName(dbgName))) {
+            treatAsOpaque = false;
+        }
+    }
+
     bool computeAboveCoveredExcludingOverlays = coverage.aboveCoveredLayersExcludingOverlays &&
             !layerFEState->outputFilter.toInternalDisplay;
 
@@ -646,7 +686,7 @@ void Output::ensureOutputLayerIfVisible(sp<compositionengine::LayerFE>& layerFE,
     }
 
     // Remove the transparent area from the visible region
-    if (!layerFEState->isOpaque) {
+    if (!treatAsOpaque) {
         if (tr.preserveRects()) {
             // Clip the transparent region to geomLayerBounds first
             // The transparent region may be influenced by applications, for
@@ -680,7 +720,7 @@ void Output::ensureOutputLayerIfVisible(sp<compositionengine::LayerFE>& layerFE,
 
     // compute the opaque region
     const auto layerOrientation = tr.getOrientation();
-    if (layerFEState->isOpaque && ((layerOrientation & ui::Transform::ROT_INVALID) == 0)) {
+    if (treatAsOpaque && ((layerOrientation & ui::Transform::ROT_INVALID) == 0)) {
         // If we one of the simple category of transforms (0/90/180/270 rotation
         // + any flip), then the opaque region is the layer's footprint.
         // Otherwise we don't try and compute the opaque region since there may

@@ -24,6 +24,7 @@
 #define ATRACE_TAG ATRACE_TAG_GRAPHICS
 
 #include <algorithm>
+#include <android-base/properties.h>
 #include <chrono>
 #include <sstream>
 
@@ -73,6 +74,11 @@ inline size_t VSyncPredictor::next(size_t i) const {
 }
 
 nsecs_t VSyncPredictor::idealPeriod() const {
+    const uint64_t overrideNs = android::base::GetUintProperty<uint64_t>(
+            "persist.gammaos.vsync_period_ns", /*default*/0);
+    if (overrideNs > 0) {
+        return static_cast<nsecs_t>(overrideNs);
+    }
     return mDisplayModePtr->getVsyncRate().getPeriodNsecs();
 }
 
