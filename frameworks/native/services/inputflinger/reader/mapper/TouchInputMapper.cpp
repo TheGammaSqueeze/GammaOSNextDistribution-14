@@ -456,9 +456,35 @@ TouchInputMapper::Parameters TouchInputMapper::computeParameters(
         };
     }
 
+    // GammaOS: Per-device touch orientation override (runtime-capable)
+    {
+        auto sanitizeName = [](const std::string& s)->std::string {
+            std::string out; out.reserve(s.size());
+            for (char c : s) {
+                if ((c >= 'A' && c <= 'Z')) out.push_back(c - 'A' + 'a');
+                else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) out.push_back(c);
+                else out.push_back('_');
+            }
+            return out;
+        };
+        char key2[PROPERTY_KEY_MAX];
+        char val2[PROPERTY_VALUE_MAX];
+        std::string devKey = sanitizeName(deviceContext.getDeviceIdentifier().name);
+        // Short key: persist.gif.rot.<device>
+        snprintf(key2, sizeof(key2), "persist.gif.rot.%s", devKey.c_str());
+        if (property_get(key2, val2, "") > 0) {
+            ui::Rotation propRot = ui::ROTATION_0;
+            if (!strcmp(val2, "ORIENTATION_90")  || !strcmp(val2, "90"))  propRot = ui::ROTATION_90;
+            else if (!strcmp(val2, "ORIENTATION_180") || !strcmp(val2, "180")) propRot = ui::ROTATION_180;
+            else if (!strcmp(val2, "ORIENTATION_270") || !strcmp(val2, "270")) propRot = ui::ROTATION_270;
+            if (propRot != ui::ROTATION_0) {
+                parameters.orientation = propRot;
+            }
+        }
+    }
+
     parameters.enableForInactiveViewport =
             config.getBool("touch.enableForInactiveViewport").value_or(false);
-
     return parameters;
 }
 
@@ -548,6 +574,72 @@ bool TouchInputMapper::hasExternalStylus() const {
  * 4. Otherwise, use a non-display viewport.
  */
 std::optional<DisplayViewport> TouchInputMapper::findViewport() {
+    // GammaOS: Per-device display mapping via persist props (highest priority):
+    //   1) persist.gif.map.<device>=<displayId>           (logical display id)
+    //   2) persist.gif.map.uid.<device>=<uniqueId>        (e.g. local:4630...)
+    //   3) persist.gif.map.port.<device>=<physicalPort>   (e.g. 131 / 132)
+    auto sanitizeName = [](const std::string& s) -> std::string {
+        std::string out; out.reserve(s.size());
+        for (char c : s) {
+            if ((c >= 'A' && c <= 'Z')) out.push_back(c - 'A' + 'a');
+            else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) out.push_back(c);
+            else out.push_back('_');
+        }
+        return out;
+    };
+    auto byProps = [&](std::optional<DisplayViewport>& out) -> bool {
+        char key[PROPERTY_KEY_MAX];
+        char val[PROPERTY_VALUE_MAX];
+        // Use the stable identifier name (matches dumpsys / getevent), not a prettified label.
+        const std::string devKey = sanitizeName(getDeviceContext().getDeviceIdentifier().name);
+
+        // 1) map by logical display id
+        snprintf(key, sizeof(key), "persist.gif.map.%s", devKey.c_str());
+        if (property_get(key, val, "") > 0) {
+            const int32_t id = atoi(val);
+            if (auto vp = mConfig.getDisplayViewportById(id)) { out = vp; return true; }
+            ALOGW("GammaOS touch map: display id %d not found for device %s",
+                  id, getDeviceName().c_str());
+        }
+
+        // 2) map by uniqueId
+        snprintf(key, sizeof(key), "persist.gif.map.uid.%s", devKey.c_str());
+        if (property_get(key, val, "") > 0 && val[0] != '\0') {
+            if (auto vp = mConfig.getDisplayViewportByUniqueId(std::string(val))) {
+                out = vp; return true;
+            }
+            ALOGW("GammaOS touch map: uniqueId '%s' not found for device %s",
+                  val, getDeviceName().c_str());
+        }
+
+        // 3) map by physicalPort — probe known viewport types and compare .physicalPort
+        snprintf(key, sizeof(key), "persist.gif.map.port.%s", devKey.c_str());
+        if (property_get(key, val, "") > 0) {
+            const int32_t wantPort = atoi(val);
+            auto matchPort = [&](ViewportType t) -> bool {
+                if (auto vp = mConfig.getDisplayViewportByType(t)) {
+                    if (vp->physicalPort && *vp->physicalPort == wantPort) { out = vp; return true; }
+                }
+                return false;
+            };
+            // Try INTERNAL, EXTERNAL, then VIRTUAL (if present in your tree)
+            if (matchPort(ViewportType::INTERNAL)) return true;
+            if (matchPort(ViewportType::EXTERNAL)) return true;
+#ifdef VIEWPORT_TYPE_VIRTUAL_DEFINED
+            if (matchPort(ViewportType::VIRTUAL)) return true;
+#endif
+            ALOGW("GammaOS touch map: port %d not found for device %s",
+                  wantPort, getDeviceName().c_str());
+        }
+        return false;
+    };
+
+    // Try per-device props first, always.
+    {
+        std::optional<DisplayViewport> chosen;
+        if (byProps(chosen)) return chosen;
+    }
+
     if (mParameters.hasAssociatedDisplay && mDeviceMode != DeviceMode::UNSCALED) {
         if (getDeviceContext().getAssociatedViewport()) {
             return getDeviceContext().getAssociatedViewport();

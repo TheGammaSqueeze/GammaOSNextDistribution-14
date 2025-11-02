@@ -3743,6 +3743,37 @@ ui::Rotation SurfaceFlinger::getPhysicalDisplayOrientation(DisplayId displayId,
     if (!id) {
         return ui::ROTATION_0;
     }
+    
+    // GammaOS: per-display / secondary orientation overrides via persist props.
+    if (!isPrimary) {
+        char key[PROPERTY_KEY_MAX];
+        char val[PROPERTY_VALUE_MAX];
+
+        // Specific displayId override (short key, stays under PROP_NAME_MAX):
+        //   persist.gsf.rot.<ID>
+        int32_t dispIdInt = static_cast<int32_t>(displayId.value);
+        // key format length is safely < PROPERTY_KEY_MAX
+        snprintf(key, sizeof(key), "persist.gsf.rot.%d", dispIdInt);
+        if (property_get(key, val, "") > 0) {
+            auto toRot = [](const char* s) -> ui::Rotation {
+                if (!strcmp(s, "ORIENTATION_90")  || !strcmp(s, "90"))  return ui::ROTATION_90;
+                if (!strcmp(s, "ORIENTATION_180") || !strcmp(s, "180")) return ui::ROTATION_180;
+                if (!strcmp(s, "ORIENTATION_270") || !strcmp(s, "270")) return ui::ROTATION_270;
+                return ui::ROTATION_0;
+            };
+            return toRot(val);
+        }
+
+        // Fallback: one secondary orientation for "the next" display after primary.
+        //   persist.gsf.sec_rot
+        if (property_get("persist.gsf.sec_rot", val, "") > 0) {
+            if (!strcmp(val, "ORIENTATION_90")  || !strcmp(val, "90"))   return ui::ROTATION_90;
+            if (!strcmp(val, "ORIENTATION_180") || !strcmp(val, "180"))  return ui::ROTATION_180;
+            if (!strcmp(val, "ORIENTATION_270") || !strcmp(val, "270"))  return ui::ROTATION_270;
+            return ui::ROTATION_0;
+        }
+    }
+
     if (!mIgnoreHwcPhysicalDisplayOrientation &&
         getHwComposer().getComposer()->isSupported(
                 Hwc2::Composer::OptionalFeature::PhysicalDisplayOrientation)) {
