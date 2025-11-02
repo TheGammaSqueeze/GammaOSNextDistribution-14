@@ -3421,10 +3421,34 @@ public final class DisplayManagerService extends SystemService {
             final var logicalDisplay = mLogicalDisplayMapper.getDisplayLocked(displayId);
             if (logicalDisplay == null) {
                 Slog.w(TAG, "enableConnectedDisplay: Can not find displayId=" + displayId);
-            } else if (ExternalDisplayPolicy.isExternalDisplayLocked(logicalDisplay)) {
+                return;
+            }
+
+            // GammaOS: proactively blank the display before disabling to avoid
+            // visible flashes/tearing and to give HWC/SF a clean detach.
+            if (!enabled) {
+                // Keep brightness values invalid so the controller preserves current curve;
+                // just force the display state to OFF here.
+                mDisplayBlanker.requestDisplayState(
+                        displayId,
+                        android.view.Display.STATE_OFF,
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT);
+            }
+
+            if (ExternalDisplayPolicy.isExternalDisplayLocked(logicalDisplay)) {
                 mExternalDisplayPolicy.setExternalDisplayEnabledLocked(logicalDisplay, enabled);
             } else {
                 mLogicalDisplayMapper.setDisplayEnabledLocked(logicalDisplay, enabled);
+            }
+
+            // Optional: ensure immediate bring-up on stacks that don't auto-unblank.
+            if (enabled) {
+                mDisplayBlanker.requestDisplayState(
+                        displayId,
+                        android.view.Display.STATE_ON,
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT);
             }
         }
     }
