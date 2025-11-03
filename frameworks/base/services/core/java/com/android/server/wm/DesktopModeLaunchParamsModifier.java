@@ -145,6 +145,10 @@ public class DesktopModeLaunchParamsModifier implements LaunchParamsModifier {
 
     /** Whether desktop mode is enabled. */
     static boolean isDesktopModeEnabled() {
+        // GammaOS: allow disabling desktop windowing when forcing external fullscreen
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.desktop.fullscreen", false)) {
+            return false;
+        }
         return Flags.enableDesktopWindowingMode();
     }
 }

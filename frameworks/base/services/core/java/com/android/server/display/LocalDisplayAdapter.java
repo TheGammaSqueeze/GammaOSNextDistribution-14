@@ -67,6 +67,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import android.database.ContentObserver;
+import android.net.Uri;
 
 /**
  * A display adapter for the local displays managed by SurfaceFlinger.
@@ -220,6 +222,11 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         private int mState = Display.STATE_UNKNOWN;
         private int mCommittedState = Display.STATE_UNKNOWN;
 
+        // GammaOS: cache desktop-mode toggle to avoid rebuild thrash during boot.
+        private boolean mLastForceDesktop;
+        private final android.os.Handler mHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+ 
+
         // This is only set in the runnable returned from requestDisplayStateLocked.
         private float mBrightnessState = PowerManager.BRIGHTNESS_INVALID_FLOAT;
         private float mSdrBrightnessState = PowerManager.BRIGHTNESS_INVALID_FLOAT;
@@ -270,6 +277,61 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             mBacklightAdapter = new BacklightAdapter(displayToken, isFirstDisplay,
                     mSurfaceControlProxy);
             mActiveSfDisplayModeAtStartId = dynamicInfo.activeDisplayModeId;
+            // GammaOS: initialize and observe desktop-mode toggle (boot-safe).
+            mLastForceDesktop = false; registerDesktopModeObservers();
+        }
+
+        /** Robust Settings.Global read; never throws during early boot. */
+        private boolean isForceDesktopEnabledSafe() {
+            try {
+                final var cr = getContext().getContentResolver();
+                final int vPlural = android.provider.Settings.Global.getInt(
+                        cr, android.provider.Settings.Global.DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0);
+                // Some branches don’t define the singular constant: use the string name directly.
+                final int vSingular = android.provider.Settings.Global.getInt(cr, "development_force_desktop_mode_on_external_display", 0);
+                return (vPlural != 0) || (vSingular != 0);
+            } catch (Throwable t) {
+                // Provider not ready yet (very early boot) or other issue: treat as OFF.
+                return false;
+            }
+        }
+
+        /** Observe desktop-mode toggle and republish device info when it changes. */
+        private void registerDesktopModeObservers() {
+            try {
+                final var cr = getContext().getContentResolver();
+                final ContentObserver obs = new ContentObserver(mHandler) {
+                    @Override
+                    public void onChange(boolean selfChange, Uri uri) {
+                        synchronized (getSyncRoot()) {
+                            final boolean now = isForceDesktopEnabledSafe();
+                            if (now != mLastForceDesktop) {
+                                mLastForceDesktop = now;
+                                if (mInfo != null) {
+                                    if (now) {
+                                        mInfo.flags |= DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                                    } else {
+                                        mInfo.flags &= ~DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                                    }
+                                }
+                                sendDisplayDeviceEventLocked(LocalDisplayDevice.this,
+                                        DISPLAY_DEVICE_EVENT_CHANGED);
+                            }
+                        }
+                    }
+                };
+                cr.registerContentObserver(
+                        android.provider.Settings.Global.getUriFor(
+                                android.provider.Settings.Global.DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS),
+                        /*notifyForDescendants*/ false, obs);
+                // Singular key may not be defined as a constant on this branch; use the literal.
+                cr.registerContentObserver(
+                        android.provider.Settings.Global.getUriFor(
+                                "development_force_desktop_mode_on_external_display"),
+                        /*notifyForDescendants*/ false, obs);
+            } catch (Throwable t) {
+                // Early boot: observer can register later; info will be re-evaluated on demand.
+            }
         }
 
         @Override
@@ -656,7 +718,9 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
         @Override
         public DisplayDeviceInfo getDisplayDeviceInfoLocked() {
+            final boolean forceDesktop = isForceDesktopEnabledSafe();
             if (mInfo == null) {
+                final boolean isSecondary = !mIsFirstDisplay;
                 mInfo = new DisplayDeviceInfo();
                 mInfo.width = mActiveSfDisplayMode.width;
                 mInfo.height = mActiveSfDisplayMode.height;
@@ -689,6 +753,17 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
                 if (mConnectedHdcpLevel != 0) {
                     mStaticDisplayInfo.secure = mConnectedHdcpLevel >= MediaDrm.HDCP_V1;
+                }
+                // GammaOS: ensure secondary internal panel is considered ON so its viewport becomes
+                // active for InputReader. Without this, dumpsys shows state UNKNOWN and the touch
+                // mapper stays DISABLED for displayId=2.
+                if (isSecondary) {
+                    if (mState == Display.STATE_UNKNOWN) {
+                        mState = Display.STATE_ON;
+                    }
+                    if (mCommittedState == Display.STATE_UNKNOWN) {
+                        mCommittedState = Display.STATE_ON;
+                    }
                 }
                 if (mStaticDisplayInfo.secure) {
                     mInfo.flags = DisplayDeviceInfo.FLAG_SECURE
@@ -761,10 +836,36 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
                 // The display is trusted since it is created by system.
                 mInfo.flags |= DisplayDeviceInfo.FLAG_TRUSTED;
+                // GammaOS: Secondary fixed panel is its own group AND presentation-capable
+                // even if it's an INTERNAL local display (stock behaviour on dual-screen devices).
+                if (isSecondary) {
+                    mInfo.flags |= DisplayDeviceInfo.FLAG_OWN_DISPLAY_GROUP;
+                    mInfo.flags |= DisplayDeviceInfo.FLAG_PRESENTATION;
+                    // Also show system decor when dev toggle demands it (keeps previous behavior)
+                    if (forceDesktop) {
+                        mInfo.flags |= DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                    }
+                }
                 mInfo.brightnessMinimum = PowerManager.BRIGHTNESS_MIN;
                 mInfo.brightnessMaximum = PowerManager.BRIGHTNESS_MAX;
                 mInfo.brightnessDefault = getDisplayDeviceConfig().getBrightnessDefault();
                 mInfo.hdrSdrRatio = mCurrentHdrSdrRatio;
+                // GammaOS: when dev toggle is ON, expose system decor (navbar/status bar).
+                if (forceDesktop) {
+                    mInfo.flags |= DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                }
+                mLastForceDesktop = forceDesktop;
+            } else if (mLastForceDesktop != forceDesktop) {
+                // Rebuild with new flag state and publish change.
+                if (mInfo != null) {
+                    if (forceDesktop) {
+                        mInfo.flags |= DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                    } else {
+                        mInfo.flags &= ~DisplayDeviceInfo.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS;
+                    }
+                }
+                mLastForceDesktop = forceDesktop;
+                return mInfo;
             }
             return mInfo;
         }

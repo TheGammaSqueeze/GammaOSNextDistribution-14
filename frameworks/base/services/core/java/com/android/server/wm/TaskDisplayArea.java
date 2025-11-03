@@ -24,6 +24,9 @@ import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW;
 import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
 import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW;
+import android.os.SystemProperties;
+import android.view.Display;
 import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_BEHIND;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSET;
@@ -65,6 +68,9 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import android.os.SystemProperties;
+import android.view.Display;
 
 /**
  * {@link DisplayArea} that represents a section of a screen that contains app window containers.
@@ -1366,6 +1372,18 @@ final class TaskDisplayArea extends DisplayArea<WindowContainer> {
         boolean supportsFreeform = mAtmService.mSupportsFreeformWindowManagement;
         boolean supportsPip = mAtmService.mSupportsPictureInPicture;
         if (supportsMultiWindow) {
+            // GammaOS: if prop set, block freeform (and coerce to fullscreen) on non-default display
+            final boolean gammaExtFullscreen =
+                    SystemProperties.getBoolean("persist.gammaos.desktop.fullscreen", false);
+            if (gammaExtFullscreen && mDisplayContent != null
+                    && mDisplayContent.getDisplayId() != Display.DEFAULT_DISPLAY) {
+                supportsFreeform = false;
+                // If a caller requested freeform/multi-window here, force fullscreen instead
+                if (windowingMode == WINDOWING_MODE_FREEFORM
+                        || windowingMode == WINDOWING_MODE_MULTI_WINDOW) {
+                    windowingMode = WINDOWING_MODE_FULLSCREEN;
+                }
+            }
             if (task != null) {
                 supportsFreeform = task.supportsFreeformInDisplayArea(this);
                 supportsMultiWindow = task.supportsMultiWindowInDisplayArea(this)
@@ -1877,6 +1895,16 @@ final class TaskDisplayArea extends DisplayArea<WindowContainer> {
 
     @Override
     public void setWindowingMode(int windowingMode) {
+        // GammaOS: when forcing external fullscreen, never allow TaskDisplayArea on
+        // a non-default display to switch to FREEFORM or MULTI_WINDOW. Coerce to FULLSCREEN.
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.desktop.fullscreen", false)
+                && mDisplayContent != null
+                && mDisplayContent.getDisplayId() != android.view.Display.DEFAULT_DISPLAY) {
+            if (windowingMode == WINDOWING_MODE_FREEFORM ||
+                    windowingMode == WINDOWING_MODE_MULTI_WINDOW) {
+                windowingMode = WINDOWING_MODE_FULLSCREEN;
+            }
+        }
         mTempConfiguration.setTo(getRequestedOverrideConfiguration());
         WindowConfiguration tempRequestWindowConfiguration = mTempConfiguration.windowConfiguration;
         tempRequestWindowConfiguration.setWindowingMode(windowingMode);

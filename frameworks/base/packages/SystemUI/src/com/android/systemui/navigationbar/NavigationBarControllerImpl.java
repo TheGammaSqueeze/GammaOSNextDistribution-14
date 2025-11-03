@@ -36,6 +36,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.IWindowManager;
 import android.view.View;
 import android.view.WindowManagerGlobal;
@@ -73,6 +74,10 @@ import java.io.PrintWriter;
 import java.util.Optional;
 
 import javax.inject.Inject;
+
+import android.os.SystemProperties;
+import android.hardware.display.DisplayManagerGlobal;
+import static android.provider.Settings.Global.DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS;
 
 @SysUISingleton
 public class NavigationBarControllerImpl implements
@@ -407,11 +412,29 @@ public class NavigationBarControllerImpl implements
         final int displayId = display.getDisplayId();
         final boolean isOnDefaultDisplay = displayId == mDisplayTracker.getDefaultDisplayId();
 
-        // Avoid placing a NavigationBar on external displays during mirror mode.
-        // This prevents WindowManager from pausing the mirror because of overlay "content".
-        // Desktop-mode on the default display is unaffected.
+        // GammaOS: allow navbar on secondary displays IF:
+        //  - the display advertises system decorations, AND
+        //  - user opted-in (GammaOS prop) OR dev "Force desktop mode" is enabled.
         if (!isOnDefaultDisplay) {
-            return;
+            boolean allowSecondary = false;
+            try {
+                final var dmg = DisplayManagerGlobal.getInstance();
+                final DisplayInfo di = (dmg != null) ? dmg.getDisplayInfo(displayId) : null;
+                final boolean hasDecor = di != null
+                        && (di.flags & Display.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS) != 0;
+                final boolean gammaDual = SystemProperties.getBoolean("persist.gammaos.taskbar.dual", false);
+                final boolean forceDesktop =
+                        android.provider.Settings.Global.getInt(
+                                mContext.getContentResolver(),
+                                DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0) != 0
+                        || android.provider.Settings.Global.getInt(
+                                mContext.getContentResolver(),
+                                "development_force_desktop_mode_on_external_display", 0) != 0;
+                allowSecondary = hasDecor && (gammaDual || forceDesktop);
+            } catch (Throwable ignored) { /* be conservative */ }
+            if (!allowSecondary) {
+                return;
+            }
         }
 
         if (!shouldCreateNavBarAndTaskBar(mContext, displayId)) {

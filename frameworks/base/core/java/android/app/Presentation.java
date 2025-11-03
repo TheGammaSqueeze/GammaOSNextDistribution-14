@@ -276,6 +276,34 @@ public class Presentation extends Dialog {
      */
     @Override
     public void show() {
+        // GammaOS: Harden against transient or mis-flagged displays without reassigning mDisplay
+        // (which is final). If the current target display is invalid, default, or not
+        // presentation-suitable, skip show() to avoid BadTokenException.
+        final Display d = mDisplay;
+        boolean suitable = false;
+        if (d != null && d.isValid()) {
+            final int flags = d.getFlags();
+            final boolean isDefault = d.getDisplayId() == Display.DEFAULT_DISPLAY;
+            final boolean hasPresentation = (flags & Display.FLAG_PRESENTATION) != 0;
+            suitable = !isDefault && hasPresentation;
+        }
+        if (!suitable) {
+            // Best-effort: see if the system currently exposes any presentation-capable displays.
+            // We cannot rebind (mDisplay is final), so just avoid a crash for now. Callers that
+            // retry (or frameworks once the display stabilizes) will succeed.
+            final DisplayManager dm = getContext().getSystemService(DisplayManager.class);
+            boolean anyPresentation = false;
+            if (dm != null) {
+                for (Display cand : dm.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)) {
+                    if (cand != null && cand.isValid() && cand.getDisplayId() != Display.DEFAULT_DISPLAY) {
+                        anyPresentation = true; break;
+                    }
+                }
+            }
+            android.util.Log.w(TAG, "show() skipped: display not presentation-suitable"
+                    + " (haveCand=" + anyPresentation + ", dValid=" + (d != null && d.isValid()) + ")");
+            return;
+        }
         super.show();
     }
 

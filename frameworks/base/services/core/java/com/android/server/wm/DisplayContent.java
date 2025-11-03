@@ -277,6 +277,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import android.os.SystemProperties;
+import android.view.Display;
+
 /**
  * Utility class for keeping track of the WindowStates and other pertinent contents of a
  * particular Display.
@@ -344,6 +347,31 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * The direct child layer of the display to put all non-overlay windows. This is also used for
      * screen rotation animation so that there is a parent layer to put the animation leash.
      */
+    @Override
+    public void setWindowingMode(int windowingMode) {
+        // GammaOS: prevent DisplayContent from entering FREEFORM/MULTI on non-default displays
+        // when fullscreen override is active.
+        if (SystemProperties.getBoolean("persist.gammaos.desktop.fullscreen", false)
+                && getDisplayId() != Display.DEFAULT_DISPLAY) {
+            if (windowingMode == WINDOWING_MODE_FREEFORM ||
+                    windowingMode == WINDOWING_MODE_MULTI_WINDOW) {
+                windowingMode = WINDOWING_MODE_FULLSCREEN;
+            }
+        }
+        super.setWindowingMode(windowingMode);
+    }
+
+    @Override
+    public int getWindowingMode() {
+        final int mode = super.getWindowingMode();
+        if (SystemProperties.getBoolean("persist.gammaos.desktop.fullscreen", false)
+                && getDisplayId() != Display.DEFAULT_DISPLAY) {
+            if (mode == WINDOWING_MODE_FREEFORM || mode == WINDOWING_MODE_MULTI_WINDOW) {
+                return WINDOWING_MODE_FULLSCREEN;
+            }
+        }
+        return mode;
+    }
     private SurfaceControl mWindowingLayer;
 
     /**

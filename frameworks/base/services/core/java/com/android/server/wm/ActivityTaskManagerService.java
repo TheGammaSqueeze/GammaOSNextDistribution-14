@@ -5452,22 +5452,157 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * @return the intent set with {@link Intent#CATEGORY_SECONDARY_HOME}
      */
     Intent getSecondaryHomeIntent(String preferredPackage) {
-        final Intent intent = new Intent(mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
-        final boolean useSystemProvidedLauncher = mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_useSystemProvidedLauncherForSecondary);
+        final Intent intent = new Intent(
+                mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
+        final boolean useSystemProvidedLauncher =
+                mContext.getResources().getBoolean(
+                        com.android.internal.R.bool.config_useSystemProvidedLauncherForSecondary);
+
+        // GammaOS: allow runtime override via system property.
+        // NEW: If the override package does NOT expose CATEGORY_SECONDARY_HOME,
+        //      fallback to its normal launcher entry-point (MAIN/LAUNCHER or
+        //      PackageManager#getLaunchIntentForPackage) and return that explicit
+        //      intent. This keeps Display 2 independent (no MirrorRoot) and lets
+        //      "any" app serve as secondary home.
+        final String propOverride = android.os.SystemProperties
+                .get("persist.gammaos.secondary_home", "").trim();
+
+        // Helper that checks resolution of SECONDARY_HOME for a given package
+        final java.util.function.Function<String, Boolean> resolvesSecondaryHome =
+                (String pkg) -> {
+                    if (pkg == null || pkg.isEmpty()) return false;
+                    try {
+                        final android.content.pm.PackageManager pm = mContext.getPackageManager();
+                        final Intent probe = new Intent(Intent.ACTION_MAIN);
+                        probe.addCategory(Intent.CATEGORY_SECONDARY_HOME);
+                        probe.setPackage(pkg);
+                        final java.util.List<android.content.pm.ResolveInfo> res =
+                                pm.queryIntentActivities(probe,
+                                        android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE
+                                        | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+                        return res != null && !res.isEmpty();
+                    } catch (Throwable t) {
+                        return false;
+                    }
+                };
         if (preferredPackage == null || useSystemProvidedLauncher) {
-            // Using the package name stored in config if no preferred package name or forced.
-            final String secondaryHomePackage = mContext.getResources().getString(
-                    com.android.internal.R.string.config_secondaryHomePackage);
-            intent.setPackage(secondaryHomePackage);
+            // 1) Try prop override first.
+            if (!propOverride.isEmpty()) {
+                if (resolvesSecondaryHome.apply(propOverride)) {
+                    // True secondary-home, keep CATEGORY_SECONDARY_HOME path.
+                    intent.setPackage(propOverride);
+                } else {
+                    // Not a secondary-home provider — build an explicit launcher intent
+                    // for the package (MAIN/LAUNCHER or getLaunchIntentForPackage),
+                    // and return it directly to avoid mirror.
+                    final Intent fallback = buildSecondaryHomeFallbackIntent(propOverride);
+                    if (fallback != null) {
+                        return fallback;
+                    }
+                    // If we can't find any launcher entry point, continue to config fallback.
+                }
+            } else {
+                // 2) Fall back to resources (string or string-array), but only if resolvable.
+                final android.content.res.Resources r = mContext.getResources();
+                String pkg = null;
+                // string: config_secondaryHomePackage
+                try {
+                    final int strId = r.getIdentifier(
+                            "config_secondaryHomePackage", "string", "android");
+                    if (strId != 0) {
+                        final String v = r.getString(strId);
+                        if (v != null && !v.isEmpty() && resolvesSecondaryHome.apply(v)) {
+                            pkg = v;
+                        }
+                    }
+                } catch (Throwable ignored) { }
+                // array: config_secondaryHomePackages (first that resolves)
+                if (pkg == null) {
+                    try {
+                        final int arrId = r.getIdentifier(
+                                "config_secondaryHomePackages", "array", "android");
+                        if (arrId != 0) {
+                            final String[] pkgs = r.getStringArray(arrId);
+                            if (pkgs != null) {
+                                for (String v : pkgs) {
+                                    if (v != null && !v.isEmpty()
+                                            && resolvesSecondaryHome.apply(v)) {
+                                        pkg = v; break;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Throwable ignored) { }
+                }
+                if (pkg != null) {
+                    intent.setPackage(pkg);
+                } else {
+                    // 3) Nothing resolved; leave intent UNPACKAGED to avoid forcing mirror.
+                    // The caller will keep the display independent and apps can still
+                    // use Presentation. Log once for diagnostics.
+                    android.util.Slog.w(TAG,
+                        "No resolvable SECONDARY_HOME for override='"
+                        + propOverride + "'. Falling back (no mirror).");
+                }
+            }
         } else {
-            intent.setPackage(preferredPackage);
+            // When preferredPackage is supplied, still honor the override:
+            if (!propOverride.isEmpty()) {
+                if (resolvesSecondaryHome.apply(propOverride)) {
+                    intent.setPackage(propOverride);
+                } else {
+                    final Intent fallback = buildSecondaryHomeFallbackIntent(propOverride);
+                    if (fallback != null) {
+                        return fallback;
+                    }
+                    intent.setPackage(preferredPackage);
+                }
+            } else {
+                intent.setPackage(preferredPackage);
+            }
         }
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
         if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
             intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
         }
         return intent;
+    }
+
+    /**
+     * GammaOS: Build an explicit launcher intent for arbitrary packages so *any* app
+     * can act as secondary home without declaring CATEGORY_SECONDARY_HOME.
+     * Returns null if no launcher entry point is found.
+     */
+    private @Nullable Intent buildSecondaryHomeFallbackIntent(@NonNull String pkg) {
+        try {
+            final android.content.pm.PackageManager pm = mContext.getPackageManager();
+            // Prefer the package's default launch intent if available.
+            Intent launch = pm.getLaunchIntentForPackage(pkg);
+            if (launch != null) {
+                launch.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
+                return launch;
+            }
+            // Else resolve MAIN/LAUNCHER within that package.
+            final Intent probe = new Intent(Intent.ACTION_MAIN);
+            probe.addCategory(Intent.CATEGORY_LAUNCHER);
+            probe.setPackage(pkg);
+            final java.util.List<android.content.pm.ResolveInfo> list =
+                    pm.queryIntentActivities(probe,
+                            android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+                            | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE
+                            | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+            if (list != null && !list.isEmpty()) {
+                final android.content.pm.ResolveInfo ri = list.get(0);
+                final android.content.ComponentName cn =
+                        new android.content.ComponentName(ri.activityInfo.packageName, ri.activityInfo.name);
+                final Intent explicit = new Intent(Intent.ACTION_MAIN);
+                explicit.setComponent(cn);
+                explicit.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
+                return explicit;
+            }
+        } catch (Throwable ignored) { }
+        return null;
     }
 
     ApplicationInfo getAppInfoForUser(ApplicationInfo info, int userId) {

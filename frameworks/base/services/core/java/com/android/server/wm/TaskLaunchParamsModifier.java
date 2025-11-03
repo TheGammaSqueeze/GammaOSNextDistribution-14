@@ -16,6 +16,7 @@
 
 package com.android.server.wm;
 
+import android.os.SystemProperties;
 import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW;
@@ -310,6 +311,29 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
 
         if (phase == PHASE_WINDOWING_MODE) {
             return RESULT_CONTINUE;
+        }
+
+        // GammaOS: force fullscreen on secondary displays when prop is set
+        final boolean gammaExtFullscreen = SystemProperties.getBoolean(
+                "persist.gammaos.desktop.fullscreen", false);
+        if (gammaExtFullscreen) {
+            try {
+                final int displayIdForGamma = suggestedDisplayArea.getDisplayId();
+                if (displayIdForGamma != android.view.Display.DEFAULT_DISPLAY) {
+                    // If desktop/freeform would be used, override to fullscreen.
+                    final boolean isDesktopish = (launchMode == WINDOWING_MODE_FREEFORM)
+                            || (launchMode == WINDOWING_MODE_MULTI_WINDOW)
+                            || (launchMode == WINDOWING_MODE_UNDEFINED
+                                && suggestedDisplayArea.getWindowingMode() == WINDOWING_MODE_FREEFORM);
+                    if (isDesktopish) {
+                        outParams.mWindowingMode = WINDOWING_MODE_FULLSCREEN;
+                        outParams.mBounds.setEmpty(); // let WMS maximize
+                        if (DEBUG) appendLog("gammaos-force-fullscreen-on-ext-display");
+                    }
+                }
+            } catch (Throwable t) {
+                // be silent if any API signature differs
+            }
         }
 
         // STEP 3: Finalize the display area. Here we allow WM shell route all launches that match

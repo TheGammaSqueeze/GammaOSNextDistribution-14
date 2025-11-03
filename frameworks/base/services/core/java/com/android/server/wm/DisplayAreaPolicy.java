@@ -107,8 +107,15 @@ public abstract class DisplayAreaPolicy {
             final HierarchyBuilder rootHierarchy = new HierarchyBuilder(root);
             // Set the essential containers (even if the display doesn't support IME).
             rootHierarchy.setImeContainer(imeContainer).setTaskDisplayAreas(tdaList);
-            if (content.isTrusted()) {
-                // Only trusted display can have system decorations.
+
+            // GammaOS: Promote secondary displays to "trusted + decorated" when Desktop mode is forced.
+            // This allows SystemUI nav/status bars and a HOME task on the external screen.
+            // We keep default display behavior unchanged.
+            final boolean forceDesktop = wmService.mForceDesktopModeOnExternalDisplays;
+            final boolean promoteDecor = content.isTrusted()
+                    || (forceDesktop && !content.isDefaultDisplay);
+            if (promoteDecor) {
+                // This adds the system-decor feature layers expected by SystemUI.
                 configureTrustedHierarchyBuilder(rootHierarchy, wmService, content);
             }
 

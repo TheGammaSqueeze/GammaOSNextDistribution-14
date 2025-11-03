@@ -1685,8 +1685,12 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         }
 
         if (taskDisplayArea.getDisplayId() != DEFAULT_DISPLAY && !mService.mSupportsMultiDisplay) {
-            // Can't launch home on secondary display if device does not support multi-display.
-            return false;
+            // GammaOS: when dev option "Force desktop mode on external displays" is ON,
+            // allow HOME on secondary even if the product overlay didn't enable multi-display.
+            final boolean forceDesktop = mWmService.mForceDesktopModeOnExternalDisplays;
+            if (!forceDesktop) {
+                return false;
+            }
         }
 
         final boolean deviceProvisioned = Settings.Global.getInt(

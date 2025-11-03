@@ -45,12 +45,15 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.hardware.devicestate.DeviceStateManager;
 import android.hardware.display.DisplayManager;
+import android.hardware.display.DisplayManagerGlobal;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -89,6 +92,15 @@ public class TaskbarManager {
     private static final String TAG = "TaskbarManager";
     private static final boolean DEBUG = false;
 
+    // GammaOS: verbose logging for dual-taskbar bring-up
+    private static void log(String msg) {
+        android.util.Log.d(TAG, msg);
+    }
+
+    // GammaOS: enable a second taskbar on decorated secondary displays
+    private static final String PROP_DUAL_TASKBAR = "persist.gammaos.taskbar.dual";
+    private static final int INVALID_DISPLAY = -1;
+
     /**
      * All the configurations which do not initiate taskbar recreation.
      * This includes all the configurations defined in Launcher's manifest entry and
@@ -120,6 +132,15 @@ public class TaskbarManager {
     private WindowManager mWindowManager;
     private FrameLayout mTaskbarRootLayout;
     private boolean mAddedWindow;
+
+    // GammaOS: secondary display taskbar (optional)
+    private WindowManager mSecondaryWindowManager;
+    private FrameLayout mSecondaryTaskbarRootLayout;
+    private boolean mSecondaryAddedWindow;
+    private TaskbarActivityContext mSecondaryTaskbarActivityContext;
+    private @Nullable Context mSecondaryNavigationBarPanelContext;
+    private int mSecondaryDisplayId = INVALID_DISPLAY;
+
     private final TaskbarNavButtonController mNavButtonController;
     private final ComponentCallbacks mComponentCallbacks;
 
@@ -246,6 +267,15 @@ public class TaskbarManager {
                 }
             };
         }
+
+        // Secondary window: created on demand (see recreateTaskbar()).
+        mSecondaryTaskbarRootLayout = null; // we won’t use a separate root; DragLayer owns the window
+        mSecondaryWindowManager = null;
+        mSecondaryAddedWindow = false;
+        mSecondaryTaskbarActivityContext = null;
+        mSecondaryNavigationBarPanelContext = null;
+        mSecondaryDisplayId = INVALID_DISPLAY;
+
         // Temporary solution to mitigate the visual jump from folding the device. Currently, the
         // screen turns on much earlier than we receive the onConfigurationChanged callback or
         // receiving the correct device profile. While the ideal the solution is to align turning
@@ -361,6 +391,72 @@ public class TaskbarManager {
         recreateTaskbar();
     }
 
+    // ===== GammaOS helpers for dual taskbar =====
+    private static boolean isDualTaskbarEnabled() {
+        return SystemProperties.getBoolean(PROP_DUAL_TASKBAR, /*def*/ false);
+    }
+
+    /** Return a non-default usable display id, or INVALID_DISPLAY.
+     *  Loosened from “decorated only” so we still bring up a panel bar on
+     *  internal second displays that don't advertise system decorations.
+     */
+    private int findUsableSecondaryDisplayId() {
+        final DisplayManager dm = mContext.getSystemService(DisplayManager.class);
+        log("findDecoratedSecondaryDisplayId: scanning displays");
+        if (dm == null) return INVALID_DISPLAY;
+        final Display[] displays = dm.getDisplays();
+        final DisplayManagerGlobal dmg = DisplayManagerGlobal.getInstance();
+        if (dmg == null) return INVALID_DISPLAY;
+        for (Display d : displays) {
+            if (d.getDisplayId() == DEFAULT_DISPLAY) continue;
+            if (!d.isValid()) continue;
+            log("  id=" + d.getDisplayId() + " mode=" + d.getMode().getPhysicalWidth() + "x" + d.getMode().getPhysicalHeight());
+            final DisplayInfo info = dmg.getDisplayInfo(d.getDisplayId());
+            if (info == null) continue;
+            // Prefer decorated, but accept trusted internal displays even if undecorated/UNKNOWN.
+            final boolean decorated =
+                    (info.flags & Display.FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS) != 0;
+            final boolean trusted =
+                    (info.flags & Display.FLAG_TRUSTED) != 0;
+            final boolean internal =
+                    info.type == Display.TYPE_INTERNAL;
+            final boolean enabledOrUnknown = true; // WM is showing app windows; treat as usable.
+            if ((decorated || (trusted && internal && enabledOrUnknown))) {
+                Log.d(TAG, "Secondary candidate id=" + d.getDisplayId()
+                        + " decorated=" + decorated
+                        + " flags=0x" + Integer.toHexString(info.flags)
+                        + " state=" + info.state);
+                return d.getDisplayId();
+            }
+        }
+        return INVALID_DISPLAY;
+    }
+
+    private void destroySecondaryTaskbarIfAny() {
+        if (mSecondaryTaskbarActivityContext != null) {
+            try {
+                // If the DragLayer is attached (secondary display), remove it safely.
+                if (mSecondaryTaskbarActivityContext.getDragLayer().isAttachedToWindow()) {
+                    mSecondaryTaskbarActivityContext.removeWindowView(
+                            mSecondaryTaskbarActivityContext.getDragLayer());
+                }
+            } catch (Throwable ignored) { }
+            mSecondaryTaskbarActivityContext.onDestroy();
+            mSecondaryTaskbarActivityContext = null;
+        }
+        // Clear refs
+        mSecondaryTaskbarRootLayout = null;
+        mSecondaryAddedWindow = false;
+        mSecondaryWindowManager = null;
+        mSecondaryNavigationBarPanelContext = null;
+        mSecondaryDisplayId = INVALID_DISPLAY;
+    }
+
+    private @Nullable Display getDisplayById(int displayId) {
+        final DisplayManager dm = mContext.getSystemService(DisplayManager.class);
+        return dm != null ? dm.getDisplay(displayId) : null;
+    }
+
     private void destroyExistingTaskbar() {
         debugWhyTaskbarNotDestroyed("destroyExistingTaskbar: " + mTaskbarActivityContext);
         if (mTaskbarActivityContext != null) {
@@ -369,6 +465,8 @@ public class TaskbarManager {
                 mTaskbarActivityContext = null;
             }
         }
+        // GammaOS: also tear down the secondary bar if present
+        destroySecondaryTaskbarIfAny();
         DeviceProfile dp = mUserUnlocked ?
                 LauncherAppState.getIDP(mContext).getDeviceProfile(mContext) : null;
         if (dp == null || !isTaskbarEnabled(dp)) {
@@ -529,6 +627,60 @@ public class TaskbarManager {
                 mTaskbarRootLayout.addView(mTaskbarActivityContext.getDragLayer());
                 mTaskbarActivityContext.notifyUpdateLayoutParams();
             }
+
+            // ===== GammaOS: optional secondary taskbar =====
+            destroySecondaryTaskbarIfAny(); // clean slate before (re)creating
+            if (mUserUnlocked && isTaskbarEnabled && isDualTaskbarEnabled()) {
+                final int secId = findUsableSecondaryDisplayId();
+                if (secId != INVALID_DISPLAY) {
+                    final Display secDisplay = getDisplayById(secId);
+                    if (secDisplay != null) {
+                        Log.d(TAG, "Creating secondary taskbar on display " + secId);
+                        // IMPORTANT: always use TYPE_NAVIGATION_BAR_PANEL so we don't collide with SystemUI's NavigationBar2.
+                        final Context secBarContext = mContext.createWindowContext(
+                                secDisplay,
+                                TYPE_NAVIGATION_BAR_PANEL,
+                                /*options*/ null);
+                        final Context secPanelContext = mContext.createWindowContext(
+                                secDisplay, TYPE_NAVIGATION_BAR_PANEL, null);
+
+                        // Create a separate TaskbarActivityContext bound to the secondary display
+                        mSecondaryTaskbarActivityContext = new TaskbarActivityContext(
+                                secBarContext,
+                                secPanelContext,
+                                // Bypass DP gating for secondary; primary bar already obeyed DP.
+                                (mUserUnlocked
+                                        ? LauncherAppState.getIDP(secBarContext)
+                                              .getDeviceProfile(secBarContext)
+                                        : null),
+                                mNavButtonController,
+                                mUnfoldProgressProvider);
+                        // Reuse shared state so icons/model wire up correctly.
+                        mSecondaryTaskbarActivityContext.init(mSharedState);
+                        if (mActivity != null) {
+                            mSecondaryTaskbarActivityContext.setUIController(
+                                    createTaskbarUIControllerForActivity(mActivity));
+                        }
+
+                        // Do NOT addView() here — TaskbarActivityContext.init() manages its own window
+                        // on non-default displays. Just cache the WindowManager for cleanup/logs.
+                        mSecondaryWindowManager = secBarContext.getSystemService(WindowManager.class);
+                        // Track whether the secondary window actually attached (for diagnostics).
+                        mSecondaryAddedWindow =
+                                mSecondaryTaskbarActivityContext.getDragLayer().isAttachedToWindow();
+                        if (!mSecondaryAddedWindow) {
+                            Log.w(TAG, "Secondary taskbar DragLayer not yet attached after init()");
+                        }
+
+                        mSecondaryNavigationBarPanelContext = secPanelContext;
+                        mSecondaryDisplayId = secId;
+                    } else {
+                        Log.w(TAG, "Secondary display id reported but not found: " + secId);
+                    }
+                } else {
+                    Log.d(TAG, "No decorated secondary display found for dual taskbar");
+                }
+            }
         } finally {
             Trace.endSection();
         }
@@ -542,6 +694,10 @@ public class TaskbarManager {
         mSharedState.sysuiStateFlags = systemUiStateFlags;
         if (mTaskbarActivityContext != null) {
             mTaskbarActivityContext.updateSysuiStateFlags(systemUiStateFlags, false /* fromInit */);
+        }
+        // Mirror to secondary if present
+        if (mSecondaryTaskbarActivityContext != null) {
+            mSecondaryTaskbarActivityContext.updateSysuiStateFlags(systemUiStateFlags, false);
         }
     }
 
@@ -558,6 +714,9 @@ public class TaskbarManager {
         mSharedState.setupUIVisible = isVisible;
         if (mTaskbarActivityContext != null) {
             mTaskbarActivityContext.setSetupUIVisible(isVisible);
+        }
+        if (mSecondaryTaskbarActivityContext != null) {
+            mSecondaryTaskbarActivityContext.setSetupUIVisible(isVisible);
         }
     }
 
@@ -578,6 +737,10 @@ public class TaskbarManager {
         if (mTaskbarActivityContext != null) {
             mTaskbarActivityContext.disableNavBarElements(displayId, state1, state2, animate);
         }
+        if (mSecondaryTaskbarActivityContext != null) {
+            mSecondaryTaskbarActivityContext.disableNavBarElements(
+                    displayId, state1, state2, animate);
+        }
     }
 
     public void onSystemBarAttributesChanged(int displayId, int behavior) {
@@ -586,12 +749,19 @@ public class TaskbarManager {
         if (mTaskbarActivityContext != null) {
             mTaskbarActivityContext.onSystemBarAttributesChanged(displayId, behavior);
         }
+        if (mSecondaryTaskbarActivityContext != null) {
+            mSecondaryTaskbarActivityContext.onSystemBarAttributesChanged(
+                    displayId, behavior);
+        }
     }
 
     public void onNavButtonsDarkIntensityChanged(float darkIntensity) {
         mSharedState.navButtonsDarkIntensity = darkIntensity;
         if (mTaskbarActivityContext != null) {
             mTaskbarActivityContext.onNavButtonsDarkIntensityChanged(darkIntensity);
+        }
+        if (mSecondaryTaskbarActivityContext != null) {
+            mSecondaryTaskbarActivityContext.onNavButtonsDarkIntensityChanged(darkIntensity);
         }
     }
 
@@ -628,6 +798,8 @@ public class TaskbarManager {
                 () -> mTaskbarBroadcastReceiver.unregisterReceiverSafely(mContext));
         destroyExistingTaskbar();
         removeTaskbarRootViewFromWindow();
+        // Also remove secondary window if attached
+        destroySecondaryTaskbarIfAny();
         if (mUserUnlocked) {
             DisplayController.INSTANCE.get(mContext).removeChangeListener(mRecreationListener);
         }

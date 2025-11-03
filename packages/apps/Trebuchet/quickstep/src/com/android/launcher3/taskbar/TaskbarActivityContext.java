@@ -141,6 +141,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import android.os.IBinder;
+import java.lang.reflect.Method;
 
 /**
  * The {@link ActivityContext} with which we inflate Taskbar-related Views. This allows UI elements
@@ -308,6 +310,22 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
                 bubbleControllersOptional);
 
         mLauncherPrefs = LauncherPrefs.get(this);
+    }
+
+    /**
+     * Best-effort retrieval of the WindowContext token. On some platform SDKs this method is
+     * @hide; Trebuchet is a priv/system app but the symbol may still be hidden from the SDK stubs.
+     */
+    @Nullable
+    private IBinder tryGetWindowContextToken() {
+        try {
+            Method m = Context.class.getMethod("getWindowContextToken");
+            Object token = m.invoke(this);
+            return (IBinder) token;
+        } catch (Throwable t) {
+            Log.w(TAG, "getWindowContextToken() not available; continuing without explicit token");
+            return null;
+        }
     }
 
     /** Updates {@link DeviceProfile} instances for any Taskbar windows. */
@@ -538,12 +556,30 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      * for taskbar
      */
     private WindowManager.LayoutParams createAllWindowParams() {
-        // GammaOS: when forcing Taskbar for phone 3-button nav, own the nav window
-        final int windowType = isPhoneButtonNavMode()
+        // GammaOS: when forcing Taskbar for phone 3-button nav, own the nav window on DEFAULT display only.
+        int windowType = isPhoneButtonNavMode()
                 ? TYPE_NAVIGATION_BAR
-                : (ENABLE_TASKBAR_NAVBAR_UNIFICATION ? TYPE_NAVIGATION_BAR : TYPE_NAVIGATION_BAR_PANEL);
+                : (ENABLE_TASKBAR_NAVBAR_UNIFICATION
+                        ? TYPE_NAVIGATION_BAR
+                        : TYPE_NAVIGATION_BAR_PANEL);
+
+        // GammaOS: never own the NAV bar window on a non-default display; avoid clobbering SystemUI NavigationBar2.
+        // Secondary (and any non-default) displays must always be a panel overlay.
+        if (getDisplay() != null && getDisplay().getDisplayId() != Display.DEFAULT_DISPLAY) {
+            windowType = TYPE_NAVIGATION_BAR_PANEL;
+        }
         WindowManager.LayoutParams windowLayoutParams =
                 createDefaultWindowLayoutParams(windowType, TaskbarActivityContext.WINDOW_TITLE);
+
+        // --- On secondary displays, mark as trusted overlay and bind the WindowContext token ---
+        if (getDisplay() != null && getDisplay().getDisplayId() != Display.DEFAULT_DISPLAY) {
+            // Many builds require the trusted overlay bit for panel windows off the default display.
+            windowLayoutParams.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
+            final IBinder wcToken = tryGetWindowContextToken();
+            if (wcToken != null) {
+                windowLayoutParams.token = wcToken;
+            }
+        }
 
         windowLayoutParams.paramsForRotation = new WindowManager.LayoutParams[4];
         for (int rot = Surface.ROTATION_0; rot <= Surface.ROTATION_270; rot++) {

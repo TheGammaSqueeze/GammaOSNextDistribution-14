@@ -939,6 +939,27 @@ class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
         if (!display.isValidLocked()) { // null check for display.mPrimaryDisplayDevice
             return;
         }
+
+        // GammaOS: For trusted, non-default local displays that own their group, keep them
+        // pinned to their current group to avoid transient detach/reattach churn which
+        // invalidates client Display tokens (e.g., Presentation.show()).
+        final int currentDisplayId = display.getDisplayIdLocked();
+        if (currentDisplayId != android.view.Display.DEFAULT_DISPLAY) {
+            final DisplayDevice dd = display.getPrimaryDisplayDeviceLocked();
+            if (dd != null) {
+                // Use server-side DisplayDeviceInfo (same package), not android.view.*
+                final DisplayDeviceInfo di = dd.getDisplayDeviceInfoLocked();
+                final boolean trusted =
+                        (di.flags & DisplayDeviceInfo.FLAG_TRUSTED) != 0;
+                final boolean ownGroup =
+                        (di.flags & DisplayDeviceInfo.FLAG_OWN_DISPLAY_GROUP) != 0;
+                if (trusted && ownGroup) {
+                    // Do not change group for this display.
+                    return;
+                }
+            }
+        }
+
         // updated primary device directly from LogicalDisplay (not from DisplayInfo)
         final DisplayDevice displayDevice = display.getPrimaryDisplayDeviceLocked();
         // final in LogicalDisplay
@@ -948,6 +969,21 @@ class LogicalDisplayMapper implements DisplayDeviceRepository.Listener {
                 mVirtualDeviceDisplayMapping.get(primaryDisplayUniqueId);
 
         // Get current display group data
+        // GammaOS: keep trusted non-default displays in their current group to avoid churn
+        try {
+            final int currentId = display.getDisplayIdLocked();
+            final boolean nonDefault = currentId != DEFAULT_DISPLAY;
+            final DisplayDeviceInfo devInfo = display.getPrimaryDisplayDeviceLocked()
+                    .getDisplayDeviceInfoLocked();
+            final boolean trusted = (devInfo.flags & DisplayDeviceInfo.FLAG_TRUSTED) != 0;
+            final boolean ownGroup = (devInfo.flags & DisplayDeviceInfo.FLAG_OWN_DISPLAY_GROUP) != 0;
+            if (nonDefault && trusted && ownGroup) {
+                // Do not reassign group; prevents transient detach/reattach and stale Display tokens.
+                return;
+            }
+        } catch (Throwable t) {
+            // best-effort; do not block normal flow
+        }
         int groupId = getDisplayGroupIdFromDisplayIdLocked(displayId);
         Integer deviceDisplayGroupId = null;
         if (linkedDeviceUniqueId != null
