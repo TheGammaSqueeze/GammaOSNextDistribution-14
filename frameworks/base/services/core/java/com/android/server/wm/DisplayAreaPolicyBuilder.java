@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import android.os.SystemProperties;
 
 /**
  * A builder for instantiating a complex {@link DisplayAreaPolicy}

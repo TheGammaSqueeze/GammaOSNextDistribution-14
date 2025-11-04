@@ -368,6 +368,35 @@ public final class DisplayManagerService extends SystemService {
         });
     }
 
+    /**
+     * GammaOS: apply a power state to all INTERNAL logical displays, so secondary
+     * internal panels sleep/wake in lock-step with the primary.
+     * NOTE: we call requestDisplayStateInternal() directly (not via DisplayBlanker)
+     * to avoid re-entering the blanker; brightness values are passed through.
+     */
+    private void gammaosApplyStateToAllInternalDisplaysLocked(int state,
+            float brightness, float sdrBrightness) {
+        // This method MUST be called while holding mSyncRoot.
+        final int count = mDisplayStates.size();
+        for (int i = 0; i < count; i++) {
+            final int id = mDisplayStates.keyAt(i);
+            final LogicalDisplay ld = mLogicalDisplayMapper.getDisplayLocked(id,
+                    /*includeDisabled*/ true);
+            if (ld == null) continue;
+            final DisplayInfo di = ld.getDisplayInfoLocked();
+            if (di == null || di.type != Display.TYPE_INTERNAL) continue;
+            // Skip if already at requested state/brightness to avoid churn
+            final int current = mDisplayStates.get(id);
+            final BrightnessPair bp = mDisplayBrightnesses.get(id);
+            final boolean sameState = (current == state);
+            final boolean sameBrightness = (bp != null
+                    && bp.brightness == brightness && bp.sdrBrightness == sdrBrightness);
+            if (sameState && sameBrightness) continue;
+            // Issue the per-display request
+            requestDisplayStateInternal(id, state, brightness, sdrBrightness);
+        }
+    }
+
     /** {@link DisplayBlanker} used by all {@link DisplayPowerController}s. */
     private final DisplayBlanker mDisplayBlanker = new DisplayBlanker() {
         // Synchronized to avoid race conditions when updating multiple display states.
@@ -405,6 +434,14 @@ public final class DisplayManagerService extends SystemService {
             // The order of operations is important for legacy reasons.
             if (state == Display.STATE_OFF) {
                 requestDisplayStateInternal(displayId, state, brightness, sdrBrightness);
+                // GammaOS: also propagate OFF to all INTERNAL displays so secondaries
+                // don’t remain ON/UNKNOWN during sleep.
+                synchronized (mSyncRoot) {
+                    gammaosApplyStateToAllInternalDisplaysLocked(
+                            Display.STATE_OFF,
+                            PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                            PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                }
             }
 
             if (stateChanged) {
@@ -413,6 +450,11 @@ public final class DisplayManagerService extends SystemService {
 
             if (state != Display.STATE_OFF) {
                 requestDisplayStateInternal(displayId, state, brightness, sdrBrightness);
+                // GammaOS: mirror BRIGHT/DOZE transitions to all INTERNAL displays so
+                // they wake together with the primary.
+                synchronized (mSyncRoot) {
+                    gammaosApplyStateToAllInternalDisplaysLocked(state, brightness, sdrBrightness);
+                }
             }
         }
     };

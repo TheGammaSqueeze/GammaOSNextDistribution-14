@@ -754,16 +754,13 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 if (mConnectedHdcpLevel != 0) {
                     mStaticDisplayInfo.secure = mConnectedHdcpLevel >= MediaDrm.HDCP_V1;
                 }
-                // GammaOS: ensure secondary internal panel is considered ON so its viewport becomes
-                // active for InputReader. Without this, dumpsys shows state UNKNOWN and the touch
-                // mapper stays DISABLED for displayId=2.
-                if (isSecondary) {
-                    if (mState == Display.STATE_UNKNOWN) {
-                        mState = Display.STATE_ON;
-                    }
-                    if (mCommittedState == Display.STATE_UNKNOWN) {
-                        mCommittedState = Display.STATE_ON;
-                    }
+                // GammaOS: Only coerce UNKNOWN->ON on secondary if explicitly opted-in.
+                // We don't want sleep to be undone by forcing ON during power transitions.
+                if (isSecondary &&
+                        android.os.SystemProperties.getBoolean(
+                                "persist.gammaos.sec_force_on", /*def*/ false)) {
+                    if (mState == Display.STATE_UNKNOWN) mState = Display.STATE_ON;
+                    if (mCommittedState == Display.STATE_UNKNOWN) mCommittedState = Display.STATE_ON;
                 }
                 if (mStaticDisplayInfo.secure) {
                     mInfo.flags = DisplayDeviceInfo.FLAG_SECURE
