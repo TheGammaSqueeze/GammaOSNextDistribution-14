@@ -42,6 +42,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Slog;
 
 /**
  * Policy that manages {@link DisplayArea}.
@@ -97,6 +98,7 @@ public abstract class DisplayAreaPolicy {
         public DisplayAreaPolicy instantiate(WindowManagerService wmService,
                 DisplayContent content, RootDisplayArea root,
                 DisplayArea.Tokens imeContainer) {
+            // GammaOS: note secondary-home override + display flags at policy construction time.
             final TaskDisplayArea defaultTaskDisplayArea = new TaskDisplayArea(content, wmService,
                     "DefaultTaskDisplayArea", FEATURE_DEFAULT_TASK_CONTAINER);
             final List<TaskDisplayArea> tdaList = new ArrayList<>();
@@ -107,6 +109,20 @@ public abstract class DisplayAreaPolicy {
             final HierarchyBuilder rootHierarchy = new HierarchyBuilder(root);
             // Set the essential containers (even if the display doesn't support IME).
             rootHierarchy.setImeContainer(imeContainer).setTaskDisplayAreas(tdaList);
+
+            // GammaOS: debug the override + flags so we can correlate with mirroring later.
+            final String gammaOverride =
+                    android.os.SystemProperties.get("persist.gammaos.secondary_home", "").trim();
+            final int diFlags = content.getDisplayInfo().flags;
+            final boolean isTrusted =
+                    (diFlags & android.view.Display.FLAG_TRUSTED) != 0;
+            final boolean ownsGroup =
+                    (diFlags & android.view.Display.FLAG_OWN_DISPLAY_GROUP) != 0;
+            if (!TextUtils.isEmpty(gammaOverride)) {
+                Slog.d("DisplayAreaPolicy", "GammaOS: policy instantiate on display "
+                        + content.getDisplayId() + " override='" + gammaOverride
+                        + "' trusted=" + isTrusted + " ownGroup=" + ownsGroup);
+            }
 
             // GammaOS: Promote secondary displays to "trusted + decorated" when Desktop mode is forced.
             // This allows SystemUI nav/status bars and a HOME task on the external screen.

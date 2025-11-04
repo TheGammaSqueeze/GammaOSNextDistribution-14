@@ -479,6 +479,12 @@ class DisplayAreaPolicyBuilder {
 
         /** Builds the {@link DisplayArea} hierarchy below root. */
         private void build() {
+            // GammaOS: debug if secondary-home override was set when building hierarchy.
+            final String gammaOverride =
+                    android.os.SystemProperties.get("persist.gammaos.secondary_home", "").trim();
+            if (!gammaOverride.isEmpty()) {
+                android.util.Slog.d("DisplayAreaPolicy", "GammaOS: building hierarchy (override=" + gammaOverride + ")");
+            }
             build(null /* displayAreaGroupHierarchyBuilders */);
         }
 

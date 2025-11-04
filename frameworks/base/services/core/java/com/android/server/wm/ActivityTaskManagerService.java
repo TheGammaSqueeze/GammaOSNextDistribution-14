@@ -5437,22 +5437,21 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         Intent intent = new Intent(mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
         intent.setComponent(mTopComponent);
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
-        if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+        if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL
+                && intent.getComponent() == null) {
             intent.addCategory(Intent.CATEGORY_HOME);
         }
         return intent;
     }
 
     /**
-     * Return the intent set with {@link Intent#CATEGORY_SECONDARY_HOME} to resolve secondary home
-     * activities.
+     * Return the intent to use for the secondary display "home".
      *
-     * @param preferredPackage Specify a preferred package name, otherwise use the package name
-     *                         defined in config_secondaryHomePackage.
-     * @return the intent set with {@link Intent#CATEGORY_SECONDARY_HOME}
-     *
-     * GammaOS: extended to allow an arbitrary package via persist.gammaos.secondary_home; when that
-     * package isn't a secondary-home provider we fall back to its MAIN|LAUNCHER entry.
+     * GammaOS:
+     * - If persist.gammaos.secondary_home is set, ALWAYS return a non-HOME MAIN intent so we avoid
+     *   RootWindowContainer.startHomeOnDisplay (which can create MirrorRoot). This makes ANY app
+     *   eligible to be the secondary "home", not just launchers or SECONDARY_HOME providers.
+     * - If the property is NOT set, keep stock behavior (SECONDARY_HOME flow).
      */
     Intent getSecondaryHomeIntent(String preferredPackage) {
         final Intent intent = new Intent(
@@ -5461,20 +5460,47 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         final boolean useSystemProvidedLauncher = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_useSystemProvidedLauncherForSecondary);
 
-        // GammaOS: runtime override so *any* package can act as “secondary launcher”.
-        // If it does not expose SECONDARY_HOME we will fall back to a regular LAUNCHER
-        // entry point (explicit MAIN|LAUNCHER intent) and return that directly to avoid mirroring.
+        // GammaOS: runtime override — treat any package/component as secondary "home" target.
         final String overridePkg = android.os.SystemProperties
                 .get("persist.gammaos.secondary_home", "").trim();
+        if (!overridePkg.isEmpty()) {
+            Slog.d(TAG, "GammaOS secondary_home override=" + overridePkg);
+        }
 
-        // If override set but not a real SECONDARY_HOME provider -> return fallback launcher intent.
-        if (!overridePkg.isEmpty() && !resolvesSecondaryHome(overridePkg)) {
+        // If override is present, ALWAYS return a non-HOME MAIN intent (explicit component or
+        // resolved MAIN|LAUNCHER or package-scoped MAIN). Never add SECONDARY_HOME here — the
+        // LocalService.startHomeOnDisplay path will direct-launch it on Display 2, avoiding mirror.
+        if (!overridePkg.isEmpty() && overridePkg.indexOf('/') > 0) {
+            try {
+                final int slash = overridePkg.indexOf('/');
+                final String pkg = overridePkg.substring(0, slash);
+                final String cls = overridePkg.substring(slash + 1);
+                final ComponentName cn = new ComponentName(pkg, cls);
+                final Intent explicit = new Intent(Intent.ACTION_MAIN).setComponent(cn);
+                explicit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                        | Intent.FLAG_DEBUG_TRIAGED_MISSING);
+                return explicit;
+            } catch (Throwable t) {
+                Slog.w(TAG, "Bad persist.gammaos.secondary_home component: " + overridePkg, t);
+            }
+        }
+
+        if (!overridePkg.isEmpty()) {
+            // Try MAIN|LAUNCHER inside that package first (non-HOME).
             final Intent fb = buildSecondaryHomeFallbackIntent(overridePkg);
             if (fb != null) {
-                Slog.d(TAG, "SecondaryHome override (fallback LAUNCHER): " + overridePkg);
-                return fb; // explicit MAIN|LAUNCHER, no CATEGORY_SECONDARY_HOME => no MirrorRoot
+                Slog.d(TAG, "GammaOS: override resolved to LAUNCHER (non-HOME): " + overridePkg);
+                return fb;
             }
-            // If no launcher activity exists, fall through to config/preferred logic.
+            // Last resort: package-scoped MAIN (non-HOME).
+            final Intent pkgScoped = new Intent(Intent.ACTION_MAIN).setPackage(overridePkg);
+            pkgScoped.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                    | Intent.FLAG_DEBUG_TRIAGED_MISSING);
+            Slog.w(TAG, "GammaOS: override fallback to package-scoped MAIN (non-HOME) for "
+                    + overridePkg);
+            return pkgScoped;
         }
 
         if (preferredPackage == null || useSystemProvidedLauncher) {
@@ -5485,25 +5511,18 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                         com.android.internal.R.string.config_secondaryHomePackage);
             } catch (Throwable ignored) { /* overlay may not define the string */ }
 
-            // If override points to a valid SECONDARY_HOME provider, use it.
-            if (!overridePkg.isEmpty() && resolvesSecondaryHome(overridePkg)) {
-                secondaryHomePackage = overridePkg;
-            }
-            Slog.d(TAG, "SecondaryHome resolved: " + secondaryHomePackage);
+            Slog.d(TAG, "SecondaryHome resolved (stock path): " + secondaryHomePackage);
             if (secondaryHomePackage != null && !secondaryHomePackage.isEmpty()) {
                 intent.setPackage(secondaryHomePackage);
             }
         } else {
-            // preferred provided; still honor a valid SECONDARY_HOME override package
-            if (!overridePkg.isEmpty() && resolvesSecondaryHome(overridePkg)) {
-                intent.setPackage(overridePkg);
-            } else {
-                intent.setPackage(preferredPackage);
-            }
+            // No override; use provided preferred package for standard SECONDARY_HOME flow.
+            intent.setPackage(preferredPackage);
         }
 
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
-        if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+        if (mFactoryTest != FactoryTest.FACTORY_TEST_LOW_LEVEL
+                && intent.getComponent() == null) {
             intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
         }
         return intent;
@@ -6593,6 +6612,26 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         public boolean startHomeOnDisplay(int userId, String reason, int displayId,
                 boolean allowInstrumenting, boolean fromHomeKey) {
             synchronized (mGlobalLock) {
+                // Build the secondary-home intent
+                final Intent sec = getSecondaryHomeIntent(/*preferredPackage*/ null);
+
+                if (sec != null && !sec.hasCategory(Intent.CATEGORY_SECONDARY_HOME)) {
+                    // Launch as a regular app on the target display to avoid MirrorRoot
+                    final ActivityOptions opts = ActivityOptions.makeBasic();
+                    opts.setLaunchDisplayId(displayId);
+                    opts.setLaunchWindowingMode(android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN);
+                    sec.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    try {
+                        mContext.startActivityAsUser(
+                                sec, opts.toBundle(), UserHandle.of(userId));
+                        return true;
+                    } catch (Throwable t) {
+                        Slog.w(TAG, "Failed to start secondary launcher on display "
+                                + displayId, t);
+                    }
+                }
+                // Stock SECONDARY_HOME path (no override): let WMS re-home the target display
                 return mRootWindowContainer.startHomeOnDisplay(userId, reason, displayId,
                         allowInstrumenting, fromHomeKey);
             }

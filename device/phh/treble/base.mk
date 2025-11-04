@@ -119,6 +119,7 @@ PRODUCT_COPY_FILES += \
 # GammaOS Customizations
 PRODUCT_COPY_FILES += \
     gammaos/utils/xz:system/bin/xz \
+    gammaos/utils/dtc:system/bin/dtc \
     gammaos/utils/com.gamma.analogcalibrator.apk:system/app/GammaAnalog/com.gamma.analogcalibrator.apk \
     gammaos/utils/inotifywait:system/bin/inotifywait \
     gammaos/utils/firefox-fenix-139.0.multi.android-arm64-v8a.apk:system/etc/firefox-fenix-139.0.multi.android-arm64-v8a.apk \
