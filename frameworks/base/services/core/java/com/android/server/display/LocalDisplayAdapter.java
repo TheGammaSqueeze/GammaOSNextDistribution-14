@@ -286,9 +286,9 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             try {
                 final var cr = getContext().getContentResolver();
                 final int vPlural = android.provider.Settings.Global.getInt(
-                        cr, android.provider.Settings.Global.DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0);
+                        cr, android.provider.Settings.Global.DEVELOPMENT_FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 1);
                 // Some branches don’t define the singular constant: use the string name directly.
-                final int vSingular = android.provider.Settings.Global.getInt(cr, "development_force_desktop_mode_on_external_display", 0);
+                final int vSingular = android.provider.Settings.Global.getInt(cr, "development_force_desktop_mode_on_external_display", 1);
                 return (vPlural != 0) || (vSingular != 0);
             } catch (Throwable t) {
                 // Provider not ready yet (very early boot) or other issue: treat as OFF.
