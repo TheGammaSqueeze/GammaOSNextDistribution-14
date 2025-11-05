@@ -144,12 +144,21 @@ import java.util.function.Consumer;
 import android.os.IBinder;
 import java.lang.reflect.Method;
 
+import android.hardware.display.DisplayManager;
+import java.lang.reflect.Field;
+
 /**
  * The {@link ActivityContext} with which we inflate Taskbar-related Views. This allows UI elements
  * that are used by both Launcher and Taskbar (such as Folder) to reference a generic
  * ActivityContext and BaseDragLayer instead of the Launcher activity and its DragLayer.
  */
 public class TaskbarActivityContext extends BaseTaskbarContext {
+
+    /** Returns true when this Taskbar context is attached to a non-default (secondary) display. */
+    public boolean isOnSecondaryDisplay() {
+        final Display d = getDisplay();
+        return d != null && d.getDisplayId() != Display.DEFAULT_DISPLAY;
+    }
 
     private static final String IME_DRAWS_IME_NAV_BAR_RES_NAME = "config_imeDrawsImeNavBar";
 
@@ -221,7 +230,7 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
 
         // Get display and corners first, as views might use them in constructor.
         Display display = windowContext.getDisplay();
-        Context c = getApplicationContext();
+        final Context c = windowContext;
         mWindowManager = c.getSystemService(WindowManager.class);
 
         boolean phoneMode = isPhoneMode();
@@ -579,6 +588,14 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
             if (wcToken != null) {
                 windowLayoutParams.token = wcToken;
             }
+            // Do not provide nav/tappable/mandatory insets on secondary; SystemUI owns them.
+            // Use reflection so this compiles even if providedInsets/InsetsFrameProvider
+            // are not present/SDK-hidden on this branch.
+            try {
+                Field f = WindowManager.LayoutParams.class.getField("providedInsets");
+                // Setting to null (or empty) prevents Trebuchet from owning nav/tappable/mandatory insets.
+                f.set(windowLayoutParams, null);
+            } catch (Throwable ignored) { /* not present on this tree; safe to ignore */ }
         }
 
         windowLayoutParams.paramsForRotation = new WindowManager.LayoutParams[4];
@@ -852,7 +869,10 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
         setUIController(TaskbarUIController.DEFAULT);
         mControllers.onDestroy();
         if (!enableTaskbarNoRecreate() && !ENABLE_TASKBAR_NAVBAR_UNIFICATION) {
-            mWindowManager.removeViewImmediate(mDragLayer);
+            // Only remove if we actually added and the view is still attached.
+            if (mAddedWindow && mDragLayer != null && mDragLayer.isAttachedToWindow()) {
+                mWindowManager.removeViewImmediate(mDragLayer);
+            }
             mAddedWindow = false;
         }
     }

@@ -17,7 +17,11 @@ package com.android.launcher3.taskbar.allapps;
 
 import static com.android.launcher3.model.data.AppInfo.EMPTY_ARRAY;
 
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Display;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -188,6 +192,31 @@ public final class TaskbarAllAppsController {
         mAppsView.getFloatingHeaderView()
                 .findFixedRowByType(PredictionRowView.class)
                 .setPredictedApps(mPredictedApps);
+                
+        // --- Begin: ensure All Apps has a sensible minimum width on secondary displays ---
+        // We only widen the container on non-default displays to avoid changing primary behavior.
+        final Context ctx = mAppsView.getContext();
+        final Display disp = ctx.getDisplay();
+        if (disp != null && disp.getDisplayId() != Display.DEFAULT_DISPLAY) {
+            final DisplayMetrics dm = ctx.getResources().getDisplayMetrics();
+            final int displayWidthPx = dm.widthPixels;            // logical width for this display
+            final int minByFraction = Math.round(displayWidthPx * 0.70f); // 70% of display width
+            final int minByDp = Math.round(600 * dm.density);    // 600dp safety floor
+            final int desiredMinWidth = Math.max(minByFraction, minByDp);
+
+            final View container = mAppsView; // TaskbarAllAppsContainerView
+            final ViewGroup.LayoutParams lp = container.getLayoutParams();
+            if (lp != null && (lp.width <= 0 || lp.width < desiredMinWidth)) {
+                lp.width = desiredMinWidth;
+                container.setLayoutParams(lp);
+            }
+            // Nudge layout so centering/constraints re-evaluate with new width.
+            final View parent = (container.getParent() instanceof View)
+                    ? (View) container.getParent() : null;
+            if (parent != null) parent.requestLayout(); else container.requestLayout();
+        }
+        // --- End: ensure All Apps has a sensible minimum width on secondary displays ---
+
         // 1 alternative that would be more work:
         // Create a shared drag layer between taskbar and taskbarAllApps so that when dragging
         // starts and taskbarAllApps can close, but the drag layer that the view is being dragged in

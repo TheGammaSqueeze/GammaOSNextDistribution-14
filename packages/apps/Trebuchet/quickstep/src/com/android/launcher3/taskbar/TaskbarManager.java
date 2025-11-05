@@ -434,22 +434,10 @@ public class TaskbarManager {
 
     private void destroySecondaryTaskbarIfAny() {
         if (mSecondaryTaskbarActivityContext != null) {
-            try {
-                // If the DragLayer is attached (secondary display), remove it safely.
-                if (mSecondaryTaskbarActivityContext.getDragLayer().isAttachedToWindow()) {
-                    mSecondaryTaskbarActivityContext.removeWindowView(
-                            mSecondaryTaskbarActivityContext.getDragLayer());
-                }
-            } catch (Throwable ignored) { }
+            // TaskbarActivityContext#onDestroy() is now idempotent and guards detach.
             mSecondaryTaskbarActivityContext.onDestroy();
             mSecondaryTaskbarActivityContext = null;
         }
-        // Clear refs
-        mSecondaryTaskbarRootLayout = null;
-        mSecondaryAddedWindow = false;
-        mSecondaryWindowManager = null;
-        mSecondaryNavigationBarPanelContext = null;
-        mSecondaryDisplayId = INVALID_DISPLAY;
     }
 
     private @Nullable Display getDisplayById(int displayId) {
