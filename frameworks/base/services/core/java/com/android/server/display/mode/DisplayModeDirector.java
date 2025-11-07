@@ -892,6 +892,8 @@ public class DisplayModeDirector {
             // startup phase where we thrive to keep the latency very low has significant impact.
             setRefreshRates(/* displayDeviceConfig= */ null,
                 /* attemptReadFromFeatureParams= */ false);
+            // GammaOS: prefer 120Hz by default
+            mDefaultRefreshRate = 120f;
         }
 
         /**
@@ -1095,9 +1097,8 @@ public class DisplayModeDirector {
                     peakVote);
             mVotesStorage.updateVote(displayId, Vote.PRIORITY_USER_SETTING_MIN_RENDER_FRAME_RATE,
                     Vote.forRenderFrameRates(minRefreshRate, Float.POSITIVE_INFINITY));
-            Vote defaultVote =
-                    defaultRefreshRate == 0f
-                            ? null : Vote.forRenderFrameRates(0f, defaultRefreshRate);
+            // GammaOS: keep no default cap; full range by default
+            Vote defaultVote = Vote.forRenderFrameRates(0f, Float.POSITIVE_INFINITY);
             mVotesStorage.updateGlobalVote(Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, defaultVote);
 
             float maxRefreshRate;
@@ -3050,9 +3051,7 @@ public class DisplayModeDirector {
         }
 
         @Override
-        public boolean supportsFrameRateOverride() {
-            return SurfaceFlingerProperties.enable_frame_rate_override().orElse(true);
-        }
+        public boolean supportsFrameRateOverride() { return false; }
 
         @Override
         public DisplayManagerInternal getDisplayManagerInternal() {

@@ -198,7 +198,17 @@ FLAG_MANAGER_READ_ONLY_FLAG(hotplug2, "")
 FLAG_MANAGER_READ_ONLY_FLAG(hdcp_level_hal, "")
 FLAG_MANAGER_READ_ONLY_FLAG(multithreaded_present, "debug.sf.multithreaded_present")
 FLAG_MANAGER_READ_ONLY_FLAG(add_sf_skipped_frames_to_trace, "")
-FLAG_MANAGER_READ_ONLY_FLAG(use_known_refresh_rate_for_fps_consistency, "")
+// Custom override: default to true and allow persist.device_config override
+bool FlagManager::use_known_refresh_rate_for_fps_consistency() const {
+    // Read persist.device_config.surface_flinger.use_known_refresh_rate_for_fps_consistency if set
+    static const std::optional<bool> deviceConfigOverride =
+            getBoolProperty("persist.device_config.surface_flinger.use_known_refresh_rate_for_fps_consistency");
+    if (deviceConfigOverride.has_value()) {
+        return deviceConfigOverride.value();
+    }
+    // Fallback to 'true' default if flag infra says false/unspecified
+    return true;
+}
 FLAG_MANAGER_READ_ONLY_FLAG(cache_when_source_crop_layer_only_moved,
                             "debug.sf.cache_source_crop_only_moved")
 FLAG_MANAGER_READ_ONLY_FLAG(enable_fro_dependent_features, "")

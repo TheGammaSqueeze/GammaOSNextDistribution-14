@@ -121,6 +121,11 @@ void Scheduler::setPacesetterDisplay(std::optional<PhysicalDisplayId> pacesetter
     demotePacesetterDisplay();
 
     promotePacesetterDisplay(pacesetterIdOpt);
+
+    // GammaOS: make absolutely sure HW vsync is on for the (new) pacesetter
+    if (pacesetterIdOpt) {
+        enableHardwareVsync(*pacesetterIdOpt);
+    }
 }
 
 void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelectorPtr selectorPtr) {
@@ -131,6 +136,11 @@ void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelector
                                             });
 
     registerDisplayInternal(displayId, std::move(selectorPtr), std::move(schedulePtr));
+
+    // GammaOS: mirror stock — keep HW vsync enabled for every registered display,
+    // not just the pacesetter. If the display is OFF, this becomes the pending state
+    // and will be applied on power-on.
+    enableHardwareVsync(displayId);
 }
 
 void Scheduler::registerDisplayInternal(PhysicalDisplayId displayId,

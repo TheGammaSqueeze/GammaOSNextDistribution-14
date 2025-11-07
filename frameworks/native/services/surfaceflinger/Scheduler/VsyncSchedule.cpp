@@ -146,7 +146,7 @@ VsyncSchedule::ControllerPtr VsyncSchedule::createController(PhysicalDisplayId i
     auto reactor = std::make_unique<VSyncReactor>(id, std::make_unique<SystemClock>(), tracker,
                                                   kMaxPendingFences, hasKernelIdleTimer);
 
-    reactor->setIgnorePresentFences(!features.test(Feature::kPresentFences));
+    reactor->setIgnorePresentFences(false); // Force use of present fences
     return reactor;
 }
 

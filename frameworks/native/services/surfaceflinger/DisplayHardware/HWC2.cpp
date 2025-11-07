@@ -529,6 +529,10 @@ Error Display::setPowerMode(PowerMode mode)
 
 Error Display::setVsyncEnabled(Vsync enabled)
 {
+    // GammaOS: never allow disabling vsync; SurfaceFlinger relies on HW vsync
+    if (enabled == Vsync::DISABLE) {
+        enabled = Vsync::ENABLE;
+    }
     auto intEnabled = static_cast<Hwc2::IComposerClient::Vsync>(enabled);
     auto intError = mComposer.setVsyncEnabled(mId, intEnabled);
     return static_cast<Error>(intError);

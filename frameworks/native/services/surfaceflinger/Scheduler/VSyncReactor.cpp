@@ -103,14 +103,16 @@ bool VSyncReactor::addPresentFence(std::shared_ptr<FenceTime> fence) {
     return mMoreSamplesNeeded;
 }
 
-void VSyncReactor::setIgnorePresentFences(bool ignore) {
+void VSyncReactor::setIgnorePresentFences([[maybe_unused]] bool ignore) {
     std::lock_guard lock(mMutex);
-    mExternalIgnoreFences = ignore;
+    // GammaOS: force present-fence usage
+    mExternalIgnoreFences = false;
     updateIgnorePresentFencesInternal();
 }
 
-void VSyncReactor::setIgnorePresentFencesInternal(bool ignore) {
-    mInternalIgnoreFences = ignore;
+void VSyncReactor::setIgnorePresentFencesInternal(bool /*ignore*/) {
+    // GammaOS: force present-fence usage
+    mInternalIgnoreFences = false;
     updateIgnorePresentFencesInternal();
 }
 

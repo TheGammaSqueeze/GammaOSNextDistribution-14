@@ -96,6 +96,28 @@ final class LocalDisplayAdapter extends DisplayAdapter {
 
     private Context mOverlayContext;
 
+    // GammaOS: coordinate multi-internal display wake-ups. Followers wait until the primary is up.
+    private final java.util.ArrayList<LocalDisplayDevice> mPendingFollowerOn = new java.util.ArrayList<>();
+    private boolean mPrimaryReportedOn = false;
+
+    // GammaOS: If primary ON signal takes too long, resume followers anyway.
+    // Note: Called with SyncRoot held by callers.
+    private void flushPendingFollowerOnLocked() {
+        if (mPendingFollowerOn.isEmpty()) return;
+        if (DEBUG) android.util.Slog.d(TAG, "Flushing deferred follower ON (" + mPendingFollowerOn.size() + ")");
+        for (LocalDisplayDevice d : mPendingFollowerOn) {
+            final java.lang.Runnable rr = d.requestDisplayStateLocked(
+                    android.view.Display.STATE_ON,
+                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                    /* displayOffloadSession */ null);
+            if (rr != null) {
+                try { rr.run(); } catch (Throwable ignored) {}
+            }
+        }
+        mPendingFollowerOn.clear();
+    }
+
     // Called with SyncRoot lock held.
     LocalDisplayAdapter(DisplayManagerService.SyncRoot syncRoot, Context context,
             Handler handler, Listener listener, DisplayManagerFlags flags,
@@ -172,9 +194,15 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                         dynamicInfo, modeSpecs, isFirstDisplay);
                 mDevices.put(physicalDisplayId, device);
                 sendDisplayDeviceEventLocked(device, DISPLAY_DEVICE_EVENT_ADDED);
+                // GammaOS: wake up SF early (if supported) and prime the display ON fast.
+                maybeEarlyWakeUpSurfaceFlinger();
+                maybePrimeDisplayOnHotplugLocked(device);
             } else if (device.updateDisplayPropertiesLocked(staticInfo, dynamicInfo,
                     modeSpecs)) {
                 sendDisplayDeviceEventLocked(device, DISPLAY_DEVICE_EVENT_CHANGED);
+                // GammaOS: on property changes, also ensure it comes back promptly.
+                maybeEarlyWakeUpSurfaceFlinger();
+                maybePrimeDisplayOnHotplugLocked(device);
             }
         } else {
             // The display is no longer available. Ignore the attempt to add it.
@@ -207,6 +235,54 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         }
     }
 
+    // --- GammaOS: small helper to safely poke SF on hotplug without hard-coding API ---
+    private static void maybeEarlyWakeUpSurfaceFlinger() {
+        // Some platform branches expose SurfaceControl.earlyWakeUp(), others don't.
+        // Use reflection so this compiles regardless of API availability.
+        try {
+            final java.lang.reflect.Method m =
+                    android.view.SurfaceControl.class.getMethod("earlyWakeUp");
+            m.invoke(null /* static */);
+        } catch (NoSuchMethodException ignored) {
+            // Method not present on this branch — nothing to do.
+        } catch (Throwable t) {
+            // Be paranoid: never let a vendor quirk crash system_server.
+            android.util.Slog.d(TAG, "earlyWakeUp() not available: " + t.getMessage());
+        }
+    }
+
+    /**
+     * GammaOS: Opportunistically ensure the new/updated display is powered ON quickly.
+     *
+     * We must NOT call a non-existent LocalDisplayDevice#setDisplayState(int).
+     * The correct way (per this tree) is to call requestDisplayStateLocked() and
+     * run the returned Runnable (if non-null), which internally drives:
+     *   - power mode via SurfaceControl
+     *   - pending brightness updates
+     *   - committed state bookkeeping
+     */
+    private static void maybePrimeDisplayOnHotplugLocked(LocalDisplayDevice device) {
+        if (device == null) return;
+        // If the device isn't already fully ON, try to bring it up now.
+        // Access to LocalDisplayDevice members/methods is allowed (outer class).
+        try {
+            final int desired = android.view.Display.STATE_ON;
+            if (device.mState != desired) {
+                final java.lang.Runnable r = device.requestDisplayStateLocked(
+                        desired,
+                        // Use sentinel brightness values instead of nulls.
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                        android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                        /* displayOffloadSession */ null);
+                if (r != null) {
+                    r.run();
+                }
+            }
+        } catch (Throwable t) {
+            android.util.Slog.d(TAG, "Prime display on hotplug skipped: " + t.getMessage());
+        }
+    }
+
     private final class LocalDisplayDevice extends DisplayDevice {
         private final long mPhysicalDisplayId;
         private final SparseArray<DisplayModeRecord> mSupportedModes = new SparseArray<>();
@@ -225,7 +301,20 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         // GammaOS: cache desktop-mode toggle to avoid rebuild thrash during boot.
         private boolean mLastForceDesktop;
         private final android.os.Handler mHandler = new android.os.Handler(android.os.Looper.getMainLooper());
- 
+        // GammaOS: Fallback in case 'reported ON' for the primary is delayed.
+        // If we requested STATE_ON for the primary but the framework callback lags,
+        // don't starve follower displays; flush after a short grace period.
+        private final Runnable mPrimaryOnTimeout = new Runnable() {
+            @Override public void run() {
+                synchronized (getSyncRoot()) {
+                    if (!mPrimaryReportedOn) {
+                        android.util.Slog.w(TAG, "Primary ON timeout; forcing follower wake");
+                        mPrimaryReportedOn = true;
+                        flushPendingFollowerOnLocked();
+                    }
+                }
+            }
+        };
 
         // This is only set in the runnable returned from requestDisplayStateLocked.
         private float mBrightnessState = PowerManager.BRIGHTNESS_INVALID_FLOAT;
@@ -896,6 +985,13 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 return new Runnable() {
                     @Override
                     public void run() {
+                        // GammaOS: If we're bringing the primary up, arm a short timeout so
+                        // followers won't stall waiting for the "reported ON" callback.
+                        if (mIsFirstDisplay && state == Display.STATE_ON) {
+                            mHandler.removeCallbacks(mPrimaryOnTimeout);
+                            // 400ms is usually enough for SF/HWC to report ON under load.
+                            mHandler.postDelayed(mPrimaryOnTimeout, 400);
+                        }
                         // Exit a suspended state before making any changes.
                         int currentState = oldState;
                         if (Display.isSuspendedState(oldState)
@@ -938,6 +1034,19 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                                     + "id=" + physicalDisplayId
                                     + ", state=" + Display.stateToString(state) + ")");
                         }
+ 
+                        // GammaOS: Defer follower ON until the primary display has reported ON.
+                        if (state == Display.STATE_ON && !mIsFirstDisplay) {
+                            boolean shouldDefer = false;
+                            synchronized (getSyncRoot()) {
+                                shouldDefer = !LocalDisplayAdapter.this.mPrimaryReportedOn;
+                                if (shouldDefer) {
+                                    if (DEBUG) Slog.d(TAG, "Deferring follower display ON until primary is ready");
+                                    LocalDisplayAdapter.this.mPendingFollowerOn.add(LocalDisplayDevice.this);
+                                }
+                            }
+                            if (shouldDefer) return;
+                        }
 
                         boolean isDisplayOffloadEnabled =
                                 getFeatureFlags().isDisplayOffloadEnabled();
@@ -972,6 +1081,11 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                         Trace.traceBegin(Trace.TRACE_TAG_POWER, "setDisplayState("
                                 + "id=" + physicalDisplayId
                                 + ", state=" + Display.stateToString(state) + ")");
+ 
+                        // GammaOS: Wake SF pipelines a touch early on primary; use reflection-safe helper.
+                        if (mIsFirstDisplay) {
+                            maybeEarlyWakeUpSurfaceFlinger();
+                        }
 
                         if (samsungSysinput != null) {
                             try {
@@ -985,6 +1099,26 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                         try {
                             mSurfaceControlProxy.setDisplayPowerMode(token, mode);
                             Trace.traceCounter(Trace.TRACE_TAG_POWER, "DisplayPowerMode", mode);
+                            // GammaOS: If we just turned the primary ON, mark it and resume followers.
+                            if (mIsFirstDisplay) {
+                                synchronized (getSyncRoot()) {
+                                    // Cancel timeout as soon as the real 'reported ON' arrives.
+                                    mHandler.removeCallbacks(mPrimaryOnTimeout);
+                                    if (state == Display.STATE_ON) {
+                                        LocalDisplayAdapter.this.mPrimaryReportedOn = true;
+                                        if (!LocalDisplayAdapter.this.mPendingFollowerOn.isEmpty()) {
+                                            if (DEBUG) Slog.d(TAG, "Resuming deferred follower display ON");
+                                            flushPendingFollowerOnLocked();
+                                        }
+                                    } else if (mode == SurfaceControl.POWER_MODE_OFF) {
+                                        // Primary is going OFF; clear the ready flag for the next wake.
+                                        LocalDisplayAdapter.this.mPrimaryReportedOn = false;
+                                        // Also cancel any pending timeout when going OFF.
+                                        mHandler.removeCallbacks(mPrimaryOnTimeout);
+                                        
+                                    }
+                                }
+                            }
                         } finally {
                             Trace.traceEnd(Trace.TRACE_TAG_POWER);
                         }
