@@ -918,6 +918,13 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                                 R.string.display_manager_hdmi_display_name);
                     }
                 }
+                // GammaOS: ensure unique names for multiple internal displays so apps that
+                // compare Display.getName() can distinguish them. Enabled by default.
+                if (SystemProperties.getBoolean("persist.gammaos.display.unique_names", true)
+                        && mInfo.type == Display.TYPE_INTERNAL) {
+                    final int port = physicalAddress != null ? physicalAddress.getPort() : -1;
+                    mInfo.name = mInfo.name + " (port " + port + ")";
+                }
                 mInfo.frameRateOverrides = mFrameRateOverrides;
 
                 // The display is trusted since it is created by system.
