@@ -242,8 +242,9 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
     const bool allowProtected = GetBoolProperty(kPropAllowProtected, false);
     args.allowProtected = allowProtected;
     args.captureSecureLayers = allowProtected;
-    // args.sourceCrop defaults to full stack; that’s fine for average color.
-
+    // Parity with gammargb – minimum saturation for gray-override
+    const int satPixelThreshold =
+        GetIntProperty("persist.gammaos.rgb.sat_pixel_threshold", 30);
     // Kick off capture and wait synchronously
     sp<SyncScreenCaptureListener> listener = sp<SyncScreenCaptureListener>::make();
     mFlinger->captureDisplay(args, listener);  // schedules work on SF main thread
@@ -268,7 +269,17 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
     const int stride = static_cast<int>(res.buffer->getStride()); // in pixels
     const uint8_t* p = static_cast<const uint8_t*>(addr);
 
+    // Histograms (kept for low-cost post ops / future use)
     std::vector<uint64_t> rh(256), gh(256), bh(256);
+
+    // --- Match gammargb selection pipeline (bold color):
+    // Accumulate channel sums, track most-saturated pixel, and
+    // build per-dominant-channel buckets (R-major / G-major / B-major).
+    uint64_t sr=0, sg=0, sb=0;              // global sums
+    uint64_t r_r=0, g_r=0, b_r=0, c_r=0;    // R-major bucket sums/count
+    uint64_t r_g=0, g_g=0, b_g=0, c_g=0;    // G-major bucket
+    uint64_t r_b=0, g_b=0, b_b=0, c_b=0;    // B-major bucket
+    int best_sat = -1; int best_r=0, best_g=0, best_b=0;
     for (int y = 0; y < h; ++y) {
         const uint32_t* row = reinterpret_cast<const uint32_t*>(p + y * stride * 4);
         for (int x = 0; x < w; ++x) {
@@ -285,6 +296,20 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
             gh[gi]++; 
             bh[bi]++;
             totalSamples++;
+
+            // global sums
+            sr += (uint64_t)r; sg += (uint64_t)g; sb += (uint64_t)b;
+
+            // saturation (max-min)
+            const int mx = (r>g ? (r>b?r:b) : (g>b?g:b));
+            const int mn = (r<g ? (r<b?r:b) : (g<b?g:b));
+            const int sat = mx - mn;
+            if (sat > best_sat) { best_sat = sat; best_r = r; best_g = g; best_b = b; }
+
+            // dominant-channel buckets (strict ‘>’ like gammargb)
+            if      (r>g && r>b) { r_r += (uint64_t)r; g_r += (uint64_t)g; b_r += (uint64_t)b; c_r++; }
+            else if (g>r && g>b) { r_g += (uint64_t)r; g_g += (uint64_t)g; b_g += (uint64_t)b; c_g++; }
+            else if (b>r && b>g) { r_b += (uint64_t)r; g_b += (uint64_t)g; b_b += (uint64_t)b; c_b++; }
         }
     }
     res.buffer->unlock();
@@ -298,7 +323,54 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
         return false;
     }
 
-    processHistogramToRgb(rh, gh, bh, outR, outG, outB);
+    // --- Decide color (faithful to gammargb)
+    // Channel averages
+    const uint64_t denom = (uint64_t)w * (uint64_t)h;
+    const int tr0 = denom ? (int)(sr / denom) : 0;
+    const int tg0 = denom ? (int)(sg / denom) : 0;
+    const int tb0 = denom ? (int)(sb / denom) : 0;
+
+    const int maxc   = std::max({tr0, tg0, tb0});
+    const int minc   = std::min({tr0, tg0, tb0});
+    const int spread = maxc - minc;
+    const int avg    = (tr0 + tg0 + tb0) / 3;
+
+    int tr = tr0, tg = tg0, tb = tb0;
+    if (spread <= mGrayTol &&
+        best_sat >= satPixelThreshold &&
+        avg >  mBlackAvg &&
+        avg <  mWhiteAvg)
+    {
+        // Use the most-saturated pixel, normalize to full scale, then blend towards gray
+        tr = best_r; tg = best_g; tb = best_b;
+        const int m = std::max({tr, tg, tb});
+        if (m > 0) { tr = tr*255/m; tg = tg*255/m; tb = tb*255/m; }
+        tr = (int)(tr*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+        tg = (int)(tg*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+        tb = (int)(tb*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+    } else if (avg >= mWhiteAvg && spread <= mGrayTol) {
+        tr = tg = tb = 255;
+    } else if (avg <= mBlackAvg && spread <= mGrayTol) {
+        tr = tg = tb = 0;
+    } else if (spread <= mGrayTol) {
+        tr = tg = tb = avg;
+    } else {
+        // Choose the dominant-channel bucket average
+        if      (c_r >= c_g && c_r >= c_b && c_r > 0) { tr = (int)(r_r / c_r); tg = (int)(g_r / c_r); tb = (int)(b_r / c_r); }
+        else if (c_g >= c_r && c_g >= c_b && c_g > 0) { tr = (int)(r_g / c_g); tg = (int)(g_g / c_g); tb = (int)(b_g / c_g); }
+        else if (c_b > 0)                             { tr = (int)(r_b / c_b); tg = (int)(g_b / c_b); tb = (int)(b_b / c_b); }
+    }
+
+    // Low-light boost (same intent as gammargb)
+    if (avg < mBoostThresh) {
+        float f = (float)mBoostThresh / (avg ? avg : 1);
+        if (f > mMaxBoost) f = mMaxBoost;
+        tr = std::min(255, (int)(tr * f));
+        tg = std::min(255, (int)(tg * f));
+        tb = std::min(255, (int)(tb * f));
+    }
+
+    outR = tr; outG = tg; outB = tb;
     return true;
 }
 
