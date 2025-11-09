@@ -113,6 +113,7 @@
 #include <aidl/android/hardware/graphics/common/DisplayHotplugEvent.h>
 #include <aidl/android/hardware/graphics/composer3/RefreshRateChangedDebugData.h>
 #include "Client.h"
+#include "GammaRgbSampler.h"
 
 using namespace android::surfaceflinger;
 
@@ -374,6 +375,9 @@ protected:
     }
 
 private:
+    // GammaOS: primary-display color sampler -> sys.gammaos.primary.rgb_hex
+    std::unique_ptr<GammaRgbSampler> mGammaRgbSampler;
+    friend class GammaRgbSampler;
     friend class BufferLayer;
     friend class Client;
     friend class FpsReporter;

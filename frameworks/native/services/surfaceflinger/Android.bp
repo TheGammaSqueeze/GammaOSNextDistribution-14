@@ -224,6 +224,7 @@ filegroup {
         "Tracing/tools/LayerTraceGenerator.cpp",
         "TransactionCallbackInvoker.cpp",
         "TunnelModeEnabledReporter.cpp",
+        "GammaRgbSampler.cpp",
     ],
 }
 

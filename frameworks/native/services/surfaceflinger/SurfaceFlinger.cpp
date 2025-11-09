@@ -517,6 +517,8 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory, SkipInitializationTag)
         mPowerAdvisor(std::make_unique<Hwc2::impl::PowerAdvisor>(*this)),
         mWindowInfosListenerInvoker(sp<WindowInfosListenerInvoker>::make()) {
     ALOGI("Using HWComposer service: %s", mHwcServiceName.c_str());
+    // GammaOS: set up sampler object (does nothing unless enabled via prop)
+    mGammaRgbSampler = std::make_unique<GammaRgbSampler>(this);
 }
 
 SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipInitialization) {
@@ -809,6 +811,11 @@ void SurfaceFlinger::bootFinished() {
         ALOGE("Extra call to bootFinished");
         return;
     }
+
+    if (mGammaRgbSampler) {
+        mGammaRgbSampler->onBootFinished();
+    }
+
     mBootFinished = true;
     FlagManager::getMutableInstance().markBootCompleted();
     if (mStartPropertySetThread->join() != NO_ERROR) {
@@ -1019,6 +1026,11 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
     const bool presentFenceReliable =
             !getHwComposer().hasCapability(Capability::PRESENT_FENCE_IS_NOT_RELIABLE);
     mStartPropertySetThread = getFactory().createStartPropertySetThread(presentFenceReliable);
+
+    // GammaOS: start sampler thread if enabled (never blocks SF boot)
+    if (mGammaRgbSampler) {
+        mGammaRgbSampler->start();
+    }
 
     if (mStartPropertySetThread->Start() != NO_ERROR) {
         ALOGE("Run StartPropertySetThread failed!");
