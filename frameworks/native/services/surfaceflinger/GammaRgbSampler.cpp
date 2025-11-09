@@ -28,6 +28,7 @@ using android::base::StringPrintf;
 namespace android {
 
 static constexpr const char* kOutProp = "sys.gammaos.primary.rgb_hex";
+static constexpr const char* kPropAllowProtected = "persist.gammaos.rgb.allow_protected";
 
 GammaRgbSampler::GammaRgbSampler(SurfaceFlinger* flinger)
     : mFlinger(flinger) {}
@@ -237,8 +238,10 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
     args.pixelFormat = ui::PixelFormat::RGBA_8888;
     args.dataspace   = ui::Dataspace::V0_SRGB;
     args.grayscale   = false;
-    args.allowProtected = false;
-    args.captureSecureLayers = false;
+    // Allow opting-in to secure content capture (many vendors will still blank it)
+    const bool allowProtected = GetBoolProperty(kPropAllowProtected, false);
+    args.allowProtected = allowProtected;
+    args.captureSecureLayers = allowProtected;
     // args.sourceCrop defaults to full stack; that’s fine for average color.
 
     // Kick off capture and wait synchronously
@@ -250,6 +253,7 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
         return false;
     }
 
+    uint64_t totalSamples = 0;
     // Map and build histograms (RGBA_8888)
     void* addr = nullptr;
     constexpr uint32_t kUsage = GRALLOC_USAGE_SW_READ_OFTEN;
@@ -280,9 +284,19 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
             rh[ri]++; 
             gh[gi]++; 
             bh[bi]++;
+            totalSamples++;
         }
     }
     res.buffer->unlock();
+ 
+    // If everything sums to zero, it's likely protected/blanked: hold last color by returning false.
+    // (BFI/shaders can still run; we just won't update LEDs while secure video is on screen.)
+    uint64_t sumAll = 0;
+    for (size_t i = 0; i < 256; ++i) sumAll += rh[i] + gh[i] + bh[i];
+    if (sumAll == 0 || totalSamples == 0) {
+        if (mDebug.load()) ALOGI("GammaRgbSampler: secure/blank capture detected; holding previous color");
+        return false;
+    }
 
     processHistogramToRgb(rh, gh, bh, outR, outG, outB);
     return true;
