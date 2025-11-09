@@ -73,6 +73,11 @@ private:
     int   mMinLedFloor  = 3;
     int   mBrightOverrideThresh = 3;
 
+    // fade output between samples (publish sys.gammaos.primary.rgb_hex at high rate)
+    std::atomic<bool> mFadeEnable{true};     // persist.gammaos.rgb.fade.enable
+    std::atomic<int>  mFadeFps{60};          // persist.gammaos.rgb.fade.fps
+    // track last published RGB to interpolate
+    int mLastR{0}, mLastG{0}, mLastB{0};
     // state
     std::string mLastHex;
     mutable int mBrightnessFd{-1};

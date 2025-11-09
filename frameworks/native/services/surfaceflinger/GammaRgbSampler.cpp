@@ -88,6 +88,10 @@ bool GammaRgbSampler::refreshProps() {
     mGrayBlend    = getPropFloat("persist.gammaos.rgb.gray_blend",          0.92f);
     mMinLedFloor  = GetIntProperty  ("persist.gammaos.rgb.min_led_brightness",  3);
     mBrightOverrideThresh = GetIntProperty("persist.gammaos.rgb.brightness_override_threshold", 3);
+
+    // Fade interpolation props
+    mFadeEnable.store(GetBoolProperty("persist.gammaos.rgb.fade.enable", true));
+    mFadeFps.store(std::max(1, std::min(240, GetIntProperty("persist.gammaos.rgb.fade.fps", 60))));
     return true;
 }
 
@@ -146,6 +150,7 @@ void GammaRgbSampler::threadMain() {
 
         int R=0, G=0, B=0;
         bool got = false;
+        bool didFade = false;
         if (mUseHwc.load() && dcsReady) {
             got = pullHwcSampleOnce(R,G,B);
         }
@@ -155,17 +160,43 @@ void GammaRgbSampler::threadMain() {
 
         if (got) {
             if (mScaleWithBrightness.load()) postAdjustWithBrightness(R,G,B);
-            const std::string hex = toHex(R,G,B);
-            publishHexIfChanged(hex);
-            if (mDebug.load()) ALOGI("GammaRgbSampler: sampled %s (R=%d G=%d B=%d)", hex.c_str(), R, G, B);
+
+            const bool fade = mFadeEnable.load();
+            const int sampleFps = std::max(1, std::min(60, mFps.load()));
+            const int outFps    = std::max(1, std::min(240, mFadeFps.load()));
+            if (fade && outFps > sampleFps) {
+                // number of interpolation steps between samples (e.g. 60/6 = 10)
+                const int steps = std::max(1, outFps / sampleFps);
+                // integer-rounded interpolation like gammargb.c
+                for (int s = 1; s <= steps; ++s) {
+                    const int nr = mLastR + ((R - mLastR) * s + steps/2) / steps;
+                    const int ng = mLastG + ((G - mLastG) * s + steps/2) / steps;
+                    const int nb = mLastB + ((B - mLastB) * s + steps/2) / steps;
+                    const std::string ihex = toHex(nr, ng, nb);
+                    publishHexIfChanged(ihex);
+                    // publish at outFps cadence
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / outFps));
+                }
+                didFade = true;
+            } else {
+                const std::string hex = toHex(R,G,B);
+                publishHexIfChanged(hex);
+            }
+            // remember last endpoint for next interpolation
+            mLastR = R; mLastG = G; mLastB = B;
+            if (mDebug.load()) {
+                const std::string dbghex = toHex(R,G,B);
+                ALOGI("GammaRgbSampler: sampled %s (R=%d G=%d B=%d)", dbghex.c_str(), R, G, B);
+            }
         } else if (mDebug.load()) {
             ALOGV("GammaRgbSampler: no sample this tick");
         }
-
-        // Sleep using *current* fps (hot-reloadable)
-        const int fps = std::max(1, std::min(60, mFps.load()));
-        const int sleepMs = 1000 / fps;
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepMs));
+        // Sleep using *current* fps (hot-reloadable) unless fade loop already consumed the period
+        if (!didFade) {
+            const int fps = std::max(1, std::min(60, mFps.load()));
+            const int sleepMs = 1000 / fps;
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepMs));
+        }
     }
     if (mDebug.load()) ALOGI("GammaRgbSampler: thread stop");
 }
