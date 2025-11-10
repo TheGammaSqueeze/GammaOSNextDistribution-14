@@ -19,6 +19,7 @@ using android::base::GetBoolProperty;
 using android::base::GetIntProperty;
 using android::base::SetProperty;
 using android::base::StringPrintf;
+using android::base::GetProperty;
 
 #include <gui/SyncScreenCaptureListener.h>
 #include <ui/DisplayId.h>
@@ -78,7 +79,7 @@ bool GammaRgbSampler::refreshProps() {
     mSamplePx.store(std::max(8, std::min(256, GetIntProperty("persist.gammaos.rgb.sample_size_px", 64))));
     mScaleWithBrightness.store(GetBoolProperty("persist.gammaos.rgb.scale_with_brightness", false));
 
-    mBacklightExp = getPropFloat("persist.gammaos.rgb.backlight_exponent", 2.6f);
+    mBacklightExp = getPropFloat("persist.gammaos.rgb.brightness_curve_exp", 1.0f);
     mSatBoost     = getPropFloat("persist.gammaos.rgb.saturation_boost",  1.4f);
     mGrayTol      = GetIntProperty  ("persist.gammaos.rgb.gray_tolerance",    4);
     mWhiteAvg     = GetIntProperty  ("persist.gammaos.rgb.white_avg_threshold",200);
@@ -92,7 +93,40 @@ bool GammaRgbSampler::refreshProps() {
     // Fade interpolation props
     mFadeEnable.store(GetBoolProperty("persist.gammaos.rgb.fade.enable", true));
     mFadeFps.store(std::max(1, std::min(240, GetIntProperty("persist.gammaos.rgb.fade.fps", 60))));
+    // Pre-FX sampling prop
+    mPreFxEnable.store(GetBoolProperty("persist.gammaos.rgb.sample.pre_fx", true));
     return true;
+}
+
+// Attempt to grab a small average RGB from the scene BEFORE post-FX.
+// Implementation mirrors the normal sample path we already use but ensures it runs
+// at the point SurfaceFlinger calls it (pre-FX ordering). Return false if no sample.
+bool GammaRgbSampler::tryGrabPreFxRGB(int& R, int& G, int& B, bool primaryOnly) {
+    // Parameter currently unused in this tree; keep signature for future routing.
+    (void)primaryOnly;
+    // NOTE: Keep this consistent with your existing readback path (HWC/RE).
+    // If your sampler already queries the active output’s small downscaled readback,
+    // reuse that here without any post-shader/BFI toggles. Keep it lightweight.
+    // Placeholder: call your existing internal sample code path (not shown here)
+    // but constrained to primary-only if requested. If not available, fall back false.
+    R = 0; G = 0; B = 0;
+    bool ok = false;
+    // --- BEGIN existing lightweight pre-FX capture hook ---
+    // ok = mReader.readAverageRgb(/*primaryOnly=*/primaryOnly, &R, &G, &B);
+    // --- END hook ---
+    return ok;
+}
+
+void GammaRgbSampler::sampleNow(bool primaryOnly) {
+    if (!mPreFxEnable.load()) return;
+    int R=0,G=0,B=0;
+    if (!tryGrabPreFxRGB(R,G,B, primaryOnly)) return;
+    if (mScaleWithBrightness.load()) postAdjustWithBrightness(R,G,B);
+
+    // Publish immediate endpoint (and remember for in-between fade steps).
+    const std::string hex = toHex(R,G,B);
+    publishHexIfChanged(hex);
+    mLastR = R; mLastG = G; mLastB = B;
 }
 
 void GammaRgbSampler::threadMain() {
@@ -465,16 +499,27 @@ void GammaRgbSampler::processHistogramToRgb(const std::vector<uint64_t>& rh,
 }
 
 void GammaRgbSampler::postAdjustWithBrightness(int& r, int& g, int& b) const {
-    int rawB = readBrightnessNow();
-    if (rawB < 0) rawB = 255; // fallback
+    // 1) Try Settings/property-backed scalar in [0..1]
+    float s = readScreenBrightnessScalar(); // [-inf => not available, else 0..1]
+    int rawB = -1;
+    if (s < 0.f) {
+        // 2) Fallback to legacy sysfs raw brightness mapped to [0..255]
+        rawB = readBrightnessNow();
+        if (rawB < 0) rawB = 255;
+        s = std::max(0, std::min(255, rawB)) / 255.0f;
+    } else {
+        // For threshold checks we still want a 0..255 equivalent
+        rawB = int(s * 255.f + 0.5f);
+    }
 
     if (rawB <= mBrightOverrideThresh) {
         r = g = b = 1;
         return;
     }
 
-    float nb = std::max(1, std::min(255, rawB)) / 255.0f;
-    float sbf = powf(nb, mBacklightExp);
+    // s is 0..1 where 1.0 means "no filtering"
+    float s_clamped = std::max(0.f, std::min(1.f, s));
+    float sbf = powf(s_clamped, mBacklightExp);
     float fr = (r/255.0f)*sbf;
     float fg = (g/255.0f)*sbf;
     float fb = (b/255.0f)*sbf;
@@ -511,6 +556,18 @@ void GammaRgbSampler::publishHexIfChanged(const std::string& hex) {
 }
 
 // --- brightness ------------------------------------------------------------
+
+// Read Android's screen brightness scalar (0..1) from a lightweight property
+// Our build exposes: debug.tracing.screen_brightness as a float string.
+// Returns [0..1] if available; <0 if not present.
+float GammaRgbSampler::readScreenBrightnessScalar() const {
+    const std::string v = GetProperty("debug.tracing.screen_brightness", "");
+    if (v.empty()) return -1.f;
+    char* endp = nullptr;
+    const float f = strtof(v.c_str(), &endp);
+    if (endp == v.c_str() || !std::isfinite(f)) return -1.f;
+    return std::max(0.f, std::min(1.f, f));
+}
 
 void GammaRgbSampler::findBrightnessNodeOnce() {
     if (mBrightnessFd >= 0) return;

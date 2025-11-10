@@ -24,6 +24,10 @@ public:
     void start();       // non-blocking; starts internal thread if enabled by prop
     void stop();        // join thread
     void onBootFinished(); // optional: (re)arm after boot complete
+    // On-demand fast sample that bypasses the sampler thread's sleep, intended to
+    // be called just before post-FX are applied (pre-FX sampling point).
+    // If 'primaryOnly' is true, ignore non-primary outputs (default).
+    void sampleNow(bool primaryOnly = true);
 
 private:
     void threadMain();
@@ -43,6 +47,8 @@ private:
                                int& outR, int& outG, int& outB) const;
     void postAdjustWithBrightness(int& r, int& g, int& b) const;
     static std::string toHex(int r, int g, int b);
+    float readScreenBrightnessScalar() const;
+    bool tryGrabPreFxRGB(int& R, int& G, int& B, bool primaryOnly);
     void publishHexIfChanged(const std::string& hex);
 
     // brightness helpers (simple polling; never blocks SF)
@@ -62,7 +68,7 @@ private:
     std::atomic<bool> mUseRe{false};
     std::atomic<int>  mSamplePx{64};
     std::atomic<bool> mScaleWithBrightness{false};
-    float mBacklightExp = 2.6f;
+    float mBacklightExp = 1.0f;
     float mSatBoost     = 1.4f;
     int   mGrayTol      = 4;
     int   mWhiteAvg     = 200;
@@ -82,6 +88,7 @@ private:
     std::string mLastHex;
     mutable int mBrightnessFd{-1};
     std::string mBrightnessPath;
+    std::atomic<bool> mPreFxEnable{true};  // persist.gammaos.rgb.sample.pre_fx
 };
 
 } // namespace android

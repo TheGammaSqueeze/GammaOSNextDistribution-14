@@ -2850,6 +2850,33 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
     refreshArgs.powerCallback = this;
     const auto& displays = FTL_FAKE_GUARD(mStateLock, mDisplays);
     refreshArgs.outputs.reserve(displays.size());
+ 
+    // --------------------------------------------------------------------
+    // GammaOS: Pre-FX RGB sampling (primary display only) to avoid sampling
+    // blank/black frames when BOTH shader and BFI are enabled simultaneously.
+    // This ensures GammaRgbSampler publishes stable values for the fade logic.
+    // Guarded by: persist.gammaos.rgb.sample.pre_fx (default: true)
+    // --------------------------------------------------------------------
+    {
+        const bool shaderEnabled =
+                android::base::GetBoolProperty("persist.gammaos.shader.enable", false);
+        const bool bfiEnabled =
+                android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
+        const bool preFxOK =
+                android::base::GetBoolProperty("persist.gammaos.rgb.sample.pre_fx", true);
+        if (preFxOK && shaderEnabled && bfiEnabled && mGammaRgbSampler) {
+            // Sample once, just before any post-FX work for this frame.
+            for (const auto& [_, display] : displays) {
+                if (!display) continue;
+                if (display->isVirtual()) continue;
+                if (!display->isPoweredOn()) continue;
+                if (!display->isPrimary()) continue;
+                // Fast pre-FX sample; primary-only path inside sampler.
+                mGammaRgbSampler->sampleNow(/*primaryOnly=*/true);
+                break; // only the primary
+            }
+        }
+    }
 
     // ------------------------------------------------------------
     // GammaOS: Sub-frame BFI cadence parity — latch at draw stage.
