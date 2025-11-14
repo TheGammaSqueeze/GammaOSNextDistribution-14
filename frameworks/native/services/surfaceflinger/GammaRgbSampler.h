@@ -47,6 +47,8 @@ private:
                                int& outR, int& outG, int& outB) const;
     void postAdjustWithBrightness(int& r, int& g, int& b) const;
     static std::string toHex(int r, int g, int b);
+    static bool parseHexToRgb(const std::string& hex, int& r, int& g, int& b);
+    int currentBrightnessKey() const; // 0..255 if scaling enabled, else -1
     float readScreenBrightnessScalar() const;
     bool tryGrabPreFxRGB(int& R, int& G, int& B, bool primaryOnly);
     void publishHexIfChanged(const std::string& hex);
@@ -84,11 +86,24 @@ private:
     std::atomic<int>  mFadeFps{60};          // persist.gammaos.rgb.fade.fps
     // track last published RGB to interpolate
     int mLastR{0}, mLastG{0}, mLastB{0};
+    int mLastBrightnessKey{-1};
     // state
     std::string mLastHex;
     mutable int mBrightnessFd{-1};
     std::string mBrightnessPath;
     std::atomic<bool> mPreFxEnable{true};  // persist.gammaos.rgb.sample.pre_fx
+
+    // New prop-driven control for None/Follow and split behavior
+    std::string mEffect; // "none", "follow", others ignored
+    bool mSplit{false};
+
+    std::string mLastEffect;
+    bool mLastSplit{false};
+
+    // Passthrough caches to avoid needless writes
+    std::string mLastCustomHex;
+    std::string mLastLeftCustomHex;
+    std::string mLastRightCustomHex;
 };
 
 } // namespace android

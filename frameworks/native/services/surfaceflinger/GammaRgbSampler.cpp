@@ -5,6 +5,9 @@
 #include <android-base/stringprintf.h>
 #include <log/log.h>
 #include <utils/Timers.h>
+#include <cstring>
+#include <cstdio>
+#include <cmath>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -95,6 +98,11 @@ bool GammaRgbSampler::refreshProps() {
     mFadeFps.store(std::max(1, std::min(240, GetIntProperty("persist.gammaos.rgb.fade.fps", 60))));
     // Pre-FX sampling prop
     mPreFxEnable.store(GetBoolProperty("persist.gammaos.rgb.sample.pre_fx", true));
+    // Effect + split props (initial read)
+    mEffect = GetProperty("persist.gammaos.rgb.effect", "");
+    mSplit  = GetBoolProperty("persist.gammaos.rgb.split", false);
+    mLastEffect = mEffect;
+    mLastSplit  = mSplit;
     return true;
 }
 
@@ -128,6 +136,23 @@ void GammaRgbSampler::sampleNow(bool primaryOnly) {
     publishHexIfChanged(hex);
     mLastR = R; mLastG = G; mLastB = B;
 }
+ 
+int GammaRgbSampler::currentBrightnessKey() const {
+    // Only meaningful if scaling is enabled
+    if (!mScaleWithBrightness.load()) return -1;
+    float s = readScreenBrightnessScalar(); // [0..1] or <0 if unavailable
+    if (s >= 0.f && std::isfinite(s)) {
+        if (s < 0.f) s = 0.f;
+        if (s > 1.f) s = 1.f;
+        // Quantize to 0..255 so small changes can still trigger visible updates
+        return (int)std::lround(s * 255.f);
+   }
+    int raw = readBrightnessNow(); // expected 0..255 (normalized in helper)
+    if (raw < 0) raw = 255;
+    if (raw < 0) raw = 0;
+    if (raw > 255) raw = 255;
+    return raw;
+}
 
 void GammaRgbSampler::threadMain() {
     if (mDebug.load()) ALOGI("GammaRgbSampler: thread start");
@@ -157,8 +182,66 @@ void GammaRgbSampler::threadMain() {
 
     // Main loop (props are refreshed every iteration)
     while (mRun.load()) {
+        // Remember prior mode to detect transitions
+        const std::string prevEffect = mEffect;
+        const bool prevSplit = mSplit;
         // Always pick up latest props so flips are real-time
         refreshProps();
+        if (prevEffect != mEffect || prevSplit != mSplit) {
+            // Force next write in NONE mode
+            mLastCustomHex.clear();
+            mLastLeftCustomHex.clear();
+            mLastRightCustomHex.clear();
+            if (mDebug.load()) {
+                ALOGV("GammaRgbSampler: mode change %s/%d -> %s/%d",
+                      prevEffect.c_str(), (int)prevSplit, mEffect.c_str(), (int)mSplit);
+            }
+        }
+
+        // If enabled and effect=none, do passthrough BEFORE any sampling path
+        if (mEnabled.load() && mEffect == "none") {
+            const bool colorSplit = GetBoolProperty("persist.gammaos.rgb.color_split", false);
+            // Also key updates on brightness when scaling is enabled
+            const int briKey = currentBrightnessKey();
+            if (!colorSplit) {
+                const std::string custom = GetProperty("sys.gammaos.primary.rgb_hex_custom", "");
+                if (!custom.empty() && (custom != mLastCustomHex || briKey != mLastBrightnessKey)) {
+                    int r=0,g=0,b=0;
+                    if (parseHexToRgb(custom, r,g,b)) {
+                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        SetProperty("sys.gammaos.primary.rgb_hex", toHex(r,g,b));
+                        mLastCustomHex = custom;
+                        mLastBrightnessKey = briKey;
+                        if (mDebug.load()) ALOGV("GammaRgbSampler: NONE passthrough -> %s", toHex(r,g,b).c_str());
+                    }
+                }
+            } else {
+                const std::string left  = GetProperty("persist.gammaos.rgb.left_hex_custom",  "");
+                const std::string right = GetProperty("persist.gammaos.rgb.right_hex_custom", "");
+                bool wrote=false;
+                if (!left.empty() && (left != mLastLeftCustomHex || briKey != mLastBrightnessKey)) {
+                    int r=0,g=0,b=0;
+                    if (parseHexToRgb(left, r,g,b)) {
+                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        SetProperty("persist.gammaos.rgb.left_hex", toHex(r,g,b));
+                        mLastLeftCustomHex = left; wrote=true;
+                    }
+                }
+                if (!right.empty() && (right != mLastRightCustomHex || briKey != mLastBrightnessKey)) {
+                    int r=0,g=0,b=0;
+                    if (parseHexToRgb(right, r,g,b)) {
+                        if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
+                        SetProperty("persist.gammaos.rgb.right_hex", toHex(r,g,b));
+                        mLastRightCustomHex = right; wrote=true;
+                    }
+                }
+                if (wrote) mLastBrightnessKey = briKey;
+                if (wrote && mDebug.load()) ALOGV("GammaRgbSampler: NONE split passthrough updated.");
+            }
+            // In NONE mode, skip sampling work; small sleep to avoid busy loop
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000 / std::max(1, mFps.load())));
+            continue;
+        }
 
         // If disabled, ensure DCS is off and idle without sampling
         if (!mEnabled.load()) {
@@ -553,6 +636,20 @@ void GammaRgbSampler::publishHexIfChanged(const std::string& hex) {
     if (hex == mLastHex) return;
     mLastHex = hex;
     SetProperty(kOutProp, hex);
+}
+ 
+bool GammaRgbSampler::parseHexToRgb(const std::string& in, int& r, int& g, int& b) {
+    if (in.empty()) return false;
+    const char* s = in.c_str();
+    if (s[0] == '#') s++;
+    if (strlen(s) < 6) return false;
+    unsigned int R=0,G=0,B=0;
+    if (sscanf(s, "%02x%02x%02x", &R, &G, &B) != 3 &&
+        sscanf(s, "%02X%02X%02X", &R, &G, &B) != 3) {
+        return false;
+    }
+    r = (int)R; g = (int)G; b = (int)B;
+    return true;
 }
 
 // --- brightness ------------------------------------------------------------
