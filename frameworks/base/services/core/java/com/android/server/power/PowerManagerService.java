@@ -41,6 +41,7 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.hardware.display.DisplayManager;
 import android.app.SynchronousUserSwitchObserver;
 import android.app.compat.CompatChanges;
 import android.compat.annotation.ChangeId;
@@ -103,6 +104,7 @@ import android.service.dreams.DreamManagerInternal;
 import android.sysprop.InitProperties;
 import android.sysprop.PowerProperties;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.IntArray;
 import android.util.KeyValueListParser;
@@ -2475,6 +2477,39 @@ public final class PowerManagerService extends SystemService
         mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
         mHandler.postDelayed(mUltraPowerFreezeRunnable, ULTRA_POWER_FREEZE_DELAY_MS);
     }
+ 
+    /**
+     * Ensure sys.screen.state reflects real display power states.
+     * Treat ON / ON_SUSPEND as "on"; everything else (incl. DOZE variants) -> "off".
+     */
+    private void enforceSysScreenStateFromDisplays() {
+        final DisplayManager dm = mContext.getSystemService(DisplayManager.class);
+        String target = "off";
+        if (dm != null) {
+            final Display[] displays = dm.getDisplays();
+            boolean anyOn = false;
+            for (int i = 0; i < displays.length; i++) {
+                final int s = displays[i].getState();
+                if (s == Display.STATE_ON || s == Display.STATE_ON_SUSPEND) {
+                    anyOn = true;
+                    break;
+                }
+            }
+            target = anyOn ? "on" : "off";
+        }
+        final String cur = SystemProperties.get("sys.screen.state", "");
+        if (!TextUtils.equals(cur, target)) {
+            SystemProperties.set("sys.screen.state", target);
+            if (DEBUG) Slog.d(TAG, "sys.screen.state -> " + target);
+        }
+    }
+
+    // Fallback: after turning screens off, re-check once to force the prop if needed.
+    private final Runnable mScreenPropFallback = new Runnable() {
+        @Override public void run() {
+            enforceSysScreenStateFromDisplays();
+        }
+    };
 
     @SuppressWarnings("deprecation")
     @GuardedBy("mLock")
@@ -2808,6 +2843,15 @@ public final class PowerManagerService extends SystemService
             // Because we might release the last suspend blocker here, we need to make sure
             // we finished everything else first!
             updateSuspendBlockerLocked();
+
+            // After power/display changes settle, derive sys.screen.state from actual displays.
+            enforceSysScreenStateFromDisplays();
+            // If we are not fully awake, schedule a short re-check to correct any lingering "on".
+            final boolean expectAllOff = (getGlobalWakefulnessLocked() != WAKEFULNESS_AWAKE);
+            mHandler.removeCallbacks(mScreenPropFallback);
+            if (expectAllOff) {
+                mHandler.postDelayed(mScreenPropFallback, 300);
+            }
         } finally {
             Trace.traceEnd(Trace.TRACE_TAG_POWER);
             mUpdatePowerStateInProgress = false;
