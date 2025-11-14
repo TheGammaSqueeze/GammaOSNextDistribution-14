@@ -31,7 +31,7 @@ using android::base::GetProperty;
 
 namespace android {
 
-static constexpr const char* kOutProp = "sys.gammaos.primary.rgb_hex";
+static constexpr const char* kOutProp = "persist.gammaos.primary.rgb_hex";
 static constexpr const char* kPropAllowProtected = "persist.gammaos.rgb.allow_protected";
 
 GammaRgbSampler::GammaRgbSampler(SurfaceFlinger* flinger)
@@ -204,12 +204,12 @@ void GammaRgbSampler::threadMain() {
             // Also key updates on brightness when scaling is enabled
             const int briKey = currentBrightnessKey();
             if (!colorSplit) {
-                const std::string custom = GetProperty("sys.gammaos.primary.rgb_hex_custom", "");
+                const std::string custom = GetProperty("persist.gammaos.primary.rgb_hex_custom", "");
                 if (!custom.empty() && (custom != mLastCustomHex || briKey != mLastBrightnessKey)) {
                     int r=0,g=0,b=0;
                     if (parseHexToRgb(custom, r,g,b)) {
                         if (mScaleWithBrightness.load()) postAdjustWithBrightness(r,g,b);
-                        SetProperty("sys.gammaos.primary.rgb_hex", toHex(r,g,b));
+                        SetProperty("persist.gammaos.primary.rgb_hex", toHex(r,g,b));
                         mLastCustomHex = custom;
                         mLastBrightnessKey = briKey;
                         if (mDebug.load()) ALOGV("GammaRgbSampler: NONE passthrough -> %s", toHex(r,g,b).c_str());
