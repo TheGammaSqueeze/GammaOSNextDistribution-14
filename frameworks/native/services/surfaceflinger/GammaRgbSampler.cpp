@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
+#include <string>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -250,7 +251,26 @@ void GammaRgbSampler::threadMain() {
                 dcsReady = false;
             }
             if (mDebug.load()) ALOGV("GammaRgbSampler: disabled; idle");
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            continue;
+        }
+
+        // Only sample when effect == "follow" AND screen is on.
+        // Any other effect value (including "none" which is already handled above)
+        // should NOT sample, to save CPU/battery.
+        const std::string screenState = GetProperty("sys.screen.state", "on");
+        const bool screenOn = (screenState == "on");
+        if (mEffect != "follow" || !screenOn) {
+            // Make sure HWC DCS is not needlessly running while we are idle.
+            if (dcsReady) {
+                disableDcs(/*log*/false);
+                dcsReady = false;
+            }
+            if (mDebug.load()) {
+                ALOGV("GammaRgbSampler: idle (effect=%s, screenState=%s)",
+                      mEffect.c_str(), screenState.c_str());
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             continue;
         }
 
