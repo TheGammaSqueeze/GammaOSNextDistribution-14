@@ -31,6 +31,7 @@
 #include <ui/Fence.h>
 #include <ui/FloatRect.h>
 #include <ui/GraphicBuffer.h>
+#include <android-base/properties.h>
 
 #include <algorithm>
 #include <cinttypes>
@@ -364,6 +365,8 @@ Error Display::getDisplayedContentSamplingAttributes(hal::PixelFormat* outFormat
     return static_cast<Error>(intError);
 }
 
+static inline bool gammaTweaksEnabled() { return android::base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
+
 Error Display::setDisplayContentSamplingEnabled(bool enabled, uint8_t componentMask,
                                                 uint64_t maxFrames) const {
     auto intError =
@@ -530,7 +533,7 @@ Error Display::setPowerMode(PowerMode mode)
 Error Display::setVsyncEnabled(Vsync enabled)
 {
     // GammaOS: never allow disabling vsync; SurfaceFlinger relies on HW vsync
-    if (enabled == Vsync::DISABLE) {
+    if (gammaTweaksEnabled() && enabled == Vsync::DISABLE) {
         enabled = Vsync::ENABLE;
     }
     auto intEnabled = static_cast<Hwc2::IComposerClient::Vsync>(enabled);

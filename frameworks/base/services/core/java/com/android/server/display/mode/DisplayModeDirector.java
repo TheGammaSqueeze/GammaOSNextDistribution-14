@@ -52,6 +52,7 @@ import android.os.SystemProperties;
 import android.os.SystemClock;
 import android.os.Temperature;
 import android.os.UserHandle;
+import android.os.SystemProperties;
 import android.provider.DeviceConfig;
 import android.provider.DeviceConfigInterface;
 import android.provider.Settings;
@@ -134,6 +135,10 @@ public class DisplayModeDirector {
     private final SkinThermalStatusObserver mSkinThermalStatusObserver;
     private final DeviceConfigParameterProvider mConfigParameterProvider;
     private final DeviceConfigDisplaySettings mDeviceConfigDisplaySettings;
+
+    private static boolean isGammaTweaksEnabled() {
+        return SystemProperties.getBoolean("persist.gammaos.display.tweaks", false);
+    }
 
     @GuardedBy("mLock")
     @Nullable
@@ -893,7 +898,7 @@ public class DisplayModeDirector {
             setRefreshRates(/* displayDeviceConfig= */ null,
                 /* attemptReadFromFeatureParams= */ false);
             // GammaOS: prefer 120Hz by default
-            mDefaultRefreshRate = 120f;
+            if (isGammaTweaksEnabled()) { mDefaultRefreshRate = 120f; }
         }
 
         /**
@@ -1098,7 +1103,10 @@ public class DisplayModeDirector {
             mVotesStorage.updateVote(displayId, Vote.PRIORITY_USER_SETTING_MIN_RENDER_FRAME_RATE,
                     Vote.forRenderFrameRates(minRefreshRate, Float.POSITIVE_INFINITY));
             // GammaOS: keep no default cap; full range by default
-            Vote defaultVote = Vote.forRenderFrameRates(0f, Float.POSITIVE_INFINITY);
+            Vote defaultVote = isGammaTweaksEnabled()
+                    ? Vote.forRenderFrameRates(0f, Float.POSITIVE_INFINITY)
+                    : (defaultRefreshRate == 0f ? null
+                       : Vote.forRenderFrameRates(0f, defaultRefreshRate));
             mVotesStorage.updateGlobalVote(Vote.PRIORITY_DEFAULT_RENDER_FRAME_RATE, defaultVote);
 
             float maxRefreshRate;
@@ -3051,7 +3059,12 @@ public class DisplayModeDirector {
         }
 
         @Override
-        public boolean supportsFrameRateOverride() { return false; }
+        public boolean supportsFrameRateOverride() {
+            if (isGammaTweaksEnabled()) { 
+                return false; 
+            }
+            return SurfaceFlingerProperties.enable_frame_rate_override().orElse(true);
+        }
 
         @Override
         public DisplayManagerInternal getDisplayManagerInternal() {

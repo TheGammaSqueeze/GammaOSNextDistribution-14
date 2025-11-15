@@ -44,8 +44,7 @@ public:
     ~VSyncReactor();
 
     bool addPresentFence(std::shared_ptr<FenceTime>) final;
-    // GammaOS: never ignore present fences (avoid -Wunused-parameter)
-    void setIgnorePresentFences(bool /*ignore*/) final;
+    void setIgnorePresentFences(bool ignore) final;
 
     void onDisplayModeChanged(ftl::NonNull<DisplayModePtr>, bool force) final;
 

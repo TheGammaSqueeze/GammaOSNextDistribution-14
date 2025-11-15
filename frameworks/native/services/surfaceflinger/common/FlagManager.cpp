@@ -200,13 +200,15 @@ FLAG_MANAGER_READ_ONLY_FLAG(multithreaded_present, "debug.sf.multithreaded_prese
 FLAG_MANAGER_READ_ONLY_FLAG(add_sf_skipped_frames_to_trace, "")
 // Custom override: default to true and allow persist.device_config override
 bool FlagManager::use_known_refresh_rate_for_fps_consistency() const {
-    // Read persist.device_config.surface_flinger.use_known_refresh_rate_for_fps_consistency if set
-    static const std::optional<bool> deviceConfigOverride =
+    const bool gamma = base::GetBoolProperty("persist.gammaos.display.tweaks", false);
+    const auto deviceConfigOverride =
             getBoolProperty("persist.device_config.surface_flinger.use_known_refresh_rate_for_fps_consistency");
-    if (deviceConfigOverride.has_value()) {
-        return deviceConfigOverride.value();
+    if (!gamma) {
+        // Stock-like: respect DeviceConfig override when set, otherwise default false
+        return deviceConfigOverride.value_or(false);
     }
-    // Fallback to 'true' default if flag infra says false/unspecified
+    // GammaOS mode: default true unless explicitly overridden
+    if (deviceConfigOverride.has_value()) return deviceConfigOverride.value();
     return true;
 }
 FLAG_MANAGER_READ_ONLY_FLAG(cache_when_source_crop_layer_only_moved,

@@ -62,6 +62,8 @@
 
 namespace android::scheduler {
 
+static inline bool gammaTweaksEnabled() { return android::base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
+
 Scheduler::Scheduler(ICompositor& compositor, ISchedulerCallback& callback, FeatureFlags features,
                      surfaceflinger::Factory& factory, Fps activeRefreshRate, TimeStats& timeStats)
       : android::impl::MessageQueue(compositor),
@@ -124,7 +126,9 @@ void Scheduler::setPacesetterDisplay(std::optional<PhysicalDisplayId> pacesetter
 
     // GammaOS: make absolutely sure HW vsync is on for the (new) pacesetter
     if (pacesetterIdOpt) {
-        enableHardwareVsync(*pacesetterIdOpt);
+        if (gammaTweaksEnabled()) {
+            enableHardwareVsync(*pacesetterIdOpt);
+        }
     }
 }
 
@@ -137,10 +141,10 @@ void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelector
 
     registerDisplayInternal(displayId, std::move(selectorPtr), std::move(schedulePtr));
 
-    // GammaOS: mirror stock — keep HW vsync enabled for every registered display,
-    // not just the pacesetter. If the display is OFF, this becomes the pending state
-    // and will be applied on power-on.
-    enableHardwareVsync(displayId);
+    // GammaOS: mirror stock — keep HW vsync enabled for every registered display
+    if (gammaTweaksEnabled()) {
+        enableHardwareVsync(displayId);
+    }
 }
 
 void Scheduler::registerDisplayInternal(PhysicalDisplayId displayId,

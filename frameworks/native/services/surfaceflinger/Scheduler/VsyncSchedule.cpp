@@ -31,8 +31,11 @@
 #include "VSyncReactor.h"
 
 #include "../TracedOrdinal.h"
+#include <android-base/properties.h>
 
 namespace android::scheduler {
+
+static inline bool gammaTweaksEnabled() { return android::base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
 
 class VsyncSchedule::PredictedVsyncTracer {
     // Invoked from the thread of the VsyncDispatch owned by this VsyncSchedule.
@@ -146,7 +149,7 @@ VsyncSchedule::ControllerPtr VsyncSchedule::createController(PhysicalDisplayId i
     auto reactor = std::make_unique<VSyncReactor>(id, std::make_unique<SystemClock>(), tracker,
                                                   kMaxPendingFences, hasKernelIdleTimer);
 
-    reactor->setIgnorePresentFences(false); // Force use of present fences
+    reactor->setIgnorePresentFences(gammaTweaksEnabled() ? false : !features.test(Feature::kPresentFences));
     return reactor;
 }
 

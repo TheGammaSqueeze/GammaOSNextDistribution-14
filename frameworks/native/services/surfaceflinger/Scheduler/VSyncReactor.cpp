@@ -25,6 +25,7 @@
 #include <gui/TraceUtils.h>
 #include <log/log.h>
 #include <utils/Trace.h>
+#include <android-base/properties.h>
 
 #include "../TracedOrdinal.h"
 #include "VSyncDispatch.h"
@@ -51,6 +52,8 @@ VSyncReactor::VSyncReactor(PhysicalDisplayId id, std::unique_ptr<Clock> clock,
         mSupportKernelIdleTimer(supportKernelIdleTimer) {}
 
 VSyncReactor::~VSyncReactor() = default;
+
+static inline bool gammaTweaksEnabled() { return android::base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
 
 bool VSyncReactor::addPresentFence(std::shared_ptr<FenceTime> fence) {
     ATRACE_CALL();
@@ -103,16 +106,16 @@ bool VSyncReactor::addPresentFence(std::shared_ptr<FenceTime> fence) {
     return mMoreSamplesNeeded;
 }
 
-void VSyncReactor::setIgnorePresentFences([[maybe_unused]] bool ignore) {
+void VSyncReactor::setIgnorePresentFences(bool ignore) {
     std::lock_guard lock(mMutex);
     // GammaOS: force present-fence usage
-    mExternalIgnoreFences = false;
+    mExternalIgnoreFences = gammaTweaksEnabled() ? false : ignore;
     updateIgnorePresentFencesInternal();
 }
 
-void VSyncReactor::setIgnorePresentFencesInternal(bool /*ignore*/) {
+void VSyncReactor::setIgnorePresentFencesInternal(bool ignore) {
     // GammaOS: force present-fence usage
-    mInternalIgnoreFences = false;
+    mInternalIgnoreFences = gammaTweaksEnabled() ? false : ignore;
     updateIgnorePresentFencesInternal();
 }
 

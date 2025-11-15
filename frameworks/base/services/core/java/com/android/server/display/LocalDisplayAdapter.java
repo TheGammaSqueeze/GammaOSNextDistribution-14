@@ -95,6 +95,11 @@ final class LocalDisplayAdapter extends DisplayAdapter {
     private final DisplayNotificationManager mDisplayNotificationManager;
 
     private Context mOverlayContext;
+ 
+    // GammaOS: master switch for display tweaks
+    private static boolean isGammaTweaksEnabled() {
+        return android.os.SystemProperties.getBoolean("persist.gammaos.display.tweaks", false);
+    }
 
     // GammaOS: coordinate multi-internal display wake-ups. Followers wait until the primary is up.
     private final java.util.ArrayList<LocalDisplayDevice> mPendingFollowerOn = new java.util.ArrayList<>();
@@ -195,14 +200,14 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 mDevices.put(physicalDisplayId, device);
                 sendDisplayDeviceEventLocked(device, DISPLAY_DEVICE_EVENT_ADDED);
                 // GammaOS: wake up SF early (if supported) and prime the display ON fast.
-                maybeEarlyWakeUpSurfaceFlinger();
-                maybePrimeDisplayOnHotplugLocked(device);
+                if (isGammaTweaksEnabled()) { maybeEarlyWakeUpSurfaceFlinger(); }
+                if (isGammaTweaksEnabled()) { maybePrimeDisplayOnHotplugLocked(device); }
             } else if (device.updateDisplayPropertiesLocked(staticInfo, dynamicInfo,
                     modeSpecs)) {
                 sendDisplayDeviceEventLocked(device, DISPLAY_DEVICE_EVENT_CHANGED);
                 // GammaOS: on property changes, also ensure it comes back promptly.
-                maybeEarlyWakeUpSurfaceFlinger();
-                maybePrimeDisplayOnHotplugLocked(device);
+                if (isGammaTweaksEnabled()) { maybeEarlyWakeUpSurfaceFlinger(); }
+                if (isGammaTweaksEnabled()) { maybePrimeDisplayOnHotplugLocked(device); }
             }
         } else {
             // The display is no longer available. Ignore the attempt to add it.
@@ -994,7 +999,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                     public void run() {
                         // GammaOS: If we're bringing the primary up, arm a short timeout so
                         // followers won't stall waiting for the "reported ON" callback.
-                        if (mIsFirstDisplay && state == Display.STATE_ON) {
+                        if (isGammaTweaksEnabled() && mIsFirstDisplay && state == Display.STATE_ON) {
                             mHandler.removeCallbacks(mPrimaryOnTimeout);
                             // 400ms is usually enough for SF/HWC to report ON under load.
                             mHandler.postDelayed(mPrimaryOnTimeout, 400);
@@ -1043,7 +1048,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                         }
  
                         // GammaOS: Defer follower ON until the primary display has reported ON.
-                        if (state == Display.STATE_ON && !mIsFirstDisplay) {
+                        if (isGammaTweaksEnabled() && state == Display.STATE_ON && !mIsFirstDisplay) {
                             boolean shouldDefer = false;
                             synchronized (getSyncRoot()) {
                                 shouldDefer = !LocalDisplayAdapter.this.mPrimaryReportedOn;
@@ -1090,7 +1095,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                                 + ", state=" + Display.stateToString(state) + ")");
  
                         // GammaOS: Wake SF pipelines a touch early on primary; use reflection-safe helper.
-                        if (mIsFirstDisplay) {
+                        if (isGammaTweaksEnabled() && mIsFirstDisplay) {
                             maybeEarlyWakeUpSurfaceFlinger();
                         }
 
@@ -1107,7 +1112,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                             mSurfaceControlProxy.setDisplayPowerMode(token, mode);
                             Trace.traceCounter(Trace.TRACE_TAG_POWER, "DisplayPowerMode", mode);
                             // GammaOS: If we just turned the primary ON, mark it and resume followers.
-                            if (mIsFirstDisplay) {
+                            if (isGammaTweaksEnabled() && mIsFirstDisplay) {
                                 synchronized (getSyncRoot()) {
                                     // Cancel timeout as soon as the real 'reported ON' arrives.
                                     mHandler.removeCallbacks(mPrimaryOnTimeout);

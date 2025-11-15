@@ -220,6 +220,7 @@ static std::unordered_map<uint64_t, GammaFlipTransState> gFlipTrans;
 #define DOES_CONTAIN_BORDER false
 
 namespace android {
+static inline bool gammaTweaksEnabled() { return base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
 using namespace std::chrono_literals;
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -5298,8 +5299,15 @@ void SurfaceFlinger::initScheduler(const sp<const DisplayDevice>& display) {
     if (base::GetBoolProperty("debug.sf.show_predicted_vsync"s, false)) {
         features |= Feature::kTracePredictedVsync;
     }
-    // GammaOS: always rely on Present Fences regardless of sysprop/HWC caps
-    features |= Feature::kPresentFences;
+    // GammaOS: rely on Present Fences only when enabled; otherwise stock gating
+    if (gammaTweaksEnabled()) {
+        features |= Feature::kPresentFences;
+    } else {
+        if (!base::GetBoolProperty("debug.sf.vsync_reactor_ignore_present_fences"s, false) &&
+            !getHwComposer().hasCapability(Capability::PRESENT_FENCE_IS_NOT_RELIABLE)) {
+            features |= Feature::kPresentFences;
+        }
+    }
     if (display->refreshRateSelector().kernelIdleTimerController()) {
         features |= Feature::kKernelIdleTimer;
     }
@@ -7099,7 +7107,7 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         // GammaOS: keep HW vsync enabled for ALL on displays (followers included),
         // mirroring stock behaviour so SurfaceFlinger samples real HW vsync on every
         // internal panel that is ON.
-        mScheduler->enableHardwareVsync(displayId);
+        if (gammaTweaksEnabled()) mScheduler->enableHardwareVsync(displayId);
     } else if (mode == hal::PowerMode::OFF) {
         const bool currentModeNotDozeSuspend = (currentMode != hal::PowerMode::DOZE_SUSPEND);
         // Turn off the display
@@ -7154,7 +7162,7 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
             mScheduler->resyncToHardwareVsync(displayId, kAllowToEnable, activeMode.get());
         }
         // GammaOS: ensure followers retain HW vsync when ON/DOZE as well.
-        mScheduler->enableHardwareVsync(displayId);
+        if (gammaTweaksEnabled()) mScheduler->enableHardwareVsync(displayId);
     } else if (mode == hal::PowerMode::DOZE_SUSPEND) {
         // Leave display going to doze
         if (displayId == mActiveDisplayId || FlagManager::getInstance().multithreaded_present()) {
@@ -9958,7 +9966,7 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
 
     // GammaOS: ensure HW vsync stays enabled on the active (pacesetter) display
     mScheduler->enableHardwareVsync(mActiveDisplayId);
-    requestHardwareVsync(mActiveDisplayId, /*enable=*/true);
+    if (gammaTweaksEnabled()) requestHardwareVsync(mActiveDisplayId, /*enable=*/true);
 
     onActiveDisplaySizeChanged(activeDisplay);
     mActiveDisplayTransformHint = activeDisplay.getTransformHint();
