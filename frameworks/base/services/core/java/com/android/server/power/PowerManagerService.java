@@ -180,6 +180,8 @@ public final class PowerManagerService extends SystemService
     private static final boolean DEBUG = false;
     private static final boolean DEBUG_SPEW = DEBUG && true;
 
+    private static final String GAMMA_PROP_WAKE_GESTURE = "persist.gammaos.wake_reason_gesture";
+
     // Message: Sent when a user activity timeout occurs to update the power state.
     private static final int MSG_USER_ACTIVITY_TIMEOUT = 1;
     // Message: Sent when the device enters or exits a dreaming or dozing state.
@@ -2285,6 +2287,17 @@ public final class PowerManagerService extends SystemService
                     + ", reason=" + PowerManager.wakeReasonToString(reason) + ", uid=" + uid);
         }
         if (mForceSuspendActive || !mSystemReady) {
+            return;
+        }
+        // GammaOS: optionally ignore gesture-based wake reasons so SystemUI / bouncer
+        // cannot wake the device from doze. Disabled by default; can be enabled by
+        // setting persist.gammaos.wake_reason_gesture=1.
+        if (reason == PowerManager.WAKE_REASON_GESTURE
+                && !SystemProperties.getBoolean(GAMMA_PROP_WAKE_GESTURE, /* def= */ false)) {
+            if (DEBUG) {
+                Slog.d(TAG, "GammaOS: ignoring WAKE_REASON_GESTURE wakeup ("
+                        + GAMMA_PROP_WAKE_GESTURE + " is false)");
+            }
             return;
         }
         powerGroup.wakeUpLocked(eventTime, reason, details, uid, opPackageName, opUid,
