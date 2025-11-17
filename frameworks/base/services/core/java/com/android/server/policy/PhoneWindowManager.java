@@ -756,6 +756,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private long mBackDownTime = 0;
     private boolean mRetroarchBlockOverride = false;
 
+    // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
+    private boolean mRetroarchSelectDown = false;
+    private String mRetroarchSelectDevicePath = null;
+
+    // Track last known foreground app to detect transitions into/out of RetroArch.
+    private String mLastFgApp = null;
+
     // The device id from which the BACK key event came.
     private int mBackDeviceId = -1;
     // The device id from which the non-BACK (combo) key was received (if different from BACK).
@@ -2251,6 +2258,48 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         im.injectInputEvent(downEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
         im.injectInputEvent(upEvent, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
+ 
+    /**
+     * Ensure we do not carry stale BACK/SELECT state across app switches.
+     * When entering RetroArch, clear any synthetic state unless BACK is physically down.
+     * When leaving RetroArch or disabling override, force a BTN_SELECT up if we previously sent one.
+     */
+    private void ensureRetroarchEntryState() {
+        if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) != 1) {
+            // Override disabled — make sure no stuck select
+            if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+                sendBtnSelectUp(mRetroarchSelectDevicePath);
+            }
+            mRetroarchSelectDown = false;
+            mRetroarchSelectDevicePath = null;
+            mLastFgApp = getForegroundAppPackageName();
+           return;
+        }
+        String fg = getForegroundAppPackageName();
+        boolean inRetro = fg != null && fg.toLowerCase().contains("retroarch");
+        boolean wasInRetro = mLastFgApp != null && mLastFgApp.toLowerCase().contains("retroarch");
+
+        if (inRetro && !wasInRetro) {
+            // Freshly entering RetroArch: never treat BACK as down unless we just saw it.
+            if (!mBackPressed) {
+                if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+                    sendBtnSelectUp(mRetroarchSelectDevicePath);
+                }
+                mRetroarchSelectDown = false;
+                mRetroarchSelectDevicePath = null;
+            }
+            mBackPressed = false;
+            mBackLongPressActivated = false;
+            mBackDownTime = 0;
+        } else if (!inRetro && wasInRetro) {
+            if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+                sendBtnSelectUp(mRetroarchSelectDevicePath);
+            }
+            mRetroarchSelectDown = false;
+            mRetroarchSelectDevicePath = null;
+        }
+        mLastFgApp = fg;
+    }
 
     /**
      * Returns the package name of the current foreground app.
@@ -2304,22 +2353,32 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void sendBtnSelectDown(String devicePath) {
+        if (devicePath == null) return;
+        if (mRetroarchSelectDown && devicePath.equals(mRetroarchSelectDevicePath)) return;
         try {
             // Send BTN_SELECT down: type 1 (EV_KEY), code 314, value 1
             Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 1");
             // Follow with a synchronization event
             Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
+            mRetroarchSelectDown = true;
+            mRetroarchSelectDevicePath = devicePath;
         } catch (java.io.IOException e) {
             Log.e(TAG, "Failed to send BTN_SELECT down event", e);
         }
     }
 
     private void sendBtnSelectUp(String devicePath) {
+        if (devicePath == null) return;
         try {
             // Send BTN_SELECT up: type 1 (EV_KEY), code 314, value 0
             Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 0");
             // Follow with a synchronization event
             Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
+            if (mRetroarchSelectDevicePath != null
+                    && devicePath.equals(mRetroarchSelectDevicePath)) {
+                mRetroarchSelectDown = false;
+                mRetroarchSelectDevicePath = null;
+            }
         } catch (java.io.IOException e) {
             Log.e(TAG, "Failed to send BTN_SELECT up event", e);
         }
@@ -3962,6 +4021,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (consumedKeys == null) {
             consumedKeys = new HashSet<>();
             mConsumedKeysForDevice.put(deviceId, consumedKeys);
+            // GammaOS: guard against stale BACK/SELECT when switching apps
+            ensureRetroarchEntryState();
         }
 
         // === GammaOS customizations: BACK+VOLUME brightness and RetroArch combo ===
@@ -3986,6 +4047,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
                 String devicePath = getDevicePathForDeviceId(targetDeviceId);
                 sendBtnSelectUp(devicePath);
+                // Fully reset combo state so subsequent combos work immediately
+                mRetroarchSelectDown = false;
+                mRetroarchSelectDevicePath = null;
+                mRetroarchComboDeviceId = -1;
                 mBackPressed = false;
                 mBackLongPressActivated = false;
                 mBackBrightnessMode = false;
@@ -4024,13 +4089,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (SystemProperties.getInt("persist.gammaos.retroarchoverride.backbutton", 0) == 1) {
             String fgApp = getForegroundAppPackageName();
             if (fgApp != null && fgApp.toLowerCase().contains("retroarch")) {
-                if (keyCode != KeyEvent.KEYCODE_BACK && mBackPressed && down) {
+                if (keyCode != KeyEvent.KEYCODE_BACK && mBackPressed) {
+                    // With BACK physically down, synthesize a single SELECT-down once per combo
+                    if (!mRetroarchSelectDown) {
                     if (event.getDeviceId() != mBackDeviceId) {
                         mRetroarchComboDeviceId = event.getDeviceId();
                     }
                     int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
                     String devicePath = getDevicePathForDeviceId(targetDeviceId);
                     sendBtnSelectDown(devicePath);
+                    }
                 }
             }
         }
@@ -5420,8 +5488,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     /** {@inheritDoc} */
     @Override
     public int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags) {
+        ensureRetroarchEntryState();
         final int keyCode = event.getKeyCode();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+        // Keep an accurate "physical BACK" signal for combo logic
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (down) {
+                mBackPressed = true;
+                mBackDownTime = SystemClock.uptimeMillis();
+            }
+        }
         boolean isWakeKey = (policyFlags & WindowManagerPolicy.FLAG_WAKE) != 0
                 || event.isWakeKey();
 

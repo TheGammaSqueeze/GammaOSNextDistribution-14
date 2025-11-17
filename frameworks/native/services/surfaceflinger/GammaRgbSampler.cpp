@@ -82,6 +82,7 @@ bool GammaRgbSampler::refreshProps() {
     mUseRe  .store(GetBoolProperty("persist.gammaos.rgb.use_re_readback", false));
     mSamplePx.store(std::max(8, std::min(256, GetIntProperty("persist.gammaos.rgb.sample_size_px", 64))));
     mScaleWithBrightness.store(GetBoolProperty("persist.gammaos.rgb.scale_with_brightness", false));
+    mDisableGrayBlend.store(GetBoolProperty("persist.gammaos.rgb.disable_gray_blend", false));
 
     mBacklightExp = getPropFloat("persist.gammaos.rgb.brightness_curve_exp", 1.0f);
     mSatBoost     = getPropFloat("persist.gammaos.rgb.saturation_boost",  1.4f);
@@ -513,9 +514,12 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
         tr = best_r; tg = best_g; tb = best_b;
         const int m = std::max({tr, tg, tb});
         if (m > 0) { tr = tr*255/m; tg = tg*255/m; tb = tb*255/m; }
-        tr = (int)(tr*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
-        tg = (int)(tg*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
-        tb = (int)(tb*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+        // Optional gray blending; can be fully disabled via prop
+        if (!mDisableGrayBlend.load()) {
+            tr = (int)(tr*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+            tg = (int)(tg*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+            tb = (int)(tb*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+        }
     } else if (avg >= mWhiteAvg && spread <= mGrayTol) {
         tr = tg = tb = 255;
     } else if (avg <= mBlackAvg && spread <= mGrayTol) {

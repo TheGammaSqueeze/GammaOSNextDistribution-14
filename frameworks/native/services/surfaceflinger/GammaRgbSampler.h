@@ -70,6 +70,7 @@ private:
     std::atomic<bool> mUseRe{false};
     std::atomic<int>  mSamplePx{64};
     std::atomic<bool> mScaleWithBrightness{false};
+    std::atomic<bool> mDisableGrayBlend{false};
     float mBacklightExp = 1.0f;
     float mSatBoost     = 1.4f;
     int   mGrayTol      = 4;
