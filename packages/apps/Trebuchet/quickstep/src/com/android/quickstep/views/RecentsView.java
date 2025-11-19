@@ -2116,13 +2116,18 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
         mTaskWidth = mLastComputedTaskSize.width();
         mTaskHeight = mLastComputedTaskSize.height();
 
-        // Center the task horizontally in phone UI. We keep the existing top/bottom math.
-        // (When tablet layout is used, the grid handler already manages centering.)
+        // Center the task horizontally when there is spare horizontal space.
+        // Phone UI does this by default. When the tablet overview UI is forced at phone-like
+        // DPIs, the grid handler may not center single-row layouts; do it here to avoid
+        // truncated previews and a collapsed scroll range.
         final boolean isPhoneUi = !dp.isTablet;
         int leftPad = mLastComputedTaskSize.left - mInsets.left;
         int rightPad = dp.widthPx - mInsets.right - mLastComputedTaskSize.right;
-        if (isPhoneUi) {
-            int taskW = mLastComputedTaskSize.width();
+        int availableW = dp.widthPx - mInsets.left - mInsets.right;
+        int taskW = mLastComputedTaskSize.width();
+        boolean shouldCenter = (taskW < availableW)
+                && (isPhoneUi || (dp.isTablet && availableW <= 1920)); // “small tablet” case
+        if (shouldCenter) {
             int centeredLeft = (dp.widthPx - taskW) / 2;
             int centeredRight = dp.widthPx - centeredLeft - taskW;
             leftPad  = Math.max(0, centeredLeft - mInsets.left);
@@ -4482,6 +4487,8 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
         super.onLayout(changed, left, top, right, bottom);
 
         updateEmptyStateUi(changed);
+        // Make sure snapshots are visually centered within the card when vendors left-align them.
+        adjustThumbnailOffsetsIfNeeded();
 
         setTaskModalness(mTaskModalness);
         mLastComputedTaskStartPushOutDistance = null;
@@ -4492,6 +4499,60 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
                         .setScroll(getScrollOffset()));
         setImportantForAccessibility(isModal() ? IMPORTANT_FOR_ACCESSIBILITY_NO
                 : IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+    }
+
+    /**
+     * Some vendors render task snapshots left-aligned within the thumbnail surface, which can
+     * leave a black band on the right when the overview card is wider than the snapshot at the
+     * current draw height. When appropriate (landscape tablet UI), gently nudge the thumbnail
+     * bitmap horizontally so it is centered within the card without changing card size.
+     */
+    private void adjustThumbnailOffsetsIfNeeded() {
+        final DeviceProfile dp = mActivity.getDeviceProfile();
+        final boolean landscape = dp.widthPx >= dp.heightPx;
+        // Only apply for tablet overview in landscape; clear offsets otherwise.
+        if (!(dp.isTablet && landscape)) {
+            resetAllThumbnailOffsets();
+            return;
+        }
+        // Display aspect we expect task snapshots to be captured at (e.g. ~16:9).
+        final int contentH = Math.max(1, dp.heightPx - mInsets.top - mInsets.bottom);
+        final float displayAspect = (float) dp.widthPx / (float) contentH;
+        final boolean rtl = isRtl();
+
+        for (int i = 0, n = getTaskViewCount(); i < n; i++) {
+            final TaskView tv = getTaskViewAt(i);
+            if (tv == null) continue;
+            final TaskThumbnailView thumb = tv.getThumbnail();
+            if (thumb == null) continue;
+
+            // Use the actual rendered height to infer the snapshot width at the correct aspect.
+            final int thumbH = Math.max(1, thumb.getHeight());
+            final int expectedSnapshotW = Math.max(1, Math.round(thumbH * displayAspect));
+
+            final int cardW = tv.getWidth();
+            if (cardW <= 0 || expectedSnapshotW <= 0) {
+                thumb.setTranslationX(0f);
+                continue;
+            }
+
+            // If the snapshot (at the current draw height) is narrower than the card,
+            // split the difference and center it by nudging the thumbnail content.
+            final int slack = cardW - expectedSnapshotW;
+            final float offset = (slack > 0) ? (rtl ? -0.5f * slack : 0.5f * slack) : 0f;
+            thumb.animate().cancel();
+            thumb.setTranslationX(offset);
+        }
+    }
+
+    /** Clears any horizontal nudge previously applied to thumbnails. */
+    private void resetAllThumbnailOffsets() {
+        for (int i = 0, n = getTaskViewCount(); i < n; i++) {
+            final TaskView tv = getTaskViewAt(i);
+            if (tv != null && tv.getThumbnail() != null) {
+                tv.getThumbnail().setTranslationX(0f);
+            }
+        }
     }
 
     private void updatePivots() {
@@ -5569,20 +5630,84 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
 
     @Override
     protected int computeMinScroll() {
-        if (getTaskViewCount() <= 0) {
-            return super.computeMinScroll();
-        }
+        if (getTaskViewCount() <= 0) return super.computeMinScroll();
 
-        return getScrollForPage(mIsRtl ? getLastViewIndex() : getFirstViewIndex());
+        final int idx = mIsRtl ? getLastViewIndex() : getFirstViewIndex();
+        final int min = getScrollForPage(idx);
+        final int max = getScrollForPage(mIsRtl ? getFirstViewIndex() : getLastViewIndex());
+        // If page scrolls collapsed (min == max), fall back to a bounds-based computation
+        // so we always expose a non-zero scroll range on small “tablet-forced” widths.
+        if (min == max) {
+            return computeMinScrollFromChildBounds(/*first=*/true);
+        }
+        return min;
     }
 
     @Override
     protected int computeMaxScroll() {
-        if (getTaskViewCount() <= 0) {
-            return super.computeMaxScroll();
-        }
+        if (getTaskViewCount() <= 0) return super.computeMaxScroll();
 
-        return getScrollForPage(mIsRtl ? getFirstViewIndex() : getLastViewIndex());
+        final int lastIndex = mIsRtl ? getFirstViewIndex() : getLastViewIndex();
+        final int max = getScrollForPage(lastIndex);
+        final int min = getScrollForPage(mIsRtl ? getLastViewIndex() : getFirstViewIndex());
+        if (min == max) {
+            // Degenerate case: recompute using child bounds and include the Clear All spacing
+            // so that the last task can fully scroll into view.
+            return computeMaxScrollFromChildBounds(/*includeClearAllSpacing=*/true);
+        }
+        // If Clear All is the last view, extend the max by the same spacing used when snapping
+        // to the last task, preventing early clamp on narrow layouts.
+        if (!mDisallowScrollToClearAll && indexOfChild(mClearAllButton) == lastIndex) {
+            final int clearAllScroll = getScrollForPage(lastIndex);
+            final int clearAllWidth =
+                    getPagedOrientationHandler().getPrimarySize(mClearAllButton);
+            final int lastTaskScroll = getLastTaskScroll(clearAllScroll, clearAllWidth);
+            final int screenStart = getPagedOrientationHandler().getPrimaryScroll(this);
+            return Math.max(max, screenStart - lastTaskScroll);
+        }
+        return max;
+    }
+ 
+    /**
+     * Recomputes min scroll directly from child bounds when page scrolls collapse.
+     */
+    private int computeMinScrollFromChildBounds(boolean first) {
+        if (getChildCount() == 0) return 0;
+        final int index = first ? (mIsRtl ? getLastViewIndex() : getFirstViewIndex())
+                                : (mIsRtl ? getFirstViewIndex() : getLastViewIndex());
+        final View child = getChildAt(index);
+        if (child == null) return 0;
+        final int start = getPagedOrientationHandler().getChildStart(child)
+                + (int) ((child instanceof TaskView)
+                        ? ((TaskView) child).getOffsetAdjustment(showAsGrid()) : 0);
+        final int scrollOffsetStart =
+                getPagedOrientationHandler().getScrollOffsetStart(this, mInsets);
+        // Align the leading edge of the first page to the start inset.
+        return mIsRtl ? 0 : Math.max(0, start - scrollOffsetStart);
+    }
+
+    /**
+     * Recomputes max scroll directly from child bounds when page scrolls collapse.
+     */
+    private int computeMaxScrollFromChildBounds(boolean includeClearAllSpacing) {
+        if (getChildCount() == 0) return 0;
+        final int lastIndex = mIsRtl ? getFirstViewIndex() : getLastViewIndex();
+        final View child = getChildAt(lastIndex);
+        if (child == null) return 0;
+        final int childStart = getPagedOrientationHandler().getChildStart(child)
+                + (int) ((child instanceof TaskView)
+                        ? ((TaskView) child).getOffsetAdjustment(showAsGrid()) : 0);
+        final int childSize = getPagedOrientationHandler().getPrimarySize(child);
+        final int scrollOffsetEnd =
+                getPagedOrientationHandler().getScrollOffsetEnd(this, mInsets);
+        int base = mIsRtl
+                ? (childStart + childSize - scrollOffsetEnd)
+                : Math.max(0, childStart - getPagedOrientationHandler()
+                        .getScrollOffsetStart(this, mInsets));
+        if (includeClearAllSpacing && child == mClearAllButton) {
+            base += (mIsRtl ? -1 : 1) * getClearAllExtraPageSpacing();
+        }
+        return base;
     }
 
     private int getFirstViewIndex() {

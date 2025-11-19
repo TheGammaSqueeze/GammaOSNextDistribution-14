@@ -287,6 +287,12 @@ void GammaRgbSampler::threadMain() {
         }
 
         int R=0, G=0, B=0;
+
+        // Track whether we actually commit a new color this iteration
+        // (temporal smoothing can reject transient samples).
+        // If we do not commit, we still sleep at the end of the loop
+        // based on mFps, but we do not update mLast* or publish hex.
+        bool acceptedColor = false;
         bool got = false;
         bool didFade = false;
         if (mUseHwc.load() && dcsReady) {
@@ -297,34 +303,108 @@ void GammaRgbSampler::threadMain() {
         }
 
         if (got) {
+            // Optionally scale with brightness first, so the history
+            // buffering sees post-brightness colors (matches LED output).
             if (mScaleWithBrightness.load()) postAdjustWithBrightness(R,G,B);
 
-            const bool fade = mFadeEnable.load();
-            const int sampleFps = std::max(1, std::min(60, mFps.load()));
-            const int outFps    = std::max(1, std::min(240, mFadeFps.load()));
-            if (fade && outFps > sampleFps) {
-                // number of interpolation steps between samples (e.g. 60/6 = 10)
-                const int steps = std::max(1, outFps / sampleFps);
-                // integer-rounded interpolation like gammargb.c
-                for (int s = 1; s <= steps; ++s) {
-                    const int nr = mLastR + ((R - mLastR) * s + steps/2) / steps;
-                    const int ng = mLastG + ((G - mLastG) * s + steps/2) / steps;
-                    const int nb = mLastB + ((B - mLastB) * s + steps/2) / steps;
-                    const std::string ihex = toHex(nr, ng, nb);
-                    publishHexIfChanged(ihex);
-                    // publish at outFps cadence
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / outFps));
-                }
-                didFade = true;
-            } else {
-                const std::string hex = toHex(R,G,B);
-                publishHexIfChanged(hex);
+            // -----------------------------------------------------------------
+            // Temporal smoothing:
+            // Only accept a new color if we have 3 consecutive similar frames.
+            // This drastically reduces flicker during scene transitions.
+            //
+            // Tunables:
+            //   persist.gammaos.rgb.smooth_delta   (default 24)
+            //     - maximum per-channel delta for colors to be considered "similar"
+            // -----------------------------------------------------------------
+            // Gate smoothing behind a prop (default OFF for immediacy).
+            const bool smoothEnabled =
+                GetBoolProperty("persist.gammaos.rgb.smooth.enable", false);
+            struct HistorySlot {
+                int r = 0, g = 0, b = 0;
+                bool valid = false;
+            };
+            static HistorySlot sHist[3];
+            static bool sHistInit = false;
+            if (!sHistInit) {
+                for (int i = 0; i < 3; ++i) sHist[i].valid = false;
+                sHistInit = true;
             }
-            // remember last endpoint for next interpolation
-            mLastR = R; mLastG = G; mLastB = B;
-            if (mDebug.load()) {
-                const std::string dbghex = toHex(R,G,B);
-                ALOGI("GammaRgbSampler: sampled %s (R=%d G=%d B=%d)", dbghex.c_str(), R, G, B);
+
+            // Shift history: [0] <= [1] <= [2] <= new sample
+            sHist[0] = sHist[1];
+            sHist[1] = sHist[2];
+            sHist[2] = { R, G, B, true };
+
+            auto colorDelta = [](int r1, int g1, int b1,
+                                 int r2, int g2, int b2) -> int {
+                int dr = (r1 > r2) ? (r1 - r2) : (r2 - r1);
+                int dg = (g1 > g2) ? (g1 - g2) : (g2 - g1);
+                int db = (b1 > b2) ? (b1 - b2) : (b2 - b1);
+                int m  = (dr > dg) ? dr : dg;
+                return (m > db) ? m : db;
+            };
+
+            // still read delta so enabling at runtime takes effect
+            const int smoothDelta = std::max(
+                    4, std::min(64,
+                        GetIntProperty("persist.gammaos.rgb.smooth_delta", 24)));
+
+            bool acceptNew = false;
+            if (!smoothEnabled) {
+                // Smoothing disabled: accept immediately for lowest latency.
+                acceptNew = true;
+            } else {
+                if (!sHist[0].valid || !sHist[1].valid) {
+                    // Warm-up phase: accept early so we do not stall on boot
+                    acceptNew = true;
+                } else {
+                    const int d01 = colorDelta(sHist[0].r, sHist[0].g, sHist[0].b,
+                                               sHist[1].r, sHist[1].g, sHist[1].b);
+                    const int d12 = colorDelta(sHist[1].r, sHist[1].g, sHist[1].b,
+                                               sHist[2].r, sHist[2].g, sHist[2].b);
+                    if (d01 <= smoothDelta && d12 <= smoothDelta) {
+                        acceptNew = true;
+                    }
+                }
+            }
+
+            if (!acceptNew) {
+                if (mDebug.load()) {
+                    ALOGV("GammaRgbSampler: smoothing rejected transient color %s",
+                          toHex(R, G, B).c_str());
+                }
+            } else {
+                acceptedColor = true;
+
+                const bool fade = mFadeEnable.load();
+                const int sampleFps = std::max(1, std::min(60, mFps.load()));
+                const int outFps    = std::max(1, std::min(240, mFadeFps.load()));
+                if (fade && outFps > sampleFps) {
+                    // number of interpolation steps between samples (e.g. 60/6 = 10)
+                    const int steps = std::max(1, outFps / sampleFps);
+                    // integer-rounded interpolation like gammargb.c
+                    for (int s = 1; s <= steps; ++s) {
+                        const int nr = mLastR + ((R - mLastR) * s + steps/2) / steps;
+                        const int ng = mLastG + ((G - mLastG) * s + steps/2) / steps;
+                        const int nb = mLastB + ((B - mLastB) * s + steps/2) / steps;
+                        const std::string ihex = toHex(nr, ng, nb);
+                        publishHexIfChanged(ihex);
+                        // publish at outFps cadence
+                        std::this_thread::sleep_for(
+                                std::chrono::milliseconds(1000 / outFps));
+                    }
+                    didFade = true;
+                } else {
+                    const std::string hex = toHex(R,G,B);
+                    publishHexIfChanged(hex);
+                }
+                // remember last endpoint for next interpolation
+                mLastR = R; mLastG = G; mLastB = B;
+                if (mDebug.load()) {
+                    const std::string dbghex = toHex(R,G,B);
+                    ALOGI("GammaRgbSampler: sampled/committed %s (R=%d G=%d B=%d)",
+                          dbghex.c_str(), R, G, B);
+                }
             }
         } else if (mDebug.load()) {
             ALOGV("GammaRgbSampler: no sample this tick");
@@ -441,12 +521,27 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
     // Histograms (kept for low-cost post ops / future use)
     std::vector<uint64_t> rh(256), gh(256), bh(256);
 
+    // -----------------------------------------------------------------
+    // Hue-cluster based dominant color grouping.
+    // We quantize hue into a small number of bins and accumulate
+    // sums/counts per bin so that "similar" colors are grouped
+    // together. This prevents a tiny patch of a pure color from
+    // winning over a large region of similar-but-not-identical colors.
+    // Blacks/greys/whites are tracked but de-prioritized.
+    // -----------------------------------------------------------------
+    struct HueCluster {
+        uint64_t sumR = 0, sumG = 0, sumB = 0, count = 0;
+    };
+    static constexpr int kHueBins = 24; // 15-degree bins across 360°
+    HueCluster clusters[kHueBins];
+
     // --- Match gammargb selection pipeline (bold color):
     // Accumulate channel sums, track most-saturated pixel, and
     // build per-dominant-channel buckets (R-major / G-major / B-major).
     uint64_t sr=0, sg=0, sb=0;              // global sums
     uint64_t r_r=0, g_r=0, b_r=0, c_r=0;    // R-major bucket sums/count
     uint64_t r_g=0, g_g=0, b_g=0, c_g=0;    // G-major bucket
+    uint64_t totalColorCount = 0;           // pixels considered "colored"
     uint64_t r_b=0, g_b=0, b_b=0, c_b=0;    // B-major bucket
     int best_sat = -1; int best_r=0, best_g=0, best_b=0;
     for (int y = 0; y < h; ++y) {
@@ -474,6 +569,44 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
             const int mn = (r<g ? (r<b?r:b) : (g<b?g:b));
             const int sat = mx - mn;
             if (sat > best_sat) { best_sat = sat; best_r = r; best_g = g; best_b = b; }
+ 
+            // Decide if this pixel is "grayish" / black / white for clustering.
+            const int lum = (r + g + b) / 3;
+            const bool isNearGray = (sat <= mGrayTol);
+            const bool isBlackish = (lum <= mBlackAvg);
+            const bool isWhitish = (lum >= mWhiteAvg);
+
+            // Only treat reasonably saturated, non-extreme-luma pixels
+            // as "colored" for hue clustering.
+            if (!isNearGray && !isBlackish && !isWhitish &&
+                sat >= satPixelThreshold) {
+                // Compute hue in degrees [0..360)
+                float hue = 0.f;
+                const int denom = mx - mn;
+                if (denom > 0) {
+                    if (mx == r) {
+                        hue = 60.f * ((g - b) / (float)denom);
+                        if (hue < 0.f) hue += 360.f;
+                    } else if (mx == g) {
+                        hue = 60.f * ((b - r) / (float)denom + 2.f);
+                    } else {
+                        hue = 60.f * ((r - g) / (float)denom + 4.f);
+                    }
+                }
+                if (hue < 0.f) hue += 360.f;
+                if (hue >= 360.f) hue -= 360.f;
+
+                const float binWidth = 360.f / kHueBins;
+                int idx = (int)(hue / binWidth);
+                if (idx < 0) idx = 0;
+                if (idx >= kHueBins) idx = kHueBins - 1;
+
+                clusters[idx].sumR += (uint64_t)r;
+                clusters[idx].sumG += (uint64_t)g;
+                clusters[idx].sumB += (uint64_t)b;
+                clusters[idx].count++;
+                totalColorCount++;
+            }
 
             // dominant-channel buckets (strict ‘>’ like gammargb)
             if      (r>g && r>b) { r_r += (uint64_t)r; g_r += (uint64_t)g; b_r += (uint64_t)b; c_r++; }
@@ -491,6 +624,34 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
         if (mDebug.load()) ALOGI("GammaRgbSampler: secure/blank capture detected; holding previous color");
         return false;
     }
+ 
+    // Build a dominant hue-cluster candidate, if any.
+    int clusterR = 0, clusterG = 0, clusterB = 0;
+    uint64_t bestClusterCount = 0;
+    for (int i = 0; i < kHueBins; ++i) {
+        const uint64_t cnt = clusters[i].count;
+        if (cnt == 0) continue;
+        if (cnt > bestClusterCount) {
+            bestClusterCount = cnt;
+            clusterR = (int)(clusters[i].sumR / cnt);
+            clusterG = (int)(clusters[i].sumG / cnt);
+            clusterB = (int)(clusters[i].sumB / cnt);
+        }
+    }
+
+    const uint64_t totalPixels = (uint64_t)w * (uint64_t)h;
+    const float totalPixF = totalPixels ? (float)totalPixels : 1.f;
+    const float colorShare = (float)totalColorCount / totalPixF;
+    const float clusterShare = (float)bestClusterCount / totalPixF;
+    // Tunables to let a dominant hue cluster win over white/gray backgrounds
+    const float minClusterShare =
+        getPropFloat("persist.gammaos.rgb.cluster_min_share", 0.03f);
+    const float minColorShareOverWhite =
+        getPropFloat("persist.gammaos.rgb.color_share_over_white", 0.03f);
+    const bool preferClusterOverWhite =
+        GetBoolProperty("persist.gammaos.rgb.cluster_over_white", true);
+    const float bestSatGrayShareMax =
+        getPropFloat("persist.gammaos.rgb.best_sat_gray_share_max", 0.05f);
 
     // --- Decide color (faithful to gammargb)
     // Channel averages
@@ -503,34 +664,56 @@ bool GammaRgbSampler::pullReReadbackOnce(int& outR, int& outG, int& outB) {
     const int minc   = std::min({tr0, tg0, tb0});
     const int spread = maxc - minc;
     const int avg    = (tr0 + tg0 + tb0) / 3;
+    const bool sceneMostlyGray = (colorShare < 0.25f);
 
     int tr = tr0, tg = tg0, tb = tb0;
-    if (spread <= mGrayTol &&
-        best_sat >= satPixelThreshold &&
-        avg >  mBlackAvg &&
-        avg <  mWhiteAvg)
-    {
-        // Use the most-saturated pixel, normalize to full scale, then blend towards gray
-        tr = best_r; tg = best_g; tb = best_b;
-        const int m = std::max({tr, tg, tb});
-        if (m > 0) { tr = tr*255/m; tg = tg*255/m; tb = tb*255/m; }
-        // Optional gray blending; can be fully disabled via prop
-        if (!mDisableGrayBlend.load()) {
-            tr = (int)(tr*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
-            tg = (int)(tg*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
-            tb = (int)(tb*(1.f - mGrayBlend) + avg*mGrayBlend + .5f);
+    const bool haveDominantCluster =
+        (bestClusterCount > 0) && (clusterShare >= minClusterShare);
+
+    if (avg >= mWhiteAvg && spread <= mGrayTol) {
+        // White-ish scene. Let a sizable color cluster win if present.
+        if (preferClusterOverWhite && haveDominantCluster &&
+            colorShare >= minColorShareOverWhite) {
+            tr = clusterR; tg = clusterG; tb = clusterB;
+        } else {
+            tr = tg = tb = 255;
         }
-    } else if (avg >= mWhiteAvg && spread <= mGrayTol) {
-        tr = tg = tb = 255;
     } else if (avg <= mBlackAvg && spread <= mGrayTol) {
         tr = tg = tb = 0;
     } else if (spread <= mGrayTol) {
-        tr = tg = tb = avg;
+        // Scene averages look gray-ish. Prefer a real hue cluster if it is sizable,
+        // otherwise allow the single best-saturated pixel ONLY if the colored share
+        // is tiny (prevents a small accent color from winning).
+        if (haveDominantCluster) {
+            tr = clusterR; tg = clusterG; tb = clusterB;
+        } else if (colorShare <= bestSatGrayShareMax &&
+                   best_sat >= satPixelThreshold &&
+                   avg > mBlackAvg && avg < mWhiteAvg) {
+            tr = best_r; tg = best_g; tb = best_b;
+            const int m = std::max({tr, tg, tb});
+            if (m > 0) { tr = tr*255/m; tg = tg*255/m; tb = tb*255/m; }
+        } else {
+            tr = tg = tb = avg;
+        }
     } else {
-        // Choose the dominant-channel bucket average
-        if      (c_r >= c_g && c_r >= c_b && c_r > 0) { tr = (int)(r_r / c_r); tg = (int)(g_r / c_r); tb = (int)(b_r / c_r); }
-        else if (c_g >= c_r && c_g >= c_b && c_g > 0) { tr = (int)(r_g / c_g); tg = (int)(g_g / c_g); tb = (int)(b_g / c_g); }
-        else if (c_b > 0)                             { tr = (int)(r_b / c_b); tg = (int)(g_b / c_b); tb = (int)(b_b / c_b); }
+        // Full-color scene (spread > gray tolerance). Prefer the dominant hue cluster;
+        // if unavailable, fall back to the dominant-channel buckets.
+        if (haveDominantCluster) {
+            tr = clusterR; tg = clusterG; tb = clusterB;
+        } else {
+            // Bucket fallback: pick the channel-dominant bucket with the most pixels.
+            uint64_t cr = c_r, cg = c_g, cb = c_b;
+            if (cr >= cg && cr >= cb && cr > 0) {
+                tr = (int)(r_r / cr); tg = (int)(g_r / cr); tb = (int)(b_r / cr);
+            } else if (cg >= cr && cg >= cb && cg > 0) {
+                tr = (int)(r_g / cg); tg = (int)(g_g / cg); tb = (int)(b_g / cg);
+            } else if (cb > 0) {
+                tr = (int)(r_b / cb); tg = (int)(g_b / cb); tb = (int)(b_b / cb);
+            } else {
+                // Nothing meaningful; keep channel averages.
+                tr = tr0; tg = tg0; tb = tb0;
+            }
+        }
     }
 
     // Low-light boost (same intent as gammargb)
@@ -567,10 +750,16 @@ void GammaRgbSampler::processHistogramToRgb(const std::vector<uint64_t>& rh,
     const int maxc = std::max({tr,tg,tb});
     const int minc = std::min({tr,tg,tb});
     const int spread = maxc - minc;
-    const int avg = (tr+tg+tb)/3;
+    const int avg = (tr+tg+tb)/2;
+
+    // Deprioritize neutral white backgrounds when enabled; do not force pure white.
+    const bool preferClusterOverWhite =
+        GetBoolProperty("persist.gammaos.rgb.cluster_over_white", true);
 
     if (spread <= mGrayTol && avg >= mWhiteAvg) {
-        tr = tg = tb = 255;
+        if (!preferClusterOverWhite) {
+            tr = tg = tb = 255;
+        }
     } else if (spread <= mGrayTol && avg <= mBlackAvg) {
         tr = tg = tb = 0;
     } else if (spread <= mGrayTol) {
