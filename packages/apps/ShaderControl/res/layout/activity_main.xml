@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_shader_control"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/label_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_shader_mode"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupMode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/label_mode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <RadioButton
+            android:id="@+id/radioNone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shader_none"
+            android:background="@drawable/focusable_background" />
+
+        <RadioButton
+            android:id="@+id/radioCrt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/shader_crt"
+            android:background="@drawable/focusable_background" />
+
+        <RadioButton
+            android:id="@+id/radioLcd3x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/shader_lcd3x"
+            android:background="@drawable/focusable_background" />
+    </RadioGroup>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/radioGroupMode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Scroll container for all parameter groups -->
+    <ScrollView
+        android:id="@+id/scrollParams"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/containerParams"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- CRT parameter group -->
+            <LinearLayout
+                android:id="@+id/groupCrt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_crt_params"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnResetCrt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_reset_crt"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/reset_button_background"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/hintScrollCrt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_scroll_crt"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+
+                <!-- Scan px -->
+                <TextView
+                    android:id="@+id/labelScanPx"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_scan_px"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekScanPx"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="110"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueScanPx"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Scan strength -->
+                <TextView
+                    android:id="@+id/labelScanStrength"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_scan_strength"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekScanStrength"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueScanStrength"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Curvature -->
+                <TextView
+                    android:id="@+id/labelCurv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_curv"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekCurv"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueCurv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Vignette -->
+                <TextView
+                    android:id="@+id/labelVignette"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_vignette"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekVignette"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueVignette"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Edge soft px -->
+                <TextView
+                    android:id="@+id/labelEdgeSoft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_edge_soft_px"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekEdgeSoft"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="320"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueEdgeSoft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- Blur intensity -->
+                <TextView
+                    android:id="@+id/labelBlur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_blur_intensity"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekBlur"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueBlur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <!-- LCD3x parameter group -->
+            <LinearLayout
+                android:id="@+id/groupLcd3x"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_lcd3x_params"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnResetLcd3x"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_reset_lcd3x"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/reset_button_background"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/hintScrollLcd3x"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_scroll_lcd3x"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+
+                <!-- brighten_scanlines -->
+                <TextView
+                    android:id="@+id/labelBrightenScan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_brighten_scan"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekBrightenScan"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="900"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueBrightenScan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- brighten_lcd -->
+                <TextView
+                    android:id="@+id/labelBrightenLcd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_brighten_lcd"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekBrightenLcd"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="900"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueBrightenLcd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- grid_px_x -->
+                <TextView
+                    android:id="@+id/labelGridPxX"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_grid_px_x"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekGridPxX"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="310"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueGridPxX"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- grid_px_y -->
+                <TextView
+                    android:id="@+id/labelGridPxY"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_grid_px_y"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="8dp" />
+
+                <SeekBar
+                    android:id="@+id/seekGridPxY"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:max="310"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:background="@drawable/focusable_background" />
+
+                <TextView
+                    android:id="@+id/valueGridPxY"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#121212</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="colorAccent">#FF8A2A</color>
+    <color name="divider">#33FFFFFF</color>
+
+    <color name="gamma_slider_active">#F6CFC2</color>
+    <color name="gamma_slider_inactive">#554C47</color>
+
+    <!-- Reset button purples (night) -->
+    <color name="reset_purple_normal">#B39DDB</color>     <!-- slightly darker pale purple -->
+    <color name="reset_purple_highlight">#7E57C2</color> <!-- same strong purple -->
+</resources>

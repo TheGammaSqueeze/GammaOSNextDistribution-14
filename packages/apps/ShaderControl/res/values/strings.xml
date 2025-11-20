@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShaderControl</string>
+
+    <string name="title_shader_control">GammaOS Shaders</string>
+    <string name="label_shader_mode">Shader mode</string>
+    <string name="shader_none">None</string>
+    <string name="shader_crt">CRT (crt-simple)</string>
+    <string name="shader_lcd3x">LCD3x</string>
+
+    <string name="section_crt_params">CRT parameters</string>
+    <string name="section_lcd3x_params">LCD3x parameters</string>
+
+    <string name="hint_scroll_crt">Scroll to see all CRT options</string>
+    <string name="hint_scroll_lcd3x">Scroll to see all LCD3x options</string>
+
+    <string name="label_scan_px">Scanline height (scan_px)</string>
+    <string name="label_scan_strength">Scanline strength</string>
+    <string name="label_curv">Screen curvature</string>
+    <string name="label_vignette">Vignette</string>
+    <string name="label_edge_soft_px">Edge softening (px)</string>
+    <string name="label_blur_intensity">CRT blur intensity</string>
+
+    <string name="label_brighten_scan">Scanline brightening</string>
+    <string name="label_brighten_lcd">LCD column brightening</string>
+    <string name="label_grid_px_x">Grid cell width (px)</string>
+    <string name="label_grid_px_y">Grid cell height (px)</string>
+
+    <string name="btn_reset_crt">Reset CRT to defaults</string>
+    <string name="btn_reset_lcd3x">Reset LCD3x to defaults</string>
+</resources>

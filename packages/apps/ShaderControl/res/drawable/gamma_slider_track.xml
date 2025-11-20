@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Inactive full-width pill -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <size android:height="20dp" />
+            <corners android:radius="10dp" />
+            <solid android:color="@color/gamma_slider_inactive" />
+        </shape>
+    </item>
+
+    <!-- Active progress pill, same height/radius so no "bottle cap" edge -->
+    <item android:id="@android:id/progress">
+        <scale
+            android:scaleWidth="100%"
+            android:useLevel="true">
+            <shape android:shape="rectangle">
+                <size android:height="20dp" />
+                <corners android:radius="10dp" />
+                <solid android:color="@color/gamma_slider_active" />
+            </shape>
+        </scale>
+    </item>
+</layer-list>

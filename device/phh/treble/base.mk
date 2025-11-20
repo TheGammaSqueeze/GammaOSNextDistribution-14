@@ -11,7 +11,9 @@ PRODUCT_PACKAGES += \
     audio.sysbta.default \
     android.hardware.bluetooth.audio-service-system
 
-PRODUCT_PACKAGES += JoystickLedPicker
+PRODUCT_PACKAGES += \
+    JoystickLedPicker \
+    ShaderControl
 
 PRODUCT_COPY_FILES += \
     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \
