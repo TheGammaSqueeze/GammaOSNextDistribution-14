@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#F5F5F5</color>
+    <color name="text_primary">#202124</color>
+    <color name="colorAccent">#FF8A2A</color>
+    <color name="preset_border">#33000000</color>
+
+     <!-- Slider colors -->
+     <color name="gamma_slider_active">#F6CFC2</color>
+     <color name="gamma_slider_inactive">#554C47</color>
+</resources>

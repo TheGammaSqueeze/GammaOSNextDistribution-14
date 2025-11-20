@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JoystickLedPicker</string>
+    <string name="title_joystick_led">Joystick LED</string>
+    <string name="label_color_options">Color Options</string>
+    <string name="label_control_targets">Control Targets</string>
+    <string name="label_brightness">Color Brightness</string>
+    <string name="label_saturation">Color Saturation</string>
+    <string name="target_both">Both</string>
+    <string name="target_left">Left</string>
+    <string name="target_right">Right</string>
+
+    <!-- New: Custom Effects -->
+    <string name="label_custom_effects">LED Effects</string>
+    <string name="effect_follow_screen">Follow Screen RGB</string>
+    <string name="effect_none">Solid</string>
+    <string name="effect_off">Off</string>
+    <string name="effect_1">Effect 1</string>
+    <string name="effect_2">Effect 2</string>
+    <string name="effect_3">Effect 3</string>
+    <string name="effect_4">Effect 4</string>
+    <string name="effect_5">Effect 5</string>
+    <string name="label_split_colors">Split colors</string>
+    <string name="label_follow_brightness">Follow Screen Brightness</string>
+</resources>

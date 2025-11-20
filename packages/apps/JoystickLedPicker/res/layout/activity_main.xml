@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_joystick_led"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Main content: left wheel + preview, right controls -->
+    <LinearLayout
+        android:id="@+id/colorWheelContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp">
+
+        <!-- Left: color wheel + preview below it -->
+        <LinearLayout
+            android:id="@+id/left_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <com.gammaos.joystickled.ui.ColorWheelView
+                android:id="@+id/color_wheel"
+                android:layout_width="260dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/preview_color"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="36dp"
+                app:cardUseCompatPadding="true" />
+
+            <TextView
+                android:id="@+id/preview_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Preview (#000000)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Right: all controls, non-scrollable, shrinks to fit height -->
+        <LinearLayout
+            android:id="@+id/right_panel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp">
+
+        <!-- Custom Effects directly under title (top of right panel) -->
+        <TextView
+            android:id="@+id/label_custom_effects"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_custom_effects"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Reserve exactly two rows for custom effects -->
+        <LinearLayout
+            android:id="@+id/layout_custom_effects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Row 1: Follow + Effect 1 + Effect 2 -->
+            <LinearLayout
+                android:id="@+id/layout_custom_effects_row1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect_follow"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_follow_screen"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect_none"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_none"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect_off"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_off"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect1"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_1"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <!-- Row 2: Effect 2 + Effect 3 + Effect 4 + Effect 5 -->
+            <LinearLayout
+                android:id="@+id/layout_custom_effects_row2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect2"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_2"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect3"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_3"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect4"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_4"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect5"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_5"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+            </LinearLayout>
+        </LinearLayout>
+
+            <!-- Color options -->
+            <TextView
+                android:id="@+id/label_color_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_color_options"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_white"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_yellow"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_orange"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_pink"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_red"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_blue"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_green"
+                    style="@style/Widget.ColorPreset" />
+
+                <!-- New distinct presets -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_purple"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_cyan"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_magenta"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_amber"
+                    style="@style/Widget.ColorPreset" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/preset_teal"
+                    style="@style/Widget.ColorPreset" />
+            </LinearLayout>
+
+            <!-- Control Targets -->
+            <TextView
+                android:id="@+id/label_control_targets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/label_control_targets"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:id="@+id/layout_control_targets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_both"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/target_both"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_left"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/target_left"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_right"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/target_right"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/label_split_colors"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/label_split_colors"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_enable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/label_follow_brightness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/label_follow_brightness"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_follow_brightness"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_brightness"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_brightness"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/brightness_slider"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:thumbOffset="0dp"
+                    android:splitTrack="false"
+                    android:minHeight="36dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb" />
+
+                <TextView
+                    android:id="@+id/brightness_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="27%"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_saturation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_saturation"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/saturation_slider"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:thumbOffset="0dp"
+                    android:splitTrack="false"
+                    android:minHeight="36dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb" />
+
+                <TextView
+                    android:id="@+id/saturation_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="100%"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

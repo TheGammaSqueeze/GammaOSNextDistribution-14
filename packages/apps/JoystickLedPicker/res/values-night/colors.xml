@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light mode: background=#F5F5F5, text_primary=#202124 (from values/colors.xml) -->
+    <!-- Dark mode: swap them -->
+    <color name="background">#202124</color>
+    <color name="text_primary">#F5F5F5</color>
+
+    <!-- Leave other colors as-is; Material will handle accents -->
+</resources>

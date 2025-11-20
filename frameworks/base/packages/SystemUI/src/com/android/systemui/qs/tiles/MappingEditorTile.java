@@ -267,6 +267,25 @@ public class MappingEditorTile extends QSTileImpl<BooleanState> {
 
             MappingAdapter(Context c, List<Mapping> d) { ctx = c; data = d; }
 
+            /**
+             * Display mapping for source button labels only.
+             * Storage still uses the original key names.
+             */
+            private static String getDisplayLabel(String key) {
+                switch (key) {
+                    case "BTN_EAST":
+                        return "BTN_B";
+                    case "BTN_WEST":
+                        return "BTN_Y";
+                    case "BTN_NORTH":
+                        return "BTN_X";
+                    case "BTN_GAMEPAD":
+                        return "BTN_A";
+                    default:
+                        return key;
+                }
+            }
+
             @Override
             public VH onCreateViewHolder(ViewGroup parent, int viewType) {
                 LinearLayout lay = new LinearLayout(ctx);
@@ -305,7 +324,8 @@ public class MappingEditorTile extends QSTileImpl<BooleanState> {
             @Override
             public void onBindViewHolder(VH holder, int position) {
                 Mapping m = data.get(position);
-                holder.left.setText(m.original);
+                // For the source button (left side), show the remapped display label only.
+                holder.left.setText(getDisplayLabel(m.original));
                 int idx = Arrays.asList(ALL_KEYS).indexOf(m.current);
                 holder.spinner.setSelection(idx >= 0 ? idx : 0);
                 holder.spinner.setOnItemSelectedListener(new SimpleListener() {

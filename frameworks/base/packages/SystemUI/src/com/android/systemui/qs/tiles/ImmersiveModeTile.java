@@ -26,7 +26,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemProperties;
-import android.view.ViewGroup;
 import android.service.quicksettings.Tile;
 import android.util.Log;
 import android.view.View;
@@ -43,7 +42,6 @@ import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.plugins.qs.QSTile.Icon;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.QsEventLogger;
-import com.android.systemui.plugins.qs.QSTile;
 import com.android.systemui.qs.logging.QSLogger;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
@@ -51,30 +49,26 @@ import com.android.systemui.plugins.statusbar.StatusBarStateController;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: GammaRGB **/
-public class GammaRGBTile extends QSTileImpl<BooleanState> {
- 
-    // Target activity for both long-press and chevron/side-action.
-    private static final String TARGET_PKG = "com.gammaos.joystickled";
-    private static final String TARGET_CLS = "com.gammaos.joystickled.MainActivity";
+/** Quick settings tile: Force Immersive Mode **/
+public class ImmersiveModeTile extends QSTileImpl<BooleanState> {
 
-    public static final String TILE_SPEC = "gammargb";
+    public static final String TILE_SPEC = "immersivemode";
 
-    private static final String PROP_CONTROL = "persist.gammargb.control";
-    private static final String MODE_ON      = "on";
-    private static final String MODE_OFF     = "off";
+    private static final String PROP_CONTROL    = "persist.gammaos.immersive";
+    private static final String MODE_ON         = "1";
+    private static final String MODE_OFF        = "0";
 
-    private static final int STATE_ENABLED  = 1;
-    private static final int STATE_DISABLED = 0;
+    private static final int STATE_ENABLED      = 1;
+    private static final int STATE_DISABLED     = 0;
 
     private int currentState;
 
-    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_device_light_on);
-    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_device_light_off);
+    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_play_games);
+    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_play_games);
     private final Receiver mReceiver = new Receiver();
 
     @Inject
-    public GammaRGBTile(
+    public ImmersiveModeTile(
             QSHost host,
             QsEventLogger qsEventLogger,
             @Background Looper backgroundLooper,
@@ -88,26 +82,21 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
         super(host, qsEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
               statusBarStateController, activityStarter, qsLogger);
 
-        // 1) Read the persisted prop (default to ON if missing/invalid), map to our state
+        // 1) Read persisted prop (default to ON)
         currentState = mapPropToState(
                 SystemProperties.get(PROP_CONTROL, MODE_ON)
         );
 
-        // 2) Re-apply it (in case it's been changed externally between boots)
+        // 2) Re-apply prop (in case changed externally)
         applyState(currentState);
 
-        // 3) Listen for screen-off and boot so we can re-sync
+        // 3) Listen for screen-off to re-sync
         mReceiver.init();
     }
 
     @Override
     public BooleanState newTileState() {
-        final BooleanState s = new BooleanState();
-        // Enable dual-target with a chevron, like Internet tile. The chevron will invoke
-        // showDetail(true) which uses our DetailAdapter below.
-        s.forceExpandIcon = true;
-        s.dualTarget = true;
-        return s;
+        return new BooleanState();
     }
 
     @Override
@@ -120,11 +109,10 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
     protected void handleSetListening(boolean listening) {
         super.handleSetListening(listening);
         if (listening) {
-            // Re-read the prop when QS panel is opened
+            // Re-read prop when QS panel opens
             int newState = mapPropToState(
                     SystemProperties.get(PROP_CONTROL, MODE_ON)
             );
-            // If it changed externally, update and refresh tile
             if (newState != currentState) {
                 currentState = newState;
                 refreshState();
@@ -134,41 +122,38 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleClick(@Nullable View view) {
-        // Toggle between ENABLED ⇄ DISABLED
+        // Toggle enabled ↔ disabled
         currentState = (currentState == STATE_ENABLED) ? STATE_DISABLED : STATE_ENABLED;
         applyState(currentState);
         refreshState();
     }
 
-    private Intent buildLaunchIntent() {
-        return new Intent().setClassName(TARGET_PKG, TARGET_CLS)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    @Override
+    protected void handleUpdateState(BooleanState state, Object arg) {
+        if (currentState == STATE_ENABLED) {
+            state.label = "Immersive Mode Enabled";
+            state.icon  = mIconOn;
+            state.state = Tile.STATE_ACTIVE;
+        } else {
+            state.label = "Immersive Mode Disabled";
+            state.icon  = mIconOff;
+            state.state = Tile.STATE_INACTIVE;
+        }
     }
 
-    /**
-     * Long-press launches the Joystick LED Picker activity and dismisses QS.
-     * Equivalent to: adb shell am start -n com.gammaos.joystickled/.MainActivity
-     */
     @Override
     public Intent getLongClickIntent() {
-        return buildLaunchIntent();
+        return null;
     }
 
     @Override
     protected void handleLongClick(@Nullable View view) {
-        final Intent intent = getLongClickIntent();
-        mActivityStarter.postStartActivityDismissingKeyguard(intent, 0 /* delay */);
-    }
-
-    @Override
-    protected void handleSecondaryClick(@Nullable View view) {
-        final Intent intent = buildLaunchIntent();
-        mActivityStarter.postStartActivityDismissingKeyguard(intent, 0 /* delay */);
+        // no-op: we intercept the long-press here
     }
 
     @Override
     public CharSequence getTileLabel() {
-        return "Gamma RGB";
+        return "Force Immersive Mode";
     }
 
     @Override
@@ -176,58 +161,30 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
         return VIEW_UNKNOWN;
     }
 
-    /**
-     * Map the string prop ("on"/"off") to our integer state.
-     * Invalid or missing values default to ENABLED.
-     */
+    /** Map "on"/"off" to our internal state. Defaults to ENABLED. */
     private int mapPropToState(String mode) {
-        if (MODE_OFF.equals(mode)) {
-            return STATE_DISABLED;
-        }
-        // default to enabled on missing or invalid
-        return STATE_ENABLED;
+        return MODE_OFF.equals(mode) ? STATE_DISABLED : STATE_ENABLED;
     }
 
-    /**
-     * Map our integer state back to the string we store in the prop.
-     */
+    /** Map our state back to prop string. */
     private String mapStateToProp(int state) {
         return (state == STATE_DISABLED) ? MODE_OFF : MODE_ON;
     }
 
-    /**
-     * Write the current state into the system property.
-     */
+    /** Write the current state into the system property. */
     private void applyState(int state) {
         String mode = mapStateToProp(state);
         SystemProperties.set(PROP_CONTROL, mode);
-        if (Log.isLoggable("GammaRGBTile", Log.DEBUG)) {
-            Log.d("GammaRGBTile", "Applied GammaRGB control: " + mode);
+        if (Log.isLoggable("ImmersiveModeTile", Log.DEBUG)) {
+            Log.d("ImmersiveModeTile", PROP_CONTROL + "=" + mode);
         }
-    }
- 
-    @Override
-    protected void handleUpdateState(BooleanState state, Object arg) {
-        if (currentState == STATE_ENABLED) {
-            state.label = "GammaRGB On";
-            state.icon  = mIconOn;
-            state.state = Tile.STATE_ACTIVE;
-        } else {
-            state.label = "GammaRGB Off";
-            state.icon  = mIconOff;
-            state.state = Tile.STATE_INACTIVE;
-        }
-        // Provide a secondary line and enable dual-target chevron behavior.
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
-        state.dualTarget = true;
     }
 
-    /** Receiver to re-sync on screen-off and boot. */
+    /** Receiver to re-sync state on screen-off. */
     private final class Receiver extends BroadcastReceiver {
         void init() {
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_SCREEN_OFF);
-            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
             mContext.registerReceiver(this, filter, null, mHandler);
         }
 
@@ -237,16 +194,15 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_SCREEN_OFF.equals(action)
-             || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-                // Re-read the prop in case it was changed elsewhere
-                currentState = mapPropToState(
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                int newState = mapPropToState(
                         SystemProperties.get(PROP_CONTROL, MODE_ON)
                 );
-                // Re-apply it just to be safe, and update UI
-                applyState(currentState);
-                refreshState();
+                if (newState != currentState) {
+                    currentState = newState;
+                    applyState(currentState);
+                    refreshState();
+                }
             }
         }
     }

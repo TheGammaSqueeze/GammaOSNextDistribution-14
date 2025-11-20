@@ -1,0 +1,26 @@
+android_app {
+    name: "JoystickLedPicker",
+
+    // Compile sources from the AOSP layout and (optionally) Gradle layout
+    srcs: [
+        "java/**/*.java",
+        "src/**/*.java",
+        "app/src/main/java/**/*.java",
+    ],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+
+    // System app
+    platform_apis: true,
+    certificate: "platform",
+    privileged: false,
+
+    static_libs: [
+        "com.google.android.material_material",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout",
+    ],
+
+}
