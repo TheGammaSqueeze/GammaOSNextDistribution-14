@@ -47,6 +47,9 @@ static const char* kSkSL = R"(
     uniform float  vignette;
     uniform float  edge_soft_px;
 
+    // Optional CRT blur
+    uniform float  blur_intensity;  // 0 = off, 1 = max softening
+
     // Framebuffer size
     uniform float2 fb_size; // (w,h)
 
@@ -71,6 +74,8 @@ static const char* kSkSL = R"(
 
     half4 main(float2 p) {
         float2 wh = fb_size;
+        // For blur radius scaling
+        float  minDim = min(wh.x, wh.y);
         float2 q = warp_pixel(p);
 
         // Oriented scanline coordinate
@@ -96,7 +101,41 @@ static const char* kSkSL = R"(
             triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
         }
 
-        half4 base = use_src != 0 ? src.eval(q) : half4(1.0);
+        half4 base;
+        if (use_src != 0) {
+            // Optional CRT-style blur to soften the image a little bit.
+            // Scale radius with resolution so it is visible on 720p/1080p+.
+            float baseRadius = max(1.0, minDim / 480.0);   // ~1px at 480p, ~2.25px at 1080p
+            float r = blur_intensity * 3.0 * baseRadius;   // 0..~6–7px depending on res
+
+            if (r > 0.01) {
+                float2 offX = float2(r, 0.0);
+                float2 offY = float2(0.0, r);
+
+                // 9-tap kernel: center, 4 cardinals (weight 2), 4 diagonals (weight 1)
+                half4 c0 = src.eval(q);
+
+                half4 c1 = src.eval(q + offX);
+                half4 c2 = src.eval(q - offX);
+                half4 c3 = src.eval(q + offY);
+                half4 c4 = src.eval(q - offY);
+
+                half4 c5 = src.eval(q + offX + offY);
+                half4 c6 = src.eval(q + offX - offY);
+                half4 c7 = src.eval(q - offX + offY);
+                half4 c8 = src.eval(q - offX - offY);
+
+                // Total weight = 4 (center) + 4*2 (cardinals) + 4*1 (diagonals) = 20
+                base = (c0 * 4.0 +
+                        (c1 + c2 + c3 + c4) * 2.0 +
+                        (c5 + c6 + c7 + c8)) * (1.0 / 20.0);
+            } else {
+                // Blur disabled or intensity too small: just sample once.
+                base = src.eval(q);
+            }
+        } else {
+            base = half4(1.0);
+        }
         base.rgb *= triRGB * scanMul;
 
         // Mild vignette (optional)
@@ -133,27 +172,16 @@ bool GammaCrtSimple::apply(SkSurface* dstSurface,
         return false;
     }
 
-    // Only draw the 50% gray overlay if explicitly requested.
-    const bool testOverlayForce = GetBoolProperty("persist.gammaos.shader.test_overlay", false);
-    if (testOverlay || testOverlayForce) {
-        if (debugLog) ALOGD("GammaOS CRT: test_overlay active (multiply 50%% gray).");
-        SkPaint p;
-        p.setColor(SkColorSetARGB(255, 128, 128, 128));
-        p.setBlendMode(SkBlendMode::kMultiply);
-        dstCanvas->save();
-        dstCanvas->resetMatrix();
-        dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-        dstCanvas->restore();
-        return true;
-    }
-
     (void)ctmBfiBlack; // BFI removed
 
-    std::call_once(gFxOnce, [&]{
+    std::call_once(gFxOnce, []{
         auto pair = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
         gFx = pair.effect;
-        if (!gFx && debugLog) {
-            ALOGE("GammaOS CRT: SkSL compile failed: %s", pair.errorText.c_str());
+        if (!gFx) {
+            const bool dbg = GetBoolProperty("persist.gammaos.shader.debug", false);
+            if (dbg) {
+                ALOGE("GammaOS CRT: SkSL compile failed: %s", pair.errorText.c_str());
+            }
         }
     });
     if (!gFx) return false;
@@ -170,6 +198,7 @@ bool GammaCrtSimple::apply(SkSurface* dstSurface,
     float curv           = 0.03f;
     float vignette       = 0.01f;
     float edge_soft_px   = 4.0f;
+    float blur_intensity = 0.0f;
 
     // Read per-type params (crt-simple)
     const std::string type = GetProperty("persist.gammaos.shader.type", "crt-simple");
@@ -183,6 +212,13 @@ bool GammaCrtSimple::apply(SkSurface* dstSurface,
         curv          = getf("persist.gammaos.shader.crt-simple.curv", "0.03");
         vignette      = std::clamp(getf("persist.gammaos.shader.crt-simple.vignette", "0.01"), 0.0f, 1.0f);
         edge_soft_px  = std::max(0.0f, getf("persist.gammaos.shader.crt-simple.edge_soft_px", "4"));
+        blur_intensity = std::clamp(getf("persist.gammaos.shader.crt-simple.blur_intensity", "0"), 0.0f, 1.0f);
+    }
+
+    if (debugLog) {
+        ALOGD("GammaOS CRT: params scan_px=%.2f scan_strength=%.2f curv=%.3f "
+              "vignette=%.3f edge_soft_px=%.2f blur_intensity=%.3f",
+              scan_px, scan_strength, curv, vignette, edge_soft_px, blur_intensity);
     }
 
     // Optional fast mode: strip cosmetics
@@ -190,8 +226,8 @@ bool GammaCrtSimple::apply(SkSurface* dstSurface,
     if (fastMode) {
         triad_px = 0.0f; mask_strength = 0.0f;
         curv = 0.0f; vignette = 0.0f; edge_soft_px = 0.0f;
+        blur_intensity = 0.0f;
     }
-
     const float ang = scan_angle_deg * static_cast<float>(M_PI / 180.0);
     const float scan_ca_cpu = cosf(ang);
     const float scan_sa_cpu = sinf(ang);
@@ -211,6 +247,7 @@ bool GammaCrtSimple::apply(SkSurface* dstSurface,
     b.uniform("curv")           = curv;
     b.uniform("vignette")       = vignette;
     b.uniform("edge_soft_px")   = edge_soft_px;
+    b.uniform("blur_intensity") = blur_intensity;
 
     SkPaint p;
     if (!isProtected) {
