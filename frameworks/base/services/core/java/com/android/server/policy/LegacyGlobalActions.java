@@ -271,6 +271,15 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
      * re-applying on rotation/layout changes.
      */
     private void handleShow() {
+        // GammaOS: whenever LegacyGlobalActions is invoked, ensure shaders are disabled
+        try {
+            SystemProperties.set("persist.gammaos.shader.enable", "0");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "GammaOS shader disabled via persist.gammaos.shader.enable=0");
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to disable GammaOS shader on GlobalActions show", e);
+        }
         awakenIfNecessary();
         mDialog = createDialog();
         prepareDialog();

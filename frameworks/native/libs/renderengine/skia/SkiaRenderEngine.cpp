@@ -81,6 +81,7 @@
 #include "filters/LinearEffect.h"
 #include "filters/GammaCrtSimple.h"
 #include "filters/GammaLcd3x.h"
+#include "filters/GammaBlurFill.h"
 #include "log/log_main.h"
 #include "skia/debug/SkiaCapture.h"
 #include "skia/debug/SkiaMemoryReporter.h"
@@ -1211,7 +1212,7 @@ void SkiaRenderEngine::drawLayersInternal(
         // Auto-orient scanlines to match the active display rotation
         float defaultScanAngleDeg = (display.orientation & ui::Transform::ROT_90) ? 90.0f : 0.0f;
 
-        const bool testOverlay = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
+        const bool testOverlay = android::base::GetBoolProperty("persist.gammaos.shader.test_overlay", false);
 
         SkCanvas* dstCanvas = mCapture->tryCapture(dstSurface.get());
         if (!dstCanvas) {
@@ -1246,6 +1247,18 @@ void SkiaRenderEngine::drawLayersInternal(
 
                 if (shaderType == "lcd3x") {
                     appliedFx = GammaLcd3x::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle (unused)
+                } else if (shaderType == "blur-fill" ||
+                           shaderType == "blurfill" ||
+                           shaderType == "blur_fill") {
+                    appliedFx = GammaBlurFill::apply(
                             dstSurface.get(),                 // target (write here)
                             srcSurfaceForPost.get(),          // source (sample from here)
                             mCapture.get(),                   // capture helper
