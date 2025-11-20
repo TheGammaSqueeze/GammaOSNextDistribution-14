@@ -80,6 +80,7 @@
 #include "filters/KawaseBlurFilter.h"
 #include "filters/LinearEffect.h"
 #include "filters/GammaCrtSimple.h"
+#include "filters/GammaLcd3x.h"
 #include "log/log_main.h"
 #include "skia/debug/SkiaCapture.h"
 #include "skia/debug/SkiaMemoryReporter.h"
@@ -1238,15 +1239,32 @@ void SkiaRenderEngine::drawLayersInternal(
                 using android::base::GetProperty;
                 std::string shaderType = GetProperty("persist.gammaos.shader.type", "crt-simple");
                 if (shaderType.empty()) shaderType = "crt-simple";
-                appliedFx = GammaCrtSimple::apply(
-                        dstSurface.get(),                 // target (write here)
-                        srcSurfaceForPost.get(),          // source (sample from here)
-                        mCapture.get(),                   // capture helper
-                        display.outputDataspace,          // output dataspace
-                        isProtected,                      // content protection
-                        testOverlay,                      // debug overlay
-                        false,                            // no CTM-BFI
-                        defaultScanAngleDeg);             // default scanline angle
+                if (debugLog) {
+                    ALOGD("GammaOS shader: type=%s, protected=%d",
+                          shaderType.c_str(), isProtected ? 1 : 0);
+                }
+
+                if (shaderType == "lcd3x") {
+                    appliedFx = GammaLcd3x::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle (unused)
+                } else {
+                    appliedFx = GammaCrtSimple::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle
+                }
             }
             // -------- FALLBACK BLIT --------
             if (!appliedFx && !isProtected) {

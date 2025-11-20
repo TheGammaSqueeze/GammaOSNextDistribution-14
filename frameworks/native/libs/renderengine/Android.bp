@@ -97,6 +97,7 @@ filegroup {
         "skia/filters/LinearEffect.cpp",
         "skia/filters/StretchShaderFactory.cpp",
         "skia/filters/GammaCrtSimple.cpp",
+        "skia/filters/GammaLcd3x.cpp",
     ],
 }
 
