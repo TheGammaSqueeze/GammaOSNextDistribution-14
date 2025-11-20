@@ -79,6 +79,7 @@
 #include "filters/GaussianBlurFilter.h"
 #include "filters/KawaseBlurFilter.h"
 #include "filters/LinearEffect.h"
+#include "filters/GammaCrtSimple.h"
 #include "log/log_main.h"
 #include "skia/debug/SkiaCapture.h"
 #include "skia/debug/SkiaMemoryReporter.h"
@@ -103,40 +104,6 @@ static constexpr bool kEnableLayerBrightening = true;
 // Utility functions related to SkRect
 
 namespace {
-
-// -------- GammaOS: process-local latch for this *frame's* BFI slot ----------
-// 1 = black, 0 = content  (set by SurfaceFlinger immediately before draw)
-static std::atomic<int> gGammaBfiDrawBlack{0};
-// export so SurfaceFlinger can set it across .so boundary
-extern "C" __attribute__((visibility("default"))) void gamma_bfi_set_draw_black(int drawBlack) {
-    gGammaBfiDrawBlack.store(drawBlack ? 1 : 0, std::memory_order_release);
-}
-
-// Accessor used inside RenderEngine to check if this draw is a BFI "black" frame.
-// Returns true when SF requested a black frame on this vsync.
-static inline bool GammaBfiShouldDrawBlack() {
-    return gGammaBfiDrawBlack.load(std::memory_order_acquire) != 0;
-}
-
-// Cache SkRuntimeEffect objects so we don't recompile SkSL every frame.
-// Unified (masked or full) CRT/scanline effect.
-static std::once_flag gGammaFxOnce;
-static sk_sp<SkRuntimeEffect> gGammaFx;
-
-// ---------- GammaOS: shared Sub-BFI parity latch (set by SurfaceFlinger) ----------
-// 0 or 1; SurfaceFlinger updates this once per frame *before* present.
-static std::atomic<int> gGammaSubBfiParity{0};
-extern "C" __attribute__((visibility("default")))
-void gamma_bfi_set_parity(int v) {
-    gGammaSubBfiParity.store(v ? 1 : 0, std::memory_order_release);
-}
-// ----------------------------------------------------------------------------------
-
-// GammaOS: monotonic frame counter to drive temporal Sub-BFI without aliasing
-static std::atomic<uint64_t> gGammaFrameCounter{0};
-extern "C" __attribute__((visibility("default"))) void gamma_bfi_reset_frame_counter() {
-    gGammaFrameCounter.store(0, std::memory_order_release);
-}
 
 // GammaOS: cached offscreen surface to avoid per-frame allocations
 static sk_sp<SkSurface> sGammaScratch;
@@ -270,8 +237,6 @@ static inline std::pair<SkRRect, SkRRect> getBoundsAndClip(const android::FloatR
 
 static inline bool layerHasBlur(const android::renderengine::LayerSettings& layer,
                                 bool colorTransformModifiesAlpha) {
-    // GammaOS: When BFI is active, disallow blur to reduce composition cost/jank.
-    if (android::base::GetBoolProperty("persist.gammaos.bfi.enable", false)) return false;
     if (layer.backgroundBlurRadius > 0 || layer.blurRegions.size()) {
         // return false if the content is opaque and would therefore occlude the blur
         const bool opaqueContent = !layer.source.buffer.buffer || layer.source.buffer.isOpaque;
@@ -718,11 +683,6 @@ void SkiaRenderEngine::drawLayersInternal(
     ATRACE_FORMAT("%s for %s", __func__, display.namePlusId.c_str());
 
     std::lock_guard<std::mutex> lock(mRenderingMutex);
-    // GammaOS: monotonic frame counter drives temporal Sub-BFI (prevents time aliasing).
-    // Used by debug log and as the 'frame_index' SkSL uniform below.
-    const float kFrameIndex =
-            static_cast<float>(
-                gGammaFrameCounter.fetch_add(1, std::memory_order_relaxed));
 
     if (buffer == nullptr) {
         ALOGE("No output buffer provided. Aborting GPU composition.");
@@ -790,18 +750,11 @@ void SkiaRenderEngine::drawLayersInternal(
     SkCanvas* canvas = dstCanvas;
     SkiaCapture::OffscreenState offscreenCaptureState;
       
-    // GammaOS: if post-process shader is enabled (and BFI-CTM is NOT active),
-    // render into an offscreen surface to avoid src==dst hazards at 120Hz.
-    // to avoid sampling the same render target in the post-pass. This prevents
-    // copy-on-write / full-surface resolves that can halve throughput at 120 Hz.
+    // GammaOS: if post-process shader is enabled, render into an offscreen surface
+    // to avoid src==dst hazards in the post-pass.
     sk_sp<SkSurface> gammaPostSurface;
-    const bool bfiOnCtm =
-            android::base::GetBoolProperty("persist.gammaos.bfi.enable", false) &&
-            android::base::GetProperty("persist.gammaos.bfi.mode", "ctm") == "ctm";
-    // Allow unified post-pass even with CTM-BFI; we’ll skip it on CTM “black” frames.
     const bool kGammaShaderOn = android::base::GetBoolProperty("persist.gammaos.shader.enable", false);
-    const bool kSubBfiOn      = android::base::GetBoolProperty("persist.gammaos.bfi.subframe.enable", false);
-    if ((kGammaShaderOn || kSubBfiOn) && activeSurface == dstSurface) {
+    if (kGammaShaderOn && activeSurface == dstSurface) {
         gammaPostSurface = getOrMakeGammaScratch(dstSurface);
         // (gammaPostSurface != nullptr) expected; RE will still render if allocation fails.
         if (gammaPostSurface) {
@@ -1248,10 +1201,8 @@ void SkiaRenderEngine::drawLayersInternal(
 
     surfaceAutoSaveRestore.restore();
     mCapture->endCapture();
-    // ---------------- GammaOS: global CRT/scanline + Subframe BFI post-process (unified) ----
-    // We allow running even with CTM-BFI; on CTM “black frames” we skip the heavy pass below.
-    // NOTE: keep Sub-BFI fully independent of CRT shader.
-    const bool kRunUnifiedFx = (kGammaShaderOn || kSubBfiOn);
+    // ---------------- GammaOS: global CRT/scanline post-process ------------------------------
+    const bool kRunUnifiedFx = kGammaShaderOn;
     if (kRunUnifiedFx) {
         const bool debugLog = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
         const bool isProtected = (buffer->getBuffer()->getUsage() & GRALLOC_USAGE_PROTECTED) != 0;
@@ -1259,116 +1210,7 @@ void SkiaRenderEngine::drawLayersInternal(
         // Auto-orient scanlines to match the active display rotation
         float defaultScanAngleDeg = (display.orientation & ui::Transform::ROT_90) ? 90.0f : 0.0f;
 
-        // Params (override via persist.gammaos.shader.params), with A13 defaults
-        bool  testOverlay     = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
-        float scan_px         = 1.0f;
-        float scan_strength   = 0.8f;
-        float triad_px        = 0.0f;
-        float mask_strength   = 0.0f;
-        float scan_phase      = 0.0f;
-        float scan_angle_deg  = defaultScanAngleDeg;
-        float curv            = 0.0f;
-        float vignette        = 0.0f;
-        float edge_soft_px    = 0.0f;
-
-        const std::string paramsStr = android::base::GetProperty("persist.gammaos.shader.params", "");
-        if (!paramsStr.empty()) {
-            for (auto& kv : android::base::Split(paramsStr, ",")) {
-                auto p = android::base::Split(kv, "=");
-                if (p.size() == 2) {
-                    if      (p[0] == "scan_px")          scan_px        = std::max(1.0f,  (float)atof(p[1].c_str()));
-                    else if (p[0] == "scan_strength")     scan_strength  = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
-                    else if (p[0] == "triad_px")          triad_px       = std::max(0.0f,  (float)atof(p[1].c_str()));
-                    else if (p[0] == "mask_strength")     mask_strength  = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
-                    else if (p[0] == "scan_phase")        scan_phase     = std::clamp((float)atof(p[1].c_str()), 0.0f, scan_px);
-                    else if (p[0] == "scan_angle_deg")    scan_angle_deg = (float)atof(p[1].c_str());
-                    else if (p[0] == "curv")              curv           = (float)atof(p[1].c_str());
-                    else if (p[0] == "vignette")          vignette       = std::clamp((float)atof(p[1].c_str()), 0.0f, 1.0f);
-                    else if (p[0] == "edge_soft_px")      edge_soft_px   = std::max(0.0f, (float)atof(p[1].c_str()));
-                    else if (p[0] == "test_overlay")      testOverlay    = atoi(p[1].c_str()) != 0; // params override debug prop
-                }
-            }
-        }
-
-        // Subframe BFI runtime properties
-        const bool  subbfiOn       = android::base::GetBoolProperty(
-                                        "persist.gammaos.bfi.subframe.enable", false);
-        const float subbfiDuty     = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.duty", "0.50");
-            return std::max(0.0f, std::min(1.0f, (float)atof(s.c_str())));
-        }();
-        const float subbfiSpeedHz  = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.speed_hz", "120");
-            return std::max(1.0f, (float)atof(s.c_str()));
-        }();
-        const float subbfiCadenceMin = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.cadence_min", "1.0");
-            return std::max(0.1f, (float)atof(s.c_str()));
-        }();
-        // 0 = temporal (recommended), 1 = beam sweep (experimental)
-        const int   subbfiMode = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.mode", "0");
-            return std::max(0, std::min(1, atoi(s.c_str())));
-        }();
-        // Temporal step per frame (default alt frames = 0.5)
-        const float subbfiStep = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.phase_step", "0.5");
-            return std::clamp((float)atof(s.c_str()), 0.0001f, 1.0f);
-        }();
-        // Strength / shape knobs
-        const float subbfiBlackFloor = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.black_floor", "0.0");
-            return std::clamp((float)atof(s.c_str()), 0.0f, 1.0f);
-        }();
-        const float subbfiLitScale = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.lit_scale", "1.0");
-            return std::max(0.0f, (float)atof(s.c_str()));
-        }();
-        const float subbfiSoft = [](){
-            const std::string s = android::base::GetProperty("persist.gammaos.bfi.subframe.soft", "0.0");
-            return std::max(0.0f, (float)atof(s.c_str()));
-        }();
-        const bool  subbfiDebug    = android::base::GetBoolProperty("persist.gammaos.bfi.subframe.debug", false);
-        // Time (seconds) for animation; steady_clock avoids wallclock jumps.
-        const float t_sec = std::chrono::duration_cast<std::chrono::duration<float>>(
-                                std::chrono::steady_clock::now().time_since_epoch()).count();
-        // Read SF-latched parity so seam logic & shader are always in lockstep.
-        const int   subbfiParity  = gGammaSubBfiParity.load(std::memory_order_acquire) & 1;
-        if ((debugLog || subbfiDebug)) {
-            ALOGD("GammaOS subBFI cfg: on=%d duty=%.2f, speed=%.1fHz, step=%.3f, cadence=%.2fmin, parity=%d, mode=%d, frame=%.0f",
-                  (int)subbfiOn, subbfiDuty, subbfiSpeedHz, subbfiStep, subbfiCadenceMin,
-                  subbfiParity, subbfiMode, kFrameIndex);
-        }
-
-        // Optional fast path: keep scanlines, drop heavier cosmetics at runtime.
-        const bool fastMode = android::base::GetBoolProperty("persist.gammaos.shader.fast", false);
-        if (fastMode) {
-            triad_px = 0.0f; mask_strength = 0.0f;
-            curv = 0.0f; vignette = 0.0f; edge_soft_px = 0.0f;
-        }
-
-        // If CRT shader is OFF, force CRT params to neutral so Sub-BFI alone is clean.
-        // This prevents faint scanline/triad/edge artifacts when only subframe BFI is enabled.
-        if (!kGammaShaderOn) {
-            scan_px       = 0.0f;
-            scan_strength = 0.0f;
-            triad_px      = 0.0f;
-            mask_strength = 0.0f;
-            curv          = 0.0f;
-            vignette      = 0.0f;
-            edge_soft_px  = 0.0f;
-        }
-
-        // Precompute trig/period on CPU to reduce per-pixel ALU
-        const float ang = scan_angle_deg * 0.017453292519943295f; // pi/180
-        const float scan_ca_cpu = std::cos(ang);
-        const float scan_sa_cpu = std::sin(ang);
-        const float period_cpu  = std::max(1.0f, scan_px);
-        const float inv_period  = 1.0f / period_cpu;
-
-        // If CTM-BFI is inserting a black frame this vsync, skip the heavy post-pass.
-        // (SurfaceFlinger will set the per-draw latch for both RE & CTM modes now.)
-        const bool bfiBlack = GammaBfiShouldDrawBlack();
+        const bool testOverlay = android::base::GetBoolProperty("persist.gammaos.shader.debug", false);
 
         SkCanvas* dstCanvas = mCapture->tryCapture(dstSurface.get());
         if (!dstCanvas) {
@@ -1382,198 +1224,29 @@ void SkiaRenderEngine::drawLayersInternal(
             dstCanvas->resetMatrix();
             dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
             dstCanvas->restore();
-        } else if (bfiBlack) {
-            if (debugLog) ALOGV("GammaOS CRT: skipping pass (BFI black frame).");
-            // nothing to do; CTM will blank the output
         } else {
             // Unified single-pass shader; if unavailable we will FALL BACK to a plain blit so
             // we never freeze when we rendered into the scratch surface.
+            sk_sp<SkSurface> srcSurfaceForPost = (gammaPostSurface ? gammaPostSurface : activeSurface);
             if (gammaPostSurface && CC_UNLIKELY(mCapture->isCaptureRunning())) {
                 (void)mCapture->endOffscreenCapture(&offscreenCaptureState);
             }
 
-            static const char* kSkSL = R"(
-                uniform shader src;
-                uniform int    use_src;      // 1=sample src, 0=mask-only (white)
-                uniform float  scan_px;
-                uniform float  scan_strength;
-                uniform float  triad_px;
-                uniform float  mask_strength;
-                uniform float  scan_phase;
-                uniform float  scan_angle_deg;
-                // CPU-precomputed:
-                uniform float  scan_ca;      // cos(angle)
-                uniform float  scan_sa;      // sin(angle)
-                uniform float  inv_period;   // 1/max(1, scan_px)
-                uniform float  curv;
-                uniform float  vignette;
-                uniform float  edge_soft_px;
-                // Subframe BFI (safe) uniforms
-                uniform int    use_subbfi;      // 0=off, 1=on
-                uniform float  subbfi_duty;     // 0..1 duty cycle (temporal or beam width)
-                uniform float  subbfi_speed_hz; // beam sweep speed (beam mode)
-                uniform float  t_sec;           // monotonic time in seconds
-                uniform int    subbfi_parity;   // cadence flip parity
-                uniform int    subbfi_mode;     // 0=temporal (default), 1=beam sweep
-                uniform float  frame_index;     // monotonic frame counter (float)
-                uniform float  subbfi_step;     // temporal step per frame (default 0.5 = alt frames)
-                uniform float  subbfi_black_floor; // 0..1, raise black if desired
-                uniform float  subbfi_lit_scale;   // >=0, boost lit frames
-                uniform float  subbfi_soft;        // small smoothing amount
-                uniform float2 fb_size; // (w,h)
-                float2 warp_pixel(float2 p){
-                    float2 wh = fb_size;
-                    float a = wh.x / wh.y;
-                    float2 uv = p / wh * 2.0 - 1.0;
-                    uv.x *= a;
-                    float r2 = dot(uv, uv);
-                    float2 uv2 = uv * (1.0 + curv * r2);
-                    uv2.x /= a;
-                    return (uv2 * 0.5 + 0.5) * wh;
-                }
-                // Do NOT clip the last pixel row/col; return 1.0 when no soft-edge is requested.
-                float edge_mask(float2 q, float2 wh) {
-                    if (edge_soft_px <= 0.0) return 1.0;
-                    float2 d = min(q, wh - q);
-                    float distEdge = min(d.x, d.y);
-                    return clamp(distEdge / edge_soft_px, 0.0, 1.0);
-                }
-                half4 main(float2 p) {
-                    float2 wh = fb_size;
-                    float2 q = (abs(curv) > 0.0001) ? warp_pixel(p) : p;
-                    float ca = scan_ca, sa = scan_sa;
-                    float2 pp = p - 0.5 * wh;
-                    float coord = pp.x * (-sa) + pp.y * (ca);
-                    coord += 0.5 * wh.y;
-                    // band via fract instead of floor(mod(.)):
-                    float t = fract((coord + scan_phase) * inv_period);
-                    float band = step(0.5, t); // 0..1
-                    float darkMul = 1.0 - clamp(scan_strength, 0.0, 1.0);
-                    float scanMul = (band > 0.5) ? 1.0 : darkMul;
-                    float3 triRGB = float3(1.0, 1.0, 1.0);
-                    if (triad_px >= 1.0) {
-                        float px = max(1.0, triad_px);
-                        float tt = fract(q.x / px);
-                        float seg = floor(3.0 * tt);
-                        if (seg < 0.5)       triRGB = float3(1.0, 0.80, 0.80);
-                        else if (seg < 1.5)  triRGB = float3(0.80, 1.0, 0.80);
-                        else                 triRGB = float3(0.80, 0.80, 1.0);
-                        triRGB = mix(float3(1.0, 1.0, 1.0), triRGB, clamp(mask_strength, 0.0, 1.0));
-                    }
-                    half4 base = use_src != 0 ? src.eval(q) : half4(1.0);
-                    base.rgb *= triRGB * scanMul;
-                    if (vignette > 0.0) {
-                        float a = wh.x / wh.y;
-                        float2 uv = p / wh * 2.0 - 1.0;
-                        uv.x *= a;
-                        float r2 = dot(uv, uv);
-                        float vig = 1.0 - vignette * smoothstep(0.6, 1.0, r2);
-                        base.rgb *= vig;
-                    }
-                    float em = edge_mask(q, wh);
-                    base.rgb *= em;
-                    // ----- Subframe BFI mask (safe) -----
-                    if (use_subbfi != 0) {
-                        // Default: *temporal* gating driven by frame index (no time aliasing).
-                        // lit=1 → lit frame, 0 → black frame (then mapped by floor/scale).
-                        float phase_t = fract(frame_index * subbfi_step
-                                              + (subbfi_parity != 0 ? 0.5 : 0.0));
-                        if (subbfi_mode == 0) {
-                            // HARD temporal gate (clear black frames) with optional tiny smoothing.
-                            float lit = 1.0 - step(subbfi_duty, phase_t); // 1 if lit, 0 if black
-                            if (subbfi_soft > 0.0) {
-                                float eps = subbfi_soft / max(fb_size.x, fb_size.y);
-                                lit = smoothstep(-eps, +eps, (subbfi_duty - phase_t));
-                            }
-                            float m = lit * subbfi_lit_scale + (1.0 - lit) * subbfi_black_floor;
-                            base.rgb *= m;
-                        } else {
-                            // Here time is OK (visual effect expected), and parity offsets the beam.
-                            float phase = fract(t_sec * subbfi_speed_hz
-                                                + (subbfi_parity != 0 ? 0.5 : 0.0));
-                            float y = q.y / fb_size.y; // 0..1
-                            float center = phase;
-                            float halfw  = clamp(0.5 * subbfi_duty, 0.0, 0.5);
-                            float d      = min(abs(y - center), 1.0 - abs(y - center)); // wrap
-                            float m = 1.0 - step(halfw, d); // 1 inside beam, 0 outside
-                            if (subbfi_soft > 0.0) {
-                                float eps = subbfi_soft / fb_size.y;
-                                m = smoothstep(halfw + eps, halfw - eps, d);
-                            }
-                            float outM = m * subbfi_lit_scale + (1.0 - m) * subbfi_black_floor;
-                            base.rgb *= outM;
-                        }
-                    }
-                    return base;
-                }
-            )";
-            std::call_once(gGammaFxOnce, [&]{
-                auto pair = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
-                gGammaFx = pair.effect;
-                if (!gGammaFx && debugLog) {
-                    ALOGE("GammaOS CRT: SkSL compile failed: %s", pair.errorText.c_str());
-                }
-            });
+            // Delegate unified CRT/Sub-BFI pass to GammaOS helper
             bool appliedFx = false;
-            if (gGammaFx) {
-                SkRuntimeShaderBuilder b(gGammaFx);
-                // Common uniforms
-                b.uniform("scan_px")        = scan_px;
-                b.uniform("scan_strength")  = scan_strength;
-                b.uniform("triad_px")       = triad_px;
-                b.uniform("mask_strength")  = mask_strength;
-                b.uniform("scan_phase")     = scan_phase;
-                b.uniform("scan_ca")        = scan_ca_cpu;
-                b.uniform("scan_sa")        = scan_sa_cpu;
-                b.uniform("inv_period")     = inv_period;
-                b.uniform("fb_size")        = SkV2{(float)dstSurface->width(), (float)dstSurface->height()};
-                b.uniform("curv")           = curv;
-                b.uniform("vignette")       = vignette;
-                b.uniform("edge_soft_px")   = edge_soft_px;
-                // Subframe BFI uniforms
-                b.uniform("use_subbfi")      = (int)(subbfiOn ? 1 : 0);
-                b.uniform("subbfi_duty")     = subbfiDuty;
-                b.uniform("subbfi_speed_hz") = subbfiSpeedHz;
-                b.uniform("t_sec")           = t_sec;
-                b.uniform("subbfi_parity")   = subbfiParity;
-                b.uniform("subbfi_mode")     = subbfiMode;
-                b.uniform("frame_index")     = kFrameIndex;
-                b.uniform("subbfi_step")     = subbfiStep;
-                b.uniform("subbfi_black_floor") = subbfiBlackFloor;
-                b.uniform("subbfi_lit_scale")   = subbfiLitScale;
-                b.uniform("subbfi_soft")        = subbfiSoft;
-                SkPaint p;
-                if (!isProtected) {
-                // Sample from the surface we actually rendered into this frame.
-                sk_sp<SkImage> srcImage =
-                        (gammaPostSurface ? gammaPostSurface : activeSurface)->makeImageSnapshot();
-                    if (!srcImage) {
-                        if (debugLog) ALOGW("GammaOS CRT: snapshot failed; skipping effect.");
-                    } else {
-                        b.child("src") = srcImage->makeShader(
-                                SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
-                        b.uniform("use_src") = 1;
-                        p.setShader(b.makeShader());
-                        p.setBlendMode(SkBlendMode::kSrc);
-                        dstCanvas->save(); dstCanvas->resetMatrix();
-                        dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-                        dstCanvas->restore();
-                        appliedFx = true;
-                        if (debugLog) ALOGD("GammaOS CRT: applied unified unprotected pass.");
-                    }
-                } else {
-                    // Protected: no sampling; multiply mask into destination.
-                    b.child("src") = SkShaders::Color(
-                            SkColors::kWhite, toSkColorSpace(display.outputDataspace));
-                    b.uniform("use_src") = 0;
-                    p.setShader(b.makeShader());
-                    p.setBlendMode(SkBlendMode::kMultiply);
-                    dstCanvas->save(); dstCanvas->resetMatrix();
-                    dstCanvas->drawRect(SkRect::MakeWH(dstSurface->width(), dstSurface->height()), p);
-                    dstCanvas->restore();
-                    appliedFx = true;
-                    if (debugLog) ALOGD("GammaOS CRT: applied unified protected pass (multiply).");
-                }
+            {
+                using android::base::GetProperty;
+                std::string shaderType = GetProperty("persist.gammaos.shader.type", "crt-simple");
+                if (shaderType.empty()) shaderType = "crt-simple";
+                appliedFx = GammaCrtSimple::apply(
+                        dstSurface.get(),                 // target (write here)
+                        srcSurfaceForPost.get(),          // source (sample from here)
+                        mCapture.get(),                   // capture helper
+                        display.outputDataspace,          // output dataspace
+                        isProtected,                      // content protection
+                        testOverlay,                      // debug overlay
+                        false,                            // no CTM-BFI
+                        defaultScanAngleDeg);             // default scanline angle
             }
             // -------- FALLBACK BLIT --------
             if (!appliedFx && !isProtected) {
@@ -1601,7 +1274,7 @@ void SkiaRenderEngine::drawLayersInternal(
         activeSurface = dstSurface;
     }
 
-    // If neither CRT nor SubBFI is ON, free scratch; otherwise keep for reuse.
+    // If shader is OFF, free scratch; otherwise keep for reuse.
     if (!kRunUnifiedFx && sGammaScratch) {
         sGammaScratch.reset(); sGammaW = sGammaH = 0; sGammaCT = kUnknown_SkColorType;
     }

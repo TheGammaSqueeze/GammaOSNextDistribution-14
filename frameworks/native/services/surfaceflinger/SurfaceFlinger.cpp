@@ -164,19 +164,16 @@
 #include "WindowInfosListenerInvoker.h"
 #include <android-base/properties.h>
 
-// exported by RenderEngine (SkiaRenderEngine.cpp) to set the per-draw BFI slot
-extern "C" void gamma_bfi_set_draw_black(int finalDrawBlack);
-
-// Reset RE's temporal Sub-BFI frame counter so gating starts immediately on enable.
-extern "C" void gamma_bfi_reset_frame_counter();
-
-// Publish Sub-BFI parity (SF → RenderEngine) – file-scope declaration to avoid block-scope errors.
-extern "C" void gamma_bfi_set_parity(int v);
-
 // Debug helper: enable verbose BFI logs when testing.
 static inline bool bfiDebug() {
     return android::base::GetBoolProperty("persist.gammaos.bfi.debug", false);
 }
+
+// GammaOS: CTM-BFI hooks disabled. Provide local no-op stubs so callers compile
+// and link, while behavior is effectively disabled at runtime.
+static inline void gamma_bfi_set_draw_black(int /*finalDrawBlack*/) {}
+static inline void gamma_bfi_reset_frame_counter() {}
+static inline void gamma_bfi_set_parity(int /*v*/) {}
 
 static std::atomic<bool> gBfiForceIdentityOnce{false};
 static std::atomic<bool> gBfiForceIdentityNextOnce{false}; // one-shot: force identity on the frame AFTER the seam
@@ -425,12 +422,13 @@ static constexpr std::array<float, 16> kGammaCtmBlack = {
 };
 }
 
-// GammaOS: helper — CTM-based BFI active?
 static inline bool gamma_bfi_ctm_active() {
-    // We deliberately use the persist props so this is runtime-togglable.
-    const bool en = android::base::GetBoolProperty("persist.gammaos.bfi.enable", false);
-    const std::string mode = android::base::GetProperty("persist.gammaos.bfi.mode", "ctm");
-    return en && (mode == "ctm");
+    // CTM-BFI removed: always report inactive.
+    // Keeping the function avoids invasive code churn elsewhere.
+    // HWC paths remain unaffected.
+    (void)android::base::GetBoolProperty;  // silence unused warnings if optimized out
+    (void)android::base::GetProperty;
+    return false;
 }
 
 void SurfaceFlinger::applyBfiColorTransformLocked(const sp<DisplayDevice>& display, bool black) {
