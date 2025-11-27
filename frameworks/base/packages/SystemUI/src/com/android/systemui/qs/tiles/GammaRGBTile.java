@@ -209,11 +209,11 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "GammaRGB On";
+            state.label = "GammaRGB";
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "GammaRGB Off";
+            state.label = "GammaRGB";
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }

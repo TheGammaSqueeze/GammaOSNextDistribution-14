@@ -90,7 +90,7 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
 
         // 1) Read the persisted prop (default to ON if missing/invalid), map to our state
         currentState = mapPropToState(
-                SystemProperties.get(PROP_CONTROL, MODE_ON)
+                SystemProperties.get(PROP_CONTROL, MODE_OFF)
         );
 
         // 2) Re-apply it (in case it's been changed externally between boots)
@@ -122,7 +122,7 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
         if (listening) {
             // Re-read the prop when QS panel is opened
             int newState = mapPropToState(
-                    SystemProperties.get(PROP_CONTROL, MODE_ON)
+                    SystemProperties.get(PROP_CONTROL, MODE_OFF)
             );
             // If it changed externally, update and refresh tile
             if (newState != currentState) {
@@ -209,11 +209,11 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "GammaShader On";
+            state.label = "GammaShader";
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "GammaShader Off";
+            state.label = "GammaShader";
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -242,7 +242,7 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
              || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
                 // Re-read the prop in case it was changed elsewhere
                 currentState = mapPropToState(
-                        SystemProperties.get(PROP_CONTROL, MODE_ON)
+                        SystemProperties.get(PROP_CONTROL, MODE_OFF)
                 );
                 // Re-apply it just to be safe, and update UI
                 applyState(currentState);

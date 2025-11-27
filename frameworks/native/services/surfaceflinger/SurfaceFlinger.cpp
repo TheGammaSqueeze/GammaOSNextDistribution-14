@@ -104,6 +104,7 @@
 #include <cinttypes>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <functional>
@@ -1031,6 +1032,9 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
         mGammaRgbSampler->start();
     }
 
+    // Safe no-op if no physical displays yet; we’ll also refresh on hotplug.
+    updateAllDisplayDelaysLocked();
+
     if (mStartPropertySetThread->Start() != NO_ERROR) {
         ALOGE("Run StartPropertySetThread failed!");
     }
@@ -1634,7 +1638,8 @@ status_t SurfaceFlinger::setActiveColorMode(const sp<IBinder>& displayToken, ui:
 
         if (mode < ui::ColorMode::NATIVE || !exists) {
             ALOGE("%s: Invalid color mode %s (%d) for display %s", whence,
-                  decodeColorMode(mode).c_str(), mode, to_string(snapshot.displayId()).c_str());
+                  decodeColorMode(mode).c_str(), static_cast<int>(mode),
+                  to_string(snapshot.displayId()).c_str());
             return BAD_VALUE;
         }
 
@@ -2925,13 +2930,43 @@ CompositeResultsPerDisplay SurfaceFlinger::composite(
             gamma_bfi_set_parity(0);
         }
     }
+ 
+    // =======================================================================
+    // GammaOS: per-display frame hold
+    // When a display is configured to be delayed, we:
+    //   - include it in frameTargets to keep timing, but
+    //   - skip adding it to outputs while the hold countdown is active.
+    // This reuses the previously presented content for that display.
+    // =======================================================================
 
     // Add outputs for physical displays.
     for (const auto& [id, targeter] : frameTargeters) {
-        ftl::FakeGuard guard(mStateLock);
-
-        if (const auto display = getCompositionDisplayLocked(id)) {
-            refreshArgs.outputs.push_back(display);
+        bool skipOutput = false;
+        {
+            ftl::FakeGuard guard(mStateLock);
+            if (const auto physId = PhysicalDisplayId::tryCast(id)) {
+                // Decide and update countdown atomically under mStateLock.
+                if (shouldHoldFrameLocked(*physId)) {
+                    // We are currently holding: decrement and skip composing this output.
+                   auto it = mDelayCountdown.find(*physId);
+                    if (it != mDelayCountdown.end() && it->second > 0) {
+                        it->second -= 1;
+                        skipOutput = true;
+                    }
+                } else {
+                    // Not holding now: arm the next hold window if configured.
+                    const auto itT = mDelayFrames.find(*physId);
+                    if (itT != mDelayFrames.end() && itT->second > 0) {
+                        mDelayCountdown[*physId] = itT->second;
+                    }
+                }
+            }
+        }
+        if (!skipOutput) {
+            ftl::FakeGuard guard(mStateLock);
+            if (const auto display = getCompositionDisplayLocked(id)) {
+                refreshArgs.outputs.push_back(display);
+            }
         }
 
         refreshArgs.frameTargets.try_emplace(id, &targeter->target());
@@ -4667,6 +4702,13 @@ void SurfaceFlinger::processDisplayAdded(const wp<IBinder>& displayToken,
 
     mDisplays.try_emplace(displayToken, std::move(display));
 
+    // GammaOS: pick up per-display delay for newly-added physical displays.
+    // processDisplayAdded is already called with mStateLock held (REQUIRES(mStateLock)),
+    // so we must not lock it again here.
+    if (const auto& physical = state.physical) {
+        updateDisplayDelayLocked(physical->id);
+    }
+
     // For an external display, loadDisplayModes already attempted to select the same mode
     // as DM, but SF still needs to be updated to match.
     // TODO (b/318534874): Let DM decide the initial mode.
@@ -4702,6 +4744,14 @@ void SurfaceFlinger::processDisplayRemoved(const wp<IBinder>& displayToken) {
     }
 
     mDisplays.erase(displayToken);
+ 
+    // GammaOS: drop any delay tracking for this physical display.
+    // processDisplayRemoved is called with mStateLock held (REQUIRES(mStateLock)),
+    // so do not acquire the lock again here.
+    if (display && !display->isVirtual()) {
+        mDelayFrames.erase(display->getPhysicalId());
+        mDelayCountdown.erase(display->getPhysicalId());
+    }
 
     if (display && display->isVirtual()) {
         static_cast<void>(mScheduler->schedule([display = std::move(display)] {
@@ -9982,6 +10032,57 @@ void SurfaceFlinger::onActiveDisplayChangedLocked(const DisplayDevice* inactiveD
         mScheduler->enableHardwareVsync(mActiveDisplayId);
     }
 }
+
+// ===== GammaOS: per-display frame delay (impl) =================================
+static inline int32_t readDelayProp(const char* key) {
+    // Clamp to a sane maximum (120 frames ~= 2s at 60 Hz)
+    int32_t v = android::base::GetIntProperty<int32_t>(key, 0);
+    if (v < 0) v = 0;
+    if (v > 120) v = 120;
+    return v;
+}
+
+static const char* delayPropForDisplayRole(const DisplayDevice& dev) {
+    if (dev.isPrimary()) {
+        return "persist.gammaos.display.delay.primary_frames";
+    }
+    // Treat all non-primary physical displays as "external" for delay purposes.
+    // DisplayDevice in this branch does not expose connectionType(), so we
+    // avoid querying it here.
+    return "persist.gammaos.display.delay.external_frames";
+}
+
+void SurfaceFlinger::updateDisplayDelayLocked(PhysicalDisplayId id) {
+    const auto d = getDisplayDeviceLocked(id);
+    if (!d) return;
+    const char* key = delayPropForDisplayRole(*d);
+    const int32_t frames = readDelayProp(key);
+    mDelayFrames[id] = frames;
+    if (frames <= 0) {
+        mDelayCountdown.erase(id);
+    } else {
+        // Reset/arm a new sequence so the change applies deterministically.
+        mDelayCountdown[id] = frames;
+    }
+    ALOGI("GammaOS: display %" PRIu64 " delay=%d via %s",
+          id.value, frames, key);
+}
+
+void SurfaceFlinger::updateAllDisplayDelaysLocked() {
+    for (const auto& [id, phys] : mPhysicalDisplays) {
+        (void)phys;
+        updateDisplayDelayLocked(id);
+    }
+}
+
+bool SurfaceFlinger::shouldHoldFrameLocked(PhysicalDisplayId id) {
+    const auto itT = mDelayFrames.find(id);
+    if (itT == mDelayFrames.end() || itT->second <= 0) return false;
+    const auto itC = mDelayCountdown.find(id);
+    if (itC == mDelayCountdown.end()) return false;
+    return itC->second > 0;
+}
+// ===============================================================================
 
 status_t SurfaceFlinger::addWindowInfosListener(const sp<IWindowInfosListener>& windowInfosListener,
                                                 gui::WindowInfosListenerInfo* outInfo) {

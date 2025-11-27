@@ -114,6 +114,7 @@
 #include <aidl/android/hardware/graphics/composer3/RefreshRateChangedDebugData.h>
 #include "Client.h"
 #include "GammaRgbSampler.h"
+#include <utils/Timers.h>
 
 using namespace android::surfaceflinger;
 
@@ -1126,6 +1127,20 @@ private:
                  std::string& result) const EXCLUDES(mStateLock);
     void dumpHwcLayersMinidump(std::string& result) const REQUIRES(mStateLock, kMainThreadContext);
     void dumpHwcLayersMinidumpLockedLegacy(std::string& result) const REQUIRES(mStateLock);
+
+    // ===== GammaOS: per-display frame delay (optional) =======================
+    // Configured frame delay per physical display (in frames).
+    // When >0, we present one fresh frame, then hold N prior frames repeatedly.
+    std::unordered_map<PhysicalDisplayId, int32_t> mDelayFrames GUARDED_BY(mStateLock);
+    // Countdown for the current hold sequence on each display.
+    std::unordered_map<PhysicalDisplayId, int32_t> mDelayCountdown GUARDED_BY(mStateLock);
+    // Read props and populate delay for a specific display.
+    void updateDisplayDelayLocked(PhysicalDisplayId id) REQUIRES(mStateLock);
+    // Read props for all known physical displays.
+    void updateAllDisplayDelaysLocked() REQUIRES(mStateLock);
+    // Whether we should hold this display on this frame (and decrement countdown).
+    bool shouldHoldFrameLocked(PhysicalDisplayId id) REQUIRES(mStateLock);
+    // ========================================================================
 
     void appendSfConfigString(std::string& result) const;
     void listLayersLocked(std::string& result) const;

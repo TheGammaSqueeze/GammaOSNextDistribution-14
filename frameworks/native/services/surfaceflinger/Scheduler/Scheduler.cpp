@@ -133,15 +133,27 @@ void Scheduler::setPacesetterDisplay(std::optional<PhysicalDisplayId> pacesetter
 }
 
 void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelectorPtr selectorPtr) {
-    auto schedulePtr =
-            std::make_shared<VsyncSchedule>(selectorPtr->getActiveMode().modePtr, mFeatures,
-                                            [this](PhysicalDisplayId id, bool enable) {
-                                                onHardwareVsyncRequest(id, enable);
-                                            });
+    auto schedulePtr = std::make_shared<VsyncSchedule>(
+            selectorPtr->getActiveMode().modePtr, mFeatures,
+            [this](PhysicalDisplayId id, bool enable) {
+                onHardwareVsyncRequest(id, enable);
+            });
+
+    // GammaOS: when display tweaks are enabled, allow this schedule to use HW VSYNC.
+    // By default VsyncSchedule starts in HwVsyncState::Disallowed, and enableHardwareVsync()
+    // is a no-op in that state. For the pacesetter we flip the state via
+    // resyncToHardwareVsyncLocked(..., allowToEnable=true), but followers never see that call.
+    //
+    // Explicitly marking the new schedule as "allowed" here ensures both the pacesetter and
+    // follower displays can drive their VSyncReactor with real hardware vsync signals.
+    if (gammaTweaksEnabled()) {
+        schedulePtr->isHardwareVsyncAllowed(/*makeAllowed=*/true);
+    }
 
     registerDisplayInternal(displayId, std::move(selectorPtr), std::move(schedulePtr));
 
-    // GammaOS: mirror stock — keep HW vsync enabled for every registered display
+    // GammaOS: mirror stock behaviour and keep HW VSYNC enabled for every registered display
+    // once it has been allowed. This applies equally to the pacesetter and any followers.
     if (gammaTweaksEnabled()) {
         enableHardwareVsync(displayId);
     }
