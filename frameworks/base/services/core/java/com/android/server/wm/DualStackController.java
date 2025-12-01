@@ -111,6 +111,19 @@ final class DualStackController {
     }
 
     /**
+     * Returns true if the given activity should be treated as fully compatible with the
+     * current dual-stack logical display configuration. When this is true, WindowManager
+     * should avoid putting the activity into size-compat mode so that it can render at the
+     * full logical resolution (for example 640x960 on the tall canvas).
+     */
+    boolean shouldDisableSizeCompatFor(ActivityRecord r) {
+        if (!isEligibleTopApp(r)) return false;
+        // Only affect activities shown on the default logical display.
+        if (r.getDisplayId() != DEFAULT_DISPLAY) return false;
+        return true;
+    }
+
+    /**
      * Returns true if there is any resumed, visible activity from a whitelisted package
      * on the default display. This lets us keep the tall override as long as the package
      * is in the foreground, regardless of which concrete ActivityRecord is on top.

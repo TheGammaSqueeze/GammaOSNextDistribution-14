@@ -8323,6 +8323,14 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
             // the risk of the application misbehaving.
             return false;
         }
+        // GammaOS Dual-Stack: when dual-stack is active for a whitelisted app on the default
+        // display, treat it as fully compatible with the current display bounds and disable
+        // size-compat mode so the app can render at the full logical resolution (for example
+        // 640x960 on the tall canvas).
+        if (mWmService.mDualStackController != null
+                && mWmService.mDualStackController.shouldDisableSizeCompatFor(this)) {
+            return false;
+        }
         switch (supportsSizeChanges()) {
             case SIZE_CHANGES_SUPPORTED_METADATA:
             case SIZE_CHANGES_SUPPORTED_OVERRIDE:
