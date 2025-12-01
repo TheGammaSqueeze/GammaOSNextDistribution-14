@@ -102,6 +102,9 @@ import android.media.projection.IMediaProjection;
 import android.media.projection.IMediaProjectionManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.SystemProperties;
+import android.text.TextUtils;
+import android.util.ArraySet;
 import android.os.Handler;
 import android.os.HandlerExecutor;
 import android.os.IBinder;
@@ -1218,6 +1221,50 @@ public final class DisplayManagerService extends SystemService {
         }
         return overriddenInfo;
     }
+ 
+    // GammaOS Dual-Stack: per-app controls
+    private boolean isDualStackEnabled() {
+        return SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false);
+    }
+
+    private ArraySet<String> getDualStackWhitelist() {
+        final ArraySet<String> pkgs = new ArraySet<>();
+        final String raw = SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
+        if (raw == null || raw.isEmpty()) return pkgs;
+        final String[] parts = raw.split(",");
+        for (int i = 0; i < parts.length; i++) {
+            final String p = parts[i].trim();
+            if (!p.isEmpty()) pkgs.add(p);
+        }
+        return pkgs;
+    }
+
+    private boolean isUidWhitelistedForDualStack(int uid) {
+        if (!isDualStackEnabled()) return false;
+        // Do not apply dual-stack filtering to core system UIDs or during early boot
+        // when the package manager might not be ready yet.
+        if (uid < android.os.Process.FIRST_APPLICATION_UID) {
+            return false;
+        }
+        final android.content.pm.PackageManager pm =
+                (mContext != null) ? mContext.getPackageManager() : null;
+        if (pm == null) {
+            return false;
+        }
+        final String[] pkgs;
+        try {
+            pkgs = pm.getPackagesForUid(uid);
+        } catch (RuntimeException e) {
+            android.util.Slog.w(TAG, "getPackagesForUid failed for uid " + uid, e);
+            return false;
+        }
+        if (pkgs == null || pkgs.length == 0) return false;
+        final ArraySet<String> wl = getDualStackWhitelist();
+        for (int i = 0; i < pkgs.length; i++) {
+            if (wl.contains(pkgs[i])) return true;
+        }
+        return false;
+    }
 
     private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
         synchronized (mSyncRoot) {
@@ -1228,6 +1275,20 @@ public final class DisplayManagerService extends SystemService {
                                 display.getDisplayInfoLocked(), callingUid);
                 if (info.hasAccess(callingUid)
                         || isUidPresentOnDisplayInternal(callingUid, displayId)) {
+                    // GammaOS Dual-Stack: if enabled and caller is whitelisted, report a doubled
+                    // logical size on the default display so the app "sees" a stacked canvas.
+                    if (displayId == android.view.Display.DEFAULT_DISPLAY
+                            && isUidWhitelistedForDualStack(callingUid)) {
+                        final DisplayInfo overridden = new DisplayInfo();
+                        overridden.copyFrom(info);
+                        // Double along the current logical Y axis for this caller.
+                        overridden.logicalHeight = info.logicalHeight * 2;
+                        overridden.appHeight = info.appHeight * 2;
+                        // Keep nominal app metrics consistent.
+                        overridden.smallestNominalAppHeight = info.smallestNominalAppHeight * 2;
+                        overridden.largestNominalAppHeight = info.largestNominalAppHeight * 2;
+                        return overridden;
+                    }
                     return info;
                 }
             }
@@ -1982,6 +2043,8 @@ public final class DisplayManagerService extends SystemService {
                 "persist.gammaos.ext.primary", /*def*/ false);
         final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.mirror_resize", /*def*/ false);
+        final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.force_mirror", /*def*/ false);
         final android.view.DisplayInfo di = display.getDisplayInfoLocked();
         final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
         if (isExternalType) {
@@ -1994,7 +2057,7 @@ public final class DisplayManagerService extends SystemService {
                }
                 // Defer the actual power-on + WM clear to after the event is emitted.
                 gammaosPostRestoreInternalDisplay();
-            } else if (gammaExtMirrorResize && mWindowManagerInternal != null) {
+            } else if ((gammaExtMirrorResize || gammaExtForceMirror) && mWindowManagerInternal != null) {
                 // Also defer clear+traversal to avoid races.
                 gammaosPostRestoreInternalDisplay();
             }
@@ -2096,6 +2159,8 @@ public final class DisplayManagerService extends SystemService {
                 "persist.gammaos.ext.primary", /*def*/ false);
         final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.mirror_resize", /*def*/ false);
+        final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.force_mirror", /*def*/ false);
         final android.view.DisplayInfo di = display.getDisplayInfoLocked();
         final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
         if (isExternalType) {
@@ -2123,13 +2188,21 @@ public final class DisplayManagerService extends SystemService {
                         android.os.PowerManager.BRIGHTNESS_OFF_FLOAT,
                         android.os.PowerManager.BRIGHTNESS_OFF_FLOAT);
                 // Do NOT clear forced size here; we want WM stuck to external's size while present.
-            } else if (gammaExtMirrorResize) {
+            } else if (gammaExtMirrorResize || gammaExtForceMirror) {
                 // Mirror mode: force WM size of the default display to match external.
                 if (mWindowManagerInternal != null) {
                     Slog.i(TAG, "GammaOS: Forcing WM size to external "
                             + di.logicalWidth + "x" + di.logicalHeight);
                     mWindowManagerInternal.setForcedDisplaySize(
                             android.view.Display.DEFAULT_DISPLAY, di.logicalWidth, di.logicalHeight);
+                }
+                // If force-mirror is requested, also ask WM to mirror to the external.
+                if (gammaExtForceMirror) {
+                    final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
+                    if (extDevice != null) {
+                        Slog.i(TAG, "GammaOS: Enabling WM mirroring on external (force-mirror)");
+                        extDevice.setWindowManagerMirroringLocked(true);
+                    }
                 }
             }
         }
@@ -2223,6 +2296,8 @@ public final class DisplayManagerService extends SystemService {
                     "persist.gammaos.ext.primary", /*def*/ false);
             final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
                     "persist.gammaos.ext.mirror_resize", /*def*/ false);
+            final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.force_mirror", /*def*/ false);
             final android.view.DisplayInfo di = display.getDisplayInfoLocked();
             final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
             if (isExternalType) {
@@ -2254,6 +2329,8 @@ public final class DisplayManagerService extends SystemService {
                     "persist.gammaos.ext.primary", /*def*/ false);
             final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
                     "persist.gammaos.ext.mirror_resize", /*def*/ false);
+            final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.force_mirror", /*def*/ false);
             final android.view.DisplayInfo di = display.getDisplayInfoLocked();
             final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
             if (isExternalType) {
@@ -2265,7 +2342,7 @@ public final class DisplayManagerService extends SystemService {
                         extDevice.setWindowManagerMirroringLocked(false);
                     }
                     gammaosPostRestoreInternalDisplay();
-                } else if (gammaExtMirrorResize && mWindowManagerInternal != null) {
+                } else if ((gammaExtMirrorResize || gammaExtForceMirror) && mWindowManagerInternal != null) {
                     gammaosPostRestoreInternalDisplay();
                 }
             }
@@ -3924,6 +4001,18 @@ public final class DisplayManagerService extends SystemService {
             final long token = Binder.clearCallingIdentity();
             try {
                 synchronized (mSyncRoot) {
+                    if (isUidWhitelistedForDualStack(callingUid)) {
+                        // Only expose the default display to whitelisted apps to prevent them
+                        // from using Presentation/secondary displays directly.
+                        final LogicalDisplay defaultDisplay =
+                                mLogicalDisplayMapper.getDisplayLocked(
+                                        android.view.Display.DEFAULT_DISPLAY);
+                        if (defaultDisplay != null
+                                && (defaultDisplay.isEnabledLocked() || includeDisabled)) {
+                            return new int[] { android.view.Display.DEFAULT_DISPLAY };
+                        }
+                        // Fallback to normal behavior if default display is not available.
+                    }
                     return mLogicalDisplayMapper.getDisplayIdsLocked(callingUid, includeDisabled);
                 }
             } finally {

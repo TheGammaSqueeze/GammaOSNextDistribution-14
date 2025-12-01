@@ -155,6 +155,14 @@ public class StorageManager {
     public static final String PROP_FORCED_SCOPED_STORAGE_WHITELIST =
             "forced_scoped_storage_whitelist";
 
+    /**
+     * GammaOS: compatibility flag for buggy external-storage quotas on some vendor kernels.
+     * When true, per-file quota / project-ID operations on emulated storage are skipped.
+     * {@hide}
+     */
+    public static final String PROP_GAMMAOS_LEGACY_EXTERNAL_QUOTA =
+            "persist.gammaos.legacy_external_quota";
+
     /** {@hide} */
     public static final String UUID_PRIVATE_INTERNAL = null;
     /** {@hide} */
@@ -2615,6 +2623,19 @@ public class StorageManager {
     @SystemApi
     public void updateExternalStorageFileQuotaType(@NonNull File path,
             @QuotaType int quotaType) throws IOException {
+        // GammaOS: on some vendor kernels (for example Allwinner A527) the underlying FUSE /
+        // quota implementation for emulated storage is fragile. Updating per-file project IDs
+        // can corrupt kernel state and cause panics when files are written via MTP. When
+        // legacy_external_quota is enabled, skip these quota updates entirely and behave like
+        // pre-quota devices.
+        if (SystemProperties.getBoolean(PROP_GAMMAOS_LEGACY_EXTERNAL_QUOTA, false)) {
+            if (LOCAL_LOGV) {
+                Log.v(TAG,
+                        "GammaOS: legacy_external_quota enabled; skipping quota update for "
+                                + path);
+            }
+            return;
+        }
         long projectId;
         final String filePath = path.getCanonicalPath();
         int volFlags = FLAG_REAL_STATE | FLAG_INCLUDE_INVISIBLE;

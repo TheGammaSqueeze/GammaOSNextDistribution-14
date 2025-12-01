@@ -1058,6 +1058,9 @@ public class WindowManagerService extends IWindowManager.Stub
     // Maintainer of a collection of all possible DisplayInfo for all configurations of the
     // logical displays.
     final PossibleDisplayInfoMapper mPossibleDisplayInfoMapper;
+ 
+    // GammaOS Dual-Stack
+    final DualStackController mDualStackController;
 
     static WindowManagerThreadPriorityBooster sThreadPriorityBooster =
             new WindowManagerThreadPriorityBooster();
@@ -1227,6 +1230,8 @@ public class WindowManagerService extends IWindowManager.Stub
         mPolicy = policy;
         mAnimator = new WindowAnimator(this);
         mRoot = new RootWindowContainer(this);
+        // GammaOS Dual-Stack controller
+        mDualStackController = new DualStackController(this);
 
         final ContentResolver resolver = context.getContentResolver();
 
@@ -4325,27 +4330,55 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-	/**
-	 * When auto-rotation is disabled, this method forces a fixed landscape orientation regardless
-	 * of the requested orientation. Otherwise, if {@code mIsIgnoreOrientationRequestDisabled} is
-	 * true the method applies the mapping from {@code mOrientationMapping} (if any); if not, it
-	 * returns the requested orientation unchanged.
-	 *
-	 * @param requestedOrientation The orientation requested by the app.
-	 * @return The orientation to use in place of requestedOrientation.
-	 */
-	int mapOrientationRequest(int requestedOrientation) {
-		// If auto-rotation is disabled, ignore any app request and force landscape.
-		if (!isAutoRotationEnabled()) {
-			return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-		}
-		// If the ignore-orientation-request policy is not enabled, honor the app request.
-		if (!mIsIgnoreOrientationRequestDisabled) {
-			return requestedOrientation;
-		}
-		// Otherwise, apply any mapping defined in mOrientationMapping.
-		return mOrientationMapping.get(requestedOrientation, requestedOrientation);
-	}
+    /**
+     * Map an orientation input from the client to what should be used internally.
+     *
+     * If ignore-orientation-request policy is turned on, clients may request some
+     * orientation which might be incompatible with the device (never used).
+     * The policy is stored in mOrientationMapping, which will return the fallback
+     * orientation to be used instead in such cases. Otherwise this method simply
+     * returns the requested orientation unchanged.
+     *
+     * @param requestedOrientation The orientation requested by the app.
+     * @return The orientation to use in place of requestedOrientation.
+     */
+    int mapOrientationRequest(int requestedOrientation) {
+        // If auto-rotation is disabled, ignore any app request and force landscape unless
+        // GammaOS dual-stack is enabled (dual-stack manages orientation for its own apps).
+        if (!android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)
+                && !isAutoRotationEnabled()) {
+            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+        }
+
+        // GammaOS Dual-Stack: when a whitelisted app is top-resumed on the default display,
+        // force a portrait logical orientation so that tall stacked layouts (for example
+        // Nintendo DS emulation with two screens) always render in a single upright canvas.
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)) {
+            final ActivityRecord top = mRoot.getTopResumedActivity();
+            if (top != null) {
+                final String rawPkgs =
+                        android.os.SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
+                if (!rawPkgs.isEmpty()) {
+                    final String[] pkgs = rawPkgs.split(",");
+                    final String pkg = top.packageName;
+                    for (int i = 0; i < pkgs.length; i++) {
+                        if (pkg.equals(pkgs[i].trim())) {
+                            // Let DisplayRotation map SCREEN_ORIENTATION_PORTRAIT to the
+                            // correct physical rotation for this device (typically ROTATION_270).
+                            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                        }
+                    }
+                }
+            }
+        }
+
+        // If the ignore-orientation-request policy is not enabled, honor the app request.
+        if (!mIsIgnoreOrientationRequestDisabled) {
+            return requestedOrientation;
+        }
+        // Otherwise, apply any mapping defined in mOrientationMapping.
+        return mOrientationMapping.get(requestedOrientation, requestedOrientation);
+    }
 
     /**
      * Whether the system ignores the value of {@link DisplayArea#getIgnoreOrientationRequest} and

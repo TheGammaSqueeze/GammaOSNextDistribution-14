@@ -70,6 +70,7 @@ import android.util.Slog;
 import android.util.TimeUtils;
 import android.util.proto.ProtoOutputStream;
 import android.view.DisplayAddress;
+import android.view.Display;
 import android.view.IWindowManager;
 import android.view.Surface;
 import android.view.DisplayInfo;
@@ -1252,6 +1253,25 @@ public class DisplayRotation {
                 mUserRotationMode == WindowManagerPolicy.USER_ROTATION_LOCKED
                         ? "USER_ROTATION_LOCKED" : "");
 
+        // GammaOS Dual-Stack secondary display:
+        // When dual-stack is enabled, keep non-default internal displays at their natural
+        // rotation so the mirrored content lines up with the primary panel regardless of
+        // sensor or app requests.
+        if (isDualStackSecondaryDisplayNaturalRotationLocked()) {
+            return Surface.ROTATION_0;
+        }
+
+        // GammaOS Dual-Stack primary display:
+        // If a dual-stack app is active on this display, keep the physical panel locked to its
+        // natural orientation (ROTATION_0) regardless of sensor or app requests. The app's
+        // logical orientation is forced to portrait by WindowManagerService.mapOrientationRequest().
+        if (isDualStackNaturalRotationLocked()) {
+            // Do not change physical rotation while a dual-stack package is on top. This may
+            // result in pillarboxing / letterboxing, which is expected for the tall 640x960
+            // logical canvas split across two 640x480 panels.
+            return Surface.ROTATION_0;
+        }
+
         if (isFixedToUserRotation()) {
             return mUserRotation;
         }
@@ -1477,6 +1497,93 @@ public class DisplayRotation {
                 }
                 return Surface.ROTATION_0;
         }
+    }
+
+    /**
+     * GammaOS Dual-Stack helper.
+     *
+     * Returns true when:
+     *  - Dual-stack mode is enabled via persist.gammaos.dualstack.enabled, and
+     *  - The top-resumed activity is on this display and belongs to a package listed in
+     *    persist.gammaos.dualstack.pkgs.
+     *
+     * When this is true, we keep the physical display locked to its natural orientation
+     * (ROTATION_0) and ignore sensor- / app-driven rotation changes. The app itself is
+     * forced to logical portrait by WindowManagerService.mapOrientationRequest().
+     */
+    private boolean isDualStackNaturalRotationLocked() {
+        // Global feature gate.
+        if (!android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)) {
+            return false;
+        }
+
+        // Only consider the top-resumed app.
+        final ActivityRecord top = mService.mRoot.getTopResumedActivity();
+        if (top == null) {
+            return false;
+        }
+
+        // Must be running on this display.
+        if (top.getDisplayId() != mDisplayContent.getDisplayId()) {
+            return false;
+        }
+
+        // Look up allowlist packages from persist.gammaos.dualstack.pkgs (comma-separated).
+        final String rawPkgs =
+                android.os.SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
+        if (rawPkgs == null || rawPkgs.isEmpty()) {
+            return false;
+        }
+
+        final String pkg = top.packageName;
+        for (String entry : rawPkgs.split(",")) {
+            if (pkg.equals(entry.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isDualStackSecondaryDisplayNaturalRotationLocked() {
+        // Global feature gate.
+        if (!SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)) {
+            return false;
+        }
+
+        final DisplayInfo info = mDisplayContent.getDisplayInfo();
+        if (info == null) {
+            return false;
+        }
+
+        // Only lock internal non-default physical displays while dual-stack is active.
+        if (info.type != Display.TYPE_INTERNAL) {
+            return false;
+        }
+        if (mDisplayContent.getDisplayId() == Display.DEFAULT_DISPLAY) {
+            return false;
+        }
+
+        // Mirror the orientation lock used on the primary display, but applied here to the
+        // secondary internal panel. Only engage when a dual-stack allowlisted app is the
+        // top-resumed activity on the default display.
+        final ActivityRecord top = mService.mRoot.getTopResumedActivity();
+        if (top == null || top.getDisplayId() != Display.DEFAULT_DISPLAY) {
+            return false;
+        }
+
+        final String rawPkgs =
+                SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
+        if (rawPkgs == null || rawPkgs.isEmpty()) {
+            return false;
+        }
+
+        final String pkg = top.packageName;
+        for (String entry : rawPkgs.split(",")) {
+            if (pkg.equals(entry.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int getAllowAllRotations() {

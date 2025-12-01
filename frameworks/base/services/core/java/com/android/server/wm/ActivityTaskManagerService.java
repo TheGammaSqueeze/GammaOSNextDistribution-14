@@ -5454,6 +5454,12 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * - If the property is NOT set, keep stock behavior (SECONDARY_HOME flow).
      */
     Intent getSecondaryHomeIntent(String preferredPackage) {
+        // GammaOS: when force-mirror is enabled, never provide a SECONDARY_HOME intent.
+        // This keeps external displays in mirror-only mode regardless of multi-display.
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
+            return null;
+        }
+
         final Intent intent = new Intent(
                 mTopAction, mTopData != null ? Uri.parse(mTopData) : null);
 

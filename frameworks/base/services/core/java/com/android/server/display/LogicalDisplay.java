@@ -38,6 +38,8 @@ import com.android.server.display.mode.DisplayModeDirector;
 import com.android.server.wm.utils.DisplayInfoOverrides;
 import com.android.server.wm.utils.InsetUtils;
 
+import android.os.SystemProperties;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -76,6 +78,23 @@ final class LogicalDisplay {
     private static final int BLANK_LAYER_STACK = -1;
 
     private static final DisplayInfo EMPTY_DISPLAY_INFO = new DisplayInfo();
+
+    /**
+     * GammaOS: when dual-stack mode is enabled, treat the primary internal display as a
+     * full-screen target for the tall logical canvas instead of preserving aspect ratio.
+     * This removes pillarboxing on Display 0 by mapping the logical 640x960 space into the
+     * full physical 640x480 panel.
+     */
+    private static boolean isGammaDualStackFillEnabledLocked(
+            DisplayDeviceInfo displayDeviceInfo, DisplayInfo displayInfo) {
+        if (displayInfo.displayId != Display.DEFAULT_DISPLAY) {
+            return false;
+        }
+        if (displayDeviceInfo.type != Display.TYPE_INTERNAL) {
+            return false;
+        }
+        return SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false);
+    }
 
     private final DisplayInfo mBaseDisplayInfo = new DisplayInfo();
     private final int mDisplayId;
@@ -674,7 +693,21 @@ final class LogicalDisplay {
         // multiplying the fractions by the product of their denominators before
         // comparing them.
         int displayRectWidth, displayRectHeight;
-        if ((displayInfo.flags & Display.FLAG_SCALING_DISABLED) != 0 || mDisplayScalingDisabled) {
+        final boolean forceFill =
+                isGammaDualStackFillEnabledLocked(displayDeviceInfo, displayInfo);
+
+        if (forceFill) {
+            // GammaOS dual-stack mode:
+            // - Ignore aspect ratio.
+            // - Scale the entire tall logical canvas into the full physical panel.
+            //
+            // For your current configuration this maps 640x960 logical into 640x480
+            // physical, using the full width and height of the panel and eliminating
+            // pillarboxing on Display 0.
+            displayRectWidth = physWidth;
+            displayRectHeight = physHeight;
+        } else if ((displayInfo.flags & Display.FLAG_SCALING_DISABLED) != 0
+                || mDisplayScalingDisabled) {
             displayRectWidth = displayInfo.logicalWidth;
             displayRectHeight = displayInfo.logicalHeight;
         } else if (physWidth * displayInfo.logicalHeight

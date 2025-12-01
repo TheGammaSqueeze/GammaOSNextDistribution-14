@@ -43,6 +43,7 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Slog;
+import android.os.SystemProperties;
 
 /**
  * Policy that manages {@link DisplayArea}.
@@ -127,7 +128,8 @@ public abstract class DisplayAreaPolicy {
             // GammaOS: Promote secondary displays to "trusted + decorated" when Desktop mode is forced.
             // This allows SystemUI nav/status bars and a HOME task on the external screen.
             // We keep default display behavior unchanged.
-            final boolean forceDesktop = wmService.mForceDesktopModeOnExternalDisplays;
+            final boolean gammaForceMirror = android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false);
+            final boolean forceDesktop = wmService.mForceDesktopModeOnExternalDisplays && !gammaForceMirror;
             final boolean promoteDecor = content.isTrusted()
                     || (forceDesktop && !content.isDefaultDisplay);
             if (promoteDecor) {

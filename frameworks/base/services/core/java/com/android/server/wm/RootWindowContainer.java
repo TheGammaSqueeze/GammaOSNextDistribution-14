@@ -87,6 +87,7 @@ import static com.android.systemui.shared.Flags.enableHomeDelay;
 
 import static java.lang.Integer.MAX_VALUE;
 
+import android.os.SystemProperties;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -993,6 +994,8 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         // Give the display manager a chance to adjust properties like display rotation if it needs
         // to.
         mWmService.mDisplayManagerInternal.performTraversal(t, mDisplayTransactions);
+        // GammaOS Dual-Stack: update per-app mirroring/cropping each traversal
+        mWmService.mDualStackController.updateMirroringIfNeeded(t);
         mDisplayTransactions.clear();
     }
 
@@ -1676,6 +1679,14 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             throw new IllegalArgumentException(
                     "shouldPlaceSecondaryHomeOnDisplay: Should not be on default task container");
         } else if (taskDisplayArea == null) {
+            return false;
+        }
+
+        final int displayId = taskDisplayArea.getDisplayId();
+        // GammaOS: When force-mirror is enabled, do NOT place a secondary home
+        // on any non-default display (e.g. HDMI). This keeps the display pure-mirror.
+        if (displayId != DEFAULT_DISPLAY
+                && SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
             return false;
         }
 

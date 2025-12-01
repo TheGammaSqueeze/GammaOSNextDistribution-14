@@ -2753,13 +2753,44 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      */
     @Nullable
     Task getRootTask(int windowingMode, int activityType) {
-        return getItemFromTaskDisplayAreas(taskDisplayArea ->
-                taskDisplayArea.getRootTask(windowingMode, activityType));
+        // Avoid getItemFromTaskDisplayAreas here to prevent recursive
+        // DisplayArea / TaskDisplayArea traversals that can overflow the stack.
+        final Task[] result = new Task[1];
+        forAllTaskDisplayAreas(taskDisplayArea -> {
+            if (result[0] != null) {
+                return;
+            }
+            final Task root = taskDisplayArea.getRootTask(windowingMode, activityType);
+            if (root != null) {
+                result[0] = root;
+            }
+        });
+        return result[0];
     }
 
     @Nullable
     Task getRootTask(int rootTaskId) {
         return getRootTask(rootTask -> rootTask.getRootTaskId() == rootTaskId);
+    }
+ 
+    /**
+     * Returns the top-most root task matching the given predicate, or {@code null} if none.
+     */
+    @Nullable
+    Task getRootTask(java.util.function.Predicate<Task> predicate) {
+        // Again, avoid getItemFromTaskDisplayAreas to prevent the recursive
+        // DisplayArea.getItemFromTaskDisplayAreas <-> TaskDisplayArea.getItemFromTaskDisplayAreas
+        // loop that leads to StackOverflowError.
+        final Task[] result = new Task[1];
+        forAllRootTasks(rootTask -> {
+            if (result[0] != null) {
+                return;
+            }
+            if (predicate.test(rootTask)) {
+                result[0] = rootTask;
+            }
+        });
+        return result[0];
     }
 
     int getRootTaskCount() {
@@ -5838,6 +5869,13 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * and can also be set via {@link VirtualDisplayConfig.Builder#setHomeSupported}.</p>
      */
     boolean isHomeSupported() {
+        // GammaOS: In force-mirror mode, never support home on non-default displays.
+        // This prevents SECONDARY_HOME / desktop behaviour on HDMI while we mirror.
+        if (getDisplayId() != DEFAULT_DISPLAY
+                && android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
+            return false;
+        }
+
         return (mWmService.mDisplayWindowSettings.isHomeSupportedLocked(this) && isTrusted())
                 || supportsSystemDecorations();
     }
@@ -6259,7 +6297,17 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
 
     @Nullable
     Task getFocusedRootTask() {
-        return getItemFromTaskDisplayAreas(TaskDisplayArea::getFocusedRootTask);
+        final Task[] result = new Task[1];
+        forAllTaskDisplayAreas(taskDisplayArea -> {
+            if (result[0] != null) {
+                return;
+            }
+            final Task focused = taskDisplayArea.getFocusedRootTask();
+            if (focused != null) {
+                result[0] = focused;
+            }
+        });
+        return result[0];
     }
 
     /**

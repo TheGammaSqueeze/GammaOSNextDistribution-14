@@ -87,6 +87,20 @@ static const char* kAppDataDir = "/Android/data/";
 static const char* kAppMediaDir = "/Android/media/";
 static const char* kAppObbDir = "/Android/obb/";
 
+// GammaOS compatibility flag:
+// On some vendor kernels (e.g. Allwinner A527) project-ID and quota
+// operations on emulated storage can trigger kernel bugs in the FUSE /
+// writeback path when Android 14's more aggressive quota handling is used.
+// When this flag is enabled, vold behaves as if external storage does not
+// support project-ID-based quotas and skips the corresponding ioctls.
+static bool ShouldSkipProjectQuotaOps() {
+    // Property name is intentionally GammaOS-specific to avoid collisions.
+    // Default is "false" so behaviour on all devices is unchanged unless
+    // GammaOS explicitly enables the compatibility mode.
+    return android::base::GetBoolProperty(
+            "persist.gammaos.legacy_external_quota", false);
+}
+
 static const char* kMediaProviderCtx = "u:r:mediaprovider:";
 static const char* kMediaProviderAppCtx = "u:r:mediaprovider_app:";
 
@@ -202,6 +216,15 @@ status_t SetDefaultAcl(const std::string& path, mode_t mode, uid_t uid, gid_t gi
 }
 
 int SetQuotaInherit(const std::string& path) {
+    // GammaOS: compatibility mode for kernels with fragile project-ID support
+    // on emulated storage. When enabled, treat "set inherit" as a no-op to
+    // avoid exercising FS_IOC_GETFLAGS / FS_IOC_SETFLAGS on these paths.
+    if (ShouldSkipProjectQuotaOps()) {
+        LOG(INFO) << "GammaOS: legacy_external_quota enabled, "
+                  << "skipping SetQuotaInherit for " << path;
+        return 0;
+    }
+
     unsigned int flags;
 
     android::base::unique_fd fd(TEMP_FAILURE_RETRY(open(path.c_str(), O_RDONLY | O_CLOEXEC)));
@@ -228,6 +251,15 @@ int SetQuotaInherit(const std::string& path) {
 }
 
 int SetQuotaProjectId(const std::string& path, long projectId) {
+    // GammaOS: when legacy_external_quota is enabled, treat project-ID
+    // assignment as a no-op. This prevents vold from driving the kernel
+    // FS_IOC_FSGETXATTR / FS_IOC_FSSETXATTR path that is known to be unstable
+    // on some vendor kernels when used on emulated storage.
+    if (ShouldSkipProjectQuotaOps()) {
+        LOG(INFO) << "GammaOS: legacy_external_quota enabled, "
+                  << "skipping SetQuotaProjectId(" << projectId << ") for " << path;
+        return 0;
+    }
     struct fsxattr fsx;
 
     android::base::unique_fd fd(TEMP_FAILURE_RETRY(open(path.c_str(), O_RDONLY | O_CLOEXEC)));
