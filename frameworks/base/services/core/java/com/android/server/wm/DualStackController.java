@@ -290,8 +290,8 @@ final class DualStackController {
     private void createSurfacesIfNeeded(Transaction t, DisplayContent primary,
             DisplayContent secondary, ActivityRecord top) {
         // Create two mirrors of the app surface:
-        //  - one on the primary display overlay (bottom half by default),
-        //  - one on the secondary display overlay (top half by default).
+        //  - one on the primary display windowing layer (bottom half by default),
+        //  - one on the secondary display windowing layer (top half by default).
         //
         // The original app surfaces remain owned by WM and continue to receive
         // input, but visually we only show the mirrored copies on both displays.
@@ -349,15 +349,29 @@ final class DualStackController {
 
         // Primary mirror (bottom half by default).
         mAppXformTarget = SurfaceControl.mirrorSurface(source);
-        t.reparent(mAppXformTarget, primary.getOverlayLayer());
-        // Slightly below the secondary mirror so the secondary can use the same
-        // max layer value without Z-fighting.
-        t.setLayer(mAppXformTarget, (Integer.MAX_VALUE / 2) - 1);
+        // Attach to the primary display *windowing* layer so that normal system
+        // UI (status bar, taskbar, volume, global actions, etc.) continues to
+        // render above app content via the separate “above app” containers.
+        t.reparent(mAppXformTarget, primary.getWindowingLayer());
+        // Make this mirror the topmost app layer inside the windowing hierarchy,
+        // so SurfaceFlinger/HWC prefer it over the original BLAST surface when
+        // picking the visible representation of the activity on Display 0, while
+        // still keeping the entire windowing tree below the SystemUI containers.
+        //
+        // Using the windowing layer itself as the relative anchor ensures we
+        // only compete with other app/task content and not with the above-app
+        // SystemUI roots.
+        t.setRelativeLayer(mAppXformTarget, primary.getWindowingLayer(), /* relativeZ */ +1);
         t.show(mAppXformTarget);
 
         // Secondary mirror (top half by default).
         mSecondaryMirror = SurfaceControl.mirrorSurface(source);
-        t.reparent(mSecondaryMirror, secondary.getOverlayLayer());
+        // Same idea for the secondary display: attach to the windowing layer
+        // instead of the overlay layer so that any per-display overlays can
+        // still appear above us if they exist. On this device we do not expect
+        // full SystemUI on the secondary panel, so a simple high layer value is
+        // sufficient.
+        t.reparent(mSecondaryMirror, secondary.getWindowingLayer());
         t.setLayer(mSecondaryMirror, Integer.MAX_VALUE / 2);
         t.show(mSecondaryMirror);
     }
