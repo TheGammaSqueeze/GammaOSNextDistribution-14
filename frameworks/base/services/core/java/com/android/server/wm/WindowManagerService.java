@@ -699,6 +699,21 @@ public class WindowManagerService extends IWindowManager.Stub
      */
     boolean mForceDesktopModeOnExternalDisplays;
 
+    /**
+     * Returns whether per-display focus is enabled, taking into account both the
+     * framework config flag and GammaOS runtime override.
+     *
+     * When persist.gammaos.multidisplay.dual_focus is true, we force per-display focus
+     * regardless of the static config value, so we can keep games on secondary internal
+     * displays focused while interacting with another display.
+     */
+    boolean isPerDisplayFocusEnabled() {
+        if (SystemProperties.getBoolean("persist.gammaos.multidisplay.dual_focus", false)) {
+            return true;
+        }
+        return mPerDisplayFocusEnabled;
+    }
+
     boolean mDisableTransitionAnimation;
 
     final RotationWatcherController mRotationWatcherController;

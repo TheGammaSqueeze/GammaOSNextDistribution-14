@@ -6740,7 +6740,7 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      * @return whether this display maintains its own focus and touch mode.
      */
     boolean hasOwnFocus() {
-        return mWmService.mPerDisplayFocusEnabled
+        return mWmService.isPerDisplayFocusEnabled()
                 || (mDisplayInfo.flags & Display.FLAG_OWN_FOCUS) != 0;
     }
 

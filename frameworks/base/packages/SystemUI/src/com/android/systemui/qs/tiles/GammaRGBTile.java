@@ -102,12 +102,8 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
 
     @Override
     public BooleanState newTileState() {
-        final BooleanState s = new BooleanState();
-        // Enable dual-target with a chevron, like Internet tile. The chevron will invoke
-        // showDetail(true) which uses our DetailAdapter below.
-        s.forceExpandIcon = true;
-        s.dualTarget = true;
-        return s;
+        // Single-target tile (no chevron / dual-target)
+        return new BooleanState();
     }
 
     @Override
@@ -157,12 +153,6 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleLongClick(@Nullable View view) {
         final Intent intent = getLongClickIntent();
-        mActivityStarter.postStartActivityDismissingKeyguard(intent, 0 /* delay */);
-    }
-
-    @Override
-    protected void handleSecondaryClick(@Nullable View view) {
-        final Intent intent = buildLaunchIntent();
         mActivityStarter.postStartActivityDismissingKeyguard(intent, 0 /* delay */);
     }
 
@@ -217,9 +207,8 @@ public class GammaRGBTile extends QSTileImpl<BooleanState> {
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
-        // Provide a secondary line and enable dual-target chevron behavior.
+        // Provide a secondary line only; no dual-target chevron behavior.
         state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
-        state.dualTarget = true;
     }
 
     /** Receiver to re-sync on screen-off and boot. */

@@ -50,6 +50,7 @@ import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -350,15 +351,26 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
      */
     private void applyAdaptiveWidth(Window w) {
         int orientation = mContext.getResources().getConfiguration().orientation;
+        // Always size the dialog as a function of the display, not the
+        // currently measured content height. This keeps the bottom row
+        // stable even when header text (MEM/CPU) changes every update.
+        DisplayMetrics dm = new DisplayMetrics();
+        w.getWindowManager().getDefaultDisplay().getMetrics(dm);
+
         int width;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            DisplayMetrics dm = new DisplayMetrics();
-            w.getWindowManager().getDefaultDisplay().getMetrics(dm);
-            width = (int) (dm.widthPixels * 0.6f);
+            // 60% width in landscape so the dialog feels compact
+            width = (int) (dm.widthPixels * 0.8f);
         } else {
-            width = ViewGroup.LayoutParams.MATCH_PARENT;
+           // Slight margin left/right in portrait so it is visually framed
+            width = (int) (dm.widthPixels * 0.9f);
         }
-        w.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        // Fix the height to a percentage of the screen so the visible area
+        // does not grow/shrink as the header text changes; the ListView can
+        // scroll inside this fixed viewport.
+        int maxHeight = (int) (dm.heightPixels * 0.9f);
+        w.setLayout(width, maxHeight);
         w.setGravity(Gravity.CENTER);
     }
 
@@ -432,6 +444,30 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         headerView = inflater.inflate(R.layout.header_battery_status, null, false);
+
+        // Ensure the header texts do not change their height as values update.
+        // If MEM/CPU strings wrap between 1 and 2 lines, the dialog content
+        // height changes and the bottom list items appear to "jump".
+        try {
+            TextView memoryText = headerView.findViewById(R.id.memory_usage);
+            if (memoryText != null) {
+                memoryText.setSingleLine(true);
+                memoryText.setEllipsize(TextUtils.TruncateAt.END);
+            }
+            TextView cpuText = headerView.findViewById(R.id.cpu_usage);
+            if (cpuText != null) {
+                cpuText.setSingleLine(true);
+                cpuText.setEllipsize(TextUtils.TruncateAt.END);
+            }
+            TextView batteryText = headerView.findViewById(R.id.battery_percentage);
+            if (batteryText != null) {
+                batteryText.setSingleLine(true);
+                batteryText.setEllipsize(TextUtils.TruncateAt.END);
+            }
+        } catch (Throwable t) {
+            Log.w(TAG, "Failed to enforce single-line header text; continuing", t);
+        }
+
         // Ensure any icons present in the header are white too.
         tintAllDrawablesWhite(headerView);
         updateBatteryStatus(); // Initial update
