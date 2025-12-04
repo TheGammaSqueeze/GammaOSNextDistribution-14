@@ -53,6 +53,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 import static android.content.pm.ActivityInfo.launchModeToString;
 import static android.os.Process.INVALID_UID;
 import static android.view.Display.DEFAULT_DISPLAY;
+import static android.view.Display.INVALID_DISPLAY;
 import static android.view.WindowManager.TRANSIT_NONE;
 import static android.view.WindowManager.TRANSIT_OPEN;
 import static android.view.WindowManager.TRANSIT_TO_FRONT;
@@ -115,6 +116,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -160,6 +162,10 @@ class ActivityStarter {
     private static final String TAG_USER_LEAVING = TAG + POSTFIX_USER_LEAVING;
 
     private static final int INVALID_LAUNCH_MODE = -1;
+
+    // GammaOS: property to force Retroarch packages onto the secondary display.
+    private static final String GAMMA_RETROARCH_SECONDARY_PROP =
+            "persist.gammaos.retroarch.secondary_display";
 
     /**
      * Avoid problematical apps from occupying system resources (e.g. the amount of surface) by
@@ -1153,6 +1159,10 @@ class ActivityStarter {
         // Merge the two options bundles, while realCallerOptions takes precedence.
         ActivityOptions checkedOptions = options != null
                 ? options.getOptions(intent, aInfo, callerApp, mSupervisor) : null;
+ 
+        // GammaOS: optionally override Retroarch launches onto secondary display.
+        checkedOptions = adjustLaunchDisplayForGammaRetroarch(checkedOptions, aInfo);
+
 
         final BalVerdict balVerdict;
         if (!abort) {
@@ -3296,6 +3306,45 @@ class ActivityStarter {
     ActivityStarter setErrorCallbackToken(@Nullable IBinder errorCallbackToken) {
         mRequest.errorCallbackToken = errorCallbackToken;
         return this;
+    }
+
+    /**
+     * GammaOS: If enabled, force any com.retroarch* activity to launch on the secondary
+     * trusted display. We only override the display when the caller did not already
+     * request a specific launch display.
+     */
+    private ActivityOptions adjustLaunchDisplayForGammaRetroarch(
+            @Nullable ActivityOptions options, @Nullable ActivityInfo aInfo) {
+        if (aInfo == null) {
+            return options;
+        }
+        final String pkg = aInfo.packageName;
+        if (pkg == null) {
+            return options;
+        }
+        // Only match the core Retroarch package and its known variants.
+        if (!"com.retroarch".equals(pkg) && !pkg.startsWith("com.retroarch.")) {
+            return options;
+        }
+        if (!SystemProperties.getBoolean(GAMMA_RETROARCH_SECONDARY_PROP, false)) {
+            return options;
+        }
+
+        // Respect any explicit launchDisplayId the caller has provided.
+        if (options != null && options.getLaunchDisplayId() != INVALID_DISPLAY) {
+            return options;
+        }
+
+        final int secondaryDisplayId = mRootWindowContainer.getSecondaryTrustedDisplayId();
+        if (secondaryDisplayId == INVALID_DISPLAY) {
+            return options;
+        }
+
+        final ActivityOptions outOptions = options != null
+                ? ActivityOptions.fromBundle(options.toBundle())
+                : ActivityOptions.makeBasic();
+        outOptions.setLaunchDisplayId(secondaryDisplayId);
+        return outOptions;
     }
 
     void dump(PrintWriter pw, String prefix) {

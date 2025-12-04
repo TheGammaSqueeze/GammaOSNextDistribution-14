@@ -1667,6 +1667,28 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 && (displayId == mService.mVr2dDisplayId
                 || mWmService.shouldPlacePrimaryHomeOnDisplay(displayId)));
     }
+ 
+    /**
+     * GammaOS: Return the first trusted non-default display id, or INVALID_DISPLAY if none is
+     * available. This allows us to route specific packages (for example Retroarch) to always
+     * launch on the handheld's secondary screen.
+     */
+    int getSecondaryTrustedDisplayId() {
+        final DisplayContent defaultDisplay = mWmService.getDefaultDisplayContentLocked();
+        final int defaultDisplayId = defaultDisplay != null
+                ? defaultDisplay.getDisplayId()
+                : DEFAULT_DISPLAY;
+
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final DisplayContent dc = getChildAt(i);
+            final int id = dc.getDisplayId();
+            if (id != defaultDisplayId && dc.isTrusted()) {
+                return id;
+            }
+        }
+        return INVALID_DISPLAY;
+    }
 
     /**
      * Check if the display area is valid for secondary home activity.
