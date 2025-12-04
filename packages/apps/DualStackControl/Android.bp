@@ -1,0 +1,21 @@
+android_app {
+    name: "DualStackControl",
+
+    srcs: [
+        "java/**/*.java",
+    ],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: false,
+
+    static_libs: [
+        "com.google.android.material_material",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx-constraintlayout_constraintlayout",
+    ],
+}

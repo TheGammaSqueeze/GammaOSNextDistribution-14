@@ -36,6 +36,7 @@ import com.android.systemui.qs.tiles.RetroArchMenuButtonOverrideTile;
 import com.android.systemui.qs.tiles.USBControllerSwitchTile;
 import com.android.systemui.qs.tiles.ImmersiveModeTile;
 import com.android.systemui.qs.tiles.GammaShaderTile;
+import com.android.systemui.qs.tiles.DualStackTile;
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.CellularTile
 import com.android.systemui.qs.tiles.HeadsUpTile
@@ -161,6 +162,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(GammaShaderTile.TILE_SPEC)
     fun bindGammaShaderTile(gammaShaderTile: GammaShaderTile): QSTileImpl<*>
+
+    /** Inject GammaDualStackTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(DualStackTile.TILE_SPEC)
+    fun bindDualStackTile(dualStackTile: DualStackTile): QSTileImpl<*>
 
     /** Inject MappingEditorTile into tileMap in QSModule */
     @Binds

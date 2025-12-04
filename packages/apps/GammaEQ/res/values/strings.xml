@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">GammaEQ</string>
+    <string name="enable_eq">Enable EQ</string>
+    <string name="preset">Preset</string>
+    <string name="save_custom">Save Custom</string>
+    <string name="reset_defaults">Reset</string>
+    <string name="apply">Apply</string>
+    <string name="preview_play">Play Preview</string>
+    <string name="preview_stop">Stop Preview</string>
+    <string name="preamp">Preamp (dB)</string>
+    <string name="band1">Band 1</string>
+    <string name="band2">Band 2</string>
+    <string name="freq">Freq (Hz)</string>
+    <string name="q_value">Q</string>
+    <string name="gain_db">Gain (dB)</string>
+
+    <string name="cryst_title">Presence / Crystalizer</string>
+    <string name="lbp_title">Low Bass Punch</string>
+    <string name="wide_title">Stereo Wide</string>
+
+    <string name="enable">Enable</string>
+
+    <string name="amount">Amount</string>
+    <string name="mix">Mix</string>
+    <string name="hz">Hz</string>
+    <string name="limit">Limit</string>
+    <string name="pregain_db">Pregain (dB)</string>
+    <string name="postgain_db">Postgain (dB)</string>
+
+    <string name="thr">Threshold</string>
+    <string name="atk">Attack</string>
+    <string name="rel">Release</string>
+    <string name="fc">Fc (Hz)</string>
+
+    <string name="pre">Pre</string>
+    <string name="hpf">HPF</string>
+
+</resources>

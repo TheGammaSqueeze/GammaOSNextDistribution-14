@@ -6618,28 +6618,51 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         public boolean startHomeOnDisplay(int userId, String reason, int displayId,
                 boolean allowInstrumenting, boolean fromHomeKey) {
             synchronized (mGlobalLock) {
-                // Build the secondary-home intent
-                final Intent sec = getSecondaryHomeIntent(/*preferredPackage*/ null);
+                // GammaOS: Determine the effective "home" display first. If the caller
+                // passes INVALID_DISPLAY, mirror RootWindowContainer.startHomeOnDisplay()
+                // and use the top-focused root task's display as the target.
+                int targetDisplayId = displayId;
+                if (targetDisplayId == INVALID_DISPLAY) {
+                    final Task rootTask = getTopDisplayFocusedRootTask();
+                    targetDisplayId = rootTask != null
+                            ? rootTask.getDisplayId()
+                            : DEFAULT_DISPLAY;
+                }
 
-                if (sec != null && !sec.hasCategory(Intent.CATEGORY_SECONDARY_HOME)) {
-                    // Launch as a regular app on the target display to avoid MirrorRoot
-                    final ActivityOptions opts = ActivityOptions.makeBasic();
-                    opts.setLaunchDisplayId(displayId);
-                    opts.setLaunchWindowingMode(android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN);
-                    sec.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    try {
-                        mContext.startActivityAsUser(
-                                sec, opts.toBundle(), UserHandle.of(userId));
-                        return true;
-                    } catch (Throwable t) {
-                        Slog.w(TAG, "Failed to start secondary launcher on display "
-                                + displayId, t);
+                final boolean isSecondaryDisplay = targetDisplayId != DEFAULT_DISPLAY;
+
+                if (isSecondaryDisplay) {
+                    // Build the secondary-home intent (may be overridden via
+                    // persist.gammaos.secondary_home).
+                    final Intent sec = getSecondaryHomeIntent(/* preferredPackage */ null);
+
+                    // If we have an explicit override (no SECONDARY_HOME category), launch it
+                    // as a regular app on the target display to avoid MirrorRoot on external
+                    // / secondary displays.
+                    if (sec != null && !sec.hasCategory(Intent.CATEGORY_SECONDARY_HOME)) {
+                        final ActivityOptions opts = ActivityOptions.makeBasic();
+                        opts.setLaunchDisplayId(targetDisplayId);
+                        opts.setLaunchWindowingMode(
+                                android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN);
+                        sec.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                        try {
+                            mContext.startActivityAsUser(
+                                    sec, opts.toBundle(), UserHandle.of(userId));
+                            return true;
+                        } catch (Throwable t) {
+                            Slog.w(TAG, "Failed to start secondary launcher on display "
+                                    + targetDisplayId, t);
+                            // Fall through to stock handling below.
+                        }
                     }
                 }
-                // Stock SECONDARY_HOME path (no override): let WMS re-home the target display
-                return mRootWindowContainer.startHomeOnDisplay(userId, reason, displayId,
-                        allowInstrumenting, fromHomeKey);
+
+                // Primary-display home, and fallback when override launch fails:
+                // let WMS decide whether to launch primary HOME or SECONDARY_HOME
+                // based on the (possibly INVALID) displayId.
+                return mRootWindowContainer.startHomeOnDisplay(
+                        userId, reason, displayId, allowInstrumenting, fromHomeKey);
             }
         }
 

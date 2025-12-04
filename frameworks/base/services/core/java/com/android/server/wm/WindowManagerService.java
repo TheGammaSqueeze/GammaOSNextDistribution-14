@@ -4343,13 +4343,6 @@ public class WindowManagerService extends IWindowManager.Stub
      * @return The orientation to use in place of requestedOrientation.
      */
     int mapOrientationRequest(int requestedOrientation) {
-        // If auto-rotation is disabled, ignore any app request and force landscape unless
-        // GammaOS dual-stack is enabled (dual-stack manages orientation for its own apps).
-        if (!android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)
-                && !isAutoRotationEnabled()) {
-            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-        }
-
         // GammaOS Dual-Stack: when a whitelisted app is top-resumed on the default display,
         // force a portrait logical orientation so that tall stacked layouts (for example
         // Nintendo DS emulation with two screens) always render in a single upright canvas.
@@ -4370,6 +4363,17 @@ public class WindowManagerService extends IWindowManager.Stub
                     }
                 }
             }
+        }
+
+        // If auto-rotation is disabled, ignore any app request and force landscape unless
+        // GammaOS dual-stack is enabled (dual-stack manages orientation for its own apps).
+        // if (!android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)
+                // && !isAutoRotationEnabled()) {
+            // return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+        // }
+
+        if (!isAutoRotationEnabled()) {
+            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         }
 
         // If the ignore-orientation-request policy is not enabled, honor the app request.

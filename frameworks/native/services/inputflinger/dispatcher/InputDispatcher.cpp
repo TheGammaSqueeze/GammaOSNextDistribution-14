@@ -24,6 +24,7 @@
 #include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <android/os/IInputConstants.h>
+#include <android/keycodes.h>
 #include <binder/Binder.h>
 #include <com_android_input_flags.h>
 #include <ftl/enum.h>
@@ -78,6 +79,21 @@ namespace input_flags = com::android::input::flags;
 namespace android::inputdispatcher {
 
 namespace {
+
+// GammaOS: treat global navigation keys specially so they follow the top-focused
+// display instead of being tied to the device-reported display id. This ensures
+// that a single set of physical keys (e.g. adc-keys bound to display 0) will
+// act on whichever display currently has focus (e.g. display 2).
+static inline bool isNavigationKey(int32_t keyCode) {
+    switch (keyCode) {
+        case AKEYCODE_HOME:
+        case AKEYCODE_BACK:
+        case AKEYCODE_APP_SWITCH:
+            return true;
+        default:
+            return false;
+    }
+}
 
 // Input tracing is only available on debuggable builds (userdebug and eng) when the feature
 // flag is enabled. When the flag is changed, tracing will only be available after reboot.
@@ -2138,7 +2154,14 @@ int32_t InputDispatcher::getTargetDisplayId(const EventEntry& entry) {
     switch (entry.type) {
         case EventEntry::Type::KEY: {
             const KeyEntry& keyEntry = static_cast<const KeyEntry&>(entry);
-            displayId = keyEntry.displayId;
+            // For global navigation keys (HOME/BACK/RECENTS), deliberately do not trust the
+            // device-reported display id. Instead, mark them as "no specific display" so the
+            // final return uses the top-focused display (mFocusedDisplayId).
+            if (isNavigationKey(keyEntry.keyCode)) {
+                displayId = ADISPLAY_ID_NONE;
+            } else {
+                displayId = keyEntry.displayId;
+            }
             break;
         }
         case EventEntry::Type::MOTION: {

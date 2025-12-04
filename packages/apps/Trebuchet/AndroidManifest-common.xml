@@ -173,7 +173,8 @@
             android:theme="@style/AppTheme"
             android:launchMode="singleTop"
             android:exported="true"
-            android:enabled="true">
+            android:enabled="true"
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SECONDARY_HOME" />

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchEnable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_eq"
+            android:textColor="@color/onSurface"
+            android:showText="false"
+            app:useMaterialThemeColors="true"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset"
+                android:textColor="@color/onSurface"/>
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/dropdownPreset"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:textColor="@color/onSurface"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApply"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/apply"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/preamp"
+            android:textColor="@color/onSurface"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderPreamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="-12"
+            android:valueTo="12"
+            android:stepSize="0.5"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp">
+            <TextView
+                android:text="PEQ Band 1"
+                android:textColor="@color/onSurface"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderF1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="50"
+                android:valueTo="12000"
+                app:labelBehavior="gone"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderQ1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0.3"
+                android:valueTo="3.0"
+                android:stepSize="0.1"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderG1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-12"
+                android:valueTo="12"
+                android:stepSize="0.5"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp">
+            <TextView
+                android:text="PEQ Band 2"
+                android:textColor="@color/onSurface"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderF2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="50"
+                android:valueTo="12000"
+                app:labelBehavior="gone"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderQ2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0.3"
+                android:valueTo="3.0"
+                android:stepSize="0.1"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderG2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-12"
+                android:valueTo="12"
+                android:stepSize="0.5"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:paddingTop="8dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveCustom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/save_custom"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReset"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/reset_defaults"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_play"
+                android:background="@drawable/rounded_button"/>
+        </LinearLayout>
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Crystalizer -->
+        <LinearLayout
+            android:id="@+id/sectionCryst"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cryst_title"
+                android:textColor="@color/onSurface"
+                android:textStyle="bold"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchCryst"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable"
+                android:showText="false"
+                app:useMaterialThemeColors="true"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/amount" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mix" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystMix" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hz" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystHz" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="800" android:valueTo="8000" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/limit" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystLimit" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/pregain_db" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystPreDb" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/postgain_db" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystPostDb" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- LBP -->
+        <LinearLayout
+            android:id="@+id/sectionLbp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/lbp_title" android:textColor="@color/onSurface" android:textStyle="bold"/>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchLbp" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/enable" android:showText="false" app:useMaterialThemeColors="true"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/thr" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpThr" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/atk" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpAtk" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="1" android:valueTo="200"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/rel" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpRel" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="10" android:valueTo="1000"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/fc" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpFc" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="40" android:valueTo="200"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Wide -->
+        <LinearLayout
+            android:id="@+id/sectionWide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/wide_title" android:textColor="@color/onSurface" android:textStyle="bold"/>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchWide"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/enable" android:showText="false" app:useMaterialThemeColors="true"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/amount" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWideAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mix" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWideMix" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/pre" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWidePre" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/limit" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWideLimit" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hpf" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWideHpf" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/fc" android:textColor="@color/onSurface"/>
+            <com.google.android.material.slider.Slider android:id="@+id/sliderWideFc" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="80" android:valueTo="8000"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

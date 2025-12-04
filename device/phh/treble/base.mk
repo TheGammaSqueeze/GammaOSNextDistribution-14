@@ -13,7 +13,8 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     JoystickLedPicker \
-    ShaderControl
+    ShaderControl \
+    DualStackControl
 
 PRODUCT_COPY_FILES += \
     device/phh/treble/bluetooth/audio/config/sysbta_audio_policy_configuration.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sysbta_audio_policy_configuration.xml \

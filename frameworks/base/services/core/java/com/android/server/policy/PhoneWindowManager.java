@@ -2474,7 +2474,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 ActionUtils.killForegroundApp(mContext, mCurrentUserId);
                 break;
             case GO_HOME:
-                triggerVirtualKeypress(KeyEvent.KEYCODE_HOME);
+                // GammaOS:
+                // Go home directly via policy instead of synthesizing a HOME key. This ensures
+                // that the HOME action is routed to the currently focused display (secondary
+                // or primary) and avoids InputDispatcher queuing/dropping synthetic HOME
+                // events when there is temporarily no focused window.
+                startDockOrHome(Display.INVALID_DISPLAY,
+                        true  /* fromHomeKey */,
+                        true  /* awakenFromDreams */,
+                        "keyAction_go_home");
                 break;
             default:
                 break;
@@ -4140,7 +4148,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int metaState = event.getMetaState();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
-        final int displayId = event.getDisplayId();
+        final int displayId = getKeyEventDisplayId(event);
         final int deviceId = event.getDeviceId();
         final boolean firstDown = down && repeatCount == 0;
         final boolean longPress = (event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0;
@@ -4729,15 +4737,61 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         upEvent.recycle();
     }
 
+    /**
+     * Resolve the target display for a navigation key event.
+     *
+     * Many hardware key devices (GPIO keys, Bluetooth remotes, etc.) are not
+     * tied to a particular display, so {@link KeyEvent#getDisplayId()} returns
+     * {@link Display#INVALID_DISPLAY}. In that case we route the navigation to
+     * the top-focused display instead of always using the default display.
+     */
+    private int getKeyEventDisplayId(KeyEvent event) {
+        int displayId = event.getDisplayId();
+        final int focusedDisplayId = mWindowManagerInternal.getTopFocusedDisplayId();
+
+        // If the event is not associated with a particular display, route it to the
+        // top-focused display (or the default display if we have no focused display).
+        if (displayId == Display.INVALID_DISPLAY) {
+            if (focusedDisplayId != Display.INVALID_DISPLAY) {
+                displayId = focusedDisplayId;
+            } else {
+                displayId = Display.DEFAULT_DISPLAY;
+            }
+        // If the event is explicitly tagged for a display that is different from the
+        // focused one, keep the original display for most keys but route global
+        // navigation keys (HOME/BACK/RECENTS) to the focused display so that
+        // navigation follows the active screen.
+        } else if (focusedDisplayId != Display.INVALID_DISPLAY
+                && focusedDisplayId != displayId
+                && isNavigationKey(event.getKeyCode())) {
+            displayId = focusedDisplayId;
+        }
+        return displayId;
+    }
+
+    private static boolean isNavigationKey(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_HOME:
+            case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_APP_SWITCH:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // ----------------------------------------------------------------------
+
     private boolean handleHomeShortcuts(IBinder focusedToken, KeyEvent event) {
         // First we always handle the home key here, so applications
         // can never break it, although if keyguard is on, we do let
         // it handle it, because that gives us the correct 5 second
         // timeout.
-        DisplayHomeButtonHandler handler = mDisplayHomeButtonHandlers.get(event.getDisplayId());
+        final int displayId = getKeyEventDisplayId(event);
+        DisplayHomeButtonHandler handler = mDisplayHomeButtonHandlers.get(displayId);
         if (handler == null) {
-            handler = new DisplayHomeButtonHandler(event.getDisplayId());
-            mDisplayHomeButtonHandlers.put(event.getDisplayId(), handler);
+            handler = new DisplayHomeButtonHandler(displayId);
+            mDisplayHomeButtonHandlers.put(displayId, handler);
         }
         return handler.handleHomeButton(focusedToken, event);
     }
@@ -5527,7 +5581,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         final boolean interactive = (policyFlags & FLAG_INTERACTIVE) != 0;
         final boolean canceled = event.isCanceled();
-        final int displayId = event.getDisplayId();
+        final int displayId = getKeyEventDisplayId(event);
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
         // If screen is off then we treat the case where the keyguard is open but hidden
@@ -7433,13 +7487,37 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         if (DEBUG_WAKEUP) {
-            Log.d(TAG, "startDockOrHome: startReason= " + startReason);
+            Log.d(TAG, "startDockOrHome: startReason= " + startReason
+                    + " displayId=" + displayId
+                    + " fromHomeKey=" + fromHomeKey);
         }
 
-        int userId = mUserManagerInternal.getUserAssignedToDisplay(displayId);
-        // Start home.
+        // GammaOS: when this is triggered by a HOME/BACK key (“fromHomeKey”), route
+        // the HOME action to whichever display currently has focus, instead of blindly
+        // using the event’s displayId (which for GPIO keys is always 0).
+        int targetDisplayId = displayId;
+        if (fromHomeKey) {
+            final int focusedDisplayId = mWindowManagerInternal.getTopFocusedDisplayId();
+            if (focusedDisplayId != Display.INVALID_DISPLAY) {
+                targetDisplayId = focusedDisplayId;
+            } else {
+                // Let RootWindowContainer decide based on its own focused task state.
+                targetDisplayId = Display.INVALID_DISPLAY;
+            }
+        }
+
+        // Resolve the user for the target display (fall back to current user if needed).
+        final int userId;
+        if (targetDisplayId == Display.INVALID_DISPLAY) {
+            // RootWindowContainer will pick the top-focused display; use the current user.
+            userId = UserHandle.USER_CURRENT;
+        } else {
+            userId = mUserManagerInternal.getUserAssignedToDisplay(targetDisplayId);
+        }
+
+        // Start home on the resolved display.
         mActivityTaskManagerInternal.startHomeOnDisplay(userId, startReason,
-                displayId, true /* allowInstrumenting */, fromHomeKey);
+                targetDisplayId, true /* allowInstrumenting */, fromHomeKey);
     }
 
     void startDockOrHome(int displayId, boolean fromHomeKey, boolean awakenFromDreams) {
@@ -8111,16 +8189,28 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private int getTargetDisplayIdForKeyEvent(KeyEvent event) {
         int displayId = event.getDisplayId();
+        final int focusedDisplayId = mWindowManagerInternal.getTopFocusedDisplayId();
 
-        if (displayId == INVALID_DISPLAY) {
-            displayId = mTopFocusedDisplayId;
+        // If the event is not associated with any display, route it to the focused display
+        // (or the default display if we have no focused display).
+        if (displayId == Display.INVALID_DISPLAY) {
+            if (focusedDisplayId != Display.INVALID_DISPLAY) {
+                displayId = focusedDisplayId;
+            } else {
+                displayId = Display.DEFAULT_DISPLAY;
+            }
+
+        // If the event is explicitly tagged for a display that is *not* the focused one,
+        // keep the original display for most keys, but for global navigation keys
+        // (HOME/BACK/RECENTS) route them to the focused display so that navigation follows
+        // the last-interacted screen.
+        } else if (focusedDisplayId != Display.INVALID_DISPLAY
+                && focusedDisplayId != displayId
+                && isNavigationKey(event.getKeyCode())) {
+            displayId = focusedDisplayId;
         }
 
-        if (displayId == INVALID_DISPLAY) {
-            return DEFAULT_DISPLAY;
-        } else {
-            return displayId;
-        }
+        return displayId;
     }
 
     private class CameraAvailbilityListener extends CameraManager.AvailabilityCallback {

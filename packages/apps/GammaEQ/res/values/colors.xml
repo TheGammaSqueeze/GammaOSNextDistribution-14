@@ -1,0 +1,6 @@
+<resources>
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="accent">#FF9800</color>
+    <color name="onSurface">#FFFFFF</color>
+</resources>
