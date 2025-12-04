@@ -3334,6 +3334,10 @@ class ActivityStarter {
         if (!"org.mupen64plusae".equals(pkg) && !pkg.startsWith("org.mupen64plusae.")) {
             return options;
         }
+        // Only match the core PPSSPP package and its known variants.
+        if (!"org.ppsspp".equals(pkg) && !pkg.startsWith("org.ppsspp.")) {
+            return options;
+        }
         if (!SystemProperties.getBoolean(GAMMA_RETROARCH_SECONDARY_PROP, false)) {
             return options;
         }
