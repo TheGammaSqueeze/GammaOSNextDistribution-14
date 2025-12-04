@@ -139,6 +139,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityManagerInternal;
+import android.app.IActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
@@ -1298,6 +1299,10 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
         userId = getActivityStartController().checkTargetUser(userId, validateIncomingUser,
                 Binder.getCallingPid(), Binder.getCallingUid(), "startActivityAsUser");
+ 
+        // GammaOS: optional launch guard to forcefully restart selected target packages when
+        // launched from specific caller packages (e.g. Daijishou, ES-DE).
+        maybeForceRestartGammaLaunchGuard(intent, callingPackage, userId);
 
         // TODO: Switch to user app stacks here.
         return getActivityStartController().obtainStarter(intent, "startActivityAsUser")
@@ -1313,6 +1318,97 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 .setActivityOptions(opts)
                 .setUserId(userId)
                 .execute();
+    }
+
+    /**
+     * GammaOS launch guard:
+     *
+     * When enabled, if a configured caller package (e.g. Daijishou, ES-DE) launches
+     * a configured target package (e.g. RetroArch, PPSSPP), we first force-stop
+     * the target package for that user before proceeding with the normal start.
+     *
+     * This avoids unsafe in-process re-entry paths in some emulators that crash
+     * under Scudo when relaunched while already running.
+     *
+     * Controlled via live-read system properties:
+     *
+     *  - persist.gammaos.launch.guard.enabled  (boolean; default false)
+     *  - persist.gammaos.launch.guard.callers  (comma-separated caller packages)
+     *  - persist.gammaos.launch.guard.targets  (comma-separated target packages)
+     *
+     * Example:
+     *   persist.gammaos.launch.guard.enabled=true
+     *   persist.gammaos.launch.guard.callers=com.magneticchen.daijishou,org.es_de.frontend
+     *   persist.gammaos.launch.guard.targets=com.retroarch.aarch64,org.ppsspp.ppsspp
+     */
+    private void maybeForceRestartGammaLaunchGuard(Intent intent, String callingPackage,
+            int userId) {
+        if (!android.os.SystemProperties.getBoolean(
+                "persist.gammaos.launch.guard.enabled", /* def */ false)) {
+            return;
+        }
+        if (intent == null || callingPackage == null || callingPackage.isEmpty()) {
+            return;
+        }
+
+        final String targetPkg;
+        final ComponentName cn = intent.getComponent();
+        if (cn != null) {
+            targetPkg = cn.getPackageName();
+        } else {
+            targetPkg = intent.getPackage();
+        }
+        if (targetPkg == null || targetPkg.isEmpty()) {
+            return;
+        }
+
+        // Check caller and target membership in their respective property lists.
+        if (!isPackageInGammaLaunchGuardList(callingPackage,
+                "persist.gammaos.launch.guard.callers")) {
+            return;
+        }
+        if (!isPackageInGammaLaunchGuardList(targetPkg,
+                "persist.gammaos.launch.guard.targets")) {
+            return;
+        }
+
+        final long origId = Binder.clearCallingIdentity();
+        try {
+            final IActivityManager am = ActivityManager.getService();
+            if (am != null) {
+                try {
+                    am.forceStopPackage(targetPkg, userId);
+                } catch (RemoteException ignored) {
+                    // System server: remote error when talking to AMS should not
+                    // prevent the activity start from continuing.
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(origId);
+        }
+    }
+
+    /**
+     * Utility for GammaOS launch guard: checks if a package name appears in a
+     * comma-separated system property (live-read each time).
+     */
+    private boolean isPackageInGammaLaunchGuardList(String pkg, String propName) {
+        if (pkg == null || pkg.isEmpty()) {
+            return false;
+        }
+        final String raw = android.os.SystemProperties.get(propName, "").trim();
+        if (raw.isEmpty()) {
+            return false;
+        }
+        // Comma-separated list, e.g. "com.foo, com.bar ,baz".
+        final String[] parts = raw.split(",");
+        for (int i = 0; i < parts.length; i++) {
+            final String entry = parts[i].trim();
+            if (!entry.isEmpty() && pkg.equals(entry)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -163,9 +163,13 @@ class ActivityStarter {
 
     private static final int INVALID_LAUNCH_MODE = -1;
 
-    // GammaOS: property to force Retroarch packages onto the secondary display.
-    private static final String GAMMA_RETROARCH_SECONDARY_PROP =
-            "persist.gammaos.retroarch.secondary_display";
+    // GammaOS: controls routing of selected packages to the secondary display.
+    // If disabled, the entire mechanism is inactive regardless of the package list.
+    private static final String GAMMA_SECONDARY_DISPLAY_ENABLED_PROP =
+            "persist.gammaos.secondary_display.enabled";
+    // Comma- or whitespace-separated list of package prefixes to route to secondary display.
+    private static final String GAMMA_SECONDARY_DISPLAY_PACKAGES_PROP =
+            "persist.gammaos.secondary_display.packages";
 
     /**
      * Avoid problematical apps from occupying system resources (e.g. the amount of surface) by
@@ -1159,10 +1163,10 @@ class ActivityStarter {
         // Merge the two options bundles, while realCallerOptions takes precedence.
         ActivityOptions checkedOptions = options != null
                 ? options.getOptions(intent, aInfo, callerApp, mSupervisor) : null;
- 
-        // GammaOS: optionally override Retroarch launches onto secondary display.
-        checkedOptions = adjustLaunchDisplayForGammaRetroarch(checkedOptions, aInfo);
 
+        // GammaOS: optionally override launch display for selected packages (e.g. emulators).
+        checkedOptions =
+                adjustLaunchDisplayForGammaSecondaryPackages(checkedOptions, aInfo);
 
         final BalVerdict balVerdict;
         if (!abort) {
@@ -3307,13 +3311,12 @@ class ActivityStarter {
         mRequest.errorCallbackToken = errorCallbackToken;
         return this;
     }
-
+ 
     /**
-     * GammaOS: If enabled, force any com.retroarch* activity to launch on the secondary
-     * trusted display. We only override the display when the caller did not already
-     * request a specific launch display.
+     * GammaOS: If the target package matches our "force to secondary display" list,
+     * override the launch display to the first trusted non-default display.
      */
-    private ActivityOptions adjustLaunchDisplayForGammaRetroarch(
+    private ActivityOptions adjustLaunchDisplayForGammaSecondaryPackages(
             @Nullable ActivityOptions options, @Nullable ActivityInfo aInfo) {
         if (aInfo == null) {
             return options;
@@ -3322,23 +3325,7 @@ class ActivityStarter {
         if (pkg == null) {
             return options;
         }
-        // Only match the core Retroarch package and its known variants.
-        if (!"com.retroarch".equals(pkg) && !pkg.startsWith("com.retroarch.")) {
-            return options;
-        }
-        // Only match the core Flycast package and its known variants.
-        if (!"com.flycast".equals(pkg) && !pkg.startsWith("com.flycast.")) {
-            return options;
-        }
-        // Only match the core M64Plus FZ package and its known variants.
-        if (!"org.mupen64plusae".equals(pkg) && !pkg.startsWith("org.mupen64plusae.")) {
-            return options;
-        }
-        // Only match the core PPSSPP package and its known variants.
-        if (!"org.ppsspp".equals(pkg) && !pkg.startsWith("org.ppsspp.")) {
-            return options;
-        }
-        if (!SystemProperties.getBoolean(GAMMA_RETROARCH_SECONDARY_PROP, false)) {
+        if (!isGammaSecondaryDisplayForcedPackage(pkg)) {
             return options;
         }
 
@@ -3352,11 +3339,53 @@ class ActivityStarter {
             return options;
         }
 
-        final ActivityOptions outOptions = options != null
+        final ActivityOptions outOptions = (options != null)
                 ? ActivityOptions.fromBundle(options.toBundle())
                 : ActivityOptions.makeBasic();
         outOptions.setLaunchDisplayId(secondaryDisplayId);
         return outOptions;
+    }
+
+    /**
+     * GammaOS: Determine if the given package should be forced to the secondary display.
+     *
+     * Controlled fully via system properties:
+     *
+     *   persist.gammaos.secondary_display.enabled   (boolean)
+     *   persist.gammaos.secondary_display.packages  (CSV / whitespace-separated prefixes)
+     *
+     * Example:
+     *   setprop persist.gammaos.secondary_display.enabled true
+     *   setprop persist.gammaos.secondary_display.packages \
+     *       "com.retroarch,com.flycast,org.mupen64plusae,org.ppsspp"
+     */
+    private boolean isGammaSecondaryDisplayForcedPackage(@NonNull String pkg) {
+        // Global enable/disable switch.
+        if (!SystemProperties.getBoolean(GAMMA_SECONDARY_DISPLAY_ENABLED_PROP, false)) {
+            return false;
+        }
+
+        final String raw = SystemProperties.get(
+                GAMMA_SECONDARY_DISPLAY_PACKAGES_PROP, "").trim();
+        if (raw.isEmpty()) {
+            // No configured prefixes => nothing to override.
+            return false;
+        }
+
+        // Tokens can be separated by commas and/or whitespace.
+        final String[] tokens = raw.split("[,\\s]+");
+        for (int i = 0; i < tokens.length; i++) {
+            final String prefix = tokens[i].trim();
+            if (prefix.isEmpty()) {
+                continue;
+            }
+            // Match exact package or prefix with subpackages:
+            //   "com.retroarch" matches "com.retroarch" and "com.retroarch.plus"
+            if (pkg.equals(prefix) || pkg.startsWith(prefix + ".")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void dump(PrintWriter pw, String prefix) {
