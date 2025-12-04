@@ -3326,6 +3326,14 @@ class ActivityStarter {
         if (!"com.retroarch".equals(pkg) && !pkg.startsWith("com.retroarch.")) {
             return options;
         }
+        // Only match the core Flycast package and its known variants.
+        if (!"com.flycast".equals(pkg) && !pkg.startsWith("com.flycast.")) {
+            return options;
+        }
+        // Only match the core M64Plus FZ package and its known variants.
+        if (!"org.mupen64plusae".equals(pkg) && !pkg.startsWith("org.mupen64plusae.")) {
+            return options;
+        }
         if (!SystemProperties.getBoolean(GAMMA_RETROARCH_SECONDARY_PROP, false)) {
             return options;
         }
