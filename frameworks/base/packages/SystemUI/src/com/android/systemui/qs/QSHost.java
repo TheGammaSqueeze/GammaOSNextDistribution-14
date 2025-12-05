@@ -17,6 +17,7 @@ package com.android.systemui.qs;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.SystemProperties;
 import android.provider.Settings;
 
 import com.android.systemui.plugins.qs.QSTile;
@@ -36,12 +37,83 @@ public interface QSHost {
      * @param res the resources to use to determine the default tiles
      * @return a list of specs of the default tiles
      */
-    static List<String> getDefaultSpecs(Resources res) {
-        final ArrayList<String> tiles = new ArrayList();
+    static java.util.List<String> getDefaultSpecs(Resources res) {
+        final ArrayList<String> tiles = new ArrayList<>();
 
-        final String defaultTileList = res.getString(R.string.quick_settings_tiles_default);
+        // Base default list from config.xml
+        String defaultTileList = res.getString(R.string.quick_settings_tiles_default);
 
-        tiles.addAll(Arrays.asList(defaultTileList.split(",")));
+        // GammaOS:
+        //  - persist.gammaos.qs.override_default_tiles
+        //      "1" / "true" (case-insensitive) => enable override
+        //  - persist.gammaos.qs.override_default_tiles_0 .. _4
+        //      CSV fragments of tile specs (each fragment must fit within PROP_VALUE_MAX)
+        //
+        // The override is evaluated every time this method is called so that
+        // changing the props and forcing SystemUI to reload tiles is enough
+        // to hot-swap the default layout.
+        String overrideEnabled =
+                SystemProperties.get("persist.gammaos.qs.override_default_tiles", "0");
+        if ("1".equals(overrideEnabled) || "true".equalsIgnoreCase(overrideEnabled)) {
+            // Build a single CSV from up to 5 fragments:
+            // persist.gammaos.qs.override_default_tiles_0 .. _4
+            StringBuilder overrideBuilder = new StringBuilder();
+            for (int i = 0; i < 5; i++) {
+                String part = SystemProperties.get(
+                        "persist.gammaos.qs.override_default_tiles_" + i, "").trim();
+                if (part.isEmpty()) {
+                    continue;
+                }
+
+                if (overrideBuilder.length() > 0
+                        && overrideBuilder.charAt(overrideBuilder.length() - 1) != ',') {
+                    // Ensure a comma between non-empty fragments if the previous fragment
+                    // did not end with one. This makes it safe for callers to omit the
+                    // trailing comma at the end of each fragment.
+                    overrideBuilder.append(',');
+                }
+
+                overrideBuilder.append(part);
+            }
+
+            String overrideList = overrideBuilder.toString().trim();
+            if (!overrideList.isEmpty()) {
+                StringBuilder sanitized = new StringBuilder();
+                boolean first = true;
+
+                for (String rawSpec : overrideList.split(",")) {
+                    if (rawSpec == null) {
+                       continue;
+                    }
+                    String spec = rawSpec.trim();
+
+                    // Basic sanity:
+                    //  - drop empty entries
+                    //  - drop entries containing whitespace (never valid tile specs)
+                    if (spec.isEmpty() || spec.indexOf(' ') != -1) {
+                        continue;
+                    }
+
+                    if (!first) {
+                        sanitized.append(',');
+                    } else {
+                        first = false;
+                    }
+                    sanitized.append(spec);
+                }
+
+                if (sanitized.length() > 0) {
+                    defaultTileList = sanitized.toString();
+                }
+            }
+        }
+
+        for (String rawSpec : defaultTileList.split(",")) {
+            if (rawSpec == null) continue;
+            String spec = rawSpec.trim();
+            if (spec.isEmpty()) continue;
+            tiles.add(spec);
+        }
         return tiles;
     }
 
@@ -54,7 +126,7 @@ public interface QSHost {
     void removeTile(String tileSpec);
     void removeTiles(Collection<String> specs);
 
-    List<String> getSpecs();
+    java.util.List<String> getSpecs();
 
     /** Create a {@link QSTile} of a {@code tileSpec} type.
      *

@@ -174,6 +174,7 @@ import android.app.assist.AssistStructure;
 import android.app.compat.CompatChanges;
 import android.app.sdksandbox.sandboxactivity.SdkSandboxActivityAuthority;
 import android.app.usage.UsageStatsManagerInternal;
+import android.hardware.input.InputManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -241,6 +242,9 @@ import android.util.TimeUtils;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.IRecentsAnimationRunner;
+import android.view.InputDevice;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.RemoteAnimationAdapter;
 import android.view.RemoteAnimationDefinition;
 import android.view.WindowManager;
@@ -1376,15 +1380,125 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         try {
             final IActivityManager am = ActivityManager.getService();
             if (am != null) {
-                try {
-                    am.forceStopPackage(targetPkg, userId);
-                } catch (RemoteException ignored) {
-                    // System server: remote error when talking to AMS should not
-                    // prevent the activity start from continuing.
+                boolean needsForceStop = true;
+
+                // For any com.retroarch* package, attempt a clean quit first by
+                // bringing it to the foreground and sending ESC, then wait up to
+                // 5 seconds before falling back to a force-stop.
+                if (targetPkg.startsWith("com.retroarch")) {
+                    needsForceStop = requestRetroarchCleanQuit(targetPkg, userId, am);
+                }
+
+                if (needsForceStop) {
+                    try {
+                        am.forceStopPackage(targetPkg, userId);
+                    } catch (RemoteException ignored) {
+                        // System server: remote error when talking to AMS should not
+                        // prevent the activity start from continuing.
+                    }
                 }
             }
         } finally {
             Binder.restoreCallingIdentity(origId);
+        }
+    }
+ 
+    /**
+     * GammaOS: for any com.retroarch* package, attempt a "clean" quit before we
+     * forcibly stop the package.
+     *
+     * Strategy:
+     *   - Find a running task whose topActivity belongs to com.retroarch* for the
+     *     given user.
+     *   - Move that task to the foreground.
+     *   - Inject an ESC key event so RetroArch can trigger its own exit path.
+     *   - Wait up to 5 seconds to give it time to shut down.
+     *
+     * Returns true if the caller should still force-stop the package afterwards,
+     * or false if the app appears to have exited cleanly.
+     */
+    private boolean requestRetroarchCleanQuit(String targetPkg, int userId,
+            IActivityManager am) {
+        int retroTaskId = -1;
+        try {
+            final java.util.List<ActivityManager.RunningTaskInfo> tasks =
+                    getTasks(Integer.MAX_VALUE);
+            if (tasks != null) {
+                for (int i = 0, size = tasks.size(); i < size; i++) {
+                    final ActivityManager.RunningTaskInfo info = tasks.get(i);
+                    if (info == null || info.topActivity == null) continue;
+                    if (info.userId != userId) continue;
+                    final ComponentName top = info.topActivity;
+                    final String pkg = top != null ? top.getPackageName() : null;
+                    if (pkg != null && pkg.startsWith("com.retroarch")) {
+                        retroTaskId = info.taskId;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // If we fail to enumerate tasks for any reason, fall back to force-stop.
+        }
+
+        if (retroTaskId != -1) {
+            try {
+                moveTaskToFront(null, null, retroTaskId, 0, null);
+            } catch (Throwable t) {
+                // If we can't bring it to front, we still proceed to ESC / wait.
+            }
+
+            // Give WindowManager a brief moment to focus RetroArch.
+            SystemClock.sleep(150);
+            injectGammaEscapeKey();
+        }
+
+        // Wait up to 5 seconds for any com.retroarch* process for this user to go away.
+        final long waitUntil = SystemClock.uptimeMillis() + 5000;
+        try {
+            while (SystemClock.uptimeMillis() < waitUntil) {
+                final java.util.List<ActivityManager.RunningAppProcessInfo> procs =
+                        am.getRunningAppProcesses();
+                boolean found = false;
+                if (procs != null) {
+                    for (int i = 0, size = procs.size(); i < size; i++) {
+                        final ActivityManager.RunningAppProcessInfo p = procs.get(i);
+                        if (p == null || p.processName == null) continue;
+                        if (!p.processName.startsWith("com.retroarch")) continue;
+                        if (android.os.UserHandle.getUserId(p.uid) != userId) continue;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // App appears to have exited on its own; no need to force-stop.
+                    return false;
+                }
+                SystemClock.sleep(200);
+            }
+        } catch (RemoteException e) {
+            // If AMS goes away, just fall back to force-stop.
+        }
+
+        // Still appears to be running; caller should force-stop.
+        return true;
+    }
+
+    /**
+     * Injects a synthetic ESC keypress (down+up) into the input pipeline,
+     * mirroring the behaviour of PhoneWindowManager.triggerVirtualKeypress(KEYCODE_ESCAPE).
+     */
+    private void injectGammaEscapeKey() {
+        final long now = SystemClock.uptimeMillis();
+        final KeyEvent down = new KeyEvent(now, now,
+                KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE, 0 /* repeat */,
+                0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
+                0 /* flags */, InputDevice.SOURCE_KEYBOARD);
+        final KeyEvent up = KeyEvent.changeAction(down, KeyEvent.ACTION_UP);
+
+        final InputManager im = InputManager.getInstance();
+        if (im != null) {
+            im.injectInputEvent(down, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+            im.injectInputEvent(up, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
         }
     }
 
