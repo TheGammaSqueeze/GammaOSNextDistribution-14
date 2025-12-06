@@ -59,6 +59,11 @@ public final class ActivityMainBinding {
     public final TextView labelSaturation;
     public final SeekBar saturationSlider;
     public final TextView saturationValue;
+ 
+    public final TextView labelEffectSpeed;
+    public final SeekBar effectSpeedSlider;
+    public final TextView effectSpeedValue;
+    public final View layoutEffectSpeed;
 
     // Follow brightness toggle
     public final TextView labelFollowBrightness;
@@ -117,6 +122,11 @@ public final class ActivityMainBinding {
         labelSaturation  = root.findViewById(R.id.label_saturation);
         saturationSlider = root.findViewById(R.id.saturation_slider);
         saturationValue  = root.findViewById(R.id.saturation_value);
+ 
+        labelEffectSpeed  = root.findViewById(R.id.label_effect_speed);
+        effectSpeedSlider = root.findViewById(R.id.effect_speed_slider);
+        effectSpeedValue  = root.findViewById(R.id.effect_speed_value);
+        layoutEffectSpeed = root.findViewById(R.id.layout_effect_speed);
 
         // Follow brightness
         labelFollowBrightness  = root.findViewById(R.id.label_follow_brightness);

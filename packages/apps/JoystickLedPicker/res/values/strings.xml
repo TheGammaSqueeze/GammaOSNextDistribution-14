@@ -6,9 +6,12 @@
     <string name="label_control_targets">Control Targets</string>
     <string name="label_brightness">Color Brightness</string>
     <string name="label_saturation">Color Saturation</string>
+    <string name="label_effect_speed">Effect Speed</string>
     <string name="target_both">Both</string>
     <string name="target_left">Left</string>
     <string name="target_right">Right</string>
+    <string name="target_primary">Primary</string>
+    <string name="target_follow">Follow</string>
 
     <!-- New: Custom Effects -->
     <string name="label_custom_effects">LED Effects</string>

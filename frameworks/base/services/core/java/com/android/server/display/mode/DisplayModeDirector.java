@@ -980,7 +980,14 @@ public class DisplayModeDirector {
         public void onChange(boolean selfChange, Uri uri, int userId) {
             synchronized (mLock) {
                 if (mPeakRefreshRateSetting.equals(uri) || mMinRefreshRateSetting.equals(uri)) {
+                    // Update user MIN / PEAK votes based on the new settings.
                     updateRefreshRateSettingLocked();
+                    // GammaOS: changing MIN/PEAK should immediately drive a new
+                    // DesiredDisplayModeSpecs down to DisplayManagerService and
+                    // SurfaceFlinger so refresh rate changes take effect without
+                    // needing an incidental event (new app, brightness change,
+                    // etc.) to trigger a recomputation.
+                    notifyDesiredDisplayModeSpecsChangedLocked();
                 } else if (mLowPowerModeSetting.equals(uri)) {
                     updateLowPowerModeSettingLocked();
                 } else if (mMatchContentFrameRateSetting.equals(uri)) {

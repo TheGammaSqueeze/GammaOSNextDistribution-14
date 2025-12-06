@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Row 1: Follow + Effect 1 + Effect 2 -->
+            <!-- Row 1: Follow + None + Off -->
             <LinearLayout
                 android:id="@+id/layout_custom_effects_row1"
                 android:layout_width="match_parent"
@@ -124,16 +124,9 @@
                     android:layout_marginEnd="8dp"
                     android:maxLines="1"
                     android:singleLine="true" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_effect1"
-                    style="@style/Widget.TargetButton"
-                    android:text="@string/effect_1"
-                    android:maxLines="1"
-                    android:singleLine="true" />
             </LinearLayout>
 
-            <!-- Row 2: Effect 2 + Effect 3 + Effect 4 + Effect 5 -->
+            <!-- Row 2: Effect 1 + Effect 2 + Effect 3 + Effect 4 + Effect 5 -->
             <LinearLayout
                 android:id="@+id/layout_custom_effects_row2"
                 android:layout_width="match_parent"
@@ -143,10 +136,17 @@
                 android:layout_marginTop="4dp">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_effect1"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/effect_1"
+                    android:layout_marginEnd="8dp"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_effect2"
                     style="@style/Widget.TargetButton"
                     android:text="@string/effect_2"
-                    android:layout_marginEnd="8dp"
                     android:maxLines="1"
                     android:singleLine="true" />
 
@@ -277,6 +277,20 @@
                     android:text="@string/target_right"
                     android:layout_marginEnd="16dp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_primary"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/target_primary"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_follow"
+                    style="@style/Widget.TargetButton"
+                    android:text="@string/target_follow"
+                    android:layout_marginEnd="16dp"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/label_split_colors"
                     android:layout_width="wrap_content"
@@ -380,6 +394,47 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="100%"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/label_effect_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_effect_speed"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_effect_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+                <SeekBar
+                    android:id="@+id/effect_speed_slider"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:thumbOffset="0dp"
+                    android:splitTrack="false"
+                    android:minHeight="36dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:progressDrawable="@drawable/gamma_slider_track"
+                    android:thumb="@drawable/gamma_slider_thumb" />
+
+                <TextView
+                    android:id="@+id/effect_speed_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="10"
                     android:textColor="@color/text_primary" />
             </LinearLayout>
         </LinearLayout>
