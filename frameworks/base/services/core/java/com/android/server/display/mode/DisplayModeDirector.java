@@ -107,7 +107,9 @@ public class DisplayModeDirector {
     public static final float SYNCHRONIZED_REFRESH_RATE_TARGET = DEFAULT_LOW_REFRESH_RATE;
     public static final float SYNCHRONIZED_REFRESH_RATE_TOLERANCE = 1;
     private static final String TAG = "DisplayModeDirector";
+
     private boolean mLoggingEnabled;
+    private boolean mGammaRefreshLockEnabled;
 
     private static final int MSG_REFRESH_RATE_RANGE_CHANGED = 1;
     private static final int MSG_LOW_BRIGHTNESS_THRESHOLDS_CHANGED = 2;
@@ -234,6 +236,25 @@ public class DisplayModeDirector {
                 mDeviceConfigDisplaySettings);
         mAlwaysRespectAppRequest = false;
         mSupportsFrameRateOverride = injector.supportsFrameRateOverride();
+
+        // GammaOS: cache current refresh-lock state and react to changes.
+        // This ensures that flipping persist.gammaos.refresh.lock at runtime
+        // forces a full DesiredDisplayModeSpecs recomputation so that
+        // DisplayManagerService and SurfaceFlinger see the new lock state
+        // without requiring a reboot.
+        mGammaRefreshLockEnabled =
+                SystemProperties.getBoolean("persist.gammaos.refresh.lock", /*def*/ false);
+        SystemProperties.addChangeCallback(() -> {
+            final boolean enabled =
+                    SystemProperties.getBoolean("persist.gammaos.refresh.lock", /*def*/ false);
+            synchronized (mLock) {
+                if (enabled == mGammaRefreshLockEnabled) return;
+                mGammaRefreshLockEnabled = enabled;
+                // Drive the existing pipeline:
+                //   DisplayModeDirector -> DisplayManagerService -> SurfaceFlinger.
+                notifyDesiredDisplayModeSpecsChangedLocked();
+            }
+        });
     }
 
     /**
@@ -306,7 +327,7 @@ public class DisplayModeDirector {
 
             // GammaOS: hard refresh lock — force highest refresh within the default
             // resolution group (e.g., 120 Hz on a 120 Hz-capable panel) and ignore votes.
-            if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+            if (mGammaRefreshLockEnabled) {
                 // Pick the highest-Hz mode that matches the default mode's physical size.
                 final int defW = defaultMode.getPhysicalWidth();
                 final int defH = defaultMode.getPhysicalHeight();

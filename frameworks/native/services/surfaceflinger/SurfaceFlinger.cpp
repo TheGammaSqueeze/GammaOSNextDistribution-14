@@ -9521,30 +9521,57 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
 
     auto& selector = display->refreshRateSelector();
     using SetPolicyResult = scheduler::RefreshRateSelector::SetPolicyResult;
+    using NoOverridePolicy = scheduler::RefreshRateSelector::NoOverridePolicy;
+
+    // Start with the caller-supplied policy from DisplayManagerService.
+    scheduler::RefreshRateSelector::PolicyVariant effectivePolicy = policy;
+
+    // GammaOS: global refresh lock state (read once per call).
+    const bool lockEnabled =
+            base::GetBoolProperty("persist.gammaos.refresh.lock", /*defaultValue*/ false);
+
 
     // GammaOS: when refresh lock is enabled, clamp both primary & app ranges
     // to the active mode's FPS so animations/transitions cannot downshift.
-    if (base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+    //
+    // This is a hard override at the SurfaceFlinger/scheduler boundary:
+    //  - DesiredDisplayModeSpecs from DisplayModeDirector may still carry
+    //    whatever the framework wants, including user-preferred 60 Hz.
+    //  - While persist.gammaos.refresh.lock is true we ignore that and
+    //    synthesise a single-mode, single-FPS OverridePolicy based on the
+    //    currently active mode. Vendor HWC implementations cannot pick
+    //    any other FPS or resolution.
+    if (lockEnabled) {
         const auto active = display->getActiveMode();
         const auto fps = active.fps;
         const auto modeId = active.modePtr->getId();
-        // Build a PolicyVariant explicitly using OverridePolicy(modeId, FpsRange{fps,fps}, false)
+
         const scheduler::RefreshRateSelector::OverridePolicy lockedPolicy(
-                modeId, /*range*/{fps, fps}, /*allowGroupSwitching*/false);
-        switch (selector.setPolicy(lockedPolicy)) {
-            case SetPolicyResult::Invalid:   return BAD_VALUE;
-            case SetPolicyResult::Unchanged: return NO_ERROR;
-            case SetPolicyResult::Changed:   break;
-        }
+                modeId,
+                /*range*/ {fps, fps},
+                /*allowGroupSwitching*/ false);
+
+        effectivePolicy = lockedPolicy;
     } else {
-        switch (selector.setPolicy(policy)) {
+        // GammaOS: lock has been disabled. Explicitly clear any previously
+        // installed OverridePolicy so that RefreshRateSelector reverts to
+        // using the DisplayManagerPolicy coming from DisplayModeDirector.
+        //
+        // Without this, mOverridePolicy would persist from the last time the
+        // lock was enabled, and getCurrentPolicyLocked() would continue to
+        // return the old 120 Hz OverridePolicy even though the framework
+        // is now sending 60 Hz-capable specs.
+        (void)selector.setPolicy(NoOverridePolicy{});
+    }
+
+    const auto result = selector.setPolicy(effectivePolicy);
+    switch (result) {
         case SetPolicyResult::Invalid:
             return BAD_VALUE;
         case SetPolicyResult::Unchanged:
             return NO_ERROR;
         case SetPolicyResult::Changed:
             break;
-        }
     }
 
     if (!shouldApplyRefreshRateSelectorPolicy(*display)) {
