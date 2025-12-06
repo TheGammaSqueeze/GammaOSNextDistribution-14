@@ -88,6 +88,7 @@ import android.os.FileUtils;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
+import android.os.SystemProperties;
 import android.os.IRemoteCallback;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
@@ -717,9 +718,24 @@ public class WallpaperManagerService extends IWallpaperManager.Stub
     final WallpaperDisplayHelper mWallpaperDisplayHelper;
     final WallpaperCropper mWallpaperCropper;
 
+    /**
+     * GammaOS: force treating the current system wallpaper as supporting multiple displays,
+     * regardless of WallpaperInfo.supportsMultipleDisplays().
+     */
+    private static final String PROP_GAMMAOS_FORCE_MULTI_DISPLAY_WP = "persist.gammaos.wallpaper.force_multidisplay";
+
+
     private boolean supportsMultiDisplay(WallpaperConnection connection) {
+        // GammaOS override: when enabled, always treat the current system wallpaper as
+        // multi-display capable so that it is attached to all usable internal displays
+        // and the fallback ImageWallpaper is not used on secondary displays.
+        if (SystemProperties.getBoolean(PROP_GAMMAOS_FORCE_MULTI_DISPLAY_WP, false)) {
+            return true;
+        }
+
         if (connection != null) {
-            return connection.mInfo == null // This is image wallpaper
+            // AOSP behaviour: image wallpaper (mInfo == null) or explicit multi-display support.
+            return connection.mInfo == null
                     || connection.mInfo.supportsMultipleDisplays();
         }
         return false;
