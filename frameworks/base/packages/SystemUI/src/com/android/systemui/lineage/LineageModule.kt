@@ -38,6 +38,8 @@ import com.android.systemui.qs.tiles.ImmersiveModeTile;
 import com.android.systemui.qs.tiles.GammaShaderTile;
 import com.android.systemui.qs.tiles.DualStackTile;
 import com.android.systemui.qs.tiles.GammaDualFocusTile;
+import com.android.systemui.qs.tiles.GlobalBFITile;
+import com.android.systemui.qs.tiles.GammaRefreshTile;
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.CellularTile
 import com.android.systemui.qs.tiles.HeadsUpTile
@@ -169,6 +171,18 @@ interface LineageModule {
     @IntoMap
     @StringKey(GammaDualFocusTile.TILE_SPEC)
     fun bindGammaDualFocusTile(gammadualFocusTile: GammaDualFocusTile): QSTileImpl<*>
+
+    /** Inject GlobalBFITile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(GlobalBFITile.TILE_SPEC)
+    fun bindGlobalBFITile(globalBFITile: GlobalBFITile): QSTileImpl<*>
+
+    /** Inject GammaRefreshTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(GammaRefreshTile.TILE_SPEC)
+    fun bindGammaRefreshTile(gammaRefreshTile: GammaRefreshTile): QSTileImpl<*>
 
     /** Inject GammaDualStackTile into tileMap in QSModule */
     @Binds
