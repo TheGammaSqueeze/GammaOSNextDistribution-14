@@ -34,6 +34,8 @@ import android.content.ComponentName;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemProperties;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.InsetsController;
 import android.view.InsetsFrameProvider;
@@ -767,6 +769,15 @@ class InsetsPolicy {
         private void setVisible(boolean visible) {
             final int state = visible ? WINDOW_STATE_SHOWING : WINDOW_STATE_HIDDEN;
             if (mState != state) {
+                if (SystemProperties.getBoolean("persist.gammaos.shade.log", false)) {
+                    Log.d("GammaInsetsPolicy",
+                            "BarWindow.setVisible id=" + mId
+                                    + " visible=" + visible
+                                    + " displayId=" + mDisplayContent.getDisplayId()
+                                    + " from=" + StatusBarManager.windowStateToString(mState)
+                                    + " to=" + StatusBarManager.windowStateToString(state),
+                            new Throwable("GammaShadeInsets"));
+                }
                 mState = state;
                 StatusBarManagerInternal statusBarManagerInternal =
                         mPolicy.getStatusBarManagerInternal();

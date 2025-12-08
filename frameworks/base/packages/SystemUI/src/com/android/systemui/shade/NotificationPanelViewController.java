@@ -66,6 +66,8 @@ import android.graphics.Region;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.SystemProperties;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -258,6 +260,8 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
     public static final String TAG = NotificationPanelView.class.getSimpleName();
     private static final boolean DEBUG_LOGCAT = Compile.IS_DEBUG && Log.isLoggable(TAG, Log.DEBUG);
     private static final boolean SPEW_LOGCAT = Compile.IS_DEBUG && Log.isLoggable(TAG, Log.VERBOSE);
+    private static final String GAMMA_SHADE_PROP = "persist.gammaos.shade.log";
+
     private static final boolean DEBUG_DRAWABLE = false;
     /** The parallax amount of the quick settings translation when dragging down the panel. */
     public static final float QS_PARALLAX_AMOUNT = 0.175f;
@@ -2461,6 +2465,10 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
     //TODO(b/270981268): allow cancelling back animation mid-flight
     @Override
     public void onBackPressed() {
+        debugLog("onBackPressed: qsExpanded=%b shadeFullyExpanded=%b fullyCollapsed=%b",
+                mQsController != null && mQsController.getExpanded(),
+                isShadeFullyExpanded(),
+                isFullyCollapsed());
         closeQsIfPossible();
     }
 
@@ -3663,9 +3671,17 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
                         isFullyExpanded() && mQsController.getExpanded()).commitUpdate(mDisplayId);
     }
 
-    private void debugLog(String fmt, Object... args) {
-        if (DEBUG_LOGCAT) {
-            Log.d(TAG, (mViewName != null ? (mViewName + ": ") : "") + String.format(fmt, args));
+    void debugLog(String fmt, Object... args) {
+        final boolean gammaShadeDebug =
+                SystemProperties.getBoolean(GAMMA_SHADE_PROP, false);
+        if (DEBUG_LOGCAT || gammaShadeDebug) {
+            String msg = (mViewName != null ? (mViewName + ": ") : "")
+                    + String.format(fmt, args);
+            if (gammaShadeDebug) {
+                Log.d(TAG, msg, new Throwable("GammaShadeNPVC"));
+            } else {
+                Log.d(TAG, msg);
+            }
         }
     }
 
@@ -4810,6 +4826,18 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
     }
 
     private void onStatusBarWindowStateChanged(@StatusBarManager.WindowVisibleState int state) {
+        // In forced GammaOS immersive mode, we do not want transient bar reveals
+        // (swipe-from-top to show taskbar/status bar) to auto-collapse an already
+        // open shade / QS. The user is intentionally working in the shade.
+        final boolean immersiveForced =
+                SystemProperties.getBoolean("persist.gammaos.immersive", false);
+
+        if (immersiveForced
+                && mStatusBarStateController.getState() == StatusBarState.SHADE) {
+            // Ignore status bar window state changes while the shade is active.
+            return;
+        }
+
         if (state != WINDOW_STATE_SHOWING
                 && mStatusBarStateController.getState() == StatusBarState.SHADE) {
             collapse(

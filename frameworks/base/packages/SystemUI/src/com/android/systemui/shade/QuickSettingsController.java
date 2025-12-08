@@ -42,6 +42,7 @@ import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.MathUtils;
@@ -125,7 +126,13 @@ import javax.inject.Inject;
 public class QuickSettingsController implements Dumpable {
     public static final String TAG = "QuickSettingsController";
 
+    private static final String GAMMA_SHADE_PROP = "persist.gammaos.shade.log";
+
     public static final int SHADE_BACK_ANIM_SCALE_MULTIPLIER = 100;
+
+    private static boolean isGammaShadeDebug() {
+        return SystemProperties.getBoolean(GAMMA_SHADE_PROP, false);
+    }
 
     private QS mQs;
     private final Lazy<NotificationPanelViewController> mPanelViewControllerLazy;
@@ -796,6 +803,9 @@ public class QuickSettingsController implements Dumpable {
      * from split shade
      */
     public void closeQs() {
+        if (isGammaShadeDebug()) {
+            Log.d(TAG, "closeQs()", new Throwable("GammaShadeQS"));
+        }
         if (mSplitShadeEnabled) {
             mShadeLog.d("Closing QS while in split shade");
         }
@@ -811,6 +821,10 @@ public class QuickSettingsController implements Dumpable {
     void setExpanded(boolean expanded) {
         boolean changed = getExpanded() != expanded;
         if (changed) {
+            if (isGammaShadeDebug()) {
+                Log.d(TAG, "setExpanded(expanded=" + expanded + ")",
+                        new Throwable("GammaShadeQS"));
+            }
             mShadeRepository.setLegacyIsQsExpanded(expanded);
             updateQsState();
             mPanelViewControllerLazy.get().onQsExpansionChanged(expanded);

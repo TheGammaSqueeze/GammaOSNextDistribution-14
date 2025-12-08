@@ -18,6 +18,7 @@ package com.android.systemui.shade;
 
 import android.content.ComponentCallbacks2;
 import android.os.Looper;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
@@ -54,6 +55,7 @@ public final class ShadeControllerImpl extends BaseShadeControllerImpl {
 
     private static final String TAG = "ShadeControllerImpl";
     private static final boolean SPEW = false;
+    private static final String GAMMA_SHADE_PROP = "persist.gammaos.shade.log";
 
     private final int mDisplayId;
 
@@ -131,13 +133,40 @@ public final class ShadeControllerImpl extends BaseShadeControllerImpl {
     @Override
     public void animateCollapseShade(int flags, boolean force, boolean delayed,
             float speedUpFactor) {
+        final boolean gammaShadeDebug =
+                SystemProperties.getBoolean(GAMMA_SHADE_PROP, false);
+        if (gammaShadeDebug) {
+            Log.d(TAG,
+                    "animateCollapseShade(flags=" + flags
+                            + ", force=" + force
+                            + ", delayed=" + delayed
+                            + ", speedUpFactor=" + speedUpFactor
+                            + ", barState=" + mStatusBarStateController.getState()
+                            + ", excludePanel="
+                            + ((flags & CommandQueue.FLAG_EXCLUDE_NOTIFICATION_PANEL) != 0),
+                    new Throwable("GammaShade.animateCollapseShade"));
+        }
         if (!force && mStatusBarStateController.getState() != StatusBarState.SHADE) {
+            if (gammaShadeDebug) {
+                Log.d(TAG,
+                        "animateCollapseShade: ignored because state="
+                                + mStatusBarStateController.getState()
+                                + " and force=false");
+            }
             runPostCollapseActions();
             return;
         }
-        if (getNotificationShadeWindowView() != null
-                && getNpvc().canBeCollapsed()
-                && (flags & CommandQueue.FLAG_EXCLUDE_NOTIFICATION_PANEL) == 0) {
+        final boolean hasWindow = getNotificationShadeWindowView() != null;
+        final boolean canCollapse = hasWindow && getNpvc().canBeCollapsed();
+        final boolean excludePanel =
+                (flags & CommandQueue.FLAG_EXCLUDE_NOTIFICATION_PANEL) != 0;
+        if (gammaShadeDebug) {
+            Log.d(TAG,
+                    "animateCollapseShade: hasWindow=" + hasWindow
+                            + ", canCollapse=" + canCollapse
+                            + ", excludePanel=" + excludePanel);
+        }
+        if (hasWindow && canCollapse && !excludePanel) {
             // release focus immediately to kick off focus change transition
             mNotificationShadeWindowController.setNotificationShadeFocusable(false);
 
@@ -299,6 +328,25 @@ public final class ShadeControllerImpl extends BaseShadeControllerImpl {
         if (SPEW) Log.d(TAG, "makeExpandedInvisible: mExpandedVisible=" + mExpandedVisible);
 
         if (!mExpandedVisible || getNotificationShadeWindowView() == null) {
+            return;
+        }
+ 
+        // When forced immersive is enabled, we want to keep the shade / QS open
+        // across transient bar reveals triggered by swipe-from-top. Those flows
+        // still call makeExpandedInvisible() via mShadeSurface, which would
+        // normally hard-collapse the shade.
+        //
+        // If we're in SHADE state and the panel is not yet fully collapsed,
+        // skip this collapse in immersive mode.
+        final boolean immersiveForced =
+                SystemProperties.getBoolean("persist.gammaos.immersive", false);
+        if (immersiveForced
+                && mStatusBarStateController.getState() == StatusBarState.SHADE
+                && !getNpvc().isFullyCollapsed()) {
+            if (SPEW) {
+                Log.d(TAG,
+                        "makeExpandedInvisible: ignored due to forced immersive with shade open");
+            }
             return;
         }
 
