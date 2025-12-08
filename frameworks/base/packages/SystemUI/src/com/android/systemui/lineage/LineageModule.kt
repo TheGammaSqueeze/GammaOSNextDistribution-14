@@ -39,7 +39,11 @@ import com.android.systemui.qs.tiles.GammaShaderTile;
 import com.android.systemui.qs.tiles.DualStackTile;
 import com.android.systemui.qs.tiles.GammaDualFocusTile;
 import com.android.systemui.qs.tiles.GlobalBFITile;
+import com.android.systemui.qs.tiles.GammaEQTile;
 import com.android.systemui.qs.tiles.GammaRefreshTile;
+import com.android.systemui.qs.tiles.ExternalResizeTile;
+import com.android.systemui.qs.tiles.ExternalDockingTile;
+import com.android.systemui.qs.tiles.ExternalMirrorTile;
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.CellularTile
 import com.android.systemui.qs.tiles.HeadsUpTile
@@ -184,11 +188,35 @@ interface LineageModule {
     @StringKey(GammaRefreshTile.TILE_SPEC)
     fun bindGammaRefreshTile(gammaRefreshTile: GammaRefreshTile): QSTileImpl<*>
 
+    /** Inject ExternalResizeTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(ExternalResizeTile.TILE_SPEC)
+    fun bindExternalResizeTile(externalResizeTile: ExternalResizeTile): QSTileImpl<*>
+
+    /** Inject ExternalDockingTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(ExternalDockingTile.TILE_SPEC)
+    fun bindExternalDockingTile(externalDockingTile: ExternalDockingTile): QSTileImpl<*>
+
+    /** Inject ExternalMirrorTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(ExternalMirrorTile.TILE_SPEC)
+    fun bindExternalMirrorTile(externalMirrorTile: ExternalMirrorTile): QSTileImpl<*>
+
     /** Inject GammaDualStackTile into tileMap in QSModule */
     @Binds
     @IntoMap
     @StringKey(DualStackTile.TILE_SPEC)
     fun bindDualStackTile(dualStackTile: DualStackTile): QSTileImpl<*>
+    
+    /** Inject GammaEQTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(GammaEQTile.TILE_SPEC)
+    fun bindGammaEQTile(gammaEQTile: GammaEQTile): QSTileImpl<*>
 
     /** Inject MappingEditorTile into tileMap in QSModule */
     @Binds

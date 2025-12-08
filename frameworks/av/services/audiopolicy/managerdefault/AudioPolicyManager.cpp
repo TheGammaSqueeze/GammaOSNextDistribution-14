@@ -4513,6 +4513,15 @@ bool AudioPolicyManager::isOffloadPossible(const audio_offload_info_t &offloadIn
         return false; // no offloading if mono is set.
     }
 
+    // GammaEQ integration:
+    // If GammaEQ is enabled at all, keep playback on PCM paths so the
+    // post-mix GammaEQ in AudioFlinger can always run. This applies
+    // regardless of route or other GammaEQ properties.
+    if (property_get_bool("persist.sys.gammaeq.enable", false)) {
+        ALOGV("isOffloadPossible: disabled because GammaEQ is enabled");
+        return false;
+    }
+
     // Check if offload has been disabled
     if (property_get_bool("audio.offload.disable", false /* default_value */)) {
         ALOGV("%s: offload disabled by audio.offload.disable", __func__);

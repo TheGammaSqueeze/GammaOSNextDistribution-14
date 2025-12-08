@@ -18,7 +18,7 @@
             android:text="@string/enable_eq"
             android:textColor="@color/onSurface"
             android:showText="false"
-            app:useMaterialThemeColors="true"/>
+            app:useMaterialThemeColors="true" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,24 +26,27 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingTop="8dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/preset"
-                android:textColor="@color/onSurface"/>
+                android:textColor="@color/onSurface" />
+
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/dropdownPreset"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:textColor="@color/onSurface"/>
+                android:textColor="@color/onSurface" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApply"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/apply"/>
+                android:text="@string/apply" />
         </LinearLayout>
 
         <View
@@ -51,134 +54,224 @@
             android:layout_height="1dp"
             android:background="#33FFFFFF"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp" />
 
+        <!-- Play preview just above Preamp -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preview_play"
+                android:background="@drawable/rounded_button" />
+        </LinearLayout>
+
+        <!-- Preamp (global headroom) -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/labelPreamp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/preamp"
-            android:textColor="@color/onSurface"/>
+            android:textColor="@color/onSurface"
+            android:textSize="12sp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
         <com.google.android.material.slider.Slider
             android:id="@+id/sliderPreamp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:valueFrom="-12"
-            android:valueTo="12"
-            android:stepSize="0.5"/>
+            android:valueFrom="-24"
+            android:valueTo="6"
+            android:value="-1"
+            android:stepSize="0"
+            app:labelBehavior="gone" />
 
+        <!-- PEQ Band 1 (mapped to peq.b0/b1/b2) -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="8dp">
+
             <TextView
                 android:text="PEQ Band 1"
                 android:textColor="@color/onSurface"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
+            <TextView
+                android:id="@+id/labelF1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ1 b0"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b0 ~ 1.30 in Sparkle → keep around 0..3 -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderF1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="50"
-                android:valueTo="12000"
-                app:labelBehavior="gone"/>
+                android:valueFrom="0"
+                android:valueTo="3"
+                android:value="1.30"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
+            <TextView
+                android:id="@+id/labelQ1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ1 b1"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b1 ~ -1.40 in Sparkle → symmetric span around 0 -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderQ1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="0.3"
-                android:valueTo="3.0"
-                android:stepSize="0.1"/>
+                android:valueFrom="-4"
+                android:valueTo="4"
+                android:value="-1.40"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
+            <TextView
+                android:id="@+id/labelG1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ1 b2"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b2 ~ 0.60 in Sparkle -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderG1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="-12"
-                android:valueTo="12"
-                android:stepSize="0.5"/>
+                android:valueFrom="0"
+                android:valueTo="2"
+                android:value="0.60"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
         </LinearLayout>
 
+        <!-- PEQ Band 2 (mapped to peq2.b0/b1/b2) -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="8dp">
+
             <TextView
                 android:text="PEQ Band 2"
                 android:textColor="@color/onSurface"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
+            <TextView
+                android:id="@+id/labelF2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ2 b0"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b0 ~ 1.35 in Sparkle -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderF2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="50"
-                android:valueTo="12000"
-                app:labelBehavior="gone"/>
+                android:valueFrom="0"
+                android:valueTo="3"
+                android:value="1.35"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
+            <TextView
+                android:id="@+id/labelQ2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ2 b1"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b1 ~ -0.95 in Sparkle -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderQ2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="0.3"
-                android:valueTo="3.0"
-                android:stepSize="0.1"/>
+                android:valueFrom="-4"
+                android:valueTo="4"
+                android:value="-0.95"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
+            <TextView
+                android:id="@+id/labelG2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PEQ2 b2"
+                android:textColor="@color/onSurface"
+                android:textSize="12sp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp" />
+
+            <!-- b2 ~ 0.60 in Sparkle -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/sliderG2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:valueFrom="-12"
-                android:valueTo="12"
-                android:stepSize="0.5"/>
+                android:valueFrom="0"
+                android:valueTo="2"
+                android:value="0.60"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
         </LinearLayout>
 
+        <!-- Save / Reset -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
             android:paddingTop="8dp">
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveCustom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/save_custom"/>
+                android:text="@string/save_custom" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReset"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@string/reset_defaults"/>
+                android:text="@string/reset_defaults" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingTop="16dp"
-            android:paddingBottom="24dp">
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPreview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/preview_play"
-                android:background="@drawable/rounded_button"/>
-        </LinearLayout>
-        
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#33FFFFFF"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"/>
 
         <!-- Crystalizer -->
         <LinearLayout
@@ -187,12 +280,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="8dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cryst_title"
                 android:textColor="@color/onSurface"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchCryst"
@@ -200,25 +294,97 @@
                 android:layout_height="wrap_content"
                 android:text="@string/enable"
                 android:showText="false"
-                app:useMaterialThemeColors="true"/>
+                app:useMaterialThemeColors="true" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/amount" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/amount"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="4"
+                android:value="0.40"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mix" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystMix" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mix"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystMix"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:value="0.25"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hz" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystHz" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="800" android:valueTo="8000" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hz"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystHz"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="2000"
+                android:valueTo="20000"
+                android:value="11500"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/limit" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystLimit" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/limit"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystLimit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:value="0.30"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/pregain_db" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystPreDb" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pregain_db"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystPreDb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-24"
+                android:valueTo="6"
+                android:value="-8"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/postgain_db" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderCrystPostDb" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/postgain_db"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderCrystPostDb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-12"
+                android:valueTo="12"
+                android:value="0"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
         </LinearLayout>
 
         <View
@@ -226,7 +392,7 @@
             android:layout_height="1dp"
             android:background="#33FFFFFF"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp" />
 
         <!-- LBP -->
         <LinearLayout
@@ -235,18 +401,81 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="8dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/lbp_title" android:textColor="@color/onSurface" android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lbp_title"
+                android:textColor="@color/onSurface"
+                android:textStyle="bold" />
+
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switchLbp" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/enable" android:showText="false" app:useMaterialThemeColors="true"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/thr" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpThr" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/atk" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpAtk" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="1" android:valueTo="200"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/rel" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpRel" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="10" android:valueTo="1000"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/fc" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderLbpFc" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="40" android:valueTo="200"/>
+                android:id="@+id/switchLbp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable"
+                android:showText="false"
+                app:useMaterialThemeColors="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/thr"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderLbpThr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="2.5"
+                android:value="0.24"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/atk"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderLbpAtk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="1"
+                android:valueTo="50"
+                android:value="4"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rel"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderLbpRel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="10"
+                android:valueTo="500"
+                android:value="110"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fc"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderLbpFc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="20"
+                android:valueTo="400"
+                android:value="160"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
         </LinearLayout>
 
         <View
@@ -254,7 +483,7 @@
             android:layout_height="1dp"
             android:background="#33FFFFFF"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp" />
 
         <!-- Wide -->
         <LinearLayout
@@ -263,23 +492,112 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="8dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/wide_title" android:textColor="@color/onSurface" android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/wide_title"
+                android:textColor="@color/onSurface"
+                android:textStyle="bold" />
+
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchWide"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/enable" android:showText="false" app:useMaterialThemeColors="true"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/amount" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWideAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mix" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWideMix" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/pre" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWidePre" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-12" android:valueTo="12" android:stepSize="0.5"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/limit" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWideLimit" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/hpf" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWideHpf" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0" android:valueTo="1" android:stepSize="0.05"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/fc" android:textColor="@color/onSurface"/>
-            <com.google.android.material.slider.Slider android:id="@+id/sliderWideFc" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="80" android:valueTo="8000"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable"
+                android:showText="false"
+                app:useMaterialThemeColors="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/amount"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWideAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="2"
+                android:value="0.75"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mix"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWideMix"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:value="0.25"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pre"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWidePre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="-12"
+                android:valueTo="12"
+                android:value="0"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/limit"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWideLimit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:value="0"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hpf"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWideHpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="500"
+                android:valueTo="16000"
+                android:value="5500"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fc"
+                android:textColor="@color/onSurface" />
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderWideFc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="500"
+                android:valueTo="16000"
+                android:value="5500"
+                android:stepSize="0"
+                app:labelBehavior="gone" />
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

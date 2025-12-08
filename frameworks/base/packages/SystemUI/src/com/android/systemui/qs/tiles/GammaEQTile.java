@@ -26,6 +26,7 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemProperties;
+import android.view.ViewGroup;
 import android.service.quicksettings.Tile;
 import android.util.Log;
 import android.view.View;
@@ -40,33 +41,40 @@ import com.android.systemui.plugins.ActivityStarter;
 import com.android.systemui.plugins.FalsingManager;
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.plugins.qs.QSTile.Icon;
-import com.android.systemui.plugins.statusbar.StatusBarStateController;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.QsEventLogger;
+import com.android.systemui.plugins.qs.QSTile;
 import com.android.systemui.qs.logging.QSLogger;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
+import com.android.systemui.plugins.statusbar.StatusBarStateController;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: Global BFI **/
-public class GlobalBFITile extends QSTileImpl<BooleanState> {
+/** Quick settings tile: GammaEQ **/
+public class GammaEQTile extends QSTileImpl<BooleanState> {
+ 
+    // Target activity for both long-press and chevron/side-action.
+    private static final String TARGET_PKG = "com.gammaos.gammaeq";
+    private static final String TARGET_CLS = "com.gammaos.gammaeq.MainActivity";
 
-    public static final String TILE_SPEC = "globalbfi";
+    public static final String TILE_SPEC = "gammaeq";
 
-    private static final String PROP_CONTROL = "persist.gammaos.bfi.enable";
+    private static final String PROP_CONTROL = "persist.sys.gammaeq.enable";
+    private static final String MODE_ON      = "1";
+    private static final String MODE_OFF     = "0";
 
-    private static final int STATE_DISABLED = 0;
     private static final int STATE_ENABLED  = 1;
+    private static final int STATE_DISABLED = 0;
 
     private int currentState;
 
-    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_qs_circle);
-    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_add_circle);
+    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_qs_screen_saver);
+    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_qs_screen_saver_undocked);
     private final Receiver mReceiver = new Receiver();
 
     @Inject
-    public GlobalBFITile(
+    public GammaEQTile(
             QSHost host,
             QsEventLogger qsEventLogger,
             @Background Looper backgroundLooper,
@@ -80,16 +88,21 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
         super(host, qsEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
               statusBarStateController, activityStarter, qsLogger);
 
-        // 1) Read persisted prop (default to OFF)
-        currentState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
-        // 2) Re-apply it in case it's changed externally
+        // 1) Read the persisted prop (default to ON if missing/invalid), map to our state
+        currentState = mapPropToState(
+                SystemProperties.get(PROP_CONTROL, MODE_OFF)
+        );
+
+        // 2) Re-apply it (in case it's been changed externally between boots)
         applyState(currentState);
-        // 3) Listen for screen-off and boot to re-sync
+
+        // 3) Listen for screen-off and boot so we can re-sync
         mReceiver.init();
     }
 
     @Override
     public BooleanState newTileState() {
+        // Single-target tile (no chevron / dual-target)
         return new BooleanState();
     }
 
@@ -103,7 +116,11 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
     protected void handleSetListening(boolean listening) {
         super.handleSetListening(listening);
         if (listening) {
-            int newState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
+            // Re-read the prop when QS panel is opened
+            int newState = mapPropToState(
+                    SystemProperties.get(PROP_CONTROL, MODE_OFF)
+            );
+            // If it changed externally, update and refresh tile
             if (newState != currentState) {
                 currentState = newState;
                 refreshState();
@@ -113,34 +130,35 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleClick(@Nullable View view) {
-        // Toggle OFF ⇄ ON
+        // Toggle between ENABLED ⇄ DISABLED
         currentState = (currentState == STATE_ENABLED) ? STATE_DISABLED : STATE_ENABLED;
         applyState(currentState);
         refreshState();
     }
 
-    @Override
-    protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Global BFI";
-        state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
-        state.state = (currentState == STATE_ENABLED)
-                ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
+    private Intent buildLaunchIntent() {
+        return new Intent().setClassName(TARGET_PKG, TARGET_CLS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
+    /**
+     * Long-press launches the Gamma Shader activity and dismisses QS.
+     * Equivalent to: adb shell am start -n com.gammaos.shadercontrol/.MainActivity
+     */
     @Override
     public Intent getLongClickIntent() {
-        return null;
+        return buildLaunchIntent();
     }
 
     @Override
     protected void handleLongClick(@Nullable View view) {
-        // no-op: we intercept the long-press here
+        final Intent intent = getLongClickIntent();
+        mActivityStarter.postStartActivityDismissingKeyguard(intent, 0 /* delay */);
     }
 
     @Override
     public CharSequence getTileLabel() {
-        return "Global BFI";
+        return "GammaEQ";
     }
 
     @Override
@@ -149,18 +167,51 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
     }
 
     /**
-     * Persist the current state into the system property.
+     * Map the string prop ("on"/"off") to our integer state.
+     * Invalid or missing values default to ENABLED.
      */
-    private void applyState(int state) {
-        SystemProperties.set(PROP_CONTROL, Integer.toString(state));
-        if (Log.isLoggable("GlobalBFITile", Log.DEBUG)) {
-            Log.d("GlobalBFITile", PROP_CONTROL + "=" + state);
+    private int mapPropToState(String mode) {
+        if (MODE_OFF.equals(mode)) {
+            return STATE_DISABLED;
         }
+        // default to enabled on missing or invalid
+        return STATE_ENABLED;
     }
 
     /**
-     * Receiver to re-sync state on screen-off and boot.
+     * Map our integer state back to the string we store in the prop.
      */
+    private String mapStateToProp(int state) {
+        return (state == STATE_DISABLED) ? MODE_OFF : MODE_ON;
+    }
+
+    /**
+     * Write the current state into the system property.
+     */
+    private void applyState(int state) {
+        String mode = mapStateToProp(state);
+        SystemProperties.set(PROP_CONTROL, mode);
+        if (Log.isLoggable("GammaEQTile", Log.DEBUG)) {
+            Log.d("GammaEQTile", "Applied GammaEQ control: " + mode);
+        }
+    }
+ 
+    @Override
+    protected void handleUpdateState(BooleanState state, Object arg) {
+        if (currentState == STATE_ENABLED) {
+            state.label = "GammaEQ";
+            state.icon  = mIconOn;
+            state.state = Tile.STATE_ACTIVE;
+        } else {
+            state.label = "GammaEQ";
+            state.icon  = mIconOff;
+            state.state = Tile.STATE_INACTIVE;
+        }
+        // Provide a secondary line only; no dual-target chevron behavior.
+        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
+    }
+
+    /** Receiver to re-sync on screen-off and boot. */
     private final class Receiver extends BroadcastReceiver {
         void init() {
             IntentFilter filter = new IntentFilter();
@@ -178,12 +229,13 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_OFF.equals(action)
              || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-                int newState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
-                if (newState != currentState) {
-                    currentState = newState;
-                    applyState(currentState);
-                    refreshState();
-                }
+                // Re-read the prop in case it was changed elsewhere
+                currentState = mapPropToState(
+                        SystemProperties.get(PROP_CONTROL, MODE_OFF)
+                );
+                // Re-apply it just to be safe, and update UI
+                applyState(currentState);
+                refreshState();
             }
         }
     }

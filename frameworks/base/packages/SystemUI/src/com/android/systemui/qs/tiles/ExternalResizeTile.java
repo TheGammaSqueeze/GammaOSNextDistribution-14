@@ -49,12 +49,12 @@ import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: Global BFI **/
-public class GlobalBFITile extends QSTileImpl<BooleanState> {
+/** Quick settings tile: External Resize Tile **/
+public class ExternalResizeTile extends QSTileImpl<BooleanState> {
 
-    public static final String TILE_SPEC = "globalbfi";
+    public static final String TILE_SPEC = "externalresize";
 
-    private static final String PROP_CONTROL = "persist.gammaos.bfi.enable";
+    private static final String PROP_CONTROL = "persist.gammaos.ext.mirror_resize";
 
     private static final int STATE_DISABLED = 0;
     private static final int STATE_ENABLED  = 1;
@@ -66,7 +66,7 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
     private final Receiver mReceiver = new Receiver();
 
     @Inject
-    public GlobalBFITile(
+    public ExternalResizeTile(
             QSHost host,
             QsEventLogger qsEventLogger,
             @Background Looper backgroundLooper,
@@ -121,7 +121,7 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Global BFI";
+        state.label = "[HDMI] Resize to external display";
         state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
         state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
         state.state = (currentState == STATE_ENABLED)
@@ -140,7 +140,7 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Global BFI";
+        return "[HDMI] Resize to external display";
     }
 
     @Override
@@ -153,8 +153,8 @@ public class GlobalBFITile extends QSTileImpl<BooleanState> {
      */
     private void applyState(int state) {
         SystemProperties.set(PROP_CONTROL, Integer.toString(state));
-        if (Log.isLoggable("GlobalBFITile", Log.DEBUG)) {
-            Log.d("GlobalBFITile", PROP_CONTROL + "=" + state);
+        if (Log.isLoggable("ExternalResizeTile", Log.DEBUG)) {
+            Log.d("ExternalResizeTile", PROP_CONTROL + "=" + state);
         }
     }
 
