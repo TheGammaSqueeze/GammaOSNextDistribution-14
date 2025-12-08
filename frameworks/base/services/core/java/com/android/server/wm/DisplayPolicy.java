@@ -2100,6 +2100,27 @@ public class DisplayPolicy {
                 dc.updateDisplayFrames(df, rotation, w, h);
                 dc.getDisplayPolicy().simulateLayoutDisplay(df);
                 final InsetsState insetsState = df.mInsetsState;
+
+                // GammaOS: In forced immersive mode, make apps believe there is no status bar
+                // inset at all, while keeping gesture insets (mandatorySystemGestures /
+                // tappableElement) intact so swipe-down etc. still work.
+                //
+                // We do this by zeroing out the frame of any InsetsSource whose type contains
+                // Type.statusBars(). This only affects what apps see via WindowInsets, and
+                // does not remove the gesture regions provided by other sources.
+                final boolean gammaForceImmersive =
+                        android.os.SystemProperties.getInt(PROP_GAMMA_IMMERSIVE, 0) == 1;
+                if (gammaForceImmersive) {
+                    for (int i = insetsState.sourceSize() - 1; i >= 0; i--) {
+                        final InsetsSource src = insetsState.sourceAt(i);
+                        if ((src.getType() & Type.statusBars()) == 0) {
+                            continue;
+                        }
+                        // Hide the status bar inset for layout purposes.
+                        src.setFrame(0, 0, 0, 0);
+                    }
+                }
+
                 final Rect displayFrame = insetsState.getDisplayFrame();
                 final Insets decor = insetsState.calculateInsets(displayFrame,
                         dc.mWmService.mDecorTypes, true /* ignoreVisibility */);
@@ -2108,6 +2129,13 @@ public class DisplayPolicy {
                 mNonDecorInsets.set(decor.left, decor.top, decor.right, decor.bottom);
                 mConfigInsets.set(configInsets.left, configInsets.top, configInsets.right,
                         configInsets.bottom);
+
+                if (gammaForceImmersive) {
+                    // Ensure top is treated as fully available in all config / non-decor metrics.
+                    mNonDecorInsets.top = 0;
+                    mConfigInsets.top = 0;
+                }
+
                 mNonDecorFrame.set(displayFrame);
                 mNonDecorFrame.inset(mNonDecorInsets);
                 mConfigFrame.set(displayFrame);

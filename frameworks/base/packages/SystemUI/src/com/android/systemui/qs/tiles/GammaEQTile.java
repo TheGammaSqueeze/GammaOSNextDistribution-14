@@ -69,8 +69,8 @@ public class GammaEQTile extends QSTileImpl<BooleanState> {
 
     private int currentState;
 
-    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_qs_screen_saver);
-    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_qs_screen_saver_undocked);
+    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_music_note);
+    private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_music_note_off);
     private final Receiver mReceiver = new Receiver();
 
     @Inject
