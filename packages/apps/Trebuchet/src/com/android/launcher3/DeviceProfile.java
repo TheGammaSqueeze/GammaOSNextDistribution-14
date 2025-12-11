@@ -1397,6 +1397,23 @@ public class DeviceProfile {
                     + (allAppsBorderSpacePx.x * (numShownAllAppsColumns - 1))
                     + allAppsPadding.left + allAppsPadding.right;
             allAppsLeftRightMargin = Math.max(1, (availableWidthPx - usedWidth) / 2);
+
+            // GammaOS: on square or near-square tablet displays, make the All Apps
+            // container fill the full width instead of using centered gutters.
+            //
+            // aspectRatio is max(width, height) / min(width, height). On your 720x720
+            // device this is 1.0. The 1.15f threshold keeps typical 16:10 and 16:9
+            // tablets behaving as before while treating square / near-square as a
+            // special form factor.
+            if (aspectRatio < 1.15f) {
+                allAppsLeftRightMargin = 0;
+
+                // Optionally reduce inner padding too for maximum width usage.
+                // Keep at least a tiny gutter so icons do not touch the very edge.
+                int minGutter = 4; // helper if you have one, else hardcode 4
+                allAppsPadding.left = Math.max(allAppsPadding.left, minGutter);
+                allAppsPadding.right = Math.max(allAppsPadding.right, minGutter);
+            }
         } else if (!mIsResponsiveGrid) {
             allAppsPadding.left = allAppsPadding.right =
                     Math.max(0, desiredWorkspaceHorizontalMarginPx + cellLayoutHorizontalPadding
