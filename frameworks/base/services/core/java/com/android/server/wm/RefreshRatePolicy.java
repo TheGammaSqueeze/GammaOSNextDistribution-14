@@ -15,6 +15,10 @@
  */
 
 package com.android.server.wm;
+ 
+import android.os.SystemClock;
+import android.util.ArrayMap;
+import android.util.Slog;
 
 import static android.hardware.display.DisplayManager.SWITCHING_TYPE_NONE;
 import static android.hardware.display.DisplayManager.SWITCHING_TYPE_RENDER_FRAME_RATE_ONLY;
@@ -60,6 +64,10 @@ class RefreshRatePolicy {
         }
     }
 
+    // GammaOS: refresh lock diagnostics
+    private static final String TAG = "GammaRefreshLock";
+    private static final long OVERRIDE_LOG_THROTTLE_MS = 5000;
+
     private final DisplayInfo mDisplayInfo;
     private final Mode mDefaultMode;
     private final Mode mLowRefreshRateMode;
@@ -68,6 +76,12 @@ class RefreshRatePolicy {
     private final WindowManagerService mWmService;
     private float mMinSupportedRefreshRate;
     private float mMaxSupportedRefreshRate;
+
+    // GammaOS: realtime refresh lock state (persist.gammaos.refresh.lock)
+    private volatile boolean mGammaRefreshLockEnabled;
+ 
+    // GammaOS: throttle override logs to avoid spam during animations
+    private final ArrayMap<String, Long> mOverrideLogLastUptime = new ArrayMap<>();
 
     /**
      * The following constants represent priority of the window. SF uses this information when
@@ -97,6 +111,17 @@ class RefreshRatePolicy {
         mLowRefreshRateMode = findLowRefreshRateMode(displayInfo, mDefaultMode);
         mHighRefreshRateDenylist = denylist;
         mWmService = wmService;
+
+        // GammaOS: react immediately to refresh-lock toggles without requiring reboot.
+        mGammaRefreshLockEnabled =
+                SystemProperties.getBoolean("persist.gammaos.refresh.lock", /*def*/ false);
+        SystemProperties.addChangeCallback(() -> {
+            final boolean enabled =
+                    SystemProperties.getBoolean("persist.gammaos.refresh.lock", /*def*/ false);
+            if (enabled == mGammaRefreshLockEnabled) return;
+            mGammaRefreshLockEnabled = enabled;
+            mWmService.requestTraversal();
+        });
     }
 
     /**
@@ -129,6 +154,19 @@ class RefreshRatePolicy {
         mNonHighRefreshRatePackages.remove(packageName);
         mWmService.requestTraversal();
     }
+ 
+    private boolean shouldLogOverrideLocked(String key) {
+        final long now = SystemClock.uptimeMillis();
+        final Long last = mOverrideLogLastUptime.get(key);
+        if (last != null && (now - last) < OVERRIDE_LOG_THROTTLE_MS) return false;
+        mOverrideLogLastUptime.put(key, now);
+        // Simple bound to prevent unbounded growth.
+        if (mOverrideLogLastUptime.size() > 128) {
+            // Remove oldest-ish entry (ArrayMap has no direct LRU; cheap prune).
+            mOverrideLogLastUptime.removeAt(0);
+        }
+        return true;
+    }
 
     int getPreferredModeId(WindowState w) {
         final int preferredDisplayModeId = w.mAttrs.preferredDisplayModeId;
@@ -136,10 +174,66 @@ class RefreshRatePolicy {
             // Unspecified, use default mode.
             return 0;
         }
+ 
+        // GammaOS: hard refresh lock means "no exceptions".
+        // If any window requests a lower mode (e.g. preferredDisplayModeId=60Hz), override it
+        // to the highest refresh-rate mode available at the default resolution.
+        if (mGammaRefreshLockEnabled) {
+            final int defW = mDefaultMode.getPhysicalWidth();
+            final int defH = mDefaultMode.getPhysicalHeight();
+
+            Display.Mode requested = null;
+            Display.Mode best = null;
+            float bestHz = -1f;
+
+            for (Display.Mode mode : mDisplayInfo.supportedModes) {
+                if (mode.getModeId() == preferredDisplayModeId) {
+                    requested = mode;
+                }
+                if (mode.getPhysicalWidth() == defW && mode.getPhysicalHeight() == defH) {
+                    if (mode.getRefreshRate() > bestHz) {
+                        bestHz = mode.getRefreshRate();
+                        best = mode;
+                    }
+                }
+            }
+
+            if (best != null) {
+                // Always prefer the highest refresh at the default size when locked.
+                // This prevents SystemUI/Launcher transitions (or any app) from pulling the base
+                // mode down to 60Hz via preferredDisplayModeId.
+                if (requested == null
+                        || requested.getRefreshRate() + RefreshRateRange.FLOAT_TOLERANCE < bestHz
+                        || requested.getPhysicalWidth() != defW
+                        || requested.getPhysicalHeight() != defH) {
+                    // GammaOS: diagnostics (only when an override actually happens)
+                    final String pkg = (w.mAttrs != null) ? String.valueOf(w.mAttrs.packageName) : "unknown";
+                    final CharSequence titleCs = (w.mAttrs != null) ? w.mAttrs.getTitle() : null;
+                    final String title = (titleCs != null) ? titleCs.toString() : "unknown";
+                    final int uid = w.getOwningUid();
+                    final boolean anim = w.isAnimationRunningSelfOrParent();
+                    final float reqHz = (requested != null) ? requested.getRefreshRate() : -1f;
+                    final String key = pkg + "|" + uid + "|" + preferredDisplayModeId;
+                    if (shouldLogOverrideLocked(key)) {
+                        Slog.i(TAG, "refresh.lock=1 overriding preferredDisplayModeId for window="
+                                + w + " pkg=" + pkg + " uid=" + uid + " title=" + title
+                                + " anim=" + anim
+                                + " requestedModeId=" + preferredDisplayModeId
+                                + " requestedHz=" + reqHz
+                                + " -> forcedModeId=" + best.getModeId()
+                                + " forcedHz=" + bestHz
+                                + " display=" + defW + "x" + defH);
+                    }
+                    return best.getModeId();
+                }
+            }
+            // Fall back to the requested mode id if we couldn't compute a better in-group mode.
+            return preferredDisplayModeId;
+        }
 
         // GammaOS: when locked, never downgrade refresh during animations.
-        if (!SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)
-                && !explicitRefreshRateHints() && w.isAnimationRunningSelfOrParent()) {
+        if (!mGammaRefreshLockEnabled && !explicitRefreshRateHints()
+                && w.isAnimationRunningSelfOrParent()) {
             Display.Mode preferredMode = null;
             for (Display.Mode mode : mDisplayInfo.supportedModes) {
                 if (preferredDisplayModeId == mode.getModeId()) {
@@ -262,6 +356,15 @@ class RefreshRatePolicy {
         if (refreshRateSwitchingType == SWITCHING_TYPE_NONE) {
             return w.mFrameRateVote.reset();
         }
+ 
+        // GammaOS: hard refresh lock means all applications/animations MUST adhere to it.
+        // Force the SurfaceControl frame-rate vote to the panel max so SF scheduler and UI
+        // transitions do not fall back to 60fps pacing.
+        if (mGammaRefreshLockEnabled) {
+            return w.mFrameRateVote.update(mMaxSupportedRefreshRate,
+                    Surface.FRAME_RATE_COMPATIBILITY_EXACT,
+                    SurfaceControl.FRAME_RATE_SELECTION_STRATEGY_OVERRIDE_CHILDREN);
+        }
 
         // If app is animating, it's not able to control refresh rate because we want the animation
         // to run in default refresh rate.
@@ -306,7 +409,7 @@ class RefreshRatePolicy {
 
     float getPreferredMinRefreshRate(WindowState w) {
         // GammaOS: hard lock to panel rate when enabled.
-        if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+        if (mGammaRefreshLockEnabled) {
             return mMaxSupportedRefreshRate;
         }
         // If app is animating, it's not able to control refresh rate because we want the animation
@@ -333,7 +436,7 @@ class RefreshRatePolicy {
 
     float getPreferredMaxRefreshRate(WindowState w) {
         // GammaOS: hard lock to panel rate when enabled.
-        if (SystemProperties.getBoolean("persist.gammaos.refresh.lock", false)) {
+        if (mGammaRefreshLockEnabled) {
             return mMaxSupportedRefreshRate;
         }
         // If app is animating, it's not able to control refresh rate because we want the animation

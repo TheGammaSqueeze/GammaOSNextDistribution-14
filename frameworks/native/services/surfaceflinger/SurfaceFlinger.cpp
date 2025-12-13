@@ -2616,6 +2616,11 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     const VsyncId vsyncId = pacesetterFrameTarget.vsyncId();
     ATRACE_NAME(ftl::Concat(__func__, ' ', ftl::to_underlying(vsyncId)).c_str());
 
+    // GammaOS: realtime refresh lock (persist.gammaos.refresh.lock).
+    // When enabled, we keep the pipeline hot and avoid content-based downshifts.
+    const bool gammaRefreshLockEnabled =
+            base::GetBoolProperty("persist.gammaos.refresh.lock"s, false);
+
     // GammaOS: short grace window after shader-OFF to avoid backpressure "60 Hz stick".
     // While this counter is > 0 we disable GPU backpressure; it decrements each frame.
     // Tunable via persist.gammaos.shader.bp_grace_frames (default 6).
@@ -2821,11 +2826,17 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
         mUpdateAttachedChoreographer = false;
 
         Mutex::Autolock lock(mStateLock);
-        mScheduler->chooseRefreshRateForContent(mLayerLifecycleManagerEnabled
-                                                        ? &mLayerHierarchyBuilder.getHierarchy()
-                                                        : nullptr,
-                                                updateAttachedChoreographer);
-        initiateDisplayModeChanges();
+        if (!gammaRefreshLockEnabled) {
+            mScheduler->chooseRefreshRateForContent(
+                    mLayerLifecycleManagerEnabled ? &mLayerHierarchyBuilder.getHierarchy()
+                                                  : nullptr,
+                    updateAttachedChoreographer);
+            initiateDisplayModeChanges();
+        } else {
+            // Reset timers that may gate the performance path and avoid switching based on
+            // detected content cadence while the lock is enabled.
+            mScheduler->resetIdleTimer();
+        }
     }
 
     updateCursorAsync();
@@ -2838,6 +2849,14 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     mLastCommittedVsyncId = vsyncId;
 
     persistDisplayBrightness(mustComposite);
+
+    if (CC_UNLIKELY(gammaRefreshLockEnabled)) {
+        // Always composite/present once per scheduled frame, even if nothing changed.
+        // Then immediately schedule the next frame to keep the present loop at the pacesetter
+        // period (e.g. 120Hz) instead of falling back to "present on buffer" behavior.
+        mustComposite = true;
+        scheduleCommit(FrameHint::kActive);
+    }
 
     return mustComposite && CC_LIKELY(mBootStage != BootStage::BOOTLOADER);
 }
