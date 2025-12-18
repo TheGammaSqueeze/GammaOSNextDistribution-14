@@ -2620,6 +2620,51 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     // When enabled, we keep the pipeline hot and avoid content-based downshifts.
     const bool gammaRefreshLockEnabled =
             base::GetBoolProperty("persist.gammaos.refresh.lock"s, false);
+ 
+    // GammaOS: Apply refresh-lock edge actions immediately (realtime toggle).
+    //
+    // We need to re-seed scheduler phase configuration when toggling the lock because
+    // VsyncModulator can select long work/ready durations that cause VSyncDispatch to
+    // schedule callbacks on every-other-vsync (effective ~60fps) even while the panel
+    // stays in a 120Hz mode.
+    //
+    // Scheduler::setVsyncConfig() is hardened against this when refresh lock is enabled,
+    // but we must force a phase config refresh at the moment the property flips.
+    {
+        static bool sPrevGammaRefreshLockEnabled = false;
+        if (CC_UNLIKELY(gammaRefreshLockEnabled != sPrevGammaRefreshLockEnabled)) {
+            ALOGI("GammaOS refresh.lock=%d", gammaRefreshLockEnabled ? 1 : 0);
+
+            // Ensure we are synced to real HW VSYNC immediately; some vendor stacks will
+            // engage an internal cadence reduction when HW VSYNC is disabled.
+            mScheduler->forceResyncAllToHardwareVsync();
+
+            Mutex::Autolock _l(mStateLock);
+            if (const auto display = getDefaultDisplayDeviceLocked()) {
+                const auto id = display->getPhysicalId();
+                const auto activeMode = display->refreshRateSelector().getActiveMode().modePtr;
+                const auto fps = display->getActiveMode().fps;
+
+                // Re-apply phase configuration so VsyncConfig work/ready durations are updated.
+                mScheduler->resetPhaseConfiguration(fps);
+                mScheduler->clearLayerHistory();
+
+                // Keep HW VSYNC enabled and disable synthetic VSYNC while locked.
+                mScheduler->enableHardwareVsync(id);
+                requestHardwareVsync(id, /*enable=*/true);
+                mScheduler->enableSyntheticVsync(false);
+
+                constexpr bool kAllowToEnable = true;
+                mScheduler->resyncToHardwareVsync(id, kAllowToEnable, activeMode.get());
+
+                // Force a repaint so we immediately settle into the new cadence.
+                mForceFullDamage = true;
+                scheduleComposite(FrameHint::kActive);
+            }
+
+            sPrevGammaRefreshLockEnabled = gammaRefreshLockEnabled;
+        }
+    }
 
     // GammaOS: short grace window after shader-OFF to avoid backpressure "60 Hz stick".
     // While this counter is > 0 we disable GPU backpressure; it decrements each frame.
@@ -3863,6 +3908,19 @@ ui::Rotation SurfaceFlinger::getPhysicalDisplayOrientation(DisplayId displayId,
             if (!strcmp(val, "ORIENTATION_180") || !strcmp(val, "180"))  return ui::ROTATION_180;
             if (!strcmp(val, "ORIENTATION_270") || !strcmp(val, "270"))  return ui::ROTATION_270;
             return ui::ROTATION_0;
+        }
+    }
+ 
+    // GammaOS: Always honor an explicit sysprop override for the primary display,
+    // even if the vendor composer reports a physical panel orientation.
+    if (isPrimary) {
+        char sfOri[PROPERTY_VALUE_MAX];
+        if (property_get("ro.surface_flinger.primary_display_orientation", sfOri, "") > 0) {
+            if (!strcmp(sfOri, "ORIENTATION_0") || !strcmp(sfOri, "0")) return ui::ROTATION_0;
+            if (!strcmp(sfOri, "ORIENTATION_90") || !strcmp(sfOri, "90")) return ui::ROTATION_90;
+           if (!strcmp(sfOri, "ORIENTATION_180") || !strcmp(sfOri, "180")) return ui::ROTATION_180;
+            if (!strcmp(sfOri, "ORIENTATION_270") || !strcmp(sfOri, "270")) return ui::ROTATION_270;
+            ALOGW("Invalid ro.surface_flinger.primary_display_orientation=%s; ignoring", sfOri);
         }
     }
 
@@ -5353,11 +5411,16 @@ void SurfaceFlinger::initScheduler(const sp<const DisplayDevice>& display) {
     const Fps activeRefreshRate = activeMode.fps;
 
     FeatureFlags features;
+ 
+    // GammaOS: refresh lock disables scheduler-side cadence heuristics.
+    const bool gammaRefreshLockEnabled =
+            base::GetBoolProperty("persist.gammaos.refresh.lock"s, false);
 
     const auto defaultContentDetectionValue =
             FlagManager::getInstance().enable_fro_dependent_features() &&
             sysprop::enable_frame_rate_override(true);
-    if (sysprop::use_content_detection_for_refresh_rate(defaultContentDetectionValue)) {
+    if (!gammaRefreshLockEnabled &&
+            sysprop::use_content_detection_for_refresh_rate(defaultContentDetectionValue)) {
         features |= Feature::kContentDetection;
         if (FlagManager::getInstance().enable_small_area_detection()) {
             features |= Feature::kSmallDirtyContentDetection;
@@ -5375,7 +5438,7 @@ void SurfaceFlinger::initScheduler(const sp<const DisplayDevice>& display) {
             features |= Feature::kPresentFences;
         }
     }
-    if (display->refreshRateSelector().kernelIdleTimerController()) {
+    if (!gammaRefreshLockEnabled && display->refreshRateSelector().kernelIdleTimerController()) {
         features |= Feature::kKernelIdleTimer;
     }
     if (mBackpressureGpuComposition) {
@@ -5397,19 +5460,29 @@ void SurfaceFlinger::initScheduler(const sp<const DisplayDevice>& display) {
     }
 
     const auto configs = mScheduler->getVsyncConfiguration().getCurrentConfigs();
+ 
+    // GammaOS: When refresh lock is enabled at boot, clamp EventThread + SF work durations
+    // so VSyncDispatch never legally schedules every-other-vsync due to oversized deadlines.
+    auto gammaAppWorkDuration = configs.late.appWorkDuration;
+    auto gammaSfWorkDuration  = configs.late.sfWorkDuration;
+    if (gammaRefreshLockEnabled) {
+        const auto maxDur = std::chrono::nanoseconds(activeRefreshRate.getPeriod().ns());
+        if (gammaAppWorkDuration > maxDur) gammaAppWorkDuration = maxDur;
+        if (gammaSfWorkDuration > maxDur)  gammaSfWorkDuration  = maxDur;
+    }
 
     mScheduler->createEventThread(scheduler::Cycle::Render, mFrameTimeline->getTokenManager(),
-                                  /* workDuration */ configs.late.appWorkDuration,
-                                  /* readyDuration */ configs.late.sfWorkDuration);
+                                  /* workDuration */ gammaAppWorkDuration,
+                                  /* readyDuration */ gammaSfWorkDuration);
     mScheduler->createEventThread(scheduler::Cycle::LastComposite,
                                   mFrameTimeline->getTokenManager(),
                                   /* workDuration */ activeRefreshRate.getPeriod(),
-                                  /* readyDuration */ configs.late.sfWorkDuration);
+                                  /* readyDuration */ gammaSfWorkDuration);
 
     // Dispatch after EventThread creation, since registerDisplay above skipped dispatch.
     mScheduler->dispatchHotplug(display->getPhysicalId(), scheduler::Scheduler::Hotplug::Connected);
 
-    mScheduler->initVsync(*mFrameTimeline->getTokenManager(), configs.late.sfWorkDuration);
+    mScheduler->initVsync(*mFrameTimeline->getTokenManager(), gammaSfWorkDuration);
 
     mRegionSamplingThread =
             sp<RegionSamplingThread>::make(*this,
@@ -8698,6 +8771,22 @@ void SurfaceFlinger::toggleKernelIdleTimer() {
     const std::optional<KernelIdleTimerController> kernelIdleTimerController =
             display->refreshRateSelector().kernelIdleTimerController();
     if (!kernelIdleTimerController.has_value()) return;
+ 
+    // GammaOS: refresh lock means keep the pipeline hot. Never allow the kernel idle timer
+    // to engage while persist.gammaos.refresh.lock=1, as it can contribute to cadence
+    // reduction (effective 60/40fps) without a visible mode switch.
+    const bool refreshLockEnabled =
+            base::GetBoolProperty("persist.gammaos.refresh.lock"s, false);
+    if (refreshLockEnabled) {
+        if (mKernelIdleTimerEnabled) {
+            ATRACE_INT("KernelIdleTimer", 0);
+            static constexpr std::chrono::milliseconds kTimerDisabledTimeout{0};
+            updateKernelIdleTimer(kTimerDisabledTimeout, kernelIdleTimerController.value(),
+                                  display->getPhysicalId());
+            mKernelIdleTimerEnabled = false;
+        }
+        return;
+    }
 
     // GammaOS: keep pipeline hot while ANY post-FX is enabled.
     const bool postFxOn =
@@ -9540,7 +9629,6 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
 
     auto& selector = display->refreshRateSelector();
     using SetPolicyResult = scheduler::RefreshRateSelector::SetPolicyResult;
-    using NoOverridePolicy = scheduler::RefreshRateSelector::NoOverridePolicy;
 
     // Start with the caller-supplied policy from DisplayManagerService.
     scheduler::RefreshRateSelector::PolicyVariant effectivePolicy = policy;
@@ -9548,6 +9636,11 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
     // GammaOS: global refresh lock state (read once per call).
     const bool lockEnabled =
             base::GetBoolProperty("persist.gammaos.refresh.lock", /*defaultValue*/ false);
+
+    // GammaOS: ensure we return to normal scheduling quickly when the lock is toggled off.
+    const bool lockWasEnabled = mGammaRefreshLockWasEnabled;
+    const bool lockJustDisabled = lockWasEnabled && !lockEnabled;
+    mGammaRefreshLockWasEnabled = lockEnabled;
 
 
     // GammaOS: when refresh lock is enabled, clamp both primary & app ranges
@@ -9561,26 +9654,67 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
     //    currently active mode. Vendor HWC implementations cannot pick
     //    any other FPS or resolution.
     if (lockEnabled) {
-        const auto active = display->getActiveMode();
-        const auto fps = active.fps;
-        const auto modeId = active.modePtr->getId();
+        // GammaOS: refresh-lock enabled -> force both primary & appRequest to a
+        // single fixed mode/fps so animations/transitions cannot downshift.
+        //
+        // Avoid locking to the *currently active* mode. During mode switches the
+        // system can transiently report 60Hz as active; if we lock to that we can
+        // wedge the display at 60Hz until reboot.
+        using namespace fps_approx_ops;
 
+        const int requestedRate = base::GetIntProperty("persist.gammaos.refresh.rate", 0);
+        const auto active = display->getActiveMode();
+        const auto activeGroup = active.modePtr->getGroup();
+        const auto& modes = selector.displayModes();
+
+        // Default target: highest refresh rate within the active mode group.
+        DisplayModeId targetModeId = active.modePtr->getId();
+        Fps targetFps = active.modePtr->getPeakFps();
+
+        for (const auto& [modeId, modePtr] : modes) {
+            if (modePtr->getGroup() != activeGroup) continue;
+            if (modePtr->getPeakFps() > targetFps) {
+                targetModeId = modeId;
+                targetFps = modePtr->getPeakFps();
+            }
+        }
+
+        // Optional: allow an explicit fixed target via persist.gammaos.refresh.rate
+        // (e.g. 60/90/120). If absent/invalid, we stick with the highest in-group.
+        if (requestedRate > 0) {
+            const auto requestedFps = Fps::fromValue(static_cast<float>(requestedRate));
+            bool found = false;
+
+            for (const auto& [modeId, modePtr] : modes) {
+                if (modePtr->getGroup() != activeGroup) continue;
+                if (modePtr->getPeakFps() == requestedFps) {
+                    targetModeId = modeId;
+                    targetFps = modePtr->getPeakFps();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                for (const auto& [modeId, modePtr] : modes) {
+                    if (modePtr->getPeakFps() == requestedFps) {
+                        targetModeId = modeId;
+                        targetFps = modePtr->getPeakFps();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Build override policy w/ exact min=max range.
         const scheduler::RefreshRateSelector::OverridePolicy lockedPolicy(
-                modeId,
-                /*range*/ {fps, fps},
-                /*allowGroupSwitching*/ false);
+                targetModeId, /*range*/ {targetFps, targetFps}, /*allowGroupSwitching*/ false);
 
         effectivePolicy = lockedPolicy;
     } else {
-        // GammaOS: lock has been disabled. Explicitly clear any previously
-        // installed OverridePolicy so that RefreshRateSelector reverts to
-        // using the DisplayManagerPolicy coming from DisplayModeDirector.
-        //
-        // Without this, mOverridePolicy would persist from the last time the
-        // lock was enabled, and getCurrentPolicyLocked() would continue to
-        // return the old 120 Hz OverridePolicy even though the framework
-        // is now sending 60 Hz-capable specs.
-        (void)selector.setPolicy(NoOverridePolicy{});
+        // GammaOS: refresh-lock disabled -> clear override policy so normal
+        // refresh-rate selection can resume.
+        (void)selector.setPolicy(scheduler::RefreshRateSelector::NoOverridePolicy{});
     }
 
     const auto result = selector.setPolicy(effectivePolicy);
@@ -9598,7 +9732,17 @@ status_t SurfaceFlinger::setDesiredDisplayModeSpecsInternal(
         return NO_ERROR;
     }
 
-    return applyRefreshRateSelectorPolicy(displayId, selector);
+    const auto status = applyRefreshRateSelectorPolicy(displayId, selector);
+
+    // GammaOS: when disabling the refresh lock, we want to snap back to
+    // the normal scheduler behavior immediately (no lingering 120Hz config,
+    // and no transient low-rate jitter during mode switches).
+    if (lockJustDisabled) {
+        mScheduler->forceResyncAllToHardwareVsync();
+        mScheduler->scheduleFrame();
+    }
+
+    return status;
 }
 
 bool SurfaceFlinger::shouldApplyRefreshRateSelectorPolicy(const DisplayDevice& display) const {

@@ -518,13 +518,28 @@ void Scheduler::setActiveDisplayPowerModeForRefreshRateStats(hal::PowerMode powe
 }
 
 void Scheduler::setVsyncConfig(const VsyncConfig& config, Period vsyncPeriod) {
+    // GammaOS: When refresh lock is enabled, do not allow the scheduler to "buy time" by
+    // stretching work/ready durations beyond the panel VSYNC period.
+    //
+    // On some stacks (notably Quickstep/Recents idle), VsyncModulator may select a config with
+    // sfWorkDuration (and/or appWorkDuration) > 1 vsync. VSyncDispatch will then legally schedule
+    // callbacks on every-other-vsync (or worse), which manifests as a stable ~60fps cadence while
+    // the physical display remains in 120Hz mode.
+    //
+    // With persist.gammaos.refresh.lock=1, we require a hard 1:1 cadence: schedule every VSYNC.
+    VsyncConfig effective = config;
+    if (android::base::GetBoolProperty("persist.gammaos.refresh.lock", false)) {
+        const auto maxDur = std::chrono::nanoseconds(vsyncPeriod.ns());
+        if (effective.sfWorkDuration > maxDur) effective.sfWorkDuration = maxDur;
+        if (effective.appWorkDuration > maxDur) effective.appWorkDuration = maxDur;
+    }
     setDuration(Cycle::Render,
-                /* workDuration */ config.appWorkDuration,
-                /* readyDuration */ config.sfWorkDuration);
+                /* workDuration */ effective.appWorkDuration,
+                /* readyDuration */ effective.sfWorkDuration);
     setDuration(Cycle::LastComposite,
                 /* workDuration */ vsyncPeriod,
-                /* readyDuration */ config.sfWorkDuration);
-    setDuration(config.sfWorkDuration);
+                /* readyDuration */ effective.sfWorkDuration);
+    setDuration(effective.sfWorkDuration);
 }
 
 void Scheduler::enableHardwareVsync(PhysicalDisplayId id) {
@@ -672,8 +687,19 @@ void Scheduler::addPresentFence(PhysicalDisplayId id, std::shared_ptr<FenceTime>
     if (!scheduleOpt) return;
     const auto& schedule = scheduleOpt->get();
 
+    // GammaOS: keep HW VSYNC enabled when refresh lock is active.
+    //
+    // On some vendor stacks, letting Scheduler automatically disable HW VSYNC
+    // after it has "enough" present fences can introduce timing drift/jitter
+    // in the VsyncReactor path (seen as ~118-120fps oscillation even though the
+    // display is in 120Hz mode). Keeping HW VSYNC enabled makes the pacing
+    // source authoritative and stabilizes frame cadence.
+    const bool gammaRefreshLockEnabled =
+            android::base::GetIntProperty("persist.gammaos.refresh.lock", 0) == 1 &&
+            android::base::GetIntProperty("persist.gammaos.refresh.rate", 0) == 120;
+
     const bool needMoreSignals = schedule->getController().addPresentFence(std::move(fence));
-    if (needMoreSignals) {
+    if (needMoreSignals || gammaRefreshLockEnabled) {
         schedule->enableHardwareVsync();
     } else {
         constexpr bool kDisallow = false;

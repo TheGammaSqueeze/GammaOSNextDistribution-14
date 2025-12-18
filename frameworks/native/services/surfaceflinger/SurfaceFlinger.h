@@ -229,6 +229,11 @@ public:
     // Soft latch to force full-damage once when we nudge on a flip.
     bool mGammaForceFullDamageOnce = false;
 
+    // GammaOS: tracks the last observed refresh lock state so we can detect
+    // lock disable transitions and restore "normal" scheduling quickly.
+    // Accessed on SurfaceFlinger main thread.
+    bool mGammaRefreshLockWasEnabled = false;
+
     // The offset in nanoseconds to use when VsyncController timestamps present fence
     // signaling time.
     static int64_t dispSyncPresentTimeOffset;
