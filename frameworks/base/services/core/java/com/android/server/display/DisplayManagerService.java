@@ -350,25 +350,167 @@ public final class DisplayManagerService extends SystemService {
     /** All {@link DisplayPowerController}s indexed by {@link LogicalDisplay} ID. */
     private final SparseArray<DisplayPowerControllerInterface> mDisplayPowerControllers =
             new SparseArray<>();
+
+    // ------------------------------------------------------------------------
+    // GammaOS: restore DEFAULT_DISPLAY state after external-primary mode
+    // ------------------------------------------------------------------------
+    @GuardedBy("mSyncRoot")
+    private boolean mGammaosInternalBrightnessSuppressed = false;
+
+    @GuardedBy("mSyncRoot")
+    private float mGammaosSavedInternalBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+
+    @GuardedBy("mSyncRoot")
+    private float mGammaosSavedInternalSdrBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+
+    @GuardedBy("mSyncRoot")
+    private float mGammaosSavedInternalBrightnessDefault = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+
+    @GuardedBy("mSyncRoot")
+    private int mGammaosActivePhysicalExternalDisplayId = android.view.Display.INVALID_DISPLAY;
+
+    @GuardedBy("mSyncRoot")
+    private String mGammaosActivePhysicalExternalUniqueId = null;
+
+    @GuardedBy("mSyncRoot")
+    private void gammaosMarkPhysicalExternalActiveLocked(@NonNull LogicalDisplay display) {
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        mGammaosActivePhysicalExternalDisplayId = display.getDisplayIdLocked();
+        mGammaosActivePhysicalExternalUniqueId = (di != null) ? di.uniqueId : null;
+    }
+
+    @GuardedBy("mSyncRoot")
+    private boolean gammaosIsMarkedPhysicalExternalLocked(@NonNull LogicalDisplay display) {
+        if (mGammaosActivePhysicalExternalDisplayId != android.view.Display.INVALID_DISPLAY
+                && display.getDisplayIdLocked() == mGammaosActivePhysicalExternalDisplayId) {
+            return true;
+        }
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        return di != null && mGammaosActivePhysicalExternalUniqueId != null
+                && mGammaosActivePhysicalExternalUniqueId.equals(di.uniqueId);
+    }
+
+    @GuardedBy("mSyncRoot")
+    private void gammaosClearMarkedPhysicalExternalLocked() {
+        mGammaosActivePhysicalExternalDisplayId = android.view.Display.INVALID_DISPLAY;
+        mGammaosActivePhysicalExternalUniqueId = null;
+    }
+
+    @GuardedBy("mSyncRoot")
+    private boolean gammaosHasAnyPhysicalExternalConnectedLocked() {
+        final boolean[] any = new boolean[] { false };
+        mLogicalDisplayMapper.forEachLocked(ld -> {
+            if (any[0]) return;
+            final android.view.DisplayInfo di = ld.getDisplayInfoLocked();
+            if (di != null
+                    && di.type == android.view.Display.TYPE_EXTERNAL
+                    && (di.address instanceof android.view.DisplayAddress.Physical)) {
+                any[0] = true;
+            }
+        });
+        return any[0];
+    }
+
+    @GuardedBy("mSyncRoot")
+    private void gammaosSnapshotInternalBrightnessLocked() {
+        // Snapshot the current DEFAULT_DISPLAY brightness before we force BRIGHTNESS_OFF.
+        final BrightnessPair bp = mDisplayBrightnesses.get(android.view.Display.DEFAULT_DISPLAY);
+        if (bp != null) {
+            mGammaosSavedInternalBrightness = bp.brightness;
+            mGammaosSavedInternalSdrBrightness = bp.sdrBrightness;
+        }
+
+        final LogicalDisplay ld = mLogicalDisplayMapper.getDisplayLocked(
+                android.view.Display.DEFAULT_DISPLAY, /*includeDisabled*/ true);
+        if (ld != null) {
+            final android.view.DisplayInfo di = ld.getDisplayInfoLocked();
+            if (di != null) {
+                mGammaosSavedInternalBrightnessDefault = di.brightnessDefault;
+            }
+        }
+        mGammaosInternalBrightnessSuppressed = true;
+    }
  
     // GammaOS: defer internal restore to the handler to avoid race with external teardown
     private void gammaosPostRestoreInternalDisplay() {
+        final float restoreBrightness;
+        final float restoreSdrBrightness;
+        synchronized (mSyncRoot) {
+            // If we previously suppressed brightness, restore a concrete value to “kick” the
+            // backlight back on. BRIGHTNESS_INVALID_FLOAT is often insufficient after OFF.
+            if (mGammaosInternalBrightnessSuppressed) {
+                float b = mGammaosSavedInternalBrightness;
+                float s = mGammaosSavedInternalSdrBrightness;
+
+                if (b == android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT
+                        || b == android.os.PowerManager.BRIGHTNESS_OFF_FLOAT) {
+                    b = mGammaosSavedInternalBrightnessDefault;
+                }
+                if (s == android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT
+                        || s == android.os.PowerManager.BRIGHTNESS_OFF_FLOAT) {
+                    s = b;
+                }
+                restoreBrightness = b;
+                restoreSdrBrightness = s;
+
+                mGammaosInternalBrightnessSuppressed = false;
+                mGammaosSavedInternalBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+                mGammaosSavedInternalSdrBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+                mGammaosSavedInternalBrightnessDefault = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+            } else {
+                restoreBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+                restoreSdrBrightness = android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT;
+            }
+        }
+
         mHandler.post(() -> {
-            // 1) Clear any forced external sizing
+            synchronized (mSyncRoot) {
+                // If a physical external is still connected (race with reconnect), do not restore.
+                if (gammaosHasAnyPhysicalExternalConnectedLocked()) {
+                    Slog.i(TAG, "GammaOS: restore skipped; physical external still connected");
+                    return;
+                }
+            }
+
+            // 1) Clear any forced external sizing (restores internal metrics)
             if (mWindowManagerInternal != null) {
                 Slog.i(TAG, "GammaOS: (deferred) clearing forced WM size on DEFAULT_DISPLAY");
                 mWindowManagerInternal.clearForcedDisplaySize(android.view.Display.DEFAULT_DISPLAY);
                 // 2) Force a traversal so SF/WM re-evaluate immediately
                 mWindowManagerInternal.requestTraversalFromDisplayManager();
             }
-            // 3) Power ON the internal panel (was logically ON with brightness-off)
-            Slog.i(TAG, "GammaOS: (deferred) powering ON internal display");
+
+            // 3) Power ON the internal panel and explicitly restore brightness if we suppressed it.
+            Slog.i(TAG, "GammaOS: (deferred) restoring internal display power/brightness");
             requestDisplayStateInternal(
                     android.view.Display.DEFAULT_DISPLAY,
                     android.view.Display.STATE_ON,
-                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT,
-                    android.os.PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                    restoreBrightness,
+                    restoreSdrBrightness);
         });
+    }
+ 
+    /**
+     * GammaOS: Returns true only for a physically connected external display (HDMI/DP).
+     *
+     * Important: during teardown, getPrimaryDisplayDeviceLocked() can be null. Prefer DisplayInfo
+     * first so we still match the same display on DISCONNECTED/REMOVED and restore WM/brightness.
+     */
+    @GuardedBy("mSyncRoot")
+    private boolean gammaosIsPhysicalExternalDisplayLocked(@NonNull LogicalDisplay display) {
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        if (di != null
+                && di.type == android.view.Display.TYPE_EXTERNAL
+                && (di.address instanceof android.view.DisplayAddress.Physical)) {
+            return true;
+        }
+
+        final DisplayDevice device = display.getPrimaryDisplayDeviceLocked();
+        if (device == null) return false;
+        final DisplayDeviceInfo info = device.getDisplayDeviceInfoLocked();
+        if (info == null) return false;
+        if (info.type != android.view.Display.TYPE_EXTERNAL) return false;
+        return info.address instanceof android.view.DisplayAddress.Physical;
     }
 
     /**
@@ -2045,9 +2187,9 @@ public final class DisplayManagerService extends SystemService {
                 "persist.gammaos.ext.mirror_resize", /*def*/ false);
         final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
-        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
-        final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
-        if (isExternalType) {
+        final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
+                || gammaosIsPhysicalExternalDisplayLocked(display);
+        if (gammaShouldRestore) {
             if (gammaExtPrimary) {
                 // Stop mirroring on the external we're losing.
                 final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2061,6 +2203,9 @@ public final class DisplayManagerService extends SystemService {
                 // Also defer clear+traversal to avoid races.
                 gammaosPostRestoreInternalDisplay();
             }
+        }
+        if (gammaosIsMarkedPhysicalExternalLocked(display)) {
+            gammaosClearMarkedPhysicalExternalLocked();
         }
         releaseDisplayAndEmitEvent(display, DisplayManagerGlobal.EVENT_DISPLAY_DISCONNECTED);
         mExternalDisplayPolicy.handleLogicalDisplayDisconnectedLocked(display);
@@ -2162,9 +2307,20 @@ public final class DisplayManagerService extends SystemService {
         final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
         final android.view.DisplayInfo di = display.getDisplayInfoLocked();
-        final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
-        if (isExternalType) {
+        // GammaOS: only apply these props to physically connected external displays (HDMI/DP).
+        if (gammaosIsPhysicalExternalDisplayLocked(display)) {
+            if (gammaExtPrimary || gammaExtMirrorResize || gammaExtForceMirror) {
+                // Remember which physical external we acted on so we can restore reliably even if
+                // its DisplayInfo/DisplayDevice is already torn down by the time we see DISCONNECTED/REMOVED.
+                gammaosMarkPhysicalExternalActiveLocked(display);
+            }
             if (gammaExtPrimary) {
+                // Snapshot current brightness so we can restore it on HDMI/DP disconnect.
+                // This prevents the internal backlight getting “stuck” off until the user
+                // manually changes brightness.
+                synchronized (mSyncRoot) {
+                    gammaosSnapshotInternalBrightnessLocked();
+                }
                 // Make the external display mirror DEFAULT_DISPLAY content so apps that assume
                 // display 0 still render correctly while the internal panel is powered OFF.
                 final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2299,8 +2455,9 @@ public final class DisplayManagerService extends SystemService {
             final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
             final android.view.DisplayInfo di = display.getDisplayInfoLocked();
-            final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
-            if (isExternalType) {
+            final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
+                    || gammaosIsPhysicalExternalDisplayLocked(display);
+            if (gammaShouldRestore) {
                 if (gammaExtPrimary) {
                     // Disable mirroring on the external we're removing.
                     final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2311,9 +2468,12 @@ public final class DisplayManagerService extends SystemService {
                     // Defer WM clear + traversal + power ON to handler after we emit removal.
                     gammaosPostRestoreInternalDisplay();
                 }
-                if (gammaExtMirrorResize) {
+                if (gammaExtMirrorResize || gammaExtForceMirror) {
                     gammaosPostRestoreInternalDisplay();
                 }
+            }
+            if (gammaosIsMarkedPhysicalExternalLocked(display)) {
+                gammaosClearMarkedPhysicalExternalLocked();
             }
             sendDisplayEventLocked(display, DisplayManagerGlobal.EVENT_DISPLAY_REMOVED);
 
@@ -2331,9 +2491,9 @@ public final class DisplayManagerService extends SystemService {
                     "persist.gammaos.ext.mirror_resize", /*def*/ false);
             final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
-            final android.view.DisplayInfo di = display.getDisplayInfoLocked();
-            final boolean isExternalType = di.type != android.view.Display.TYPE_INTERNAL;
-            if (isExternalType) {
+            final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
+                || gammaosIsPhysicalExternalDisplayLocked(display);
+            if (gammaShouldRestore) {
                 if (gammaExtPrimary) {
                     // Disable mirroring on the external we're removing.
                     final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2349,6 +2509,9 @@ public final class DisplayManagerService extends SystemService {
         }
 
         // Now release/emit the removal for the external.
+        if (gammaosIsMarkedPhysicalExternalLocked(display)) {
+            gammaosClearMarkedPhysicalExternalLocked();
+        }
         releaseDisplayAndEmitEvent(display, DisplayManagerGlobal.EVENT_DISPLAY_REMOVED);
     }
 

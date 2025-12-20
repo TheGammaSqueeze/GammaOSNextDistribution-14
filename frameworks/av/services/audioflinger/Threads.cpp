@@ -420,6 +420,22 @@ static inline void updateGammaEqSpeakerRouteProp(const DeviceTypeSet& outDevices
     if (kDebug) ALOGD("GammaEQ.route write=0: devices=[%s]", devBuf);
     (void)property_set("sys.gammaeq.route.spk", "0");
 }
+ 
+// GammaEQ: only the primary mixer-style output threads should update the global speaker-route
+// property. Direct/offload threads may transiently exist during hotplug, and can otherwise race
+// the mixer thread and leave the global route flag stuck at "0" (disabling GammaEQ on speakers
+// until reboot).
+static inline bool shouldUpdateGammaEqSpeakerRouteProp(ThreadBase::type_t type) {
+    switch (type) {
+        case ThreadBase::MIXER:
+        case ThreadBase::DUPLICATING:
+        case ThreadBase::SPATIALIZER:
+        case ThreadBase::BIT_PERFECT:
+            return true;
+        default:
+            return false;
+    }
+}
 
 /* GammaEQ speaker-only gating (fast-path safe) */
 static inline bool gammaeqSpeakerOnlyEnabled() {
@@ -1414,7 +1430,9 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_CREATE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
-            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
+            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
+                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            }
         } break;
         case CFG_EVENT_RELEASE_AUDIO_PATCH: {
             const DeviceTypeSet oldDevices = getDeviceTypes_l();
@@ -1426,13 +1444,17 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_RELEASE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
-            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
+            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
+                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            }
         } break;
         case CFG_EVENT_UPDATE_OUT_DEVICE: {
             UpdateOutDevicesConfigEventData *data =
                     (UpdateOutDevicesConfigEventData *)event->mData.get();
             updateOutDevices(data->mOutDevices);
-            if (isOutput()) { updateGammaEqSpeakerRouteProp(outDeviceTypes_l()); }
+            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
+                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            }
         } break;
         case CFG_EVENT_RESIZE_BUFFER: {
             ResizeBufferConfigEventData *data =
@@ -2707,7 +2729,9 @@ PlaybackThread::PlaybackThread(const sp<IAfThreadCallback>& afThreadCallback,
     readOutputParameters_l();
 
     // GammaEQ: set initial speaker-route flag based on current output devices
-    updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+    if (shouldUpdateGammaEqSpeakerRouteProp(mType)) {
+        updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+    }
 
     // Keep the original safety check: mixer channel mask must match HAL channel mask.
     if (mType != SPATIALIZER

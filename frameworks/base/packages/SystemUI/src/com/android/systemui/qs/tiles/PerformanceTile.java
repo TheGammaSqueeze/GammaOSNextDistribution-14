@@ -131,7 +131,7 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
     protected void handleUpdateState(BooleanState state, Object arg) {
         switch (currentState) {
             case STATE_STOCK:
-                state.label = "Stock Performance Mode";
+                state.label = "Balanced Performance Mode";
                 state.icon  = ResourceIcon.get(R.drawable.ic_qs_minus);
                 state.state = Tile.STATE_ACTIVE;
                 break;

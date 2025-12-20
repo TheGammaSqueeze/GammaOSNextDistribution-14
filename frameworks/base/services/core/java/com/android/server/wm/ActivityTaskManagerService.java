@@ -5664,9 +5664,10 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * - If the property is NOT set, keep stock behavior (SECONDARY_HOME flow).
      */
     Intent getSecondaryHomeIntent(String preferredPackage) {
-        // GammaOS: when force-mirror is enabled, never provide a SECONDARY_HOME intent.
-        // This keeps external displays in mirror-only mode regardless of multi-display.
-        if (android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
+        // GammaOS: when force-mirror is enabled, never provide a SECONDARY_HOME intent on
+        // physically connected externals (HDMI/DP). Do not interfere with virtual/casting displays.
+        if (android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)
+                && gammaosHasPhysicalExternalDisplay()) {
             return null;
         }
 
@@ -5742,6 +5743,23 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
         }
         return intent;
+    }
+ 
+    /** GammaOS: True only when a physically connected external display (HDMI/DP) is present. */
+    private boolean gammaosHasPhysicalExternalDisplay() {
+        final RootWindowContainer rwc = mRootWindowContainer;
+        if (rwc == null) return false;
+        final int count = rwc.getChildCount();
+        for (int i = 0; i < count; i++) {
+            final DisplayContent dc = rwc.getChildAt(i);
+            if (dc == null || dc.isDefaultDisplay) continue;
+            final android.view.DisplayInfo di = dc.getDisplayInfo();
+            if (di.type == android.view.Display.TYPE_EXTERNAL
+                    && (di.address instanceof android.view.DisplayAddress.Physical)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // GammaOS: does this package expose an activity that handles MAIN+SECONDARY_HOME?

@@ -5872,7 +5872,9 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         // GammaOS: In force-mirror mode, never support home on non-default displays.
         // This prevents SECONDARY_HOME / desktop behaviour on HDMI while we mirror.
         if (getDisplayId() != DEFAULT_DISPLAY
-                && android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
+                && android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)
+                && getDisplayInfo().type == android.view.Display.TYPE_EXTERNAL
+                && (getDisplayInfo().address instanceof android.view.DisplayAddress.Physical)) {
             return false;
         }
 

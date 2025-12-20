@@ -128,7 +128,12 @@ public abstract class DisplayAreaPolicy {
             // GammaOS: Promote secondary displays to "trusted + decorated" when Desktop mode is forced.
             // This allows SystemUI nav/status bars and a HOME task on the external screen.
             // We keep default display behavior unchanged.
-            final boolean gammaForceMirror = android.os.SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false);
+            // Only treat force-mirror as active for physically connected externals (HDMI/DP).
+            final android.view.DisplayInfo gammaDi = content.getDisplayInfo();
+            final boolean gammaForceMirror = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.force_mirror", false)
+                    && gammaDi.type == android.view.Display.TYPE_EXTERNAL
+                    && (gammaDi.address instanceof android.view.DisplayAddress.Physical);
             final boolean forceDesktop = wmService.mForceDesktopModeOnExternalDisplays && !gammaForceMirror;
             final boolean promoteDecor = content.isTrusted()
                     || (forceDesktop && !content.isDefaultDisplay);

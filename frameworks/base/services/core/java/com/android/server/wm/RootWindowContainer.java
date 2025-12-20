@@ -1689,6 +1689,13 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         }
         return INVALID_DISPLAY;
     }
+ 
+    /** GammaOS: True only for a physically connected external display (HDMI/DP). */
+    private static boolean gammaosIsPhysicalExternalDisplay(@Nullable android.view.DisplayInfo di) {
+        return di != null
+                && di.type == android.view.Display.TYPE_EXTERNAL
+                && (di.address instanceof android.view.DisplayAddress.Physical);
+    }
 
     /**
      * Check if the display area is valid for secondary home activity.
@@ -1707,7 +1714,10 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         final int displayId = taskDisplayArea.getDisplayId();
         // GammaOS: When force-mirror is enabled, do NOT place a secondary home
         // on any non-default display (e.g. HDMI). This keeps the display pure-mirror.
-        if (displayId != DEFAULT_DISPLAY
+        final DisplayContent dc = taskDisplayArea.getDisplayContent();
+        final boolean isPhysicalExternal = dc != null
+                && gammaosIsPhysicalExternalDisplay(dc.getDisplayInfo());
+        if (isPhysicalExternal
                 && SystemProperties.getBoolean("persist.gammaos.ext.force_mirror", false)) {
             return false;
         }
