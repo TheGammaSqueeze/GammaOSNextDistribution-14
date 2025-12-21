@@ -421,11 +421,15 @@ static inline void updateGammaEqSpeakerRouteProp(const DeviceTypeSet& outDevices
     (void)property_set("sys.gammaeq.route.spk", "0");
 }
  
-// GammaEQ: only the primary mixer-style output threads should update the global speaker-route
-// property. Direct/offload threads may transiently exist during hotplug, and can otherwise race
-// the mixer thread and leave the global route flag stuck at "0" (disabling GammaEQ on speakers
-// until reboot).
-static inline bool shouldUpdateGammaEqSpeakerRouteProp(ThreadBase::type_t type) {
+// GammaEQ: we must avoid non-mixer transient output threads (DIRECT/OFFLOAD/etc.) clearing the
+// global speaker-route flag during hotplug, which can leave it stuck at "0".
+//
+// However, allowing only mixer threads to write *anything* can still leave a rare case where
+// the system is routed back to speaker but the first active output is non-mixer, so "1" is not
+// re-asserted. To harden this:
+//   - allow ALL output threads to write "1" when speaker is present
+//   - allow ONLY mixer-style threads to write "0"
+static inline bool shouldWriteGammaEqRouteZero(ThreadBase::type_t type) {
     switch (type) {
         case ThreadBase::MIXER:
         case ThreadBase::DUPLICATING:
@@ -435,6 +439,20 @@ static inline bool shouldUpdateGammaEqSpeakerRouteProp(ThreadBase::type_t type) 
         default:
             return false;
     }
+}
+ 
+static inline void updateGammaEqSpeakerRoutePropForThread(
+        ThreadBase::type_t type, const DeviceTypeSet& outDevices) {
+    // If speaker is present, always assert "1" regardless of thread type.
+    for (const auto& d : outDevices) {
+        if (d == AUDIO_DEVICE_OUT_SPEAKER || d == AUDIO_DEVICE_OUT_SPEAKER_SAFE) {
+            (void)property_set("sys.gammaeq.route.spk", "1");
+            return;
+        }
+    }
+    // Only mixer-style threads may clear it to "0". Others skip.
+    if (!shouldWriteGammaEqRouteZero(type)) return;
+    updateGammaEqSpeakerRouteProp(outDevices);
 }
 
 /* GammaEQ speaker-only gating (fast-path safe) */
@@ -1430,8 +1448,8 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_CREATE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
-            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
-                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            if (isOutput()) {
+                updateGammaEqSpeakerRoutePropForThread(mType, outDeviceTypes_l());
             }
         } break;
         case CFG_EVENT_RELEASE_AUDIO_PATCH: {
@@ -1444,16 +1462,16 @@ void ThreadBase::processConfigEvents_l()
             mLocalLog.log("CFG_EVENT_RELEASE_AUDIO_PATCH: old device %s (%s) new device %s (%s)",
                     dumpDeviceTypes(oldDevices).c_str(), toString(oldDevices).c_str(),
                     dumpDeviceTypes(newDevices).c_str(), toString(newDevices).c_str());
-            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
-                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            if (isOutput()) {
+                updateGammaEqSpeakerRoutePropForThread(mType, outDeviceTypes_l());
             }
         } break;
         case CFG_EVENT_UPDATE_OUT_DEVICE: {
             UpdateOutDevicesConfigEventData *data =
                     (UpdateOutDevicesConfigEventData *)event->mData.get();
             updateOutDevices(data->mOutDevices);
-            if (isOutput() && shouldUpdateGammaEqSpeakerRouteProp(mType)) {
-                updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+            if (isOutput()) {
+                updateGammaEqSpeakerRoutePropForThread(mType, outDeviceTypes_l());
             }
         } break;
         case CFG_EVENT_RESIZE_BUFFER: {
@@ -2729,8 +2747,8 @@ PlaybackThread::PlaybackThread(const sp<IAfThreadCallback>& afThreadCallback,
     readOutputParameters_l();
 
     // GammaEQ: set initial speaker-route flag based on current output devices
-    if (shouldUpdateGammaEqSpeakerRouteProp(mType)) {
-        updateGammaEqSpeakerRouteProp(outDeviceTypes_l());
+    if (isOutput()) {
+        updateGammaEqSpeakerRoutePropForThread(mType, outDeviceTypes_l());
     }
 
     // Keep the original safety check: mixer channel mask must match HAL channel mask.
@@ -4071,6 +4089,26 @@ ssize_t PlaybackThread::threadLoop_write()
     mInWrite = true;
     ssize_t bytesWritten;
     const size_t offset = mCurrentWriteLength - mBytesRemaining;
+
+    // GammaEQ: self-heal the global speaker-route flag when this thread is actively writing.
+    //
+    // HDMI hotplug/unplug can temporarily reroute playback to an HDMI thread which writes
+    // sys.gammaeq.route.spk=0. When routing returns to speaker, the speaker playback thread
+    // may not get a route-change config event, so the global flag can remain stuck at 0,
+    // disabling GammaEQ for FAST and normal paths until reboot.
+    //
+    // Updating the flag here ties it to actual audio output activity instead of config-event
+    // ordering and ensures the speaker path re-asserts "1" as soon as it resumes.
+    if (mBytesRemaining > 0 && gammaeqMasterEnabled() && gammaeqSpeakerOnlyEnabled()
+            && !gammaeqForceAllOutputs()) {
+        DeviceTypeSet devs;
+        {
+            // outDeviceTypes_l() requires ThreadBase::mutex() held.
+            audio_utils::lock_guard _l(mutex());
+            devs = outDeviceTypes_l();
+        }
+        updateGammaEqSpeakerRouteProp(devs);
+    }
 
     // If an NBAIO sink is present, use it to write the normal mixer's submix
     if (mNormalSink != 0) {

@@ -351,6 +351,171 @@ public final class DisplayManagerService extends SystemService {
     private final SparseArray<DisplayPowerControllerInterface> mDisplayPowerControllers =
             new SparseArray<>();
 
+    /** GammaOS: half_4k-only case can force size on the external display itself. */
+    @GuardedBy("mSyncRoot")
+    private int mGammaosHalf4kExternalForcedDisplayId = android.view.Display.INVALID_DISPLAY;
+ 
+    // Generation counter to invalidate delayed/retry runnables after unplug/replug.
+    @GuardedBy("mSyncRoot")
+    private int mGammaosHalf4kExternalForcedGeneration = 0;
+
+    @GuardedBy("mSyncRoot")
+    private String mGammaosHalf4kExternalForcedUniqueId = null;
+
+    @GuardedBy("mSyncRoot")
+    private void gammaosMarkHalf4kExternalForcedLocked(@NonNull LogicalDisplay display) {
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        mGammaosHalf4kExternalForcedDisplayId = display.getDisplayIdLocked();
+        mGammaosHalf4kExternalForcedUniqueId = (di != null) ? di.uniqueId : null;
+        mGammaosHalf4kExternalForcedGeneration++;
+    }
+
+    @GuardedBy("mSyncRoot")
+    private boolean gammaosIsHalf4kExternalForcedLocked(@NonNull LogicalDisplay display) {
+        if (mGammaosHalf4kExternalForcedDisplayId != android.view.Display.INVALID_DISPLAY
+                && display.getDisplayIdLocked() == mGammaosHalf4kExternalForcedDisplayId) {
+            return true;
+        }
+        final android.view.DisplayInfo di = display.getDisplayInfoLocked();
+        return di != null && mGammaosHalf4kExternalForcedUniqueId != null
+                && mGammaosHalf4kExternalForcedUniqueId.equals(di.uniqueId);
+    }
+
+    @GuardedBy("mSyncRoot")
+    private void gammaosClearHalf4kExternalForcedLocked() {
+        mGammaosHalf4kExternalForcedDisplayId = android.view.Display.INVALID_DISPLAY;
+        mGammaosHalf4kExternalForcedUniqueId = null;
+        mGammaosHalf4kExternalForcedGeneration++;
+    }
+ 
+    /**
+     * GammaOS: External-only half_4k mode can race WMS display bring-up on first plug.
+     * Apply forced size with a short delay and a few retries, but abort if unplug/replug happens.
+     */
+    private void gammaosPostApplyExternalForcedSizeWithRetry(
+            final int targetDisplayId,
+            @Nullable final String targetUniqueId,
+            final int sourceW,
+            final int sourceH,
+            final boolean applyHalf4k) {
+        final int origW = sourceW;
+        final int origH = sourceH;
+        final boolean is4kOrHigher =
+                (origW >= 3840 && origH >= 2160) || (origW >= 2160 && origH >= 3840);
+
+        // External-only half_4k should only run for 4K+ sources.
+        if (!is4kOrHigher) return;
+
+        int scaledW = origW;
+        int scaledH = origH;
+        if (applyHalf4k) {
+            scaledW = Math.max(1, origW / 2);
+            scaledH = Math.max(1, origH / 2);
+        }
+        final int w = scaledW;
+        final int h = scaledH;
+
+        final int expectedGen;
+        synchronized (mSyncRoot) {
+            expectedGen = mGammaosHalf4kExternalForcedGeneration;
+        }
+
+        // Delay + retries only for non-default display IDs.
+        final int attempts = 5;
+        final long firstDelayMs = 250;
+        final long stepDelayMs = 120;
+
+        for (int i = 0; i < attempts; i++) {
+            final int attemptNo = i + 1;
+            final long delay = firstDelayMs + (i * stepDelayMs);
+            mHandler.postDelayed(() -> {
+                // Abort if the target has changed (unplug/replug or different display).
+                synchronized (mSyncRoot) {
+                    if (mGammaosHalf4kExternalForcedGeneration != expectedGen) {
+                        return;
+                    }
+                    if (mGammaosHalf4kExternalForcedDisplayId != targetDisplayId) {
+                        return;
+                    }
+                    if (mGammaosHalf4kExternalForcedUniqueId != null && targetUniqueId != null
+                            && !mGammaosHalf4kExternalForcedUniqueId.equals(targetUniqueId)) {
+                        return;
+                    }
+                }
+
+                if (mWindowManagerInternal == null) return;
+                Slog.i(TAG, "GammaOS: (deferred) half_4k external-only apply attempt "
+                        + attemptNo + "/" + attempts
+                        + " -> forcing WM size " + w + "x" + h
+                        + " on displayId=" + targetDisplayId);
+                mWindowManagerInternal.setForcedDisplaySize(targetDisplayId, w, h);
+                mWindowManagerInternal.requestTraversalFromDisplayManager();
+            }, delay);
+        }
+    }
+
+    /** GammaOS: Clear a forced size on the specified displayId off the DM lock. */
+    private void gammaosPostClearForcedSize(final int targetDisplayId, final String reason) {
+        mHandler.post(() -> {
+            if (mWindowManagerInternal == null) return;
+            Slog.i(TAG, "GammaOS: (deferred) clearForcedDisplaySize(" + targetDisplayId + ") - "
+                    + reason);
+            mWindowManagerInternal.clearForcedDisplaySize(targetDisplayId);
+            mWindowManagerInternal.requestTraversalFromDisplayManager();
+        });
+    }
+
+    /**
+     * GammaOS: Force WM size on a target display outside mSyncRoot to avoid lock inversion with
+     * WMS/PMS.
+     *
+     * targetDisplayId:
+     *  - Display.DEFAULT_DISPLAY for "resize primary to external"
+     *  - external displayId for "resize external only" (half_4k-only mode)
+     */
+    private void gammaosPostApplyForcedSize(final int targetDisplayId,
+            final int sourceW, final int sourceH,
+            final boolean applyHalf4k, final boolean suppressInternalBacklight) {
+        final int origW = sourceW;
+        final int origH = sourceH;
+        final boolean is4kOrHigher =
+                (origW >= 3840 && origH >= 2160) || (origW >= 2160 && origH >= 3840);
+
+        int scaledW = origW;
+        int scaledH = origH;
+        if (applyHalf4k && is4kOrHigher) {
+            scaledW = Math.max(1, origW / 2);
+            scaledH = Math.max(1, origH / 2);
+        }
+        final int w = scaledW;
+        final int h = scaledH;
+        final boolean didScale = (w != origW || h != origH);
+
+        mHandler.post(() -> {
+           if (mWindowManagerInternal != null && w > 0 && h > 0) {
+                if (didScale) {
+                    Slog.i(TAG, "GammaOS: (deferred) half_4k enabled; source "
+                            + origW + "x" + origH + " -> forcing WM size " + w + "x" + h
+                            + " on displayId=" + targetDisplayId);
+                } else {
+                    Slog.i(TAG, "GammaOS: (deferred) forcing WM size " + w + "x" + h
+                            + " on displayId=" + targetDisplayId);
+                }
+                mWindowManagerInternal.setForcedDisplaySize(targetDisplayId, w, h);
+                mWindowManagerInternal.requestTraversalFromDisplayManager();
+            }
+
+            if (suppressInternalBacklight) {
+                Slog.i(TAG, "GammaOS: (deferred) Setting internal display ON with BRIGHTNESS_OFF (primary mode)");
+                requestDisplayStateInternal(
+                        android.view.Display.DEFAULT_DISPLAY,
+                        android.view.Display.STATE_ON,
+                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT,
+                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT);
+            }
+        });
+    }
+
     // ------------------------------------------------------------------------
     // GammaOS: restore DEFAULT_DISPLAY state after external-primary mode
     // ------------------------------------------------------------------------
@@ -2187,6 +2352,10 @@ public final class DisplayManagerService extends SystemService {
                 "persist.gammaos.ext.mirror_resize", /*def*/ false);
         final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
+        final boolean gammaExtHalf4k = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.half_4k", /*def*/ false);
+        final boolean half4kOnlyExternalMode =
+                gammaExtHalf4k && !gammaExtPrimary && !gammaExtMirrorResize && !gammaExtForceMirror;
         final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
                 || gammaosIsPhysicalExternalDisplayLocked(display);
         if (gammaShouldRestore) {
@@ -2199,10 +2368,16 @@ public final class DisplayManagerService extends SystemService {
                }
                 // Defer the actual power-on + WM clear to after the event is emitted.
                 gammaosPostRestoreInternalDisplay();
-            } else if ((gammaExtMirrorResize || gammaExtForceMirror) && mWindowManagerInternal != null) {
-                // Also defer clear+traversal to avoid races.
+            } else if (gammaExtMirrorResize) {
+                // Mirror-resize: we resized DEFAULT_DISPLAY, so clear it on disconnect.
                 gammaosPostRestoreInternalDisplay();
+            } else if (gammaosIsHalf4kExternalForcedLocked(display)) {
+                // half_4k-only: we resized the external itself, so clear that forced size.
+                gammaosPostClearForcedSize(display.getDisplayIdLocked(), "half_4k external-only disconnect");
             }
+        }
+        if (gammaosIsHalf4kExternalForcedLocked(display)) {
+            gammaosClearHalf4kExternalForcedLocked();
         }
         if (gammaosIsMarkedPhysicalExternalLocked(display)) {
             gammaosClearMarkedPhysicalExternalLocked();
@@ -2306,10 +2481,24 @@ public final class DisplayManagerService extends SystemService {
                 "persist.gammaos.ext.mirror_resize", /*def*/ false);
         final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
+        final boolean gammaExtHalf4k = android.os.SystemProperties.getBoolean(
+                "persist.gammaos.ext.half_4k", /*def*/ false);
         final android.view.DisplayInfo di = display.getDisplayInfoLocked();
         // GammaOS: only apply these props to physically connected external displays (HDMI/DP).
         if (gammaosIsPhysicalExternalDisplayLocked(display)) {
-            if (gammaExtPrimary || gammaExtMirrorResize || gammaExtForceMirror) {
+            final boolean is4kOrHigher =
+                    di != null && ((di.logicalWidth >= 3840 && di.logicalHeight >= 2160)
+                            || (di.logicalWidth >= 2160 && di.logicalHeight >= 3840));
+            final boolean half4kOnlyExternalMode =
+                    gammaExtHalf4k && !gammaExtPrimary && !gammaExtMirrorResize && !gammaExtForceMirror;
+
+            // Mark if we are going to mutate anything that needs cleanup on unplug.
+            // - primary: mirrors + resizes DEFAULT_DISPLAY + backlight off
+            // - mirror_resize: resizes DEFAULT_DISPLAY
+            // - force_mirror: mirrors only (no resizing unless mirror_resize is also set)
+            // - half4kOnlyExternalMode: resizes the external display itself (only if 4K+)
+            if (gammaExtPrimary || gammaExtMirrorResize || gammaExtForceMirror
+                    || (half4kOnlyExternalMode && is4kOrHigher)) {
                 // Remember which physical external we acted on so we can restore reliably even if
                 // its DisplayInfo/DisplayDevice is already torn down by the time we see DISCONNECTED/REMOVED.
                 gammaosMarkPhysicalExternalActiveLocked(display);
@@ -2318,9 +2507,7 @@ public final class DisplayManagerService extends SystemService {
                 // Snapshot current brightness so we can restore it on HDMI/DP disconnect.
                 // This prevents the internal backlight getting “stuck” off until the user
                 // manually changes brightness.
-                synchronized (mSyncRoot) {
-                    gammaosSnapshotInternalBrightnessLocked();
-                }
+                gammaosSnapshotInternalBrightnessLocked();
                 // Make the external display mirror DEFAULT_DISPLAY content so apps that assume
                 // display 0 still render correctly while the internal panel is powered OFF.
                 final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2328,30 +2515,13 @@ public final class DisplayManagerService extends SystemService {
                     Slog.i(TAG, "GammaOS: Enabling WM mirroring on external (primary-ext mode)");
                     extDevice.setWindowManagerMirroringLocked(true);
                 }
-                // PRIMARY-EXTERNAL: force WM to render default display at the external size.
-                if (mWindowManagerInternal != null) {
-                    Slog.i(TAG, "GammaOS: Primary-ext -> forcing WM size "
-                            + di.logicalWidth + "x" + di.logicalHeight + " on DEFAULT_DISPLAY");
-                    mWindowManagerInternal.setForcedDisplaySize(
-                            android.view.Display.DEFAULT_DISPLAY, di.logicalWidth, di.logicalHeight);
-                }
-                // Keep default display logically ON (apps keep rendering to display 0),
-                // but turn the panel/backlight effectively off -> saves power and keeps apps happy.
-                Slog.i(TAG, "GammaOS: Setting internal display ON with BRIGHTNESS_OFF (primary mode)");
-                requestDisplayStateInternal(
+                // PRIMARY: always resize DEFAULT_DISPLAY to external dimensions.
+                gammaosPostApplyForcedSize(
                         android.view.Display.DEFAULT_DISPLAY,
-                        android.view.Display.STATE_ON,
-                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT,
-                        android.os.PowerManager.BRIGHTNESS_OFF_FLOAT);
-                // Do NOT clear forced size here; we want WM stuck to external's size while present.
-            } else if (gammaExtMirrorResize || gammaExtForceMirror) {
-                // Mirror mode: force WM size of the default display to match external.
-                if (mWindowManagerInternal != null) {
-                    Slog.i(TAG, "GammaOS: Forcing WM size to external "
-                            + di.logicalWidth + "x" + di.logicalHeight);
-                    mWindowManagerInternal.setForcedDisplaySize(
-                            android.view.Display.DEFAULT_DISPLAY, di.logicalWidth, di.logicalHeight);
-                }
+                        di.logicalWidth, di.logicalHeight,
+                        /*applyHalf4k*/ gammaExtHalf4k,
+                        /*suppressInternalBacklight*/ true);
+            } else {
                 // If force-mirror is requested, also ask WM to mirror to the external.
                 if (gammaExtForceMirror) {
                     final DisplayDevice extDevice = display.getPrimaryDisplayDeviceLocked();
@@ -2359,6 +2529,23 @@ public final class DisplayManagerService extends SystemService {
                         Slog.i(TAG, "GammaOS: Enabling WM mirroring on external (force-mirror)");
                         extDevice.setWindowManagerMirroringLocked(true);
                     }
+                }
+                // MIRROR_RESIZE: resize DEFAULT_DISPLAY; force_mirror alone does not resize.
+                if (gammaExtMirrorResize) {
+                    gammaosPostApplyForcedSize(
+                            android.view.Display.DEFAULT_DISPLAY,
+                            di.logicalWidth, di.logicalHeight,
+                            /*applyHalf4k*/ gammaExtHalf4k,
+                            /*suppressInternalBacklight*/ false);
+                } else if (half4kOnlyExternalMode && is4kOrHigher) {
+                    // half_4k-only: resize the EXTERNAL display itself to half size (internal untouched).
+                    gammaosMarkHalf4kExternalForcedLocked(display);
+                    // Apply with delay+retry to avoid WMS bring-up race on first plug.
+                    gammaosPostApplyExternalForcedSizeWithRetry(
+                            display.getDisplayIdLocked(),
+                            (di != null) ? di.uniqueId : null,
+                            di.logicalWidth, di.logicalHeight,
+                            /*applyHalf4k*/ true);
                 }
             }
         }
@@ -2453,7 +2640,9 @@ public final class DisplayManagerService extends SystemService {
             final boolean gammaExtMirrorResize = android.os.SystemProperties.getBoolean(
                     "persist.gammaos.ext.mirror_resize", /*def*/ false);
             final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
-                "persist.gammaos.ext.force_mirror", /*def*/ false);
+                    "persist.gammaos.ext.force_mirror", /*def*/ false);
+            final boolean gammaExtHalf4k = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.half_4k", /*def*/ false);
             final android.view.DisplayInfo di = display.getDisplayInfoLocked();
             final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
                     || gammaosIsPhysicalExternalDisplayLocked(display);
@@ -2468,9 +2657,15 @@ public final class DisplayManagerService extends SystemService {
                     // Defer WM clear + traversal + power ON to handler after we emit removal.
                     gammaosPostRestoreInternalDisplay();
                 }
-                if (gammaExtMirrorResize || gammaExtForceMirror) {
+                if (gammaExtMirrorResize) {
                     gammaosPostRestoreInternalDisplay();
                 }
+                if (gammaosIsHalf4kExternalForcedLocked(display)) {
+                    gammaosPostClearForcedSize(display.getDisplayIdLocked(), "half_4k external-only removed (cdm)");
+                }
+            }
+            if (gammaosIsHalf4kExternalForcedLocked(display)) {
+                gammaosClearHalf4kExternalForcedLocked();
             }
             if (gammaosIsMarkedPhysicalExternalLocked(display)) {
                 gammaosClearMarkedPhysicalExternalLocked();
@@ -2491,6 +2686,8 @@ public final class DisplayManagerService extends SystemService {
                     "persist.gammaos.ext.mirror_resize", /*def*/ false);
             final boolean gammaExtForceMirror = android.os.SystemProperties.getBoolean(
                 "persist.gammaos.ext.force_mirror", /*def*/ false);
+            final boolean gammaExtHalf4k = android.os.SystemProperties.getBoolean(
+                    "persist.gammaos.ext.half_4k", /*def*/ false);
             final boolean gammaShouldRestore = gammaosIsMarkedPhysicalExternalLocked(display)
                 || gammaosIsPhysicalExternalDisplayLocked(display);
             if (gammaShouldRestore) {
@@ -2502,10 +2699,16 @@ public final class DisplayManagerService extends SystemService {
                         extDevice.setWindowManagerMirroringLocked(false);
                     }
                     gammaosPostRestoreInternalDisplay();
-                } else if ((gammaExtMirrorResize || gammaExtForceMirror) && mWindowManagerInternal != null) {
+                } else if (gammaExtMirrorResize) {
                     gammaosPostRestoreInternalDisplay();
                 }
+                if (gammaosIsHalf4kExternalForcedLocked(display)) {
+                    gammaosPostClearForcedSize(display.getDisplayIdLocked(), "half_4k external-only removed (flag off)");
+                }
             }
+        }
+        if (gammaosIsHalf4kExternalForcedLocked(display)) {
+            gammaosClearHalf4kExternalForcedLocked();
         }
 
         // Now release/emit the removal for the external.
