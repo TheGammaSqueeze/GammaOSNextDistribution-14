@@ -258,4 +258,36 @@ public class TaskbarAllAppsContainerView extends
             Log.w("GammaTaskbar", "AllApps: header max-width reflection failed", t);
         }
     }
+
+    /**
+     * Forces a fresh layout/measurement pass for the taskbar All Apps content.
+     *
+     * <p>This is used as a defensive recalculation hook when the Taskbar overlay window is resized
+     * by WM (for example during external display mirroring) without fully recreating Trebuchet's
+     * taskbar state.
+     */
+    void prepareForTaskbarAllAppsOpen() {
+        // Re-apply any header/search width relaxations for the current bounds.
+        forceFullWidthSearchForTaskbar();
+        invalidateHeader();
+
+        // Force view hierarchy to re-run measure/layout even if it believes it is stable.
+        forceLayout();
+        if (mHeader != null) {
+            mHeader.forceLayout();
+        }
+        if (getActiveRecyclerView() != null) {
+            getActiveRecyclerView().forceLayout();
+        }
+        requestLayout();
+
+        // If bounds are not available yet, try again once after attach/layout.
+        if (getWidth() == 0 || getHeight() == 0) {
+            post(() -> {
+                forceFullWidthSearchForTaskbar();
+                invalidateHeader();
+                requestLayout();
+            });
+        }
+    }
 }

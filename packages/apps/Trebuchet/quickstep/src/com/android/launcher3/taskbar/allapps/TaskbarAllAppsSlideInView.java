@@ -51,6 +51,8 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
     private TaskbarAllAppsContainerView mAppsView;
     private float mShiftRange;
     private @Nullable Runnable mShowOnFullyAttachedToWindowRunnable;
+    // Used to cancel in-flight stabilization loops when a new open/resize occurs.
+    private int mStabilizeSeq = 0;
 
     // Initialized in init.
     private TaskbarAllAppsCallbacks mAllAppsCallbacks;
@@ -92,10 +94,24 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
         });
         attachToContainer();
     }
+ 
+    /**
+     * Defers opening until this view and its content have a stable measured size.
+     *
+     * <p>When WM forces a size change on the default display (for example due to external display
+     * mirroring), the Taskbar overlay can be resized while Trebuchet does not fully recreate the
+     * taskbar. If we start the open animation while the view hierarchy is still in a pending
+     * layout/relayout state, the sheet can latch incorrect dimensions and never visibly settle.
+     */
 
     private void showOnFullyAttachedToWindow(boolean animate) {
         // Activate tap guard during opening to avoid first-tap dismiss.
         mTapGuardActive = true;
+        if (mAppsView != null) {
+            mAppsView.prepareForTaskbarAllAppsOpen();
+        }
+        // Kick a few post-frame passes to settle measurements while WM may still be syncing.
+        runStabilizationFrames(/*frames=*/4);
         mAllAppsCallbacks.onAllAppsTransitionStart(true);
         if (!animate) {
             mAllAppsCallbacks.onAllAppsTransitionEnd(true);
@@ -105,6 +121,8 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
         }
 
         setUpOpenAnimation(mAllAppsCallbacks.getOpenDuration());
+        // Keep stabilizing during the opening animation as well.
+        runStabilizationFrames(/*frames=*/6);
         // Disable guard after the open animation duration.
         mHandler.postDelayed(() -> mTapGuardActive = false,
                 mAllAppsCallbacks.getOpenDuration());
@@ -131,6 +149,8 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
 
     @Override
     protected void handleClose(boolean animate) {
+        // Cancel stabilization loops.
+        mStabilizeSeq++;
         if (mShowOnFullyAttachedToWindowRunnable != null) {
             mHandler.removeCallbacks(mShowOnFullyAttachedToWindowRunnable);
             mShowOnFullyAttachedToWindowRunnable = null;
@@ -190,6 +210,8 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        // Cancel stabilization loops.
+        mStabilizeSeq++;
         mActivityContext.removeOnDeviceProfileChangeListener(this);
         if (enablePredictiveBackGesture()) {
             mAppsView.getAppsRecyclerViewContainer().setOutlineProvider(null);
@@ -218,6 +240,10 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         setTranslationShift(mTranslationShift);
+        if (changed && mIsOpen) {
+            // A size change happened while open; re-apply measurement sensitive adjustments.
+            runStabilizationFrames(/*frames=*/3);
+        }
     }
 
     @Override
@@ -239,11 +265,47 @@ public class TaskbarAllAppsSlideInView extends AbstractSlideInView<TaskbarOverla
     public void setInsets(Rect insets) {
         mAppsView.setInsets(insets);
     }
+ 
+    /**
+     * Runs a small number of post-frame passes to re-apply measurement-sensitive adjustments.
+     * This avoids relying on WM configuration timing when display sizing is in flux.
+     */
+    private void runStabilizationFrames(int frames) {
+        if (frames <= 0) return;
+
+        // Incrementing cancels any prior stabilization loop.
+        final int seq = ++mStabilizeSeq;
+
+        postOnAnimation(new Runnable() {
+            int remaining = frames;
+
+            @Override
+            public void run() {
+                if (!isAttachedToWindow() || seq != mStabilizeSeq) return;
+
+                if (mAppsView != null) {
+                    mAppsView.prepareForTaskbarAllAppsOpen();
+                }
+
+                requestLayout();
+                invalidate();
+
+                remaining--;
+                if (remaining > 0) {
+                    postOnAnimation(this);
+                }
+            }
+        });
+    }
 
     @Override
     public void onDeviceProfileChanged(DeviceProfile dp) {
         setShiftRange(dp.allAppsShiftRange);
         setTranslationShift(TRANSLATION_SHIFT_OPENED);
+        // If we are open, keep nudging layout for a few frames after dp changes.
+        if (mIsOpen) {
+            runStabilizationFrames(/*frames=*/4);
+        }
     }
 
     private void setShiftRange(float shiftRange) {

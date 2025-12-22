@@ -21,6 +21,7 @@ import static com.android.launcher3.taskbar.TaskbarPinningController.PINNING_TRA
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.graphics.Rect;
 import android.os.SystemProperties;
 import android.view.ViewTreeObserver;
@@ -84,6 +85,9 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
 
     private MultiProperty mBackgroundRendererAlpha;
     private float mLastSetBackgroundAlpha;
+ 
+    // GammaOS: avoid registering multiple insets listeners across taskbar recreations.
+    private ViewTreeObserver.OnComputeInternalInsetsListener mGammaInsetsListener;
 
     public TaskbarDragLayerController(TaskbarActivityContext activity,
             TaskbarDragLayer taskbarDragLayer) {
@@ -120,23 +124,34 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
         // GammaOS: Expand the touchable region to the FULL taskbar window size.
         // Stock behavior limits touch to the nav-bar height (~98px), which prevents clicks on
         // All Apps / hotseat when we force phone 3-button taskbar.
-        mTaskbarDragLayer.getViewTreeObserver().addOnComputeInternalInsetsListener(insets -> {
-            final int dragW = mTaskbarDragLayer.getWidth();
-            final int dragH = mTaskbarDragLayer.getHeight();
-            final WindowManager.LayoutParams lp = mActivity.getWindowLayoutParams();
-            // In landscape phone 3-button mode, the taskbar window dimension is width; otherwise height.
-            final boolean landscapePhoneButtons =
-                    mActivity.isPhoneButtonNavMode() && mActivity.getDeviceProfile().isLandscape;
-            final int touchH = landscapePhoneButtons ? lp.width : lp.height;
-            insets.setTouchableInsets(ViewTreeObserver.InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
-            insets.touchableRegion.set(0, Math.max(0, dragH - touchH), dragW, dragH);
-            android.util.Log.d("GammaTaskbar",
-                    "Touchable region updated: y=[" + Math.max(0, dragH - touchH) + "," + dragH
-                            + "] h=" + touchH + " dp");
-        });
+        if (mGammaInsetsListener == null) {
+            mGammaInsetsListener = insets -> {
+                final int dragW = mTaskbarDragLayer.getWidth();
+                final int dragH = mTaskbarDragLayer.getHeight();
+                final WindowManager.LayoutParams lp = mActivity.getWindowLayoutParams();
+                // In landscape phone 3-button mode, the taskbar window dimension is width; otherwise height.
+                final boolean landscapePhoneButtons =
+                        mActivity.isPhoneButtonNavMode() && mActivity.getDeviceProfile().isLandscape;
+                final int touchH = landscapePhoneButtons ? lp.width : lp.height;
+                final int top = Math.max(0, dragH - touchH);
+                insets.setTouchableInsets(ViewTreeObserver.InternalInsetsInfo.TOUCHABLE_INSETS_REGION);
+                insets.touchableRegion.set(0, top, dragW, dragH);
+                android.util.Log.d("GammaTaskbar",
+                        "Touchable region updated: y=[" + top + "," + dragH + "] h=" + touchH
+                                + " w=" + dragW + " dragH=" + dragH);
+            };
+            mTaskbarDragLayer.getViewTreeObserver().addOnComputeInternalInsetsListener(
+                    mGammaInsetsListener);
+        }
     }
 
     public void onDestroy() {
+        if (mGammaInsetsListener != null) {
+            final ViewTreeObserver vto = mTaskbarDragLayer.getViewTreeObserver();
+            if (vto.isAlive()) {
+                vto.removeOnComputeInternalInsetsListener(mGammaInsetsListener);
+            }
+        }
         mTaskbarDragLayer.onDestroy();
     }
 
@@ -193,6 +208,26 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
      */
     public void onConfigurationChanged() {
         mTaskbarStashViaTouchController.updateGestureHeight();
+        // GammaOS: A WM forced-size revert (HDMI disconnect) can race with view relayout and leave
+        // TaskbarDragLayer / overlay children measured against the old size. Request a short burst
+        // of remeasure/layout/insets passes to converge to the correct size without relying on a
+        // full process restart.
+        requestRemeasureForFrames(/*frames=*/4);
+    }
+ 
+    private void requestRemeasureForFrames(int frames) {
+        if (frames <= 0) return;
+        mTaskbarDragLayer.postOnAnimation(() -> {
+            requestOneRemeasure();
+            requestRemeasureForFrames(frames - 1);
+        });
+    }
+
+    private void requestOneRemeasure() {
+        mTaskbarDragLayer.forceLayout();
+        mTaskbarDragLayer.requestLayout();
+        mTaskbarDragLayer.requestApplyInsets();
+        mTaskbarDragLayer.invalidate();
     }
 
     private void updateBackgroundAlpha() {
@@ -299,9 +334,18 @@ public class TaskbarDragLayerController implements TaskbarControllers.LoggableTa
                 final WindowManager.LayoutParams lp = mActivity.getWindowLayoutParams();
                 final boolean landscapePhoneButtons =
                         mActivity.getDeviceProfile().isLandscape; // phone + 3btn landscape uses width
-                final int dragW = mTaskbarDragLayer.getWidth();
-                final int dragH = mTaskbarDragLayer.getHeight();
-                final int touchH = landscapePhoneButtons ? lp.width : lp.height;
+                int dragW = mTaskbarDragLayer.getWidth();
+                int dragH = mTaskbarDragLayer.getHeight();
+                int touchH = landscapePhoneButtons ? lp.width : lp.height;
+
+                // Same clamping as the compute-insets listener to avoid stale bounds after HDMI
+                // connect/disconnect sequences.
+                final DisplayMetrics dm = mTaskbarDragLayer.getResources().getDisplayMetrics();
+                if (dm != null && dm.widthPixels > 0 && dm.heightPixels > 0) {
+                    dragW = Math.min(dragW, dm.widthPixels);
+                    dragH = Math.min(dragH, dm.heightPixels);
+                    touchH = Math.min(touchH, landscapePhoneButtons ? dragW : dragH);
+                }
                 final int top = Math.max(0, dragH - touchH);
                 insetsInfo.setTouchableInsets(
                         ViewTreeObserver.InternalInsetsInfo.TOUCHABLE_INSETS_REGION);

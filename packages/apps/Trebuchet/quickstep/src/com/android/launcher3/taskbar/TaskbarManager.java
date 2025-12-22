@@ -55,6 +55,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.DisplayInfo;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -100,6 +101,11 @@ public class TaskbarManager {
     // GammaOS: enable a second taskbar on decorated secondary displays
     private static final String PROP_DUAL_TASKBAR = "persist.gammaos.taskbar.dual";
     private static final int INVALID_DISPLAY = -1;
+
+    // GammaOS: force taskbar recreation on display size/bounds changes (e.g. HDMI mirroring WM size).
+    // Default enabled to avoid stale All Apps / Taskbar sizing after external display connect/disconnect.
+    private static final String PROP_TASKBAR_RECREATE_ON_SIZE_CHANGE =
+            "persist.gammaos.taskbar.recreate_on_size_change";
 
     /**
      * All the configurations which do not initiate taskbar recreation.
@@ -314,7 +320,38 @@ public class TaskbarManager {
                 DeviceProfile dp = mUserUnlocked
                         ? LauncherAppState.getIDP(mContext).getDeviceProfile(mContext)
                         : null;
-                int configDiff = mOldConfig.diff(newConfig) & ~SKIP_RECREATE_CONFIG_CHANGES;
+                final int fullDiff = mOldConfig.diff(newConfig);
+                int configDiff = fullDiff & ~SKIP_RECREATE_CONFIG_CHANGES;
+
+                // GammaOS: HDMI mirroring path temporarily forces WM size (e.g. 1920x1080) then
+                // clears it back to the native size (e.g. 1280x960). Those changes are often
+                // masked by SKIP_RECREATE_CONFIG_CHANGES (screen-size/smallest-width), which
+                // can leave All Apps / Taskbar sizing stale until another hard trigger occurs.
+                final boolean recreateOnSizeChange = SystemProperties.getBoolean(
+                        PROP_TASKBAR_RECREATE_ON_SIZE_CHANGE, /*def*/ true);
+                boolean forceRecreateForSize = false;
+                if (recreateOnSizeChange) {
+                    final android.graphics.Rect oldBounds =
+                            mOldConfig.windowConfiguration != null
+                                    ? mOldConfig.windowConfiguration.getBounds()
+                                    : null;
+                    final android.graphics.Rect newBounds =
+                            newConfig.windowConfiguration != null
+                                    ? newConfig.windowConfiguration.getBounds()
+                                    : null;
+                    final boolean boundsChanged = oldBounds != null && newBounds != null
+                            && !oldBounds.equals(newBounds);
+                    final boolean sizeChanged = (fullDiff & (ActivityInfo.CONFIG_SCREEN_SIZE
+                            | ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE)) != 0;
+                    forceRecreateForSize = boundsChanged || sizeChanged;
+                    if (DEBUG && forceRecreateForSize) {
+                        Log.d(TAG, "GammaOS: forcing taskbar recreate due to size/bounds change."
+                                + " sizeChanged=" + sizeChanged
+                                + " boundsChanged=" + boundsChanged
+                                + " oldBounds=" + oldBounds
+                                + " newBounds=" + newBounds);
+                    }
+                }
 
                 if ((configDiff & ActivityInfo.CONFIG_UI_MODE) != 0) {
                     // Only recreate for theme changes, not other UI mode changes such as docking.
@@ -327,8 +364,18 @@ public class TaskbarManager {
 
                 debugWhyTaskbarNotDestroyed("ComponentCallbacks#onConfigurationChanged() "
                         + "configDiff=" + Configuration.configurationDiffToString(configDiff));
-                if (configDiff != 0 || mTaskbarActivityContext == null) {
+                if (configDiff != 0 || mTaskbarActivityContext == null || forceRecreateForSize) {
                     recreateTaskbar();
+                    // GammaOS: Ensure the new taskbar hierarchy gets a full measure/layout pass
+                    // against the latest window bounds.
+                    if (mTaskbarActivityContext != null) {
+                        final View dragLayer = mTaskbarActivityContext.getDragLayer();
+                        if (dragLayer != null) {
+                            dragLayer.forceLayout();
+                            dragLayer.requestLayout();
+                            dragLayer.post(dragLayer::requestApplyInsets);
+                        }
+                    }
                 } else {
                     // Config change might be handled without re-creating the taskbar
                     if (dp != null && !isTaskbarEnabled(dp)) {
@@ -345,6 +392,17 @@ public class TaskbarManager {
                             }
                         }
                         mTaskbarActivityContext.onConfigurationChanged(configDiff);
+
+                        // GammaOS: Even when the Activity/DeviceProfile has been updated, the
+                        // taskbar overlay can retain stale measured dimensions after external
+                        // display connect/disconnect (for example WM forced-size toggles). Force a
+                        // remeasure and insets pass to keep taskbar/all-apps sizing correct.
+                        final View dragLayer = mTaskbarActivityContext.getDragLayer();
+                        if (dragLayer != null) {
+                            dragLayer.forceLayout();
+                            dragLayer.requestLayout();
+                            dragLayer.post(dragLayer::requestApplyInsets);
+                        }
                     }
                 }
                 mOldConfig = new Configuration(newConfig);

@@ -39,6 +39,7 @@ import com.android.systemui.qs.tiles.GammaShaderTile;
 import com.android.systemui.qs.tiles.DualStackTile;
 import com.android.systemui.qs.tiles.GammaDualFocusTile;
 import com.android.systemui.qs.tiles.GlobalBFITile;
+import com.android.systemui.qs.tiles.RG477VTile;
 import com.android.systemui.qs.tiles.GammaEQTile;
 import com.android.systemui.qs.tiles.GammaRefreshTile;
 import com.android.systemui.qs.tiles.ExternalResizeTile;
@@ -181,6 +182,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(GlobalBFITile.TILE_SPEC)
     fun bindGlobalBFITile(globalBFITile: GlobalBFITile): QSTileImpl<*>
+
+    /** Inject 477V into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(RG477VTile.TILE_SPEC)
+    fun bindRG477VTile(RG477vTile: RG477VTile): QSTileImpl<*>
 
     /** Inject GammaRefreshTile into tileMap in QSModule */
     @Binds

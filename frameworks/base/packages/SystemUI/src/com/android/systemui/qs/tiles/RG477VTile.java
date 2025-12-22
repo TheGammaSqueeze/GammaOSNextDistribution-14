@@ -49,13 +49,12 @@ import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: Analog Calibration **/
-public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
+/** Quick settings tile: 477V LED **/
+public class RG477VTile extends QSTileImpl<BooleanState> {
 
-    public static final String TILE_SPEC = "analogcalibration";
+    public static final String TILE_SPEC = "477v";
 
-    private static final String PROP_CONTROL   = "persist.gammaos.calibrationmode";
-    private static final String CALIBRATOR_PKG = "com.gamma.analogcalibrator";
+    private static final String PROP_CONTROL = "persist.gammaos.startselectled";
 
     private static final int STATE_DISABLED = 0;
     private static final int STATE_ENABLED  = 1;
@@ -67,7 +66,7 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
     private final Receiver mReceiver = new Receiver();
 
     @Inject
-    public AnalogCalibrationTile(
+    public RG477VTile(
             QSHost host,
             QsEventLogger qsEventLogger,
             @Background Looper backgroundLooper,
@@ -79,13 +78,13 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
             QSLogger qsLogger
     ) {
         super(host, qsEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
-                statusBarStateController, activityStarter, qsLogger);
+              statusBarStateController, activityStarter, qsLogger);
 
         // 1) Read persisted prop (default to OFF)
         currentState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
         // 2) Re-apply it in case it's changed externally
         applyState(currentState);
-        // 3) Listen for screen-off and boot so we can re-sync
+        // 3) Listen for screen-off and boot to re-sync
         mReceiver.init();
     }
 
@@ -118,41 +117,11 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
         currentState = (currentState == STATE_ENABLED) ? STATE_DISABLED : STATE_ENABLED;
         applyState(currentState);
         refreshState();
-
-        // Close QS/notification shade and launch the calibrator app (if present).
-        startAnalogCalibratorWithShadeDismiss();
-    }
-
-    private void startAnalogCalibratorWithShadeDismiss() {
-        final Intent launchIntent =
-                mContext.getPackageManager().getLaunchIntentForPackage(CALIBRATOR_PKG);
-
-        mActivityStarter.postQSRunnableDismissingKeyguard(() -> {
-            if (launchIntent == null) {
-                if (Log.isLoggable("AnalogCalibrationTile", Log.DEBUG)) {
-                    Log.d("AnalogCalibrationTile", "Package not installed: " + CALIBRATOR_PKG);
-                }
-                return;
-            }
-
-            launchIntent.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-            try {
-                // Prefer the explicit dismissShade path when available in your tree.
-                // This is the most common mechanism that actually collapses QS/notification shade.
-                mActivityStarter.startActivity(launchIntent, true /* dismissShade */);
-            } catch (Throwable t) {
-                Log.w("AnalogCalibrationTile", "Failed to launch " + CALIBRATOR_PKG, t);
-            }
-        });
     }
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Analog Calibration";
+        state.label = "Start/Select LED";
         state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
         state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
         state.state = (currentState == STATE_ENABLED)
@@ -171,7 +140,7 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Analog Calibration";
+        return "Start/Select LED";
     }
 
     @Override
@@ -184,8 +153,8 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
      */
     private void applyState(int state) {
         SystemProperties.set(PROP_CONTROL, Integer.toString(state));
-        if (Log.isLoggable("AnalogCalibrationTile", Log.DEBUG)) {
-            Log.d("AnalogCalibrationTile", PROP_CONTROL + "=" + state);
+        if (Log.isLoggable("477VTile", Log.DEBUG)) {
+            Log.d("477VTile", PROP_CONTROL + "=" + state);
         }
     }
 
@@ -208,7 +177,7 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_OFF.equals(action)
-                    || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+             || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
                 int newState = SystemProperties.getInt(PROP_CONTROL, STATE_DISABLED);
                 if (newState != currentState) {
                     currentState = newState;
