@@ -15,4 +15,3 @@ PRODUCT_MODEL := TrebleDroid with GApps
 PRODUCT_CHARACTERISTICS := device
 
 PRODUCT_PACKAGES += 
-

@@ -15,4 +15,3 @@ PRODUCT_MODEL := TrebleDroid vanilla
 PRODUCT_CHARACTERISTICS := device
 
 PRODUCT_PACKAGES += 
-

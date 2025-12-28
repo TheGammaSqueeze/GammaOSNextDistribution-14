@@ -15,4 +15,3 @@ PRODUCT_MODEL := TrebleDroid with FOSS apps
 PRODUCT_CHARACTERISTICS := device
 
 PRODUCT_PACKAGES += 
-
