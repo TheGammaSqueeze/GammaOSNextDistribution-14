@@ -17,6 +17,6 @@
 <resources>
 
     <!-- Height of the bottom navigation bar -->
-    <dimen name="navigation_bar_height">0dp</dimen>
+    <!-- <dimen name="navigation_bar_height">0dp</dimen> -->
 
 </resources>

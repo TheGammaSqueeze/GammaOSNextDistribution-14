@@ -941,6 +941,12 @@ final class LetterboxUiController {
         if (shouldNotLayoutLetterbox(w)) {
             return;
         }
+        
+        if (mLetterbox != null) {
+            mLetterbox.hide();
+            return;  // only bail out here after hiding; keep the rest reachable
+        }
+
         updateRoundedCornersIfNeeded(w);
         updateWallpaperForLetterbox(w);
         if (shouldShowLetterboxUi(w)) {

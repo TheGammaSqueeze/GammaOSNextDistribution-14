@@ -3038,12 +3038,21 @@ public class PackageManagerService implements PackageSender, TestUtilityService 
     }
 
     public boolean hasSystemFeature(String name, int version) {
-        // allow instant applications
-        final FeatureInfo feat = mAvailableFeatures.get(name);
-        if (feat == null) {
-            return false;
-        } else {
-            return feat.version >= version;
+        // If the feature name indicates leanback support, check our custom prop.
+        if (name != null && name.contains("leanback")) {
+            try {
+                // Read the property; default to "1" if not set.
+                String hideLeanback = SystemProperties.get("persist.sys.hideleanback", "1");
+                if ("1".equals(hideLeanback)) {
+                    return false;
+                }
+            } catch (Exception e) {
+                // If the prop can’t be read, default to showing leanback features.
+            }
+        }
+        synchronized (mAvailableFeatures) {
+            FeatureInfo feat = mAvailableFeatures.get(name);
+            return (feat != null) && (feat.version >= version);
         }
     }
 

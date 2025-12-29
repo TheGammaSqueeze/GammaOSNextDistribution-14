@@ -23,12 +23,6 @@ $(call inherit-product-if-exists, vendor/google/security/adb/vendor_key.mk)
 # Enable updating of APEXes
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
-# OTA support
-PRODUCT_PACKAGES += \
-    recovery-refresh \
-    update_engine \
-    update_verifier \
-
 ifeq ($(PRODUCT_REQUIRES_PAI_STUB),true)
 PRODUCT_PACKAGES += \
 	AtomPlayAutoInstallStub
@@ -36,11 +30,6 @@ endif
 
 # Wrapped net utils for /vendor access.
 PRODUCT_PACKAGES += netutils-wrapper-1.0
-
-# system_other support
-PRODUCT_PACKAGES += \
-    cppreopts.sh \
-    otapreopt_script
 
 # System libraries commonly depended on by things on the system_ext or product partitions.
 # These lists will be pruned periodically.

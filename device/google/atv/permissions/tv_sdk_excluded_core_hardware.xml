@@ -37,12 +37,6 @@
     <!-- ATV SDK is not designed to have GPS support by default -->
     <unavailable-feature name="android.hardware.location.gps" />
 
-    <!--
-        ATV SDK supports only landscape orientation by default
-        and to date it is not designed to be rotated.
-    -->
-    <unavailable-feature name="android.hardware.screen.portrait" />
-
     <!-- ATV SDK does not support a lock screen screen by default -->
     <unavailable-feature name="android.software.secure_lock_screen" />
 </permissions>

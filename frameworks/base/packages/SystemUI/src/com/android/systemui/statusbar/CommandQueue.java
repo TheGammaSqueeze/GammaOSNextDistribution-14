@@ -563,10 +563,7 @@ public class CommandQueue extends IStatusBar.Stub implements
 
     // TODO(b/118592525): add multi-display support if needed.
     public boolean panelsEnabled() {
-        final int disabled1 = getDisabled1(mDisplayTracker.getDefaultDisplayId());
-        final int disabled2 = getDisabled2(mDisplayTracker.getDefaultDisplayId());
-        return (disabled1 & StatusBarManager.DISABLE_EXPAND) == 0
-                && (disabled2 & StatusBarManager.DISABLE2_NOTIFICATION_SHADE) == 0;
+        return true;
     }
 
     @Override

@@ -18,21 +18,21 @@
     <!-- Height of the status bar.
          Do not read this dimen directly. Use {@link SystemBarUtils#getStatusBarHeight} instead.
          -->
-    <dimen name="status_bar_height_default">0dp</dimen>
+    <!-- <dimen name="status_bar_height_default">0dp</dimen> -->
 
     <!-- Height of the status bar -->
-    <dimen name="status_bar_height_portrait">0dp</dimen>
+    <!-- <dimen name="status_bar_height_portrait">0dp</dimen> -->
 
     <!-- Height of the bottom navigation / system bar -->
-    <dimen name="navigation_bar_height">0dp</dimen>
+    <!-- <dimen name="navigation_bar_height">0dp</dimen> -->
 
     <!-- Height of the bottom navigation bar in landscape -->
-    <dimen name="navigation_bar_height_landscape">0dp</dimen>
+    <!-- <dimen name="navigation_bar_height_landscape">0dp</dimen> -->
 
     <!-- Width of the navigation bar when it is placed vertically on the screen -->
-    <dimen name="navigation_bar_width">42dp</dimen>
+    <!-- <dimen name="navigation_bar_width">42dp</dimen> -->
 
     <!-- This overlay makes sure that notification icons are large enough to be used as Recommendation images -->
-    <dimen name="notification_right_icon_size">320dp</dimen>
+    <!-- <dimen name="notification_right_icon_size">320dp</dimen> -->
 
 </resources>

@@ -19,10 +19,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/media_system_ext.mk)
 
 PRODUCT_PACKAGES += \
     blur_sysprop_notifier \
-    TvSystemUI \
-    TvFeedbackConsent \
-    TvFrameworkPackageStubs \
-    TvSettings
+    SystemUI \
+    DocumentsUI \
+    Settings
 
 ifeq ($(MDNS_OFFLOAD_SUPPORT),true)
     PRODUCT_PACKAGES += MdnsOffloadManagerService

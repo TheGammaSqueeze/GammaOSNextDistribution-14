@@ -33,7 +33,6 @@ PRODUCT_PACKAGES += \
     appwidget \
     atrace \
     audioserver \
-    BackupRestoreConfirmation \
     bcc \
     blank_screen \
     blkid \
@@ -309,13 +308,6 @@ endif
 ifneq ($(PRODUCT_IS_ATV),true)
   PRODUCT_PACKAGES += \
       $(RELEASE_PACKAGE_SOUND_PICKER) \
-
-endif
-
-# Product does not support Dynamic System Update
-ifneq ($(PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE),true)
-    PRODUCT_PACKAGES += \
-        DynamicSystemInstallationService \
 
 endif
 

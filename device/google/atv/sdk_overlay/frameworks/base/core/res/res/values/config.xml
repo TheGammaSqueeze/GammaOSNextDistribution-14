@@ -20,7 +20,7 @@
     <bool name="config_voice_capable">false</bool>
 
     <!-- This device doesn't support quick settings and its associated APIs -->
-    <bool name="config_quickSettingsSupported">false</bool>
+    <bool name="config_quickSettingsSupported">true</bool>
 
     <!-- Do not restrict the UI resolution on the WM side; use the native resolution of the device's
          screen -->

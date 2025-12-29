@@ -6884,9 +6884,17 @@ public class MediaProvider extends ContentProvider {
 
         final String volumeName = arg;
         try {
+            // Look up the volume based on its name and the current user.
             final MediaVolume volume = mVolumeCache.findVolume(volumeName,
                     UserHandle.of(userId));
-            MediaService.onScanVolume(getContext(), volume, REASON_DEMAND);
+
+            // Only trigger a scan if this is the internal volume.
+            // For external volumes, we skip scanning to reduce CPU usage.
+            if (MediaStore.VOLUME_INTERNAL.equals(volume.getName())) {
+                MediaService.onScanVolume(getContext(), volume, REASON_DEMAND);
+            } else {
+                Log.i(TAG, "Skipping scan on external volume: " + volumeName);
+            }
         } catch (FileNotFoundException e) {
             Log.w(TAG, "Failed to find volume " + volumeName, e);
         } catch (IOException e) {

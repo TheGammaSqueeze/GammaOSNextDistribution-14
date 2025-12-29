@@ -123,10 +123,6 @@ PRODUCT_PACKAGES += \
     LineageGoogleSetupWraithOverlay \
     LineageGoogleSetupWraithPairingOverlay
 
-# Settings
-PRODUCT_PACKAGES += \
-    TvSettingsTwoPanel
-
 # TVLauncher
 PRODUCT_PACKAGES += \
     TVLauncherNoGMS \

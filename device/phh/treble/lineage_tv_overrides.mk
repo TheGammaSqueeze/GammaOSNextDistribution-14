@@ -1,0 +1,49 @@
+#
+# device/phh/treble/lineage_tv_overrides.mk
+#
+# This file is included by the "TV base" PHH products, but we force the end result to behave
+# like a normal AOSP/Lineage device build (normal Settings + SystemUI + Trebuchet).
+#
+
+# Explicitly ensure we are not treated as ATV (overrides any upstream includes).
+PRODUCT_IS_ATV := false
+PRODUCT_CHARACTERISTICS := device
+PRODUCT_SYSTEM_PROPERTIES += ro.product.is_atv=false
+
+# Drop TV-specific packages pulled in by the TV base product.
+# Important: some TV base products use PRODUCT_SYSTEM_EXT_PACKAGES instead of PRODUCT_PACKAGES.
+# Remove from both to guarantee the package is not installed.
+
+# TV SystemUI and TV Settings
+PRODUCT_PACKAGES -= TvSystemUI
+PRODUCT_SYSTEM_EXT_PACKAGES -= TvSystemUI
+PRODUCT_PACKAGES -= TvSettings
+PRODUCT_SYSTEM_EXT_PACKAGES -= TvSettings
+
+# TV provisioning app that currently claims HOME: com.android.tv.provision/.DefaultActivity
+PRODUCT_PACKAGES -= TvProvision
+PRODUCT_SYSTEM_EXT_PACKAGES -= TvProvision
+
+# TV launchers that may be pulled in (safe to subtract even if absent)
+PRODUCT_PACKAGES -= LeanbackLauncher
+PRODUCT_SYSTEM_EXT_PACKAGES -= LeanbackLauncher
+PRODUCT_PACKAGES -= LauncherX
+PRODUCT_SYSTEM_EXT_PACKAGES -= LauncherX
+PRODUCT_PACKAGES -= TvLauncher
+PRODUCT_SYSTEM_EXT_PACKAGES -= TvLauncher
+
+# Ensure standard AOSP/Lineage UI stack.
+PRODUCT_PACKAGES += SystemUI
+PRODUCT_PACKAGES += Settings
+
+# Some trees place SystemUI/Settings in system_ext; adding to system_ext list is harmless if already in base.
+PRODUCT_SYSTEM_EXT_PACKAGES += SystemUI
+PRODUCT_SYSTEM_EXT_PACKAGES += Settings
+
+# Ensure Trebuchet (Launcher3) + Quickstep are present.
+# If you only want one, keep TrebuchetQuickStep and remove Trebuchet.
+PRODUCT_PACKAGES += TrebuchetQuickStep
+PRODUCT_PACKAGES += Trebuchet
+
+PRODUCT_SYSTEM_EXT_PACKAGES += TrebuchetQuickStep
+PRODUCT_SYSTEM_EXT_PACKAGES += Trebuchet

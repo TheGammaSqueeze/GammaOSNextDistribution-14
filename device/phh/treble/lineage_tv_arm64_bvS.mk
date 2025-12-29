@@ -13,11 +13,15 @@ $(call inherit-product, device/phh/treble/base.mk)
 
 
 
-# Must be set before Lineage config is inherited so it can select TV defaults.
-PRODUCT_IS_ATV := true
+# We intentionally do NOT want ATV behavior. We only use the TV base for lower overhead.
+# Keep the product behaving like a normal AOSP/Lineage "device" build.
+PRODUCT_IS_ATV := false
+
+# Best-effort runtime marker (some trees use this; harmless if unused).
+PRODUCT_SYSTEM_PROPERTIES += ro.product.is_atv=false
 
 $(call inherit-product, device/phh/treble/lineage.mk)
-$(call inherit-product, device/lineage/atv/lineage_atv.mk)
+$(call inherit-product-if-exists, device/phh/treble/lineage_tv_overrides.mk)
 $(call inherit-product, device/phh/treble/lineage.mk)
 
 PRODUCT_NAME := lineage_tv_arm64_bvS
@@ -27,6 +31,6 @@ PRODUCT_SYSTEM_BRAND := google
 PRODUCT_MODEL := TrebleDroid TV vanilla
 
 # Overwrite the inherited "emulator" characteristics
-PRODUCT_CHARACTERISTICS := tv
+PRODUCT_CHARACTERISTICS := device
 
 PRODUCT_PACKAGES +=  phh-su me.phh.superuser su

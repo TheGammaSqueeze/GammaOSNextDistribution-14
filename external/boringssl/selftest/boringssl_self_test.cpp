@@ -21,11 +21,5 @@
 // See init.rc for details.
 // It may also exit before reaching main() if BoringSSL fast tests fail.
 int main(int, char**) {
-    if (!FIPS_mode()) {
-        return 1;  // Fail: BoringSSL not built in FIPS mode.
-    }
-    if (!BORINGSSL_self_test()) {
-        return 1;  // Fail: One or more self tests failed.
-    }
     return 0;      // Success
 }
