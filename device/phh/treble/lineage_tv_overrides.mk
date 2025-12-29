@@ -47,3 +47,13 @@ PRODUCT_PACKAGES += Trebuchet
 
 PRODUCT_SYSTEM_EXT_PACKAGES += TrebuchetQuickStep
 PRODUCT_SYSTEM_EXT_PACKAGES += Trebuchet
+
+# Kill lockscreen completely for lineage_tv_* builds.
+#  - ro.lockscreen.disable.default: custom/ROM-side kill switch (used by several stacks)
+#  - persist.sys.disable_lockscreen: common kill switch used by many Android forks
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.lockscreen.disable.default=true \
+    persist.sys.disable_lockscreen=1
+    
+# Framework overlay that disables keyguard/lockscreen at the resource/config level.
+PRODUCT_PACKAGES += NoKeyguardFrameworkOverlay

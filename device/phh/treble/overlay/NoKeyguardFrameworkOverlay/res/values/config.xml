@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Hard-disable any lockscreen/keyguard behavior at the framework config level.
+      This is intended for PHH lineage_tv_* builds that must never present a lockscreen.
+    -->
+
+    <!-- Primary switch: do not show lockscreen UI. -->
+    <bool name="config_showLockscreen">false</bool>
+
+    <!-- Prevent Keyguard service from being enabled. -->
+    <bool name="config_enableKeyguardService">false</bool>
+
+    <!-- Ensure no credential is required by default (avoid any implicit secure flows). -->
+    <bool name="config_requireCredentialToDecrypt">false</bool>
+</resources>
