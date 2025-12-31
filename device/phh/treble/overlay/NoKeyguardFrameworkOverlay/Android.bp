@@ -2,7 +2,7 @@ runtime_resource_overlay {
     name: "NoKeyguardFrameworkOverlay",
     theme: "NoKeyguardFrameworkOverlay",
     sdk_version: "current",
-    product_specific: true,
+    system_ext_specific: true,
     manifest: "AndroidManifest.xml",
     resource_dirs: ["res"],
 }

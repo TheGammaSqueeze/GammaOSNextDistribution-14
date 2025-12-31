@@ -114,6 +114,18 @@ public class KeyguardStateControllerImpl implements KeyguardStateController, Dum
     private FeatureFlags mFeatureFlags;
 
     /**
+     * When true, SystemUI must treat keyguard as permanently dismissed.
+     *
+     * This is intended for special product configurations (for example your lineage_tv_* builds)
+     * that explicitly disable lockscreen support, and is gated behind properties so normal bvN
+     * builds are unaffected.
+     */
+    private static boolean isLockscreenHardDisabled() {
+        return SystemProperties.getBoolean("persist.sys.disable_lockscreen", false)
+                || SystemProperties.getBoolean("ro.lockscreen.disable.default", false);
+    }
+
+    /**
      *
      */
     @Inject
@@ -193,9 +205,21 @@ public class KeyguardStateControllerImpl implements KeyguardStateController, Dum
 
     @Override
     public void notifyKeyguardState(boolean showing, boolean occluded) {
+        if (isLockscreenHardDisabled()) {
+            // Ensure SystemUI never transitions into keyguard-driven states, even if a vendor/
+            // product configuration tries to assert it.
+            showing = false;
+            occluded = false;
+        }
         if (mShowing == showing && mOccluded == occluded) return;
         mShowing = showing;
         mOccluded = occluded;
+        if (isLockscreenHardDisabled()) {
+            // Keep related state consistent with the hard-disable behavior.
+            mSecure = false;
+            mPrimaryBouncerShowing = false;
+            mCanDismissLockScreen = true;
+        }
         mKeyguardUpdateMonitor.setKeyguardShowing(showing, occluded);
         Trace.instantForTrack(Trace.TRACE_TAG_APP, "UI Events",
                 "Keyguard showing: " + showing + " occluded: " + occluded);

@@ -79,6 +79,26 @@ public class StatusBarStateControllerImpl implements
     private static final boolean DEBUG_IMMERSIVE_APPS =
             SystemProperties.getBoolean("persist.debug.immersive_apps", false);
 
+    /**
+     * When true, SystemUI must never enter keyguard-related status bar states.
+     *
+     * This is intended for special product configurations (for example our lineage_tv_* builds)
+     * that explicitly disable lockscreen support, and is gated behind properties so normal bvN
+     * builds are unaffected.
+     */
+    private static boolean isLockscreenHardDisabled() {
+        return SystemProperties.getBoolean("persist.sys.disable_lockscreen", false)
+                || SystemProperties.getBoolean("ro.lockscreen.disable.default", false);
+    }
+
+    private static int coerceStateIfLockscreenDisabled(int requestedState) {
+        if (!isLockscreenHardDisabled()) return requestedState;
+        return (requestedState == StatusBarState.KEYGUARD
+                || requestedState == StatusBarState.SHADE_LOCKED)
+                ? StatusBarState.SHADE
+                : requestedState;
+    }
+
     // Must be a power of 2
     private static final int HISTORY_SIZE = 32;
 
@@ -211,6 +231,12 @@ public class StatusBarStateControllerImpl implements
             return false;
         }
 
+        // If lockscreen is explicitly disabled for this product, never allow SystemUI to enter
+        // keyguard-related states. This prevents intermittent "lockscreen clock" UI from being
+        // rendered inside the shade pipeline even when WindowManager reports keyguard is not
+        // showing.
+        state = coerceStateIfLockscreenDisabled(state);
+
         if (state > MAX_STATE || state < MIN_STATE) {
             throw new IllegalArgumentException("Invalid state " + state);
         }
@@ -272,6 +298,9 @@ public class StatusBarStateControllerImpl implements
         if (SceneContainerFlag.isEnabled()) {
             return;
         }
+
+        // Apply the same coercion for upcoming state transitions.
+        nextState = coerceStateIfLockscreenDisabled(nextState);
 
         recordHistoricalState(nextState /* newState */, mState /* lastState */, true);
         updateUpcomingState(nextState);

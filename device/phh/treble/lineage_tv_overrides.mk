@@ -57,3 +57,22 @@ PRODUCT_SYSTEM_PROPERTIES += \
     
 # Framework overlay that disables keyguard/lockscreen at the resource/config level.
 PRODUCT_PACKAGES += NoKeyguardFrameworkOverlay
+PRODUCT_SYSTEM_EXT_PACKAGES += NoKeyguardFrameworkOverlay
+
+# IME: remove Leanback IME and restore a normal keyboard.
+# gsi_tv_base.mk adds LeanbackIME (exact name) and TvSampleLeanbackLauncher.
+PRODUCT_PACKAGES -= LeanbackIME
+PRODUCT_SYSTEM_EXT_PACKAGES -= LeanbackIME
+PRODUCT_PACKAGES -= LeanbackIme
+PRODUCT_SYSTEM_EXT_PACKAGES -= LeanbackIme
+
+PRODUCT_PACKAGES -= TvSampleLeanbackLauncher
+PRODUCT_SYSTEM_EXT_PACKAGES -= TvSampleLeanbackLauncher
+
+# Add AOSP keyboard.
+PRODUCT_PACKAGES += LatinIME
+PRODUCT_SYSTEM_EXT_PACKAGES += LatinIME
+
+# Optional but recommended: include basic AOSP IME support libs if your tree expects them.
+# (Safe even if they are already pulled in by other products.)
+PRODUCT_PACKAGES += InputDevices
