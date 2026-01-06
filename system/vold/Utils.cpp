@@ -1595,9 +1595,11 @@ status_t MountUserFuse(userid_t user_id, const std::string& absolute_lower_path,
     std::string pass_through_path(
             StringPrintf("%s/%s", pre_pass_through_path.c_str(), relative_upper_path.c_str()));
 
-    // Ensure that /mnt/user is 0700. With FUSE, apps don't need access to /mnt/user paths directly.
-    // Without FUSE however, apps need /mnt/user access so /mnt/user in init.rc is 0755 until here
-    auto result = PrepareDir("/mnt/user", 0750, AID_ROOT, AID_MEDIA_RW);
+    // GAMMAOS: Keep /mnt/user listable/traversable.
+    //
+    // Upstream tightens this directory to reduce visibility into per-user mount scaffolding.
+    // GammaOS intentionally relaxes storage restrictions, so keep it world traversable.
+    auto result = PrepareDir("/mnt/user", 0755, AID_ROOT, AID_ROOT);
     if (result != android::OK) {
         PLOG(ERROR) << "Failed to prepare directory /mnt/user";
         return -1;
@@ -1618,6 +1620,11 @@ status_t MountUserFuse(userid_t user_id, const std::string& absolute_lower_path,
         PLOG(ERROR) << "Failed to prepare directory " << pre_fuse_path;
         return -1;
     }
+ 
+    // GAMMAOS: Re-assert permissions explicitly.
+    // Some boot flows can race with directory preparation and later tighten modes back to 0710.
+    // Ensure /mnt/user/<userId> remains listable/traversable so /storage can be enumerated.
+    (void)chmod(pre_fuse_path.c_str(), 0755);
 
     result = PrepareDir(fuse_path, 0700, AID_ROOT, AID_ROOT);
     if (result != android::OK) {

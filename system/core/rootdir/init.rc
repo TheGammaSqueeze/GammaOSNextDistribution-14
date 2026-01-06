@@ -293,7 +293,7 @@ on init
     mkdir /mnt/appfuse 0711 root root
 
     # Storage views to support runtime permissions
-    mkdir /mnt/runtime 0700 root root
+    mkdir /mnt/runtime 0755 root root
     mkdir /mnt/runtime/default 0755 root root
     mkdir /mnt/runtime/default/self 0755 root root
     mkdir /mnt/runtime/read 0755 root root
@@ -546,6 +546,20 @@ on post-fs
     # Mount default storage into root namespace
     mount none /mnt/user/0 /storage bind rec
     mount none none /storage slave rec
+ 
+    # GAMMAOS: Make /storage listable/traversable for all apps.
+    #
+    # Some apps (e.g. RetroArch) enumerate storage roots by opendir("/storage").
+    # /storage is bind-mounted from /mnt/user/0. Ensure both the bind target and
+    # the underlying source are readable/searchable for all UIDs.
+    chown shell everybody /mnt/user/0
+    chmod 0755 /mnt/user/0
+    chown shell everybody /storage
+    chmod 0755 /storage
+
+    # Best-effort: make common child mountpoints listable too.
+    chmod 0755 /storage/self
+    chmod 0755 /storage/emulated
 
     # Make sure /sys/kernel/debug (if present) is labeled properly
     # Note that tracefs may be mounted under debug, so we need to cross filesystems
@@ -1190,6 +1204,12 @@ on property:sys.boot_completed=1
     exec - system system -- /bin/rm -rf /data/per_boot
     mkdir /data/per_boot 0700 system system encryption=Require key=per_boot_ref
     start gammaoscustomization
+
+    # GAMMAOS: Reassert storage directory permissions once the system is fully up.
+    # vold can prepare /mnt/user/<userId> during late lifecycle events; ensure /storage remains
+    # listable for apps that enumerate /storage directly (RetroArch, some file managers).
+    exec - root root -- /system/bin/sh -c "chmod 0755 /mnt/user /mnt/user/0 /storage /storage/self /storage/emulated 2>/dev/null || true"
+
 # system server cannot write to /proc/sys files,
 # and chown/chmod does not work for /proc/sys/ entries.
 # So proxy writes through init.

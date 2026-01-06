@@ -33,6 +33,10 @@
 #include <unistd.h>
 #include <array>
 
+#include <atomic>
+#include <chrono>
+#include <thread>
+
 #include <linux/kdev_t.h>
 
 #include <android-base/file.h>
@@ -109,6 +113,61 @@ static const unsigned int kSizeVirtualDisk = 536870912;
 static const unsigned int kMajorBlockCdrom = 11;
 static const unsigned int kMajorBlockMmc = 179;
 
+// GAMMAOS: Make /storage listable/traversable for all apps.
+//
+// Many apps (for example RetroArch) enumerate storage roots by opendir("/storage").
+// In each app mount namespace, /storage is a bind mount of one of /mnt/runtime/*
+// roots. If those runtime roots are created with x-only perms for "other" (e.g. 0711),
+// apps can traverse to known paths but cannot list "/storage" itself.
+static void ChmodIfExists(const char* path, mode_t mode) {
+    if (chmod(path, mode) != 0) {
+        if (errno == ENOENT) return;
+        PLOG(WARNING) << "Failed to chmod " << path << " to " << std::oct << mode;
+    }
+}
+
+static void EnsureStorageRootsListable() {
+    // Runtime roots which are bind-mounted into app namespaces as /storage
+    ChmodIfExists("/mnt/runtime", 0755);
+    ChmodIfExists("/mnt/runtime/default", 0755);
+    ChmodIfExists("/mnt/runtime/read", 0755);
+    ChmodIfExists("/mnt/runtime/write", 0755);
+    ChmodIfExists("/mnt/runtime/full", 0755);
+
+    // User roots which are bind-mounted as /storage/self in app namespaces
+    ChmodIfExists("/mnt/user", 0755);
+    ChmodIfExists("/mnt/user/0", 0755);
+    ChmodIfExists("/mnt/user/0/self", 0755);
+    ChmodIfExists("/mnt/user/0/emulated", 0755);
+
+    // Root namespace mountpoints (best-effort). This helps for apps that never receive
+    // a per-UID remount (or enumerate early), and guards against later permission tightening.
+    ChmodIfExists("/storage", 0755);
+    ChmodIfExists("/storage/self", 0755);
+    ChmodIfExists("/storage/emulated", 0755);
+}
+
+// GAMMAOS: Keep /storage and /mnt/user paths listable at all times.
+//
+// Some components can tighten permissions after boot and after MountUserFuse() runs,
+// resulting in /storage and /mnt/user/<id> reverting to 0710 shell:everybody.
+// RetroArch and other apps depend on opendir("/storage") working continuously.
+static std::atomic<bool> gGammaStoragePermEnforcerStarted{false};
+
+static void StartGammaStoragePermEnforcer() {
+    bool expected = false;
+    if (!gGammaStoragePermEnforcerStarted.compare_exchange_strong(expected, true)) {
+        return;
+    }
+
+    std::thread([]() {
+        for (;;) {
+            EnsureStorageRootsListable();
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+    }).detach();
+}
+
 using ScanProcCallback = bool(*)(uid_t uid, pid_t pid, int nsFd, const char* name, void* params);
 
 VolumeManager* VolumeManager::sInstance = NULL;
@@ -181,6 +240,12 @@ int VolumeManager::start() {
     // Always start from a clean slate by unmounting everything in
     // directories that we own, in case we crashed.
     unmountAll();
+
+    // Ensure /storage remains listable even if other components tighten permissions later.
+    StartGammaStoragePermEnforcer();
+
+    // GAMMAOS: Ensure /storage is listable (directory readable) for apps.
+    EnsureStorageRootsListable();
 
     Loop::destroyAll();
 
@@ -565,6 +630,12 @@ static bool childProcess(const char* storageSource, const char* userSource, int 
                               userSource, name, strerror(errno));
         return false;
     }
+ 
+    // GAMMAOS: Ensure /storage remains listable in this mount namespace.
+    // The bind source can be reset later during user/volume lifecycle transitions.
+    (void)chmod("/storage", 0755);
+    (void)chmod("/storage/self", 0755);
+    (void)chmod("/storage/emulated", 0755);
 
     return true;
 }
@@ -593,6 +664,10 @@ bool forkAndRemountChild(uid_t uid, pid_t pid, int nsFd, const char* name, void*
             return false;
     }
     LOG(DEBUG) << "Remounting " << uid << " as " << storageSource;
+
+    // GAMMAOS: Also enforce listable runtime roots during remount in case init/vendor
+    // scripts reset permissions after vold start.
+    EnsureStorageRootsListable();
 
     // Fork a child to mount user-specific symlink helper into place
     userSource = StringPrintf("/mnt/user/%d", multiuser_get_user_id(uid));
