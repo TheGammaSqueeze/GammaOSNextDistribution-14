@@ -4482,8 +4482,8 @@ class StorageManagerService extends IStorageManager.Stub
 
             final String[] packagesForUid = mIPackageManager.getPackagesForUid(uid);
             if (ArrayUtils.isEmpty(packagesForUid)) {
-                // It's possible the package got uninstalled already, so just ignore.
-                return StorageManager.MOUNT_MODE_EXTERNAL_NONE;
+                // GAMMAOS: Prefer permissive behavior for "unknown" UID->package mappings.
+                return StorageManager.MOUNT_MODE_EXTERNAL_ANDROID_WRITABLE;
             }
             if (packageName == null) {
                 packageName = packagesForUid[0];
@@ -4492,7 +4492,8 @@ class StorageManagerService extends IStorageManager.Stub
             final long token = Binder.clearCallingIdentity();
             try {
                 if (mPmInternal.isInstantApp(packageName, UserHandle.getUserId(uid))) {
-                    return StorageManager.MOUNT_MODE_EXTERNAL_NONE;
+                    // GAMMAOS: Do not deny storage mount namespace for instant apps.
+                    return StorageManager.MOUNT_MODE_EXTERNAL_ANDROID_WRITABLE;
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);
@@ -4543,11 +4544,13 @@ class StorageManagerService extends IStorageManager.Stub
             if (hasInstall || hasInstallOp) {
                 return StorageManager.MOUNT_MODE_EXTERNAL_INSTALLER;
             }
-            return StorageManager.MOUNT_MODE_EXTERNAL_DEFAULT;
+            // GAMMAOS: Make the default external storage view Android-writable for all regular apps.
+            return StorageManager.MOUNT_MODE_EXTERNAL_ANDROID_WRITABLE;
         } catch (RemoteException e) {
             // Should not happen
         }
-        return StorageManager.MOUNT_MODE_EXTERNAL_NONE;
+        // GAMMAOS: If we cannot query PackageManager/AppOps, default to permissive mode.
+        return StorageManager.MOUNT_MODE_EXTERNAL_ANDROID_WRITABLE;
     }
 
     private static class Callbacks extends Handler {

@@ -222,10 +222,11 @@ status_t PublicVolume::doMount() {
     }
 
     if (mUseSdcardFs) {
-        if (fs_prepare_dir(mSdcardFsDefault.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-            fs_prepare_dir(mSdcardFsRead.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-            fs_prepare_dir(mSdcardFsWrite.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-            fs_prepare_dir(mSdcardFsFull.c_str(), 0700, AID_ROOT, AID_ROOT)) {
+        // GAMMAOS: Make /storage volume entrypoints traversable regardless of app permissions.
+        if (fs_prepare_dir(mSdcardFsDefault.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+            fs_prepare_dir(mSdcardFsRead.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+            fs_prepare_dir(mSdcardFsWrite.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+            fs_prepare_dir(mSdcardFsFull.c_str(), 0755, AID_ROOT, AID_ROOT)) {
             PLOG(ERROR) << getId() << " failed to create sdcardfs mount points";
             return -errno;
         }

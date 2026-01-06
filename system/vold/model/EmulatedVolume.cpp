@@ -341,10 +341,14 @@ status_t EmulatedVolume::doMount() {
     setInternalPath(mRawPath);
     setPath(StringPrintf("/storage/%s", label.c_str()));
 
-    if (fs_prepare_dir(mSdcardFsDefault.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-        fs_prepare_dir(mSdcardFsRead.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-        fs_prepare_dir(mSdcardFsWrite.c_str(), 0700, AID_ROOT, AID_ROOT) ||
-        fs_prepare_dir(mSdcardFsFull.c_str(), 0700, AID_ROOT, AID_ROOT)) {
+    // GAMMAOS: Ensure volume entrypoints under /mnt/runtime/* are traversable and listable.
+    // In each app mount namespace, /storage is bind-mounted from /mnt/runtime/<mode>.
+    // If these per-volume directories are created as 0700 and the expected mount overlay is
+    // not yet present (or differs by configuration), apps may see EACCES when traversing /storage.
+    if (fs_prepare_dir(mSdcardFsDefault.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+        fs_prepare_dir(mSdcardFsRead.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+        fs_prepare_dir(mSdcardFsWrite.c_str(), 0755, AID_ROOT, AID_ROOT) ||
+        fs_prepare_dir(mSdcardFsFull.c_str(), 0755, AID_ROOT, AID_ROOT)) {
         PLOG(ERROR) << getId() << " failed to create mount points";
         return -errno;
     }

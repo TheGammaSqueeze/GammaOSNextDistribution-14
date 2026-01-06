@@ -1608,7 +1608,11 @@ status_t MountUserFuse(userid_t user_id, const std::string& absolute_lower_path,
     // AID_SHELL. This gives shell access along with apps running as group everybody (user 0 apps)
     // These bits should be consistent with what is set in zygote in
     // com_android_internal_os_Zygote#MountEmulatedStorage on volume bind mount during app fork
-    result = PrepareDir(pre_fuse_path, 0710, user_id ? AID_ROOT : AID_SHELL,
+
+    // GAMMAOS: Make /storage/self traversable regardless of app storage permissions/groups.
+    // /storage/self is bind-mounted from /mnt/user/<userId>. If that directory is 0710 and apps
+    // don't carry the expected supplemental GIDs, directory traversal can fail with EACCES.
+    result = PrepareDir(pre_fuse_path, 0755, user_id ? AID_ROOT : AID_SHELL,
                              multiuser_get_uid(user_id, AID_EVERYBODY));
     if (result != android::OK) {
         PLOG(ERROR) << "Failed to prepare directory " << pre_fuse_path;
@@ -1621,13 +1625,15 @@ status_t MountUserFuse(userid_t user_id, const std::string& absolute_lower_path,
         return -1;
     }
 
-    result = PrepareDir(pre_pass_through_path, 0710, AID_ROOT, AID_MEDIA_RW);
+    // GAMMAOS: Make pass-through tree traversable regardless of app storage permissions/groups.
+    result = PrepareDir(pre_pass_through_path, 0755, AID_ROOT, AID_MEDIA_RW);
     if (result != android::OK) {
         PLOG(ERROR) << "Failed to prepare directory " << pre_pass_through_path;
         return -1;
     }
 
-    result = PrepareDir(pass_through_path, 0710, AID_ROOT, AID_MEDIA_RW);
+    // GAMMAOS: Make pass-through tree traversable regardless of app storage permissions/groups.
+    result = PrepareDir(pass_through_path, 0755, AID_ROOT, AID_MEDIA_RW);
     if (result != android::OK) {
         PLOG(ERROR) << "Failed to prepare directory " << pass_through_path;
         return -1;
