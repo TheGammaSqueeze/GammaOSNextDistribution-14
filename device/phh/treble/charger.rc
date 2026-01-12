@@ -13,5 +13,5 @@ service charger /system/bin/charger
     seclabel u:r:charger:s0
 
 on charger && property:ro.hardware=mt*
-    write /sys/class/leds/lcd-backlight/trigger "backlight"
+    write /sys/class/leds/lcd-backlight/trigger "none"
     write /sys/class/android_usb/android0/enable 1

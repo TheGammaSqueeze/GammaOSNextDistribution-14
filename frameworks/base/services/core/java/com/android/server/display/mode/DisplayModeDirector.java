@@ -24,6 +24,7 @@ import static android.view.Display.Mode.INVALID_MODE_ID;
 import static com.android.server.display.DisplayDeviceConfig.DEFAULT_LOW_REFRESH_RATE;
 
 import android.annotation.IntegerRes;
+import android.os.SystemProperties;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.ContentResolver;
@@ -327,7 +328,7 @@ public class DisplayModeDirector {
 
             // GammaOS: hard refresh lock — force highest refresh within the default
             // resolution group (e.g., 120 Hz on a 120 Hz-capable panel) and ignore votes.
-            if (mGammaRefreshLockEnabled) {
+            if (mGammaRefreshLockEnabled && displayId == Display.DEFAULT_DISPLAY) {
                 // Pick the highest-Hz mode that matches the default mode's physical size.
                 final int defW = defaultMode.getPhysicalWidth();
                 final int defH = defaultMode.getPhysicalHeight();
@@ -607,6 +608,9 @@ public class DisplayModeDirector {
     @GuardedBy("mLock")
     private float getMaxRefreshRateLocked(int displayId) {
         Display.Mode[] modes = mSupportedModesByDisplay.get(displayId);
+        if (modes == null) {
+            return 0f;
+        }
         float maxRefreshRate = 0f;
         for (Display.Mode mode : modes) {
             if (mode.getRefreshRate() > maxRefreshRate) {
@@ -1111,6 +1115,15 @@ public class DisplayModeDirector {
                 Settings.System.putFloatForUser(cr, Settings.System.PEAK_REFRESH_RATE,
                         Float.POSITIVE_INFINITY, cr.getUserId());
             }
+ 
+            // GammaOS: Per-display safety clamp.
+            // Prevent forcing 120 fps render votes onto a 60 Hz-only secondary display.
+            if (minRefreshRate > highestRefreshRate) {
+                minRefreshRate = highestRefreshRate;
+            }
+            if (peakRefreshRate > highestRefreshRate) {
+                peakRefreshRate = highestRefreshRate;
+            }
 
             updateRefreshRateSettingLocked(minRefreshRate, peakRefreshRate, mDefaultRefreshRate,
                     displayId);
@@ -1245,6 +1258,25 @@ public class DisplayModeDirector {
                 float min = requestedMinRefreshRateRange;
                 float max = requestedMaxRefreshRateRange > 0
                         ? requestedMaxRefreshRateRange : Float.POSITIVE_INFINITY;
+
+                // GammaOS: Never allow an app-requested render range to exceed the max refresh
+                // supported by this display. This prevents 120 fps requests from leaking onto a
+                // 60 Hz-only secondary panel.
+                final Display.Mode[] modes = mSupportedModesByDisplay.get(displayId);
+                float displayMax = 0f;
+                if (modes != null) {
+                    for (Display.Mode mode : modes) {
+                        if (mode.getRefreshRate() > displayMax) {
+                            displayMax = mode.getRefreshRate();
+                        }
+                    }
+                }
+                if (displayMax > 0f) {
+                    if (min > displayMax) min = displayMax;
+                    if (max > displayMax) max = displayMax;
+                    if (max < min) max = min;
+                }
+
                 refreshRateRange = new RefreshRateRange(min, max);
                 if (refreshRateRange.min == 0 && refreshRateRange.max == 0) {
                     // requestedMinRefreshRateRange/requestedMaxRefreshRateRange were invalid

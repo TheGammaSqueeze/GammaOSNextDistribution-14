@@ -19,6 +19,8 @@
 
 #include <linux/input.h>
 #include <minui/minui.h>
+#include <memory>
+#include <string>
 
 #include "animation.h"
 
@@ -87,12 +89,30 @@ class HealthdDraw {
   // true if kirin found
   bool is_kirin;
   uint32_t mMaxBrightness;
+ 
+  // true if MediaTek found
+  bool is_mtk;
+
+  // Cached backlight sysfs paths (MediaTek only). These are best-effort; if we cannot
+  // discover them at runtime we fall back to minui blanking only.
+  std::string backlight_brightness_path_;
+  std::string backlight_max_brightness_path_;
+  std::string backlight_power_path_;
+
+  // Cached brightness values (MediaTek only).
+  uint32_t backlight_max_brightness_;
+  uint32_t backlight_restore_brightness_;
 
  private:
   // Configures font using given animation.
   HealthdDraw(animation* anim);
-  // Set brightness
+
+  // Kirin specific brightness control.
   void set_brightness(uint32_t value);
+
+  // MediaTek specific backlight control.
+  void init_mtk_backlight_paths();
+  void mtk_set_backlight_blank(bool blank);
 };
 
 #endif  // HEALTHD_DRAW_H

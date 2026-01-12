@@ -32,6 +32,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.media.projection.IMediaProjectionManager;
+import android.os.SystemProperties;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -105,6 +106,31 @@ final class ContentRecorder implements WindowContainerListener {
     private int mLastWindowingMode = WINDOWING_MODE_UNDEFINED;
 
     private final boolean mCorrectForAnisotropicPixels;
+ 
+    // GammaOS: When refresh lock is enabled, avoid transient "content recording" mirroring from
+    // the default display into an internal secondary display during bring-up. This is the path
+    // that produces visible glitching on 60 Hz secondary panels when the primary is locked.
+    private static boolean gammaRefreshLockEnabled() {
+        return SystemProperties.getBoolean("persist.gammaos.refresh.lock", false);
+    }
+
+    private boolean gammaIsInternalSecondaryDisplay() {
+        if (mDisplayContent.getDisplayId() == Display.DEFAULT_DISPLAY) return false;
+        final DisplayInfo info = mDisplayContent.getDisplayInfo();
+        return info != null && info.type == Display.TYPE_INTERNAL;
+    }
+
+    private boolean gammaShouldSkipTransientDisplayMirroring() {
+        if (!gammaRefreshLockEnabled()) return false;
+        if (!gammaIsInternalSecondaryDisplay()) return false;
+        if (mContentRecordingSession == null) return false;
+        if (mContentRecordingSession.isWaitingForConsent()) return false;
+
+        // Only skip the "no content" mirroring case where a secondary display is populated by
+        // recording the default display.
+        if (mContentRecordingSession.getContentToRecord() != RECORD_CONTENT_DISPLAY) return false;
+        return mContentRecordingSession.getDisplayToRecord() == Display.DEFAULT_DISPLAY;
+    }
 
     ContentRecorder(@NonNull DisplayContent displayContent) {
         // Disable anisotropic pixel correction: vendor-reported physical DPI is often inaccurate and
@@ -343,6 +369,20 @@ final class ContentRecorder implements WindowContainerListener {
         if (mContentRecordingSession.isWaitingForConsent()) {
             ProtoLog.v(WM_DEBUG_CONTENT_RECORDING, "Content Recording: waiting to record, so do "
                     + "nothing");
+            return;
+        }
+ 
+        // GammaOS: If refresh lock is enabled, do not start transient "record default display"
+        // mirroring on an internal secondary display. This prevents the 60 Hz panel from being
+        // driven by a 120 Hz cadence during bring-up, which manifests as glitching.
+        //
+        // Clearing the session stops repeated attempts from WM "no content" recording logic.
+        if (gammaShouldSkipTransientDisplayMirroring()) {
+            ProtoLog.v(WM_DEBUG_CONTENT_RECORDING,
+                    "GammaOS: Skip transient display mirroring (displayId=%d, displayToRecord=%d) "
+                            + "while refresh lock is enabled",
+                    mDisplayContent.getDisplayId(), mContentRecordingSession.getDisplayToRecord());
+            clearContentRecordingSession();
             return;
         }
 

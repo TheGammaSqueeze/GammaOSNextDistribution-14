@@ -1189,6 +1189,12 @@
       "group": "WM_DEBUG_CONTENT_RECORDING",
       "at": "com\/android\/server\/wm\/ContentRecorder.java"
     },
+    "974154379774540404": {
+      "message": "GammaOS: Skip transient display mirroring (displayId=%d, displayToRecord=%d) while refresh lock is enabled",
+      "level": "VERBOSE",
+      "group": "WM_DEBUG_CONTENT_RECORDING",
+      "at": "com\/android\/server\/wm\/ContentRecorder.java"
+    },
     "6779858226066635065": {
       "message": "Content Recording: Display %d should start recording, but don't yet since the task is in PIP",
       "level": "VERBOSE",

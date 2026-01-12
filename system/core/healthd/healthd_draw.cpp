@@ -16,10 +16,16 @@
 
 #include <android-base/stringprintf.h>
 #include <android-base/file.h>
+#include <android-base/strings.h>
 #include <batteryservice/BatteryService.h>
 #include <cutils/klog.h>
 #include <cutils/properties.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <ctype.h>
 
 #include "healthd_draw.h"
 
@@ -37,6 +43,125 @@
 using ::android::base::ReadFileToString;
 using ::android::base::WriteStringToFile;
 
+namespace {
+
+static bool file_exists(const std::string& path) {
+    return access(path.c_str(), F_OK) == 0;
+}
+
+static std::string to_lower_ascii(std::string s) {
+    for (char& c : s) c = static_cast<char>(tolower(static_cast<unsigned char>(c)));
+    return s;
+}
+
+static bool looks_like_mtk_platform(const std::string& value) {
+    if (value.empty()) return false;
+    std::string v = to_lower_ascii(value);
+
+    if (v.find("mediatek") != std::string::npos) return true;
+
+    // Common MediaTek platform strings are like "mt6768", "mt6897", etc.
+    if (v.rfind("mt", 0) == 0 && v.size() >= 4 && isdigit(static_cast<unsigned char>(v[2]))) {
+        return true;
+    }
+
+    // Some builds use generic markers.
+    if (v == "mtk") return true;
+
+    return false;
+}
+
+static bool is_mtk_device() {
+    char prop[PROPERTY_VALUE_MAX] = {};
+
+    if (property_get("ro.hardware", prop, "") > 0 && looks_like_mtk_platform(prop)) return true;
+    if (property_get("ro.board.platform", prop, "") > 0 && looks_like_mtk_platform(prop)) return true;
+    if (property_get("ro.hardware.platform", prop, "") > 0 && looks_like_mtk_platform(prop)) return true;
+
+    return false;
+}
+
+static uint32_t read_u32_file(const std::string& path, uint32_t def_value) {
+    std::string content;
+    if (!path.empty() && ReadFileToString(path, &content)) {
+        content = android::base::Trim(content);
+        if (!content.empty()) {
+            char* endp = nullptr;
+            errno = 0;
+            unsigned long v = strtoul(content.c_str(), &endp, 10);
+            if (errno == 0 && endp != content.c_str()) {
+                return static_cast<uint32_t>(v);
+            }
+        }
+    }
+    return def_value;
+}
+
+static bool write_u32_file(const std::string& path, uint32_t value) {
+    if (path.empty()) return false;
+    return WriteStringToFile(std::to_string(value), path);
+}
+
+static bool write_str_file(const std::string& path, const std::string& value) {
+    if (path.empty()) return false;
+    return WriteStringToFile(value, path);
+}
+
+// Best-effort: discover a usable backlight sysfs entry.
+static bool find_backlight_sysfs(std::string* brightness_path, std::string* max_brightness_path,
+                                std::string* power_path) {
+    brightness_path->clear();
+    max_brightness_path->clear();
+    power_path->clear();
+
+    // Prefer /sys/class/backlight as it is the standard Linux interface.
+    {
+        DIR* dir = opendir("/sys/class/backlight");
+        if (dir != nullptr) {
+            struct dirent* de;
+            while ((de = readdir(dir)) != nullptr) {
+                if (de->d_name[0] == '.') continue;
+                std::string base = std::string("/sys/class/backlight/") + de->d_name;
+                std::string b = base + "/brightness";
+                std::string mb = base + "/max_brightness";
+                std::string p = base + "/bl_power";
+
+                if (file_exists(b) && file_exists(mb)) {
+                    *brightness_path = b;
+                    *max_brightness_path = mb;
+                    if (file_exists(p)) *power_path = p;
+                    closedir(dir);
+                    return true;
+                }
+            }
+            closedir(dir);
+        }
+    }
+
+    // Fallback to common LED class entries used by some Android kernels.
+    const char* led_candidates[] = {
+            "/sys/class/leds/lcd-backlight",
+            "/sys/class/leds/lcd_backlight",
+            "/sys/class/leds/lcd_backlight0",
+            "/sys/class/leds/panel0-backlight",
+            "/sys/class/leds/panel-backlight",
+    };
+
+    for (const char* base_c : led_candidates) {
+        std::string base(base_c);
+        std::string b = base + "/brightness";
+        std::string mb = base + "/max_brightness";
+        if (file_exists(b) && file_exists(mb)) {
+            *brightness_path = b;
+            *max_brightness_path = mb;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+}  // namespace
 
 static bool get_split_screen() {
 #if !defined(__ANDROID_VNDK__)
@@ -118,6 +243,17 @@ HealthdDraw::HealthdDraw(animation* anim)
             set_brightness(mMaxBrightness);
         }
     }
+
+    is_mtk = false;
+    backlight_max_brightness_ = 0;
+    backlight_restore_brightness_ = 0;
+
+    // MediaTek: minui blanking does not reliably power down the panel/backlight on some devices.
+    // For those, explicitly toggle the kernel backlight sysfs node when the charger UI is blanked.
+    if (!is_kirin && is_mtk_device()) {
+        is_mtk = true;
+        init_mtk_backlight_paths();
+    }
 }
 
 HealthdDraw::~HealthdDraw() {}
@@ -139,12 +275,58 @@ void HealthdDraw::set_brightness(uint32_t value) {
     LOGV("Kirin - Try to set brightness to %d\n",value)
     if (WriteStringToFile(std::to_string(value), "/sys/class/leds/lcd_backlight0/brightness")==false) {
         LOGW("Kirin - WriteStringToFile failed lcd_backlight0, unable to set brightness (lcd_backlight0)\n");
-        if (WriteStringToFile(std::to_string(0), "/sys/class/leds/lcd_backlight/brightness")==false) {
+        if (WriteStringToFile(std::to_string(value), "/sys/class/leds/lcd_backlight/brightness")==false) {
             LOGE("Kirin - WriteStringToFile failed lcd_backlight, unable to set brightness (lcd_backlight)\n");
         }
     }
 }
 
+void HealthdDraw::init_mtk_backlight_paths() {
+    if (!find_backlight_sysfs(&backlight_brightness_path_, &backlight_max_brightness_path_,
+                             &backlight_power_path_)) {
+        LOGW("MediaTek: could not discover backlight sysfs paths; falling back to minui blanking\n");
+        return;
+    }
+
+    backlight_max_brightness_ = read_u32_file(backlight_max_brightness_path_, 255);
+
+    // Cache the current brightness so we can restore it when unblanking.
+    // If we cannot read a meaningful value, fall back to max brightness.
+    backlight_restore_brightness_ =
+            read_u32_file(backlight_brightness_path_, backlight_max_brightness_);
+    if (backlight_restore_brightness_ == 0) {
+        backlight_restore_brightness_ = backlight_max_brightness_;
+    }
+
+    LOGV("MediaTek backlight: brightness=%s max=%s bl_power=%s restore=%u max=%u\n",
+         backlight_brightness_path_.c_str(), backlight_max_brightness_path_.c_str(),
+         backlight_power_path_.empty() ? "(none)" : backlight_power_path_.c_str(),
+         backlight_restore_brightness_, backlight_max_brightness_);
+}
+
+void HealthdDraw::mtk_set_backlight_blank(bool blank) {
+    if (backlight_brightness_path_.empty()) return;
+
+    if (blank) {
+        // Save the latest non-zero brightness before blanking.
+        uint32_t cur = read_u32_file(backlight_brightness_path_, backlight_restore_brightness_);
+        if (cur != 0) backlight_restore_brightness_ = cur;
+
+        // Some drivers honor bl_power, others only honor brightness. Apply both when possible.
+        if (!backlight_power_path_.empty()) {
+            // 0 = unblank, 4 = powerdown (Linux backlight sysfs convention)
+            (void)write_str_file(backlight_power_path_, "4");
+        }
+        (void)write_u32_file(backlight_brightness_path_, 0);
+    } else {
+        if (!backlight_power_path_.empty()) {
+            (void)write_str_file(backlight_power_path_, "0");
+        }
+        uint32_t restore = backlight_restore_brightness_;
+        if (restore == 0) restore = (backlight_max_brightness_ ? backlight_max_brightness_ : 255);
+        (void)write_u32_file(backlight_brightness_path_, restore);
+    }
+}
 
 void HealthdDraw::blank_screen(bool blank, int drm) {
 
@@ -166,6 +348,12 @@ void HealthdDraw::blank_screen(bool blank, int drm) {
         else {
             set_brightness(mMaxBrightness);
         }
+    }
+    else if (is_mtk) {
+        // Ensure the panel backlight is not left on after the UI has timed out.
+        // This is gated to MediaTek only to avoid interfering with other platforms.
+        mtk_set_backlight_blank(blank);
+        gr_fb_blank(blank, drm);
     }
     else {
         LOGV("Blank screen with minui api)\n");

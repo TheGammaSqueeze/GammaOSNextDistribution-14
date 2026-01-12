@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <cinttypes>
 #include <cstdint>
+#include <vector>
 #include <functional>
 #include <memory>
 #include <numeric>
@@ -63,6 +64,7 @@
 namespace android::scheduler {
 
 static inline bool gammaTweaksEnabled() { return android::base::GetBoolProperty("persist.gammaos.display.tweaks", false); }
+static inline bool gammaRefreshLockEnabled() { return android::base::GetBoolProperty("persist.gammaos.refresh.lock", false); }
 
 Scheduler::Scheduler(ICompositor& compositor, ISchedulerCallback& callback, FeatureFlags features,
                      surfaceflinger::Factory& factory, Fps activeRefreshRate, TimeStats& timeStats)
@@ -139,6 +141,11 @@ void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelector
                 onHardwareVsyncRequest(id, enable);
             });
 
+    // GammaOS: When refresh lock is enabled, ensure follower displays are allowed to use HW VSYNC.
+    // This avoids needing manual sequencing (disable follower, toggle lock, re-enable follower)
+    // to get stable behavior on boot or on hotplug.
+    const bool gammaEnableHwVsyncForAll = gammaTweaksEnabled() || gammaRefreshLockEnabled();
+
     // GammaOS: when display tweaks are enabled, allow this schedule to use HW VSYNC.
     // By default VsyncSchedule starts in HwVsyncState::Disallowed, and enableHardwareVsync()
     // is a no-op in that state. For the pacesetter we flip the state via
@@ -146,7 +153,7 @@ void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelector
     //
     // Explicitly marking the new schedule as "allowed" here ensures both the pacesetter and
     // follower displays can drive their VSyncReactor with real hardware vsync signals.
-    if (gammaTweaksEnabled()) {
+    if (gammaEnableHwVsyncForAll) {
         schedulePtr->isHardwareVsyncAllowed(/*makeAllowed=*/true);
     }
 
@@ -154,7 +161,7 @@ void Scheduler::registerDisplay(PhysicalDisplayId displayId, RefreshRateSelector
 
     // GammaOS: mirror stock behaviour and keep HW VSYNC enabled for every registered display
     // once it has been allowed. This applies equally to the pacesetter and any followers.
-    if (gammaTweaksEnabled()) {
+    if (gammaEnableHwVsyncForAll) {
         enableHardwareVsync(displayId);
     }
 }
@@ -220,6 +227,14 @@ void Scheduler::onFrameSignal(ICompositor& compositor, VsyncId vsyncId,
              .hwcMinWorkDuration = mVsyncConfiguration->getCurrentConfigs().hwcMinWorkDuration};
 
     ftl::NonNull<const Display*> pacesetterPtr = pacesetterPtrLocked();
+    const Fps pacesetterFps = pacesetterPtr->selectorPtr->getActiveMode().fps;
+    const bool lock = gammaRefreshLockEnabled();
+
+    // GammaOS: keep a stable "pacesetter vsync tick" timestamp for phase gating.
+    // Do not use the later-adjusted expectedPresentTime(), which can move and cause followers
+    // to be considered "in phase" too often (leading to 120-cadence behavior on a 60 Hz follower).
+    const TimePoint pacesetterVsyncTimeForPhase = expectedVsyncTime;
+
     pacesetterPtr->targeterPtr->beginFrame(beginFrameArgs, *pacesetterPtr->schedulePtr);
 
     {
@@ -230,9 +245,35 @@ void Scheduler::onFrameSignal(ICompositor& compositor, VsyncId vsyncId,
         // pacesetter.
         // Update expectedVsyncTime, which may have been adjusted by beginFrame.
         expectedVsyncTime = pacesetterPtr->targeterPtr->target().expectedPresentTime();
+ 
+        // GammaOS: when refresh lock is enabled, do not let a slower follower (for example 60 Hz)
+        // effectively throttle the global composition cadence down from the pacesetter (for example 120 Hz).
+        //
+        // SurfaceFlinger can keep the pacesetter presenting at 120 while the follower simply re-latches
+        // the previously-presented buffer on the intermediate pacesetter ticks. We implement this by only
+        // including follower displays in commit/composite on pacesetter vsyncs that are in-phase with the
+        // follower's refresh rate (for example every other vsync for 60 on a 120 pacesetter).
+        //
+        // This is gated behind persist.gammaos.refresh.lock=1.
+        std::vector<PhysicalDisplayId> compositedDisplays;
+        compositedDisplays.reserve(mDisplays.size());
+        compositedDisplays.emplace_back(pacesetterPtr->displayId);
 
         for (const auto& [id, display] : mDisplays) {
             if (id == pacesetterPtr->displayId) continue;
+ 
+            const Fps followerFps = display.selectorPtr->getActiveMode().fps;
+            if (lock && followerFps.isValid() && pacesetterFps.isValid() &&
+                followerFps.getValue() < pacesetterFps.getValue()) {
+                // Use the pacesetter's tracker to decide whether this pacesetter vsync aligns with
+                // the follower cadence (for example 60 Hz is every other tick on a 120 Hz pacesetter).
+                const bool inPhase =
+                        pacesetterPtr->schedulePtr->getTracker().isVSyncInPhase(
+                                pacesetterVsyncTimeForPhase.ns(), followerFps);
+                if (!inPhase) {
+                    continue;
+                }
+            }
 
             auto followerBeginFrameArgs = beginFrameArgs;
             followerBeginFrameArgs.expectedVsyncTime =
@@ -241,6 +282,7 @@ void Scheduler::onFrameSignal(ICompositor& compositor, VsyncId vsyncId,
             FrameTargeter& targeter = *display.targeterPtr;
             targeter.beginFrame(followerBeginFrameArgs, *display.schedulePtr);
             targets.try_emplace(id, &targeter.target());
+            compositedDisplays.emplace_back(id);
         }
 
         if (!compositor.commit(pacesetterPtr->displayId, targets)) {
@@ -249,55 +291,44 @@ void Scheduler::onFrameSignal(ICompositor& compositor, VsyncId vsyncId,
             }
             return;
         }
-    }
 
-    // The pacesetter may have changed or been registered anew during commit.
-    pacesetterPtr = pacesetterPtrLocked();
+        // The pacesetter may have changed or been registered anew during commit.
+        pacesetterPtr = pacesetterPtrLocked();
 
-    // TODO(b/256196556): Choose the frontrunner display.
-    FrameTargeters targeters;
-    targeters.try_emplace(pacesetterPtr->displayId, pacesetterPtr->targeterPtr.get());
+        // TODO(b/256196556): Choose the frontrunner display.
+        FrameTargeters targeters;
+        targeters.try_emplace(pacesetterPtr->displayId, pacesetterPtr->targeterPtr.get());
 
-    for (auto& [id, display] : mDisplays) {
-        if (id == pacesetterPtr->displayId) continue;
+        for (auto& [id, display] : mDisplays) {
+            if (id == pacesetterPtr->displayId) continue;
+            // Only composite followers that we included above when refresh lock is active.
+            if (lock) {
+                bool included = false;
+                for (const auto& cid : compositedDisplays) {
+                    if (cid == id) {
+                        included = true;
+                        break;
+                    }
+                }
+                if (!included) continue;
+            }
 
-        FrameTargeter& targeter = *display.targeterPtr;
-        targeters.try_emplace(id, &targeter);
-    }
-
-    if (FlagManager::getInstance().vrr_config() &&
-        CC_UNLIKELY(mPacesetterFrameDurationFractionToSkip > 0.f)) {
-        const auto period = pacesetterPtr->targeterPtr->target().expectedFrameDuration();
-        const auto skipDuration = Duration::fromNs(
-                static_cast<nsecs_t>(period.ns() * mPacesetterFrameDurationFractionToSkip));
-        ATRACE_FORMAT("Injecting jank for %f%% of the frame (%" PRId64 " ns)",
-                      mPacesetterFrameDurationFractionToSkip * 100, skipDuration.ns());
-        std::this_thread::sleep_for(skipDuration);
-        mPacesetterFrameDurationFractionToSkip = 0.f;
-    }
-
-    if (FlagManager::getInstance().vrr_config()) {
-        const auto minFramePeriod = pacesetterPtr->schedulePtr->minFramePeriod();
-        const auto presentFenceForPastVsync =
-                pacesetterPtr->targeterPtr->target().presentFenceForPastVsync(minFramePeriod);
-        const auto lastConfirmedPresentTime = presentFenceForPastVsync->getSignalTime();
-        if (lastConfirmedPresentTime != Fence::SIGNAL_TIME_PENDING &&
-            lastConfirmedPresentTime != Fence::SIGNAL_TIME_INVALID) {
-            pacesetterPtr->schedulePtr->getTracker()
-                    .onFrameBegin(expectedVsyncTime, TimePoint::fromNs(lastConfirmedPresentTime));
+            FrameTargeter& targeter = *display.targeterPtr;
+            targeters.try_emplace(id, &targeter);
         }
-    }
 
-    const auto resultsPerDisplay = compositor.composite(pacesetterPtr->displayId, targeters);
-    if (FlagManager::getInstance().vrr_config()) {
-        compositor.sendNotifyExpectedPresentHint(pacesetterPtr->displayId);
-    }
-    compositor.sample();
+        const auto resultsPerDisplay = compositor.composite(pacesetterPtr->displayId, targeters);
+        if (FlagManager::getInstance().vrr_config()) {
+            compositor.sendNotifyExpectedPresentHint(pacesetterPtr->displayId);
+        }
+        compositor.sample();
 
-    for (const auto& [id, targeter] : targeters) {
-        const auto resultOpt = resultsPerDisplay.get(id);
-        LOG_ALWAYS_FATAL_IF(!resultOpt);
-        targeter->endFrame(*resultOpt);
+        for (const auto& [id, targeter] : targeters) {
+            const auto resultOpt = resultsPerDisplay.get(id);
+            LOG_ALWAYS_FATAL_IF(!resultOpt);
+            targeter->endFrame(*resultOpt);
+        }
+        return;
     }
 }
 
@@ -1198,6 +1229,20 @@ auto Scheduler::chooseDisplayModes() const -> DisplayModeChoiceMap {
     using RankedRefreshRates = RefreshRateSelector::RankedFrameRates;
     ui::PhysicalDisplayVector<RankedRefreshRates> perDisplayRanking;
     const auto globalSignals = makeGlobalSignals();
+    // GammaOS: "refresh lock" aims to keep the primary display pinned to its maximum
+    // cadence even when other displays (for example a 60 Hz secondary) are active.
+    //
+    // The stock policy attempts to unify all displays to the pacesetter's chosen FPS.
+    // On 120 Hz panels, RefreshRateSelector can legitimately choose a 60 FPS cadence
+    // while keeping the panel in a 120 Hz mode (present every-other vsync). When a
+    // 60 Hz-only display becomes active, content requirements can bias this decision
+    // towards 60 FPS, which looks like a "lowest common denominator" lock.
+    //
+    // When persist.gammaos.refresh.lock=1, we instead select the highest available
+    // cadence per display independently.
+    const bool gammaRefreshLockEnabled =
+            android::base::GetBoolProperty("persist.gammaos.refresh.lock", false);
+
     Fps pacesetterFps;
 
     for (const auto& [id, display] : mDisplays) {
@@ -1214,15 +1259,30 @@ auto Scheduler::chooseDisplayModes() const -> DisplayModeChoiceMap {
     using fps_approx_ops::operator==;
 
     for (auto& [rankings, signals] : perDisplayRanking) {
-        const auto chosenFrameRateMode =
-                ftl::find_if(rankings,
-                             [&](const auto& ranking) {
-                                 return ranking.frameRateMode.fps == pacesetterFps;
-                             })
-                        .transform([](const auto& scoredFrameRate) {
-                            return scoredFrameRate.get().frameRateMode;
-                        })
-                        .value_or(rankings.front().frameRateMode);
+        // FrameRateMode has no default constructor, so start with a valid candidate.
+        FrameRateMode chosenFrameRateMode = rankings.front().frameRateMode;
+
+        if (CC_UNLIKELY(gammaRefreshLockEnabled)) {
+            // Pick the highest FPS option for this display (do not force cross-display matching).
+            using namespace fps_approx_ops;
+            for (const auto& scored : rankings) {
+                const auto& candidate = scored.frameRateMode;
+                if (chosenFrameRateMode.fps < candidate.fps) {
+                    chosenFrameRateMode = candidate;
+                }
+            }
+        } else {
+            // Stock behaviour: unify other displays to the pacesetter's FPS when possible.
+            chosenFrameRateMode =
+                    ftl::find_if(rankings,
+                                 [&](const auto& ranking) {
+                                     return ranking.frameRateMode.fps == pacesetterFps;
+                                 })
+                            .transform([](const auto& scoredFrameRate) {
+                                return scoredFrameRate.get().frameRateMode;
+                            })
+                            .value_or(chosenFrameRateMode);
+        }
 
         modeChoices.try_emplace(chosenFrameRateMode.modePtr->getPhysicalDisplayId(),
                                 DisplayModeChoice{chosenFrameRateMode, signals});
