@@ -535,6 +535,17 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     static final String TAG = TAG_WITH_CLASS_NAME ? "ActivityManagerService" : TAG_AM;
     static final String TAG_BACKUP = TAG + POSTFIX_BACKUP;
+
+    // GammaOS: Optional background process limit override via a persistent system property.
+    // Set with: setprop persist.gammaos.bg_process_limit <N>
+    // Where <N> is -1 (default system behavior) or a non-negative integer.
+    private static final String PROP_GAMMAOS_BG_PROCESS_LIMIT = "persist.gammaos.bg_process_limit";
+    private static final int GAMMAOS_BG_PROCESS_LIMIT_UNSET = Integer.MIN_VALUE;
+
+    private int mGammaOsBgProcessLimit = GAMMAOS_BG_PROCESS_LIMIT_UNSET;
+    private final Runnable mGammaOsApplyBgProcessLimitRunnable =
+            this::applyGammaOsBgProcessLimitFromProp;
+
     private static final String TAG_BROADCAST = TAG + POSTFIX_BROADCAST;
     private static final String TAG_CLEANUP = TAG + POSTFIX_CLEANUP;
     private static final String TAG_CONFIGURATION = TAG + POSTFIX_CONFIGURATION;
@@ -5776,10 +5787,49 @@ public class ActivityManagerService extends IActivityManager.Stub
     public void setProcessLimit(int max) {
         enforceCallingPermission(android.Manifest.permission.SET_PROCESS_LIMIT,
                 "setProcessLimit()");
+        setProcessLimitInternal(max);
+    }
+
+    private void setProcessLimitInternal(int max) {
         synchronized (this) {
             mConstants.setOverrideMaxCachedProcesses(max);
             trimApplicationsLocked(true, OOM_ADJ_REASON_PROCESS_END);
         }
+    }
+
+    private void initGammaOsBgProcessLimitWatcher() {
+        // Apply once at boot and re-apply whenever any system property changes.
+        // The callback is coarse-grained, so we debounce on the AMS handler.
+        mHandler.post(mGammaOsApplyBgProcessLimitRunnable);
+        SystemProperties.addChangeCallback(() -> {
+            mHandler.removeCallbacks(mGammaOsApplyBgProcessLimitRunnable);
+            mHandler.post(mGammaOsApplyBgProcessLimitRunnable);
+        });
+    }
+
+    private void applyGammaOsBgProcessLimitFromProp() {
+        final int raw = SystemProperties.getInt(PROP_GAMMAOS_BG_PROCESS_LIMIT,
+                GAMMAOS_BG_PROCESS_LIMIT_UNSET);
+        if (raw == GAMMAOS_BG_PROCESS_LIMIT_UNSET) {
+            // Property not set. Do not change the current override.
+            return;
+        }
+
+        int limit = raw;
+        if (limit < -1) {
+            limit = -1;
+        } else if (limit > 1000) {
+           // Defensive clamp. The framework UI only offers small values, but allow advanced users.
+            limit = 1000;
+        }
+
+        if (limit == mGammaOsBgProcessLimit) {
+            return;
+        }
+        mGammaOsBgProcessLimit = limit;
+
+        // This is an in-process call, so it does not require SET_PROCESS_LIMIT permission checks.
+        setProcessLimitInternal(limit);
     }
 
     @Override
@@ -8827,6 +8877,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             mProcessList.onSystemReady();
             mAppRestrictionController.onSystemReady();
             mSystemReady = true;
+            initGammaOsBgProcessLimitWatcher();
             t.traceEnd();
         }
 
