@@ -15,18 +15,25 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.TYPE_INTERNAL;
  
 import android.app.ActivityManager;
+import android.app.IApplicationThread;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import android.graphics.Rect;
 import android.app.TaskStackListener;
+import android.hardware.input.InputManager;
 import android.os.Process;
+import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.ArraySet;
 import android.util.Slog;
 import android.util.Log;
+import android.view.InputDevice;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.DisplayInfo;
 import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
@@ -41,6 +48,7 @@ final class DualStackController {
     private static final String PROP_SWAP = "persist.gammaos.dualstack.swap";
     private static final String PROP_PKGS = "persist.gammaos.dualstack.pkgs";
     private static final String PROP_KILL_PKGS = "persist.gammaos.dualstack.killpackages.enabled";
+    private static final String PROP_LAUNCH_GUARD_ENABLED = "persist.gammaos.launch.guard.enabled";
  
     // Packages that must never be force-stopped by DualStack kill logic.
     // Explicitly includes launchers/providers you listed as "never kill".
@@ -747,6 +755,19 @@ final class DualStackController {
                     continue;
                 }
                 try {
+                    // If GammaOS launch-guard is enabled, prefer RetroArch's clean quit path
+                    // over force-stopping it. This mirrors the behaviour used in
+                    // ActivityTaskManagerService.maybeForceRestartGammaLaunchGuard().
+                    if (shouldAttemptRetroarchCleanQuit(pkg)) {
+                        final boolean needsForceStop = requestRetroarchCleanQuit(pkg, userId, am);
+                        if (!needsForceStop) {
+                            killed.add(pkg);
+                            Slog.i(TAG, "DualStack RetroArch clean quit succeeded: " + pkg);
+                            continue;
+                        }
+                        Slog.i(TAG, "DualStack RetroArch clean quit timed out; force-stopping: " + pkg);
+                    }
+
                     final ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
                     if (ai == null) {
                         continue;
@@ -765,6 +786,110 @@ final class DualStackController {
             }
         }
         Slog.i(TAG, "DualStack kill sweep complete. Kept=" + keepPackages + " killed=" + killed);
+    }
+
+ 
+    private static boolean shouldAttemptRetroarchCleanQuit(String pkg) {
+        if (pkg == null) return false;
+        if (!pkg.startsWith("com.retroarch")) return false;
+        return SystemProperties.getBoolean(PROP_LAUNCH_GUARD_ENABLED, /* def */ false);
+    }
+
+    /**
+     * Attempt to cleanly quit RetroArch (any com.retroarch* package) by:
+     *  - finding a running RetroArch task for the given user
+     *  - bringing it to the foreground
+     *  - injecting an ESC key (down+up)
+     *  - waiting up to 5 seconds for the com.retroarch* process to exit
+     *
+     * Returns true if the caller should still force-stop afterwards, or false if the app
+     * appears to have exited cleanly.
+     *
+     * This is intentionally aligned with ActivityTaskManagerService.requestRetroarchCleanQuit(). :contentReference[oaicite:0]{index=0}
+     */
+    private boolean requestRetroarchCleanQuit(String targetPkg, int userId, ActivityManager am) {
+        int retroTaskId = -1;
+        try {
+            // Use ActivityManager.getRunningTasks() (system_server has privilege). This avoids
+            // depending on IActivityTaskManager#getTasks() signatures across branches.
+            final List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(Integer.MAX_VALUE);
+            if (tasks != null) {
+                for (int i = 0, size = tasks.size(); i < size; i++) {
+                    final ActivityManager.RunningTaskInfo info = tasks.get(i);
+                    if (info == null || info.topActivity == null) continue;
+                    if (info.userId != userId) continue;
+                    final String pkg = info.topActivity.getPackageName();
+                    if (pkg != null && pkg.startsWith("com.retroarch")) {
+                        retroTaskId = info.taskId;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+            // If we fail to enumerate tasks for any reason, fall back to force-stop.
+        }
+
+        if (retroTaskId != -1) {
+            try {
+                // Direct call into ATMS (same process). Use a stable callingPackage.
+                mWm.mAtmService.moveTaskToFront(
+                        (IApplicationThread) null, "android", retroTaskId, 0 /* flags */, null);
+            } catch (Throwable t) {
+                // If we cannot bring it to front, still proceed to ESC / wait.
+            }
+
+            // Give WM a brief moment to focus RetroArch.
+            SystemClock.sleep(150);
+            injectGammaEscapeKey();
+        }
+
+        // Wait up to 5 seconds for any com.retroarch* process for this user to go away.
+        final long waitUntil = SystemClock.uptimeMillis() + 5000;
+        try {
+            while (SystemClock.uptimeMillis() < waitUntil) {
+                final List<ActivityManager.RunningAppProcessInfo> procs = am.getRunningAppProcesses();
+                boolean found = false;
+                if (procs != null) {
+                    for (int i = 0, size = procs.size(); i < size; i++) {
+                        final ActivityManager.RunningAppProcessInfo p = procs.get(i);
+                        if (p == null || p.processName == null) continue;
+                        if (!p.processName.startsWith("com.retroarch")) continue;
+                        if (UserHandle.getUserId(p.uid) != userId) continue;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // App appears to have exited on its own; no need to force-stop.
+                    return false;
+                }
+                SystemClock.sleep(200);
+            }
+        } catch (Throwable ignored) {
+            // If anything goes wrong while waiting, fall back to force-stop.
+        }
+
+        // Still appears to be running; caller should force-stop.
+        return true;
+    }
+
+    /**
+     * Injects a synthetic ESC keypress (down+up) into the input pipeline,
+     * mirroring the behaviour used in ActivityTaskManagerService.injectGammaEscapeKey(). :contentReference[oaicite:1]{index=1}
+     */
+    private static void injectGammaEscapeKey() {
+        final long now = SystemClock.uptimeMillis();
+        final KeyEvent down = new KeyEvent(now, now,
+                KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE, 0 /* repeat */,
+                0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
+                0 /* flags */, InputDevice.SOURCE_KEYBOARD);
+        final KeyEvent up = KeyEvent.changeAction(down, KeyEvent.ACTION_UP);
+
+        final InputManager im = InputManager.getInstance();
+        if (im != null) {
+            im.injectInputEvent(down, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+            im.injectInputEvent(up, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+        }
     }
 
     /**
