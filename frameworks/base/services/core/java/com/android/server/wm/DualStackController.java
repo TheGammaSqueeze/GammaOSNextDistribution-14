@@ -37,7 +37,8 @@ import android.view.KeyEvent;
 import android.view.DisplayInfo;
 import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
- 
+
+import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 
@@ -72,6 +73,11 @@ final class DualStackController {
     private boolean mEnabled;
     private boolean mKillPackagesEnabled;
     private int mLastKillTaskId = -1;
+    private int mLastElevateTaskId = -1;
+    private int mElevateSeq = 0;
+
+    private static final int DUALSTACK_ELEVATE_ATTEMPTS = 3;
+    private static final int DUALSTACK_ELEVATE_INTERVAL_MS = 5000;
 
     // Which Task (not just Activity) is currently being dual-stacked on DEFAULT_DISPLAY.
     // DraStic bounces between multiple activities (DraSticActivity, DraSticEmuActivity,
@@ -185,6 +191,7 @@ final class DualStackController {
         reloadProperties();
         if (!mEnabled) {
             mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -193,6 +200,7 @@ final class DualStackController {
         final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
         if (primary == null) {
             mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -201,6 +209,7 @@ final class DualStackController {
         final DisplayContent secondary = findSecondaryInternalDisplayLocked();
         if (secondary == null) {
             mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -213,6 +222,7 @@ final class DualStackController {
         final boolean pkgInFg = isWhitelistedPackageInForegroundOnDefaultDisplay();
         if (!pkgInFg) {
             mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -252,6 +262,9 @@ final class DualStackController {
 
         if (enteringNewDualStackTask) {
             maybeKillBackgroundAppsForDualStackLocked(topTask, top.packageName);
+            // Always elevate DualStack app scheduling (no prop gating).
+            // Apply 3 times, 5 seconds apart, to catch newly spawned threads.
+            scheduleDualStackElevation(topTask.mTaskId, top.packageName, mWm.mCurrentUserId);
         }
         // Track the currently top-resumed ActivityRecord for logging / debugging.
         mActiveActivity = top;
@@ -687,6 +700,121 @@ final class DualStackController {
         mLastKillTaskId = taskId;
 
         mWm.mH.post(() -> killAllAppsExcept(keepCopy, userId));
+    }
+
+    private void scheduleDualStackElevation(int taskId, String pkg, int userId) {
+        if (pkg == null || pkg.isEmpty()) {
+            return;
+        }
+        if (taskId == mLastElevateTaskId) {
+            return;
+        }
+
+        mLastElevateTaskId = taskId;
+        final int seq = ++mElevateSeq;
+
+        for (int attempt = 0; attempt < DUALSTACK_ELEVATE_ATTEMPTS; attempt++) {
+            final int attemptIndex = attempt;
+            final long delayMs = (long) attemptIndex * (long) DUALSTACK_ELEVATE_INTERVAL_MS;
+            mWm.mH.postDelayed(() -> {
+                if (seq != mElevateSeq) {
+                    return;
+                }
+                elevateDualStackPackage(pkg, userId, attemptIndex + 1);
+            }, delayMs);
+        }
+    }
+
+    private void elevateDualStackPackage(String pkg, int userId, int attemptNo) {
+        final Context context = mWm.mContext;
+        final ActivityManager am =
+                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) {
+            return;
+        }
+
+        final List<ActivityManager.RunningAppProcessInfo> running = am.getRunningAppProcesses();
+        if (running == null || running.isEmpty()) {
+            return;
+        }
+
+        final ArraySet<Integer> pids = new ArraySet<>();
+        for (int i = 0; i < running.size(); i++) {
+            final ActivityManager.RunningAppProcessInfo proc = running.get(i);
+            if (proc == null || proc.pkgList == null || proc.pid <= 0) {
+                continue;
+            }
+            if (android.os.UserHandle.getUserId(proc.uid) != userId) {
+                continue;
+            }
+            boolean matches = false;
+            for (int j = 0; j < proc.pkgList.length; j++) {
+                final String p = proc.pkgList[j];
+                if (pkg.equals(p)) {
+                    matches = true;
+                    break;
+                }
+            }
+            if (matches) {
+                pids.add(proc.pid);
+            }
+        }
+
+        if (pids.isEmpty()) {
+            return;
+        }
+
+        final int nice = -20;
+        final int rtPrio = 99;
+
+        for (int i = 0; i < pids.size(); i++) {
+            final int pid = pids.valueAt(i);
+
+            // Process main thread tid is typically pid; apply anyway.
+            applyThreadNice(pid, nice);
+            applyThreadRt(pid, rtPrio);
+
+            // Apply to all threads.
+            final File taskDir = new File("/proc/" + pid + "/task");
+            final File[] threads = taskDir.listFiles();
+            if (threads == null || threads.length == 0) {
+                continue;
+            }
+            for (int t = 0; t < threads.length; t++) {
+                final File tf = threads[t];
+                if (tf == null) continue;
+                final String name = tf.getName();
+                if (name == null || name.isEmpty()) continue;
+                final int tid;
+                try {
+                    tid = Integer.parseInt(name);
+                } catch (NumberFormatException ignored) {
+                    continue;
+                }
+                applyThreadNice(tid, nice);
+                applyThreadRt(tid, rtPrio);
+            }
+        }
+
+        Slog.i(TAG, "DualStack elevated " + pkg
+                + " (attempt " + attemptNo + "/" + DUALSTACK_ELEVATE_ATTEMPTS + ")"
+                + " pids=" + pids);
+    }
+
+    private static void applyThreadNice(int tid, int nice) {
+        try {
+            // Process.setThreadPriority maps directly to Linux nice ranges (-20..19).
+            Process.setThreadPriority(tid, nice);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void applyThreadRt(int tid, int prio) {
+        try {
+            // Best-effort. Some kernels/selinux policies will reject RT for non-root.
+            Process.setThreadScheduler(tid, Process.SCHED_FIFO, prio);
+        } catch (Throwable ignored) {
+        }
     }
 
     private static void addNeverKillPackages(ArraySet<String> out) {
