@@ -13,16 +13,26 @@ package com.android.server.wm;
 
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.TYPE_INTERNAL;
+ 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 import android.graphics.Rect;
 import android.app.TaskStackListener;
+import android.os.Process;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.ArraySet;
 import android.util.Slog;
 import android.util.Log;
 import android.view.DisplayInfo;
 import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
+ 
+import java.util.List;
+import java.util.Arrays;
 
 final class DualStackController {
     private static final String TAG = "DualStackController";
@@ -30,6 +40,21 @@ final class DualStackController {
     private static final String PROP_ENABLED = "persist.gammaos.dualstack.enabled";
     private static final String PROP_SWAP = "persist.gammaos.dualstack.swap";
     private static final String PROP_PKGS = "persist.gammaos.dualstack.pkgs";
+    private static final String PROP_KILL_PKGS = "persist.gammaos.dualstack.killpackages.enabled";
+ 
+    // Packages that must never be force-stopped by DualStack kill logic.
+    // Explicitly includes launchers/providers you listed as "never kill".
+    private static final String[] NEVER_KILL_PACKAGES = new String[] {
+            "com.android.providers.media",
+            "com.android.externalstorage",
+            "com.android.providers.downloads",
+            "com.android.mtp",
+            "com.android.launcher3",
+            "android.ext.services",
+            "org.lineageos.audiofx",
+            "com.android.providers.media.module",
+            "com.android.devicelockcontroller",
+    };
 
     private static final int DUALSTACK_TALL_WIDTH = 640;
     private static final int DUALSTACK_TALL_HEIGHT = 960;
@@ -37,6 +62,8 @@ final class DualStackController {
     private final WindowManagerService mWm;
 
     private boolean mEnabled;
+    private boolean mKillPackagesEnabled;
+    private int mLastKillTaskId = -1;
 
     // Which Task (not just Activity) is currently being dual-stacked on DEFAULT_DISPLAY.
     // DraStic bounces between multiple activities (DraSticActivity, DraSticEmuActivity,
@@ -92,6 +119,7 @@ final class DualStackController {
     private void reloadProperties() {
         mEnabled = SystemProperties.getBoolean(PROP_ENABLED, false);
         mSwapHalves = SystemProperties.getBoolean(PROP_SWAP, false);
+        mKillPackagesEnabled = SystemProperties.getBoolean(PROP_KILL_PKGS, false);
         final String raw = SystemProperties.get(PROP_PKGS, "");
         final ArraySet<String> list = new ArraySet<>();
         if (raw != null && !raw.isEmpty()) {
@@ -148,6 +176,7 @@ final class DualStackController {
     void updateMirroringIfNeeded(Transaction t) {
         reloadProperties();
         if (!mEnabled) {
+            mLastKillTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -155,6 +184,7 @@ final class DualStackController {
 
         final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
         if (primary == null) {
+            mLastKillTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -162,6 +192,7 @@ final class DualStackController {
 
         final DisplayContent secondary = findSecondaryInternalDisplayLocked();
         if (secondary == null) {
+            mLastKillTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -173,6 +204,7 @@ final class DualStackController {
         // do not tear down the mirror.
         final boolean pkgInFg = isWhitelistedPackageInForegroundOnDefaultDisplay();
         if (!pkgInFg) {
+            mLastKillTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -189,6 +221,7 @@ final class DualStackController {
         final Task topTask = top.getTask();
         if (topTask == null || !mWhitelist.contains(top.packageName)) {
             // This should not normally happen if pkgInFg is true, but be defensive.
+            mLastKillTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -198,6 +231,7 @@ final class DualStackController {
 
         // Treat the dual-stack "session" as Task-scoped, not Activity-scoped.
         // This avoids tearing down mirrors on Emu <-> GameMenu swaps within the same task.
+        final boolean enteringNewDualStackTask = mActiveTask != topTask;
         final boolean taskOrDisplayChanged =
                 mActiveTask != topTask
                 || mSecondaryDisplayId != secondary.getDisplayId();
@@ -206,6 +240,10 @@ final class DualStackController {
             teardown(t);
             mActiveTask = topTask;
             mSecondaryDisplayId = secondary.getDisplayId();
+        }
+
+        if (enteringNewDualStackTask) {
+            maybeKillBackgroundAppsForDualStackLocked(topTask, top.packageName);
         }
         // Track the currently top-resumed ActivityRecord for logging / debugging.
         mActiveActivity = top;
@@ -611,6 +649,122 @@ final class DualStackController {
         final Transaction t = new Transaction();
         updateMirroringIfNeeded(t);
         t.apply();
+    }
+ 
+    private void maybeKillBackgroundAppsForDualStackLocked(Task dualStackTask,
+            String dualStackPackage) {
+        if (!mEnabled || !mKillPackagesEnabled) {
+            return;
+        }
+        if (dualStackTask == null || dualStackPackage == null || dualStackPackage.isEmpty()) {
+            return;
+        }
+
+        final int taskId = dualStackTask.mTaskId;
+        if (taskId == mLastKillTaskId) {
+            return;
+        }
+
+        // IMPORTANT: We intentionally do NOT keep other "foreground" packages on other displays.
+        // When a dualstack app enters the foreground, we want to kill everything else,
+        // including whatever is currently focused/resumed on the secondary display.
+        final ArraySet<String> keep = new ArraySet<>();
+        keep.add(dualStackPackage); // Only keep the dualstack app itself.
+        keep.add("android");
+        keep.add("com.android.systemui");
+        addNeverKillPackages(keep);
+
+        final int userId = mWm.mCurrentUserId;
+        final ArraySet<String> keepCopy = new ArraySet<>(keep);
+        mLastKillTaskId = taskId;
+
+        mWm.mH.post(() -> killAllAppsExcept(keepCopy, userId));
+    }
+
+    private static void addNeverKillPackages(ArraySet<String> out) {
+        if (out == null) return;
+        for (int i = 0; i < NEVER_KILL_PACKAGES.length; i++) {
+            out.add(NEVER_KILL_PACKAGES[i]);
+        }
+    }
+
+    private static boolean isNeverKillPackage(String pkg) {
+        if (pkg == null) return false;
+        for (int i = 0; i < NEVER_KILL_PACKAGES.length; i++) {
+            if (pkg.equals(NEVER_KILL_PACKAGES[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void killAllAppsExcept(ArraySet<String> keepPackages, int userId) {
+        final Context context = mWm.mContext;
+        final ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        final PackageManager pm = context.getPackageManager();
+
+        if (am == null || pm == null) {
+            return;
+        }
+ 
+        // Ensure the never-kill list is always enforced even if caller forgets.
+        addNeverKillPackages(keepPackages);
+
+        // Keep the current IME to avoid input disruptions while switching apps.
+        try {
+            final String ime = Settings.Secure.getStringForUser(
+                    context.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD, userId);
+            if (ime != null && !ime.isEmpty()) {
+                final int slash = ime.indexOf('/');
+                final String imePkg = (slash > 0) ? ime.substring(0, slash) : ime;
+                if (!imePkg.isEmpty()) {
+                    keepPackages.add(imePkg);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
+        final List<ActivityManager.RunningAppProcessInfo> running = am.getRunningAppProcesses();
+        if (running == null || running.isEmpty()) {
+            return;
+        }
+
+        final ArraySet<String> killed = new ArraySet<>();
+        for (int i = 0; i < running.size(); i++) {
+            final ActivityManager.RunningAppProcessInfo proc = running.get(i);
+            if (proc == null || proc.pkgList == null) {
+                continue;
+            }
+            for (int j = 0; j < proc.pkgList.length; j++) {
+                final String pkg = proc.pkgList[j];
+                if (pkg == null || pkg.isEmpty()) {
+                    continue;
+                }
+                if (isNeverKillPackage(pkg)) {
+                    continue;
+                }
+                if (keepPackages.contains(pkg) || killed.contains(pkg)) {
+                    continue;
+                }
+                try {
+                    final ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                    if (ai == null) {
+                        continue;
+                    }
+                    // Never kill core system UIDs, but do allow killing system apps like Launcher.
+                    if (ai.uid < Process.FIRST_APPLICATION_UID) {
+                        continue;
+                    }
+                    am.forceStopPackage(pkg);
+                    killed.add(pkg);
+                    Slog.i(TAG, "DualStack killed package: " + pkg);
+                } catch (PackageManager.NameNotFoundException ignored) {
+                } catch (Throwable e) {
+                    Slog.w(TAG, "DualStack failed to kill package " + pkg, e);
+                }
+            }
+        }
+        Slog.i(TAG, "DualStack kill sweep complete. Kept=" + keepPackages + " killed=" + killed);
     }
 
     /**
