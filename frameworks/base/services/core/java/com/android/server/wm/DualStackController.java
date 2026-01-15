@@ -765,7 +765,7 @@ final class DualStackController {
         }
 
         final int nice = -20;
-        final int rtPrio = 99;
+        final int rtPrio = 80;
 
         for (int i = 0; i < pids.size(); i++) {
             final int pid = pids.valueAt(i);
@@ -928,7 +928,7 @@ final class DualStackController {
      *  - finding a running RetroArch task for the given user
      *  - bringing it to the foreground
      *  - injecting an ESC key (down+up)
-     *  - waiting up to 5 seconds for the com.retroarch* process to exit
+     *  - waiting up to 10 seconds for the com.retroarch* process to exit
      *
      * Returns true if the caller should still force-stop afterwards, or false if the app
      * appears to have exited cleanly.
@@ -967,12 +967,12 @@ final class DualStackController {
             }
 
             // Give WM a brief moment to focus RetroArch.
-            SystemClock.sleep(150);
+            SystemClock.sleep(1000);
             injectGammaEscapeKey();
         }
 
-        // Wait up to 5 seconds for any com.retroarch* process for this user to go away.
-        final long waitUntil = SystemClock.uptimeMillis() + 5000;
+        // Wait up to 10 seconds for any com.retroarch* process for this user to go away.
+        final long waitUntil = SystemClock.uptimeMillis() + 10000;
         try {
             while (SystemClock.uptimeMillis() < waitUntil) {
                 final List<ActivityManager.RunningAppProcessInfo> procs = am.getRunningAppProcesses();
