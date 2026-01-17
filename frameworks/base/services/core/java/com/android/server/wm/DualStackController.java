@@ -13,6 +13,8 @@ package com.android.server.wm;
 
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.TYPE_INTERNAL;
+import static android.content.Intent.ACTION_SCREEN_ON;
+import static android.content.Intent.ACTION_SCREEN_OFF;
  
 import android.app.ActivityManager;
 import android.app.IApplicationThread;
@@ -20,6 +22,9 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.app.TaskStackListener;
 import android.hardware.input.InputManager;
@@ -39,17 +44,29 @@ import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
 final class DualStackController {
     private static final String TAG = "DualStackController";
+ 
+    // Avoid hot-path logging overhead unless explicitly enabled.
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final String PROP_ENABLED = "persist.gammaos.dualstack.enabled";
     private static final String PROP_SWAP = "persist.gammaos.dualstack.swap";
     private static final String PROP_PKGS = "persist.gammaos.dualstack.pkgs";
     private static final String PROP_KILL_PKGS = "persist.gammaos.dualstack.killpackages.enabled";
     private static final String PROP_LAUNCH_GUARD_ENABLED = "persist.gammaos.launch.guard.enabled";
+ 
+    private static final String PACKAGE_LAUNCHER3 = "com.android.launcher3";
+
+    // Runtime (non-persistent) signal used by DisplayManagerService to hide the secondary
+    // internal display from apps while dual-stack is actively mirroring.
+    private static final String PROP_RUNTIME_ACTIVE = "sys.gammaos.dualstack.active";
  
     // Packages that must never be force-stopped by DualStack kill logic.
     // Explicitly includes launchers/providers you listed as "never kill".
@@ -72,6 +89,10 @@ final class DualStackController {
 
     private boolean mEnabled;
     private boolean mKillPackagesEnabled;
+    private String mLastPkgsRaw = null;
+    private boolean mLastPropEnabled;
+    private boolean mLastPropSwap;
+    private boolean mLastPropKillPkgs;
     private int mLastKillTaskId = -1;
     private int mLastElevateTaskId = -1;
     private int mElevateSeq = 0;
@@ -103,10 +124,52 @@ final class DualStackController {
     private boolean mClearingTallSize;
     // Re-try latch used when we enabled dual-stack but the BLAST wasn't up yet
     private boolean mAwaitingFirstValidSurface;
+ 
+    // While dual-stack is active, keep display-2 "mirror-only":
+    //  - Hide secondary windowing layer so nothing beneath the mirror is composited.
+    //  - Purge any tasks that attempt to exist on the secondary display, killing their
+    //    processes so they stop producing buffers (and thus stop Skia/GammaShader work).
+    private static final long SECONDARY_PURGE_MIN_INTERVAL_MS = 2000;
+
+    private boolean mSecondaryContentHidden;
+    private long mLastSecondaryPurgeUptimeMs;
+    // Reuse temporary lists to reduce allocations during purge cycles.
+    private final ArrayList<Task> mTmpSecondaryTasksToRemove = new ArrayList<>();
+    private final ArrayList<Boolean> mTmpSecondaryKillProcFlags = new ArrayList<>();
+
+    // Best-effort: disable bilinear filtering on mirror layers (nearest-neighbor) to reduce
+    // GPU cost during DualStack. We use reflection so we do not hard-depend on a specific
+    // SurfaceControl.Transaction API surface across branches/vendors.
+    private static volatile boolean sFilterMethodResolved;
+    private static volatile Method sSetFilteringMethod;
 
     DualStackController(WindowManagerService wm) {
         mWm = wm;
         reloadProperties();
+
+        // Ensure dual-stack state is re-applied across sleep/wake. Without this, we can end up
+        // with the dual-stack app still running but not re-projected until a UI gesture causes
+        // a traversal/focus change (for example swiping for taskbar).
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        wm.mContext.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // Re-run dual-stack projection logic shortly after screen-on/unlock.
+                mWm.mH.post(() -> {
+                    synchronized (mWm.mGlobalLock) {
+                        WindowManagerService.boostPriorityForLockedSection();
+                        try {
+                            final DisplayContent dc = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+                            if (dc != null) maybeApplyDisplayProjectionsLocked(dc);
+                        } finally {
+                            WindowManagerService.resetPriorityAfterLockedSection();
+                        }
+                    }
+                });
+            }
+        }, filter);
 
         // Re-apply dual-stack transforms whenever focus changes (e.g. menu ↔ gameplay).
         wm.mAtmService.getTaskChangeNotificationController()
@@ -131,19 +194,41 @@ final class DualStackController {
     }
 
     private void reloadProperties() {
-        mEnabled = SystemProperties.getBoolean(PROP_ENABLED, false);
-        mSwapHalves = SystemProperties.getBoolean(PROP_SWAP, false);
-        mKillPackagesEnabled = SystemProperties.getBoolean(PROP_KILL_PKGS, false);
+        // SystemProperties reads are cheap, but parsing/splitting/allocating is not.
+        // Cache property values and only rebuild whitelist when the raw string changes.
+        final boolean enabled = SystemProperties.getBoolean(PROP_ENABLED, false);
+        final boolean swap = SystemProperties.getBoolean(PROP_SWAP, false);
+        final boolean killPkgs = SystemProperties.getBoolean(PROP_KILL_PKGS, false);
         final String raw = SystemProperties.get(PROP_PKGS, "");
-        final ArraySet<String> list = new ArraySet<>();
-        if (raw != null && !raw.isEmpty()) {
-            final String[] parts = raw.split(",");
-            for (int i = 0; i < parts.length; i++) {
-                final String p = parts[i].trim();
-                if (!p.isEmpty()) list.add(p);
+
+        if (enabled != mLastPropEnabled) {
+            mEnabled = enabled;
+            mLastPropEnabled = enabled;
+        }
+        if (swap != mLastPropSwap) {
+            mSwapHalves = swap;
+            mLastPropSwap = swap;
+        }
+        if (killPkgs != mLastPropKillPkgs) {
+            mKillPackagesEnabled = killPkgs;
+            mLastPropKillPkgs = killPkgs;
+        }
+
+        if (mLastPkgsRaw == null || !mLastPkgsRaw.equals(raw)) {
+            mLastPkgsRaw = raw;
+            final ArraySet<String> list = new ArraySet<>();
+            if (!raw.isEmpty()) {
+                final String[] parts = raw.split(",");
+                for (int i = 0; i < parts.length; i++) {
+                    final String p = parts[i].trim();
+                    if (!p.isEmpty()) list.add(p);
+                }
+            }
+            mWhitelist = list;
+            if (DEBUG) {
+                Slog.d(TAG, "Reloaded whitelist, size=" + mWhitelist.size());
             }
         }
-        mWhitelist = list;
     }
 
     private boolean isEligibleTopApp(ActivityRecord r) {
@@ -166,30 +251,45 @@ final class DualStackController {
     }
 
     /**
-     * Returns true if there is any resumed, visible activity from a whitelisted package
-     * on the default display. This lets us keep the tall override as long as the package
-     * is in the foreground, regardless of which concrete ActivityRecord is on top.
+     * Returns the best available "top" activity candidate on DEFAULT_DISPLAY for determining
+     * whether DualStack must be active.
+     *
+     * We intentionally do NOT require RESUMED here, because during in-task activity transitions
+     * (e.g. Drastic GameMenu -> EmuActivity) and sleep/wake, there can be brief windows where
+     * no activity is RESUMED yet, and tearing down DualStack in that gap causes the forced
+     * tall size to be cleared (your observed regression).
      */
-    private boolean isWhitelistedPackageInForegroundOnDefaultDisplay() {
-        if (!mEnabled || mWhitelist.isEmpty()) {
-            return false;
+    private ActivityRecord getTopCandidateOnDefaultDisplay() {
+        final DisplayContent dc0 = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+        if (dc0 == null) return null;
+
+        // Prefer the system's notion of top-resumed if available.
+        final ActivityRecord topResumed = mWm.mRoot.getTopResumedActivity();
+        if (topResumed != null && topResumed.getDisplayId() == DEFAULT_DISPLAY) {
+            return topResumed;
         }
 
-        final boolean[] found = new boolean[1];
-        mWm.mRoot.forAllActivities((r) -> {
-            if (found[0] || r == null) return;
-            if (!isEligibleTopApp(r)) return;
-            if (r.getDisplayId() != DEFAULT_DISPLAY) return;
-            if (!r.isVisibleRequested()) return;
-            if (!r.isState(ActivityRecord.State.RESUMED)) return;
-            found[0] = true;
-        });
-        return found[0];
+        // Otherwise fall back to the focused root task's top-most activity.
+        final Task focused = dc0.getFocusedRootTask();
+        if (focused != null) {
+            final ActivityRecord topMost = focused.getTopMostActivity();
+            if (topMost != null) return topMost;
+        }
+
+        // Final fallback: if we already have an active dual-stack task on DEFAULT_DISPLAY,
+        // keep it alive across transient gaps.
+        if (mActiveTask != null && mActiveTask.getDisplayId() == DEFAULT_DISPLAY) {
+            final ActivityRecord last = mActiveTask.getTopMostActivity();
+            if (last != null) return last;
+        }
+
+        return null;
     }
 
     void updateMirroringIfNeeded(Transaction t) {
         reloadProperties();
         if (!mEnabled) {
+            setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
@@ -199,6 +299,7 @@ final class DualStackController {
 
         final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
         if (primary == null) {
+            setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
@@ -208,6 +309,7 @@ final class DualStackController {
 
         final DisplayContent secondary = findSecondaryInternalDisplayLocked();
         if (secondary == null) {
+            setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
@@ -215,35 +317,33 @@ final class DualStackController {
             return;
         }
 
-        // Only keep dual-stack active while some ACTUALLY RESUMED activity from a
-        // whitelisted package is in the foreground on the default display. We key
-        // the "session" on the Task so that internal activity swaps (Emu <-> GameMenu)
-        // do not tear down the mirror.
-        final boolean pkgInFg = isWhitelistedPackageInForegroundOnDefaultDisplay();
-        if (!pkgInFg) {
+        // Decide whether DualStack must be active based on the current top candidate on
+        // DEFAULT_DISPLAY, not strictly on RESUMED. This prevents teardown during activity
+        // swap gaps and sleep/wake transitions.
+        final ActivityRecord top = getTopCandidateOnDefaultDisplay();
+        if (top == null) {
+            // Transient gap: do not tear down, just wait for the next traversal/event.
+            return;
+        }
+
+        final Task topTask = top.getTask();
+        if (topTask == null) {
+            // No task yet (rare transient). Keep state alive; avoid clearing forced size here.
+            return;
+        }
+
+        if (!mWhitelist.contains(top.packageName)) {
+            // Top default-display task is not dualstack-eligible: exit immediately.
+            setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
-            mLastElevateTaskId = -1;
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
         }
  
-        final ActivityRecord top = mWm.mRoot.getTopResumedActivity();
-        if (top == null || top.getDisplayId() != DEFAULT_DISPLAY) {
-            // Package is still considered foreground, but we do not yet have a
-            // concrete top activity with a surface. Keep any existing dual-stack
-            // state alive and wait for the next traversal.
-            return;
-        }
-
-        final Task topTask = top.getTask();
-        if (topTask == null || !mWhitelist.contains(top.packageName)) {
-            // This should not normally happen if pkgInFg is true, but be defensive.
-            mLastKillTaskId = -1;
-            clearForcedTallSizeIfNeeded();
-            teardown(t);
-            return;
-        }
+        // Dual-stack is actively in-session. This is used by DMS to hide the secondary internal
+        // display from apps so they cannot present/render to it directly.
+        setRuntimeDualStackActive(true);
 
         applyForcedTallSizeIfNeeded();
 
@@ -266,13 +366,22 @@ final class DualStackController {
             // Apply 3 times, 5 seconds apart, to catch newly spawned threads.
             scheduleDualStackElevation(topTask.mTaskId, top.packageName, mWm.mCurrentUserId);
         }
+
+        // Make sure the mirror is created first. If we purge display-2 content before the mirror
+        // exists, the system may relaunch secondary HOME immediately and steal focus back.
+        createSurfacesIfNeeded(t, primary, secondary, top);
+
+        // Performance: enforce "mirror-only" on secondary display to prevent any underlay
+        // app rendering/composition cost on display-2 while dual-stack is active.
+        suppressSecondaryDisplayContentUnderMirror(t, secondary, top.packageName);
+
+        // Critical for controller focus: keep the top-focused display on DEFAULT_DISPLAY while
+        // dual-stack is active. Also explicitly re-focus the dual-stack activity if needed.
+        ensurePrimaryDisplayFocus(topTask);
+        ensureTopActivityFocused(top);
+
         // Track the currently top-resumed ActivityRecord for logging / debugging.
         mActiveActivity = top;
-
-        // Always ensure our mirrors are bound to the current render surface on each traversal.
-        // createSurfacesIfNeeded() will cheaply no-op when the source hasn't changed and
-        // both mirrors are already valid.
-        createSurfacesIfNeeded(t, primary, secondary, top);
 
         if (mAppXformTarget == null || !mAppXformTarget.isValid()
                 || mSecondaryMirror == null || !mSecondaryMirror.isValid()) {
@@ -291,6 +400,117 @@ final class DualStackController {
         }
 
         applyTransforms(t, primary, secondary, top);
+    }
+
+    /**
+     * When dual-stack is active, we must keep DEFAULT_DISPLAY as the top-focused display.
+     *
+     * logs show mTopFocusedDisplayId=2 and imeLayeringTarget in display#2 pointing at
+     * SecondaryDisplayLauncher. That focus steal breaks controller input and also interferes
+     * with the portrait enforcement path in WMS mapOrientationRequest() (top-resumed/focus
+     * becomes inconsistent after wake).
+     *
+     * We solve this by explicitly bringing the dual-stack task to the front again when we
+     * detect we are not top-focused on DEFAULT_DISPLAY.
+     */
+    private void ensurePrimaryDisplayFocus(Task topTask) {
+        if (topTask == null) return;
+        final DisplayContent topFocused = mWm.mRoot.getTopFocusedDisplayContent();
+        if (topFocused == null) return;
+        if (topFocused.getDisplayId() == DEFAULT_DISPLAY) return;
+        try {
+            // Direct call into ATMS (same process). This also reasserts focus/input routing.
+            mWm.mAtmService.moveTaskToFront(
+                    (IApplicationThread) null, "android", topTask.mTaskId, 0 /* flags */, null);
+        } catch (Throwable e) {
+            Slog.w(TAG, "DualStack failed to re-focus primary display task=" + topTask.mTaskId, e);
+        }
+    }
+ 
+    /**
+     * Ensures the dual-stack app remains the *focused window* on DEFAULT_DISPLAY.
+     *
+     * Moving the task to front is often sufficient, but on some builds display-2 HOME/IME can
+     * still become the focused display/window briefly (stealing controller input). This is a
+     * best-effort reinforcement.
+     */
+    private void ensureTopActivityFocused(ActivityRecord top) {
+        if (top == null) return;
+        try {
+            // Re-assert focus by moving the task to front again. This is intentionally cheap
+            // and guarded by the top-focused display check in ensurePrimaryDisplayFocus().
+            final Task task = top.getTask();
+            if (task == null) return;
+            final DisplayContent topFocused = mWm.mRoot.getTopFocusedDisplayContent();
+            if (topFocused == null) return;
+            if (topFocused.getDisplayId() != DEFAULT_DISPLAY) {
+                mWm.mAtmService.moveTaskToFront(
+                        (IApplicationThread) null, "android", task.mTaskId, 0 /* flags */, null);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+ 
+    private void suppressSecondaryDisplayContentUnderMirror(Transaction t, DisplayContent secondary,
+            String dualStackPackage) {
+        if (t == null || secondary == null) return;
+
+        // Hide all secondary windowing content so nothing underneath the mirror is composited.
+        final SurfaceControl secondaryWindowingLayer = secondary.getWindowingLayer();
+        if (secondaryWindowingLayer != null && secondaryWindowingLayer.isValid()) {
+            t.hide(secondaryWindowingLayer);
+            mSecondaryContentHidden = true;
+        }
+
+        // Purge any tasks that (re)appear on the secondary display; throttle for stability.
+        final long now = SystemClock.uptimeMillis();
+        if (now - mLastSecondaryPurgeUptimeMs < SECONDARY_PURGE_MIN_INTERVAL_MS) {
+            return;
+        }
+        mLastSecondaryPurgeUptimeMs = now;
+
+        // Reuse lists to reduce allocations/GC pressure.
+        mTmpSecondaryTasksToRemove.clear();
+        mTmpSecondaryKillProcFlags.clear();
+        secondary.forAllLeafTasks(task -> {
+            if (task == null) return;
+            final ActivityRecord top = task.getTopMostActivity();
+            if (top == null) return;
+            final String pkg = top.packageName;
+            if (pkg == null || pkg.isEmpty()) return;
+            // Defensive: never purge the active dual-stack package (it should not be on display-2).
+            if (dualStackPackage != null && dualStackPackage.equals(pkg)) return;
+            mTmpSecondaryTasksToRemove.add(task);
+            // IMPORTANT: do not kill the Launcher3 process. Killing it will also kill the
+            // taskbar on DEFAULT_DISPLAY. We only want to remove the secondary-display HOME task.
+            mTmpSecondaryKillProcFlags.add(!PACKAGE_LAUNCHER3.equals(pkg));
+        }, true /* traverseTopToBottom */);
+
+        for (int i = 0; i < mTmpSecondaryTasksToRemove.size(); i++) {
+            final Task task = mTmpSecondaryTasksToRemove.get(i);
+            try {
+                final boolean doKill = mTmpSecondaryKillProcFlags.get(i);
+                // doKill=true stops producers (Skia/GammaShader) from generating buffers.
+                // For Launcher3 secondary display home, doKill=false to preserve taskbar process.
+                mWm.mAtmService.mTaskSupervisor.removeTask(
+                        task, doKill /* killProcess */, true /* removeFromRecents */,
+                        "dualstack-secondary-purge");
+            } catch (Throwable e) {
+                Slog.w(TAG, "DualStack failed purging secondary taskId=" + task.mTaskId, e);
+            }
+        }
+    }
+
+    private void setRuntimeDualStackActive(boolean active) {
+        final String desired = active ? "1" : "0";
+        final String current = SystemProperties.get(PROP_RUNTIME_ACTIVE, "0");
+        if (desired.equals(current)) return;
+        try {
+            SystemProperties.set(PROP_RUNTIME_ACTIVE, desired);
+        } catch (Throwable e) {
+            // Non-fatal: mirroring must continue even if we can't set the runtime prop.
+            Slog.w(TAG, "Failed setting " + PROP_RUNTIME_ACTIVE + "=" + desired, e);
+        }
     }
 
     private DisplayContent findSecondaryInternalDisplayLocked() {
@@ -338,9 +558,11 @@ final class DualStackController {
                     DUALSTACK_TALL_WIDTH,
                     DUALSTACK_TALL_HEIGHT);
             mForcedTallSizeApplied = true;
-            Slog.d(TAG, "DualStack forced tall size "
-                    + DUALSTACK_TALL_WIDTH + "x" + DUALSTACK_TALL_HEIGHT
-                    + " on display " + DEFAULT_DISPLAY);
+            if (DEBUG) {
+                Slog.d(TAG, "DualStack forced tall size "
+                        + DUALSTACK_TALL_WIDTH + "x" + DUALSTACK_TALL_HEIGHT
+                        + " on display " + DEFAULT_DISPLAY);
+            }
         } catch (Exception e) {
             Slog.w(TAG, "Failed to apply forced tall display size", e);
         }
@@ -406,13 +628,65 @@ final class DualStackController {
         // Attach above the real windowing tree so the mirror is the only visible content.
         t.reparent(mAppXformTarget, primary.getOverlayLayer());
         t.setLayer(mAppXformTarget, Integer.MAX_VALUE / 2);
+        // Apply nearest-neighbor sampling once at creation time (no need to re-apply per frame).
+        setNoBilinearFilteringIfSupported(t, mAppXformTarget);
         t.show(mAppXformTarget);
 
         // Secondary mirror.
         mSecondaryMirror = SurfaceControl.mirrorSurface(source);
         t.reparent(mSecondaryMirror, secondary.getOverlayLayer());
         t.setLayer(mSecondaryMirror, Integer.MAX_VALUE / 2);
+        // Apply nearest-neighbor sampling once at creation time.
+        setNoBilinearFilteringIfSupported(t, mSecondaryMirror);
         t.show(mSecondaryMirror);
+    }
+
+    /**
+     * Request nearest-neighbor sampling for the given surface if the platform exposes a
+     * Transaction API for it.
+     *
+     * Some platforms expose Transaction#setFiltering(SurfaceControl, boolean). If present:
+     *   filtering=false => nearest-neighbor
+     * We intentionally keep this best-effort, because the exact API name can vary across
+     * branches/vendor merges.
+     */
+    private static void setNoBilinearFilteringIfSupported(Transaction t, SurfaceControl sc) {
+        if (t == null || sc == null || !sc.isValid()) return;
+
+        if (!sFilterMethodResolved) {
+            sFilterMethodResolved = true;
+            // Try the common AOSP name first.
+            try {
+                sSetFilteringMethod = Transaction.class.getMethod(
+                        "setFiltering", SurfaceControl.class, boolean.class);
+            } catch (NoSuchMethodException ignored) {
+            }
+            // Try a couple of vendor/common alternates.
+            if (sSetFilteringMethod == null) {
+                try {
+                    sSetFilteringMethod = Transaction.class.getMethod(
+                            "setFilter", SurfaceControl.class, boolean.class);
+                } catch (NoSuchMethodException ignored) {
+                }
+            }
+            if (sSetFilteringMethod == null) {
+                try {
+                    sSetFilteringMethod = Transaction.class.getMethod(
+                            "setLayerStackFiltering", SurfaceControl.class, boolean.class);
+                } catch (NoSuchMethodException ignored) {
+                }
+            }
+        }
+
+        final Method m = sSetFilteringMethod;
+        if (m == null) return;
+
+        try {
+            // Pass "false" to request nearest-neighbor sampling.
+            m.invoke(t, sc, false);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            // One-time best-effort. If this fails at runtime, silently fall back to default.
+        }
     }
 
     private void applyTransforms(Transaction t, DisplayContent primary,
@@ -514,7 +788,7 @@ final class DualStackController {
         }
 
         // PRIMARY:
-        // Show the chosen half (bottom by default) scaled to the tall logical height.
+        // Show the chosen half (bottom by default) scaled to the final ArrayList<Task> toRemove = new ArrayList<>();tall logical height.
         if (mAppXformTarget != null) {
             t.setWindowCrop(mAppXformTarget, primaryCrop);
             t.setMatrix(mAppXformTarget, primarySx, 0f, 0f, primarySy);
@@ -527,8 +801,10 @@ final class DualStackController {
             // the primary display even if WM laid it out with an internal margin.
             t.setPosition(mAppXformTarget, primaryTx, primaryTy);
 
-            Slog.d(TAG, "DualStack primary crop=" + primaryCrop
-                    + " sx=" + primarySx + " sy=" + primarySy);
+            if (DEBUG) {
+                Slog.d(TAG, "DualStack primary crop=" + primaryCrop
+                        + " sx=" + primarySx + " sy=" + primarySy);
+            }
         }
 
         // SECONDARY:
@@ -540,11 +816,13 @@ final class DualStackController {
             // the primary and there is no visible left gutter.
             t.setPosition(mSecondaryMirror, secondaryTx, 0f);
 
-            Slog.d(TAG, "DualStack secondary crop=" + secondaryCrop
-                    + " app=" + appW + "x" + appH
-                    + " disp0=" + primaryDw + "x" + primaryDh
-                    + " disp2=" + secondaryDw + "x" + secondaryDh
-                    + " sx=" + secondarySx + " sy=" + secondarySy);
+            if (DEBUG) {
+                Slog.d(TAG, "DualStack secondary crop=" + secondaryCrop
+                        + " app=" + appW + "x" + appH
+                        + " disp0=" + primaryDw + "x" + primaryDh
+                        + " disp2=" + secondaryDw + "x" + secondaryDh
+                        + " sx=" + secondarySx + " sy=" + secondarySy);
+            }
         }
     }
  
@@ -691,7 +969,7 @@ final class DualStackController {
         }
 
         final int nice = -20;
-        final int rtPrio = 80;
+        final int rtPrio = 90;
 
         for (int i = 0; i < pids.size(); i++) {
             final int pid = pids.valueAt(i);
@@ -960,7 +1238,9 @@ final class DualStackController {
         mClearingTallSize = true;
         try {
             mWm.clearForcedDisplaySize(DEFAULT_DISPLAY);
-            Slog.d(TAG, "DualStack cleared forced tall size on display " + DEFAULT_DISPLAY);
+            if (DEBUG) {
+                Slog.d(TAG, "DualStack cleared forced tall size on display " + DEFAULT_DISPLAY);
+            }
         } catch (Exception e) {
             Slog.w(TAG, "Failed to clear forced tall display size", e);
         } finally {
@@ -972,6 +1252,25 @@ final class DualStackController {
     }
 
     private void teardown(Transaction t) {
+        // Clear runtime flag so apps can see secondary display again after dual-stack ends.
+        setRuntimeDualStackActive(false);
+
+        // If we hid the secondary display's windowing layer, restore it as we exit dual-stack.
+        if (mSecondaryContentHidden && mSecondaryDisplayId != -1) {
+            final DisplayContent secondary = mWm.mRoot.getDisplayContent(mSecondaryDisplayId);
+            if (secondary != null) {
+                final SurfaceControl wl = secondary.getWindowingLayer();
+                if (wl != null && wl.isValid()) {
+                    try {
+                        t.show(wl);
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        }
+        mSecondaryContentHidden = false;
+        mLastSecondaryPurgeUptimeMs = 0;
+
         if (mAppXformTarget != null) {
             try {
                 t.setWindowCrop(mAppXformTarget, (Rect) null);

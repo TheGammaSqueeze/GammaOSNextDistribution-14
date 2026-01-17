@@ -53,6 +53,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.content.ContentResolver;
 import android.app.ActivityManagerInternal;
 import android.app.AppOpsManager;
 import android.app.compat.CompatChanges;
@@ -1533,6 +1534,12 @@ public final class DisplayManagerService extends SystemService {
     private boolean isDualStackEnabled() {
         return SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false);
     }
+ 
+    private static final String PROP_DUALSTACK_RUNTIME_ACTIVE = "sys.gammaos.dualstack.active";
+
+    private boolean isDualStackRuntimeActive() {
+        return SystemProperties.getBoolean(PROP_DUALSTACK_RUNTIME_ACTIVE, false);
+    }
 
     private ArraySet<String> getDualStackWhitelist() {
         final ArraySet<String> pkgs = new ArraySet<>();
@@ -1571,6 +1578,14 @@ public final class DisplayManagerService extends SystemService {
             if (wl.contains(pkgs[i])) return true;
         }
         return false;
+    }
+ 
+    private boolean isSecondaryInternalDisplayIdLocked(int displayId) {
+        if (displayId == android.view.Display.DEFAULT_DISPLAY) return false;
+        final LogicalDisplay display = mLogicalDisplayMapper.getDisplayLocked(displayId);
+        if (display == null) return false;
+        final DisplayInfo info = display.getDisplayInfoLocked();
+        return info != null && info.type == android.view.Display.TYPE_INTERNAL;
     }
 
     private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
@@ -3998,7 +4013,20 @@ public final class DisplayManagerService extends SystemService {
 
     @VisibleForTesting
     DisplayDeviceInfo getDisplayDeviceInfoInternal(int displayId) {
+        // This method can be reached from Binder (apps) and non-Binder (system) callers.
+        // Use Binder identity when present so we can apply DualStack visibility rules.
+        final int callingUid = Binder.getCallingUid();
         synchronized (mSyncRoot) {
+            // GammaOS Dual-Stack: while dual-stack is actively mirroring, hide the secondary
+            // internal display from *apps* so they cannot enumerate / present / render to it.
+            // This complements WM's "mirror-only" policy by preventing apps from intentionally
+            // targeting display-2 (Presentation, getDisplays, etc.).
+            if (isDualStackRuntimeActive()
+                    && callingUid >= android.os.Process.FIRST_APPLICATION_UID
+                    && isSecondaryInternalDisplayIdLocked(displayId)) {
+                return null;
+            }
+
             final LogicalDisplay display = mLogicalDisplayMapper.getDisplayLocked(displayId);
             if (display != null) {
                 final DisplayDevice displayDevice = display.getPrimaryDisplayDeviceLocked();
@@ -4379,7 +4407,31 @@ public final class DisplayManagerService extends SystemService {
                         }
                         // Fallback to normal behavior if default display is not available.
                     }
-                    return mLogicalDisplayMapper.getDisplayIdsLocked(callingUid, includeDisabled);
+
+                    final int[] ids = mLogicalDisplayMapper.getDisplayIdsLocked(
+                            callingUid, includeDisabled);
+
+                    // GammaOS Dual-Stack: while actively mirroring, hide the secondary internal
+                    // display from apps so they cannot "see" or target it directly.
+                    if (isDualStackRuntimeActive()
+                            && callingUid >= android.os.Process.FIRST_APPLICATION_UID) {
+                        int count = 0;
+                        for (int i = 0; i < ids.length; i++) {
+                            if (!isSecondaryInternalDisplayIdLocked(ids[i])) count++;
+                        }
+                        if (count == ids.length) return ids;
+                        final int[] filtered = new int[count];
+                        int j = 0;
+                        for (int i = 0; i < ids.length; i++) {
+                            final int id = ids[i];
+                            if (!isSecondaryInternalDisplayIdLocked(id)) {
+                                filtered[j++] = id;
+                            }
+                        }
+                        return filtered;
+                    }
+
+                    return ids;
                 }
             } finally {
                 Binder.restoreCallingIdentity(token);

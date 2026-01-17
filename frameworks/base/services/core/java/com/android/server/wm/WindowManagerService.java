@@ -175,6 +175,7 @@ import android.app.IAssistDataReceiver;
 import android.app.WindowConfiguration;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -4358,36 +4359,24 @@ public class WindowManagerService extends IWindowManager.Stub
      * @return The orientation to use in place of requestedOrientation.
      */
     int mapOrientationRequest(int requestedOrientation) {
-        // GammaOS Dual-Stack: when a whitelisted app is top-resumed on the default display,
-        // force a portrait logical orientation so that tall stacked layouts (for example
-        // Nintendo DS emulation with two screens) always render in a single upright canvas.
-        if (android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)) {
-            final ActivityRecord top = mRoot.getTopResumedActivity();
-            if (top != null) {
-                final String rawPkgs =
-                        android.os.SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
-                if (!rawPkgs.isEmpty()) {
-                    final String[] pkgs = rawPkgs.split(",");
-                    final String pkg = top.packageName;
-                    for (int i = 0; i < pkgs.length; i++) {
-                        if (pkg.equals(pkgs[i].trim())) {
-                            // Let DisplayRotation map SCREEN_ORIENTATION_PORTRAIT to the
-                            // correct physical rotation for this device (typically ROTATION_270).
-                            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                        }
-                    }
-                }
-            }
-        }
-
-        // If auto-rotation is disabled, ignore any app request and force landscape unless
-        // GammaOS dual-stack is enabled (dual-stack manages orientation for its own apps).
-        // if (!android.os.SystemProperties.getBoolean("persist.gammaos.dualstack.enabled", false)
-                // && !isAutoRotationEnabled()) {
-            // return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-        // }
+        // GammaOS Dual-Stack:
+        // Do NOT force a real display rotation here. DualStack enforces portrait-like behaviour
+        // via the tall logical canvas (forced size) and mirroring/cropping, without requiring
+        // DisplayRotation to rotate physical displays (which can rotate display-2 HOME/IME and
+        // break mirroring until a later traversal).
+        //
+        // However, when auto-rotation is disabled, GammaOS normally forces landscape. For an
+        // active dual-stack session we must bypass that forced-landscape behaviour, otherwise
+        // the dual-stack foreground app cannot remain in the intended tall portrait canvas.
+        final boolean dualStackSessionActive =
+                android.os.SystemProperties.getBoolean("sys.gammaos.dualstack.active", false);
 
         if (!isAutoRotationEnabled()) {
+            // DualStack session: do not clamp to landscape. Let the app/requested orientation
+            // flow through and let DualStack's forced size + transforms do the work.
+            if (dualStackSessionActive) {
+                return requestedOrientation;
+            }
             return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         }
 

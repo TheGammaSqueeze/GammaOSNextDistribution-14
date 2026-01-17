@@ -457,9 +457,48 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         mTopFocusedAppByProcess.clear();
         boolean changed = false;
         int topFocusedDisplayId = INVALID_DISPLAY;
+
+        // GammaOS Dual-Stack:
+        // With per-display focus disabled, focus is normally assigned to the top-most display in
+        // Z-order. On dual-panel devices, display-2 HOME/IME frequently sits above the default
+        // display and steals focus (mTopFocusedDisplayId=2), which breaks controller input for
+        // the dual-stack app even though it is visible via mirroring.
+        //
+        // While a dual-stack session is active, force the *default* display to be the display
+        // that participates in focus selection (and therefore receives input focus).
+        final boolean dualStackActive =
+                SystemProperties.getBoolean("sys.gammaos.dualstack.active", false);
+        final boolean forceDefaultFocus = dualStackActive && !mWmService.mPerDisplayFocusEnabled;
+
+        if (forceDefaultFocus) {
+            final DisplayContent defaultDc = getDisplayContent(DEFAULT_DISPLAY);
+            if (defaultDc != null) {
+                changed |= defaultDc.updateFocusedWindowLocked(mode, updateInputWindows,
+                        INVALID_DISPLAY /* topFocusedDisplayId */);
+                final WindowState newFocus = defaultDc.mCurrentFocus;
+                if (newFocus != null) {
+                    final int pidOfNewFocus = newFocus.mSession.mPid;
+                    if (mTopFocusedAppByProcess.get(pidOfNewFocus) == null) {
+                        mTopFocusedAppByProcess.put(pidOfNewFocus, newFocus.mActivityRecord);
+                    }
+                    topFocusedDisplayId = DEFAULT_DISPLAY;
+                } else if (defaultDc.mFocusedApp != null) {
+                    // Even if no focusable window yet, treat the default display as top focused
+                    // while dual-stack is active.
+                    topFocusedDisplayId = DEFAULT_DISPLAY;
+                }
+            } else {
+                // Defensive: if the default display is missing, fall back to normal logic below.
+            }
+        }
+
         // Go through the children in z-order starting at the top-most
         for (int i = mChildren.size() - 1; i >= 0; --i) {
             final DisplayContent dc = mChildren.get(i);
+            if (forceDefaultFocus && dc.getDisplayId() == DEFAULT_DISPLAY) {
+                // Already processed the default display first.
+                continue;
+            }
             changed |= dc.updateFocusedWindowLocked(mode, updateInputWindows, topFocusedDisplayId);
             final WindowState newFocus = dc.mCurrentFocus;
             if (newFocus != null) {
@@ -477,9 +516,17 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 topFocusedDisplayId = dc.getDisplayId();
             }
         }
+
+        // If dual-stack is active and we are forcing default focus, do not allow display-2 (or any
+        // non-default display) to become top-focused.
+        if (forceDefaultFocus) {
+            topFocusedDisplayId = DEFAULT_DISPLAY;
+        }
+
         if (topFocusedDisplayId == INVALID_DISPLAY) {
             topFocusedDisplayId = DEFAULT_DISPLAY;
         }
+
         if (mTopFocusedDisplayId != topFocusedDisplayId) {
             mTopFocusedDisplayId = topFocusedDisplayId;
             mWmService.mInputManager.setFocusedDisplay(topFocusedDisplayId);
