@@ -348,41 +348,36 @@ final class DualStackController {
 
     private void createSurfacesIfNeeded(Transaction t, DisplayContent primary,
             DisplayContent secondary, ActivityRecord top) {
-        // Create two mirrors of the app surface:
-        //  - one on the primary display windowing layer (bottom half by default),
-        //  - one on the secondary display windowing layer (top half by default).
+        // Create two mirrors of the *entire* primary display windowing tree:
+        //  - one shown on the primary display (bottom half by default),
+        //  - one shown on the secondary internal display (top half by default).
         //
-        // The original app surfaces remain owned by WM and continue to receive
-        // input, but visually we only show the mirrored copies on both displays.
-        // This lets us apply different crops for primary and secondary without
-        // fighting any letterboxing / transforms applied to the task itself.
+        // By mirroring the windowing layer instead of only the top activity's surface, we
+        // bring all system UI that is part of the primary display into scope (status bar,
+        // taskbar, notification shade, volume dialogs, overlays, etc.).
+        //
+        // The original surfaces remain owned by WM and continue to receive input. Visually
+        // we place the mirrors above the real window tree and apply different crops on each
+        // display to achieve the split.
         SurfaceControl source = null;
-        final SurfaceControl arSc = top.getSurfaceControl();
-        if (arSc != null && arSc.isValid()) {
-            source = arSc;
-        } else {
-            final WindowState mainWin = top.findMainWindow();
-            if (mainWin != null) {
-                final SurfaceControl sc = mainWin.getSurfaceControl();
-                if (sc != null && sc.isValid()) {
-                    source = sc;
-                }
+        if (primary != null) {
+            final SurfaceControl wl = primary.getWindowingLayer();
+            if (wl != null && wl.isValid()) {
+                source = wl;
             }
         }
 
         if (source == null) {
-            Slog.w(TAG, "createSurfacesIfNeeded: no valid source surface for " + top);
+            Slog.w(TAG, "createSurfacesIfNeeded: no valid windowing layer surface");
             return;
         }
 
         final boolean havePrimary = mAppXformTarget != null && mAppXformTarget.isValid();
         final boolean haveSecondary = mSecondaryMirror != null && mSecondaryMirror.isValid();
 
-        // If both mirrors are already alive *and* we are still mirroring from the same
-        // render root, keep them and just update crops / matrices in applyTransforms().
-        // As soon as the Activity's render root changes (new VRI/BBQ adapter, new BLAST,
-        // etc.), we want to rebind our mirrors to the new SurfaceControl even if the
-        // old ones are still "valid".
+        // If both mirrors are already alive and we are still mirroring from the same
+        // windowing layer surface, keep them and just update crops / matrices in
+        // applyTransforms().
         if (havePrimary && haveSecondary && mSourceSurface == source) {
             return;
         }
@@ -406,31 +401,16 @@ final class DualStackController {
         // From this point on we are rebinding to a fresh source.
         mSourceSurface = source;
 
-        // Primary mirror (bottom half by default).
+        // Primary mirror.
         mAppXformTarget = SurfaceControl.mirrorSurface(source);
-        // Attach to the primary display *windowing* layer so that normal system
-        // UI (status bar, taskbar, volume, global actions, etc.) continues to
-        // render above app content via the separate “above app” containers.
-        t.reparent(mAppXformTarget, primary.getWindowingLayer());
-        // Make this mirror the topmost app layer inside the windowing hierarchy,
-        // so SurfaceFlinger/HWC prefer it over the original BLAST surface when
-        // picking the visible representation of the activity on Display 0, while
-        // still keeping the entire windowing tree below the SystemUI containers.
-        //
-        // Using the windowing layer itself as the relative anchor ensures we
-        // only compete with other app/task content and not with the above-app
-        // SystemUI roots.
-        t.setRelativeLayer(mAppXformTarget, primary.getWindowingLayer(), /* relativeZ */ +1);
+        // Attach above the real windowing tree so the mirror is the only visible content.
+        t.reparent(mAppXformTarget, primary.getOverlayLayer());
+        t.setLayer(mAppXformTarget, Integer.MAX_VALUE / 2);
         t.show(mAppXformTarget);
 
-        // Secondary mirror (top half by default).
+        // Secondary mirror.
         mSecondaryMirror = SurfaceControl.mirrorSurface(source);
-        // Same idea for the secondary display: attach to the windowing layer
-        // instead of the overlay layer so that any per-display overlays can
-        // still appear above us if they exist. On this device we do not expect
-        // full SystemUI on the secondary panel, so a simple high layer value is
-        // sufficient.
-        t.reparent(mSecondaryMirror, secondary.getWindowingLayer());
+        t.reparent(mSecondaryMirror, secondary.getOverlayLayer());
         t.setLayer(mSecondaryMirror, Integer.MAX_VALUE / 2);
         t.show(mSecondaryMirror);
     }
@@ -471,65 +451,11 @@ final class DualStackController {
         // to provide the visual framing.
         suppressLetterboxForTopActivity(t, top);
 
-        // Try to infer the app's *actual* content bounds from the top activity configuration.
-        // For classic dual-stack apps like DraStic that already render at 640x960, this will
-        // typically be 640x960. For size-compat apps like RSDK that are running in a smaller
-        // 480x640 box, this lets us scale that box up without dragging WM's own
-        // letterbox bars into the mirrored view.
+        // We are mirroring the full primary windowing tree, so always split the full
+        // forced tall canvas (640x960) rather than attempting to infer per-app bounds.
         int appW = DUALSTACK_TALL_WIDTH;
         int appH = DUALSTACK_TALL_HEIGHT;
-        // Horizontal offset of the real app content inside the root / display coordinates.
-        // For compat apps like RSDK, the live 3:4 content is narrower than the window and
-        // is centered, so there are explicit left/right letterbox margins we want to skip.
         int contentLeft = 0;
-        try {
-            final Rect appBounds =
-                    top.getConfiguration().windowConfiguration.getAppBounds();
-            if (appBounds != null && !appBounds.isEmpty()) {
-                final int bw = appBounds.width();
-                final int bh = appBounds.height();
-                if (bw > 0 && bh > 0) {
-                    // Heuristic:
-                    //  - If the app's height is "almost" our tall canvas (e.g. DraStic
-                    //    reporting ~926px because of insets), treat it as a full 640x960
-                    //    so the split is exactly 480/480.
-                    //  - Otherwise (e.g. 480x640 size-compat), the underlying content is
-                    //    effectively 3:4 portrait (480x640) centered inside a narrower
-                    //    compat box (e.g. 400x640). In that case we:
-                    //      * recover the full 3:4 width from the height, and
-                    //      * compute a crop region in root coordinates that skips
-                    //        any left/right letterbox bars.
-                    final int tallThreshold = (DUALSTACK_TALL_HEIGHT * 4) / 5; // 80% of 960 = 768
-                    if (bh >= tallThreshold) {
-                        // Treat as full tall canvas.
-                        appW = DUALSTACK_TALL_WIDTH;
-                        appH = DUALSTACK_TALL_HEIGHT;
-                        contentLeft = 0;
-                    } else {
-                        // Compat / letterboxed app (e.g. RSDK).
-                        // bh is the vertical canvas (e.g. 640).
-                        // Real content is roughly 3:4 portrait, so infer width from height.
-                        final int inferredCompatW = (bh * 3) / 4;   // e.g. 480 when bh=640
-                        final int effectiveW = Math.max(bw, inferredCompatW);
-
-                        appW = Math.min(DUALSTACK_TALL_WIDTH, effectiveW);
-                        appH = Math.min(DUALSTACK_TALL_HEIGHT, bh);
-
-                        // App content is horizontally centered inside appBounds; compute
-                        // the left edge in root coordinates and clamp to the 640-wide canvas.
-                        final int centerX = appBounds.left + (bw / 2);
-                        contentLeft = centerX - (appW / 2);
-                        if (contentLeft < 0) {
-                            contentLeft = 0;
-                        } else if (contentLeft + appW > DUALSTACK_TALL_WIDTH) {
-                            contentLeft = DUALSTACK_TALL_WIDTH - appW;
-                        }
-                    }
-                }
-            }
-        } catch (Throwable tIgnored) {
-            // If anything goes wrong, fall back to the fixed tall canvas.
-        }
 
         if (appW <= 0 || appH <= 0) {
             return;
