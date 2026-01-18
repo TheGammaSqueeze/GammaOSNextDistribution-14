@@ -111,9 +111,9 @@ public class PermissionUtils {
      */
     public static boolean checkPermissionManager(@NonNull Context context, int pid,
             int uid, @NonNull String packageName, @Nullable String attributionTag) {
-        return checkPermissionForDataDelivery(context, MANAGE_EXTERNAL_STORAGE, pid, uid,
-                packageName, attributionTag,
-                generateAppOpMessage(packageName,sOpDescription.get()));
+        // GAMMAOS: Unrestricted external storage access.
+        // Always treat this permission as granted to all apps.
+        return true;
     }
 
     /**
@@ -135,16 +135,16 @@ public class PermissionUtils {
 
     public static boolean checkPermissionWriteStorage(@NonNull Context context, int pid, int uid,
             @NonNull String packageName, @Nullable String attributionTag) {
-        return checkPermissionForDataDelivery(context, WRITE_EXTERNAL_STORAGE, pid, uid,
-                packageName, attributionTag,
-                generateAppOpMessage(packageName,sOpDescription.get()));
+        // GAMMAOS: Unrestricted external storage access.
+        // Always treat this permission as granted to all apps.
+        return true;
     }
 
     public static boolean checkPermissionReadStorage(@NonNull Context context, int pid, int uid,
             @NonNull String packageName, @Nullable String attributionTag) {
-        return checkPermissionForDataDelivery(context, READ_EXTERNAL_STORAGE, pid, uid,
-                packageName, attributionTag,
-                generateAppOpMessage(packageName,sOpDescription.get()));
+        // GAMMAOS: Unrestricted external storage access.
+        // Always treat this permission as granted to all apps.
+        return true;
     }
 
     /**

@@ -10,6 +10,8 @@
  *  - Reacts to system property changes at runtime.
  */
 package com.android.server.wm;
+ 
+import static java.lang.Math.abs;
 
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.TYPE_INTERNAL;
@@ -142,6 +144,45 @@ final class DualStackController {
     // SurfaceControl.Transaction API surface across branches/vendors.
     private static volatile boolean sFilterMethodResolved;
     private static volatile Method sSetFilteringMethod;
+ 
+    // Best-effort: mark mirror layers as opaque so SurfaceFlinger/HWC can more easily
+    // assign them to DEVICE composition (HWC planes) when available.
+    private static volatile boolean sOpaqueMethodResolved;
+    private static volatile Method sSetOpaqueMethod;
+
+    /** Cached mirror state so we can avoid re-applying identical transactions every traversal. */
+    private static final class MirrorState {
+        final Rect crop = new Rect();
+        boolean hasCrop;
+        float dsdx = 1f;
+        float dtdx = 0f;
+        float dtdy = 0f;
+        float dsdy = 1f;
+        float x = 0f;
+        float y = 0f;
+        boolean valid;
+
+        void reset() {
+            crop.setEmpty();
+            hasCrop = false;
+            dsdx = 1f;
+            dtdx = 0f;
+            dtdy = 0f;
+            dsdy = 1f;
+            x = 0f;
+            y = 0f;
+            valid = false;
+        }
+    }
+
+    // One cached state per mirror target.
+    private final MirrorState mPrimaryMirrorState = new MirrorState();
+    private final MirrorState mSecondaryMirrorState = new MirrorState();
+
+    // Reuse crop rects to avoid per-traversal allocations.
+    private final Rect mTmpTopRect = new Rect();
+    private final Rect mTmpBottomRect = new Rect();
+    private final Rect mTmpSafeSecondaryCrop = new Rect();
 
     DualStackController(WindowManagerService wm) {
         mWm = wm;
@@ -457,7 +498,11 @@ final class DualStackController {
 
         // Hide all secondary windowing content so nothing underneath the mirror is composited.
         final SurfaceControl secondaryWindowingLayer = secondary.getWindowingLayer();
-        if (secondaryWindowingLayer != null && secondaryWindowingLayer.isValid()) {
+        if (!mSecondaryContentHidden
+                && secondaryWindowingLayer != null
+                && secondaryWindowingLayer.isValid()) {
+            // Only issue the hide transaction once; repeating it every traversal increases
+            // WM->SF transaction churn and can create additional fences under load.
             t.hide(secondaryWindowingLayer);
             mSecondaryContentHidden = true;
         }
@@ -622,12 +667,20 @@ final class DualStackController {
  
         // From this point on we are rebinding to a fresh source.
         mSourceSurface = source;
+ 
+        // Force the cached state to re-apply transforms for the newly created mirrors.
+        mPrimaryMirrorState.reset();
+        mSecondaryMirrorState.reset();
 
         // Primary mirror.
         mAppXformTarget = SurfaceControl.mirrorSurface(source);
         // Attach above the real windowing tree so the mirror is the only visible content.
         t.reparent(mAppXformTarget, primary.getOverlayLayer());
         t.setLayer(mAppXformTarget, Integer.MAX_VALUE / 2);
+        // Prefer DEVICE composition when possible: make the layer fully opaque and avoid
+        // unnecessary blending paths.
+        t.setAlpha(mAppXformTarget, 1.0f);
+        setOpaqueIfSupported(t, mAppXformTarget, true);
         // Apply nearest-neighbor sampling once at creation time (no need to re-apply per frame).
         setNoBilinearFilteringIfSupported(t, mAppXformTarget);
         t.show(mAppXformTarget);
@@ -636,9 +689,73 @@ final class DualStackController {
         mSecondaryMirror = SurfaceControl.mirrorSurface(source);
         t.reparent(mSecondaryMirror, secondary.getOverlayLayer());
         t.setLayer(mSecondaryMirror, Integer.MAX_VALUE / 2);
+        t.setAlpha(mSecondaryMirror, 1.0f);
+        setOpaqueIfSupported(t, mSecondaryMirror, true);
         // Apply nearest-neighbor sampling once at creation time.
         setNoBilinearFilteringIfSupported(t, mSecondaryMirror);
         t.show(mSecondaryMirror);
+    }
+ 
+    private static boolean floatNear(float a, float b) {
+        return Math.abs(a - b) <= 1e-4f;
+    }
+
+    private static float snapScale(float v) {
+        // Snap common ratios to exact values to reduce tiny float drift across traversals.
+        if (floatNear(v, 1.0f)) return 1.0f;
+        if (floatNear(v, 2.0f)) return 2.0f;
+        if (floatNear(v, 0.5f)) return 0.5f;
+        return v;
+    }
+
+    private static float snapTranslate(float v) {
+        // Keep translations on integer boundaries where possible.
+        final float r = Math.round(v);
+        return floatNear(v, r) ? r : v;
+    }
+
+    private void applyMirrorStateIfChanged(Transaction t, SurfaceControl sc, Rect crop,
+            float dsdx, float dsdy, float x, float y, MirrorState st) {
+        if (t == null || sc == null || !sc.isValid() || st == null) return;
+
+        dsdx = snapScale(dsdx);
+        dsdy = snapScale(dsdy);
+        x = snapTranslate(x);
+        y = snapTranslate(y);
+
+        // Crop.
+        if (crop == null) {
+            if (st.hasCrop) {
+                t.setWindowCrop(sc, (Rect) null);
+                st.crop.setEmpty();
+                st.hasCrop = false;
+            }
+        } else {
+            if (!st.hasCrop || !st.crop.equals(crop)) {
+                t.setWindowCrop(sc, crop);
+                st.crop.set(crop);
+                st.hasCrop = true;
+            }
+        }
+
+        // Matrix (we only ever use axis-aligned scale here).
+        if (!st.valid || !floatNear(st.dsdx, dsdx) || !floatNear(st.dsdy, dsdy)
+                || !floatNear(st.dtdx, 0f) || !floatNear(st.dtdy, 0f)) {
+            t.setMatrix(sc, dsdx, 0f, 0f, dsdy);
+            st.dsdx = dsdx;
+            st.dtdx = 0f;
+            st.dtdy = 0f;
+            st.dsdy = dsdy;
+        }
+
+        // Position.
+        if (!st.valid || !floatNear(st.x, x) || !floatNear(st.y, y)) {
+            t.setPosition(sc, x, y);
+            st.x = x;
+            st.y = y;
+        }
+
+        st.valid = true;
     }
 
     /**
@@ -688,6 +805,34 @@ final class DualStackController {
             // One-time best-effort. If this fails at runtime, silently fall back to default.
         }
     }
+ 
+    /**
+     * Best-effort wrapper around Transaction#setOpaque(SurfaceControl, boolean).
+     *
+     * Marking the mirror layers as opaque helps SurfaceFlinger/HWC avoid blending work and can
+     * increase the likelihood of DEVICE composition on SoCs with limited plane resources.
+     */
+    private static void setOpaqueIfSupported(Transaction t, SurfaceControl sc, boolean opaque) {
+        if (t == null || sc == null || !sc.isValid()) return;
+
+        if (!sOpaqueMethodResolved) {
+            sOpaqueMethodResolved = true;
+            try {
+                sSetOpaqueMethod = Transaction.class.getMethod(
+                        "setOpaque", SurfaceControl.class, boolean.class);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+
+        final Method m = sSetOpaqueMethod;
+        if (m == null) return;
+
+        try {
+            m.invoke(t, sc, opaque);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            // Best-effort only.
+        }
+    }
 
     private void applyTransforms(Transaction t, DisplayContent primary,
             DisplayContent secondary, ActivityRecord top) {
@@ -704,14 +849,12 @@ final class DualStackController {
                 || !mSecondaryMirror.isValid()) {
 
             if (mAppXformTarget != null) {
-                t.setWindowCrop(mAppXformTarget, (Rect) null);
-                t.setMatrix(mAppXformTarget, 1f, 0f, 0f, 1f);
-                t.setPosition(mAppXformTarget, 0f, 0f);
+                applyMirrorStateIfChanged(t, mAppXformTarget, null,
+                        1f /*sx*/, 1f /*sy*/, 0f /*x*/, 0f /*y*/, mPrimaryMirrorState);
             }
             if (mSecondaryMirror != null) {
-                t.setWindowCrop(mSecondaryMirror, (Rect) null);
-                t.setMatrix(mSecondaryMirror, 1f, 0f, 0f, 1f);
-                t.setPosition(mSecondaryMirror, 0f, 0f);
+                applyMirrorStateIfChanged(t, mSecondaryMirror, null,
+                        1f /*sx*/, 1f /*sy*/, 0f /*x*/, 0f /*y*/, mSecondaryMirrorState);
             }
             return;
         }
@@ -740,12 +883,12 @@ final class DualStackController {
         // Define halves in root / Activity space. For compat apps, contentLeft is the
         // root X of the real 3:4 content region, so cropping from [contentLeft, ...]
         // skips WM's own left/right letterbox bars entirely.
-        final Rect topRect = new Rect(contentLeft, 0, contentLeft + appW, halfH);
-        final Rect bottomRect = new Rect(contentLeft, halfH, contentLeft + appW, appH);
+        mTmpTopRect.set(contentLeft, 0, contentLeft + appW, halfH);
+        mTmpBottomRect.set(contentLeft, halfH, contentLeft + appW, appH);
 
         // Decide which half goes where.
-        final Rect primaryCrop = mSwapHalves ? topRect : bottomRect;   // bottom by default
-        final Rect secondaryCrop = mSwapHalves ? bottomRect : topRect; // top by default
+        final Rect primaryCrop = mSwapHalves ? mTmpTopRect : mTmpBottomRect;   // bottom by default
+        final Rect secondaryCrop = mSwapHalves ? mTmpBottomRect : mTmpTopRect; // top by default
 
         final int primaryDw = primaryInfo.logicalWidth;
         final int primaryDh = primaryInfo.logicalHeight;
@@ -782,16 +925,14 @@ final class DualStackController {
         }
 
         // Safety: if the secondary is temporarily half-height due to a just-resized BLAST, clamp.
-        final Rect safeSecondaryCrop = new Rect(secondaryCrop);
-        if (safeSecondaryCrop.bottom - safeSecondaryCrop.top > halfH) {
-            safeSecondaryCrop.bottom = safeSecondaryCrop.top + halfH;
+        mTmpSafeSecondaryCrop.set(secondaryCrop);
+        if (mTmpSafeSecondaryCrop.bottom - mTmpSafeSecondaryCrop.top > halfH) {
+            mTmpSafeSecondaryCrop.bottom = mTmpSafeSecondaryCrop.top + halfH;
         }
 
         // PRIMARY:
-        // Show the chosen half (bottom by default) scaled to the final ArrayList<Task> toRemove = new ArrayList<>();tall logical height.
+        // Show the chosen half (bottom by default) scaled to the final tall logical height.
         if (mAppXformTarget != null) {
-            t.setWindowCrop(mAppXformTarget, primaryCrop);
-            t.setMatrix(mAppXformTarget, primarySx, 0f, 0f, primarySy);
             // For the default (bottom on primary), shift it up by half a canvas.
             // When swapped, leave it at y=0 so the top half sits “normally”.
             final float primaryTy = mSwapHalves
@@ -799,7 +940,8 @@ final class DualStackController {
                     : -halfH * primarySy;
             // Apply horizontal compensation so that the app content starts at X=0 on
             // the primary display even if WM laid it out with an internal margin.
-            t.setPosition(mAppXformTarget, primaryTx, primaryTy);
+            applyMirrorStateIfChanged(t, mAppXformTarget, primaryCrop,
+                    primarySx, primarySy, primaryTx, primaryTy, mPrimaryMirrorState);
 
             if (DEBUG) {
                 Slog.d(TAG, "DualStack primary crop=" + primaryCrop
@@ -810,11 +952,10 @@ final class DualStackController {
         // SECONDARY:
         // Show the complementary half scaled to fill the secondary panel.
         if (mSecondaryMirror != null) {
-            t.setWindowCrop(mSecondaryMirror, safeSecondaryCrop);
-            t.setMatrix(mSecondaryMirror, secondarySx, 0f, 0f, secondarySy);
             // Apply the same X compensation so the secondary display lines up with
             // the primary and there is no visible left gutter.
-            t.setPosition(mSecondaryMirror, secondaryTx, 0f);
+            applyMirrorStateIfChanged(t, mSecondaryMirror, mTmpSafeSecondaryCrop,
+                    secondarySx, secondarySy, secondaryTx, 0f, mSecondaryMirrorState);
 
             if (DEBUG) {
                 Slog.d(TAG, "DualStack secondary crop=" + secondaryCrop
@@ -841,21 +982,24 @@ final class DualStackController {
             return;
         }
 
+        // NOTE: forAllWindows typically expects a boolean-returning callback (ToBooleanFunction).
+        // Return true to continue traversal.
         top.forAllWindows(ws -> {
-            if (ws == null) return;
+            if (ws == null) return true;
 
             // Match the standard letterbox window naming used by WM:
             // "Letterbox - left", "Letterbox - right", "Letterbox - bottom".
             final CharSequence titleCs =
                     (ws.mAttrs != null) ? ws.mAttrs.getTitle() : null;
-            if (titleCs == null) return;
+            if (titleCs == null) return true;
 
             final String title = titleCs.toString();
-            if (!title.startsWith("Letterbox - ")) return;
+            if (!title.startsWith("Letterbox - ")) return true;
 
             final SurfaceControl sc = ws.getSurfaceControl();
-            if (sc == null || !sc.isValid()) return;
+            if (sc == null || !sc.isValid()) return true;
             t.hide(sc);
+            return true;
         }, true /* traverseTopToBottom */);
     }
 
@@ -1273,9 +1417,10 @@ final class DualStackController {
 
         if (mAppXformTarget != null) {
             try {
-                t.setWindowCrop(mAppXformTarget, (Rect) null);
-                t.setMatrix(mAppXformTarget, 1f, 0f, 0f, 1f);
-                t.setPosition(mAppXformTarget, 0f, 0f);
+                // Reset to identity then remove. Use the cached state helper to avoid
+                // emitting redundant transactions during repeated teardown calls.
+                applyMirrorStateIfChanged(t, mAppXformTarget, null,
+                        1f /*sx*/, 1f /*sy*/, 0f /*x*/, 0f /*y*/, mPrimaryMirrorState);
                 t.remove(mAppXformTarget);
             } catch (Exception ignored) {
             }
@@ -1283,11 +1428,16 @@ final class DualStackController {
         }
         if (mSecondaryMirror != null) {
             try {
+                // Ensure cached transform state is cleared even if remove fails.
+                mSecondaryMirrorState.reset();
                 t.remove(mSecondaryMirror);
             } catch (Exception ignored) {
             }
             mSecondaryMirror = null;
         }
+        // Always clear cached state when leaving dual-stack.
+        mPrimaryMirrorState.reset();
+        mSecondaryMirrorState.reset();
         mSourceSurface = null;
         mActiveTask = null;
         mActiveActivity = null;

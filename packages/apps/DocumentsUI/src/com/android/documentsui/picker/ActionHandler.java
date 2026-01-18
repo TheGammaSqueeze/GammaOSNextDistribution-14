@@ -214,42 +214,9 @@ class ActionHandler<T extends FragmentActivity & Addons> extends AbstractActionH
      * "Android/obb/" and "Android/sandbox/" directories, but NOT their subdirectories.
      */
     private boolean shouldPreemptivelyRestrictRequestedInitialUri(@NonNull Uri uri) {
-        // Not restricting SAF access for the calling app.
-        if (!Shared.shouldRestrictStorageAccessFramework(mActivity)) {
-            return false;
-        }
-
-        // We only need to restrict some locations on the "external" storage.
-        if (!Providers.AUTHORITY_STORAGE.equals(uri.getAuthority())) {
-            return false;
-        }
-
-        // TODO(b/283962634): in the future this will have to be platform-version specific.
-        //  For example, if the fix on the ExternalStorageProvider side makes it to the Android 15,
-        //  we would change this to check if the platform version >= 15.
-        //  In the upcoming Android 14 release, however, ExternalStorageProvider does NOT yet
-        //  implement this logic.
-        final boolean externalProviderImplementsSafRestrictions = false;
-        if (externalProviderImplementsSafRestrictions) {
-            return false;
-        }
-
-        // External Storage Provider's docId format is "root:path/to/file"
-        // The getPathFromStorageDocId() turns that into "/path/to/file"
-        // Note the missing leading "/" in the path part of the docId, while the path returned by
-        // the getPathFromStorageDocId() start with "/".
-        final String docId = DocumentsContract.getDocumentId(uri);
-        final String filePath;
-        try {
-            filePath = FileUtils.getPathFromStorageDocId(docId);
-        } catch (IOException e) {
-            Log.w(TAG, "Could not get canonical file path from docId '" + docId + "'");
-            return true;
-        }
-
-        // Check if the app is asking for /Android/data, /Android/obb, /Android/sandbox or any of
-        // their subdirectories (on the external storage).
-        return PATTERN_RESTRICTED_INITIAL_PATH.matcher(filePath).matches();
+        // GAMMAOS: Disable SAF privacy restrictions for Android/data, Android/obb, etc.
+        // This allows any calling app to browse/select these paths via SAF.
+        return false;
     }
 
     private void initLoadLastAccessedStack() {

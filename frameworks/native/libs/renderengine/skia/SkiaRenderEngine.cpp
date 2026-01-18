@@ -82,6 +82,7 @@
 #include "filters/GammaCrtSimple.h"
 #include "filters/GammaLcd3x.h"
 #include "filters/GammaBlurFill.h"
+#include "filters/GammaLcdShader.h"
 #include "log/log_main.h"
 #include "skia/debug/SkiaCapture.h"
 #include "skia/debug/SkiaMemoryReporter.h"
@@ -1245,7 +1246,17 @@ void SkiaRenderEngine::drawLayersInternal(
                           shaderType.c_str(), isProtected ? 1 : 0);
                 }
 
-                if (shaderType == "lcd3x") {
+                if (shaderType == "lcd-shader" || shaderType == "lcd_shader" || shaderType == "lcdshader") {
+                    appliedFx = GammaLcdShader::apply(
+                            dstSurface.get(),                 // target (write here)
+                            srcSurfaceForPost.get(),          // source (sample from here)
+                            mCapture.get(),                   // capture helper
+                            display.outputDataspace,          // output dataspace
+                            isProtected,                      // content protection
+                            testOverlay,                      // debug overlay
+                            false,                            // no CTM-BFI
+                            defaultScanAngleDeg);             // default scanline angle (unused)
+                } else if (shaderType == "lcd3x") {
                     appliedFx = GammaLcd3x::apply(
                             dstSurface.get(),                 // target (write here)
                             srcSurfaceForPost.get(),          // source (sample from here)

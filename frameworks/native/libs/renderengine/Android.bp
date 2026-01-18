@@ -99,6 +99,7 @@ filegroup {
         "skia/filters/GammaCrtSimple.cpp",
         "skia/filters/GammaLcd3x.cpp",
         "skia/filters/GammaBlurFill.cpp",
+        "skia/filters/GammaLcdShader.cpp",
     ],
 }
 

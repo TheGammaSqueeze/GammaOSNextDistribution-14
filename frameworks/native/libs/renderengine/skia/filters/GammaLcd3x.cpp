@@ -4,6 +4,7 @@
 #include <SkColor.h>
 #include <SkColorSpace.h>
 #include <SkImage.h>
+#include <SkMatrix.h>
 #include <SkPaint.h>
 #include <SkRuntimeEffect.h>
 #include <android-base/properties.h>
@@ -28,35 +29,77 @@ static sk_sp<SkRuntimeEffect> gFx;
 // Adds configurable scanline and RGB column brightening plus grid scaling for high-DPI panels.
 static const char* kSkSL = R"(
     uniform shader src;
-    uniform int    use_src;             // 1=sample src, 0=mask-only (white)
 
     uniform float  brighten_scanlines;  // >= 1.0
     uniform float  brighten_lcd;        // >= 1.0
     uniform float2 grid_px;             // pixel size of LCD cell (x,y)
-    uniform float2 fb_size;             // framebuffer size (w,h) (reserved, not used now)
 
     const float PI = 3.141592654;
+    const float TWO_PI = 6.283185307;
 
     half4 main(float2 p) {
-        // Base color: either sampled source or white mask for protected content.
-        half4 base = use_src != 0 ? src.eval(p) : half4(1.0);
+        // Base color: src is either the real content or a constant-color mask for protected content.
+        half4 base = src.eval(p);
 
         // Grid period in pixels. Higher grid_px => larger cells on screen.
-        float2 cell  = max(grid_px, float2(1.0, 1.0));
-        float2 omega = (2.0 * PI) / cell;
+        float2 cell = max(grid_px, float2(1.0, 1.0));
+        float2 omega = TWO_PI / cell;
         float2 angle = p * omega;
 
         // Vertical scanline modulation.
-        float yfactor = (brighten_scanlines + sin(angle.y)) / (brighten_scanlines + 1.0);
+        float invScanDen = 1.0 / (brighten_scanlines + 1.0);
+        float y = (brighten_scanlines + sin(angle.y)) * invScanDen;
 
         // Horizontal RGB column modulation.
-        float3 offsets = float3(PI * 0.5, PI * 1.5, PI * 2.5);
-        float3 xfactors = (brighten_lcd + sin(angle.x + offsets)) / (brighten_lcd + 1.0);
+        // Offsets were {pi/2, 3pi/2, 5pi/2}, so:
+        //   sin(x + pi/2)  =  cos(x)
+        //   sin(x + 3pi/2) = -cos(x)
+        //   sin(x + 5pi/2) =  cos(x)
+        // This reduces 3 trig evaluations down to 1.
+        float invLcdDen = 1.0 / (brighten_lcd + 1.0);
+        float cx = cos(angle.x);
+        float3 x = (brighten_lcd + float3(cx, -cx, cx)) * invLcdDen;
 
-        float3 color = float3(base.rgb) * yfactor * xfactors;
-        return half4(color, base.a);
+        half3 outRgb = base.rgb * half(y) * half3(x);
+        return half4(outRgb, base.a);
     }
 )";
+ 
+static sk_sp<SkImage> makeHalfResNearest(SkSurface* refSurface,
+                                        const sk_sp<SkImage>& srcImage,
+                                        bool debugLog,
+                                        const char* tag) {
+    if (!refSurface || !srcImage) return nullptr;
+
+    const int srcW = srcImage->width();
+    const int srcH = srcImage->height();
+    const int halfW = std::max(1, srcW / 2);
+    const int halfH = std::max(1, srcH / 2);
+
+    const SkImageInfo srcInfo = srcImage->imageInfo();
+    const SkImageInfo halfInfo = srcInfo.makeWH(halfW, halfH);
+
+    sk_sp<SkSurface> halfSurface = refSurface->makeSurface(halfInfo);
+    if (!halfSurface) {
+        if (debugLog) ALOGW("%s: failed to allocate half-res surface (%dx%d).", tag, halfW, halfH);
+        return nullptr;
+    }
+
+    SkCanvas* c = halfSurface->getCanvas();
+    if (!c) return nullptr;
+
+    // Downscale with nearest neighbor only (no bilinear).
+    c->save();
+    c->resetMatrix();
+    c->scale((float)halfW / (float)srcW, (float)halfH / (float)srcH);
+    SkPaint p;
+    p.setBlendMode(SkBlendMode::kSrc);
+    c->drawImage(srcImage, 0.0f, 0.0f,
+                 SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone), &p);
+    c->restore();
+
+    return halfSurface->makeImageSnapshot();
+}
 
 inline float getFloatProp(const char* key, const char* defv) {
     using android::base::GetProperty;
@@ -122,6 +165,8 @@ bool GammaLcd3x::apply(SkSurface* dstSurface,
         }
         return false;
     }
+ 
+    const bool halfRes = GetBoolProperty("persist.gammaos.shader.lcd3x.half_res", false);
 
     // LCD3x parameters with sane defaults, clamped to useful ranges.
     float brightenScanlines = std::max(1.0f,
@@ -139,9 +184,6 @@ bool GammaLcd3x::apply(SkSurface* dstSurface,
     b.uniform("brighten_scanlines") = brightenScanlines;
     b.uniform("brighten_lcd") = brightenLcd;
     b.uniform("grid_px") = SkV2{gridPxX, gridPxY};
-    b.uniform("fb_size") = SkV2{
-            static_cast<float>(dstSurface->width()),
-            static_cast<float>(dstSurface->height())};
 
     SkPaint p;
     if (!isProtected) {
@@ -150,15 +192,30 @@ bool GammaLcd3x::apply(SkSurface* dstSurface,
             if (debugLog) ALOGW("GammaOS LCD3x: snapshot failed; skipping effect.");
             return false;
         }
-        b.child("src") = srcImage->makeShader(
+
+        sk_sp<SkImage> srcForEffect = srcImage;
+        if (halfRes) {
+            sk_sp<SkImage> half = makeHalfResNearest(dstSurface, srcImage, debugLog, "GammaOS LCD3x");
+            if (half) srcForEffect = half;
+        }
+
+        // Always nearest. If half-res is enabled, scale the sampling coords by 0.5 so the
+        // half-res texture covers the full output without bilinear filtering.
+        sk_sp<SkShader> child = srcForEffect->makeShader(
                 SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
-        b.uniform("use_src") = 1;
+        if (halfRes && srcForEffect != srcImage) {
+            // IMPORTANT: Skia inverts the total matrix when mapping device -> shader local space.
+            // To sample the half-res image at (p * 0.5), we must provide a local matrix of 2.0,
+            // so the inverse becomes 0.5 in the device-to-local mapping.
+            child = child ? child->makeWithLocalMatrix(SkMatrix::Scale(2.0f, 2.0f)) : nullptr;
+        }
+
+        b.child("src") = child;
         p.setShader(b.makeShader());
         p.setBlendMode(SkBlendMode::kSrc);
     } else {
         // Avoid sampling protected content; just apply a mask over what is already in dst.
         b.child("src") = SkShaders::Color(SkColors::kWhite, toSkColorSpace(outDataspace));
-        b.uniform("use_src") = 0;
         p.setShader(b.makeShader());
         p.setBlendMode(SkBlendMode::kMultiply);
     }
@@ -169,8 +226,8 @@ bool GammaLcd3x::apply(SkSurface* dstSurface,
     dstCanvas->restore();
 
     if (debugLog) {
-        ALOGD("GammaOS LCD3x: applied post-pass (brighten_scanlines=%.3f, brighten_lcd=%.3f, grid_px=(%.3f,%.3f))",
-              brightenScanlines, brightenLcd, gridPxX, gridPxY);
+        ALOGD("GammaOS LCD3x: applied post-pass (half_res=%d brighten_scanlines=%.3f brighten_lcd=%.3f grid_px=(%.3f,%.3f))",
+              halfRes ? 1 : 0, brightenScanlines, brightenLcd, gridPxX, gridPxY);
     }
 
     return true;

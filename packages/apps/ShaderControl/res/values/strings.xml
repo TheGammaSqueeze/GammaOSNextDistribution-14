@@ -7,12 +7,18 @@
     <string name="shader_none">None</string>
     <string name="shader_crt">CRT (crt-simple)</string>
     <string name="shader_lcd3x">LCD3x</string>
+    <string name="shader_lcd_shader">LCD (lcd-shader)</string>
+    <string name="shader_blur_fill">Blur Fill (EXPERIMENTAL)</string>
 
     <string name="section_crt_params">CRT parameters</string>
     <string name="section_lcd3x_params">LCD3x parameters</string>
+    <string name="section_lcd_shader_params">LCD shader parameters</string>
+    <string name="section_blur_fill_params">Blur fill parameters</string>
 
     <string name="hint_scroll_crt">Scroll to see all CRT options</string>
     <string name="hint_scroll_lcd3x">Scroll to see all LCD3x options</string>
+    <string name="hint_scroll_lcd_shader">Scroll to see all LCD shader options</string>
+    <string name="hint_scroll_blur_fill">Scroll to see all blur fill options</string>
 
     <string name="label_scan_px">Scanline height (scan_px)</string>
     <string name="label_scan_strength">Scanline strength</string>
@@ -25,7 +31,27 @@
     <string name="label_brighten_lcd">LCD column brightening</string>
     <string name="label_grid_px_x">Grid cell width (px)</string>
     <string name="label_grid_px_y">Grid cell height (px)</string>
+ 
+    <string name="label_lcd_response_time">LCD response time</string>
+    <string name="label_lcd_scan_strength">LCD scan strength</string>
+    <string name="label_lcd_subpixel_strength">LCD subpixel strength</string>
+    <string name="label_lcd_gap_strength">LCD gap strength</string>
+    <string name="label_lcd_gap_px">LCD gap size (px fraction)</string>
+
+    <string name="label_blur_sigma">Blur sigma</string>
+    <string name="label_blur_scale">Blur scale</string>
+    <string name="label_blur_edge_px">Edge width (px)</string>
+    <string name="label_blur_feather_px">Feather (px)</string>
+    <string name="label_blur_strength">Strength</string>
+    <string name="label_blur_res_scale">Blur resolution scale</string>
+    <string name="label_blur_luma_threshold">Luma threshold</string>
+    <string name="label_blur_orientation">Orientation</string>
+    <string name="orientation_auto">Auto</string>
+    <string name="orientation_vertical">Vertical (pillarbox)</string>
+    <string name="orientation_horizontal">Horizontal (letterbox)</string>
 
     <string name="btn_reset_crt">Reset CRT to defaults</string>
     <string name="btn_reset_lcd3x">Reset LCD3x to defaults</string>
+    <string name="btn_reset_lcd_shader">Reset LCD shader to defaults</string>
+    <string name="btn_reset_blur_fill">Reset blur fill to defaults</string>
 </resources>

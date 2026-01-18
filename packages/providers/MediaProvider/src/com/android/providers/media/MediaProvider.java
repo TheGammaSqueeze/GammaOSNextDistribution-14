@@ -2875,7 +2875,8 @@ public class MediaProvider extends ContentProvider {
             // Legacy apps that made is this far don't have the right storage permission and hence
             // are not allowed to access anything other than their external app directory
             if (isCallingPackageRequestingLegacy()) {
-                return new String[] {""};
+                // GAMMAOS: Unrestricted access, do not block legacy callers.
+                return new String[] {"/"};
             }
 
             // Get relative path for the contents of given directory.
@@ -9539,24 +9540,9 @@ public class MediaProvider extends ContentProvider {
      * </ul>
      */
     private boolean shouldBypassFuseRestrictions(boolean forWrite, String filePath) {
-        boolean isRequestingLegacyStorage = forWrite ? isCallingPackageLegacyWrite()
-                : isCallingPackageLegacyRead();
-        if (isRequestingLegacyStorage) {
-            return true;
-        }
-
-        if (isCallingPackageManager()) {
-            return true;
-        }
-
-        // Check if the caller has access to private app directories.
-        if (isUidAllowedAccessToDataOrObbPathForFuse(mCallingIdentity.get().uid, filePath)) {
-            return true;
-        }
-
-        // Apps with write access to images and/or videos can bypass our restrictions if all of the
-        // the files they're accessing are of the compatible media type.
-        return canSystemGalleryAccessTheFile(filePath);
+        // GAMMAOS: Unrestricted FUSE access. Allow any app to bypass MediaProvider FUSE
+        // restrictions (scoped storage, Android/data, etc.) for both read and write.
+        return true;
     }
 
     /**
