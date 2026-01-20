@@ -63,6 +63,7 @@ final class DualStackController {
     private static final String PROP_PKGS = "persist.gammaos.dualstack.pkgs";
     private static final String PROP_KILL_PKGS = "persist.gammaos.dualstack.killpackages.enabled";
     private static final String PROP_LAUNCH_GUARD_ENABLED = "persist.gammaos.launch.guard.enabled";
+    private static final String PROP_ENFORCE_FOCUS = "persist.gammaos.dualstack.enforce_focus";
  
     private static final String PACKAGE_LAUNCHER3 = "com.android.launcher3";
 
@@ -82,6 +83,7 @@ final class DualStackController {
             "org.lineageos.audiofx",
             "com.android.providers.media.module",
             "com.android.devicelockcontroller",
+            "com.dsemu.drastic",
     };
 
     private static final int DUALSTACK_TALL_WIDTH = 640;
@@ -91,16 +93,23 @@ final class DualStackController {
 
     private boolean mEnabled;
     private boolean mKillPackagesEnabled;
+    private boolean mEnforceFocus;
     private String mLastPkgsRaw = null;
     private boolean mLastPropEnabled;
     private boolean mLastPropSwap;
     private boolean mLastPropKillPkgs;
+    private boolean mLastPropEnforceFocus;
     private int mLastKillTaskId = -1;
     private int mLastElevateTaskId = -1;
     private int mElevateSeq = 0;
 
     private static final int DUALSTACK_ELEVATE_ATTEMPTS = 3;
     private static final int DUALSTACK_ELEVATE_INTERVAL_MS = 5000;
+ 
+    // Sleep/wake handling: defer re-projection until the device is fully interactive to avoid
+    // racing WM/display reconfiguration and triggering fragile app pause/resume paths.
+    private static final long WAKE_REAPPLY_DELAY_MS = 1000;
+    private static final long WAKE_STABILIZE_MS = 2000;
 
     // Which Task (not just Activity) is currently being dual-stacked on DEFAULT_DISPLAY.
     // DraStic bounces between multiple activities (DraSticActivity, DraSticEmuActivity,
@@ -149,6 +158,26 @@ final class DualStackController {
     // assign them to DEVICE composition (HWC planes) when available.
     private static volatile boolean sOpaqueMethodResolved;
     private static volatile Method sSetOpaqueMethod;
+ 
+    // Avoid doing aggressive focus/purge churn while screen is off / in transition.
+    private volatile boolean mScreenInteractive = true;
+    private volatile long mLastWakeUptimeMs;
+    private volatile long mLastUserPresentUptimeMs;
+    private final Runnable mWakeReapplyRunnable;
+
+    private static final long FOCUS_ENFORCE_MIN_INTERVAL_MS = 750;
+    private volatile long mLastFocusEnforceUptimeMs;
+ 
+    // RetroArch clean-quit relies on briefly focusing RetroArch and injecting ESC.
+    // Our DualStack focus enforcement can fight that (moving the DualStack task back to front),
+    // causing RetroArch to never receive ESC and then get force-stopped.
+    //
+    // When we start a RetroArch clean-quit, temporarily suppress DualStack focus enforcement.
+    private static final long RETROARCH_FOCUS_SUPPRESS_MS = 2500;
+    private volatile long mSuppressDualStackFocusUntilUptimeMs = 0;
+    // Also throttle repeated clean-quit requests (for example if RetroArch is on display-2).
+    private static final long RETROARCH_QUIT_MIN_INTERVAL_MS = 5000;
+    private volatile long mLastRetroarchQuitAttemptUptimeMs = 0;
 
     /** Cached mirror state so we can avoid re-applying identical transactions every traversal. */
     private static final class MirrorState {
@@ -188,27 +217,50 @@ final class DualStackController {
         mWm = wm;
         reloadProperties();
 
-        // Ensure dual-stack state is re-applied across sleep/wake. Without this, we can end up
-        // with the dual-stack app still running but not re-projected until a UI gesture causes
-        // a traversal/focus change (for example swiping for taskbar).
+        mWakeReapplyRunnable = () -> {
+            synchronized (mWm.mGlobalLock) {
+                WindowManagerService.boostPriorityForLockedSection();
+                try {
+                    if (!mEnabled) return;
+                    final DisplayContent dc = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
+                    if (dc != null) maybeApplyDisplayProjectionsLocked(dc);
+                } finally {
+                    WindowManagerService.resetPriorityAfterLockedSection();
+                }
+            }
+        };
+
+        // Re-apply dual-stack state after sleep/wake, but only once the user has unlocked.
+        // Some GL apps (including DraStic) are sensitive to rapid pause/resume/config churn.
         final IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_SCREEN_ON);
+        filter.addAction(ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_USER_PRESENT);
         wm.mContext.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // Re-run dual-stack projection logic shortly after screen-on/unlock.
-                mWm.mH.post(() -> {
-                    synchronized (mWm.mGlobalLock) {
-                        WindowManagerService.boostPriorityForLockedSection();
-                        try {
-                            final DisplayContent dc = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
-                            if (dc != null) maybeApplyDisplayProjectionsLocked(dc);
-                        } finally {
-                            WindowManagerService.resetPriorityAfterLockedSection();
-                        }
-                    }
-                });
+                final String action = (intent != null) ? intent.getAction() : null;
+                final long now = SystemClock.uptimeMillis();
+                if (action == null) return;
+                if (ACTION_SCREEN_OFF.equals(action)) {
+                    mScreenInteractive = false;
+                    mWm.mH.removeCallbacks(mWakeReapplyRunnable);
+                    return;
+                }
+                if (ACTION_SCREEN_ON.equals(action)) {
+                    mScreenInteractive = true;
+                    mLastWakeUptimeMs = now;
+                    // Do not re-apply immediately on SCREEN_ON. WM/display reconfiguration is still
+                    // in-flight, and some apps crash when they receive rapid lifecycle/config churn.
+                    mWm.mH.removeCallbacks(mWakeReapplyRunnable);
+                    return;
+                }
+                if (Intent.ACTION_USER_PRESENT.equals(action)) {
+                    mScreenInteractive = true;
+                    mLastUserPresentUptimeMs = now;
+                    mWm.mH.removeCallbacks(mWakeReapplyRunnable);
+                    mWm.mH.postDelayed(mWakeReapplyRunnable, WAKE_REAPPLY_DELAY_MS);
+                }
             }
         }, filter);
 
@@ -240,6 +292,7 @@ final class DualStackController {
         final boolean enabled = SystemProperties.getBoolean(PROP_ENABLED, false);
         final boolean swap = SystemProperties.getBoolean(PROP_SWAP, false);
         final boolean killPkgs = SystemProperties.getBoolean(PROP_KILL_PKGS, false);
+        final boolean enforceFocus = SystemProperties.getBoolean(PROP_ENFORCE_FOCUS, false);
         final String raw = SystemProperties.get(PROP_PKGS, "");
 
         if (enabled != mLastPropEnabled) {
@@ -253,6 +306,10 @@ final class DualStackController {
         if (killPkgs != mLastPropKillPkgs) {
             mKillPackagesEnabled = killPkgs;
             mLastPropKillPkgs = killPkgs;
+        }
+        if (enforceFocus != mLastPropEnforceFocus) {
+            mEnforceFocus = enforceFocus;
+            mLastPropEnforceFocus = enforceFocus;
         }
 
         if (mLastPkgsRaw == null || !mLastPkgsRaw.equals(raw)) {
@@ -412,14 +469,28 @@ final class DualStackController {
         // exists, the system may relaunch secondary HOME immediately and steal focus back.
         createSurfacesIfNeeded(t, primary, secondary, top);
 
+        final long nowUptime = SystemClock.uptimeMillis();
+        final boolean wakeStabilizing = (mLastWakeUptimeMs > 0)
+                && (nowUptime - mLastWakeUptimeMs) < WAKE_STABILIZE_MS;
+
         // Performance: enforce "mirror-only" on secondary display to prevent any underlay
         // app rendering/composition cost on display-2 while dual-stack is active.
-        suppressSecondaryDisplayContentUnderMirror(t, secondary, top.packageName);
+        if (mScreenInteractive && !wakeStabilizing) {
+            suppressSecondaryDisplayContentUnderMirror(t, secondary, top.packageName);
+        }
 
         // Critical for controller focus: keep the top-focused display on DEFAULT_DISPLAY while
-        // dual-stack is active. Also explicitly re-focus the dual-stack activity if needed.
-        ensurePrimaryDisplayFocus(topTask);
-        ensureTopActivityFocused(top);
+        // dual-stack is active. Some apps are sensitive to focus churn on wake; keep this off by
+        // default and only enable if you need controller/input stability fixes.
+        final boolean shouldEnforceFocus = mEnforceFocus && mScreenInteractive && !wakeStabilizing;
+        if (shouldEnforceFocus) {
+            final long nowFocusUptime = nowUptime;
+            if (nowFocusUptime - mLastFocusEnforceUptimeMs >= FOCUS_ENFORCE_MIN_INTERVAL_MS) {
+                mLastFocusEnforceUptimeMs = nowFocusUptime;
+                ensurePrimaryDisplayFocus(topTask);
+                ensureTopActivityFocused(top);
+            }
+        }
 
         // Track the currently top-resumed ActivityRecord for logging / debugging.
         mActiveActivity = top;
@@ -456,16 +527,24 @@ final class DualStackController {
      */
     private void ensurePrimaryDisplayFocus(Task topTask) {
         if (topTask == null) return;
+        // Let RetroArch clean-quit temporarily take focus.
+        if (SystemClock.uptimeMillis() < mSuppressDualStackFocusUntilUptimeMs) {
+            return;
+        }
         final DisplayContent topFocused = mWm.mRoot.getTopFocusedDisplayContent();
         if (topFocused == null) return;
         if (topFocused.getDisplayId() == DEFAULT_DISPLAY) return;
-        try {
-            // Direct call into ATMS (same process). This also reasserts focus/input routing.
-            mWm.mAtmService.moveTaskToFront(
-                    (IApplicationThread) null, "android", topTask.mTaskId, 0 /* flags */, null);
-        } catch (Throwable e) {
-            Slog.w(TAG, "DualStack failed to re-focus primary display task=" + topTask.mTaskId, e);
-        }
+        final int taskId = topTask.mTaskId;
+        // Do NOT call into ATMS synchronously from this path. Post to handler to avoid
+        // lock/transition churn during wake and activity swaps.
+        mWm.mH.post(() -> {
+            try {
+                mWm.mAtmService.moveTaskToFront(
+                        (IApplicationThread) null, "android", taskId, 0 /* flags */, null);
+            } catch (Throwable e) {
+                Slog.w(TAG, "DualStack failed to re-focus primary display task=" + taskId, e);
+            }
+        });
     }
  
     /**
@@ -477,6 +556,10 @@ final class DualStackController {
      */
     private void ensureTopActivityFocused(ActivityRecord top) {
         if (top == null) return;
+        // Let RetroArch clean-quit temporarily take focus.
+        if (SystemClock.uptimeMillis() < mSuppressDualStackFocusUntilUptimeMs) {
+            return;
+        }
         try {
             // Re-assert focus by moving the task to front again. This is intentionally cheap
             // and guarded by the top-focused display check in ensurePrimaryDisplayFocus().
@@ -485,8 +568,14 @@ final class DualStackController {
             final DisplayContent topFocused = mWm.mRoot.getTopFocusedDisplayContent();
             if (topFocused == null) return;
             if (topFocused.getDisplayId() != DEFAULT_DISPLAY) {
-                mWm.mAtmService.moveTaskToFront(
-                        (IApplicationThread) null, "android", task.mTaskId, 0 /* flags */, null);
+                final int taskId = task.mTaskId;
+                mWm.mH.post(() -> {
+                    try {
+                        mWm.mAtmService.moveTaskToFront(
+                                (IApplicationThread) null, "android", taskId, 0 /* flags */, null);
+                    } catch (Throwable ignored) {
+                    }
+                });
             }
         } catch (Throwable ignored) {
         }
@@ -495,6 +584,12 @@ final class DualStackController {
     private void suppressSecondaryDisplayContentUnderMirror(Transaction t, DisplayContent secondary,
             String dualStackPackage) {
         if (t == null || secondary == null) return;
+ 
+        // If RetroArch is alive on display-2, do NOT kill/remove it from here.
+        // That would bypass the clean quit path and make it look like RetroArch is “killed
+        // immediately” during DualStack transitions. Instead, request a clean quit and let
+        // killAllAppsExcept() handle any eventual force-stop if it does not exit.
+        final long nowUptime = SystemClock.uptimeMillis();
 
         // Hide all secondary windowing content so nothing underneath the mirror is composited.
         final SurfaceControl secondaryWindowingLayer = secondary.getWindowingLayer();
@@ -525,6 +620,14 @@ final class DualStackController {
             if (pkg == null || pkg.isEmpty()) return;
             // Defensive: never purge the active dual-stack package (it should not be on display-2).
             if (dualStackPackage != null && dualStackPackage.equals(pkg)) return;
+
+            // RetroArch special-case: prefer clean quit over kill/remove from display-2.
+            if (pkg.startsWith("com.retroarch")
+                    && SystemProperties.getBoolean(PROP_LAUNCH_GUARD_ENABLED, false)) {
+                maybeRequestRetroarchCleanQuitLocked(pkg, nowUptime);
+                return;
+            }
+
             mTmpSecondaryTasksToRemove.add(task);
             // IMPORTANT: do not kill the Launcher3 process. Killing it will also kill the
             // taskbar on DEFAULT_DISPLAY. We only want to remove the secondary-display HOME task.
@@ -544,6 +647,35 @@ final class DualStackController {
                 Slog.w(TAG, "DualStack failed purging secondary taskId=" + task.mTaskId, e);
             }
         }
+    }
+ 
+    private void maybeRequestRetroarchCleanQuitLocked(String pkg, long nowUptime) {
+        if (pkg == null || !pkg.startsWith("com.retroarch")) return;
+        if (nowUptime - mLastRetroarchQuitAttemptUptimeMs < RETROARCH_QUIT_MIN_INTERVAL_MS) {
+            return;
+        }
+        mLastRetroarchQuitAttemptUptimeMs = nowUptime;
+        // Suppress our focus reassertion briefly so RetroArch can actually take focus and
+        // receive the ESC injection.
+        mSuppressDualStackFocusUntilUptimeMs = nowUptime + RETROARCH_FOCUS_SUPPRESS_MS;
+
+        // Run the quit attempt off-lock on the handler thread.
+        final String targetPkg = pkg;
+        final int userId = mWm.mCurrentUserId;
+        mWm.mH.post(() -> {
+            try {
+                final ActivityManager am =
+                        (ActivityManager) mWm.mContext.getSystemService(Context.ACTIVITY_SERVICE);
+                if (am == null) return;
+                final boolean needsForceStop = requestRetroarchCleanQuit(targetPkg, userId, am);
+                if (!needsForceStop) {
+                    Slog.i(TAG, "DualStack RetroArch clean quit succeeded (secondary): " + targetPkg);
+                } else {
+                    Slog.i(TAG, "DualStack RetroArch clean quit timed out (secondary): " + targetPkg);
+                }
+            } catch (Throwable ignored) {
+            }
+        });
     }
 
     private void setRuntimeDualStackActive(boolean active) {
@@ -1307,6 +1439,11 @@ final class DualStackController {
 
         if (retroTaskId != -1) {
             try {
+                // Suppress DualStack focus enforcement briefly so RetroArch can be focused and
+                // receive the ESC injection. Without this, DualStack may immediately steal focus
+                // back and RetroArch will be force-stopped instead of exiting cleanly.
+                mSuppressDualStackFocusUntilUptimeMs =
+                        SystemClock.uptimeMillis() + RETROARCH_FOCUS_SUPPRESS_MS;
                 // Direct call into ATMS (same process). Use a stable callingPackage.
                 mWm.mAtmService.moveTaskToFront(
                         (IApplicationThread) null, "android", retroTaskId, 0 /* flags */, null);

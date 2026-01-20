@@ -157,6 +157,12 @@ public:
         // only has a value if there's something needing it, like when a TrustedPresentationListener
         // is set
         std::optional<Region> aboveCoveredLayersExcludingOverlays;
+
+        // GammaOS DualStack: optional composition optimizations.
+        // When enabled, we can restrict composition to a single SurfaceView layer
+        // for the foreground DualStack app to avoid extra RGBA overlays (e.g., VRI).
+        bool gammaDualStackSurfaceViewOnly{false};
+        std::optional<std::string> gammaDualStackTargetPackage;
     };
 
     virtual ~Output();

@@ -181,6 +181,10 @@ public final class PowerManagerService extends SystemService
     private static final boolean DEBUG_SPEW = DEBUG && true;
 
     private static final String GAMMA_PROP_WAKE_GESTURE = "persist.gammaos.wake_reason_gesture";
+    private static final String GAMMA_PROP_ULTRA_LOW_POWER_SAVING_MODE =
+            "persist.gammaos.ultra_low_power_saving_mode";
+    private static final String GAMMA_PROP_FREEZE_EXCLUDE_PACKAGES =
+            "persist.gammaos.ultra_low_power_saving_freeze_exclude_packages";
 
     // Message: Sent when a user activity timeout occurs to update the power state.
     private static final int MSG_USER_ACTIVITY_TIMEOUT = 1;
@@ -2358,11 +2362,30 @@ public final class PowerManagerService extends SystemService
     }
 
     private boolean isUltraPowerSaveEnabled() {
-        return SystemProperties.getBoolean("persist.gammaos.ultra_low_power_saving_mode", false);
+        return SystemProperties.getBoolean(GAMMA_PROP_ULTRA_LOW_POWER_SAVING_MODE, false);
     }
 
     private boolean shouldExcludeFreeze(int uid, String[] packages) {
         if (packages != null) {
+            // Allow explicit package exclusions via:
+            //   persist.gammaos.ultra_low_power_saving_freeze_exclude_packages
+            // Comma-separated list of package names, for example:
+            //   com.dsemu.drastic,com.retroarch
+            final String rawExcludeList =
+                    SystemProperties.get(GAMMA_PROP_FREEZE_EXCLUDE_PACKAGES, "");
+            if (!rawExcludeList.isEmpty()) {
+                final String[] excludes = rawExcludeList.split(",");
+                for (String pkg : packages) {
+                    for (String ex : excludes) {
+                        if (ex == null) continue;
+                        ex = ex.trim();
+                        if (ex.isEmpty()) continue;
+                        if (pkg.equals(ex)) {
+                            return true;
+                        }
+                    }
+                }
+            }
             for (String pkg : packages) {
                 if (pkg.startsWith("com.android") || pkg.startsWith("org.lineageos")) {
                     return true;

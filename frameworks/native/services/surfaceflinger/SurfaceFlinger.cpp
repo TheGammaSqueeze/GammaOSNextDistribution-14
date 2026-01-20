@@ -532,6 +532,24 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipI
     useHwcForRgbToYuv = force_hwc_copy_for_virtual_displays(false);
 
     maxFrameBufferAcquiredBuffers = max_frame_buffer_acquired_buffers(2);
+
+    // GammaOS DualStack: add buffer slack to reduce producer dequeue stalls.
+    // When DualStack mirroring is active, the producer (SurfaceView/BLAST) can end up blocked in
+    // dequeueBuffer if the consumer side becomes too latency sensitive. Increasing the framebuffer
+    // acquired-buffer budget reduces backpressure reaching the app.
+    const bool gammaDualStackEnabled =
+            base::GetBoolProperty("persist.gammaos.dualstack.enabled"s, false);
+    if (gammaDualStackEnabled) {
+        int64_t req = base::GetIntProperty<int64_t>(
+                "persist.gammaos.dualstack.sf.max_fb_acquired_buffers"s, 3);
+        if (req < 2) req = 2;
+        if (req > 6) req = 6;
+        if (req > maxFrameBufferAcquiredBuffers) {
+            ALOGI("GammaOS DualStack: maxFrameBufferAcquiredBuffers %lld -> %lld",
+                  (long long)maxFrameBufferAcquiredBuffers, (long long)req);
+            maxFrameBufferAcquiredBuffers = req;
+        }
+    }
     minAcquiredBuffers =
             SurfaceFlingerProperties::min_acquired_buffers().value_or(minAcquiredBuffers);
 
@@ -568,6 +586,14 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipI
     mDebugFlashDelay = base::GetUintProperty("debug.sf.showupdates"s, 0u);
 
     mBackpressureGpuComposition = base::GetBoolProperty("debug.sf.enable_gl_backpressure"s, true);
+
+    // GammaOS DualStack: backpressure tends to amplify BufferQueue stalls seen as
+    // DequeueBufferDuration spikes in apps. Allow disabling it when DualStack is active.
+    if (gammaDualStackEnabled &&
+        base::GetBoolProperty("persist.gammaos.dualstack.sf.disable_gl_backpressure"s, true)) {
+        mBackpressureGpuComposition = false;
+        ALOGI("GammaOS DualStack: disabling GL backpressure");
+    }
     ALOGI_IF(mBackpressureGpuComposition, "Enabling backpressure for GPU composition");
 
     property_get("ro.surface_flinger.supports_background_blur", value, "1");

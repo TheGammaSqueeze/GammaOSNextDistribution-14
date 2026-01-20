@@ -40,7 +40,11 @@
 #include <cutils/properties.h>
 
 #include <android-base/thread_annotations.h>
+#include <android-base/properties.h>
 #include <chrono>
+#include <algorithm>
+#include <mutex>
+#include <unordered_map>
 
 #include <com_android_graphics_libgui_flags.h>
 
@@ -59,6 +63,88 @@ namespace {
 inline const char* boolToString(bool b) {
     return b ? "true" : "false";
 }
+
+// Returns true when we should apply DualStack-specific BLAST/SurfaceView queue tuning.
+// These knobs are intended to prevent a producer from falling into a paced/blocked
+// steady state by increasing queue slack and (optionally) enabling async mode.
+//
+// Properties:
+//   persist.gammaos.dualstack.enabled (bool)
+//   persist.gammaos.dualstack.blast.tune (bool, default true)
+//   persist.gammaos.dualstack.blast.async (bool, default true)
+//   persist.gammaos.dualstack.blast.max_dequeued (int, default 4)
+//   persist.gammaos.dualstack.blast.max_acquired (int, default 3)
+static inline int gammaClampInt(int v, int lo, int hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+}
+
+static inline bool gammaDualStackEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.enabled", false);
+}
+
+static inline bool gammaBlastTuneEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.blast.tune", true);
+}
+
+static inline bool gammaBlastAsyncEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.blast.async", true);
+}
+
+static inline bool gammaLooksLikeSurfaceViewBlast(const std::string& name) {
+    // BLAST queues are used by multiple subsystems (e.g., wallpapers, sysui).
+    // We scope aggressively to SurfaceView to reduce blast radius.
+    return name.find("SurfaceView[") != std::string::npos;
+}
+
+static inline bool gammaLooksSensitiveBlastQueue(const std::string& name) {
+    // Avoid touching security/auth overlays.
+    return name.find("Udfps") != std::string::npos;
+}
+
+static inline bool gammaShouldTuneBlastQueue(const std::string& name) {
+    return gammaDualStackEnabled() && gammaBlastTuneEnabled() &&
+            gammaLooksLikeSurfaceViewBlast(name) && !gammaLooksSensitiveBlastQueue(name);
+}
+ 
+// Defer applying "async mode" and "max dequeued" until Producer::connect() succeeds.
+// Rationale:
+//  - On this tree/device, calling BufferQueueProducer::setAsyncMode() during BLASTBufferQueue
+//    construction can trip FORTIFY (pthread_mutex_lock on destroyed mutex).
+//  - Applying after connect() avoids the crash while keeping the tuning behavior.
+struct GammaBlastDeferredCfg {
+    int maxDequeued = 0;
+    bool asyncEnabled = false;
+};
+
+static std::mutex gGammaBlastMu;
+static std::unordered_map<void*, GammaBlastDeferredCfg> gGammaBlastDeferred;
+
+static inline void gammaBlastStoreDeferred(void* key, int maxDequeued, bool asyncEnabled) {
+    std::lock_guard<std::mutex> lk(gGammaBlastMu);
+    gGammaBlastDeferred[key] = GammaBlastDeferredCfg{
+            .maxDequeued = maxDequeued,
+            .asyncEnabled = asyncEnabled,
+    };
+}
+
+static inline bool gammaBlastConsumeDeferred(void* key, GammaBlastDeferredCfg* out) {
+    if (!out) return false;
+    std::lock_guard<std::mutex> lk(gGammaBlastMu);
+    auto it = gGammaBlastDeferred.find(key);
+    if (it == gGammaBlastDeferred.end()) return false;
+    *out = it->second;
+    gGammaBlastDeferred.erase(it);
+    return true;
+}
+
+static inline void gammaBlastClearDeferred(void* key) {
+    std::lock_guard<std::mutex> lk(gGammaBlastMu);
+    gGammaBlastDeferred.erase(key);
+}
+
+
 } // namespace
 
 namespace android {
@@ -183,13 +269,26 @@ BLASTBufferQueue::BLASTBufferQueue(const std::string& name, bool updateDestinati
         mTransactionReadyCallback(nullptr),
         mSyncTransaction(nullptr),
         mUpdateDestinationFrame(updateDestinationFrame) {
+    const bool gammaTune = gammaShouldTuneBlastQueue(name);
+    const int gammaMaxDequeued = gammaTune
+            ? gammaClampInt(android::base::GetIntProperty<int>(
+                                    "persist.gammaos.dualstack.blast.max_dequeued", 4),
+                            /*lo*/ 2, /*hi*/ 8)
+            : 2;
+    const int gammaMaxAcquiredOverride = gammaTune
+            ? gammaClampInt(android::base::GetIntProperty<int>(
+                                    "persist.gammaos.dualstack.blast.max_acquired", 3),
+                            /*lo*/ 1, /*hi*/ 8)
+            : 1;
+
+    // Store desired tuning to be applied post-connect (see gammaBlastConsumeDeferred()).
+    gammaBlastStoreDeferred(this, gammaMaxDequeued, gammaTune && gammaBlastAsyncEnabled());
+
     createBufferQueue(&mProducer, &mConsumer);
     // since the adapter is in the client process, set dequeue timeout
     // explicitly so that dequeueBuffer will block
     mProducer->setDequeueTimeout(std::numeric_limits<int64_t>::max());
 
-    // safe default, most producers are expected to override this
-    mProducer->setMaxDequeuedBufferCount(2);
     uint64_t usage = GraphicBuffer::USAGE_HW_COMPOSER |
         GraphicBuffer::USAGE_HW_TEXTURE;
 
@@ -198,9 +297,8 @@ BLASTBufferQueue::BLASTBufferQueue(const std::string& name, bool updateDestinati
            usage |= 0x400000000LL;
     }
 
-    mBufferItemConsumer = new BLASTBufferItemConsumer(mConsumer,
-            usage,
-                                                      1, false, this);
+    mBufferItemConsumer = new BLASTBufferItemConsumer(mConsumer, usage, gammaMaxAcquiredOverride,
+                                                      false, this);
     static std::atomic<uint32_t> nextId = 0;
     mProducerId = nextId++;
     mName = name + "#" + std::to_string(mProducerId);
@@ -209,7 +307,16 @@ BLASTBufferQueue::BLASTBufferQueue(const std::string& name, bool updateDestinati
     mBufferItemConsumer->setName(String8(consumerName.c_str()));
     mBufferItemConsumer->setFrameAvailableListener(this);
 
-    ComposerServiceAIDL::getComposerService()->getMaxAcquiredBufferCount(&mMaxAcquiredBuffers);
+    if (gammaTune) {
+        // Keep comparisons in signed domain to avoid -Wsign-compare regardless of the
+        // exact type of mMaxAcquiredBuffers in this branch/tree.
+        const int gammaMaxAcquiredI = std::max(0, gammaMaxAcquiredOverride);
+        const int currentMaxAcquiredI = static_cast<int>(mMaxAcquiredBuffers);
+        if (gammaMaxAcquiredI > currentMaxAcquiredI) {
+            // Only ever increase; do not reduce the system-provided value.
+            mMaxAcquiredBuffers = static_cast<decltype(mMaxAcquiredBuffers)>(gammaMaxAcquiredI);
+        }
+    }
     mBufferItemConsumer->setMaxAcquiredBufferCount(mMaxAcquiredBuffers);
     mCurrentMaxAcquiredBufferCount = mMaxAcquiredBuffers;
     mNumAcquired = 0;
@@ -236,6 +343,7 @@ BLASTBufferQueue::BLASTBufferQueue(const std::string& name, const sp<SurfaceCont
 }
 
 BLASTBufferQueue::~BLASTBufferQueue() {
+    gammaBlastClearDeferred(this);
     TransactionCompletedListener::getInstance()->removeQueueStallListener(this);
     if (mPendingTransactions.empty()) {
         return;
@@ -778,6 +886,19 @@ void BLASTBufferQueue::onFrameAvailable(const BufferItem& item) {
 
         // add to shadow queue
         mNumFrameAvailable++;
+
+        // GammaOS DualStack: keep only the newest queued frame for SurfaceView BLAST queues.
+        // This targets producer stalls observed as large QueueBufferDuration spikes by draining
+        // older frames when the consumer falls behind.
+        //
+        // Tradeoff: intermediate frames may be dropped, prioritizing cadence and low overhead.
+        const bool gammaTuneRuntime = gammaShouldTuneBlastQueue(mName);
+        if (gammaTuneRuntime) {
+            while (mNumFrameAvailable > 1) {
+                acquireAndReleaseBuffer();
+            }
+        }
+
         if (waitForTransactionCallback && mNumFrameAvailable >= 2) {
             acquireAndReleaseBuffer();
         }
@@ -1124,12 +1245,32 @@ public:
 
     status_t connect(const sp<IProducerListener>& listener, int api, bool producerControlledByApp,
                      QueueBufferOutput* output) override {
-        if (!listener) {
-            return BufferQueueProducer::connect(listener, api, producerControlledByApp, output);
+
+        status_t res = OK;
+        if (listener) {
+            res = BufferQueueProducer::connect(new AsyncProducerListener(listener), api,
+                                               producerControlledByApp, output);
+        } else {
+            res = BufferQueueProducer::connect(listener, api, producerControlledByApp, output);
         }
 
-        return BufferQueueProducer::connect(new AsyncProducerListener(listener), api,
-                                            producerControlledByApp, output);
+        if (res != OK) return res;
+
+        // Apply deferred GammaOS tuning now that the producer is connected.
+        // This avoids crashing in BufferQueueProducer::setAsyncMode() during BLASTBufferQueue ctor.
+        GammaBlastDeferredCfg cfg;
+        if (gammaBlastConsumeDeferred(mBLASTBufferQueue.promote().get(), &cfg)) {
+            if (cfg.maxDequeued > 0) {
+                // Use our override (resizes frame history) so behavior matches normal code paths.
+                (void)setMaxDequeuedBufferCount(cfg.maxDequeued);
+            }
+            if (cfg.asyncEnabled) {
+                // Prefer dropping stale frames over blocking the producer.
+                (void)BufferQueueProducer::setAsyncMode(true);
+            }
+        }
+
+        return res;
     }
 
     // We want to resize the frame history when changing the size of the buffer queue

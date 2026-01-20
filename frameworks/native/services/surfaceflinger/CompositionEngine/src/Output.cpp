@@ -16,6 +16,7 @@
 
 #include <SurfaceFlingerProperties.sysprop.h>
 #include <android-base/stringprintf.h>
+#include <android-base/strings.h>
 #include <compositionengine/CompositionEngine.h>
 #include <compositionengine/CompositionRefreshArgs.h>
 #include <compositionengine/DisplayColorProfile.h>
@@ -35,6 +36,7 @@
 #include <scheduler/Time.h>
 
 #include <optional>
+#include <cctype>
 #include <thread>
 
 #include "renderengine/ExternalTexture.h"
@@ -124,6 +126,99 @@ inline bool isLikelySystemUiShadeName(const char* n) {
         || contains("Shade")
         || contains("StatusBar");
 }
+
+inline bool gammaDualStackKeepSystemUiEnabled() {
+    // Keep SystemUI visible even when SurfaceView-only composition is enabled.
+    // Default true to avoid regressions like “no system UI in DraStic”.
+    return android::base::GetBoolProperty(
+            "persist.gammaos.dualstack.sf.surfaceview_only.keep_systemui", true);
+}
+
+inline bool gammaIsLikelySystemUiOverlayName(const char* n) {
+    if (!n) return false;
+    // Covers StatusBar, NotificationShade, Taskbar, and common SystemUI overlays.
+    const std::string s(n);
+    return s.find("StatusBar") != std::string::npos ||
+           s.find("NotificationShade") != std::string::npos ||
+           s.find("Taskbar") != std::string::npos ||
+           s.find("NavigationBar") != std::string::npos ||
+           s.find("ScreenDecor") != std::string::npos;
+}
+
+// -------- GammaOS: DualStack SurfaceView-only composition ---------------
+// When DualStack is active, some apps render a full-screen RGBA UI buffer (VRI)
+// in addition to the main SurfaceView. On low powered GPUs this extra layer can
+// drop the frame rate significantly, especially when forcing client composition.
+//
+// Gate:
+//  - persist.gammaos.dualstack.enabled (existing DualStack enable)
+//  - persist.gammaos.dualstack.sf.surfaceview_only (default: true)
+//
+// Optional allowlist:
+//  - persist.gammaos.dualstack.pkgs (comma-separated). If empty, apply to any
+//    app that matches the SurfaceView heuristic.
+inline bool gammaDualStackEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.enabled", false);
+}
+
+inline bool gammaDualStackSurfaceViewOnlyEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.sf.surfaceview_only", true);
+}
+ 
+static inline void gammaTrimInPlace(std::string& s) {
+    size_t start = 0;
+    while (start < s.size() && std::isspace(static_cast<unsigned char>(s[start]))) start++;
+    size_t end = s.size();
+    while (end > start && std::isspace(static_cast<unsigned char>(s[end - 1]))) end--;
+    if (start == 0 && end == s.size()) return;
+    s = s.substr(start, end - start);
+}
+
+inline std::vector<std::string> gammaDualStackPkgAllowlist() {
+    const std::string raw = android::base::GetProperty("persist.gammaos.dualstack.pkgs", "");
+    if (raw.empty()) return {};
+    std::vector<std::string> out;
+    // Avoid android::base::Split/Trim template differences across trees.
+    size_t i = 0;
+    while (i <= raw.size()) {
+        const size_t j = raw.find(',', i);
+        const size_t len = (j == std::string::npos) ? (raw.size() - i) : (j - i);
+        std::string s = raw.substr(i, len);
+        gammaTrimInPlace(s);
+        if (!s.empty()) out.push_back(std::move(s));
+        if (j == std::string::npos) break;
+        i = j + 1;
+    }
+    return out;
+}
+
+inline bool gammaDualStackPkgAllowed(const std::string& pkg) {
+    const auto allow = gammaDualStackPkgAllowlist();
+    if (allow.empty()) return true;
+    for (const auto& a : allow) {
+        if (a == pkg) return true;
+    }
+    return false;
+}
+
+inline bool gammaIsSurfaceViewBlastName(const char* n) {
+    if (!n) return false;
+    return std::strstr(n, "SurfaceView[") != nullptr && std::strstr(n, "(BLAST)") != nullptr;
+}
+
+inline bool gammaExtractSurfaceViewPackage(const char* n, std::string& outPkg) {
+    outPkg.clear();
+    if (!gammaIsSurfaceViewBlastName(n)) return false;
+    const char* s = std::strstr(n, "SurfaceView[");
+    if (!s) return false;
+    s += std::strlen("SurfaceView[");
+    const char* e = std::strchr(s, '/');
+    if (!e) e = std::strchr(s, ']');
+    if (!e || e <= s) return false;
+    outPkg.assign(s, static_cast<size_t>(e - s));
+    return !outPkg.empty();
+}
+
 // -----------------------------------------------------------------------
 
 } // namespace
@@ -307,8 +402,8 @@ void Output::setColorProfile(const ColorProfile& colorProfile) {
     mRenderSurface->setBufferDataspace(colorProfile.dataspace);
 
     ALOGV("Set active color mode: %s (%d), active render intent: %s (%d)",
-          decodeColorMode(colorProfile.mode).c_str(), colorProfile.mode,
-          decodeRenderIntent(colorProfile.renderIntent).c_str(), colorProfile.renderIntent);
+          decodeColorMode(colorProfile.mode).c_str(), static_cast<int>(colorProfile.mode),
+          decodeRenderIntent(colorProfile.renderIntent).c_str(), static_cast<int>(colorProfile.renderIntent));
 
     dirtyEntireOutput();
 }
@@ -562,6 +657,27 @@ void Output::rebuildLayerStacks(const compositionengine::CompositionRefreshArgs&
 
 void Output::collectVisibleLayers(const compositionengine::CompositionRefreshArgs& refreshArgs,
                                   compositionengine::Output::CoverageState& coverage) {
+    // GammaOS DualStack: optionally restrict composition to a single SurfaceView layer
+    // for the foreground DualStack app. This avoids expensive full-screen RGBA overlays
+    // (e.g., VRI) being blended every frame.
+    if (CC_UNLIKELY(gammaDualStackEnabled() && gammaDualStackSurfaceViewOnlyEnabled() &&
+                    getState().layerFilter.toInternalDisplay)) {
+        std::optional<std::string> targetPkg;
+        std::string pkg;
+        for (auto& layer : refreshArgs.layers) {
+            if (!includesLayer(layer)) continue;
+            const char* name = layer->getDebugName();
+            if (gammaExtractSurfaceViewPackage(name, pkg) && gammaDualStackPkgAllowed(pkg)) {
+                targetPkg = pkg;
+                break;
+            }
+        }
+        if (targetPkg) {
+            coverage.gammaDualStackSurfaceViewOnly = true;
+            coverage.gammaDualStackTargetPackage = *targetPkg;
+        }
+    }
+
     // Evaluate the layers from front to back to determine what is visible. This
     // also incrementally calculates the coverage information for each layer as
     // well as the entire output.
@@ -602,7 +718,31 @@ void Output::ensureOutputLayerIfVisible(sp<compositionengine::LayerFE>& layerFE,
     if (CC_UNLIKELY(!layerFEState->isVisible)) {
         return;
     }
+ 
+    // GammaOS DualStack: SurfaceView-only composition mode.
+    // If enabled and we have identified a target SurfaceView package for this output,
+    // drop all other layers to reduce composition cost.
+    if (CC_UNLIKELY(coverage.gammaDualStackSurfaceViewOnly)) {
+        const char* dbgName = layerFE->getDebugName();
+        const bool isSurfaceView = gammaIsSurfaceViewBlastName(dbgName);
 
+        if (!isSurfaceView) {
+            // Allow SystemUI overlays if requested.
+            if (!(gammaDualStackKeepSystemUiEnabled() &&
+                  gammaIsLikelySystemUiOverlayName(dbgName))) {
+                return;
+            }
+            // Important: do NOT apply target-package matching to SystemUI overlays.
+        } else if (coverage.gammaDualStackTargetPackage) {
+            std::string pkg;
+            if (!gammaExtractSurfaceViewPackage(dbgName, pkg) ||
+                pkg != *coverage.gammaDualStackTargetPackage) {
+                return;
+            }
+        }
+    }
+
+    
     // GammaOS: If this layer is the SystemUI shade and our gate is enabled,
     // treat it as *non-opaque for coverage purposes* so we never cull the
     // underlay (e.g., RetroArch) when the shade is expanded.

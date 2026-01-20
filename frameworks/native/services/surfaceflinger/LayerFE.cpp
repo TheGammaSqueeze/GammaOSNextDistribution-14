@@ -24,6 +24,7 @@
 #include <math/vec3.h>
 #include <system/window.h>
 #include <utils/Log.h>
+#include <android-base/properties.h>
 
 #include "LayerFE.h"
 #include "SurfaceFlinger.h"
@@ -32,6 +33,18 @@ namespace android {
 
 namespace {
 constexpr float defaultMaxLuminance = 1000.0;
+ 
+// GammaOS DualStack: allow forcing nearest-neighbor sampling during client composition.
+// Gate:
+//  - persist.gammaos.dualstack.enabled
+//  - persist.gammaos.dualstack.sf.nearest_neighbor (default: true)
+inline bool gammaDualStackEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.enabled", false);
+}
+
+inline bool gammaDualStackNearestNeighborEnabled() {
+    return android::base::GetBoolProperty("persist.gammaos.dualstack.sf.nearest_neighbor", true);
+}
 
 constexpr mat4 inverseOrientation(uint32_t transform) {
     const mat4 flipH(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1);
@@ -253,8 +266,14 @@ void LayerFE::prepareBufferStateClientComposition(
     layerSettings.frameNumber = mSnapshot->frameNumber;
     layerSettings.bufferId = mSnapshot->externalTexture->getId();
 
-    const bool useFiltering = targetSettings.needsFiltering ||
-                              mSnapshot->geomLayerTransform.needsBilinearFiltering();
+    bool useFiltering = targetSettings.needsFiltering ||
+                        mSnapshot->geomLayerTransform.needsBilinearFiltering();
+
+    // GammaOS DualStack: prefer nearest-neighbor sampling to avoid bilinear filtering
+    // and reduce overhead on low powered GPUs during DualStack mirroring.
+    if (CC_UNLIKELY(gammaDualStackEnabled() && gammaDualStackNearestNeighborEnabled())) {
+        useFiltering = false;
+    }
 
     // Query the texture matrix given our current filtering mode.
     float textureMatrix[16];
