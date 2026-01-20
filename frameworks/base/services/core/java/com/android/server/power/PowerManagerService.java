@@ -2366,7 +2366,12 @@ public final class PowerManagerService extends SystemService
     }
 
     private boolean shouldExcludeFreeze(int uid, String[] packages) {
-        if (packages != null) {
+        // If we cannot reliably map a UID to packages, err on the side of safety and do not freeze.
+        // This avoids freezing isolated or ephemeral UIDs where getPackagesForUid() may be null.
+        if (packages == null || packages.length == 0) {
+            return true;
+        }
+        {
             // Allow explicit package exclusions via:
             //   persist.gammaos.ultra_low_power_saving_freeze_exclude_packages
             // Comma-separated list of package names, for example:
@@ -2394,6 +2399,27 @@ public final class PowerManagerService extends SystemService
         }
         return false;
     }
+ 
+    // Best-effort: avoid freezing processes that are still in the foreground/visible.
+    // Ultra-low-power mode is typically engaged around sleep/doze, but lifecycle and
+    // surface teardown may still be in-flight. Skipping foreground/visible UIDs reduces
+    // the risk of freezing apps mid-transition.
+    private boolean isUidForegroundOrVisible(int uid) {
+        final ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) return false;
+        final List<ActivityManager.RunningAppProcessInfo> procs = am.getRunningAppProcesses();
+        if (procs == null) return false;
+        for (int i = 0; i < procs.size(); i++) {
+            final ActivityManager.RunningAppProcessInfo p = procs.get(i);
+            if (p == null) continue;
+            if (p.uid != uid) continue;
+            final int imp = p.importance;
+            if (imp <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // Freeze all non-system apps by writing "1" to their cgroup.freeze file
     private void freezeNonSystemApps() {
@@ -2411,6 +2437,11 @@ public final class PowerManagerService extends SystemService
             if (uid >= 10000) {
                 String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
                 String pkgInfo = (packages != null) ? Arrays.toString(packages) : "unknown";
+                if (isUidForegroundOrVisible(uid)) {
+                    Slog.i(TAG, "Skipping freeze for foreground/visible UID: " + uid
+                            + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
+                    continue;
+                }
                 if (shouldExcludeFreeze(uid, packages)) {
                     Slog.i(TAG, "Excluding UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
                     continue;
@@ -2448,10 +2479,8 @@ public final class PowerManagerService extends SystemService
             if (uid >= 10000) {
                 String[] packages = mContext.getPackageManager().getPackagesForUid(uid);
                 String pkgInfo = (packages != null) ? Arrays.toString(packages) : "unknown";
-                if (shouldExcludeFreeze(uid, packages)) {
-                    Slog.i(TAG, "Excluding unfreeze for UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
-                    continue;
-                }
+                // Do not skip unfreeze for excluded packages. Exclusions are intended to
+                // prevent freezing, not to keep a UID frozen if it was ever frozen erroneously.
                 Slog.i(TAG, "Unfreezing UID: " + uid + " (" + uidDir.getName() + "), Packages: " + pkgInfo);
                 File[] pidDirs = uidDir.listFiles(new FilenameFilter() {
                     @Override
@@ -2504,9 +2533,22 @@ public final class PowerManagerService extends SystemService
     private final Runnable mUltraPowerFreezeRunnable = new Runnable() {
         @Override
         public void run() {
-            if (isUltraPowerSaveEnabled()) {
-                freezeNonSystemApps();
+            if (!isUltraPowerSaveEnabled()) {
+                return;
             }
+            final int wakefulness;
+            synchronized (mLock) {
+                wakefulness = getGlobalWakefulnessLocked();
+            }
+            // Only freeze while the device is actually in a non-interactive sleep state.
+            // This avoids freezing during transient wake transitions where apps may be
+            // actively handling pause/resume and surface teardown.
+            if (wakefulness != WAKEFULNESS_ASLEEP
+                    && wakefulness != WAKEFULNESS_DOZING
+                    && wakefulness != WAKEFULNESS_DREAMING) {
+                return;
+            }
+            freezeNonSystemApps();
         }
     };
     private void scheduleUltraPowerFreeze() {

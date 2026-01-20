@@ -108,8 +108,19 @@ final class DualStackController {
  
     // Sleep/wake handling: defer re-projection until the device is fully interactive to avoid
     // racing WM/display reconfiguration and triggering fragile app pause/resume paths.
+    private static final String GAMMA_PROP_ULTRA_LOW_POWER_SAVING_MODE =
+            "persist.gammaos.ultra_low_power_saving_mode";
+
     private static final long WAKE_REAPPLY_DELAY_MS = 1000;
     private static final long WAKE_STABILIZE_MS = 2000;
+
+    // Ultra power mode tends to increase transition latency. Use a larger stabilization
+    // window so we do not introduce additional WM/config churn during wake.
+    private static final long WAKE_STABILIZE_ULTRA_POWER_MS = 8000;
+
+    // Deferred kill sweep retries (when killpackages is enabled).
+    private static final long DEFERRED_KILL_RETRY_MS = 500;
+    private static final long DEFERRED_KILL_MAX_WAIT_MS = 20000;
 
     // Which Task (not just Activity) is currently being dual-stacked on DEFAULT_DISPLAY.
     // DraStic bounces between multiple activities (DraSticActivity, DraSticEmuActivity,
@@ -164,6 +175,14 @@ final class DualStackController {
     private volatile long mLastWakeUptimeMs;
     private volatile long mLastUserPresentUptimeMs;
     private final Runnable mWakeReapplyRunnable;
+ 
+    // Deferred kill state (killpackages.enabled). We may defer the kill sweep until the
+    // device is stable and the user has unlocked to avoid churn during wake.
+    private int mDeferredKillTaskId = -1;
+    private String mDeferredKillPackage;
+    private int mDeferredKillUserId = -1;
+    private long mDeferredKillStartUptimeMs;
+    private final Runnable mDeferredKillRunnable;
 
     private static final long FOCUS_ENFORCE_MIN_INTERVAL_MS = 750;
     private volatile long mLastFocusEnforceUptimeMs;
@@ -229,6 +248,63 @@ final class DualStackController {
                 }
             }
         };
+ 
+        mDeferredKillRunnable = new Runnable() {
+            @Override
+            public void run() {
+                final long now = SystemClock.uptimeMillis();
+                if (mDeferredKillTaskId < 0 || mDeferredKillPackage == null) {
+                    clearDeferredKillState();
+                    return;
+                }
+                if (mDeferredKillStartUptimeMs > 0
+                        && (now - mDeferredKillStartUptimeMs) > DEFERRED_KILL_MAX_WAIT_MS) {
+                    Slog.w(TAG, "Deferred DualStack kill timed out; skipping");
+                    clearDeferredKillState();
+                    return;
+                }
+                if (shouldDeferHeavyOps(now)) {
+                    mWm.mH.postDelayed(this, DEFERRED_KILL_RETRY_MS);
+                    return;
+                }
+
+                // Verify the session is still the same before killing based on cached state.
+                synchronized (mWm.mGlobalLock) {
+                    WindowManagerService.boostPriorityForLockedSection();
+                    try {
+                        if (!mEnabled || !mKillPackagesEnabled) {
+                            clearDeferredKillState();
+                            return;
+                        }
+                        final ActivityRecord top = getTopCandidateOnDefaultDisplay();
+                        if (top == null || !mDeferredKillPackage.equals(top.packageName)) {
+                            clearDeferredKillState();
+                            return;
+                        }
+                        final Task topTask = top.getTask();
+                        if (topTask == null || topTask.mTaskId != mDeferredKillTaskId) {
+                            clearDeferredKillState();
+                            return;
+                        }
+
+                        final ArraySet<String> keep = new ArraySet<>();
+                        keep.add(mDeferredKillPackage);
+                        keep.add("android");
+                        keep.add("com.android.systemui");
+                        addNeverKillPackages(keep);
+
+                        final int userId = mDeferredKillUserId;
+                        final ArraySet<String> keepCopy = new ArraySet<>(keep);
+
+                        clearDeferredKillState();
+                        // Run kill outside the WM lock.
+                        mWm.mH.post(() -> killAllAppsExcept(keepCopy, userId));
+                    } finally {
+                        WindowManagerService.resetPriorityAfterLockedSection();
+                    }
+                }
+            }
+        };
 
         // Re-apply dual-stack state after sleep/wake, but only once the user has unlocked.
         // Some GL apps (including DraStic) are sensitive to rapid pause/resume/config churn.
@@ -245,6 +321,7 @@ final class DualStackController {
                 if (ACTION_SCREEN_OFF.equals(action)) {
                     mScreenInteractive = false;
                     mWm.mH.removeCallbacks(mWakeReapplyRunnable);
+                    clearDeferredKillState();
                     return;
                 }
                 if (ACTION_SCREEN_ON.equals(action)) {
@@ -390,6 +467,7 @@ final class DualStackController {
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
+            clearDeferredKillState();
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -400,6 +478,7 @@ final class DualStackController {
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
+            clearDeferredKillState();
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -410,6 +489,7 @@ final class DualStackController {
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
+            clearDeferredKillState();
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -434,6 +514,8 @@ final class DualStackController {
             // Top default-display task is not dualstack-eligible: exit immediately.
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
+            mLastElevateTaskId = -1;
+            clearDeferredKillState();
             clearForcedTallSizeIfNeeded();
             teardown(t);
             return;
@@ -443,7 +525,12 @@ final class DualStackController {
         // display from apps so they cannot present/render to it directly.
         setRuntimeDualStackActive(true);
 
-        applyForcedTallSizeIfNeeded();
+        final long nowUptime = SystemClock.uptimeMillis();
+        final boolean deferHeavyOps = shouldDeferHeavyOps(nowUptime);
+
+        if (!deferHeavyOps) {
+            applyForcedTallSizeIfNeeded();
+        }
 
         // Treat the dual-stack "session" as Task-scoped, not Activity-scoped.
         // This avoids tearing down mirrors on Emu <-> GameMenu swaps within the same task.
@@ -469,20 +556,16 @@ final class DualStackController {
         // exists, the system may relaunch secondary HOME immediately and steal focus back.
         createSurfacesIfNeeded(t, primary, secondary, top);
 
-        final long nowUptime = SystemClock.uptimeMillis();
-        final boolean wakeStabilizing = (mLastWakeUptimeMs > 0)
-                && (nowUptime - mLastWakeUptimeMs) < WAKE_STABILIZE_MS;
-
         // Performance: enforce "mirror-only" on secondary display to prevent any underlay
         // app rendering/composition cost on display-2 while dual-stack is active.
-        if (mScreenInteractive && !wakeStabilizing) {
+        if (!deferHeavyOps) {
             suppressSecondaryDisplayContentUnderMirror(t, secondary, top.packageName);
         }
 
         // Critical for controller focus: keep the top-focused display on DEFAULT_DISPLAY while
         // dual-stack is active. Some apps are sensitive to focus churn on wake; keep this off by
         // default and only enable if you need controller/input stability fixes.
-        final boolean shouldEnforceFocus = mEnforceFocus && mScreenInteractive && !wakeStabilizing;
+        final boolean shouldEnforceFocus = mEnforceFocus && !deferHeavyOps;
         if (shouldEnforceFocus) {
             final long nowFocusUptime = nowUptime;
             if (nowFocusUptime - mLastFocusEnforceUptimeMs >= FOCUS_ENFORCE_MIN_INTERVAL_MS) {
@@ -689,6 +772,42 @@ final class DualStackController {
             Slog.w(TAG, "Failed setting " + PROP_RUNTIME_ACTIVE + "=" + desired, e);
         }
     }
+ 
+    private boolean isUltraPowerSaveEnabled() {
+        return SystemProperties.getBoolean(GAMMA_PROP_ULTRA_LOW_POWER_SAVING_MODE, false);
+    }
+
+    private long getWakeStabilizeWindowMs() {
+        return isUltraPowerSaveEnabled() ? WAKE_STABILIZE_ULTRA_POWER_MS : WAKE_STABILIZE_MS;
+    }
+
+    private boolean isUserPresentSinceLastWake() {
+        return (mLastUserPresentUptimeMs > 0) && (mLastUserPresentUptimeMs >= mLastWakeUptimeMs);
+    }
+
+    private boolean isWakeStabilizing(long nowUptimeMs) {
+        final long anchor = Math.max(mLastWakeUptimeMs, mLastUserPresentUptimeMs);
+        if (anchor <= 0) return false;
+        return (nowUptimeMs - anchor) < getWakeStabilizeWindowMs();
+    }
+
+    // Heavy DualStack operations (forced display size, aggressive task purge/kill, focus
+    // enforcement) should not run while the device is waking or before the user has unlocked.
+    private boolean shouldDeferHeavyOps(long nowUptimeMs) {
+        if (!mScreenInteractive) return true;
+        if (!isUserPresentSinceLastWake()) return true;
+        return isWakeStabilizing(nowUptimeMs);
+    }
+
+    private void clearDeferredKillState() {
+        if (mDeferredKillRunnable != null) {
+            mWm.mH.removeCallbacks(mDeferredKillRunnable);
+        }
+        mDeferredKillTaskId = -1;
+        mDeferredKillPackage = null;
+        mDeferredKillUserId = -1;
+        mDeferredKillStartUptimeMs = 0;
+    }
 
     private DisplayContent findSecondaryInternalDisplayLocked() {
         final DisplayContent[] out = new DisplayContent[1];
@@ -711,6 +830,12 @@ final class DualStackController {
      * actually see the 640x960 canvas.
      */
     void applyForcedTallSizeIfNeeded() {
+        // Avoid forcing display size during wake or before unlock. This can create config churn
+        // that some apps handle poorly when resuming from sleep.
+        if (shouldDeferHeavyOps(SystemClock.uptimeMillis())) {
+            return;
+        }
+
         if (mForcedTallSizeApplied) {
             return;
         }
@@ -1163,6 +1288,19 @@ final class DualStackController {
 
         final int taskId = dualStackTask.mTaskId;
         if (taskId == mLastKillTaskId) {
+            return;
+        }
+ 
+        final long nowUptime = SystemClock.uptimeMillis();
+        if (shouldDeferHeavyOps(nowUptime)) {
+            // Defer the kill sweep until the device is stable and unlocked.
+            mLastKillTaskId = taskId;
+            mDeferredKillTaskId = taskId;
+            mDeferredKillPackage = dualStackPackage;
+            mDeferredKillUserId = mWm.mCurrentUserId;
+            mDeferredKillStartUptimeMs = nowUptime;
+            mWm.mH.removeCallbacks(mDeferredKillRunnable);
+            mWm.mH.postDelayed(mDeferredKillRunnable, DEFERRED_KILL_RETRY_MS);
             return;
         }
 
