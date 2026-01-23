@@ -232,6 +232,7 @@ import com.android.server.pm.UserManagerInternal.UserRestrictionsListener;
 import com.android.server.pm.UserManagerService;
 import com.android.server.utils.EventLogger;
 import com.android.server.wm.ActivityTaskManagerInternal;
+import com.android.server.wm.WindowManagerInternal;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -279,12 +280,23 @@ public class AudioService extends IAudioService.Stub
 
     private static final String TAG = "AS.AudioService";
 
+    // GammaOS: Per-display media volume control.
+    private static final String GAMMA_PROP_MULTI_VOLUME_ENABLED =
+            "persist.gammaos.audio.multivolume";
+    private static final String GAMMA_PROP_DUALSTACK_ACTIVE =
+            "sys.gammaos.dualstack.active";
+    private static final String GAMMA_SETTING_DISPLAY_VOLUME_MAP =
+            "gammaos_audio_display_volume_map";
+
+
     private final AudioSystemAdapter mAudioSystem;
     private final SystemServerAdapter mSystemServer;
     private final SettingsAdapter mSettings;
     private final AudioPolicyFacade mAudioPolicy;
 
     private final MusicFxHelper mMusicFxHelper;
+
+    private final GammaMultiDisplayVolumeController mGammaMultiDisplayVolume;
 
     /** Debug audio mode */
     protected static final boolean DEBUG_MODE = false;
@@ -1037,10 +1049,14 @@ public class AudioService extends IAudioService.Stub
     private DisplayListener mDisplayListener =
       new DisplayListener() {
         @Override
-        public void onDisplayAdded(int displayId) {}
+        public void onDisplayAdded(int displayId) {
+            mGammaMultiDisplayVolume.onDisplayAdded(displayId);
+        }
 
         @Override
-        public void onDisplayRemoved(int displayId) {}
+        public void onDisplayRemoved(int displayId) {
+            mGammaMultiDisplayVolume.onDisplayRemoved(displayId);
+        }
 
         @Override
         public void onDisplayChanged(int displayId) {
@@ -1374,6 +1390,8 @@ public class AudioService extends IAudioService.Stub
 
         mMusicFxHelper = new MusicFxHelper(mContext, mAudioHandler);
 
+        mGammaMultiDisplayVolume = new GammaMultiDisplayVolumeController();
+
         mHardeningEnforcer = new HardeningEnforcer(mContext, isPlatformAutomotive(), mAppOps,
                 context.getPackageManager());
     }
@@ -1574,6 +1592,8 @@ public class AudioService extends IAudioService.Stub
         scheduleLoadSoundEffects();
 
         mDeviceBroker.onSystemReady();
+
+        mGammaMultiDisplayVolume.systemReady();
 
         if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
             synchronized (mHdmiClientLock) {
@@ -3816,6 +3836,8 @@ public class AudioService extends IAudioService.Stub
                 }
             }
         }
+        mGammaMultiDisplayVolume.onAdjustStreamVolume(
+                streamTypeAlias, direction, oldIndex, newIndex, flags, device);
         sendVolumeUpdate(streamType, oldIndex, newIndex, flags, device);
     }
 
@@ -4331,6 +4353,7 @@ public class AudioService extends IAudioService.Stub
                 callingPackage, callingPackage, attributionTag,
                 Binder.getCallingUid(), callingOrSelfHasAudioSettingsPermission(),
                 canChangeMuteAndUpdateController);
+        mGammaMultiDisplayVolume.onSetStreamVolume(streamType, index, flags, ada);
     }
 
     @android.annotation.EnforcePermission(android.Manifest.permission.ACCESS_ULTRASOUND)
@@ -4449,6 +4472,7 @@ public class AudioService extends IAudioService.Stub
                 configs /* playbackConfigs */, null /* recordConfigs */);
         mDeviceBroker.updateCommunicationRouteClientsActivity(
                 configs /* playbackConfigs */, null /* recordConfigs */);
+        mGammaMultiDisplayVolume.onPlaybackConfigChange(configs);
     }
 
     void updateAudioModeHandlers(List<AudioPlaybackConfiguration> playbackConfigs,
@@ -14217,4 +14241,575 @@ public class AudioService extends IAudioService.Stub
         }
         return true;
     }
+
+    /**
+     * GammaOS: Multi-display media volume control.
+     *
+     * <p>When enabled by {@link #GAMMA_PROP_MULTI_VOLUME_ENABLED}, maintains a per-display media
+     * volume map and attenuates active media players based on the display their app is running
+     * on. The effective volume is implemented by applying a per-player {@link VolumeShaper}
+     * multiplier (see {@link PlaybackActivityMonitor#setGammaDisplayVolumeForUid}).</p>
+     *
+     * <p>By default (prop disabled), AudioService behavior remains unchanged and a single global
+     * media stream volume is used.</p>
+     */
+    private final class GammaMultiDisplayVolumeController {
+        private static final int DEFAULT_DISPLAY_ID = Display.DEFAULT_DISPLAY;
+
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
+        private boolean mEnabled;
+
+        @GuardedBy("mLock")
+        private boolean mInternalStreamVolumeUpdate;
+
+        @GuardedBy("mLock")
+        @Nullable
+        private String mLastWrittenMap;
+
+        @GuardedBy("mLock")
+        private final SparseIntArray mDisplayToVolumeIndex = new SparseIntArray();
+
+        @GuardedBy("mLock")
+        private final SparseIntArray mUidToLastDisplayId = new SparseIntArray();
+
+        @Nullable
+        private WindowManagerInternal mWmInternal;
+
+        private final ContentObserver mSettingsObserver = new ContentObserver(mAudioHandler) {
+            @Override
+            public void onChange(boolean selfChange) {
+                onChange(selfChange, null);
+            }
+
+            @Override
+            public void onChange(boolean selfChange, @Nullable Uri uri) {
+                // ContentObserver callbacks are delivered on mAudioHandler.
+                handleSettingsChanged();
+            }
+        };
+
+        void systemReady() {
+            mWmInternal = LocalServices.getService(WindowManagerInternal.class);
+
+            // React to GammaOS prop changes.
+            SystemProperties.addChangeCallback(() -> mAudioHandler.post(this::updateEnabledState));
+
+            updateEnabledState();
+        }
+
+        void onDisplayAdded(int displayId) {
+            if (!isEnabled()) {
+                return;
+            }
+            synchronized (mLock) {
+                if (mDisplayToVolumeIndex.indexOfKey(displayId) >= 0) {
+                    return;
+                }
+                final int baseline = getCurrentGlobalMusicVolumeUiLocked();
+                mDisplayToVolumeIndex.put(displayId, baseline);
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+            reconcileAndApply(/*reason=*/ "display_added");
+        }
+
+        void onDisplayRemoved(int displayId) {
+            if (!isEnabled()) {
+                return;
+            }
+            synchronized (mLock) {
+                if (mDisplayToVolumeIndex.indexOfKey(displayId) < 0) {
+                    return;
+                }
+                mDisplayToVolumeIndex.delete(displayId);
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+            reconcileAndApply(/*reason=*/ "display_removed");
+        }
+
+        void onPlaybackConfigChange(@NonNull List<AudioPlaybackConfiguration> configs) {
+            if (!isEnabled()) {
+                return;
+            }
+            applyPlayerAttenuations(configs, /*reason=*/ "playback_config_change");
+        }
+
+        void onAdjustStreamVolume(int streamTypeAlias, int direction,
+                int oldIndex, int newIndex, int flags, int device) {
+            if (!isEnabled()) {
+                return;
+            }
+            if ((flags & AudioManager.FLAG_FROM_KEY) == 0) {
+                return;
+            }
+            if (streamTypeAlias != AudioSystem.STREAM_MUSIC) {
+                return;
+            }
+
+            final int requestedDeltaUi = directionToUiDelta(direction);
+            if (requestedDeltaUi == 0) {
+                return;
+            }
+
+            final int globalUiAfter = (newIndex + 5) / 10;
+            final int minUi = getMusicMinVolumeUiLocked();
+            final int maxUi = getMusicMaxVolumeUiLocked();
+
+            synchronized (mLock) {
+                if (mDisplayToVolumeIndex.size() == 0) {
+                    // Initialize lazily if we haven't yet.
+                    initDisplayMapLocked(/*reason=*/ "adjust_stream_volume");
+                }
+                for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
+                    final int displayId = mDisplayToVolumeIndex.keyAt(i);
+                    final int current = mDisplayToVolumeIndex.valueAt(i);
+                    int updated = clampUiVolume(current + requestedDeltaUi, minUi, maxUi);
+                    // Do not allow per-display volumes above the global stream volume.
+                    updated = Math.min(updated, globalUiAfter);
+                    mDisplayToVolumeIndex.put(displayId, updated);
+                }
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+
+            // Update shapers for currently active players.
+            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ "key_adjust");
+        }
+
+        void onSetStreamVolume(int streamType, int index, int flags, @Nullable AudioDeviceAttributes ada) {
+            if (!isEnabled()) {
+                return;
+            }
+            // Ignore calls originating from our own internal reconciliation.
+            synchronized (mLock) {
+                if (mInternalStreamVolumeUpdate) {
+                    return;
+                }
+            }
+
+            // Only treat explicit UI-driven changes as applying to all displays.
+            if ((flags & (AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_FROM_KEY)) == 0) {
+                return;
+            }
+
+            final int streamTypeAlias = mStreamVolumeAlias[streamType];
+            if (streamTypeAlias != AudioSystem.STREAM_MUSIC) {
+                return;
+            }
+
+            // Treat programmatic global volume sets as applying to all displays.
+            final int globalUi = getCurrentGlobalMusicVolumeUiLocked();
+            synchronized (mLock) {
+                if (mDisplayToVolumeIndex.size() == 0) {
+                    initDisplayMapLocked(/*reason=*/ "set_stream_volume");
+                }
+                for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
+                    mDisplayToVolumeIndex.put(mDisplayToVolumeIndex.keyAt(i), globalUi);
+                }
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+
+            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ "set_stream_volume");
+        }
+
+        private void updateEnabledState() {
+            final boolean propEnabled = SystemProperties.getBoolean(
+                    GAMMA_PROP_MULTI_VOLUME_ENABLED, /*def=*/ false);
+            // Avoid multi-volume while in dual-stack presentation mode.
+            final boolean dualStackActive = SystemProperties.getBoolean(
+                    GAMMA_PROP_DUALSTACK_ACTIVE, /*def=*/ false);
+            final boolean shouldEnable = propEnabled && !dualStackActive;
+
+            final boolean wasEnabled;
+            synchronized (mLock) {
+                wasEnabled = mEnabled;
+                mEnabled = shouldEnable;
+            }
+            if (wasEnabled == shouldEnable) {
+                return;
+            }
+
+            if (shouldEnable) {
+                enable();
+            } else {
+                disable();
+            }
+        }
+
+        private boolean isEnabled() {
+            synchronized (mLock) {
+                return mEnabled;
+            }
+        }
+
+        private void enable() {
+            mContentResolver.registerContentObserver(
+                    Settings.Global.getUriFor(GAMMA_SETTING_DISPLAY_VOLUME_MAP),
+                    /*notifyForDescendants=*/ false,
+                    mSettingsObserver);
+
+            synchronized (mLock) {
+                initDisplayMapLocked(/*reason=*/ "enable");
+                // Persist any normalization (adding missing displays, removing stale ones).
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+
+            reconcileAndApply(/*reason=*/ "enable");
+        }
+
+        private void disable() {
+            try {
+                mContentResolver.unregisterContentObserver(mSettingsObserver);
+            } catch (IllegalStateException e) {
+                // Ignore.
+            }
+
+            // Remove our per-player attenuation.
+            final List<AudioPlaybackConfiguration> active = getActivePlaybackConfigurations();
+            final SparseIntArray uids = collectActiveMediaUids(active);
+            for (int i = 0; i < uids.size(); i++) {
+                mPlaybackMonitor.setGammaDisplayVolumeForUid(uids.keyAt(i), /*gain=*/ 1.0f);
+            }
+            // GammaOS: ensure no stale per-UID volume state survives disable. This matters if
+            // multi-volume is toggled off while no players are active; future players should not
+            // inherit an old attenuation.
+            mPlaybackMonitor.clearGammaDisplayVolumes();
+
+            // Restore global stream volume to the default display value if we have one.
+            final int defaultDisplayVolume;
+            synchronized (mLock) {
+                defaultDisplayVolume = mDisplayToVolumeIndex.get(
+                        DEFAULT_DISPLAY_ID, getCurrentGlobalMusicVolumeUiLocked());
+            }
+            setGlobalMusicVolumeInternal(defaultDisplayVolume, /*reason=*/ "disable");
+        }
+
+        private void handleSettingsChanged() {
+            if (!isEnabled()) {
+                return;
+            }
+
+            final String raw = Settings.Global.getString(
+                    mContentResolver, GAMMA_SETTING_DISPLAY_VOLUME_MAP);
+            synchronized (mLock) {
+                if (raw != null && raw.equals(mLastWrittenMap)) {
+                    // Ignore observer notification caused by our own write-back.
+                    return;
+                }
+
+                final SparseIntArray parsed = parseDisplayVolumeMap(raw);
+                mDisplayToVolumeIndex.clear();
+                for (int i = 0; i < parsed.size(); i++) {
+                    mDisplayToVolumeIndex.put(parsed.keyAt(i), parsed.valueAt(i));
+                }
+                normalizeDisplayMapLocked(/*reason=*/ "settings_changed");
+                persistDisplayMapLocked(mDisplayToVolumeIndex);
+            }
+
+            reconcileAndApply(/*reason=*/ "settings_changed");
+        }
+
+        private void reconcileAndApply(@NonNull String reason) {
+            if (!isEnabled()) {
+                return;
+            }
+            reconcileGlobalStreamVolume(/*reason=*/ reason);
+            applyPlayerAttenuations(getActivePlaybackConfigurations(), /*reason=*/ reason);
+        }
+
+        private void reconcileGlobalStreamVolume(@NonNull String reason) {
+            final int desiredGlobalUi;
+            synchronized (mLock) {
+                desiredGlobalUi = getMaxDisplayVolumeUiLocked();
+            }
+            setGlobalMusicVolumeInternal(desiredGlobalUi, /*reason=*/ reason);
+
+            // If the actual global volume was clamped (safe volume), clamp per-display values too.
+            final int actualGlobalUi = getCurrentGlobalMusicVolumeUiLocked();
+            synchronized (mLock) {
+                boolean changed = false;
+                for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
+                    final int key = mDisplayToVolumeIndex.keyAt(i);
+                    final int value = mDisplayToVolumeIndex.valueAt(i);
+                    final int clamped = Math.min(value, actualGlobalUi);
+                    if (clamped != value) {
+                        mDisplayToVolumeIndex.put(key, clamped);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    persistDisplayMapLocked(mDisplayToVolumeIndex);
+                }
+            }
+        }
+
+        private void setGlobalMusicVolumeInternal(int indexUi, @NonNull String reason) {
+            final int minUi = getMusicMinVolumeUiLocked();
+            final int maxUi = getMusicMaxVolumeUiLocked();
+            final int clampedUi = clampUiVolume(indexUi, minUi, maxUi);
+
+            final int device = getDeviceForStream(AudioSystem.STREAM_MUSIC);
+            final int currentUi = getCurrentGlobalMusicVolumeUiLocked();
+            if (currentUi == clampedUi) {
+                return;
+            }
+
+            synchronized (mLock) {
+                mInternalStreamVolumeUpdate = true;
+            }
+            try {
+                // Do not force UI from the framework; SystemUI will surface the correct UI.
+                setStreamVolumeWithAttributionInt(
+                        AudioSystem.STREAM_MUSIC, clampedUi,
+                        /*flags=*/ 0, /*ada=*/ null,
+                        /*callingPackage=*/ "android", /*attributionTag=*/ null,
+                        true /*canChangeMuteAndUpdateController*/);
+            } finally {
+                synchronized (mLock) {
+                    mInternalStreamVolumeUpdate = false;
+                }
+            }
+        }
+
+        @GuardedBy("mLock")
+        private void initDisplayMapLocked(@NonNull String reason) {
+            final String raw = Settings.Global.getString(
+                    mContentResolver, GAMMA_SETTING_DISPLAY_VOLUME_MAP);
+            final SparseIntArray parsed = parseDisplayVolumeMap(raw);
+            mDisplayToVolumeIndex.clear();
+            for (int i = 0; i < parsed.size(); i++) {
+                mDisplayToVolumeIndex.put(parsed.keyAt(i), parsed.valueAt(i));
+            }
+            normalizeDisplayMapLocked(reason);
+        }
+
+        @GuardedBy("mLock")
+        private void normalizeDisplayMapLocked(@NonNull String reason) {
+            // Ensure default display exists.
+            if (mDisplayToVolumeIndex.indexOfKey(DEFAULT_DISPLAY_ID) < 0) {
+                mDisplayToVolumeIndex.put(DEFAULT_DISPLAY_ID, getCurrentGlobalMusicVolumeUiLocked());
+            }
+            // Ensure current connected displays exist, and remove stale entries.
+            final IntArray connected = getConnectedDisplayIds();
+            for (int i = 0; i < connected.size(); i++) {
+                final int displayId = connected.get(i);
+                if (mDisplayToVolumeIndex.indexOfKey(displayId) < 0) {
+                    mDisplayToVolumeIndex.put(displayId, mDisplayToVolumeIndex.get(DEFAULT_DISPLAY_ID));
+                }
+            }
+            for (int i = mDisplayToVolumeIndex.size() - 1; i >= 0; i--) {
+                final int displayId = mDisplayToVolumeIndex.keyAt(i);
+                if (connected.indexOf(displayId) < 0) {
+                    mDisplayToVolumeIndex.delete(displayId);
+                }
+            }
+
+            // Clamp all entries to stream min/max.
+            final int minUi = getMusicMinVolumeUiLocked();
+            final int maxUi = getMusicMaxVolumeUiLocked();
+            for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
+                final int displayId = mDisplayToVolumeIndex.keyAt(i);
+                final int clamped = clampUiVolume(mDisplayToVolumeIndex.valueAt(i), minUi, maxUi);
+                mDisplayToVolumeIndex.put(displayId, clamped);
+            }
+        }
+
+        @GuardedBy("mLock")
+        private int getMaxDisplayVolumeUiLocked() {
+            int max = 0;
+            for (int i = 0; i < mDisplayToVolumeIndex.size(); i++) {
+                max = Math.max(max, mDisplayToVolumeIndex.valueAt(i));
+            }
+            return max;
+        }
+
+        @GuardedBy("mLock")
+        private void persistDisplayMapLocked(@NonNull SparseIntArray map) {
+            final String serialized = serializeDisplayVolumeMap(map);
+            mLastWrittenMap = serialized;
+            Settings.Global.putString(mContentResolver, GAMMA_SETTING_DISPLAY_VOLUME_MAP, serialized);
+        }
+
+        private void applyPlayerAttenuations(@NonNull List<AudioPlaybackConfiguration> configs,
+                @NonNull String reason) {
+            final int device = getDeviceForStream(AudioSystem.STREAM_MUSIC);
+            final int globalUi = getCurrentGlobalMusicVolumeUiLocked();
+            final SparseIntArray activeMediaUids = collectActiveMediaUids(configs);
+            for (int i = 0; i < activeMediaUids.size(); i++) {
+                final int uid = activeMediaUids.keyAt(i);
+                final int displayId = resolveDisplayIdForUid(uid);
+                final int desiredUi = getDesiredUiForDisplay(displayId, globalUi);
+                final float gain = computeMusicAttenuationGain(desiredUi, globalUi, device);
+                mPlaybackMonitor.setGammaDisplayVolumeForUid(uid, gain);
+            }
+        }
+
+        private SparseIntArray collectActiveMediaUids(@NonNull List<AudioPlaybackConfiguration> configs) {
+            final SparseIntArray uids = new SparseIntArray();
+            for (int i = 0; i < configs.size(); i++) {
+                final AudioPlaybackConfiguration apc = configs.get(i);
+                if (apc.getPlayerState() != AudioPlaybackConfiguration.PLAYER_STATE_STARTED) {
+                    continue;
+                }
+                if (!isMediaUsage(apc.getAudioAttributes().getUsage())) {
+                    continue;
+                }
+                final int uid = apc.getClientUid();
+                if (uids.indexOfKey(uid) < 0) {
+                    uids.put(uid, 1);
+                }
+            }
+            return uids;
+        }
+
+        private boolean isMediaUsage(int usage) {
+            switch (usage) {
+                case AudioAttributes.USAGE_MEDIA:
+                case AudioAttributes.USAGE_GAME:
+                case AudioAttributes.USAGE_ASSISTANT:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private int resolveDisplayIdForUid(int uid) {
+            int displayId = Display.INVALID_DISPLAY;
+            final WindowManagerInternal wmi = mWmInternal;
+            if (wmi != null) {
+                try {
+                    displayId = wmi.getTopVisibleDisplayIdForUid(uid);
+                } catch (Exception e) {
+                    // Ignore.
+                }
+            }
+
+            synchronized (mLock) {
+                if (displayId != Display.INVALID_DISPLAY) {
+                    mUidToLastDisplayId.put(uid, displayId);
+                } else {
+                    displayId = mUidToLastDisplayId.get(uid, Display.INVALID_DISPLAY);
+                }
+                if (displayId == Display.INVALID_DISPLAY) {
+                    displayId = DEFAULT_DISPLAY_ID;
+                }
+                // If we no longer track this display, fall back to default.
+                if (mDisplayToVolumeIndex.indexOfKey(displayId) < 0) {
+                    displayId = DEFAULT_DISPLAY_ID;
+                }
+                return displayId;
+            }
+        }
+
+        private int getDesiredUiForDisplay(int displayId, int fallbackUi) {
+            synchronized (mLock) {
+                return mDisplayToVolumeIndex.get(displayId,
+                        mDisplayToVolumeIndex.get(DEFAULT_DISPLAY_ID, fallbackUi));
+            }
+        }
+
+        private float computeMusicAttenuationGain(int desiredUi, int globalUi, int device) {
+            if (desiredUi >= globalUi) {
+                return 1.0f;
+            }
+            if (desiredUi <= 0 || globalUi <= 0) {
+                return 0.0f;
+            }
+            final float globalDb = AudioSystem.getStreamVolumeDB(
+                    AudioSystem.STREAM_MUSIC, globalUi, device);
+            final float desiredDb = AudioSystem.getStreamVolumeDB(
+                    AudioSystem.STREAM_MUSIC, desiredUi, device);
+            if (Float.isNaN(globalDb) || Float.isNaN(desiredDb)) {
+                return (desiredUi >= globalUi) ? 1.0f : 0.0f;
+            }
+            final float deltaDb = desiredDb - globalDb;
+            final float gain = (float) Math.pow(10.0, deltaDb / 20.0);
+            return Math.max(0.0f, Math.min(1.0f, gain));
+        }
+
+        private int getCurrentGlobalMusicVolumeUiLocked() {
+            final int device = getDeviceForStream(AudioSystem.STREAM_MUSIC);
+            return (mStreamStates[AudioSystem.STREAM_MUSIC].getIndex(device) + 5) / 10;
+        }
+
+        private int getMusicMaxVolumeUiLocked() {
+            return (mStreamStates[AudioSystem.STREAM_MUSIC].getMaxIndex() + 5) / 10;
+        }
+
+        private int getMusicMinVolumeUiLocked() {
+            return (mStreamStates[AudioSystem.STREAM_MUSIC].getMinIndex(/*isPrivileged=*/ true) + 5) / 10;
+        }
+
+        private int directionToUiDelta(int direction) {
+            if (direction == AudioManager.ADJUST_RAISE) {
+                return 1;
+            }
+            if (direction == AudioManager.ADJUST_LOWER) {
+                return -1;
+            }
+            return 0;
+        }
+
+        private int clampUiVolume(int value, int min, int max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        private IntArray getConnectedDisplayIds() {
+            final IntArray out = new IntArray();
+            if (mDisplayManager == null) {
+                out.add(DEFAULT_DISPLAY_ID);
+                return out;
+            }
+            final Display[] displays = mDisplayManager.getDisplays();
+            for (int i = 0; i < displays.length; i++) {
+                final Display d = displays[i];
+                if (d == null) {
+                    continue;
+                }
+                out.add(d.getDisplayId());
+            }
+            if (out.indexOf(DEFAULT_DISPLAY_ID) < 0) {
+                out.add(DEFAULT_DISPLAY_ID);
+            }
+            return out;
+        }
+
+        private SparseIntArray parseDisplayVolumeMap(@Nullable String raw) {
+            final SparseIntArray out = new SparseIntArray();
+            if (TextUtils.isEmpty(raw)) {
+                return out;
+            }
+            final String[] entries = raw.split(";");
+            for (String entry : entries) {
+                if (TextUtils.isEmpty(entry)) {
+                    continue;
+                }
+                final int sep = entry.indexOf('=');
+                if (sep <= 0 || sep >= entry.length() - 1) {
+                    continue;
+                }
+                try {
+                    final int displayId = Integer.parseInt(entry.substring(0, sep));
+                    final int volume = Integer.parseInt(entry.substring(sep + 1));
+                    out.put(displayId, volume);
+                } catch (NumberFormatException e) {
+                    // Skip malformed entry.
+                }
+            }
+            return out;
+        }
+
+        private String serializeDisplayVolumeMap(@NonNull SparseIntArray map) {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < map.size(); i++) {
+                if (i > 0) {
+                    sb.append(';');
+                }
+                sb.append(map.keyAt(i)).append('=').append(map.valueAt(i));
+            }
+            return sb.toString();
+        }
+    }
+
+
 }

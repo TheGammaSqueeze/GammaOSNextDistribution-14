@@ -1084,5 +1084,16 @@ public abstract class WindowManagerInternal {
      * Returns an instance of {@link ScreenCapture.ScreenshotHardwareBuffer} containing the current
      * screenshot.
      */
+    
+    /**
+     * Returns the display id of the topmost visible (or resumed, if any) activity belonging to
+     * the given UID.
+     *
+     * <p>This is intended for system-server components that need to associate an application's
+     * state with a specific display (for example, per-display audio policies). If the UID has
+     * no visible activities, {@link android.view.Display#INVALID_DISPLAY} is returned.</p>
+     */
+    public abstract int getTopVisibleDisplayIdForUid(int uid);
+
     public abstract ScreenCapture.ScreenshotHardwareBuffer takeAssistScreenshot();
 }

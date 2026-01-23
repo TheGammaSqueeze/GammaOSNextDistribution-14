@@ -37,6 +37,7 @@ import com.android.systemui.util.time.SystemClock;
 import com.android.systemui.volume.CsdWarningDialog;
 import com.android.systemui.volume.VolumeComponent;
 import com.android.systemui.volume.VolumeDialogComponent;
+import com.android.systemui.volume.GammaMultiDisplayVolumeDialog;
 import com.android.systemui.volume.VolumeDialogImpl;
 import com.android.systemui.volume.VolumeUI;
 import com.android.systemui.volume.domain.interactor.VolumePanelNavigationInteractor;
@@ -110,27 +111,30 @@ public interface VolumeModule {
             Lazy<SecureSettings> secureSettings,
             VibratorHelper vibratorHelper,
             SystemClock systemClock) {
-        VolumeDialogImpl impl = new VolumeDialogImpl(
-                context,
-                volumeDialogController,
-                accessibilityManagerWrapper,
-                deviceProvisionedController,
-                configurationController,
-                mediaOutputDialogFactory,
-                interactionJankMonitor,
-                volumePanelNavigationInteractor,
-                volumeNavigator,
-                true, /* should listen for jank */
-                csdFactory,
-                devicePostureController,
-                Looper.getMainLooper(),
-                dumpManager,
-                secureSettings,
-                vibratorHelper,
-                systemClock);
-        impl.setStreamImportant(AudioManager.STREAM_SYSTEM, false);
-        impl.setAutomute(true);
-        impl.setSilentMode(false);
-        return impl;
+        final GammaMultiDisplayVolumeDialog.DialogFactory factory = displayContext -> {
+            VolumeDialogImpl impl = new VolumeDialogImpl(
+                    displayContext,
+                    volumeDialogController,
+                    accessibilityManagerWrapper,
+                    deviceProvisionedController,
+                    configurationController,
+                    mediaOutputDialogFactory,
+                    interactionJankMonitor,
+                    volumePanelNavigationInteractor,
+                    volumeNavigator,
+                    true, /* should listen for jank */
+                    csdFactory,
+                    devicePostureController,
+                    Looper.getMainLooper(),
+                    dumpManager,
+                    secureSettings,
+                    vibratorHelper,
+                    systemClock);
+            impl.setStreamImportant(AudioManager.STREAM_SYSTEM, false);
+            impl.setAutomute(true);
+            impl.setSilentMode(false);
+            return impl;
+        };
+        return new GammaMultiDisplayVolumeDialog(context, factory);
     }
 }

@@ -207,6 +207,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     private final boolean mChangeVolumeRowTintWhenInactive;
 
     private final Context mContext;
+    // GammaOS: the physical display this dialog is attached to.
+    private final int mGammaDisplayId;
     private final H mHandler;
     private final VolumeDialogController mController;
     private final DeviceProvisionedController mDeviceProvisionedController;
@@ -358,8 +360,12 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
             Lazy<SecureSettings> secureSettings,
             VibratorHelper vibratorHelper,
             com.android.systemui.util.time.SystemClock systemClock) {
+        // GammaOS: capture display id for this dialog instance early (needed for multi-display).
+        final int gammaDisplayId = context.getDisplayId();
         mContext =
                 new ContextThemeWrapper(context, R.style.volume_dialog_theme);
+        // GammaOS: the physical display this dialog is attached to.
+        mGammaDisplayId = gammaDisplayId;
         mHandler = new H(looper);
         mVibratorHelper = vibratorHelper;
         mSystemClock = systemClock;
@@ -391,7 +397,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mSecureSettings = secureSettings;
         mDialogTimeoutMillis = DIALOG_TIMEOUT_MILLIS;
 
-        dumpManager.registerDumpable("VolumeDialogImpl", this);
+        // GammaOS: must be unique when multi-display volume creates multiple dialogs.
+        dumpManager.registerDumpable("VolumeDialogImpl#display" + mGammaDisplayId, this);
 
         if (mUseBackgroundBlur) {
             final int dialogRowsViewColorAboveBlur = mContext.getColor(
@@ -2359,8 +2366,16 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
 
         // update slider
         final boolean enableSlider = !zenMuted;
-        final int vlevel = row.ss.muted && (!isRingStream && !zenMuted) ? 0
+        int vlevel = row.ss.muted && (!isRingStream && !zenMuted) ? 0
                 : row.ss.level;
+        // GammaOS: when multi-volume is enabled, present the media volume for this
+        // dialog's display (the framework applies the corresponding attenuation).
+        if (GammaMultiVolumeStore.isMultiVolumeEnabled()
+                && row.stream == AudioManager.STREAM_MUSIC
+                && vlevel > 0) {
+            vlevel = GammaMultiVolumeStore.getVolumeForDisplay(
+                    mContext, mGammaDisplayId, vlevel);
+        }
         Trace.beginSection("VolumeDialogImpl#updateVolumeRowSliderH");
         updateVolumeRowSliderH(row, enableSlider, vlevel);
         Trace.endSection();
@@ -2891,7 +2906,13 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                 mRow.userAttempt = SystemClock.uptimeMillis();
                 if (mRow.requestedLevel != userLevel) {
                     mController.setActiveStream(mRow.stream);
-                    mController.setStreamVolume(mRow.stream, userLevel);
+                    if (GammaMultiVolumeStore.isMultiVolumeEnabled()
+                            && mRow.stream == AudioManager.STREAM_MUSIC) {
+                        GammaMultiVolumeStore.setVolumeForDisplay(
+                                mContext, mGammaDisplayId, userLevel);
+                    } else {
+                        mController.setStreamVolume(mRow.stream, userLevel);
+                    }
                     mRow.requestedLevel = userLevel;
                     Events.writeEvent(Events.EVENT_TOUCH_LEVEL_CHANGED, mRow.stream,
                             userLevel);

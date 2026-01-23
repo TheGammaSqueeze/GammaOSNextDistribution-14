@@ -8419,6 +8419,70 @@ public class WindowManagerService extends IWindowManager.Stub
         }
 
         @Override
+        public int getTopVisibleDisplayIdForUid(int uid) {
+            synchronized (mGlobalLock) {
+                try {
+                    boostPriorityForLockedSection();
+                    final int[] result = new int[] { Display.INVALID_DISPLAY };
+
+                    // First preference: the topmost visible window owned by this UID.
+                    // This is more reliable than ActivityRecord visibility on multi-display setups.
+                    mRoot.forAllWindows(w -> {
+                        if (result[0] != Display.INVALID_DISPLAY) {
+                            return;
+                        }
+                        if (w == null) {
+                            return;
+                        }
+                        if (w.getOwningUid() != uid) {
+                            return;
+                        }
+                        // "Visible" here means actually showing; if the app is on another display,
+                        // this captures the display id correctly even when activity state lags.
+                        if (w.isVisible()) {
+                            result[0] = w.getDisplayId();
+                        }
+                    }, /*traverseTopToBottom=*/ true);
+
+                    if (result[0] != Display.INVALID_DISPLAY) {
+                        return result[0];
+                    }
+
+                    // Next: resumed activity (if any), but be tolerant of visibility bookkeeping.
+                    mRoot.forAllActivities(ar -> {
+                        if (result[0] != Display.INVALID_DISPLAY) {
+                            return;
+                        }
+                        if (ar.isUid(uid)
+                                && ar.isState(ActivityRecord.State.RESUMED)
+                                && (ar.isVisible() || ar.isVisibleRequested())) {
+                            result[0] = ar.getDisplayId();
+                        }
+                    }, /*traverseTopToBottom=*/ true);
+
+                    if (result[0] != Display.INVALID_DISPLAY) {
+                        return result[0];
+                    }
+
+                    // Last: any activity that is at least requested-visible.
+                    mRoot.forAllActivities(ar -> {
+                        if (result[0] != Display.INVALID_DISPLAY) {
+                            return;
+                        }
+                        if (ar.isUid(uid) && (ar.isVisible() || ar.isVisibleRequested())) {
+                            result[0] = ar.getDisplayId();
+                        }
+                    }, /*traverseTopToBottom=*/ true);
+
+                    return result[0];
+                } finally {
+                    resetPriorityAfterLockedSection();
+                }
+            }
+        }
+
+
+        @Override
         public Context getTopFocusedDisplayUiContext() {
             synchronized (mGlobalLock) {
                 return mRoot.getTopFocusedDisplayContent().getDisplayUiContext();

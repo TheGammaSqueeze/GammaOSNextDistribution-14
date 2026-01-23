@@ -52,6 +52,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -84,6 +85,12 @@ public final class PlaybackActivityMonitor
     /*package*/ static final int VOLUME_SHAPER_SYSTEM_FADEOUT_ID = 2;
     /*package*/ static final int VOLUME_SHAPER_SYSTEM_MUTE_AWAIT_CONNECTION_ID = 3;
     /*package*/ static final int VOLUME_SHAPER_SYSTEM_STRONG_DUCK_ID = 4;
+
+    // GammaOS: per-display media volume attenuation (applied per-player, based on the app's
+    // associated display).
+    /*package*/ static final int VOLUME_SHAPER_GAMMA_DISPLAY_ID = 100;
+
+
     /*package*/ static final String EVENT_TYPE_FADE_OUT = "fading out";
     /*package*/ static final String EVENT_TYPE_FADE_IN = "fading in";
 
@@ -153,6 +160,12 @@ public final class PlaybackActivityMonitor
 
     @GuardedBy("mPlayerLock")
     private final SparseIntArray mPortIdToPiid = new SparseIntArray();
+ 
+    // GammaOS: per-UID client volume multiplier for multi-display volume.
+    // This is applied using PlayerProxy#setVolume() which works for more player types than
+    // VolumeShaper (notably including AAudio).
+    @GuardedBy("mPlayerLock")
+    private final SparseArray<Float> mGammaUidToClientVolume = new SparseArray<>();
 
     private final Context mContext;
     private int mSavedAlarmVolume = -1;
@@ -197,6 +210,95 @@ public final class PlaybackActivityMonitor
                     mBannedUids.add(new Integer(uid));
                 } // no else to handle, uid already not in list, so enabling again is no-op
             }
+        }
+    }
+ 
+    //=================================================================
+    // GammaOS: multi-display per-UID volume
+
+    /**
+     * Set the client-side volume multiplier for all active players belonging to {@code uid}.
+     *
+     * <p>This is used by GammaOS multi-display volume control to attenuate apps based on the
+     * display they are running on. It is implemented using {@link PlayerBase.PlayerProxy#setVolume}
+     * so it applies to player types where {@link VolumeShaper} is not supported (notably AAudio).
+     */
+    public void setGammaDisplayVolumeForUid(int uid, float gain) {
+        if (gain < 0.0f) {
+            gain = 0.0f;
+        } else if (gain > 1.0f) {
+            gain = 1.0f;
+        }
+        synchronized (mPlayerLock) {
+            mGammaUidToClientVolume.put(uid, gain);
+            applyGammaClientVolumeToUidLocked(uid);
+        }
+    }
+
+    /** Clears all stored GammaOS per-UID volume multipliers and restores players to 1.0. */
+    public void clearGammaDisplayVolumes() {
+        synchronized (mPlayerLock) {
+            for (int i = 0; i < mGammaUidToClientVolume.size(); i++) {
+                applyGammaClientVolumeToUidLocked(mGammaUidToClientVolume.keyAt(i), 1.0f);
+            }
+            mGammaUidToClientVolume.clear();
+        }
+    }
+
+    @GuardedBy("mPlayerLock")
+    private void applyGammaClientVolumeToUidLocked(int uid) {
+        final Float f = mGammaUidToClientVolume.get(uid);
+        final float gain = (f == null) ? 1.0f : f.floatValue();
+        applyGammaClientVolumeToUidLocked(uid, gain);
+    }
+
+    @GuardedBy("mPlayerLock")
+    private void applyGammaClientVolumeToUidLocked(int uid, float gain) {
+        if (mPlayers.isEmpty()) {
+            return;
+        }
+        for (AudioPlaybackConfiguration apc : mPlayers.values()) {
+            if (apc == null || apc.getClientUid() != uid) {
+                continue;
+            }
+            applyGammaClientVolumeToPlayerLocked(apc, gain);
+        }
+    }
+
+    @GuardedBy("mPlayerLock")
+    private void applyGammaClientVolumeToPlayerLocked(@NonNull AudioPlaybackConfiguration apc,
+            float gain) {
+        final int piid = apc.getPlayerInterfaceId();
+        // Do not fight call mute (which uses setVolume(0) and tracks muted PIIDs).
+        if (mMutedPlayers.contains(new Integer(piid))) {
+            return;
+        }
+        if (!shouldApplyGammaVolume(apc)) {
+            return;
+        }
+        try {
+            apc.getPlayerProxy().setVolume(gain);
+        } catch (Exception e) {
+            Log.e(TAG, "GammaOS: error applying client volume to piid=" + piid
+                    + " uid=" + apc.getClientUid(), e);
+        }
+    }
+
+    private static boolean shouldApplyGammaVolume(@NonNull AudioPlaybackConfiguration apc) {
+        final AudioAttributes aa = apc.getAudioAttributes();
+        if (aa == null) {
+            return false;
+        }
+        final int usage = aa.getUsage();
+        // Keep GammaOS attenuation scoped to things that typically map to STREAM_MUSIC.
+        switch (usage) {
+            case AudioAttributes.USAGE_MEDIA:
+            case AudioAttributes.USAGE_GAME:
+            case AudioAttributes.USAGE_ASSISTANT:
+            case AudioAttributes.USAGE_UNKNOWN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -249,6 +351,11 @@ public final class PlaybackActivityMonitor
         synchronized(mPlayerLock) {
             mPlayers.put(newPiid, apc);
             maybeMutePlayerAwaitingConnection(apc);
+            // GammaOS: apply per-UID client volume immediately for newly tracked players.
+            final Float f = mGammaUidToClientVolume.get(apc.getClientUid());
+            if (f != null) {
+                applyGammaClientVolumeToPlayerLocked(apc, f.floatValue());
+            }
         }
         return newPiid;
     }
@@ -267,6 +374,11 @@ public final class PlaybackActivityMonitor
             if (checkConfigurationCaller(piid, apc, binderUid)) {
                 sEventLogger.enqueue(new AudioAttrEvent(piid, attr));
                 change = apc.handleAudioAttributesEvent(attr);
+                // GammaOS: attributes may change usage mapping; re-apply per-UID client volume.
+                final Float f = mGammaUidToClientVolume.get(apc.getClientUid());
+                if (f != null) {
+                    applyGammaClientVolumeToPlayerLocked(apc, f.floatValue());
+                }
             } else {
                 Log.e(TAG, "Error updating audio attributes");
                 change = false;
@@ -387,6 +499,14 @@ public final class PlaybackActivityMonitor
                 //TODO add generation counter to only update to the latest state
                 checkVolumeForPrivilegedAlarm(apc, event);
                 change = apc.handleStateEvent(event, eventValue);
+                // GammaOS: when playback starts or restarts, ensure per-UID client volume is set.
+                if (event == AudioPlaybackConfiguration.PLAYER_STATE_STARTED
+                        || event == AudioPlaybackConfiguration.PLAYER_UPDATE_DEVICE_ID) {
+                    final Float f = mGammaUidToClientVolume.get(apc.getClientUid());
+                    if (f != null) {
+                        applyGammaClientVolumeToPlayerLocked(apc, f.floatValue());
+                    }
+                }
             } else {
                 Log.e(TAG, "Error handling event " + event);
                 change = false;
