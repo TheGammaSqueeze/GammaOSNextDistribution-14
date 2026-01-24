@@ -700,6 +700,19 @@ public class WindowManagerService extends IWindowManager.Stub
      */
     boolean mForceDesktopModeOnExternalDisplays;
 
+    // GammaOS: Optional IME display pinning for multi-display devices.
+    //
+    // When enabled, the IME window (TYPE_INPUT_METHOD and TYPE_INPUT_METHOD_DIALOG) will always be
+    // shown on a single display ("IME primary"), regardless of which display started input.
+    // This is useful for dual-screen devices where the user wants to keep typing on one screen
+    // while viewing the keyboard on the other.
+    private static final String PROP_GAMMA_IME_PIN_ENABLED = "persist.gammaos.ime.pin.enabled";
+    // If true, pin IME to the first non-default trusted display (if any); otherwise use default.
+    private static final String PROP_GAMMA_IME_PIN_SWAP = "persist.gammaos.ime.pin.swap";
+    // Optional explicit display id override for IME pinning. If set to >= 0 it takes precedence.
+    private static final String PROP_GAMMA_IME_PIN_DISPLAY_ID =
+            "persist.gammaos.ime.pin.display_id";
+
     /**
      * Returns whether per-display focus is enabled, taking into account both the
      * framework config flag and GammaOS runtime override.
@@ -712,7 +725,67 @@ public class WindowManagerService extends IWindowManager.Stub
         if (SystemProperties.getBoolean("persist.gammaos.multidisplay.dual_focus", false)) {
             return true;
         }
+        // GammaOS: When IME is pinned to a single "primary" display, keep per-display focus enabled
+        // so interacting with the IME on one display doesn't defocus an editor on another display.
+        if (SystemProperties.getBoolean("persist.gammaos.ime.pin.enabled", false)) {
+            return true;
+        }
         return mPerDisplayFocusEnabled;
+    }
+
+    // ===== GammaOS IME display pinning support =====
+
+    @GuardedBy("mGlobalLock")
+    boolean gammaosIsImeDisplayPinnedLocked() {
+        return SystemProperties.getBoolean(PROP_GAMMA_IME_PIN_ENABLED, false);
+    }
+
+    /**
+     * Returns the display id the IME should be pinned to when
+     * {@link #gammaosIsImeDisplayPinnedLocked()} is enabled.
+     *
+     * <p>Resolution order:
+     * <ol>
+     *     <li>If {@code persist.gammaos.ime.pin.display_id} is set to {@code >= 0}, use it.</li>
+     *     <li>Else if {@code persist.gammaos.ime.pin.swap} is {@code true}, use the first
+     *         non-default trusted display (if any).</li>
+     *     <li>Else, use {@link Display#DEFAULT_DISPLAY}.</li>
+     * </ol>
+     *
+     * <p>If the resolved display id doesn't exist or isn't trusted, this method falls back to
+     * {@link Display#DEFAULT_DISPLAY}.
+     */
+    @GuardedBy("mGlobalLock")
+    int gammaosGetImePinnedDisplayIdLocked() {
+        int displayId = DEFAULT_DISPLAY;
+
+        final int overrideDisplayId =
+                SystemProperties.getInt(PROP_GAMMA_IME_PIN_DISPLAY_ID, -1 /* def */);
+        if (overrideDisplayId >= 0) {
+            displayId = overrideDisplayId;
+        } else if (SystemProperties.getBoolean(PROP_GAMMA_IME_PIN_SWAP, false)) {
+            displayId = gammaosFindSecondaryImeDisplayIdLocked();
+        }
+
+        final DisplayContent dc = mRoot.getDisplayContent(displayId);
+        if (dc != null && dc.isTrusted()) {
+            return displayId;
+        }
+        return DEFAULT_DISPLAY;
+    }
+
+    @GuardedBy("mGlobalLock")
+    private int gammaosFindSecondaryImeDisplayIdLocked() {
+        final int[] secondaryDisplayId = new int[] { INVALID_DISPLAY };
+        mRoot.forAllDisplays(dc -> {
+            if (secondaryDisplayId[0] != INVALID_DISPLAY) {
+                return;
+            }
+            if (dc != null && dc.getDisplayId() != DEFAULT_DISPLAY && dc.isTrusted()) {
+                secondaryDisplayId[0] = dc.getDisplayId();
+            }
+        });
+        return secondaryDisplayId[0] != INVALID_DISPLAY ? secondaryDisplayId[0] : DEFAULT_DISPLAY;
     }
 
     boolean mDisableTransitionAnimation;
@@ -1508,6 +1581,12 @@ public class WindowManagerService extends IWindowManager.Stub
                 ProtoLog.w(WM_ERROR, "Attempted to add window with a client %s "
                         + "that is dead. Aborting.", session);
                 return WindowManagerGlobal.ADD_APP_EXITING;
+            }
+
+            // GammaOS: Optionally pin IME surfaces to a single display.
+            if ((type == TYPE_INPUT_METHOD || type == TYPE_INPUT_METHOD_DIALOG)
+                    && gammaosIsImeDisplayPinnedLocked()) {
+                displayId = gammaosGetImePinnedDisplayIdLocked();
             }
 
             final DisplayContent displayContent = getDisplayContentOrCreate(displayId, attrs.token);
@@ -3018,17 +3097,27 @@ public class WindowManagerService extends IWindowManager.Stub
     /** @see WindowManagerInternal#moveWindowTokenToDisplay(IBinder, int)  */
     public void moveWindowTokenToDisplay(IBinder binder, int displayId) {
         synchronized (mGlobalLock) {
-            final DisplayContent dc = mRoot.getDisplayContentOrCreate(displayId);
-            if (dc == null) {
-                ProtoLog.w(WM_ERROR, "moveWindowTokenToDisplay: Attempted to move token: %s"
-                        + " to non-exiting displayId=%d", binder, displayId);
-                return;
-            }
             final WindowToken token = mRoot.getWindowToken(binder);
             if (token == null) {
                 ProtoLog.w(WM_ERROR,
                         "moveWindowTokenToDisplay: Attempted to move non-existing token: %s",
                         binder);
+                return;
+            }
+
+            // GammaOS: Never move IME tokens away from the pinned display when IME pinning is
+            // enabled. This makes the behavior resilient even if callers request a different
+            // destination display.
+            if (gammaosIsImeDisplayPinnedLocked()
+                    && (token.windowType == TYPE_INPUT_METHOD
+                    || token.windowType == TYPE_INPUT_METHOD_DIALOG)) {
+                displayId = gammaosGetImePinnedDisplayIdLocked();
+            }
+
+            final DisplayContent dc = mRoot.getDisplayContentOrCreate(displayId);
+            if (dc == null) {
+                ProtoLog.w(WM_ERROR, "moveWindowTokenToDisplay: Attempted to move token: %s"
+                        + " to non-exiting displayId=%d", binder, displayId);
                 return;
             }
             if (token.getDisplayContent() == dc) {
@@ -3040,6 +3129,7 @@ public class WindowManagerService extends IWindowManager.Stub
             dc.reParentWindowToken(token);
         }
     }
+
 
     // TODO(multi-display): remove when no default display use case.
     void prepareAppTransitionNone() {
@@ -8178,7 +8268,34 @@ public class WindowManagerService extends IWindowManager.Stub
                 InputTarget imeTarget =
                     getInputTargetFromWindowTokenLocked(imeTargetWindowToken);
                 if (imeTarget != null) {
-                    imeTarget.getDisplayContent().updateImeInputAndControlTarget(imeTarget);
+                    DisplayContent dc = imeTarget.getDisplayContent();
+                    if (gammaosIsImeDisplayPinnedLocked()) {
+                        final int pinnedDisplayId = gammaosGetImePinnedDisplayIdLocked();
+                        final DisplayContent pinnedDc = mRoot.getDisplayContent(pinnedDisplayId);
+
+                        // Ensure the IME window token itself lives on the pinned display.
+                        //
+                        // Without this, we can end up updating IME input/control targets on the
+                        // pinned display while the IME window remains attached to the display that
+                        // originally started input. In that split-brain configuration, WM will
+                        // cancel the show IME runner (ImeTracker STATUS_CANCEL) and the keyboard
+                        // becomes invisible on all displays.
+                        final WindowToken imeWindowToken = mRoot.getWindowToken(imeToken);
+                        if (imeWindowToken != null
+                                && (imeWindowToken.windowType == TYPE_INPUT_METHOD
+                                || imeWindowToken.windowType == TYPE_INPUT_METHOD_DIALOG)) {
+                            final DisplayContent imeTokenDc = imeWindowToken.getDisplayContent();
+                            final int imeTokenDisplayId = imeTokenDc != null
+                                    ? imeTokenDc.getDisplayId() : INVALID_DISPLAY;
+                            if (imeTokenDisplayId != pinnedDisplayId) {
+                                moveWindowTokenToDisplay(imeToken, pinnedDisplayId);
+                            }
+                        }
+                        if (pinnedDc != null) {
+                            dc = pinnedDc;
+                        }
+                    }
+                    dc.updateImeInputAndControlTarget(imeTarget);
                 }
             }
         }
@@ -8340,12 +8457,37 @@ public class WindowManagerService extends IWindowManager.Stub
                         ImeTracker.PHASE_WM_HAS_IME_INSETS_CONTROL_TARGET);
 
                 Trace.asyncTraceBegin(TRACE_TAG_WINDOW_MANAGER, "WMS.showImePostLayout", 0);
-                final InsetsControlTarget controlTarget = imeTarget.getImeControlTarget();
-                imeTarget = controlTarget.getWindow();
+                InsetsControlTarget controlTarget = imeTarget.getImeControlTarget();
+                WindowState controlWindow = controlTarget.getWindow();
                 // If InsetsControlTarget doesn't have a window, it's using remoteControlTarget
-                // which is controlled by default display
-                final DisplayContent dc = imeTarget != null
-                        ? imeTarget.getDisplayContent() : getDefaultDisplayContentLocked();
+                // which is controlled by default display.
+                DisplayContent dc = controlWindow != null
+                        ? controlWindow.getDisplayContent() : getDefaultDisplayContentLocked();
+
+                // GammaOS: If IME is pinned to a single display, route the show request and its
+                // control target to the pinned display.
+                //
+                // Without this, an editor on display#2 can request IME, but WM will schedule the
+                // IME show on display#2's ImeSourceProvider, while the IME window/token is forced
+                // to display#0. That breaks the invariants in
+                // ImeInsetsSourceProvider#isReadyToShowIme() and results in
+                // ImeTracker PHASE_WM_SHOW_IME_RUNNER cancellation (keyboard invisible).
+                if (gammaosIsImeDisplayPinnedLocked()) {
+                    final int pinnedDisplayId = gammaosGetImePinnedDisplayIdLocked();
+                    final DisplayContent pinnedDc = mRoot.getDisplayContent(pinnedDisplayId);
+                    if (pinnedDc != null) {
+                        // Ensure the pinned display has up-to-date IME targets for this request.
+                        pinnedDc.updateImeInputAndControlTarget(imeTarget);
+
+                        final InsetsControlTarget pinnedControlTarget =
+                                pinnedDc.getImeTarget(IME_TARGET_CONTROL);
+                        if (pinnedControlTarget != null) {
+                            controlTarget = pinnedControlTarget;
+                            controlWindow = controlTarget.getWindow();
+                        }
+                        dc = pinnedDc;
+                    }
+                }
                 dc.getInsetsStateController().getImeSourceProvider()
                         .scheduleShowImePostLayout(controlTarget, statsToken);
             }
@@ -8358,11 +8500,18 @@ public class WindowManagerService extends IWindowManager.Stub
             synchronized (mGlobalLock) {
                 WindowState imeTarget = mWindowMap.get(imeTargetWindowToken);
                 ProtoLog.d(WM_DEBUG_IME, "hideIme target: %s ", imeTarget);
+                // GammaOS: Route IME hide to the pinned display when IME pinning is enabled.
+                if (gammaosIsImeDisplayPinnedLocked()) {
+                    displayId = gammaosGetImePinnedDisplayIdLocked();
+                }
                 DisplayContent dc = mRoot.getDisplayContent(displayId);
                 if (imeTarget != null) {
                     imeTarget = imeTarget.getImeControlTarget().getWindow();
                     if (imeTarget != null) {
-                        dc = imeTarget.getDisplayContent();
+                        // When pinned, force hide to affect the pinned display's IME.
+                        if (!gammaosIsImeDisplayPinnedLocked()) {
+                            dc = imeTarget.getDisplayContent();
+                        }
                     }
                     // If there was a pending IME show(), reset it as IME has been
                     // requested to be hidden.
@@ -9855,6 +10004,9 @@ public class WindowManagerService extends IWindowManager.Stub
         //  to match default display ImeContainer and then receive another configuration update
         //  from attachToWindowToken.
         synchronized (mGlobalLock) {
+            if (gammaosIsImeDisplayPinnedLocked()) {
+                return gammaosGetImePinnedDisplayIdLocked();
+            }
             final DisplayContent dc = mRoot.getTopFocusedDisplayContent();
             return dc.getImePolicy() == DISPLAY_IME_POLICY_LOCAL ? dc.getDisplayId()
                     : DEFAULT_DISPLAY;

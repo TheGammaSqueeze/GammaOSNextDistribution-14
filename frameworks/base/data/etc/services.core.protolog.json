@@ -3907,14 +3907,14 @@
       "group": "WM_ERROR",
       "at": "com\/android\/server\/wm\/WindowManagerService.java"
     },
-    "5128669121055635771": {
-      "message": "moveWindowTokenToDisplay: Attempted to move token: %s to non-exiting displayId=%d",
+    "6497954191906583839": {
+      "message": "moveWindowTokenToDisplay: Attempted to move non-existing token: %s",
       "level": "WARN",
       "group": "WM_ERROR",
       "at": "com\/android\/server\/wm\/WindowManagerService.java"
     },
-    "6497954191906583839": {
-      "message": "moveWindowTokenToDisplay: Attempted to move non-existing token: %s",
+    "5128669121055635771": {
+      "message": "moveWindowTokenToDisplay: Attempted to move token: %s to non-exiting displayId=%d",
       "level": "WARN",
       "group": "WM_ERROR",
       "at": "com\/android\/server\/wm\/WindowManagerService.java"

@@ -4888,6 +4888,19 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
             return null;
         }
 
+        // GammaOS: When IME is pinned to a single display, we can be asked to show the IME on this
+        // display while the input target lives on another display. In that case, do not hand IME
+        // insets control to the input target (it cannot control insets on a different display).
+        // Instead, keep IME control on this display's system/remote controller.
+        if (mWmService.gammaosIsImeDisplayPinnedLocked()
+                && mImeInputTarget.getDisplayContent() != this) {
+            if (mRemoteInsetsControlTarget != null) {
+                return mRemoteInsetsControlTarget;
+            }
+            final WindowState statusBar = mDisplayPolicy.getStatusBar();
+            return statusBar != null ? statusBar : null;
+        }
+
         final WindowState imeInputTarget = mImeInputTarget.getWindowState();
         if (!isImeControlledByApp() && mRemoteInsetsControlTarget != null
                 || getImeHostOrFallback(imeInputTarget) == mRemoteInsetsControlTarget) {
@@ -4902,6 +4915,17 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
      */
     @VisibleForTesting
     SurfaceControl computeImeParent() {
+        // GammaOS: If IME is pinned to this display but the active input target is on another
+        // display, keep the IME attached to this display's IME container parent (i.e. the display),
+        // not to an app surface. This avoids leaving the IME parent on a stale app surface when
+        // the IME/input targets live on different displays by design.
+        if (mWmService.gammaosIsImeDisplayPinnedLocked()
+                && mImeInputTarget != null
+                && mImeInputTarget.getDisplayContent() != this) {
+            return mImeWindowsContainer.getParent() != null
+                    ? mImeWindowsContainer.getParent().getSurfaceControl() : null;
+        }
+
         if (!ImeTargetVisibilityPolicy.canComputeImeParent(mImeLayeringTarget, mImeInputTarget)) {
             return null;
         }

@@ -102,6 +102,7 @@ import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.ShellCommand;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -227,6 +228,35 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
     static final boolean DEBUG = false;
     static final String TAG = "InputMethodManagerService";
     public static final String PROTO_ARG = "--proto";
+ 
+    /**
+     * GammaOS: When enabled, force the IME window to be shown only on a single, user-selected
+     * display, regardless of which display the current IME target (focused editor) belongs to.
+     *
+     * <p>Properties:</p>
+     * <ul>
+     *   <li>{@code persist.gammaos.ime.pin.enabled} (boolean; default {@code false})</li>
+     *   <li>{@code persist.gammaos.ime.pin.display_id} (int; default {@code 0})</li>
+     * </ul>
+     *
+     * <p>When {@code persist.gammaos.ime.pin.enabled=true}, the IME window is hosted on
+     * {@code persist.gammaos.ime.pin.display_id}, while the actual input connection remains bound
+     * to the currently focused editor (which may live on another display).</p>
+     */
+    private static final String PROP_GAMMAOS_IME_PRIMARY_ONLY = "persist.gammaos.ime.pin.enabled";
+    private static final String PROP_GAMMAOS_IME_PRIMARY_DISPLAY_ID =
+            "persist.gammaos.ime.pin.display_id";
+
+    private static boolean gammaosImePrimaryOnlyEnabled() {
+        return SystemProperties.getBoolean(PROP_GAMMAOS_IME_PRIMARY_ONLY, false);
+    }
+
+    private static int gammaosImePrimaryDisplayId() {
+        final int displayId = SystemProperties.getInt(PROP_GAMMAOS_IME_PRIMARY_DISPLAY_ID,
+                DEFAULT_DISPLAY);
+        // Treat negative values (including INVALID_DISPLAY) as DEFAULT_DISPLAY.
+        return displayId >= 0 ? displayId : DEFAULT_DISPLAY;
+    }
 
     @Retention(SOURCE)
     @IntDef({ShellCommandResult.SUCCESS, ShellCommandResult.FAILURE})
@@ -2745,6 +2775,9 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
      *         {@link WindowManager#DISPLAY_IME_POLICY_HIDE}.
      */
     static int computeImeDisplayIdForTarget(int displayId, @NonNull ImeDisplayValidator checker) {
+        if (gammaosImePrimaryOnlyEnabled()) {
+            displayId = gammaosImePrimaryDisplayId();
+        }
         if (displayId == DEFAULT_DISPLAY || displayId == INVALID_DISPLAY) {
             return FALLBACK_DISPLAY_ID;
         }
@@ -3147,7 +3180,8 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
             // Note that we still need to update IME status when focusing external display
             // that does not support system decoration and fallback to show IME on default
             // display since it is intentional behavior.
-            if (mCurTokenDisplayId != topFocusedDisplayId
+            if (!gammaosImePrimaryOnlyEnabled()
+                    && mCurTokenDisplayId != topFocusedDisplayId
                     && mCurTokenDisplayId != FALLBACK_DISPLAY_ID) {
                 return;
             }
