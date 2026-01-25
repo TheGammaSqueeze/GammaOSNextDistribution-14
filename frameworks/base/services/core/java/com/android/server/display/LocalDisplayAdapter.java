@@ -38,6 +38,7 @@ import android.os.Trace;
 import android.util.DisplayUtils;
 import android.util.LongSparseArray;
 import android.util.Slog;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -62,6 +63,11 @@ import com.android.server.lights.LogicalLight;
 import vendor.samsung.hardware.sysinput.V1_1.ISehSysInputDev;
 
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,6 +152,10 @@ final class LocalDisplayAdapter extends DisplayAdapter {
     @Override
     public void registerLocked() {
         super.registerLocked();
+
+        // GammaOS: Initialize split-brightness plumbing early so that toggles and secondary
+        // overrides take effect immediately (even before the user touches the primary slider).
+        BacklightAdapter.initGammaSplitBrightness();
 
         mInjector.setDisplayEventListenerLocked(getHandler().getLooper(),
                 new LocalDisplayEventListener());
@@ -1109,6 +1119,9 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                         }
 
                         try {
+                            // GammaOS split brightness: allow true backlight OFF only when the
+                            // display considered "off" by policy/state, not via user slider.
+                            mBacklightAdapter.onPowerStateChanged(state);
                             mSurfaceControlProxy.setDisplayPowerMode(token, mode);
                             Trace.traceCounter(Trace.TRACE_TAG_POWER, "DisplayPowerMode", mode);
                             // GammaOS: If we just turned the primary ON, mark it and resume followers.
@@ -1904,8 +1917,530 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         private final LogicalLight mBacklight;
         private final boolean mUseSurfaceControlBrightness;
         private final SurfaceControlProxy mSurfaceControlProxy;
+        private final boolean mIsFirstDisplay;
 
         private boolean mForceSurfaceControl = false;
+
+        /**
+         * GammaOS: Ensure split brightness polling/callbacks are live even before any brightness
+         * transactions occur.
+         */
+        static void initGammaSplitBrightness() {
+            GammaSplitBacklight.initIfNeeded();
+        }
+        private volatile int mLastPowerState = Display.STATE_UNKNOWN;
+
+        void onPowerStateChanged(int state) {
+            mLastPowerState = state;
+            if (GammaSplitBacklight.isEnabled()) {
+                final int slot = mIsFirstDisplay ? 0 : 1;
+                // If display is entering OFF/DOZE_SUSPEND, explicitly shut the backlight down.
+                if (state == Display.STATE_OFF || state == Display.STATE_DOZE_SUSPEND) {
+                    GammaSplitBacklight.setBacklight(slot, /*linear*/0f, /*allowOff*/true);
+                }
+            }
+        }
+
+        /**
+         * GammaOS split backlight brightness control.
+         *
+         * When enabled (via system properties), we bypass both SurfaceControl brightness and the
+         * Lights HAL for backlight control and instead drive the configured sysfs backlight nodes
+         * directly. This allows independent backlight control on multi-display devices even when
+         * the underlying Lights HAL only exposes a single backlight.
+         */
+        private static final class GammaSplitBacklight {
+            private static final String PROP_ENABLED =
+                    "persist.gammaos.multidisplay.split_brightness";
+
+            private static final String PROP_D0_PATH =
+                    "persist.gammaos.multidisplay.split_brightness.d0.path";
+            private static final String PROP_D1_PATH =
+                    "persist.gammaos.multidisplay.split_brightness.d1.path";
+
+            private static final String PROP_D0_MIN =
+                    "persist.gammaos.multidisplay.split_brightness.d0.min";
+            private static final String PROP_D0_MAX =
+                    "persist.gammaos.multidisplay.split_brightness.d0.max";
+            private static final String PROP_D1_MIN =
+                    "persist.gammaos.multidisplay.split_brightness.d1.min";
+            private static final String PROP_D1_MAX =
+                    "persist.gammaos.multidisplay.split_brightness.d1.max";
+
+            // Runtime status props (updated by system_server)
+            private static final String PROP_D0_CUR =
+                    "sys.gammaos.multidisplay.split_brightness.d0.cur";
+            private static final String PROP_D0_CUR_MIN =
+                    "sys.gammaos.multidisplay.split_brightness.d0.min";
+            private static final String PROP_D0_CUR_MAX =
+                    "sys.gammaos.multidisplay.split_brightness.d0.max";
+            private static final String PROP_D1_CUR =
+                    "sys.gammaos.multidisplay.split_brightness.d1.cur";
+            private static final String PROP_D1_CUR_MIN =
+                    "sys.gammaos.multidisplay.split_brightness.d1.min";
+            private static final String PROP_D1_CUR_MAX =
+                    "sys.gammaos.multidisplay.split_brightness.d1.max";
+ 
+            // GammaOS: per-display override requests (written by SystemUI).
+            // When split-brightness is enabled, we ignore mirrored/global writes for the
+            // secondary panel and only apply values explicitly requested via this property.
+            private static final String PROP_D1_OVERRIDE =
+                    "sys.gammaos.multidisplay.split_brightness.d1.override";
+
+            // GammaOS: persist last-known split brightness values so toggling can restore them.
+            private static final String PROP_LAST_D0 =
+                    "persist.gammaos.multidisplay.split_brightness.d0.last";
+            private static final String PROP_LAST_D1 =
+                    "persist.gammaos.multidisplay.split_brightness.d1.last";
+            private static final int DEFAULT_UNKNOWN_BRIGHTNESS = 120;
+
+            // Cached enabled state to detect toggles in property callbacks.
+            private static boolean sLastEnabled = SystemProperties.getBoolean(PROP_ENABLED, false);
+ 
+            private static final long OVERRIDE_POLL_MS = 100;
+            private static HandlerThread sWorkerThread;
+            private static android.os.Handler sWorker;
+            private static boolean sWorkerRunning;
+
+            private static final int[] sLastOverride = new int[] { Integer.MIN_VALUE, Integer.MIN_VALUE };
+
+            private static boolean sPropCallbackRegistered = false;
+
+            // Safe defaults for typical GammaOS GSI multi-display devices.
+            private static final String DEFAULT_D0_PATH = "/sys/class/backlight/backlight";
+            private static final String DEFAULT_D1_PATH = "/sys/class/backlight/backlight1";
+
+            private static final boolean[] sLoggedWriteFailure = new boolean[] { false, false };
+
+            private static final Config[] sCachedConfigs = new Config[] { null, null };
+            private static final String[] sCachedSignatures = new String[] { null, null };
+
+            static boolean isEnabled() {
+                return SystemProperties.getBoolean(PROP_ENABLED, false);
+            }
+  
+            static void initIfNeeded() {
+                ensurePropCallbackRegistered();
+                // Keep a lightweight poller running so toggles/overrides take effect even when
+                // no one calls SystemProperties.reportSyspropChanged() (e.g. adb setprop).
+                ensureWorker();
+                // Apply current enabled state immediately.
+                handleToggleIfNeeded(/*force*/true);
+                if (isEnabled()) {
+                    applySecondaryOverrideIfNeeded(/*force*/true);
+                }
+            }
+
+            private static void handleToggleIfNeeded(boolean force) {
+                final boolean enabled = isEnabled();
+                if (!force && enabled == sLastEnabled) return;
+                final boolean wasEnabled = sLastEnabled;
+                sLastEnabled = enabled;
+                if (enabled) {
+                    ensureWorker();
+                    applySplitOnEnable(wasEnabled);
+                } else {
+                    applySplitOnDisable(wasEnabled);
+                }
+            }
+
+            private static int clampUserValue(int v) {
+                if (v < 1 || v > 255) return DEFAULT_UNKNOWN_BRIGHTNESS;
+                return v;
+            }
+
+            private static void applySplitOnEnable(boolean wasEnabled) {
+                int d0 = SystemProperties.getInt(PROP_LAST_D0, DEFAULT_UNKNOWN_BRIGHTNESS);
+                int d1 = SystemProperties.getInt(PROP_LAST_D1, DEFAULT_UNKNOWN_BRIGHTNESS);
+                d0 = clampUserValue(d0);
+                d1 = clampUserValue(d1);
+
+                // Apply immediately.
+                applySlotValue(0, d0, /*allowOff*/false, /*persist*/true);
+                SystemProperties.set(PROP_D1_OVERRIDE, Integer.toString(d1));
+                applySecondaryOverrideIfNeeded(/*force*/true);
+            }
+
+            private static void applySplitOnDisable(boolean wasEnabled) {
+                int d0 = SystemProperties.getInt(PROP_D0_CUR, -1);
+                if (d0 < 1 || d0 > 255) {
+                    d0 = SystemProperties.getInt(PROP_LAST_D0, DEFAULT_UNKNOWN_BRIGHTNESS);
+                }
+                d0 = clampUserValue(d0);
+
+                // Clear override so secondary is no longer independently driven.
+                SystemProperties.set(PROP_D1_OVERRIDE, "-1");
+                sLastOverride[1] = Integer.MIN_VALUE;
+
+                // Unify both panels WITHOUT overwriting last-known split values.
+                applySlotValue(0, d0, /*allowOff*/false, /*persist*/false);
+                applySlotValue(1, d0, /*allowOff*/false, /*persist*/false);
+            }
+
+            private static void persistLast(int slot, int v) {
+                if (v < 1 || v > 255) return;
+                SystemProperties.set(slot == 0 ? PROP_LAST_D0 : PROP_LAST_D1, Integer.toString(v));
+            }
+
+            private static void applySlotValue(int slot, int value, boolean allowOff, boolean persist) {
+                final Config cfg = getConfig(slot);
+                if (cfg == null) return;
+                int v = value;
+                if (v <= 0) {
+                    if (!allowOff) v = cfg.min;
+                } else {
+                    v = clamp(v, cfg.min, cfg.max);
+                }
+                if (!writeInt(cfg.brightnessFile, v, slot)) return;
+                if (cfg.blPowerFile != null) {
+                    writeIntNoLog(cfg.blPowerFile, (v == 0) ? 1 : 0);
+                }
+                SystemProperties.set(cfg.curProp, Integer.toString(v));
+                SystemProperties.set(cfg.minProp, Integer.toString(cfg.min));
+                SystemProperties.set(cfg.maxProp, Integer.toString(cfg.max));
+                if (persist && v != 0) persistLast(slot, v);
+            }
+
+            private static void ensureWorker() {
+                if (sWorkerThread == null) {
+                    sWorkerThread = new HandlerThread("GammaSplitBacklight");
+                    sWorkerThread.start();
+                    sWorker = new android.os.Handler(sWorkerThread.getLooper());
+                }
+                if (!sWorkerRunning) {
+                    sWorkerRunning = true;
+                    sWorker.post(sPollRunnable);
+                }
+            }
+
+            private static final Runnable sPollRunnable = new Runnable() {
+               @Override
+               public void run() {
+                   try {
+                       // Detect enable/disable transitions even if SystemProperties callbacks are
+                       // not delivered (e.g. adb setprop without reportSyspropChanged).
+                       handleToggleIfNeeded(/*force*/false);
+
+                       if (isEnabled()) {
+                           // Always apply override on a fixed cadence so it is "real time" even if
+                           // system property change callbacks do not fire reliably on this target.
+                           applySecondaryOverrideIfNeeded(/*force*/false);
+                       }
+                   } catch (Throwable t) {
+                       // Never crash system_server due to a vendor backlight quirk.
+                   } finally {
+                       if (sWorker != null) {
+                           sWorker.postDelayed(this, OVERRIDE_POLL_MS);
+                       }
+                   }
+               }
+           };
+
+            private static void ensurePropCallbackRegistered() {
+                if (sPropCallbackRegistered) return;
+                sPropCallbackRegistered = true;
+                sLastEnabled = isEnabled();
+                if (isEnabled()) {
+                    ensureWorker();
+                }
+                // Apply initial state immediately.
+                handleToggleIfNeeded(/*force*/true);
+                SystemProperties.addChangeCallback(() -> {
+                    // Detect enable/disable toggle and apply expected behavior immediately.
+                    handleToggleIfNeeded(/*force*/false);
+                    if (!isEnabled()) return;
+                    // Apply secondary override immediately when SystemUI changes it.
+                    applySecondaryOverrideIfNeeded(/*force*/false);
+                });
+            }
+
+            static boolean setBacklight(int slot, float linearBacklight) {
+                return setBacklight(slot, linearBacklight, /*allowOff*/false);
+            }
+
+            static boolean setBacklight(int slot, float linearBacklight, boolean allowOff) {
+                ensurePropCallbackRegistered();
+                if (isEnabled()) {
+                    ensureWorker();
+                    applySecondaryOverrideIfNeeded(/*force*/false);
+                }
+ 
+
+                final Config cfg = getConfig(slot);
+                if (cfg == null) {
+                    return false;
+                }
+
+                float clamped = linearBacklight;
+                if (clamped < 0f) clamped = 0f;
+                if (clamped > 1f) clamped = 1f;
+
+                // In split mode: do not allow user-driven brightness to reach 0 (screen-off).
+                // Only allow a 0 write when the display is intentionally going OFF (sleep/doze suspend).
+                final boolean turningOff = allowOff && (clamped <= 0f);
+ 
+                // GammaOS split mode contract:
+                //  - Slot 0 follows the normal brightness pipeline (global brightness).
+                //  - Slot 1 (secondary panel) is ONLY driven by explicit override requests from
+                //    SystemUI (PROP_D1_OVERRIDE). Mirrored/global writes are ignored so the
+                //    primary slider cannot affect the secondary backlight.
+                if (slot == 1 && !turningOff) {
+                    final int override = SystemProperties.getInt(PROP_D1_OVERRIDE, -1);
+                    if (override < 0) {
+                        // No explicit override: keep current secondary backlight unchanged.
+                        return true;
+                    }
+
+                    int v = override;
+                    // Clamp to [min..max] and never allow 0 from user slider.
+                    if (v <= 0) v = cfg.min;
+                    v = clamp(v, cfg.min, cfg.max);
+
+                    if (!writeInt(cfg.brightnessFile, v, slot)) {
+                        return false;
+                    }
+                    if (cfg.blPowerFile != null) {
+                        writeIntNoLog(cfg.blPowerFile, (v == 0) ? 1 : 0);
+                    }
+                    SystemProperties.set(cfg.curProp, Integer.toString(v));
+                    SystemProperties.set(cfg.minProp, Integer.toString(cfg.min));
+                    SystemProperties.set(cfg.maxProp, Integer.toString(cfg.max));
+                    if (v != 0) { persistLast(1, v); }
+                    sLastOverride[1] = override;
+                    return true;
+                }
+
+                int value;
+
+                if (turningOff) {
+                    value = 0;
+                } else {
+                    value = Math.round(cfg.min + clamped * (cfg.max - cfg.min));
+                    value = clamp(value, cfg.min, cfg.max);
+                }
+ 
+                // Clamp and apply. For non-zero values, enforce min.
+                if (value != 0) {
+                    value = clamp(value, cfg.min, cfg.max);
+                    // Ensure user-driven writes never reach 0. (min is 1 by policy)
+                    if (value <= 0) value = cfg.min;
+                }
+
+                if (!writeInt(cfg.brightnessFile, value, slot)) {
+                    return false;
+                }
+ 
+                // Best-effort: also drive bl_power for panels that rely on it for power gating.
+                // 0 = on, 1 = off.
+                if (cfg.blPowerFile != null) {
+                    if (turningOff) {
+                        writeIntNoLog(cfg.blPowerFile, 1);
+                    } else {
+                        writeIntNoLog(cfg.blPowerFile, 0);
+                    }
+                }
+
+                // Export runtime values for SystemUI / debugging.
+                SystemProperties.set(cfg.curProp, Integer.toString(value));
+                SystemProperties.set(cfg.minProp, Integer.toString(cfg.min));
+                SystemProperties.set(cfg.maxProp, Integer.toString(cfg.max));
+                if (value != 0) { persistLast(slot, value); }
+                return true;
+            }
+
+            private static int clamp(int value, int min, int max) {
+                return (value < min) ? min : ((value > max) ? max : value);
+            }
+ 
+            private static void applySecondaryOverrideIfNeeded(boolean force) {
+                final int override = SystemProperties.getInt(PROP_D1_OVERRIDE, Integer.MIN_VALUE);
+                if (!force && override == sLastOverride[1]) {
+                    return;
+                }
+                sLastOverride[1] = override;
+                if (override == Integer.MIN_VALUE || override < 0) {
+                    // Override cleared: do not force any value.
+                    return;
+                }
+                final Config cfg = getConfig(1);
+                if (cfg == null) {
+                    return;
+                }
+                int value = override;
+                // Treat 0 as explicit off, otherwise enforce min/max.
+                if (value <= 0) value = cfg.min;
+                value = clamp(value, cfg.min, cfg.max);
+                if (!writeInt(cfg.brightnessFile, value, 1)) {
+                    return;
+                }
+                if (cfg.blPowerFile != null) {
+                    writeIntNoLog(cfg.blPowerFile, (value == 0) ? 1 : 0);
+                }
+                SystemProperties.set(cfg.curProp, Integer.toString(value));
+                SystemProperties.set(cfg.minProp, Integer.toString(cfg.min));
+                SystemProperties.set(cfg.maxProp, Integer.toString(cfg.max));
+                if (value != 0) {
+                    persistLast(1, value);
+                }
+            }
+
+            @Nullable
+            private static Config getConfig(int slot) {
+                final boolean isSlot0 = (slot == 0);
+
+                final String pathProp = isSlot0 ? PROP_D0_PATH : PROP_D1_PATH;
+                final String minProp = isSlot0 ? PROP_D0_MIN : PROP_D1_MIN;
+                final String maxProp = isSlot0 ? PROP_D0_MAX : PROP_D1_MAX;
+
+                final String defaultPath = isSlot0 ? DEFAULT_D0_PATH : DEFAULT_D1_PATH;
+                final String dirOrFile = SystemProperties.get(pathProp, defaultPath);
+                if (dirOrFile == null || dirOrFile.isEmpty()) {
+                    if (slot >= 0 && slot < sCachedConfigs.length) {
+                        sCachedConfigs[slot] = null;
+                        sCachedSignatures[slot] = null;
+                    }
+                    return null;
+                }
+
+                final int min = Math.max(1, SystemProperties.getInt(minProp, 1));
+                final int maxOverride = SystemProperties.getInt(maxProp, -1);
+
+                final String signature = dirOrFile + "|" + min + "|" + maxOverride;
+                if (slot >= 0 && slot < sCachedConfigs.length) {
+                    final Config cached = sCachedConfigs[slot];
+                    if (cached != null && signature.equals(sCachedSignatures[slot])) {
+                        return cached;
+                    }
+                }
+
+                final File brightnessFile = resolveBrightnessFile(dirOrFile);
+                if (brightnessFile == null) {
+                    if (slot >= 0 && slot < sCachedConfigs.length) {
+                        sCachedConfigs[slot] = null;
+                        sCachedSignatures[slot] = signature;
+                    }
+                    return null;
+                }
+
+                int max = maxOverride;
+                if (max <= 0) {
+                    max = readInt(resolveMaxBrightnessFile(dirOrFile), 255);
+                }
+                if (max < min) {
+                    max = min;
+                }
+
+                final String curProp = isSlot0 ? PROP_D0_CUR : PROP_D1_CUR;
+                final String curMinProp = isSlot0 ? PROP_D0_CUR_MIN : PROP_D1_CUR_MIN;
+                final String curMaxProp = isSlot0 ? PROP_D0_CUR_MAX : PROP_D1_CUR_MAX;
+
+                final File blPowerFile = resolveBlPowerFile(dirOrFile);
+
+                final Config cfg = new Config(brightnessFile, blPowerFile, min, max, curProp, curMinProp, curMaxProp);
+                if (slot >= 0 && slot < sCachedConfigs.length) {
+                    sCachedConfigs[slot] = cfg;
+                    sCachedSignatures[slot] = signature;
+                }
+                if (slot >= 0 && slot < sLoggedWriteFailure.length) {
+                    // Allow logging again after a configuration change.
+                    sLoggedWriteFailure[slot] = false;
+                }
+                return cfg;
+            }
+
+            @Nullable
+            private static File resolveBrightnessFile(String dirOrFile) {
+                final File f = new File(dirOrFile);
+                if (dirOrFile.endsWith("/brightness")) {
+                    return f;
+                }
+                return new File(f, "brightness");
+            }
+
+            private static File resolveMaxBrightnessFile(String dirOrFile) {
+                final File f = new File(dirOrFile);
+                if (dirOrFile.endsWith("/brightness")) {
+                    final File parent = f.getParentFile();
+                    return parent != null ? new File(parent, "max_brightness") : f;
+                }
+                return new File(f, "max_brightness");
+            }
+ 
+            private static File resolveBlPowerFile(String dirOrFile) {
+                final File f = new File(dirOrFile);
+                if (dirOrFile.endsWith("/brightness")) {
+                    final File parent = f.getParentFile();
+                    return parent != null ? new File(parent, "bl_power") : null;
+                }
+                return new File(f, "bl_power");
+            }
+
+            private static void writeIntNoLog(File file, int value) {
+                if (file == null) return;
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    final String s = Integer.toString(value);
+                    fos.write(s.getBytes());
+                    fos.flush();
+                } catch (IOException ignored) {
+                    // Best-effort only.
+                }
+            }
+ 
+            private static int readInt(File file, int def) {
+                if (file == null) return def;
+                BufferedReader reader = null;
+                try {
+                    reader = new BufferedReader(new FileReader(file));
+                    final String line = reader.readLine();
+                    if (line == null) return def;
+                    return Integer.parseInt(line.trim());
+                } catch (IOException | NumberFormatException e) {
+                    return def;
+                } finally {
+                    if (reader != null) {
+                        try { reader.close(); } catch (IOException ignored) { }
+                    }
+                }
+            }
+
+            private static boolean writeInt(File file, int value, int slot) {
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    final String s = Integer.toString(value);
+                    fos.write(s.getBytes());
+                    fos.flush();
+                    return true;
+                } catch (IOException e) {
+                    if (slot >= 0 && slot < sLoggedWriteFailure.length
+                            && !sLoggedWriteFailure[slot]) {
+                        sLoggedWriteFailure[slot] = true;
+                        Slog.w(TAG, "Gamma split backlight: failed to write " + value
+                                + " to " + file, e);
+                    }
+                    return false;
+                }
+            }
+
+            private static final class Config {
+                final File brightnessFile;
+                @Nullable final File blPowerFile;
+                final int min;
+                final int max;
+                final String curProp;
+                final String minProp;
+                final String maxProp;
+
+                Config(File brightnessFile, @Nullable File blPowerFile, int min, int max,
+                        String curProp, String minProp, String maxProp) {
+                    this.brightnessFile = brightnessFile;
+                    this.blPowerFile = blPowerFile;
+                    this.min = min;
+                    this.max = max;
+                    this.curProp = curProp;
+                    this.minProp = minProp;
+                    this.maxProp = maxProp;
+                }
+            }
+        }
 
         /**
          * @param displayToken Token for display associated with this backlight.
@@ -1915,6 +2450,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 SurfaceControlProxy surfaceControlProxy) {
             mDisplayToken = displayToken;
             mSurfaceControlProxy = surfaceControlProxy;
+            mIsFirstDisplay = isFirstDisplay;
 
             mUseSurfaceControlBrightness = mSurfaceControlProxy
                     .getDisplayBrightnessSupport(mDisplayToken);
@@ -1925,10 +2461,23 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             } else {
                 mBacklight = null;
             }
+
+            // GammaOS: initialize split brightness plumbing early so d1 override applies immediately.
+            GammaSplitBacklight.initIfNeeded();
         }
 
         // Set backlight within min and max backlight values
         void setBacklight(float sdrBacklight, float sdrNits, float backlight, float nits) {
+            // GammaOS split mode: bypass HAL and drive sysfs directly per display.
+            if (GammaSplitBacklight.isEnabled()) {
+                // Split mode: always bypass SurfaceControl brightness and Lights HAL.
+                final int slot = mIsFirstDisplay ? 0 : 1;
+                // If the write fails, we still do not fall back to HAL (split mode must own
+                // backlight control to prevent vendor HAL from mirroring both panels).
+                GammaSplitBacklight.setBacklight(slot, backlight);
+                return;
+            }
+
             if (mUseSurfaceControlBrightness || mForceSurfaceControl) {
                 if (BrightnessSynchronizer.floatEquals(
                         sdrBacklight, PowerManager.BRIGHTNESS_INVALID_FLOAT)) {
@@ -1950,6 +2499,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
         public String toString() {
             return "BacklightAdapter [useSurfaceControl=" + mUseSurfaceControlBrightness
                     + " (force_anyway? " + mForceSurfaceControl + ")"
+                    + ", isFirstDisplay=" + mIsFirstDisplay
                     + ", backlight=" + mBacklight + "]";
         }
     }

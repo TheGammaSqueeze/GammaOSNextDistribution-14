@@ -21,9 +21,16 @@ import static com.android.systemui.media.dagger.MediaModule.QS_PANEL;
 import static com.android.systemui.qs.QSPanel.QS_SHOW_BRIGHTNESS;
 import static com.android.systemui.qs.dagger.QSScopeModule.QS_USING_MEDIA_PLAYER;
 
+import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import java.util.Arrays;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
@@ -54,14 +61,53 @@ import javax.inject.Named;
 @QSScope
 public class QSPanelController extends QSPanelControllerBase<QSPanel> {
 
+    private static final String PROP_SPLIT_BRIGHTNESS =
+            "persist.gammaos.multidisplay.split_brightness";
+    private static final String PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID =
+            "persist.gammaos.multidisplay.split_brightness.d0.display_id";
+    private static final String PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID =
+            "persist.gammaos.multidisplay.split_brightness.d1.display_id";
+    private static final int DEFAULT_SECONDARY_DISPLAY_ID = 2;
+
     private final QSCustomizerController mQsCustomizerController;
     private final QSTileRevealController.Factory mQsTileRevealControllerFactory;
     private final FalsingManager mFalsingManager;
-    private BrightnessController mBrightnessController;
-    private BrightnessSliderController mBrightnessSliderController;
-    private BrightnessMirrorHandler mBrightnessMirrorHandler;
     private final StatusBarKeyguardViewManager mStatusBarKeyguardViewManager;
+    private final DisplayManager mDisplayManager;
+
+    private BrightnessController mBrightnessController;
+    private BrightnessController mSecondaryBrightnessController;
+    private BrightnessSliderController mBrightnessSliderController;
+    private BrightnessSliderController mSecondaryBrightnessSliderController;
+    private BrightnessMirrorHandler mBrightnessMirrorHandler;
+
     private boolean mListening;
+    private boolean mSplitBrightnessEnabled;
+    private int mPrimaryBrightnessDisplayId;
+    private int mSecondaryBrightnessDisplayId;
+    private boolean mSplitBrightnessSyspropCallbackRegistered;
+    private final Runnable mSplitBrightnessSyspropCallback = this::onSplitBrightnessSyspropChanged;
+
+    // GammaOS: Some property changes (adb setprop) do not trigger SystemProperties callbacks.
+    // Poll while QS is attached so the shade updates immediately even without reportSyspropChanged().
+    private boolean mSplitBrightnessPollRunning;
+    private final Runnable mSplitBrightnessPoll = new Runnable() {
+        @Override
+        public void run() {
+            if (!mSplitBrightnessPollRunning || mView == null) return;
+            final boolean enabled = SystemProperties.getBoolean(PROP_SPLIT_BRIGHTNESS, false);
+            final int primaryDisplayId = SystemProperties.getInt(
+                    PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
+            final int secondaryDisplayId = SystemProperties.getInt(
+                    PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+            if (enabled != mSplitBrightnessEnabled
+                    || primaryDisplayId != mPrimaryBrightnessDisplayId
+                    || secondaryDisplayId != mSecondaryBrightnessDisplayId) {
+                updateSplitBrightnessFromProperties();
+            }
+            mView.postDelayed(this, 200);
+        }
+    };
 
     private final boolean mSceneContainerEnabled;
 
@@ -100,11 +146,37 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
         mBrightnessSliderControllerFactory = brightnessSliderFactory;
         mBrightnessControllerFactory = brightnessControllerFactory;
 
-        mBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
-        mView.setBrightnessView(mBrightnessSliderController.getRootView());
+        mDisplayManager = (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
 
-        mBrightnessController = brightnessControllerFactory.create(mBrightnessSliderController);
-        mBrightnessMirrorHandler = new BrightnessMirrorHandler(mBrightnessController);
+        mPrimaryBrightnessDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
+        mSecondaryBrightnessDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+
+        mBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
+        mSecondaryBrightnessSliderController = brightnessSliderFactory.create(getContext(), mView);
+
+        // Keep primary brightness view as the actual slider view so QSAnimator can animate
+        // sliderScaleY without crashing. Secondary is added as a sibling view below it.
+        mView.setBrightnessView(mBrightnessSliderController.getRootView());
+        mView.setSecondaryBrightnessView(mSecondaryBrightnessSliderController.getRootView());
+
+        mBrightnessController = brightnessControllerFactory.create(
+                mBrightnessSliderController, mPrimaryBrightnessDisplayId);
+        mSecondaryBrightnessController = brightnessControllerFactory.create(
+                mSecondaryBrightnessSliderController, mSecondaryBrightnessDisplayId);
+
+        // Only the primary brightness slider participates in the standard brightness mirror flow.
+        // The secondary slider must remain fully independent to avoid cross-coupling.
+        mBrightnessMirrorHandler = new BrightnessMirrorHandler(Arrays.asList(
+                mBrightnessController));
+
+        if (!mSplitBrightnessSyspropCallbackRegistered) {
+            mSplitBrightnessSyspropCallbackRegistered = true;
+            SystemProperties.addChangeCallback(mSplitBrightnessSyspropCallback);
+        }
+        updateSplitBrightnessFromProperties();
+
         mStatusBarKeyguardViewManager = statusBarKeyguardViewManager;
         mLastDensity = view.getResources().getConfiguration().densityDpi;
         mSceneContainerEnabled = sceneContainerFlags.isEnabled();
@@ -118,6 +190,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
         mMediaHost.init(MediaHierarchyManager.LOCATION_QS);
         mQsCustomizerController.init();
         mBrightnessSliderController.init();
+        mSecondaryBrightnessSliderController.init();
     }
 
     @Override
@@ -149,6 +222,11 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
         mBrightnessMirrorHandler.onQsPanelAttached();
         PagedTileLayout pagedTileLayout= ((PagedTileLayout) mView.getOrCreateTileLayout());
         pagedTileLayout.setOnTouchListener(mTileLayoutTouchListener);
+
+        // Start polling while attached so the shade reacts live to prop toggles.
+        mSplitBrightnessPollRunning = true;
+        mView.removeCallbacks(mSplitBrightnessPoll);
+        mView.post(mSplitBrightnessPoll);
     }
 
     @Override
@@ -161,6 +239,10 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
     protected void onViewDetached() {
         getContext().getContentResolver().unregisterContentObserver(mView.getContentObserver());
         mBrightnessMirrorHandler.onQsPanelDettached();
+        mSplitBrightnessPollRunning = false;
+        if (mView != null) {
+            mView.removeCallbacks(mSplitBrightnessPoll);
+        }
         super.onViewDetached();
     }
 
@@ -178,16 +260,96 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
         }
     }
 
+
+    private void onSplitBrightnessSyspropChanged() {
+        // SystemProperties callbacks are global; always marshal back to the QS view thread.
+        if (mView == null) {
+            return;
+        }
+        mView.post(this::updateSplitBrightnessFromProperties);
+    }
+
+    private void updateSplitBrightnessFromProperties() {
+        final boolean enabled = SystemProperties.getBoolean(PROP_SPLIT_BRIGHTNESS, false);
+
+        final int primaryDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
+        final int secondaryDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+
+        mSplitBrightnessEnabled = enabled;
+        mPrimaryBrightnessDisplayId = primaryDisplayId;
+        mSecondaryBrightnessDisplayId = secondaryDisplayId;
+
+        if (mBrightnessController != null) {
+            mBrightnessController.setDisplayId(primaryDisplayId);
+        }
+        if (mSecondaryBrightnessController != null) {
+            mSecondaryBrightnessController.setDisplayId(secondaryDisplayId);
+        }
+
+        final boolean hasSecondaryDisplay = enabled
+                && mDisplayManager != null
+                && mDisplayManager.getDisplay(secondaryDisplayId) != null;
+
+        if (mSecondaryBrightnessSliderController != null) {
+            mSecondaryBrightnessSliderController.getRootView().setVisibility(
+                    hasSecondaryDisplay ? View.VISIBLE : View.GONE);
+        }
+ 
+        // GammaOS: force QS to re-measure and update margins immediately while shade is open.
+        mView.updateResources();
+        mView.requestLayout();
+        mView.invalidate();
+
+        if (mSecondaryBrightnessController == null) {
+            return;
+        }
+
+        // Register callbacks whenever the secondary slider is visible/eligible.
+        // Relying on QS "listening" state causes the secondary slider to become inert (no listener
+        // attached) on some devices/flows, which matches the observed behavior (no logcat, no sysfs).
+        if (hasSecondaryDisplay) {
+            mSecondaryBrightnessController.registerCallbacks();
+        } else {
+            mSecondaryBrightnessController.unregisterCallbacks();
+        }
+    }
+
     private void reinflateBrightnessSlider() {
         mBrightnessController.unregisterCallbacks();
+        mSecondaryBrightnessController.unregisterCallbacks();
+
+        mPrimaryBrightnessDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D0_DISPLAY_ID, getContext().getDisplayId());
+        mSecondaryBrightnessDisplayId = SystemProperties.getInt(
+                PROP_SPLIT_BRIGHTNESS_D1_DISPLAY_ID, DEFAULT_SECONDARY_DISPLAY_ID);
+
         mBrightnessSliderController =
                 mBrightnessSliderControllerFactory.create(getContext(), mView);
+        mSecondaryBrightnessSliderController =
+                mBrightnessSliderControllerFactory.create(getContext(), mView);
+
         mView.setBrightnessView(mBrightnessSliderController.getRootView());
-        mBrightnessController = mBrightnessControllerFactory.create(mBrightnessSliderController);
-        mBrightnessMirrorHandler.setBrightnessController(mBrightnessController);
+        mView.setSecondaryBrightnessView(mSecondaryBrightnessSliderController.getRootView());
+
+        mBrightnessController = mBrightnessControllerFactory.create(
+                mBrightnessSliderController, mPrimaryBrightnessDisplayId);
+        mSecondaryBrightnessController = mBrightnessControllerFactory.create(
+                mSecondaryBrightnessSliderController, mSecondaryBrightnessDisplayId);
+
+        // Keep mirror attached only to the primary controller.
+        mBrightnessMirrorHandler.setBrightnessControllers(Arrays.asList(
+                mBrightnessController));
+
         mBrightnessSliderController.init();
+        mSecondaryBrightnessSliderController.init();
+
+        updateSplitBrightnessFromProperties();
+
         if (mListening) {
             mBrightnessController.registerCallbacks();
+            // Secondary callbacks are registered conditionally by updateSplitBrightnessFromProperties().
         }
     }
 
@@ -217,6 +379,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
             } else {
                 mBrightnessController.unregisterCallbacks();
             }
+            updateSplitBrightnessFromProperties();
         }
     }
 
@@ -232,6 +395,7 @@ public class QSPanelController extends QSPanelControllerBase<QSPanel> {
     /** Update state of all tiles. */
     public void refreshAllTiles() {
         mBrightnessController.checkRestrictionAndSetEnabled();
+        mSecondaryBrightnessController.checkRestrictionAndSetEnabled();
         super.refreshAllTiles();
     }
 

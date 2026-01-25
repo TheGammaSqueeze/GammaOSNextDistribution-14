@@ -38,6 +38,7 @@ import com.android.systemui.qs.tiles.ImmersiveModeTile;
 import com.android.systemui.qs.tiles.GammaShaderTile;
 import com.android.systemui.qs.tiles.DualStackTile;
 import com.android.systemui.qs.tiles.GammaDualFocusTile;
+import com.android.systemui.qs.tiles.GammaSplitBrightnessTile;
 import com.android.systemui.qs.tiles.GlobalBFITile;
 import com.android.systemui.qs.tiles.RG477VTile;
 import com.android.systemui.qs.tiles.GammaEQTile;
@@ -176,6 +177,13 @@ interface LineageModule {
     @IntoMap
     @StringKey(GammaDualFocusTile.TILE_SPEC)
     fun bindGammaDualFocusTile(gammadualFocusTile: GammaDualFocusTile): QSTileImpl<*>
+
+    /** Inject GammaSplitBrightnessTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(GammaSplitBrightnessTile.TILE_SPEC)
+    fun bindGammaSplitBrightnessTile(gammaSplitBrightnessTile: GammaSplitBrightnessTile): QSTileImpl<*>
+
 
     /** Inject GlobalBFITile into tileMap in QSModule */
     @Binds

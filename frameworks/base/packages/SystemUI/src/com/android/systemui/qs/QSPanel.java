@@ -74,6 +74,7 @@ public class QSPanel extends LinearLayout {
 
     @Nullable
     protected View mBrightnessView;
+    private View mSecondaryBrightnessView;
     protected View mAutoBrightnessView;
 
     @Nullable
@@ -223,6 +224,7 @@ public class QSPanel extends LinearLayout {
     public void setBrightnessView(@NonNull View view) {
         if (mBrightnessView != null) {
             removeView(mBrightnessView);
+            // Note: secondary is managed independently.
             mChildrenLayoutTop.remove(mBrightnessView);
             mMovableContentStartIndex--;
         }
@@ -230,19 +232,66 @@ public class QSPanel extends LinearLayout {
         mBrightnessView = view;
         mAutoBrightnessView = view.findViewById(R.id.brightness_icon);
 
-        setBrightnessViewMargin();
+        setBrightnessViewsMargin();
 
         mMovableContentStartIndex++;
     }
 
-    private void setBrightnessViewMargin() {
+    /**
+     * Add a secondary brightness view directly under the primary brightness view.
+     *
+     * This is used by GammaOS split-brightness mode to show a second slider while keeping
+     * the primary brightness view compatible with QSAnimator (which expects sliderScaleY).
+     */
+    public void setSecondaryBrightnessView(@androidx.annotation.Nullable View view) {
+        if (mSecondaryBrightnessView != null) {
+            removeView(mSecondaryBrightnessView);
+            mChildrenLayoutTop.remove(mSecondaryBrightnessView);
+            mMovableContentStartIndex--;
+            mSecondaryBrightnessView = null;
+        }
+
+        if (view == null) {
+            setBrightnessViewsMargin();
+            return;
+        }
+
+        // Ensure primary exists; if not, fall back to index 0.
+        final int insertIndex = (mBrightnessView != null) ? 1 : 0;
+        addView(view, insertIndex);
+        mSecondaryBrightnessView = view;
+
+        setBrightnessViewsMargin();
+
+        mMovableContentStartIndex++;
+    }
+
+    private void setBrightnessViewsMargin() {
         if (mBrightnessView != null) {
             MarginLayoutParams lp = (MarginLayoutParams) mBrightnessView.getLayoutParams();
             lp.topMargin = mContext.getResources()
                     .getDimensionPixelSize(R.dimen.qs_brightness_margin_top);
-            lp.bottomMargin = mContext.getResources()
+            final int defaultBottom = mContext.getResources()
                     .getDimensionPixelSize(R.dimen.qs_brightness_margin_bottom);
+            final int splitGap = mContext.getResources()
+                    .getDimensionPixelSize(R.dimen.qs_brightness_split_gap);
+
+            // If the secondary slider is visible, stack tightly by removing the primary bottom
+            // margin and letting the secondary carry the bottom margin.
+            final boolean secondaryVisible = (mSecondaryBrightnessView != null)
+                    && (mSecondaryBrightnessView.getVisibility() == View.VISIBLE);
+            // GammaOS: keep a small visual gap between the two sliders.
+            lp.bottomMargin = secondaryVisible ? splitGap : defaultBottom;
             mBrightnessView.setLayoutParams(lp);
+        }
+
+        if (mSecondaryBrightnessView != null) {
+            MarginLayoutParams lp2 = (MarginLayoutParams) mSecondaryBrightnessView.getLayoutParams();
+            // No extra top margin between sliders; keep them stacked.
+            lp2.topMargin = 0;
+            lp2.bottomMargin = mContext.getResources()
+                    .getDimensionPixelSize(R.dimen.qs_brightness_margin_bottom);
+            mSecondaryBrightnessView.setLayoutParams(lp2);
         }
     }
 
@@ -401,7 +450,7 @@ public class QSPanel extends LinearLayout {
 
         updatePageIndicator();
 
-        setBrightnessViewMargin();
+        setBrightnessViewsMargin();
 
         if (mTileLayout != null) {
             mTileLayout.updateResources();

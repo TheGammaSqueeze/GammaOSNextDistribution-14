@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.hardware.display.DisplayManagerInternal;
+import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.view.Display;
@@ -45,6 +46,10 @@ import java.io.PrintWriter;
  */
 public class DisplayBrightnessStrategySelector {
     private static final String TAG = "DisplayBrightnessStrategySelector";
+    // GammaOS: when enabled, additional displays must not follow the lead display brightness.
+    // This allows independent per-display brightness via SystemUI sliders.
+    private static final String GAMMA_PROP_SPLIT_BRIGHTNESS =
+            "persist.gammaos.multidisplay.split_brightness";
     // True if light sensor is to be used to automatically determine doze screen brightness.
     private final boolean mAllowAutoBrightnessWhileDozingConfig;
 
@@ -108,6 +113,10 @@ public class DisplayBrightnessStrategySelector {
                 R.bool.config_allowAutoBrightnessWhileDozing);
         mOldBrightnessStrategyName = mInvalidBrightnessStrategy.getName();
     }
+ 
+    private static boolean isGammaSplitBrightnessEnabled() {
+        return SystemProperties.getBoolean(GAMMA_PROP_SPLIT_BRIGHTNESS, false);
+    }
 
     /**
      * Selects the appropriate DisplayBrightnessStrategy based on the request and the display state
@@ -122,8 +131,12 @@ public class DisplayBrightnessStrategySelector {
             displayBrightnessStrategy = mScreenOffBrightnessStrategy;
         } else if (shouldUseDozeBrightnessStrategy(displayPowerRequest)) {
             displayBrightnessStrategy = mDozeBrightnessStrategy;
-        } else if (BrightnessUtils.isValidBrightnessValue(
-                mFollowerBrightnessStrategy.getBrightnessToFollow())) {
+        } else if (!isGammaSplitBrightnessEnabled()
+                && BrightnessUtils.isValidBrightnessValue(
+                        mFollowerBrightnessStrategy.getBrightnessToFollow())) {
+            // Stock behavior: allow follower displays to mirror lead brightness.
+            // GammaOS split mode: disable follower strategy so displays can be controlled
+            // independently (secondary slider uses TemporaryBrightnessStrategy).
             displayBrightnessStrategy = mFollowerBrightnessStrategy;
         } else if (displayPowerRequest.boostScreenBrightness) {
             displayBrightnessStrategy = mBoostBrightnessStrategy;

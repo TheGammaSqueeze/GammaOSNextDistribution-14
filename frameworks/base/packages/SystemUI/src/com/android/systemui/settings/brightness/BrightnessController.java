@@ -26,6 +26,8 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.hardware.display.BrightnessInfo;
 import android.hardware.display.DisplayManager;
+import android.os.SystemProperties;
+import android.view.Display;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -77,7 +79,12 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
             Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE);
 
     private final ImageView mIcon;
-    private final int mDisplayId;
+    private int mDisplayId;
+
+    // GammaOS split brightness
+    private static final String GAMMA_PROP_SPLIT = "persist.gammaos.multidisplay.split_brightness";
+    private static final String GAMMA_PROP_D1_OVERRIDE = "sys.gammaos.multidisplay.split_brightness.d1.override";
+    private static final String GAMMA_TAG = "GammaSplitBrightness";
     private final Context mContext;
     private final ToggleSlider mControl;
     private final DisplayManager mDisplayManager;
@@ -95,6 +102,9 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     private final DisplayTracker.Callback mBrightnessListener = new DisplayTracker.Callback() {
         @Override
         public void onDisplayChanged(int displayId) {
+            if (displayId != mDisplayId) {
+                return;
+            }
             mBackgroundHandler.post(mUpdateSliderRunnable);
         }
     };
@@ -232,7 +242,11 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         @Override
         public void run() {
             final boolean inVrMode = mIsVrModeEnabled;
-            final BrightnessInfo info = mContext.getDisplay().getBrightnessInfo();
+            final Display display = mDisplayManager.getDisplay(mDisplayId);
+            if (display == null) {
+                return;
+            }
+            final BrightnessInfo info = display.getBrightnessInfo();
             if (info == null) {
                 return;
             }
@@ -300,6 +314,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     public BrightnessController(
             Context context,
             @Assisted ToggleSlider control,
+            @Assisted int displayId,
             UserTracker userTracker,
             DisplayTracker displayTracker,
             DisplayManager displayManager,
@@ -316,7 +331,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         mUserTracker = userTracker;
         mDisplayTracker = displayTracker;
         mSecureSettings = secureSettings;
-        mDisplayId = mContext.getDisplayId();
+        mDisplayId = displayId;
         mDisplayManager = displayManager;
         mVrManager = iVrManager;
 
@@ -341,6 +356,27 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         mBackgroundHandler.removeCallbacks(mStopListeningRunnable);
         mBackgroundHandler.post(mStopListeningRunnable);
         mControlValueInitialized = false;
+    }
+
+    /**
+     * Updates the target display this controller should operate on.
+     *
+     * Used by GammaOS split brightness to bind a secondary brightness slider to a non-default
+     * display while keeping the UI hosted on the default display.
+     */
+    public void setDisplayId(int displayId) {
+        if (mDisplayId == displayId) {
+            return;
+        }
+        mDisplayId = displayId;
+        if (mListening) {
+            // Best-effort refresh to update slider bounds/value for the new display.
+            mBackgroundHandler.post(mUpdateSliderRunnable);
+        }
+    }
+
+    public int getDisplayId() {
+        return mDisplayId;
     }
 
     @Override
@@ -368,6 +404,23 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         if (android.os.SystemProperties.getBoolean("persist.sys.phh.linear_brightness", false)) {
             android.util.Log.e("PHH", "Linear brightness val " + value + " from " + minBacklight + " to " + maxBacklight + " makes " + valFloat);
             valFloat = value / 65536.0f;
+        }
+        final boolean gammaSplit = SystemProperties.getBoolean(GAMMA_PROP_SPLIT, false);
+        if (gammaSplit && mDisplayId != Display.DEFAULT_DISPLAY) {
+            // Secondary slider drives sysprop override directly (sysfs backlight1).
+            int v = Math.round(MathUtils.constrain(valFloat, 0f, 1f) * 255f);
+            if (v <= 0) v = 1;
+            if (v > 255) v = 255;
+            SystemProperties.set(GAMMA_PROP_D1_OVERRIDE, Integer.toString(v));
+            // Force sysprop change delivery so system_server can apply the override immediately
+            // without requiring a primary brightness transaction.
+            SystemProperties.reportSyspropChanged();
+            Log.d(GAMMA_TAG, "d1.override=" + v + " displayId=" + mDisplayId);
+            return;
+        }
+        // In split mode, never allow user-driven brightness to reach 0 on the primary panel.
+        if (gammaSplit && mDisplayId == Display.DEFAULT_DISPLAY && valFloat <= 0f) {
+            valFloat = 1f / 255f;
         }
         final float finalValFloat = valFloat;
 
@@ -408,7 +461,11 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     }
 
     private void setBrightness(float brightness) {
-        mDisplayManager.setTemporaryBrightness(mDisplayId, brightness);
+        try {
+            mDisplayManager.setTemporaryBrightness(mDisplayId, brightness);
+        } catch (IllegalArgumentException e) {
+            // Target display is not available (or does not support brightness). Ignore.
+        }
     }
 
     private void updateIcon(boolean automatic) {
@@ -474,6 +531,6 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
     @AssistedFactory
     public interface Factory {
         /** Create a {@link BrightnessController} */
-        BrightnessController create(ToggleSlider toggleSlider);
+        BrightnessController create(ToggleSlider toggleSlider, int displayId);
     }
 }

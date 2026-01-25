@@ -2083,8 +2083,17 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
     private boolean saveBrightnessInfo(float brightness, float adjustedBrightness,
             @Nullable DisplayBrightnessState state) {
         synchronized (mCachedBrightnessInfo) {
-            float stateMax = state != null ? state.getMaxBrightness() : PowerManager.BRIGHTNESS_MAX;
-            float stateMin = state != null ? state.getMinBrightness() : PowerManager.BRIGHTNESS_MAX;
+            // If state is null, we must NOT collapse the range by using BRIGHTNESS_MAX as the
+            // minimum. Doing so makes BrightnessInfo report min=max=1.0 and causes secondary
+            // displays to appear "not brightness-capable" to SystemUI and other clients.
+            //
+            // In that scenario, fall back to the normal float brightness range.
+            final float stateMax = (state != null)
+                    ? state.getMaxBrightness()
+                    : PowerManager.BRIGHTNESS_MAX;
+            final float stateMin = (state != null)
+                    ? state.getMinBrightness()
+                    : PowerManager.BRIGHTNESS_MIN;
             final float minBrightness = Math.max(stateMin, Math.min(
                     mBrightnessRangeController.getCurrentBrightnessMin(), stateMax));
             final float maxBrightness = Math.min(
