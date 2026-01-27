@@ -15,6 +15,7 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.TYPE_INTERNAL;
  
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.app.IApplicationThread;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -23,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.app.TaskStackListener;
 import android.hardware.input.InputManager;
+import android.os.Bundle;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.SystemProperties;
@@ -32,6 +34,7 @@ import android.util.ArraySet;
 import android.util.Slog;
 import android.util.Log;
 import android.view.InputDevice;
+import android.view.InputEvent;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.DisplayInfo;
@@ -39,6 +42,7 @@ import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Arrays;
 
@@ -791,7 +795,7 @@ final class DualStackController {
         if (am == null || pm == null) {
             return;
         }
- 
+
         // Ensure the never-kill list is always enforced even if caller forgets.
         addNeverKillPackages(keepPackages);
 
@@ -814,52 +818,122 @@ final class DualStackController {
             return;
         }
 
-        final ArraySet<String> killed = new ArraySet<>();
+        // Collect candidate packages to kill. Prefer pkgList (accurate for shared processes),
+        // and fall back to processName parsing to match LegacyGlobalActions kill-all behaviour.
+        final ArraySet<String> candidates = new ArraySet<>();
         for (int i = 0; i < running.size(); i++) {
             final ActivityManager.RunningAppProcessInfo proc = running.get(i);
-            if (proc == null || proc.pkgList == null) {
+            if (proc == null) {
                 continue;
             }
-            for (int j = 0; j < proc.pkgList.length; j++) {
-                final String pkg = proc.pkgList[j];
-                if (pkg == null || pkg.isEmpty()) {
-                    continue;
-                }
-                if (isNeverKillPackage(pkg)) {
-                    continue;
-                }
-                if (keepPackages.contains(pkg) || killed.contains(pkg)) {
-                    continue;
-                }
-                try {
-                    // If GammaOS launch-guard is enabled, prefer RetroArch's clean quit path
-                    // over force-stopping it. This mirrors the behaviour used in
-                    // ActivityTaskManagerService.maybeForceRestartGammaLaunchGuard().
-                    if (shouldAttemptRetroarchCleanQuit(pkg)) {
-                        final boolean needsForceStop = requestRetroarchCleanQuit(pkg, userId, am);
-                        if (!needsForceStop) {
-                            killed.add(pkg);
-                            Slog.i(TAG, "DualStack RetroArch clean quit succeeded: " + pkg);
-                            continue;
-                        }
-                        Slog.i(TAG, "DualStack RetroArch clean quit timed out; force-stopping: " + pkg);
-                    }
 
-                    final ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
-                    if (ai == null) {
-                        continue;
+            if (proc.pkgList != null && proc.pkgList.length > 0) {
+                for (int j = 0; j < proc.pkgList.length; j++) {
+                    final String pkg = proc.pkgList[j];
+                    if (pkg != null && !pkg.isEmpty()) {
+                        candidates.add(pkg);
                     }
-                    // Never kill core system UIDs, but do allow killing system apps like Launcher.
-                    if (ai.uid < Process.FIRST_APPLICATION_UID) {
-                        continue;
-                    }
-                    am.forceStopPackage(pkg);
-                    killed.add(pkg);
-                    Slog.i(TAG, "DualStack killed package: " + pkg);
-                } catch (PackageManager.NameNotFoundException ignored) {
-                } catch (Throwable e) {
-                    Slog.w(TAG, "DualStack failed to kill package " + pkg, e);
                 }
+                continue;
+            }
+
+            // LegacyGlobalActions uses processName directly; we strip any ":suffix" to
+            // recover the base package name where possible.
+            final String processName = proc.processName;
+            if (processName != null && !processName.isEmpty()) {
+                final int colon = processName.indexOf(':');
+                final String basePkg = (colon > 0) ? processName.substring(0, colon) : processName;
+                if (!basePkg.isEmpty()) {
+                    candidates.add(basePkg);
+                }
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            return;
+        }
+
+        final ArraySet<String> killed = new ArraySet<>();
+
+        // If GammaOS launch-guard is enabled, prefer RetroArch's clean quit path before
+        // killing anything else.
+        for (int i = 0; i < candidates.size(); i++) {
+            final String pkg = candidates.valueAt(i);
+            if (pkg == null || pkg.isEmpty()) {
+                continue;
+            }
+            if (isNeverKillPackage(pkg)) {
+                continue;
+            }
+            if (keepPackages.contains(pkg) || killed.contains(pkg)) {
+                continue;
+            }
+            if (!shouldAttemptRetroarchCleanQuit(pkg)) {
+                continue;
+            }
+
+            try {
+                final boolean needsForceStop = requestRetroarchCleanQuit(pkg, userId, am);
+                if (!needsForceStop) {
+                    killed.add(pkg);
+                    Slog.i(TAG, "DualStack RetroArch clean quit succeeded: " + pkg);
+                    continue;
+                }
+                Slog.i(TAG, "DualStack RetroArch clean quit timed out; force-stopping: " + pkg);
+
+                final ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                if (ai == null) {
+                    continue;
+                }
+                // Match LegacyGlobalActions kill-all: do not force-stop system packages.
+                if ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0) {
+                    continue;
+                }
+                // Never kill core system UIDs.
+                if (ai.uid < Process.FIRST_APPLICATION_UID) {
+                    continue;
+                }
+
+                am.forceStopPackage(pkg);
+                killed.add(pkg);
+                Slog.i(TAG, "DualStack killed package: " + pkg);
+            } catch (PackageManager.NameNotFoundException ignored) {
+            } catch (Throwable e) {
+                Slog.w(TAG, "DualStack failed to clean-quit/kill RetroArch package " + pkg, e);
+            }
+        }
+
+        // Kill everything else (except keepPackages) aggressively, mirroring LegacyGlobalActions.
+        for (int i = 0; i < candidates.size(); i++) {
+           final String pkg = candidates.valueAt(i);
+            if (pkg == null || pkg.isEmpty()) {
+                continue;
+            }
+            if (isNeverKillPackage(pkg)) {
+                continue;
+            }
+            if (keepPackages.contains(pkg) || killed.contains(pkg)) {
+                continue;
+            }
+            try {
+                final ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                if (ai == null) {
+                    continue;
+                }
+                // Match LegacyGlobalActions kill-all: only force-stop non-system packages.
+                if ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0) {
+                    continue;
+                }
+                // Never kill core system UIDs.
+                if (ai.uid < Process.FIRST_APPLICATION_UID) {
+                    continue;
+                }
+                am.forceStopPackage(pkg);
+                killed.add(pkg);
+                Slog.i(TAG, "DualStack killed package: " + pkg);
+            } catch (PackageManager.NameNotFoundException ignored) {
+            } catch (Throwable e) {
+                Slog.w(TAG, "DualStack failed to kill package " + pkg, e);
             }
         }
         Slog.i(TAG, "DualStack kill sweep complete. Kept=" + keepPackages + " killed=" + killed);
@@ -870,6 +944,37 @@ final class DualStackController {
         if (pkg == null) return false;
         if (!pkg.startsWith("com.retroarch")) return false;
         return SystemProperties.getBoolean(PROP_LAUNCH_GUARD_ENABLED, /* def */ false);
+    }
+ 
+    /**
+     * Best-effort wait until RetroArch's task becomes focused on its display.
+     *
+     * During dual-stack entry, the launching dual-stack app can remain top-resumed on display 0
+     * while RetroArch is brought forward and focused on another display. Top-resumed is therefore
+     * not a reliable signal for whether RetroArch will receive injected input.
+     */
+    private static boolean waitForRetroarchTaskFocused(ActivityManager am, int retroTaskId,
+            int userId, int expectedDisplayId, long timeoutMs) {
+        final long end = SystemClock.uptimeMillis() + timeoutMs;
+        while (SystemClock.uptimeMillis() < end) {
+            try {
+                final List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(50);
+                if (tasks != null) {
+                    for (int i = 0, size = tasks.size(); i < size; i++) {
+                        final ActivityManager.RunningTaskInfo info = tasks.get(i);
+                        if (info == null) continue;
+                        if (info.taskId != retroTaskId) continue;
+                        if (info.userId != userId) continue;
+                        if (expectedDisplayId != -1 && info.displayId != expectedDisplayId) continue;
+                        if (info.isFocused) return true;
+                        break; // Found the task but it is not focused yet.
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+            SystemClock.sleep(50);
+        }
+        return false;
     }
 
     /**
@@ -886,6 +991,11 @@ final class DualStackController {
      */
     private boolean requestRetroarchCleanQuit(String targetPkg, int userId, ActivityManager am) {
         int retroTaskId = -1;
+        int retroDisplayId = -1;
+        int escDisplayId = DEFAULT_DISPLAY;
+        long reinjectAtUptime = 0L;
+        boolean allowReinject = false;
+        boolean reinjected = false;
         try {
             // Use ActivityManager.getRunningTasks() (system_server has privilege). This avoids
             // depending on IActivityTaskManager#getTasks() signatures across branches.
@@ -898,6 +1008,7 @@ final class DualStackController {
                     final String pkg = info.topActivity.getPackageName();
                     if (pkg != null && pkg.startsWith("com.retroarch")) {
                         retroTaskId = info.taskId;
+                        retroDisplayId = info.displayId;
                         break;
                     }
                 }
@@ -907,17 +1018,49 @@ final class DualStackController {
         }
 
         if (retroTaskId != -1) {
+            escDisplayId = (retroDisplayId != -1) ? retroDisplayId : DEFAULT_DISPLAY;
+            Bundle opts = null;
+            if (retroDisplayId != -1) {
+                try {
+                    // Keep RetroArch on its current display (0/1/2) while bringing it forward.
+                    opts = ActivityOptions.makeBasic()
+                            .setLaunchDisplayId(retroDisplayId)
+                            .toBundle();
+                } catch (Throwable ignored) {
+                    opts = null;
+                }
+            }
+
+            // Bring RetroArch forward first, then only inject ESC once we can confirm focus.
             try {
                 // Direct call into ATMS (same process). Use a stable callingPackage.
                 mWm.mAtmService.moveTaskToFront(
-                        (IApplicationThread) null, "android", retroTaskId, 0 /* flags */, null);
+                        (IApplicationThread) null,
+                        "android",
+                        retroTaskId,
+                        ActivityManager.MOVE_TASK_NO_USER_ACTION,
+                        opts);
             } catch (Throwable t) {
-                // If we cannot bring it to front, still proceed to ESC / wait.
+                Slog.w(TAG, "DualStack failed to move RetroArch task to front"
+                        + " taskId=" + retroTaskId + " displayId=" + retroDisplayId, t);
             }
 
-            // Give WM a brief moment to focus RetroArch.
-            SystemClock.sleep(1000);
-            injectGammaEscapeKey();
+            final boolean focused = waitForRetroarchTaskFocused(
+                    am, retroTaskId, userId, retroDisplayId, 5000 /* ms */);
+            if (focused) {
+                // Allow a brief settle so the input target is stable.
+                SystemClock.sleep(250);
+            } else {
+                // Still inject, but target RetroArch's display explicitly so we do not land on display 0.
+                Slog.w(TAG, "DualStack RetroArch not focused in time; injecting ESC anyway"
+                        + " taskId=" + retroTaskId + " displayId=" + retroDisplayId
+                        + " escDisplayId=" + escDisplayId);
+            }
+            Slog.i(TAG, "DualStack injecting RetroArch ESC"
+                    + " taskId=" + retroTaskId + " displayId=" + escDisplayId);
+            injectGammaEscapeKey(escDisplayId);
+            allowReinject = true;
+            reinjectAtUptime = SystemClock.uptimeMillis() + 1500;
         }
 
         // Wait up to 10 seconds for any com.retroarch* process for this user to go away.
@@ -940,6 +1083,15 @@ final class DualStackController {
                     // App appears to have exited on its own; no need to force-stop.
                     return false;
                 }
+
+                if (allowReinject && !reinjected && reinjectAtUptime > 0L
+                        && SystemClock.uptimeMillis() >= reinjectAtUptime) {
+                    reinjected = true;
+                    Slog.i(TAG, "DualStack re-injecting RetroArch ESC"
+                            + " taskId=" + retroTaskId + " displayId=" + escDisplayId);
+                    injectGammaEscapeKey(escDisplayId);
+                }
+
                 SystemClock.sleep(200);
             }
         } catch (Throwable ignored) {
@@ -954,18 +1106,54 @@ final class DualStackController {
      * Injects a synthetic ESC keypress (down+up) into the input pipeline,
      * mirroring the behaviour used in ActivityTaskManagerService.injectGammaEscapeKey(). :contentReference[oaicite:1]{index=1}
      */
-    private static void injectGammaEscapeKey() {
+    private static Method sInputEventSetDisplayId;
+    private static boolean sInputEventSetDisplayIdFetched;
+
+    private static void maybeSetInputEventDisplayId(InputEvent ev, int displayId) {
+        if (ev == null || displayId == -1) return;
+
+        if (!sInputEventSetDisplayIdFetched) {
+            sInputEventSetDisplayIdFetched = true;
+            try {
+                sInputEventSetDisplayId =
+                        InputEvent.class.getDeclaredMethod("setDisplayId", int.class);
+                sInputEventSetDisplayId.setAccessible(true);
+            } catch (Throwable t) {
+                sInputEventSetDisplayId = null;
+            }
+        }
+
+        if (sInputEventSetDisplayId == null) return;
+        try {
+            sInputEventSetDisplayId.invoke(ev, displayId);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static void injectGammaEscapeKey(int displayId) {
         final long now = SystemClock.uptimeMillis();
         final KeyEvent down = new KeyEvent(now, now,
                 KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE, 0 /* repeat */,
                 0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
                 0 /* flags */, InputDevice.SOURCE_KEYBOARD);
         final KeyEvent up = KeyEvent.changeAction(down, KeyEvent.ACTION_UP);
+ 
+        // Best-effort: target the display RetroArch is on so ESC does not get routed to display 0
+        // while the dual-stack app is creating windows and focus is unstable.
+        maybeSetInputEventDisplayId(down, displayId);
+        maybeSetInputEventDisplayId(up, displayId);
 
         final InputManager im = InputManager.getInstance();
         if (im != null) {
-            im.injectInputEvent(down, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
-            im.injectInputEvent(up, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+            final boolean downOk = im.injectInputEvent(
+                    down, InputManager.INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH);
+            final boolean upOk = im.injectInputEvent(
+                    up, InputManager.INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH);
+            if (!downOk || !upOk) {
+                Slog.w(TAG, "DualStack ESC inject failed"
+                        + " displayId=" + displayId
+                        + " downOk=" + downOk + " upOk=" + upOk);
+            }
         }
     }
 
