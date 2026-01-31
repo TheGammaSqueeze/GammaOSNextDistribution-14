@@ -139,6 +139,11 @@ private volatile int previewChannelMask = AudioFormat.CHANNEL_OUT_STEREO;
 private static final int PREVIEW_IDLE_SILENCE_MS = 40;
 private static final int PREVIEW_WRITE_CHUNK_BYTES = 4096;
 private volatile int previewWritePos = 0;
+ 
+    // Guards to ensure preview init/threads are cancelled cleanly on lifecycle transitions.
+    private final Object previewInitLock = new Object();
+    private int previewInitGeneration = 0;
+    private volatile boolean previewInitInFlight = false;
 
     private SwitchMaterial switchCryst, switchLbp, switchWide;
     private Slider sliderCrystAmount, sliderCrystMix, sliderCrystHz, sliderCrystLimit, sliderCrystPreDb, sliderCrystPostDb;
@@ -443,29 +448,87 @@ private volatile int previewWritePos = 0;
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(pollRunnable);
-        if (previewPlaying) {
-            stopPreview();
+        // Ensure we do not keep AudioFlinger/HAL active while backgrounded.
+        suspendPreviewAudio(true);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Extra safety: if the activity is not visible, ensure all audio threads/tracks are gone.
+        suspendPreviewAudio(true);
+
+        // If you want GammaEQ to fully exit when leaving the activity, finish once we are stopped.
+        // Avoid breaking rotations / config changes.
+        if (!isChangingConfigurations()) {
+            finish();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        suspendPreviewAudio(true);
+    }
+
+    private boolean isActivityAlive() {
+        return !(isFinishing() || isDestroyed());
+    }
+
+    /**
+     * Stop any preview playback, terminate writer threads, and optionally release the AudioTrack.
+     *
+     * Must be safe to call repeatedly from lifecycle callbacks.
+     */
+    private void suspendPreviewAudio(boolean releaseTrack) {
+        // Advance generation so any in-flight init thread will self-abort.
+        synchronized (previewInitLock) {
+            previewInitGeneration++;
+        }
+
+        previewPlaying = false;
+        previewWritePos = 0;
+
+        // Releasing the AudioTrack can unblock a writer thread stuck inside AudioTrack.write().
+        if (releaseTrack) {
+            releasePreviewTrackLocked();
+        }
+
         stopPreviewWriter();
-        if (previewTrack != null) {
+
+        if (!releaseTrack) {
+            // If we keep the track around for any reason, ensure it is muted and idle.
+            AudioTrack t = previewTrack;
+            if (t != null) {
+                try {
+                    t.setVolume(0.0f);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        // Reset UI if we are still alive.
+        if (isActivityAlive()) {
+            runOnUiThread(() -> btnPreview.setText(getString(R.string.preview_play)));
+        }
+    }
+
+    private void releasePreviewTrackLocked() {
+        AudioTrack t = previewTrack;
+        previewTrack = null;
+        if (t != null) {
             try {
-                previewTrack.pause();
+                t.pause();
             } catch (Exception ignored) {
             }
             try {
-                previewTrack.flush();
+                t.flush();
             } catch (Exception ignored) {
             }
             try {
-                previewTrack.release();
+                t.release();
             } catch (Exception ignored) {
             }
-            previewTrack = null;
         }
     }
 
@@ -703,12 +766,23 @@ private volatile int previewWritePos = 0;
     // ---- Preview playback ----
     private void initPreviewAudioAsync() {
         // Do not block UI thread: load WAV + start a silent priming track in the background.
-        if (previewWriterRunning || previewTrack != null) return;
+        final int gen;
+        synchronized (previewInitLock) {
+            if (previewTrack != null || previewWriterRunning || previewInitInFlight) return;
+            previewInitInFlight = true;
+            gen = previewInitGeneration;
+        }
 
-        new Thread(() -> {
+        Thread initThread = new Thread(() -> {
             try {
                 // 1) Load WAV PCM (no decode at runtime)
                 WavPcm w = readWavPcmFromRaw(R.raw.preview_fast);
+
+                // Abort if we got backgrounded/destroyed while loading.
+                synchronized (previewInitLock) {
+                    if (previewInitGeneration != gen) return;
+                }
+
                 if (w != null && w.pcm != null && w.pcm.length > 0) {
                     previewPcm = w.pcm;
                     previewSampleRate = w.sampleRate;
@@ -717,14 +791,27 @@ private volatile int previewWritePos = 0;
                             ? AudioFormat.CHANNEL_OUT_MONO
                             : AudioFormat.CHANNEL_OUT_STEREO;
                 }
+ 
+                // Abort again before touching AudioTrack.
+                synchronized (previewInitLock) {
+                    if (previewInitGeneration != gen) return;
+                }
 
                 // 2) Create AudioTrack and start the writer thread that keeps the route alive.
                 initPreviewTrackLocked();
                 startPreviewWriter();
             } catch (Throwable t) {
                 Log.w(TAG, "Failed to init preview audio: " + t.getMessage());
+            } finally {
+                synchronized (previewInitLock) {
+                    previewInitInFlight = false;
+                }
             }
-        }, "GammaEQ-PreviewInit").start();
+        }, "GammaEQ-PreviewInit");
+
+        // Avoid keeping the process alive if we ever fail to stop this thread.
+        initThread.setDaemon(true);
+        initThread.start();
     }
 
     private void togglePreview() {
@@ -815,7 +902,7 @@ private volatile int previewWritePos = 0;
 
             final byte[] silence = buildSilencePcm(previewSampleRate, previewChannelCount, PREVIEW_IDLE_SILENCE_MS);
 
-            while (previewWriterRunning) {
+            while (previewWriterRunning && !Thread.currentThread().isInterrupted()) {
                 final AudioTrack t = previewTrack;
                 if (t == null) {
                     sleepQuiet(50);
@@ -856,7 +943,9 @@ private volatile int previewWritePos = 0;
                     // Stop at end rather than looping.
                     previewPlaying = false;
                     previewWritePos = 0;
-                    runOnUiThread(() -> btnPreview.setText(getString(R.string.preview_play)));
+                    if (isActivityAlive()) {
+                        runOnUiThread(() -> btnPreview.setText(getString(R.string.preview_play)));
+                    }
                     continue;
                 }
 
@@ -872,6 +961,8 @@ private volatile int previewWritePos = 0;
             }
         }, "GammaEQ-PreviewWriter");
 
+        // If anything goes wrong, avoid keeping the process alive due to a stray non-daemon thread.
+        previewWriterThread.setDaemon(true);
         previewWriterThread.start();
     }
 
@@ -879,9 +970,14 @@ private volatile int previewWritePos = 0;
         previewWriterRunning = false;
         Thread t = previewWriterThread;
         if (t != null) {
+            t.interrupt();
             try {
-                t.join(300);
+                t.join(1500);
             } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+            if (t.isAlive()) {
+                Log.w(TAG, "Preview writer thread did not stop in time");
             }
         }
         previewWriterThread = null;
@@ -891,6 +987,7 @@ private volatile int previewWritePos = 0;
         try {
             Thread.sleep(ms);
         } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
         }
     }
 
