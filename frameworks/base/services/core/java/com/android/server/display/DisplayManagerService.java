@@ -717,6 +717,7 @@ public final class DisplayManagerService extends SystemService {
             boolean allInactive = true;
             boolean allOff = true;
             final boolean stateChanged;
+            final boolean gammaosPropagateToAllInternalDisplays;
             synchronized (mSyncRoot) {
                 final int index = mDisplayStates.indexOfKey(displayId);
                 if (index > -1) {
@@ -740,18 +741,32 @@ public final class DisplayManagerService extends SystemService {
                 } else {
                     stateChanged = false;
                 }
+                boolean propagate = false;
+                if (displayId == Display.DEFAULT_DISPLAY) {
+                    final LogicalDisplay requestedDisplay =
+                            mLogicalDisplayMapper.getDisplayLocked(displayId,
+                                    /*includeDisabled*/ true);
+                    if (requestedDisplay != null) {
+                        final DisplayInfo di = requestedDisplay.getDisplayInfoLocked();
+                        propagate = di != null && di.type == Display.TYPE_INTERNAL;
+                    }
+                }
+                gammaosPropagateToAllInternalDisplays = propagate;
             }
 
             // The order of operations is important for legacy reasons.
             if (state == Display.STATE_OFF) {
                 requestDisplayStateInternal(displayId, state, brightness, sdrBrightness);
-                // GammaOS: also propagate OFF to all INTERNAL displays so secondaries
-                // don’t remain ON/UNKNOWN during sleep.
-                synchronized (mSyncRoot) {
-                    gammaosApplyStateToAllInternalDisplaysLocked(
-                            Display.STATE_OFF,
-                            PowerManager.BRIGHTNESS_INVALID_FLOAT,
-                            PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                // GammaOS: When the DEFAULT_DISPLAY (primary internal) changes power state,
+                // mirror it to all INTERNAL displays so secondaries sleep/wake in lock-step.
+                // Avoid doing this for targeted per-display blanking (e.g. disable-display).
+                if (gammaosPropagateToAllInternalDisplays) {
+                    synchronized (mSyncRoot) {
+                        gammaosApplyStateToAllInternalDisplaysLocked(
+                                Display.STATE_OFF,
+                                PowerManager.BRIGHTNESS_INVALID_FLOAT,
+                                PowerManager.BRIGHTNESS_INVALID_FLOAT);
+                    }
                 }
             }
 
@@ -761,10 +776,13 @@ public final class DisplayManagerService extends SystemService {
 
             if (state != Display.STATE_OFF) {
                 requestDisplayStateInternal(displayId, state, brightness, sdrBrightness);
-                // GammaOS: mirror BRIGHT/DOZE transitions to all INTERNAL displays so
-                // they wake together with the primary.
-                synchronized (mSyncRoot) {
-                    gammaosApplyStateToAllInternalDisplaysLocked(state, brightness, sdrBrightness);
+                // GammaOS: When the DEFAULT_DISPLAY (primary internal) changes power state,
+                // mirror it to all INTERNAL displays so they wake/sleep together.
+                if (gammaosPropagateToAllInternalDisplays) {
+                    synchronized (mSyncRoot) {
+                        gammaosApplyStateToAllInternalDisplaysLocked(
+                                state, brightness, sdrBrightness);
+                    }
                 }
             }
         }
