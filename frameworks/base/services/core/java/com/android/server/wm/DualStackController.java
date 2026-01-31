@@ -18,8 +18,10 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.IApplicationThread;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 
 import android.graphics.Rect;
 import android.app.TaskStackListener;
@@ -42,6 +44,7 @@ import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Arrays;
@@ -88,6 +91,114 @@ final class DualStackController {
     private static final int DUALSTACK_ELEVATE_ATTEMPTS = 3;
     private static final int DUALSTACK_ELEVATE_INTERVAL_MS = 5000;
 
+    // Avoid clearing the forced tall size while Home/Recents transitions are in-flight.
+    // We tear down mirroring immediately, but defer the display-size reset until the new
+    // foreground is stable to prevent mid-transition resizes that break overview.
+    private static final int DUALSTACK_CLEAR_FORCED_SIZE_INITIAL_DELAY_MS = 250;
+    private static final int DUALSTACK_CLEAR_FORCED_SIZE_RETRY_INTERVAL_MS = 250;
+    private static final int DUALSTACK_CLEAR_FORCED_SIZE_MAX_WAIT_MS = 5000;
+
+    private int mDeferredClearSeq = 0;
+    private boolean mDeferredClearScheduled;
+    private long mDeferredClearStartUptimeMs;
+ 
+    // Reflection-based transition detection (avoid compile-time dependency on internal types).
+    // Goal: never clear forced display size while Shell transitions are active, otherwise
+    // Home/Recents transitions can span 640x960 -> 640x480 and overview breaks.
+    private static boolean sTransitionReflectionFetched;
+    private static Method sAtmsGetTransitionControllerMethod;
+    private static Field sAtmsTransitionControllerField;
+    private static Method sTcInTransitionMethod;
+    private static Method sTcIsCollectingMethod;
+    private static Method sTcIsPlayingMethod;
+
+    private static boolean isShellTransitionActive(Object atms) {
+        if (atms == null) return false;
+        try {
+            if (!sTransitionReflectionFetched) {
+                sTransitionReflectionFetched = true;
+                try {
+                    sAtmsGetTransitionControllerMethod =
+                            atms.getClass().getDeclaredMethod("getTransitionController");
+                    sAtmsGetTransitionControllerMethod.setAccessible(true);
+                } catch (Throwable ignored) {
+                    sAtmsGetTransitionControllerMethod = null;
+                }
+                try {
+                    sAtmsTransitionControllerField =
+                            atms.getClass().getDeclaredField("mTransitionController");
+                    sAtmsTransitionControllerField.setAccessible(true);
+                } catch (Throwable ignored) {
+                    sAtmsTransitionControllerField = null;
+                }
+            }
+
+            Object tc = null;
+            if (sAtmsGetTransitionControllerMethod != null) {
+                try {
+                    tc = sAtmsGetTransitionControllerMethod.invoke(atms);
+                } catch (Throwable ignored) {
+                }
+            }
+            if (tc == null && sAtmsTransitionControllerField != null) {
+                try {
+                    tc = sAtmsTransitionControllerField.get(atms);
+                } catch (Throwable ignored) {
+                }
+            }
+            if (tc == null) return false;
+
+            // Lazily resolve controller methods from the runtime class.
+            final Class<?> c = tc.getClass();
+            if (sTcInTransitionMethod == null
+                    && sTcIsCollectingMethod == null
+                    && sTcIsPlayingMethod == null) {
+                try {
+                    sTcInTransitionMethod = c.getDeclaredMethod("inTransition");
+                    sTcInTransitionMethod.setAccessible(true);
+                } catch (Throwable ignored) {
+                    sTcInTransitionMethod = null;
+                }
+                try {
+                    sTcIsCollectingMethod = c.getDeclaredMethod("isCollecting");
+                    sTcIsCollectingMethod.setAccessible(true);
+                } catch (Throwable ignored) {
+                    sTcIsCollectingMethod = null;
+                }
+                try {
+                    sTcIsPlayingMethod = c.getDeclaredMethod("isPlaying");
+                    sTcIsPlayingMethod.setAccessible(true);
+                } catch (Throwable ignored) {
+                    sTcIsPlayingMethod = null;
+                }
+            }
+
+            if (sTcInTransitionMethod != null) {
+                try {
+                    final Object r = sTcInTransitionMethod.invoke(tc);
+                    if (r instanceof Boolean && ((Boolean) r)) return true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (sTcIsPlayingMethod != null) {
+                try {
+                    final Object r = sTcIsPlayingMethod.invoke(tc);
+                    if (r instanceof Boolean && ((Boolean) r)) return true;
+                } catch (Throwable ignored) {
+                }
+            }
+            if (sTcIsCollectingMethod != null) {
+               try {
+                    final Object r = sTcIsCollectingMethod.invoke(tc);
+                    if (r instanceof Boolean && ((Boolean) r)) return true;
+                } catch (Throwable ignored) {
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
+    }
+
     // Which Task (not just Activity) is currently being dual-stacked on DEFAULT_DISPLAY.
     // DraStic bounces between multiple activities (DraSticActivity, DraSticEmuActivity,
     // GameMenu) but they all live in the same task.
@@ -126,6 +237,12 @@ final class DualStackController {
                         synchronized (mWm.mGlobalLock) {
                             WindowManagerService.boostPriorityForLockedSection();
                             try {
+                                // Only react to focus changes for the currently active dual-stack
+                                // task. Avoid poking dual-stack during Home/Recents transitions,
+                                // which can cause forced-size churn and break overview.
+                                if (mActiveTask == null || mActiveTask.mTaskId != taskId) {
+                                    return;
+                                }
                                 final DisplayContent dc =
                                         mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
                                 if (dc != null) {
@@ -199,6 +316,7 @@ final class DualStackController {
     void updateMirroringIfNeeded(Transaction t) {
         reloadProperties();
         if (!mEnabled) {
+            cancelDeferredForcedTallSizeClearLocked();
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
@@ -209,6 +327,7 @@ final class DualStackController {
 
         final DisplayContent primary = mWm.mRoot.getDisplayContent(DEFAULT_DISPLAY);
         if (primary == null) {
+            cancelDeferredForcedTallSizeClearLocked();
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
@@ -219,6 +338,7 @@ final class DualStackController {
 
         final DisplayContent secondary = findSecondaryInternalDisplayLocked();
         if (secondary == null) {
+            cancelDeferredForcedTallSizeClearLocked();
             setRuntimeDualStackActive(false);
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
@@ -235,10 +355,16 @@ final class DualStackController {
         if (!pkgInFg) {
             mLastKillTaskId = -1;
             mLastElevateTaskId = -1;
-            clearForcedTallSizeIfNeeded();
+            // Tear down mirrors immediately so Home/Recents is not shown split/cropped.
+            // Defer clearing the forced tall size until the new foreground is stable to
+            // avoid mid-transition resizes (seen in logs as sb=640x960 -> eb=640x480).
             teardown(t);
+            scheduleDeferredForcedTallSizeClearLocked();
             return;
         }
+  
+        // Dual-stack is (or remains) active again, cancel any pending size reset.
+        cancelDeferredForcedTallSizeClearLocked();
  
         final ActivityRecord top = mWm.mRoot.getTopResumedActivity();
         if (top == null || top.getDisplayId() != DEFAULT_DISPLAY) {
@@ -785,6 +911,80 @@ final class DualStackController {
             }
         }
         return false;
+    }
+ 
+    private void cancelDeferredForcedTallSizeClearLocked() {
+        if (!mDeferredClearScheduled) return;
+        mDeferredClearScheduled = false;
+        mDeferredClearStartUptimeMs = 0L;
+        // Invalidate any already-posted callbacks.
+        mDeferredClearSeq++;
+    }
+
+    private void scheduleDeferredForcedTallSizeClearLocked() {
+        if (!mForcedTallSizeApplied) return;
+        if (mDeferredClearScheduled) return;
+        mDeferredClearScheduled = true;
+        mDeferredClearStartUptimeMs = SystemClock.uptimeMillis();
+        final int seq = ++mDeferredClearSeq;
+        mWm.mH.postDelayed(() -> performDeferredForcedTallSizeClear(seq),
+                DUALSTACK_CLEAR_FORCED_SIZE_INITIAL_DELAY_MS);
+    }
+
+    private void performDeferredForcedTallSizeClear(int seq) {
+        synchronized (mWm.mGlobalLock) {
+            WindowManagerService.boostPriorityForLockedSection();
+            try {
+                if (!mDeferredClearScheduled || seq != mDeferredClearSeq) return;
+
+                reloadProperties();
+                if (!mEnabled) {
+                    mDeferredClearScheduled = false;
+                    mDeferredClearStartUptimeMs = 0L;
+                    clearForcedTallSizeIfNeeded();
+                    return;
+                }
+
+                // If a whitelisted app returned to foreground, cancel the pending reset.
+                if (isWhitelistedPackageInForegroundOnDefaultDisplay()) {
+                    mDeferredClearScheduled = false;
+                    mDeferredClearStartUptimeMs = 0L;
+                    return;
+                }
+
+                final long waited = SystemClock.uptimeMillis() - mDeferredClearStartUptimeMs;
+
+                // Never clear forced size while shell transitions are active, otherwise
+                // Home/Recents transitions can span 640x960 -> 640x480 and overview breaks.
+                if (isShellTransitionActive(mWm.mAtmService)
+                        && waited < DUALSTACK_CLEAR_FORCED_SIZE_MAX_WAIT_MS) {
+                    mWm.mH.postDelayed(() -> performDeferredForcedTallSizeClear(seq),
+                            DUALSTACK_CLEAR_FORCED_SIZE_RETRY_INTERVAL_MS);
+                    return;
+                }
+                final ActivityRecord top = mWm.mRoot.getTopResumedActivity();
+                final String topPkg = (top != null) ? top.packageName : null;
+                final boolean stableNonWhitelistedTop =
+                        top != null
+                                && top.getDisplayId() == DEFAULT_DISPLAY
+                                && top.isVisibleRequested()
+                                && top.isState(ActivityRecord.State.RESUMED)
+                                && (topPkg == null || !mWhitelist.contains(topPkg));
+
+                if (!stableNonWhitelistedTop && waited < DUALSTACK_CLEAR_FORCED_SIZE_MAX_WAIT_MS) {
+                    // Still in an unstable transition (top-resumed not settled). Retry shortly.
+                    mWm.mH.postDelayed(() -> performDeferredForcedTallSizeClear(seq),
+                            DUALSTACK_CLEAR_FORCED_SIZE_RETRY_INTERVAL_MS);
+                    return;
+                }
+
+                mDeferredClearScheduled = false;
+                mDeferredClearStartUptimeMs = 0L;
+                clearForcedTallSizeIfNeeded();
+            } finally {
+                WindowManagerService.resetPriorityAfterLockedSection();
+            }
+        }
     }
 
     private void killAllAppsExcept(ArraySet<String> keepPackages, int userId) {

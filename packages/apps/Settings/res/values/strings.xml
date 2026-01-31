@@ -13021,4 +13021,9 @@
 
     <!--Text for Stylus Pointer Icon preference -->
     <string name="show_stylus_pointer_icon">Show pointer while hovering</string>
+ 
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Secondary home app</string>
+    <string name="secondary_home_pick_activity_title">Choose activity</string>
+    <string name="secondary_home_pick_activity_summary">Select any launchable activity (advanced)</string>
 </resources>

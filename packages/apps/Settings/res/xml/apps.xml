@@ -63,10 +63,18 @@
     </Preference>
 
     <Preference
+        android:key="secondary_home_app"
+        android:title="@string/secondary_home_app_title"
+        android:summary="@string/summary_placeholder"
+        android:order="-995"
+        android:fragment="com.android.settings.applications.defaultapps.SecondaryHomePicker"
+        settings:controller="com.android.settings.applications.defaultapps.SecondaryHomePreferenceController"/>
+
+    <Preference
         android:key="cloned_apps"
         android:title="@string/cloned_apps_dashboard_title"
         android:summary="@string/summary_placeholder"
-        android:order="-995"
+        android:order="-994"
         settings:controller="com.android.settings.applications.ClonedAppsPreferenceController"
         android:fragment="com.android.settings.applications.manageapplications.ManageApplications">
         <extra

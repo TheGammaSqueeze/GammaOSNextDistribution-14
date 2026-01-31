@@ -5785,9 +5785,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * GammaOS: Build an explicit MAIN|LAUNCHER intent for arbitrary packages so *any* app can act
      * as a secondary launcher without declaring CATEGORY_SECONDARY_HOME.
      * Preference order:
-     *   1) PackageManager#getLaunchIntentForPackage(pkg)
+     *   1) PackageManager#getLaunchIntentForPackage(pkg) (typically MAIN|LAUNCHER)
      *   2) First MAIN|LAUNCHER activity in the package
-     * We intentionally do NOT add HOME category here (avoid stealing primary home).
+     *   3) First MAIN|SECONDARY_HOME activity in the package
+     *   4) First MAIN|HOME activity in the package
+     *
+     * We intentionally do NOT add HOME category to the returned intent (avoid stealing primary
+     * home); we only use it as a probe to locate the activity component.
      */
     private @android.annotation.Nullable Intent buildSecondaryHomeFallbackIntent(
             @android.annotation.NonNull String pkg) {
@@ -5812,6 +5816,50 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                           | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
             if (list != null && !list.isEmpty()) {
                 final android.content.pm.ResolveInfo ri = list.get(0);
+                final android.content.ComponentName cn =
+                        new android.content.ComponentName(
+                                ri.activityInfo.packageName, ri.activityInfo.name);
+                final Intent explicit = new Intent(Intent.ACTION_MAIN);
+                explicit.setComponent(cn);
+                explicit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                        | Intent.FLAG_DEBUG_TRIAGED_MISSING);
+                return explicit;
+            }
+
+            // Else resolve the first MAIN|SECONDARY_HOME activity inside that package.
+            final Intent secondaryHomeProbe = new Intent(Intent.ACTION_MAIN);
+            secondaryHomeProbe.addCategory(Intent.CATEGORY_SECONDARY_HOME);
+            secondaryHomeProbe.setPackage(pkg);
+            final java.util.List<android.content.pm.ResolveInfo> secondaryHomeList =
+                    pm.queryIntentActivities(secondaryHomeProbe,
+                            android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+                          | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE
+                          | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+            if (secondaryHomeList != null && !secondaryHomeList.isEmpty()) {
+                final android.content.pm.ResolveInfo ri = secondaryHomeList.get(0);
+                final android.content.ComponentName cn =
+                        new android.content.ComponentName(
+                                ri.activityInfo.packageName, ri.activityInfo.name);
+                final Intent explicit = new Intent(Intent.ACTION_MAIN);
+                explicit.setComponent(cn);
+                explicit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                        | Intent.FLAG_DEBUG_TRIAGED_MISSING);
+                return explicit;
+            }
+
+            // Else resolve the first MAIN|HOME activity inside that package.
+            final Intent homeProbe = new Intent(Intent.ACTION_MAIN);
+            homeProbe.addCategory(Intent.CATEGORY_HOME);
+            homeProbe.setPackage(pkg);
+            final java.util.List<android.content.pm.ResolveInfo> homeList =
+                    pm.queryIntentActivities(homeProbe,
+                            android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+                          | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE
+                          | android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
+            if (homeList != null && !homeList.isEmpty()) {
+                final android.content.pm.ResolveInfo ri = homeList.get(0);
                 final android.content.ComponentName cn =
                         new android.content.ComponentName(
                                 ri.activityInfo.packageName, ri.activityInfo.name);

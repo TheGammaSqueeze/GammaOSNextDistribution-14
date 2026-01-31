@@ -31,6 +31,7 @@ import static android.view.Display.INVALID_DISPLAY;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_SUSTAINED_PERFORMANCE_MODE;
 import static android.view.WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG;
 import static android.view.WindowManager.LayoutParams.TYPE_NOTIFICATION_SHADE;
+import static android.view.WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY;
 import static android.view.WindowManager.TRANSIT_NONE;
 import static android.view.WindowManager.TRANSIT_PIP;
 import static android.view.WindowManager.TRANSIT_SLEEP;
@@ -508,6 +509,12 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 }
                 if (topFocusedDisplayId == INVALID_DISPLAY) {
                     topFocusedDisplayId = dc.getDisplayId();
+                    // GammaOS: Do not allow the transient SystemUI volume overlay to steal
+                    // the top-focused display. If it does, global navigation keys (HOME/BACK)
+                    // get routed to the default display instead of the active secondary display.
+                    if (newFocus.getWindowType() != TYPE_VOLUME_OVERLAY) {
+                        topFocusedDisplayId = dc.getDisplayId();
+                    }
                 }
             } else if (topFocusedDisplayId == INVALID_DISPLAY && dc.mFocusedApp != null) {
                 // The top-most display that has a focused app should still be the top focused
@@ -1843,7 +1850,20 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         final boolean supportMultipleInstance = homeInfo.launchMode != LAUNCH_SINGLE_TASK
                 && homeInfo.launchMode != LAUNCH_SINGLE_INSTANCE;
         if (!supportMultipleInstance) {
-            // Can't launch home on secondary displays if it requested to be single instance.
+            // AOSP disallows launching singleTask/singleInstance home activities on secondary
+            // displays because they can't have multiple instances.
+            //
+            // GammaOS: if the user explicitly overrides the secondary home target, allow it even
+            // when it is singleTask/singleInstance.
+            final String override = SystemProperties.get("persist.gammaos.secondary_home", "")
+                    .trim();
+            if (!override.isEmpty()) {
+                final int slash = override.indexOf('/');
+                final String overridePkg = (slash > 0) ? override.substring(0, slash) : override;
+                if (!overridePkg.isEmpty() && overridePkg.equals(homeInfo.packageName)) {
+                    return true;
+                }
+            }
             return false;
         }
 
