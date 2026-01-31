@@ -1157,12 +1157,14 @@ public final class Utils extends com.android.settingslib.Utils {
 
     /**
      * Returns true if SYSTEM_ALERT_WINDOW permission is available.
-     * Starting from Q, SYSTEM_ALERT_WINDOW is disabled on low ram phones.
+     *
+     * AOSP Settings hides "Display over other apps" on devices classified as low RAM, showing
+     * "This feature has been turned off because it slows down your phone".
+     *
+     * GammaOS GSI always exposes this toggle and leaves any enforcement to the platform.
      */
     public static boolean isSystemAlertWindowEnabled(Context context) {
-        // SYSTEM_ALERT_WINDOW is disabled on on low ram devices starting from Q
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        return !(am.isLowRamDevice() && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q));
+        return true;
     }
 
     /**
