@@ -209,6 +209,11 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     private final Context mContext;
     // GammaOS: the physical display this dialog is attached to.
     private final int mGammaDisplayId;
+    // GammaOS: multi-display volume creates/destroys dialogs as displays come/go.
+    // VolumeDialogImpl registers itself with DumpManager, so we must unregister on destroy to
+    // avoid duplicate registration crashes when a display is removed and later re-added.
+    private final DumpManager mDumpManager;
+    private final String mDumpableName;
     private final H mHandler;
     private final VolumeDialogController mController;
     private final DeviceProvisionedController mDeviceProvisionedController;
@@ -366,6 +371,8 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                 new ContextThemeWrapper(context, R.style.volume_dialog_theme);
         // GammaOS: the physical display this dialog is attached to.
         mGammaDisplayId = gammaDisplayId;
+        mDumpManager = dumpManager;
+        mDumpableName = "VolumeDialogImpl#display" + mGammaDisplayId;
         mHandler = new H(looper);
         mVibratorHelper = vibratorHelper;
         mSystemClock = systemClock;
@@ -398,7 +405,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
         mDialogTimeoutMillis = DIALOG_TIMEOUT_MILLIS;
 
         // GammaOS: must be unique when multi-display volume creates multiple dialogs.
-        dumpManager.registerDumpable("VolumeDialogImpl#display" + mGammaDisplayId, this);
+        mDumpManager.registerDumpable(mDumpableName, this);
 
         if (mUseBackgroundBlur) {
             final int dialogRowsViewColorAboveBlur = mContext.getColor(
@@ -484,6 +491,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     @Override
     public void destroy() {
         Log.d(TAG, "destroy() called");
+        // GammaOS: avoid DumpManager duplicate registration when this display's dialog
+        // is recreated after a display hotplug / sleep-wake cycle.
+        mDumpManager.unregisterDumpable(mDumpableName);
         mController.removeCallback(mControllerCallbackH);
         mHandler.removeCallbacksAndMessages(null);
         mConfigurationController.removeCallback(this);
