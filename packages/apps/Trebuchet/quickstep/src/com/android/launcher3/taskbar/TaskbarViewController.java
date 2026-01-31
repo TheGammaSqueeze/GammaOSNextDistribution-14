@@ -647,9 +647,14 @@ public class TaskbarViewController implements TaskbarControllers.LoggableTaskbar
         Interpolator interpolator = mIsHotseatIconOnTopWhenAligned ? LINEAR : FINAL_FRAME;
 
         int offsetY = launcherDp.getTaskbarOffsetY();
-        setter.setFloat(mTaskbarIconTranslationYForHome, VALUE, -offsetY, interpolator);
-        setter.setFloat(mTaskbarNavButtonTranslationY, VALUE, -offsetY, interpolator);
-        setter.setFloat(mTaskbarNavButtonTranslationYForInAppDisplay, VALUE, offsetY, interpolator);
+        // GammaOS: Keep taskbar pinned to the bottom even when Trebuchet aligns it with the hotseat.
+        // The default AOSP behavior offsets the taskbar up by DeviceProfile#getTaskbarOffsetY() on the
+        // launcher home state, and then cancels that offset in "in-app" layouts (e.g. All Apps).
+        // With GammaOS taskbar placement changes, that home-only offset creates an unwanted empty gap
+        // at the bottom of the screen. Keep the Y-translation at 0 for both home and in-app layouts.
+        setter.setFloat(mTaskbarIconTranslationYForHome, VALUE, 0f, interpolator);
+        setter.setFloat(mTaskbarNavButtonTranslationY, VALUE, 0f, interpolator);
+        setter.setFloat(mTaskbarNavButtonTranslationYForInAppDisplay, VALUE, 0f, interpolator);
 
         int collapsedHeight = mActivity.getDefaultTaskbarWindowSize();
         int expandedHeight = Math.max(collapsedHeight, taskbarDp.taskbarHeight + offsetY);
@@ -799,7 +804,8 @@ public class TaskbarViewController implements TaskbarControllers.LoggableTaskbar
             taskbarWindowSize = deviceProfile.taskbarHeight + deviceProfile.getTaskbarOffsetY();
         }
         mActivity.setTaskbarWindowSize(taskbarWindowSize);
-        mTaskbarNavButtonTranslationY.updateValue(-deviceProfile.getTaskbarOffsetY());
+        // GammaOS: Don't apply home-only hotseat alignment offset to nav buttons.
+        mTaskbarNavButtonTranslationY.updateValue(0f);
     }
 
     /**
