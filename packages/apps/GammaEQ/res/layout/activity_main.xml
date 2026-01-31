@@ -57,21 +57,31 @@
             android:layout_marginBottom="8dp" />
 
         <!-- Play preview just above Preamp -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPreview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/preview_play"
-                android:background="@drawable/rounded_button" />
-        </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/preview_play"
+        android:background="@drawable/rounded_button" />
+
+    <TextView
+        android:id="@+id/previewCredit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/preview_credit_html"
+        android:textSize="12sp"
+        android:textColor="@color/onSurface"
+        android:alpha="0.8" />
+</LinearLayout>
 
         <!-- Preamp (global headroom) -->
         <TextView

@@ -7,6 +7,7 @@
     <string name="apply">Apply</string>
     <string name="preview_play">Play Preview</string>
     <string name="preview_stop">Stop Preview</string>
+    <string name="preview_credit_html"><![CDATA[Music: <a href="https://pixabay.com/music/upbeat-retro-arcade-game-music-408074/">original_sountrack</a> · Retro Arcade Game Music]]></string>
     <string name="preamp">Preamp (dB)</string>
     <string name="band1">Band 1</string>
     <string name="band2">Band 2</string>

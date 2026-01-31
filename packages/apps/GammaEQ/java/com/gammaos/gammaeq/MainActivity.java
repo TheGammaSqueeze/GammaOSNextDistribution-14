@@ -4,14 +4,14 @@ import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-import android.media.MediaFormat;
+import android.os.Process;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +30,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -121,9 +122,23 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnApply, btnSaveCustom, btnReset, btnPreview;
     private Slider sliderPreamp, sliderF1, sliderQ1, sliderG1, sliderF2, sliderQ2, sliderG2;
 
-    // Preview playback via fast-eligible AudioTrack (static decode+resample)
-    private AudioTrack previewTrack;
-    private byte[] previewPcmData48k;
+    // Preview playback: keep the audio route hot (silent) and stream PCM from a WAV resource.
+// This avoids codec bring-up (mp3 decode) and avoids first-start amplifier enable latency
+// happening on the critical path of the Play button.
+private AudioTrack previewTrack;
+private Thread previewWriterThread;
+private volatile boolean previewWriterRunning = false;
+
+// WAV PCM payload (no header), in the exact format expected by AudioTrack.
+private volatile byte[] previewPcm;
+private volatile int previewSampleRate = 48000;
+private volatile int previewChannelCount = 2;
+private volatile int previewChannelMask = AudioFormat.CHANNEL_OUT_STEREO;
+
+// When not previewing we keep output alive by writing small silent chunks at 0 volume.
+private static final int PREVIEW_IDLE_SILENCE_MS = 40;
+private static final int PREVIEW_WRITE_CHUNK_BYTES = 4096;
+private volatile int previewWritePos = 0;
 
     private SwitchMaterial switchCryst, switchLbp, switchWide;
     private Slider sliderCrystAmount, sliderCrystMix, sliderCrystHz, sliderCrystLimit, sliderCrystPreDb, sliderCrystPostDb;
@@ -158,6 +173,12 @@ public class MainActivity extends AppCompatActivity {
         btnSaveCustom = findViewById(R.id.btnSaveCustom);
         btnReset = findViewById(R.id.btnReset);
         btnPreview = findViewById(R.id.btnPreview);
+
+        TextView previewCredit = findViewById(R.id.previewCredit);
+        if (previewCredit != null) {
+            previewCredit.setText(Html.fromHtml(getString(R.string.preview_credit_html), Html.FROM_HTML_MODE_LEGACY));
+            previewCredit.setMovementMethod(LinkMovementMethod.getInstance());
+        }
 
         sliderPreamp = findViewById(R.id.sliderPreamp);
         sliderF1 = findViewById(R.id.sliderF1);
@@ -311,6 +332,9 @@ public class MainActivity extends AppCompatActivity {
 
         btnPreview.setOnClickListener(v -> togglePreview());
 
+        // Warm up preview audio path + load preview PCM so playback is instant when pressed.
+        initPreviewAudioAsync();
+
         // Real-time PEQ + Preamp → real props, no math
         Slider.OnChangeListener eqChangeListener = (slider, value, fromUser) -> {
             if (!fromUser) {
@@ -419,13 +443,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(pollRunnable);
+        if (previewPlaying) {
+            stopPreview();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopPreviewWriter();
         if (previewTrack != null) {
-            previewTrack.release();
+            try {
+                previewTrack.pause();
+            } catch (Exception ignored) {
+            }
+            try {
+                previewTrack.flush();
+            } catch (Exception ignored) {
+            }
+            try {
+                previewTrack.release();
+            } catch (Exception ignored) {
+            }
             previewTrack = null;
         }
     }
@@ -661,50 +700,80 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
-
     // ---- Preview playback ----
-    private void togglePreview() {
-        try {
-            if (previewTrack == null) {
-                initPreviewTrack();
+    private void initPreviewAudioAsync() {
+        // Do not block UI thread: load WAV + start a silent priming track in the background.
+        if (previewWriterRunning || previewTrack != null) return;
+
+        new Thread(() -> {
+            try {
+                // 1) Load WAV PCM (no decode at runtime)
+                WavPcm w = readWavPcmFromRaw(R.raw.preview_fast);
+                if (w != null && w.pcm != null && w.pcm.length > 0) {
+                    previewPcm = w.pcm;
+                    previewSampleRate = w.sampleRate;
+                    previewChannelCount = w.channelCount;
+                    previewChannelMask = (w.channelCount == 1)
+                            ? AudioFormat.CHANNEL_OUT_MONO
+                            : AudioFormat.CHANNEL_OUT_STEREO;
+                }
+
+                // 2) Create AudioTrack and start the writer thread that keeps the route alive.
+                initPreviewTrackLocked();
+                startPreviewWriter();
+            } catch (Throwable t) {
+                Log.w(TAG, "Failed to init preview audio: " + t.getMessage());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }, "GammaEQ-PreviewInit").start();
+    }
+
+    private void togglePreview() {
+        if (previewPlaying) {
+            stopPreview();
             return;
         }
-        if (previewTrack == null) return;
+        previewPlaying = true;
+        previewWritePos = 0;
 
-        if (!previewPlaying) {
-            previewTrack.stop();
-            previewTrack.reloadStaticData();
-            previewTrack.play();
-            previewPlaying = true;
-            btnPreview.setText(getString(R.string.preview_stop));
+        // Ensure audio path is active now (writer thread will switch from silence to PCM).
+        if (previewTrack == null) {
+            initPreviewAudioAsync();
         } else {
-            previewTrack.pause();
-            previewPlaying = false;
-            btnPreview.setText(getString(R.string.preview_play));
+            // Unmute immediately; writer thread will begin writing PCM on its next cycle.
+            try {
+                previewTrack.setVolume(1.0f);
+            } catch (Exception ignored) {
+            }
+        }
+
+        btnPreview.setText(getString(R.string.preview_stop));
+    }
+
+    private void stopPreview() {
+        previewPlaying = false;
+        btnPreview.setText(getString(R.string.preview_play));
+
+        // Drop back to silent keepalive.
+        if (previewTrack != null) {
+            try {
+                previewTrack.setVolume(0.0f);
+            } catch (Exception ignored) {
+            }
         }
     }
 
-    // Decode MP3 once and resample to 48k, PCM16, then load into MODE_STATIC AudioTrack
-    private void initPreviewTrack() throws IOException {
+    private void initPreviewTrackLocked() {
         if (previewTrack != null) return;
 
-        DecodeResult decode = decodePreviewToPcm();
-        if (decode == null || decode.pcm == null || decode.pcm.length == 0) {
-            return;
-        }
+        int sampleRate = previewSampleRate > 0 ? previewSampleRate : 48000;
+        int channelMask = previewChannelMask != 0 ? previewChannelMask : AudioFormat.CHANNEL_OUT_STEREO;
 
-        previewPcmData48k = resampleTo48k(decode.pcm, decode.sampleRate, decode.channelCount);
-        if (previewPcmData48k == null || previewPcmData48k.length == 0) {
-            return;
-        }
+        final int minBuf = AudioTrack.getMinBufferSize(
+                sampleRate,
+                channelMask,
+                AudioFormat.ENCODING_PCM_16BIT);
 
-        int outSampleRate = 48000;
-        int channelMask = (decode.channelCount == 1)
-                ? AudioFormat.CHANNEL_OUT_MONO
-                : AudioFormat.CHANNEL_OUT_STEREO;
+        final int bufSize = Math.max(minBuf, 2 * PREVIEW_WRITE_CHUNK_BYTES);
 
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -713,152 +782,227 @@ public class MainActivity extends AppCompatActivity {
 
         AudioFormat format = new AudioFormat.Builder()
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(outSampleRate)
+                .setSampleRate(sampleRate)
                 .setChannelMask(channelMask)
                 .build();
 
         previewTrack = new AudioTrack.Builder()
                 .setAudioAttributes(attrs)
                 .setAudioFormat(format)
-                .setTransferMode(AudioTrack.MODE_STATIC)
+                .setTransferMode(AudioTrack.MODE_STREAM)
                 .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-                .setBufferSizeInBytes(previewPcmData48k.length)
+                .setBufferSizeInBytes(bufSize)
                 .build();
 
-        previewTrack.write(previewPcmData48k, 0, previewPcmData48k.length);
+        // Start muted: we keep the route hot with silence until the user presses Play.
+        try {
+            previewTrack.setVolume(0.0f);
+        } catch (Exception ignored) {
+        }
+        previewTrack.play();
     }
 
-    private static class DecodeResult {
-        byte[] pcm;
-        int sampleRate;
-        int channelCount;
-    }
+    private void startPreviewWriter() {
+        if (previewWriterRunning) return;
+        previewWriterRunning = true;
 
-    private DecodeResult decodePreviewToPcm() throws IOException {
-        MediaExtractor extractor = new MediaExtractor();
-        AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.preview);
-        extractor.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-        afd.close();
-
-        int trackIndex = -1;
-        MediaFormat format = null;
-        String mime = null;
-        for (int i = 0; i < extractor.getTrackCount(); i++) {
-            MediaFormat f = extractor.getTrackFormat(i);
-            String m = f.getString(MediaFormat.KEY_MIME);
-            if (m != null && m.startsWith("audio/")) {
-                trackIndex = i;
-                format = f;
-                mime = m;
-                break;
+        previewWriterThread = new Thread(() -> {
+            // Audio thread: keep it off the UI and slightly elevated.
+            try {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
+            } catch (Throwable ignored) {
             }
-        }
-        if (trackIndex < 0 || format == null || mime == null) {
-            extractor.release();
-            return null;
-        }
 
-        extractor.selectTrack(trackIndex);
+            final byte[] silence = buildSilencePcm(previewSampleRate, previewChannelCount, PREVIEW_IDLE_SILENCE_MS);
 
-        MediaCodec codec = MediaCodec.createDecoderByType(mime);
-        codec.configure(format, null, null, 0);
-        codec.start();
+            while (previewWriterRunning) {
+                final AudioTrack t = previewTrack;
+                if (t == null) {
+                    sleepQuiet(50);
+                    continue;
+                }
 
-        MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        boolean sawInputEOS = false;
-        boolean sawOutputEOS = false;
-
-        while (!sawOutputEOS) {
-            if (!sawInputEOS) {
-                int inIndex = codec.dequeueInputBuffer(10000);
-                if (inIndex >= 0) {
-                    java.nio.ByteBuffer inBuf = codec.getInputBuffer(inIndex);
-                    if (inBuf != null) {
-                        int sampleSize = extractor.readSampleData(inBuf, 0);
-                        if (sampleSize < 0) {
-                            codec.queueInputBuffer(inIndex, 0, 0, 0,
-                                    MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                            sawInputEOS = true;
-                        } else {
-                            long ptsUs = extractor.getSampleTime();
-                            codec.queueInputBuffer(inIndex, 0, sampleSize, ptsUs, 0);
-                            extractor.advance();
-                        }
+                // Ensure track stays in PLAYING state so the HAL route + PA stays enabled.
+                if (t.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
+                    try {
+                        t.play();
+                    } catch (Exception ignored) {
                     }
                 }
-            }
 
-            int outIndex = codec.dequeueOutputBuffer(info, 10000);
-            if (outIndex >= 0) {
-                java.nio.ByteBuffer outBuf = codec.getOutputBuffer(outIndex);
-                if (outBuf != null && info.size > 0) {
-                    byte[] chunk = new byte[info.size];
-                    outBuf.get(chunk);
-                    outBuf.clear();
-                    out.write(chunk);
+                if (!previewPlaying || previewPcm == null || previewPcm.length == 0) {
+                    // Idle keepalive: write small silence chunks at 0 volume.
+                    try {
+                        t.setVolume(0.0f);
+                    } catch (Exception ignored) {
+                    }
+                    int wrote = t.write(silence, 0, silence.length);
+                    if (wrote <= 0) {
+                        sleepQuiet(20);
+                    } else {
+                        sleepQuiet(PREVIEW_IDLE_SILENCE_MS);
+                    }
+                    continue;
                 }
-                codec.releaseOutputBuffer(outIndex, false);
 
-                if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                    sawOutputEOS = true;
+                // Preview playing: unmute + stream PCM.
+                try {
+                    t.setVolume(1.0f);
+                } catch (Exception ignored) {
                 }
-            } else if (outIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                // ignore
+
+                final byte[] pcm = previewPcm;
+                if (previewWritePos >= pcm.length) {
+                    // Stop at end rather than looping.
+                    previewPlaying = false;
+                    previewWritePos = 0;
+                    runOnUiThread(() -> btnPreview.setText(getString(R.string.preview_play)));
+                    continue;
+                }
+
+                final int remaining = pcm.length - previewWritePos;
+                final int toWrite = Math.min(remaining, PREVIEW_WRITE_CHUNK_BYTES);
+                int wrote = t.write(pcm, previewWritePos, toWrite);
+                if (wrote > 0) {
+                    previewWritePos += wrote;
+                } else {
+                    // Avoid a tight loop on write errors/underruns.
+                    sleepQuiet(10);
+                }
             }
-        }
+        }, "GammaEQ-PreviewWriter");
 
-        codec.stop();
-        codec.release();
-        extractor.release();
-
-        DecodeResult res = new DecodeResult();
-        res.pcm = out.toByteArray();
-        res.sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-        res.channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-        return res;
+        previewWriterThread.start();
     }
 
-    private byte[] resampleTo48k(byte[] pcmIn, int sampleRate, int channelCount) {
-        if (pcmIn == null || pcmIn.length == 0) return pcmIn;
-        if (sampleRate == 48000) return pcmIn;
-
-        int bytesPerSample = 2;
-        int bytesPerFrame = channelCount * bytesPerSample;
-        int inFrames = pcmIn.length / bytesPerFrame;
-        if (inFrames <= 1) return pcmIn;
-
-        double ratio = 48000.0 / sampleRate;
-        int outFrames = (int) Math.round(inFrames * ratio);
-        byte[] out = new byte[outFrames * bytesPerFrame];
-
-        for (int i = 0; i < outFrames; i++) {
-            double inPos = i / ratio;
-            int idx0 = (int) Math.floor(inPos);
-            int idx1 = Math.min(idx0 + 1, inFrames - 1);
-            double frac = inPos - idx0;
-
-            for (int ch = 0; ch < channelCount; ch++) {
-                int inOffset0 = (idx0 * channelCount + ch) * 2;
-                int inOffset1 = (idx1 * channelCount + ch) * 2;
-
-                short s0 = (short) ((pcmIn[inOffset0] & 0xff) |
-                        (pcmIn[inOffset0 + 1] << 8));
-                short s1 = (short) ((pcmIn[inOffset1] & 0xff) |
-                        (pcmIn[inOffset1 + 1] << 8));
-
-                int sample = (int) Math.round(s0 + (s1 - s0) * frac);
-                if (sample > Short.MAX_VALUE) sample = Short.MAX_VALUE;
-                if (sample < Short.MIN_VALUE) sample = Short.MIN_VALUE;
-
-                int outOffset = (i * channelCount + ch) * 2;
-                out[outOffset] = (byte) (sample & 0xff);
-                out[outOffset + 1] = (byte) ((sample >> 8) & 0xff);
+    private void stopPreviewWriter() {
+        previewWriterRunning = false;
+        Thread t = previewWriterThread;
+        if (t != null) {
+            try {
+                t.join(300);
+            } catch (InterruptedException ignored) {
             }
         }
+        previewWriterThread = null;
+    }
 
-        return out;
+    private static void sleepQuiet(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    private static byte[] buildSilencePcm(int sampleRate, int channels, int durationMs) {
+        int sr = sampleRate > 0 ? sampleRate : 48000;
+        int ch = channels > 0 ? channels : 2;
+        int frames = (sr * durationMs) / 1000;
+        int bytes = frames * ch * 2;
+        return new byte[Math.max(bytes, 2 * ch * 2)];
+    }
+
+    private static final class WavPcm {
+        final byte[] pcm;
+        final int sampleRate;
+        final int channelCount;
+
+        WavPcm(byte[] pcm, int sampleRate, int channelCount) {
+            this.pcm = pcm;
+            this.sampleRate = sampleRate;
+            this.channelCount = channelCount;
+        }
+    }
+
+    /**
+     * Minimal WAV parser for PCM16 LE.
+     * Returns the raw PCM payload without the WAV container header.
+     */
+    private WavPcm readWavPcmFromRaw(int resId) throws IOException {
+        InputStream in = getResources().openRawResource(resId);
+        try {
+            byte[] all = readFully(in);
+            if (all.length < 44) return null;
+
+            // RIFF header
+            if (!asciiEq(all, 0, "RIFF") || !asciiEq(all, 8, "WAVE")) return null;
+
+            int offset = 12;
+            int fmtChannels = 0;
+            int fmtSampleRate = 0;
+            int fmtBits = 0;
+            int fmtAudioFormat = 0;
+
+            int dataOffset = -1;
+            int dataSize = -1;
+
+            while (offset + 8 <= all.length) {
+                String chunkId = ascii4(all, offset);
+                int chunkSize = le32(all, offset + 4);
+                int chunkData = offset + 8;
+
+                if ("fmt ".equals(chunkId) && chunkData + Math.min(chunkSize, 16) <= all.length) {
+                    fmtAudioFormat = le16(all, chunkData);
+                    fmtChannels = le16(all, chunkData + 2);
+                    fmtSampleRate = le32(all, chunkData + 4);
+                    fmtBits = le16(all, chunkData + 14);
+                } else if ("data".equals(chunkId) && chunkData + chunkSize <= all.length) {
+                    dataOffset = chunkData;
+                    dataSize = chunkSize;
+                    break;
+                }
+
+                // chunks are word-aligned (pad to even)
+                offset = chunkData + chunkSize + (chunkSize & 1);
+            }
+
+            if (dataOffset < 0 || dataSize <= 0) return null;
+            // PCM format 1, 16-bit
+            if (fmtAudioFormat != 1 || fmtBits != 16 || fmtChannels <= 0 || fmtSampleRate <= 0) return null;
+
+            byte[] pcm = new byte[dataSize];
+            System.arraycopy(all, dataOffset, pcm, 0, dataSize);
+            return new WavPcm(pcm, fmtSampleRate, fmtChannels);
+        } finally {
+            try {
+                in.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static byte[] readFully(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(64 * 1024);
+        byte[] buf = new byte[16 * 1024];
+        int r;
+        while ((r = in.read(buf)) != -1) {
+            out.write(buf, 0, r);
+        }
+        return out.toByteArray();
+    }
+
+    private static boolean asciiEq(byte[] b, int off, String s) {
+        if (off + s.length() > b.length) return false;
+        for (int i = 0; i < s.length(); i++) {
+            if ((byte) s.charAt(i) != b[off + i]) return false;
+        }
+        return true;
+    }
+
+    private static String ascii4(byte[] b, int off) {
+        if (off + 4 > b.length) return "";
+        return "" + (char) b[off] + (char) b[off + 1] + (char) b[off + 2] + (char) b[off + 3];
+    }
+
+    private static int le16(byte[] b, int off) {
+        return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
+    }
+
+    private static int le32(byte[] b, int off) {
+        return (b[off] & 0xff)
+                | ((b[off + 1] & 0xff) << 8)
+                | ((b[off + 2] & 0xff) << 16)
+                | ((b[off + 3] & 0xff) << 24);
     }
 
     private void clearAllEqProps() {
