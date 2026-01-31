@@ -19,18 +19,16 @@ package com.android.systemui.qs.tiles;
 
 import static com.android.internal.logging.MetricsLogger.VIEW_UNKNOWN;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.hardware.display.DisplayManager;
 import android.hardware.display.IDisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.SystemProperties;
 import android.service.quicksettings.Tile;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -52,25 +50,35 @@ import com.android.systemui.qs.tileimpl.QSTileImpl.ResourceIcon;
 
 import javax.inject.Inject;
 
-/** Quick settings tile: Secondary display toggle (GammaOS multi-display) */
+/**
+ * Quick settings tile: Secondary display toggle (GammaOS multi-display)
+ *
+ * Requirements:
+ *  - Never apply display state on load, on listen, on boot, or on wake.
+ *  - No persistence: after reboot, assume both displays should be on.
+ *  - Only toggle when user taps the tile.
+ *  - No properties; keep state in memory only.
+ */
 public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
 
     public static final String TILE_SPEC = "gammasecondarydisplay";
 
     private static final String TAG = "GammaSecondaryDisplay";
-    private static final String PROP_CONTROL = "persist.gammaos.multidisplay.secondary_display";
 
-    private static final int STATE_DISABLED = 0;
-    private static final int STATE_ENABLED  = 1;
-
-    private final Icon mIconOn  = ResourceIcon.get(R.drawable.ic_qs_circle);
+    private final Icon mIconOn = ResourceIcon.get(R.drawable.ic_qs_circle);
     private final Icon mIconOff = ResourceIcon.get(R.drawable.ic_add_circle);
-    private final Receiver mReceiver = new Receiver();
 
     private final int mSecondaryDisplayId;
     private final IDisplayManager mDisplayManager;
 
-    private int mCurrentState;
+    /**
+     * In-memory state only.
+     * Default is ON (both displays on after boot).
+     *
+     * IMPORTANT: This state is not applied automatically. It is only used to drive the QS UI
+     * and to decide what to do when the user taps the tile.
+     */
+    private boolean mEnabled = true;
 
     @Inject
     public GammaSecondaryDisplayTile(
@@ -89,15 +97,13 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
 
         mSecondaryDisplayId = mContext.getResources().getInteger(
                 R.integer.config_gammaos_secondary_display_id);
+
         mDisplayManager = IDisplayManager.Stub.asInterface(
                 ServiceManager.getService(Context.DISPLAY_SERVICE));
 
-        // 1) Read persisted prop (default to ON)
-        mCurrentState = SystemProperties.getInt(PROP_CONTROL, STATE_ENABLED);
-        // 2) Re-apply it in case it's changed externally
-        applyState(mCurrentState);
-        // 3) Listen for screen-on and boot to re-sync
-        mReceiver.init();
+        // DO NOT apply any display state here.
+        // No receivers, no persistence, no re-sync on wake.
+        // The tile only does anything when the user taps it.
     }
 
     @Override
@@ -108,28 +114,34 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleDestroy() {
         super.handleDestroy();
-        mReceiver.destroy();
+        // No receivers/listeners registered, nothing to tear down.
     }
 
     @Override
     protected void handleSetListening(boolean listening) {
         super.handleSetListening(listening);
+        // DO NOT apply any display state here.
+        // Only update UI when QS is shown/hidden.
         if (listening) {
-            int newState = SystemProperties.getInt(PROP_CONTROL, STATE_ENABLED);
-            if (newState != mCurrentState) {
-                mCurrentState = newState;
-                // Ensure the actual display state follows the persisted preference.
-                applyState(mCurrentState);
-                refreshState();
-            }
+            refreshState();
         }
     }
 
     @Override
     protected void handleClick(@Nullable View view) {
-        // Toggle OFF ⇄ ON
-        mCurrentState = (mCurrentState == STATE_ENABLED) ? STATE_DISABLED : STATE_ENABLED;
-        applyState(mCurrentState);
+        if (!isSecondaryDisplayPresent()) {
+            // Nothing to toggle.
+            refreshState();
+            return;
+        }
+
+        // Toggle requested state (in-memory).
+        mEnabled = !mEnabled;
+
+        // Apply ONLY due to explicit user interaction.
+        applyStateForUserTap(mEnabled);
+
+        // Update UI.
         refreshState();
     }
 
@@ -144,14 +156,13 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
             return;
         }
 
-        state.icon = (mCurrentState == STATE_ENABLED) ? mIconOn : mIconOff;
-        state.secondaryLabel = (mCurrentState == STATE_ENABLED) ? "On" : "Off";
-        state.state = (mCurrentState == STATE_ENABLED)
-                ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
+        state.icon = mEnabled ? mIconOn : mIconOff;
+        state.secondaryLabel = mEnabled ? "On" : "Off";
+        state.state = mEnabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
     }
 
     @Override
-    public Intent getLongClickIntent() {
+    public android.content.Intent getLongClickIntent() {
         return null;
     }
 
@@ -181,60 +192,33 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
     }
 
     /**
-     * Persist the current state into the system property and update DisplayManagerService.
+     * Apply display state as a direct result of a user tapping the tile.
+     * No persistence and no automatic re-application anywhere else.
      */
-    private void applyState(int state) {
-        SystemProperties.set(PROP_CONTROL, Integer.toString(state));
-
+    private void applyStateForUserTap(boolean enable) {
         if (mDisplayManager == null) {
             Log.w(TAG, "Display service unavailable; cannot toggle secondary display");
             return;
         }
 
         try {
-            if (state == STATE_ENABLED) {
+            if (enable) {
                 mDisplayManager.enableConnectedDisplay(mSecondaryDisplayId);
             } else {
                 mDisplayManager.disableConnectedDisplay(mSecondaryDisplayId);
             }
         } catch (SecurityException e) {
             Log.w(TAG, "Missing permission to manage displays", e);
+            // Revert the in-memory state so UI stays truthful if we couldn't apply.
+            mEnabled = !enable;
         } catch (RemoteException e) {
             Log.w(TAG, "Failed toggling secondary display", e);
+            // Revert the in-memory state so UI stays truthful if we couldn't apply.
+            mEnabled = !enable;
         }
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Display " + mSecondaryDisplayId + " state=" + state);
-        }
-    }
-
-    /** Receiver to re-sync state on screen-on and boot. */
-    private final class Receiver extends BroadcastReceiver {
-        void init() {
-            IntentFilter filter = new IntentFilter();
-            // Re-apply the user's preference after waking, in case the display stack
-            // re-enables the secondary display during sleep/wake transitions.
-            filter.addAction(Intent.ACTION_SCREEN_ON);
-            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
-            mContext.registerReceiver(this, filter, null, mHandler);
-        }
-
-        void destroy() {
-            mContext.unregisterReceiver(this);
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (Intent.ACTION_SCREEN_ON.equals(action)
-                    || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-                int newState = SystemProperties.getInt(PROP_CONTROL, STATE_ENABLED);
-                if (newState != mCurrentState) {
-                    mCurrentState = newState;
-                }
-                applyState(mCurrentState);
-                refreshState();
-            }
+            Log.d(TAG, "User toggle: display " + mSecondaryDisplayId + " enable=" + enable);
         }
     }
 }
