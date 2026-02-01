@@ -155,8 +155,9 @@ inline bool gammaIsLikelySystemUiOverlayName(const char* n) {
 //  - persist.gammaos.dualstack.sf.surfaceview_only (default: true)
 //
 // Optional allowlist:
-//  - persist.gammaos.dualstack.pkgs (comma-separated). If empty, apply to any
-//    app that matches the SurfaceView heuristic.
+//  - persist.gammaos.dualstack.pkgs (comma-separated)
+//  - persist.gammaos.dualstack.pkgs_# (comma-separated, # starts at 1)
+//    If empty, apply to any app that matches the SurfaceView heuristic.
 inline bool gammaDualStackEnabled() {
     return android::base::GetBoolProperty("persist.gammaos.dualstack.enabled", false);
 }
@@ -173,11 +174,40 @@ static inline void gammaTrimInPlace(std::string& s) {
     if (start == 0 && end == s.size()) return;
     s = s.substr(start, end - start);
 }
+ 
+static inline bool gammaIsValidAndroidPackageName(const std::string& pkg) {
+    if (pkg.size() < 3) return false; // smallest plausible: "a.b"
 
-inline std::vector<std::string> gammaDualStackPkgAllowlist() {
-    const std::string raw = android::base::GetProperty("persist.gammaos.dualstack.pkgs", "");
-    if (raw.empty()) return {};
-    std::vector<std::string> out;
+    bool hasDot = false;
+    bool segmentStart = true;
+
+    for (char c : pkg) {
+        if (c == '.') {
+            if (segmentStart) return false; // empty segment / leading dot / consecutive dots
+            hasDot = true;
+            segmentStart = true;
+            continue;
+        }
+
+        const bool isLetter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        const bool isDigit = (c >= '0' && c <= '9');
+        const bool isUnderscore = (c == '_');
+        if (!(isLetter || isDigit || isUnderscore)) return false;
+
+        if (segmentStart) {
+            // First character of each segment must be a letter.
+            if (!isLetter) return false;
+            segmentStart = false;
+        }
+    }
+
+    if (segmentStart) return false; // trailing dot
+    return hasDot;
+}
+
+static inline void gammaAddPkgsFromRaw(std::vector<std::string>& out, const std::string& raw) {
+    if (raw.empty()) return;
+
     // Avoid android::base::Split/Trim template differences across trees.
     size_t i = 0;
     while (i <= raw.size()) {
@@ -185,10 +215,35 @@ inline std::vector<std::string> gammaDualStackPkgAllowlist() {
         const size_t len = (j == std::string::npos) ? (raw.size() - i) : (j - i);
         std::string s = raw.substr(i, len);
         gammaTrimInPlace(s);
-        if (!s.empty()) out.push_back(std::move(s));
+        if (!s.empty() && gammaIsValidAndroidPackageName(s)) {
+            bool exists = false;
+            for (const auto& e : out) {
+                if (e == s) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) out.push_back(std::move(s));
+        }
         if (j == std::string::npos) break;
         i = j + 1;
     }
+}
+
+inline std::vector<std::string> gammaDualStackPkgAllowlist() {
+    std::vector<std::string> out;
+    // Base property + unlimited continuation properties:
+    //   persist.gammaos.dualstack.pkgs
+    //   persist.gammaos.dualstack.pkgs_1, persist.gammaos.dualstack.pkgs_2, ...
+    gammaAddPkgsFromRaw(out, android::base::GetProperty("persist.gammaos.dualstack.pkgs", ""));
+    for (int i = 1; ; i++) {
+        const std::string key =
+                android::base::StringPrintf("persist.gammaos.dualstack.pkgs_%d", i);
+        const std::string raw = android::base::GetProperty(key, "");
+        if (raw.empty()) break;
+        gammaAddPkgsFromRaw(out, raw);
+    }
+
     return out;
 }
 

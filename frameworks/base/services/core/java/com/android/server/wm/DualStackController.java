@@ -43,6 +43,7 @@ import android.view.DisplayInfo;
 import android.view.SurfaceControl;
 import android.view.SurfaceControl.Transaction;
 
+import com.android.server.dualstack.DualStackPropertyUtils;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -260,16 +261,7 @@ final class DualStackController {
         mEnabled = SystemProperties.getBoolean(PROP_ENABLED, false);
         mSwapHalves = SystemProperties.getBoolean(PROP_SWAP, false);
         mKillPackagesEnabled = SystemProperties.getBoolean(PROP_KILL_PKGS, false);
-        final String raw = SystemProperties.get(PROP_PKGS, "");
-        final ArraySet<String> list = new ArraySet<>();
-        if (raw != null && !raw.isEmpty()) {
-            final String[] parts = raw.split(",");
-            for (int i = 0; i < parts.length; i++) {
-                final String p = parts[i].trim();
-                if (!p.isEmpty()) list.add(p);
-            }
-        }
-        mWhitelist = list;
+        mWhitelist = DualStackPropertyUtils.getWhitelistedPackages();
     }
 
     private boolean isEligibleTopApp(ActivityRecord r) {

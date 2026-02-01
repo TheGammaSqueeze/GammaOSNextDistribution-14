@@ -29,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String PROP_DUALSTACK_ENABLED = "persist.gammaos.dualstack.enabled";
     private static final String PROP_DUALSTACK_PKGS = "persist.gammaos.dualstack.pkgs";
 
+    // Android system properties have a hard value length limit (typically ~90 chars usable).
+    // To support large allowlists, DualStackControl transparently splits/reads the allowlist
+    // across:
+    //  - persist.gammaos.dualstack.pkgs
+    //  - persist.gammaos.dualstack.pkgs_1, persist.gammaos.dualstack.pkgs_2, ...
+    private static final int MAX_PKG_PROP_VALUE_LENGTH = 90;
+
     private SwitchCompat switchDualstack;
     private RecyclerView recyclerApps;
 
@@ -100,38 +107,162 @@ public class MainActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------
     // DualStack package list handling
     // ---------------------------------------------------------------------
+ 
+    private static String pkgPropKey(int index) {
+        return (index <= 0) ? PROP_DUALSTACK_PKGS : (PROP_DUALSTACK_PKGS + "_" + index);
+    }
 
-    private void loadSelectedPackagesFromProperty() {
-        selectedPackages.clear();
-        String raw = getSystemProperty(PROP_DUALSTACK_PKGS, "");
-        if (TextUtils.isEmpty(raw)) {
-            return;
+    private static boolean isValidAndroidPackageName(String pkg) {
+        if (pkg == null) return false;
+
+        final int n = pkg.length();
+        if (n < 3) return false; // smallest plausible: "a.b"
+
+        boolean hasDot = false;
+        boolean segmentStart = true;
+
+        for (int i = 0; i < n; i++) {
+            final char c = pkg.charAt(i);
+            if (c == '.') {
+                if (segmentStart) return false;
+                hasDot = true;
+                segmentStart = true;
+                continue;
+            }
+
+            final boolean isLetter =
+                    (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+            final boolean isDigit = (c >= '0' && c <= '9');
+            final boolean isUnderscore = (c == '_');
+
+            if (!(isLetter || isDigit || isUnderscore)) {
+                return false;
+            }
+
+            if (segmentStart) {
+                // First character of each segment must be a letter.
+                if (!isLetter) return false;
+                segmentStart = false;
+            }
         }
+
+        if (segmentStart) return false; // trailing dot
+        return hasDot;
+    }
+
+    private void addSelectedPackagesFromRaw(String raw) {
+        if (TextUtils.isEmpty(raw)) return;
+
         String[] parts = raw.split(",");
         for (String p : parts) {
             if (p == null) continue;
             String pkg = p.trim();
-            if (!pkg.isEmpty()) {
+            if (!pkg.isEmpty() && isValidAndroidPackageName(pkg)) {
                 selectedPackages.add(pkg);
             }
         }
     }
 
+    private void loadSelectedPackagesFromProperty() {
+        selectedPackages.clear();
+
+        // Base property.
+        addSelectedPackagesFromRaw(getSystemProperty(PROP_DUALSTACK_PKGS, ""));
+
+        // Continuation properties:
+        //   persist.gammaos.dualstack.pkgs_1, persist.gammaos.dualstack.pkgs_2, ...
+        for (int i = 1; ; i++) {
+            String raw = getSystemProperty(pkgPropKey(i), "");
+            if (TextUtils.isEmpty(raw)) {
+                break;
+            }
+            addSelectedPackagesFromRaw(raw);
+        }
+    }
+
+    private List<String> buildPkgPropChunks(List<String> sortedPackages) {
+        final List<String> chunks = new ArrayList<>();
+        final StringBuilder sb = new StringBuilder();
+
+        for (String pkg : sortedPackages) {
+            if (TextUtils.isEmpty(pkg)) continue;
+            final String p = pkg.trim();
+            if (p.isEmpty() || !isValidAndroidPackageName(p)) continue;
+
+            if (p.length() > MAX_PKG_PROP_VALUE_LENGTH) {
+                // Too long to ever fit in a property value. Skip.
+                continue;
+            }
+
+            if (sb.length() == 0) {
+                sb.append(p);
+                continue;
+            }
+
+            final int projectedLen = sb.length() + 1 + p.length();
+            if (projectedLen <= MAX_PKG_PROP_VALUE_LENGTH) {
+                sb.append(',').append(p);
+            } else {
+                chunks.add(sb.toString());
+                sb.setLength(0);
+                sb.append(p);
+            }
+        }
+
+        if (sb.length() > 0) {
+            chunks.add(sb.toString());
+        }
+        return chunks;
+    }
+
+    private void clearDualStackPkgPropsFrom(int startIndex) {
+        // startIndex refers to the continuation index (>= 1). Index 0 is the base property.
+        int i = Math.max(1, startIndex);
+        while (true) {
+            final String key = pkgPropKey(i);
+            final String existing = getSystemProperty(key, "");
+            if (TextUtils.isEmpty(existing)) {
+                break;
+            }
+            setSystemProperty(key, "");
+            i++;
+        }
+    }
+
     private void writeSelectedPackagesToProperty() {
-        if (selectedPackages.isEmpty()) {
+        // Sanitize + sort deterministically.
+        List<String> list = new ArrayList<>();
+        for (String p : selectedPackages) {
+            if (p == null) continue;
+            final String pkg = p.trim();
+            if (!pkg.isEmpty() && isValidAndroidPackageName(pkg)) {
+                list.add(pkg);
+            }
+        }
+
+        if (list.isEmpty()) {
             setSystemProperty(PROP_DUALSTACK_PKGS, "");
+            clearDualStackPkgPropsFrom(1 /* startIndex */);
             return;
         }
-        List<String> list = new ArrayList<>(selectedPackages);
+
         Collections.sort(list, String::compareToIgnoreCase);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            if (i > 0) {
-                sb.append(',');
-            }
-            sb.append(list.get(i));
+        final List<String> chunks = buildPkgPropChunks(list);
+
+        if (chunks.isEmpty()) {
+            // Everything got filtered out (e.g. all tokens too long).
+            setSystemProperty(PROP_DUALSTACK_PKGS, "");
+            clearDualStackPkgPropsFrom(1 /* startIndex */);
+            return;
         }
-        setSystemProperty(PROP_DUALSTACK_PKGS, sb.toString());
+        // Write base + continuation properties.
+        setSystemProperty(PROP_DUALSTACK_PKGS, chunks.get(0));
+        for (int i = 1; i < chunks.size(); i++) {
+            setSystemProperty(pkgPropKey(i), chunks.get(i));
+        }
+
+        // Clear any stale continuation properties from previous larger allowlists.
+        clearDualStackPkgPropsFrom(chunks.size() /* startIndex */);
     }
 
     private void onAppCheckedChanged(AppEntry entry, boolean isChecked) {

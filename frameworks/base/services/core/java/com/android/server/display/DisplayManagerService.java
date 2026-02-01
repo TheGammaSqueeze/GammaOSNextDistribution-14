@@ -175,6 +175,7 @@ import com.android.server.utils.FoldSettingProvider;
 import com.android.server.wm.SurfaceAnimationThread;
 import com.android.server.wm.WindowManagerInternal;
 
+import com.android.server.dualstack.DualStackPropertyUtils;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -1560,15 +1561,7 @@ public final class DisplayManagerService extends SystemService {
     }
 
     private ArraySet<String> getDualStackWhitelist() {
-        final ArraySet<String> pkgs = new ArraySet<>();
-        final String raw = SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
-        if (raw == null || raw.isEmpty()) return pkgs;
-        final String[] parts = raw.split(",");
-        for (int i = 0; i < parts.length; i++) {
-            final String p = parts[i].trim();
-            if (!p.isEmpty()) pkgs.add(p);
-        }
-        return pkgs;
+        return DualStackPropertyUtils.getWhitelistedPackages();
     }
 
     private boolean isUidWhitelistedForDualStack(int uid) {

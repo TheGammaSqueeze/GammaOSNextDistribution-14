@@ -83,6 +83,7 @@ import com.android.internal.protolog.common.ProtoLog;
 import com.android.internal.view.RotationPolicy;
 import com.android.server.LocalServices;
 import com.android.server.UiThread;
+import com.android.server.dualstack.DualStackPropertyUtils;
 import com.android.server.policy.WindowManagerPolicy;
 import com.android.server.statusbar.StatusBarManagerInternal;
 
@@ -1505,7 +1506,7 @@ public class DisplayRotation {
      * Returns true when:
      *  - Dual-stack mode is enabled via persist.gammaos.dualstack.enabled, and
      *  - The top-resumed activity is on this display and belongs to a package listed in
-     *    persist.gammaos.dualstack.pkgs.
+     *    persist.gammaos.dualstack.pkgs (and any persist.gammaos.dualstack.pkgs_# continuations).
      *
      * When this is true, we keep the physical display locked to its natural orientation
      * (ROTATION_0) and ignore sensor- / app-driven rotation changes. The app itself is
@@ -1528,20 +1529,9 @@ public class DisplayRotation {
             return false;
         }
 
-        // Look up allowlist packages from persist.gammaos.dualstack.pkgs (comma-separated).
-        final String rawPkgs =
-                android.os.SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
-        if (rawPkgs == null || rawPkgs.isEmpty()) {
-            return false;
-        }
-
-        final String pkg = top.packageName;
-        for (String entry : rawPkgs.split(",")) {
-            if (pkg.equals(entry.trim())) {
-                return true;
-            }
-        }
-        return false;
+        // Look up allowlist packages from persist.gammaos.dualstack.pkgs and any
+        // persist.gammaos.dualstack.pkgs_# continuation properties (comma-separated).
+        return DualStackPropertyUtils.isPackageWhitelisted(top.packageName);
     }
 
     private boolean isDualStackSecondaryDisplayNaturalRotationLocked() {
@@ -1571,19 +1561,9 @@ public class DisplayRotation {
             return false;
         }
 
-        final String rawPkgs =
-                SystemProperties.get("persist.gammaos.dualstack.pkgs", "");
-        if (rawPkgs == null || rawPkgs.isEmpty()) {
-            return false;
-        }
-
-        final String pkg = top.packageName;
-        for (String entry : rawPkgs.split(",")) {
-            if (pkg.equals(entry.trim())) {
-                return true;
-            }
-        }
-        return false;
+        // Look up allowlist packages from persist.gammaos.dualstack.pkgs and any
+        // persist.gammaos.dualstack.pkgs_# continuation properties (comma-separated).
+        return DualStackPropertyUtils.isPackageWhitelisted(top.packageName);
     }
 
     private int getAllowAllRotations() {
