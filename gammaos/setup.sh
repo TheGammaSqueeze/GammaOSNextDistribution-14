@@ -58,15 +58,15 @@ echo "Installing MiXplorer."
 pm install /system/etc/MiXplorer_v6.64.3-API29_B23090720.apk
 
 echo "Installing FireFox"
-pm install /system/etc/firefox-fenix-139.0.multi.android-arm64-v8a.apk
+pm install /system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk
 
 echo "Installing flycast DC emulator." && \
 pm install /system/etc/flycast-release.apk && \
 launcheruser=$( stat -c "%U" /data/data/com.flycast.emulator) && \
 launchergroup=$( stat -c "%G" /data/data/com.flycast.emulator)
-#tar -xJvf /system/etc/flycast.tar.xz -P -C / && \
-#chown -R $launcheruser:$launchergroup /data/data/com.flycast.emulator && \
-#chown -R $launcheruser:ext_data_rw /sdcard/Android/data/com.flycast.emulator
+tar -xJvf /system/etc/flycast.tar.xz -P -C / && \
+chown -R $launcheruser:$launchergroup /data/data/com.flycast.emulator && \
+chown -R $launcheruser:ext_data_rw /sdcard/Android/data/com.flycast.emulator
 
 echo "Installing M64Plus FZ N64 Emulator." && \
 pm install /system/etc/mupen64plusae_3.0.335.apk && \
@@ -108,6 +108,8 @@ launcheruser=$( stat -c "%U" /data/data/com.magneticchen.daijishou) && \
 launchergroup=$( stat -c "%G" /data/data/com.magneticchen.daijishou) && \
 tar -xJvf /system/etc/daijisho.tar.xz -P -C / && \
 chown -R $launcheruser:$launchergroup /data/data/com.magneticchen.daijishou
+
+pm install /system/etc/416.apk
 
 echo "Installing Aurora Store." && \
 pm install /system/etc/AuroraStore_4.6.2.apk && \

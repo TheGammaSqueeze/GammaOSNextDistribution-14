@@ -130,7 +130,7 @@ PRODUCT_COPY_FILES += \
     gammaos/utils/dtc:system/bin/dtc \
     gammaos/utils/com.gamma.analogcalibrator.apk:system/app/GammaAnalog/com.gamma.analogcalibrator.apk \
     gammaos/utils/inotifywait:system/bin/inotifywait \
-    gammaos/utils/firefox-fenix-139.0.multi.android-arm64-v8a.apk:system/etc/firefox-fenix-139.0.multi.android-arm64-v8a.apk \
+    gammaos/utils/fenix-148.0b9.multi.android-arm64-v8a.apk:system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk \
     gammaos/customization.sh:system/bin/customization.sh \
     gammaos/magisk/magisk.apk:system/etc/magisk.apk \
     gammaos/magisk/magisk.tar.gz:system/etc/magisk.tar.gz \
@@ -143,6 +143,7 @@ PRODUCT_COPY_FILES += \
     gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
     gammaos/launcher/aurorastore.tar.gz:system/etc/aurorastore.tar.gz \
     gammaos/daijisho/daijisho412.apk.xz:system/etc/daijisho412.apk.xz \
+    gammaos/daijisho/416.apk:system/etc/416.apk \
     gammaos/daijisho/daijisho.tar.xz:system/etc/daijisho.tar.xz \
     gammaos/emulators/drastic.tar.gz:system/etc/drastic.tar.gz \
     gammaos/emulators/drastic_r2.6.0.4a.apk:system/etc/drastic_r2.6.0.4a.apk \
