@@ -5443,8 +5443,32 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
     }
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {
-        // enableDrawingLiveTile = false;
+        // Important: when live tiles are disabled but we are still running a recents animation,
+        // the remote app surfaces can remain visible and stop receiving transform updates
+        // (normally updated from dispatchDraw via redrawLiveTile). This makes the thumbnail appear
+        // "stuck" on screen when paging between tasks.
+        //
+        // Fix: if live tiles were requested (overview) but we force them off, immediately finish
+        // the recents animation to Recents so the system releases remote targets and we rely on
+        // task snapshots only.
+        final boolean requestedLiveTile = enableDrawingLiveTile;
+
+        enableDrawingLiveTile = false;
         mEnableDrawingLiveTile = enableDrawingLiveTile;
+
+        if (requestedLiveTile && !mEnableDrawingLiveTile) {
+            // When Recents is opened from an app, that app is considered a "running task" and is
+            // temporarily excluded from snapshot/thumbnail requests (see loadVisibleTaskData()).
+            // Since we are ending the live-tile animation immediately, clear that exclusion so the
+            // first frame of Overview can render task previews (instead of only the wallpaper).
+            mTmpRunningTasks = null;
+            if (mRecentsAnimationController != null) {
+                finishRecentsAnimation(true /* toRecents */, () -> loadVisibleTaskData(TaskView.FLAG_UPDATE_ALL));
+            } else if (mRemoteTargetHandles != null) {
+                cleanupRemoteTargets();
+                loadVisibleTaskData(TaskView.FLAG_UPDATE_ALL);
+            }
+        }
     }
 
     public void redrawLiveTile() {
