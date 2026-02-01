@@ -63,6 +63,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.WakeLockStats;
 import android.os.WorkSource;
@@ -1017,6 +1018,9 @@ public class BatteryStatsImpl extends BatteryStats {
     private static final int USB_DATA_DISCONNECTED = 1;
     private static final int USB_DATA_CONNECTED = 2;
     int mUsbDataState = USB_DATA_UNKNOWN;
+
+    private static final String SYS_PROP_USB_CONNECTED = "sys.gammaos.usb.connected";
+    private static final String USB_HOST_CONNECTED = "host_connected";
 
     private static final int GPS_SIGNAL_QUALITY_NONE = 2;
     int mGpsSignalQualityBin = -1;
@@ -5929,6 +5933,10 @@ public class BatteryStatsImpl extends BatteryStats {
         }
     }
 
+    private static void setUsbConnectedSysProp(boolean connected) {
+        SystemProperties.set(SYS_PROP_USB_CONNECTED, connected ? "1" : "0");
+    }
+
     @GuardedBy("this")
     private void registerUsbStateReceiver(Context context) {
         final IntentFilter usbStateFilter = new IntentFilter();
@@ -5936,23 +5944,35 @@ public class BatteryStatsImpl extends BatteryStats {
         context.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                final boolean state = intent.getBooleanExtra(UsbManager.USB_CONNECTED, false);
+                final boolean deviceConnected = intent.getBooleanExtra(UsbManager.USB_CONNECTED,
+                        false);
+                final boolean hostConnected = intent.getBooleanExtra(USB_HOST_CONNECTED, false);
+                setUsbConnectedSysProp(deviceConnected || hostConnected);
+
                 synchronized (BatteryStatsImpl.this) {
-                    noteUsbConnectionStateLocked(state, mClock.elapsedRealtime(),
+                    noteUsbConnectionStateLocked(deviceConnected, mClock.elapsedRealtime(),
                             mClock.uptimeMillis());
                 }
             }
         }, usbStateFilter);
+
+        // ACTION_USB_STATE is sticky. Fetch the current state so the sysprop is accurate
+        // immediately after system services are ready.
+        final Intent usbState = context.registerReceiver(null, usbStateFilter);
+        final boolean initDeviceConnected = usbState != null && usbState.getBooleanExtra(
+                UsbManager.USB_CONNECTED, false);
+        final boolean initHostConnected = usbState != null && usbState.getBooleanExtra(
+                USB_HOST_CONNECTED, false);
+        setUsbConnectedSysProp(initDeviceConnected || initHostConnected);
+
         synchronized (this) {
             if (mUsbDataState == USB_DATA_UNKNOWN) {
-                final Intent usbState = context.registerReceiver(null, usbStateFilter);
-                final boolean initState = usbState != null && usbState.getBooleanExtra(
-                        UsbManager.USB_CONNECTED, false);
-                noteUsbConnectionStateLocked(initState, mClock.elapsedRealtime(),
+                noteUsbConnectionStateLocked(initDeviceConnected, mClock.elapsedRealtime(),
                         mClock.uptimeMillis());
             }
         }
     }
+
 
     @GuardedBy("this")
     private void noteUsbConnectionStateLocked(boolean connected, long elapsedRealtimeMs,
