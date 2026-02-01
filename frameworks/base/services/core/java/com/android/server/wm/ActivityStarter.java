@@ -3352,7 +3352,7 @@ class ActivityStarter {
      * Controlled fully via system properties:
      *
      *   persist.gammaos.secondary_display.enabled   (boolean)
-     *   persist.gammaos.secondary_display.packages  (CSV / whitespace-separated prefixes)
+     *   persist.gammaos.secondary_display.packages[ _N ]  (CSV / whitespace-separated prefixes)
      *
      * Example:
      *   setprop persist.gammaos.secondary_display.enabled true
@@ -3365,8 +3365,8 @@ class ActivityStarter {
             return false;
         }
 
-        final String raw = SystemProperties.get(
-                GAMMA_SECONDARY_DISPLAY_PACKAGES_PROP, "").trim();
+        final String raw = getGammaMultiSystemProperty(
+                GAMMA_SECONDARY_DISPLAY_PACKAGES_PROP).trim();
         if (raw.isEmpty()) {
             // No configured prefixes => nothing to override.
             return false;
@@ -3375,8 +3375,8 @@ class ActivityStarter {
         // Tokens can be separated by commas and/or whitespace.
         final String[] tokens = raw.split("[,\\s]+");
         for (int i = 0; i < tokens.length; i++) {
-            final String prefix = tokens[i].trim();
-            if (prefix.isEmpty()) {
+            final String prefix = tokens[i] != null ? tokens[i].trim() : "";
+            if (prefix.isEmpty() || !isValidGammaPackageToken(prefix)) {
                 continue;
             }
             // Match exact package or prefix with subpackages:
@@ -3386,6 +3386,69 @@ class ActivityStarter {
             }
         }
         return false;
+    }
+ 
+    private String getGammaMultiSystemProperty(String basePropName) {
+        final StringBuilder out = new StringBuilder();
+        appendGammaPropSegment(out, SystemProperties.get(basePropName, ""));
+        for (int idx = 1; ; idx++) {
+            final String seg = SystemProperties.get(basePropName + "_" + idx, "");
+            if (seg == null || seg.trim().isEmpty()) {
+                break;
+            }
+            appendGammaPropSegment(out, seg);
+        }
+        return out.toString();
+    }
+
+    private void appendGammaPropSegment(StringBuilder out, String segment) {
+        if (segment == null) {
+            return;
+        }
+        final String s = segment.trim();
+        if (s.isEmpty()) {
+            return;
+        }
+        if (out.length() > 0) {
+            out.append(',');
+        }
+        out.append(s);
+    }
+
+    private static boolean isValidGammaPackageToken(String token) {
+        // Basic validation of an Android-style package name / prefix:
+        //   - ASCII letters/digits/underscore and dots
+        //   - must contain at least one dot
+        //   - no leading/trailing dot, no consecutive dots
+        if (token == null) {
+            return false;
+        }
+        final int n = token.length();
+        if (n == 0) {
+            return false;
+        }
+        boolean sawDot = false;
+        boolean lastWasDot = true; // reject a leading '.'
+        for (int i = 0; i < n; i++) {
+            final char c = token.charAt(i);
+            if (c == '.') {
+                if (lastWasDot) {
+                    return false;
+                }
+                sawDot = true;
+                lastWasDot = true;
+                continue;
+            }
+            final boolean ok = (c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_';
+            if (!ok) {
+                return false;
+            }
+            lastWasDot = false;
+        }
+        return sawDot && !lastWasDot;
     }
 
     void dump(PrintWriter pw, String prefix) {

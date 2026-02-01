@@ -1337,8 +1337,8 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
      * Controlled via live-read system properties:
      *
      *  - persist.gammaos.launch.guard.enabled  (boolean; default false)
-     *  - persist.gammaos.launch.guard.callers  (comma-separated caller packages)
-     *  - persist.gammaos.launch.guard.targets  (comma-separated target packages)
+     *  - persist.gammaos.launch.guard.callers[ _N ]  (comma-separated caller packages)
+     *  - persist.gammaos.launch.guard.targets[ _N ]  (comma-separated target packages)
      *
      * Example:
      *   persist.gammaos.launch.guard.enabled=true
@@ -1505,24 +1505,100 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     /**
      * Utility for GammaOS launch guard: checks if a package name appears in a
      * comma-separated system property (live-read each time).
+     *
+     * Supports splitting long allowlists across multiple properties:
+     *   - {@code <prop>}
+     *   - {@code <prop>_1}
+     *   - {@code <prop>_2}
+     *   - ...
+     *
+     * Example:
+     *   persist.gammaos.launch.guard.callers=com.foo,com.bar
+     *   persist.gammaos.launch.guard.callers_1=com.baz,com.qux
      */
     private boolean isPackageInGammaLaunchGuardList(String pkg, String propName) {
-        if (pkg == null || pkg.isEmpty()) {
+        if (pkg == null || pkg.isEmpty() || propName == null || propName.isEmpty()) {
             return false;
         }
-        final String raw = android.os.SystemProperties.get(propName, "").trim();
+        final String raw = getGammaMultiSystemProperty(propName).trim();
         if (raw.isEmpty()) {
             return false;
         }
-        // Comma-separated list, e.g. "com.foo, com.bar ,baz".
-        final String[] parts = raw.split(",");
+        // Tokens can be separated by commas and/or whitespace.
+        final String[] parts = raw.split("[,\\s]+");
         for (int i = 0; i < parts.length; i++) {
-            final String entry = parts[i].trim();
-            if (!entry.isEmpty() && pkg.equals(entry)) {
+            final String entry = parts[i] != null ? parts[i].trim() : "";
+            if (entry.isEmpty() || !isValidGammaPackageToken(entry)) {
+                continue;
+            }
+            if (pkg.equals(entry)) {
                 return true;
             }
         }
         return false;
+    }
+ 
+    private String getGammaMultiSystemProperty(String basePropName) {
+        final StringBuilder out = new StringBuilder();
+        appendGammaPropSegment(out, SystemProperties.get(basePropName, ""));
+        for (int idx = 1; ; idx++) {
+            final String seg = SystemProperties.get(basePropName + "_" + idx, "");
+            if (seg == null || seg.trim().isEmpty()) {
+                break;
+            }
+            appendGammaPropSegment(out, seg);
+        }
+        return out.toString();
+    }
+
+    private void appendGammaPropSegment(StringBuilder out, String segment) {
+        if (segment == null) {
+            return;
+        }
+        final String s = segment.trim();
+        if (s.isEmpty()) {
+            return;
+        }
+        if (out.length() > 0) {
+            out.append(',');
+        }
+        out.append(s);
+    }
+
+    private static boolean isValidGammaPackageToken(String token) {
+        // Basic validation of an Android-style package name / prefix:
+        //   - ASCII letters/digits/underscore and dots
+        //   - must contain at least one dot
+        //   - no leading/trailing dot, no consecutive dots
+        if (token == null) {
+            return false;
+        }
+        final int n = token.length();
+        if (n == 0) {
+            return false;
+        }
+        boolean sawDot = false;
+        boolean lastWasDot = true; // reject a leading '.'
+        for (int i = 0; i < n; i++) {
+            final char c = token.charAt(i);
+            if (c == '.') {
+                if (lastWasDot) {
+                    return false;
+                }
+                sawDot = true;
+                lastWasDot = true;
+                continue;
+            }
+            final boolean ok = (c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_';
+            if (!ok) {
+                return false;
+            }
+            lastWasDot = false;
+        }
+        return sawDot && !lastWasDot;
     }
 
     @Override

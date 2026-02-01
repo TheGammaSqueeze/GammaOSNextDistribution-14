@@ -23,11 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String PROP_SECONDARY_ENABLED = "persist.gammaos.secondary_display.enabled";
     private static final String PROP_SECONDARY_PACKAGES = "persist.gammaos.secondary_display.packages";
+ 
+    private static final int MAX_PROP_VALUE_LEN = 90;
+    private static final Pattern PACKAGE_NAME_PATTERN =
+            Pattern.compile("^[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)+$");
 
     private SwitchCompat switchSecondaryDisplay;
     private RecyclerView recyclerApps;
@@ -103,16 +108,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadSelectedPackagesFromProperty() {
         selectedPackages.clear();
-        String raw = getSystemProperty(PROP_SECONDARY_PACKAGES, "");
+        final String raw = getSystemPropertyMulti(PROP_SECONDARY_PACKAGES);
         if (TextUtils.isEmpty(raw)) {
             return;
         }
-        // Allow commas and/or whitespace, matching the parsing logic in frameworks.
-        String[] parts = raw.split("[,\\s]+");
-        for (String p : parts) {
-            if (p == null) continue;
-            String pkg = p.trim();
-            if (!pkg.isEmpty()) {
+        // Tokens can be separated by commas and/or whitespace, matching the parsing logic
+        // in frameworks.
+        final String[] parts = raw.split("[,\\s]+");
+        for (int i = 0; i < parts.length; i++) {
+            final String pkg = sanitizePackageToken(parts[i]);
+            if (pkg != null) {
                 selectedPackages.add(pkg);
             }
         }
@@ -120,19 +125,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void writeSelectedPackagesToProperty() {
         if (selectedPackages.isEmpty()) {
-            setSystemProperty(PROP_SECONDARY_PACKAGES, "");
+            writeSystemPropertySegments(PROP_SECONDARY_PACKAGES, Collections.emptyList());
             return;
         }
-        List<String> list = new ArrayList<>(selectedPackages);
-        Collections.sort(list, String::compareToIgnoreCase);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            if (i > 0) {
-                sb.append(',');
+        final List<String> list = new ArrayList<>(selectedPackages.size());
+        for (String pkg : selectedPackages) {
+            final String sanitized = sanitizePackageToken(pkg);
+            if (sanitized != null) {
+                list.add(sanitized);
             }
-            sb.append(list.get(i));
         }
-        setSystemProperty(PROP_SECONDARY_PACKAGES, sb.toString());
+        Collections.sort(list, String::compareToIgnoreCase);
+
+        final List<String> segments = splitTokensIntoPropSegments(list, MAX_PROP_VALUE_LEN);
+        writeSystemPropertySegments(PROP_SECONDARY_PACKAGES, segments);
     }
 
     private void onAppCheckedChanged(AppEntry entry, boolean isChecked) {
@@ -142,6 +148,103 @@ public class MainActivity extends AppCompatActivity {
             selectedPackages.remove(entry.packageName);
         }
         writeSelectedPackagesToProperty();
+    }
+ 
+    private String getSystemPropertyMulti(String baseKey) {
+        final StringBuilder out = new StringBuilder();
+        appendPropSegment(out, getSystemProperty(baseKey, ""));
+        for (int idx = 1; ; idx++) {
+            final String seg = getSystemProperty(baseKey + "_" + idx, "");
+            if (TextUtils.isEmpty(seg) || seg.trim().isEmpty()) {
+                break;
+            }
+            appendPropSegment(out, seg);
+        }
+        return out.toString();
+    }
+
+    private void writeSystemPropertySegments(String baseKey, List<String> segments) {
+        if (segments == null || segments.isEmpty()) {
+            setSystemProperty(baseKey, "");
+        } else {
+            setSystemProperty(baseKey, segments.get(0));
+        }
+
+        // Write continuations: <prop>_1, <prop>_2, ...
+        if (segments != null) {
+            for (int idx = 1; idx < segments.size(); idx++) {
+                setSystemProperty(baseKey + "_" + idx, segments.get(idx));
+            }
+        }
+
+        // Clear any stale continuations from previous writes.
+        for (int idx = (segments == null ? 1 : Math.max(1, segments.size())); ; idx++) {
+            final String key = baseKey + "_" + idx;
+            final String old = getSystemProperty(key, "");
+            if (TextUtils.isEmpty(old) || old.trim().isEmpty()) {
+                break;
+            }
+            setSystemProperty(key, "");
+        }
+    }
+
+    private static void appendPropSegment(StringBuilder out, String segment) {
+        if (segment == null) {
+            return;
+        }
+        final String s = segment.trim();
+        if (s.isEmpty()) {
+            return;
+        }
+        if (out.length() > 0) {
+            out.append(',');
+        }
+        out.append(s);
+    }
+
+    private static List<String> splitTokensIntoPropSegments(List<String> tokens, int maxLen) {
+        final List<String> segments = new ArrayList<>();
+        if (tokens == null || tokens.isEmpty()) {
+            return segments;
+        }
+
+        final StringBuilder cur = new StringBuilder();
+        for (int i = 0; i < tokens.size(); i++) {
+            final String token = tokens.get(i);
+            if (TextUtils.isEmpty(token)) {
+                continue;
+            }
+
+            final int extra = (cur.length() == 0) ? token.length() : (1 + token.length());
+            if (cur.length() > 0 && (cur.length() + extra) > maxLen) {
+                segments.add(cur.toString());
+                cur.setLength(0);
+            }
+
+            if (cur.length() > 0) {
+                cur.append(',');
+            }
+            cur.append(token);
+        }
+
+        if (cur.length() > 0) {
+            segments.add(cur.toString());
+        }
+        return segments;
+    }
+
+    private static String sanitizePackageToken(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        final String s = raw.trim();
+        if (s.isEmpty()) {
+            return null;
+        }
+        if (!PACKAGE_NAME_PATTERN.matcher(s).matches()) {
+            return null;
+        }
+        return s;
     }
 
     // ---------------------------------------------------------------------
