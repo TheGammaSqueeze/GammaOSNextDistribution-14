@@ -5443,6 +5443,7 @@ public abstract class RecentsView<ACTIVITY_TYPE extends StatefulActivity<STATE_T
     }
 
     public void setEnableDrawingLiveTile(boolean enableDrawingLiveTile) {
+        // enableDrawingLiveTile = false;
         mEnableDrawingLiveTile = enableDrawingLiveTile;
     }
 

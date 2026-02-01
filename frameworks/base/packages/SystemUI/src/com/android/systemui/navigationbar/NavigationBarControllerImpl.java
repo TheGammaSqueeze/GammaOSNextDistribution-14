@@ -300,6 +300,22 @@ public class NavigationBarControllerImpl implements
     private boolean initializeTaskbarIfNecessary() {
         boolean taskbarEnabled = supportsTaskbar() && shouldCreateNavBarAndTaskBar(
                 mContext, mContext.getDisplayId());
+ 
+        // GammaOS: Phone-taskbar mode is intended to enhance 3-button navigation (e.g. by
+        // exposing an all-apps affordance). Do not force-init taskbar behavior in gestural
+        // navigation mode, otherwise taskbar-specific sysui flags/gesture handling can bleed
+        // into gesture navigation.
+        //
+        // Note: We additionally gate this on "handheld" smallest width to avoid impacting
+        // large-screen taskbar behavior.
+        if (taskbarEnabled && QuickStepContract.isGesturalMode(mNavMode)
+                && isGammaPhoneTaskbarActive(mContext)) {
+            final int swDp =
+                    mContext.getResources().getConfiguration().smallestScreenWidthDp;
+            if (swDp > 0 && swDp < 600) {
+                taskbarEnabled = false;
+            }
+        }
 
         if (taskbarEnabled) {
             Trace.beginSection("NavigationBarController#initializeTaskbarIfNecessary");

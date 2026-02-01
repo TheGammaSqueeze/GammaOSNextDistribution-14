@@ -929,6 +929,11 @@ public abstract class AbsSwipeUpHandler<T extends StatefulActivity<S>,
             TaskView centermostTask = mRecentsView.getTaskViewNearestToCenterOfScreen();
             int centermostTaskFlags = centermostTask == null ? 0
                     : centermostTask.getThumbnail().getSysUiStatusNavFlags();
+            // "Atomic" events (e.g. 3-button nav recents/taskbar recents button) do not
+            // necessarily drive windowProgress past the overview threshold. However, these
+            // events always settle into launcher (overview), so always hint WM that we will
+            // finish to home/launcher.
+            boolean isAtomicEvent = mGestureState.isHandlingAtomicEvent();
             boolean swipeUpThresholdPassed = windowProgress > 1 - UPDATE_SYSUI_FLAGS_THRESHOLD;
             boolean quickswitchThresholdPassed = centermostTask != runningTask;
 
@@ -938,7 +943,8 @@ public abstract class AbsSwipeUpHandler<T extends StatefulActivity<S>,
             mRecentsAnimationController.setSplitScreenMinimized(mContext, swipeUpThresholdPassed);
             // Provide a hint to WM the direction that we will be settling in case the animation
             // needs to be canceled
-            mRecentsAnimationController.setWillFinishToHome(swipeUpThresholdPassed);
+            mRecentsAnimationController.setWillFinishToHome(
+                    isAtomicEvent || swipeUpThresholdPassed);
 
             if (mActivity == null) return;
             if (swipeUpThresholdPassed) {

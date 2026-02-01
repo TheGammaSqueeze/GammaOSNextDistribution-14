@@ -317,6 +317,10 @@ public class OverviewCommandHelper {
             public void onRecentsAnimationStart(RecentsAnimationController controller,
                     RecentsAnimationTargets targets) {
                 updateRecentsViewFocus(cmd);
+                // OverviewCommandHelper drives an "atomic" (button-mode) gesture that always
+                // settles into launcher (overview). Ensure WM doesn't resolve the transition back
+                // into the current task due to missing/late progress updates.
+                controller.setWillFinishToHome(true);
                 activityInterface.runOnInitBackgroundStateUI(() ->
                         interactionHandler.onGestureEnded(0, new PointF()));
                 cmd.removeListener(this);

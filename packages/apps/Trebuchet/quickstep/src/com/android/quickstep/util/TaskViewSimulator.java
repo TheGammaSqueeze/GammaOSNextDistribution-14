@@ -74,7 +74,20 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
 
     @NonNull
     private RecentsOrientedState mOrientationState;
-    private final boolean mIsRecentsRtl;
+    /**
+     * Recents RTL setting for the current
+     * {@link com.android.quickstep.orientation.RecentsPagedOrientationHandler}.
+     *
+     * <p>Do not treat this as a constant: {@link RecentsOrientedState}'s handler can change
+     * after construction (e.g. when swipe-up starts in a rotated app while auto-rotation is
+     * locked), which changes {@code getRecentsRtlSetting()} (notably LANDSCAPE vs SEASCAPE).
+     */
+    private boolean mIsRecentsRtl;
+
+    private void updateRecentsRtl() {
+        mIsRecentsRtl = mOrientationState.getOrientationHandler().getRecentsRtlSetting(
+                mContext.getResources());
+    }
 
     private final Rect mTaskRect = new Rect();
     private final Rect mFullTaskSize = new Rect();
@@ -131,8 +144,7 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
         mOrientationState.setGestureActive(true);
         mCurrentFullscreenParams = new FullscreenDrawParams(context);
         mOrientationStateId = mOrientationState.getStateId();
-        Resources resources = context.getResources();
-        mIsRecentsRtl = mOrientationState.getOrientationHandler().getRecentsRtlSetting(resources);
+        updateRecentsRtl();
         carouselScale.value = 1f;
     }
 
@@ -144,6 +156,14 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
         mLayoutValid = false;
         mOrientationState.setDeviceProfile(dp);
         calculateTaskSize();
+    }
+ 
+    /**
+     * Marks the current layout as invalid so that the next apply() recomputes
+     * task and thumbnail transforms using the latest insets and measured sizes.
+     */
+    public void invalidate() {
+        mLayoutValid = false;
     }
 
     private void calculateTaskSize() {
@@ -197,6 +217,10 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
     public void setOrientationState(@NonNull RecentsOrientedState orientationState) {
         mOrientationState = orientationState;
         mLayoutValid = false;
+        // Recents RTL depends on the active orientation handler (e.g. landscape vs seascape).
+        // Ensure we re-evaluate after swapping the orientation state, since callers can invoke
+        // addAppToOverviewAnim() before apply() runs.
+        updateRecentsRtl();
     }
 
     /**
@@ -226,10 +250,13 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
      * Sets the targets which the simulator will control
      */
     public void setPreview(RemoteAnimationTarget runningTarget) {
-        setPreviewBounds(
-                runningTarget.startBounds == null
-                        ? runningTarget.screenSpaceBounds : runningTarget.startBounds,
-                runningTarget.contentInsets);
+        // Prefer screenSpaceBounds. startBounds can be in a different coordinate space or exclude
+        // system bar areas, and can be stale during rotation-locked / forced-landscape flows.
+        Rect bounds = runningTarget.screenSpaceBounds;
+        if (bounds == null || bounds.isEmpty()) {
+            bounds = runningTarget.startBounds;
+        }
+        setPreviewBounds(bounds, runningTarget.contentInsets);
     }
 
     /**
@@ -303,6 +330,10 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
      * Adds animation for all the components corresponding to transition from an app to overview.
      */
     public void addAppToOverviewAnim(PendingAnimation pa, Interpolator interpolator) {
+        // Recents RTL depends on the active orientation handler (e.g. landscape vs seascape).
+        // When auto-rotation is locked, the handler can still change based on touch rotation
+        // during the gesture, so refresh before using mIsRecentsRtl.
+        updateRecentsRtl();
         pa.addFloat(fullScreenProgress, AnimatedFloat.VALUE, 1, 0, interpolator);
         float fullScreenScale;
         if (enableGridOnlyOverview() && mDp.isTablet && mDp.isGestureMode) {
@@ -434,6 +465,8 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
             mLayoutValid = true;
             mOrientationStateId = mOrientationState.getStateId();
 
+            updateRecentsRtl();
+
             getFullScreenScale();
             if (TaskAnimationManager.SHELL_TRANSITIONS_ROTATION) {
                 // With shell transitions, the display is rotated early so we need to actually use
@@ -443,8 +476,17 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
                 mThumbnailData.rotation = mOrientationState.getDisplayRotation();
             }
 
-            // mIsRecentsRtl is the inverse of TaskView RTL.
-            boolean isRtlEnabled = !mIsRecentsRtl;
+            // IMPORTANT:
+            // PreviewPositionHelper's "isRtlEnabled" should track the current layout direction.
+            //
+            // On landscape devices, RecentsOrientedState can swap between landscape/seascape
+            // handlers even when auto-rotate is locked (forced landscape + touch rotation).
+            // Those handlers intentionally flip "recents RTL" internally, which can make the
+            // thumbnail crop anchor to the wrong edge and leave part of the task container
+            // showing wallpaper.
+            //
+            // Using the real layout direction stabilizes the crop/matrix across handler swaps.
+            boolean isRtlEnabled = Utilities.isRtl(mContext.getResources());
             mPositionHelper.updateThumbnailMatrix(
                     mThumbnailPosition, mThumbnailData, mTaskRect.width(), mTaskRect.height(),
                     mDp.isTablet, mOrientationState.getRecentsActivityRotation(), isRtlEnabled);

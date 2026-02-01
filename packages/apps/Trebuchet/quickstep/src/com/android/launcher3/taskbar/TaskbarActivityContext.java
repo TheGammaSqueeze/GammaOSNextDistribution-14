@@ -392,11 +392,15 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
     }
 
     public void init(@NonNull TaskbarSharedState sharedState) {
-        // GammaOS: signal SystemUI to suppress legacy navbar whenever 3-button nav is active,
-        // regardless of phone/tablet profile.
-        android.provider.Settings.Secure.putInt(getContentResolver(),
-                "gamma_taskbar_phone_active", isThreeButtonNav() ? 1 : 0);
-        android.util.Log.d("GammaTaskbar","Signalled SystemUI: 3-button taskbar ACTIVE? " + isThreeButtonNav());
+        // GammaOS: signal SystemUI to suppress legacy navbar whenever 3-button nav is active.
+        // Only the DEFAULT_DISPLAY taskbar should touch this flag; secondary taskbars must not
+        // clobber the primary display's navbar decision.
+        if (getDisplay() != null && getDisplay().getDisplayId() == Display.DEFAULT_DISPLAY) {
+            android.provider.Settings.Secure.putInt(getContentResolver(),
+                    "gamma_taskbar_phone_active", isThreeButtonNav() ? 1 : 0);
+            android.util.Log.d("GammaTaskbar",
+                    "Signalled SystemUI: 3-button taskbar ACTIVE? " + isThreeButtonNav());
+        }
 
         mImeDrawsImeNavBar = getBoolByName(IME_DRAWS_IME_NAV_BAR_RES_NAME, getResources(), false);
         mLastRequestedNonFullscreenSize = getDefaultTaskbarWindowSize();
@@ -861,10 +865,12 @@ public class TaskbarActivityContext extends BaseTaskbarContext {
      * Called when this instance of taskbar is no longer needed
      */
     public void onDestroy() {
-        // GammaOS: clear the suppression flag
-        android.provider.Settings.Secure.putInt(getContentResolver(),
-                "gamma_taskbar_phone_active", 0);
-        android.util.Log.d("GammaTaskbar","Signalled SystemUI: phone taskbar INACTIVE");
+        // GammaOS: clear the suppression flag (DEFAULT_DISPLAY only; see init()).
+        if (getDisplay() != null && getDisplay().getDisplayId() == Display.DEFAULT_DISPLAY) {
+            android.provider.Settings.Secure.putInt(getContentResolver(),
+                    "gamma_taskbar_phone_active", 0);
+            android.util.Log.d("GammaTaskbar","Signalled SystemUI: phone taskbar INACTIVE");
+        }
         mIsDestroyed = true;
         setUIController(TaskbarUIController.DEFAULT);
         mControllers.onDestroy();
