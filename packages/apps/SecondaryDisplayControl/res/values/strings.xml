@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SecondaryDisplayControl</string>
+
+    <string name="title_secondary_display">GammaOS Secondary display routing</string>
+    <string name="secondary_display_toggle_label">Enable secondary display routing</string>
+    <string name="secondary_display_toggle_summary">When enabled, selected apps will be launched on the secondary display (if one is present and trusted). This uses persist.gammaos.secondary_display.enabled.</string>
+    <string name="apps_section_title">Apps routed to the secondary display</string>
+    <string name="apps_section_hint">Tick the apps that should be included in persist.gammaos.secondary_display.packages. Exact package matches are supported, and package prefixes will also match subpackages.</string>
+</resources>

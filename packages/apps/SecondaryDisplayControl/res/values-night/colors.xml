@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark background for night mode -->
+    <color name="background">#121212</color>
+
+    <!-- Light text on dark background -->
+    <color name="text_primary">#FFFFFFFF</color>
+
+    <!-- Accent and divider can stay the same, or be tweaked if you prefer -->
+    <color name="colorAccent">#FF8A2A</color>
+    <color name="divider">#1FFFFFFF</color>
+</resources>

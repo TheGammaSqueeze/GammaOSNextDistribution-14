@@ -37,6 +37,8 @@ import com.android.systemui.qs.tiles.USBControllerSwitchTile;
 import com.android.systemui.qs.tiles.ImmersiveModeTile;
 import com.android.systemui.qs.tiles.GammaShaderTile;
 import com.android.systemui.qs.tiles.DualStackTile;
+import com.android.systemui.qs.tiles.LaunchGuardTile;
+import com.android.systemui.qs.tiles.SecondaryDisplayAppsTile;
 import com.android.systemui.qs.tiles.GammaDualFocusTile;
 import com.android.systemui.qs.tiles.GammaSecondaryDisplayTile;
 import com.android.systemui.qs.tiles.GammaSplitBrightnessTile;
@@ -233,6 +235,18 @@ interface LineageModule {
     @IntoMap
     @StringKey(DualStackTile.TILE_SPEC)
     fun bindDualStackTile(dualStackTile: DualStackTile): QSTileImpl<*>
+
+    /** Inject LaunchGuardTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(LaunchGuardTile.TILE_SPEC)
+    fun bindLaunchGuardTile(launchGuardTile: LaunchGuardTile): QSTileImpl<*>
+
+    /** Inject SecondaryDisplayAppsTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SecondaryDisplayAppsTile.TILE_SPEC)
+    fun bindSecondaryDisplayAppsTile(secondaryDisplayAppsTile: SecondaryDisplayAppsTile): QSTileImpl<*>
     
     /** Inject GammaEQTile into tileMap in QSModule */
     @Binds

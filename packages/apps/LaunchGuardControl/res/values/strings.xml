@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LaunchGuardControl</string>
+
+    <string name="title_launch_guard">GammaOS Launch Guard</string>
+    <string name="launch_guard_toggle_label">Enable Launch Guard</string>
+    <string name="launch_guard_toggle_summary">When enabled, the system will force-stop selected target apps when they are launched from selected caller apps. This can work around emulator crashes when an app is relaunched while it is still running.</string>
+
+    <string name="callers_section_title">Caller apps</string>
+    <string name="callers_section_hint">Tick the apps that are allowed to trigger Launch Guard. These apps must be included in persist.gammaos.launch.guard.callers.</string>
+
+    <string name="targets_section_title">Target apps</string>
+    <string name="targets_section_hint">Tick the apps that should be force-restarted when launched by a caller app. These apps must be included in persist.gammaos.launch.guard.targets.</string>
+</resources>
