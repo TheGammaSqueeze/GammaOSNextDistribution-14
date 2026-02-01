@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.TextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PROP_DUALSTACK_ENABLED = "persist.gammaos.dualstack.enabled";
     private static final String PROP_DUALSTACK_PKGS = "persist.gammaos.dualstack.pkgs";
+    private static final String PROP_SF_SURFACEVIEW_ONLY =
+            "persist.gammaos.dualstack.sf.surfaceview_only";
 
     // Android system properties have a hard value length limit (typically ~90 chars usable).
     // To support large allowlists, DualStackControl transparently splits/reads the allowlist
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MAX_PKG_PROP_VALUE_LENGTH = 90;
 
     private SwitchCompat switchDualstack;
+    private SwitchCompat switchSurfaceViewOnly;
     private RecyclerView recyclerApps;
 
     private final List<AppEntry> appEntries = new ArrayList<>();
@@ -52,17 +56,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         switchDualstack = findViewById(R.id.switchDualstack);
+        switchSurfaceViewOnly = findViewById(R.id.switchSurfaceViewOnly);
         recyclerApps = findViewById(R.id.recyclerApps);
 
-        // Load current state for global enable
-        boolean enabled = getSystemPropertyBool(PROP_DUALSTACK_ENABLED, false);
+        // Load current state for toggles
+        final boolean enabled = getSystemPropertyBool(PROP_DUALSTACK_ENABLED, false);
+        final boolean surfaceViewOnly = getSystemPropertyBool(PROP_SF_SURFACEVIEW_ONLY, false);
         updatingSwitchProgrammatically = true;
         switchDualstack.setChecked(enabled);
+        switchSurfaceViewOnly.setChecked(surfaceViewOnly);
         updatingSwitchProgrammatically = false;
 
         switchDualstack.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (updatingSwitchProgrammatically) return;
             setSystemProperty(PROP_DUALSTACK_ENABLED, isChecked ? "1" : "0");
+        });
+ 
+        switchSurfaceViewOnly.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (updatingSwitchProgrammatically) return;
+            setSystemProperty(PROP_SF_SURFACEVIEW_ONLY, isChecked ? "1" : "0");
         });
 
         // Load current package list from property

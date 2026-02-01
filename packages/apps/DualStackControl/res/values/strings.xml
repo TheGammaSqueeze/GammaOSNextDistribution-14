@@ -8,4 +8,6 @@
     <string name="apps_section_title">Apps with DualStack enabled</string>
     <string name="apps_section_hint">Tick the apps that should be included in persist.gammaos.dualstack.pkgs (and persist.gammaos.dualstack.pkgs_# if needed).</string>
     <string name="empty_app_list">No user apps found.</string>
+    <string name="surfaceview_only_toggle_label">SurfaceView Only</string>
+    <string name="surfaceview_only_toggle_summary">Hide SystemUI overlays (for example volume bars, taskbar) during emulation.</string>
 </resources>
