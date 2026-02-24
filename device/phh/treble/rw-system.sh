@@ -2,12 +2,44 @@
 
 if [ -z "$debug" ] && [ -f /cache/phh-log ];then
 	mkdir -p /cache/phh
-	debug=1 exec sh -x "$(readlink -f -- "$0")" > /cache/phh/logs 2>&1
+	export PS4='+[$(cut -d" " -f1 /proc/uptime)] '
+	debug=1 exec sh -x "$(readlink -f -- "$0")" "$@" > /cache/phh/logs 2>&1
 else
     # Allow accessing logs from system app
     # Protected via SELinux for other apps
     chmod 0755 /cache/phh
     chmod 0644 /cache/phh/logs
+fi
+
+mode=early
+if [ "$1" = "--late" ]; then
+    mode=late
+    shift
+fi
+
+do_system_rw_resize() {
+    if ! getprop ro.vendor.build.fingerprint |grep samsung/;then
+        if mount -o remount,rw /system; then
+            resize2fs "$(grep ' /system ' /proc/mounts | cut -d ' ' -f 1)" || true
+        else
+            mount -o remount,rw /
+            major="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\1/g')"
+            minor="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\2/g')"
+            mknod /dev/tmp-phh b $((0x$major)) $((0x$minor))
+            blockdev --setrw /dev/tmp-phh
+            resize2fs /dev/root || true
+            resize2fs /dev/tmp-phh || true
+        fi
+        mount -o remount,ro /system || true
+        mount -o remount,ro / || true
+    fi
+}
+
+if [ "$mode" = "late" ]; then
+    if [ "$(getprop persist.sys.phh.system_rw)" = "1" ]; then
+        do_system_rw_resize
+    fi
+    exit 0
 fi
 
 if [ -f /cache/phh-adb ];then
@@ -350,31 +382,31 @@ if [ "$(getprop ro.product.vendor.manufacturer)" = motorola ] && getprop ro.vend
     setprop persist.sys.overlay.devinputjack true
 fi
 
-if ! getprop ro.vendor.build.fingerprint |grep samsung/;then
-    if mount -o remount,rw /system; then
-        resize2fs "$(grep ' /system ' /proc/mounts | cut -d ' ' -f 1)" || true
-    else
-        mount -o remount,rw /
-        major="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\1/g')"
-        minor="$(stat -c '%D' /.|sed -E 's/^([0-9a-f]+)([0-9a-f]{2})$/\2/g')"
-        mknod /dev/tmp-phh b $((0x$major)) $((0x$minor))
-        blockdev --setrw /dev/tmp-phh
-        resize2fs /dev/root || true
-        resize2fs /dev/tmp-phh || true
-    fi
-    mount -o remount,ro /system || true
-    mount -o remount,ro / || true
+# system rw + resize2fs moved to rw-system.sh --late (started after bootanim).
+# Enable with: persist.sys.phh.system_rw=1
+
+
+#for part in /dev/block/bootdevice/by-name/oppodycnvbk  /dev/block/platform/bootdevice/by-name/nvdata;do
+#    if [ -b "$part" ];then
+#        oppoName="$(grep -aohE '(RMX|CPH)[0-9]{4}' "$part" |head -n 1)"
+#        if [ -n "$oppoName" ];then
+#            setprop ro.build.overlay.deviceid "$oppoName"
+#        fi
+#    fi
+#done
+
+is_oppo_family() {
+    (getprop ro.product.vendor.manufacturer; getprop ro.product.vendor.brand; getprop ro.product.manufacturer) |
+        grep -qiE 'oppo|realme|oneplus|oplus'
+}
+
+if is_oppo_family || [ -f /proc/oppoVersion/prjVersion ] || [ -f /sys/firmware/devicetree/base/oppo,prjversion ]; then
+    for part in /dev/block/bootdevice/by-name/oppodycnvbk /dev/block/platform/bootdevice/by-name/nvdata; do
+        [ -b "$part" ] || continue
+        oppoName="$(dd if="$part" bs=4096 count=4096 2>/dev/null | grep -aohE '(RMX|CPH)[0-9]{4}' | head -n 1)"
+        [ -n "$oppoName" ] && setprop ro.build.overlay.deviceid "$oppoName" && break
+    done
 fi
-
-for part in /dev/block/bootdevice/by-name/oppodycnvbk  /dev/block/platform/bootdevice/by-name/nvdata;do
-    if [ -b "$part" ];then
-        oppoName="$(grep -aohE '(RMX|CPH)[0-9]{4}' "$part" |head -n 1)"
-        if [ -n "$oppoName" ];then
-            setprop ro.build.overlay.deviceid "$oppoName"
-        fi
-    fi
-done
-
 
 mkdir -p /mnt/phh/
 mount -t tmpfs -o rw,nodev,relatime,mode=755,gid=0 none /mnt/phh || true
