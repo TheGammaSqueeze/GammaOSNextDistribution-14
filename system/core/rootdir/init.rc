@@ -676,6 +676,12 @@ on post-fs-data
     # We restorecon /data in case the userdata partition has been reset.
     restorecon /data
 
+    # GammaOS: Never auto-run the SetupWizard-triggered setup service after a reboot.
+    # SetupWizard will set these when it actually wants the service to run.
+    setprop persist.gammaos.setupwizard_run 0
+    setprop persist.gammaos.setupwizard_done 0
+    setprop persist.gammaos.setupwizard_exit_code 0
+
     # Make sure we have the device encryption key.
     installkey /data
 
@@ -1290,6 +1296,18 @@ service gammaoscustomization /system/bin/sh /system/bin/customization.sh
     user system
     group system
     seclabel u:r:gammaoscustomization:s0
+
+# GammaOS: Run the main setup script as an init-managed service so SetupWizard
+# can trigger it without requiring a rooted device.
+service gammaossetupwizard /system/bin/setup.sh
+    disabled
+    oneshot
+    user root
+    group root system
+    seclabel u:r:gammaossetupwizard:s0
+
+on property:sys.boot_completed=1 && property:persist.gammaos.setupwizard_run=1
+    start gammaossetupwizard
 
 on property:ro.debuggable=1
     # Give writes to the same group for the trace folder on debug builds,

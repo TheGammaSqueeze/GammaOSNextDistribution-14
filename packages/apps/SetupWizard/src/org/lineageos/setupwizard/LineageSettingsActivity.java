@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import com.google.android.setupcompat.util.WizardManagerHelper;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.RandomAccessFile;
 
 import android.os.Build;
 import android.view.WindowInsets;
@@ -25,6 +25,11 @@ import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
 public class LineageSettingsActivity extends Activity {
+
+    private static final String PROP_RUN = "persist.gammaos.setupwizard_run";
+    private static final String PROP_DONE = "persist.gammaos.setupwizard_done";
+    private static final String PROP_EXIT_CODE = "persist.gammaos.setupwizard_exit_code";
+    private static final long LOG_TAIL_INTERVAL_MS = 250;
 
     private StickTestView leftStickView, rightStickView;
     private ScrollView controlScroll, scrollView;
@@ -103,7 +108,16 @@ public class LineageSettingsActivity extends Activity {
             controlScroll.setVisibility(View.GONE);
             continueButton.setVisibility(View.GONE);
             scrollView.setVisibility(View.VISIBLE);
-            new ExecuteShellCommand().execute("/system/bin/setup.sh");
+
+            // Kick off the init service and tail the log file for a live UI.
+            outputTextView.setText("");
+            File logFile = new File(getFilesDir(), "gammaos_setup.log");
+            if (logFile.exists()) {
+                // Best-effort cleanup; the service will also truncate.
+                //noinspection ResultOfMethodCallIgnored
+                logFile.delete();
+            }
+            new RunSetupViaInitTask(logFile).execute();
         });
     }
 
@@ -212,29 +226,74 @@ public class LineageSettingsActivity extends Activity {
         return super.onKeyDown(keyCode, ev);
     }
 
-    private class ExecuteShellCommand extends AsyncTask<String, String, Void> {
+    private class RunSetupViaInitTask extends AsyncTask<Void, String, Integer> {
+        private final File logFile;
+
+        RunSetupViaInitTask(File logFile) {
+            this.logFile = logFile;
+        }
+
         @Override
-        protected Void doInBackground(String... s) {
+        protected void onPreExecute() {
+            // Reset coordination properties and trigger init.
+            SystemProperties.set(PROP_DONE, "0");
+            SystemProperties.set(PROP_EXIT_CODE, "0");
+
+            // Ensure a property edge so init triggers even if it was previously set.
+            SystemProperties.set(PROP_RUN, "0");
+            SystemProperties.set(PROP_RUN, "1");
+        }
+
+        @Override
+        protected Integer doInBackground(Void... ignored) {
+            long pos = 0;
             try {
-                Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", s[0]});
-                BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line;
-                while ((line = r.readLine()) != null) publishProgress(line + "\n");
-                r.close();
-                p.waitFor();
+                while (true) {
+                    if (logFile.exists()) {
+                        long len = logFile.length();
+                        if (len < pos) pos = 0; // log truncated
+
+                        if (len > pos) {
+                            RandomAccessFile raf = new RandomAccessFile(logFile, "r");
+                            raf.seek(pos);
+                            String line;
+                            while ((line = raf.readLine()) != null) {
+                                publishProgress(line + "\n");
+                            }
+                            pos = raf.getFilePointer();
+                            raf.close();
+                        }
+                    }
+
+                    if ("1".equals(SystemProperties.get(PROP_DONE, "0"))) break;
+
+                    try {
+                        Thread.sleep(LOG_TAIL_INTERVAL_MS);
+                    } catch (InterruptedException ignoredSleep) {
+                        // Ignore.
+                    }
+                }
             } catch (Exception e) {
                 publishProgress("Error: " + e.getMessage() + "\n");
             }
-            return null;
+
+            String exitStr = SystemProperties.get(PROP_EXIT_CODE, "0");
+            try {
+                return Integer.parseInt(exitStr);
+            } catch (NumberFormatException ignoredNum) {
+                return 0;
+            }
         }
+
         @Override
         protected void onProgressUpdate(String... vals) {
             outputTextView.append(vals[0]);
             scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
         }
+
         @Override
-        protected void onPostExecute(Void v) {
-            outputTextView.append("Script completed.\n");
+        protected void onPostExecute(Integer exitCode) {
+            outputTextView.append("Script completed (exit " + exitCode + ").\n");
             outputTextView.postDelayed(() -> {
                 Intent intent = WizardManagerHelper.getNextIntent(getIntent(), Activity.RESULT_OK);
                 startActivity(intent);

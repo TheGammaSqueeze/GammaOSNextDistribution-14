@@ -1,5 +1,35 @@
 #!/system/bin/sh
 
+# When executed via init during SetupWizard, we cannot stream stdout/stderr directly
+# back into the UI. Instead, write to a log file that the SetupWizard can tail.
+LOG_DIR="/data/data/org.lineageos.setupwizard/files"
+LOG_FILE="${LOG_DIR}/gammaos_setup.log"
+
+mkdir -p "${LOG_DIR}" 2>/dev/null || true
+chown system:system "${LOG_DIR}" 2>/dev/null || true
+
+# Truncate log for a clean UI each run.
+: > "${LOG_FILE}" 2>/dev/null || true
+chown system:system "${LOG_FILE}" 2>/dev/null || true
+chmod 0640 "${LOG_FILE}" 2>/dev/null || true
+
+# Redirect everything from here on.
+exec >> "${LOG_FILE}" 2>&1
+
+# Init/SetupWizard coordination properties.
+setprop persist.gammaos.setupwizard_done 0
+setprop persist.gammaos.setupwizard_exit_code 0
+
+finish() {
+    rc=$?
+    trap - EXIT
+    echo "setup.sh exited with ${rc}"
+    setprop persist.gammaos.setupwizard_exit_code "${rc}"
+    setprop persist.gammaos.setupwizard_done 1
+    setprop persist.gammaos.setupwizard_run 0
+}
+trap finish EXIT
+
 echo "Starting configuration of the GammaOS system..."
         settings put global package_verifier_user_consent -1
 	settings put secure doze_pulse_on_pick_up 0

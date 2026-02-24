@@ -1,0 +1,18 @@
+type gammaossetupwizard, domain, coredomain;
+type gammaossetupwizard_exec, exec_type, system_file_type, file_type;
+
+# Keep policy simple while iterating, like gammaoscustomization.
+permissive gammaossetupwizard;
+
+init_daemon_domain(gammaossetupwizard)
+
+# Properties used by setup.sh (and for coordinating with SetupWizard).
+set_prop(gammaossetupwizard, persist_gammaos_prop)
+get_prop(gammaossetupwizard, persist_gammaos_prop)
+set_prop(gammaossetupwizard, system_prop)
+get_prop(gammaossetupwizard, system_prop)
+set_prop(gammaossetupwizard, ctl_stop_prop)
+set_prop(gammaossetupwizard, ctl_start_prop)
+
+# The service is a shell script (shebang /system/bin/sh).
+allow gammaossetupwizard shell_exec:file entrypoint;
