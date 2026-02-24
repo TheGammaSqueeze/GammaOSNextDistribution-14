@@ -106,3 +106,7 @@ wakelock_use(audioserver)
 # Allow reading audio config props, e.g. af.fast_track_multiplier
 get_prop(audioserver, audio_config_prop)
 get_prop(audioserver, system_audio_config_prop)
+get_prop(audioserver, persist_sys_spk_prop)
+get_prop(hal_audio, persist_sys_spk_prop)
+get_prop(audioserver, persist_sys_gammaeq_prop)
+set_prop(audioserver, audio_prop)

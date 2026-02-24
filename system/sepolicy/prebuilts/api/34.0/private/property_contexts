@@ -22,6 +22,7 @@ hw.                     u:object_r:system_prop:s0
 ro.hw.                  u:object_r:system_prop:s0
 sys.                    u:object_r:system_prop:s0
 sys.audio.              u:object_r:audio_prop:s0
+sys.gammaeq.            u:object_r:audio_prop:s0
 sys.init.perf_lsm_hooks u:object_r:init_perf_lsm_hooks_prop:s0
 sys.cppreopt            u:object_r:cppreopt_prop:s0
 sys.lpdumpd             u:object_r:lpdumpd_prop:s0
@@ -1580,3 +1581,9 @@ persist.sysui.notification.builder_extras_override u:object_r:persist_sysui_buil
 # Properties for Quick Start setup.
 ro.quick_start.oem_id u:object_r:quick_start_prop:s0 exact string
 ro.quick_start.device_id u:object_r:quick_start_prop:s0 exact string
+
+# GammaOS
+persist.gammaos. u:object_r:persist_sysui_builder_extras_prop:s0 prefix
+persist.gamma. u:object_r:persist_sysui_builder_extras_prop:s0 prefix
+persist.gammargb. u:object_r:persist_sysui_builder_extras_prop:s0
+persist.gamma u:object_r:persist_sysui_builder_extras_prop:s0 prefix

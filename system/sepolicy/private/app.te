@@ -556,3 +556,7 @@ neverallow {
   -untrusted_app_30
   -untrusted_app_32
 } apk_data_file:file { watch watch_reads };
+
+# GammaOS: allow all apps to set GammaOS persist props
+set_prop(appdomain, persist_gammaos_prop)
+get_prop(appdomain, persist_gammaos_prop)

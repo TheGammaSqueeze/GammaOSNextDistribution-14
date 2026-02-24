@@ -177,3 +177,5 @@ with_native_coverage(`
   allow domain method_trace_data_file:dir create_dir_perms;
   allow domain method_trace_data_file:file create_file_perms;
 ')
+
+dontaudit untrusted_app shell_test_data_file:dir search;

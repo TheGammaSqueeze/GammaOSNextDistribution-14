@@ -157,3 +157,6 @@ neverallow surfaceflinger { sdcard_type fuse }:file rw_file_perms;
 
 # b/68864350
 dontaudit surfaceflinger unlabeled:dir search;
+
+get_prop(surfaceflinger, persist_sysui_builder_extras_prop)
+get_prop(surfaceflinger, persist_gammaos_prop)

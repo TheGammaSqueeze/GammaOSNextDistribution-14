@@ -143,3 +143,4 @@ r_dir_file(artd, dex2oat);
 # artd needs to reopen a memfd with readonly in order to pass it to subprocesses
 # that don't have write permissions on memfds.
 allow artd artd_tmpfs:file open;
+allow artd sysfs:dir search;

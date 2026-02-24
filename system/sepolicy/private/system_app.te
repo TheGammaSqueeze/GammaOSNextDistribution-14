@@ -195,3 +195,12 @@ neverallow system_app shell_data_file:file { open read ioctl lock };
 neverallow { domain -init -system_app } adaptive_haptics_prop:property_service set;
 # system_app should be the only domain writing the force l3 prop
 neverallow { domain -init -system_app } drm_forcel3_prop:property_service set;
+
+set_prop(system_app, audio_prop)
+set_prop(system_app, persist_sys_spk_prop)
+
+# GammaEQ properties written by system UID apps (system_app domain)
+set_prop(system_app, persist_sys_gammaeq_prop)
+set_prop(system_app, persist_gammaos_prop)
+get_prop(system_app, persist_gammaos_prop)
+allow system_app shell_exec:file { execute execute_no_trans read open getattr map };

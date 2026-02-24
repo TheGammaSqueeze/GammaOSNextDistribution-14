@@ -1284,9 +1284,13 @@ service console /system/bin/sh
     setenv HOSTNAME console
     shutdown critical
 
-service gammaoscustomization /system/bin/customization.sh
+service gammaoscustomization /system/bin/sh /system/bin/customization.sh
     disabled
     oneshot
+    user system
+    group system
+    seclabel u:r:gammaoscustomization:s0
+
 on property:ro.debuggable=1
     # Give writes to the same group for the trace folder on debug builds,
     # it's further protected by selinux policy.
@@ -1352,6 +1356,7 @@ service gammaosdcdimming_enable /system/bin/sh -c "settings put secure reduce_br
     class main
     user root
     group root system
+    seclabel u:r:gammaoscustomization:s0
     oneshot
     disabled
 
@@ -1359,6 +1364,7 @@ service gammaosdcdimming_disable /system/bin/sh -c "settings put secure reduce_b
     class main
     user root
     group root system
+    seclabel u:r:gammaoscustomization:s0
     oneshot
     disabled
 

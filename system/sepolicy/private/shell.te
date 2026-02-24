@@ -264,3 +264,8 @@ get_prop(shell, build_attestation_prop)
 
 # Allow shell to execute oatdump.
 allow shell oatdump_exec:file rx_file_perms;
+
+allow shell sysfs:dir search;
+
+allow shell postinstall_mnt_dir:dir getattr;
+dontaudit shell postinstall_mnt_dir:dir getattr;

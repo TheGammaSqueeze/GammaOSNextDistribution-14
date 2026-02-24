@@ -1,0 +1,29 @@
+type gammaoscustomization, domain, coredomain;
+type gammaoscustomization_exec, exec_type, system_file_type, file_type;
+
+init_daemon_domain(gammaoscustomization)
+
+# Allow it to set/read GammaOS persist props
+set_prop(gammaoscustomization, persist_gammaos_prop)
+get_prop(gammaoscustomization, persist_gammaos_prop)
+
+# It uses lots of toolbox/system binaries and /system/bin/sh
+allow gammaoscustomization toolbox_exec:file { read open getattr execute execute_no_trans map };
+allow gammaoscustomization system_file:file { read open getattr execute execute_no_trans map };
+allow gammaoscustomization shell_exec:file { read open getattr map execute execute_no_trans };
+
+# If you keep setenforce inside the script (not recommended)
+allow gammaoscustomization selinuxfs:file { open read write getattr };
+
+# Binder usage for talking to system services / package manager
+binder_use(gammaoscustomization)
+allow gammaoscustomization package_service:service_manager find;
+binder_call(gammaoscustomization, system_server)
+
+# Read the APK/tars from /system/etc
+allow gammaoscustomization system_file:file r_file_perms;
+
+allow gammaoscustomization shell_exec:file entrypoint;
+allow gammaoscustomization sysfs:dir search;
+set_prop(gammaoscustomization, ctl_stop_prop)
+set_prop(gammaoscustomization, ctl_start_prop)

@@ -113,3 +113,4 @@ allow dex2oat apexd:fd use;
 ##############
 
 neverallow dex2oat app_data_file_type:notdevfile_class_set open;
+allow dex2oat sysfs:dir search;

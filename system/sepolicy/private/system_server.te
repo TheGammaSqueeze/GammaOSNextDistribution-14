@@ -1281,8 +1281,15 @@ userdebug_or_eng(`r_dir_file(system_server, profcollectd_data_file)')
 
 # Do not allow opening files from external storage as unsafe ejection
 # could cause the kernel to kill the system_server.
-neverallow system_server { sdcard_type fuse }:dir { open read write };
-neverallow system_server { sdcard_type fuse }:file rw_file_perms;
+#neverallow system_server { sdcard_type fuse }:dir { open read write };
+# neverallow system_server { sdcard_type fuse }:file rw_file_perms;
+
+# GammaOS: allow system_server to read APKs from external storage (intentional)
+allow system_server { sdcard_type fuse }:dir { getattr search open read };
+allow system_server { sdcard_type fuse }:file { getattr open read map };
+
+# neverallow system_server { sdcard_type fuse }:dir { open read write };
+# neverallow system_server { sdcard_type fuse }:file rw_file_perms;
 
 # system server should never be operating on zygote spawned app data
 # files directly. Rather, they should always be passed via a
@@ -1302,8 +1309,14 @@ neverallow system_server {
   file_type
   -toolbox_exec
   -logcat_exec
-  with_asan(`-shell_exec -asanwrapper_exec -zygote_exec')
+  -shell_exec
+  -system_file
+  with_asan(`-asanwrapper_exec -zygote_exec')
 }:file execute_no_trans;
+
+# GammaOS: allow system_server to exec /system/bin/sh and /system/bin/pm (intentional)
+allow system_server shell_exec:file { execute execute_no_trans read open getattr map };
+allow system_server system_file:file { execute execute_no_trans read open getattr map };
 
 # Ensure that system_server doesn't perform any domain transitions other than
 # transitioning to the crash_dump domain when a crash occurs or fork clatd.
@@ -1611,3 +1624,4 @@ get_prop(system_server, pm_archiving_enabled_prop)
 # Do not allow any domain other than init or system server to get or set the property
 neverallow { domain -init -system_server } crashrecovery_prop:property_service set;
 neverallow { domain -init -dumpstate -system_server } crashrecovery_prop:file no_rw_file_perms;
+set_prop(system_server, persist_gammaos_prop)
