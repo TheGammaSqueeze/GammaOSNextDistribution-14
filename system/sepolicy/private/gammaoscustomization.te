@@ -48,3 +48,6 @@ allow gammaoscustomization app_data_file:file { getattr open read write };
 set_prop(gammaoscustomization, system_prop)
 set_prop(system_app, system_prop)
 allow gammaoscustomization shell_exec:file entrypoint;
+
+allow gammaoscustomization system_data_file:dir { getattr search open read };
+allow gammaoscustomization app_data_file:dir { getattr search open read };
