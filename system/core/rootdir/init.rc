@@ -537,7 +537,47 @@ on early-fs
     start vold
 
 on post-fs
-    exec - system system -- /system/bin/vdc checkpoint markBootAttempt
+    # vdc checkpoint bookkeeping should not block the rest of the boot sequence.
+    exec_background - system system -- /system/bin/vdc checkpoint markBootAttempt
+
+    # Try to bring up the display stack early so boot animation can start while
+    # post-fs-data is still running. These services are optional and device-
+    # dependent; starting a non-existent service is a no-op (logged).
+    # Note that service names often differ from the binary name (e.g. MTK uses
+    # vendor.gralloc-4-0 and vendor.hwcomposer-2-1).
+    start hidl_memory
+    start vendor.gralloc-4-0
+    start android.hardware.graphics.allocator@4.0-service
+    start android.hardware.graphics.allocator@4.0-service-mediatek
+
+    # MTK display/GPU node permission preflight (normally done later in vendor init)
+    # Without this, hwcomposer.mt6785.so may abort with "Failed to open display device: Permission denied".
+    chmod 0660 /dev/graphics/fb0
+    chown system graphics /dev/graphics/fb0
+
+    chmod 0660 /dev/mtk_disp_mgr
+    chown system graphics /dev/mtk_disp_mgr
+
+    chmod 0660 /dev/mtkfb_vsync
+    chown system graphics /dev/mtkfb_vsync
+
+    chmod 0660 /dev/sw_sync
+    chown system graphics /dev/sw_sync
+
+    chmod 0666 /dev/mali0
+
+    start vendor.hwcomposer-2-1
+    # If the composer stack is healthy, bring SurfaceFlinger up immediately
+    # instead of waiting for later property-trigger evaluation.
+    start surfaceflinger
+    start vendor.qti.hardware.display.composer-service
+    start vendor.display-hal-1-0
+    start android.hardware.graphics.composer3-service
+    start android.hardware.graphics.composer@3.0-service
+    start android.hardware.graphics.composer@2.4-service
+    start android.hardware.graphics.composer@2.3-service
+    start android.hardware.graphics.composer@2.2-service
+    start android.hardware.graphics.composer@2.1-service
 
     # Once everything is setup, no need to modify /.
     # The bind+remount combination allows this to work in containers.
@@ -640,6 +680,45 @@ on late-fs
     # Load trusted keys from dm-verity protected partitions
     exec -- /system/bin/fsverity_init --load-verified-keys
 
+    # Try to bring up the display stack early so boot animation can start while
+    # post-fs-data is still running. These services are optional and device-
+    # dependent; starting a non-existent service is a no-op (logged).
+    # Note that service names often differ from the binary name (e.g. MTK uses
+    # vendor.gralloc-4-0 and vendor.hwcomposer-2-1).
+    start hidl_memory
+    start vendor.gralloc-4-0
+    start android.hardware.graphics.allocator@4.0-service
+    start android.hardware.graphics.allocator@4.0-service-mediatek
+
+    # MTK display/GPU node permission preflight (normally done later in vendor init)
+    # Without this, hwcomposer.mt6785.so may abort with "Failed to open display device: Permission denied".
+    chmod 0660 /dev/graphics/fb0
+    chown system graphics /dev/graphics/fb0
+
+    chmod 0660 /dev/mtk_disp_mgr
+    chown system graphics /dev/mtk_disp_mgr
+
+    chmod 0660 /dev/mtkfb_vsync
+    chown system graphics /dev/mtkfb_vsync
+
+    chmod 0660 /dev/sw_sync
+    chown system graphics /dev/sw_sync
+
+    chmod 0666 /dev/mali0
+
+    start vendor.hwcomposer-2-1
+    # If the composer stack is healthy, bring SurfaceFlinger up immediately
+    # instead of waiting for later property-trigger evaluation.
+    start surfaceflinger
+    start vendor.qti.hardware.display.composer-service
+    start vendor.display-hal-1-0
+    start android.hardware.graphics.composer3-service
+    start android.hardware.graphics.composer@3.0-service
+    start android.hardware.graphics.composer@2.4-service
+    start android.hardware.graphics.composer@2.3-service
+    start android.hardware.graphics.composer@2.2-service
+    start android.hardware.graphics.composer@2.1-service
+
 # Only enable the bootreceiver tracing instance for kernels 5.10 and above.
 on late-fs && property:ro.kernel.version=4.9
     setprop bootreceiver.enable 0
@@ -652,6 +731,42 @@ on late-fs && property:ro.kernel.version=5.4
 on late-fs
     # Bootreceiver tracing instance is enabled by default.
     setprop bootreceiver.enable ${bootreceiver.enable:-1}
+
+# Start SurfaceFlinger as soon as a graphics composer implementation is up.
+# This allows boot animation (and other early UI) to come up while the rest of
+# post-fs-data continues to run.
+on property:init.svc.vendor.qti.hardware.display.composer-service=running
+    start surfaceflinger
+
+on property:init.svc.vendor.display-hal-1-0=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer3-service=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer@3.0-service=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer@2.4-service=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer@2.3-service=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer@2.2-service=running
+    start surfaceflinger
+
+on property:init.svc.android.hardware.graphics.composer@2.1-service=running
+    start surfaceflinger
+
+# Typical HIDL graphics stack service names (e.g. MTK).
+on property:init.svc.vendor.hwcomposer-2-1=running && property:init.svc.vendor.gralloc-4-0=running
+    start surfaceflinger
+
+# Start boot animation as soon as SurfaceFlinger is available. BootAnimation can
+# fall back to system/product animations if /data is not yet available.
+on property:init.svc.surfaceflinger=running
+    start bootanim
 
 on property:ro.product.cpu.abilist64=* && property:bootreceiver.enable=1
     # Set up a tracing instance for system_server to monitor error_report_end events.
