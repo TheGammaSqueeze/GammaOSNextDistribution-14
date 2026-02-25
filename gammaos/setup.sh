@@ -31,6 +31,9 @@ finish() {
 trap finish EXIT
 
 echo "Starting configuration of the GammaOS system..."
+        settings put secure navigation_mode 0
+        cmd overlay disable --user 0 com.android.internal.systemui.navbar.gestural
+        cmd overlay enable  --user 0 com.android.internal.systemui.navbar.threebutton
         settings put global package_verifier_user_consent -1
 	settings put secure doze_pulse_on_pick_up 0
 	settings put secure camera_double_tap_power_gesture_disabled 1
@@ -71,10 +74,8 @@ echo "Starting configuration of the GammaOS system..."
 	setprop persist.sys.disable_32bit_mode 1
 	setprop persist.sys.disable_webview 0
 	setprop sys.gamma_tweak_update 1
-    setprop persist.gammaos.retroarchoverride.backbutton 1
-    settings put --lineage system key_back_long_press_action 11
-
-setprop ctl.stop "tee-supplicant"
+        setprop persist.gammaos.retroarchoverride.backbutton 1
+        settings put --lineage system key_back_long_press_action 11
 
 echo "Enabling developer settings and configuring system behaviors."
 settings put global development_settings_enabled 1

@@ -51,6 +51,10 @@ if [ ! -d /data/setupcompleted ] && [ -z $(getprop persist.sys.device_provisione
     settings put --lineage system navigation_bar_hint 0
     settings put --lineage system key_back_long_press_action 11
 
+    settings put secure navigation_mode 0
+    cmd overlay disable --user 0 com.android.internal.systemui.navbar.gestural
+    cmd overlay enable  --user 0 com.android.internal.systemui.navbar.threebutton
+
     echo "Installing Magisk."
     pm install /system/etc/magisk.apk
     am force-stop com.topjohnwu.magisk
