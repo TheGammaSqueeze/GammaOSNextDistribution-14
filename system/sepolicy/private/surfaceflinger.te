@@ -64,6 +64,7 @@ set_prop(surfaceflinger, ctl_bootanim_prop)
 set_prop(surfaceflinger, locale_prop)
 set_prop(surfaceflinger, surfaceflinger_display_prop)
 set_prop(surfaceflinger, timezone_prop)
+set_prop(surfaceflinger, persist_gammaos_prop)
 
 # Get properties.
 get_prop(surfaceflinger, qemu_sf_lcd_density_prop)
