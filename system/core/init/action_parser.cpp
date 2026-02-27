@@ -39,6 +39,15 @@ namespace {
 bool IsActionableProperty(Subcontext* subcontext, const std::string& prop_name) {
     static bool enabled = GetBoolProperty("ro.actionable_compatible_property.enabled", false);
 
+    // GammaOS: relax Treble "exported property" gating for vendor/odm init scripts.
+    // Default is relaxed (true) unless explicitly disabled.
+    // This allows /vendor rc to use triggers like sys.screen.state.
+    static bool relax = GetBoolProperty("ro.gammaos.relax_actionable_property_triggers", true);
+
+    if (relax) {
+        return true;
+    }
+
     if (subcontext == nullptr || !enabled) {
         return true;
     }
