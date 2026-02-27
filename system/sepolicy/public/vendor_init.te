@@ -44,6 +44,10 @@ allowxperm vendor_init data_file_type:dir ioctl {
   FS_IOC_SET_ENCRYPTION_POLICY
 };
 
+# GammaOS: allow vendor_init to read and set ANY property type (extremely broad)
+allow vendor_init property_type:property_service set;
+allow vendor_init property_type:file { read open getattr map };
+
 allow vendor_init system_data_file:dir getattr;
 
 allow vendor_init {
