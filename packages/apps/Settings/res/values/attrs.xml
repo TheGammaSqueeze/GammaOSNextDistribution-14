@@ -203,4 +203,12 @@
     <declare-styleable name="BackgroundPreference">
         <attr name="background" format="reference" />
     </declare-styleable>
+
+    <!-- For IntervalSeekBar (color calibration) -->
+    <declare-styleable name="IntervalSeekBar">
+        <attr name="minValue" format="float" />
+        <attr name="maxValue" format="float" />
+        <attr name="defaultValue" />
+        <attr name="digits" format="integer" />
+    </declare-styleable>
 </resources>

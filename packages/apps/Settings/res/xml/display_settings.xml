@@ -98,9 +98,17 @@
             settings:controller="com.android.settings.display.NightDisplayPreferenceController"
             settings:keywords="@string/keywords_display_night_display"/>
 
-        <lineageos.preference.LineagePartsPreference
-            android:key="livedisplay"
-            settings:requiresConfig="@*lineageos.platform:bool/config_enableLiveDisplay" />
+        <SwitchPreferenceCompat
+            android:key="reading_mode"
+            android:title="@string/reading_mode_title"
+            android:summary="@string/reading_mode_summary"
+            settings:controller="com.android.settings.display.ReadingModePreferenceController" />
+
+        <com.android.settings.display.ColorCalibrationPreference
+            android:key="color_calibration"
+            android:title="@string/color_calibration_title"
+            android:summary="@string/color_calibration_summary"
+            settings:controller="com.android.settings.display.ColorCalibrationPreferenceController" />
 
         <Preference
             android:key="color_mode"
@@ -146,6 +154,12 @@
             android:fragment="com.android.settings.display.ScreenResolutionFragment"
             settings:keywords="@string/keywords_screen_resolution"
             settings:controller="com.android.settings.display.ScreenResolutionController"/>
+
+        <Preference
+            android:key="custom_resolution"
+            android:title="@string/custom_resolution_title"
+            android:fragment="com.android.settings.display.CustomResolutionFragment"
+            settings:controller="com.android.settings.display.CustomResolutionPreferenceController" />
 
         <SwitchPreferenceCompat
             android:key="display_white_balance"

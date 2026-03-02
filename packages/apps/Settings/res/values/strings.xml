@@ -2700,6 +2700,32 @@
     <!-- Message announced to a11y users when they selected one resolution [CHAR LIMIT=NONE] -->
     <string name="screen_resolution_selected_a11y">Selected</string>
 
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Reading mode</string>
+    <string name="reading_mode_summary">Grayscale mode for long-term reading</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Color calibration</string>
+    <string name="color_calibration_summary">Calibrate on-screen colors</string>
+    <string name="color_calibration_reset">Reset</string>
+    <string name="color_red_title">Red</string>
+    <string name="color_green_title">Green</string>
+    <string name="color_blue_title">Blue</string>
+    <string name="color_saturation_title">Saturation</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Custom resolution</string>
+    <string name="custom_resolution_summary">%1$d \u00d7 %2$d</string>
+    <string name="custom_resolution_summary_custom">%1$d \u00d7 %2$d (custom)</string>
+    <string name="custom_resolution_native">Native: %1$d \u00d7 %2$d</string>
+    <string name="custom_resolution_current">Current: %1$d \u00d7 %2$d</string>
+    <string name="custom_resolution_width">Width</string>
+    <string name="custom_resolution_height">Height</string>
+    <string name="custom_resolution_apply">Apply</string>
+    <string name="custom_resolution_reset">Reset to default</string>
+    <string name="custom_resolution_footer">Changing the resolution may cause display issues. Use \"Reset to default\" to restore the original resolution.</string>
+    <string name="custom_resolution_invalid">Please enter valid width and height values</string>
+
     <!-- Display settings screen, Color mode settings title [CHAR LIMIT=30] -->
     <string name="color_mode_title">Colors</string>
     <!-- Display settings screen, Color mode option for "natural(sRGB) color"  [CHAR LIMIT=45] -->
