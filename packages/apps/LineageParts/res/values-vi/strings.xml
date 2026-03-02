@@ -133,6 +133,7 @@
     <string name="color_red_title">Đỏ</string>
     <string name="color_green_title">Xanh lá</string>
     <string name="color_blue_title">Xanh dương</string>
+    <string name="color_saturation_title">Độ bão hòa</string>
     <string name="picture_adjustment_title">Hiệu chỉnh hình ảnh</string>
     <string name="picture_adjustment_summary">Hiệu chỉnh tông màu, bão hòa, cường độ và độ tương phản</string>
     <string name="adj_hue_title">Tông màu</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Ứng dụng cuối</string>
     <string name="hardware_keys_action_split_screen">Chia màn hình</string>
     <string name="hardware_keys_action_kill_app">Dừng ứng dụng đang chạy</string>
+    <string name="hardware_keys_action_home">Màn hình chính</string>
+    <string name="hardware_keys_action_launch_activity">Khởi chạy ứng dụng</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Chọn ứng dụng</string>
+    <string name="activity_picker_search_hint">Tìm ứng dụng</string>
     <string name="camera_sleep_on_release_title">Liếc màn hình</string>
     <string name="camera_sleep_on_release_summary">Nhấn nửa chừng sẽ giữ màn hình bật trong khi còn giữ nút</string>
     <string name="camera_launch_title">Mở máy ảnh</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Luôn ẩn</string>
     <string name="status_bar_brightness_slider_show_expanded">Hiển thị khi được mở rộng</string>
     <string name="status_bar_brightness_slider_show_always">Luôn hiện</string>
+    <string name="status_bar_toggle_brightness">Điều khiển độ sáng</string>
+    <string name="status_bar_toggle_brightness_summary">Điều chỉnh độ sáng bằng cách vuốt trên thanh trạng thái</string>
     <string name="network_traffic_settings_title">Giám sát lưu lượng mạng</string>
     <string name="network_traffic_settings_summary">Hiển thị mức lưu lượng mạng hiện tại trên thanh trạng thái</string>
     <string name="network_traffic_mode_title">Chế độ hiển thị</string>

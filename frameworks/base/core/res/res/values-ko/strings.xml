@@ -260,6 +260,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"버그 신고"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"세션 끝내기"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"스크린샷"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">성능 모드</string>
     <string name="bugreport_title" msgid="8549990811777373050">"버그 신고"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"현재 기기 상태에 대한 정보를 수집하여 이메일 메시지로 전송합니다. 버그 신고를 시작하여 전송할 준비가 되려면 약간 시간이 걸립니다."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"대화형 보고서"</string>

@@ -133,6 +133,7 @@
     <string name="color_red_title">Röd</string>
     <string name="color_green_title">Grön</string>
     <string name="color_blue_title">Blå</string>
+    <string name="color_saturation_title">Mättnad</string>
     <string name="picture_adjustment_title">Bildjustering</string>
     <string name="picture_adjustment_summary">Justera nyans, mättnad, intensitet, och kontrast</string>
     <string name="adj_hue_title">Nyans</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Senaste app</string>
     <string name="hardware_keys_action_split_screen">Delad skärm</string>
     <string name="hardware_keys_action_kill_app">Döda förgrundsappen</string>
+    <string name="hardware_keys_action_home">Hemskärm</string>
+    <string name="hardware_keys_action_launch_activity">Starta app</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Välj app</string>
+    <string name="activity_picker_search_hint">Sök appar</string>
     <string name="camera_sleep_on_release_title">Snabbtitt</string>
     <string name="camera_sleep_on_release_summary">Ett halvtryck håller skärmen igång endast under tiden knappen är nedtryckt</string>
     <string name="camera_launch_title">Starta kamera</string>
@@ -360,6 +367,8 @@
     <string name="status_bar_brightness_slider_show_never">Visa aldrig</string>
     <string name="status_bar_brightness_slider_show_expanded">Visa när utökad</string>
     <string name="status_bar_brightness_slider_show_always">Visa alltid</string>
+    <string name="status_bar_toggle_brightness">Ljusstyrkekontroll</string>
+    <string name="status_bar_toggle_brightness_summary">Justera ljusstyrkan genom att dra längs statusfältet</string>
     <string name="network_traffic_settings_title">Nätverkshastighet</string>
     <string name="network_traffic_settings_summary">Visa hastigheten på nätverkstrafiken i statusfältet</string>
     <string name="network_traffic_mode_title">Visningsläge</string>

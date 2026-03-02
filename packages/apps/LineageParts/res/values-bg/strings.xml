@@ -133,6 +133,7 @@
     <string name="color_red_title">Червен</string>
     <string name="color_green_title">Зелен</string>
     <string name="color_blue_title">Син</string>
+    <string name="color_saturation_title">Наситеност</string>
     <string name="picture_adjustment_title">Настройка на изображението</string>
     <string name="picture_adjustment_summary">Настройте нюанс, насищане, интензивност и контраст</string>
     <string name="adj_hue_title">Отенък</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Последното приложение</string>
     <string name="hardware_keys_action_split_screen">Разделяне на екрана</string>
     <string name="hardware_keys_action_kill_app">Затвори активното приложение</string>
+    <string name="hardware_keys_action_home">Начален екран</string>
+    <string name="hardware_keys_action_launch_activity">Стартиране на приложение</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Избор на приложение</string>
+    <string name="activity_picker_search_hint">Търсене на приложения</string>
     <string name="camera_sleep_on_release_title">Поглед на екрана</string>
     <string name="camera_sleep_on_release_summary">Леко натискане ще запази екрана само, докато бутонът е натиснат</string>
     <string name="camera_launch_title">Стартиране на камерата</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Никога не показвай</string>
     <string name="status_bar_brightness_slider_show_expanded">Показване при разгъване</string>
     <string name="status_bar_brightness_slider_show_always">Винаги показвай</string>
+    <string name="status_bar_toggle_brightness">Управление на яркостта</string>
+    <string name="status_bar_toggle_brightness_summary">Регулирайте яркостта чрез плъзгане по лентата на състоянието</string>
     <string name="network_traffic_settings_title">Монитор на Мрежовия трафик</string>
     <string name="network_traffic_settings_summary">Покажи нивата на текущия мрежов трафик в лентата на състоянието</string>
     <string name="network_traffic_mode_title">Режим на екрана</string>

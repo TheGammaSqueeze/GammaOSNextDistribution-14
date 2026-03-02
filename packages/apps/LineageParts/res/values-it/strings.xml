@@ -133,6 +133,7 @@
     <string name="color_red_title">Rosso</string>
     <string name="color_green_title">Verde</string>
     <string name="color_blue_title">Blu</string>
+    <string name="color_saturation_title">Saturazione</string>
     <string name="picture_adjustment_title">Regolazione immagine</string>
     <string name="picture_adjustment_summary">Regola tonalità, saturazione, intensità e contrasto</string>
     <string name="adj_hue_title">Tonalità</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Ultima app</string>
     <string name="hardware_keys_action_split_screen">Schermo diviso</string>
     <string name="hardware_keys_action_kill_app">Termina l\'app in primo piano</string>
+    <string name="hardware_keys_action_home">Schermata Home</string>
+    <string name="hardware_keys_action_launch_activity">Avvia applicazione</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Scegli applicazione</string>
+    <string name="activity_picker_search_hint">Cerca applicazioni</string>
     <string name="camera_sleep_on_release_title">Anteprima schermo</string>
     <string name="camera_sleep_on_release_summary">Una pressione leggera terrà lo schermo acceso solo mentre il pulsante è premuto</string>
     <string name="camera_launch_title">Avvia fotocamera</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Non mostrare mai</string>
     <string name="status_bar_brightness_slider_show_expanded">Mostra quando espanso</string>
     <string name="status_bar_brightness_slider_show_always">Mostra sempre</string>
+    <string name="status_bar_toggle_brightness">Controllo luminosità</string>
+    <string name="status_bar_toggle_brightness_summary">Regola la luminosità scorrendo sulla barra di stato</string>
     <string name="network_traffic_settings_title">Monitoraggio del traffico di rete</string>
     <string name="network_traffic_settings_summary">Mostra i livelli attuali del traffico di rete nella barra di stato</string>
     <string name="network_traffic_mode_title">Modalità di visualizzazione</string>

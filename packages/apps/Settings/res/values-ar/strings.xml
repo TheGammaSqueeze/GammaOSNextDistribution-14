@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"دقة كاملة"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"تستخدِم الدقة الكاملة قدرًا أكبر من طاقة بطاريتك. وقد يؤدي تبديل الدقة إلى إعادة تشغيل بعض التطبيقات."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"تم الاختيار"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">وضع القراءة</string>
+    <string name="reading_mode_summary">وضع التدرج الرمادي للقراءة المطولة</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">معايرة الألوان</string>
+    <string name="color_calibration_summary">معايرة ألوان الشاشة</string>
+    <string name="color_calibration_reset">إعادة تعيين</string>
+    <string name="color_red_title">أحمر</string>
+    <string name="color_green_title">أخضر</string>
+    <string name="color_blue_title">أزرق</string>
+    <string name="color_saturation_title">التشبع</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">دقة مخصصة</string>
+    <string name="custom_resolution_width">العرض</string>
+    <string name="custom_resolution_height">الارتفاع</string>
+    <string name="custom_resolution_apply">تطبيق</string>
+    <string name="custom_resolution_reset">إعادة تعيين إلى الافتراضي</string>
+    <string name="custom_resolution_footer">قد يؤدي تغيير الدقة إلى مشاكل في العرض. استخدم "إعادة تعيين إلى الافتراضي" لاستعادة الدقة الأصلية.</string>
+    <string name="custom_resolution_invalid">يرجى إدخال قيم صالحة للعرض والارتفاع</string>
     <string name="color_mode_title" msgid="8666690832113906028">"الألوان"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"طبيعية"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"مُحسنة"</string>
@@ -5124,4 +5146,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"تم إعداد كلمة المرور."</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"إظهار المؤشر عند التمرير"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">تطبيق الشاشة الثانوية</string>
 </resources>

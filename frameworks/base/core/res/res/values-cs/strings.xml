@@ -262,6 +262,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Hlášení chyb"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Ukončit relaci"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Snímek obrazovky"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Režim výkonu</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Hlášení chyb"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Shromažďuje informace o aktuálním stavu zařízení. Tyto informace je následně možné poslat v e-mailové zprávě, chvíli však potrvá, než bude hlášení o chybě připraveno k odeslání. Buďte prosím trpěliví."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Interaktivní přehled"</string>

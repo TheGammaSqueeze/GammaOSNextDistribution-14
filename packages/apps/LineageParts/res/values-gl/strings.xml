@@ -118,6 +118,7 @@
     <string name="color_red_title">Vermello</string>
     <string name="color_green_title">Verde</string>
     <string name="color_blue_title">Azul</string>
+    <string name="color_saturation_title">Saturación</string>
     <string name="picture_adjustment_title">Axustes de imaxe</string>
     <string name="picture_adjustment_summary">Axustar tonalidade, saturación, intensidade e contraste</string>
     <string name="adj_hue_title">Tonalidade</string>
@@ -147,6 +148,12 @@
     <string name="hardware_keys_action_last_app">Última aplicación</string>
     <string name="hardware_keys_action_split_screen">Pantalla dividida</string>
     <string name="hardware_keys_action_kill_app">Pechar aplicativo en primeiro plano</string>
+    <string name="hardware_keys_action_home">Pantalla de inicio</string>
+    <string name="hardware_keys_action_launch_activity">Iniciar aplicación</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Escoller aplicación</string>
+    <string name="activity_picker_search_hint">Buscar aplicacións</string>
     <string name="camera_sleep_on_release_title">Vista rápida</string>
     <string name="camera_sleep_on_release_summary">Unha leve pulsación manterá a pantalla acendida ata que se solte o botón</string>
     <string name="camera_launch_title">Lanzar cámara</string>
@@ -365,6 +372,8 @@
     <string name="status_bar_brightness_slider_show_never">Non amosar nunca</string>
     <string name="status_bar_brightness_slider_show_expanded">Amosar ao expandir</string>
     <string name="status_bar_brightness_slider_show_always">Amosar sempre</string>
+    <string name="status_bar_toggle_brightness">Control de brillo</string>
+    <string name="status_bar_toggle_brightness_summary">Axuste o brillo deslizando sobre a barra de estado</string>
     <string name="network_traffic_settings_title">Monitor de tráfico de rede</string>
     <string name="network_traffic_settings_summary">Amosar os niveis actuais do tráfico de rede na barra de estado</string>
     <string name="network_traffic_mode_title">Modo de visualización</string>

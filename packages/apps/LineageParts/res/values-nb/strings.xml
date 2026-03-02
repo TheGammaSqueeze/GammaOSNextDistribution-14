@@ -106,6 +106,7 @@
     <string name="color_red_title">Rød</string>
     <string name="color_green_title">Grønn</string>
     <string name="color_blue_title">Blå</string>
+    <string name="color_saturation_title">Metning</string>
     <string name="picture_adjustment_title">Bildejustering</string>
     <string name="picture_adjustment_summary">Juster fargetone, metning, intensitet og kontrast</string>
     <string name="adj_hue_title">Fargetone</string>

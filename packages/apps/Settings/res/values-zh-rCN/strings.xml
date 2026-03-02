@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"完整分辨率"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"完整分辨率会增加耗电量。切换分辨率可能会导致一些应用重启。"</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"已选择"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">阅读模式</string>
+    <string name="reading_mode_summary">用于长时间阅读的灰度模式</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">色彩校准</string>
+    <string name="color_calibration_summary">校准屏幕颜色</string>
+    <string name="color_calibration_reset">重置</string>
+    <string name="color_red_title">红色</string>
+    <string name="color_green_title">绿色</string>
+    <string name="color_blue_title">蓝色</string>
+    <string name="color_saturation_title">饱和度</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">自定义分辨率</string>
+    <string name="custom_resolution_width">宽度</string>
+    <string name="custom_resolution_height">高度</string>
+    <string name="custom_resolution_apply">应用</string>
+    <string name="custom_resolution_reset">恢复默认</string>
+    <string name="custom_resolution_footer">更改分辨率可能会导致显示问题。使用"恢复默认"可还原原始分辨率。</string>
+    <string name="custom_resolution_invalid">请输入有效的宽度和高度值</string>
     <string name="color_mode_title" msgid="8666690832113906028">"颜色"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"自然色"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"增强色"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"密码现已设置完成"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"悬停时显示指针"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">次要主屏幕应用</string>
 </resources>

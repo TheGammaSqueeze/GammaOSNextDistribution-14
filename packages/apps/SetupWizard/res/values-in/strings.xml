@@ -49,4 +49,11 @@
     <string name="setup_theme">Tema</string>
     <string name="dark">Gelap</string>
     <string name="light">Terang</string>
+    <string name="gs_calibration">Kalibrasi pengontrol</string>
+    <string name="gs_deadzone">Zona mati</string>
+    <string name="gs_invert_left">Balik kiri</string>
+    <string name="gs_invert_right">Balik kanan</string>
+    <string name="gs_calibration_mode">Mode kalibrasi</string>
+    <string name="gs_reset">Atur ulang</string>
+    <string name="gs_continue">Lanjutkan</string>
 </resources>

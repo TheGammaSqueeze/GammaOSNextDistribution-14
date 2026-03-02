@@ -133,6 +133,7 @@
     <string name="color_red_title">قىزىل</string>
     <string name="color_green_title">يېشىل</string>
     <string name="color_blue_title">كۆك</string>
+    <string name="color_saturation_title">توينۇقلۇق</string>
     <string name="picture_adjustment_title">رەسىم تەڭشەش</string>
     <string name="picture_adjustment_summary">رەڭگى، تويۇنۇشچانلىقى، يورۇقلۇقى ۋە سېلىشتۇرمىسىنى تەڭشەيدۇ</string>
     <string name="adj_hue_title">رەڭگى</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">ئاخىرقى ئەپ</string>
     <string name="hardware_keys_action_split_screen">ئېكراننى بۆل</string>
     <string name="hardware_keys_action_kill_app">ئالدى سۇپىدىكى ئەپنى ئاخىرلاشتۇر</string>
+    <string name="hardware_keys_action_home">باش بەت</string>
+    <string name="hardware_keys_action_launch_activity">ئەپنى قوزغات</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">ئەپ تاللاڭ</string>
+    <string name="activity_picker_search_hint">ئەپ ئىزدەش</string>
     <string name="camera_sleep_on_release_title">ئېكران كۆرۈنۈشى</string>
     <string name="camera_sleep_on_release_summary">پەقەت توپچە بېسىلغاندىلا يېرىم بېسىلسا ئېكران يورۇق تۇرىدۇ</string>
     <string name="camera_launch_title">كامېرانى قوزغات</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">ھەرگىز كۆرسەتمە</string>
     <string name="status_bar_brightness_slider_show_expanded">يايغاندا كۆرسەت</string>
     <string name="status_bar_brightness_slider_show_always">ھەمىشە كۆرسەت</string>
+    <string name="status_bar_toggle_brightness">يورۇقلۇق كونتروللۇقى</string>
+    <string name="status_bar_toggle_brightness_summary">ھالەت بالدىقىدا سىيرىلىش ئارقىلىق يورۇقلۇقنى تەڭشەڭ</string>
     <string name="network_traffic_settings_title">تور ئېقىمىنى كۆزەتكۈچ</string>
     <string name="network_traffic_settings_summary">ھالەت بالداقتا نۆۋەتتىكى تور ئېقىمىنىڭ دەرىجىسىنى كۆرسىتىدۇ</string>
     <string name="network_traffic_mode_title">كۆرسىتىش ھالىتى</string>

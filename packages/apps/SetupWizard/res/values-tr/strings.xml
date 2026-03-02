@@ -53,4 +53,11 @@
     <string name="theme_summary">Karanlık tema, siyah bir arka plan kullanarak bazı ekranlarda pilin daha uzun süre dayanmasına yardımcı olur</string>
     <string name="dark">Karanlık</string>
     <string name="light">Aydınlık</string>
+    <string name="gs_calibration">Kumanda kalibrasyonu</string>
+    <string name="gs_deadzone">Ölü bölge</string>
+    <string name="gs_invert_left">Solu ters çevir</string>
+    <string name="gs_invert_right">Sağı ters çevir</string>
+    <string name="gs_calibration_mode">Kalibrasyon modu</string>
+    <string name="gs_reset">Sıfırla</string>
+    <string name="gs_continue">Devam</string>
 </resources>

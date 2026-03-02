@@ -111,6 +111,7 @@
     <string name="color_red_title">ಕೆಂಪು</string>
     <string name="color_green_title">ಹಸಿರು</string>
     <string name="color_blue_title">ನೀಲಿ</string>
+    <string name="color_saturation_title">ಸ್ಯಾಚುರೇಶನ್</string>
     <string name="picture_adjustment_title">ಚಿತ್ರದ ಹೊಂದಾಣಿಕೆ</string>
     <string name="adj_hue_title">ರಂಗು</string>
     <string name="adj_saturation_title">ಆರ್ದ್ರೀಯತೆ</string>

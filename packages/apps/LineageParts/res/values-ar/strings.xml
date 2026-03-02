@@ -114,6 +114,7 @@
     <string name="color_red_title">أحمر</string>
     <string name="color_green_title">أخضر</string>
     <string name="color_blue_title">أزرق</string>
+    <string name="color_saturation_title">التشبع</string>
     <string name="picture_adjustment_title">ضبط الصورة</string>
     <string name="picture_adjustment_summary">ضبط تدرج اللون والتشبع والكثافة والتباين</string>
     <string name="adj_hue_title">تدرج اللون</string>
@@ -143,6 +144,12 @@
     <string name="hardware_keys_action_last_app">التطبيق الأخير</string>
     <string name="hardware_keys_action_split_screen">تقسيم الشاشة</string>
     <string name="hardware_keys_action_kill_app">قتل التطبيق الموجود في المقدمة</string>
+    <string name="hardware_keys_action_home">الشاشة الرئيسية</string>
+    <string name="hardware_keys_action_launch_activity">تشغيل تطبيق</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">اختيار تطبيق</string>
+    <string name="activity_picker_search_hint">البحث عن تطبيقات</string>
     <string name="camera_sleep_on_release_title">نظرة خاطفة للشاشة</string>
     <string name="camera_sleep_on_release_summary">ضغطة بسيطة ستبقي الشاشة فعالة فقط عندما يكون المفتاح مضغوط عليه</string>
     <string name="camera_launch_title">تشغيل الكاميرا</string>
@@ -358,6 +365,8 @@
     <string name="status_bar_brightness_slider_show_never">عدم الإظهار أبداً</string>
     <string name="status_bar_brightness_slider_show_expanded">إظهار عند التوسيع</string>
     <string name="status_bar_brightness_slider_show_always">الإظهار دائمًا</string>
+    <string name="status_bar_toggle_brightness">التحكم بالسطوع</string>
+    <string name="status_bar_toggle_brightness_summary">اضبط السطوع عن طريق التمرير على شريط الحالة</string>
     <string name="network_traffic_settings_title">مراقبة حركة مرور الشبكة</string>
     <string name="network_traffic_settings_summary">عرض مستويات حركة مرور الشبكة الحالية في شريط الحالة</string>
     <string name="network_traffic_mode_title">وضع العرض</string>

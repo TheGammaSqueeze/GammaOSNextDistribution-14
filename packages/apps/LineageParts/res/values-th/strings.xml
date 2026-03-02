@@ -114,6 +114,7 @@
     <string name="color_red_title">แดง</string>
     <string name="color_green_title">เขียว</string>
     <string name="color_blue_title">น้ำเงิน</string>
+    <string name="color_saturation_title">ความอิ่มตัว</string>
     <string name="picture_adjustment_title">การปรับรูปภาพ</string>
     <string name="picture_adjustment_summary">ปรับโทนสี ความอิ่มตัว ความเข้ม และคอนทราสต์</string>
     <string name="adj_hue_title">โทนสี</string>
@@ -143,6 +144,12 @@
     <string name="hardware_keys_action_last_app">แอปล่าสุด</string>
     <string name="hardware_keys_action_split_screen">แยกหน้าจอ</string>
     <string name="hardware_keys_action_kill_app">ปิดแอปปัจจุบัน</string>
+    <string name="hardware_keys_action_home">หน้าจอหลัก</string>
+    <string name="hardware_keys_action_launch_activity">เปิดแอป</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">เลือกแอป</string>
+    <string name="activity_picker_search_hint">ค้นหาแอป</string>
     <string name="camera_sleep_on_release_title">ดูผ่านหน้าจอ</string>
     <string name="camera_sleep_on_release_summary">การกดเพียงครึ่งเดียวจะเปิดจอไว้เฉพาะเมื่อปุ่มถูกกดค้างอยู่</string>
     <string name="camera_launch_title">เปิดกล้อง</string>
@@ -352,6 +359,8 @@
     <string name="status_bar_brightness_slider_show_never">ไม่แสดง</string>
     <string name="status_bar_brightness_slider_show_expanded">แสดงเมื่อขยาย</string>
     <string name="status_bar_brightness_slider_show_always">แสดงเสมอ</string>
+    <string name="status_bar_toggle_brightness">การควบคุมความสว่าง</string>
+    <string name="status_bar_toggle_brightness_summary">ปรับความสว่างโดยเลื่อนผ่านแถบสถานะ</string>
     <string name="network_traffic_settings_title">ตรวจสอบการรับส่งข้อมูลเครือข่าย</string>
     <string name="network_traffic_settings_summary">แสดงสถานะการรับส่งข้อมูลเครือข่ายปัจจุบันในแถบสถานะ</string>
     <string name="network_traffic_mode_title">โหมดการแสดงผล</string>

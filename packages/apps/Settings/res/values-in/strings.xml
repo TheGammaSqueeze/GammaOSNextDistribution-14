@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Resolusi penuh"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Resolusi penuh menggunakan lebih banyak daya baterai. Mengganti resolusi dapat menyebabkan beberapa aplikasi dimulai ulang."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Dipilih"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Mode baca</string>
+    <string name="reading_mode_summary">Mode skala abu-abu untuk membaca jangka panjang</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Kalibrasi warna</string>
+    <string name="color_calibration_summary">Kalibrasi warna layar</string>
+    <string name="color_calibration_reset">Atur ulang</string>
+    <string name="color_red_title">Merah</string>
+    <string name="color_green_title">Hijau</string>
+    <string name="color_blue_title">Biru</string>
+    <string name="color_saturation_title">Saturasi</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Resolusi khusus</string>
+    <string name="custom_resolution_width">Lebar</string>
+    <string name="custom_resolution_height">Tinggi</string>
+    <string name="custom_resolution_apply">Terapkan</string>
+    <string name="custom_resolution_reset">Atur ulang ke bawaan</string>
+    <string name="custom_resolution_footer">Mengubah resolusi dapat menyebabkan masalah tampilan. Gunakan "Atur ulang ke bawaan" untuk memulihkan resolusi asli.</string>
+    <string name="custom_resolution_invalid">Masukkan nilai lebar dan tinggi yang valid</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Warna"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Alami"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Dipertajam"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Sandi telah siap"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Tampilkan pointer di tempat yang ditunjuk"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Aplikasi beranda sekunder</string>
 </resources>

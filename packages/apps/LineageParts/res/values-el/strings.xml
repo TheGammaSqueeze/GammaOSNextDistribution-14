@@ -133,6 +133,7 @@
     <string name="color_red_title">Κόκκινο</string>
     <string name="color_green_title">Πράσινο</string>
     <string name="color_blue_title">Μπλε</string>
+    <string name="color_saturation_title">Κορεσμός</string>
     <string name="picture_adjustment_title">Προσαρμογή εικόνας</string>
     <string name="picture_adjustment_summary">Προσαρμόστε την απόχρωση, τον κορεσμό, την ένταση και την αντίθεση</string>
     <string name="adj_hue_title">Απόχρωση</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Τελευταία εφαρμογή</string>
     <string name="hardware_keys_action_split_screen">Διαίρεση οθόνης</string>
     <string name="hardware_keys_action_kill_app">Τερματισμός εφαρμογής στο προσκήνιο</string>
+    <string name="hardware_keys_action_home">Αρχική οθόνη</string>
+    <string name="hardware_keys_action_launch_activity">Εκκίνηση εφαρμογής</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Επιλογή εφαρμογής</string>
+    <string name="activity_picker_search_hint">Αναζήτηση εφαρμογών</string>
     <string name="camera_sleep_on_release_title">Γρήγορη ματιά</string>
     <string name="camera_sleep_on_release_summary">Πιέζοντας το πλήκτρο εστίασης η οθόνη παραμένει ενεργή μόνο όσο το πλήκτρο παραμένει πατημένο</string>
     <string name="camera_launch_title">Εκκίνηση φωτογρ. μηχανής</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Να μην εμφανίζεται ποτέ</string>
     <string name="status_bar_brightness_slider_show_expanded">Εμφάνιση κατά την επέκταση</string>
     <string name="status_bar_brightness_slider_show_always">Εμφάνιση πάντα</string>
+    <string name="status_bar_toggle_brightness">Έλεγχος φωτεινότητας</string>
+    <string name="status_bar_toggle_brightness_summary">Ρυθμίστε τη φωτεινότητα σύροντας κατά μήκος της γραμμής κατάστασης</string>
     <string name="network_traffic_settings_title">Εποπτεία της κίνησης δικτύου</string>
     <string name="network_traffic_settings_summary">Να εμφανίζονται τα τρέχοντα επίπεδα κίνησης δικτύου στη γραμμή κατάστασης</string>
     <string name="network_traffic_mode_title">Λειτουργία προβολής</string>

@@ -262,6 +262,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Zgłoś błąd"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Zakończ sesję"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Zrzut ekranu"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Tryb wydajności</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Zgłoś błąd"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Informacje o bieżącym stanie urządzenia zostaną zebrane i wysłane e-mailem. Przygotowanie zgłoszenia błędu do wysłania chwilę potrwa, więc zachowaj cierpliwość."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Raport interaktywny"</string>

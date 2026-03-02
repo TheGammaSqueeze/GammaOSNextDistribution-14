@@ -260,6 +260,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Hata raporu"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Oturumu sonlandır"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Ekran görüntüsü"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Performans modu</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Hata raporu"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Bu rapor, e-posta iletisi olarak göndermek üzere cihazınızın şu anki durumuyla ilgili bilgi toplar. Hata raporu başlatıldıktan sonra hazır olması biraz zaman alabilir, lütfen sabırlı olun."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Etkileşimli rapor"</string>

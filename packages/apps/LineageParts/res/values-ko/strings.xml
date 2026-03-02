@@ -133,6 +133,7 @@
     <string name="color_red_title">빨강</string>
     <string name="color_green_title">초록</string>
     <string name="color_blue_title">파랑</string>
+    <string name="color_saturation_title">채도</string>
     <string name="picture_adjustment_title">사진 조정</string>
     <string name="picture_adjustment_summary">색조, 채도, 명도 및 대비 조정</string>
     <string name="adj_hue_title">색조</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">마지막으로 사용한 앱</string>
     <string name="hardware_keys_action_split_screen">화면 분할</string>
     <string name="hardware_keys_action_kill_app">포그라운드 앱 종료</string>
+    <string name="hardware_keys_action_home">홈 화면</string>
+    <string name="hardware_keys_action_launch_activity">앱 실행</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">앱 선택</string>
+    <string name="activity_picker_search_hint">앱 검색</string>
     <string name="camera_sleep_on_release_title">화면 엿보기</string>
     <string name="camera_sleep_on_release_summary">버튼을 반만 누르고 있는 동안 화면을 계속 켜두기</string>
     <string name="camera_launch_title">카메라 실행</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">표시 안 함</string>
     <string name="status_bar_brightness_slider_show_expanded">펼치면 표시</string>
     <string name="status_bar_brightness_slider_show_always">항상 표시</string>
+    <string name="status_bar_toggle_brightness">밝기 조절</string>
+    <string name="status_bar_toggle_brightness_summary">상태 표시줄을 밀어서 밝기 조정</string>
     <string name="network_traffic_settings_title">네트워크 트래픽 모니터</string>
     <string name="network_traffic_settings_summary">상태 표시줄에 현재 네트워크 트래픽 수준 표시</string>
     <string name="network_traffic_mode_title">표시 모드</string>

@@ -115,6 +115,7 @@
     <string name="color_red_title">Punane</string>
     <string name="color_green_title">Roheline</string>
     <string name="color_blue_title">Sinine</string>
+    <string name="color_saturation_title">Küllastus</string>
     <string name="picture_adjustment_title">Pildi reguleerimine</string>
     <string name="picture_adjustment_summary">Tooni, küllastuse, intensiivsuse ja kontrasti reguleerimine</string>
     <string name="adj_hue_title">Toon</string>
@@ -144,6 +145,12 @@
     <string name="hardware_keys_action_last_app">Viimane rakendus</string>
     <string name="hardware_keys_action_split_screen">Jagatud ekraan</string>
     <string name="hardware_keys_action_kill_app">Sundsulge esiplaanil rakendus</string>
+    <string name="hardware_keys_action_home">Avakuva</string>
+    <string name="hardware_keys_action_launch_activity">Käivita rakendus</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Vali rakendus</string>
+    <string name="activity_picker_search_hint">Otsi rakendusi</string>
     <string name="camera_sleep_on_release_title">Ekraani piilumine</string>
     <string name="camera_sleep_on_release_summary">Poolvajutus hoiab ekraani sees vaid nupu allhoidmise ajal</string>
     <string name="camera_launch_title">Käivita kaamera</string>
@@ -358,6 +365,8 @@
     <string name="status_bar_brightness_slider_show_never">Ära kuva kunagi</string>
     <string name="status_bar_brightness_slider_show_expanded">Kuva laiendamisel</string>
     <string name="status_bar_brightness_slider_show_always">Kuva alati</string>
+    <string name="status_bar_toggle_brightness">Heleduse juhtimine</string>
+    <string name="status_bar_toggle_brightness_summary">Reguleerige heledust olekuribal libistades</string>
     <string name="network_traffic_settings_title">Võrguliikluse jälgija</string>
     <string name="network_traffic_settings_summary">Kuva olekuribal võrguliikluse hetketasemeid</string>
     <string name="network_traffic_mode_title">Kuvamise režiim</string>

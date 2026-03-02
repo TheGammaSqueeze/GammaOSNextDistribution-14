@@ -133,6 +133,7 @@
     <string name="color_red_title">Rdeča</string>
     <string name="color_green_title">Zelena</string>
     <string name="color_blue_title">Modra</string>
+    <string name="color_saturation_title">Nasičenost</string>
     <string name="picture_adjustment_title">Prilagoditev slike</string>
     <string name="picture_adjustment_summary">Prilagodi odtenek, nasičenost, jakost in kontrast</string>
     <string name="adj_hue_title">Odtenek</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Zadnja aplikacija</string>
     <string name="hardware_keys_action_split_screen">Razdeli zaslon</string>
     <string name="hardware_keys_action_kill_app">Uniči aplikacijo v ospredju</string>
+    <string name="hardware_keys_action_home">Domači zaslon</string>
+    <string name="hardware_keys_action_launch_activity">Zaženi aplikacijo</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Izberi aplikacijo</string>
+    <string name="activity_picker_search_hint">Iskanje aplikacij</string>
     <string name="camera_sleep_on_release_title">Predogled zaslona</string>
     <string name="camera_sleep_on_release_summary">Polpritisk bo ohranil zaslon vklopljen samo, ko je gumb pridržan</string>
     <string name="camera_launch_title">Zaženi fotoaparat</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Nikoli ne pokaži</string>
     <string name="status_bar_brightness_slider_show_expanded">Pokaži ob razširitvi</string>
     <string name="status_bar_brightness_slider_show_always">Vedno pokaži</string>
+    <string name="status_bar_toggle_brightness">Nadzor svetlosti</string>
+    <string name="status_bar_toggle_brightness_summary">Prilagodite svetlost z drsenjem po vrstici stanja</string>
     <string name="network_traffic_settings_title">Nadzornik omrežnega prometa</string>
     <string name="network_traffic_settings_summary">Prikaz trenutnih ravni omrežnega prometa v vrstici stanja</string>
     <string name="network_traffic_mode_title">Način prikaza</string>

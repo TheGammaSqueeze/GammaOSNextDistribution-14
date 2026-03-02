@@ -133,6 +133,7 @@
     <string name="color_red_title">قرمز</string>
     <string name="color_green_title">سبز</string>
     <string name="color_blue_title">آبی</string>
+    <string name="color_saturation_title">اشباع</string>
     <string name="picture_adjustment_title">تنظیم تصویر</string>
     <string name="picture_adjustment_summary">تنظیم رنگ، اشباع، شدت و تضاد</string>
     <string name="adj_hue_title">رنگ‌مایه</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">آخرین کاره</string>
     <string name="hardware_keys_action_split_screen">تقسیم صفحه</string>
     <string name="hardware_keys_action_kill_app">بستن برنامه پیش‌زمینه</string>
+    <string name="hardware_keys_action_home">صفحه اصلی</string>
+    <string name="hardware_keys_action_launch_activity">اجرای برنامه</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">انتخاب برنامه</string>
+    <string name="activity_picker_search_hint">جستجوی برنامه‌ها</string>
     <string name="camera_sleep_on_release_title">نگاه کردن به صفحه</string>
     <string name="camera_sleep_on_release_summary">تا زمانی که دکمه نگه داشته شده، نگاه کردن به صفحه را روشن نگه میدارد</string>
     <string name="camera_launch_title">اجرای دوربین</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">نمایش نده</string>
     <string name="status_bar_brightness_slider_show_expanded">وقتی بزرگ شد نمایش دهید</string>
     <string name="status_bar_brightness_slider_show_always">همیشه نمایش بده</string>
+    <string name="status_bar_toggle_brightness">کنترل روشنایی</string>
+    <string name="status_bar_toggle_brightness_summary">با کشیدن انگشت روی نوار وضعیت روشنایی را تنظیم کنید</string>
     <string name="network_traffic_settings_title">رصد ترافیک شبکه</string>
     <string name="network_traffic_settings_summary">نمایش وضعیت کنونی سرعت تبادل شبکه در نوار وضعیت</string>
     <string name="network_traffic_mode_title">حالت نمایش</string>

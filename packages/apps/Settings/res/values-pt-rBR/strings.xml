@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Resolução máxima"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"A resolução máxima consome mais bateria. A troca de resolução pode fazer com que alguns apps sejam reiniciados."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Selecionada"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Modo leitura</string>
+    <string name="reading_mode_summary">Modo escala de cinza para leitura prolongada</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Calibração de cores</string>
+    <string name="color_calibration_summary">Calibrar cores da tela</string>
+    <string name="color_calibration_reset">Redefinir</string>
+    <string name="color_red_title">Vermelho</string>
+    <string name="color_green_title">Verde</string>
+    <string name="color_blue_title">Azul</string>
+    <string name="color_saturation_title">Saturação</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Resolução personalizada</string>
+    <string name="custom_resolution_width">Largura</string>
+    <string name="custom_resolution_height">Altura</string>
+    <string name="custom_resolution_apply">Aplicar</string>
+    <string name="custom_resolution_reset">Redefinir para o padrão</string>
+    <string name="custom_resolution_footer">Alterar a resolução pode causar problemas de exibição. Use "Redefinir para o padrão" para restaurar a resolução original.</string>
+    <string name="custom_resolution_invalid">Insira valores válidos de largura e altura</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Cores"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Naturais"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Realçadas"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"A senha foi configurada"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Mostrar ponteiro ao passar o cursor"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Aplicativo de tela inicial secundário</string>
 </resources>

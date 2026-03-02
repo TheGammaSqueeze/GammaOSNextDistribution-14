@@ -53,4 +53,11 @@
     <string name="theme_summary">A Sötét téma néhány képernyőn fekete hátteret használ az akkukímélés érdekében.</string>
     <string name="dark">Sötét</string>
     <string name="light">Világos</string>
+    <string name="gs_calibration">Vezérlő kalibrálása</string>
+    <string name="gs_deadzone">Holtzóna</string>
+    <string name="gs_invert_left">Bal invertálása</string>
+    <string name="gs_invert_right">Jobb invertálása</string>
+    <string name="gs_calibration_mode">Kalibrációs mód</string>
+    <string name="gs_reset">Visszaállítás</string>
+    <string name="gs_continue">Folytatás</string>
 </resources>

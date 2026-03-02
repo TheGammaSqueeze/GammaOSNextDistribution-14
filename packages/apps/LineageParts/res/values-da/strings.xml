@@ -131,6 +131,7 @@
     <string name="color_red_title">Rød</string>
     <string name="color_green_title">Grøn</string>
     <string name="color_blue_title">Blå</string>
+    <string name="color_saturation_title">Mætning</string>
     <string name="picture_adjustment_title">Billedjustering</string>
     <string name="picture_adjustment_summary">Justerer farvetone, mætning, lysstyrke og kontrast</string>
     <string name="adj_hue_title">Farvetone</string>
@@ -160,6 +161,12 @@
     <string name="hardware_keys_action_last_app">Sidste app</string>
     <string name="hardware_keys_action_split_screen">Opdel skærm</string>
     <string name="hardware_keys_action_kill_app">Stands forgrunds-app</string>
+    <string name="hardware_keys_action_home">Startskærm</string>
+    <string name="hardware_keys_action_launch_activity">Start app</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Vælg app</string>
+    <string name="activity_picker_search_hint">Søg i apps</string>
     <string name="camera_sleep_on_release_title">Skærmsmugkig</string>
     <string name="camera_sleep_on_release_summary">Et halvt tryk vil holde skærmen tændt, men kun mens knappen holdes nede</string>
     <string name="camera_launch_title">Start kamera</string>

@@ -133,6 +133,7 @@
     <string name="color_red_title">წითელი</string>
     <string name="color_green_title">მწვანე</string>
     <string name="color_blue_title">ლურჯი</string>
+    <string name="color_saturation_title">გაჯერება</string>
     <string name="picture_adjustment_title">სურათის მორგება</string>
     <string name="picture_adjustment_summary">ელფერის, გაჯერების, სიძლიერისა და კონტრასტის მორგება</string>
     <string name="adj_hue_title">ელფერი</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">წინა აპი</string>
     <string name="hardware_keys_action_split_screen">ეკრანის გაყოფა</string>
     <string name="hardware_keys_action_kill_app">მოქმედი აპის გათიშვა</string>
+    <string name="hardware_keys_action_home">საწყისი ეკრანი</string>
+    <string name="hardware_keys_action_launch_activity">აპის გაშვება</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">აპის არჩევა</string>
+    <string name="activity_picker_search_hint">აპების ძიება</string>
     <string name="camera_sleep_on_release_title">თვალის შევლება</string>
     <string name="camera_sleep_on_release_summary">ნახევრად დაჭერა დატოვებს ეკრანს ჩართულს, მხოლოდ, დაყოვნებით დაწოლისას</string>
     <string name="camera_launch_title">კამერის გაშვება</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">არასდროს გამოჩნდეს</string>
     <string name="status_bar_brightness_slider_show_expanded">გამოჩნდეს ჩამოშლისას</string>
     <string name="status_bar_brightness_slider_show_always">ყოველთვის გამოჩნდეს</string>
+    <string name="status_bar_toggle_brightness">სიკაშკაშის მართვა</string>
+    <string name="status_bar_toggle_brightness_summary">სიკაშკაშის რეგულირება სტატუს ზოლზე გასმით</string>
     <string name="network_traffic_settings_title">ქსელში მიმოცვლის ჩვენება</string>
     <string name="network_traffic_settings_summary">ქსელის მიმდინარე დატვირთვის ჩვენება მდგომარეობის ზოლზე</string>
     <string name="network_traffic_mode_title">ჩვენების რეჟიმი</string>

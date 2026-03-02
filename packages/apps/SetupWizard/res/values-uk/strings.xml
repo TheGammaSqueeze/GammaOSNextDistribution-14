@@ -43,4 +43,11 @@
     <string name="two_button_navigation">Навігація двома кнопками</string>
     <string name="navbar_navigation">Навігація трьома кнопками</string>
     <string name="hide_gesture_hint">Ховати панель навігації жестами</string>
+    <string name="gs_calibration">Калібрування контролера</string>
+    <string name="gs_deadzone">Мертва зона</string>
+    <string name="gs_invert_left">Інвертувати лівий</string>
+    <string name="gs_invert_right">Інвертувати правий</string>
+    <string name="gs_calibration_mode">Режим калібрування</string>
+    <string name="gs_reset">Скинути</string>
+    <string name="gs_continue">Далі</string>
 </resources>

@@ -133,6 +133,7 @@
     <string name="color_red_title">红</string>
     <string name="color_green_title">绿</string>
     <string name="color_blue_title">蓝</string>
+    <string name="color_saturation_title">饱和度</string>
     <string name="picture_adjustment_title">图片调整</string>
     <string name="picture_adjustment_summary">调整色相、饱和度、亮度和对比度</string>
     <string name="adj_hue_title">色相</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">上次运行应用</string>
     <string name="hardware_keys_action_split_screen">拆分屏幕</string>
     <string name="hardware_keys_action_kill_app">终止前台应用</string>
+    <string name="hardware_keys_action_home">主屏幕</string>
+    <string name="hardware_keys_action_launch_activity">启动应用</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">选择应用</string>
+    <string name="activity_picker_search_hint">搜索应用</string>
     <string name="camera_sleep_on_release_title">屏幕速览</string>
     <string name="camera_sleep_on_release_summary">仅当按钮被按下时，半按将会保持屏幕点亮</string>
     <string name="camera_launch_title">启动相机</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">从不显示</string>
     <string name="status_bar_brightness_slider_show_expanded">展开时显示</string>
     <string name="status_bar_brightness_slider_show_always">总是显示</string>
+    <string name="status_bar_toggle_brightness">亮度控制</string>
+    <string name="status_bar_toggle_brightness_summary">在状态栏上滑动以调整亮度</string>
     <string name="network_traffic_settings_title">网络流量监视</string>
     <string name="network_traffic_settings_summary">在状态栏中显示当前的网络流量级别</string>
     <string name="network_traffic_mode_title">显示模式</string>

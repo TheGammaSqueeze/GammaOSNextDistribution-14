@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"원본 해상도"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"원본 해상도 사용 시 배터리 사용량이 증가합니다. 해상도를 전환하면 일부 앱이 다시 시작될 수 있습니다."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"선택됨"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">독서 모드</string>
+    <string name="reading_mode_summary">장시간 독서를 위한 흑백 모드</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">색상 보정</string>
+    <string name="color_calibration_summary">화면 색상 보정</string>
+    <string name="color_calibration_reset">초기화</string>
+    <string name="color_red_title">빨강</string>
+    <string name="color_green_title">초록</string>
+    <string name="color_blue_title">파랑</string>
+    <string name="color_saturation_title">채도</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">맞춤 해상도</string>
+    <string name="custom_resolution_width">너비</string>
+    <string name="custom_resolution_height">높이</string>
+    <string name="custom_resolution_apply">적용</string>
+    <string name="custom_resolution_reset">기본값으로 재설정</string>
+    <string name="custom_resolution_footer">해상도를 변경하면 화면 표시 문제가 발생할 수 있습니다. "기본값으로 재설정"을 사용하여 원래 해상도를 복원하세요.</string>
+    <string name="custom_resolution_invalid">유효한 너비와 높이 값을 입력하세요</string>
     <string name="color_mode_title" msgid="8666690832113906028">"색상"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"자연스럽게"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"생생하게"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"비밀번호 설정 완료"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"마우스 오버 중 포인터 표시"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">보조 홈 앱</string>
 </resources>

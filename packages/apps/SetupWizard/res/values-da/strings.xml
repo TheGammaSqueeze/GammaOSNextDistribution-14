@@ -47,4 +47,11 @@
     <string name="two_button_navigation">Navigering med to knapper</string>
     <string name="navbar_navigation">Navigering med tre knapper</string>
     <string name="hide_gesture_hint">Skjul bevægelses navigerings hint</string>
+    <string name="gs_calibration">Controller-kalibrering</string>
+    <string name="gs_deadzone">Dødzone</string>
+    <string name="gs_invert_left">Invertér venstre</string>
+    <string name="gs_invert_right">Invertér højre</string>
+    <string name="gs_calibration_mode">Kalibreringstilstand</string>
+    <string name="gs_reset">Nulstil</string>
+    <string name="gs_continue">Fortsæt</string>
 </resources>

@@ -91,6 +91,7 @@
     <string name="color_red_title">சிவப்பு</string>
     <string name="color_green_title">பச்சை</string>
     <string name="color_blue_title">நீலம்</string>
+    <string name="color_saturation_title">நிறைவு</string>
     <string name="adj_hue_title">நிறச்சாயல்</string>
     <string name="adj_saturation_title">நிறைசெறிவு</string>
     <string name="button_pref_title">பொத்தான்கள்</string>
@@ -116,6 +117,12 @@
     <string name="hardware_keys_action_last_app">இறுதிச் செயலி</string>
     <string name="hardware_keys_action_split_screen">பிரிதிரை</string>
     <string name="hardware_keys_action_kill_app">முன்புற செயலியை அழித்தல்</string>
+    <string name="hardware_keys_action_home">முகப்புத் திரை</string>
+    <string name="hardware_keys_action_launch_activity">பயன்பாட்டைத் தொடங்கு</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">பயன்பாட்டைத் தேர்ந்தெடு</string>
+    <string name="activity_picker_search_hint">பயன்பாடுகளைத் தேடு</string>
     <string name="camera_sleep_on_release_title">திரைப் பார்வை</string>
     <string name="camera_sleep_on_release_summary">பொத்தானை அழுத்திப் பிடித்திருக்கும்போது மட்டும் பாதி அழுத்தினால் திரை இயக்கத்தில் இருக்கும்</string>
     <string name="camera_launch_title">படமியைத் தொடங்குக</string>

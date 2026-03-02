@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Volle Auflösung"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Die volle Auflösung verbraucht mehr Akku. Wenn du die Auflösung änderst, werden einige Apps möglicherweise neu gestartet."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Ausgewählt"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Lesemodus</string>
+    <string name="reading_mode_summary">Graustufenmodus für längeres Lesen</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Farbkalibrierung</string>
+    <string name="color_calibration_summary">Bildschirmfarben kalibrieren</string>
+    <string name="color_calibration_reset">Zurücksetzen</string>
+    <string name="color_red_title">Rot</string>
+    <string name="color_green_title">Grün</string>
+    <string name="color_blue_title">Blau</string>
+    <string name="color_saturation_title">Sättigung</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Benutzerdefinierte Auflösung</string>
+    <string name="custom_resolution_width">Breite</string>
+    <string name="custom_resolution_height">Höhe</string>
+    <string name="custom_resolution_apply">Anwenden</string>
+    <string name="custom_resolution_reset">Auf Standard zurücksetzen</string>
+    <string name="custom_resolution_footer">Das Ändern der Auflösung kann Anzeigeprobleme verursachen. Verwende "Auf Standard zurücksetzen", um die ursprüngliche Auflösung wiederherzustellen.</string>
+    <string name="custom_resolution_invalid">Bitte gültige Breiten- und Höhenwerte eingeben</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Farben"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Natürlich"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Verstärkt"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Das Passwort ist jetzt eingerichtet"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Zeiger einblenden, während der Eingabestift bewegt wird"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Sekundäre Start-App</string>
 </resources>

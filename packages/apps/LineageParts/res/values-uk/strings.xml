@@ -108,6 +108,7 @@
     <string name="color_red_title">Червоний</string>
     <string name="color_green_title">Зелений</string>
     <string name="color_blue_title">Синій</string>
+    <string name="color_saturation_title">Насиченість</string>
     <string name="picture_adjustment_title">Налаштування зображення</string>
     <string name="picture_adjustment_summary">Налаштуйте відтінок, насиченість, інтенсивність і контраст</string>
     <string name="adj_hue_title">Відтінок</string>
@@ -137,6 +138,12 @@
     <string name="hardware_keys_action_last_app">Останній додаток</string>
     <string name="hardware_keys_action_split_screen">Розділення екрана</string>
     <string name="hardware_keys_action_kill_app">Примусово зупинити</string>
+    <string name="hardware_keys_action_home">Головний екран</string>
+    <string name="hardware_keys_action_launch_activity">Запустити додаток</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Вибрати додаток</string>
+    <string name="activity_picker_search_hint">Пошук додатків</string>
     <string name="camera_sleep_on_release_title">Швидкий перегляд</string>
     <string name="camera_sleep_on_release_summary">Тримати екран увімкненим тільки при утриманні кнопки</string>
     <string name="camera_launch_title">Запустити камеру</string>
@@ -354,6 +361,8 @@
     <string name="status_bar_brightness_slider_show_never">Ніколи</string>
     <string name="status_bar_brightness_slider_show_expanded">Коли розгорнуто</string>
     <string name="status_bar_brightness_slider_show_always">Завжди</string>
+    <string name="status_bar_toggle_brightness">Керування яскравістю</string>
+    <string name="status_bar_toggle_brightness_summary">Регулювання яскравості проведенням по рядку стану</string>
     <string name="network_traffic_autohide">Приховувати автоматично</string>
     <string name="network_traffic_units_title">Одиниці вимірювання трафіку</string>
     <string name="network_traffic_show_units_off">Вимк</string>

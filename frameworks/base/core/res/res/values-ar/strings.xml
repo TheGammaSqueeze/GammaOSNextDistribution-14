@@ -264,6 +264,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"تقرير الأخطاء"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"إنهاء الجلسة"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"لقطة شاشة"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">وضع الأداء</string>
     <string name="bugreport_title" msgid="8549990811777373050">"تقرير الأخطاء"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"سيجمع هذا معلومات حول حالة جهازك الحالي لإرسالها كرسالة إلكترونية، ولكنه سيستغرق وقتًا قليلاً من بدء عرض تقرير بالأخطاء. وحتى يكون جاهزًا للإرسال، يُرجى الانتظار."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"تقرير تفاعلي"</string>

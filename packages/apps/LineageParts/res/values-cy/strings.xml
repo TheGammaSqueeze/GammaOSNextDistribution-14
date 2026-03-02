@@ -129,6 +129,7 @@
     <string name="color_red_title">Coch</string>
     <string name="color_green_title">Gwyrdd</string>
     <string name="color_blue_title">Glas</string>
+    <string name="color_saturation_title">Dirlawnder</string>
     <string name="picture_adjustment_title">Addasiad llun</string>
     <string name="picture_adjustment_summary">Addasu arlliw, dyfnder lliw, tanbeidrwydd a chyferbyniad</string>
     <string name="adj_hue_title">Arlliw</string>
@@ -158,6 +159,12 @@
     <string name="hardware_keys_action_last_app">Ap diwethaf</string>
     <string name="hardware_keys_action_split_screen">Sgrin hollt</string>
     <string name="hardware_keys_action_kill_app">Lladd ap y blaendir</string>
+    <string name="hardware_keys_action_home">Sgrin gartref</string>
+    <string name="hardware_keys_action_launch_activity">Agor ap</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Dewis ap</string>
+    <string name="activity_picker_search_hint">Chwilio apiau</string>
     <string name="camera_sleep_on_release_title">Cipolwg sgrin</string>
     <string name="camera_sleep_on_release_summary">Bydd hanner gwasgu yn cadw\'r sgrin ymlaen dim ond tra bod y botwm yn cael ei dal i lawr</string>
     <string name="camera_launch_title">Agor camera</string>
@@ -382,6 +389,8 @@
     <string name="status_bar_brightness_slider_show_never">Byth dangos</string>
     <string name="status_bar_brightness_slider_show_expanded">Dangos pan wedi\'i ehangu</string>
     <string name="status_bar_brightness_slider_show_always">Dangos o hyd</string>
+    <string name="status_bar_toggle_brightness">Rheolaeth disgleirdeb</string>
+    <string name="status_bar_toggle_brightness_summary">Addasu\'r disgleirdeb trwy lithro ar draws y bar statws</string>
     <string name="network_traffic_settings_title">Monitro traffig rhwydwaith</string>
     <string name="network_traffic_settings_summary">Dangos lefel traffig rhwydwaith cyfredol yn y bar statws</string>
     <string name="network_traffic_mode_title">Modd dangosydd</string>

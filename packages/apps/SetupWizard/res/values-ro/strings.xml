@@ -53,4 +53,11 @@
     <string name="theme_summary">Tema întunecată folosește un fundal negru pentru a menține bateria în viață mai mult timp pe unele ecrane</string>
     <string name="dark">Întunecat</string>
     <string name="light">Luminos</string>
+    <string name="gs_calibration">Calibrare controller</string>
+    <string name="gs_deadzone">Zonă moartă</string>
+    <string name="gs_invert_left">Inversare stânga</string>
+    <string name="gs_invert_right">Inversare dreapta</string>
+    <string name="gs_calibration_mode">Mod calibrare</string>
+    <string name="gs_reset">Resetare</string>
+    <string name="gs_continue">Continuă</string>
 </resources>

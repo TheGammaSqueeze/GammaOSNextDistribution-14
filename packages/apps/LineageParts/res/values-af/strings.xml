@@ -106,6 +106,7 @@
     <string name="color_red_title">Rooi</string>
     <string name="color_green_title">Groen</string>
     <string name="color_blue_title">Blou</string>
+    <string name="color_saturation_title">Versadiging</string>
     <string name="picture_adjustment_title">Prent aanpassing</string>
     <string name="picture_adjustment_summary">Verstel kleur, versadiging, intensiteit en kontras</string>
     <string name="adj_hue_title">Kleur</string>

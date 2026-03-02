@@ -133,6 +133,7 @@
     <string name="color_red_title">Rood</string>
     <string name="color_green_title">Groen</string>
     <string name="color_blue_title">Blauw</string>
+    <string name="color_saturation_title">Verzadiging</string>
     <string name="picture_adjustment_title">Beeldaanpassingen</string>
     <string name="picture_adjustment_summary">Tint, verzadiging, intensiteit en contrast aanpassen</string>
     <string name="adj_hue_title">Tint</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Vorige app</string>
     <string name="hardware_keys_action_split_screen">Split-screen</string>
     <string name="hardware_keys_action_kill_app">App op de voorgrond sluiten</string>
+    <string name="hardware_keys_action_home">Startscherm</string>
+    <string name="hardware_keys_action_launch_activity">App starten</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">App kiezen</string>
+    <string name="activity_picker_search_hint">Apps zoeken</string>
     <string name="camera_sleep_on_release_title">Scherm kort aan</string>
     <string name="camera_sleep_on_release_summary">Scherm aan tijdens half indrukken knop</string>
     <string name="camera_launch_title">Camera openen</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Nooit weergeven</string>
     <string name="status_bar_brightness_slider_show_expanded">Toon wanneer uitgevouwen</string>
     <string name="status_bar_brightness_slider_show_always">Altijd weergeven</string>
+    <string name="status_bar_toggle_brightness">Helderheidsregeling</string>
+    <string name="status_bar_toggle_brightness_summary">Helderheid aanpassen door over de statusbalk te vegen</string>
     <string name="network_traffic_settings_title">Netwerkverkeerindicator</string>
     <string name="network_traffic_settings_summary">Netwerkverkeer weergeven in de statusbalk</string>
     <string name="network_traffic_mode_title">Weergave</string>

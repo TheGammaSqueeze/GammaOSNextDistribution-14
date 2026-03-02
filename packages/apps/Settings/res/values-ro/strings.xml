@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Rezoluție maximă"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Rezoluția maximă consumă mai multă baterie. Dacă schimbi rezoluția, unele aplicații pot reporni."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Selectată"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Mod citire</string>
+    <string name="reading_mode_summary">Mod tonuri de gri pentru citirea îndelungată</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Calibrarea culorilor</string>
+    <string name="color_calibration_summary">Calibrează culorile ecranului</string>
+    <string name="color_calibration_reset">Resetare</string>
+    <string name="color_red_title">Roșu</string>
+    <string name="color_green_title">Verde</string>
+    <string name="color_blue_title">Albastru</string>
+    <string name="color_saturation_title">Saturație</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Rezoluție personalizată</string>
+    <string name="custom_resolution_width">Lățime</string>
+    <string name="custom_resolution_height">Înălțime</string>
+    <string name="custom_resolution_apply">Aplică</string>
+    <string name="custom_resolution_reset">Resetare la implicit</string>
+    <string name="custom_resolution_footer">Modificarea rezoluției poate cauza probleme de afișare. Folosiți "Resetare la implicit" pentru a restaura rezoluția originală.</string>
+    <string name="custom_resolution_invalid">Introduceți valori valide pentru lățime și înălțime</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Culori"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Naturale"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Intensificate"</string>
@@ -5121,4 +5143,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Parola a fost configurată"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Afișează indicatorul cât timp este plasat cursorul"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Aplicație de pornire secundară</string>
 </resources>

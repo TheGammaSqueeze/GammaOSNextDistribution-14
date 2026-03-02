@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Исходное разрешение"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Исходное разрешение расходует больше заряда. При смене разрешения некоторые приложения могут перезапуститься."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Выбрано"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Режим чтения</string>
+    <string name="reading_mode_summary">Режим оттенков серого для длительного чтения</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Калибровка цвета</string>
+    <string name="color_calibration_summary">Калибровка цветов экрана</string>
+    <string name="color_calibration_reset">Сброс</string>
+    <string name="color_red_title">Красный</string>
+    <string name="color_green_title">Зелёный</string>
+    <string name="color_blue_title">Синий</string>
+    <string name="color_saturation_title">Насыщенность</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Пользовательское разрешение</string>
+    <string name="custom_resolution_width">Ширина</string>
+    <string name="custom_resolution_height">Высота</string>
+    <string name="custom_resolution_apply">Применить</string>
+    <string name="custom_resolution_reset">Сброс к значениям по умолчанию</string>
+    <string name="custom_resolution_footer">Изменение разрешения может вызвать проблемы с отображением. Используйте «Сброс к значениям по умолчанию» для восстановления исходного разрешения.</string>
+    <string name="custom_resolution_invalid">Введите допустимые значения ширины и высоты</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Цвета"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Натуральные"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Яркие"</string>
@@ -5122,4 +5144,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Пароль установлен"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Показывать указатель при наведении стилусом"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Вторичное приложение рабочего стола</string>
 </resources>

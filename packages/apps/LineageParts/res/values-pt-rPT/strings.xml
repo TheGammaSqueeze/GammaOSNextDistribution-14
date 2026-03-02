@@ -133,6 +133,7 @@
     <string name="color_red_title">Vermelho</string>
     <string name="color_green_title">Verde</string>
     <string name="color_blue_title">Azul</string>
+    <string name="color_saturation_title">Saturação</string>
     <string name="picture_adjustment_title">Ajuste da imagem</string>
     <string name="picture_adjustment_summary">Ajustar a tonalidade, a saturação, a intensidade e o contraste</string>
     <string name="adj_hue_title">Tonalidade</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Última aplicação</string>
     <string name="hardware_keys_action_split_screen">Dividir ecrã</string>
     <string name="hardware_keys_action_kill_app">Fechar aplicação em primeiro plano</string>
+    <string name="hardware_keys_action_home">Ecrã inicial</string>
+    <string name="hardware_keys_action_launch_activity">Iniciar aplicação</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Escolher aplicação</string>
+    <string name="activity_picker_search_hint">Pesquisar aplicações</string>
     <string name="camera_sleep_on_release_title">Apresentação rápida</string>
     <string name="camera_sleep_on_release_summary">Pressionar até metade irá manter o ecrã ligado apenas enquanto o botão estiver pressionado</string>
     <string name="camera_launch_title">Iniciar a câmara</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Nunca mostrar</string>
     <string name="status_bar_brightness_slider_show_expanded">Mostrar quando expandida</string>
     <string name="status_bar_brightness_slider_show_always">Mostrar sempre</string>
+    <string name="status_bar_toggle_brightness">Controlo de brilho</string>
+    <string name="status_bar_toggle_brightness_summary">Ajustar o brilho deslizando sobre a barra de estado</string>
     <string name="network_traffic_settings_title">Monitor de tráfego de rede</string>
     <string name="network_traffic_settings_summary">Mostrar na barra de estado os níveis de tráfego de rede atual</string>
     <string name="network_traffic_mode_title">Modo de visualização</string>

@@ -133,6 +133,7 @@
     <string name="color_red_title">Vörös</string>
     <string name="color_green_title">Zöld</string>
     <string name="color_blue_title">Kék</string>
+    <string name="color_saturation_title">Telítettség</string>
     <string name="picture_adjustment_title">Kép beállítása</string>
     <string name="picture_adjustment_summary">Árnyalat, telítettség, intenzitás és kontraszt beállítása</string>
     <string name="adj_hue_title">Színárnyalat</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Utolsó alkalmazás</string>
     <string name="hardware_keys_action_split_screen">Osztott képernyő</string>
     <string name="hardware_keys_action_kill_app">Alkalmazás-kilövés az előtérben</string>
+    <string name="hardware_keys_action_home">Kezdőképernyő</string>
+    <string name="hardware_keys_action_launch_activity">Alkalmazás indítása</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Alkalmazás kiválasztása</string>
+    <string name="activity_picker_search_hint">Alkalmazások keresése</string>
     <string name="camera_sleep_on_release_title">Betekintés</string>
     <string name="camera_sleep_on_release_summary">A kijelző ébren marad, amíg félig lenyomva tartja a gombot</string>
     <string name="camera_launch_title">Kamera indítása</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Sose jelenítse meg</string>
     <string name="status_bar_brightness_slider_show_expanded">Kiterjesztéskor jelenítse meg</string>
     <string name="status_bar_brightness_slider_show_always">Mindig jelenítse meg</string>
+    <string name="status_bar_toggle_brightness">Fényerő-szabályozás</string>
+    <string name="status_bar_toggle_brightness_summary">Fényerő beállítása az állapotsávon való húzással</string>
     <string name="network_traffic_settings_title">Hálózatiforgalom-figyelő</string>
     <string name="network_traffic_settings_summary">Kijelzi az aktuális hálózathasználatot az értesítési sávon</string>
     <string name="network_traffic_mode_title">Megjelenítési mód</string>

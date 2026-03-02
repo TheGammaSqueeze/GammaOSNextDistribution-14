@@ -124,6 +124,7 @@
     <string name="color_red_title">Rautt</string>
     <string name="color_green_title">Grænt</string>
     <string name="color_blue_title">Blátt</string>
+    <string name="color_saturation_title">Mettun</string>
     <string name="picture_adjustment_title">Aðlögun myndar</string>
     <string name="picture_adjustment_summary">Breyta litblæ, litmettun, litstyrk og birtuskilum</string>
     <string name="adj_hue_title">Litblær</string>
@@ -153,6 +154,12 @@
     <string name="hardware_keys_action_last_app">Síðasta forrit</string>
     <string name="hardware_keys_action_split_screen">Skipta skjá</string>
     <string name="hardware_keys_action_kill_app">Slátra forgrunnsforriti</string>
+    <string name="hardware_keys_action_home">Heimaskjár</string>
+    <string name="hardware_keys_action_launch_activity">Opna forrit</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Velja forrit</string>
+    <string name="activity_picker_search_hint">Leita að forritum</string>
     <string name="camera_sleep_on_release_title">Kíkja á skjá</string>
     <string name="camera_sleep_on_release_summary">Ýtt til hálfs mun birta skjáinn á meðan hnappnum er haldið niðri</string>
     <string name="camera_launch_title">Ræsa myndavél</string>
@@ -377,6 +384,8 @@
     <string name="status_bar_brightness_slider_show_never">Aldrei sýna</string>
     <string name="status_bar_brightness_slider_show_expanded">Sýna þegar útflett</string>
     <string name="status_bar_brightness_slider_show_always">Sýna alltaf</string>
+    <string name="status_bar_toggle_brightness">Birtustýring</string>
+    <string name="status_bar_toggle_brightness_summary">Stilltu birtu með því að strjúka yfir stöðustiku</string>
     <string name="network_traffic_settings_title">Netkerfisvöktun</string>
     <string name="network_traffic_settings_summary">Birta tákn um netumferð á stöðustiku</string>
     <string name="network_traffic_mode_title">Birtingarhamur</string>

@@ -112,6 +112,7 @@
     <string name="color_red_title">אדום</string>
     <string name="color_green_title">ירוק</string>
     <string name="color_blue_title">כחול</string>
+    <string name="color_saturation_title">רוויה</string>
     <string name="picture_adjustment_title">התאמת תמונה</string>
     <string name="picture_adjustment_summary">התאם גוון, רוויה, עוצמה וניגודיות</string>
     <string name="adj_hue_title">גוון</string>

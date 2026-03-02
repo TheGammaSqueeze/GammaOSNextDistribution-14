@@ -260,6 +260,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Báo cáo lỗi"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Kết thúc phiên"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Chụp màn hình"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Chế độ hiệu suất</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Báo cáo lỗi"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Báo cáo này sẽ thu thập thông tin về tình trạng thiết bị hiện tại của bạn, để gửi dưới dạng thông báo qua email. Sẽ mất một chút thời gian kể từ khi bắt đầu báo cáo lỗi cho tới khi báo cáo sẵn sàng để gửi; xin vui lòng kiên nhẫn."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Báo cáo tương tác"</string>

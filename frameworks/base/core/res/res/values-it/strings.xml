@@ -261,6 +261,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Segnalazione di bug"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Termina sessione"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Screenshot"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Modalità prestazioni</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Segnalazione di bug"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Verranno raccolte informazioni sullo stato corrente del dispositivo che saranno inviate sotto forma di messaggio email. Passerà un po\' di tempo prima che la segnalazione di bug aperta sia pronta per essere inviata; ti preghiamo di avere pazienza."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Report interattivo"</string>

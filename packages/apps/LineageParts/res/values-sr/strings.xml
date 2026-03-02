@@ -112,6 +112,7 @@
     <string name="color_red_title">Црвена</string>
     <string name="color_green_title">Зелена</string>
     <string name="color_blue_title">Плава</string>
+    <string name="color_saturation_title">Засићеност</string>
     <string name="picture_adjustment_title">Подешавање слике</string>
     <string name="picture_adjustment_summary">Подесите нијансу, засићеност, интензитет и контраст.</string>
     <string name="adj_hue_title">Нијанса</string>

@@ -115,6 +115,7 @@
     <string name="color_red_title">Punainen</string>
     <string name="color_green_title">Vihreä</string>
     <string name="color_blue_title">Sininen</string>
+    <string name="color_saturation_title">Kylläisyys</string>
     <string name="picture_adjustment_title">Kuvan säätö</string>
     <string name="picture_adjustment_summary">Säädä värisävyä, kylläisyyttä, intensiteettiä ja kontrastia</string>
     <string name="adj_hue_title">Värisävy</string>
@@ -144,6 +145,12 @@
     <string name="hardware_keys_action_last_app">Viimeinen sovellus</string>
     <string name="hardware_keys_action_split_screen">Jaa näyttö</string>
     <string name="hardware_keys_action_kill_app">Tapa etualalla oleva sovellus</string>
+    <string name="hardware_keys_action_home">Aloitusnäyttö</string>
+    <string name="hardware_keys_action_launch_activity">Käynnistä sovellus</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Valitse sovellus</string>
+    <string name="activity_picker_search_hint">Etsi sovelluksia</string>
     <string name="camera_sleep_on_release_title">Vilauta näyttöä</string>
     <string name="camera_sleep_on_release_summary">Puolikas painallus pitää näytön päällä vain kun näppäintä pidetään alhaalla</string>
     <string name="camera_launch_title">Käynnistä kamera</string>
@@ -359,6 +366,8 @@
     <string name="status_bar_brightness_slider_show_never">Älä näytä koskaan</string>
     <string name="status_bar_brightness_slider_show_expanded">Näytä laajennettaessa</string>
     <string name="status_bar_brightness_slider_show_always">Näytä aina</string>
+    <string name="status_bar_toggle_brightness">Kirkkaudensäätö</string>
+    <string name="status_bar_toggle_brightness_summary">Säädä kirkkautta pyyhkäisemällä tilapalkkia</string>
     <string name="network_traffic_settings_title">Verkkoliikenne</string>
     <string name="network_traffic_settings_summary">Näyttää verkon nopeuden tilapalkissa</string>
     <string name="network_traffic_mode_title">Näyttötila</string>

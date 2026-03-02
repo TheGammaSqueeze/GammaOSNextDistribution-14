@@ -53,4 +53,11 @@
     <string name="theme_summary">深色佈景主題使用黑色背景，在某些螢幕上可延長電池續航時間</string>
     <string name="dark">深色</string>
     <string name="light">淺色</string>
+    <string name="gs_calibration">控制器校正</string>
+    <string name="gs_deadzone">死區</string>
+    <string name="gs_invert_left">反轉左搖桿</string>
+    <string name="gs_invert_right">反轉右搖桿</string>
+    <string name="gs_calibration_mode">校正模式</string>
+    <string name="gs_reset">重設</string>
+    <string name="gs_continue">繼續</string>
 </resources>

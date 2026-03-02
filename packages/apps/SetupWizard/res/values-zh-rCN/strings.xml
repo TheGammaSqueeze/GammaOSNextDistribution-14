@@ -53,4 +53,11 @@
     <string name="theme_summary">深色模式使用黑色背景来帮助电池在一些场景下提升续航能力</string>
     <string name="dark">深色</string>
     <string name="light">浅色</string>
+    <string name="gs_calibration">手柄校准</string>
+    <string name="gs_deadzone">死区</string>
+    <string name="gs_invert_left">反转左摇杆</string>
+    <string name="gs_invert_right">反转右摇杆</string>
+    <string name="gs_calibration_mode">校准模式</string>
+    <string name="gs_reset">重置</string>
+    <string name="gs_continue">继续</string>
 </resources>

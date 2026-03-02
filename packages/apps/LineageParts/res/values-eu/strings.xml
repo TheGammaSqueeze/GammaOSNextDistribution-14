@@ -112,6 +112,7 @@
     <string name="color_red_title">Gorria</string>
     <string name="color_green_title">Berdea</string>
     <string name="color_blue_title">Urdina</string>
+    <string name="color_saturation_title">Asetasuna</string>
     <string name="picture_adjustment_title">Irudiaren doikuntza</string>
     <string name="picture_adjustment_summary">Doitu ñabardura, saturazioa, intentsitatea eta kontrastea</string>
     <string name="adj_hue_title">Ñabardura</string>

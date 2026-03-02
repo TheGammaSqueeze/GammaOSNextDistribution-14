@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Volledige resolutie"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Volledige resolutie gebruikt meer batterijlading. Als je de resolutie wijzigt, worden sommige apps misschien opnieuw opgestart."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Geselecteerd"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Leesmodus</string>
+    <string name="reading_mode_summary">Grijstintenmodus voor langdurig lezen</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Kleurkalibratie</string>
+    <string name="color_calibration_summary">Schermkleuren kalibreren</string>
+    <string name="color_calibration_reset">Herstellen</string>
+    <string name="color_red_title">Rood</string>
+    <string name="color_green_title">Groen</string>
+    <string name="color_blue_title">Blauw</string>
+    <string name="color_saturation_title">Verzadiging</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Aangepaste resolutie</string>
+    <string name="custom_resolution_width">Breedte</string>
+    <string name="custom_resolution_height">Hoogte</string>
+    <string name="custom_resolution_apply">Toepassen</string>
+    <string name="custom_resolution_reset">Standaard herstellen</string>
+    <string name="custom_resolution_footer">Het wijzigen van de resolutie kan weergaveproblemen veroorzaken. Gebruik "Standaard herstellen" om de oorspronkelijke resolutie te herstellen.</string>
+    <string name="custom_resolution_invalid">Voer geldige breedte- en hoogtewaarden in</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Kleuren"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Natuurlijk"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Versterkt"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Wachtwoord is nu ingesteld"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Aanwijzer tonen bij cursor plaatsen"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Secundaire startapp</string>
 </resources>

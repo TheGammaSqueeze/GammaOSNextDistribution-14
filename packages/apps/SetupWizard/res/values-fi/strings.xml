@@ -33,4 +33,11 @@
     <string name="setup_services">LineageOS-ominaisuudet</string>
     <string name="services_help_improve_cm">Auta parantamaan <xliff:g id="name" example="LineageOS">%s</xliff:g>ia</string>
     <string name="services_os_nav_keys_label"><b>Käytä näytön navigointipalkkia</b> fyysisten näppäinten sijaan.</string>
+    <string name="gs_calibration">Ohjaimen kalibrointi</string>
+    <string name="gs_deadzone">Kuollut alue</string>
+    <string name="gs_invert_left">Käännä vasen</string>
+    <string name="gs_invert_right">Käännä oikea</string>
+    <string name="gs_calibration_mode">Kalibrointitila</string>
+    <string name="gs_reset">Nollaa</string>
+    <string name="gs_continue">Jatka</string>
 </resources>

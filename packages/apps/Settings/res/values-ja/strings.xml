@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"最大解像度"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"最大解像度ではバッテリー消費量が多くなります。解像度を切り替えると、一部のアプリが再起動することがあります。"</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"選択中"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">読書モード</string>
+    <string name="reading_mode_summary">長時間読書用のグレースケールモード</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">色の調整</string>
+    <string name="color_calibration_summary">画面の色を調整</string>
+    <string name="color_calibration_reset">リセット</string>
+    <string name="color_red_title">赤</string>
+    <string name="color_green_title">緑</string>
+    <string name="color_blue_title">青</string>
+    <string name="color_saturation_title">彩度</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">カスタム解像度</string>
+    <string name="custom_resolution_width">幅</string>
+    <string name="custom_resolution_height">高さ</string>
+    <string name="custom_resolution_apply">適用</string>
+    <string name="custom_resolution_reset">デフォルトに戻す</string>
+    <string name="custom_resolution_footer">解像度を変更すると表示の問題が発生する場合があります。「デフォルトに戻す」を使用して元の解像度を復元してください。</string>
+    <string name="custom_resolution_invalid">有効な幅と高さの値を入力してください</string>
     <string name="color_mode_title" msgid="8666690832113906028">"カラー"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"ナチュラル"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"ブースト"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"パスワードを設定しました"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"選択中にポインタを表示する"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">セカンダリホームアプリ</string>
 </resources>

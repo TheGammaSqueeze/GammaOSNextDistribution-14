@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Pełna rozdzielczość"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Pełna rozdzielczość bardziej zużywa baterię. Po przełączeniu rozdzielczości niektóre aplikacje mogą wymagać ponownego uruchomienia."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Wybrano"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Tryb czytania</string>
+    <string name="reading_mode_summary">Tryb skali szarości do długiego czytania</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Kalibracja kolorów</string>
+    <string name="color_calibration_summary">Kalibruj kolory ekranu</string>
+    <string name="color_calibration_reset">Zresetuj</string>
+    <string name="color_red_title">Czerwony</string>
+    <string name="color_green_title">Zielony</string>
+    <string name="color_blue_title">Niebieski</string>
+    <string name="color_saturation_title">Nasycenie</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Niestandardowa rozdzielczość</string>
+    <string name="custom_resolution_width">Szerokość</string>
+    <string name="custom_resolution_height">Wysokość</string>
+    <string name="custom_resolution_apply">Zastosuj</string>
+    <string name="custom_resolution_reset">Przywróć domyślne</string>
+    <string name="custom_resolution_footer">Zmiana rozdzielczości może powodować problemy z wyświetlaniem. Użyj "Przywróć domyślne", aby przywrócić oryginalną rozdzielczość.</string>
+    <string name="custom_resolution_invalid">Wprowadź prawidłowe wartości szerokości i wysokości</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Kolory"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Naturalne"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Wzmocnione"</string>
@@ -5122,4 +5144,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Ustawiono hasło"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Pokazuj wskaźnik przy najeżdżaniu kursorem"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Dodatkowa aplikacja główna</string>
 </resources>

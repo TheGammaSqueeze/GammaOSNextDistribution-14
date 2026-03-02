@@ -260,6 +260,9 @@
     <string name="global_action_bug_report" msgid="5127867163044170003">"Felrapport"</string>
     <string name="global_action_logout" msgid="6093581310002476511">"Avsluta session"</string>
     <string name="global_action_screenshot" msgid="2610053466156478564">"Skärmbild"</string>
+
+    <!-- label for performance mode in power menu [CHAR LIMIT=24]-->
+    <string name="global_action_performancemode">Prestandaläge</string>
     <string name="bugreport_title" msgid="8549990811777373050">"Felrapport"</string>
     <string name="bugreport_message" msgid="5212529146119624326">"Nu hämtas information om aktuell status för enheten, som sedan skickas i ett e-postmeddelade. Det tar en liten stund innan felrapporten är färdig och kan skickas, så vi ber dig ha tålamod."</string>
     <string name="bugreport_option_interactive_title" msgid="7968287837902871289">"Interaktiv rapport"</string>

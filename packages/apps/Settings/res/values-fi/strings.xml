@@ -1166,6 +1166,28 @@
     <string name="screen_resolution_option_full" msgid="2694003735219114186">"Täysi resoluutio"</string>
     <string name="screen_resolution_footer" msgid="6772341522952795647">"Täysi resoluutio kuluttaa enemmän akkua. Jotkin sovellukset käynnistyvät uudelleen, kun vaihdat resoluutiota."</string>
     <string name="screen_resolution_selected_a11y" msgid="6158451180032224977">"Valittu"</string>
+
+    <!-- Reading mode -->
+    <string name="reading_mode_title">Lukutila</string>
+    <string name="reading_mode_summary">Harmaasävytila pitkäaikaiseen lukemiseen</string>
+
+    <!-- Color calibration -->
+    <string name="color_calibration_title">Värikalibrointi</string>
+    <string name="color_calibration_summary">Kalibroi näytön värit</string>
+    <string name="color_calibration_reset">Nollaa</string>
+    <string name="color_red_title">Punainen</string>
+    <string name="color_green_title">Vihreä</string>
+    <string name="color_blue_title">Sininen</string>
+    <string name="color_saturation_title">Kylläisyys</string>
+
+    <!-- Custom resolution -->
+    <string name="custom_resolution_title">Mukautettu resoluutio</string>
+    <string name="custom_resolution_width">Leveys</string>
+    <string name="custom_resolution_height">Korkeus</string>
+    <string name="custom_resolution_apply">Käytä</string>
+    <string name="custom_resolution_reset">Palauta oletukset</string>
+    <string name="custom_resolution_footer">Resoluution muuttaminen voi aiheuttaa näyttöongelmia. Käytä "Palauta oletukset" palauttaaksesi alkuperäisen resoluution.</string>
+    <string name="custom_resolution_invalid">Syötä kelvolliset leveys- ja korkeusarvot</string>
     <string name="color_mode_title" msgid="8666690832113906028">"Värit"</string>
     <string name="color_mode_option_natural" msgid="6192875655101283303">"Luonnollinen"</string>
     <string name="color_mode_option_boosted" msgid="4698797857766774289">"Tehostettu"</string>
@@ -5120,4 +5142,7 @@
     <string name="content_protection_preference_subpage_info" msgid="6890886357653365489"></string>
     <string name="accessibility_setup_password_complete" msgid="6358749253318369077">"Salasana on nyt otettu käyttöön"</string>
     <string name="show_stylus_pointer_icon" msgid="1010583689203665786">"Näytä osoitin kohdistettaessa"</string>
+
+    <!-- GammaOS -->
+    <string name="secondary_home_app_title">Toissijainen kotisovellus</string>
 </resources>

@@ -53,4 +53,11 @@
     <string name="theme_summary">Giao diện tối sử dụng nền đen để giúp duy trì thời lượng pin lâu hơn trên một số màn hình</string>
     <string name="dark">Tối</string>
     <string name="light">Sáng</string>
+    <string name="gs_calibration">Hiệu chỉnh tay cầm</string>
+    <string name="gs_deadzone">Vùng chết</string>
+    <string name="gs_invert_left">Đảo ngược trái</string>
+    <string name="gs_invert_right">Đảo ngược phải</string>
+    <string name="gs_calibration_mode">Chế độ hiệu chỉnh</string>
+    <string name="gs_reset">Đặt lại</string>
+    <string name="gs_continue">Tiếp tục</string>
 </resources>

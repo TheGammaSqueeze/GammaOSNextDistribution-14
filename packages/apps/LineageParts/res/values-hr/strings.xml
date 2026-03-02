@@ -113,6 +113,7 @@
     <string name="color_red_title">Crveno</string>
     <string name="color_green_title">Zeleno</string>
     <string name="color_blue_title">Plavo</string>
+    <string name="color_saturation_title">Zasićenost</string>
     <string name="picture_adjustment_title">Podešavanje slike</string>
     <string name="picture_adjustment_summary">PrilagodI nijansu, zasićenost, intenzitet i kontrast</string>
     <string name="adj_hue_title">Nijansa</string>
@@ -142,6 +143,12 @@
     <string name="hardware_keys_action_last_app">Posljednja aplikacija</string>
     <string name="hardware_keys_action_split_screen">Podijeljeni ekran</string>
     <string name="hardware_keys_action_kill_app">Zaustavi aplikaciju u prvom planu</string>
+    <string name="hardware_keys_action_home">Početni zaslon</string>
+    <string name="hardware_keys_action_launch_activity">Pokreni aplikaciju</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Odaberi aplikaciju</string>
+    <string name="activity_picker_search_hint">Pretraži aplikacije</string>
     <string name="camera_sleep_on_release_title">Zavirivanje zaslona</string>
     <string name="camera_sleep_on_release_summary">Polupritisak će držati zaslon uključen samo dok se tipka drži pritisnuta</string>
     <string name="camera_launch_title">Pokreni kameru</string>

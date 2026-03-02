@@ -106,6 +106,7 @@
     <string name="color_red_title">Црвено</string>
     <string name="color_green_title">Зелено</string>
     <string name="color_blue_title">Сино</string>
+    <string name="color_saturation_title">Заситеност</string>
     <string name="picture_adjustment_title">Прилагодување на сликата</string>
     <string name="picture_adjustment_summary">Прилагодете боја, сатурација, интензитет и контраст</string>
     <string name="adj_hue_title">Нијанса</string>

@@ -133,6 +133,7 @@
     <string name="color_red_title">Červená</string>
     <string name="color_green_title">Zelená</string>
     <string name="color_blue_title">Modrá</string>
+    <string name="color_saturation_title">Sytost</string>
     <string name="picture_adjustment_title">Přizpůsobení obrazu</string>
     <string name="picture_adjustment_summary">Přizpůsobit odstín, sytost, intenzitu a kontrast</string>
     <string name="adj_hue_title">Odstín</string>
@@ -162,6 +163,12 @@
     <string name="hardware_keys_action_last_app">Poslední aplikace</string>
     <string name="hardware_keys_action_split_screen">Rozdělené zobrazení</string>
     <string name="hardware_keys_action_kill_app">Ukončit aplikaci na popředí</string>
+    <string name="hardware_keys_action_home">Domovská obrazovka</string>
+    <string name="hardware_keys_action_launch_activity">Spustit aplikaci</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Vybrat aplikaci</string>
+    <string name="activity_picker_search_hint">Hledat aplikace</string>
     <string name="camera_sleep_on_release_title">Náhled obrazovky</string>
     <string name="camera_sleep_on_release_summary">Polovičním stiskem tlačítka bude rozsvícena obrazovka pouze po dobu, po kterou je tlačítko stisknuté</string>
     <string name="camera_launch_title">Spuštění fotoaparátu</string>
@@ -386,6 +393,8 @@
     <string name="status_bar_brightness_slider_show_never">Nikdy nezobrazovat</string>
     <string name="status_bar_brightness_slider_show_expanded">Zobrazit po rozbalení</string>
     <string name="status_bar_brightness_slider_show_always">Zobrazovat vždy</string>
+    <string name="status_bar_toggle_brightness">Ovládání jasu</string>
+    <string name="status_bar_toggle_brightness_summary">Upravit jas přejetím po stavovém řádku</string>
     <string name="network_traffic_settings_title">Sledování síťového provozu</string>
     <string name="network_traffic_settings_summary">Zobrazit rychlost přenosu dat ve stavové liště</string>
     <string name="network_traffic_mode_title">Režim zobrazení</string>
