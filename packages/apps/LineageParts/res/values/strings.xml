@@ -200,6 +200,11 @@
     <string name="hardware_keys_action_split_screen">Split screen</string>
     <string name="hardware_keys_action_kill_app">Kill foreground app</string>
     <string name="hardware_keys_action_home">Home Screen</string>
+    <string name="hardware_keys_action_launch_activity">Launch app</string>
+
+    <!-- Activity picker dialog -->
+    <string name="activity_picker_title">Choose app</string>
+    <string name="activity_picker_search_hint">Search apps</string>
     <string name="camera_sleep_on_release_title">Screen peek</string>
     <string name="camera_sleep_on_release_summary">A half press will keep the screen on only while the button is held down</string>
     <string name="camera_launch_title">Launch camera</string>

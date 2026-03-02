@@ -679,6 +679,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private Action mAppSwitchLongPressAction;
     private Action mEdgeLongSwipeAction;
 
+    private String mBackLongPressCustomApp;
+    private String mHomeLongPressCustomApp;
+    private String mHomeDoubleTapCustomApp;
+    private String mMenuPressCustomApp;
+    private String mMenuLongPressCustomApp;
+    private String mAssistPressCustomApp;
+    private String mAssistLongPressCustomApp;
+    private String mAppSwitchPressCustomApp;
+    private String mAppSwitchLongPressCustomApp;
+    private String mEdgeLongSwipeCustomApp;
+
     // support for activating the lock screen while the screen is on
     private HashSet<Integer> mAllowLockscreenWhenOnDisplays = new HashSet<>();
     int mLockScreenTimeout;
@@ -1086,6 +1097,36 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
                     LineageSettings.System.KEY_EDGE_LONG_SWIPE_ACTION), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_BACK_LONG_PRESS_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_HOME_LONG_PRESS_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_HOME_DOUBLE_TAP_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_MENU_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_MENU_LONG_PRESS_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_ASSIST_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_ASSIST_LONG_PRESS_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_APP_SWITCH_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_CUSTOM_APP), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.KEY_EDGE_LONG_SWIPE_CUSTOM_APP), false, this,
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
                     LineageSettings.System.HOME_WAKE_SCREEN), false, this,
@@ -1713,7 +1754,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, false,
                     "Back - Long Press");
-            performKeyAction(mBackLongPressAction, event);
+            performKeyAction(mBackLongPressAction, event, mBackLongPressCustomApp);
         }
     }
 
@@ -2432,11 +2473,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void performKeyAction(Action action, KeyEvent event) {
-        // By default, pass INVOCATION_TYPE_UNKNOWN to launch assistant.
-        performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN);
+        performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN, null);
     }
 
     private void performKeyAction(Action action, KeyEvent event, int assistInvocationType) {
+        performKeyAction(action, event, assistInvocationType, null);
+    }
+
+    private void performKeyAction(Action action, KeyEvent event, String customApp) {
+        performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN, customApp);
+    }
+
+    private void performKeyAction(Action action, KeyEvent event, int assistInvocationType,
+            String customApp) {
         switch (action) {
             case NOTHING:
                 break;
@@ -2484,8 +2533,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         true  /* awakenFromDreams */,
                         "keyAction_go_home");
                 break;
+            case LAUNCH_ACTIVITY:
+                launchCustomActivity(customApp);
+                break;
             default:
                 break;
+        }
+    }
+
+    private void launchCustomActivity(String componentString) {
+        if (componentString == null || componentString.isEmpty()) return;
+        try {
+            ComponentName cn = ComponentName.unflattenFromString(componentString);
+            if (cn == null) return;
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            intent.setComponent(cn);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivityAsUser(intent, UserHandle.CURRENT);
+        } catch (Exception e) {
+            Slog.w(TAG, "Failed to launch custom activity: " + componentString, e);
         }
     }
 
@@ -2588,7 +2655,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (mPendingHomeKeyEvent != null) {
                     mPendingHomeKeyEvent = null;
                     mHandler.removeCallbacks(mHomeDoubleTapTimeoutRunnable);
-                    performKeyAction(mHomeDoubleTapAction, event);
+                    performKeyAction(mHomeDoubleTapAction, event, mHomeDoubleTapCustomApp);
                     if (mHomeDoubleTapAction != Action.SLEEP) {
                         mHomeConsumed = true;
                     }
@@ -2609,7 +2676,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     // If long press home will launch assistant,
                     // it should pass this right invocation type.
                     performKeyAction(mHomeLongPressAction, event,
-                            AssistUtils.INVOCATION_TYPE_HOME_BUTTON_LONG_PRESS);
+                            AssistUtils.INVOCATION_TYPE_HOME_BUTTON_LONG_PRESS,
+                            mHomeLongPressCustomApp);
                     if (mHomeLongPressAction != Action.SLEEP) {
                         mHomeConsumed = true;
                     }
@@ -3425,6 +3493,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mBackLongPressAction = Action.fromSettings(resolver,
                 LineageSettings.System.KEY_BACK_LONG_PRESS_ACTION,
                 mBackLongPressAction);
+        mBackLongPressCustomApp = LineageSettings.System.getString(resolver,
+                LineageSettings.System.KEY_BACK_LONG_PRESS_CUSTOM_APP);
 
         mHomeLongPressAction = Action.fromIntSafe(res.getInteger(
                 org.lineageos.platform.internal.R.integer.config_longPressOnHomeBehavior));
@@ -3441,38 +3511,56 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHomeLongPressAction = Action.fromSettings(resolver,
                 LineageSettings.System.KEY_HOME_LONG_PRESS_ACTION,
                 mHomeLongPressAction);
+        mHomeLongPressCustomApp = LineageSettings.System.getString(resolver,
+                LineageSettings.System.KEY_HOME_LONG_PRESS_CUSTOM_APP);
         mHomeDoubleTapAction = Action.fromSettings(resolver,
                 LineageSettings.System.KEY_HOME_DOUBLE_TAP_ACTION,
                 mHomeDoubleTapAction);
+        mHomeDoubleTapCustomApp = LineageSettings.System.getString(resolver,
+                LineageSettings.System.KEY_HOME_DOUBLE_TAP_CUSTOM_APP);
 
         if (hasMenu) {
             mMenuPressAction = Action.fromSettings(resolver,
                     LineageSettings.System.KEY_MENU_ACTION,
                     mMenuPressAction);
+            mMenuPressCustomApp = LineageSettings.System.getString(resolver,
+                    LineageSettings.System.KEY_MENU_CUSTOM_APP);
             mMenuLongPressAction = Action.fromSettings(resolver,
                     LineageSettings.System.KEY_MENU_LONG_PRESS_ACTION,
                     mMenuLongPressAction);
+            mMenuLongPressCustomApp = LineageSettings.System.getString(resolver,
+                    LineageSettings.System.KEY_MENU_LONG_PRESS_CUSTOM_APP);
         }
         if (hasAssist) {
             mAssistPressAction = Action.fromSettings(resolver,
                     LineageSettings.System.KEY_ASSIST_ACTION,
                     mAssistPressAction);
+            mAssistPressCustomApp = LineageSettings.System.getString(resolver,
+                    LineageSettings.System.KEY_ASSIST_CUSTOM_APP);
             mAssistLongPressAction = Action.fromSettings(resolver,
                     LineageSettings.System.KEY_ASSIST_LONG_PRESS_ACTION,
                     mAssistLongPressAction);
+            mAssistLongPressCustomApp = LineageSettings.System.getString(resolver,
+                    LineageSettings.System.KEY_ASSIST_LONG_PRESS_CUSTOM_APP);
         }
         if (hasAppSwitch) {
             mAppSwitchPressAction = Action.fromSettings(resolver,
                     LineageSettings.System.KEY_APP_SWITCH_ACTION,
                     mAppSwitchPressAction);
+            mAppSwitchPressCustomApp = LineageSettings.System.getString(resolver,
+                    LineageSettings.System.KEY_APP_SWITCH_CUSTOM_APP);
         }
         mAppSwitchLongPressAction = Action.fromSettings(resolver,
                 LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION,
                 mAppSwitchLongPressAction);
+        mAppSwitchLongPressCustomApp = LineageSettings.System.getString(resolver,
+                LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_CUSTOM_APP);
 
         mEdgeLongSwipeAction = Action.fromSettings(resolver,
                 LineageSettings.System.KEY_EDGE_LONG_SWIPE_ACTION,
                 mEdgeLongSwipeAction);
+        mEdgeLongSwipeCustomApp = LineageSettings.System.getString(resolver,
+                LineageSettings.System.KEY_EDGE_LONG_SWIPE_CUSTOM_APP);
 
         mShortPressOnWindowBehavior = SHORT_PRESS_WINDOW_NOTHING;
         if (mPackageManager.hasSystemFeature(FEATURE_PICTURE_IN_PICTURE)) {
@@ -4205,7 +4293,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             }
                             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, false,
                                     "Menu - Long Press");
-                            performKeyAction(mMenuLongPressAction, event);
+                            performKeyAction(mMenuLongPressAction, event,
+                                    mMenuLongPressCustomApp);
                             mMenuPressed = false;
                             return true;
                         }
@@ -4218,7 +4307,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     }
                     mMenuPressed = false;
                     if (!canceled) {
-                        performKeyAction(mMenuPressAction, event);
+                        performKeyAction(mMenuPressAction, event, mMenuPressCustomApp);
                     }
                 }
 
@@ -4245,7 +4334,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 }
                                 performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, false,
                                         "Recents - Long Press");
-                                performKeyAction(mAppSwitchLongPressAction, event);
+                                performKeyAction(mAppSwitchLongPressAction, event,
+                                        mAppSwitchLongPressCustomApp);
                                 mAppSwitchLongPressed = true;
                             }
                         }
@@ -4257,7 +4347,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 cancelPreloadRecentApps();
                             }
                             if (!canceled) {
-                                performKeyAction(mAppSwitchPressAction, event);
+                                performKeyAction(mAppSwitchPressAction, event,
+                                        mAppSwitchPressCustomApp);
                             }
                         }
                     }
@@ -4385,7 +4476,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, false,
                                     "Assist - Long Press");
                             performKeyAction(mAssistLongPressAction, event,
-                                    AssistUtils.INVOCATION_TYPE_ASSIST_BUTTON);
+                                    AssistUtils.INVOCATION_TYPE_ASSIST_BUTTON,
+                                    mAssistLongPressCustomApp);
                             mAssistPressed = false;
                         }
                     }
@@ -4397,7 +4489,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mAssistPressed = false;
                         if (!canceled) {
                             performKeyAction(mAssistPressAction, event,
-                                    AssistUtils.INVOCATION_TYPE_ASSIST_BUTTON);
+                                    AssistUtils.INVOCATION_TYPE_ASSIST_BUTTON,
+                                    mAssistPressCustomApp);
                         }
                     }
                 }
@@ -5699,7 +5792,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
                 if (mLongSwipeDown && isLongSwipe && !down) {
                     // Trigger long swipe action
-                    performKeyAction(mEdgeLongSwipeAction, event);
+                    performKeyAction(mEdgeLongSwipeAction, event, mEdgeLongSwipeCustomApp);
                     // Reset long swipe state
                     mLongSwipeDown = false;
                     // Don't pass back press to app

@@ -10,9 +10,11 @@ import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_2BUTTON;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.om.IOverlayManager;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -55,7 +57,8 @@ import lineageos.hardware.LineageHardwareManager;
 import lineageos.providers.LineageSettings;
 
 public class ButtonSettings extends SettingsPreferenceFragment
-        implements Preference.OnPreferenceChangeListener, Searchable {
+        implements Preference.OnPreferenceChangeListener, Searchable,
+        ActivityPickerDialogFragment.OnActivityPickedListener {
     private static final String TAG = "SystemSettings";
 
     private static final String KEY_BUTTON_BACKLIGHT = "button_backlight";
@@ -142,6 +145,8 @@ public class ButtonSettings extends SettingsPreferenceFragment
     private SwitchPreferenceCompat mEnableTaskbar;
 
     private PreferenceCategory mNavigationPreferencesCat;
+
+    private ListPreference mPendingCustomAppPreference;
 
     private Handler mHandler;
 
@@ -577,7 +582,11 @@ public class ButtonSettings extends SettingsPreferenceFragment
         ListPreference list = getPreferenceScreen().findPreference(key);
         if (list == null) return null;
         list.setValue(Integer.toString(value));
-        list.setSummary(list.getEntry());
+        if (value == Action.LAUNCH_ACTIVITY.ordinal()) {
+            updateCustomAppSummary(list);
+        } else {
+            list.setSummary(list.getEntry());
+        }
         list.setOnPreferenceChangeListener(this);
         return list;
     }
@@ -587,6 +596,13 @@ public class ButtonSettings extends SettingsPreferenceFragment
         int index = pref.findIndexOfValue(value);
         pref.setSummary(pref.getEntries()[index]);
         LineageSettings.System.putInt(getContentResolver(), setting, Integer.parseInt(value));
+        // Clear companion custom app setting when action changes away from LAUNCH_ACTIVITY
+        if (Integer.parseInt(value) != Action.LAUNCH_ACTIVITY.ordinal()) {
+            String customAppSetting = getCustomAppSettingForPreference(pref);
+            if (customAppSetting != null) {
+                LineageSettings.System.putString(getContentResolver(), customAppSetting, null);
+            }
+        }
     }
 
     private void handleSystemListChange(ListPreference pref, Object newValue, String setting) {
@@ -596,45 +612,190 @@ public class ButtonSettings extends SettingsPreferenceFragment
         Settings.System.putInt(getContentResolver(), setting, Integer.parseInt(value));
     }
 
+    private boolean isLaunchActivityAction(Object newValue) {
+        return Integer.parseInt((String) newValue) == Action.LAUNCH_ACTIVITY.ordinal();
+    }
+
+    private void showActivityPicker(ListPreference preference) {
+        mPendingCustomAppPreference = preference;
+        ActivityPickerDialogFragment picker = new ActivityPickerDialogFragment();
+        picker.setOnActivityPickedListener(this);
+        picker.show(getParentFragmentManager(), "activity_picker");
+    }
+
+    @Override
+    public void onActivityPicked(ComponentName componentName) {
+        if (mPendingCustomAppPreference == null) return;
+
+        String actionSetting = getActionSettingForPreference(mPendingCustomAppPreference);
+        String customAppSetting = getCustomAppSettingForPreference(mPendingCustomAppPreference);
+        if (actionSetting == null || customAppSetting == null) return;
+
+        ContentResolver cr = getContentResolver();
+        String launchActivityValue = Integer.toString(Action.LAUNCH_ACTIVITY.ordinal());
+
+        LineageSettings.System.putInt(cr, actionSetting,
+                Action.LAUNCH_ACTIVITY.ordinal());
+        LineageSettings.System.putString(cr, customAppSetting,
+                componentName.flattenToString());
+
+        mPendingCustomAppPreference.setValue(launchActivityValue);
+        updateCustomAppSummary(mPendingCustomAppPreference);
+        mPendingCustomAppPreference = null;
+    }
+
+    private void updateCustomAppSummary(ListPreference pref) {
+        String customAppSetting = getCustomAppSettingForPreference(pref);
+        if (customAppSetting == null) {
+            pref.setSummary(pref.getEntry());
+            return;
+        }
+        String componentString = LineageSettings.System.getString(
+                getContentResolver(), customAppSetting);
+        if (componentString != null) {
+            ComponentName cn = ComponentName.unflattenFromString(componentString);
+            if (cn != null) {
+                try {
+                    PackageManager pm = requireActivity().getPackageManager();
+                    String appLabel = pm.getActivityInfo(cn, 0).loadLabel(pm).toString();
+                    pref.setSummary(getString(R.string.hardware_keys_action_launch_activity)
+                            + ": " + appLabel);
+                    return;
+                } catch (PackageManager.NameNotFoundException e) {
+                    // App was uninstalled, fall through
+                }
+            }
+        }
+        pref.setSummary(pref.getEntry());
+    }
+
+    private String getActionSettingForPreference(Preference pref) {
+        if (pref == mBackLongPressAction || pref == mNavigationBackLongPressAction) {
+            return LineageSettings.System.KEY_BACK_LONG_PRESS_ACTION;
+        } else if (pref == mHomeLongPressAction || pref == mNavigationHomeLongPressAction) {
+            return LineageSettings.System.KEY_HOME_LONG_PRESS_ACTION;
+        } else if (pref == mHomeDoubleTapAction || pref == mNavigationHomeDoubleTapAction) {
+            return LineageSettings.System.KEY_HOME_DOUBLE_TAP_ACTION;
+        } else if (pref == mMenuPressAction) {
+            return LineageSettings.System.KEY_MENU_ACTION;
+        } else if (pref == mMenuLongPressAction) {
+            return LineageSettings.System.KEY_MENU_LONG_PRESS_ACTION;
+        } else if (pref == mAssistPressAction) {
+            return LineageSettings.System.KEY_ASSIST_ACTION;
+        } else if (pref == mAssistLongPressAction) {
+            return LineageSettings.System.KEY_ASSIST_LONG_PRESS_ACTION;
+        } else if (pref == mAppSwitchPressAction) {
+            return LineageSettings.System.KEY_APP_SWITCH_ACTION;
+        } else if (pref == mAppSwitchLongPressAction
+                || pref == mNavigationAppSwitchLongPressAction) {
+            return LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION;
+        } else if (pref == mEdgeLongSwipeAction) {
+            return LineageSettings.System.KEY_EDGE_LONG_SWIPE_ACTION;
+        }
+        return null;
+    }
+
+    private String getCustomAppSettingForPreference(Preference pref) {
+        if (pref == mBackLongPressAction || pref == mNavigationBackLongPressAction) {
+            return LineageSettings.System.KEY_BACK_LONG_PRESS_CUSTOM_APP;
+        } else if (pref == mHomeLongPressAction || pref == mNavigationHomeLongPressAction) {
+            return LineageSettings.System.KEY_HOME_LONG_PRESS_CUSTOM_APP;
+        } else if (pref == mHomeDoubleTapAction || pref == mNavigationHomeDoubleTapAction) {
+            return LineageSettings.System.KEY_HOME_DOUBLE_TAP_CUSTOM_APP;
+        } else if (pref == mMenuPressAction) {
+            return LineageSettings.System.KEY_MENU_CUSTOM_APP;
+        } else if (pref == mMenuLongPressAction) {
+            return LineageSettings.System.KEY_MENU_LONG_PRESS_CUSTOM_APP;
+        } else if (pref == mAssistPressAction) {
+            return LineageSettings.System.KEY_ASSIST_CUSTOM_APP;
+        } else if (pref == mAssistLongPressAction) {
+            return LineageSettings.System.KEY_ASSIST_LONG_PRESS_CUSTOM_APP;
+        } else if (pref == mAppSwitchPressAction) {
+            return LineageSettings.System.KEY_APP_SWITCH_CUSTOM_APP;
+        } else if (pref == mAppSwitchLongPressAction
+                || pref == mNavigationAppSwitchLongPressAction) {
+            return LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_CUSTOM_APP;
+        } else if (pref == mEdgeLongSwipeAction) {
+            return LineageSettings.System.KEY_EDGE_LONG_SWIPE_CUSTOM_APP;
+        }
+        return null;
+    }
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference == mBackLongPressAction ||
                 preference == mNavigationBackLongPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker((ListPreference) preference);
+                return false;
+            }
             handleListChange((ListPreference) preference, newValue,
                     LineageSettings.System.KEY_BACK_LONG_PRESS_ACTION);
             return true;
         } else if (preference == mHomeLongPressAction ||
                 preference == mNavigationHomeLongPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker((ListPreference) preference);
+                return false;
+            }
             handleListChange((ListPreference) preference, newValue,
                     LineageSettings.System.KEY_HOME_LONG_PRESS_ACTION);
             return true;
         } else if (preference == mHomeDoubleTapAction ||
                 preference == mNavigationHomeDoubleTapAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker((ListPreference) preference);
+                return false;
+            }
             handleListChange((ListPreference) preference, newValue,
                     LineageSettings.System.KEY_HOME_DOUBLE_TAP_ACTION);
             return true;
         } else if (preference == mMenuPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mMenuPressAction);
+                return false;
+            }
             handleListChange(mMenuPressAction, newValue,
                     LineageSettings.System.KEY_MENU_ACTION);
             return true;
         } else if (preference == mMenuLongPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mMenuLongPressAction);
+                return false;
+            }
             handleListChange(mMenuLongPressAction, newValue,
                     LineageSettings.System.KEY_MENU_LONG_PRESS_ACTION);
             return true;
         } else if (preference == mAssistPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mAssistPressAction);
+                return false;
+            }
             handleListChange(mAssistPressAction, newValue,
                     LineageSettings.System.KEY_ASSIST_ACTION);
             return true;
         } else if (preference == mAssistLongPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mAssistLongPressAction);
+                return false;
+            }
             handleListChange(mAssistLongPressAction, newValue,
                     LineageSettings.System.KEY_ASSIST_LONG_PRESS_ACTION);
             return true;
         } else if (preference == mAppSwitchPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mAppSwitchPressAction);
+                return false;
+            }
             handleListChange(mAppSwitchPressAction, newValue,
                     LineageSettings.System.KEY_APP_SWITCH_ACTION);
             return true;
         } else if (preference == mAppSwitchLongPressAction ||
                 preference == mNavigationAppSwitchLongPressAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker((ListPreference) preference);
+                return false;
+            }
             handleListChange((ListPreference) preference, newValue,
                     LineageSettings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION);
             return true;
@@ -647,6 +808,10 @@ public class ButtonSettings extends SettingsPreferenceFragment
                     LineageSettings.System.TORCH_LONG_PRESS_POWER_TIMEOUT);
             return true;
         } else if (preference == mEdgeLongSwipeAction) {
+            if (isLaunchActivityAction(newValue)) {
+                showActivityPicker(mEdgeLongSwipeAction);
+                return false;
+            }
             handleListChange(mEdgeLongSwipeAction, newValue,
                     LineageSettings.System.KEY_EDGE_LONG_SWIPE_ACTION);
             return true;

@@ -1100,7 +1100,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_HOME_LONG_PRESS_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the home key is double-tapped.
@@ -1111,7 +1111,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_HOME_DOUBLE_TAP_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the back key is long-pressed.
@@ -1122,7 +1122,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_BACK_LONG_PRESS_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Whether to wake the screen with the back key, the value is boolean.
@@ -1171,7 +1171,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_MENU_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the menu key is long-pressed.
@@ -1182,7 +1182,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_MENU_LONG_PRESS_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the assistant (search) key is pressed. (Default is 3)
@@ -1192,7 +1192,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_ASSIST_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the assistant (search) key is long-pressed. (Default is 4)
@@ -1202,7 +1202,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_ASSIST_LONG_PRESS_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the app switch key is pressed. (Default is 2)
@@ -1212,7 +1212,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_APP_SWITCH_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the app switch key is long-pressed. (Default is 0)
@@ -1222,7 +1222,7 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_APP_SWITCH_LONG_PRESS_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
 
         /**
          * Action to perform when the screen edge is long-swiped. (Default is 0)
@@ -1232,7 +1232,77 @@ public final class LineageSettings {
 
         /** @hide */
         public static final Validator KEY_EDGE_LONG_SWIPE_ACTION_VALIDATOR =
-                new InclusiveIntegerRangeValidator(0, 11);
+                new InclusiveIntegerRangeValidator(0, 12);
+
+        /**
+         * Custom app ComponentName for back long press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_BACK_LONG_PRESS_CUSTOM_APP =
+                "key_back_long_press_custom_app";
+
+        /**
+         * Custom app ComponentName for home long press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_HOME_LONG_PRESS_CUSTOM_APP =
+                "key_home_long_press_custom_app";
+
+        /**
+         * Custom app ComponentName for home double tap LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_HOME_DOUBLE_TAP_CUSTOM_APP =
+                "key_home_double_tap_custom_app";
+
+        /**
+         * Custom app ComponentName for menu press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_MENU_CUSTOM_APP =
+                "key_menu_custom_app";
+
+        /**
+         * Custom app ComponentName for menu long press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_MENU_LONG_PRESS_CUSTOM_APP =
+                "key_menu_long_press_custom_app";
+
+        /**
+         * Custom app ComponentName for assist press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_ASSIST_CUSTOM_APP =
+                "key_assist_custom_app";
+
+        /**
+         * Custom app ComponentName for assist long press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_ASSIST_LONG_PRESS_CUSTOM_APP =
+                "key_assist_long_press_custom_app";
+
+        /**
+         * Custom app ComponentName for app switch press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_APP_SWITCH_CUSTOM_APP =
+                "key_app_switch_custom_app";
+
+        /**
+         * Custom app ComponentName for app switch long press LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_APP_SWITCH_LONG_PRESS_CUSTOM_APP =
+                "key_app_switch_long_press_custom_app";
+
+        /**
+         * Custom app ComponentName for edge long swipe LAUNCH_ACTIVITY action.
+         * @hide
+         */
+        public static final String KEY_EDGE_LONG_SWIPE_CUSTOM_APP =
+                "key_edge_long_swipe_custom_app";
 
         /**
          * Whether to wake the screen with the home key, the value is boolean.
@@ -2143,6 +2213,16 @@ public final class LineageSettings {
             VALIDATORS.put(KEY_APP_SWITCH_LONG_PRESS_ACTION,
                     KEY_APP_SWITCH_LONG_PRESS_ACTION_VALIDATOR);
             VALIDATORS.put(KEY_EDGE_LONG_SWIPE_ACTION, KEY_EDGE_LONG_SWIPE_ACTION_VALIDATOR);
+            VALIDATORS.put(KEY_BACK_LONG_PRESS_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_HOME_LONG_PRESS_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_HOME_DOUBLE_TAP_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_MENU_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_MENU_LONG_PRESS_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_ASSIST_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_ASSIST_LONG_PRESS_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_APP_SWITCH_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_APP_SWITCH_LONG_PRESS_CUSTOM_APP, sAlwaysTrueValidator);
+            VALIDATORS.put(KEY_EDGE_LONG_SWIPE_CUSTOM_APP, sAlwaysTrueValidator);
             VALIDATORS.put(HOME_WAKE_SCREEN, HOME_WAKE_SCREEN_VALIDATOR);
             VALIDATORS.put(ASSIST_WAKE_SCREEN, ASSIST_WAKE_SCREEN_VALIDATOR);
             VALIDATORS.put(APP_SWITCH_WAKE_SCREEN, APP_SWITCH_WAKE_SCREEN_VALIDATOR);

@@ -37,7 +37,8 @@ public class DeviceKeysConstants {
         LAST_APP,
         SPLIT_SCREEN,
         KILL_APP,
-        GO_HOME;
+        GO_HOME,
+        LAUNCH_ACTIVITY;
 
         public static Action fromIntSafe(int id) {
             if (id < NOTHING.ordinal() || id > Action.values().length) {
