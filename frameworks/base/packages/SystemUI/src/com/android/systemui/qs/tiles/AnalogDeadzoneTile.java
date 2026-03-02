@@ -127,7 +127,7 @@ public class AnalogDeadzoneTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Analog Deadzone";
+        state.label = mContext.getString(R.string.quick_settings_analog_deadzone_label);
         state.icon = mIcon;
 
         String secondary;
@@ -136,7 +136,7 @@ public class AnalogDeadzoneTile extends QSTileImpl<BooleanState> {
             case 2: secondary = "10%"; break;
             case 3: secondary = "15%"; break;
             case 4: secondary = "20%"; break;
-            default: secondary = "Off"; break;
+            default: secondary = mContext.getString(R.string.quick_settings_tile_off); break;
         }
         state.secondaryLabel = secondary;
         state.state = (currentState == 0) ? Tile.STATE_INACTIVE : Tile.STATE_ACTIVE;
@@ -154,7 +154,7 @@ public class AnalogDeadzoneTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Analog Deadzone";
+        return mContext.getString(R.string.quick_settings_analog_deadzone_label);
     }
 
     @Override

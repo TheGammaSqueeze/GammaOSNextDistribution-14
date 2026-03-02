@@ -152,9 +152,9 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Analog Calibration";
+        state.label = mContext.getString(R.string.quick_settings_analog_calibration_label);
         state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (currentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
         state.state = (currentState == STATE_ENABLED)
                 ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
     }
@@ -171,7 +171,7 @@ public class AnalogCalibrationTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Analog Calibration";
+        return mContext.getString(R.string.quick_settings_analog_calibration_label);
     }
 
     @Override

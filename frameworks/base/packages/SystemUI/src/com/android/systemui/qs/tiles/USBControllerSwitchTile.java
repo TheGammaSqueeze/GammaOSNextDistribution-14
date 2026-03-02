@@ -131,11 +131,11 @@ public class USBControllerSwitchTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "USB Controller Enabled";
+            state.label = mContext.getString(R.string.quick_settings_usb_controller_on);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "USB Controller Disabled";
+            state.label = mContext.getString(R.string.quick_settings_usb_controller_off);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -153,7 +153,7 @@ public class USBControllerSwitchTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "USB Controller";
+        return mContext.getString(R.string.quick_settings_usb_controller_label);
     }
 
     @Override

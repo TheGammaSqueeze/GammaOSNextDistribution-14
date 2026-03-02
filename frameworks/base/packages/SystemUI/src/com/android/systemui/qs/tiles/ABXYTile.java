@@ -131,11 +131,11 @@ public class ABXYTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "ABXY Swap On";
+            state.label = mContext.getString(R.string.quick_settings_abxy_on);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "ABXY Swap Off";
+            state.label = mContext.getString(R.string.quick_settings_abxy_off);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -153,7 +153,7 @@ public class ABXYTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "ABXY Swap";
+        return mContext.getString(R.string.quick_settings_abxy_label);
     }
 
     @Override

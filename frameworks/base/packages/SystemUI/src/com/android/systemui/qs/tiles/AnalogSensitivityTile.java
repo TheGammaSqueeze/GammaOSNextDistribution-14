@@ -128,7 +128,7 @@ public class AnalogSensitivityTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         // Primary label
-        state.label = "Analog Sensitivity";
+        state.label = mContext.getString(R.string.quick_settings_analog_sensitivity_label);
         state.icon = mIcon;
 
         // Secondary label shows the current value
@@ -140,7 +140,7 @@ public class AnalogSensitivityTile extends QSTileImpl<BooleanState> {
             case  1: secondary = "+10%"; break;
             case  2: secondary = "+25%"; break;
             case  3: secondary = "+50%"; break;
-            default: secondary = "Off"; break;
+            default: secondary = mContext.getString(R.string.quick_settings_tile_off); break;
         }
         state.secondaryLabel = secondary;
 
@@ -161,7 +161,7 @@ public class AnalogSensitivityTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Analog Sensitivity";
+        return mContext.getString(R.string.quick_settings_analog_sensitivity_label);
     }
 
     @Override

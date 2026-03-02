@@ -146,7 +146,7 @@ public class SecondaryDisplayAppsTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Secondary display apps";
+        return mContext.getString(R.string.quick_settings_secondary_apps_label);
     }
 
     @Override
@@ -175,11 +175,11 @@ public class SecondaryDisplayAppsTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Secondary apps";
+        state.label = mContext.getString(R.string.quick_settings_secondary_apps_short);
         state.icon = (mCurrentState == STATE_ENABLED) ? mIconOn : mIconOff;
         state.state = (mCurrentState == STATE_ENABLED)
                 ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
-        state.secondaryLabel = (mCurrentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (mCurrentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
     }
 
     /** Receiver to re-sync on screen-off and boot. */

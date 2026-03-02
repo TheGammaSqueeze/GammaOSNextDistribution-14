@@ -133,23 +133,23 @@ public class FanTile extends QSTileImpl<BooleanState> {
     protected void handleUpdateState(BooleanState state, Object arg) {
         switch (currentState) {
             case STATE_AUTO:
-                state.label = "Fan Auto";
+                state.label = mContext.getString(R.string.quick_settings_fan_auto);
                 state.icon  = ResourceIcon.get(R.drawable.ic_device_fan_on);
                 state.state = Tile.STATE_ACTIVE;
                 break;
             case STATE_COOL:
-                state.label = "Fan Cool";
+                state.label = mContext.getString(R.string.quick_settings_fan_cool);
                 state.icon  = ResourceIcon.get(R.drawable.ic_device_fan_on);
                 state.state = Tile.STATE_ACTIVE;
                 break;
             case STATE_MAX:
-                state.label = "Fan Max";
+                state.label = mContext.getString(R.string.quick_settings_fan_max);
                 state.icon  = ResourceIcon.get(R.drawable.ic_device_fan_on);
                 state.state = Tile.STATE_ACTIVE;
                 break;
             case STATE_OFF:
             default:
-                state.label = "Fan Off";
+                state.label = mContext.getString(R.string.quick_settings_fan_off);
                 state.icon  = ResourceIcon.get(R.drawable.ic_device_fan_off);
                 state.state = Tile.STATE_INACTIVE;
                 break;
@@ -168,7 +168,7 @@ public class FanTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Fan Speed";
+        return mContext.getString(R.string.quick_settings_fan_label);
     }
 
     @Override

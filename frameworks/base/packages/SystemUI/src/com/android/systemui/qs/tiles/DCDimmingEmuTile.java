@@ -122,11 +122,11 @@ public class DCDimmingEmuTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         // Primary label
-        state.label = "DC Dimming Emulation";
+        state.label = mContext.getString(R.string.quick_settings_dc_dimming_label);
         // Icon based on state
         state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
         // Secondary label shows On/Off
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (currentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
         // Active if enabled
         state.state = (currentState == STATE_ENABLED)
                 ? Tile.STATE_ACTIVE
@@ -145,7 +145,7 @@ public class DCDimmingEmuTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "DC Dimming Emulation";
+        return mContext.getString(R.string.quick_settings_dc_dimming_label);
     }
 
     @Override

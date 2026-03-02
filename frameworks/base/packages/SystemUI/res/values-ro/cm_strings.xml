@@ -83,4 +83,29 @@
     <string name="screenrecord_hevc_switch_label">Codare HEVC</string>
     <string name="screenrecord_hevc_switch_summary">Utilizați codificatorul HEVC mai eficient</string>
     <string name="battery_notification_channel_tv">Avertizare baterie</string>
+
+    <!-- GammaOS QS tiles -->
+    <string name="quick_settings_tile_on">Activat</string>
+    <string name="quick_settings_tile_off">Dezactivat</string>
+    <string name="quick_settings_tile_unavailable">Indisponibil</string>
+    <string name="quick_settings_performance_label">Mod performanță</string>
+    <string name="quick_settings_performance_balanced">Mod performanță echilibrată</string>
+    <string name="quick_settings_performance_powersave">Mod economisire energie</string>
+    <string name="quick_settings_performance_max">Mod performanță maximă</string>
+    <string name="quick_settings_fan_label">Viteză ventilator</string>
+    <string name="quick_settings_fan_auto">Ventilator auto</string>
+    <string name="quick_settings_fan_cool">Ventilator răcire</string>
+    <string name="quick_settings_fan_max">Ventilator max</string>
+    <string name="quick_settings_fan_off">Ventilator oprit</string>
+    <string name="quick_settings_dc_dimming_label">Emulare DC Dimming</string>
+    <string name="quick_settings_deep_sleep_label">Mod somn profund</string>
+    <string name="quick_settings_mapping_editor_label">Editare mapări butoane</string>
+    <string name="quick_settings_mapping_editor_short">Editare mapări</string>
+    <string name="quick_settings_usb_controller_label">Controller USB</string>
+    <string name="quick_settings_usb_controller_on">Controller USB activat</string>
+    <string name="quick_settings_usb_controller_off">Controller USB dezactivat</string>
+    <string name="quick_settings_immersive_label">Forțare mod imersiv</string>
+    <string name="quick_settings_immersive_mode">Mod imersiv</string>
+    <string name="quick_settings_secondary_display_label">Ecran secundar</string>
+    <string name="quick_settings_refresh_rate_label">Rată de reîmprospătare</string>
 </resources>

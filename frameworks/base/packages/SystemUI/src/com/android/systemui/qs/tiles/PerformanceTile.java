@@ -131,18 +131,18 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
     protected void handleUpdateState(BooleanState state, Object arg) {
         switch (currentState) {
             case STATE_STOCK:
-                state.label = "Balanced Performance Mode";
+                state.label = mContext.getString(R.string.quick_settings_performance_balanced);
                 state.icon  = ResourceIcon.get(R.drawable.ic_qs_minus);
                 state.state = Tile.STATE_ACTIVE;
                 break;
             case STATE_POWERSAVE:
-                state.label = "Power Saving Mode";
+                state.label = mContext.getString(R.string.quick_settings_performance_powersave);
                 state.icon  = ResourceIcon.get(R.drawable.ic_power_low);
                 state.state = Tile.STATE_ACTIVE;
                 break;
             case STATE_MAX:
             default:
-                state.label = "Max Performance Mode";
+                state.label = mContext.getString(R.string.quick_settings_performance_max);
                 state.icon  = ResourceIcon.get(R.drawable.ic_device_thermostat_on);
                 state.state = Tile.STATE_ACTIVE;
                 break;
@@ -161,7 +161,7 @@ public class PerformanceTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Performance Mode";
+        return mContext.getString(R.string.quick_settings_performance_label);
     }
 
     @Override

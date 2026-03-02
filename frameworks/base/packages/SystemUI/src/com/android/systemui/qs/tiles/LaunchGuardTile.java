@@ -146,7 +146,7 @@ public class LaunchGuardTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Launch Guard";
+        return mContext.getString(R.string.quick_settings_launch_guard_label);
     }
 
     @Override
@@ -175,11 +175,11 @@ public class LaunchGuardTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Launch Guard";
+        state.label = mContext.getString(R.string.quick_settings_launch_guard_label);
         state.icon = (mCurrentState == STATE_ENABLED) ? mIconOn : mIconOff;
         state.state = (mCurrentState == STATE_ENABLED)
                 ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
-        state.secondaryLabel = (mCurrentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (mCurrentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
     }
 
     /** Receiver to re-sync on screen-off and boot. */

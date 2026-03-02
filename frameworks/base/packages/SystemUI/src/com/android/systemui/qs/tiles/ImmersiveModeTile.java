@@ -131,11 +131,11 @@ public class ImmersiveModeTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "Immersive Mode";
+            state.label = mContext.getString(R.string.quick_settings_immersive_mode);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "Immersive Mode";
+            state.label = mContext.getString(R.string.quick_settings_immersive_mode);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -153,7 +153,7 @@ public class ImmersiveModeTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Force Immersive Mode";
+        return mContext.getString(R.string.quick_settings_immersive_label);
     }
 
     @Override

@@ -98,7 +98,7 @@ public class MappingEditorTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Edit Mappings";
+        state.label = mContext.getString(R.string.quick_settings_mapping_editor_short);
         state.icon  = mIcon;
         state.state = Tile.STATE_INACTIVE;
     }
@@ -112,7 +112,7 @@ public class MappingEditorTile extends QSTileImpl<BooleanState> {
         mActivityStarter.postStartActivityDismissingKeyguard(intent, 0);
     }
 
-    @Override public CharSequence getTileLabel() { return "Edit Button Mappings"; }
+    @Override public CharSequence getTileLabel() { return mContext.getString(R.string.quick_settings_mapping_editor_label); }
     @Override public int getMetricsCategory() { return VIEW_UNKNOWN; }
 
     /**

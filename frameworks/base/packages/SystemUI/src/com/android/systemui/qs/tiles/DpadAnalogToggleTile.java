@@ -129,11 +129,11 @@ public class DpadAnalogToggleTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "DPAD/Analog Swap On";
+            state.label = mContext.getString(R.string.quick_settings_dpad_analog_on);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "DPAD/Analog Swap Off";
+            state.label = mContext.getString(R.string.quick_settings_dpad_analog_off);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -151,7 +151,7 @@ public class DpadAnalogToggleTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "DPAD/Analog Swap";
+        return mContext.getString(R.string.quick_settings_dpad_analog_label);
     }
 
     @Override

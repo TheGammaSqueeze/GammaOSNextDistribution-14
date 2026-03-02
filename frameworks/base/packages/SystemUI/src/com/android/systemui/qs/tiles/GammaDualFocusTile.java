@@ -121,9 +121,9 @@ public class GammaDualFocusTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Dual Focus Mode";
+        state.label = mContext.getString(R.string.quick_settings_dual_focus_label);
         state.icon = (currentState == STATE_ENABLED) ? mIconOn : mIconOff;
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (currentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
         state.state = (currentState == STATE_ENABLED)
                 ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
     }
@@ -140,7 +140,7 @@ public class GammaDualFocusTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Dual Focus Mode";
+        return mContext.getString(R.string.quick_settings_dual_focus_label);
     }
 
     @Override

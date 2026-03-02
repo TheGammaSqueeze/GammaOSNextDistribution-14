@@ -129,11 +129,11 @@ public class RightAnalogAxisTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "Right Stick Invert On";
+            state.label = mContext.getString(R.string.quick_settings_right_stick_on);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "Right Stick Invert Off";
+            state.label = mContext.getString(R.string.quick_settings_right_stick_off);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
@@ -151,7 +151,7 @@ public class RightAnalogAxisTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Invert Right Analog";
+        return mContext.getString(R.string.quick_settings_right_stick_label);
     }
 
     @Override

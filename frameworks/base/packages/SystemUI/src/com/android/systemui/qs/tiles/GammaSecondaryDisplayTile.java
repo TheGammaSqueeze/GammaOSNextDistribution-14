@@ -147,17 +147,17 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        state.label = "Secondary display";
+        state.label = mContext.getString(R.string.quick_settings_secondary_display_label);
 
         if (!isSecondaryDisplayPresent()) {
             state.icon = mIconOff;
-            state.secondaryLabel = "Unavailable";
+            state.secondaryLabel = mContext.getString(R.string.quick_settings_tile_unavailable);
             state.state = Tile.STATE_UNAVAILABLE;
             return;
         }
 
         state.icon = mEnabled ? mIconOn : mIconOff;
-        state.secondaryLabel = mEnabled ? "On" : "Off";
+        state.secondaryLabel = mEnabled ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
         state.state = mEnabled ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
     }
 
@@ -173,7 +173,7 @@ public class GammaSecondaryDisplayTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Secondary display";
+        return mContext.getString(R.string.quick_settings_secondary_display_label);
     }
 
     @Override

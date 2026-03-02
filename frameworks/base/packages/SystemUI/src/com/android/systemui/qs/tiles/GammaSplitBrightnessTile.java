@@ -134,6 +134,6 @@ public class GammaSplitBrightnessTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Split Brightness";
+        return mContext.getString(R.string.quick_settings_split_brightness_label);
     }
 }

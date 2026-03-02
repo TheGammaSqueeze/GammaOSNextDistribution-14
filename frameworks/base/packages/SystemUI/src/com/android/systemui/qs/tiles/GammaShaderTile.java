@@ -158,7 +158,7 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "GammaShader";
+        return mContext.getString(R.string.quick_settings_gamma_shader_label);
     }
 
     @Override
@@ -199,16 +199,16 @@ public class GammaShaderTile extends QSTileImpl<BooleanState> {
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
         if (currentState == STATE_ENABLED) {
-            state.label = "GammaShader";
+            state.label = mContext.getString(R.string.quick_settings_gamma_shader_label);
             state.icon  = mIconOn;
             state.state = Tile.STATE_ACTIVE;
         } else {
-            state.label = "GammaShader";
+            state.label = mContext.getString(R.string.quick_settings_gamma_shader_label);
             state.icon  = mIconOff;
             state.state = Tile.STATE_INACTIVE;
         }
         // Provide a secondary line only; no dual-target chevron behavior.
-        state.secondaryLabel = (currentState == STATE_ENABLED) ? "On" : "Off";
+        state.secondaryLabel = (currentState == STATE_ENABLED) ? mContext.getString(R.string.quick_settings_tile_on) : mContext.getString(R.string.quick_settings_tile_off);
     }
 
     /** Receiver to re-sync on screen-off and boot. */

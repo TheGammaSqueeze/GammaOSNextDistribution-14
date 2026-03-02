@@ -140,4 +140,115 @@
 
     <!-- Channel name for Battery notifications -->
     <string name="battery_notification_channel_tv">Battery warning</string>
+
+    <!-- GammaOS QS tile common strings -->
+    <string name="quick_settings_tile_on">On</string>
+    <string name="quick_settings_tile_off">Off</string>
+    <string name="quick_settings_tile_unavailable">Unavailable</string>
+
+    <!-- Performance mode tile -->
+    <string name="quick_settings_performance_label">Performance Mode</string>
+    <string name="quick_settings_performance_balanced">Balanced Performance Mode</string>
+    <string name="quick_settings_performance_powersave">Power Saving Mode</string>
+    <string name="quick_settings_performance_max">Max Performance Mode</string>
+
+    <!-- Fan tile -->
+    <string name="quick_settings_fan_label">Fan Speed</string>
+    <string name="quick_settings_fan_auto">Fan Auto</string>
+    <string name="quick_settings_fan_cool">Fan Cool</string>
+    <string name="quick_settings_fan_max">Fan Max</string>
+    <string name="quick_settings_fan_off">Fan Off</string>
+
+    <!-- ABXY swap tile -->
+    <string name="quick_settings_abxy_label">ABXY Swap</string>
+    <string name="quick_settings_abxy_on">ABXY Swap On</string>
+    <string name="quick_settings_abxy_off">ABXY Swap Off</string>
+
+    <!-- Left stick invert tile -->
+    <string name="quick_settings_left_stick_label">Left Stick Invert</string>
+    <string name="quick_settings_left_stick_on">Left Stick Invert On</string>
+    <string name="quick_settings_left_stick_off">Left Stick Invert Off</string>
+
+    <!-- Analog sensitivity tile -->
+    <string name="quick_settings_analog_sensitivity_label">Analog Sensitivity</string>
+
+    <!-- Right stick invert tile -->
+    <string name="quick_settings_right_stick_label">Invert Right Analog</string>
+    <string name="quick_settings_right_stick_on">Right Stick Invert On</string>
+    <string name="quick_settings_right_stick_off">Right Stick Invert Off</string>
+
+    <!-- DPAD/Analog swap tile -->
+    <string name="quick_settings_dpad_analog_label">DPAD/Analog Swap</string>
+    <string name="quick_settings_dpad_analog_on">DPAD/Analog Swap On</string>
+    <string name="quick_settings_dpad_analog_off">DPAD/Analog Swap Off</string>
+
+    <!-- GammaRGB tile -->
+    <string name="quick_settings_gamma_rgb_label">GammaRGB</string>
+
+    <!-- DC Dimming tile -->
+    <string name="quick_settings_dc_dimming_label">DC Dimming Emulation</string>
+
+    <!-- Analog deadzone tile -->
+    <string name="quick_settings_analog_deadzone_label">Analog Deadzone</string>
+
+    <!-- Analog calibration tile -->
+    <string name="quick_settings_analog_calibration_label">Analog Calibration</string>
+
+    <!-- Deep sleep tile -->
+    <string name="quick_settings_deep_sleep_label">Deep Sleep Mode</string>
+
+    <!-- Mapping editor tile -->
+    <string name="quick_settings_mapping_editor_label">Edit Button Mappings</string>
+    <string name="quick_settings_mapping_editor_short">Edit Mappings</string>
+
+    <!-- RetroArch menu button override tile -->
+    <string name="quick_settings_retroarch_override_label">RetroArch Menu Button Override</string>
+
+    <!-- USB controller tile -->
+    <string name="quick_settings_usb_controller_label">USB Controller</string>
+    <string name="quick_settings_usb_controller_on">USB Controller Enabled</string>
+    <string name="quick_settings_usb_controller_off">USB Controller Disabled</string>
+
+    <!-- Immersive mode tile -->
+    <string name="quick_settings_immersive_label">Force Immersive Mode</string>
+    <string name="quick_settings_immersive_mode">Immersive Mode</string>
+
+    <!-- GammaShader tile -->
+    <string name="quick_settings_gamma_shader_label">GammaShader</string>
+
+    <!-- DualStack tile -->
+    <string name="quick_settings_dualstack_label">DualStack</string>
+
+    <!-- Launch Guard tile -->
+    <string name="quick_settings_launch_guard_label">Launch Guard</string>
+
+    <!-- Secondary display apps tile -->
+    <string name="quick_settings_secondary_apps_label">Secondary display apps</string>
+    <string name="quick_settings_secondary_apps_short">Secondary apps</string>
+
+    <!-- Dual focus tile -->
+    <string name="quick_settings_dual_focus_label">Dual Focus Mode</string>
+
+    <!-- Secondary display tile -->
+    <string name="quick_settings_secondary_display_label">Secondary display</string>
+
+    <!-- Split brightness tile -->
+    <string name="quick_settings_split_brightness_label">Split Brightness</string>
+
+    <!-- Global BFI tile -->
+    <string name="quick_settings_global_bfi_label">Global BFI</string>
+
+    <!-- Start/Select LED tile -->
+    <string name="quick_settings_start_select_led_label">Start/Select LED</string>
+
+    <!-- GammaEQ tile -->
+    <string name="quick_settings_gamma_eq_label">GammaEQ</string>
+
+    <!-- Refresh rate tile -->
+    <string name="quick_settings_refresh_rate_label">Refresh Rate</string>
+
+    <!-- HDMI tiles -->
+    <string name="quick_settings_hdmi_resize_label">[HDMI] Resize to external display</string>
+    <string name="quick_settings_hdmi_internal_off_label">[HDMI] Internal Display Off</string>
+    <string name="quick_settings_hdmi_mirror_label">[HDMI] Mirror internal screen</string>
 </resources>

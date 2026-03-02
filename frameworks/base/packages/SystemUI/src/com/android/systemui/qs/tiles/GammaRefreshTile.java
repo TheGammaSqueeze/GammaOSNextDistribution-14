@@ -114,7 +114,7 @@ public class GammaRefreshTile extends QSTileImpl<BooleanState> {
     protected void handleUpdateState(BooleanState state, Object arg) {
         final boolean is120 = (mCurrentHz == REFRESH_120);
 
-        state.label = "Refresh Rate";
+        state.label = mContext.getString(R.string.quick_settings_refresh_rate_label);
         state.secondaryLabel = is120 ? "120 Hz" : "60 Hz";
         state.icon = is120 ? mIconOn : mIconOff;
 
@@ -138,7 +138,7 @@ public class GammaRefreshTile extends QSTileImpl<BooleanState> {
 
     @Override
     public CharSequence getTileLabel() {
-        return "Refresh Rate";
+        return mContext.getString(R.string.quick_settings_refresh_rate_label);
     }
 
     @Override
